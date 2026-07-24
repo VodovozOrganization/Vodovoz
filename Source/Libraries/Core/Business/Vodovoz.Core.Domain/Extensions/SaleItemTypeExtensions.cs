@@ -1,7 +1,6 @@
-﻿using CustomerAppsApi.Library.V2.Dto.Goods;
-using Vodovoz.Core.Domain.Goods;
+﻿using Vodovoz.Core.Domain.Goods;
 
-namespace CustomerAppsApi.Library.V2.Extensions
+namespace Vodovoz.Core.Domain.Extensions
 {
 	public static class SaleItemTypeExtensions
 	{

@@ -6,6 +6,7 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Employees;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -133,7 +134,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(onlineOrderId.HasValue)
 			{
-				orderRating.OnlineOrder = new OnlineOrder
+				orderRating.OnlineOrder = new OnlineOrderV2
 				{
 					Id = onlineOrderId.Value
 				};

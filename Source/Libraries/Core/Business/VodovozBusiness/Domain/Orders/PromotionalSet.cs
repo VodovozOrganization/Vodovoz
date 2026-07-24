@@ -206,5 +206,21 @@ namespace Vodovoz.Domain.Orders
 		{
 			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order, nomenclatureSettings));
 		}
+		
+		/// <summary>
+		/// Общая стоимость промонабора без учета скидок
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns></returns>
+		public virtual decimal SumWithoutDiscount(bool useAlternativePrice = false) =>
+			PromotionalSetItems.Sum(x => x.SumWithoutDiscount(useAlternativePrice));
+
+		/// <summary>
+		/// Общая стоимость промонабора
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns></returns>
+		public virtual decimal Sum(bool useAlternativePrice = false) =>
+			PromotionalSetItems.Sum(x => x.Sum(useAlternativePrice));
 	}
 }

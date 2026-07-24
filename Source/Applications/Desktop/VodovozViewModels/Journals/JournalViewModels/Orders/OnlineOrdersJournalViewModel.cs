@@ -18,6 +18,8 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Services.FileDialog;
 using QS.Services;
+using Vodovoz.Core.Domain.Interfaces;
+using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -29,8 +31,10 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
+using Vodovoz.ViewModels.ViewModels.Common;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports.Orders;
+using VodovozBusiness.Domain.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
@@ -155,6 +159,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					},
 					Projections.Constant(int.MaxValue)
 				);
+
+			var onlineOrderTypeProjection = Projections.Conditional(
+				new[]
+				{
+					new ConditionalProjectionCase(
+						Restrictions.Where(() => onlineOrderAlias.OrderVersion == OnlineOrderVersion.V2),
+						Projections.Select(() => typeof(OnlineOrderV2)))
+				},
+				Projections.Select(() => typeof(OnlineOrderV1)));
 
 			#region Фильтрация
 
@@ -342,7 +355,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			
 			query.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => typeof(OnlineOrder)).WithAlias(() => resultAlias.EntityType)
+					.Select(onlineOrderTypeProjection).WithAlias(() => resultAlias.EntityType)
 					.Select(() => OnlineOrder.OnlineOrderName).WithAlias(() => resultAlias.EntityTypeString)
 					.Select(orderByStatusProjection).WithAlias(() => resultAlias.OrderByStatusValue)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
@@ -650,10 +663,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 					var selectedNode = selectedNodes.First();
 
-					if(selectedNode.EntityType == typeof(OnlineOrder))
+					if(selectedNode.EntityType == typeof(OnlineOrderV2))
 					{
-						NavigationManager.OpenViewModel<OnlineOrderViewModel, IEntityUoWBuilder>(
-							this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+						NavigationManager.OpenViewModel<OnlineOrderV2ViewModel, IEntityViewModelContext>(
+							this, EntityViewModelContext.Create(selectedNode.EntityType, selectedNode.Id, UnitOfWorkFactory));
+					}
+					else if(selectedNode.EntityType == typeof(OnlineOrderV1))
+					{
+						NavigationManager.OpenViewModel<OnlineOrderV1ViewModel, IEntityViewModelContext>(
+							this, EntityViewModelContext.Create(selectedNode.EntityType, selectedNode.Id, UnitOfWorkFactory));
 					}
 					else if(selectedNode.EntityType == typeof(RequestForCall))
 					{

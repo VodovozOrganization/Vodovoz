@@ -34,7 +34,7 @@ namespace Vodovoz.Domain.Orders
 		private decimal _discountMoneyFromDiscountReasons;
 		private bool _isDiscountInMoneyFromDiscountReasons;
 
-		protected OnlineOrderItem() { } 
+		protected OnlineOrderItem() { }
 
 		public virtual int Id { get; set; }
 		
@@ -258,6 +258,58 @@ namespace Vodovoz.Domain.Orders
 			onlineOrderItem.CalculateDiscount(discount);
 
 			return onlineOrderItem;
+		}
+
+		public static OnlineOrderItem Create(
+			int? nomenclatureId,
+			decimal count,
+			bool isFixedPrice,
+			decimal price,
+			decimal currentSum,
+			IEnumerable<DiscountReason> discountReasons,
+			Nomenclature nomenclature,
+			OnlineOrder onlineOrder
+		)
+		{
+			var onlineOrderItem = new OnlineOrderItem
+			{
+				NomenclatureId = nomenclatureId,
+				Count = count,
+				IsFixedPrice = isFixedPrice,
+				Price = price,
+				Nomenclature = nomenclature,
+				OnlineOrder = onlineOrder,
+			};
+			
+			if(discountReasons != null)
+			{
+				foreach(var reason in discountReasons)
+				{
+					if(reason != null)
+					{
+						onlineOrderItem.DiscountReasons.Add(reason);
+					}
+				}
+			}
+
+			onlineOrderItem.IsDiscountInMoney = onlineOrderItem.DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
+			var discount = onlineOrderItem.CurrentRawPrice - currentSum;
+
+			onlineOrderItem.CalculateDiscount(isFixedPrice, discount);
+
+			return onlineOrderItem;
+		}
+
+		private void CalculateDiscount(bool isFixedPrice, decimal discount)
+		{
+			if(isFixedPrice || discount == 0m)
+			{
+				CalculateDiscount(0m);
+			}
+			else
+			{
+				CalculateDiscount(discount);
+			}
 		}
 
 		private void CalculateDiscount(decimal discount)

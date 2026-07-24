@@ -27,11 +27,11 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Handlers;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Services.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Employees;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Clients;
@@ -101,7 +101,9 @@ namespace Vodovoz.Core.Application
 		private static IServiceCollection AddCoreOrderServicesDependencies(this IServiceCollection services) => services
 			.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
 			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
-			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
+			.AddScoped<IOnlineOrderValidatorCreator, OnlineOrderValidatorCreator>()
+			.AddScoped<NewOnlineOrderValidator>()
+			.AddScoped<OldOnlineOrderValidator>()
 			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()

@@ -32,7 +32,6 @@ using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
-using CustomerNotifications.Application;
 
 namespace CustomerOnlineOrdersRegistrar
 {
@@ -74,6 +73,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddVersion4()
 						.AddVersion5()
 						.AddVersion6()
+						.AddVersion7()
 						.AddCoreApplicationOrderServices()
 						.AddOsrm()
 
@@ -83,6 +83,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddScoped<IOnlineOrderFactoryV4, OnlineOrderFactoryV4>()
 						.AddScoped<IOnlineOrderFactoryV5, OnlineOrderFactoryV5>()
 						.AddScoped<IOnlineOrderFactoryV6, OnlineOrderFactoryV6>()
+						.AddScoped<V7.Factories.IOnlineOrderFactory, V7.Factories.OnlineOrderFactory>()
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
@@ -92,6 +93,7 @@ namespace CustomerOnlineOrdersRegistrar
 							busConf.AddConsumer<V4.Consumers.CreatingOnlineOrderConsumer, V4.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.AddConsumer<V5.Consumers.CreatingOnlineOrderConsumer, V5.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.AddConsumer<V6.Consumers.CreatingOnlineOrderConsumer, V6.Consumers.CreatingOnlineOrderConsumerDefinition>();
+							busConf.AddConsumer<V7.Consumers.CreatingOnlineOrderConsumer, V7.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.ConfigureRabbitMq();
 						})
 

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders
 {
@@ -62,15 +64,15 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		public string DriversMangoNumber { get; set; }
 
 		/// <summary>
-		/// Товары без промонаборов
+		/// Товары/услуги заказа
 		/// </summary>
-		public IEnumerable<OrderItemDto> OrderItems { get; private set; }
-		
-		/// <summary>
-		/// Промонаборы
-		/// </summary>
-		public IEnumerable<PromoSetDto> PromoSets { get; private set; }
+		public IList<OnlineOrderItemDto> OrderItems { get; private set; }
 
+		/// <summary>
+		/// Обновление данных об оценке заказа
+		/// </summary>
+		/// <param name="orderRating">Оценка</param>
+		/// <param name="ratingAvailableFrom">Дата с которой можно оценивать заказ</param>
 		public void UpdateOrderRating(OrderRating orderRating, DateTime ratingAvailableFrom)
 		{
 			if(orderRating is null)
@@ -90,57 +92,82 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 			IsRatingAvailable = false;
 		}
 		
-		public void UpdateOrderItems(IEnumerable<IProduct> orderItems)
+		/// <summary>
+		/// Добавление товаров/услуг
+		/// </summary>
+		/// <param name="order">Заказ, из которого добавляется информация</param>
+		public void UpdateOrderItems(Order order)
 		{
-			OrderItems = orderItems
-				.Where(x => x.PromoSet == null)
-				.Select(orderItem =>
-					OrderItemDto.Create(
-						orderItem.Nomenclature.Id,
-						orderItem.CurrentCount,
-						orderItem.Price,
-						orderItem.IsDiscountInMoney,
-						orderItem.GetDiscount))
+			OrderItems = order.OrderItems
+				.Where(x => x.PromoSet is null)
+				.Select(OnlineOrderItemDto.Create)
 				.ToList();
 
-			UpdatePromoSets(orderItems);
+			AddPromoSets(order.PromotionalSets);
 		}
 
-		private void UpdatePromoSets(IEnumerable<IProduct> orderItems)
+		/// <summary>
+		/// Добавление товаров/услуг
+		/// </summary>
+		/// <param name="onlineOrder">Онлайн заказ, из которого добавляется информация</param>
+		public void UpdateOrderItems(OnlineOrder onlineOrder)
+		{
+			OrderItems = onlineOrder.OnlineOrderItems
+				.Where(x => x.PromoSet is null)
+				.Select(OnlineOrderItemDto.Create)
+				.ToList();
+
+			if(onlineOrder is OnlineOrderV2 onlineOrderV2)
+			{
+				AddPromoSets(onlineOrderV2.PromoSets);
+			}
+			else
+			{
+				AddPromoSets(onlineOrder.OnlineOrderItems);
+			}
+
+			AddRentPackages(onlineOrder.OnlineRentPackages);
+		}
+
+		private void AddPromoSets(IEnumerable<PromotionalSet> promoSets)
+		{
+			var onlineOrderItemPromoSets = OnlineOrderItemDto.Create(promoSets);
+			
+			foreach(var promoSet in onlineOrderItemPromoSets)
+			{
+				OrderItems.Add(promoSet);
+			}
+		}
+		
+		private void AddPromoSets(IEnumerable<IProduct> orderItems)
 		{
 			var promoSetsGroup = orderItems
 				.Where(x => x.PromoSet != null)
 				.ToLookup(x => x.PromoSet.Id);
 			
-			var promoSets = new List<PromoSetDto>();
-
 			foreach(var orderItemGroup in promoSetsGroup)
 			{
 				var promo = orderItemGroup.First().PromoSet;
 				var promoItemsCount = promo.PromotionalSetItems.Count;
-				decimal promoPrice = 0m;
-				var i = 0;
-
-				foreach(var product in orderItemGroup)
-				{
-					i++;
-					promoPrice += product.ActualSum;
-
-					if(i >= promoItemsCount)
-					{
-						break;
-					}
-				}
 					
-				promoSets.Add(
-					PromoSetDto.Create(
-						orderItemGroup.Key,
-						orderItemGroup.Count() / promoItemsCount,
-						promoPrice
-					));
+				OrderItems.Add(OnlineOrderItemDto.Create(promo, orderItemGroup.Count() / promoItemsCount));
 			}
-
-			PromoSets = promoSets;
+		}
+		
+		private void AddPromoSets(IEnumerable<OnlineOrderPromoSet> onlineOrderPromoSets)
+		{
+			foreach(var onlineOrderPromoSet in onlineOrderPromoSets)
+			{
+				OrderItems.Add(OnlineOrderItemDto.Create(onlineOrderPromoSet.PromoSet, onlineOrderPromoSet.Count));
+			}
+		}
+		
+		private void AddRentPackages(IEnumerable<OnlineFreeRentPackage> freeRentPackages)
+		{
+			foreach(var freeRentPackage in freeRentPackages)
+			{
+				OrderItems.Add(OnlineOrderItemDto.Create(freeRentPackage));
+			}
 		}
 	}
 }

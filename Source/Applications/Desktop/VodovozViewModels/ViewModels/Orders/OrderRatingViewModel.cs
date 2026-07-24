@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -9,6 +10,7 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Complaints;
@@ -16,6 +18,8 @@ using Vodovoz.Factories;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.ViewModels.Common;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -150,9 +154,25 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		
 		private void CreateOpenOnlineOrderCommand()
 		{
-			OpenOnlineOrderCommand = new DelegateCommand(
-				() => NavigationManager.OpenViewModel<OnlineOrderViewModel, IEntityUoWBuilder>(
-					this, EntityUoWBuilder.ForOpen(Entity.OnlineOrder.Id)));
+			Action openOnlineOrderAction = null;
+
+			switch(Entity.OnlineOrder)
+			{
+				case OnlineOrderV2 _:
+					openOnlineOrderAction = () => NavigationManager.OpenViewModel<OnlineOrderV2ViewModel, IEntityViewModelContext>(
+						this, EntityViewModelContext.Create(typeof(OnlineOrderV2), Entity.OnlineOrder.Id, UnitOfWorkFactory));
+					break;
+				case OnlineOrderV1 _:
+					openOnlineOrderAction = () => NavigationManager.OpenViewModel<OnlineOrderV1ViewModel, IEntityViewModelContext>(
+						this, EntityViewModelContext.Create(typeof(OnlineOrderV1), Entity.OnlineOrder.Id, UnitOfWorkFactory));
+					break;
+				default:
+					openOnlineOrderAction = () => _commonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Info, "У оценки нет онлайн заказа, нечего открывать");
+					break;
+			}
+
+			OpenOnlineOrderCommand = new DelegateCommand(openOnlineOrderAction);
 			OpenOnlineOrderCommand.CanExecuteChangedWith(this, x => x.OnlineOrderIsNotNull);
 		}
 		

@@ -67,7 +67,7 @@ namespace CustomerOrdersApi.Library.V7.Factories
 		{
 			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrder?.Id);
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
-			orderInfo.UpdateOrderItems(order.OrderItems);
+			orderInfo.UpdateOrderItems(order);
 			orderInfo.UpdateTrackingAvailability(establishedRoute, driversCoordinatesLastUpdateTime, _courierCoordinatesOptions.CurrentValue.TrackingLostTimeout);
 			orderInfo.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
 
@@ -95,7 +95,7 @@ namespace CustomerOrdersApi.Library.V7.Factories
 		{
 			var orderInfo = CreateOrderInfoDto(onlineOrder, timers, orderId);
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
-			orderInfo.UpdateOrderItems(onlineOrder.OnlineOrderItems);
+			orderInfo.UpdateOrderItems(onlineOrder);
 
 			var activeOrder = GetActiveOrder(onlineOrder);
 			await UpdateAvailableOperations(uow, orderInfo, activeOrder, onlineOrder, cancellationToken);

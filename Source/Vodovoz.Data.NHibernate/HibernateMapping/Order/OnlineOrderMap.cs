@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
@@ -10,6 +9,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		{
 			Table("online_orders");
 			OptimisticLock.Version();
+			DiscriminateSubClassesOnColumn(OnlineOrder.OrderVersionColumn);
 			Version(x => x.Version).Column("version");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
@@ -40,7 +40,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.DontArriveBeforeInterval).Column("dont_arrive_before_interval");
 			Map(x => x.NextCallDate).Column("next_call_date").Nullable();
 			Map(x => x.NextCallDateChanged).Column("next_call_date_changed").Nullable();
-			
+			Map(x => x.OrderVersion)
+				.Column(OnlineOrder.OrderVersionColumn)
+				.Not.Update()
+				.Not.Insert()
+				.Access.ReadOnly();
 			
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
 using Vodovoz.Core.Domain.Clients;
@@ -35,6 +36,11 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		/// Промокод
 		/// </summary>
 		public string PromoCode { get; set; }
+		/// <summary>
+		/// Сумма заказа
+		/// </summary>
+		[JsonIgnore]
+		public decimal OrderSum => OnlineOrderItems.Sum(x => x.CurrentSum);
 		/// <summary>
 		/// Список товаров
 		/// </summary>

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CustomerOrdersApi.Controllers.V7
 {
-	[ApiVersion("6.0")]
+	[ApiVersion("7.0")]
 	public class RequestForCallController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;

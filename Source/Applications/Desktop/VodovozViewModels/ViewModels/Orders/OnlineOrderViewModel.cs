@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Bindings;
 using System.Linq;
 using System.Text;
 using Autofac;
-using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -13,6 +13,7 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -21,8 +22,8 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
-using Vodovoz.Services.Orders;
 using Vodovoz.TempAdapters;
+using Vodovoz.Validation;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
@@ -30,33 +31,35 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Factories;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
-	public class OnlineOrderViewModel : EntityTabViewModelBase<OnlineOrder>
+	public abstract class OnlineOrderViewModel : DialogTabViewModelBase
 	{
-		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
+		private readonly IOnlineOrderValidator _onlineOrderValidator;
 		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private readonly MangoManager _mangoManager;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly Employee _currentEmployee;
+		private readonly ICommonServices _commonServices;
 		private bool _orderCreatingState;
 		private bool _canCancelAnyOnlineOrder;
 		private string _newComment;
 		private string _operatorsComments;
 		private OnlineOrderTimers _onlineOrderTimers;
+		protected object entity;
 
-		public OnlineOrderViewModel(
+		protected OnlineOrderViewModel(
 			ILogger<OnlineOrderViewModel> logger,
 			ILifetimeScope scope,
 			IGtkTabsOpener gtkTabsOpener,
-			IEntityUoWBuilder uowBuilder,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IEntityViewModelContext viewModelContext,
 			ICommonServices commonServices,
 			INavigationManager navigation,
 			IEmployeeService employeeService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator,
+			IOnlineOrderValidatorCreator onlineOrderValidatorCreator,
 			IExternalCounterpartyMatchingRepository externalCounterpartyMatchingRepository,
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
@@ -64,11 +67,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IOrderOrganizationManager orderOrganizationManager,
 			MangoManager mangoManager
 			)
-			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
+			: base(viewModelContext.UowFactory, commonServices?.InteractiveService, navigation)
 		{
+			InitializeEntity(viewModelContext);
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
-				.GetEmployeeForUser(UoW, CurrentUser.Id);
+				.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId);
 
 			if(_currentEmployee is null)
 			{
@@ -77,7 +82,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 			TabName = Entity.ToString();
 
-			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
+			_onlineOrderValidator =
+				(onlineOrderValidatorCreator ?? throw new ArgumentNullException(nameof(onlineOrderValidatorCreator)))
+				.Create(Entity);
+			
 			_deliveryPointViewModelBuilder =
 				deliveryPointViewModelBuilder ?? throw new ArgumentNullException(nameof(deliveryPointViewModelBuilder));
 			_deliveryPointJournalFilterViewModel =
@@ -90,15 +98,20 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			GtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			OrderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
-			GetTimers();
-			SetPermissions();
-			CreateCommands();
-			CreatePropertyChangeRelations();
-			GetOnlineOrderItems();
-			ConfigureEntryViewModels();
-			TryValidateOnlineOrder();
-			InitViewModelProperty();
 		}
+
+		protected virtual void InitializeEntity(IEntityViewModelContext viewModelContext)
+		{
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+
+			entity = !viewModelContext.EntityId.HasValue
+				? Activator.CreateInstance(viewModelContext.EntityType)
+				: UoW.GetById(viewModelContext.EntityType, viewModelContext.EntityId.Value);
+		}
+
+		public override IUnitOfWork UoW { get; set; }
+
+		public virtual OnlineOrder Entity => (OnlineOrder)entity;
 
 		public IGtkTabsOpener GtkTabsOpener { get; }
 		public DelegateCommand GetToWorkCommand { get; private set; }
@@ -107,9 +120,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public DelegateCommand CallClientCommand { get; private set; }
 		public DelegateCommand AddOperatorCommentCommand { get; private set; }
 		public DelegateCommand AddFailedCallCommentCommand { get; private set; }
+		public DelegateCommand CancelCommand { get; private set; }
 		public IList<OnlineOrderItem> OnlineOrderPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineOrderItem> OnlineOrderNotPromoItems { get; } = new List<OnlineOrderItem>();
-		public IList<OnlineFreeRentPackage> OnlineRentPackages { get; private set; }
+		public IList<OnlineFreeRentPackage> OnlineRentPackages { get; protected set; }
 		public ILogger<OnlineOrderViewModel> Logger { get; }
 		public IExternalCounterpartyMatchingRepository ExternalCounterpartyMatchingRepository { get; }
 		public IDiscountController DiscountController { get; }
@@ -141,6 +155,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanShowContactPhone => !string.IsNullOrWhiteSpace(Entity.ContactPhone);
 		public bool CanCallClient => CanShowContactPhone && _mangoManager.IsActive;
 		public bool CanShowNotPromoItems => OnlineOrderNotPromoItems.Any();
+		public virtual bool CanShowPromoSetsWidgets => CanShowPromoItems;
 		public bool CanShowPromoItems => OnlineOrderPromoItems.Any();
 		public bool CanShowRentPackages => OnlineRentPackages.Any();
 		public bool CanShowCancellationReason => Entity.OnlineOrderCancellationReason != null;
@@ -266,6 +281,20 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			return AskQuestion(question, title);
 		}
 		
+		protected void Initialize()
+		{
+			GetTimers();
+			SetPermissions();
+			CreateCommands();
+			
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+			
+			GetOnlineOrderItems();
+			ConfigureEntryViewModels();
+			TryValidateOnlineOrder();
+			InitializeOperatorComments();
+		}
+		
 		private void GetTimers()
 		{
 			_onlineOrderTimers = UoW.GetAll<OnlineOrderTimers>().FirstOrDefault();
@@ -278,12 +307,16 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		
 		private void SetPermissions()
 		{
-			var permissionService = CommonServices.PermissionService;
+			var permissionService = _commonServices.PermissionService;
 			
-			_canCancelAnyOnlineOrder =
-				permissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.OnlineOrderPermissions.CanCancelAnyOnlineOrder, CurrentUser.Id);
+			_canCancelAnyOnlineOrder = permissionService.ValidateUserPresetPermission(
+				Vodovoz.Core.Domain.Permissions.OnlineOrderPermissions.CanCancelAnyOnlineOrder,
+				_commonServices.UserService.CurrentUserId
+				);
 		}
-		
+
+		#region Commands
+
 		private void CreateCommands()
 		{
 			CreateGetToWorkCommand();
@@ -292,6 +325,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			CreateCallClientCommand();
 			CreateAddFailedCallCommentCommand();
 			CreateAddOperatorCommentCommand();
+			CreateCancelCommand();
 		}
 
 		private void CreateGetToWorkCommand()
@@ -460,60 +494,15 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				ConvertOperatorCommentFromEntity();
 			});
 		}
-
-		private void CreatePropertyChangeRelations()
+		
+		private void CreateCancelCommand()
 		{
-			Entity.PropertyChanged += OnEntityPropertyChanged;
-			
-			SetPropertyChangeRelation(
-				e => e.Id,
-				() => CanShowId,
-				() => IdToString);
-			
-			SetPropertyChangeRelation(
-				e => e.EmployeeWorkWith,
-				() => CanShowEmployeeWorkWith,
-				() => CanGetToWork,
-				() => CanCreateOrder,
-				() => CanCancelOnlineOrder,
-				() => EmployeeWorkWith,
-				() => CanOpenExternalCounterpartyMatching);
-			
-			SetPropertyChangeRelation(
-				e => e.Counterparty,
-				() => Counterparty,
-				() => CanOpenExternalCounterpartyMatching);
-			
-			SetPropertyChangeRelation(
-				e => e.OnlineOrderStatus,
-				() => OnlineOrderStatusString,
-				() => CanGetToWork,
-				() => CanCreateOrder,
-				() => CanCancelOnlineOrder,
-				() => CanEditCancellationReason);
-			
-			SetPropertyChangeRelation(
-				e => e.Orders,
-				() => CanGetToWork,
-				() => CanCreateOrder,
-				() => CanCancelOnlineOrder,
-				() => CanEditCancellationReason);
-			
-			SetPropertyChangeRelation(
-				e => e.IsDeliveryPointNotBelongCounterparty,
-				() => CanCreateOrder,
-				() => CanChangeDeliveryPoint);
+			CancelCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 		}
 
-		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(Entity.DeliveryPoint))
-			{
-				TryValidateOnlineOrder();
-			}
-		}
+		#endregion
 
-		private void GetOnlineOrderItems()
+		protected virtual void GetOnlineOrderItems()
 		{
 			foreach(var item in Entity.OnlineOrderItems)
 			{
@@ -526,7 +515,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					OnlineOrderNotPromoItems.Add(item);
 				}
 			}
-			
+
 			OnlineRentPackages = Entity.OnlineRentPackages;
 		}
 		
@@ -566,7 +555,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				return;
 			}
 			
-			var result = _onlineOrderValidator.ValidateOnlineOrder(UoW, Entity, true);
+			var result = _onlineOrderValidator.Validate(UoW, true);
 
 			if(result.IsFailure)
 			{
@@ -575,8 +564,61 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			
 			OnPropertyChanged(nameof(ValidationErrors));
 		}
+		
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Id))
+			{
+				OnPropertyChanged(nameof(CanShowId));
+				OnPropertyChanged(nameof(IdToString));
+			}
+
+			if(e.PropertyName == nameof(Entity.EmployeeWorkWith))
+			{
+				OnPropertyChanged(nameof(CanShowEmployeeWorkWith));
+				OnPropertyChanged(nameof(CanGetToWork));
+				OnPropertyChanged(nameof(CanCreateOrder));
+				OnPropertyChanged(nameof(CanCancelOnlineOrder));
+				OnPropertyChanged(nameof(EmployeeWorkWith));
+				OnPropertyChanged(nameof(CanOpenExternalCounterpartyMatching));
+			}
+
+			if(e.PropertyName == nameof(Entity.Counterparty))
+			{
+				OnPropertyChanged(nameof(Counterparty));
+				OnPropertyChanged(nameof(CanOpenExternalCounterpartyMatching));
+			}
+
+			if(e.PropertyName == nameof(Entity.OnlineOrderStatus))
+			{
+				OnPropertyChanged(nameof(OnlineOrderStatusString));
+				OnPropertyChanged(nameof(CanGetToWork));
+				OnPropertyChanged(nameof(CanCreateOrder));
+				OnPropertyChanged(nameof(CanCancelOnlineOrder));
+				OnPropertyChanged(nameof(CanEditCancellationReason));
+			}
+			
+			if(e.PropertyName == nameof(Entity.Orders))
+			{
+				OnPropertyChanged(nameof(CanGetToWork));
+				OnPropertyChanged(nameof(CanCreateOrder));
+				OnPropertyChanged(nameof(CanCancelOnlineOrder));
+				OnPropertyChanged(nameof(CanEditCancellationReason));
+			}
+			
+			if(e.PropertyName == nameof(Entity.IsDeliveryPointNotBelongCounterparty))
+			{
+				OnPropertyChanged(nameof(CanCreateOrder));
+				OnPropertyChanged(nameof(CanChangeDeliveryPoint));
+			}
+			
+			if(e.PropertyName == nameof(Entity.DeliveryPoint))
+			{
+				TryValidateOnlineOrder();
+			}
+		}
 	
-		private void InitViewModelProperty()
+		private void InitializeOperatorComments()
 		{
 			ConvertOperatorCommentFromEntity();
 		}

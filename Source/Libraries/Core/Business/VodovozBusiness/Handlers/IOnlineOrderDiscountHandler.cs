@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Errors;
 using Vodovoz.Nodes;
@@ -21,5 +22,13 @@ namespace Vodovoz.Handlers
 		/// <see cref="CanApplyOnlineOrderPromoCode"/></param>
 		/// <returns></returns>
 		Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(IUnitOfWork uow, CanApplyOnlineOrderPromoCode onlineOrderPromoCode);
+		/// <summary>
+		/// Применение промокода к онлайн заказу
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="receivedData">Данные, необходимые для проверки промокода и товары
+		/// <see cref="CanApplyOnlineOrderPromoCode"/></param>
+		/// <returns></returns>
+		Result<IEnumerable<IOrderedCartItem>> TryApplyPromoCodeV7(IUnitOfWork uow, CanApplyOnlineOrderPromoCodeV7 receivedData);
 	}
 }

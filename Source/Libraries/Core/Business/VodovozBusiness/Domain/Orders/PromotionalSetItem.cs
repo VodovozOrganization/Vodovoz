@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -124,5 +125,35 @@ namespace Vodovoz.Domain.Orders
 			Nomenclature.Name,
 			Discount
 		);
+		
+		/// <summary>
+		/// Общая стоимость позиции промонабора без учета скидок
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns></returns>
+		public virtual decimal SumWithoutDiscount(bool useAlternativePrice = false) =>
+			Math.Round(Count * Nomenclature.GetPromoSetItemPrice(useAlternativePrice), 2);
+
+		/// <summary>
+		/// Общая стоимость позиции промонабора
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns></returns>
+		public virtual decimal Sum(bool useAlternativePrice = false)
+		{
+			if(Nomenclature is null)
+			{
+				throw new ArgumentNullException(nameof(Nomenclature), "Нельзя рассчитывать стоимость при незаполненной номенклатуре");
+			}
+			
+			var sumWithoutDiscount = SumWithoutDiscount(useAlternativePrice);
+			
+			if(IsDiscountInMoney)
+			{
+				return Math.Round(sumWithoutDiscount - DiscountMoney, 2);
+			}
+
+			return Math.Round(sumWithoutDiscount - (sumWithoutDiscount * Discount / 100), 2);
+		}
 	}
 }

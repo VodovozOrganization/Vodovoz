@@ -11,7 +11,7 @@ namespace CustomerOrdersApi.Controllers.V7
 	/// <summary>
 	/// Контроллер для работы с фиксой
 	/// </summary>
-	[ApiVersion("6.0")]
+	[ApiVersion("7.0")]
 	public class FixedPriceController : SignatureControllerBase
 	{
 		private readonly ICustomerOrderFixedPriceService _fixedPriceService;
@@ -29,8 +29,8 @@ namespace CustomerOrdersApi.Controllers.V7
 		/// <param name="applyFixedPriceDto">Информация по заказу для применения фиксы</param>
 		/// <returns>
 		///	500 - в случае ошибки
-		/// 404 - если нет фиксы
-		///	200 - если фикса есть. Тело ответа будет содержать список товаров <see cref="AppliedFixedPriceDto"/>
+		/// 204 - если нет фиксы
+		///	200 - если фикса есть. Тело ответа будет содержать список товаров
 		/// </returns>
 		[HttpGet]
 		public IActionResult ApplyFixedPriceToOrder([FromBody] ApplyFixedPriceDto applyFixedPriceDto)
@@ -52,14 +52,12 @@ namespace CustomerOrdersApi.Controllers.V7
 				if(result.IsSuccess)
 				{
 					_logger.LogInformation("Отправляем ответ по фиксе: {@FixedPriceResponse}", result.Value);
-					return Ok(
-						new AppliedFixedPriceDto
-						{
-							OnlineOrderItems = result.Value
-						});
+					return Ok(result.Value);
 				}
 
-				return NotFound(result.Errors.First().Message);
+				var failureResult = result.Errors.First().Message;
+				_logger.LogWarning("Фикса не добавлена: {FixedPriceFailure}", failureResult);
+				return Problem(detail: failureResult, statusCode: 204, title: "Фикса не добавлена");
 			}
 			catch(Exception e)
 			{

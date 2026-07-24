@@ -18,7 +18,7 @@ namespace CustomerOrdersApi.Controllers.V7
 	/// <summary>
 	/// Контроллер для работы с отслеживанием координат
 	/// </summary>
-	[ApiVersion("6.0")]
+	[ApiVersion("7.0")]
 	[Authorize]
 	public class TrackingController : VersionedController
 	{

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CustomerAppsApi.Library.V2.Dto.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	/// <summary>
 	/// Тип продаваемой позиции

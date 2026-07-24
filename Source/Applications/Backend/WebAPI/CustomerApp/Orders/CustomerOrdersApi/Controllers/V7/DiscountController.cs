@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CustomerOrdersApi.Controllers.V7
 {
-	[ApiVersion("6.0")]
+	[ApiVersion("7.0")]
 	public class DiscountController : SignatureControllerBase
 	{		
 		private readonly ICustomerOrdersDiscountService _discountService;
@@ -44,9 +44,9 @@ namespace CustomerOrdersApi.Controllers.V7
 					return Ok(result.Value);
 				}
 
-				var notFoundResult = result.Errors.First().Message;
-				_logger.LogWarning("Промокод {PromoCode}: {PromoCodeNotFound}", applyPromoCodeDto.PromoCode, notFoundResult);
-				return NotFound(notFoundResult);
+				var failureResult = result.Errors.First().Message;
+				_logger.LogWarning("Промокод {PromoCode}: {PromoCodeFailure}", applyPromoCodeDto.PromoCode, failureResult);
+				return Problem(detail: failureResult, statusCode: 204, title: $"Ошибка применения промокода { applyPromoCodeDto.PromoCode }");
 			}
 			catch(Exception e)
 			{

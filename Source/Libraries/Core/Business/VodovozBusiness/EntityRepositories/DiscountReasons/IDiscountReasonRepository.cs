@@ -10,12 +10,18 @@ namespace Vodovoz.EntityRepositories.DiscountReasons
 		/// Возврат отсортированного списка скидок
 		/// </summary>
 		/// <returns>Список скидок</returns>
-		/// <param name="UoW">UoW</param>
+		/// <param name="uow">unit of work</param>
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
-		IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false);
+		IList<DiscountReason> GetDiscountReasons(IUnitOfWork uow, bool orderByDescending = false);
+		/// <summary>
+		/// Получение списка скидок по переданным идентификаторам
+		/// </summary>
+		/// <returns>Список скидок</returns>
+		/// <param name="uow">unit of work</param>
+		/// <param name="discountReasonIds">Список подбираемых оснований</param>
+		IEnumerable<DiscountReason> GetDiscountReasons(IUnitOfWork uow, IEnumerable<int> discountReasonIds);
 		IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow);
 		IList<DiscountReason> GetActiveDiscountReasonsWithoutPremiums(IUnitOfWork uow);
-
 		/// <summary>
 		/// Возвращает список оснований для скидки. При этом подгружаются связанные сущности
 		/// </summary>
@@ -25,7 +31,14 @@ namespace Vodovoz.EntityRepositories.DiscountReasons
 		IList<DiscountReason> GetActiveDiscountReasonsFetchReferences(IUnitOfWork uow, bool canChoosePremiumDiscount);
 		bool ExistsActiveDiscountReasonWithName(IUnitOfWork uow, int discountReasonId, string name, out DiscountReason discountReason);
 		DiscountReason GetActivePromoCode(IUnitOfWork uow, string promoCode);
-		bool HasBeenUsagePromoCode(IUnitOfWork uow, int counterpartyId, int discountReasonId);
+		/// <summary>
+		/// Проверка, есть ли продажи с таким промокодом
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="counterpartyId">Идентификатор клиента</param>
+		/// <param name="discountReasonId">Идентификатор промокода</param>
+		/// <returns></returns>
+		bool HasBeenUsagePromoCode(IUnitOfWork uow, int? counterpartyId, int discountReasonId);
 		bool ExistsPromoCodeWithName(IUnitOfWork uow, int discountReasonId, string promoCode, out DiscountReason discountReason);
 	}
 }

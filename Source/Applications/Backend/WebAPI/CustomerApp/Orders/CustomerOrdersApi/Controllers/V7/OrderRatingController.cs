@@ -11,7 +11,7 @@ using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Controllers.V7
 {
-	[ApiVersion("6.0")]
+	[ApiVersion("7.0")]
 	public class OrderRatingController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;

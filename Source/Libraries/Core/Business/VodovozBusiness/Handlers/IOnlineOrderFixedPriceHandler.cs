@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Errors;
@@ -37,5 +38,14 @@ namespace Vodovoz.Handlers
 		/// <returns></returns>
 		Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> TryApplyFixedPrice(
 			IUnitOfWork uow, CanApplyOnlineOrderFixedPrice canApplyOnlineOrderFixedPrice);
+		/// <summary>
+		/// Применение фиксы к онлайн заказу
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="canApplyOnlineOrderFixedPrice">Данные, необходимые для проверки фиксы и товары
+		/// <see cref="CanApplyOnlineOrderFixedPrice"/></param>
+		/// <returns></returns>
+		Result<IEnumerable<IOrderedCartItem>> TryApplyFixedPriceV7(
+			IUnitOfWork uow, CanApplyOnlineOrderFixedPriceV7 canApplyOnlineOrderFixedPrice);
 	}
 }

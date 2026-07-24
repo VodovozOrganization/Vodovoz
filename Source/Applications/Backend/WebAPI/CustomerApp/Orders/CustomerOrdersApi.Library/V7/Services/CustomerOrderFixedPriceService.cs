@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice;
-using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Nodes;
 using VodovozInfrastructure.Cryptography;
 
@@ -50,18 +48,18 @@ namespace CustomerOrdersApi.Library.V7.Services
 					OrderId = applyFixedPriceDto.Source == Source.MobileApp
 						? applyFixedPriceDto.ExternalCounterpartyId.ToString()
 						: applyFixedPriceDto.ExternalOrderId.ToString(),
-					OrderSumInKopecks = (int)(GetOnlineOrderSum(applyFixedPriceDto.OnlineOrderItems) * 100),
+					OrderSumInKopecks = (int)(applyFixedPriceDto.OrderSum * 100),
 					ShopId = (int)applyFixedPriceDto.Source,
 					Sign = sourceSign
 				},
 				out generatedSignature);
 		}
 		
-		public Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
+		public Result<IEnumerable<IOrderedCartItem>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Применение фиксы к онлайн заказу {applyFixedPriceDto.ExternalOrderId}");
 
-			var node = new CanApplyOnlineOrderFixedPrice
+			var node = new CanApplyOnlineOrderFixedPriceV7
 			{
 				IsSelfDelivery =	applyFixedPriceDto.IsSelfDelivery,
 				DeliveryPointId = applyFixedPriceDto.ErpDeliveryPointId,
@@ -69,15 +67,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 				OnlineOrderItems = applyFixedPriceDto.OnlineOrderItems
 			};
 			
-			return _onlineOrderFixedPriceHandler.TryApplyFixedPrice(uow, node);
-		}
-		
-		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDto> orderItems)
-		{
-			return orderItems.Sum(x =>
-				x.IsDiscountInMoney
-					? x.Count * x.Price - x.Discount
-					: x.Count * x.Price * (1 - x.Discount / 100));
+			return _onlineOrderFixedPriceHandler.TryApplyFixedPriceV7(uow, node);
 		}
 	}
 }

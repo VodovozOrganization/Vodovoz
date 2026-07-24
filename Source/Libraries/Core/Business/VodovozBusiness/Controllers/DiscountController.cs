@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
@@ -28,6 +29,33 @@ namespace VodovozBusiness.Controllers
 			return ContainsNomenclature(nomenclature.Id, reason.Nomenclatures)
 				|| ContainsNomenclatureCategory(nomenclature.Category, reason.NomenclatureCategories)
 				|| ContainsProductGroup(nomenclature.ProductGroup, reason.ProductGroups);
+		}
+		
+		protected decimal CalculateTotalDiscountInMoneyFromAddedReasons(
+			ICalculatingTotalMoneyDiscount discountItem
+			)
+		{
+			var currentPrice = discountItem.CurrentRawPrice;
+
+			var totalPercentDiscount = 0m;
+			var totalMoneyDiscount = 0m;
+
+			foreach(var reason in discountItem.DiscountReasons)
+			{
+				if(reason.ValueType is DiscountUnits.money)
+				{
+					totalMoneyDiscount += reason.Value;
+				}
+				else
+				{
+					totalPercentDiscount += reason.Value;
+				}
+			}
+
+			var discountFromPercent = currentPrice * (totalPercentDiscount / 100);
+			var totalDiscountMoney = discountFromPercent + totalMoneyDiscount;
+
+			return totalDiscountMoney;
 		}
 
 		/// <summary>

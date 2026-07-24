@@ -350,6 +350,22 @@ namespace Vodovoz.Domain.Goods
 			return false;
 		}
 		
+		/// <summary>
+		/// Получение цены позиции промонабора
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns>Стоимость</returns>
+		public override decimal GetPromoSetItemPrice(bool useAlternativePrice = false)
+		{
+			return GetPrice(1, useAlternativePrice);
+		}
+		
+		/// <summary>
+		/// Получение цены номенклатуры
+		/// </summary>
+		/// <param name="itemsCount">Количество</param>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns>Стоимость</returns>
 		public override decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
 		{
 			if(itemsCount < 1)
