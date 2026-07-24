@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Bitrix\BitrixApi.Library\BitrixApi.Library.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\Email.Infrastructure\Email.Infrastructure\Email.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\EmailSend.Library\EmailSend.Library.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />

@@ -1,5 +1,6 @@
 ﻿using BitrixApi.Library.Services;
-using EmailDebtNotificationWorker.Services.Common.Factories;
+using Email.Infrastructure.Factories;
+using Email.Infrastructure.Generators;
 using EmailDebtNotificationWorker.Services.Common.Generators;
 using EmailDebtNotificationWorker.Services.Common.Selectors;
 using MassTransit;
@@ -16,7 +17,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 

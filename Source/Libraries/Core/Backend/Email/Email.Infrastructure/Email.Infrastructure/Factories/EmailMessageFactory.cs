@@ -1,0 +1,107 @@
+﻿using Email.Infrastructure.Generators;
+using Email.Infrastructure.Repositories;
+using Mailjet.Api.Abstractions;
+using QS.DomainModel.UoW;
+using RabbitMQ.MailSending;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.StoredEmails;
+using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
+
+namespace Email.Infrastructure.Factories
+{
+	public class EmailMessageFactory : IEmailMessageFactory
+	{
+		private const int _storedEmailSubjectMaxLength = 200;
+
+		private readonly IDatabaseRepository _databaseRepository;
+		private readonly IEmailLinkGenerator _emailLinkGenerator;
+
+		public EmailMessageFactory(
+			IDatabaseRepository databaseRepository,
+			IEmailLinkGenerator emailLinkGenerator
+			)
+		{
+			_databaseRepository = databaseRepository ?? throw new ArgumentNullException(nameof(databaseRepository));
+			_emailLinkGenerator = emailLinkGenerator ??  throw new ArgumentNullException(nameof(emailLinkGenerator));
+		}
+
+		public SendEmailMessage CreateSendEmailMessage(
+			IUnitOfWork uow,
+			StoredEmail storedEmail,
+			string clientName,
+			string organizationFullName,
+			string organizationEmailForMailing,
+			IEnumerable<EmailAttachment> attachments,
+			string emailAddress,
+			string emailSubject,
+			string messageText,
+			bool canUnsubscribe = true
+			)
+		{
+			var instanceId = _databaseRepository.GetCurrentDatabaseId(uow);
+
+			var sendEmailMessage = new SendEmailMessage()
+			{
+				From = new EmailContact
+				{
+					Name = organizationFullName,
+					Email = organizationEmailForMailing,
+				},
+				To = new List<EmailContact>
+				{
+					new EmailContact
+					{
+						Name = clientName,
+						Email = emailAddress
+					}
+				},
+				Subject = emailSubject,
+				TextPart = messageText,
+				HTMLPart = messageText,
+				Payload = new EmailPayload
+				{
+					Id = storedEmail.Id,
+					Trackable = true,
+					InstanceId = instanceId
+				},
+				Attachments = attachments?.ToList(),
+				Headers = new Dictionary<string, string>()
+			};
+
+			if(canUnsubscribe)
+			{
+				var unsubscribeUrl = storedEmail.Guid.HasValue
+					? _emailLinkGenerator.GetUnsubscribeLink(storedEmail.Guid.Value)
+					: string.Empty;
+
+				sendEmailMessage.Headers.Add("List-Unsubscribe", unsubscribeUrl);
+			}
+
+			return sendEmailMessage;
+		}
+
+		public StoredEmail CreateStoredEmail(string subject, string email, string description)
+		{
+			var storedEmailSubject = subject.Length > _storedEmailSubjectMaxLength
+				? subject.Substring(0, _storedEmailSubjectMaxLength)
+				: subject;
+
+			var storedEmail = new StoredEmail
+			{
+				State = StoredEmailStates.WaitingToSend,
+				Author = null,
+				ManualSending = false,
+				SendDate = DateTime.Now,
+				StateChangeDate = DateTime.Now,
+				Subject = storedEmailSubject,
+				RecipientAddress = email,
+				Guid = Guid.NewGuid(),
+				Description = description
+			};
+
+			return storedEmail;
+		}
+	}
+}
