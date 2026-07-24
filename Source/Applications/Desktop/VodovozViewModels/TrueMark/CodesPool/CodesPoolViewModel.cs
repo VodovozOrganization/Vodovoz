@@ -328,7 +328,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			{
 				if(SelectedCodesPoolProblemNode.EdoTask is OrderEdoTask orderEdoTask)
 				{
-					await _codePoolMissingProblemService.TryResumeTask(orderEdoTask, cancellationToken);
+					await _codePoolMissingProblemService.TryResumeTaskAsync(orderEdoTask, cancellationToken);
 					
 					_guiDispatcher.RunInGuiTread(() =>
 					{

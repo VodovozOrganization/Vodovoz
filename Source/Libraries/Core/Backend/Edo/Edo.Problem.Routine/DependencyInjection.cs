@@ -1,4 +1,4 @@
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
 using Edo.Problems;
@@ -86,7 +86,7 @@ namespace Edo.Problem.Routine
 		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)
 		{
 			services
-				.AddScoped<OrderEdoCodePoolMissingProblemService>()
+				.AddScoped<IOrderEdoCodePoolMissingProblemService, OrderEdoCodePoolMissingProblemService>()
 				.AddEdoProblemRegistration();;
 
 			return services;
