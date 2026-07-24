@@ -1,5 +1,7 @@
-﻿using Mango.Vpbx.Client.Services;
+﻿using Mango.Core.Sign;
+using Mango.Vpbx.Client.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using Vodovoz.Settings.Mango;
 
@@ -14,11 +16,23 @@ namespace Mango.Vpbx.Client
 		/// <returns>Сервисы</returns>
 		public static IServiceCollection AddMangoVpbxClientServices(this IServiceCollection services)
 		{
+			// Генератор подписи не хранит состояния и может быть зарегистрирован сервисами Mango.Api,
+			// которые подключаются вместе с клиентом
+			services.TryAddSingleton<ISignGenerator, SignGenerator>();
+
 			services
 				.AddHttpClient<IMangoWebhookCallsService, MangoWebhookCallsService>((sp, client) =>
 				{
 					var mangoSettings = sp.GetRequiredService<IMangoSettings>();
 					client.BaseAddress = new Uri(mangoSettings.WebhookCallsUrl);
+					client.DefaultRequestHeaders.Accept.Clear();
+				});
+
+			services
+				.AddHttpClient<IMangoVpbxEmployeesService, MangoVpbxEmployeesService>((sp, client) =>
+				{
+					var mangoSettings = sp.GetRequiredService<IMangoSettings>();
+					client.BaseAddress = new Uri(mangoSettings.VpbxApiUrl);
 					client.DefaultRequestHeaders.Accept.Clear();
 				});
 
