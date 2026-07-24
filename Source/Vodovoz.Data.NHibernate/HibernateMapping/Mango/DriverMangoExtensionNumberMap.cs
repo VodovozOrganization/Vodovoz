@@ -15,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Mango
 
 			Map(x => x.DriverId).Column("driver_id");
 			Map(x => x.ExtensionNumber).Column("extension_number");
+			Map(x => x.MangoUserId).Column("mango_user_id");
 			Map(x => x.Status).Column("status");
 			Map(x => x.ActivatedAt).Column("activated_at");
 			Map(x => x.DeactivatedAt).Column("deactivated_at");

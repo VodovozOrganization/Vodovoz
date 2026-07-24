@@ -530,6 +530,17 @@ namespace Vodovoz.Domain.Employees
 			get => ShortName;
 		}
 
+		/// <summary>
+		/// Требуется ли создание сотрудника Манго для этого водителя.
+		/// Сотрудник создаётся, если он является водителем, для него не отключена необходимость
+		/// указания телефона для приёма звонков от контрагентов, и этот телефон указан.
+		/// Свойство не сохраняется в базу данных
+		/// </summary>
+		public virtual bool NeedToCreateMangoEmployee =>
+			Category == EmployeeCategory.driver
+			&& !IsNoPhoneForCounterpartyCallsRequired
+			&& PhoneForCounterpartyCalls != null;
+
 		#endregion Без маппинга
 
 		#region Функции

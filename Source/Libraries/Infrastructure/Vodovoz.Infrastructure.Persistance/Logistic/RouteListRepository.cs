@@ -100,6 +100,23 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			return query.Select(x => x.Id).List<int>();
 		}
 
+		public async Task<bool> HasDriverRouteListsInStatusesAsync(
+			IUnitOfWork uow,
+			int driverId,
+			IReadOnlyCollection<RouteListStatus> statuses,
+			CancellationToken cancellationToken)
+		{
+			if(statuses is null || statuses.Count == 0)
+			{
+				return false;
+			}
+
+			return await uow.Session.Query<RouteList>()
+				.AnyAsync(
+					rl => rl.Driver.Id == driverId && statuses.Contains(rl.Status),
+					cancellationToken);
+		}
+
 		public IList<RouteList> GetRoutesAtDay(IUnitOfWork uow, DateTime dateForRouting, bool showCompleted, int[] onlyInGeographicGroup, int[] onlyWithDeliveryShifts)
 		{
 			RouteList routeListAlias = null;

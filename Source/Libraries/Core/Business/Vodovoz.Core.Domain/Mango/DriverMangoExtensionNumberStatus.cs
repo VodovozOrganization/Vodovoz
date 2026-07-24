@@ -14,9 +14,9 @@ namespace Vodovoz.Core.Domain.Mango
 		Active,
 
 		/// <summary>
-		/// Деактивирован
+		/// Неактивен
 		/// </summary>
-		[Display(Name = "Деактивирован")]
+		[Display(Name = "Неактивен")]
 		Deactivated
 	}
 }

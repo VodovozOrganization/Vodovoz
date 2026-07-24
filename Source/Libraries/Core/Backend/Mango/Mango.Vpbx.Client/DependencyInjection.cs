@@ -16,8 +16,6 @@ namespace Mango.Vpbx.Client
 		/// <returns>Сервисы</returns>
 		public static IServiceCollection AddMangoVpbxClientServices(this IServiceCollection services)
 		{
-			// Генератор подписи не хранит состояния и может быть зарегистрирован сервисами Mango.Api,
-			// которые подключаются вместе с клиентом
 			services.TryAddSingleton<ISignGenerator, SignGenerator>();
 
 			services

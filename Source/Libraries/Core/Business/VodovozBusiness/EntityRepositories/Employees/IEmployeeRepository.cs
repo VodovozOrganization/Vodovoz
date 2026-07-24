@@ -80,5 +80,10 @@ namespace Vodovoz.EntityRepositories.Employees
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Активный добавочный номер Mango для водителя</returns>
 		Task<DriverMangoExtensionNumber> GetActiveDriverMangoExtensionNumber(IUnitOfWork uow, int driverId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает сотрудника по идентификатору
+		/// </summary>
+		Task<Employee> GetEmployeeByIdAsync(IUnitOfWork uow, int employeeId, CancellationToken cancellationToken);
 	}
 }

@@ -396,5 +396,8 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 			.Where(x => x.DriverId == driverId)
 			.Where(x => x.Status == DriverMangoExtensionNumberStatus.Active)
 			.FirstOrDefaultAsync(cancellationToken);
+
+		public Task<Employee> GetEmployeeByIdAsync(IUnitOfWork uow, int employeeId, CancellationToken cancellationToken) =>
+			uow.Session.GetAsync<Employee>(employeeId, cancellationToken);
 	}
 }

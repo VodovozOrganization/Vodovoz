@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Settings.Mango
+﻿using System;
+
+namespace Vodovoz.Settings.Mango
 {
 	public interface IMangoSettings
 	{
@@ -28,5 +30,65 @@
 		/// Базовый URL API ВАТС Манго
 		/// </summary>
 		string VpbxApiUrl { get; }
+
+		/// <summary>
+		/// Id роли, назначаемой создаваемому сотруднику ВАТС для водителя
+		/// </summary>
+		string DriverAccessRoleId { get; }
+
+		/// <summary>
+		/// Id исходящей линии создаваемого сотрудника ВАТС для водителя
+		/// </summary>
+		string DriverLineId { get; }
+
+		/// <summary>
+		/// Id группы ВАТС, в которую добавляются водители
+		/// </summary>
+		string DriversGroupId { get; }
+
+		/// <summary>
+		/// Минимальный добавочный номер пула, выделяемого водителям
+		/// </summary>
+		int DriverMangoExtensionNumberPoolStart { get; }
+
+		/// <summary>
+		/// Максимальный добавочный номер пула, выделяемого водителям
+		/// </summary>
+		int DriverMangoExtensionNumberPoolEnd { get; }
+
+		/// <summary>
+		/// Включена ли работа воркера регистрации водителей в Манго
+		/// </summary>
+		bool DriverMangoEmployeeRegistrationWorkerEnabled { get; }
+
+		/// <summary>
+		/// Включена ли работа воркера деактивации сотрудников Манго
+		/// </summary>
+		bool DriverMangoEmployeeDeactivationWorkerEnabled { get; }
+
+		/// <summary>
+		/// Интервал работы воркера регистрации водителей в Манго
+		/// </summary>
+		TimeSpan DriverMangoEmployeeRegistrationInterval { get; }
+
+		/// <summary>
+		/// Интервал проверки условия запуска воркера деактивации сотрудников Манго
+		/// </summary>
+		TimeSpan DriverMangoEmployeeDeactivationInterval { get; }
+
+		/// <summary>
+		/// Время (МСК), в которое запускается воркер деактивации сотрудников Манго
+		/// </summary>
+		TimeSpan DriverMangoEmployeeDeactivationRunTime { get; }
+
+		/// <summary>
+		/// Дата последнего запуска воркера удаление сотрудников (водителей) в Манго
+		/// </summary>
+		DateTime DriverMangoEmployeeDeactivationLastRunDate { get; }
+
+		/// <summary>
+		/// Сохраняет дату последнего запуска воркера удаления сотрудников (водителей) в Манго
+		/// </summary>
+		void UpdateDriverMangoEmployeeDeactivationLastRunDate(DateTime lastRunDate);
 	}
 }

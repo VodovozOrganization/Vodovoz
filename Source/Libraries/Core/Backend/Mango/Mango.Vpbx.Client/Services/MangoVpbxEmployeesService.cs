@@ -1,4 +1,4 @@
-using Mango.Core.Dto.Vpbx.Requests;
+﻿using Mango.Core.Dto.Vpbx.Requests;
 using Mango.Core.Dto.Vpbx.Responses;
 using Mango.Core.Sign;
 using Mango.Vpbx.Client.Exceptions;
@@ -259,8 +259,6 @@ namespace Mango.Vpbx.Client.Services
 			CancellationToken cancellationToken)
 			where TResponse : VpbxResponseBase
 		{
-			// Подпись рассчитывается по той же строке json, которая уходит в запросе,
-			// поэтому сериализация выполняется один раз
 			var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
 			var sign = _signGenerator.GetSign(_mangoSettings.VpbxApiKey, _mangoSettings.VpbxApiSalt, json);
 
