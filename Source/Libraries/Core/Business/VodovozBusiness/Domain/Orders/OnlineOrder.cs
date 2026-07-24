@@ -525,5 +525,14 @@ namespace Vodovoz.Domain.Orders
 			ClearPaymentData();
 			UnPaidReason = null;
 		}
+		
+		/// <summary>
+		/// Необходимо чтобы Nhibernate мог привести  Proxy базового класса (OrderEdoTask)
+		/// к конкретному классу наследнику
+		/// </summary>
+		public virtual T As<T>() where T : OnlineOrder
+		{
+			return this as T;
+		}
 	}
 }

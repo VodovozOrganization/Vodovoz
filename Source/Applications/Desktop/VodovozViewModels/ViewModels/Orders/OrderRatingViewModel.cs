@@ -156,20 +156,20 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		{
 			Action openOnlineOrderAction = null;
 
-			switch(Entity.OnlineOrder)
+			if(Entity.OnlineOrder.As<OnlineOrderV2>() != null)
 			{
-				case OnlineOrderV2 _:
-					openOnlineOrderAction = () => NavigationManager.OpenViewModel<OnlineOrderV2ViewModel, IEntityViewModelContext>(
-						this, EntityViewModelContext.Create(typeof(OnlineOrderV2), Entity.OnlineOrder.Id, UnitOfWorkFactory));
-					break;
-				case OnlineOrderV1 _:
-					openOnlineOrderAction = () => NavigationManager.OpenViewModel<OnlineOrderV1ViewModel, IEntityViewModelContext>(
-						this, EntityViewModelContext.Create(typeof(OnlineOrderV1), Entity.OnlineOrder.Id, UnitOfWorkFactory));
-					break;
-				default:
-					openOnlineOrderAction = () => _commonServices.InteractiveService.ShowMessage(
-						ImportanceLevel.Info, "У оценки нет онлайн заказа, нечего открывать");
-					break;
+				openOnlineOrderAction = () => NavigationManager.OpenViewModel<OnlineOrderV2ViewModel, IEntityViewModelContext>(
+					this, EntityViewModelContext.Create(typeof(OnlineOrderV2), Entity.OnlineOrder.Id, UnitOfWorkFactory));
+			}
+			else if(Entity.OnlineOrder.As<OnlineOrderV1>() != null)
+			{
+				openOnlineOrderAction = () => NavigationManager.OpenViewModel<OnlineOrderV1ViewModel, IEntityViewModelContext>(
+					this, EntityViewModelContext.Create(typeof(OnlineOrderV1), Entity.OnlineOrder.Id, UnitOfWorkFactory));
+			}
+			else
+			{
+				openOnlineOrderAction = () => _commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info, "У оценки нет онлайн заказа, нечего открывать");
 			}
 
 			OpenOnlineOrderCommand = new DelegateCommand(openOnlineOrderAction);
