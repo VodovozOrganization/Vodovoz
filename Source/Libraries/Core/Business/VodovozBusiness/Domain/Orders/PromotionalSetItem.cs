@@ -127,6 +127,13 @@ namespace Vodovoz.Domain.Orders
 		);
 		
 		/// <summary>
+		/// Цена позиции промонабора
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns></returns>
+		public virtual decimal Price(bool useAlternativePrice = false) => Nomenclature.GetPromoSetItemPrice(useAlternativePrice);
+		
+		/// <summary>
 		/// Общая стоимость позиции промонабора без учета скидок
 		/// </summary>
 		/// <param name="useAlternativePrice">Брать альтернативную цену</param>

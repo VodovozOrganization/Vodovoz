@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz;
 using Vodovoz.Domain.Client;
@@ -7,6 +8,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace VodovozBusiness.Models.Orders
 {
@@ -35,7 +37,42 @@ namespace VodovozBusiness.Models.Orders
 				? uow.GetById<PaymentFrom>(
 					onlineOrder.OnlinePaymentSource.ConvertToPaymentFromId(orderSettings))
 				: null;
+
+			var onlineProducts = new List<IProduct>();
+			var onlineOrderV2 = onlineOrder.As<OnlineOrderV2>();
+
+			onlineProducts.AddRange(onlineOrder.OnlineOrderItems);
 			
+			if(onlineOrderV2 != null)
+			{
+				foreach(var onlineOrderPromoSet in onlineOrderV2.PromoSets)
+				{
+					var promoSet = onlineOrderPromoSet.PromoSet;
+					
+					if(promoSet is null)
+					{
+						continue;
+					}
+
+					onlineProducts
+						.AddRange(promoSet.PromotionalSetItems
+							.Select(promoSetItem => OnlineOrderItem.Create(
+								promoSetItem.Nomenclature.Id,
+								promoSetItem.Count * onlineOrderPromoSet.Count,
+								promoSetItem.IsDiscountInMoney,
+								false,
+								promoSetItem.IsDiscountInMoney ? promoSetItem.DiscountMoney : promoSetItem.Discount,
+								promoSetItem.Price(),
+								promoSet.Id,
+								new List<DiscountReason>(),
+								promoSetItem.Nomenclature,
+								promoSet,
+								onlineOrder)
+							)
+						);
+				}
+			}
+
 			return new OrderOrganizationChoice
 			{
 				OrderId = 0,
@@ -46,7 +83,7 @@ namespace VodovozBusiness.Models.Orders
 				OurOrganization = null,
 				ClientWorksThroughOrganization = onlineOrder.Counterparty?.WorksThroughOrganization,
 				CurrentOrderOrganization = null,
-				Goods = onlineOrder.OnlineOrderItems,
+				Goods = onlineProducts,
 				OrderEquipments = new List<OrderEquipment>(),
 				OrderDepositItems = new List<OrderDepositItem>(),
 				IsSelfDelivery = onlineOrder.IsSelfDelivery,

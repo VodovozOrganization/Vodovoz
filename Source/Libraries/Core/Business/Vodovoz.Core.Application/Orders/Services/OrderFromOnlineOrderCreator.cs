@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -110,9 +111,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 			{
 				order.Client.ReasonForLeaving = ReasonForLeaving.ForOwnNeeds;
 			}
-			
-			FillOrderGoodsFromOnlineOrder(uow, order, onlineOrder.OnlineOrderItems, onlineOrder.OnlineRentPackages, manualCreation);
-			
+
+			FillOrderGoods(uow, order, onlineOrder, manualCreation);
+
 			return order;
 		}
 
@@ -165,6 +166,26 @@ namespace Vodovoz.Core.Application.Orders.Services
 			order.ContactPhone = clientPhone;
 		}
 
+		private void FillOrderGoods(IUnitOfWork uow, Order order, OnlineOrder onlineOrder, bool manualCreation)
+		{
+			var onlineOrderV2 = onlineOrder.As<OnlineOrderV2>();
+
+			if(onlineOrderV2 is null)
+			{
+				FillOrderGoodsFromOnlineOrder(uow, order, onlineOrder.OnlineOrderItems, onlineOrder.OnlineRentPackages, manualCreation);
+			}
+			else
+			{
+				FillOrderGoodsFromOnlineOrderV2(
+					uow,
+					order,
+					onlineOrderV2.OnlineOrderItems,
+					onlineOrderV2.PromoSets,
+					onlineOrderV2.OnlineRentPackages,
+					manualCreation);
+			}
+		}
+
 		private void FillOrderGoodsFromPartOrder(
 			IUnitOfWork uow,
 			Order order,
@@ -182,6 +203,18 @@ namespace Vodovoz.Core.Application.Orders.Services
 			bool manualCreation)
 		{
 			AddOrderItems(uow, order, onlineOrderItems, manualCreation);
+			AddFreeRentPackages(uow, order, onlineRentPackages);
+		}
+
+		private void FillOrderGoodsFromOnlineOrderV2(
+			IUnitOfWork uow,
+			Order order,
+			IEnumerable<OnlineOrderItem> onlineOrderItems,
+			IEnumerable<OnlineOrderPromoSet> promoSets,
+			IEnumerable<OnlineFreeRentPackage> onlineRentPackages,
+			bool manualCreation)
+		{
+			AddNomenclatures(uow, order, onlineOrderItems, promoSets, manualCreation);
 			AddFreeRentPackages(uow, order, onlineRentPackages);
 		}
 
@@ -219,6 +252,25 @@ namespace Vodovoz.Core.Application.Orders.Services
 				TryAddOtherItemsFromAutoCreationOrder(uow, order, otherItems);
 			}
 		}
+		
+		private void AddNomenclatures(
+			IUnitOfWork uow,
+			Order order,
+			IEnumerable<IProduct> onlineOrderItems,
+			IEnumerable<OnlineOrderPromoSet> promoSets,
+			bool manualCreation = false)
+		{
+			TryAddPromoSets(uow, order, promoSets);
+
+			if(manualCreation)
+			{
+				TryAddOtherItemsFromManualCreationOrder(uow, order, onlineOrderItems);
+			}
+			else
+			{
+				TryAddOtherItemsFromAutoCreationOrder(uow, order, onlineOrderItems);
+			}
+		}
 
 		private void TryAddPromoSets(IUnitOfWork uow, Order order, ILookup<int, IProduct> onlineOrderPromoSets)
 		{
@@ -243,6 +295,46 @@ namespace Vodovoz.Core.Application.Orders.Services
 				}
 
 				for(var i = 0; i < promoSetCount; i++)
+				{
+					foreach(var proSetItem in promoSet.PromotionalSetItems)
+					{
+						order.AddNomenclature(
+							uow,
+							_contractUpdater,
+							proSetItem.Nomenclature,
+							proSetItem.Count,
+							proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
+							proSetItem.IsDiscountInMoney,
+							true,
+							null,
+							proSetItem.PromoSet);
+					}
+					
+					order.ObservablePromotionalSets.Add(promoSet);
+					
+					if(promoSet.PromotionalSetForNewClients)
+					{
+						addedPromoSetsForNewClients.Add(promoSet.Id, true);
+						break;
+					}
+				}
+			}
+		}
+		
+		private void TryAddPromoSets(IUnitOfWork uow, Order order, IEnumerable<OnlineOrderPromoSet> onlineOrderPromoSets)
+		{
+			var addedPromoSetsForNewClients = new Dictionary<int, bool>();
+			
+			foreach(var onlineOrderPromoSet in onlineOrderPromoSets)
+			{
+				var promoSet = onlineOrderPromoSet.PromoSet;
+				
+				if(promoSet.PromotionalSetForNewClients && addedPromoSetsForNewClients.Any())
+				{
+					continue;
+				}
+
+				for(var i = 0; i < onlineOrderPromoSet.Count; i++)
 				{
 					foreach(var proSetItem in promoSet.PromotionalSetItems)
 					{
