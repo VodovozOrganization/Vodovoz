@@ -3,6 +3,7 @@ using Gtk;
 using QS.Navigation;
 using QSOrmProject;
 using Vodovoz.Domain;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
@@ -30,8 +31,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Helpers
 			helpersMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Шаблоны комментариев", OnCommentTemplatesPressed));
 			helpersMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Шаблоны комментариев для штрафов", OnFineCommentTemplatesPressed));
 			helpersMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Шаблоны комментариев для премий", OnPremiumCommentTemplatesPressed));
-			helpersMenu.Add(
-				_concreteMenuItemCreator.CreateMenuItem("Настройка текстов пуш-уведомлений", OnPushNotificationTextSettingsPressed));
+			helpersMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Настройка текстов пуш-уведомлений", OnPushNotificationTextSettingsPressed));
+			helpersMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Настройка шаблонов уведомлений по ЭДО", OnEdoNotificationSettingsPressed));
 
 			return helpersMenuItem;
 		}
@@ -78,6 +79,16 @@ namespace Vodovoz.MainMenu.JournalsMenu.Helpers
 		private void OnPushNotificationTextSettingsPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<OnlineOrderNotificationSettingJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+		}
+
+		/// <summary>
+		/// Настройка шаблонов ЭДО-уведомлений
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnEdoNotificationSettingsPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<EdoNotificationSettingJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 	}
 }

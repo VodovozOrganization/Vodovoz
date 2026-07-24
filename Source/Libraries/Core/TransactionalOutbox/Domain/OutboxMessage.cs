@@ -18,7 +18,7 @@ namespace TransactionalOutbox.Domain
 		/// Дата и время создания сообщения
 		/// </summary>
 		public virtual DateTime CreatedAt { get; protected set; }
-		
+
 		/// <summary>
 		/// Тип сообщения
 		/// </summary>
@@ -57,7 +57,7 @@ namespace TransactionalOutbox.Domain
 		/// <param name="domainEvent">Доменное событие, связанное сообщением аутбокса. Используется для генерации ключа дедупликации.</param>
 		/// <param name="payload">Объект, который будет сохранен в сообщениеи аутбокса. Представляет данные, которые будут сериализованы и отправлены.</param>
 		/// <exception cref="ArgumentNullException">Выбрасывается, если domainEvent или payload равны null.</exception>
-		public OutboxMessage(IOutboxDomainEvent domainEvent, object payload)
+		public OutboxMessage(IIdempotentOutboxMessage domainEvent, object payload)
 		{
 			if(domainEvent == null)
 			{
@@ -69,8 +69,51 @@ namespace TransactionalOutbox.Domain
 				throw new ArgumentNullException(nameof(payload));
 			}
 
-			CreatedAt = DateTime.UtcNow;			
+			CreatedAt = DateTime.UtcNow;
 			DeduplicationKey = domainEvent.GetDeduplicationKey();
+
+			SavePayload(payload);
+		}
+
+		public OutboxMessage(IIdempotentOutboxMessage payload)
+		{
+			if(payload == null)
+			{
+				throw new ArgumentNullException(nameof(payload));
+			}
+
+			CreatedAt = DateTime.UtcNow;
+			DeduplicationKey = payload.GetDeduplicationKey();
+
+			SavePayload(payload);
+		}
+
+		public OutboxMessage(object payload, string deduplicationKey)
+		{
+			if(payload == null)
+			{
+				throw new ArgumentNullException(nameof(payload));
+			}
+
+			if(string.IsNullOrWhiteSpace(deduplicationKey))
+			{
+				throw new ArgumentException("DeduplicationKey is required", nameof(deduplicationKey));
+			}
+
+			CreatedAt = DateTime.UtcNow;
+			DeduplicationKey = deduplicationKey.Trim();
+
+			SavePayload(payload);
+		}
+
+		public OutboxMessage(object payload)
+		{
+			if(payload == null)
+			{
+				throw new ArgumentNullException(nameof(payload));
+			}
+
+			CreatedAt = DateTime.UtcNow;
 
 			SavePayload(payload);
 		}
@@ -93,16 +136,19 @@ namespace TransactionalOutbox.Domain
 		/// <summary>
 		/// Сохраняет объект в сообщении аутбокса, сериализуя его в JSON строку и устанавливая тип сообщения.
 		/// </summary>
-		public virtual void SavePayload(object integrationEvent)
+		public virtual void SavePayload(object payload)
 		{
-			if(integrationEvent == null)
+			if(payload == null)
 			{
-				throw new ArgumentNullException(nameof(integrationEvent));
+				throw new ArgumentNullException(nameof(payload));
 			}
 
-			Type = integrationEvent.GetType().FullName;
-			Payload = integrationEvent.SerializeForOutbox();
-			
+			Type = payload.GetType().FullName;
+			Payload = payload.SerializeForOutbox();
 		}
+
+		public static OutboxMessage Create(object payload) =>
+			new OutboxMessage(payload);
+
 	}
 }

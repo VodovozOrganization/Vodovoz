@@ -23,7 +23,9 @@ namespace TransactionalOutbox.Serialization
 				DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
 				PropertyNameCaseInsensitive = true,
 				ReadCommentHandling = JsonCommentHandling.Skip,
-				AllowTrailingCommas = true
+				AllowTrailingCommas = true,
+				DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+				NumberHandling = JsonNumberHandling.AllowReadingFromString
 			};
 		}
 	}

@@ -27,14 +27,12 @@
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\CustomerOrdersApi.Library\CustomerOrdersApi.Library.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport.MassTransit\MessageTransport.MassTransit.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Osrm\Osrm.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
-      <ProjectReference Include="..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj" />
-      <ProjectReference Include="..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj" />
-      <ProjectReference Include="..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Transport\CustomerNotifications.Transport.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
-      <ProjectReference Include="..\..\..\..\Libraries\Core\TransactionalOutbox\TransactionalOutbox.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Vodovoz.Trackers\Vodovoz.Trackers.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
       <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />

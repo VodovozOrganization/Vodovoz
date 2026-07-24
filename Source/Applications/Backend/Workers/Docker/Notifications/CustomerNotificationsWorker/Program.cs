@@ -1,6 +1,6 @@
-using CustomerNotifications.Transport;
-using CustomerNotificationsWorker.Config;
+﻿using CustomerNotificationsWorker.Config;
 using MassTransit;
+using MessageTransport.MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
@@ -22,14 +22,11 @@ namespace CustomerNotificationsWorker
 				})
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.Configure<CustomerNotificationTransportSettings>(
-						hostContext.Configuration.GetSection("CustomerNotificationTransportSettings"));
-
 					services.AddMassTransit(x =>
 					{
 						x.AddConsumer<CustomerNotificationsConsumer, CustomerNotificationsConsumerDefinition>();
 
-						x.ConfigureCustomerNotificationsRabbitMq(services, hostContext.Configuration);
+						x.ConfigureRabbitMq(services, hostContext.Configuration, "NotificationTransportSettings");
 					});
 
 					services.Configure<NotifierOptions>(hostContext.Configuration.GetSection(NotifierOptions.Path));
