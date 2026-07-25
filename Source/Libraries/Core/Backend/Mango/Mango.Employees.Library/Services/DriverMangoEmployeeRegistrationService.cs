@@ -26,7 +26,8 @@ namespace Mango.Employees.Library.Services
 	public class DriverMangoEmployeeRegistrationService
 	{
 		private const string _noFreeExtensionNumberError = "Отсутствуют свободные добавочные номера Манго в пуле";
-		private const int _delayBeforeReconcileDriversGroupInSeconds = 1;
+		private const int _reconcileDriversGroupMaxAttempts = 3;
+		private const int _delayBetweenReconcileDriversGroupAttemptsInSeconds = 2;
 
 		private readonly ILogger<DriverMangoEmployeeRegistrationService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -85,11 +86,6 @@ namespace Mango.Employees.Library.Services
 
 				await ProcessRequestAsync(requestId, occupiedMangoExtensions, createdMangoUserIds, cancellationToken);
 			}
-
-			// Если добавлять новы сотрудников в группу сразу после их создания,
-			// то может возникнуть ошибка 3100, означающая, что были переданы некорректные параметры
-			// Поэтому делаем паузу, чтобы сотрудники успели появиться в списке сотрудников ВАТС
-			await Task.Delay(TimeSpan.FromSeconds(_delayBeforeReconcileDriversGroupInSeconds), cancellationToken);
 
 			await ReconcileDriversGroupAsync(mangoUsers, createdMangoUserIds, cancellationToken);
 		}
@@ -302,15 +298,33 @@ namespace Mango.Employees.Library.Services
 				return;
 			}
 
-			try
+			for(var attempt = 1; attempt <= _reconcileDriversGroupMaxAttempts; attempt++)
 			{
-				await UpdateDriversGroupAsync(driverUserIds, cancellationToken);
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(
-					e,
-					"Ошибка обновления состава группы водителей Манго. Сотрудники уже созданы и будут добавлены в группу при следующем запуске воркера");
+				cancellationToken.ThrowIfCancellationRequested();
+
+				try
+				{
+					await UpdateDriversGroupAsync(driverUserIds, cancellationToken);
+
+					return;
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(
+						e,
+						"Ошибка обновления состава группы водителей Манго (попытка {Attempt} из {MaxAttempts})",
+						attempt,
+						_reconcileDriversGroupMaxAttempts);
+
+					if(attempt == _reconcileDriversGroupMaxAttempts)
+					{
+						return;
+					}
+
+					await Task.Delay(
+						TimeSpan.FromSeconds(_delayBetweenReconcileDriversGroupAttemptsInSeconds),
+						cancellationToken);
+				}
 			}
 		}
 
