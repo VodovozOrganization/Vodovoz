@@ -25,7 +25,7 @@ namespace Mango.Employees.Library.Options
 		/// <summary>
 		/// Id группы ВАТС, в которую добавляются водители (group_id)
 		/// </summary>
-		public string DriversGroupId { get; set; }
+		public long DriversGroupId { get; set; }
 
 		/// <summary>
 		/// Минимальный добавочный номер пула

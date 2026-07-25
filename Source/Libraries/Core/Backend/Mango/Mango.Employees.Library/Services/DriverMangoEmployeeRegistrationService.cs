@@ -1,8 +1,10 @@
 ﻿using Mango.Core.Dto.Vpbx.Requests;
+using Mango.Core.Dto.Vpbx.Responses;
 using Mango.Employees.Library.Options;
 using Mango.Vpbx.Client.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MoreLinq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -18,15 +20,13 @@ using Vodovoz.EntityRepositories.Mango;
 namespace Mango.Employees.Library.Services
 {
 	/// <summary>
-	/// Обрабатывает заявки на регистрацию водителей как сотрудников Манго:
-	/// подбирает добавочный номер, создаёт сотрудника и добавляет его в группу
+	/// Обрабатывает заявки на регистрацию водителей как сотрудников Манго: подбирает добавочный номер
+	/// и создаёт сотрудника. Созданный сотрудник добавляется в группу водителей Манго
 	/// </summary>
 	public class DriverMangoEmployeeRegistrationService
 	{
-		/// <summary>
-		/// Сообщение об отсутствии свободных добавочных номеров в пуле
-		/// </summary>
 		private const string _noFreeExtensionNumberError = "Отсутствуют свободные добавочные номера Манго в пуле";
+		private const int _delayBeforeReconcileDriversGroupInSeconds = 1;
 
 		private readonly ILogger<DriverMangoEmployeeRegistrationService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -73,15 +73,32 @@ namespace Mango.Employees.Library.Services
 
 			_logger.LogInformation("Найдено {RequestsCount} новых заявок на регистрацию сотрудников Манго", requestIds.Count);
 
+			var mangoUsers = await _mangoVpbxEmployeesService.GetAllUsersAsync(cancellationToken);
+
+			var occupiedMangoExtensions = GetOccupiedExtensions(mangoUsers);
+
+			var createdMangoUserIds = new HashSet<long>();
+
 			foreach(var requestId in requestIds)
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
-				await ProcessRequestAsync(requestId, cancellationToken);
+				await ProcessRequestAsync(requestId, occupiedMangoExtensions, createdMangoUserIds, cancellationToken);
 			}
+
+			// Если добавлять новы сотрудников в группу сразу после их создания,
+			// то может возникнуть ошибка 3100, означающая, что были переданы некорректные параметры
+			// Поэтому делаем паузу, чтобы сотрудники успели появиться в списке сотрудников ВАТС
+			await Task.Delay(TimeSpan.FromSeconds(_delayBeforeReconcileDriversGroupInSeconds), cancellationToken);
+
+			await ReconcileDriversGroupAsync(mangoUsers, createdMangoUserIds, cancellationToken);
 		}
 
-		private async Task ProcessRequestAsync(int requestId, CancellationToken cancellationToken)
+		private async Task ProcessRequestAsync(
+			int requestId,
+			HashSet<int> occupiedMangoExtensions,
+			HashSet<long> createdMangoUserIds,
+			CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Обработка заявки на регистрацию сотрудника Манго {requestId}");
 
@@ -117,7 +134,7 @@ namespace Mango.Employees.Library.Services
 					return;
 				}
 
-				var extension = await FindFreeExtensionNumberAsync(uow, cancellationToken);
+				var extension = await FindFreeExtensionNumberAsync(uow, occupiedMangoExtensions, cancellationToken);
 				if(extension is null)
 				{
 					_logger.LogError(
@@ -133,13 +150,11 @@ namespace Mango.Employees.Library.Services
 
 				var mangoUserId = await CreateMangoMemberAsync(driver, extension.Value, cancellationToken);
 
-				// Сохраняем добавочный номер сразу после создания сотрудника в Манго:
-				// если добавление в группу далее упадёт, повторной попытки создания (и ошибки занятого номера) не будет
 				await SaveExtensionNumberAsync(uow, driver.Id, extension.Value, mangoUserId, cancellationToken);
-
-				await AddMemberToGroupAsync(mangoUserId, cancellationToken);
-
 				await Complete(uow, request, DriverMangoEmployeeRegistrationRequestStatus.Completed, cancellationToken);
+
+				occupiedMangoExtensions.Add(extension.Value);
+				createdMangoUserIds.Add(mangoUserId);
 
 				_logger.LogInformation(
 					"Заявка {RequestId} обработана: водитель {DriverId} зарегистрирован в Манго с номером {Extension}",
@@ -181,9 +196,17 @@ namespace Mango.Employees.Library.Services
 			return null;
 		}
 
-		private async Task<int?> FindFreeExtensionNumberAsync(IUnitOfWork uow, CancellationToken cancellationToken)
+		/// <summary>
+		/// Подбирает минимальный свободный добавочный номер из пула: не занятый ни в базе, ни в ВАТС
+		/// </summary>
+		private async Task<int?> FindFreeExtensionNumberAsync(
+			IUnitOfWork uow,
+			HashSet<int> occupiedMangoExtensions,
+			CancellationToken cancellationToken)
 		{
-			var usedNumbers = new HashSet<int>(await _extensionNumberRepository.GetUsedExtensionNumbersAsync(uow, cancellationToken));
+			var usedNumbers =
+				(await _extensionNumberRepository.GetUsedExtensionNumbersAsync(uow, cancellationToken)).ToHashSet();
+			usedNumbers.UnionWith(occupiedMangoExtensions);
 
 			var poolStart = _options.Value.ExtensionNumberPoolStart;
 			var poolEnd = _options.Value.ExtensionNumberPoolEnd;
@@ -192,19 +215,33 @@ namespace Mango.Employees.Library.Services
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
-				if(usedNumbers.Contains(extension))
-				{
-					continue;
-				}
-
-				var mangoUsers = await _mangoVpbxEmployeesService.GetUsersAsync(extension.ToString(), cancellationToken);
-				if(mangoUsers.Count == 0)
+				if(!usedNumbers.Contains(extension))
 				{
 					return extension;
 				}
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Возвращает добавочные номера, уже занятые сотрудниками ВАТС, из полученного списка сотрудников
+		/// </summary>
+		/// <param name="mangoUsers">Сотрудники ВАТС</param>
+		/// <returns></returns>
+		private static HashSet<int> GetOccupiedExtensions(IReadOnlyList<VpbxUser> mangoUsers)
+		{
+			var occupiedExtensions = new HashSet<int>();
+
+			foreach(var mangoUser in mangoUsers)
+			{
+				if(int.TryParse(mangoUser.Telephony?.Extension, out var extension))
+				{
+					occupiedExtensions.Add(extension);
+				}
+			}
+
+			return occupiedExtensions;
 		}
 
 		private async Task<long> CreateMangoMemberAsync(Employee driver, int extension, CancellationToken cancellationToken)
@@ -245,7 +282,62 @@ namespace Mango.Employees.Library.Services
 			await uow.CommitAsync(cancellationToken);
 		}
 
-		private async Task AddMemberToGroupAsync(long mangoUserId, CancellationToken cancellationToken)
+		private async Task ReconcileDriversGroupAsync(
+			IReadOnlyList<VpbxUser> mangoUsers,
+			HashSet<long> createdMangoUserIds,
+			CancellationToken cancellationToken)
+		{
+			var driverUserIds = GetPoolUserIds(mangoUsers);
+			driverUserIds.UnionWith(createdMangoUserIds);
+
+			if(driverUserIds.Count == 0)
+			{
+				return;
+			}
+
+			try
+			{
+				await UpdateDriversGroupAsync(driverUserIds, cancellationToken);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка обновления состава группы водителей Манго. Сотрудники уже созданы и будут добавлены в группу при следующем запуске воркера");
+			}
+		}
+
+		/// <summary>
+		/// Возвращает user_id сотрудников ВАТС, у которых добавочный номер входит в пул водителей
+		/// </summary>
+		/// <param name="mangoUsers">Сотрудники ВАТС</param>
+		/// <returns></returns>
+		private HashSet<long> GetPoolUserIds(IReadOnlyList<VpbxUser> mangoUsers)
+		{
+			var poolStart = _options.Value.ExtensionNumberPoolStart;
+			var poolEnd = _options.Value.ExtensionNumberPoolEnd;
+
+			var poolUserIds = new HashSet<long>();
+
+			foreach(var mangoUser in mangoUsers)
+			{
+				if(mangoUser.General?.UserId is null)
+				{
+					continue;
+				}
+
+				if(int.TryParse(mangoUser.Telephony?.Extension, out var extension)
+					&& extension >= poolStart
+					&& extension <= poolEnd)
+				{
+					poolUserIds.Add(mangoUser.General.UserId.Value);
+				}
+			}
+
+			return poolUserIds;
+		}
+
+		private async Task UpdateDriversGroupAsync(HashSet<long> poolUserIds, CancellationToken cancellationToken)
 		{
 			var groupId = _options.Value.DriversGroupId;
 
@@ -253,15 +345,17 @@ namespace Mango.Employees.Library.Services
 
 			var group = groups.FirstOrDefault();
 
-			var operatorIds = group?.Operators?
-				.Select(x => x.Id.ToString())
-				.ToList()
-				?? new List<string>();
+			// UpdateGroup заменяет состав целиком, поэтому сохраняем текущих операторов
+			var operatorIds = new HashSet<long>(
+				group?.Operators?.Select(x => x.Id) ?? Enumerable.Empty<long>());
 
-			var newMemberId = mangoUserId.ToString();
-			if(!operatorIds.Contains(newMemberId))
+			var operatorsCountBeforeUnion = operatorIds.Count;
+
+			operatorIds.UnionWith(poolUserIds.Select(id => id));
+
+			if(operatorIds.Count == operatorsCountBeforeUnion)
 			{
-				operatorIds.Add(newMemberId);
+				return;
 			}
 
 			await _mangoVpbxEmployeesService.UpdateGroupOperatorsAsync(groupId, operatorIds, cancellationToken);

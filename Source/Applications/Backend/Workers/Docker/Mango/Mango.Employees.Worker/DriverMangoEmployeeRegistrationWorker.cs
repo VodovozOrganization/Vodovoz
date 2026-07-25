@@ -17,6 +17,12 @@ namespace Mango.Employees.Worker
 	/// </summary>
 	public class DriverMangoEmployeeRegistrationWorker : TimerBackgroundServiceBase
 	{
+		/// <summary>
+		/// Минимальный интервал запуска. За каждый прогон выполняется один запрос списка сотрудников ВАТС
+		/// (users/request), лимит которого - 1 запрос в 2 секунды, поэтому чаще воркер запускать нельзя
+		/// </summary>
+		private static readonly TimeSpan _minInterval = TimeSpan.FromSeconds(2);
+
 		private readonly ILogger<DriverMangoEmployeeRegistrationWorker> _logger;
 		private readonly IOptions<DriverMangoEmployeeRegistrationOptions> _options;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -34,7 +40,8 @@ namespace Mango.Employees.Worker
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
-		protected override TimeSpan Interval => _options.Value.Interval;
+		protected override TimeSpan Interval =>
+			_options.Value.Interval < _minInterval ? _minInterval : _options.Value.Interval;
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{

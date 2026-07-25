@@ -1,4 +1,4 @@
-using Mango.Core.Dto.Vpbx.Requests;
+﻿using Mango.Core.Dto.Vpbx.Requests;
 using Mango.Core.Dto.Vpbx.Responses;
 using System.Collections.Generic;
 using System.Threading;
@@ -23,14 +23,19 @@ namespace Mango.Vpbx.Client.Services
 	public interface IMangoVpbxEmployeesService
 	{
 		/// <summary>
-		/// Запрашивает сотрудников ВАТС
+		/// Запрашивает всех сотрудников ВАТС
 		/// </summary>
-		/// <param name="extension">
-		/// Внутренний номер сотрудника. Если не указан, возвращаются все сотрудники ВАТС
-		/// </param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns>Сотрудники ВАТС. Пустой список, если сотрудник с указанным номером не найден</returns>
-		Task<IReadOnlyList<VpbxUser>> GetUsersAsync(string extension, CancellationToken cancellationToken);
+		/// <returns>Сотрудники ВАТС</returns>
+		Task<IReadOnlyList<VpbxUser>> GetAllUsersAsync(CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Запрашивает сотрудника ВАТС по внутреннему номеру
+		/// </summary>
+		/// <param name="extension">Внутренний номер сотрудника</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		/// <returns>Сотрудник ВАТС. Пустой список, если сотрудник с указанным номером не найден</returns>
+		Task<IReadOnlyList<VpbxUser>> GetUserAsync(long extension, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Создаёт сотрудника ВАТС
@@ -44,18 +49,25 @@ namespace Mango.Vpbx.Client.Services
 		/// Удаляет сотрудника ВАТС
 		/// </summary>
 		/// <param name="userId">
-		/// Id сотрудника. Соответствует полю general.user_id в ответе <see cref="GetUsersAsync"/>
+		/// Id сотрудника. Соответствует полю general.user_id в ответе <see cref="GetUserAsync"/>
 		/// </param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		Task DeleteMemberAsync(string userId, CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Запрашивает группы ВАТС вместе с их составом
+		/// Запрашивает все группы ВАТС вместе с их составом
+		/// </summary>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		/// <returns>Группы ВАТС</returns>
+		Task<IReadOnlyList<VpbxGroup>> GetAllGroupsAsync(CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Запрашивает состав группы ВАТС по Id
 		/// </summary>
 		/// <param name="groupId">Id группы. Если не указан, возвращаются все группы ВАТС</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Группы ВАТС. Пустой список, если группа с указанным Id не найдена</returns>
-		Task<IReadOnlyList<VpbxGroup>> GetGroupsAsync(string groupId, CancellationToken cancellationToken);
+		Task<IReadOnlyList<VpbxGroup>> GetGroupsAsync(long groupId, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Заменяет состав группы ВАТС
@@ -66,6 +78,6 @@ namespace Mango.Vpbx.Client.Services
 		/// поэтому передавать нужно всех сотрудников группы, а не только добавляемых
 		/// </param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
-		Task UpdateGroupOperatorsAsync(string groupId, IEnumerable<string> operatorIds, CancellationToken cancellationToken);
+		Task UpdateGroupOperatorsAsync(long groupId, IEnumerable<long> operatorIds, CancellationToken cancellationToken);
 	}
 }

@@ -150,15 +150,15 @@ namespace Vodovoz.Settings.Database.Mango
 			}
 		}
 
-		public string DriversGroupId
+		public long DriversGroupId
 		{
 			get
 			{
 				if(TestMode)
 				{
-					return _settingsController.GetStringValue("Mango.Test.DriversGroupId");
+					return _settingsController.GetValue<long>("Mango.Test.DriversGroupId");
 				}
-				return _settingsController.GetStringValue("Mango.Work.DriversGroupId");
+				return _settingsController.GetValue<long>("Mango.Work.DriversGroupId");
 			}
 		}
 

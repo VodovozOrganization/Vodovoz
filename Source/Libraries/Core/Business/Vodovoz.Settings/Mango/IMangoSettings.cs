@@ -44,7 +44,7 @@ namespace Vodovoz.Settings.Mango
 		/// <summary>
 		/// Id группы ВАТС, в которую добавляются водители
 		/// </summary>
-		string DriversGroupId { get; }
+		long DriversGroupId { get; }
 
 		/// <summary>
 		/// Минимальный добавочный номер пула, выделяемого водителям

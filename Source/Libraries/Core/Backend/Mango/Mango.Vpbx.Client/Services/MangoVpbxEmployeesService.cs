@@ -63,7 +63,19 @@ namespace Mango.Vpbx.Client.Services
 		}
 
 		/// <inheritdoc/>
-		public async Task<IReadOnlyList<VpbxUser>> GetUsersAsync(string extension, CancellationToken cancellationToken)
+		public async Task<IReadOnlyList<VpbxUser>> GetAllUsersAsync(CancellationToken cancellationToken)
+		{
+			return await GetUsersAsync(null, cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IReadOnlyList<VpbxUser>> GetUserAsync(long extension, CancellationToken cancellationToken)
+		{
+			return await GetUsersAsync(extension.ToString(), cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		private async Task<IReadOnlyList<VpbxUser>> GetUsersAsync(string extension, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
 				"Запрашиваем сотрудников ВАТС Манго{ExtensionPart}",
@@ -162,7 +174,19 @@ namespace Mango.Vpbx.Client.Services
 		}
 
 		/// <inheritdoc/>
-		public async Task<IReadOnlyList<VpbxGroup>> GetGroupsAsync(string groupId, CancellationToken cancellationToken)
+		public async Task<IReadOnlyList<VpbxGroup>> GetAllGroupsAsync(CancellationToken cancellationToken)
+		{
+			return await GetGroupsAsync(null, cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IReadOnlyList<VpbxGroup>> GetGroupsAsync(long groupId, CancellationToken cancellationToken)
+		{
+			return await GetGroupsAsync(groupId.ToString(), cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		private async Task<IReadOnlyList<VpbxGroup>> GetGroupsAsync(string groupId, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
 				"Запрашиваем группы ВАТС Манго{GroupIdPart}",
@@ -200,22 +224,17 @@ namespace Mango.Vpbx.Client.Services
 
 		/// <inheritdoc/>
 		public async Task UpdateGroupOperatorsAsync(
-			string groupId,
-			IEnumerable<string> operatorIds,
+			long groupId,
+			IEnumerable<long> operatorIds,
 			CancellationToken cancellationToken)
 		{
-			if(string.IsNullOrWhiteSpace(groupId))
-			{
-				throw new ArgumentException($"{nameof(groupId)} не может быть пустым", nameof(groupId));
-			}
-
 			if(operatorIds is null)
 			{
 				throw new ArgumentNullException(nameof(operatorIds));
 			}
 
 			var operators = operatorIds
-				.Select(x => new VpbxGroupOperatorUpdate { Id = x })
+				.Select(x => new VpbxGroupOperatorUpdate { Id = x.ToString() })
 				.ToList();
 
 			_logger.LogInformation(
@@ -225,7 +244,7 @@ namespace Mango.Vpbx.Client.Services
 
 			var request = new UpdateVpbxGroupRequest
 			{
-				GroupId = groupId,
+				GroupId = groupId.ToString(),
 				Group = new VpbxGroupUpdate
 				{
 					Operators = operators
