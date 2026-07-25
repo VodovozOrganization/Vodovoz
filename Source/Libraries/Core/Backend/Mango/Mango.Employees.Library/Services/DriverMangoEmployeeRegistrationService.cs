@@ -150,7 +150,7 @@ namespace Mango.Employees.Library.Services
 
 				var mangoUserId = await CreateMangoMemberAsync(driver, extension.Value, cancellationToken);
 
-				await SaveExtensionNumberAsync(uow, driver.Id, extension.Value, mangoUserId, cancellationToken);
+				await SaveExtensionNumberAsync(uow, driver.Id, extension.Value, mangoUserId, request, cancellationToken);
 				await Complete(uow, request, DriverMangoEmployeeRegistrationRequestStatus.Completed, cancellationToken);
 
 				occupiedMangoExtensions.Add(extension.Value);
@@ -267,7 +267,13 @@ namespace Mango.Employees.Library.Services
 			return await _mangoVpbxEmployeesService.CreateMemberAsync(createRequest, cancellationToken);
 		}
 
-		private async Task SaveExtensionNumberAsync(IUnitOfWork uow, int driverId, int extension, long mangoUserId, CancellationToken cancellationToken)
+		private async Task SaveExtensionNumberAsync(
+			IUnitOfWork uow,
+			int driverId,
+			int extension,
+			long mangoUserId,
+			DriverMangoEmployeeRegistrationRequest request,
+			CancellationToken cancellationToken)
 		{
 			var extensionNumber = new DriverMangoExtensionNumber
 			{
@@ -275,7 +281,8 @@ namespace Mango.Employees.Library.Services
 				ExtensionNumber = extension,
 				MangoUserId = mangoUserId,
 				Status = DriverMangoExtensionNumberStatus.Active,
-				ActivatedAt = DateTime.Now
+				ActivatedAt = DateTime.Now,
+				Request = request
 			};
 
 			await uow.SaveAsync(extensionNumber, cancellationToken: cancellationToken);

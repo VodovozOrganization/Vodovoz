@@ -28,6 +28,7 @@ namespace Vodovoz.Core.Domain.Mango
 		private DriverMangoExtensionNumberStatus _status;
 		private DateTime _activatedAt;
 		private DateTime? _deactivatedAt;
+		private DriverMangoEmployeeRegistrationRequest _request;
 
 		/// <summary>
 		/// Код
@@ -97,6 +98,16 @@ namespace Vodovoz.Core.Domain.Mango
 		{
 			get => _deactivatedAt;
 			set => SetField(ref _deactivatedAt, value);
+		}
+
+		/// <summary>
+		/// Заявка на регистрацию сотрудника Манго, в рамках которой был создан добавочный номер
+		/// </summary>
+		[Display(Name = "Заявка на регистрацию сотрудника Манго")]
+		public virtual DriverMangoEmployeeRegistrationRequest Request
+		{
+			get => _request;
+			set => SetField(ref _request, value);
 		}
 	}
 }
