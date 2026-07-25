@@ -399,5 +399,20 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 
 		public Task<Employee> GetEmployeeByIdAsync(IUnitOfWork uow, int employeeId, CancellationToken cancellationToken) =>
 			uow.Session.GetAsync<Employee>(employeeId, cancellationToken);
+
+		public bool CanCreateDriverMangoRegistrationRequest(IUnitOfWork uow, int driverId)
+		{
+			var hasActiveExtensionNumber = uow.Session.Query<DriverMangoExtensionNumber>()
+				.Where(x => x.DriverId == driverId)
+				.Where(x => x.Status == DriverMangoExtensionNumberStatus.Active)
+				.ToFutureValue(q => q.Any());
+
+			var hasNewRegistrationRequest = uow.Session.Query<DriverMangoEmployeeRegistrationRequest>()
+				.Where(x => x.DriverId == driverId)
+				.Where(x => x.Status == DriverMangoEmployeeRegistrationRequestStatus.New)
+				.ToFutureValue(q => q.Any());
+
+			return !hasActiveExtensionNumber.Value && !hasNewRegistrationRequest.Value;
+		}
 	}
 }

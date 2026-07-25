@@ -85,5 +85,13 @@ namespace Vodovoz.EntityRepositories.Employees
 		/// Возвращает сотрудника по идентификатору
 		/// </summary>
 		Task<Employee> GetEmployeeByIdAsync(IUnitOfWork uow, int employeeId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверяет можно ли создать заявку на регистрацию водителя как сотрудника Манго
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="driverId">Id водителя (сотрудника)</param>
+		/// <returns>Результат проверки</returns>
+		bool CanCreateDriverMangoRegistrationRequest(IUnitOfWork uow, int driverId);
 	}
 }
