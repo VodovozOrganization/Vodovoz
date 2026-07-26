@@ -302,7 +302,7 @@ namespace BitrixNotificationsSend.Library.Services
 					CounterpartyName = counterpartyData?.FullName,
 					CounterpartyInn = counterpartyData?.Inn,
 					PhoneNumber = candidate.LastOrder?.ContactPhoneNumber,
-					EmailAddress = SelectPriorityEmailAddress(counterpartyEmails),
+					EmailAddress = PriorityEmailAddressSelector.SelectPriorityEmailAddress(counterpartyEmails),
 					DeliveryPointAddress = deliveryPointAddress?.Substring(0, Math.Min(deliveryPointAddress.Length, 1000)),
 					IsSelfDelivery = isSelfDelivery,
 					LastOrderDeliveryDate = candidate.Aggregate.MaxDeliveryDate.Value,
@@ -522,22 +522,6 @@ namespace BitrixNotificationsSend.Library.Services
 			}
 
 			return lastDeliveryDate.AddDays(orderFrequencyDays);
-		}
-
-		private static string SelectPriorityEmailAddress(IList<CounterpartyEmailWithPurposeNode> counterpartyEmails)
-		{
-			if(counterpartyEmails == null || !counterpartyEmails.Any())
-			{
-				return null;
-			}
-
-			var email = counterpartyEmails.FirstOrDefault(e => e.EmailPurpose == EmailPurpose.ForBills)
-				?? counterpartyEmails.FirstOrDefault(e => e.EmailPurpose == EmailPurpose.Work)
-				?? counterpartyEmails.FirstOrDefault(e => e.EmailPurpose == EmailPurpose.Personal)
-				?? counterpartyEmails.FirstOrDefault(e => e.EmailPurpose == EmailPurpose.ForReceipts)
-				?? counterpartyEmails.FirstOrDefault();
-
-			return email?.Address;
 		}
 
 		private static int GetLastOrderBottlesCount(PlannedOrderLastOrderNode lastOrder)
