@@ -1,4 +1,4 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,7 +18,7 @@ namespace Vodovoz.Core.Domain.Orders
 	{
 		private int _id;
 		private DateTime _creationDate;
-		private PlannedOrderStage _stage;
+		private BitrixDealCreationStage _stage;
 		private int _counterpartyId;
 		private string _counterpartyName;
 		private int? _deliveryPointId;
@@ -50,7 +50,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// Стадия обработки последнего сервисного заказа
 		/// </summary>
 		[Display(Name = "Стадия")]
-		public virtual PlannedOrderStage Stage
+		public virtual BitrixDealCreationStage Stage
 		{
 			get => _stage;
 			set => SetField(ref _stage, value);

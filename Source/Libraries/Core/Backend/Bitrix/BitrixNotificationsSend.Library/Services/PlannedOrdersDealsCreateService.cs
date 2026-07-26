@@ -146,7 +146,7 @@ namespace BitrixNotificationsSend.Library.Services
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersDealsCreateService)}. Поиск не созданных сделок"))
 			{
 				plannedOrderDtos = _plannedOrderRepository
-					.Get(uow, x => x.PlannedOrderDate == today && x.Stage == PlannedOrderStage.DealNotCreated)
+					.Get(uow, x => x.PlannedOrderDate == today && x.Stage == BitrixDealCreationStage.DealNotCreated)
 					.Select(CreatePlannedOrderDto)
 					.ToList();
 			}
@@ -192,7 +192,7 @@ namespace BitrixNotificationsSend.Library.Services
 
 				foreach(var createdDealPlannedOrder in createdDealPlannedOrders)
 				{
-					createdDealPlannedOrder.Stage = PlannedOrderStage.DealCreated;
+					createdDealPlannedOrder.Stage = BitrixDealCreationStage.DealCreated;
 					await uow.SaveAsync(createdDealPlannedOrder, cancellationToken: cancellationToken);
 				}
 
@@ -296,7 +296,7 @@ namespace BitrixNotificationsSend.Library.Services
 				var plannedOrder = new PlannedOrder
 				{
 					CreationDate = creationDate,
-					Stage = PlannedOrderStage.DealNotCreated,
+					Stage = BitrixDealCreationStage.DealNotCreated,
 					CounterpartyId = counterpartyId,
 					DeliveryPointId = deliveryPointId,
 					CounterpartyName = counterpartyData?.FullName,
