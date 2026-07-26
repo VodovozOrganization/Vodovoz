@@ -192822,6 +192822,60 @@ not tooltip</property>
           </packing>
         </child>
         <child>
+          <widget class="Gamma.GtkWidgets.yHBox" id="yhboxTransferCodes">
+            <property name="MemberName" />
+            <property name="Visible">False</property>
+            <property name="NoShowAll">True</property>
+            <property name="Spacing">6</property>
+            <property name="BorderWidth">4</property>
+            <child>
+              <widget class="Gamma.GtkWidgets.yLabel" id="ylabelTransferTargetOrder">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Перенести отклоненные коды в заказ:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="QS.Views.Control.EntityEntry" id="entityentryTransferTargetOrder">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.GtkWidgets.yButton" id="ybuttonTransferRejectedCodes">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextOnly</property>
+                <property name="Label" translatable="yes">Перенести</property>
+                <property name="UseUnderline">True</property>
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
           <widget class="Gamma.GtkWidgets.yNotebook" id="ynotebookCodes">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
@@ -192950,7 +193004,7 @@ not tooltip</property>
             </child>
           </widget>
           <packing>
-            <property name="Position">2</property>
+            <property name="Position">3</property>
             <property name="AutoSize">True</property>
           </packing>
         </child>

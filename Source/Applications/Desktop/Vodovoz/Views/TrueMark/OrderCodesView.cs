@@ -92,6 +92,11 @@ namespace Vodovoz.Views.TrueMark
 				.AddBinding(vm => vm.SearchText, w => w.Text)
 				.InitializeFromSource();
 
+			if(ViewModel.TransferTargetOrderViewModel != null)
+			{
+				ConfigureTransferCodesControls();
+			}
+
 			var driverRecursiveConfig = new RecursiveConfig<OrderCodeItemViewModel>(
 				x => x.Parent,
 				x => x.Children);
@@ -388,6 +393,30 @@ namespace Vodovoz.Views.TrueMark
 				HighlightSearchText();
 				SetColorForSearchEntry();
 			}
+
+			if(e.PropertyName == nameof(ViewModel.CanTransferRejectedCodes)
+				|| e.PropertyName == nameof(ViewModel.TransferTargetOrder)
+				|| e.PropertyName == nameof(ViewModel.CanShowTransferRejectedCodesControls))
+			{
+				UpdateTransferCodesControlsVisibility();
+				UpdateTransferRejectedCodesButtonSensitivity();
+			}
+		}
+
+		private void UpdateTransferCodesControlsVisibility()
+		{
+			if(yhboxTransferCodes != null)
+			{
+				yhboxTransferCodes.Visible = ViewModel.CanShowTransferRejectedCodesControls;
+			}
+		}
+
+		private void UpdateTransferRejectedCodesButtonSensitivity()
+		{
+			if(ybuttonTransferRejectedCodes != null)
+			{
+				ybuttonTransferRejectedCodes.Sensitive = ViewModel.CanTransferRejectedCodes;
+			}
 		}
 
 		private void SetColorForSearchEntry()
@@ -409,6 +438,18 @@ namespace Vodovoz.Views.TrueMark
 				entrySearch.SetColor(StateType.Normal, GdkColors.DangerText);
 				entrySearch.SetColor(StateType.Active, GdkColors.DangerText);
 			}
+		}
+
+		private void ConfigureTransferCodesControls()
+		{
+			ViewModel.TransferTargetOrderViewModel.DisposeViewModel = false;
+			entityentryTransferTargetOrder.ViewModel = ViewModel.TransferTargetOrderViewModel;
+			yhboxTransferCodes.NoShowAll = false;
+
+			ybuttonTransferRejectedCodes.BindCommand(ViewModel.TransferRejectedCodesCommand);
+			yhboxTransferCodes.ShowAll();
+			UpdateTransferCodesControlsVisibility();
+			UpdateTransferRejectedCodesButtonSensitivity();
 		}
 
 		private void HighlightSearchText()
@@ -522,6 +563,7 @@ namespace Vodovoz.Views.TrueMark
 			_selfdeliveryOpenAuthor?.Destroy();
 			_poolPopup?.Destroy();
 			_poolCopyCodes?.Destroy();
+			ViewModel?.DisposeTransferTargetOrderEntry();
 			ytreeviewDriver?.Destroy();
 			ytreeviewWarehouse?.Destroy();
 			ytreeviewSelfdelivery?.Destroy();

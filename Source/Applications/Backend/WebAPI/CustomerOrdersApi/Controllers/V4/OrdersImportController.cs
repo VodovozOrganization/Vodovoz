@@ -39,11 +39,6 @@ namespace CustomerOrdersApi.Controllers.V4
 				return ValidationProblem("Пустое тело запроса");
 			}
 
-			if(!_requestValidator.ValidateSignature(request, DateTime.Now, out var generatedSignature))
-			{
-				return InvalidSignature(request.Token, generatedSignature);
-			}
-
 			var validationResult = _requestValidator.Validate(request);
 
 			if(validationResult.IsFailure)
@@ -52,6 +47,11 @@ namespace CustomerOrdersApi.Controllers.V4
 				var statusCode = int.TryParse(firstError.Code, out var parsedCode) ? parsedCode : 400;
 
 				return Problem(firstError.Message, statusCode: statusCode);
+			}
+
+			if(!_requestValidator.ValidateSignature(request, out var generatedSignature))
+			{
+				return InvalidSignature(request.Token, generatedSignature);
 			}
 
 			try

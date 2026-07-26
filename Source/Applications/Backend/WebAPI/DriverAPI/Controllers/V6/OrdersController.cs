@@ -38,7 +38,7 @@ namespace DriverAPI.Controllers.V6
 		private readonly IOrderService _orderService;
 		private readonly IDriverMobileAppActionRecordService _driverMobileAppActionRecordService;
 		private readonly IActionTimeHelper _actionTimeHelper;
-		private readonly MessageService _edoMessageService;
+		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private static readonly ConcurrentDictionary<string, bool> _completeOrderDeliveryInProgress = new ConcurrentDictionary<string, bool>();
 
 		/// <summary>
@@ -58,7 +58,7 @@ namespace DriverAPI.Controllers.V6
 			IOrderService orderService,
 			IDriverMobileAppActionRecordService driverMobileAppActionRecordService,
 			IActionTimeHelper actionTimeHelper,
-			MessageService edoMessageService
+			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher
 			) : base(logger)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -66,7 +66,8 @@ namespace DriverAPI.Controllers.V6
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_driverMobileAppActionRecordService = driverMobileAppActionRecordService ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordService));
 			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
-			_edoMessageService = edoMessageService ?? throw new ArgumentNullException(nameof(edoMessageService));
+			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
+				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 		}
 
 		/// <summary>
@@ -172,7 +173,9 @@ namespace DriverAPI.Controllers.V6
 				if(result is Result<int>)
 				{
 					var resultWithMessage = (Result<int>)result;
-					await _edoMessageService.PublishEdoRequestCreatedEvent(resultWithMessage.Value);
+					await _edoRequestCreatedEventPublisher.Publish(
+						resultWithMessage.Value,
+						"Завершение доставки заказа через приложение водителя");
 				}
 
 				return MapResult(
