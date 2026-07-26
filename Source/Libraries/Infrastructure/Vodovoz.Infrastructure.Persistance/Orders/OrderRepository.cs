@@ -3534,6 +3534,87 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				};
 		}
 
+		public async Task<IList<LastServiceOrderNode>> GetCounterpartiesLastServiceOrdersDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> serviceNomenclatureIds,
+			IEnumerable<OrderStatus> orderStatuses,
+			DateTime maxLastOrderDeliveryDate,
+			CancellationToken cancellationToken)
+		{
+			var nomenclatureIds = serviceNomenclatureIds.ToArray();
+			var statuses = orderStatuses.ToArray();
+
+			var query =
+				from order in GetCompletedServiceOrders(uow, nomenclatureIds, statuses)
+				join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id into phones
+				from phone in phones.DefaultIfEmpty()
+				where
+					order.DeliveryDate <= maxLastOrderDeliveryDate
+					&& !uow.Session.Query<VodovozOrder>().Any(laterOrder =>
+						laterOrder.Client.Id == order.Client.Id
+						&& statuses.Contains(laterOrder.OrderStatus)
+						&& (laterOrder.DeliveryDate > order.DeliveryDate
+							|| (laterOrder.DeliveryDate == order.DeliveryDate && laterOrder.Id > order.Id))
+						&& uow.Session.Query<OrderItem>().Any(orderItem =>
+							orderItem.Order.Id == laterOrder.Id
+							&& nomenclatureIds.Contains(orderItem.Nomenclature.Id)))
+				select new LastServiceOrderNode
+				{
+					OrderId = order.Id,
+					CounterpartyId = order.Client.Id,
+					DeliveryPointId = order.DeliveryPoint.Id == null ? (int?)null : order.DeliveryPoint.Id,
+					IsSelfDelivery = order.SelfDelivery,
+					DeliveryDate = order.DeliveryDate,
+					ContactPhoneNumber = phone.Number
+				};
+
+			return await query
+				.WithOptions(x => x.SetTimeout(300))
+				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<int>> GetCounterpartyIdsWithUpcomingServiceOrdersAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			DateTime fromDeliveryDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			IEnumerable<int> serviceNomenclatureIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = counterpartyIds.ToArray();
+			var nomenclatureIds = serviceNomenclatureIds.ToArray();
+
+			var query =
+				(from order in GetUpcomingOrders(uow, fromDeliveryDate, excludeOrderStatuses)
+				 where
+					 ids.Contains(order.Client.Id)
+					 && uow.Session.Query<OrderItem>().Any(orderItem =>
+						 orderItem.Order.Id == order.Id
+						 && nomenclatureIds.Contains(orderItem.Nomenclature.Id))
+				 select order.Client.Id)
+				.Distinct();
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		private IQueryable<VodovozOrder> GetCompletedServiceOrders(
+			IUnitOfWork uow,
+			int[] serviceNomenclatureIds,
+			OrderStatus[] orderStatuses)
+		{
+			return
+				from order in uow.Session.Query<VodovozOrder>()
+				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
+				where
+					orderStatuses.Contains(order.OrderStatus)
+					&& order.DeliveryDate != null
+					&& !counterparty.IsArchive
+					&& uow.Session.Query<OrderItem>().Any(orderItem =>
+						orderItem.Order.Id == order.Id
+						&& serviceNomenclatureIds.Contains(orderItem.Nomenclature.Id))
+				select order;
+		}
+
 		public async Task<IDictionary<int, decimal>> GetCounterpartiesCashlessDebtsAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,
