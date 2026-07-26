@@ -73,7 +73,7 @@ namespace Vodovoz.Settings.Notifications
 		bool PlannedOrdersNotificationsSendEnabled { get; }
 
 		/// <summary>
-		/// Интервал проверки необходимости создания сделок по последним сервисным заказам в Битрикс24
+		/// Интервал работы воркера создания сделок по последним сервисным заказам в Битрикс24
 		/// </summary>
 		TimeSpan LastServiceOrdersNotificationsSendInterval { get; }
 
@@ -91,5 +91,11 @@ namespace Vodovoz.Settings.Notifications
 		/// Включена ли отправка уведомлений по последним сервисным заказам в Битрикс24
 		/// </summary>
 		bool LastServiceOrdersNotificationsSendEnabled { get; }
+
+		/// <summary>
+		/// Минимальное количество дней с даты доставки последнего сервисного заказа,
+		/// по истечении которого по клиенту создаётся сделка в Битрикс24
+		/// </summary>
+		int LastServiceOrdersMinDaysSinceLastOrder { get; }
 	}
 }
