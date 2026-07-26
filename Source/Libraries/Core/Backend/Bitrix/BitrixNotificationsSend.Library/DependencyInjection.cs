@@ -18,6 +18,7 @@ namespace BitrixNotificationsSend.Library
 
 			services.AddTransient<CashlessDebtsNotificationsSendService>();
 			services.AddTransient<PlannedOrdersDealsCreateService>();
+			services.AddTransient<LastServiceOrdersDealsCreateService>();
 			services.AddTransient<IBitrixBatchesSendService, BitrixBatchesSendService>();
 
 			return services;
