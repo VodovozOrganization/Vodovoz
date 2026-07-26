@@ -3618,7 +3618,11 @@ namespace Vodovoz
 					_lifetimeScope)
 				.ForProperty(viewModel => viewModel.TransferTargetOrder)
 				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(
-					filter => filter.RestrictHideService = true)
+					filter =>
+					{
+						filter.RestrictHideService = true;
+						filter.ExceptIds = new[] { Entity.Id };
+					})
 				.Finish();
 			edoForOrderViewModel.OrderCodesViewModel.ConfigureTransferTargetOrderEntry(transferTargetOrderViewModel);
 			edofororderview1.ViewModel = edoForOrderViewModel;

@@ -94,7 +94,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		private string _parsedSearchCodeSerialNumber;
 		private Order _transferTargetOrder;
 		private bool _canShowTransferRejectedCodesControls;
-		private readonly bool _canTransferRejectedCodesFromCanceledOrder;
+		private bool _canTransferRejectedCodesFromCanceledOrder;
 
 		public OrderCodesViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -127,8 +127,6 @@ namespace Vodovoz.ViewModels.TrueMark
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_orderViewModelEEVMBuilder = orderViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(orderViewModelEEVMBuilder));
-			_canTransferRejectedCodesFromCanceledOrder = _commonServices.CurrentPermissionService.ValidatePresetPermission(
-				OrderPermissions.CanTransferRejectedCodesFromCanceledOrder);
 			_scannedByDriverCodes = new List<OrderCodeItemViewModel>();
 			_scannedByDriverCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 			_scannedByWarehouseCodes = new List<OrderCodeItemViewModel>();
@@ -338,7 +336,8 @@ namespace Vodovoz.ViewModels.TrueMark
 		public virtual bool CanTransferRejectedCodes =>
 			CanShowTransferRejectedCodesControls
 			&& OrderId > 0
-			&& TransferTargetOrder?.Id > 0;
+			&& TransferTargetOrder?.Id > 0
+			&& TransferTargetOrder.Id != OrderId;
 
 		/// <summary>
 		/// Настраивает поле выбора заказа-получателя для переноса отклоненных кодов.
@@ -358,7 +357,11 @@ namespace Vodovoz.ViewModels.TrueMark
 				.SetViewModel(parentDialogViewModel)
 				.ForProperty(this, x => x.TransferTargetOrder)
 				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(
-					filter => filter.RestrictHideService = true)
+					filter =>
+					{
+						filter.RestrictHideService = true;
+						filter.ExceptIds = new[] { OrderId };
+					})
 				.Finish();
 
 			ConfigureTransferTargetOrderEntry(transferTargetOrderViewModel);
@@ -526,6 +529,9 @@ namespace Vodovoz.ViewModels.TrueMark
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
+				_canTransferRejectedCodesFromCanceledOrder =
+					_commonServices.CurrentPermissionService.ValidatePresetPermission(
+						OrderPermissions.CanTransferRejectedCodesFromCanceledOrder);
 				var order = uow.GetById<Order>(OrderId);
 				CanShowTransferRejectedCodesControls = order?.OrderStatus == OrderStatus.Canceled
 					&& _canTransferRejectedCodesFromCanceledOrder;

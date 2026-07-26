@@ -341,13 +341,12 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			}
 
 			var productCodes = uow.Session.Query<TrueMarkProductCode>()
-				.Fetch(x => x.SourceCode)
-				.Fetch(x => x.ResultCode)
+				.Fetch(x => x.CustomerEdoRequest)
+				.ThenFetch(x => x.Order)
 				.Where(x =>
 					(x.SourceCode != null && codeIds.Contains(x.SourceCode.Id))
 					|| (x.ResultCode != null && codeIds.Contains(x.ResultCode.Id)))
 				.Where(x => !excludedIds.Contains(x.Id))
-				.Where(x => x.SourceCodeStatus != SourceProductCodeStatus.Rejected)
 				.ToList();
 
 			return productCodes;

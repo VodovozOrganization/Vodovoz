@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
@@ -71,15 +72,16 @@ namespace VodovozBusiness.Services.TrueMark
 				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
 			}
 
-			var createdProductCodes = CreateProductCodes(sourceProductCodes);
-			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, createdProductCodes);
+			var transferredProductCodes = CreateTransferredProductCodes(sourceProductCodes);
+			FlushClearedResultCodes(uow);
+			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, transferredProductCodes);
 			uow.Save(edoRequest);
 
 			return Result.Success(new CancelledOrderTrueMarkCodesTransferResult
 			{
 				TargetOrderId = targetOrderId,
 				EdoRequestId = edoRequest.Id,
-				TransferredCodesCount = createdProductCodes.Count
+				TransferredCodesCount = sourceProductCodes.Count
 			});
 		}
 
@@ -154,13 +156,21 @@ namespace VodovozBusiness.Services.TrueMark
 				uow,
 				sourceCodeIds,
 				excludedProductCodeIds);
-			
-			if(usedProductCodes.Any())
+
+			if(!usedProductCodes.Any())
 			{
-				return EdoErrors.ProductCodesAlreadyUsed;
+				return Result.Success();
 			}
 
-			return Result.Success();
+			var orderId = usedProductCodes
+				.Where(x => x.CustomerEdoRequest?.Order != null)
+				.Select(x => x.CustomerEdoRequest.Order.Id)
+				.FirstOrDefault();
+
+			return orderId > 0
+				? TrueMarkCodeErrors.CreateTrueMarkCodeIsAlreadyUsedInOrder(orderId)
+				: EdoErrors.ProductCodesAlreadyUsed;
+
 		}
 
 		private Result ValidateTargetOrderItems(
@@ -223,22 +233,34 @@ namespace VodovozBusiness.Services.TrueMark
 			int orderItemId) =>
 			assignedProductCodesCountByOrderItemId.TryGetValue(orderItemId, out var count) ? count : 0;
 
-		private static IList<TrueMarkProductCode> CreateProductCodes(
+		private static IList<TrueMarkProductCode> CreateTransferredProductCodes(
 			IList<TrueMarkProductCode> sourceProductCodes)
 		{
+			var transferredProductCodes = new List<TrueMarkProductCode>();
 			var now = DateTime.Now;
 
-			return sourceProductCodes
-				.Select(sourceProductCode => (TrueMarkProductCode)new AutoTrueMarkProductCode
+			foreach(var sourceProductCode in sourceProductCodes)
+			{
+				var transferredCode = sourceProductCode.SourceCode;
+				sourceProductCode.ResultCode = null;
+
+				transferredProductCodes.Add(new AutoTrueMarkProductCode
 				{
 					CreationTime = now,
 					LastModified = now,
-					SourceCode = sourceProductCode.SourceCode,
-					ResultCode = sourceProductCode.SourceCode,
+					ResultCode = transferredCode,
 					SourceCodeStatus = SourceProductCodeStatus.Accepted,
 					Problem = ProductCodeProblem.None
-				})
-				.ToList();
+				});
+			}
+
+			return transferredProductCodes;
+		}
+
+		private static void FlushClearedResultCodes(IUnitOfWork uow)
+		{
+			uow.OpenTransaction();
+			uow.Session.Flush();
 		}
 	}
 }
