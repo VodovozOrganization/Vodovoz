@@ -56,7 +56,8 @@ namespace Edo.Common
 			}
 
 			// проверка на то что продукт не просрочен
-			if(productInstanceStatus.ExpirationDate < DateTime.Today)
+			if(productInstanceStatus.ExpirationDate is null
+				|| productInstanceStatus.ExpirationDate < DateTime.Today)
 			{
 				codeValidationResult.IsExpired = true;
 				codeValidationResult.IsValid = false;
@@ -93,7 +94,7 @@ namespace Edo.Common
 			{
 				var code = taskItem.ProductCode.ResultCode;
 
-				if(!checkResults.TryGetValue(code.IdentificationCode, out var checkResult))
+				if(checkResults == null || !checkResults.TryGetValue(code.IdentificationCode, out var checkResult))
 				{
 					throw new InvalidOperationException($"Не найден код {code.IdentificationCode} " +
 					                                    $"из задачи {edoTask.Id} в результатах проверки из ЧЗ.");

@@ -1,7 +1,10 @@
 ﻿using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using DriverApi.Contracts.V6.Responses;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 
 namespace DriverAPI.Library.V6.Services
@@ -15,15 +18,17 @@ namespace DriverAPI.Library.V6.Services
 		/// Получение информации о маошрутном листе в требуемом формате
 		/// </summary>
 		/// <param name="routeListId">Идентификатор МЛ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Информация о маршрутном листе <see cref="RouteListDto"/></returns>
-		RouteListDto GetRouteList(int routeListId);
+		Task<RouteListDto> GetRouteList(int routeListId, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Получение информации о маршрутных листах в требуемом формате
 		/// </summary>
 		/// <param name="routeListsIds">Список идентификаторов МЛ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список информаций о маршрутных листах <see cref="IEnumerable{T}"/> <see cref="RouteListDto"/></returns>
-		IEnumerable<RouteListDto> GetRouteLists(int[] routeListsIds);
+		Task<IEnumerable<RouteListDto>> GetRouteLists(int[] routeListsIds, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Получение списка идентификаторов МЛ для водителя по его Email адресу
@@ -86,5 +91,14 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="routeListAddressId">идентификатор адреса маршрутного листа</param>
 		/// <returns></returns>
 		Result<RouteListAddressOutgoingTransferDto> GetOutgoingTransferInfo(int routeListAddressId);
+
+		/// <summary>
+		/// Совершение действия выбора следующего адреса маршрутного листа в пути
+		/// </summary>
+		/// <param name="selectAddressRequest">Данные для выбора следующего адреса маршрутного листа</param>
+		/// <param name="requestedByDriverId">Водтель, отправивший запрос на выбор следующего адреса</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат выполнения выбора</returns>
+		Task<Result> SelectNextAddress(SelectAddressRequest selectAddressRequest, int requestedByDriverId, CancellationToken cancellationToken);
 	}
 }

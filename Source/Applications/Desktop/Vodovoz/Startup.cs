@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using GMap.NET.MapProviders;
 using Gtk;
@@ -219,7 +219,13 @@ namespace Vodovoz
 			if(baseVersionChecker.Check())
 			{
 				ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, baseVersionChecker.TextMessage, "Несовпадение версии");
-				return;
+
+				var userId = userService.GetCurrentUser().Id;
+				var canIgnoreBaseVersionCheck = permissionService.ValidateUserPresetPermission(Core.Domain.Permissions.UserPermissions.CanIgnoreBaseVersionCheck, userId);
+				if(!canIgnoreBaseVersionCheck)
+				{
+					return;
+				}
 			}
 			QSMain.CheckServer(null); // Проверяем настройки сервера
 

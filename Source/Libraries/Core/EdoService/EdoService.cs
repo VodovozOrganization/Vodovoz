@@ -20,6 +20,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Extensions;
 using VodovozBusiness.Nodes;
+using VodovozBusiness.Services.Edo;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
@@ -33,6 +34,7 @@ namespace EdoService.Library
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEdoRepository _edoRepository;
 		private readonly MessageService _messageService;
+		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly IBus _messageBus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 
@@ -54,6 +56,7 @@ namespace EdoService.Library
 			IOrderRepository orderRepository,
 			IEdoRepository edoRepository,
 			MessageService messageService,
+			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			IBus messageBus,
 			IEnumerable<IInformalEdoRequestFactory> requestFactories
 			)
@@ -62,6 +65,8 @@ namespace EdoService.Library
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
+				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
 		}
@@ -122,12 +127,12 @@ namespace EdoService.Library
 					edoTask.Items.Select(x => x.ProductCode)
 				);
 
-				var request = CreateManualEdoRequests(order, productCodes);
+				var request = ManualEdoRequestFactory.Create(order, productCodes);
 
 				uow.Save(request);
 				uow.Commit();
 
-				_messageService.PublishEdoRequestCreatedEvent(request.Id)
+				_edoRequestCreatedEventPublisher.Publish(request.Id, "Ручная переотправка документов ЭДО")
 					.ConfigureAwait(false)
 					.GetAwaiter()
 					.GetResult();
@@ -172,34 +177,6 @@ namespace EdoService.Library
 				.ToList(); 
 
 			return activeTasksWithAcceptedCodes.FirstOrDefault();
-		}
-
-		/// <summary>
-		/// Создание ручной заявки ЭДО для переотправки документа
-		/// </summary>
-		/// <param name="order"></param>
-		/// <param name="productCodes"></param>
-		/// <returns></returns>
-		private ManualEdoRequest CreateManualEdoRequests(OrderEntity order, ObservableList<TrueMarkProductCode> productCodes)
-		{
-			var edoRequest = new ManualEdoRequest
-			{
-				Type = CustomerEdoRequestType.Order,
-				Time = DateTime.Now,
-				Source = EdoRequestSource.Manual,
-				DocumentType = EdoDocumentType.UPD,
-				Order = order
-			};
-
-			if(edoRequest.ProductCodes != null && productCodes != null)
-			{
-				foreach(var code in productCodes)
-				{
-					edoRequest.ProductCodes.Add(code);
-				}
-			}
-
-			return edoRequest;
 		}
 
 		public virtual void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject

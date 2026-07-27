@@ -1,9 +1,6 @@
-﻿using CustomerNotifications.Transport;
-using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
+﻿using CustomerNotifications.Contracts;
 using Microsoft.Extensions.Hosting;
-using TransactionalOutbox.Abstractions;
-using TransactionalOutbox.Persistence;
+using NLog.Extensions.Logging;
 
 namespace OutboxWorker
 {
@@ -18,20 +15,20 @@ namespace OutboxWorker
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.ConfigureLogging((ctx, builder) =>
+				{
+					builder.AddNLog(ctx.Configuration.GetSection("NLog"));
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.Configure<CustomerNotificationTransportSettings>(hostContext.Configuration.GetSection("CustomerNotificationTransportSettings"));
-
-					services.AddMassTransit(busConf =>
-					{
-						busConf.ConfigureCustomerNotificationsRabbitMq(services, hostContext.Configuration);
-
-					});
-
-					services.AddScoped<IOutboxRepository, OutboxRepository>();
-
-					services.AddHostedService<OutboxWorker>();
-
+					services.AddOutboxWorker(
+						hostContext.Configuration,
+						contractAssemblies: new[]
+						{
+							typeof(CustomerNotificationIntegrationEvent).Assembly,
+							typeof(EdoNotifications.Contracts.AssemblyFinder).Assembly,
+						},
+						transportSectionName: "NotificationTransportSettings");
 				});
 	}
 }

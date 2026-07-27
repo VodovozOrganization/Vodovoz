@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -104,11 +105,7 @@ namespace YandexPayApi.Client
 					targetCart = request.TargetCart
 				};
 
-				var json = JsonSerializer.Serialize(apiRequest, _jsonOptions);
-				_logger.LogInformation("POST запрос на {Endpoint}: {Json}", endpoint, json);
-
-				using var content = new StringContent(json, Encoding.UTF8, "application/json");
-				using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
+				using var response = await _httpClient.PostAsJsonAsync(endpoint, apiRequest, _jsonOptions, cancellationToken);
 
 				return await ProcessResponseAsync<T>(response, endpoint);
 			}

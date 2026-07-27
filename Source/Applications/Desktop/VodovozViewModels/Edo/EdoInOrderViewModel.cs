@@ -5,8 +5,10 @@ using QS.ViewModels.Widgets.Pipeline;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
+using NLog;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.ViewModels.TrueMark;
@@ -15,10 +17,12 @@ namespace Vodovoz.ViewModels.Edo
 {
 	public class EdoInOrderViewModel : WidgetViewModelBase
 	{
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IEdoRepository _edoRepository;
 		private int _orderId;
 		private IUnitOfWork _uow;
 		private bool _loaded;
+		private bool _codesLoaded;
 		private IList<EdoInOrderDocumentTypeViewModel> _documentGroupTypes;
 		private EdoInOrderDocumentTypeViewModel _selectedDocumentType;
 		private IList<EdoInOrderDocumentHistoryRowViewModel> _allDocuments;
@@ -158,20 +162,33 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			if(_loaded)
 			{
+				_logger.Info("ЭДО заказа {OrderId}: повторная активация вкладки без загрузки", _orderId);
 				return;
 			}
 
+			var stopwatch = Stopwatch.StartNew();
+			_logger.Info("ЭДО заказа {OrderId}: начало первой загрузки вкладки", _orderId);
 			Refresh();
 
 			_loaded = true;
+			_logger.Info("ЭДО заказа {OrderId}: первая загрузка вкладки завершена за {Elapsed}", _orderId, stopwatch.Elapsed);
 		}
 
 		private void Refresh()
 		{
+			var totalStopwatch = Stopwatch.StartNew();
+			var stepStopwatch = Stopwatch.StartNew();
+
 			var documents = _edoRepository.GetEdoInOrderDocuments(_uow, _orderId);
 			_allDocuments = documents.Select(x => new EdoInOrderDocumentHistoryRowViewModel(x)).ToList();
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка документов, получено {Count}: {Elapsed}",
+				_orderId,
+				_allDocuments.Count,
+				stepStopwatch.Elapsed);
 
 
+			stepStopwatch.Restart();
 			var documentGroupTypes = Enum.GetValues(typeof(EdoInOrderDocumentGroupType))
 				.Cast<EdoInOrderDocumentGroupType>()
 				.Select(x => new EdoInOrderDocumentTypeViewModel(x))
@@ -191,12 +208,42 @@ namespace Vodovoz.ViewModels.Edo
 				.OrderByDescending(x => x.Quantity)
 				.ThenBy(x => (int)x.DocumentGroupType)
 				.ToList();
+			_logger.Info(
+				"ЭДО заказа {OrderId}: подготовка групп документов, групп {Count}: {Elapsed}",
+				_orderId,
+				DocumentGroupTypes.Count,
+				stepStopwatch.Elapsed);
 
-			OrderCodesViewModel.OrderId = _orderId;
-			OrderCodesViewModel.RefreshCommand.Execute(null);
-
+			stepStopwatch.Restart();
 			_allProblems = _edoRepository.GetEdoProblemsForOrder(_uow, _orderId);
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка проблем, получено {Count}: {Elapsed}",
+				_orderId,
+				_allProblems.Count(),
+				stepStopwatch.Elapsed);
+
+			stepStopwatch.Restart();
 			_allTransfers = _edoRepository.GetTransferEdoTasksForOrder(_uow, _orderId);
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка трансферов, получено {Count}: {Elapsed}",
+				_orderId,
+				_allTransfers.Count(),
+				stepStopwatch.Elapsed);
+			_logger.Info("ЭДО заказа {OrderId}: полное обновление данных вкладки: {Elapsed}", _orderId, totalStopwatch.Elapsed);
+		}
+
+		public virtual void LoadCodes()
+		{
+			if(_codesLoaded)
+			{
+				_logger.Info("ЭДО заказа {OrderId}: повторная активация вкладки кодов ЧЗ без загрузки", _orderId);
+				return;
+			}
+
+			var stopwatch = Stopwatch.StartNew();
+			OrderCodesViewModel.LoadForOrder(_orderId);
+			_codesLoaded = true;
+			_logger.Info("ЭДО заказа {OrderId}: загрузка кодов ЧЗ: {Elapsed}", _orderId, stopwatch.Elapsed);
 		}
 
 		private void SelectDocumentsByGroup()

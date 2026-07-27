@@ -34,6 +34,8 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
+using CustomerNotifications.Application;
+using CustomerNotifications.Application.Builders;
 
 namespace DriverAPI
 {
@@ -153,7 +155,7 @@ namespace DriverAPI
 
 			// Уведомления клиентов
 
-			services.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+			services.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 					.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
 					.AddCustomerNotificationsSettingsProvider();
 

@@ -102,6 +102,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.ToListAsync(cancellationToken);
 
 			var groupedData = gtins
+				.Where(x => !string.IsNullOrWhiteSpace(x.GtinNumber))
 				.OrderBy(x => x.GtinNumber)
 				.GroupBy(x => x.GtinNumber)
 				.ToDictionary(x => x.Key, x => x.Select(g => g.Nomenclature).ToList());
@@ -124,6 +125,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				 .ToListAsync(cancellationToken);
 
 			var gtinsSoldYesterdayCount = gtinsSoldYesterdayData
+				.Where(x => !string.IsNullOrWhiteSpace(x.GtinNumber))
 				.GroupBy(x => x.GtinNumber)
 				.ToDictionary(x => x.Key, x => x.Sum(g => g.Count));
 
@@ -177,9 +179,11 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.TransformUsing(Transformers.PassThrough)
 				.ListAsync<object[]>();
 
-			var result = gtinProblems.ToDictionary(
-				key => (string)key[0],
-				key => (int)(decimal)key[1]);
+			var result = gtinProblems
+				.Where(key => !string.IsNullOrWhiteSpace((string)key[0]))
+				.ToDictionary(
+					key => (string)key[0],
+					key => (int)(decimal)key[1]);
 
 			return result;
 		}
@@ -309,6 +313,59 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.List();
 
 			return poolCodes;
+		}
+
+		public IList<TrueMarkProductCode> GetRejectedProductCodesByOrder(IUnitOfWork uow, int orderId)
+		{
+			var rejectedCodes = uow.Session.Query<TrueMarkProductCode>()
+				.Fetch(x => x.SourceCode)
+				.Where(x => x.CustomerEdoRequest.Order.Id == orderId)
+				.Where(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected)
+				.Where(x => x.SourceCode != null)
+				.ToList();
+
+			return rejectedCodes;
+		}
+
+		public IList<TrueMarkProductCode> GetProductCodesByIdentificationCodeIds(
+			IUnitOfWork uow,
+			HashSet<int> identificationCodeIds,
+			HashSet<int> excludedProductCodeIds)
+		{
+			var codeIds = identificationCodeIds ?? new HashSet<int>();
+			var excludedIds = excludedProductCodeIds ?? new HashSet<int>();
+
+			if(!codeIds.Any())
+			{
+				return new List<TrueMarkProductCode>();
+			}
+
+			var productCodes = uow.Session.Query<TrueMarkProductCode>()
+				.Fetch(x => x.SourceCode)
+				.Fetch(x => x.ResultCode)
+				.Where(x =>
+					(x.SourceCode != null && codeIds.Contains(x.SourceCode.Id))
+					|| (x.ResultCode != null && codeIds.Contains(x.ResultCode.Id)))
+				.Where(x => !excludedIds.Contains(x.Id))
+				.Where(x => x.SourceCodeStatus != SourceProductCodeStatus.Rejected)
+				.ToList();
+
+			return productCodes;
+		}
+
+		public IDictionary<int, int> GetProductCodesCountByOrderItems(IUnitOfWork uow, IEnumerable<int> orderItemIds)
+		{
+			if(!orderItemIds.Any())
+			{
+				return new Dictionary<int, int>();
+			}
+
+			var codesCountByOrderItems = uow.Session.Query<TrueMarkProductCodeOrderItem>()
+				.Where(x => orderItemIds.Contains(x.OrderItemId))
+				.GroupBy(x => x.OrderItemId)
+				.ToDictionary(x => x.Key, x => x.Count());
+
+			return codesCountByOrderItems;
 		}
 
 		public int GetCodesRequiredByOrder(IUnitOfWork uow, int orderId)

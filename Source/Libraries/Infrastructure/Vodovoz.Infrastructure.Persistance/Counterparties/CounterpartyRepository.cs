@@ -1,6 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.HistoryLog.Domain;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
@@ -21,6 +23,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Counterparties;
 using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.EntityRepositories.Nodes;
 using System.Threading.Tasks;
 using System.Threading;
 
@@ -315,6 +318,37 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		public async Task<Counterparty> GetCounterpartyByIdAsync(IUnitOfWork uow, int clientId, CancellationToken cancellationToken)
 		{
 			return await uow.Session.GetAsync<Counterparty>(clientId, cancellationToken);
+		}
+
+		public async Task<IEnumerable<int>> GetCounterpartyIdsByCounterpartyPhoneNumber(IUnitOfWork uow, string phoneDigitsNumber, CancellationToken cancellationToken)
+		{
+			var counterpartyIds =
+				await (from phone in uow.Session.Query<Phone>()
+					   where !phone.IsArchive
+						   && phone.DigitsNumber == phoneDigitsNumber
+						   && phone.Counterparty != null
+					   select phone.Counterparty.Id)
+				.Distinct()
+				.ToListAsync(cancellationToken);
+
+			return counterpartyIds;
+		}
+
+		public async Task<IEnumerable<(int DeliveryPointId, int CounterpartyId)>> GetDeliveryPointIdsWithCounterpartyIdsByDeliveryPointPhoneNumber(
+			IUnitOfWork uow, string phoneDigitsNumber, CancellationToken cancellationToken)
+		{
+			var deliveryPointIdsWithCounterpartyIds =
+				await (from phone in uow.Session.Query<Phone>()
+					   where !phone.IsArchive
+						   && phone.DigitsNumber == phoneDigitsNumber
+						   && phone.DeliveryPoint != null
+						   && phone.DeliveryPoint.Counterparty != null
+					   select new { DeliveryPointId = phone.DeliveryPoint.Id, CounterpartyId = phone.DeliveryPoint.Counterparty.Id })
+				.Distinct()
+				.ToListAsync(cancellationToken);
+
+			return deliveryPointIdsWithCounterpartyIds
+				.Select(x => (x.DeliveryPointId, x.CounterpartyId));
 		}
 
 		public EdoOperator GetEdoOperatorByCode(IUnitOfWork uow, string edoOperatorCode)
@@ -749,6 +783,53 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.Distinct();
 
 			return counterparties.ToList();
+		}
+
+		public async Task<IList<PlannedOrderCounterpartyNode>> GetCounterpartiesPlannedOrdersDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = counterpartyIds.ToArray();
+
+			var query =
+				from counterparty in uow.Session.Query<Counterparty>()
+				where ids.Contains(counterparty.Id)
+				select new PlannedOrderCounterpartyNode
+				{
+					CounterpartyId = counterparty.Id,
+					FullName = counterparty.FullName,
+					Inn = counterparty.INN,
+					PersonType = counterparty.PersonType,
+					DelayDaysForBuyers = counterparty.DelayDaysForBuyers
+				};
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<CounterpartyEmailWithPurposeNode>> GetCounterpartiesEmailsWithPurposeAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = counterpartyIds.ToArray();
+
+			var query =
+				from email in uow.Session.Query<Email>()
+				join emailType in uow.Session.Query<EmailType>() on email.EmailType.Id equals emailType.Id into emailTypes
+				from emailType in emailTypes.DefaultIfEmpty()
+				where
+					email.Counterparty != null
+					&& ids.Contains(email.Counterparty.Id)
+				orderby email.Id
+				select new CounterpartyEmailWithPurposeNode
+				{
+					CounterpartyId = email.Counterparty.Id,
+					Address = email.Address,
+					EmailPurpose = (EmailPurpose?)emailType.EmailPurpose
+				};
+
+			return await query.ToListAsync(cancellationToken);
 		}
 	}
 }

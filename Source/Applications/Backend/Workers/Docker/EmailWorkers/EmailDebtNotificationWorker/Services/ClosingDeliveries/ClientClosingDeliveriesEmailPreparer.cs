@@ -1,6 +1,7 @@
 ﻿using BitrixApi.Library.Services;
+using Email.Infrastructure.Factories;
+using Email.Infrastructure.Generators;
 using EmailDebtNotificationWorker.DTO;
-using EmailDebtNotificationWorker.Services.Common.Factories;
 using EmailDebtNotificationWorker.Services.Common.Generators;
 using EmailDebtNotificationWorker.Services.Common.Selectors;
 using Microsoft.Extensions.Logging;
@@ -92,7 +93,7 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 
 			var revisionStartDate = new DateTime(notificationInfo.OldestDebtOrderDate.Year, 1, 1);
 			var revisionEndDate = DateTime.Today.AddDays(-1);
-			var revisionAttachment = _attachmentsService.CreateRevisionAttachments(orderWithoutShipmentForDebt.Counterparty.Id, orderWithoutShipmentForDebt.Organization.Id, revisionStartDate, revisionEndDate);
+			var revisionAttachment = _attachmentsService.CreateRevisionAttachments(orderWithoutShipmentForDebt.Client.Id, orderWithoutShipmentForDebt.Organization.Id, revisionStartDate, revisionEndDate);
 
 			var attachments = orderWithoutShipmentForDebtAttachment.Concat(revisionAttachment).ToList();
 
@@ -134,7 +135,7 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 			var sendEmailMessage = _emailMessageFactory.CreateSendEmailMessage(
 				unitOfWork,
 				storedEmail,
-				orderWithoutShipmentForDebt.Client,
+				orderWithoutShipmentForDebt.Client.FullName,
 				orderWithoutShipmentForDebt.Organization.FullName,
 				emailSentFrom,
 				attachments,

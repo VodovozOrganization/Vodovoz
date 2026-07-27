@@ -191,6 +191,7 @@ namespace Vodovoz.Views.Edo
 			if(radiobuttonCodes.Active)
 			{
 				ynotebookEdoInOrder.CurrentPage = 2;
+				ViewModel.LoadCodes();
 			}
 		}
 

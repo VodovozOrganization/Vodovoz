@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using TrueMark.Library;
 using TrueMarkApi.Client;
-using TrueMarkCodesWorker;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -75,6 +74,7 @@ namespace TrueMarkCodePoolCheckWorker
 						.AddCodesPool()
 
 						.AddHostedService<CodePoolCheckWorker>()
+						.AddHostedService<ExpiredCodesCleanerWorker>()
 						.AddTrueMarkApiClient()
 						;
 

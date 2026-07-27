@@ -15,7 +15,7 @@ namespace TrueMark.Codes.Pool
 		{
 			services.TryAddScoped<ITrueMarkCodesPool, TrueMarkCodesPool>();
 			services.TryAddScoped<ReceiptTrueMarkCodesPool>();
-			services.TryAddScoped<TrueMarkCodesPoolManager>();
+			services.TryAddScoped<ITrueMarkCodesPoolManager, TrueMarkCodesPoolManager>();
 			services.TryAddScoped<TrueMarkCodesPoolFactory>();
 
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot());

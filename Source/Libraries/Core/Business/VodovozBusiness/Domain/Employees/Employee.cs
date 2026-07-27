@@ -77,7 +77,7 @@ namespace Vodovoz.Domain.Employees
 		private GenericObservableList<DriverDistrictPrioritySet> _observableDriverDistrictPrioritySets;
 		private GenericObservableList<DriverWorkScheduleSet> _observableDriverWorkScheduleSets;
 		private IWageCalculationRepository _wageCalculationRepository;
-		private bool _canRecieveCounterpartyCalls;
+		private bool _isNoPhoneForCounterpartyCallsRequired;
 		private Phone _phoneForCounterpartyCalls;
 		private District _district;
 
@@ -174,11 +174,16 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _phones, value);
 		}
 
-		[Display(Name = "Водитель может принимать звонки от контрагентов")]
-		public virtual bool CanRecieveCounterpartyCalls
+		/// <summary>
+		/// Необходимость указания телефона для приема звонков от контрагентов
+		/// Если true, то при сохранении сотрудника будет проверяться, что указан телефон для приема звонков от контрагентов
+		/// Если false, то проверка не будет выполняться
+		/// </summary>
+		[Display(Name = "Необходимость указания телефона для приема звонков от контрагентов")]
+		public virtual bool IsNoPhoneForCounterpartyCallsRequired
 		{
-			get => _canRecieveCounterpartyCalls;
-			set => SetField(ref _canRecieveCounterpartyCalls, value);
+			get => _isNoPhoneForCounterpartyCallsRequired;
+			set => SetField(ref _isNoPhoneForCounterpartyCallsRequired, value);
 		}
 
 		[Display(Name = "Телефон для приема звонков от контрагентов")]
@@ -439,13 +444,30 @@ namespace Vodovoz.Domain.Employees
 						@"Обязательно должны быть выбраны поля 'Управляет а\м' для типа и принадлежности авто",
 						new[] { nameof(DriverOfCarTypeOfUse), nameof(DriverOfCarOwnType) });
 				}
-			}
-			
-			if(CanRecieveCounterpartyCalls && PhoneForCounterpartyCalls == null)
-			{
-				yield return new ValidationResult(
-					"При включенной настройке возможности принимать звонки контрагента - требуется установка телефона для связи с водителем",
-					new[] { nameof(CanRecieveCounterpartyCalls), nameof(PhoneForCounterpartyCalls) });
+
+				if(PhoneForCounterpartyCalls == null && !IsNoPhoneForCounterpartyCallsRequired && Status != EmployeeStatus.IsFired)
+				{
+					yield return new ValidationResult(
+						"Не указан номер телефона водителя для приема звонка контрагента",
+						new[] { nameof(PhoneForCounterpartyCalls) });
+				}
+
+				if(PhoneForCounterpartyCalls != null && Status != EmployeeStatus.IsFired)
+				{
+					if(PhoneForCounterpartyCalls.IsArchive)
+					{
+						yield return new ValidationResult(
+							"Архивный номер телефона водителя не может быть указан для приема звонка контрагента",
+							new[] { nameof(PhoneForCounterpartyCalls) });
+					}
+
+					if(!Phones.Contains(PhoneForCounterpartyCalls))
+					{
+						yield return new ValidationResult(
+							"Номер телефона водителя для приема звонка контрагента должен быть выбран из списка номеров водителя",
+							new[] { nameof(PhoneForCounterpartyCalls) });
+					}
+				}
 			}
 
 			if(Subdivision == null || Subdivision.Id == subdivisionSettings.GetParentVodovozSubdivisionId())

@@ -24,5 +24,10 @@
 		/// Если завершен, сожержит информацию по завершенному маршрутному листу
 		/// </summary>
 		public CompletedRouteListDto CompletedRouteList { get; set; }
+
+		/// <summary>
+		/// Номер заказа, который выбран водителем следующим для доставки
+		/// </summary>
+		public int? OpenOrder { get; set; }
 	}
 }

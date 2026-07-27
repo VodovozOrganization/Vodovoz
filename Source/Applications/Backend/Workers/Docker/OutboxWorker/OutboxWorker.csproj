@@ -15,10 +15,14 @@
 	<PackageReference Include="Dapper" Version="2.0.123" />
 	<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
 	<PackageReference Include="MySqlConnector" Version="2.2.6" />
+	<PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
+	<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj" />
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Transport\CustomerNotifications.Transport.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport.MassTransit\MessageTransport.MassTransit.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Notifications\EdoNotifications\EdoNotifications.Contracts\EdoNotifications.Contracts.csproj" />
   </ItemGroup>
 </Project>

@@ -110,14 +110,9 @@ namespace CloudPaymentsApi.Client
 
 				using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-				var requestMessage = new HttpRequestMessage(HttpMethod.Post, endpoint)
-				{
-					Content = content
-				};
-
 				if(!string.IsNullOrEmpty(idempotenceKey))
 				{
-					requestMessage.Headers.Add("X-Request-ID", idempotenceKey);
+					content.Headers.Add("X-Request-ID", idempotenceKey);
 				}
 
 				using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);

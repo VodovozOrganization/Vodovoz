@@ -1,17 +1,20 @@
-using System;
-using System.Collections.Generic;
-using EmailPrepareWorker.Prepares;
+﻿using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
+using System;
+using System.Collections.Generic;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Core.Domain.Orders.Documents;
+using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Controllers;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker.SendEmailMessageBuilders
@@ -22,9 +25,10 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		protected readonly IEmailSettings _emailSettings;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
-		private readonly ICounterpartyEdoAccountController _edoAccountController;
+		private readonly ICounterpartyEdoAccountEntityController _edoAccountController;
 		private readonly CounterpartyEmail _counterpartyEmail;
 		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private EmailTemplate _template;
 		private readonly int _instanceId;
 
@@ -35,9 +39,10 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			IEmailSettings emailSettings,
 			IEmailRepository emailRepository,
 			IEmailDocumentPreparer emailDocumentPreparer,
-			ICounterpartyEdoAccountController edoAccountController,
+			ICounterpartyEdoAccountEntityController edoAccountController,
 			CounterpartyEmail counterpartyEmail,
 			IOrganizationSettings organizationSettings,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
 			int instanceId)
 		{
 			_unitOfWork = unitOfWork
@@ -52,6 +57,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			_counterpartyEmail = counterpartyEmail
 				?? throw new ArgumentNullException(nameof(counterpartyEmail));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_instanceId = instanceId;
 		}
 
@@ -90,22 +96,21 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			var document = _counterpartyEmail.EmailableDocument;
 
 			var hasSendedEmailsForBill = false;
-			
-			if(document.Type == OrderDocumentType.Bill
-			   || document.Type == OrderDocumentType.SpecialBill)
+
+			var orderDocument = document as OrderDocumentEntity;
+
+			if(orderDocument?.Type == OrderDocumentType.Bill || orderDocument?.Type == OrderDocumentType.SpecialBill)
 			{
-				hasSendedEmailsForBill = _emailRepository.HasSendedEmailsForBillExceptOf(document.Order.Id, _counterpartyEmail.StoredEmail.Id);
+				hasSendedEmailsForBill = _emailRepository.HasSendedEmailsForBillExceptOf(orderDocument.Order.Id, _counterpartyEmail.StoredEmail.Id);
 			}
 
 			if(hasSendedEmailsForBill
-			   && document.Type == OrderDocumentType.Bill
-			   && document is BillDocument billDocument)
+			   && document is BillDocumentEntity billDocument)
 			{
 				_template = billDocument.GetResendEmailTemplate();
 			}
 			else if(hasSendedEmailsForBill
-				&& document.Type == OrderDocumentType.SpecialBill
-				&& document is SpecialBillDocument specialBillDocument)
+				&& document is SpecialBillDocumentEntity specialBillDocument)
 			{
 				_template = specialBillDocument.GetResendEmailTemplate();
 			}
@@ -116,7 +121,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			}
 			else
 			{
-				_template = document.GetEmailTemplate(_edoAccountController, _organizationSettings);
+				_template = document.GetEmailTemplate(_edoAccountController, _organizationSettings, _deliveryScheduleSettings);
 			}
 
 			_sendEmailMessage.Subject = $"{_template.Title} {document.Title}";
@@ -150,12 +155,15 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type, connectionString)
 			};
 
-			if((document.Order?.IsFirstOrder ?? false)
-				&& _counterpartyEmail.Type == CounterpartyEmailType.BillDocument
-				&& _emailDocumentPreparer
-					.PrepareOfferAgreementDocument(_unitOfWork, document.Order.Contract, connectionString) is EmailAttachment additionalAgreement)
+			if(document is OrderDocumentEntity orderDocument && (orderDocument.Order?.IsFirstOrder ?? false)
+				&& _counterpartyEmail.Type == CounterpartyEmailType.BillDocument)
 			{
-				attachments.Add(additionalAgreement);
+				var counterpartyContract = _unitOfWork.GetById<CounterpartyContract>(orderDocument.Order.Contract.Id);
+				var additionalAgreement = _emailDocumentPreparer.PrepareOfferAgreementDocument(_unitOfWork, counterpartyContract, connectionString);
+				if(additionalAgreement != null)
+				{
+					attachments.Add(additionalAgreement);
+				}
 			}
 
 			_sendEmailMessage.Attachments = attachments;

@@ -56,6 +56,11 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 		/// Комментарий к оценке
 		/// </summary>
 		public string OrderRatingComment { get; set; }
+
+		/// <summary>
+		/// Номер телефона водителя в Mango
+		/// </summary>
+		public string DriversMangoNumber { get; set; }
 		
 		/// <summary>
 		/// Товары без промонаборов

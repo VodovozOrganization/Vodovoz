@@ -16,6 +16,7 @@
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />
+    <ProjectReference Include="..\..\Notifications\EdoNotifications\EdoNotifications.Contracts\EdoNotifications.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Navigation;
@@ -15,13 +16,16 @@ namespace Vodovoz.Dialogs.OrderWidgets
 	/// </summary>
 	public class CopyOrderDlgOpener
 	{
+		private readonly ILogger<CopyOrderDlgOpener> _logger;
 		private readonly ITdiCompatibilityNavigation _navigator;
 		private readonly IInteractiveService _interactiveService;
 
 		public CopyOrderDlgOpener(
+			ILogger<CopyOrderDlgOpener> logger,
 			ITdiCompatibilityNavigation navigator,
 			IInteractiveService interactiveService)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
@@ -38,6 +42,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				return;
 			}
 			
+			_logger.LogInformation("Нажата кнопка повторить заказ {CopingOrderId}", copiedOrder.Id);
 			var dlg = new OrderDlg();
 			dlg.CopyLesserOrderFrom(copiedOrder.Id);
 
@@ -96,6 +101,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				return;
 			}
 			
+			_logger.LogInformation("Нажата кнопка повторить заказ {CopingOrderId} в Манго", copiedOrder.Id);
 			_navigator.OpenTdiTab<OrderDlg, int, bool>(master, copiedOrder.Id, true, openPageOptions);
 		}
 		

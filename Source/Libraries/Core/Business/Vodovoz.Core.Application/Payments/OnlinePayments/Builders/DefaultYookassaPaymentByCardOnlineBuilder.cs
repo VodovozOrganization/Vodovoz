@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Vodovoz.Core.Application.Payments.OnlinePayments;
 using Vodovoz.Domain.Payments;
 using VodovozBusiness.Domain.Payments;
 
@@ -15,16 +14,22 @@ namespace Vodovoz.Core.Application.Payments.OnlinePayments.Builders
 	{
 		private readonly CultureInfo _formatProvider;
 		protected readonly (IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom) RegisterData;
-		protected readonly PaymentByCardOnline Payment;
 
-		protected DefaultYookassaPaymentByCardOnlineBuilder(
+		public DefaultYookassaPaymentByCardOnlineBuilder(
 			(IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom)? registerData)
 		{
 			RegisterData = registerData ?? throw new ArgumentNullException(nameof(registerData));
-			Payment = new PaymentByCardOnline();
 
 			_formatProvider = CultureInfo.CreateSpecificCulture("ru-RU");
 			_formatProvider.NumberFormat.NumberDecimalSeparator = ".";
+		}
+		
+		protected PaymentByCardOnline Payment { get; set; }
+
+		protected internal virtual DefaultYookassaPaymentByCardOnlineBuilder NewPayment()
+		{
+			Payment = new PaymentByCardOnline();
+			return this;
 		}
 
 		/// <summary>
@@ -87,26 +92,14 @@ namespace Vodovoz.Core.Application.Payments.OnlinePayments.Builders
 		/// <returns></returns>
 		public virtual PaymentByCardOnline Build(string[] data)
 		{
-			Sum(data[RegisterData.Columns.PaymentSumColumn])
+			NewPayment()
+				.Sum(data[RegisterData.Columns.PaymentSumColumn])
 				.DateAndTime(data[RegisterData.Columns.DateAndTimeColumn])
 				.PaymentNumberAndSource(data[RegisterData.Columns.PaymentNumberColumn], RegisterData.PaymentFrom.Value)
 				.Email(data[RegisterData.Columns.EmailColumn.Value]);
 			
 			Payment.PaymentStatus = PaymentStatus.CONFIRMED;
 			return Payment;
-		}
-
-		public static IPaymentByCardOnlineBuilder Create((IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom) registerData)
-		{
-			switch (registerData.Columns)
-			{
-				case BwYookassaOnlinePaymentRegisterColumns _:
-					return new BwYookassaPaymentByCardOnlineBuilder(registerData);
-				case VvEastYookassaOnlinePaymentRegisterColumns _:
-					return new VvEastYookassaPaymentByCardOnlineBuilder(registerData);
-				default:
-					return new DefaultYookassaPaymentByCardOnlineBuilder(registerData);
-			}
 		}
 		
 		private string GetNumberFromDescription(string description, ref PaymentByCardOnlineFrom paymentFrom)

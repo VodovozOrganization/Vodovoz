@@ -23,30 +23,6 @@ namespace Edo.Transport
 		}
 
 		/// <summary>
-		/// Опубликовать событие о создании заявки по ЭДО
-		/// </summary>
-		/// <param name="requestId"></param>
-		/// <returns></returns>
-		public async Task PublishEdoRequestCreatedEvent(int requestId)
-		{
-			_logger.LogInformation("Отправляем событие на создание новой заявки по ЭДО, запрос: {RequestId}.", requestId);
-
-			try
-			{
-				await _bus.Publish(new EdoRequestCreatedEvent { Id = requestId });
-				_logger.LogInformation("Событие на создание новой заявки по ЭДО отправлено успешно");
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(
-					ex,
-					"Ошибка при отправке события на создание новой заявки по ЭДО. Id запроса: {RequestId}. Exception: {ExceptionMessage}",
-					requestId,
-					ex.Message);
-			}
-		}
-
-		/// <summary>
 		/// Опубликовать событие о создании неформальной заявки по ЭДО
 		/// </summary>
 		/// <param name="informalRequestId"></param>

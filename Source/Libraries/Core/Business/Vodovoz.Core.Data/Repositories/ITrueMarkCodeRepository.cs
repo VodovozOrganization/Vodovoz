@@ -3,11 +3,24 @@ using System.Threading;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Core.Data.Repositories
 {
 	public interface ITrueMarkCodeRepository
 	{
+		/// <summary>
+		/// Загрузить экземплярные коды маркировки
+		/// </summary>
+		/// <param name="unitOfWork">IUnitOfWork</param>
+		/// <param name="codeIds">Массив идентификаторов кодов маркировки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Коллекция экземплярных кодов маркировки</returns>
+		Task<IEnumerable<TrueMarkWaterIdentificationCode>> LoadWaterCodes(
+			IUnitOfWork unitOfWork,
+			int[] codeIds,
+			CancellationToken cancellationToken);
+
 		Task PreloadCodes(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken);
 		Task<TrueMarkTransportCode> FindParentTransportCode(
 			TrueMarkWaterIdentificationCode code,
