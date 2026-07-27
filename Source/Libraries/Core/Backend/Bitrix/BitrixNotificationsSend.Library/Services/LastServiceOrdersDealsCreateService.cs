@@ -1,5 +1,6 @@
 ﻿using BitrixNotificationsSend.Client;
 using BitrixNotificationsSend.Contracts.Dto;
+using BitrixNotificationsSend.Library.Factories;
 using BitrixNotificationsSend.Library.Services.Batches;
 using DateTimeHelpers;
 using Microsoft.Extensions.Logging;
@@ -31,13 +32,6 @@ namespace BitrixNotificationsSend.Library.Services
 			OrderStatus.Closed
 		};
 
-		private readonly OrderStatus[] _canceledOrderStatuses =
-		{
-			OrderStatus.Canceled,
-			OrderStatus.NotDelivered,
-			OrderStatus.DeliveryCanceled
-		};
-
 		private readonly ILogger<LastServiceOrdersDealsCreateService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
@@ -48,6 +42,7 @@ namespace BitrixNotificationsSend.Library.Services
 		private readonly IBitrixDealsClient _bitrixDealsClient;
 		private readonly IBitrixBatchesSendService _bitrixBatchesSendService;
 		private readonly IGenericRepository<LastServiceOrder> _lastServiceOrderRepository;
+		private readonly ILastServiceOrderDtoFactory _lastServiceOrderDtoFactory;
 
 		public LastServiceOrdersDealsCreateService(
 			ILogger<LastServiceOrdersDealsCreateService> logger,
@@ -59,7 +54,8 @@ namespace BitrixNotificationsSend.Library.Services
 			IBitrixNotificationsSendSettings bitrixNotificationsSendSettings,
 			IBitrixDealsClient bitrixDealsClient,
 			IBitrixBatchesSendService bitrixBatchesSendService,
-			IGenericRepository<LastServiceOrder> lastServiceOrderRepository)
+			IGenericRepository<LastServiceOrder> lastServiceOrderRepository,
+			ILastServiceOrderDtoFactory lastServiceOrderDtoFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -71,6 +67,7 @@ namespace BitrixNotificationsSend.Library.Services
 			_bitrixDealsClient = bitrixDealsClient ?? throw new ArgumentNullException(nameof(bitrixDealsClient));
 			_bitrixBatchesSendService = bitrixBatchesSendService ?? throw new ArgumentNullException(nameof(bitrixBatchesSendService));
 			_lastServiceOrderRepository = lastServiceOrderRepository ?? throw new ArgumentNullException(nameof(lastServiceOrderRepository));
+			_lastServiceOrderDtoFactory = lastServiceOrderDtoFactory ?? throw new ArgumentNullException(nameof(lastServiceOrderDtoFactory));
 		}
 
 		/// <summary>
@@ -153,7 +150,7 @@ namespace BitrixNotificationsSend.Library.Services
 			{
 				lastServiceOrderDtos = _lastServiceOrderRepository
 					.Get(uow, x => x.Stage == BitrixDealCreationStage.DealNotCreated)
-					.Select(CreateLastServiceOrderDto)
+					.Select(_lastServiceOrderDtoFactory.CreateLastServiceOrderDto)
 					.ToList();
 			}
 
@@ -243,7 +240,7 @@ namespace BitrixNotificationsSend.Library.Services
 					uow,
 					candidates.Select(x => x.CounterpartyId),
 					today,
-					_canceledOrderStatuses,
+					_orderRepository.GetUndeliveryStatuses(),
 					serviceNomenclatureIds,
 					cancellationToken);
 
@@ -271,8 +268,7 @@ namespace BitrixNotificationsSend.Library.Services
 
 			var counterpartiesEmails =
 				(await _counterpartyRepository.GetCounterpartiesEmailsWithPurposeAsync(uow, counterpartyIds, cancellationToken))
-				.GroupBy(x => x.CounterpartyId)
-				.ToDictionary(g => g.Key, g => g.ToArray());
+				.ToLookup(x => x.CounterpartyId);
 
 			var deliveryPointIds = candidates
 				.Where(x => x.DeliveryPointId != null)
@@ -292,7 +288,7 @@ namespace BitrixNotificationsSend.Library.Services
 			{
 				counterpartiesData.TryGetValue(candidate.CounterpartyId, out var counterpartyData);
 
-				counterpartiesEmails.TryGetValue(candidate.CounterpartyId, out var counterpartyEmails);
+				var counterpartyEmails = counterpartiesEmails[candidate.CounterpartyId].ToList();
 
 				string deliveryPointAddress = null;
 
@@ -321,17 +317,5 @@ namespace BitrixNotificationsSend.Library.Services
 
 			return lastServiceOrders;
 		}
-
-		private static LastServiceOrderDto CreateLastServiceOrderDto(LastServiceOrder lastServiceOrder) =>
-			new LastServiceOrderDto
-			{
-				LastServiceOrderId = lastServiceOrder.Id,
-				CounterpartyId = lastServiceOrder.CounterpartyId,
-				CounterpartyName = lastServiceOrder.CounterpartyName,
-				DeliveryPointAddress = lastServiceOrder.DeliveryPointAddress,
-				PhoneNumber = lastServiceOrder.PhoneNumber,
-				EmailAddress = lastServiceOrder.EmailAddress,
-				LastOrderDeliveryDate = lastServiceOrder.LastOrderDeliveryDate
-			};
 	}
 }

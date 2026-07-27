@@ -3573,7 +3573,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				};
 
 			return await query
-				.WithOptions(x => x.SetTimeout(300))
 				.ToListAsync(cancellationToken);
 		}
 
