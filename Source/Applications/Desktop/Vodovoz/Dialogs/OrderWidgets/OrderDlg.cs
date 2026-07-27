@@ -3616,6 +3616,17 @@ namespace Vodovoz
 			_logger.Info("ЭДО заказа {OrderId}: начало конфигурации ViewModel", Entity.Id);
 			var edoInOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
 			edoInOrderViewModel.Setup(UoW, Entity.Id);
+			var transferTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
+					this,
+					edoInOrderViewModel.OrderCodesViewModel,
+					UoW,
+					NavigationManager,
+					_lifetimeScope)
+				.ForProperty(viewModel => viewModel.TransferTargetOrder)
+				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(
+					filter => filter.RestrictHideService = true)
+				.Finish();
+			edoInOrderViewModel.OrderCodesViewModel.ConfigureTransferTargetOrderEntry(transferTargetOrderViewModel);
 			edoinorderview1.ViewModel = edoInOrderViewModel;
 			_edoInOrderViewModelConfigured = true;
 			_logger.Info("ЭДО заказа {OrderId}: конфигурация ViewModel завершена за {Elapsed}", Entity.Id, stopwatch.Elapsed);
