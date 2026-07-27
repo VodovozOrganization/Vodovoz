@@ -9,7 +9,6 @@ using QS.DomainModel.UoW;
 using TransactionalOutbox.Abstractions;
 using Vodovoz.Core.Application.Logistics;
 using Vodovoz.Services.Logistics;
-using CustomerNotifications.Application;
 
 namespace CustomerOnlineOrdersUpdater
 {
@@ -33,7 +32,7 @@ namespace CustomerOnlineOrdersUpdater
 				// Уведомления клиентов
 				.AddCustomerNotificationsSettingsProvider()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				;
 
 			return services;

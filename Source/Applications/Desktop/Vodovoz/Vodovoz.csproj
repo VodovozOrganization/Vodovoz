@@ -456,6 +456,7 @@
     <Compile Include="JournalColumnsConfigs\FinancialResponsibilityCenterJournalViewModelRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NonReturnReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NotAllocatedCounterpartiesJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\EdoNotificationSettingJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ProfitCategoriesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ServiceDistrictsSetJournalRegistrar.cs" />
@@ -2175,6 +2176,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTransferStageView.cs" />
     <Compile Include="Views\TrueMark\OrderCodesDialogView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.OrderCodesDialogView.cs" />
+    <Compile Include="Views\Edo\EdoNotificationSettingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoNotificationSettingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2636,13 +2639,17 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj">
-      <Project>{0B386CE3-047F-54B5-0F40-3741094071F0}</Project>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj">
+      <Project>{ec551759-1397-78fb-6976-dd679a81fa7d}</Project>
       <Name>CustomerNotifications.Application</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
-      <Project>{CDDE0D70-E3C3-A1D6-147E-E805A70744E6}</Project>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
+      <Project>{c98a3f81-c25f-f282-46a3-fb51da0d98e2}</Project>
       <Name>CustomerNotifications.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\EdoNotifications\EdoNotifications.Contracts\EdoNotifications.Contracts.csproj">
+      <Project>{4851B429-7C79-8D8B-6299-DC1F6430111A}</Project>
+      <Name>EdoNotifications.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj">
       <Project>{F002AF1D-1958-EF09-F21A-0221E7874DE1}</Project>
@@ -2653,7 +2660,7 @@
       <Name>ResourceLocker.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\TransactionalOutbox\TransactionalOutbox.csproj">
-      <Project>{CCD24DF5-779F-4EC0-B2B9-AE81058B6076}</Project>
+      <Project>{A3919E7C-5F5B-7AFA-49F4-D4FCE627ABC0}</Project>
       <Name>TransactionalOutbox</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Vodovoz.Trackers\Vodovoz.Trackers.csproj">
