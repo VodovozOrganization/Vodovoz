@@ -567,11 +567,12 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// Данные последних выполненных сервисных заказов неархивных контрагентов.
 		/// Сервисным считается заказ, содержащий хотя бы одну номенклатуру из указанного списка.
 		/// По каждому контрагенту возвращается последний выполненный сервисный заказ,
-		/// если его дата доставки не позднее указанной
+		/// если его дата доставки не ранее и не позднее указанных
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="serviceNomenclatureIds">Id номенклатур, относящихся к сервисным (санитарная обработка)</param>
 		/// <param name="orderStatuses">Статусы заказов, считающихся выполненными</param>
+		/// <param name="minLastOrderDeliveryDate">Минимальная дата доставки последнего сервисного заказа (включительно)</param>
 		/// <param name="maxLastOrderDeliveryDate">Максимальная дата доставки последнего сервисного заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные последних сервисных заказов в разрезе контрагентов</returns>
@@ -579,6 +580,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow,
 			IEnumerable<int> serviceNomenclatureIds,
 			IEnumerable<OrderStatus> orderStatuses,
+			DateTime minLastOrderDeliveryDate,
 			DateTime maxLastOrderDeliveryDate,
 			CancellationToken cancellationToken);
 

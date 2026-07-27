@@ -214,16 +214,21 @@ namespace BitrixNotificationsSend.Library.Services
 			var maxLastOrderDeliveryDate =
 				today.AddDays(-_bitrixNotificationsSendSettings.LastServiceOrdersMinDaysSinceLastOrder);
 
+			var minLastOrderDeliveryDate = _bitrixNotificationsSendSettings.LastServiceOrdersMinDeliveryDate.Date;
+
 			var candidates = (await _orderRepository.GetCounterpartiesLastServiceOrdersDataAsync(
 					uow,
 					serviceNomenclatureIds,
 					_completedOrderStatuses,
+					minLastOrderDeliveryDate,
 					maxLastOrderDeliveryDate,
 					cancellationToken))
 				.ToList();
 
 			_logger.LogInformation(
-				"Контрагентов с последним сервисным заказом не позднее {MaxLastOrderDeliveryDate:yyyy.MM.dd}: {CandidatesCount}",
+				"Контрагентов с последним сервисным заказом не ранее {MinLastOrderDeliveryDate:yyyy.MM.dd} " +
+				"и не позднее {MaxLastOrderDeliveryDate:yyyy.MM.dd}: {CandidatesCount}",
+				minLastOrderDeliveryDate,
 				maxLastOrderDeliveryDate,
 				candidates.Count);
 

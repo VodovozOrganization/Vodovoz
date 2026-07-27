@@ -3538,6 +3538,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IUnitOfWork uow,
 			IEnumerable<int> serviceNomenclatureIds,
 			IEnumerable<OrderStatus> orderStatuses,
+			DateTime minLastOrderDeliveryDate,
 			DateTime maxLastOrderDeliveryDate,
 			CancellationToken cancellationToken)
 		{
@@ -3549,7 +3550,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id into phones
 				from phone in phones.DefaultIfEmpty()
 				where
-					order.DeliveryDate <= maxLastOrderDeliveryDate
+					order.DeliveryDate >= minLastOrderDeliveryDate
+					&& order.DeliveryDate <= maxLastOrderDeliveryDate
 					&& !uow.Session.Query<VodovozOrder>().Any(laterOrder =>
 						laterOrder.Client.Id == order.Client.Id
 						&& statuses.Contains(laterOrder.OrderStatus)
