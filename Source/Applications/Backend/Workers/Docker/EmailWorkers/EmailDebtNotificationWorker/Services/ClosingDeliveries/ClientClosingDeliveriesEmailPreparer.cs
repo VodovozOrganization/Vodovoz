@@ -1,6 +1,7 @@
 ﻿using BitrixApi.Library.Services;
+using Email.Infrastructure.Factories;
+using Email.Infrastructure.Generators;
 using EmailDebtNotificationWorker.DTO;
-using EmailDebtNotificationWorker.Services.Common.Factories;
 using EmailDebtNotificationWorker.Services.Common.Generators;
 using EmailDebtNotificationWorker.Services.Common.Selectors;
 using Microsoft.Extensions.Logging;

@@ -4,7 +4,7 @@
 	/// Провайдер настроек для событий, которые будут публиковаться через Outbox.
 	/// </summary>
 	/// <typeparam name="TEvent"></typeparam>
-	public interface IOutBoxSettingsProvider<in TEvent>
+	public interface IOutboxSettingsProvider<in TEvent>
 	{
 		/// <summary>
 		/// Разрешены ли дубликаты сообщений

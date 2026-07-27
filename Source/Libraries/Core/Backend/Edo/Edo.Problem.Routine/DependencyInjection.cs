@@ -3,6 +3,7 @@ using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
 using Edo.Problems;
 using Edo.Transport;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
@@ -24,7 +25,8 @@ namespace Edo.Problem.Routine
 				.AddCoreDataRepositories()
 				.AddCore()
 				.AddEdo()
-				.AddEdoProblemRegistration();
+				.AddEdoProblemRegistration()
+				.AddEdoNotifications();
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
@@ -33,6 +35,7 @@ namespace Edo.Problem.Routine
 				.AddOrderFiscalDocumentSendErrorProblem()
 				.AddReceiptNightSendProblem()
 				.AddOrderStatusProblem()
+				.AddCodeDuplicatedProblem()
 				;
 
 			return services;
@@ -71,6 +74,14 @@ namespace Edo.Problem.Routine
 		{
 			services.ConfigureOptions<ConfigureOrderStatusProblemWorkerOptions>();
 			services.AddScoped<OrderStatusProblemService>();
+
+			return services;
+		}
+
+		private static IServiceCollection AddCodeDuplicatedProblem(this IServiceCollection services)
+		{
+			services.ConfigureOptions<ConfigureCodeDuplicatedProblemWorkerOptions>();
+			services.AddScoped<CodeDuplicatedProblemService>();
 
 			return services;
 		}

@@ -121,6 +121,7 @@
     <Compile Include="Journals\JournalNodes\Banks\BanksJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoNotificationSettingJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrderForRouteListJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\BankAccountsMovementsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\NotAllocatedCounterpartiesJournalNode.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="Journals\JournalViewModels\Cash\VatRateJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\EdoNotificationSettingJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OnlineOrderNotificationSettingJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FineCategoryJournalViewModel.cs" />
     <Compile Include="Journals\Nodes\Cash\VatRateJournalNode.cs" />
@@ -581,6 +583,7 @@
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeToCheck.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.GtinFromNomenclatureDto.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.cs" />
+    <Compile Include="ViewModels\Edo\EdoNotificationSettingViewModel.cs" />
     <Compile Include="ViewModels\Edo\TenderEdoViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\NomenclaturesForOrderJournalRestriction.cs" />
@@ -1403,9 +1406,13 @@
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
-      <Project>{CDDE0D70-E3C3-A1D6-147E-E805A70744E6}</Project>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
+      <Project>{c98a3f81-c25f-f282-46a3-fb51da0d98e2}</Project>
       <Name>CustomerNotifications.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\EdoNotifications\EdoNotifications.Contracts\EdoNotifications.Contracts.csproj">
+      <Project>{4851B429-7C79-8D8B-6299-DC1F6430111A}</Project>
+      <Name>EdoNotifications.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj">
       <Project>{F002AF1D-1958-EF09-F21A-0221E7874DE1}</Project>
