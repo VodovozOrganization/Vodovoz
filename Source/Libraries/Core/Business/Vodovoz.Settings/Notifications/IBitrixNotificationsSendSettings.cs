@@ -97,5 +97,11 @@ namespace Vodovoz.Settings.Notifications
 		/// по истечении которого по клиенту создаётся сделка в Битрикс24
 		/// </summary>
 		int LastServiceOrdersMinDaysSinceLastOrder { get; }
+
+		/// <summary>
+		/// Минимальная дата доставки последнего сервисного заказа (включительно),
+		/// начиная с которой по клиенту создаётся сделка в Битрикс24
+		/// </summary>
+		DateTime LastServiceOrdersMinDeliveryDate { get; }
 	}
 }

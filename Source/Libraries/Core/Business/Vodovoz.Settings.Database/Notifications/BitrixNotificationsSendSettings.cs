@@ -67,5 +67,8 @@ namespace Vodovoz.Settings.Database.Notifications
 
 		public int LastServiceOrdersMinDaysSinceLastOrder =>
 			_settingsController.GetIntValue($"{_parametersPrefix}LastServiceOrdersMinDaysSinceLastOrder");
+
+		public DateTime LastServiceOrdersMinDeliveryDate =>
+			_settingsController.GetDateTimeValue($"{_parametersPrefix}LastServiceOrdersMinDeliveryDate");
 	}
 }
