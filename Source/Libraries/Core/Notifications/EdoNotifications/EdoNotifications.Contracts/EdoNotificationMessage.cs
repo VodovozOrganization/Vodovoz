@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using TransactionalOutbox.Contracts;
 using TransactionalOutbox.Serialization;
+using VodovozInfrastructure.Cryptography;
 
 namespace EdoNotifications.Contracts
 {
@@ -15,6 +16,12 @@ namespace EdoNotifications.Contracts
 	/// </summary>
 	public class EdoNotificationMessage : IIdempotentOutboxMessage
 	{
+		private readonly IMD5HexHashFromString _mD5HexHashFromString;
+
+		public EdoNotificationMessage(IMD5HexHashFromString mD5HexHashFromString)
+		{
+			_mD5HexHashFromString = mD5HexHashFromString ?? throw new ArgumentNullException(nameof(mD5HexHashFromString));
+		}
 		/// <summary>
 		/// Тип ЭДО уведомления
 		/// </summary>
@@ -72,20 +79,9 @@ namespace EdoNotifications.Contracts
 
 			string stringToHash = $"Type:{(int)EdoNotificationType};Params:{jsonString}";
 
-			string finalHash = ComputeMd5Hash(stringToHash);
+			string finalHash = _mD5HexHashFromString.GetMD5HexHashFromString(stringToHash);
 
 			return $"Event={nameof(EdoNotificationMessage)}:Hash={finalHash}";
-		}
-
-		private static string ComputeMd5Hash(string input)
-		{
-			using(var md5 = MD5.Create())
-			{
-				byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-				byte[] hashBytes = md5.ComputeHash(inputBytes);
-
-				return BitConverter.ToString(hashBytes).Replace("-", "");
-			}
 		}
 	}
 }
