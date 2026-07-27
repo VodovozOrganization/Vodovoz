@@ -226,7 +226,8 @@ namespace BitrixNotificationsSend.Library.Services
 				.ToList();
 
 			_logger.LogInformation(
-				"Контрагентов с последним сервисным заказом не ранее {MinLastOrderDeliveryDate:yyyy.MM.dd} " +
+				"Контрагентов с не обработанным ранее последним сервисным заказом " +
+				"не ранее {MinLastOrderDeliveryDate:yyyy.MM.dd} " +
 				"и не позднее {MaxLastOrderDeliveryDate:yyyy.MM.dd}: {CandidatesCount}",
 				minLastOrderDeliveryDate,
 				maxLastOrderDeliveryDate,
@@ -248,19 +249,6 @@ namespace BitrixNotificationsSend.Library.Services
 
 			candidates = candidates
 				.Where(x => !counterpartyIdsWithUpcomingOrders.Contains(x.CounterpartyId))
-				.ToList();
-
-			var candidateOrderIds = candidates
-				.Select(x => x.OrderId)
-				.ToArray();
-
-			var processedOrderIds = new HashSet<int>(
-				_lastServiceOrderRepository
-					.Get(uow, x => candidateOrderIds.Contains(x.LastOrderId))
-					.Select(x => x.LastOrderId));
-
-			candidates = candidates
-				.Where(x => !processedOrderIds.Contains(x.OrderId))
 				.ToList();
 
 			_logger.LogInformation(

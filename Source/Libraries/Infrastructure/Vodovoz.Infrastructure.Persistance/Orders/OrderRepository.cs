@@ -3552,6 +3552,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				where
 					order.DeliveryDate >= minLastOrderDeliveryDate
 					&& order.DeliveryDate <= maxLastOrderDeliveryDate
+					&& !uow.Session.Query<LastServiceOrder>().Any(lastServiceOrder =>
+						lastServiceOrder.LastOrderId == order.Id)
 					&& !uow.Session.Query<VodovozOrder>().Any(laterOrder =>
 						laterOrder.Client.Id == order.Client.Id
 						&& statuses.Contains(laterOrder.OrderStatus)
