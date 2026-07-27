@@ -1,6 +1,5 @@
 ﻿using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
-using MessageTransport.MassTransit;
 using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.Config;
@@ -101,10 +100,6 @@ namespace CustomerOrdersApi
 					busConf.AddRequestClient<CreatingOnlineOrderV5>(new Uri($"exchange:{CreatingOnlineOrderV5.ExchangeAndQueueName}"));
 					busConf.AddRequestClient<CreatingOnlineOrderV6>(new Uri($"exchange:{CreatingOnlineOrderV6.ExchangeAndQueueName}"));
 					busConf.ConfigureRabbitMq();					
-				})
-				.AddMassTransit<INotificationsBus>(busConf =>
-				{
-					busConf.ConfigureRabbitMq(services, Configuration, "NotificationTransportSettings");
 				});
 
 			services
