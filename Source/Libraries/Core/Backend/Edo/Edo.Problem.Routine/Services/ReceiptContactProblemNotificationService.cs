@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using EdoNotifications.Application.Factories;
 using EdoNotifications.Contracts;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
@@ -12,12 +13,16 @@ namespace Edo.Problem.Routine.Services
 	public class ReceiptContactProblemNotificationService : IReceiptContactProblemNotificationService
 	{
 		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
 
 		public ReceiptContactProblemNotificationService(
-			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher)
+			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
+			IEdoNotificationMessageFactory notificationMessageFactory)
 		{
 			_notificationPublisher = notificationPublisher
 				?? throw new ArgumentNullException(nameof(notificationPublisher));
+			_notificationMessageFactory = notificationMessageFactory
+				?? throw new ArgumentNullException(nameof(notificationMessageFactory));
 		}
 
 		public Task<bool> TryNotifyAsync(
@@ -42,7 +47,7 @@ namespace Edo.Problem.Routine.Services
 				throw new ArgumentNullException(nameof(problem));
 			}
 
-			var notification = EdoNotificationMessage.Create(
+			var notification = _notificationMessageFactory.Create(
 				EdoNotificationType.ReceiptContactInvalid,
 				("OrderId", receiptTask.FormalEdoRequest.Order.Id.ToString(CultureInfo.InvariantCulture)),
 				("EdoTaskId", receiptTask.Id.ToString(CultureInfo.InvariantCulture)),
