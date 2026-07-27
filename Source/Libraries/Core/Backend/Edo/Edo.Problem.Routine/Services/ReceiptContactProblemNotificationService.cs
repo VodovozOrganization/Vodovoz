@@ -1,38 +1,55 @@
 using System;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using EdoNotifications.Contracts;
+using Notifications.Infrastructure;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Problem.Routine.Services
 {
-	/// <summary>
-	/// Temporary mock notification service until Edo notification pipeline is ready.
-	/// </summary>
-	public class MockReceiptContactProblemNotificationService : IReceiptContactProblemNotificationService
+	public class ReceiptContactProblemNotificationService : IReceiptContactProblemNotificationService
 	{
-		private readonly ILogger<MockReceiptContactProblemNotificationService> _logger;
+		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 
-		public MockReceiptContactProblemNotificationService(ILogger<MockReceiptContactProblemNotificationService> logger)
+		public ReceiptContactProblemNotificationService(
+			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_notificationPublisher = notificationPublisher
+				?? throw new ArgumentNullException(nameof(notificationPublisher));
 		}
 
-		public Task NotifyAsync(
+		public Task<bool> TryNotifyAsync(
+			IUnitOfWork unitOfWork,
 			ReceiptEdoTask receiptTask,
 			EdoTaskProblem problem,
 			int retryCount,
 			CancellationToken cancellationToken)
 		{
-			cancellationToken.ThrowIfCancellationRequested();
+			if(unitOfWork == null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWork));
+			}
 
-			_logger.LogWarning(
-				"[MOCK] Требуется уведомление по проблеме контакта чека. EdoTaskId: {EdoTaskId}, ProblemId: {ProblemId}, RetryCount: {RetryCount}",
-				receiptTask.Id,
-				problem.Id,
-				retryCount);
+			if(receiptTask == null)
+			{
+				throw new ArgumentNullException(nameof(receiptTask));
+			}
 
-			return Task.CompletedTask;
+			if(problem == null)
+			{
+				throw new ArgumentNullException(nameof(problem));
+			}
+
+			var notification = EdoNotificationMessage.Create(
+				EdoNotificationType.ReceiptContactInvalid,
+				("OrderId", receiptTask.FormalEdoRequest.Order.Id.ToString(CultureInfo.InvariantCulture)),
+				("EdoTaskId", receiptTask.Id.ToString(CultureInfo.InvariantCulture)),
+				("ProblemId", problem.Id.ToString(CultureInfo.InvariantCulture)),
+				("RetryCount", retryCount.ToString(CultureInfo.InvariantCulture)));
+
+			return _notificationPublisher.TryPublishAsync(unitOfWork, notification, cancellationToken);
 		}
 	}
 }

@@ -3,8 +3,10 @@ using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
 using Edo.Problems;
 using Edo.Transport;
+using EdoNotifications.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Notifications.Infrastructure;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
@@ -97,9 +99,12 @@ namespace Edo.Problem.Routine
 
 		private static IServiceCollection AddReceiptContactProblem(this IServiceCollection services) =>
 			services
+				.AddEdoNotificationsSettingsProvider()
 				.ConfigureOptions<ConfigureReceiptContactProblemWorkerOptions>()
 				.AddScoped<ReceiptContactProblemService>()
-				.AddScoped<IReceiptContactProblemNotificationService, MockReceiptContactProblemNotificationService>();
+				.AddScoped<IOutboxNotificationPublisher<EdoNotificationMessage>,
+					DirectOutboxNotificationPublisher<EdoNotificationMessage>>()
+				.AddScoped<IReceiptContactProblemNotificationService, ReceiptContactProblemNotificationService>();
 		
 		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)
 		{

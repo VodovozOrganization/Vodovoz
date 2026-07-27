@@ -178,13 +178,12 @@ namespace Edo.Problem.Routine.Services
 				state,
 				_options.CurrentValue.RetryAttemptsBeforeNotification))
 			{
-				await _notificationService.NotifyAsync(
+				notificationRequested = await _notificationService.TryNotifyAsync(
+					uow,
 					receiptTask,
 					problem,
 					state.RetryCount,
 					cancellationToken);
-
-				notificationRequested = true;
 			}
 
 			if(receiptTask.ReceiptStatus != EdoReceiptStatus.New)
