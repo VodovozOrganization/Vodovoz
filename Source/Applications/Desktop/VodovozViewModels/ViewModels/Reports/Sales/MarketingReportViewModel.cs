@@ -14,6 +14,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Core.Domain.Goods;
@@ -25,8 +26,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.NHibernateProjections.Orders;
-using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -35,6 +36,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 	{
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IGuiDispatcher _guiDispatcher;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly bool _userIsSalesRepresentative;
 
@@ -44,9 +47,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private MarketingReportGroupingType _groupingType = MarketingReportGroupingType.All;
 		private MarketingReportDateType _dateType = MarketingReportDateType.DeliveryDate;
 		private MarketingReport _report;
-		private bool _isGenerating;
 		private bool _canSave;
-		private bool _isSaving;
+		private bool _isGenerating;
+		private string _saveProgressText;
 
 		public MarketingReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -55,7 +58,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
 			ICurrentPermissionService currentPermissionService,
 			IUserService userService,
-			IEmployeeRepository employeeRepository)
+			IEmployeeRepository employeeRepository,
+			IFileDialogService fileDialogService,
+			IGuiDispatcher guiDispatcher)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(currentPermissionService is null)
@@ -70,6 +75,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
 			Title = "Маркетинговый отчет";
 			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
@@ -81,16 +88,28 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			EndDate = DateTime.Now.Date;
 
 			ShowInfoCommand = new DelegateCommand(ShowInfo);
+
+			SaveReportCommand = new DelegateCommand(SaveReport, () => CanSave);
+			SaveReportCommand.CanExecuteChangedWith(this, vm => vm.CanSave);
+
+			GenerateReportCommand = new AsyncCommand(guiDispatcher, CreateReportAsync);
+			AbortCreateReportCommand = new DelegateCommand(() => GenerateReportCommand.Abort());
+
+			SaveProgressText = "Сохранить";
+
 			_filterViewModel = _includeExcludeSalesFilterFactory.CreateMarketingReportIncludeExcludeFilter(
 				_unitOfWork,
 				_userIsSalesRepresentative ? (int?)employeeRepository.GetEmployeeForCurrentUser(_unitOfWork).Id : null);
 		}
 
-		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
-
 		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
 
 		public DelegateCommand ShowInfoCommand { get; }
+		public DelegateCommand SaveReportCommand { get; }
+		public DelegateCommand AbortCreateReportCommand { get; }
+		public AsyncCommand GenerateReportCommand { get; }
+
+		public Action ShowReportAction { get; set; }
 
 		public DateTime? StartDate
 		{
@@ -119,7 +138,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public MarketingReport Report
 		{
 			get => _report;
-			set
+			private set
 			{
 				SetField(ref _report, value);
 				CanSave = _report != null;
@@ -129,44 +148,88 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public bool CanSave
 		{
 			get => _canSave;
-			set => SetField(ref _canSave, value);
+			private set => SetField(ref _canSave, value);
 		}
-
-		public bool IsSaving
-		{
-			get => _isSaving;
-			set
-			{
-				SetField(ref _isSaving, value);
-				CanSave = !IsSaving && Report != null;
-			}
-		}
-
-		public bool CanGenerate => !IsGenerating;
 
 		public bool IsGenerating
 		{
 			get => _isGenerating;
-			set
-			{
-				SetField(ref _isGenerating, value);
-				OnPropertyChanged(nameof(CanGenerate));
-			}
+			private set => SetField(ref _isGenerating, value);
 		}
 
-		public async Task<MarketingReport> ActionGenerateReport(CancellationToken cancellationToken)
+		public string SaveProgressText
 		{
+			get => _saveProgressText;
+			private set => SetField(ref _saveProgressText, value);
+		}
+
+		private async Task CreateReportAsync(CancellationToken cancellationToken)
+		{
+			_guiDispatcher.RunInGuiTread(() => IsGenerating = true);
+
 			try
 			{
-				return await Task.Run(() => Generate(cancellationToken), cancellationToken);
+				Report = await Task.Run(() => Generate(cancellationToken), cancellationToken);
+				_guiDispatcher.RunInGuiTread(() => ShowReportAction?.Invoke());
+			}
+			catch(OperationCanceledException)
+			{
+				// Отмена формирования отчета пользователем
 			}
 			finally
 			{
 				_unitOfWork.Session.Clear();
+				_guiDispatcher.RunInGuiTread(() => IsGenerating = false);
 			}
 		}
 
-		public void ExportReport(string path) => Report.Export(path);
+		private void SaveReport()
+		{
+			if(IsGenerating || Report is null)
+			{
+				return;
+			}
+
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить отчет...",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"{TabName} {Report.CreatedAt:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			var saveDialogResult = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(!saveDialogResult.Successful)
+			{
+				return;
+			}
+
+			var path = saveDialogResult.Path;
+
+			Task.Run(() =>
+			{
+				try
+				{
+					_guiDispatcher.RunInGuiTread(() =>
+					{
+						CanSave = false;
+						SaveProgressText = "Отчет сохраняется...";
+					});
+
+					Report.Export(path);
+
+					_guiDispatcher.RunInGuiTread(() => _interactiveService.ShowMessage(ImportanceLevel.Info, "Экспорт завершён"));
+				}
+				finally
+				{
+					_guiDispatcher.RunInGuiTread(() =>
+					{
+						CanSave = true;
+						SaveProgressText = "Сохранить";
+					});
+				}
+			});
+		}
 
 		private MarketingReport Generate(CancellationToken cancellationToken)
 		{
@@ -455,12 +518,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				"Результат можно выгрузить в Excel.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
-		}
-
-		public override void Dispose()
-		{
-			ReportGenerationCancelationTokenSource?.Dispose();
-			base.Dispose();
 		}
 	}
 }

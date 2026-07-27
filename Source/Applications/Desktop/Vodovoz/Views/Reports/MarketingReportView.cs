@@ -1,8 +1,3 @@
-using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
@@ -14,7 +9,6 @@ namespace Vodovoz.ReportsParameters.Sales
 	public partial class MarketingReportView : TabViewBase<MarketingReportViewModel>
 	{
 		private IncludeExludeFiltersView _filterView;
-		private Task _generationTask;
 
 		public MarketingReportView(MarketingReportViewModel viewModel) : base(viewModel)
 		{
@@ -25,20 +19,20 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private void ConfigureDlg()
 		{
-			btnReportInfo.Clicked += (s, e) => ViewModel.ShowInfoCommand.Execute();
+			btnReportInfo.BindCommand(ViewModel.ShowInfoCommand);
 
-			ybuttonSave.Binding.AddSource(ViewModel)
+			ybuttonSave.BindCommand(ViewModel.SaveReportCommand);
+			ybuttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.SaveProgressText, w => w.Label)
 				.AddBinding(vm => vm.CanSave, w => w.Sensitive)
 				.InitializeFromSource();
-			ybuttonSave.Clicked += OnYbuttonSaveClicked;
 
+			ybuttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 			ybuttonCreateReport.Binding.AddSource(ViewModel)
 				.AddFuncBinding(vm => !vm.IsGenerating, w => w.Visible)
-				.AddBinding(vm => vm.CanGenerate, w => w.Sensitive)
 				.InitializeFromSource();
-			ybuttonCreateReport.Clicked += OnButtonCreateReportClicked;
 
-			ybuttonAbortCreateReport.Clicked += OnButtonAbortCreateReportClicked;
+			ybuttonAbortCreateReport.BindCommand(ViewModel.AbortCreateReportCommand);
 			ybuttonAbortCreateReport.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.IsGenerating, w => w.Visible)
 				.InitializeFromSource();
@@ -62,22 +56,9 @@ namespace Vodovoz.ReportsParameters.Sales
 
 			ShowFilter();
 			ytreeReportIndicatorsRows.RowActivated += OnReportRowActivated;
-			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+			ViewModel.ShowReportAction = ShowReport;
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 			hpaned1.Position = 500;
-		}
-
-		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(ViewModel.FilterViewModel))
-			{
-				ShowFilter();
-			}
-
-			if(e.PropertyName == nameof(ViewModel.Report))
-			{
-				ShowReport();
-			}
 		}
 
 		private void ShowReport()
@@ -120,89 +101,6 @@ namespace Vodovoz.ReportsParameters.Sales
 			GetClipboard(Gdk.Selection.Clipboard).Text = $"{row.Title}\t{row.Value}\t{row.AdditionalValue}";
 		}
 
-		protected async void OnButtonCreateReportClicked(object sender, EventArgs e)
-		{
-			ViewModel.ReportGenerationCancelationTokenSource = new CancellationTokenSource();
-			ViewModel.IsGenerating = true;
-
-			_generationTask = Task.Run(async () =>
-			{
-				try
-				{
-					var report = await ViewModel.ActionGenerateReport(ViewModel.ReportGenerationCancelationTokenSource.Token);
-					Gtk.Application.Invoke((s, eventArgs) => ViewModel.Report = report);
-				}
-				catch(OperationCanceledException)
-				{
-					// Отмена формирования отчета пользователем
-				}
-				catch(Exception ex)
-				{
-					Gtk.Application.Invoke((s, eventArgs) => { throw ex; });
-				}
-				finally
-				{
-					Gtk.Application.Invoke((s, eventArgs) => ViewModel.IsGenerating = false);
-				}
-			}, ViewModel.ReportGenerationCancelationTokenSource.Token);
-
-			await _generationTask;
-		}
-
-		private void OnButtonAbortCreateReportClicked(object sender, EventArgs e)
-		{
-			ViewModel.ReportGenerationCancelationTokenSource?.Cancel();
-		}
-
-		protected async void OnYbuttonSaveClicked(object sender, EventArgs e)
-		{
-			const string extension = ".xlsx";
-			var filechooser = new FileChooserDialog("Сохранить отчет...",
-				null,
-				FileChooserAction.Save,
-				"Отменить", ResponseType.Cancel,
-				"Сохранить", ResponseType.Accept)
-			{
-				DoOverwriteConfirmation = true,
-				CurrentName = $"{Tab.TabName} {ViewModel.Report.CreatedAt:yyyy-MM-dd-HH-mm}{extension}"
-			};
-
-			var excelFilter = new FileFilter { Name = $"Документ Microsoft Excel ({extension})" };
-			excelFilter.AddPattern($"*{extension}");
-			filechooser.AddFilter(excelFilter);
-
-			if(filechooser.Run() == (int)ResponseType.Accept)
-			{
-				var path = filechooser.Filename;
-				if(!path.Contains(extension))
-				{
-					path += extension;
-				}
-
-				filechooser.Hide();
-				ViewModel.IsSaving = true;
-
-				await Task.Run(() =>
-				{
-					try
-					{
-						ybuttonSave.Label = "Отчет сохраняется...";
-						ViewModel.ExportReport(path);
-					}
-					finally
-					{
-						Gtk.Application.Invoke((s, eventArgs) =>
-						{
-							ViewModel.IsSaving = false;
-							ybuttonSave.Label = "Сохранить";
-						});
-					}
-				});
-			}
-
-			filechooser.Destroy();
-		}
-
 		private void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
 		{
 			scrolledwindow2.Visible = !scrolledwindow2.Visible;
@@ -217,10 +115,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		public override void Dispose()
 		{
-			ybuttonSave.Clicked -= OnYbuttonSaveClicked;
-			ybuttonCreateReport.Clicked -= OnButtonCreateReportClicked;
-			ybuttonAbortCreateReport.Clicked -= OnButtonAbortCreateReportClicked;
-			ViewModel.PropertyChanged -= ViewModelPropertyChanged;
+			ytreeReportIndicatorsRows.RowActivated -= OnReportRowActivated;
 			eventboxArrow.ButtonPressEvent -= OnEventboxArrowButtonPressEvent;
 			base.Dispose();
 		}
