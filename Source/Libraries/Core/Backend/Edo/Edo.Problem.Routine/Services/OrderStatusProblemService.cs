@@ -1,6 +1,7 @@
 ﻿using Edo.Contracts.Messages.Events;
 using Edo.Problem.Routine.Options;
 using Edo.Problems.Validation;
+using EdoNotifications.Contracts;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -29,6 +30,7 @@ namespace Edo.Problem.Routine.Services
 		private readonly IServiceProvider _serviceProvider;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IBus _messageBus;
+		private readonly EdoProblemRoutineNotificationService _notificationService;
 
 		public OrderStatusProblemService(
 			ILogger<OrderStatusProblemService> logger,
@@ -37,7 +39,8 @@ namespace Edo.Problem.Routine.Services
 			IEnumerable<IEdoTaskValidator> validators,
 			IServiceProvider serviceProvider,
 			IEdoRepository edoRepository,
-			IBus messageBus)
+			IBus messageBus,
+			EdoProblemRoutineNotificationService notificationService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -45,6 +48,7 @@ namespace Edo.Problem.Routine.Services
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
 
 			_orderStatusValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
 				.FirstOrDefault(v => v.Name == _problemSourceName)
@@ -115,6 +119,12 @@ namespace Edo.Problem.Routine.Services
 
 			if(!validationResult.IsValid)
 			{
+				await _notificationService.NotifyAsync(
+					edoTask,
+					EdoNotificationType.OrderStatusProblem,
+					_orderStatusValidator,
+					cancellationToken);
+
 				_logger.LogDebug(
 					"Задача ЭДО {EdoTaskId}: статус заказа №{OrderId} не подхходит, пропускаем",
 					edoTask.Id,

@@ -29,6 +29,8 @@ namespace Edo.Problem.Routine
 				.AddEdoNotifications();
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+ 			services.AddScoped<EdoProblemRoutineNotificationFactory>();
+			services.AddScoped<EdoProblemRoutineNotificationService>();
 
 			services
 				.AddOrderSelfDeliveryPaidProblem()
