@@ -172,6 +172,16 @@ namespace Edo.Problem.Routine.Services
 				return ReceiptContactProblemProcessResult.Empty;
 			}
 
+			if(receiptTask.ReceiptStatus != EdoReceiptStatus.New)
+			{
+				_logger.LogWarning(
+					"Задача ЭДО {EdoTaskId} находится в статусе чека {ReceiptStatus}. Повторная обработка возможна только в статусе New",
+					receiptTask.Id,
+					receiptTask.ReceiptStatus);
+
+				return ReceiptContactProblemProcessResult.Empty;
+			}
+
 			var notificationRequested = false;
 
 			if(ReceiptContactProblemProcessingPolicy.ShouldRequestNotification(
@@ -186,24 +196,14 @@ namespace Edo.Problem.Routine.Services
 					cancellationToken);
 			}
 
-			if(receiptTask.ReceiptStatus != EdoReceiptStatus.New)
-			{
-				_logger.LogWarning(
-					"Задача ЭДО {EdoTaskId} находится в статусе чека {ReceiptStatus}. Повторная обработка возможна только в статусе New",
-					receiptTask.Id,
-					receiptTask.ReceiptStatus);
-
-				return new ReceiptContactProblemProcessResult(false, notificationRequested);
-			}
-
-			await _messageBus.Publish(
-				new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = receiptTask.Id },
-				cancellationToken);
-
 			state.RetryCount++;
 			state.LastRetryTime = now;
 			await uow.SaveAsync(state, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
+
+			await _messageBus.Publish(
+				new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = receiptTask.Id },
+				cancellationToken);
 
 			_logger.LogInformation(
 				"Опубликовано событие {EventName} для повторной обработки задачи ЭДО {EdoTaskId}. Попытка: {RetryCount}",
