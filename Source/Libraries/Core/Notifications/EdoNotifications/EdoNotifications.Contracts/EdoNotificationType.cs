@@ -11,6 +11,12 @@ namespace EdoNotifications.Contracts
 		/// Дубликат кода
 		/// </summary>
 		[Display(Name = "Дубликат кода")]
-		CodeDuplicatedException
+		CodeDuplicated,
+
+		/// <summary>
+		/// Невалидный контакт для отправки чека
+		/// </summary>
+		[Display(Name = "Невалидный контакт для отправки чека")]
+		ReceiptContactInvalid
 	}
 }

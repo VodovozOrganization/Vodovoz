@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using TransactionalOutbox.Contracts;
-using TransactionalOutbox.Serialization;
 
 namespace EdoNotifications.Contracts
 {
@@ -15,6 +10,8 @@ namespace EdoNotifications.Contracts
 	/// </summary>
 	public class EdoNotificationMessage : IIdempotentOutboxMessage
 	{
+		private readonly string _deduplicationKey;
+
 		/// <summary>
 		/// Тип ЭДО уведомления
 		/// </summary>
@@ -35,20 +32,17 @@ namespace EdoNotifications.Contracts
 		}
 
 		/// <summary>
-		/// Cоздание уведомления с динамическим набором параметров для шаблона
+		/// Конструктор для <see cref="EdoNotificationMessageFactory"/>.
+		/// Принимает уже вычисленный ключ дедупликации, чтобы гарантировать
+		/// единообразие его вычисления через DI-сервис хэширования.
 		/// </summary>
-		public static EdoNotificationMessage Create(
+		internal EdoNotificationMessage(
 			EdoNotificationType edoNotificationType,
-			params (string Key, string Value)[] templateParams)
+			Dictionary<string, string> templateParams,
+			string deduplicationKey)
+			: this(edoNotificationType, templateParams)
 		{
-			var dict = new Dictionary<string, string>();
-
-			foreach(var (key, value) in templateParams)
-			{
-				dict[key] = value;
-			}
-
-			return new EdoNotificationMessage(edoNotificationType, dict);
+			_deduplicationKey = deduplicationKey;
 		}
 
 		/// <summary>
@@ -62,30 +56,9 @@ namespace EdoNotifications.Contracts
 		/// <summary>
 		/// Дедупликация для БД. Гарантирует уникальность комбинации Типа события и его Параметров.
 		/// </summary>
-		public string GetDeduplicationKey()
-		{
-			var sortedParams = TemplateParams
-				.OrderBy(p => p.Key)
-				.ToDictionary(p => p.Key, p => p.Value);
-
-			string jsonString = JsonSerializer.Serialize(sortedParams, OutboxJsonSerializerOptions.Instance);
-
-			string stringToHash = $"Type:{(int)EdoNotificationType};Params:{jsonString}";
-
-			string finalHash = ComputeMd5Hash(stringToHash);
-
-			return $"Event={nameof(EdoNotificationMessage)}:Hash={finalHash}";
-		}
-
-		private static string ComputeMd5Hash(string input)
-		{
-			using(var md5 = MD5.Create())
-			{
-				byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-				byte[] hashBytes = md5.ComputeHash(inputBytes);
-
-				return BitConverter.ToString(hashBytes).Replace("-", "");
-			}
-		}
+		public string GetDeduplicationKey() =>
+			_deduplicationKey
+			?? throw new InvalidOperationException(
+				$"Дедупликационный ключ не был вычислен.");
 	}
 }
