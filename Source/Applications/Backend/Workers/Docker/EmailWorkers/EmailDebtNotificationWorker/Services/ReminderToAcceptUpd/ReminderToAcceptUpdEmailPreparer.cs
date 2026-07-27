@@ -1,5 +1,5 @@
-using EmailDebtNotificationWorker.Repositories;
-using EmailDebtNotificationWorker.Services.Common.Factories;
+﻿using Email.Infrastructure.Factories;
+using Email.Infrastructure.Repositories;
 using EmailDebtNotificationWorker.Services.Common.Generators;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
@@ -47,7 +47,7 @@ namespace EmailDebtNotificationWorker.Services.ReminderToAcceptUpd
 				{
 					var emailSubject = $"Запрос на принятие и подтверждение УПД №({string.Join(", ", node.Documents.Select(d => d.UpdNum))})";
 
-					var storedEmail = _emailMessageFactory.CreateStoredEmail(emailSubject, emailToSent);
+					var storedEmail = _emailMessageFactory.CreateStoredEmail(emailSubject, emailToSent, null);
 
 					await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
