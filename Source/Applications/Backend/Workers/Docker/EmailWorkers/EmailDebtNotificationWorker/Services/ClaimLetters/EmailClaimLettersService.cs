@@ -1,6 +1,7 @@
 ﻿using BitrixApi.Library.Services;
+using Email.Infrastructure.Factories;
+using Email.Infrastructure.Generators;
 using EmailDebtNotificationWorker.Options;
-using EmailDebtNotificationWorker.Services.Common.Factories;
 using EmailDebtNotificationWorker.Services.Common.Generators;
 using EmailDebtNotificationWorker.Services.Common.Selectors;
 using MassTransit;
@@ -258,7 +259,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 					$"Клиент {client.Id} {client.FullName} не имеет подходящего email для отправки претензионного письма");
 			}
 
-			var storedEmail = _emailMessageFactory.CreateStoredEmail(emailSubject, emailAddress);
+			var storedEmail = _emailMessageFactory.CreateStoredEmail(emailSubject, emailAddress, null);
 
 			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 

@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using TransactionalOutbox.Abstractions;
 using TransactionalOutbox.Extensions;
-using CustomerNotifications.Contracts;
 
 namespace OutboxWorker
 {
@@ -20,33 +20,57 @@ namespace OutboxWorker
 		private readonly string _connectionString;
 		private readonly IServiceScopeFactory _scopeFactory;
 		private readonly ILogger<OutboxWorker> _logger;
+		private readonly IReadOnlyDictionary<string, Type> _knownTypes;
 		private const int _messageBatchSize = 50;
 		private const int _delayBeetweenMessagesInSeconds = 1;
 		private const int _delayWhenErrorInSeconds = 5;
 
-		// Кэш для ускорения разрешения типов.
-		// Предполагается, что набор типов сообщений ограничен и известен заранее.
-		// Если в будущем появятся новые типы, их нужно будет добавить в эту коллекцию.
-
-		private static readonly Dictionary<string, Type> _knownTypes =
-			typeof(CustomerNotificationIntegrationEvent).Assembly
-				.GetTypes()
-				.Where(t => t.FullName != null)
-				.ToDictionary(t => t.FullName, t => t);
-
 		public OutboxWorker(
 			ILogger<OutboxWorker> logger,
 			IConfiguration config,
-			IServiceScopeFactory scopeFactory)
+			IServiceScopeFactory scopeFactory,
+			IEnumerable<Assembly> outboxContractAssemblies)
 		{
 			if(config == null)
 			{
 				throw new ArgumentNullException(nameof(config));
 			}
 
+			if(outboxContractAssemblies == null)
+			{
+				throw new ArgumentNullException(nameof(outboxContractAssemblies));
+			}
+
 			_connectionString = config.GetConnectionString("Default");
 			_scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_knownTypes = BuildKnownTypes(outboxContractAssemblies, _logger);
+		}
+
+		private static IReadOnlyDictionary<string, Type> BuildKnownTypes(
+			IEnumerable<Assembly> assemblies,
+			ILogger logger)
+		{
+			var result = new Dictionary<string, Type>();
+
+			foreach(var assembly in assemblies.Distinct())
+			{
+				foreach(var type in assembly.GetTypes().Where(t => t.FullName != null))
+				{
+					if(result.ContainsKey(type.FullName))
+					{
+						logger.LogWarning(
+							"Коллизия полного имени типа {TypeFullName} между сборками при построении карты outbox-контрактов, используется первое найденное определение",
+							type.FullName);
+
+						continue;
+					}
+
+					result.Add(type.FullName, type);
+				}
+			}
+
+			return result;
 		}
 
 		private Type ResolveType(string typeName)
@@ -74,18 +98,18 @@ namespace OutboxWorker
 
 					var outboxRepository = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
 					var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
-					
+
 					await using var tx = await conn.BeginTransactionAsync(token);
-					
+
 					var messages = await outboxRepository.GetPendingMessagesAsync(conn, _messageBatchSize, tx);
 
 					if(!messages.Any())
 					{
-						await tx.CommitAsync(token); // коммитим пустую транзакцию, чтобы снять блокировки
+						await tx.CommitAsync(token);
 						await Task.Delay(TimeSpan.FromSeconds(_delayBeetweenMessagesInSeconds), token);
 						continue;
 					}
-					
+
 					foreach(var msg in messages)
 					{
 						try
@@ -107,9 +131,9 @@ namespace OutboxWorker
 
 								continue;
 							}
-							
+
 							await publishEndpoint.Publish(@event, type, token);
-							
+
 							await outboxRepository.MarkAsSentAsync(conn, msg.Guid, tx);
 						}
 						catch(Exception ex)
@@ -118,9 +142,9 @@ namespace OutboxWorker
 							_logger.LogError(ex, "Outbox publish failed {Guid}", msg.Guid);
 						}
 					}
-					
+
 					await tx.CommitAsync(token);
-					
+
 					await outboxRepository.CleanupAsync(conn);
 
 					await Task.Delay(TimeSpan.FromSeconds(_delayBeetweenMessagesInSeconds), token);
