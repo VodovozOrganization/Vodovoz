@@ -110,7 +110,8 @@ namespace Vodovoz.Infrastructure.Persistance.FastPayments
 			CancellationToken cancellationToken = default)
 		{
 			var query = uow.Session.Query<FastPayment>()
-				.Where(fp => fp.ExternalId == externalId);
+				.Where(fp => fp.ExternalId == externalId)
+				.Where(fp => fp.FastPaymentStatus == FastPaymentStatus.Performed);
 
 			if(creationDate.HasValue)
 			{
