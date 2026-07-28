@@ -98,7 +98,8 @@ namespace Edo.Problem.Routine
 		private static IServiceCollection AddReceiptContactProblem(this IServiceCollection services) =>
 			services
 				.ConfigureOptions<ConfigureReceiptContactProblemWorkerOptions>()
-				.AddScoped<ReceiptContactProblemService>()
+				.AddScoped<IReceiptContactProblemService, ReceiptContactProblemService>()
+				.AddScoped<IReceiptEdoTaskResendService, ReceiptEdoTaskResendService>()
 				.AddScoped<IReceiptContactProblemNotificationService, ReceiptContactProblemNotificationService>();
 		
 		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)

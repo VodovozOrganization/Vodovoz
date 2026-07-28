@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Contracts.Messages.Events;
 using Edo.Problem.Routine.Options;
-using MassTransit;
+using Edo.Problems.Validation;
+using Edo.Problems.Validation.Sources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -15,36 +15,42 @@ using Vodovoz.Core.Domain.Edo;
 namespace Edo.Problem.Routine.Services
 {
 	/// <summary>
-	/// Сервис повторной обработки проблем с контактом чека.
+	/// Сервис обработки проблем с контактом для отправки чека.
 	/// </summary>
-	public class ReceiptContactProblemService
+	public class ReceiptContactProblemService : IReceiptContactProblemService
 	{
-		private const string ProblemSourceName = "Receipt.ContactValid";
-
 		private readonly ILogger<ReceiptContactProblemService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptionsMonitor<ReceiptContactProblemWorkerOptions> _options;
+		private readonly IEdoTaskValidator _receiptContactValidator;
 		private readonly IEdoRepository _edoRepository;
-		private readonly IBus _messageBus;
+		private readonly IReceiptEdoTaskResendService _resendService;
 		private readonly IReceiptContactProblemNotificationService _notificationService;
 
 		public ReceiptContactProblemService(
 			ILogger<ReceiptContactProblemService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOptionsMonitor<ReceiptContactProblemWorkerOptions> options,
+			IEnumerable<IEdoTaskValidator> validators,
 			IEdoRepository edoRepository,
-			IBus messageBus,
+			IReceiptEdoTaskResendService resendService,
 			IReceiptContactProblemNotificationService notificationService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
+			_receiptContactValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
+				.OfType<ReceiptContactEdoValidator>()
+				.SingleOrDefault()
+				?? throw new InvalidOperationException(
+					$"Валидатор {nameof(ReceiptContactEdoValidator)} не зарегистрирован");
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_resendService = resendService ?? throw new ArgumentNullException(nameof(resendService));
 			_notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
 		}
 
 		private DateTime MinEdoTaskCreationTime => DateTime.Today - _options.CurrentValue.ProblemTimeout;
+		private string ProblemSourceName => _receiptContactValidator.Name;
 
 		/// <summary>
 		/// Обработать активные проблемы с контактом чека.
@@ -57,7 +63,7 @@ namespace Edo.Problem.Routine.Services
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ReceiptContactProblemService)))
 			{
-				var receiptTasks = await _edoRepository.GetProblemEdoTasks<ReceiptEdoTask>(
+				receiptTaskIds = await _edoRepository.GetProblemEdoTaskIds<ReceiptEdoTask>(
 					uow,
 					ProblemSourceName,
 					MinEdoTaskCreationTime,
@@ -65,16 +71,15 @@ namespace Edo.Problem.Routine.Services
 
 				_logger.LogInformation(
 					"Найдено {Count} задач ЭДО с активной проблемой {ProblemName}",
-					receiptTasks.Count,
+					receiptTaskIds.Count,
 					ProblemSourceName);
 
-				receiptTaskIds = receiptTasks.Select(x => x.Id).ToList();
+				await ProcessContactProblems(uow, receiptTaskIds, cancellationToken);
 			}
-
-			await ProcessContactProblems(receiptTaskIds, cancellationToken);
 		}
 
 		private async Task ProcessContactProblems(
+			IUnitOfWork uow,
 			IEnumerable<int> receiptTaskIds,
 			CancellationToken cancellationToken)
 		{
@@ -88,27 +93,27 @@ namespace Edo.Problem.Routine.Services
 				{
 					cancellationToken.ThrowIfCancellationRequested();
 
-					using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ReceiptContactProblemService)))
+					var receiptTask = await _edoRepository.GetEdoTaskById<ReceiptEdoTask>(
+						uow,
+						receiptTaskId,
+						cancellationToken);
+
+					if(receiptTask == null)
 					{
-						var receiptTask = await uow.Session.GetAsync<ReceiptEdoTask>(receiptTaskId, cancellationToken);
+						_logger.LogWarning("Задача ЭДО {EdoTaskId} не найдена", receiptTaskId);
+						continue;
+					}
 
-						if(receiptTask == null)
-						{
-							_logger.LogWarning("Задача ЭДО {EdoTaskId} не найдена", receiptTaskId);
-							continue;
-						}
+					var result = await ProcessContactProblem(uow, receiptTask, cancellationToken);
 
-						var result = await ProcessContactProblem(uow, receiptTask, cancellationToken);
+					if(result.RetryPublished)
+					{
+						retryCount++;
+					}
 
-						if(result.RetryPublished)
-						{
-							retryCount++;
-						}
-
-						if(result.NotificationRequested)
-						{
-							notificationCount++;
-						}
+					if(result.NotificationRequested)
+					{
+						notificationCount++;
 					}
 				}
 				catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
@@ -155,7 +160,7 @@ namespace Edo.Problem.Routine.Services
 				return ReceiptContactProblemProcessResult.Empty;
 			}
 
-			var state = GetOrCreateState(uow, problem);
+			var state = await GetOrCreateState(uow, problem, cancellationToken);
 			var now = DateTime.Now;
 
 			if(!ReceiptContactProblemProcessingPolicy.CanRetry(
@@ -172,13 +177,8 @@ namespace Edo.Problem.Routine.Services
 				return ReceiptContactProblemProcessResult.Empty;
 			}
 
-			if(receiptTask.ReceiptStatus != EdoReceiptStatus.New)
+			if(!_resendService.CanResend(receiptTask))
 			{
-				_logger.LogWarning(
-					"Задача ЭДО {EdoTaskId} находится в статусе чека {ReceiptStatus}. Повторная обработка возможна только в статусе New",
-					receiptTask.Id,
-					receiptTask.ReceiptStatus);
-
 				return ReceiptContactProblemProcessResult.Empty;
 			}
 
@@ -201,23 +201,25 @@ namespace Edo.Problem.Routine.Services
 			await uow.SaveAsync(state, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
 
-			await _messageBus.Publish(
-				new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = receiptTask.Id },
-				cancellationToken);
+			await _resendService.PublishResendEventAsync(receiptTask, cancellationToken);
 
 			_logger.LogInformation(
-				"Опубликовано событие {EventName} для повторной обработки задачи ЭДО {EdoTaskId}. Попытка: {RetryCount}",
-				nameof(ReceiptTaskCreatedEvent),
+				"Опубликовано событие повторного запуска задачи ЭДО {EdoTaskId}. Попытка: {RetryCount}",
 				receiptTask.Id,
 				state.RetryCount);
 
 			return new ReceiptContactProblemProcessResult(true, notificationRequested);
 		}
 
-		private EdoTaskProblemRoutineState GetOrCreateState(IUnitOfWork uow, EdoTaskProblem problem)
+		private async Task<EdoTaskProblemRoutineState> GetOrCreateState(
+			IUnitOfWork uow,
+			EdoTaskProblem problem,
+			CancellationToken cancellationToken)
 		{
-			var state = uow.Session.Query<EdoTaskProblemRoutineState>()
-				.FirstOrDefault(x => x.Problem.Id == problem.Id);
+			var state = await _edoRepository.GetEdoTaskProblemRoutineState(
+				uow,
+				problem.Id,
+				cancellationToken);
 
 			return state ?? new EdoTaskProblemRoutineState
 			{
@@ -225,7 +227,7 @@ namespace Edo.Problem.Routine.Services
 			};
 		}
 
-		private struct ReceiptContactProblemProcessResult
+		private readonly struct ReceiptContactProblemProcessResult
 		{
 			public static ReceiptContactProblemProcessResult Empty => new ReceiptContactProblemProcessResult(false, false);
 

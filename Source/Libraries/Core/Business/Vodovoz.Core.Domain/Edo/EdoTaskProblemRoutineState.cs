@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Core.Domain.Edo
@@ -16,6 +17,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// <summary>
 		/// Код.
 		/// </summary>
+		[Display(Name = "Код")]
 		public virtual int Id
 		{
 			get => _id;
@@ -25,6 +27,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// <summary>
 		/// ЭДО-проблема.
 		/// </summary>
+		[Display(Name = "Проблема ЭДО")]
 		public virtual EdoTaskProblem Problem
 		{
 			get => _problem;
@@ -34,6 +37,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// <summary>
 		/// Количество опубликованных попыток повторной обработки.
 		/// </summary>
+		[Display(Name = "Количество попыток")]
 		public virtual int RetryCount
 		{
 			get => _retryCount;
@@ -43,6 +47,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// <summary>
 		/// Время последней опубликованной попытки повторной обработки.
 		/// </summary>
+		[Display(Name = "Время последней попытки")]
 		public virtual DateTime? LastRetryTime
 		{
 			get => _lastRetryTime;

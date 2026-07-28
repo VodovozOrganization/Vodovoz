@@ -34,7 +34,7 @@ namespace Edo.Problem.Routine.Worker
 			using var scope = _serviceScopeFactory.CreateScope();
 
 			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
-			var receiptContactProblemService = scope.ServiceProvider.GetRequiredService<ReceiptContactProblemService>();
+			var receiptContactProblemService = scope.ServiceProvider.GetRequiredService<IReceiptContactProblemService>();
 
 			_logger.LogInformation("Запуск обработки задач ЭДО с активной проблемой контакта чека");
 
@@ -49,11 +49,6 @@ namespace Edo.Problem.Routine.Worker
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при обработке задач ЭДО с активной проблемой контакта чека");
-
-				await zabbixSender.SendProblemMessageAsync(
-					ZabixSenderMessageType.Problem,
-					$"Ошибка при обработке задач ЭДО с активной проблемой контакта чека: {ex.Message}",
-					stoppingToken);
 			}
 		}
 	}

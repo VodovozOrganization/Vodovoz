@@ -72,6 +72,51 @@ namespace Vodovoz.Core.Data.Repositories
 		) where T : OrderEdoTask;
 
 		/// <summary>
+		/// Возвращает идентификаторы задач ЭДО с указанной активной проблемой
+		/// </summary>
+		/// <typeparam name="T">Тип задачи ЭДО</typeparam>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="minCreationTime">Минимальное время создания задачи</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <param name="maxCreationTime">Максимальное время создания задачи</param>
+		/// <returns>Идентификаторы задач ЭДО с указанной проблемой</returns>
+		Task<IList<int>> GetProblemEdoTaskIds<T>(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken,
+			DateTime? maxCreationTime = null
+		) where T : OrderEdoTask;
+
+		/// <summary>
+		/// Возвращает задачу ЭДО по идентификатору
+		/// </summary>
+		/// <typeparam name="T">Тип задачи ЭДО</typeparam>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="edoTaskId">Идентификатор задачи ЭДО</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Задача ЭДО или null, если задача не найдена</returns>
+		Task<T> GetEdoTaskById<T>(
+			IUnitOfWork uow,
+			int edoTaskId,
+			CancellationToken cancellationToken
+		) where T : EdoTask;
+
+		/// <summary>
+		/// Возвращает состояние обработки проблемы ЭДО
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="problemId">Идентификатор проблемы ЭДО</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Состояние обработки или null, если оно еще не создано</returns>
+		Task<EdoTaskProblemRoutineState> GetEdoTaskProblemRoutineState(
+			IUnitOfWork uow,
+			int problemId,
+			CancellationToken cancellationToken
+		);
+
+		/// <summary>
 		/// Возвращает идентификаторы задач ЭДО с ошибкой отправки, которые связаны с документами, созданными после указанного времени
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>

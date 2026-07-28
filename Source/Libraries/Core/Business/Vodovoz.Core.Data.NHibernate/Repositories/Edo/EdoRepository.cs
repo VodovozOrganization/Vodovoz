@@ -390,18 +390,12 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			)
 			where T : OrderEdoTask
 		{
-			var tasksIdsQuery =
-				from problem in uow.Session.Query<EdoTaskProblem>()
-				join edoTask in uow.Session.Query<T>() on problem.EdoTask.Id equals edoTask.Id
-				join edoRequest in uow.Session.Query<FormalEdoRequest>() on edoTask.FormalEdoRequest.Id equals edoRequest.Id
-				where
-					problem.SourceName == problemSourceName
-					&& problem.State == TaskProblemState.Active
-					&& edoTask.CreationTime >= minCreationTime
-					&& (maxCreationTime == null || edoTask.CreationTime <= maxCreationTime)
-				select edoTask.Id;
-
-			var taskIds = await tasksIdsQuery.Distinct().ToListAsync(cancellationToken);
+			var taskIds = await GetProblemEdoTaskIds<T>(
+				uow,
+				problemSourceName,
+				minCreationTime,
+				cancellationToken,
+				maxCreationTime);
 
 			if(!taskIds.Any())
 			{
@@ -416,6 +410,47 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				.ToListAsync(cancellationToken);
 
 			return tasks;
+		}
+
+		public async Task<IList<int>> GetProblemEdoTaskIds<T>(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken,
+			DateTime? maxCreationTime = null
+			)
+			where T : OrderEdoTask
+		{
+			var taskIdsQuery =
+				from problem in uow.Session.Query<EdoTaskProblem>()
+				join edoTask in uow.Session.Query<T>() on problem.EdoTask.Id equals edoTask.Id
+				join edoRequest in uow.Session.Query<FormalEdoRequest>() on edoTask.FormalEdoRequest.Id equals edoRequest.Id
+				where
+					problem.SourceName == problemSourceName
+					&& problem.State == TaskProblemState.Active
+					&& edoTask.CreationTime >= minCreationTime
+					&& (maxCreationTime == null || edoTask.CreationTime <= maxCreationTime)
+				select edoTask.Id;
+
+			return await taskIdsQuery.Distinct().ToListAsync(cancellationToken);
+		}
+
+		public Task<T> GetEdoTaskById<T>(
+			IUnitOfWork uow,
+			int edoTaskId,
+			CancellationToken cancellationToken)
+			where T : EdoTask
+		{
+			return uow.Session.GetAsync<T>(edoTaskId, cancellationToken);
+		}
+
+		public Task<EdoTaskProblemRoutineState> GetEdoTaskProblemRoutineState(
+			IUnitOfWork uow,
+			int problemId,
+			CancellationToken cancellationToken)
+		{
+			return uow.Session.Query<EdoTaskProblemRoutineState>()
+				.FirstOrDefaultAsync(x => x.Problem.Id == problemId, cancellationToken);
 		}
 
 		public async Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(
