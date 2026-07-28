@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
@@ -39,29 +39,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			{
 				var result = await uow.Session.QueryOver<OrganizationEntity>()
 					.Where(x => x.OrganizationEdoType != OrganizationEdoType.WithoutEdo)
-					.ListAsync(cancellationToken);
-
-				return result;
-			}
-		}
-
-		public async Task<IEnumerable<GtinEntity>> GetGtinsAsync(CancellationToken cancellationToken)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var result = await uow.Session.QueryOver<GtinEntity>()
-					.OrderBy(g => g.Priority).Asc
-					.ListAsync(cancellationToken);
-
-				return result;
-			}
-		}
-
-		public async Task<IEnumerable<GroupGtinEntity>> GetGroupGtinsAsync(CancellationToken cancellationToken)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var result = await uow.Session.QueryOver<GroupGtinEntity>()
 					.ListAsync(cancellationToken);
 
 				return result;
@@ -881,6 +858,38 @@ where eti.transfer_edo_request_id in (:request_ids)
 				transferTasks.Count,
 				totalStopwatch.Elapsed);
 			return transferTasks;
+		}
+
+		public async Task<OrderEdoTask> GetOrderEdoTaskById(
+			IUnitOfWork uow,
+			int taskId,
+			CancellationToken cancellationToken = default)
+		{
+			var task = await uow.Session.Query<OrderEdoTask>()
+				.Fetch(t => t.FormalEdoRequest)
+				.ThenFetch(r => r.Order)
+				.FirstOrDefaultAsync(t => t.Id == taskId, cancellationToken);
+
+			return task;
+		}
+
+		public async Task<List<ExceptionEdoTaskProblem>> GetActiveProblems(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int batchSize,
+			int maxAttempts,
+			CancellationToken cancellationToken)
+		{
+			var problems = await uow.Session.Query<ExceptionEdoTaskProblem>()
+				.Where(p => p.SourceName == problemSourceName
+					&& p.State == TaskProblemState.Active
+					&& (p.Attempts == null || p.Attempts < maxAttempts))
+				.OrderBy(p => p.Attempts)
+				.ThenBy(p => p.CreationTime)
+				.Take(batchSize)
+				.ToListAsync(cancellationToken);
+
+			return problems;
 		}
 	}
 }

@@ -1,7 +1,6 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
@@ -12,20 +11,63 @@ namespace Vodovoz.Core.Data.Repositories
 {
 	public interface IEdoRepository
 	{
+		/// <summary>
+		/// Получить список организаций
+		/// </summary>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список организаций</returns>
 		Task<IEnumerable<OrganizationEntity>> GetEdoOrganizationsAsync(CancellationToken cancellationToken);
-		Task<IEnumerable<GtinEntity>> GetGtinsAsync(CancellationToken cancellationToken);
-		Task<IEnumerable<GroupGtinEntity>> GetGroupGtinsAsync(CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Есть ли сегодня чек на указанную сумму
+		/// </summary>
+		/// <param name="sum">Сумма чека</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат проверки</returns>
 		Task<bool> HasReceiptOnSumToday(decimal sum, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить задачу ЭДО по идентификатору задачи
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Задача ЭДО</returns>
+		Task<OrderEdoTask> GetOrderEdoTaskById(
+			IUnitOfWork uow,
+			int taskId,
+			CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Получает ЭДО документы заказа по идентификатору заказа
 		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="orderId"></param>
-		/// <returns></returns>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список документов ЭДО</returns>
 		IEnumerable<OrderEdoDocument> GetOrderEdoDocumentsByOrderId(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает задачи ЭДО по идентификатору заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список задач ЭДО</returns>
 		IEnumerable<OrderEdoTask> GetEdoTaskByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получает задачи ЭДО для указанного заказа в виде узлов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов задач ЭДО</returns>
 		IEnumerable<OrderEdoTaskNode> GetEdoTasksForOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получает задачи ЭДО для указанного заказа в виде узлов с информацией о документообороте
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов документооборота ЭДО</returns>
 		IEnumerable<EdoDocflowForOrderNode> GetEdoDocflowsForOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
@@ -98,11 +140,31 @@ namespace Vodovoz.Core.Data.Repositories
 			CancellationToken cancellationToken
 		);
 
+		/// <summary>
+		/// Получает список документов ЭДО для указанного заказа в виде узлов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов документов ЭДО</returns>
 		IEnumerable<EdoInOrderDocumentNode> GetEdoInOrderDocuments(
 			IUnitOfWork uow,
 			int orderId
 		);
+
+		/// <summary>
+		/// Получает список проблем ЭДО для указанного заказа в виде узлов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов проблем ЭДО</returns>
 		IEnumerable<EdoInOrderProblemNode> GetEdoProblemsForOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получит список задач ЭДО по передаче документов для указанного заказа в виде узлов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов задач ЭДО</returns>
 		IEnumerable<EdoInOrderTransferNode> GetTransferEdoTasksForOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
@@ -112,6 +174,25 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="timeoutDays">Количество дней до истечения принятия УПД</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<IList<TimedOutDocFlowGrouppedNode>> GetTimedOutDocFlows(IUnitOfWork unitOfWork, int timeoutDays, CancellationToken cancellationToken);
+		Task<IList<TimedOutDocFlowGrouppedNode>> GetTimedOutDocFlows(
+			IUnitOfWork unitOfWork,
+			int timeoutDays,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить список активных проблем
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="batchSize">Размер партии</param>
+		/// <param name="maxAttempts">Максимальное количество попыток</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<List<ExceptionEdoTaskProblem>> GetActiveProblems(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int batchSize,
+			int maxAttempts,
+			CancellationToken cancellationToken);
 	}
 }
