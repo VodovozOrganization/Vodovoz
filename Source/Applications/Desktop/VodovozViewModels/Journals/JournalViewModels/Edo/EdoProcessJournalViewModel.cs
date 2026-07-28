@@ -177,8 +177,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 									Id = orderId
 								},
 								Time = DateTime.Now,
-								Source = EdoRequestSource.Manual,
-								DocumentType = EdoDocumentType.UPD
+								Source = EdoRequestSource.Manual
 							};
 
 							await uow.SaveAsync(newRequest);

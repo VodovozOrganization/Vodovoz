@@ -1,4 +1,5 @@
 ﻿using EdoService.Library;
+using Gamma.Binding.Core;
 using QS.Commands;
 using QS.ViewModels;
 using System;
@@ -13,7 +14,7 @@ namespace Vodovoz.ViewModels.Edo
 	{
 		private readonly IEdoService _edoService;
 		private EdoInOrderDocumentHistoryRowViewModel _selectedDocument;
-		private IEnumerable<NamedCommand> _actions = Enumerable.Empty<NamedCommand>();
+		private IEnumerable<BusyCommand> _actions = Enumerable.Empty<BusyCommand>();
 
 		public EdoInOrderDocumentActionsViewModel(IEdoService edoService)
 		{
@@ -32,7 +33,7 @@ namespace Vodovoz.ViewModels.Edo
 			}
 		}
 
-		public virtual IEnumerable<NamedCommand> Actions
+		public virtual IEnumerable<BusyCommand> Actions
 		{
 			get => _actions;
 			set => SetField(ref _actions, value);
@@ -42,11 +43,11 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			if(_selectedDocument == null)
 			{
-				Actions = Enumerable.Empty<NamedCommand>();
+				Actions = Enumerable.Empty<BusyCommand>();
 				return;
 			}
 
-			var newActions = new List<NamedCommand>();
+			var newActions = new List<BusyCommand>();
 
 			switch(_selectedDocument.DocumentType)
 			{
@@ -59,6 +60,7 @@ namespace Vodovoz.ViewModels.Edo
 				case EdoInOrderDocumentType.Tender:
 					break;
 				case EdoInOrderDocumentType.SaveCode:
+					CreateSaveCodeActions(newActions, SelectedDocument.Document);
 					break;
 				default:
 					break;
@@ -68,29 +70,73 @@ namespace Vodovoz.ViewModels.Edo
 		}
 
 		private void CreateUpdActions(
-			List<NamedCommand> newActions,
+			List<BusyCommand> newActions,
 			EdoInOrderDocumentNode document
 			) 
 		{
 			if(document.TaskUpdStage == DocumentEdoTaskStage.New && document.TaskStatus == EdoTaskStatus.Problem)
 			{
-				newActions.Add(new NamedCommand(
+				newActions.Add(new BusyCommand(
 					"Переобработать проблему",
 					() => _edoService.RehandleNewUpdDocumentWithProblem(document.TaskId)
 				));
 			}
 		}
 
+
 		private void CreateReceiptActions(
-			List<NamedCommand> newActions,
+			List<BusyCommand> newActions,
 			EdoInOrderDocumentNode document
 			)
 		{
+			CreateResendReceiptAction(newActions, document);
+
 			if(document.TaskReceiptStage == EdoReceiptStatus.New && document.TaskStatus == EdoTaskStatus.Problem)
 			{
-				newActions.Add(new NamedCommand(
+				newActions.Add(new BusyCommand(
 					"Переобработать проблему",
 					() => _edoService.RehandleNewReceiptDocumentWithProblem(document.TaskId)
+				));
+			}
+		}
+
+		private void CreateSaveCodeActions(
+			List<BusyCommand> newActions,
+			EdoInOrderDocumentNode document
+			)
+		{
+			CreateResendDocumentAction(newActions, document);
+		}
+
+		private void CreateResendDocumentAction(
+			List<BusyCommand> newActions,
+			EdoInOrderDocumentNode document
+			)
+		{
+			var isSavedCodes = document.TaskType == EdoTaskType.SaveCode;
+
+			if(isSavedCodes)
+			{
+				newActions.Add(new BusyCommand(
+					"Переотправить",
+					() => _edoService.TryResendUpdDocument(document.TaskId)
+				));
+			}
+		}
+
+		private void CreateResendReceiptAction(
+			List<BusyCommand> newActions,
+			EdoInOrderDocumentNode document
+			)
+		{
+			var isReceipt = document.TaskType == EdoTaskType.Receipt;
+			var receiptSavedToPool = document.TaskReceiptStage == EdoReceiptStatus.SavedToPool;
+
+			if(isReceipt && receiptSavedToPool)
+			{
+				newActions.Add(new BusyCommand(
+					"Переотправить",
+					() => _edoService.TryResendReceiptDocument(document.TaskId)
 				));
 			}
 		}

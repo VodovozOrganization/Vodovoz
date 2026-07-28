@@ -3,6 +3,7 @@ using Edo.Contracts.Messages.Events;
 using Edo.Transport;
 using EdoService.Library.Factories;
 using MassTransit;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -11,9 +12,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
@@ -34,6 +38,8 @@ namespace EdoService.Library
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEdoRepository _edoRepository;
 		private readonly MessageService _messageService;
+		private readonly IInteractiveService _interactiveService;
+		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly IBus _messageBus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
@@ -56,6 +62,8 @@ namespace EdoService.Library
 			IOrderRepository orderRepository,
 			IEdoRepository edoRepository,
 			MessageService messageService,
+			IInteractiveService interactiveService,
+			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			IBus messageBus,
 			IEnumerable<IInformalEdoRequestFactory> requestFactories
@@ -65,6 +73,8 @@ namespace EdoService.Library
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_counterpartyEdoAccountEntityController = counterpartyEdoAccountEntityController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountEntityController));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
@@ -508,6 +518,153 @@ namespace EdoService.Library
 					ReceiptEdoTaskId = receiptEdoTaskId,
 				};
 				_messageBus.Publish(message);
+			}
+		}
+
+		public void TryResendUpdDocument(int orderEdoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var request = uow.Session.QueryOver<FormalEdoRequest>()
+					.Where(x => x.Task.Id == orderEdoTaskId)
+					.SingleOrDefault();
+
+				if(request.Task.TaskType == EdoTaskType.SaveCode)
+				{
+					var hasOtherRequests = uow.Session.QueryOver<FormalEdoRequest>()
+						.Where(x => x.Order.Id == request.Order.Id)
+						.Where(x => x.Task.Id != orderEdoTaskId)
+						.Select(x => x.Id)
+						.List<int>()
+						.Any();
+
+					if(hasOtherRequests)
+					{
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Warning,
+							$"Переотправка документа невозможна, т.к. помимо текущего документа" +
+							$"по заказу {request.Order.Id} уже есть другая отправка"
+						);
+						return;
+					}
+
+					var edoAccount = _counterpartyEdoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(
+						request.Order.Client,
+						request.Order.Contract.Organization.Id
+					);
+
+					if(edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+					{
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Warning,
+							$"Переотправка документа невозможна, т.к. у контрагента нет согласия на ЭДО"
+						);
+						return;
+					}
+
+					var newRequest = new ManualEdoRequest
+					{
+						Order = new Order
+						{
+							Id = request.Order.Id
+						},
+						Time = DateTime.Now,
+						Source = EdoRequestSource.Manual,
+						DocumentType = EdoDocumentType.UPD
+					};
+
+					uow.Save(newRequest);
+					uow.Commit();
+
+					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
+
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Info,
+						$"Документ отправлен на переформирование. \n" +
+						$"Обновите список документов."
+					);
+
+					return;
+				}
+
+				//Если сюда попадет документ, то значит не правильно выбраны условия доступности действия
+				//или не реализована отправка выбранного документами по правильным условиям
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Info,
+					$"Для выбранного документа не реализована отправка. \n" +
+					$"Обратитесь за технической поддержкой."
+				);
+			}
+		}
+
+		public void TryResendReceiptDocument(int orderEdoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var request = uow.Session.QueryOver<FormalEdoRequest>()
+					.Where(x => x.Task.Id == orderEdoTaskId)
+					.SingleOrDefault();
+
+				var receiptTask = request.Task.As<ReceiptEdoTask>();
+				if(receiptTask == null)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Переотправка документа невозможна, т.к. текущий документ не является чеком"
+					);
+					return;
+				}
+
+				if(receiptTask.ReceiptStatus == EdoReceiptStatus.SavedToPool)
+				{
+					var hasOtherRequests = uow.Session.QueryOver<FormalEdoRequest>()
+						.Where(x => x.Order.Id == request.Order.Id)
+						.Where(x => x.Task.Id != orderEdoTaskId)
+						.Select(x => x.Id)
+						.List<int>()
+						.Any();
+
+					if(hasOtherRequests)
+					{
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Warning,
+							$"Переотправка документа невозможна, т.к. помимо текущего документа" +
+							$"по заказу {request.Order.Id} уже есть другая отправка"
+						);
+						return;
+					}
+
+					var newRequest = new ManualEdoRequest
+					{
+						Order = new Order
+						{
+							Id = request.Order.Id
+						},
+						Time = DateTime.Now,
+						Source = EdoRequestSource.Manual
+					};
+
+					uow.Save(newRequest);
+					uow.Commit();
+
+					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
+
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Info,
+						$"Документ отправлен на переформирование. \n" +
+						$"Обновите список документов."
+					);
+
+					return;
+				}
+
+				//Если сюда попадет документ, то значит не правильно выбраны условия доступности действия
+				//или не реализована отправка выбранного документами по правильным условиям
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Info,
+					$"Для выбранного документа не реализована отправка. \n" +
+					$"Обратитесь за технической поддержкой."
+				);
 			}
 		}
 	}

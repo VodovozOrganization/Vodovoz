@@ -57,7 +57,7 @@ namespace Vodovoz.Views.Edo
 			foreach(var action in ViewModel.Actions.Reverse())
 			{
 				var button = new yButton();
-				button.Label = action.Name;
+				button.Label = action.Text;
 				button.BindCommand(action);
 				yhboxButtons.PackStart(button, false, false, 1);
 				button.ShowAll();
