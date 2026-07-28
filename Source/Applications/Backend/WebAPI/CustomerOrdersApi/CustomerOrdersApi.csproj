@@ -27,7 +27,6 @@
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\CustomerOrdersApi.Library\CustomerOrdersApi.Library.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
-      <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport.MassTransit\MessageTransport.MassTransit.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Osrm\Osrm.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
