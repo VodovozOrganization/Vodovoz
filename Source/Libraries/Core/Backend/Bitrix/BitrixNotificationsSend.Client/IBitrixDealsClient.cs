@@ -28,5 +28,19 @@ namespace BitrixNotificationsSend.Client
 		Task<Result<BitrixBatchResult>> SendPlannedOrderDeals(
 			IEnumerable<PlannedOrderDto> plannedOrders,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Пакетное создание сделок в Битрикс24 по клиентам, у которых был сервисный заказ
+		/// </summary>
+		/// <param name="lastServiceOrders">
+		/// Данные по последним сервисным заказам,
+		/// не более <see cref="BitrixApiLimits.MaxBatchCommandsCount"/> за один вызов
+		/// </param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// Результат отправки с ключами команд созданных сделок, ошибками по отдельным сделкам
+		/// и данными об операционном бюджете Битрикс24
+		/// </returns>
+		Task<Result<BitrixBatchResult>> LastServiceOrderDeals(IEnumerable<LastServiceOrderDto> lastServiceOrders, CancellationToken cancellationToken);
 	}
 }
