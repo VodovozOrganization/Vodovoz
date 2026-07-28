@@ -30,7 +30,7 @@ namespace Edo.Problem.Routine.Services
 		private readonly IServiceProvider _serviceProvider;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IBus _messageBus;
-		private readonly EdoProblemRoutineNotificationService _notificationService;
+		private readonly IEdoProblemRoutineNotificationService _notificationService;
 
 		public OrderSelfDeliveryPaidProblemService(
 			ILogger<OrderSelfDeliveryPaidProblemService> logger,
@@ -40,7 +40,7 @@ namespace Edo.Problem.Routine.Services
 			IServiceProvider serviceProvider,
 			IEdoRepository edoRepository,
 			IBus messageBus,
-			EdoProblemRoutineNotificationService notificationService)
+			IEdoProblemRoutineNotificationService notificationService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -63,6 +63,8 @@ namespace Edo.Problem.Routine.Services
 		/// <returns></returns>
 		public async Task ProcessProblemTasks(CancellationToken cancellationToken)
 		{
+			IList<int> taskIds;
+
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(OrderSelfDeliveryPaidProblemService)))
 			{
 				var documentTasks =
@@ -72,48 +74,63 @@ namespace Edo.Problem.Routine.Services
 				var tenderTasks =
 					await _edoRepository.GetProblemEdoTasks<TenderEdoTask>(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
 
-				var tasks = documentTasks
-					.Concat<OrderEdoTask>(receiptTasks)
-					.Concat(tenderTasks)
+				taskIds = documentTasks
+					.Select(x => x.Id)
+					.Concat(receiptTasks.Select(x => x.Id))
+					.Concat(tenderTasks.Select(x => x.Id))
 					.ToList();
 
 				_logger.LogInformation("Найдено {Count} задач ЭДО с активной проблемой {ProblemName}",
-					tasks.Count, _problemSourceName);
-
-				await TryResumeTasks(tasks, cancellationToken);
+					taskIds.Count, _problemSourceName);
 			}
+
+			await TryResumeTasks(taskIds, cancellationToken);
 		}
 
-		private async Task TryResumeTasks(IEnumerable<OrderEdoTask> edoTasks, CancellationToken cancellationToken)
+		private async Task TryResumeTasks(IList<int> taskIds, CancellationToken cancellationToken)
 		{
 			var successCount = 0;
 			var errorCount = 0;
 
-			foreach(var edoTask in edoTasks)
+			foreach(var taskId in taskIds)
 			{
 				try
 				{
-					var resumed = await TryResumeTask(edoTask, cancellationToken);
-					if(resumed)
+					using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(OrderSelfDeliveryPaidProblemService)))
 					{
-						successCount++;
+						var edoTask = await uow.Session.GetAsync<OrderEdoTask>(taskId, cancellationToken);
+
+						if(edoTask == null)
+						{
+							_logger.LogWarning("Задача ЭДО {EdoTaskId} не найдена", taskId);
+							continue;
+						}
+
+						var resumed = await TryResumeTask(uow, edoTask, cancellationToken);
+						if(resumed)
+						{
+							successCount++;
+						}
 					}
 				}
 				catch(Exception ex)
 				{
-					_logger.LogError(ex, "Ошибка при обработке задачи ЭДО {EdoTaskId}", edoTask.Id);
+					_logger.LogError(ex, "Ошибка при обработке задачи ЭДО {EdoTaskId}", taskId);
 					errorCount++;
 				}
 			}
 
 			_logger.LogInformation(
 				"Обработка завершена. Всего задач: {Total}. Возобновлено: {Success}. Ошибок: {Errors}",
-				edoTasks.Count(),
+				taskIds.Count,
 				successCount,
 				errorCount);
 		}
 
-		private async Task<bool> TryResumeTask(OrderEdoTask edoTask, CancellationToken cancellationToken)
+		private async Task<bool> TryResumeTask(
+			IUnitOfWork uow,
+			OrderEdoTask edoTask,
+			CancellationToken cancellationToken)
 		{
 			if(!_selfDeliveryPaidValidator.IsApplicable(edoTask))
 			{
@@ -127,11 +144,17 @@ namespace Edo.Problem.Routine.Services
 
 			if(!validationResult.IsValid)
 			{
-				await _notificationService.NotifyAsync(
+				var notificationPublished = await _notificationService.NotifyAsync(
+					uow,
 					edoTask,
 					EdoNotificationType.OrderSelfDeliveryPaymentProblem,
 					_selfDeliveryPaidValidator,
 					cancellationToken);
+
+				if(notificationPublished)
+				{
+					await uow.CommitAsync(cancellationToken);
+				}
 
 				_logger.LogDebug(
 					"Задача ЭДО {EdoTaskId}: оплата самовывоза по заказу №{OrderId} ещё не подтверждена, пропускаем",

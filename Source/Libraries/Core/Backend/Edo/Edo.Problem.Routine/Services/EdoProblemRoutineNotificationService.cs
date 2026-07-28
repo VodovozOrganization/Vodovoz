@@ -9,46 +9,42 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Problem.Routine.Services
 {
-	public class EdoProblemRoutineNotificationService
+	public class EdoProblemRoutineNotificationService : IEdoProblemRoutineNotificationService
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly EdoProblemRoutineNotificationFactory _notificationFactory;
 
 		public EdoProblemRoutineNotificationService(
-			IUnitOfWorkFactory unitOfWorkFactory,
 			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
 			EdoProblemRoutineNotificationFactory notificationFactory)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_notificationPublisher = notificationPublisher
 				?? throw new ArgumentNullException(nameof(notificationPublisher));
 			_notificationFactory = notificationFactory
 				?? throw new ArgumentNullException(nameof(notificationFactory));
 		}
 
-		public async Task<bool> NotifyAsync(
+		public Task<bool> NotifyAsync(
+			IUnitOfWork unitOfWork,
 			OrderEdoTask edoTask,
 			EdoNotificationType notificationType,
 			IEdoTaskValidator validator,
 			CancellationToken cancellationToken)
 		{
+			if(unitOfWork == null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWork));
+			}
+
 			var notification = _notificationFactory.Create(
 				edoTask,
 				notificationType,
 				validator);
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(EdoProblemRoutineNotificationService)))
-			{
-				var published = await _notificationPublisher.TryPublishAsync(uow, notification, cancellationToken);
-
-				if(published)
-				{
-					await uow.CommitAsync(cancellationToken);
-				}
-
-				return published;
-			}
+			return _notificationPublisher.TryPublishAsync(
+				unitOfWork,
+				notification,
+				cancellationToken);
 		}
 	}
 }

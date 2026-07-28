@@ -30,7 +30,7 @@ namespace Edo.Problem.Routine
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
  			services.AddScoped<EdoProblemRoutineNotificationFactory>();
-			services.AddScoped<EdoProblemRoutineNotificationService>();
+			services.AddScoped<IEdoProblemRoutineNotificationService, EdoProblemRoutineNotificationService>();
 
 			services
 				.AddOrderSelfDeliveryPaidProblem()
