@@ -102,6 +102,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.ToListAsync(cancellationToken);
 
 			var groupedData = gtins
+				.Where(x => !string.IsNullOrWhiteSpace(x.GtinNumber))
 				.OrderBy(x => x.GtinNumber)
 				.GroupBy(x => x.GtinNumber)
 				.ToDictionary(x => x.Key, x => x.Select(g => g.Nomenclature).ToList());
@@ -124,6 +125,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				 .ToListAsync(cancellationToken);
 
 			var gtinsSoldYesterdayCount = gtinsSoldYesterdayData
+				.Where(x => !string.IsNullOrWhiteSpace(x.GtinNumber))
 				.GroupBy(x => x.GtinNumber)
 				.ToDictionary(x => x.Key, x => x.Sum(g => g.Count));
 
@@ -177,9 +179,11 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.TransformUsing(Transformers.PassThrough)
 				.ListAsync<object[]>();
 
-			var result = gtinProblems.ToDictionary(
-				key => (string)key[0],
-				key => (int)(decimal)key[1]);
+			var result = gtinProblems
+				.Where(key => !string.IsNullOrWhiteSpace((string)key[0]))
+				.ToDictionary(
+					key => (string)key[0],
+					key => (int)(decimal)key[1]);
 
 			return result;
 		}

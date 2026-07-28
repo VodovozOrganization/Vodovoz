@@ -16,6 +16,8 @@ using Vodovoz.Core.Application.Logistics;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Application.Payments;
+using Vodovoz.Core.Application.Payments.OnlinePayments;
+using Vodovoz.Core.Application.Payments.OnlinePayments.Builders;
 using Vodovoz.Core.Application.Receipts;
 using Vodovoz.Core.Application.Services.Subdivisions;
 using Vodovoz.Core.Application.TrueMark;
@@ -30,6 +32,7 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Employees;
 using VodovozBusiness.Models.TrueMark;
@@ -82,8 +85,10 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IExternalCounterpartyHandler, ExternalCounterpartyHandler>()
 				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>()
 				.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
+				.AddScoped<IPaymentByCardOnlineBuilderFactory, PaymentByCardOnlineBuilderFactory>()
+				.AddScoped<PaymentsFromYookassaParser>()
 				.AddTrueMarkApiClient()
-				.AddCoreApplicationOrderServices()				
+				.AddCoreApplicationOrderServices()
 				;
 
 			services.TryAddScoped<IFastPaymentSender, FastPaymentSender>();

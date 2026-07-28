@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
@@ -39,7 +40,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 			CounterpartyEmailType.GeneralBillDocument,
 			CounterpartyEmailType.ClosingDeliveries,
 			CounterpartyEmailType.LetterOfClaim,
-			CounterpartyEmailType.InformationLetter
+			CounterpartyEmailType.InformationLetter,
+			CounterpartyEmailType.ReminderToAcceptUpd
 		};
 		
 		public BulkDebtMailingReportViewModel(
@@ -58,7 +60,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 
-			Title = "Отчет по рассылкам писем";
+			Title = "Отчет по рассылкам писем клиентам";
 
 			EventActionTimeFrom = DateTime.Now.Date;
 			EventActionTimeTo = DateTime.Now.Date.Add(new TimeSpan(0, 23, 59, 59));

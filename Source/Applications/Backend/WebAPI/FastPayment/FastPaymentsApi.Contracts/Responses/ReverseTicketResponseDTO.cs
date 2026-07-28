@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 using Gamma.Utilities;
 
 namespace FastPaymentsApi.Contracts.Responses
@@ -42,16 +43,19 @@ namespace FastPaymentsApi.Contracts.Responses
 		/// Сообщение ответа от банка (для XML-десериализации)
 		/// </summary>
 		[XmlElement("response_message")]
+		[JsonPropertyName("responseMessage")]
 		public string ResponseMessage { get; set; }
 
 		/// <summary>
 		/// Статус ответа
 		/// </summary>
-		public ResponseStatus ResponseStatus { get; }
+		[JsonPropertyName("responseStatus")]
+		public ResponseStatus ResponseStatus { get; set; }
 
 		/// <summary>
 		/// Сообщение об ошибке
 		/// </summary>
-		public string ErrorMessage { get; }
+		[JsonPropertyName("errorMessage")]
+		public string ErrorMessage { get; set; }
 	}
 }

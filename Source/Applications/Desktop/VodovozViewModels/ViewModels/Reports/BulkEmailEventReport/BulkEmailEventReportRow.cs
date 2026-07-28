@@ -1,6 +1,6 @@
 ﻿using System;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport

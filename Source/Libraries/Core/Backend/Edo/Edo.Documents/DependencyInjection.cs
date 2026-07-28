@@ -1,5 +1,6 @@
 ﻿using Edo.Admin;
 using Edo.Common;
+using Edo.Common.Services;
 using Edo.Documents.Services;
 using Edo.Problems;
 using Edo.Transport;
@@ -18,7 +19,7 @@ namespace Edo.Documents
 		{
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
-			services.AddScoped<IUpdDocumentBuilder, UpdDocumentBuilder>();
+			services.TryAddScoped<IUpdDocumentBuilder, UpdDocumentBuilder>();
 
 			services.TryAddScoped<DocumentEdoTaskHandler>();
 			services.TryAddScoped<ForOwnNeedDocumentEdoTaskHandler>();

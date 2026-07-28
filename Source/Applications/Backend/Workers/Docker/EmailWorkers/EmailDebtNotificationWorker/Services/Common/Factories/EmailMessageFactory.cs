@@ -6,8 +6,8 @@ using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Core.Domain.StoredEmails;
+using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailDebtNotificationWorker.Services.Common.Factories
 {
@@ -30,20 +30,17 @@ namespace EmailDebtNotificationWorker.Services.Common.Factories
 		public SendEmailMessage CreateSendEmailMessage(
 			IUnitOfWork uow,
 			StoredEmail storedEmail,
-			Counterparty client,
+			string clientName,
 			string organizationFullName,
 			string organizationEmailForMailing,
-			IEnumerable<EmailAttachment> attachments,
+			IEnumerable<EmailAttachment>? attachments,
 			string emailAddress,
 			string emailSubject,
-			string messageText
+			string messageText,
+			bool canUnsubscribe = true
 			)
 		{
 			var instanceId = _databaseRepository.GetCurrentDatabaseId(uow);
-
-			var unsubscribeUrl = storedEmail.Guid.HasValue
-				? _emailLinkGenerator.GetUnsubscribeLink(storedEmail.Guid.Value)
-				: string.Empty;
 
 			var sendEmailMessage = new SendEmailMessage()
 			{
@@ -56,7 +53,7 @@ namespace EmailDebtNotificationWorker.Services.Common.Factories
 				{
 					new()
 					{
-						Name = client.FullName,
+						Name = clientName,
 						Email = emailAddress
 					}
 				},
@@ -69,12 +66,18 @@ namespace EmailDebtNotificationWorker.Services.Common.Factories
 					Trackable = true,
 					InstanceId = instanceId
 				},
-				Attachments = attachments.ToList(),
-				Headers = new Dictionary<string, string>
-				{
-					{ "List-Unsubscribe", unsubscribeUrl }
-				}
+				Attachments = attachments?.ToList(),
+				Headers = new Dictionary<string, string>()
 			};
+
+			if(canUnsubscribe)
+			{
+				var unsubscribeUrl = storedEmail.Guid.HasValue
+					? _emailLinkGenerator.GetUnsubscribeLink(storedEmail.Guid.Value)
+					: string.Empty;
+
+				sendEmailMessage.Headers.Add("List-Unsubscribe", unsubscribeUrl);
+			}
 
 			return sendEmailMessage;
 		}
