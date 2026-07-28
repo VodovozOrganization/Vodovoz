@@ -12,8 +12,6 @@
     <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
     <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
     <ProjectReference Include="..\..\..\Notifications\EdoNotifications\EdoNotifications.Application\EdoNotifications.Application.csproj" />
-    <ProjectReference Include="..\..\..\Notifications\EdoNotifications\EdoNotifications.Contracts\EdoNotifications.Contracts.csproj" />
-    <ProjectReference Include="..\..\..\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\MessageTransport\MessageTransport.csproj" />
     <ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
