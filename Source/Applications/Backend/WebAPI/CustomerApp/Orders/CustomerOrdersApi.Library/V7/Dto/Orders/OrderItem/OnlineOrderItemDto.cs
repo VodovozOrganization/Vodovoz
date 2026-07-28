@@ -78,7 +78,7 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem
 				ErpId = product.Id,
 				Count = product.Count,
 				Price = product.Price,
-				CurrentPrice = Math.Round(product.ActualSum /  product.Count, 2),
+				CurrentPrice = Math.Round(product.ActualSum / product.Count, 2),
 				PriceWithoutDiscount = null,
 				CurrentSum = product.ActualSum,
 				IsFixedPrice = product.IsFixedPrice,

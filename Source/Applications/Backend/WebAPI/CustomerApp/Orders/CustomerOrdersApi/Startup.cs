@@ -75,6 +75,7 @@ namespace CustomerOrdersApi
 				.AddVersion4()
 				.AddVersion5()
 				.AddVersion6()
+				.AddVersion7()
 				.AddVersioning()
 				.AddOsrm()
 				.AddSwaggerGen(opt =>
@@ -93,13 +94,6 @@ namespace CustomerOrdersApi
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf =>
 				{
-					//TODO проверить работу клиентов запрос-ответ, они должны резолвится по типу сообщения самостоятельно
-					/*busConf.AddRequestClient<Library.V4.Dto.Orders.CreatingOnlineOrder>(
-						new Uri($"exchange:{Library.V4.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
-					busConf.AddRequestClient<Library.V5.Dto.Orders.CreatingOnlineOrder>(
-						new Uri($"exchange:{Library.V5.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
-					busConf.AddRequestClient<Library.V6.Dto.Orders.CreatingOnlineOrder>(
-						new Uri($"exchange:{Library.V6.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));*/
 					busConf.ConfigureRabbitMq();
 				})
 				.AddMassTransit<ICustomerNotificationsBus>(busConf =>
