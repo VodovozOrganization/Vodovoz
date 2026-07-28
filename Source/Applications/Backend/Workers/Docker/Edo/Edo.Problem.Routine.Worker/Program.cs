@@ -46,6 +46,7 @@ namespace Edo.Problem.Routine.Worker
 						.AddMessageTransportSettings()
 						.AddEdoProblemRoutine()
 						.AddOrderEdoCodePoolMissingProblem()
+						.AddEdoNotifications()
 						;
 
 					services

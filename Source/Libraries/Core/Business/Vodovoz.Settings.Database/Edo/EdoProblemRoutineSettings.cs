@@ -41,5 +41,14 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public TimeSpan CodeDuplicatedProblemWorkerInterval => _settingsController
 			.GetValue<TimeSpan>("edo.problem.routine.code-duplicated-worker-interval");
+
+		public TimeSpan CodePoolMissingProblemWorkerInterval => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.code-pool-missing-worker-interval");
+
+		public TimeSpan CodePoolMissingProblemWorkerMaxAttempts => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.code-pool-missing-problem-max-attempts");
+
+		public TimeSpan CodePoolMissingProblemWorkerBatchSize => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.code-pool-missing-worker-batch-size");
 	}
 }

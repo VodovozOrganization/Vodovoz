@@ -17,6 +17,12 @@ namespace EdoNotifications.Contracts
 		/// Невалидный контакт для отправки чека
 		/// </summary>
 		[Display(Name = "Невалидный контакт для отправки чека")]
-		ReceiptContactInvalid
+		ReceiptContactInvalid,
+
+		/// <summary>
+		/// Ошибка наличия кода в пуле
+		/// </summary>
+		[Display(Name = "Ошибка наличия кода в пуле")]
+		CodePoolMissingProblem,
 	}
 }
