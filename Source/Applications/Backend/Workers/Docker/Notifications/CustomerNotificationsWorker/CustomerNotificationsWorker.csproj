@@ -18,12 +18,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj" />
-	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Transport\CustomerNotifications.Transport.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Config\" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport.MassTransit\MessageTransport.MassTransit.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
