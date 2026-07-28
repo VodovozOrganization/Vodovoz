@@ -11,15 +11,15 @@ using Vodovoz.Zabbix.Sender;
 
 namespace Edo.Problem.Routine.Worker
 {
-	public class OrderEdoCodePoolMissingProblemWorker : TimerBackgroundServiceBase
+	public class CodePoolMissingProblemWorker : TimerBackgroundServiceBase
 	{
-		private readonly ILogger<OrderEdoCodePoolMissingProblemWorker> _logger;
-		private readonly IOptions<OrderEdoCodePoolMissingProblemWorkerOptions> _options;
+		private readonly ILogger<CodePoolMissingProblemWorker> _logger;
+		private readonly IOptions<CodePoolMissingProblemWorkerOptions> _options;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 
-		public OrderEdoCodePoolMissingProblemWorker(
-			ILogger<OrderEdoCodePoolMissingProblemWorker> logger,
-			IOptions<OrderEdoCodePoolMissingProblemWorkerOptions> options,
+		public CodePoolMissingProblemWorker(
+			ILogger<CodePoolMissingProblemWorker> logger,
+			IOptions<CodePoolMissingProblemWorkerOptions> options,
 			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

@@ -5,7 +5,7 @@ namespace Edo.Problem.Routine.Options
 	/// <summary>
 	/// Настройки воркера, обрабатывающего проблемы по нехватку кодов в пуле
 	/// </summary>
-	public class OrderEdoCodePoolMissingProblemWorkerOptions
+	public class CodePoolMissingProblemWorkerOptions
 	{
 		/// <summary>
 		/// Интервал срабатывания воркера
