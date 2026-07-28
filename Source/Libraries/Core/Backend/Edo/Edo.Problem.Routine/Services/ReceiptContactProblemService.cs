@@ -61,7 +61,7 @@ namespace Edo.Problem.Routine.Services
 		{
 			IList<int> receiptTaskIds;
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ReceiptContactProblemService)))
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки активных проблем с контактом чека"))
 			{
 				receiptTaskIds = await _edoRepository.GetProblemEdoTaskIds<ReceiptEdoTask>(
 					uow,
