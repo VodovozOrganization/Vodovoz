@@ -268,7 +268,7 @@ namespace Vodovoz
 				.AddScoped<ISalesReportService, SalesReportService>()
 				.AddOrderEdoCodePoolMissingProblem()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				.AddCustomerNotificationsSettingsProvider();
 
 			services.AddScoped<IEdoRequestCreatedEventPublisher, EdoRequestCreatedEventPublisher>();

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
@@ -34,6 +35,9 @@ namespace Vodovoz.Core.Application.Logistics
 {
 	public class RouteListService : IRouteListService
 	{
+		private static readonly IReadOnlyCollection<RouteListStatus> _driverMangoRegistrationRequestStatuses =
+			new[] { RouteListStatus.InLoading, RouteListStatus.EnRoute };
+
 		private readonly ILogger<RouteListService> _logger;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IDeliveryRepository _deliveryRepository;
@@ -100,6 +104,63 @@ namespace Vodovoz.Core.Application.Logistics
 
 			var customerNotificationEvent = new CustomerNotificationDomainEvent(eventType.Value, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
 			_customerNotificationPublisher.TryPublish(unitOfWork, customerNotificationEvent);
+		}
+
+		/// <summary>
+		/// Пытается создать заявку на регистрацию водителя как сотрудника Манго и выделение ему добавочного номера
+		/// </summary>
+		/// <param name="unitOfWork">Unit Of Work</param>
+		/// <param name="routeList">Маршрутный лист</param>
+		private void TryCreateDriverMangoRegistrationRequest(IUnitOfWork unitOfWork, RouteList routeList)
+		{
+			var driver = routeList.Driver;
+
+			if(driver is null)
+			{
+				_logger.LogWarning(
+					"У маршрутного листа {RouteListId} не указан водитель, заявка на регистрацию сотрудника Манго не создаётся",
+					routeList.Id);
+
+				return;
+			}
+
+			if(!driver.NeedToCreateMangoEmployee)
+			{
+				_logger.LogInformation(
+					"Водителю {DriverId} не требуется создание сотрудника Манго, заявка по МЛ {RouteListId} не создаётся",
+					driver.Id,
+					routeList.Id);
+
+				return;
+			}
+
+			var canCreateDriverMangoRegistrationRequest =
+				_employeeRepository.CanCreateDriverMangoRegistrationRequest(unitOfWork, driver.Id);
+
+			if(!canCreateDriverMangoRegistrationRequest)
+			{
+				_logger.LogInformation(
+					"У водителя {DriverId} уже есть активный добавочный номер Манго или необработанная заявка, "
+					+ "новая заявка по МЛ {RouteListId} не создаётся",
+					driver.Id,
+					routeList.Id);
+
+				return;
+			}
+
+			var request = new DriverMangoEmployeeRegistrationRequest
+			{
+				DriverId = driver.Id,
+				Status = DriverMangoEmployeeRegistrationRequestStatus.New,
+				CreatedAt = DateTime.Now
+			};
+
+			unitOfWork.Save(request);
+
+			_logger.LogInformation(
+				"Создана заявка на регистрацию сотрудника Манго для водителя {DriverId} по МЛ {RouteListId}",
+				driver.Id,
+				routeList.Id);
 		}
 
 		#region Статусы МЛ
@@ -486,6 +547,11 @@ namespace Vodovoz.Core.Application.Logistics
 					throw new NotImplementedException($"Не реализовано изменение статуса для {newStatus}");
 			}
 
+			if(_driverMangoRegistrationRequestStatuses.Contains(newStatus))
+			{
+				TryCreateDriverMangoRegistrationRequest(unitOfWork, routeList);
+			}
+
 			routeList.UpdateDeliveryDocuments(unitOfWork);
 			routeList.UpdateClosedInformation();
 		}
@@ -657,6 +723,11 @@ namespace Vodovoz.Core.Application.Logistics
 					break;
 				default:
 					throw new NotImplementedException($"Не реализовано изменение статуса для {newStatus}");
+			}
+
+			if(_driverMangoRegistrationRequestStatuses.Contains(newStatus))
+			{
+				TryCreateDriverMangoRegistrationRequest(unitOfWork, routeList);
 			}
 
 			routeList.UpdateDeliveryDocuments(unitOfWork);

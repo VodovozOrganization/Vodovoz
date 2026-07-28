@@ -48,6 +48,11 @@ namespace CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem
 		/// </summary>
 		public bool IsFixedPrice { get; set; }
 
+		/// <summary>
+		/// Этот товар - подарок?
+		/// </summary>
+		public bool GiftItem { get; set; }
+
 		public decimal PriceWithDiscount
 		{
 			get

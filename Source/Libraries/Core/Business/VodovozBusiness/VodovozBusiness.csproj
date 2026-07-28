@@ -150,7 +150,7 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj" />
+    <ProjectReference Include="..\..\Notifications\CustomerNotifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj" />
     <ProjectReference Include="..\..\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
     <ProjectReference Include="..\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
     <ProjectReference Include="..\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">

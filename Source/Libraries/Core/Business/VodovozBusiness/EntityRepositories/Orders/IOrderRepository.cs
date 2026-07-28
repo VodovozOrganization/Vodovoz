@@ -564,6 +564,48 @@ namespace Vodovoz.EntityRepositories.Orders
 			CancellationToken cancellationToken);
 
 		/// <summary>
+		/// Данные последних выполненных сервисных заказов неархивных контрагентов.
+		/// Сервисным считается заказ, содержащий хотя бы одну номенклатуру из указанного списка.
+		/// По каждому контрагенту возвращается последний выполненный сервисный заказ,
+		/// если его дата доставки не ранее и не позднее указанных.
+		/// Заказы, по которым уже создана запись последнего сервисного заказа, исключаются
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="serviceNomenclatureIds">Id номенклатур, относящихся к сервисным (санитарная обработка)</param>
+		/// <param name="orderStatuses">Статусы заказов, считающихся выполненными</param>
+		/// <param name="minLastOrderDeliveryDate">Минимальная дата доставки последнего сервисного заказа (включительно)</param>
+		/// <param name="maxLastOrderDeliveryDate">Максимальная дата доставки последнего сервисного заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные последних сервисных заказов в разрезе контрагентов</returns>
+		Task<IList<LastServiceOrderNode>> GetCounterpartiesLastServiceOrdersDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> serviceNomenclatureIds,
+			IEnumerable<OrderStatus> orderStatuses,
+			DateTime minLastOrderDeliveryDate,
+			DateTime maxLastOrderDeliveryDate,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Id контрагентов, у которых есть сервисные заказы с датой доставки, начиная с указанной,
+		/// исключая заказы в указанных статусах.
+		/// Сервисным считается заказ, содержащий хотя бы одну номенклатуру из указанного списка
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyIds">Id контрагентов</param>
+		/// <param name="fromDeliveryDate">Дата доставки, начиная с которой ищутся заказы</param>
+		/// <param name="excludeOrderStatuses">Исключаемые статусы заказов</param>
+		/// <param name="serviceNomenclatureIds">Id номенклатур, относящихся к сервисным (санитарная обработка)</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Id контрагентов с найденными заказами</returns>
+		Task<IList<int>> GetCounterpartyIdsWithUpcomingServiceOrdersAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			DateTime fromDeliveryDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			IEnumerable<int> serviceNomenclatureIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
 		/// Дебиторская задолженность по безналу по контрагентам
 		/// (сумма недоплаченных безналичных заказов минус сумма частичных оплат)
 		/// </summary>

@@ -146,7 +146,7 @@ namespace BitrixNotificationsSend.Library.Services
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersDealsCreateService)}. Поиск не созданных сделок"))
 			{
 				plannedOrderDtos = _plannedOrderRepository
-					.Get(uow, x => x.PlannedOrderDate == today && x.Stage == PlannedOrderStage.DealNotCreated)
+					.Get(uow, x => x.PlannedOrderDate == today && x.Stage == BitrixDealCreationStage.DealNotCreated)
 					.Select(CreatePlannedOrderDto)
 					.ToList();
 			}
@@ -192,7 +192,7 @@ namespace BitrixNotificationsSend.Library.Services
 
 				foreach(var createdDealPlannedOrder in createdDealPlannedOrders)
 				{
-					createdDealPlannedOrder.Stage = PlannedOrderStage.DealCreated;
+					createdDealPlannedOrder.Stage = BitrixDealCreationStage.DealCreated;
 					await uow.SaveAsync(createdDealPlannedOrder, cancellationToken: cancellationToken);
 				}
 
@@ -296,13 +296,13 @@ namespace BitrixNotificationsSend.Library.Services
 				var plannedOrder = new PlannedOrder
 				{
 					CreationDate = creationDate,
-					Stage = PlannedOrderStage.DealNotCreated,
+					Stage = BitrixDealCreationStage.DealNotCreated,
 					CounterpartyId = counterpartyId,
 					DeliveryPointId = deliveryPointId,
 					CounterpartyName = counterpartyData?.FullName,
 					CounterpartyInn = counterpartyData?.Inn,
 					PhoneNumber = candidate.LastOrder?.ContactPhoneNumber,
-					EmailAddress = SelectPriorityEmailAddress(counterpartyEmails),
+					EmailAddress = PriorityEmailAddressSelector.SelectPriorityEmailAddress(counterpartyEmails),
 					DeliveryPointAddress = deliveryPointAddress?.Substring(0, Math.Min(deliveryPointAddress.Length, 1000)),
 					IsSelfDelivery = isSelfDelivery,
 					LastOrderDeliveryDate = candidate.Aggregate.MaxDeliveryDate.Value,
@@ -522,22 +522,6 @@ namespace BitrixNotificationsSend.Library.Services
 			}
 
 			return lastDeliveryDate.AddDays(orderFrequencyDays);
-		}
-
-		private static string SelectPriorityEmailAddress(IList<CounterpartyEmailWithPurposeNode> counterpartyEmails)
-		{
-			if(counterpartyEmails == null || !counterpartyEmails.Any())
-			{
-				return null;
-			}
-
-			var email = counterpartyEmails.FirstOrDefault(e => e.EmailPurpose == EmailPurpose.ForBills)
-				?? counterpartyEmails.FirstOrDefault(e => e.EmailPurpose == EmailPurpose.Work)
-				?? counterpartyEmails.FirstOrDefault(e => e.EmailPurpose == EmailPurpose.Personal)
-				?? counterpartyEmails.FirstOrDefault(e => e.EmailPurpose == EmailPurpose.ForReceipts)
-				?? counterpartyEmails.FirstOrDefault();
-
-			return email?.Address;
 		}
 
 		private static int GetLastOrderBottlesCount(PlannedOrderLastOrderNode lastOrder)

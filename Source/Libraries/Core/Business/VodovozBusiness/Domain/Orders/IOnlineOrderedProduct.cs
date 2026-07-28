@@ -39,6 +39,10 @@
 		/// </summary>
 		decimal PriceWithDiscount { get; }
 		/// <summary>
+		/// Этот товар - подарок?
+		/// </summary>
+		bool GiftItem { get; set; }
+		/// <summary>
 		/// Очистка данных по скидке
 		/// </summary>
 		void ClearDiscount();

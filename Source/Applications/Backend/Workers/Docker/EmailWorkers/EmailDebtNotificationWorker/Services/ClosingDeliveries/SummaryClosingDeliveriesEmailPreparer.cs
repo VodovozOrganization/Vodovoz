@@ -1,5 +1,5 @@
-﻿using EmailDebtNotificationWorker.DTO;
-using EmailDebtNotificationWorker.Repositories;
+﻿using Email.Infrastructure.Repositories;
+using EmailDebtNotificationWorker.DTO;
 using Mailjet.Api.Abstractions;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
