@@ -15,6 +15,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -34,8 +35,11 @@ namespace EdoServices.Tests
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
+		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
+		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IBus _bus;
+		private readonly MessageService _messageService;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 		private readonly EdoService.Library.EdoService _edoService;
 		private readonly EdoProblemRegistrar _problemRegistrar;
@@ -49,6 +53,9 @@ namespace EdoServices.Tests
 			_orderRepository = Substitute.For<IOrderRepository>();
 			_edoRepository = Substitute.For<IEdoRepository>();
 			_receiptRepository = Substitute.For<IGenericRepository<ReceiptEdoTask>>();
+
+			_edoRequestRepository = Substitute.For<IGenericRepository<FormalEdoRequest>>();
+
 			_edoRequestCreatedEventPublisher = Substitute.For<IEdoRequestCreatedEventPublisher>();
 			_bus = Substitute.For<IBus>();
 			_requestFactories = Enumerable.Empty<IInformalEdoRequestFactory>();
@@ -70,11 +77,21 @@ namespace EdoServices.Tests
 				_exceptionSourcesPersister
 			);
 
+			_messageService = new MessageService(
+				Substitute.For<Microsoft.Extensions.Logging.ILogger<MessageService>>(),
+				_bus
+			);
+
+			_counterpartyEdoAccountEntityController = Substitute.For<ICounterpartyEdoAccountEntityController>();
+
 			_edoService = new EdoService.Library.EdoService(
 				_uowFactory,
 				_orderRepository,
 				_receiptRepository,
 				_edoRepository,
+				_messageService,
+				_edoRequestRepository,
+				_counterpartyEdoAccountEntityController,
 				_edoRequestCreatedEventPublisher,
 				_bus,
 				_requestFactories,
@@ -403,91 +420,6 @@ namespace EdoServices.Tests
 		}
 
 		[Fact]
-		public async Task ResendReceiptFromSavedToPool_WhenAllTasksInSavedToPool_ResendsSuccessfully()
-		{
-			// Arrange
-			var orderId = 1;
-			var orderTaskId = 100;
-			var order = new Order { Id = orderId };
-			var tasks = new List<ReceiptEdoTask>
-			{
-				new() {
-					Id = 1,
-					ReceiptStatus = EdoReceiptStatus.SavedToPool,
-					FormalEdoRequest = new PrimaryEdoRequest { Order = order }
-				},
-				new() {
-					Id = 2,
-					ReceiptStatus = EdoReceiptStatus.SavedToPool,
-					FormalEdoRequest = new PrimaryEdoRequest { Order = order }
-				}
-			};
-
-			var tasksResult = Result.Success<IEnumerable<ReceiptEdoTask>>(tasks);
-			SetupReceiptRepository(tasksResult);
-
-			_orderRepository.GetOrderByIdAsync(Arg.Any<IUnitOfWork>(), orderId, Arg.Any<CancellationToken>())
-				.Returns(Task.FromResult(order));
-
-			_uow.SaveAsync(Arg.Any<ManualEdoRequest>(), cancellationToken: Arg.Any<CancellationToken>())
-				.Returns(Task.CompletedTask);
-
-			_uow.CommitAsync(Arg.Any<CancellationToken>())
-				.Returns(Task.CompletedTask);
-
-			// Act
-			var result = await _edoService.ResendReceiptFromSavedToPool(_uow, orderTaskId, orderId, CancellationToken.None);
-
-			// Assert
-			Assert.True(result.IsSuccess);
-			await _uow.Received().SaveAsync(Arg.Any<ManualEdoRequest>(), cancellationToken: Arg.Any<CancellationToken>());
-			await _uow.Received().CommitAsync(cancellationToken: Arg.Any<CancellationToken>());
-		}
-
-		[Fact]
-		public async Task ResendReceiptFromSavedToPool_WhenTaskNotInSavedToPool_ReturnsFailure()
-		{
-			// Arrange
-			var orderId = 1;
-			var orderTaskId = 100;
-			var order = new Order { Id = orderId };
-			var tasks = new List<ReceiptEdoTask>
-			{
-				new() {
-					Id = 1,
-					ReceiptStatus = EdoReceiptStatus.SavedToPool,
-					FormalEdoRequest = new PrimaryEdoRequest { Order = order }
-				},
-				new() {
-					Id = 2,
-					ReceiptStatus = EdoReceiptStatus.Sending,
-					FormalEdoRequest = new PrimaryEdoRequest { Order = order }
-				}
-			};
-
-			var tasksResult = Result.Success<IEnumerable<ReceiptEdoTask>>(tasks);
-			SetupReceiptRepository(tasksResult);
-
-			_orderRepository.GetOrderByIdAsync(Arg.Any<IUnitOfWork>(), orderId, Arg.Any<CancellationToken>())
-				.Returns(Task.FromResult(order));
-
-			_uow.SaveAsync(Arg.Any<ManualEdoRequest>(), cancellationToken: Arg.Any<CancellationToken>())
-				.Returns(Task.CompletedTask);
-
-			_uow.CommitAsync(Arg.Any<CancellationToken>())
-				.Returns(Task.CompletedTask);
-
-			// Act
-			var result = await _edoService.ResendReceiptFromSavedToPool(_uow, orderTaskId, orderId, CancellationToken.None);
-
-			// Assert
-			Assert.True(result.IsFailure);
-			Assert.Contains(result.Errors, e => e == EdoErrors.CreateCannotResendReceiptFromSavedToPoolTask(orderId));
-			await _uow.DidNotReceive().SaveAsync(Arg.Any<ManualEdoRequest>(), cancellationToken: Arg.Any<CancellationToken>());
-			await _uow.DidNotReceive().CommitAsync(cancellationToken: Arg.Any<CancellationToken>());
-		}
-
-		[Fact]
 		public void CanResend_WhenStatusIsCancelled_ReturnsTrue()
 		{
 			// Act
@@ -564,13 +496,6 @@ namespace EdoServices.Tests
 
 					return uow;
 				});
-		}
-
-		private void SetupReceiptRepository(Result<IEnumerable<ReceiptEdoTask>> tasksResult)
-		{
-			_receiptRepository
-				.GetAsync(Arg.Any<IUnitOfWork>(), Arg.Any<Expression<Func<ReceiptEdoTask, bool>>>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
-				.ReturnsForAnyArgs(Task.FromResult(tasksResult));
 		}
 	}
 }

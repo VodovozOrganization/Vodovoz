@@ -1,4 +1,4 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Threading;
@@ -82,18 +82,6 @@ namespace EdoService.Library
 		Result SendDocumentTaskCreatedEvent(EdoTask edoTask);
 
 		/// <summary>
-		/// Запускает переобработку задачи на отправку УПД, 
-		/// которая попала в проблему в статусе New
-		/// </summary>
-		void RehandleNewUpdDocumentWithProblem(int updEdoTaskId);
-
-		/// <summary>
-		/// Запускает переобработку задачи на отправку чека, 
-		/// которая попала в проблему в статусе New
-		/// </summary>
-		void RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
-
-		/// <summary>
 		/// Можно ли переотправить документ
 		/// </summary>
 		/// <param name="status">Статус документа</param>
@@ -106,20 +94,6 @@ namespace EdoService.Library
 		/// <param name="taskId">Идентификатор задачи</param>
 		/// <returns>Результат переотправки документа</returns>
 		Result ResendEdoDocumentForOrder(int taskId);
-
-		/// <summary>
-		/// Переотправка чека по ЭДО из сохраненных в пул
-		/// </summary>
-		/// <param name="uow">IUnitOfWork</param>
-		/// <param name="orderTaskId">Идентификатор задачи</param>
-		/// <param name="orderId">Идентификатор заказа</param>
-		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Результат переотправки чека</returns>
-		Task<Result> ResendReceiptFromSavedToPool(
-			IUnitOfWork uow,
-			int? orderTaskId,
-			int orderId,
-			CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Переотправка чека по ЭДО по идентификатору задачи

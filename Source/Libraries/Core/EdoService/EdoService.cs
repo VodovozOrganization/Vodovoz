@@ -479,17 +479,12 @@ namespace EdoService.Library
 
 		public Result SendDocumentTaskCreatedEvent(EdoTask edoTask)
 		{
-			PublishSendDocumentTaskCreatedEvent(edoTask.Id)
+			_messageService.PublishSendDocumentTaskCreatedEvent(edoTask.Id)
 				.ConfigureAwait(false)
 				.GetAwaiter()
 				.GetResult();
 			
 			return Result.Success();
-		}
-
-		private async Task PublishSendDocumentTaskCreatedEvent(int edoTaskId)
-		{
-			await _bus.Publish(new DocumentTaskCreatedEvent { Id = edoTaskId });
 		}
 
 		public void CancelOldEdoOffers(IUnitOfWork unitOfWork, Order order)
@@ -554,14 +549,9 @@ namespace EdoService.Library
 
 				uow.Commit();
 
-				PublishInformalEdoRequestCreatedEvent(informalRequest.Id)
-					.GetAwaiter().GetResult();
+                _messageService.PublishInformalEdoRequestCreatedEvent(informalRequest.Id)
+                    .GetAwaiter().GetResult();
 			}
-		}
-
-		private async Task PublishInformalEdoRequestCreatedEvent(int informalRequestId)
-		{
-			await _bus.Publish(new InformalEdoRequestCreatedEvent { InformalRequestId = informalRequestId });
 		}
 
 		public async Task<Result> ResendReceiptDocument(
@@ -650,56 +640,7 @@ namespace EdoService.Library
 				}
 			}
 
-
 			return errors.Any() ? Result.Failure(errors) : Result.Success();
-		}
-
-		public void RehandleNewUpdDocumentWithProblem(int updEdoTaskId)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var task = uow.Session.Get<DocumentEdoTask>(updEdoTaskId);
-				if(task is null)
-				{
-					return;
-				}
-
-				if(task.Status != EdoTaskStatus.Problem && task.Stage != DocumentEdoTaskStage.New)
-				{
-					return;
-				}
-
-				var message = new DocumentTaskCreatedEvent 
-				{ 
-					Id = updEdoTaskId,
-				};
-
-				_bus.Publish(message);
-			}
-		}
-
-		public void RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var task = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
-				if(task is null)
-				{
-					return;
-				}
-
-				if(task.Status != EdoTaskStatus.Problem && task.ReceiptStatus != EdoReceiptStatus.New)
-				{
-					return;
-				}
-
-				var message = new ReceiptTaskCreatedEvent
-				{
-					ReceiptEdoTaskId = receiptEdoTaskId,
-				};
-
-				_bus.Publish(message);
-			}
 		}
 
 		public Result<string> TryResendUpdDocument(int orderEdoTaskId)

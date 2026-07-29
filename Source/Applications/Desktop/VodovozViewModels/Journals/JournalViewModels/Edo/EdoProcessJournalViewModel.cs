@@ -31,7 +31,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly EdoProcessFilterViewModel _filterViewModel;
 		private readonly IInteractiveService _interactiveService;
-		private readonly IEdoService _edoService;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
 		private readonly IGenericRepository<DocumentEdoTask> _documentRepository;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
@@ -48,7 +47,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			IGenericRepository<DocumentEdoTask> documentRepository,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
-			IUserService userService,
 			IClipboard clipboard,
 			IGtkTabsOpener gtkTabsOpener,
 			ICurrentPermissionService currentPermissionService,
@@ -62,11 +60,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
-			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
-			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_documentRepository = documentRepository ?? throw new ArgumentNullException(nameof(documentRepository));
