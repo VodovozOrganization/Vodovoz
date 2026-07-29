@@ -1,4 +1,4 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
 using System;
 using System.Collections.Generic;
@@ -56,10 +56,8 @@ namespace Vodovoz.Views.Edo
 
 			foreach(var action in ViewModel.Actions.Reverse())
 			{
-				var button = new yButton
-				{
-					Label = action.Name
-				};
+				var button = new yButton();
+				button.Label = action.Text;
 				button.BindCommand(action);
 				yhboxButtons.PackStart(button, false, false, 1);
 				button.ShowAll();

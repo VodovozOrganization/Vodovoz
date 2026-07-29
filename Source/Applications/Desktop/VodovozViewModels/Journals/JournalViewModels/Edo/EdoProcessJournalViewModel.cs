@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Edo.Transport;
 using EdoService.Library;
 using NHibernate;
@@ -98,8 +98,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
-			CreateResendReceiptFromSaveCodesTaskAction();
-			CreateResendDocumentFromSaveCodesTaskAction();
 		}
 
 		protected override void CreatePopupActions()

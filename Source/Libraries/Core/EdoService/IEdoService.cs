@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Threading;
@@ -130,5 +130,7 @@ namespace EdoService.Library
 		Task<Result> ResendReceiptDocument(
 			int receiptEdoTaskId,
 			CancellationToken cancellationToken = default);
+		Result<string> TryResendUpdDocument(int orderEdoTaskId);
+		Result<string> TryResendReceiptDocument(int orderEdoTaskId);
 	}
 }

@@ -33,7 +33,7 @@ namespace Edo.Problems.Validation.Sources
 			get => "Необходимо удостоверится в оплате и отметить заказ как оплаченный.";
 		}
 
-		public string GetTemplateMessage(EdoTask edoTask)
+		public override string GetTemplatedMessage(EdoTask edoTask)
 		{
 			var orderEdoRequest = GetEdoRequest(edoTask);
 			if(orderEdoRequest == null)
@@ -71,10 +71,15 @@ namespace Edo.Problems.Validation.Sources
 				case PaymentType.Terminal:
 				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:
-				case PaymentType.PaidOnline:
 				case PaymentType.Barter:
 				case PaymentType.ContractDocumentation:
 					if(!orderEdoRequest.Order.IsSelfDeliveryPaid)
+					{
+						return Task.FromResult(EdoValidationResult.Invalid(this));
+					}
+					break;
+				case PaymentType.PaidOnline:
+					if(!orderEdoRequest.Order.OnlinePaymentNumber.HasValue)
 					{
 						return Task.FromResult(EdoValidationResult.Invalid(this));
 					}

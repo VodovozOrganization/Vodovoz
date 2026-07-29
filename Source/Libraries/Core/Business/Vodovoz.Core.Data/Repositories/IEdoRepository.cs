@@ -113,5 +113,7 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<IList<TimedOutDocFlowGrouppedNode>> GetTimedOutDocFlows(IUnitOfWork unitOfWork, int timeoutDays, CancellationToken cancellationToken);
+		IEnumerable<EdoInOrderReceiptNode> GetReceiptsForOrder(IUnitOfWork uow, int orderId);
+		IEnumerable<EdoInOrderTaxcomDocflowNode> GetEdoInOrderDocflows(IUnitOfWork uow, int orderId);
 	}
 }
