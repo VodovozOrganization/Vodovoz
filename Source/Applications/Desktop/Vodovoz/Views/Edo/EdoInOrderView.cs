@@ -220,5 +220,14 @@ namespace Vodovoz.Views.Edo
 		{
 			ViewModel.Load();
 		}
+
+		protected override void OnDestroyed()
+		{
+			if(ViewModel != null)
+			{
+				ViewModel.PropertyChanged -= ViewModelPropertyChanged;
+			}
+			base.OnDestroyed();
+		}
 	}
 }

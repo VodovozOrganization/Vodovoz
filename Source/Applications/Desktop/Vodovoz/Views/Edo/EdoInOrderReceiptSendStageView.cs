@@ -62,5 +62,14 @@ namespace Vodovoz.Views.Edo
 			yhboxReceipt.PackStart(_receiptView, false, true, 0);
 			_receiptView.Show();
 		}
+
+		protected override void OnDestroyed()
+		{
+			if(ViewModel != null)
+			{
+				ViewModel.PropertyChanged -= ViewModelPropertyChanged;
+			}
+			base.OnDestroyed();
+		}
 	}
 }

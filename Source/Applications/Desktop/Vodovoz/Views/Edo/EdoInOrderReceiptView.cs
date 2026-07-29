@@ -89,5 +89,14 @@ namespace Vodovoz.Views.Edo
 				scrollWindowCashError.Visible = ViewModel.HasCashError;
 			}
 		}
+
+		protected override void OnDestroyed()
+		{
+			if(ViewModel != null)
+			{
+				ViewModel.PropertyChanged -= ViewModelPropertyChanged;
+			}
+			base.OnDestroyed();
+		}
 	}
 }

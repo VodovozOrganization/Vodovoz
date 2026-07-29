@@ -126,5 +126,14 @@ namespace Vodovoz.Views.Edo
 			yhboxTransferStage.Remove(_stageView);
 			_stageView?.Destroy();
 		}
+
+		protected override void OnDestroyed()
+		{
+			if(ViewModel != null)
+			{
+				ViewModel.PropertyChanged -= ViewModelPropertyChanged;
+			}
+			base.OnDestroyed();
+		}
 	}
 }
