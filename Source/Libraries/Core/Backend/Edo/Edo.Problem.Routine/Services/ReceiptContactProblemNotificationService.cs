@@ -29,6 +29,7 @@ namespace Edo.Problem.Routine.Services
 			IUnitOfWork unitOfWork,
 			ReceiptEdoTask receiptTask,
 			EdoTaskProblem problem,
+			int orderId,
 			int retryCount,
 			CancellationToken cancellationToken)
 		{
@@ -49,7 +50,7 @@ namespace Edo.Problem.Routine.Services
 
 			var notification = _notificationMessageFactory.Create(
 				EdoNotificationType.ReceiptContactInvalid,
-				("OrderId", receiptTask.FormalEdoRequest.Order.Id.ToString(CultureInfo.InvariantCulture)),
+				("OrderId", orderId.ToString(CultureInfo.InvariantCulture)),
 				("EdoTaskId", receiptTask.Id.ToString(CultureInfo.InvariantCulture)),
 				("ProblemId", problem.Id.ToString(CultureInfo.InvariantCulture)),
 				("RetryCount", retryCount.ToString(CultureInfo.InvariantCulture)));

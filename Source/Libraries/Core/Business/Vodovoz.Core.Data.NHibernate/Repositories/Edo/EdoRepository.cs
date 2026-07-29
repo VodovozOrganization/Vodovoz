@@ -20,6 +20,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 {
@@ -390,12 +391,18 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			)
 			where T : OrderEdoTask
 		{
-			var taskIds = await GetProblemEdoTaskIds<T>(
-				uow,
-				problemSourceName,
-				minCreationTime,
-				cancellationToken,
-				maxCreationTime);
+			var tasksIdsQuery =
+				from problem in uow.Session.Query<EdoTaskProblem>()
+				join edoTask in uow.Session.Query<T>() on problem.EdoTask.Id equals edoTask.Id
+				join edoRequest in uow.Session.Query<FormalEdoRequest>() on edoTask.FormalEdoRequest.Id equals edoRequest.Id
+				where
+					problem.SourceName == problemSourceName
+					&& problem.State == TaskProblemState.Active
+					&& edoTask.CreationTime >= minCreationTime
+					&& (maxCreationTime == null || edoTask.CreationTime <= maxCreationTime)
+				select edoTask.Id;
+
+			var taskIds = await tasksIdsQuery.Distinct().ToListAsync(cancellationToken);
 
 			if(!taskIds.Any())
 			{
@@ -412,45 +419,36 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return tasks;
 		}
 
-		public async Task<IList<int>> GetProblemEdoTaskIds<T>(
+		public async Task<IList<ReceiptContactProblemNode>> GetReceiptContactProblemNodes(
 			IUnitOfWork uow,
 			string problemSourceName,
 			DateTime minCreationTime,
-			CancellationToken cancellationToken,
-			DateTime? maxCreationTime = null
-			)
-			where T : OrderEdoTask
+			CancellationToken cancellationToken)
 		{
-			var taskIdsQuery =
+			var query =
 				from problem in uow.Session.Query<EdoTaskProblem>()
-				join edoTask in uow.Session.Query<T>() on problem.EdoTask.Id equals edoTask.Id
-				join edoRequest in uow.Session.Query<FormalEdoRequest>() on edoTask.FormalEdoRequest.Id equals edoRequest.Id
-				where
-					problem.SourceName == problemSourceName
+				join receiptTask in uow.Session.Query<ReceiptEdoTask>()
+					on problem.EdoTask.Id equals receiptTask.Id
+				join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
+					on problem.Id equals routineState.Problem.Id into routineStates
+				from routineState in routineStates.DefaultIfEmpty()
+				where problem.SourceName == problemSourceName
 					&& problem.State == TaskProblemState.Active
-					&& edoTask.CreationTime >= minCreationTime
-					&& (maxCreationTime == null || edoTask.CreationTime <= maxCreationTime)
-				select edoTask.Id;
+					&& receiptTask.CreationTime >= minCreationTime
+				select new ReceiptContactProblemNode
+				{
+					ReceiptTask = receiptTask,
+					Problem = problem,
+					RoutineState = routineState,
+					OrderId = receiptTask.FormalEdoRequest.Order.Id,
+					HasCodesSavedToPool = uow.Session.Query<EdoTaskItem>()
+						.Any(item =>
+							item.CustomerEdoTask.Id == receiptTask.Id
+							&& item.ProductCode != null
+							&& item.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool)
+				};
 
-			return await taskIdsQuery.Distinct().ToListAsync(cancellationToken);
-		}
-
-		public Task<T> GetEdoTaskById<T>(
-			IUnitOfWork uow,
-			int edoTaskId,
-			CancellationToken cancellationToken)
-			where T : EdoTask
-		{
-			return uow.Session.GetAsync<T>(edoTaskId, cancellationToken);
-		}
-
-		public Task<EdoTaskProblemRoutineState> GetEdoTaskProblemRoutineState(
-			IUnitOfWork uow,
-			int problemId,
-			CancellationToken cancellationToken)
-		{
-			return uow.Session.Query<EdoTaskProblemRoutineState>()
-				.FirstOrDefaultAsync(x => x.Problem.Id == problemId, cancellationToken);
+			return await query.ToListAsync(cancellationToken);
 		}
 
 		public async Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(

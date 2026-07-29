@@ -13,8 +13,9 @@ namespace Edo.Problem.Routine.Services
 		/// Проверяет, допускает ли текущее состояние задачи повторный запуск.
 		/// </summary>
 		/// <param name="receiptTask">Задача ЭДО на отправку чека.</param>
+		/// <param name="hasCodesSavedToPool">Есть ли у задачи коды, уже сохраненные в пул.</param>
 		/// <returns><see langword="true"/>, если задачу можно запустить повторно.</returns>
-		bool CanResend(ReceiptEdoTask receiptTask);
+		bool CanResend(ReceiptEdoTask receiptTask, bool hasCodesSavedToPool);
 
 		/// <summary>
 		/// Публикует событие повторного запуска задачи.

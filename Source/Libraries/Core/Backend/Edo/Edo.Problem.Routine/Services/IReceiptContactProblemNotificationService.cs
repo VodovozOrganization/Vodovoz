@@ -16,6 +16,7 @@ namespace Edo.Problem.Routine.Services
 		/// <param name="unitOfWork">Единица работы, в транзакции которой сохраняется уведомление.</param>
 		/// <param name="receiptTask">Задача ЭДО на отправку чека.</param>
 		/// <param name="problem">Активная проблема контакта.</param>
+		/// <param name="orderId">Идентификатор заказа.</param>
 		/// <param name="retryCount">Количество выполненных попыток повторной обработки.</param>
 		/// <param name="cancellationToken">Токен отмены.</param>
 		/// <returns><see langword="true"/>, если уведомление сохранено в outbox.</returns>
@@ -23,6 +24,7 @@ namespace Edo.Problem.Routine.Services
 			IUnitOfWork unitOfWork,
 			ReceiptEdoTask receiptTask,
 			EdoTaskProblem problem,
+			int orderId,
 			int retryCount,
 			CancellationToken cancellationToken);
 	}

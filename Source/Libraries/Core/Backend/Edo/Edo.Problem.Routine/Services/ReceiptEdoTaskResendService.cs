@@ -1,12 +1,10 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Problem.Routine.Services
 {
@@ -27,7 +25,7 @@ namespace Edo.Problem.Routine.Services
 		}
 
 		/// <inheritdoc/>
-		public bool CanResend(ReceiptEdoTask receiptTask)
+		public bool CanResend(ReceiptEdoTask receiptTask, bool hasCodesSavedToPool)
 		{
 			if(receiptTask == null)
 			{
@@ -54,9 +52,7 @@ namespace Edo.Problem.Routine.Services
 				return false;
 			}
 
-			if(receiptTask.Items.Any(x =>
-				x.ProductCode != null
-				&& x.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool))
+			if(hasCodesSavedToPool)
 			{
 				_logger.LogWarning(
 					"Задача ЭДО {EdoTaskId} содержит коды, уже сохраненные в пул, и не может быть запущена повторно",
