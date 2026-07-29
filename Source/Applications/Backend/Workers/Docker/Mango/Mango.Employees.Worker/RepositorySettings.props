@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>mango.employees.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>

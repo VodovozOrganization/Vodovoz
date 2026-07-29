@@ -86,6 +86,34 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
+		/// Возвращает отклоненные коды маркировки, связанные с ЭДО-заявками заказа.
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns>Список отклоненных кодов товара</returns>
+		IList<TrueMarkProductCode> GetRejectedProductCodesByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает коды товара, в которых указаны переданные идентификационные коды.
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="identificationCodeIds">Идентификаторы кодов идентификации</param>
+		/// <param name="excludedProductCodeIds">Идентификаторы кодов товара, которые нужно исключить из поиска</param>
+		/// <returns>Список кодов товара</returns>
+		IList<TrueMarkProductCode> GetProductCodesByIdentificationCodeIds(
+			IUnitOfWork uow,
+			HashSet<int> identificationCodeIds,
+			HashSet<int> excludedProductCodeIds);
+
+		/// <summary>
+		/// Возвращает количество привязанных кодов товара по строкам заказа.
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderItemIds">Идентификаторы строк заказа</param>
+		/// <returns>Словарь. Ключ - идентификатор строки заказа, значение - количество кодов товара</returns>
+		IDictionary<int, int> GetProductCodesCountByOrderItems(IUnitOfWork uow, IEnumerable<int> orderItemIds);
+
+		/// <summary>
 		/// Возвращает кол-во кодов маркировки требуемое в заказе
 		/// </summary>
 		int GetCodesRequiredByOrder(IUnitOfWork uow, int orderId);

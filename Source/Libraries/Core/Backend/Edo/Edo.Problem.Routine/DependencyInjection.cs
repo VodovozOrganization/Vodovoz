@@ -1,8 +1,9 @@
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
 using Edo.Problems;
 using Edo.Transport;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
@@ -24,15 +25,20 @@ namespace Edo.Problem.Routine
 				.AddCoreDataRepositories()
 				.AddCore()
 				.AddEdo()
-				.AddEdoProblemRegistration();
+				.AddEdoProblemRegistration()
+				.AddEdoNotifications();
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+ 			services.AddScoped<EdoProblemRoutineNotificationFactory>();
+			services.AddScoped<IEdoProblemRoutineNotificationService, EdoProblemRoutineNotificationService>();
 
 			services
 				.AddOrderSelfDeliveryPaidProblem()
 				.AddOrderFiscalDocumentSendErrorProblem()
 				.AddReceiptNightSendProblem()
 				.AddOrderStatusProblem()
+				.AddCodeDuplicatedProblem()
+				.AddReceiptContactProblem()
 				;
 
 			return services;
@@ -75,6 +81,14 @@ namespace Edo.Problem.Routine
 			return services;
 		}
 
+		private static IServiceCollection AddCodeDuplicatedProblem(this IServiceCollection services)
+		{
+			services.ConfigureOptions<ConfigureCodeDuplicatedProblemWorkerOptions>();
+			services.AddScoped<CodeDuplicatedProblemService>();
+
+			return services;
+		}
+
 		private static IServiceCollection AddReceiptNightSendProblem(this IServiceCollection services)
 		{
 			services.ConfigureOptions<ConfigureReceiptNightSendProblemWorkerOptions>();
@@ -82,6 +96,13 @@ namespace Edo.Problem.Routine
 
 			return services;
 		}
+
+		private static IServiceCollection AddReceiptContactProblem(this IServiceCollection services) =>
+			services
+				.ConfigureOptions<ConfigureReceiptContactProblemWorkerOptions>()
+				.AddScoped<IReceiptContactProblemService, ReceiptContactProblemService>()
+				.AddScoped<IReceiptEdoTaskResendService, ReceiptEdoTaskResendService>()
+				.AddScoped<IReceiptContactProblemNotificationService, ReceiptContactProblemNotificationService>();
 		
 		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)
 		{

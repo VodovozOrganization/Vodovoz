@@ -104,7 +104,6 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Errors.Edo;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Errors.Orders;
 using Vodovoz.Extensions;
@@ -151,6 +150,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
@@ -161,6 +161,7 @@ using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
+using VodovozBusiness.Errors.Edo;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.NotificationSenders;
@@ -3613,9 +3614,20 @@ namespace Vodovoz
 
 			var stopwatch = Stopwatch.StartNew();
 			_logger.Info("ЭДО заказа {OrderId}: начало конфигурации ViewModel", Entity.Id);
-			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
-			edoForOrderViewModel.Setup(UoW, Entity.Id);
-			edofororderview1.ViewModel = edoForOrderViewModel;
+			var edoInOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
+			edoInOrderViewModel.Setup(UoW, Entity.Id);
+			var transferTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
+					this,
+					edoInOrderViewModel.OrderCodesViewModel,
+					UoW,
+					NavigationManager,
+					_lifetimeScope)
+				.ForProperty(viewModel => viewModel.TransferTargetOrder)
+				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(
+					filter => filter.RestrictHideService = true)
+				.Finish();
+			edoInOrderViewModel.OrderCodesViewModel.ConfigureTransferTargetOrderEntry(transferTargetOrderViewModel);
+			edoinorderview1.ViewModel = edoInOrderViewModel;
 			_edoInOrderViewModelConfigured = true;
 			_logger.Info("ЭДО заказа {OrderId}: конфигурация ViewModel завершена за {Elapsed}", Entity.Id, stopwatch.Elapsed);
 		}

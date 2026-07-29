@@ -12,6 +12,7 @@ namespace Vodovoz.Views.TrueMark
 		{
 			this.Build();
 
+			ViewModel.OrderCodesViewModel.ConfigureTransferTargetOrderEntry(ViewModel);
 			ordercodesview.ViewModel = ViewModel.OrderCodesViewModel;
 		}
 	}

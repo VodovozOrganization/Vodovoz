@@ -32,7 +32,7 @@ namespace Edo.Problems.Validation.Sources
 			get => "Подождать доставки заказа. Если сеть, то подождать отправки заказа со склада в путь";
 		}
 
-		public string GetTemplateMessage(EdoTask edoTask)
+		public override string GetTemplatedMessage(EdoTask edoTask)
 		{
 			var orderEdoRequest = GetEdoRequest(edoTask);
 			if(orderEdoRequest == null)
