@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
@@ -749,7 +749,7 @@ namespace EdoService.Library
 					uow.Save(newRequest);
 					uow.Commit();
 
-					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
+					_bus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
 
 					return Result.Success($"Документ отправлен на переформирование. \n" +
 						$"Обновите список документов.");
@@ -807,7 +807,7 @@ namespace EdoService.Library
 					uow.Save(newRequest);
 					uow.Commit();
 
-					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
+					_bus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
 
 					return Result.Success($"Документ отправлен на переформирование. \n" +
 						$"Обновите список документов.");

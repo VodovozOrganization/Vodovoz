@@ -1,6 +1,5 @@
-using EdoService.Library;
+﻿using EdoService.Library;
 using Gamma.Binding.Core;
-using QS.Commands;
 using QS.Dialog;
 using QS.ViewModels;
 using System;
@@ -16,14 +15,9 @@ namespace Vodovoz.ViewModels.Edo
 	{
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEdoService _edoService;
-		private readonly IInteractiveService _interactiveService;
 		private EdoInOrderDocumentHistoryRowViewModel _selectedDocument;
 		private IEnumerable<BusyCommand> _actions = Enumerable.Empty<BusyCommand>();
 
-		public EdoInOrderDocumentActionsViewModel(
-			IEdoService edoService,
-			IInteractiveService interactiveService
-			)
 		public EdoInOrderDocumentActionsViewModel(
 			IInteractiveService interactiveService,
 			IEdoService edoService
@@ -89,7 +83,7 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			if(_edoService.CanResendEdoDocument(document.EdoDocumentStatus))
 			{
-				newActions.Add(new NamedCommand(
+				newActions.Add(new BusyCommand(
 					"Переотправить УПД",
 					() => 
 					{ 
@@ -119,7 +113,7 @@ namespace Vodovoz.ViewModels.Edo
 
 			if(document.TaskReceiptStage == EdoReceiptStatus.New && document.TaskStatus == EdoTaskStatus.Problem)
 			{
-				newActions.Add(new NamedCommand(
+				newActions.Add(new BusyCommand(
 					"Переотправить чек",
 					() =>
 					{
@@ -152,9 +146,7 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document
 			)
 		{
-			var isSavedCodes = document.TaskType == EdoTaskType.SaveCode;
-
-			if(isSavedCodes)
+			if(document.TaskType is EdoTaskType.SaveCode)
 			{
 				newActions.Add(new BusyCommand(
 					"Переотправить",
@@ -168,8 +160,8 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document
 			)
 		{
-			var isReceipt = document.TaskType == EdoTaskType.Receipt;
-			var receiptSavedToPool = document.TaskReceiptStage == EdoReceiptStatus.SavedToPool;
+			var isReceipt = document.TaskType is EdoTaskType.Receipt;
+			var receiptSavedToPool = document.TaskReceiptStage is EdoReceiptStatus.SavedToPool;
 
 			if(isReceipt && receiptSavedToPool)
 			{
