@@ -1,6 +1,5 @@
 ﻿using Core.Infrastructure;
 using Edo.Transport;
-using EdoService.Library;
 using NHibernate;
 using NHibernate.Type;
 using QS.Dialog;
@@ -43,7 +42,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			IUnitOfWorkFactory uowFactory,
 			EdoProcessFilterViewModel filterViewModel,
 			IInteractiveService interactiveService,
-			IEdoService edoService,
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			IGenericRepository<DocumentEdoTask> documentRepository,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
