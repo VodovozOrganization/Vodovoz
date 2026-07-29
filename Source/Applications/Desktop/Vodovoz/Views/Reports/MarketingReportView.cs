@@ -58,7 +58,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			ytreeReportIndicatorsRows.RowActivated += OnReportRowActivated;
 			ViewModel.ShowReportAction = ShowReport;
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
-			hpaned1.Position = 500;
+			hpaned1.Position = 680;
 		}
 
 		private void ShowReport()
@@ -86,7 +86,11 @@ namespace Vodovoz.ReportsParameters.Sales
 			_filterView?.Destroy();
 			_filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);
 			vboxParameters.Add(_filterView);
-			_filterView.HeightRequest = ViewModel.FilterViewModel.Filters.Count * 21 + 70;
+			var boxChild = (Box.BoxChild)vboxParameters[_filterView];
+			boxChild.Expand = false;
+			boxChild.Fill = false;
+			// Компактная высота: у отчёта мало фильтров, не растягиваем на всю панель
+			_filterView.HeightRequest = 220;
 			_filterView.Show();
 		}
 
