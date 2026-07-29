@@ -601,12 +601,10 @@ namespace EdoService.Library
 
 				if(receiptTask.ReceiptStatus == EdoReceiptStatus.SavedToPool)
 				{
-					var hasOtherRequests = uow.Session.QueryOver<FormalEdoRequest>()
-						.Where(x => x.Order.Id == request.Order.Id)
-						.Where(x => x.Task.Id != orderEdoTaskId)
-						.Select(x => x.Id)
-						.List<int>()
-						.Any();
+					var hasOtherRequests = _edoRequestRepository.GetCount(uow, x =>
+						x.Order.Id == request.Order.Id
+						&& x.Task.Id != orderEdoTaskId
+					) > 0;
 
 					if(hasOtherRequests)
 					{
