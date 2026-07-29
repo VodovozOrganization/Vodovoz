@@ -21,6 +21,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
+using static Vodovoz.Core.Domain.Permissions.LogisticPermissions;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 {

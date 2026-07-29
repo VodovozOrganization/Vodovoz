@@ -91,5 +91,7 @@ namespace EdoService.Library
 		/// которая попала в проблему в статусе New
 		/// </summary>
 		void RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
+		Result<string> TryResendUpdDocument(int orderEdoTaskId);
+		Result<string> TryResendReceiptDocument(int orderEdoTaskId);
 	}
 }
