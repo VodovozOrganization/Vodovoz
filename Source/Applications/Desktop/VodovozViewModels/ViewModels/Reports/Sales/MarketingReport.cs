@@ -49,6 +49,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			MarketingReportGroupingType groupingType,
 			MarketingReportDateType dateType,
 			int totalCounterparties,
+			int mobileAppEmployeeId,
+			int vodovozWebSiteEmployeeId,
 			IList<MarketingReportOrderNode> orders,
 			IList<MarketingReportClientHistoryNode> clientHistories)
 		{
@@ -58,6 +60,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				groupingType,
 				dateType,
 				totalCounterparties,
+				mobileAppEmployeeId,
+				vodovozWebSiteEmployeeId,
 				orders,
 				clientHistories);
 
@@ -79,6 +83,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			MarketingReportGroupingType groupingType,
 			MarketingReportDateType dateType,
 			int totalCounterparties,
+			int mobileAppEmployeeId,
+			int vodovozWebSiteEmployeeId,
 			IList<MarketingReportOrderNode> orders,
 			IList<MarketingReportClientHistoryNode> clientHistories)
 		{
@@ -101,10 +107,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.ToList();
 				case MarketingReportGroupingType.OrderAuthor:
 					return orders
-						.GroupBy(x => new { x.AuthorId, x.AuthorName })
-						.OrderBy(x => x.Key.AuthorName)
+						.GroupBy(x => GetOrderAuthorGroupKey(x, mobileAppEmployeeId, vodovozWebSiteEmployeeId))
+						.OrderBy(x => GetOrderAuthorGroupSortOrder(x.Key))
+						.ThenBy(x => x.Key)
 						.Select(group => CreateGroup(
-							group.Key.AuthorName,
+							group.Key,
 							group.ToList(),
 							historyByClient,
 							startDate,
@@ -338,6 +345,45 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private static bool IsInPeriod(DateTime date, DateTime startDate, DateTime endDate) =>
 			date.Date >= startDate.Date && date.Date <= endDate.Date;
+
+		private const string VodovozWebSiteGroupTitle = "Сайт ВВ";
+		private const string MobileAppGroupTitle = "Мобильное приложение";
+		private const string WithoutSubdivisionGroupTitle = "Без подразделения";
+
+		private static string GetOrderAuthorGroupKey(
+			MarketingReportOrderNode order,
+			int mobileAppEmployeeId,
+			int vodovozWebSiteEmployeeId)
+		{
+			if(order.AuthorId == vodovozWebSiteEmployeeId)
+			{
+				return VodovozWebSiteGroupTitle;
+			}
+
+			if(order.AuthorId == mobileAppEmployeeId)
+			{
+				return MobileAppGroupTitle;
+			}
+
+			return string.IsNullOrWhiteSpace(order.AuthorSubdivisionName)
+				? WithoutSubdivisionGroupTitle
+				: order.AuthorSubdivisionName;
+		}
+
+		private static int GetOrderAuthorGroupSortOrder(string groupKey)
+		{
+			if(groupKey == VodovozWebSiteGroupTitle)
+			{
+				return 0;
+			}
+
+			if(groupKey == MobileAppGroupTitle)
+			{
+				return 1;
+			}
+
+			return 2;
+		}
 
 		private static IReadOnlyList<MarketingReportDisplayRow> BuildDisplayRows(IReadOnlyList<MarketingReportGroup> groups)
 		{

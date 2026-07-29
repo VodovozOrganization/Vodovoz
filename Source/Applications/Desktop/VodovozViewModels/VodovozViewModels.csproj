@@ -1077,6 +1077,7 @@
     <Compile Include="ViewModels\Reports\Sales\MarketingReportGroup.cs" />
     <Compile Include="ViewModels\Reports\Sales\MarketingReportMetrics.cs" />
     <Compile Include="ViewModels\Reports\Sales\MarketingReportDisplayRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportIndicatorDescriptions.cs" />
     <Compile Include="ViewModels\Reports\Sales\MarketingReport.cs" />
     <Compile Include="ViewModels\Reports\Sales\MarketingReport.ExcelExporter.cs" />
     <Compile Include="ViewModels\Reports\Sales\MarketingReportViewModel.cs" />

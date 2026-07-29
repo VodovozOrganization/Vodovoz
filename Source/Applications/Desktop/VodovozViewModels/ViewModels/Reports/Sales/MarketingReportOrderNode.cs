@@ -15,6 +15,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public int? Rating { get; set; }
 		public int AuthorId { get; set; }
 		public string AuthorName { get; set; }
+		public string AuthorSubdivisionName { get; set; }
 		public CounterpartyCompositeClassification? AbcClassification { get; set; }
 
 		public DateTime GetReportDate(MarketingReportDateType dateType) =>

@@ -17,6 +17,7 @@ using QS.Project.DB;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Client;
@@ -28,6 +29,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
+using Vodovoz.Settings.Employee;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -39,6 +41,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IEmployeeSettings _employeeSettings;
 		private readonly bool _userIsSalesRepresentative;
 
 		private IncludeExludeFiltersViewModel _filterViewModel;
@@ -60,7 +63,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			IUserService userService,
 			IEmployeeRepository employeeRepository,
 			IFileDialogService fileDialogService,
-			IGuiDispatcher guiDispatcher)
+			IGuiDispatcher guiDispatcher,
+			IEmployeeSettings employeeSettings)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(currentPermissionService is null)
@@ -77,6 +81,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 
 			Title = "Маркетинговый отчет";
 			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
@@ -263,6 +268,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				GroupingType,
 				DateType,
 				totalCounterparties,
+				_employeeSettings.MobileAppEmployee,
+				_employeeSettings.VodovozWebSiteEmployee,
 				orders,
 				clientHistories);
 		}
@@ -285,6 +292,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			Employee authorAlias = null;
+			Subdivision authorSubdivisionAlias = null;
 			Counterparty counterpartyAlias = null;
 			CounterpartyClassification counterpartyClassificationAlias = null;
 			OrderRating orderRatingAlias = null;
@@ -344,8 +352,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				Projections.Constant(0),
 				Projections.Property(() => authorAlias.Id));
 
+			var authorSubdivisionNameProjection = Projections.Conditional(
+				Restrictions.IsNotNull(Projections.Property(() => authorSubdivisionAlias.ShortName)),
+				Projections.Property(() => authorSubdivisionAlias.ShortName),
+				Projections.Constant("Без подразделения"));
+
 			var query = _unitOfWork.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => authorAlias.Subdivision, () => authorSubdivisionAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.JoinEntityAlias(
 					() => counterpartyClassificationAlias,
@@ -390,6 +404,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					.SelectSubQuery(ratingSubquery).WithAlias(() => resultAlias.Rating)
 					.Select(orderAuthorIdProjection).WithAlias(() => resultAlias.AuthorId)
 					.Select(orderAuthorNameProjection).WithAlias(() => resultAlias.AuthorName)
+					.Select(authorSubdivisionNameProjection).WithAlias(() => resultAlias.AuthorSubdivisionName)
 					.Select(classificationProjection).WithAlias(() => resultAlias.AbcClassification))
 				.SetTimeout(120)
 				.TransformUsing(Transformers.AliasToBean<MarketingReportOrderNode>())
@@ -511,13 +526,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void ShowInfo()
 		{
-			var info = "Маркетинговый отчет показывает динамику активной клиентской базы (АКБ) и ключевые маркетинговые метрики.\r\n\r\n" +
-				"Период по умолчанию — последние 3 месяца.\r\n" +
-				"Группировка: все данные, категория ABC_XYZ или автор заказа.\r\n" +
-				"Статусы заказов по умолчанию совпадают с отчетом по оборачиваемости с динамикой.\r\n\r\n" +
-				"Результат можно выгрузить в Excel.";
-
-			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Info,
+				MarketingReportIndicatorDescriptions.GetInfoText(),
+				"Информация");
 		}
 	}
 }
