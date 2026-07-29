@@ -62,6 +62,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 		decimal TerminalTransferedCountToRouteList(IUnitOfWork unitOfWork, RouteList routeList);
 		IList<DocumentPrintHistory> GetPrintsHistory(IUnitOfWork uow, RouteList routeList);
 		IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null);
+
+		/// <summary>
+		/// Есть ли у водителя маршрутные листы в одном из указанных статусов
+		/// </summary>
+		Task<bool> HasDriverRouteListsInStatusesAsync(
+			IUnitOfWork uow,
+			int driverId,
+			IReadOnlyCollection<RouteListStatus> statuses,
+			CancellationToken cancellationToken);
 		IList<RouteList> GetRouteListsByIds(IUnitOfWork uow, int[] routeListsIds);
 		RouteList GetRouteListById(IUnitOfWork uow, int routeListsId);
 		GoodsInRouteListResultWithSpecialRequirements GetTerminalInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList,

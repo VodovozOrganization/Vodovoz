@@ -305,6 +305,8 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailganerEventsDistributorApi/MailganerEventsDistributorApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/OutboxWorker/OutboxWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Notifications/CustomerNotificationsWorker/CustomerNotificationsWorker.csproj")
+				
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Mango/Mango.Employees.Worker/Mango.Employees.Worker.csproj")
 
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Admin.Worker/Edo.Admin.Worker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.CodesSaver.Worker/Edo.CodesSaver.Worker.csproj")
