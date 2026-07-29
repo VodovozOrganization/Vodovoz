@@ -177,136 +177,156 @@ namespace Edo.Problem.Routine.Services
 
 		public async Task ProcessProblemTasks(CancellationToken cancellationToken)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			try
 			{
-				_logger.LogInformation("Начинаем поиск проблем ЭДО с ошибкой нехватки кодов в пуле");
+				cancellationToken.ThrowIfCancellationRequested();
 
-				var problems = await _edoRepository.GetActiveProblems(uow,
-					_problemSourceName,
-					_options.BatchSize,
-					_options.MaxAttempts,
-					cancellationToken);
-
-				if(!problems.Any())
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
-					_logger.LogDebug("Нет активных проблем ЭДО с ошибкой нехватки кодов для обработки");
-					return;
-				}
+					_logger.LogInformation("Начинаем поиск проблем ЭДО с ошибкой нехватки кодов в пуле");
 
-				_logger.LogInformation("Найдено {Count} активных проблем ЭДО с ошибкой нехватки кодов", problems.Count);
+					var problems = await _edoRepository.GetActiveProblems(uow,
+						_problemSourceName,
+						_options.BatchSize,
+						_options.MaxAttempts,
+						cancellationToken);
 
-				var processedCount = 0;
-				var failedCount = 0;
-				var notifiedCount = 0;
-
-				foreach(var problem in problems)
-				{
-					try
+					if(!problems.Any())
 					{
-						var edoTask = await _edoRepository.GetOrderEdoTaskById(uow, problem.EdoTask.Id, cancellationToken);
-
-						if(edoTask is null)
-						{
-							_logger.LogWarning(
-								"Проблема {ProblemId}: связанная задача ЭДО не является OrderEdoTask или не найдена",
-								problem.Id);
-							continue;
-						}
-
-						var currentAttempt = (problem.Attempts ?? 0) + 1;
-						problem.Attempts = currentAttempt;
-
-						_logger.LogDebug(
-							"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: попытка обработки #{Attempt}, заказ №{OrderId}",
-							problem.Id,
-							edoTask.Id,
-							currentAttempt,
-							edoTask.FormalEdoRequest?.Order?.Id);
-
-						await TryResumeTaskAsync(edoTask, cancellationToken);
-
-						problem.State = TaskProblemState.Solved;
-						problem.Attempts = 0;
-						await uow.CommitAsync(cancellationToken);
-
-						processedCount++;
-						_logger.LogInformation(
-							"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: успешно обработана, проблема закрыта",
-							problem.Id,
-							edoTask.Id);
+						_logger.LogDebug("Нет активных проблем ЭДО с ошибкой нехватки кодов для обработки");
+						return;
 					}
-					catch(ArgumentException ex)
+
+					_logger.LogInformation("Найдено {Count} активных проблем ЭДО с ошибкой нехватки кодов", problems.Count);
+
+					var processedCount = 0;
+					var failedCount = 0;
+					var notifiedCount = 0;
+
+					foreach(var problem in problems)
 					{
-						var currentAttempt = problem.Attempts ?? 0;
-
-						var edoTask = await _edoRepository.GetOrderEdoTaskById(uow, problem.EdoTask.Id, cancellationToken);
-
-						_logger.LogWarning(ex,
-							"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: проверка не пройдена, попытка #{Attempt}",
-							problem.Id,
-							edoTask.Id,
-							currentAttempt);
-
-						var maxAttempts = _options.MaxAttempts;
-
-						if(currentAttempt >= maxAttempts)
+						try
 						{
-							_logger.LogError(
-								"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: превышен лимит попыток ({MaxAttempts}), отправляем уведомление",
-								problem.Id,
-								edoTask.Id,
-								maxAttempts);
+							var edoTask = await _edoRepository.GetOrderEdoTaskById(uow, problem.EdoTask.Id, cancellationToken);
 
-							var notificationSent = await TryNotifyAsync(
-								uow,
-								problem,
-								cancellationToken);
-
-							if(notificationSent)
-							{
-								notifiedCount++;
-								_logger.LogInformation(
-									"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: уведомление отправлено успешно",
-									problem.Id,
-									edoTask.Id);
-							}
-							else
+							if(edoTask is null)
 							{
 								_logger.LogWarning(
-									"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: не удалось отправить уведомление",
-									problem.Id,
-									edoTask.Id);
+									"Проблема {ProblemId}: связанная задача ЭДО не является OrderEdoTask или не найдена",
+									problem.Id);
+								continue;
 							}
+
+							var currentAttempt = (problem.Attempts ?? 0) + 1;
+							problem.Attempts = currentAttempt;
+
+							_logger.LogDebug(
+								"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: попытка обработки #{Attempt}, заказ №{OrderId}",
+								problem.Id,
+								edoTask.Id,
+								currentAttempt,
+								edoTask.FormalEdoRequest?.Order?.Id);
+
+							await TryResumeTaskAsync(edoTask, cancellationToken);
 
 							problem.State = TaskProblemState.Solved;
 							problem.Attempts = 0;
+							await uow.CommitAsync(cancellationToken);
+
+							processedCount++;
+							_logger.LogInformation(
+								"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: успешно обработана, проблема закрыта",
+								problem.Id,
+								edoTask.Id);
 						}
+						catch(ArgumentException ex)
+						{
+							var currentAttempt = problem.Attempts ?? 0;
 
-						failedCount++;
-						await uow.CommitAsync(cancellationToken);
+							var edoTask = await _edoRepository.GetOrderEdoTaskById(uow, problem.EdoTask.Id, cancellationToken);
+							var orderId = edoTask.FormalEdoRequest.Order.Id;
+
+							_logger.LogWarning(ex,
+								"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: проверка не пройдена, попытка #{Attempt}",
+								problem.Id,
+								edoTask.Id,
+								currentAttempt);
+
+							var maxAttempts = _options.MaxAttempts;
+
+							if(currentAttempt >= maxAttempts)
+							{
+								_logger.LogError(
+									"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: превышен лимит попыток ({MaxAttempts}), отправляем уведомление",
+									problem.Id,
+									edoTask.Id,
+									maxAttempts);
+
+								var notificationSent = await TryNotifyAsync(
+									uow,
+									orderId,
+									problem,
+									cancellationToken);
+
+								if(notificationSent)
+								{
+									notifiedCount++;
+									_logger.LogInformation(
+										"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: уведомление отправлено успешно",
+										problem.Id,
+										edoTask.Id);
+								}
+								else
+								{
+									_logger.LogWarning(
+										"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: не удалось отправить уведомление",
+										problem.Id,
+										edoTask.Id);
+								}
+
+								problem.State = TaskProblemState.Solved;
+								problem.Attempts = 0;
+							}
+
+							failedCount++;
+							await uow.CommitAsync(cancellationToken);
+						}
+						catch(Exception ex)
+						{
+							failedCount++;
+							var taskId = (problem.EdoTask as OrderEdoTask)?.Id ?? problem.EdoTask?.Id ?? 0;
+							_logger.LogError(ex,
+								"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: неожиданная ошибка при обработке",
+								problem.Id,
+								taskId);
+							throw;
+						}
 					}
-					catch(Exception ex)
-					{
-						failedCount++;
-						var taskId = (problem.EdoTask as OrderEdoTask)?.Id ?? problem.EdoTask?.Id ?? 0;
-						_logger.LogError(ex,
-							"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: неожиданная ошибка при обработке",
-							problem.Id,
-							taskId);
-					}
+
+					_logger.LogInformation(
+						"Обработка проблем ЭДО с ошибкой нехватки кодов завершена: " +
+						"Обработано {ProcessedCount}, Ошибок {FailedCount}, Уведомлений {NotifiedCount}",
+						processedCount,
+						failedCount,
+						notifiedCount);
 				}
-
-				_logger.LogInformation(
-					"Обработка проблем ЭДО с ошибкой нехватки кодов завершена: " +
-					"Обработано {ProcessedCount}, Ошибок {FailedCount}, Уведомлений {NotifiedCount}",
-					processedCount,
-					failedCount,
-					notifiedCount);
+			}
+			catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+			{
+				_logger.LogInformation("Обработка проблем ЭДО с ошибкой нехватки кодов была отменена");
+				throw;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Возникла непредвиденная ошибка в сервисе {ServiceName}", 
+					nameof(OrderEdoCodePoolMissingProblemService));
+				throw;
 			}
 		}
 
 		public async Task<bool> TryNotifyAsync(
 			IUnitOfWork uow,
+			int orderId,
 			ExceptionEdoTaskProblem problem,
 			CancellationToken cancellationToken)
 		{
@@ -324,6 +344,7 @@ namespace Edo.Problem.Routine.Services
 
 			var notification = _notificationMessageFactory.Create(
 				EdoNotificationType.CodePoolMissingProblem,
+				("OrderId", orderId.ToString()),
 				("Gtin", gtin ?? "не указан"),
 				("NomenclatureName", nomenclatureName ?? "не указана"));
 
