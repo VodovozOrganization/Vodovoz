@@ -47,7 +47,8 @@ namespace DeliveryRulesService.Factories
 				"BasketDeliverySchedule",
 				6,
 				null,
-				"Бесплатная доставка ;)"
+				"Бесплатная доставка ;)",
+				progressBarInfo
 			);
 		}
 	}
