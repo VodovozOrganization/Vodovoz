@@ -17,6 +17,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
 using VodovozBusiness.Services.TrueMark;
+using TrueMark.Codes.Pool;
 using DriverComplaintServiceV5 = DriverAPI.Library.V5.Services.DriverComplaintService;
 using DriverMobileAppActionRecordServiceV5 = DriverAPI.Library.V5.Services.DriverMobileAppActionRecordService;
 using EmployeeServiceV5 = DriverAPI.Library.V5.Services.EmployeeService;
@@ -136,6 +137,8 @@ namespace DriverAPI.Library
 		/// <returns>Обновленная коллекция сервисов</returns>
 		public static IServiceCollection AddTrueMarkCodesCheckDependencies(this IServiceCollection services)
 		{
+			services.AddCodesPool();
+
 			return services
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()

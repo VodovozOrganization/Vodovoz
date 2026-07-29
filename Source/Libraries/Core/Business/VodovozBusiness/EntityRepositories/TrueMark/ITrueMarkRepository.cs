@@ -86,12 +86,21 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
-		/// Возвращает отклоненные коды маркировки, связанные с ЭДО-заявками заказа.
+		/// Возвращает отклоненные коды маркировки, принадлежащие заказу по источнику кода.
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>Список отклоненных кодов товара</returns>
 		IList<TrueMarkProductCode> GetRejectedProductCodesByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает перенесенный код отмененного заказа для указанного заказа-получателя и GTIN.
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="orderId">Номер заказа-получателя</param>
+		/// <param name="gtin">GTIN отсканированного водителем кода</param>
+		/// <returns>Перенесенный код или null, если код не найден</returns>
+		AutoTrueMarkProductCode GetTransferredProductCode(IUnitOfWork uow, int orderId, string gtin);
 
 		/// <summary>
 		/// Возвращает коды товара, в которых указаны переданные идентификационные коды.

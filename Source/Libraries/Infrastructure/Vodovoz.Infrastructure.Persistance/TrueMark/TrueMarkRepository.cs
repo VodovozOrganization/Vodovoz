@@ -317,14 +317,191 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 		public IList<TrueMarkProductCode> GetRejectedProductCodesByOrder(IUnitOfWork uow, int orderId)
 		{
-			var rejectedCodes = uow.Session.Query<TrueMarkProductCode>()
-				.Fetch(x => x.SourceCode)
-				.Where(x => x.CustomerEdoRequest.Order.Id == orderId)
-				.Where(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected)
-				.Where(x => x.SourceCode != null)
+			RouteListItemTrueMarkProductCode routeListProductCodeAlias = null;
+			RouteListItemEntity routeListItemAlias = null;
+			CarLoadDocumentItemTrueMarkProductCode carLoadProductCodeAlias = null;
+			CarLoadDocumentItemEntity carLoadDocumentItemAlias = null;
+			SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryProductCodeAlias = null;
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemAlias = null;
+			SelfDeliveryDocumentEntity selfDeliveryDocumentAlias = null;
+			AutoTrueMarkProductCode autoProductCodeAlias = null;
+			FormalEdoRequest edoRequestAlias = null;
+
+			var routeListProductCodes = uow.Session.QueryOver(() => routeListProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.JoinAlias(
+					() => routeListProductCodeAlias.RouteListItem,
+					() => routeListItemAlias)
+				.Where(() => routeListItemAlias.Order.Id == orderId)
+				.Where(() => routeListProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
+				.Where(() => routeListProductCodeAlias.SourceCode != null)
+				.List();
+
+			var carLoadProductCodes = uow.Session.QueryOver(() => carLoadProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.JoinAlias(
+					() => carLoadProductCodeAlias.CarLoadDocumentItem,
+					() => carLoadDocumentItemAlias)
+				.Where(() => carLoadDocumentItemAlias.OrderId == orderId)
+				.Where(() => carLoadProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
+				.Where(() => carLoadProductCodeAlias.SourceCode != null)
+				.List();
+
+			var selfDeliveryProductCodes = uow.Session.QueryOver(() => selfDeliveryProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.JoinAlias(
+					() => selfDeliveryProductCodeAlias.SelfDeliveryDocumentItem,
+					() => selfDeliveryDocumentItemAlias)
+				.JoinAlias(
+					() => selfDeliveryDocumentItemAlias.Document,
+					() => selfDeliveryDocumentAlias)
+				.Where(() => selfDeliveryDocumentAlias.Order.Id == orderId)
+				.Where(() => selfDeliveryProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
+				.Where(() => selfDeliveryProductCodeAlias.SourceCode != null)
+				.List();
+
+			var autoProductCodes = uow.Session.QueryOver(() => autoProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.JoinAlias(
+					() => autoProductCodeAlias.CustomerEdoRequest,
+					() => edoRequestAlias)
+				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.Where(() => autoProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
+				.Where(() => autoProductCodeAlias.SourceCode != null)
+				.List();
+
+			return routeListProductCodes
+				.Cast<TrueMarkProductCode>()
+				.Concat(carLoadProductCodes)
+				.Concat(selfDeliveryProductCodes)
+				.Concat(autoProductCodes)
+				.ToList();
+		}
+
+		public AutoTrueMarkProductCode GetTransferredProductCode(IUnitOfWork uow, int orderId, string gtin)
+		{
+			var manualRequests = uow.Session.Query<ManualEdoRequest>()
+				.Where(x => x.Order.Id == orderId)
+				.Where(x => x.Source == EdoRequestSource.Manual)
+				.OrderByDescending(x => x.Time)
 				.ToList();
 
-			return rejectedCodes;
+			foreach(var manualRequest in manualRequests)
+			{
+				var transferredProductCode = manualRequest.ProductCodes
+					.OfType<AutoTrueMarkProductCode>()
+					.FirstOrDefault(x =>
+						x.SourceCode is null
+						&& x.ResultCode?.Gtin == gtin
+						&& x.SourceCodeStatus == SourceProductCodeStatus.Accepted
+						&& x.Problem == ProductCodeProblem.None);
+
+				if(transferredProductCode is null)
+				{
+					continue;
+				}
+
+				if(IsRejectedCodeFromCanceledOrder(uow, transferredProductCode.ResultCode.Id))
+				{
+					return transferredProductCode;
+				}
+			}
+
+			return null;
+		}
+
+		private static bool IsRejectedCodeFromCanceledOrder(IUnitOfWork uow, int identificationCodeId)
+		{
+			RouteListItemTrueMarkProductCode routeListProductCodeAlias = null;
+			RouteListItemEntity routeListItemAlias = null;
+			Vodovoz.Domain.Orders.Order routeListOrderAlias = null;
+
+			var hasRouteListProductCode = uow.Session.QueryOver(() => routeListProductCodeAlias)
+				.JoinAlias(
+					() => routeListProductCodeAlias.RouteListItem,
+					() => routeListItemAlias)
+				.JoinAlias(
+					() => routeListItemAlias.Order,
+					() => routeListOrderAlias)
+				.Where(() => routeListProductCodeAlias.SourceCode.Id == identificationCodeId)
+				.Where(() => routeListProductCodeAlias.ResultCode == null)
+				.Where(() => routeListProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
+				.Where(() => routeListOrderAlias.OrderStatus == OrderStatus.Canceled)
+				.Take(1)
+				.RowCount() > 0;
+
+			if(hasRouteListProductCode)
+			{
+				return true;
+			}
+
+			CarLoadDocumentItemTrueMarkProductCode carLoadProductCodeAlias = null;
+			CarLoadDocumentItemEntity carLoadDocumentItemAlias = null;
+			Vodovoz.Domain.Orders.Order carLoadOrderAlias = null;
+
+			var hasCarLoadProductCode = uow.Session.QueryOver(() => carLoadProductCodeAlias)
+				.JoinAlias(
+					() => carLoadProductCodeAlias.CarLoadDocumentItem,
+					() => carLoadDocumentItemAlias)
+				.JoinEntityAlias(
+					() => carLoadOrderAlias,
+					() => carLoadOrderAlias.Id == carLoadDocumentItemAlias.OrderId)
+				.Where(() => carLoadProductCodeAlias.SourceCode.Id == identificationCodeId)
+				.Where(() => carLoadProductCodeAlias.ResultCode == null)
+				.Where(() => carLoadProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
+				.Where(() => carLoadOrderAlias.OrderStatus == OrderStatus.Canceled)
+				.Take(1)
+				.RowCount() > 0;
+
+			if(hasCarLoadProductCode)
+			{
+				return true;
+			}
+
+			SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryProductCodeAlias = null;
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemAlias = null;
+			SelfDeliveryDocumentEntity selfDeliveryDocumentAlias = null;
+			Vodovoz.Domain.Orders.Order selfDeliveryOrderAlias = null;
+
+			var hasSelfDeliveryProductCode = uow.Session.QueryOver(() => selfDeliveryProductCodeAlias)
+				.JoinAlias(
+					() => selfDeliveryProductCodeAlias.SelfDeliveryDocumentItem,
+					() => selfDeliveryDocumentItemAlias)
+				.JoinAlias(
+					() => selfDeliveryDocumentItemAlias.Document,
+					() => selfDeliveryDocumentAlias)
+				.JoinAlias(
+					() => selfDeliveryDocumentAlias.Order,
+					() => selfDeliveryOrderAlias)
+				.Where(() => selfDeliveryProductCodeAlias.SourceCode.Id == identificationCodeId)
+				.Where(() => selfDeliveryProductCodeAlias.ResultCode == null)
+				.Where(() => selfDeliveryProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
+				.Where(() => selfDeliveryOrderAlias.OrderStatus == OrderStatus.Canceled)
+				.Take(1)
+				.RowCount() > 0;
+
+			if(hasSelfDeliveryProductCode)
+			{
+				return true;
+			}
+
+			AutoTrueMarkProductCode autoProductCodeAlias = null;
+			FormalEdoRequest edoRequestAlias = null;
+			Vodovoz.Domain.Orders.Order autoOrderAlias = null;
+
+			return uow.Session.QueryOver(() => autoProductCodeAlias)
+				.JoinAlias(
+					() => autoProductCodeAlias.CustomerEdoRequest,
+					() => edoRequestAlias)
+				.JoinAlias(
+					() => edoRequestAlias.Order,
+					() => autoOrderAlias)
+				.Where(() => autoProductCodeAlias.SourceCode.Id == identificationCodeId)
+				.Where(() => autoProductCodeAlias.ResultCode == null)
+				.Where(() => autoProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
+				.Where(() => autoOrderAlias.OrderStatus == OrderStatus.Canceled)
+				.Take(1)
+				.RowCount() > 0;
 		}
 
 		public IList<TrueMarkProductCode> GetProductCodesByIdentificationCodeIds(

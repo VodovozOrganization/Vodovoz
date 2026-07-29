@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Repositories;
@@ -14,6 +15,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.TrueMark;
 using VodovozBusiness.Domain.Client.Specifications;
 using TrueMarkCodeErrors = Vodovoz.Core.Domain.Errors.TrueMarkCodeErrors;
 using NomenclatureErrors = Vodovoz.Errors.Goods.NomenclatureErrors;
@@ -26,17 +28,23 @@ namespace VodovozBusiness.Services.TrueMark
 		private readonly IGenericRepository<RouteListItemEntity> _routeListItemRepository;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkRepository _trueMarkRepository;
+		private readonly TrueMarkCodesPoolFactory _trueMarkCodesPoolFactory;
 
 		public RouteListItemTrueMarkProductCodesProcessingService(
 			IOrderRepository orderRepository,
 			IGenericRepository<RouteListItemEntity> routeListItemRepository,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService)
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkRepository trueMarkRepository,
+			TrueMarkCodesPoolFactory trueMarkCodesPoolFactory)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService;
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
+			_trueMarkCodesPoolFactory = trueMarkCodesPoolFactory ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolFactory));
 		}
 		
 		public Result ValidateTrueMarkCodeIsInAggregationCode(TrueMarkAnyCode trueMarkCodeResult)
@@ -109,6 +117,14 @@ namespace VodovozBusiness.Services.TrueMark
 
 					if(!isCodeAlreadyAddedToRouteListItem)
 					{
+						await ReturnTransferredProductCodeToPool(
+							uow,
+							routeListAddress.Order.Id,
+							code.TrueMarkWaterIdentificationCode.Gtin,
+							status,
+							problem,
+							cancellationToken);
+
 						AddTrueMarkCodeToRouteListItem(
 							uow,
 							routeListAddress,
@@ -148,6 +164,38 @@ namespace VodovozBusiness.Services.TrueMark
 						return true;
 					});
 			}
+		}
+
+		private async Task ReturnTransferredProductCodeToPool(
+			IUnitOfWork uow,
+			int orderId,
+			string gtin,
+			SourceProductCodeStatus status,
+			ProductCodeProblem problem,
+			CancellationToken cancellationToken)
+		{
+			if(status != SourceProductCodeStatus.Accepted
+				|| problem != ProductCodeProblem.None)
+			{
+				return;
+			}
+
+			var transferredProductCode = _trueMarkRepository.GetTransferredProductCode(
+				uow,
+				orderId,
+				gtin);
+
+			if(transferredProductCode is null)
+			{
+				return;
+			}
+
+			await _trueMarkCodesPoolFactory
+				.Create(uow)
+				.PutCodeAsync(transferredProductCode.ResultCode.Id, cancellationToken);
+
+			transferredProductCode.ResultCode = null;
+			transferredProductCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
 		}
 
 		private RouteListItemTrueMarkProductCode CreateRouteListItemTrueMarkProductCode(

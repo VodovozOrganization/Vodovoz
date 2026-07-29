@@ -163,14 +163,29 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			var orderId = usedProductCodes
-				.Where(x => x.CustomerEdoRequest?.Order != null)
-				.Select(x => x.CustomerEdoRequest.Order.Id)
+				.Select(GetProductCodeOrderId)
+				.Where(x => x > 0)
 				.FirstOrDefault();
 
 			return orderId > 0
 				? TrueMarkCodeErrors.CreateTrueMarkCodeIsAlreadyUsedInOrder(orderId)
 				: EdoErrors.ProductCodesAlreadyUsed;
 
+		}
+
+		private static int GetProductCodeOrderId(TrueMarkProductCode productCode)
+		{
+			switch(productCode)
+			{
+				case RouteListItemTrueMarkProductCode routeListProductCode:
+					return routeListProductCode.RouteListItem?.Order?.Id ?? 0;
+				case CarLoadDocumentItemTrueMarkProductCode carLoadProductCode:
+					return carLoadProductCode.CarLoadDocumentItem?.OrderId ?? 0;
+				case SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryProductCode:
+					return selfDeliveryProductCode.SelfDeliveryDocumentItem?.Document?.Order?.Id ?? 0;
+				default:
+					return productCode.CustomerEdoRequest?.Order?.Id ?? 0;
+			}
 		}
 
 		private Result ValidateTargetOrderItems(
