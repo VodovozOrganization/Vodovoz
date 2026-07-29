@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -194,8 +194,21 @@ namespace Vodovoz.Core.Data.Repositories
 			int batchSize,
 			int maxAttempts,
 			CancellationToken cancellationToken);
-		Task<IList<TimedOutDocFlowGrouppedNode>> GetTimedOutDocFlows(IUnitOfWork unitOfWork, int timeoutDays, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить список чеков для указанного заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов чеков для указанного заказа</returns>
 		IEnumerable<EdoInOrderReceiptNode> GetReceiptsForOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получить список документооборотов по налоговой для указанного заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов документооборота для указанного заказа</returns>
 		IEnumerable<EdoInOrderTaxcomDocflowNode> GetEdoInOrderDocflows(IUnitOfWork uow, int orderId);
 	}
 }
