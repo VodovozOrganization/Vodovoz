@@ -29,8 +29,7 @@ namespace CustomerOrdersApi.Controllers.V7
 		/// <param name="applyFixedPriceDto">Информация по заказу для применения фиксы</param>
 		/// <returns>
 		///	500 - в случае ошибки
-		/// 204 - если нет фиксы
-		///	200 - если фикса есть. Тело ответа будет содержать список товаров
+		///	200 - если фикса есть/нет
 		/// </returns>
 		[HttpGet]
 		public IActionResult ApplyFixedPriceToOrder([FromBody] ApplyFixedPriceDto applyFixedPriceDto)
@@ -49,15 +48,8 @@ namespace CustomerOrdersApi.Controllers.V7
 				_logger.LogInformation("Подпись валидна, пробуем применить фиксу...");
 				var result = _fixedPriceService.ApplyFixedPriceToOnlineOrder(applyFixedPriceDto);
 
-				if(result.IsSuccess)
-				{
-					_logger.LogInformation("Отправляем ответ по фиксе: {@FixedPriceResponse}", result.Value);
-					return Ok(result.Value);
-				}
-
-				var failureResult = result.Errors.First().Message;
-				_logger.LogWarning("Фикса не добавлена: {FixedPriceFailure}", failureResult);
-				return Problem(detail: failureResult, statusCode: 204, title: "Фикса не добавлена");
+				_logger.LogInformation("Отправляем ответ по фиксе: {@FixedPriceResponse}", result);
+				return Ok(result);
 			}
 			catch(Exception e)
 			{

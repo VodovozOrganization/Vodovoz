@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
 using Microsoft.Extensions.Logging;
@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Interfaces.Sale;
-using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
 using Vodovoz.Nodes;
 using VodovozInfrastructure.Cryptography;
@@ -73,7 +72,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 				out generatedSignature);
 		}
 
-		public Result<IEnumerable<IOrderedCartItem>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
+		public ISaleItemPromotion ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Применение промокода к онлайн заказу");
 
@@ -86,7 +85,11 @@ namespace CustomerOrdersApi.Library.V7.Services
 				Products = applyPromoCodeDto.OnlineOrderItems
 			};
 			
-			return _onlineOrderDiscountHandler.TryApplyPromoCodeV7(uow, dto);
+			var result = _onlineOrderDiscountHandler.TryApplyPromoCodeV7(uow, dto);
+
+			return result.IsFailure
+				? AppliedPromoCodeDto.CreateError(result.Errors.First())
+				: AppliedPromoCodeDto.Create(result.Value);
 		}
 	}
 }

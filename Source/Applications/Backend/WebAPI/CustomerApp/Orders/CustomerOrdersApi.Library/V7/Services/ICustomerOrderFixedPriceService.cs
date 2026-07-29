@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice;
+﻿using CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice;
 using Vodovoz.Core.Domain.Interfaces.Sale;
-using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.V7.Services
 {
@@ -22,6 +20,6 @@ namespace CustomerOrdersApi.Library.V7.Services
 		/// </summary>
 		/// <param name="applyFixedPriceDto">Данные для применения фиксы</param>
 		/// <returns>Список товаров в случае, если есть фикса. Сообщение ошибки</returns>
-		Result<IEnumerable<IOrderedCartItem>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto);
+		ISaleItemPromotion ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto);
 	}
 }

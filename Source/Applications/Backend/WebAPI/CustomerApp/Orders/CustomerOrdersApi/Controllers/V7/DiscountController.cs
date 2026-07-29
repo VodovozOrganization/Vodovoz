@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
 using CustomerOrdersApi.Library.V7.Services;
 using Gamma.Utilities;
@@ -38,15 +37,8 @@ namespace CustomerOrdersApi.Controllers.V7
 				_logger.LogInformation("Подпись валидна, применяем промокод {PromoCode}", applyPromoCodeDto.PromoCode);
 				var result = _discountService.ApplyPromoCodeToOnlineOrder(applyPromoCodeDto);
 
-				if(result.IsSuccess)
-				{
-					_logger.LogInformation("Отправляем ответ по промокоду: {@PromoCodeResponse}", result.Value);
-					return Ok(result.Value);
-				}
-
-				var failureResult = result.Errors.First().Message;
-				_logger.LogWarning("Промокод {PromoCode}: {PromoCodeFailure}", applyPromoCodeDto.PromoCode, failureResult);
-				return Problem(detail: failureResult, statusCode: 204, title: $"Ошибка применения промокода { applyPromoCodeDto.PromoCode }");
+				_logger.LogInformation("Отправляем ответ по промокоду: {@PromoCodeResponse}", result);
+				return Ok(result);
 			}
 			catch(Exception e)
 			{

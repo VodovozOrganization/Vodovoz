@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice;
 using Microsoft.Extensions.Logging;
@@ -55,7 +56,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 				out generatedSignature);
 		}
 		
-		public Result<IEnumerable<IOrderedCartItem>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
+		public ISaleItemPromotion ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Применение фиксы к онлайн заказу {applyFixedPriceDto.ExternalOrderId}");
 
@@ -67,7 +68,11 @@ namespace CustomerOrdersApi.Library.V7.Services
 				OnlineOrderItems = applyFixedPriceDto.OnlineOrderItems
 			};
 			
-			return _onlineOrderFixedPriceHandler.TryApplyFixedPriceV7(uow, node);
+			var result = _onlineOrderFixedPriceHandler.TryApplyFixedPriceV7(uow, node);
+			
+			return result.IsFailure
+				? AppliedFixedPriceDto.CreateError(result.Errors.First())
+				: AppliedFixedPriceDto.Create(result.Value);
 		}
 	}
 }

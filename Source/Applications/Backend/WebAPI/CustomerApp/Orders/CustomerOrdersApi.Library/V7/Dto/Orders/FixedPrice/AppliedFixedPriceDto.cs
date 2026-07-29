@@ -1,14 +1,24 @@
 ﻿using System.Collections.Generic;
+using CustomerOrdersApi.Library.V7.Dto.Orders.Promotions;
 using Vodovoz.Core.Domain.Interfaces.Sale;
-using VodovozBusiness.Domain.Orders;
+using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice
 {
-	public class AppliedFixedPriceDto
+	/// <summary>
+	/// Данные по применению фиксы
+	/// </summary>
+	public class AppliedFixedPriceDto : SaleItemPromotionDto
 	{
-		/// <summary>
-		/// Список товаров с фиксой
-		/// </summary>
-		public IEnumerable<IOrderedCartItem> OnlineOrderItems { get; set; }
+		protected AppliedFixedPriceDto(string message) : base(message)
+		{
+		}
+
+		protected AppliedFixedPriceDto(IEnumerable<IOrderedCartItem> saleItems) : base(saleItems)
+		{
+		}
+
+		public static ISaleItemPromotion CreateError(Error error) => new AppliedFixedPriceDto(error.Message);
+		public static ISaleItemPromotion Create(IEnumerable<IOrderedCartItem> saleItems) => new AppliedFixedPriceDto(saleItems);
 	}
 }
