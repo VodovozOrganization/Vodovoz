@@ -38,7 +38,7 @@ namespace EdoService.Library
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEdoRepository _edoRepository;
 		private readonly MessageService _messageService;
-		private readonly IInteractiveService _interactiveService;
+		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly IBus _messageBus;
@@ -62,7 +62,7 @@ namespace EdoService.Library
 			IOrderRepository orderRepository,
 			IEdoRepository edoRepository,
 			MessageService messageService,
-			IInteractiveService interactiveService,
+			IGenericRepository<FormalEdoRequest> edoRequestRepository,
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			IBus messageBus,
@@ -73,7 +73,7 @@ namespace EdoService.Library
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_edoRequestRepository = edoRequestRepository ?? throw new ArgumentNullException(nameof(edoRequestRepository));
 			_counterpartyEdoAccountEntityController = counterpartyEdoAccountEntityController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountEntityController));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
@@ -521,31 +521,26 @@ namespace EdoService.Library
 			}
 		}
 
-		public void TryResendUpdDocument(int orderEdoTaskId)
+		public Result<string> TryResendUpdDocument(int orderEdoTaskId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var request = uow.Session.QueryOver<FormalEdoRequest>()
-					.Where(x => x.Task.Id == orderEdoTaskId)
-					.SingleOrDefault();
+				var request = _edoRequestRepository
+					.GetFirstOrDefault(uow, x => x.Task.Id == orderEdoTaskId);
 
 				if(request.Task.TaskType == EdoTaskType.SaveCode)
 				{
-					var hasOtherRequests = uow.Session.QueryOver<FormalEdoRequest>()
-						.Where(x => x.Order.Id == request.Order.Id)
-						.Where(x => x.Task.Id != orderEdoTaskId)
-						.Select(x => x.Id)
-						.List<int>()
-						.Any();
+					var hasOtherRequests = _edoRequestRepository.GetCount(uow, x =>
+						x.Order.Id == request.Order.Id
+						&& x.Task.Id != orderEdoTaskId
+					) > 0;
 
 					if(hasOtherRequests)
 					{
-						_interactiveService.ShowMessage(
-							ImportanceLevel.Warning,
+						return Result.Failure<string>(new Error("DocumentHasOtherRequests",
 							$"Переотправка документа невозможна, т.к. помимо текущего документа" +
-							$"по заказу {request.Order.Id} уже есть другая отправка"
+							$"по заказу {request.Order.Id} уже есть другая отправка")
 						);
-						return;
 					}
 
 					var edoAccount = _counterpartyEdoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(
@@ -555,11 +550,9 @@ namespace EdoService.Library
 
 					if(edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 					{
-						_interactiveService.ShowMessage(
-							ImportanceLevel.Warning,
-							$"Переотправка документа невозможна, т.к. у контрагента нет согласия на ЭДО"
+						return Result.Failure<string>(new Error("CounterpartyDontAgreeEdoConsent",
+							"Переотправка документа невозможна, т.к.у контрагента нет согласия на ЭДО")
 						);
-						return;
 					}
 
 					var newRequest = new ManualEdoRequest
@@ -578,41 +571,32 @@ namespace EdoService.Library
 
 					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
 
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Info,
-						$"Документ отправлен на переформирование. \n" +
-						$"Обновите список документов."
-					);
-
-					return;
+					return Result.Success($"Документ отправлен на переформирование. \n" +
+						$"Обновите список документов.");
 				}
 
 				//Если сюда попадет документ, то значит не правильно выбраны условия доступности действия
 				//или не реализована отправка выбранного документами по правильным условиям
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Info,
+				return Result.Failure<string>(new Error("DocumentSendNotSupported",
 					$"Для выбранного документа не реализована отправка. \n" +
-					$"Обратитесь за технической поддержкой."
+					$"Обратитесь за технической поддержкой.")
 				);
 			}
 		}
 
-		public void TryResendReceiptDocument(int orderEdoTaskId)
+		public Result<string> TryResendReceiptDocument(int orderEdoTaskId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var request = uow.Session.QueryOver<FormalEdoRequest>()
-					.Where(x => x.Task.Id == orderEdoTaskId)
-					.SingleOrDefault();
+				var request = _edoRequestRepository
+					.GetFirstOrDefault(uow, x => x.Task.Id == orderEdoTaskId);
 
 				var receiptTask = request.Task.As<ReceiptEdoTask>();
 				if(receiptTask == null)
 				{
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Warning,
-						$"Переотправка документа невозможна, т.к. текущий документ не является чеком"
+					return Result.Failure<string>(new Error("DocumentIsNotReceipt",
+						"Переотправка документа невозможна, т.к. текущий документ не является чеком")
 					);
-					return;
 				}
 
 				if(receiptTask.ReceiptStatus == EdoReceiptStatus.SavedToPool)
@@ -626,12 +610,10 @@ namespace EdoService.Library
 
 					if(hasOtherRequests)
 					{
-						_interactiveService.ShowMessage(
-							ImportanceLevel.Warning,
+						return Result.Failure<string>(new Error("DocumentHasOtherRequests",
 							$"Переотправка документа невозможна, т.к. помимо текущего документа" +
-							$"по заказу {request.Order.Id} уже есть другая отправка"
+							$"по заказу {request.Order.Id} уже есть другая отправка")
 						);
-						return;
 					}
 
 					var newRequest = new ManualEdoRequest
@@ -649,21 +631,15 @@ namespace EdoService.Library
 
 					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
 
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Info,
-						$"Документ отправлен на переформирование. \n" +
-						$"Обновите список документов."
-					);
-
-					return;
+					return Result.Success($"Документ отправлен на переформирование. \n" +
+						$"Обновите список документов.");
 				}
 
 				//Если сюда попадет документ, то значит не правильно выбраны условия доступности действия
 				//или не реализована отправка выбранного документами по правильным условиям
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Info,
+				return Result.Failure<string>(new Error("DocumentSendNotSupported",
 					$"Для выбранного документа не реализована отправка. \n" +
-					$"Обратитесь за технической поддержкой."
+					$"Обратитесь за технической поддержкой.")
 				);
 			}
 		}
