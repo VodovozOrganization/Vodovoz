@@ -68,6 +68,8 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem
 			}
 		}
 
+		public bool GiftItem { get; set; }
+
 		public void ClearDiscount()
 		{
 			Discount = 0;

@@ -17,7 +17,7 @@ namespace Vodovoz.Core.Domain.Orders
 	{
 		private int _id;
 		private DateTime _creationDate;
-		private PlannedOrderStage _stage;
+		private BitrixDealCreationStage _stage;
 		private int _counterpartyId;
 		private int? _deliveryPointId;
 		private bool _isSelfDelivery;
@@ -55,7 +55,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// Стадия обработки планируемого заказа
 		/// </summary>
 		[Display(Name = "Стадия")]
-		public virtual PlannedOrderStage Stage
+		public virtual BitrixDealCreationStage Stage
 		{
 			get => _stage;
 			set => SetField(ref _stage, value);

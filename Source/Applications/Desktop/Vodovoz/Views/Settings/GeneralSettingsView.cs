@@ -164,6 +164,12 @@ namespace Vodovoz.Views.Settings
 			ConfigureAccountingSettings();
 
 			#endregion Вкладка Бухгалтерия
+
+			#region Вкладка Кулер Сервис
+
+			serviceNomenclaturesForBitrixDealsView.ViewModel = ViewModel.ServiceNomenclaturesForBitrixDealsSettingsViewModel;
+
+			#endregion Вкладка Кулер Сервис
 		}
 
 		#region Вкладка заказы
@@ -736,6 +742,12 @@ namespace Vodovoz.Views.Settings
 			if(yradiobuttonAccounting.Active)
 			{
 				ynotebookData.CurrentPage = 4;
+				return;
+			}
+
+			if(yradiobuttonKulerService.Active)
+			{
+				ynotebookData.CurrentPage = 5;
 				return;
 			}
 		}

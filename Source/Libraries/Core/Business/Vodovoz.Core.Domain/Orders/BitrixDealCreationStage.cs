@@ -1,11 +1,11 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Orders
 {
 	/// <summary>
-	/// Стадия обработки планируемого заказа
+	/// Стадия создания сделки в Битрикс24
 	/// </summary>
-	public enum PlannedOrderStage
+	public enum BitrixDealCreationStage
 	{
 		/// <summary>
 		/// Сделка в Битрикс24 не создана

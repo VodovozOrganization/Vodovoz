@@ -252,6 +252,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public SubdivisionSettingsViewModel ComplaintsSubdivisionSettingsViewModel { get; private set; }
 
 		public NamedDomainEntitiesSettingsViewModelBase WarehousesForPricesAndStocksIntegrationViewModel { get; private set; }
+
+		public NamedDomainEntitiesSettingsViewModelBase ServiceNomenclaturesForBitrixDealsSettingsViewModel { get; private set; }
+
 		public EmployeeFixedPricesViewModel EmployeeFixedPricesViewModel { get; private set; }
 
 		public string RouteListPrintedFormPhones
@@ -1439,7 +1442,23 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					DetailTitle = "Использовать следующие склады при подсчете остатков для ИПЗ:",
 					Info = "Подсчет остатков при отправке в ИПЗ будет производиться только по выбранным складам."
 				};
-			
+
+			ServiceNomenclaturesForBitrixDealsSettingsViewModel =
+				new ServiceNomenclaturesForBitrixDealsSettingsViewModel(
+					NavigationManager,
+					_commonServices,
+					_unitOfWorkFactory,
+					_generalSettings,
+					_generalSettings.ServiceNomenclaturesForBitrixDealsName)
+				{
+					CanEdit = _commonServices.CurrentPermissionService.ValidatePresetPermission(
+						Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.CanEditServiceNomenclaturesForBitrixDeals),
+					MainTitle = "<b>Настройка сервисных номенклатур для создания сделок в Битрикс24</b>",
+					DetailTitle = "Учитывать заказы со следующими номенклатурами:",
+					Info = "При подборе клиентов для создания сделок в Битрикс24 по последнему заказу сервисного обслуживания\n" +
+						"будут учитываться заказы с выбранными номенклатурами"
+				};
+
 			FillItemSources();
 		}
 
