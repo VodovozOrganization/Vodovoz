@@ -27,6 +27,7 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Extensions;
+using VodovozBusiness.Errors.Edo;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.Services.Edo;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
@@ -105,7 +106,7 @@ namespace EdoService.Library
 				var order = GetOrderByTaskId(uow, taskId);
 				if(order is null)
 				{
-					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+					return Result.Failure(EdoErrors.HasProblem);
 				}
 
 				return ResendEdoDocument(uow, order);
@@ -116,20 +117,20 @@ namespace EdoService.Library
 		{
 			if(order.IsUndeliveredStatus)
 			{
-				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.IsUndeliveredOrder);
+				return Result.Failure(EdoErrors.IsUndeliveredOrder);
 			}
 
 			var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
 			if(documents is null || !documents.Any())
 			{
-				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+				return Result.Failure(EdoErrors.HasProblem);
 			}
 
 			foreach(var doc in documents)
 			{
 				if(!CanResendEdoDocument(doc.Status))
 				{
-					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateAlreadySuccefullSended(order, doc));
+					return Result.Failure(EdoErrors.CreateAlreadySuccefullSended(order, doc));
 				}
 
 				var validateResult = ValidateEdoOrderDocument(uow, doc);
@@ -145,7 +146,7 @@ namespace EdoService.Library
 			var document = documents.First();
 			if(document.Type != OutgoingEdoDocumentType.Order)
 			{
-				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateInvalidOutgoingDocumentType(order.Id, document.Type));
+				return Result.Failure(EdoErrors.CreateInvalidOutgoingDocumentType(order.Id, document.Type));
 			}
 
 			if(hasMarkedProducts && document.CreationTime != null)
@@ -153,14 +154,14 @@ namespace EdoService.Library
 				var threeMonthAgo = DateTime.Now.AddMonths(-3);
 				if(document.CreationTime < threeMonthAgo)
 				{
-					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateResendTimeLimitExceeded(document, order.Id));
+					return Result.Failure(EdoErrors.CreateResendTimeLimitExceeded(document, order.Id));
 				}
 			}
 
 			var activeEdoTask = GetActiveEdoTaskForResend(uow, order);
 			if(activeEdoTask is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.NoActiveEdoTaskForResend);
+				return Result.Failure(EdoErrors.NoActiveEdoTaskForResend);
 			}
 
 			var productCodes = new ObservableList<TrueMarkProductCode>(
@@ -253,7 +254,7 @@ namespace EdoService.Library
 
 			if(tasks.Any(x => x.ReceiptStatus != EdoReceiptStatus.SavedToPool))
 			{
-				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateCannotResendReceiptFromSavedToPoolTask(orderId));
+				return Result.Failure(EdoErrors.CreateCannotResendReceiptFromSavedToPoolTask(orderId));
 			}
 
 			var order = await _orderRepository.GetOrderByIdAsync(uow, orderId, cancellationToken);
@@ -380,7 +381,7 @@ namespace EdoService.Library
 			{
 				if(_successfulEdoStatuses.Contains(edoContainer.EdoDocFlowStatus))
 				{
-					errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateAlreadySuccefullSended(edoContainer));
+					errors.Add(EdoErrors.CreateAlreadySuccefullSended(edoContainer));
 				}
 			}
 
@@ -396,21 +397,21 @@ namespace EdoService.Library
 		{
 			if(document is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+				return Result.Failure(EdoErrors.HasProblem);
 			}
 
 			var order = _orderRepository.GetOrderByOrderEdoDocumentId(uow, document.Id);
 
 			if(order is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+				return Result.Failure(EdoErrors.HasProblem);
 			}
 
 			var errors = new List<Error>();
 
 			if(!_resendableEdoDocumentStatuses.Contains(document.Status))
 			{
-				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateResendableEdoDocumentStatuses(order.Id, _resendableEdoDocumentStatuses));
+				errors.Add(EdoErrors.CreateResendableEdoDocumentStatuses(order.Id, _resendableEdoDocumentStatuses));
 			}
 
 			return errors.Any() ? Result.Failure(errors) : Result.Success();
@@ -422,7 +423,7 @@ namespace EdoService.Library
 
 			if(order.OrderPaymentStatus is OrderPaymentStatus.Paid)
 			{
-				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateAlreadyPaidUpd(order.Id, type));
+				errors.Add(EdoErrors.CreateAlreadyPaidUpd(order.Id, type));
 			}
 
 			if(errors.Any())
@@ -439,7 +440,7 @@ namespace EdoService.Library
 
 			if(order.OrderPaymentStatus is OrderPaymentStatus.Paid)
 			{
-				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateAlreadyPaidUpd(order.Id, type));
+				errors.Add(EdoErrors.CreateAlreadyPaidUpd(order.Id, type));
 			}
 
 			if(errors.Any())
@@ -456,12 +457,12 @@ namespace EdoService.Library
 
 			if(dockflowData.OrderId.HasValue == false)
 			{
-				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+				return Result.Failure(EdoErrors.HasProblem);
 			}
 
 			if(dockflowData.DocFlowId.HasValue == false)
 			{
-				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+				return Result.Failure(EdoErrors.HasProblem);
 			}
 
 			var order = _orderRepository.GetOrder(uow, dockflowData.OrderId.Value);
@@ -524,7 +525,7 @@ namespace EdoService.Library
 			if(status is EdoDocFlowStatus.InProgress 
 				|| status is EdoDocFlowStatus.Succeed)
 			{
-				errors.Add(Vodovoz.Errors.Edo.EdoErrors.AlreadySuccefullSended);
+				errors.Add(EdoErrors.AlreadySuccefullSended);
 			}
 
 			if(errors.Any())
@@ -572,13 +573,13 @@ namespace EdoService.Library
 				var receiptTask = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
 				if(receiptTask is null)
 				{
-					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+					return Result.Failure(EdoErrors.HasProblem);
 				}
 
 				var order = receiptTask.FormalEdoRequest?.Order;
 				if(order is null)
 				{
-					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+					return Result.Failure(EdoErrors.HasProblem);
 				}
 
 				var canResendResult = CanResendReceipt(receiptTask);
@@ -622,17 +623,17 @@ namespace EdoService.Library
 
 			if(receiptTask.Status is EdoTaskStatus.Completed || receiptTask.Status is EdoTaskStatus.InCancellation)
 			{
-				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateCannotResendCompletedTask(receiptTask.Id));
+				errors.Add(EdoErrors.CreateCannotResendCompletedTask(receiptTask.Id));
 			}
 
 			if(receiptTask.ReceiptStatus is EdoReceiptStatus.Completed)
 			{
-				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateCannotResendCompletedReceipt(receiptTask.Id));
+				errors.Add(EdoErrors.CreateCannotResendCompletedReceipt(receiptTask.Id));
 			}
 
 			if(receiptTask.ReceiptStatus is EdoReceiptStatus.SavedToPool)
 			{
-				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateCannotResendReceiptFromSavedToPool(receiptTask.Id));
+				errors.Add(EdoErrors.CreateCannotResendReceiptFromSavedToPool(receiptTask.Id));
 			}
 
 			if(receiptTask.FiscalDocuments?.Any() == true)
@@ -645,7 +646,7 @@ namespace EdoService.Library
 
 				if(hasInvalidDocument)
 				{
-					errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateCannotResendCompletedReceipt(receiptTask.Id));
+					errors.Add(EdoErrors.CreateCannotResendCompletedReceipt(receiptTask.Id));
 				}
 			}
 

@@ -21,7 +21,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Errors.Edo;
+using VodovozBusiness.Errors.Edo;
 using Xunit;
 using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
 
