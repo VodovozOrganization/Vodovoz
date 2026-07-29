@@ -86,7 +86,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<CustomerCartWaterCounts>()
 				.AddScoped<IOnlineCartDistrictRulesGetter, OnlineCartDistrictRulesGetter>()
 				.AddScoped<IDeliveryRulesHandler, DeliveryRulesHandler>()
-				.AddScoped<IDeliveryCostMessageFactory, DeliveryCostMessageFactory>()
+				.AddScoped<IDeliveryCostDataFactory, DeliveryCostDataFactory>()
 				.AddTrueMarkApiClient()
 				.AddCoreApplicationOrderServices()				
 				;

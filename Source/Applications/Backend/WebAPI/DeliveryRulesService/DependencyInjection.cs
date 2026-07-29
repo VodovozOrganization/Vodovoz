@@ -101,7 +101,7 @@ namespace DeliveryRulesService
 				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
 				.AddScoped<IOnlineCartDistrictRulesGetter, OnlineCartDistrictRulesGetter>()
 				.AddScoped<IDeliveryRulesHandler, DeliveryRulesHandler>()
-				.AddScoped<IDeliveryCostMessageFactory, DeliveryCostMessageFactory>()
+				.AddScoped<IDeliveryCostDataFactory, DeliveryCostDataFactory>()
 				.AddScoped<CustomerCartWaterCounts>()
 				.AddAuthentication("Basic")
 				.AddScheme<BasicAuthenticationOptions, CustomAuthenticationHandler>(

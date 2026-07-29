@@ -317,17 +317,17 @@ namespace DeliveryRulesService.V2.Controllers
 								.ToList()
 						);
 					
-					var paidDeliveryResult = _deliveryRulesHandler.GetDeliveryCost(deliveryPriceContext);
+					var deliveryCostDataResult = _deliveryRulesHandler.GetDeliveryCost(deliveryPriceContext);
 
-					if(paidDeliveryResult.IsFailure)
+					if(deliveryCostDataResult.IsFailure)
 					{
 						var errorResult = new ExtendedDeliveryRulesDto();
-						errorResult.RuleNotFoundState(paidDeliveryResult.Errors.First().Message);
+						errorResult.RuleNotFoundState(deliveryCostDataResult.Errors.First().Message);
 						
 						return (null, errorResult);
 					}
 					
-					var paidDeliveryCost = paidDeliveryResult.Value;
+					var deliveryCostData = deliveryCostDataResult.Value;
 					
 					var item = ExtendedWeekDayDeliveryRuleDto.Create(
 						weekDay,
@@ -338,11 +338,11 @@ namespace DeliveryRulesService.V2.Controllers
 								IntervalName = x.Name
 							})
 							.ToList(),
-						paidDeliveryCost.DeliveryPrice,
-						_infoMessageFactory.CreatePaidDeliveryMessage(paidDeliveryCost.Message)
+						deliveryCostData.DeliveryPrice,
+						_infoMessageFactory.CreateDeliveryMessage(deliveryCostData)
 					);
 
-					if(paidDeliveryCost.DeliveryPrice.HasValue)
+					if(deliveryCostData.DeliveryPrice.HasValue)
 					{
 						hasPaidDelivery = true;
 					}

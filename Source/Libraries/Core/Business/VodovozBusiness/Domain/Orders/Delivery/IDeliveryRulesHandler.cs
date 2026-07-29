@@ -10,6 +10,6 @@ namespace VodovozBusiness.Domain.Orders.Delivery
 		/// </summary>
 		/// <param name="context">Данные для расчета</param>
 		/// <returns></returns>
-		Result<(decimal? DeliveryPrice, string Message)> GetDeliveryCost(IDeliveryRulesRequestContext context);
+		Result<IDeliveryCostData> GetDeliveryCost(IDeliveryRulesRequestContext context);
 	}
 }

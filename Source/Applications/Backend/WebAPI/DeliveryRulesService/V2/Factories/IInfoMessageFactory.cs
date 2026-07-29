@@ -1,14 +1,18 @@
 using Vodovoz.Core.Data.InfoMessages;
+using VodovozBusiness.Domain.Orders.Delivery;
 
 namespace DeliveryRulesService.Factories
 {
+	/// <summary>
+	/// Фабрика создания информационных сообщений
+	/// </summary>
 	public interface IInfoMessageFactory
 	{
 		/// <summary>
-		/// Создание оповещения по платной доставке
+		/// Создание информационного сообщения по доставке
 		/// </summary>
-		/// <param name="message">Сообщение</param>
+		/// <param name="deliveryCostData">Данные по доставке</param>
 		/// <returns></returns>
-		InfoMessage CreatePaidDeliveryMessage(string message);
+		InfoMessage CreateDeliveryMessage(IDeliveryCostData deliveryCostData);
 	}
 }
