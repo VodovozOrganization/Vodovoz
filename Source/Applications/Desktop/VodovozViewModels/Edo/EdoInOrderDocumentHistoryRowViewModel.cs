@@ -98,8 +98,6 @@ namespace Vodovoz.ViewModels.Edo
 					return EdoInOrderDocumentGroupType.Primary;
 				case EdoInOrderDocumentType.Withdrawal:
 					return EdoInOrderDocumentGroupType.Withdrawal;
-				case EdoInOrderDocumentType.Bill:
-					return EdoInOrderDocumentGroupType.Bill;
 				default:
 					throw new NotSupportedException($"Не поддерживается отправка документа: {edoInOrderDocumentType}.");
 			}
