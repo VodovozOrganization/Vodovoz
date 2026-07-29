@@ -41,6 +41,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Widgets.Orders;
+using VodovozBusiness.Errors.Edo;
 using EdoDocumentType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
@@ -230,7 +231,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			if(edoValidateResult.IsFailure)
 			{
-				if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.EdoErrors.AlreadySuccefullSended)
+				if(edoValidateResult.Errors.Any(error => error.Code == EdoErrors.AlreadySuccefullSended)
 					&& !CommonServices.InteractiveService.Question(
 						"Вы уверены, что хотите отправить дубль?\n" +
 						string.Join("\n", errorMessages),

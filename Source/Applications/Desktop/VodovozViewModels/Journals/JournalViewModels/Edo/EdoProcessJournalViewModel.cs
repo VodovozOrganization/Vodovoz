@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Transport;
 using NHibernate;
 using NHibernate.Type;
@@ -13,6 +9,10 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
@@ -20,9 +20,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
-using Vodovoz.ViewModels.ViewModels.Edo;
-using Core.Infrastructure;
 using Vodovoz.ViewModels.TrueMark;
+using Vodovoz.ViewModels.ViewModels.Edo;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 {
@@ -46,7 +45,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			IGenericRepository<DocumentEdoTask> documentRepository,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
-			IUserService userService,
 			IClipboard clipboard,
 			IGtkTabsOpener gtkTabsOpener,
 			ICurrentPermissionService currentPermissionService,
@@ -63,7 +61,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
-			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_documentRepository = documentRepository ?? throw new ArgumentNullException(nameof(documentRepository));

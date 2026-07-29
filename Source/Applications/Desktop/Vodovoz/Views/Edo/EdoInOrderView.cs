@@ -49,12 +49,26 @@ namespace Vodovoz.Views.Edo
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.SourceString)
 					.XAlign(0.5f)
-				.AddColumn("Статус")
+				.AddColumn("Статус задачи")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.StatusString)
 					.XAlign(0.5f)
 					.AddSetter((c, n) => {
 						if(n.Status == EdoTaskStatus.Problem)
+						{
+							c.CellBackgroundGdk = GdkColors.DangerBase;
+						}
+						else
+						{
+							c.CellBackgroundGdk = GdkColors.PrimaryBase;
+						}
+					})
+				.AddColumn("Статус ДО")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.EdoDocumentStatusString)
+					.XAlign(0.5f)
+					.AddSetter((c, n) => {
+						if(n.EdoDocumentStatus == EdoDocumentStatus.Error)
 						{
 							c.CellBackgroundGdk = GdkColors.DangerBase;
 						}
@@ -70,6 +84,10 @@ namespace Vodovoz.Views.Edo
 				.AddColumn("Кодов")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.CodesQuantityString)
+					.XAlign(0.5f)
+				.AddColumn("Описание проблемы из ЭДО")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.ErrorDescription)
 					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();

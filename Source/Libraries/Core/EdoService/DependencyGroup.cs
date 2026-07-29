@@ -1,7 +1,12 @@
-﻿using EdoService.Library.Converters;
+﻿using Edo.Problems;
+using Edo.Problems.Custom;
+using Edo.Problems.Custom.Sources;
+using Edo.Problems.Exception;
+using EdoService.Library.Converters;
 using EdoService.Library.Factories;
 using EdoService.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
+using QS.Services;
 
 namespace EdoService.Library
 {
@@ -16,8 +21,13 @@ namespace EdoService.Library
 				.AddScoped<IAuthorizationService, TaxcomAuthorizationService>()
 				.AddScoped<IContactStateConverter, ContactStateConverter>()
 				.AddScoped<IInformalEdoRequestFactory, EquipmentTransferEdoRequestFactory>()
+				.AddScoped<IUserService, UserService>()
+				.AddScoped<EdoTaskCustomSourcesPersister>()
+				.AddScoped<EdoTaskExceptionSourcesPersister>()
+				.AddScoped<TaskHasBeenCancelledWithReason>()
+				.AddScoped<EdoProblemRegistrar>()
 				;
-			
+
 			return services;
 		}
 	}

@@ -1,6 +1,5 @@
 ﻿using EdoService.Library;
 using Gamma.Binding.Core;
-using QS.Commands;
 using QS.Dialog;
 using QS.ViewModels;
 using System;
@@ -14,16 +13,17 @@ namespace Vodovoz.ViewModels.Edo
 {
 	public class EdoInOrderDocumentActionsViewModel : WidgetViewModelBase
 	{
-		private readonly IEdoService _edoService;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IEdoService _edoService;
 		private EdoInOrderDocumentHistoryRowViewModel _selectedDocument;
 		private IEnumerable<BusyCommand> _actions = Enumerable.Empty<BusyCommand>();
 
 		public EdoInOrderDocumentActionsViewModel(
-			IEdoService edoService,
-			IInteractiveService interactiveService
+			IInteractiveService interactiveService,
+			IEdoService edoService
 			)
 		{
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
@@ -81,11 +81,24 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document
 			) 
 		{
-			if(document.TaskUpdStage == DocumentEdoTaskStage.New && document.TaskStatus == EdoTaskStatus.Problem)
+			if(_edoService.CanResendEdoDocument(document.EdoDocumentStatus))
 			{
 				newActions.Add(new BusyCommand(
-					"Переобработать проблему",
-					() => _edoService.RehandleNewUpdDocumentWithProblem(document.TaskId)
+					"Переотправить УПД",
+					() => 
+					{ 
+						var result = _edoService.ResendEdoDocumentForOrder(document.TaskId);
+						if(result.IsSuccess)
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно переотправлено");
+						}
+						else
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Error,
+								$"Не удалось переотправить документ.\nПричины:\n - " +
+								string.Join("\n - ", result.Errors.Select(x => x.Message)));
+						}
+					}
 				));
 			}
 		}
@@ -101,8 +114,21 @@ namespace Vodovoz.ViewModels.Edo
 			if(document.TaskReceiptStage == EdoReceiptStatus.New && document.TaskStatus == EdoTaskStatus.Problem)
 			{
 				newActions.Add(new BusyCommand(
-					"Переобработать проблему",
-					() => _edoService.RehandleNewReceiptDocumentWithProblem(document.TaskId)
+					"Переотправить чек",
+					() =>
+					{
+						var result = _edoService.ResendReceiptDocument(document.TaskId).GetAwaiter().GetResult();
+						if(result.IsSuccess)
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно переотправлено");
+						}
+						else
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Error,
+								$"Не удалось переотправить документ.\nПричины:\n - " +
+								string.Join("\n - ", result.Errors.Select(x => x.Message)));
+						}
+					}
 				));
 			}
 		}
@@ -120,9 +146,7 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document
 			)
 		{
-			var isSavedCodes = document.TaskType == EdoTaskType.SaveCode;
-
-			if(isSavedCodes)
+			if(document.TaskType is EdoTaskType.SaveCode)
 			{
 				newActions.Add(new BusyCommand(
 					"Переотправить",
@@ -136,8 +160,8 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document
 			)
 		{
-			var isReceipt = document.TaskType == EdoTaskType.Receipt;
-			var receiptSavedToPool = document.TaskReceiptStage == EdoReceiptStatus.SavedToPool;
+			var isReceipt = document.TaskType is EdoTaskType.Receipt;
+			var receiptSavedToPool = document.TaskReceiptStage is EdoReceiptStatus.SavedToPool;
 
 			if(isReceipt && receiptSavedToPool)
 			{

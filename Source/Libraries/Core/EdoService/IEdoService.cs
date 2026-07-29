@@ -1,7 +1,8 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
@@ -81,16 +82,28 @@ namespace EdoService.Library
 		Result SendDocumentTaskCreatedEvent(EdoTask edoTask);
 
 		/// <summary>
-		/// Запускает переобработку задачи на отправку УПД, 
-		/// которая попала в проблему в статусе New
+		/// Можно ли переотправить документ
 		/// </summary>
-		void RehandleNewUpdDocumentWithProblem(int updEdoTaskId);
+		/// <param name="status">Статус документа</param>
+		/// <returns>Да - если можно переотправить, Нет - если нельзя</returns>
+		bool CanResendEdoDocument(EdoDocumentStatus? status);
 
 		/// <summary>
-		/// Запускает переобработку задачи на отправку чека, 
-		/// которая попала в проблему в статусе New
+		/// Переотправка документа по ЭДО по идентификатору задачи
 		/// </summary>
-		void RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Результат переотправки документа</returns>
+		Result ResendEdoDocumentForOrder(int taskId);
+
+		/// <summary>
+		/// Переотправка чека по ЭДО по идентификатору задачи
+		/// </summary>
+		/// <param name="receiptEdoTaskId">Идентификатор задачи чека</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат переотправки чека</returns>
+		Task<Result> ResendReceiptDocument(
+			int receiptEdoTaskId,
+			CancellationToken cancellationToken = default);
 		Result<string> TryResendUpdDocument(int orderEdoTaskId);
 		Result<string> TryResendReceiptDocument(int orderEdoTaskId);
 	}
