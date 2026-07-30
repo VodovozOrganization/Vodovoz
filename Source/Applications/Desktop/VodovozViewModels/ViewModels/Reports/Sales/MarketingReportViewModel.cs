@@ -259,7 +259,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			var totalCounterparties = GetTotalCounterparties();
 			var orders = GetOrders(StartDate.Value, EndDate.Value, includedOrderStatuses, excludedOrderStatuses, cancellationToken);
-			var clientHistories = GetClientHistories(includedOrderStatuses, excludedOrderStatuses, cancellationToken);
+			var clientHistories = GetClientHistories(
+				StartDate.Value,
+				includedOrderStatuses,
+				excludedOrderStatuses,
+				cancellationToken);
 
 			return MarketingReport.Create(
 				StartDate.Value,
@@ -412,15 +416,38 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		}
 
 		private IList<MarketingReportClientHistoryNode> GetClientHistories(
+			DateTime startDate,
 			OrderStatus[] includedOrderStatuses,
 			OrderStatus[] excludedOrderStatuses,
 			CancellationToken cancellationToken)
 		{
 			Order orderAlias = null;
+			Order activeClientOrderAlias = null;
 			MarketingReportClientHistoryNode resultAlias = null;
 
+			var churnLookbackStart = startDate.AddMonths(-3);
+			var activeClientDateProjection = DateType == MarketingReportDateType.DeliveryDate
+				? Projections.Property(() => activeClientOrderAlias.DeliveryDate)
+				: Projections.Property(() => activeClientOrderAlias.CreateDate);
+
+			var activeClientSubquery = QueryOver.Of(() => activeClientOrderAlias)
+				.Where(() => !activeClientOrderAlias.IsContractCloser)
+				.Where(Restrictions.Ge(activeClientDateProjection, churnLookbackStart))
+				.Select(Projections.Distinct(Projections.Property(() => activeClientOrderAlias.Client.Id)));
+
+			if(includedOrderStatuses.Any())
+			{
+				activeClientSubquery.WhereRestrictionOn(() => activeClientOrderAlias.OrderStatus).IsIn(includedOrderStatuses);
+			}
+
+			if(excludedOrderStatuses.Any())
+			{
+				activeClientSubquery.WhereRestrictionOn(() => activeClientOrderAlias.OrderStatus).Not.IsIn(excludedOrderStatuses);
+			}
+
 			var query = _unitOfWork.Session.QueryOver(() => orderAlias)
-				.Where(() => !orderAlias.IsContractCloser);
+				.Where(() => !orderAlias.IsContractCloser)
+				.WithSubquery.WhereProperty(() => orderAlias.Client.Id).In(activeClientSubquery);
 
 			if(includedOrderStatuses.Any())
 			{
