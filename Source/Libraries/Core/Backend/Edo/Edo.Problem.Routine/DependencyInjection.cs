@@ -3,7 +3,6 @@ using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
 using Edo.Problems;
 using Edo.Transport;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
@@ -100,6 +99,7 @@ namespace Edo.Problem.Routine
 		private static IServiceCollection AddReceiptContactProblem(this IServiceCollection services) =>
 			services
 				.ConfigureOptions<ConfigureReceiptContactProblemWorkerOptions>()
+				.AddScoped<IReceiptContactProblemSourceProvider, ReceiptContactProblemSourceProvider>()
 				.AddScoped<IReceiptContactProblemService, ReceiptContactProblemService>()
 				.AddScoped<IReceiptEdoTaskResendService, ReceiptEdoTaskResendService>()
 				.AddScoped<IReceiptContactProblemNotificationService, ReceiptContactProblemNotificationService>();
