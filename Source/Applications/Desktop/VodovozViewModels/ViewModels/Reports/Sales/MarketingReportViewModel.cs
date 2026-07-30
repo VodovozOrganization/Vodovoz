@@ -357,8 +357,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				Projections.Property(() => authorAlias.Id));
 
 			var authorSubdivisionNameProjection = Projections.Conditional(
-				Restrictions.IsNotNull(Projections.Property(() => authorSubdivisionAlias.ShortName)),
-				Projections.Property(() => authorSubdivisionAlias.ShortName),
+				Restrictions.IsNotNull(Projections.Property(() => authorSubdivisionAlias.Name)),
+				Projections.Property(() => authorSubdivisionAlias.Name),
 				Projections.Constant("Без подразделения"));
 
 			var query = _unitOfWork.Session.QueryOver(() => orderAlias)
