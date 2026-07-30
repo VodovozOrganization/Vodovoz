@@ -58,6 +58,14 @@ namespace Edo.Problem.Routine.Worker
 					services
 						.AddHostedService<OrderStatusProblemWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(OrderStatusProblemWorker));
+
+					//services
+					//	.AddHostedService<CodeDuplicatedProblemWorker>()
+					//	.ConfigureZabbixSenderFromDataBase(nameof(CodeDuplicatedProblemWorker));
+
+					services
+						.AddHostedService<ReceiptContactProblemWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(ReceiptContactProblemWorker));
 				});
 	}
 }

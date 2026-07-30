@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Transport;
 using NHibernate;
 using NHibernate.Type;
@@ -13,6 +9,10 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
@@ -20,9 +20,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
-using Vodovoz.ViewModels.ViewModels.Edo;
-using Core.Infrastructure;
 using Vodovoz.ViewModels.TrueMark;
+using Vodovoz.ViewModels.ViewModels.Edo;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 {
@@ -33,7 +32,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		private readonly IInteractiveService _interactiveService;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
 		private readonly IGenericRepository<DocumentEdoTask> _documentRepository;
-		private readonly MessageService _messageService;
+		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly IUserService _userService;
 		private readonly IClipboard _clipboard;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
@@ -45,8 +44,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			IInteractiveService interactiveService,
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			IGenericRepository<DocumentEdoTask> documentRepository,
-			MessageService messageService,
-			IUserService userService,
+			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			IClipboard clipboard,
 			IGtkTabsOpener gtkTabsOpener,
 			ICurrentPermissionService currentPermissionService,
@@ -61,8 +59,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
-			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
-			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
+				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_documentRepository = documentRepository ?? throw new ArgumentNullException(nameof(documentRepository));
@@ -94,8 +92,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
-			CreateResendReceiptFromSaveCodesTaskAction();
-			CreateResendDocumentFromSaveCodesTaskAction();
 		}
 
 		protected override void CreatePopupActions()
@@ -126,128 +122,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			);
 
 			PopupActionsList.Add(action);
-		}
-
-
-		private void CreateResendReceiptFromSaveCodesTaskAction()
-		{
-			var action = new JournalAction(
-				"Отправить чек, ушедший в сохранение кодов",
-				sensitive => sensitive.Any() && sensitive.All(x =>
-					x is EdoProcessJournalNode edoTask
-					&& edoTask.OrderTaskType == EdoTaskType.Receipt
-					&& edoTask.OrderTaskReceiptStage == EdoReceiptStatus.SavedToPool
-					&& edoTask.OrderTaskStatus == EdoTaskStatus.Completed),
-				visible => _userCanSentReceiptWasSaveCodes,
-				async selected =>
-				{
-					var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
-					
-					using(var uow = _uowFactory.CreateWithoutRoot("Обработка переотправки чеков с кодами, сохраненными в пул"))
-					{
-						foreach(var selectedNode in selectedNodes)
-						{
-							if(selectedNode.OrderTaskType != EdoTaskType.Receipt
-								|| selectedNode.OrderTaskReceiptStage != EdoReceiptStatus.SavedToPool
-								|| selectedNode.OrderTaskStatus != EdoTaskStatus.Completed)
-							{
-								continue;
-							}
-
-							var orderId = selectedNode.OrderId;
-
-							var tasks = _receiptRepository.Get(
-									uow,
-									f => f.FormalEdoRequest.Order.Id == orderId && f.Id != selectedNode.OrderTaskId)
-								.ToList();
-
-							if(tasks.Any(x => x.ReceiptStatus != EdoReceiptStatus.SavedToPool))
-							{
-								_interactiveService.ShowMessage(
-									ImportanceLevel.Warning,
-									$"Переотправка чека невозможна, т.к. помимо задачи на сохранение кодов по заказу {orderId}, есть другая задача");
-								continue;
-							}
-
-							var newRequest = new PrimaryEdoRequest
-							{
-								Order = new Order
-								{
-									Id = orderId
-								},
-								Time = DateTime.Now,
-								Source = EdoRequestSource.Manual,
-								DocumentType = EdoDocumentType.UPD
-							};
-
-							await uow.SaveAsync(newRequest);
-							await uow.CommitAsync();
-
-							await _messageService.PublishEdoRequestCreatedEvent(newRequest.Id);
-						}
-					}
-				}
-			);
-			
-			NodeActionsList.Add(action);
-		}
-
-		private void CreateResendDocumentFromSaveCodesTaskAction()
-		{
-			var action = new JournalAction(
-				"Отправить документ, ушедший в сохранение кодов",
-				sensitive => sensitive.Any(),
-				visible => _userService.GetCurrentUser().IsAdmin,
-				async selected =>
-				{
-					var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
-
-					using(var uow = _uowFactory.CreateWithoutRoot("Обработка переотправки документов с кодами, сохраненными в пул"))
-					{
-						foreach(var selectedNode in selectedNodes)
-						{
-							if(selectedNode.OrderTaskType != EdoTaskType.SaveCode
-							   || selectedNode.OrderTaskStatus != EdoTaskStatus.Completed)
-							{
-								continue;
-							}
-
-							var orderId = selectedNode.OrderId;
-
-							var tasks = _documentRepository.Get(
-									uow,
-									t => t.FormalEdoRequest.Order.Id == orderId && t.Id != selectedNode.OrderTaskId)
-								.ToList();
-
-							if(tasks.Any(x => x.TaskType != EdoTaskType.SaveCode))
-							{
-								_interactiveService.ShowMessage(
-									ImportanceLevel.Warning,
-									$"Переотправка документа невозможна, т.к. помимо задачи на сохранение кодов по заказу {orderId}, есть другая задача");
-								continue;
-							}
-
-							var newRequest = new PrimaryEdoRequest
-							{
-								Order = new Order
-								{
-									Id = orderId
-								},
-								Time = DateTime.Now,
-								Source = EdoRequestSource.Manual,
-								DocumentType = EdoDocumentType.UPD
-							};
-
-							await uow.SaveAsync(newRequest);
-							await uow.CommitAsync();
-
-							await _messageService.PublishEdoRequestCreatedEvent(newRequest.Id);
-						}
-					}
-				}
-			);
-
-			NodeActionsList.Add(action);
 		}
 
 		private void CreateCopyOrderIdToClipboardAction()

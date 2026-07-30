@@ -29,7 +29,6 @@ namespace Vodovoz.ViewModels.Edo
 		public int OrderTaskId { get; }
 		public DateTime	Time { get; }
 		public string TimeString { get; }
-		public int AttemptNumber { get; } = 1;
 		public string From { get; }
 		public string To { get; }
 		public TransferEdoRequestIterationStatus TransferStatus { get; }

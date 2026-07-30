@@ -42,7 +42,7 @@ namespace Edo.Problems
 			await RegisterCustomProblem<TCustomSource>(edoTask, new List<EdoTaskItem>(), cancellationToken, customMessage);
 		}
 
-		public async Task RegisterCustomProblem<TCustomSource>(
+		public virtual async Task RegisterCustomProblem<TCustomSource>(
 			EdoTask edoTask,
 			IEnumerable<EdoTaskItem> affectedTaskItems,
 			CancellationToken cancellationToken,
@@ -291,8 +291,10 @@ namespace Edo.Problems
 			// А если проблем нет, то все прошлые проблемы разрешившиеся в текущем вызове валидации
 			// закрываем в текущем UoW задачи, будут сохранены в момент коммита изменений по задаче
 
-			IUnitOfWork uow = _taskUow;
-			var invalidResults = validationResults.Where(x => !x.IsValid);
+			var uow = _taskUow;
+			var invalidResults = validationResults
+				.Where(x => !x.IsValid)
+				.ToArray();
 			var isAllValid = !invalidResults.Any();
 			if(!isAllValid)
 			{
@@ -302,6 +304,7 @@ namespace Edo.Problems
 			}
 
 			var edoProblems = edoTask.Problems;
+			var problemsWithoutValidationResults = GetProblemsWithoutValidationResults(edoProblems, validationResults);
 			foreach(var validationResult in validationResults)
 			{
 				var problem = edoProblems.FirstOrDefault(x => x.SourceName == validationResult.Validator.Name);
@@ -316,10 +319,6 @@ namespace Edo.Problems
 							SourceName = validationResult.Validator.Name,
 							EdoTask = edoTask,
 						};
-						break;
-					default:
-						//проблема дальше проверится, убираем ее из списка текущих проблем задачи чтобы остались лишь проблемы без результата валидации
-						edoProblems.Remove(problem);
 						break;
 				}
 
@@ -345,7 +344,7 @@ namespace Edo.Problems
 				edoTask.Status = EdoTaskStatus.InProgress;
 				
 				//оставшиеся проблемы помечаем решенными т.к. валидация прошла успешно и результатов валидации нет
-				foreach (var edoTaskProblem in edoProblems)
+				foreach(var edoTaskProblem in problemsWithoutValidationResults)
 				{
 					edoTaskProblem.State = TaskProblemState.Solved;
 					await uow.SaveAsync(edoTaskProblem, cancellationToken: cancellationToken);
@@ -373,6 +372,14 @@ namespace Edo.Problems
 				_taskUow.Dispose();
 			}
 
+		}
+
+		private static IReadOnlyCollection<EdoTaskProblem> GetProblemsWithoutValidationResults(
+			IEnumerable<EdoTaskProblem> edoProblems,
+			IEnumerable<EdoValidationResult> validationResults)
+		{
+			var validatedSources = new HashSet<string>(validationResults.Select(x => x.Validator.Name));
+			return edoProblems.Where(x => !validatedSources.Contains(x.SourceName)).ToList();
 		}
 
 		public void SolveCustomProblem<TCustomSource>(EdoTask edoTask)

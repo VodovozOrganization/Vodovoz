@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Edo.Contracts.Messages.Events;
+﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace Edo.Transport
 {
@@ -20,30 +20,6 @@ namespace Edo.Transport
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
-		}
-
-		/// <summary>
-		/// Опубликовать событие о создании заявки по ЭДО
-		/// </summary>
-		/// <param name="requestId"></param>
-		/// <returns></returns>
-		public async Task PublishEdoRequestCreatedEvent(int requestId)
-		{
-			_logger.LogInformation("Отправляем событие на создание новой заявки по ЭДО, запрос: {RequestId}.", requestId);
-
-			try
-			{
-				await _bus.Publish(new EdoRequestCreatedEvent { Id = requestId });
-				_logger.LogInformation("Событие на создание новой заявки по ЭДО отправлено успешно");
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(
-					ex,
-					"Ошибка при отправке события на создание новой заявки по ЭДО. Id запроса: {RequestId}. Exception: {ExceptionMessage}",
-					requestId,
-					ex.Message);
-			}
 		}
 
 		/// <summary>

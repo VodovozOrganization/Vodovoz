@@ -52,7 +52,7 @@ namespace Vodovoz.Core.Application.Problems.Services
 						x => x.CreationTime >= startDate
 						     && x.CreationTime <= endDate
 						     && x.Problems.Any(problem =>
-							     (problem.SourceName == "OrderContactMissingException" || problem.SourceName == "Receipt.ContactValid")
+							     problem.SourceName == "OrderContactMissingException"
 							     && problem.State == TaskProblemState.Active),
 						cancellationToken: stoppingToken))
 				.Value.ToList();
@@ -76,7 +76,7 @@ namespace Vodovoz.Core.Application.Problems.Services
 					if(order.Client != null && contact.IsValid)
 					{
 						var problem = orderEdoTask.Problems.FirstOrDefault(problem =>
-							(problem.SourceName is "OrderContactMissingException" or "Receipt.ContactValid")
+							problem.SourceName == "OrderContactMissingException"
 							&& problem.State == TaskProblemState.Active);
 
 						if(problem == null)
