@@ -1886,6 +1886,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMaxFastDeliveryOrdersView.cs" />
     <Compile Include="AdministrationTools\RevenueServiceMassCounterpartyUpdateToolView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdministrationTools.RevenueServiceMassCounterpartyUpdateToolView.cs" />
+    <Compile Include="AdministrationTools\OrdersLoadTestingToolView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AdministrationTools.OrdersLoadTestingToolView.cs" />
     <Compile Include="Views\Settings\NamedDomainEntitiesSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Settings.NamedDomainEntitiesSettingsView.cs" />
     <Compile Include="ViewWidgets\Search\CompositeSearchView.cs" />

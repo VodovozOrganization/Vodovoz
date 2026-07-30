@@ -34,6 +34,8 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Пересчет ЗП водителей", OnRecalculateDriverWagesPressed));
 			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Обновление сведений Контрагентов из ФНС", OnUpdateCounterpartyInfoFromFnsPressed));
+			adminServiceMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
+				"Нагрузочное тестирование вставки заказов", OnOrdersLoadTestingPressed));
 
 			return adminServiceMenuItem;
 		}
@@ -106,6 +108,14 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 		private void OnUpdateCounterpartyInfoFromFnsPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel>(null);
+		}
+
+		/// <summary>
+		/// Нагрузочное тестирование массовой вставки заказов (NHibernate, без бизнес-логики)
+		/// </summary>
+		private void OnOrdersLoadTestingPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<OrdersLoadTestingToolViewModel>(null);
 		}
 	}
 }

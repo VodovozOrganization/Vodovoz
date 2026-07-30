@@ -1275,6 +1275,8 @@
     <Compile Include="ViewModels\Warehouses\InventoryInstanceMovementReportViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\InventoryDocumentViewModel.cs" />
     <Compile Include="AdministrationTools\RevenueServiceMassCounterpartyUpdateToolViewModel.cs" />
+    <Compile Include="AdministrationTools\OrdersLoadTestingToolViewModel.cs" />
+    <Compile Include="AdministrationTools\OrdersLoadTesting\OrdersLoadTestingRunner.cs" />
     <Compile Include="Widgets\Users\WarehousesUserSelectionViewModel.cs" />
     <Compile Include="Widgets\Users\WarehousesUserSelectionViewModel.WarehouseNode.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureOnlineCatalogViewModel.cs" />
