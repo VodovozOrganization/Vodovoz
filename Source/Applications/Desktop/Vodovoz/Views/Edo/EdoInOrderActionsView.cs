@@ -1,4 +1,4 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
 using System;
 using System.Collections.Generic;

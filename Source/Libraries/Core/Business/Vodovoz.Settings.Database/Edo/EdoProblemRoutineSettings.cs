@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vodovoz.Settings.Edo;
 
 namespace Vodovoz.Settings.Database.Edo
@@ -41,6 +41,15 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public TimeSpan CodeDuplicatedProblemWorkerInterval => _settingsController
 			.GetValue<TimeSpan>("edo.problem.routine.code-duplicated-worker-interval");
+
+		public TimeSpan ReceiptContactProblemTimeout => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.receipt-contact-problem-timeout");
+
+		public TimeSpan ReceiptContactProblemWorkerInterval => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.receipt-contact-worker-interval");
+
+		public int ReceiptContactProblemRetryAttemptsBeforeNotification => _settingsController
+			.GetValue<int>("edo.problem.routine.receipt-contact-retries");
 
 		public TimeSpan CodePoolMissingProblemWorkerInterval => _settingsController
 			.GetValue<TimeSpan>("edo.problem.routine.code-pool-missing-worker-interval");

@@ -114,6 +114,21 @@ namespace Vodovoz.Core.Data.Repositories
 		) where T : OrderEdoTask;
 
 		/// <summary>
+		/// Возвращает данные для обработки активных проблем контакта при отправке чека
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="minCreationTime">Минимальное время создания задачи</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные задач, проблем и состояния их обработки</returns>
+		Task<IList<ReceiptContactProblemNode>> GetReceiptContactProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken
+		);
+
+		/// <summary>
 		/// Возвращает идентификаторы задач ЭДО с ошибкой отправки, которые связаны с документами, созданными после указанного времени
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>

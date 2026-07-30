@@ -42,7 +42,7 @@ namespace Edo.Problems
 			await RegisterCustomProblem<TCustomSource>(edoTask, new List<EdoTaskItem>(), cancellationToken, customMessage);
 		}
 
-		public async Task RegisterCustomProblem<TCustomSource>(
+		public virtual async Task RegisterCustomProblem<TCustomSource>(
 			EdoTask edoTask,
 			IEnumerable<EdoTaskItem> affectedTaskItems,
 			CancellationToken cancellationToken,

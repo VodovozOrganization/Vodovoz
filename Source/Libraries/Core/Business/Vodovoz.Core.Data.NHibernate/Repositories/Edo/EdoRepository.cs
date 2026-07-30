@@ -21,6 +21,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using static Vodovoz.Core.Domain.Permissions.LogisticPermissions;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
@@ -397,6 +398,38 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return tasks;
 		}
 
+		public async Task<IList<ReceiptContactProblemNode>> GetReceiptContactProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken)
+		{
+			var query =
+				from problem in uow.Session.Query<EdoTaskProblem>()
+				join receiptTask in uow.Session.Query<ReceiptEdoTask>()
+					on problem.EdoTask.Id equals receiptTask.Id
+				join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
+					on problem.Id equals routineState.Problem.Id into routineStates
+				from routineState in routineStates.DefaultIfEmpty()
+				where problem.SourceName == problemSourceName
+					&& problem.State == TaskProblemState.Active
+					&& receiptTask.CreationTime >= minCreationTime
+				select new ReceiptContactProblemNode
+				{
+					ReceiptTask = receiptTask,
+					Problem = problem,
+					RoutineState = routineState,
+					OrderId = receiptTask.FormalEdoRequest.Order.Id,
+					HasCodesSavedToPool = uow.Session.Query<EdoTaskItem>()
+						.Any(item =>
+							item.CustomerEdoTask.Id == receiptTask.Id
+							&& item.ProductCode != null
+							&& item.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool)
+				};
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
 		public async Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(
 			IUnitOfWork uow,
 			DateTime minFiscalDocumentCreationTime,
@@ -448,9 +481,19 @@ select
 	document_task_stage as :task_upd_stage,
 	receipt_status as :task_receipt_stage,
 	tender_task_stage as :task_tender_stage,
-	(select count(*) from true_mark_product_codes tmpc where tmpc.customer_request_id = ecr.id) as :codes_count
+	(select count(*) from true_mark_product_codes tmpc where tmpc.customer_request_id = ecr.id) as :codes_count,
+	eod.status as :edo_document_status,
+	tda.error_message as :error_description
 from edo_customer_requests ecr
 left join edo_tasks et on et.id = ecr.order_task_id
+left join edo_outgoing_documents eod on eod.document_task_id = et.id
+left join taxcom_docflows td on td.edo_document_id = eod.id
+left join taxcom_docflow_actions tda on tda.taxcom_docflow_id = td.id
+	and tda.`time` = (
+		select max(tda2.`time`) 
+		from taxcom_docflow_actions tda2 
+		where tda2.taxcom_docflow_id = td.id
+	)
 where ecr.order_id = :order_id
 	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
 union all
@@ -465,9 +508,19 @@ select
 	null as :task_upd_stage,
 	null as :task_receipt_stage,
 	null as :task_tender_stage,
-	null as :codes_count
+	null as :codes_count,
+	eod.status as :edo_document_status,
+	tda.error_message as :error_description
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
+left join edo_outgoing_documents eod on eod.document_task_id = et.id
+left join taxcom_docflows td on td.edo_document_id = eod.id
+left join taxcom_docflow_actions tda on tda.taxcom_docflow_id = td.id
+	and tda.`time` = (
+		select max(tda2.`time`) 
+		from taxcom_docflow_actions tda2 
+		where tda2.taxcom_docflow_id = td.id
+	)
 where eir.order_id = :order_id
 	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
 ;
@@ -486,6 +539,8 @@ where eir.order_id = :order_id
 				.Map("task_receipt_stage", x => x.TaskReceiptStage, new EnumStringType<EdoReceiptStatus>())
 				.Map("task_tender_stage", x => x.TaskTenderStage, new EnumStringType<TenderEdoTaskStage>())
 				.Map("codes_count", x => x.CodesQuantity, NHibernateUtil.Int32)
+				.Map("edo_document_status", x => x.EdoDocumentStatus, new EnumStringType<EdoDocumentStatus>())
+				.Map("error_description", x => x.ErrorDescription, NHibernateUtil.String)
 				.SetResultTransformer();
 
 			query.SetParameter("order_id", orderId);

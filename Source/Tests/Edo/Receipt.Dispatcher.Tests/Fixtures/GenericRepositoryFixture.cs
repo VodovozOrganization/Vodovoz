@@ -11,7 +11,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Specifications;
 
-namespace Receipt.Dispatcher.Tests
+namespace Receipt.Dispatcher.Tests.Fixtures
 {
 	public class GenericRepositoryFixture<TEntity> : IGenericRepository<TEntity>
 		where TEntity : class, IDomainObject

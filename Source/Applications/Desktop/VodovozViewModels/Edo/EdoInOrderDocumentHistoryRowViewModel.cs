@@ -19,8 +19,10 @@ namespace Vodovoz.ViewModels.Edo
 			SourceString = Source.GetEnumTitle();
 			Status = documentNode.TaskStatus;
 			StatusString = Status.GetEnumTitle();
+			EdoDocumentStatus = documentNode.EdoDocumentStatus;
 			CodesQuantity = documentNode.CodesQuantity;
 			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
+			ErrorDescription = documentNode.ErrorDescription;
 			DocumentType = MatchDocumentType(documentNode);
 			DocumentTypeString = DocumentType.GetEnumTitle();
 			DocumentGroupType = MatchDocumentsByGroupType(DocumentType);
@@ -40,11 +42,16 @@ namespace Vodovoz.ViewModels.Edo
 		public virtual EdoTaskStatus Status { get; }
 		public virtual string StatusString { get; }
 
+		public virtual EdoDocumentStatus? EdoDocumentStatus { get; }
+		public virtual string EdoDocumentStatusString => EdoDocumentStatus?.GetEnumTitle() ?? string.Empty;
+
 		public virtual EdoInOrderDocumentType DocumentType { get; }
 		public virtual string DocumentTypeString { get; }
 
 		public virtual int? CodesQuantity { get; }
 		public virtual string CodesQuantityString { get; }
+
+		public virtual string ErrorDescription { get; }
 
 
 		private EdoInOrderDocumentType MatchDocumentType(EdoInOrderDocumentNode document)
