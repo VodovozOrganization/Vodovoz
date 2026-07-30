@@ -46,8 +46,8 @@ namespace DeliveryRulesService.Factories
 			return InfoMessage.Create(
 				"BasketDeliverySchedule",
 				6,
-				null,
 				"Бесплатная доставка ;)",
+				null,
 				progressBarInfo
 			);
 		}
