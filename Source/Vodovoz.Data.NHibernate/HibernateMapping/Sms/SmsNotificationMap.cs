@@ -51,4 +51,14 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Sms
 			References(x => x.Counterparty).Column("counterparty_id");
 		}
 	}
+
+	public class OrderOnTheWaySmsNotificationMap : SubclassMap<OrderOnTheWaySmsNotification>
+	{
+		public OrderOnTheWaySmsNotificationMap()
+		{
+			DiscriminatorValue(nameof(SmsNotificationType.OrderOnTheWay));
+			References(x => x.Order).Column("order_id");
+			References(x => x.Counterparty).Column("counterparty_id");
+		}
+	}
 }
