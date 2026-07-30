@@ -2,6 +2,9 @@
 
 namespace Edo.Problem.Routine.Services
 {
+	/// <summary>
+	/// Предоставляет источники проблем контакта, обрабатываемые воркером отправки чека.
+	/// </summary>
 	public interface IReceiptContactProblemSourceProvider
 	{
 		/// <summary>
