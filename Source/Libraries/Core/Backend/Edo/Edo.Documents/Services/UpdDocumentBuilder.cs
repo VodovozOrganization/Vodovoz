@@ -86,11 +86,26 @@ namespace Edo.Documents.Services
 			// 5. Обновляем документ
 			UpdateDocument(documentEdoTask, updInventPositions);
 
+			// 6. Удаляем старые строки с заменёнными кодами (вместо которых созданы новые с кодами из пула)
+			CleanOldEdoTaskItemsWithChangedCodes(documentEdoTask);
+
 			_logger.LogInformation(
 				"Документ УПД для задачи {TaskId} успешно создан. Инвентарных позиций: {PositionCount}, кодов: {CodeCount}",
 				documentEdoTask.Id,
 				updInventPositions.Count,
 				updInventPositions.Sum(p => p.Codes.Count));
+		}
+
+		private void CleanOldEdoTaskItemsWithChangedCodes(DocumentEdoTask documentEdoTask)
+		{
+			var taskItemsWithChangedCodes = documentEdoTask.Items
+				.Where(x => x.ProductCode.SourceCodeStatus == SourceProductCodeStatus.Changed)
+				.ToList();
+
+			foreach(var taskItem in taskItemsWithChangedCodes)
+			{
+				documentEdoTask.Items.Remove(taskItem);
+			}
 		}
 
 		private async Task<List<EdoUpdInventPosition>> BuildInventPositionsAsync(
