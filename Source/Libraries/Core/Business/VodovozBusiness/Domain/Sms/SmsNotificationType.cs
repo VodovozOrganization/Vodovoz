@@ -9,6 +9,8 @@ namespace Vodovoz.Domain.Sms
 		[Display(Name = "При низком балансе")]
 		LowBalance,
 		[Display(Name = "При недовозе в переносе 'автоперенос н/согл' ")]
-		UndeliveryNotApproved
+		UndeliveryNotApproved,
+		[Display(Name = "При переходе заказа в статус \"В пути\"")]
+		OrderOnTheWay
 	}
 }
