@@ -1,5 +1,4 @@
 ﻿using Core.Infrastructure;
-using Edo.Transport;
 using NHibernate;
 using NHibernate.Type;
 using QS.Dialog;
@@ -8,14 +7,12 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
-using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
@@ -29,42 +26,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly EdoProcessFilterViewModel _filterViewModel;
-		private readonly IInteractiveService _interactiveService;
-		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
-		private readonly IGenericRepository<DocumentEdoTask> _documentRepository;
-		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
-		private readonly IUserService _userService;
 		private readonly IClipboard _clipboard;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private readonly bool _userCanSentReceiptWasSaveCodes;
 
 		public EdoProcessJournalViewModel(
 			IUnitOfWorkFactory uowFactory,
 			EdoProcessFilterViewModel filterViewModel,
 			IInteractiveService interactiveService,
-			IGenericRepository<ReceiptEdoTask> receiptRepository,
-			IGenericRepository<DocumentEdoTask> documentRepository,
-			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			IClipboard clipboard,
 			IGtkTabsOpener gtkTabsOpener,
-			ICurrentPermissionService currentPermissionService,
 			INavigationManager navigation = null
 			) : base(uowFactory, interactiveService, navigation)
 		{
-			if(currentPermissionService is null)
-			{
-				throw new ArgumentNullException(nameof(currentPermissionService));
-			}
-			
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
-			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
-			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
-				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
-			_documentRepository = documentRepository ?? throw new ArgumentNullException(nameof(documentRepository));
-			_interactiveService = interactiveService;
 
 			Title = "Документооброт с клиентами";
 
@@ -77,10 +54,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 			CreateNodeActions();
 			CreatePopupActions();
-			
-			_userCanSentReceiptWasSaveCodes =
-				_userService.GetCurrentUser().IsAdmin
-				|| currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CashReceipt.CanResendDuplicateReceipts);
 		}
 
 		public override IJournalFilterViewModel JournalFilter 
