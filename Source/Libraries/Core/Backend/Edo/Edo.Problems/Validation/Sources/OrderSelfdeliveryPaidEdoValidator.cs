@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
@@ -9,6 +10,7 @@ namespace Edo.Problems.Validation.Sources
 {
 	public class OrderSelfdeliveryPaidEdoValidator : OrderEdoValidatorBase
 	{
+		[Display(Name = "Оплата самовывоза")]
 		public override string Name
 		{
 			get => "Order.SelfdeliveryPaid";
