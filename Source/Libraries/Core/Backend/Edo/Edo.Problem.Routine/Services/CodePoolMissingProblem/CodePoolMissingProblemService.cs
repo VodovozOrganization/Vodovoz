@@ -175,6 +175,8 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 
 							var result = await ProcessProblem(uow, problemNode, cancellationToken);
 
+							await uow.CommitAsync(cancellationToken);
+
 							if(result.NotificationSent)
 							{
 								notifiedCount++;
@@ -230,7 +232,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 			var state = problemNode.RoutineState ?? new EdoTaskProblemRoutineState { Problem = problem };
 			var now = DateTime.Now;
 
-			/*if(!CodePoolMissingProblemProcessingPolicy.CanRetry(
+			if(!CodePoolMissingProblemProcessingPolicy.CanRetry(
 				state,
 				now,
 				_options.WorkerInterval))
@@ -243,7 +245,11 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 					_options.WorkerInterval);
 
 				return CodePoolMissingProblemProcessResult.Empty;
-			}*/
+			}
+
+			state.RetryCount++;
+			state.LastRetryTime = now;
+			await uow.SaveAsync(state, cancellationToken: cancellationToken);
 
 			if(CodePoolMissingProblemProcessingPolicy.ShouldRequestNotification(
 				state,
@@ -252,15 +258,9 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 				return await SendNotification(uow, problem, edoTask, cancellationToken);
 			}
 
-			state.RetryCount++;
-			state.LastRetryTime = now;
-			await uow.SaveAsync(state, cancellationToken: cancellationToken);
-
 			try
 			{
 				await TryResumeTaskAsync(edoTask, cancellationToken);
-
-				await uow.CommitAsync(cancellationToken);
 
 				return new CodePoolMissingProblemProcessResult(true, false);
 			}
@@ -309,8 +309,6 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 					problem.Id,
 					edoTask?.Id ?? 0);
 			}
-
-			await uow.CommitAsync(cancellationToken);
 
 			return new CodePoolMissingProblemProcessResult(false, notificationSent);
 		}

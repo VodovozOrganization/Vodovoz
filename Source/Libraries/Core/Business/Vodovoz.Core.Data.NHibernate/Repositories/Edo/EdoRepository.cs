@@ -450,7 +450,6 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				where problem.SourceName == problemSourceName
 					&& problem.State == TaskProblemState.Active
 					&& (routineState == null || routineState.RetryCount <= maxAttempts)
-					&& routineState.Id == 77
 				orderby routineState == null ? 0 : routineState.RetryCount, problem.CreationTime
 				select new CodePoolMissingProblemNode
 				{
