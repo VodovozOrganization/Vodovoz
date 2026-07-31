@@ -358,57 +358,53 @@ namespace Edo.Problem.Routine.Services
 		{
 			try
 			{
-				var exceptionMessage = problem.ExceptionMessage;
+				string gtin = null;
+				string nomenclatureName = null;
 
-				if(string.IsNullOrWhiteSpace(exceptionMessage))
+				if(problem.CustomItems?.Any() == true)
+				{
+					var gtinItem = problem.CustomItems
+						.OfType<EdoProblemGtinItem>()
+						.FirstOrDefault();
+
+					if(gtinItem?.Gtin != null)
+					{
+						gtin = gtinItem.Gtin.GtinNumber;
+						_logger.LogDebug(
+							"Проблема {ProblemId}: найден GTIN в CustomItems: {Gtin}",
+							problem.Id,
+							gtin);
+					}
+				}
+
+				if(string.IsNullOrEmpty(gtin))
 				{
 					_logger.LogWarning(
-						"Проблема {ProblemId}: не найдено сообщение исключения для парсинга GTIN",
+						"Проблема {ProblemId}: не удалось получить GTIN",
 						problem.Id);
 					return (null, null);
 				}
 
-				var gtinNumbers = ParseGtinsFromExceptionMessage(exceptionMessage);
+				var nomenclature = await _nomenclatureRepository.GetNomenclatureByGtinAsync(uow, gtin, cancellationToken);
 
-				if(!gtinNumbers.Any())
+				if(nomenclature != null)
+				{
+					nomenclatureName = nomenclature.Name;
+					_logger.LogDebug(
+						"Проблема {ProblemId}: найдена номенклатура {Nomenclature} по GTIN {Gtin}",
+						problem.Id,
+						nomenclatureName,
+						gtin);
+				}
+				else
 				{
 					_logger.LogWarning(
-						"Проблема {ProblemId}: не найдены GTIN в сообщении исключения: {ExceptionMessage}",
+						"Проблема {ProblemId}: номенклатура не найдена по GTIN {Gtin}",
 						problem.Id,
-						exceptionMessage);
-					return (null, null);
+						gtin);
 				}
 
-				var firstGtin = gtinNumbers.First();
-
-				string nomenclatureName = null;
-
-				if(string.IsNullOrEmpty(nomenclatureName))
-				{
-					var nomenclature = await _nomenclatureRepository.GetNomenclatureByGtinAsync(uow, firstGtin, cancellationToken);
-
-					if(nomenclature != null)
-					{
-						nomenclatureName = nomenclature.Name;
-					}
-					else
-					{
-						_logger.LogWarning(
-							"Проблема {ProblemId}: номенклатура не найдена по GTIN {Gtin}",
-							problem.Id,
-							firstGtin);
-					}
-				}
-
-				var resultGtin = string.Join(", ", gtinNumbers);
-
-				_logger.LogDebug(
-					"Проблема {ProblemId}: извлечены GTIN: {Gtins}, номенклатура: {Nomenclature}",
-					problem.Id,
-					resultGtin,
-					nomenclatureName ?? "не найдена");
-
-				return (resultGtin, nomenclatureName);
+				return (gtin, nomenclatureName);
 			}
 			catch(Exception ex)
 			{
@@ -417,61 +413,6 @@ namespace Edo.Problem.Routine.Services
 					problem.Id);
 				return (null, null);
 			}
-		}
-
-		private List<string> ParseGtinsFromExceptionMessage(string exceptionMessage)
-		{
-			var gtins = new List<string>();
-
-			try
-			{
-				var patterns = new[]
-				{
-					@"GTIN:\s*([\d,\s]+)",
-					@"GTINs:\s*([\d,\s]+)",
-					@"код для следующих GTIN:\s*([\d,\s]+)",
-					@"для следующих GTIN:\s*([\d,\s]+)",
-					@"GTIN\s+([\d,\s]+)"
-				};
-
-				foreach(var pattern in patterns)
-				{
-					var match = System.Text.RegularExpressions.Regex.Match(exceptionMessage, pattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-					if(match.Success && match.Groups.Count > 1)
-					{
-						var gtinString = match.Groups[1].Value;
-						var parsed = gtinString
-							.Split(new[] { ',', ' ', ';' }, StringSplitOptions.RemoveEmptyEntries)
-							.Where(s => s.Length >= 14 && s.All(char.IsDigit))
-							.ToList();
-
-						if(parsed.Any())
-						{
-							gtins.AddRange(parsed);
-							break;
-						}
-					}
-				}
-
-				if(!gtins.Any())
-				{
-					var digitPattern = @"\b\d{14}\b";
-					var matches = System.Text.RegularExpressions.Regex.Matches(exceptionMessage, digitPattern);
-					foreach(System.Text.RegularExpressions.Match match in matches)
-					{
-						if(match.Success)
-						{
-							gtins.Add(match.Value);
-						}
-					}
-				}
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка при парсинге GTIN из сообщения: {ExceptionMessage}", exceptionMessage);
-			}
-
-			return gtins.Distinct().ToList();
 		}
 	}
 }
