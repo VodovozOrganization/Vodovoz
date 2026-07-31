@@ -43,7 +43,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
-			Title = "Документооброт с клиентами";
+			Title = "Документооборот с клиентами";
 
 			DataLoader = new AnyDataLoader<EdoProcessJournalNode>(GetNodes);
 
