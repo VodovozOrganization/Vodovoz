@@ -1,3 +1,4 @@
+﻿using DatabaseServiceWorker.ExportTo1c;
 using DatabaseServiceWorker.PowerBiWorker.Exporters;
 using DatabaseServiceWorker.PowerBiWorker.Options;
 using Microsoft.Extensions.Logging;
@@ -66,7 +67,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 
 				await _powerBiExporter.Export(stoppingToken);
 
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(PowerBiExportWorker), stoppingToken);
 
 				_logger.LogInformation("Экспорт в бд PowerBi завершён.");
 			}
@@ -76,7 +77,7 @@ namespace DatabaseServiceWorker.PowerBiWorker
 					e,
 					"Ошибка при при эскпорте из БД");
 
-				await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, "Ошибка экспорта в PowerBI.", stoppingToken);
+				await _zabbixSender.SendProblemMessageAsync(nameof(PowerBiExportWorker), ZabixSenderMessageType.Problem, "Ошибка экспорта в PowerBI.", stoppingToken);
 			}
 			finally
 			{

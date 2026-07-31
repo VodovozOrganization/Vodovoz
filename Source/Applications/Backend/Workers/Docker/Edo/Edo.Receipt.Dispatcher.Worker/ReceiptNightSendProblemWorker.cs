@@ -1,4 +1,4 @@
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,13 +57,14 @@ namespace Edo.Receipt.Dispatcher.Worker
 
 				_logger.LogInformation("Обработка чеков, отложенных из-за ночного времени, успешно завершена");
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(ReceiptNightSendProblemWorker), stoppingToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при обработке чеков, отложенных из-за ночного времени");
 
 				await zabbixSender.SendProblemMessageAsync(
+					nameof(ReceiptNightSendProblemWorker),
 					ZabixSenderMessageType.Problem,
 					$"Ошибка при обработке чеков, отложенных из-за ночного времени: {ex.Message}",
 					stoppingToken);

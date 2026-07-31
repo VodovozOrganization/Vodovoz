@@ -57,7 +57,7 @@ namespace Edo.Withdrawal.Routine.Worker
 				_logger.LogError(ex, "Ошибка при выполнении обработки вывода кодов из оборота");
 			}
 
-			await zabbixSender.SendIsHealthyAsync(stoppingToken);
+			await zabbixSender.SendIsHealthyAsync(nameof(TrueMarkDocumentsStatusUpdateWorker), stoppingToken);
 
 			_logger.LogInformation(
 				"Обработка просроченных документооборотов для вывода кодов из оборота успешно завершена");

@@ -113,7 +113,7 @@ namespace EdoDocumentFlowUpdater
 					await ProcessIngoingDocuments(cancellationToken);
 					await ProcessWaitingForCancellationDocuments(cancellationToken);
 
-					await _zabbixSender.SendIsHealthyAsync(cancellationToken);
+					await _zabbixSender.SendIsHealthyAsync(nameof(TaxcomEdoDocumentFlowUpdater), cancellationToken);
 				}
 				catch(Exception e)
 				{

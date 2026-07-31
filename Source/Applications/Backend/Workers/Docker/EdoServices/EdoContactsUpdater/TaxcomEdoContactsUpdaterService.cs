@@ -129,7 +129,7 @@ namespace EdoContactsUpdater
 								_logger.LogError(e, errorMessage);
 							}
 
-							await _zabbixSender.SendIsHealthyAsync(cancellationToken);
+							await _zabbixSender.SendIsHealthyAsync(nameof(TaxcomEdoContactsUpdaterService), cancellationToken);
 
 							if(contactUpdates.Contacts is null)
 							{

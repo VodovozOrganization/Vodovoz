@@ -18,7 +18,7 @@ namespace Vodovoz.Zabbix.Sender
 					var metricSettings = x.GetRequiredService<IMetricSettings>();
 					var hostEnvironment = x.GetRequiredService<IHostEnvironment>();
 
-					return new VodovozZabbixSender(workerName, metricSettings, logger, hostEnvironment);
+					return new VodovozZabbixSender(metricSettings, logger, hostEnvironment);
 				});
 
 			return services;
@@ -41,7 +41,7 @@ namespace Vodovoz.Zabbix.Sender
 						ZabbixNeedSendMetrics = Convert.ToBoolean(metricSettingsSection["ZabbixNeedSendMetrics"])
 					};
 
-					return new VodovozZabbixSender(workerName, metricSettings, logger, hostEnvironment);
+					return new VodovozZabbixSender(metricSettings, logger, hostEnvironment);
 				});
 
 			return services;
