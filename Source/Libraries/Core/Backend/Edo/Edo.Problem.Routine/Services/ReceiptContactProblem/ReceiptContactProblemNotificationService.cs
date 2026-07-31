@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +8,7 @@ using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Problem.Routine.Services
+namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 {
 	public class ReceiptContactProblemNotificationService : IReceiptContactProblemNotificationService
 	{
@@ -25,7 +25,7 @@ namespace Edo.Problem.Routine.Services
 				?? throw new ArgumentNullException(nameof(notificationMessageFactory));
 		}
 
-		public Task<bool> TryNotifyAsync(
+		public Task<bool>  TryNotifyAsync(
 			IUnitOfWork unitOfWork,
 			ReceiptEdoTask receiptTask,
 			EdoTaskProblem problem,

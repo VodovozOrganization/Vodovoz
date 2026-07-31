@@ -1,5 +1,5 @@
 ﻿using Edo.Problem.Routine.Options;
-using Edo.Problem.Routine.Services;
+using Edo.Problem.Routine.Services.CodePoolMissingProblem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -33,7 +33,7 @@ namespace Edo.Problem.Routine.Worker
 		{
 			using var scope = _serviceScopeFactory.CreateScope();
 			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
-			var orderEdoCodePoolMissingProblemService = scope.ServiceProvider.GetRequiredService<OrderEdoCodePoolMissingProblemService>();
+			var orderEdoCodePoolMissingProblemService = scope.ServiceProvider.GetRequiredService<CodePoolMissingProblemService>();
 
 			_logger.LogInformation("Запуск обработки задач ЭДО с ошибкой нехватки кодов в пуле");
 

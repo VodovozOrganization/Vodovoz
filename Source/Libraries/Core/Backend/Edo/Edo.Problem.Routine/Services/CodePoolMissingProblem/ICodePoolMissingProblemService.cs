@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Problem.Routine.Services
+namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 {
-	public interface IOrderEdoCodePoolMissingProblemService
+	public interface ICodePoolMissingProblemService
 	{
 		/// <summary>
 		/// Попытка возобновить задачу ЭДО
