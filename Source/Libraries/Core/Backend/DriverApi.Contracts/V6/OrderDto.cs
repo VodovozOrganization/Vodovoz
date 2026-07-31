@@ -132,5 +132,12 @@ namespace DriverApi.Contracts.V6
 		/// Тип заказа в зависимости от цели приобретения воды клиентом
 		/// </summary>
 		public OrderReasonForLeavingDtoType OrderType { get; set; }
+
+		/// <summary>
+		/// Можно ли отсканировать транспортный код по заказу.<br/>
+		/// false, если по заказу предполагается отправка чека: транспортный код нельзя добавить в чек,
+		/// а его внутренние коды не проходят проверку разрешительного режима
+		/// </summary>
+		public bool CanScanTransportCode { get; set; }
 	}
 }
