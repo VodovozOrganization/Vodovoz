@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
@@ -13,16 +13,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Extensions;
-using Vodovoz.Core.Data.NHibernate.Mapping.Edo;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using static Vodovoz.Core.Domain.Permissions.LogisticPermissions;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 {
@@ -426,6 +423,40 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 							&& item.ProductCode != null
 							&& item.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool)
 				};
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<CodePoolMissingProblemNode>> GetCodePoolMissingProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int maxAttempts,
+			int? batchSize,
+			CancellationToken cancellationToken)
+		{
+			var query =
+				from problem in uow.Session.Query<ExceptionEdoTaskProblem>()
+				join orderTask in uow.Session.Query<OrderEdoTask>()
+					on problem.EdoTask.Id equals orderTask.Id
+				join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
+					on problem.Id equals routineState.Problem.Id into routineStates
+				from routineState in routineStates.DefaultIfEmpty()
+				where problem.SourceName == problemSourceName
+					&& problem.State == TaskProblemState.Active
+					&& (routineState == null || routineState.RetryCount <= maxAttempts)
+					&& routineState.Id == 77
+				orderby routineState == null ? 0 : routineState.RetryCount, problem.CreationTime
+				select new CodePoolMissingProblemNode
+				{
+					Problem = problem,
+					EdoTask = orderTask,
+					RoutineState = routineState
+				};
+
+			if(batchSize.HasValue)
+			{
+				return await query.Take(batchSize.Value).ToListAsync(cancellationToken);
+			}
 
 			return await query.ToListAsync(cancellationToken);
 		}

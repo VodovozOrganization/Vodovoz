@@ -225,5 +225,21 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="orderId">Идентификатор заказа</param>
 		/// <returns>Список узлов документооборота для указанного заказа</returns>
 		IEnumerable<EdoInOrderTaxcomDocflowNode> GetEdoInOrderDocflows(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получить список узлов проблем с отсутствием кодов в пуле
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="maxAttempts">Максимальное количество попыток</param>
+		/// <param name="batchSize">Размер партии (опционально)</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Коллекция узлов проблем с отсутствием кодов в пуле</returns>
+		Task<IList<CodePoolMissingProblemNode>> GetCodePoolMissingProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int maxAttempts,
+			int? batchSize,
+			CancellationToken cancellationToken);
 	}
 }

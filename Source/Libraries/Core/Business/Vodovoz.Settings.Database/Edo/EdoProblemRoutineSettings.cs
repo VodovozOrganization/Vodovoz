@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vodovoz.Settings.Edo;
 
 namespace Vodovoz.Settings.Database.Edo
@@ -54,10 +54,10 @@ namespace Vodovoz.Settings.Database.Edo
 		public TimeSpan CodePoolMissingProblemWorkerInterval => _settingsController
 			.GetValue<TimeSpan>("edo.problem.routine.code-pool-missing-worker-interval");
 
-		public TimeSpan CodePoolMissingProblemWorkerMaxAttempts => _settingsController
-			.GetValue<TimeSpan>("edo.problem.routine.code-pool-missing-problem-max-attempts");
+		public int CodePoolMissingProblemWorkerMaxAttempts => _settingsController
+			.GetValue<int>("edo.problem.routine.code-pool-missing-problem-max-attempts");
 
-		public TimeSpan CodePoolMissingProblemWorkerBatchSize => _settingsController
-			.GetValue<TimeSpan>("edo.problem.routine.code-pool-missing-worker-batch-size");
+		public int CodePoolMissingProblemWorkerBatchSize => _settingsController
+			.GetValue<int>("edo.problem.routine.code-pool-missing-worker-batch-size");
 	}
 }

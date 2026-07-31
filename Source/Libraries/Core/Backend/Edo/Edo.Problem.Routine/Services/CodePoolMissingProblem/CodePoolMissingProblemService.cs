@@ -1,6 +1,5 @@
 ﻿using Edo.Contracts.Messages.Events;
 using Edo.Problem.Routine.Options;
-using Edo.Problems.Validation;
 using EdoNotifications.Application.Factories;
 using EdoNotifications.Contracts;
 using MassTransit;
@@ -9,7 +8,6 @@ using Microsoft.Extensions.Options;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,9 +22,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 	{
 		private readonly string _problemSourceName;
 		private readonly ILogger<CodePoolMissingProblemService> _logger;
-		private readonly IServiceProvider _serviceProvider;
-		private readonly IBus _messageBus;
-		private readonly IEdoTaskValidator _edoCodePoolValidator;
+		private readonly IBus _bus;
 		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -36,8 +32,6 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 
 		public CodePoolMissingProblemService(
 			ILogger<CodePoolMissingProblemService> logger,
-			IEnumerable<IEdoTaskValidator> validators,
-			IServiceProvider serviceProvider,
 			IBus messageBus,
 			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
 			IEdoNotificationMessageFactory notificationMessageFactory,
@@ -48,10 +42,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_edoCodePoolValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
-				.FirstOrDefault(v => v.Name == _problemSourceName);
-			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_bus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_notificationPublisher = notificationPublisher ?? throw new ArgumentNullException(nameof(notificationPublisher));
 			_notificationMessageFactory = notificationMessageFactory ?? throw new ArgumentNullException(nameof(notificationMessageFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -63,32 +54,6 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 		}
 
 		public async Task TryResumeTaskAsync(OrderEdoTask edoTask, CancellationToken cancellationToken)
-		{
-			if(_edoCodePoolValidator != null)
-			{
-				var validationResult = await _edoCodePoolValidator.ValidateAsync(edoTask, _serviceProvider, cancellationToken);
-
-				if(!validationResult.IsValid)
-				{
-					_logger.LogDebug(
-						"Задача ЭДО {EdoTaskId}: пул кодов не прошел проверку по заказу №{OrderId}",
-						edoTask.Id,
-						edoTask.FormalEdoRequest.Order.Id);
-
-					throw new ArgumentException(
-						$"Задача ЭДО {edoTask.Id}: пул кодов не прошел проверку по заказу №{edoTask.FormalEdoRequest.Order.Id}");
-				}
-			}
-
-			_logger.LogInformation(
-				"Задача ЭДО {EdoTaskId}: пул кодов прошел проверку по заказу №{OrderId}",
-				edoTask.Id,
-				edoTask.FormalEdoRequest.Order.Id);
-
-			await PublishResumeEvent(edoTask, cancellationToken);
-		}
-
-		private async Task PublishResumeEvent(OrderEdoTask edoTask, CancellationToken cancellationToken)
 		{
 			switch(edoTask)
 			{
@@ -126,7 +91,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 				edoTask.Stage,
 				nameof(DocumentTaskCreatedEvent));
 
-			await _messageBus.Publish(new DocumentTaskCreatedEvent { Id = edoTask.Id }, cancellationToken);
+			await _bus.Publish(new DocumentTaskCreatedEvent { Id = edoTask.Id }, cancellationToken);
 		}
 
 		private async Task PublishTenderResumeEvent(TenderEdoTask edoTask, CancellationToken cancellationToken)
@@ -148,7 +113,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 				edoTask.Stage,
 				nameof(TenderTaskCreatedEvent));
 
-			await _messageBus.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
+			await _bus.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
 		}
 
 		private async Task PublishReceiptResumeEvent(ReceiptEdoTask edoTask, CancellationToken cancellationToken)
@@ -170,7 +135,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 				edoTask.ReceiptStatus,
 				nameof(ReceiptTaskCreatedEvent));
 
-			await _messageBus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id }, cancellationToken);
+			await _bus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id }, cancellationToken);
 		}
 
 		public async Task ProcessProblemTasks(CancellationToken cancellationToken)
@@ -265,7 +230,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 			var state = problemNode.RoutineState ?? new EdoTaskProblemRoutineState { Problem = problem };
 			var now = DateTime.Now;
 
-			if(!CodePoolMissingProblemProcessingPolicy.CanRetry(
+			/*if(!CodePoolMissingProblemProcessingPolicy.CanRetry(
 				state,
 				now,
 				_options.WorkerInterval))
@@ -278,76 +243,76 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 					_options.WorkerInterval);
 
 				return CodePoolMissingProblemProcessResult.Empty;
+			}*/
+
+			if(CodePoolMissingProblemProcessingPolicy.ShouldRequestNotification(
+				state,
+				_options.MaxAttempts))
+			{
+				return await SendNotification(uow, problem, edoTask, cancellationToken);
 			}
 
 			state.RetryCount++;
 			state.LastRetryTime = now;
 			await uow.SaveAsync(state, cancellationToken: cancellationToken);
-			await uow.CommitAsync(cancellationToken);
-
-			var notificationSent = false;
 
 			try
 			{
 				await TryResumeTaskAsync(edoTask, cancellationToken);
 
-				problem.State = TaskProblemState.Solved;
 				await uow.CommitAsync(cancellationToken);
-
-				_logger.LogInformation(
-					"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: успешно обработана, проблема закрыта. Попытка #{RetryCount}",
-					problem.Id,
-					edoTask?.Id ?? 0,
-					state.RetryCount);
 
 				return new CodePoolMissingProblemProcessResult(true, false);
 			}
-			catch(ArgumentException ex)
+			catch(Exception ex)
 			{
 				_logger.LogWarning(ex,
-					"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: проверка не пройдена, попытка #{RetryCount}",
+					"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: ошибка при обработке, попытка #{RetryCount}",
 					problem.Id,
 					edoTask?.Id ?? 0,
 					state.RetryCount);
 
-				if(CodePoolMissingProblemProcessingPolicy.ShouldRequestNotification(
-					state,
-					_options.MaxAttempts))
-				{
-					_logger.LogError(
-						"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: достигнуто максимальное количество попыток ({MaxAttempts}), отправляем уведомление",
-						problem.Id,
-						edoTask?.Id ?? 0,
-						_options.MaxAttempts);
-
-					var orderId = edoTask?.FormalEdoRequest?.Order?.Id ?? 0;
-					notificationSent = await TryNotifyAsync(
-						uow,
-						orderId,
-						problem,
-						cancellationToken);
-
-					if(notificationSent)
-					{
-						_logger.LogInformation(
-							"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: уведомление отправлено успешно",
-							problem.Id,
-							edoTask?.Id ?? 0);
-					}
-					else
-					{
-						_logger.LogWarning(
-							"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: не удалось отправить уведомление",
-							problem.Id,
-							edoTask?.Id ?? 0);
-					}
-
-					problem.State = TaskProblemState.Solved;
-					await uow.CommitAsync(cancellationToken);
-				}
-
-				return new CodePoolMissingProblemProcessResult(false, notificationSent);
+				return new CodePoolMissingProblemProcessResult(false, false);
 			}
+		}
+
+		private async Task<CodePoolMissingProblemProcessResult> SendNotification(
+			IUnitOfWork uow,
+			ExceptionEdoTaskProblem problem,
+			OrderEdoTask edoTask,
+			CancellationToken cancellationToken)
+		{
+			_logger.LogError(
+				"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: достигнуто максимальное количество попыток ({MaxAttempts}), отправляем уведомление",
+				problem.Id,
+				edoTask?.Id ?? 0,
+				_options.MaxAttempts);
+
+			var orderId = edoTask?.FormalEdoRequest?.Order?.Id ?? 0;
+			var notificationSent = await TryNotifyAsync(
+				uow,
+				orderId,
+				problem,
+				cancellationToken);
+
+			if(notificationSent)
+			{
+				_logger.LogInformation(
+					"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: уведомление отправлено успешно",
+					problem.Id,
+					edoTask?.Id ?? 0);
+			}
+			else
+			{
+				_logger.LogWarning(
+					"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: не удалось отправить уведомление",
+					problem.Id,
+					edoTask?.Id ?? 0);
+			}
+
+			await uow.CommitAsync(cancellationToken);
+
+			return new CodePoolMissingProblemProcessResult(false, notificationSent);
 		}
 
 		public async Task<bool> TryNotifyAsync(

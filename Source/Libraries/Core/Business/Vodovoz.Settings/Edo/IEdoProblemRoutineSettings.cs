@@ -71,5 +71,20 @@ namespace Vodovoz.Settings.Edo
 		/// Количество попыток повторной обработки проблемы с контактом чека до уведомления
 		/// </summary>
 		int ReceiptContactProblemRetryAttemptsBeforeNotification { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки проблемы отсутствия кода в пуле
+		/// </summary>
+		TimeSpan CodePoolMissingProblemWorkerInterval { get; }
+
+		/// <summary>
+		/// Максимальное количество попыток повторной обработки проблемы отсутствия кода в пуле
+		/// </summary>
+		int CodePoolMissingProblemWorkerMaxAttempts { get; }
+
+		/// <summary>
+		/// Размер батча задач для обработки воркером проблемы отсутствия кода в пуле
+		/// </summary>
+		int CodePoolMissingProblemWorkerBatchSize { get; }
 	}
 }

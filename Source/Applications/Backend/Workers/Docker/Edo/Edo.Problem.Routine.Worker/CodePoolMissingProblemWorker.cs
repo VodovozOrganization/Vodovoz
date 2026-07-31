@@ -33,7 +33,7 @@ namespace Edo.Problem.Routine.Worker
 		{
 			using var scope = _serviceScopeFactory.CreateScope();
 			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
-			var orderEdoCodePoolMissingProblemService = scope.ServiceProvider.GetRequiredService<CodePoolMissingProblemService>();
+			var orderEdoCodePoolMissingProblemService = scope.ServiceProvider.GetRequiredService<ICodePoolMissingProblemService>();
 
 			_logger.LogInformation("Запуск обработки задач ЭДО с ошибкой нехватки кодов в пуле");
 

@@ -113,6 +113,7 @@ namespace Edo.Problem.Routine
 		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)
 		{
 			services
+				.ConfigureOptions<ConfigureCodePoolMissingProblemWorkerOptions>()
 				.AddScoped<ICodePoolMissingProblemService, CodePoolMissingProblemService>()
 				.AddEdoProblemRegistration();;
 

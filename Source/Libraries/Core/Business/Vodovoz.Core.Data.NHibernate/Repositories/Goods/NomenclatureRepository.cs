@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories.Goods;
 using Vodovoz.Core.Domain.Goods;
 
-namespace Vodovoz.Core.Data.Repositories.Goods
+namespace Vodovoz.Core.Data.NHibernate.Repositories.Goods
 {
 	public class NomenclatureRepository : INomenclatureRepository
 	{
