@@ -199788,7 +199788,7 @@ not tooltip</property>
                   <packing>
                     <property name="Position">0</property>
                     <property name="AutoSize">False</property>
-                    <property name="Expand">False</property>
+                    <property name="Expand">True</property>
                   </packing>
                 </child>
                 <child>
@@ -201299,7 +201299,6 @@ not tooltip</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="ScrollTaxcomDocflows">
                 <property name="MemberName" />
-                <property name="HscrollbarPolicy">Never</property>
                 <property name="ShadowType">In</property>
                 <child>
                   <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewTaxcomDocflows">
