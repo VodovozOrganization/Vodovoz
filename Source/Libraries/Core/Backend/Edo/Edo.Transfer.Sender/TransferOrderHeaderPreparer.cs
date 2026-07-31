@@ -22,7 +22,7 @@ namespace Edo.Transfer.Sender
 		private readonly IOrganizationRepository _organizationRepository;
 
 		/// <summary>
-		/// Создает подготовитель шапки заказа трансфера.
+		/// Конструктор.
 		/// </summary>
 		/// <param name="uow">Контекст работы с данными.</param>
 		/// <param name="transferTaskRepository">Репозиторий задач трансфера.</param>
