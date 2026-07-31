@@ -23,7 +23,7 @@ namespace Edo.Transfer.Dispatcher
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<TransferEdoHandler> _logger;
 		private readonly EdoTaskValidator _edoTaskValidator;
-		private readonly TransferTaskRepository _transferTaskRepository;
+		private readonly ITransferTaskRepository _transferTaskRepository;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferDispatcher _transferDispatcher;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
@@ -34,7 +34,7 @@ namespace Edo.Transfer.Dispatcher
 			ILogger<TransferEdoHandler> logger,
 			IUnitOfWork uow,
 			EdoTaskValidator edoTaskValidator,
-			TransferTaskRepository transferTaskRepository,
+			ITransferTaskRepository transferTaskRepository,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferDispatcher transferDispatcher,
 			EdoProblemRegistrar edoProblemRegistrar,
