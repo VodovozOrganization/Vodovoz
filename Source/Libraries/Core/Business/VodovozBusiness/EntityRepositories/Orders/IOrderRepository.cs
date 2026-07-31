@@ -150,12 +150,22 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);
 
-		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null);
-		decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null);
+		decimal GetCounterpartyDebt(
+			IUnitOfWork uow, int counterpartyId, int? organizationId = null, bool includeOrdersWithoutOrganization = false);
+		decimal GetCounterpartyWaitingForPaymentOrdersDebt(
+			IUnitOfWork uow, int counterpartyId, int? organizationId = null, bool includeOrdersWithoutOrganization = false);
 		decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(
-			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null);
+			IUnitOfWork uow,
+			int counterpartyId,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false);
 		decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(
-			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null);
+			IUnitOfWork uow,
+			int counterpartyId,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		bool OrderHasSentUPD(IUnitOfWork uow, int orderId);
