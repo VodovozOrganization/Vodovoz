@@ -22,7 +22,6 @@ namespace Vodovoz.ViewModels.Edo
 			EdoDocumentStatus = documentNode.EdoDocumentStatus;
 			CodesQuantity = documentNode.CodesQuantity;
 			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
-			ErrorDescription = documentNode.ErrorDescription;
 			DocumentType = MatchDocumentType(documentNode);
 			DocumentTypeString = DocumentType.GetEnumTitle();
 			DocumentGroupType = MatchDocumentsByGroupType(DocumentType);
@@ -50,8 +49,6 @@ namespace Vodovoz.ViewModels.Edo
 
 		public virtual int? CodesQuantity { get; }
 		public virtual string CodesQuantityString { get; }
-
-		public virtual string ErrorDescription { get; }
 
 
 		private EdoInOrderDocumentType MatchDocumentType(EdoInOrderDocumentNode document)

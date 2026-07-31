@@ -85,10 +85,6 @@ namespace Vodovoz.Views.Edo
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.CodesQuantityString)
 					.XAlign(0.5f)
-				.AddColumn("Описание проблемы из ЭДО")
-					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => x.ErrorDescription)
-					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 			ytreeviewDocuments.Selection.Mode = Gtk.SelectionMode.Single;
