@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Problem.Routine.Options;
-using Edo.Problems.Validation;
-using Edo.Problems.Validation.Sources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -22,7 +20,7 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 		private readonly ILogger<ReceiptContactProblemService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptionsMonitor<ReceiptContactProblemWorkerOptions> _options;
-		private readonly IEdoTaskValidator _receiptContactValidator;
+		private readonly IReceiptContactProblemSourceProvider _problemSourceProvider;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IReceiptEdoTaskResendService _resendService;
 		private readonly IReceiptContactProblemNotificationService _notificationService;
@@ -31,7 +29,7 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 			ILogger<ReceiptContactProblemService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOptionsMonitor<ReceiptContactProblemWorkerOptions> options,
-			IEnumerable<IEdoTaskValidator> validators,
+			IReceiptContactProblemSourceProvider problemSourceProvider,
 			IEdoRepository edoRepository,
 			IReceiptEdoTaskResendService resendService,
 			IReceiptContactProblemNotificationService notificationService)
@@ -39,18 +37,15 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
-			_receiptContactValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
-				.OfType<ReceiptContactEdoValidator>()
-				.SingleOrDefault()
-				?? throw new InvalidOperationException(
-					$"Валидатор {nameof(ReceiptContactEdoValidator)} не зарегистрирован");
+			_problemSourceProvider = problemSourceProvider
+				?? throw new ArgumentNullException(nameof(problemSourceProvider));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_resendService = resendService ?? throw new ArgumentNullException(nameof(resendService));
 			_notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
 		}
 
 		private DateTime MinEdoTaskCreationTime => DateTime.Today - _options.CurrentValue.ProblemTimeout;
-		private string ProblemSourceName => _receiptContactValidator.Name;
+		private IReadOnlyCollection<string> ProblemSourceNames => _problemSourceProvider.SourceNames;
 
 		/// <summary>
 		/// Обработать активные проблемы с контактом чека.
@@ -63,14 +58,13 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 			{
 				var problemNodes = await _edoRepository.GetReceiptContactProblemNodes(
 					uow,
-					ProblemSourceName,
+					ProblemSourceNames,
 					MinEdoTaskCreationTime,
 					cancellationToken);
 
 				_logger.LogInformation(
-					"Найдено {Count} задач ЭДО с активной проблемой {ProblemName}",
-					problemNodes.Count,
-					ProblemSourceName);
+					"Найдено {Count} задач ЭДО с активными проблемами контакта",
+					problemNodes.Count);
 
 				await ProcessContactProblems(uow, problemNodes, cancellationToken);
 			}

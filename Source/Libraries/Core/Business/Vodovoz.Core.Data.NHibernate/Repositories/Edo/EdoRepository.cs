@@ -20,6 +20,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 {
@@ -236,7 +237,7 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
 					&& orderEdoDocument.AcceptTime == null
 					&& taxcomDocflow.IsReceived
-					&& order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cashless
+					&& order.PaymentType == PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 					&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
@@ -313,7 +314,7 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
 					&& orderEdoDocument.AcceptTime == null
 					&& taxcomDocflow.IsReceived
-					&& order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cashless
+					&& order.PaymentType == PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 					&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
@@ -397,10 +398,15 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 
 		public async Task<IList<ReceiptContactProblemNode>> GetReceiptContactProblemNodes(
 			IUnitOfWork uow,
-			string problemSourceName,
+			IEnumerable<string> problemSourceNames,
 			DateTime minCreationTime,
 			CancellationToken cancellationToken)
 		{
+			if(problemSourceNames == null)
+			{
+				throw new ArgumentNullException(nameof(problemSourceNames));
+			}
+
 			var query =
 				from problem in uow.Session.Query<EdoTaskProblem>()
 				join receiptTask in uow.Session.Query<ReceiptEdoTask>()
@@ -408,9 +414,9 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
 					on problem.Id equals routineState.Problem.Id into routineStates
 				from routineState in routineStates.DefaultIfEmpty()
-				where problem.SourceName == problemSourceName
-					&& problem.State == TaskProblemState.Active
-					&& receiptTask.CreationTime >= minCreationTime
+				where problemSourceNames.Contains(problem.SourceName)
+				      && problem.State == TaskProblemState.Active
+				      && receiptTask.CreationTime >= minCreationTime
 				select new ReceiptContactProblemNode
 				{
 					ReceiptTask = receiptTask,

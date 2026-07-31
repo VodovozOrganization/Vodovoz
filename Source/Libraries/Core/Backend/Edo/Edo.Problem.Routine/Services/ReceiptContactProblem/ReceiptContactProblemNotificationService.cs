@@ -14,15 +14,19 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 	{
 		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
+		private readonly IReceiptContactProblemSourceProvider _problemSourceProvider;
 
 		public ReceiptContactProblemNotificationService(
 			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
-			IEdoNotificationMessageFactory notificationMessageFactory)
+			IEdoNotificationMessageFactory notificationMessageFactory,
+			IReceiptContactProblemSourceProvider problemSourceProvider)
 		{
 			_notificationPublisher = notificationPublisher
 				?? throw new ArgumentNullException(nameof(notificationPublisher));
 			_notificationMessageFactory = notificationMessageFactory
 				?? throw new ArgumentNullException(nameof(notificationMessageFactory));
+			_problemSourceProvider = problemSourceProvider
+				?? throw new ArgumentNullException(nameof(problemSourceProvider));
 		}
 
 		public Task<bool>  TryNotifyAsync(
@@ -50,6 +54,7 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 
 			var notification = _notificationMessageFactory.Create(
 				EdoNotificationType.ReceiptContactInvalid,
+				("ProblemName", _problemSourceProvider.GetNotificationName(problem.SourceName)),
 				("OrderId", orderId.ToString(CultureInfo.InvariantCulture)),
 				("EdoTaskId", receiptTask.Id.ToString(CultureInfo.InvariantCulture)),
 				("ProblemId", problem.Id.ToString(CultureInfo.InvariantCulture)),
