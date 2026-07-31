@@ -111,7 +111,7 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			CreateResendReceiptAction(newActions, document);
 
-			if(document.TaskReceiptStage == EdoReceiptStatus.New && document.TaskStatus == EdoTaskStatus.Problem)
+			if(document.TaskReceiptStage != EdoReceiptStatus.Completed && document.TaskStatus == EdoTaskStatus.Problem)
 			{
 				newActions.Add(new BusyCommand(
 					"Переотправить чек",

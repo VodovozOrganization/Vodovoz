@@ -24,7 +24,6 @@ namespace EdoService.Library
 				.AddScoped<IUserService, UserService>()
 				.AddScoped<EdoTaskCustomSourcesPersister>()
 				.AddScoped<EdoTaskExceptionSourcesPersister>()
-				.AddScoped<TaskHasBeenCancelledWithReason>()
 				.AddScoped<EdoProblemRegistrar>()
 				;
 

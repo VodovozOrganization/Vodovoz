@@ -85,9 +85,9 @@ namespace Vodovoz.Views.Edo
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.CodesQuantityString)
 					.XAlign(0.5f)
-				.AddColumn("Описание проблемы из ЭДО")
+				.AddColumn("Причина отмены")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => x.ErrorDescription)
+					.AddTextRenderer(x => x.CancellationReason)
 					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();

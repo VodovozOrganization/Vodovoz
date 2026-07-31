@@ -5,10 +5,10 @@ using Edo.Problems.Custom.Sources;
 using Edo.Transport;
 using EdoService.Library.Factories;
 using MassTransit;
-using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
+using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +44,7 @@ namespace EdoService.Library
 		private readonly IEdoRepository _edoRepository;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
 		private readonly MessageService _messageService;
+		private readonly IUserService _userService;
 		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
@@ -69,6 +70,7 @@ namespace EdoService.Library
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			IEdoRepository edoRepository,
 			MessageService messageService,
+			IUserService userService,
 			IGenericRepository<FormalEdoRequest> edoRequestRepository,
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
@@ -82,6 +84,7 @@ namespace EdoService.Library
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_edoRequestRepository = edoRequestRepository ?? throw new ArgumentNullException(nameof(edoRequestRepository));
 			_counterpartyEdoAccountEntityController = counterpartyEdoAccountEntityController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountEntityController));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
@@ -170,11 +173,7 @@ namespace EdoService.Library
 
 			var request = ManualEdoRequestFactory.Create(order, productCodes);
 
-			activeEdoTask.Status = EdoTaskStatus.Cancelled;
-
-			RegisterProblem(activeEdoTask, CancellationToken.None)
-				.GetAwaiter()
-				.GetResult();
+			SetCancellationReason(activeEdoTask, $"Новая ручная переотправка пользователем {_userService.GetCurrentUser().Name}");
 
 			uow.Save(request);
 			uow.Save(activeEdoTask);
@@ -578,7 +577,6 @@ namespace EdoService.Library
 					return canResendResult;
 				}
 
-				receiptTask.Status = EdoTaskStatus.Cancelled;
 				receiptTask.ReceiptStatus = EdoReceiptStatus.New;
 
 				var productCodes = new ObservableList<TrueMarkProductCode>(
@@ -587,7 +585,7 @@ namespace EdoService.Library
 
 				var request = ManualEdoRequestFactory.Create(order, productCodes);
 
-				await RegisterProblem(receiptTask, cancellationToken);
+				SetCancellationReason(receiptTask, $"Новая ручная переотправка пользователем {_userService.GetCurrentUser().Name}");
 
 				await uow.SaveAsync(request, cancellationToken: cancellationToken);
 				await uow.SaveAsync(receiptTask, cancellationToken: cancellationToken);
@@ -599,12 +597,10 @@ namespace EdoService.Library
 			}
 		}
 
-		private async Task RegisterProblem(OrderEdoTask task, CancellationToken cancellationToken)
+		private void SetCancellationReason(EdoTask edoTask, string cancellationReason)
 		{
-			await _edoProblemRegistrar.RegisterCustomProblem<TaskHasBeenCancelledWithReason>(
-									task,
-									Enumerable.Empty<EdoTaskItem>(),
-									cancellationToken);
+			edoTask.Status = EdoTaskStatus.Cancelled;
+			edoTask.CancellationReason = cancellationReason;
 		}
 
 		private Result CanResendReceipt(ReceiptEdoTask receiptTask)
