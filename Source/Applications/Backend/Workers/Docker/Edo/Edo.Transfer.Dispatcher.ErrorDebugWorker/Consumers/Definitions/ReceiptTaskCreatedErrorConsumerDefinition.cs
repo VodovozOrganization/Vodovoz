@@ -18,4 +18,21 @@ namespace Edo.Receipt.Dispatcher.Consumers.Definitions
 			rmq.PrefetchCount = 1;
 		}
 	}
+
+	public class ReceiptTaskCreatedResendErrorConsumerDefinition : ConsumerDefinition<ReceiptTaskCreatedResendErrorConsumer>
+	{
+		public ReceiptTaskCreatedResendErrorConsumerDefinition()
+		{
+			Endpoint(x => x.Name = "edo.receipt-task-created.consumer.receipt-dispatcher_error");
+		}
+
+		protected override void ConfigureConsumer(IReceiveEndpointConfigurator endpointConfigurator,
+			IConsumerConfigurator<ReceiptTaskCreatedResendErrorConsumer> consumerConfigurator)
+		{
+			var rmq = (IRabbitMqReceiveEndpointConfigurator)endpointConfigurator;
+
+			endpointConfigurator.ConfigureConsumeTopology = false;
+			rmq.PrefetchCount = 10;
+		}
+	}
 }

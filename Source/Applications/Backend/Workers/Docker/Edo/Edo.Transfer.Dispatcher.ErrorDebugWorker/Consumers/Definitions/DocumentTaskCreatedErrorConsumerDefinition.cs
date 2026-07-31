@@ -19,6 +19,4 @@ namespace Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions
 			rmq.PrefetchCount = 1;
 		}
 	}
-
-	
 }
