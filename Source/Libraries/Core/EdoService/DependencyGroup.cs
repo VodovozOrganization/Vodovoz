@@ -25,7 +25,6 @@ namespace EdoService.Library
 				.AddScoped<IInformalEdoRequestFactory, EquipmentTransferEdoRequestFactory>()
 				.AddScoped<EdoTaskCustomSourcesPersister>()
 				.AddScoped<EdoTaskExceptionSourcesPersister>()
-				.AddScoped<TaskHasBeenCancelledWithReason>()
 				.AddScoped<EdoProblemRegistrar>()
 				.AddScoped<MessageService>()
 				.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>()

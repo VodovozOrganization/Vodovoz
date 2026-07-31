@@ -8,6 +8,7 @@ using MassTransit;
 using NSubstitute;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
+using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +41,7 @@ namespace EdoServices.Tests
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IBus _bus;
 		private readonly MessageService _messageService;
+		private readonly IUserService _userService;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 		private readonly EdoService.Library.EdoService _edoService;
 		private readonly EdoProblemRegistrar _problemRegistrar;
@@ -82,6 +84,8 @@ namespace EdoServices.Tests
 				_bus
 			);
 
+			_userService = Substitute.For<IUserService>();
+
 			_counterpartyEdoAccountEntityController = Substitute.For<ICounterpartyEdoAccountEntityController>();
 
 			_edoService = new EdoService.Library.EdoService(
@@ -90,6 +94,7 @@ namespace EdoServices.Tests
 				_receiptRepository,
 				_edoRepository,
 				_messageService,
+				_userService,
 				_edoRequestRepository,
 				_counterpartyEdoAccountEntityController,
 				_edoRequestCreatedEventPublisher,
@@ -474,15 +479,6 @@ namespace EdoServices.Tests
 		private void SetupUowFactoryForReceiptEdoTaskWithRequest(ReceiptEdoTask receiptTask)
 		{
 			var taskId = receiptTask.Id;
-
-			_problemRegistrar
-				.RegisterCustomProblem<TaskHasBeenCancelledWithReason>(
-					Arg.Any<EdoTask>(),
-					Arg.Any<IEnumerable<EdoTaskItem>>(),
-					Arg.Any<CancellationToken>(),
-					Arg.Any<string>()
-				)
-				.Returns(Task.CompletedTask);
 
 			_uowFactory.CreateWithoutRoot(Arg.Any<string>())
 				.ReturnsForAnyArgs(x => {
