@@ -108,7 +108,8 @@ namespace DriverAPI.Library.V6.Converters
 				Trifle = vodovozOrder.Trifle ?? 0,
 				SignatureType = _signatureTypeConverter.ConvertToApiSignatureType(vodovozOrder.SignatureType),
 				WaitUntilTime = vodovozOrder.WaitUntilTime,
-				OrderType = GetOrderType(vodovozOrder)
+				OrderType = GetOrderType(vodovozOrder),
+				CanScanTransportCode = !vodovozOrder.IsSendingReceiptExpectedByPaymentType
 			};
 
 			if(vodovozOrder.DontArriveBeforeInterval)
