@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using Edo.Common;
 using Edo.Transport;
 using EdoContactsUpdater.Configs;
@@ -66,8 +66,7 @@ namespace EdoContactsUpdater
 						.AddSingleton<IEdoContactStateCodeConverter, EdoContactStateCodeConverter>()
 						.AddHttpClient()
 						.AddTaxcomClient()
-						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoContactsUpdaterService))
-						.ConfigureZabbixSenderFromDataBase(nameof(OrderContactProblemUpdateWorker))
+						.ConfigureZabbixSenderFromDataBase()
 						.AddScoped<IEdoRepository, EdoRepository>()
 						.AddScoped<IOrderContactProblemUpdateService, OrderContactProblemUpdateService>()
 						;

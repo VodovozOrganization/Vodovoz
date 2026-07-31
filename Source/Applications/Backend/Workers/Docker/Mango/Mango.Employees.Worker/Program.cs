@@ -46,8 +46,7 @@ namespace Mango.Employees.Worker
 						.AddTrackedUoW()
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						.AddMangoEmployeesServices()
-						.ConfigureZabbixSenderFromDataBase(nameof(DriverMangoEmployeeRegistrationWorker))
-						.ConfigureZabbixSenderFromDataBase(nameof(DriverMangoEmployeeDeactivationWorker));
+						.ConfigureZabbixSenderFromDataBase();
 
 					services
 						.AddDatabaseConfigurationExposer(config =>

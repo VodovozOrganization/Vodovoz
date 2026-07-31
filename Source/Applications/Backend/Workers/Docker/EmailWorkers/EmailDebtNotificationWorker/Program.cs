@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using BitrixApi.Library.Services;
 using Email.Infrastructure.Factories;
 using EmailDebtNotificationWorker.Options;
@@ -87,7 +87,7 @@ namespace EmailDebtNotificationWorker
 					services.AddRepositories();
 					services.AddCoreDataRepositories();
 					services.AddTrackedUoW();
-					services.ConfigureZabbixSenderFromDataBase(nameof(EmailDebtNotificationWorker));
+					services.ConfigureZabbixSenderFromDataBase();
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddStaticHistoryTracker();
 
@@ -120,8 +120,7 @@ namespace EmailDebtNotificationWorker
 						.ConfigureOptions<ConfigureEmailClaimLettersOptions>()
 						.AddScoped<IClaimLetterBillWithoutShipmentService, ClaimLetterBillWithoutShipmentService>()
 						.AddScoped<IEmailClaimLettersService, EmailClaimLettersService>()
-						.AddHostedService<EmailClaimLettersWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(EmailClaimLettersWorker));
+						.AddHostedService<EmailClaimLettersWorker>();
 
 					services
 						.Configure<EmailClosingDeliveriesOptions>(hostContext.Configuration.GetSection(EmailClosingDeliveriesOptions.SectionName))
@@ -131,7 +130,6 @@ namespace EmailDebtNotificationWorker
 						.AddScoped<IClientClosingDeliveriesEmailPreparer, ClientClosingDeliveriesEmailPreparer>()
 						.AddScoped<ISummaryClosingDeliveriesEmailPreparer, SummaryClosingDeliveriesEmailPreparer>()
 						.AddHostedService<EmailClosingDeliveriesWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(EmailClosingDeliveriesWorker))
 						;
 
 					services.AddSingleton<IDailyScheduler, DailyScheduler>();

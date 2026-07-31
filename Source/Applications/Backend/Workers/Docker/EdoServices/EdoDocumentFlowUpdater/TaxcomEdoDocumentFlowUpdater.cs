@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using QS.Services;
-using Renci.SshNet.Messages;
 using System;
 using System.IO;
 using System.Linq;

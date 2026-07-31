@@ -77,7 +77,7 @@ namespace Edo.Documents
 			if(edoTask.Stage != DocumentEdoTaskStage.New)
 			{
 				_logger.LogInformation("Задача Id {DocumentEdoTaskId} уже в работе", documentEdoTaskId);
-				//return;
+				return;
 			}
 
 			if(edoTask.FormalEdoRequest is null)

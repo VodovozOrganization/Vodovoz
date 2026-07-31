@@ -62,31 +62,27 @@ namespace DatabaseServiceWorker
 						.AddInfrastructure()
 						.AddTrackedUoW()
 
-						.AddHostedService<MonitoringArchivingWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(MonitoringArchivingWorker))
+						.ConfigureZabbixSenderFromDataBase()
+
+						.AddHostedService<MonitoringArchivingWorker>()						
 						
 						.AddHostedService<ClearFastDeliveryAvailabilityHistoryWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(ClearFastDeliveryAvailabilityHistoryWorker))
 						.ConfigureClearFastDeliveryAvailabilityHistoryWorker(hostContext)
 						
 						.AddHostedService<TechInspectWorker>()
 						.ConfigureTechInspectWorker(hostContext)
-						.ConfigureZabbixSenderFromDataBase(nameof(TechInspectWorker))
 						
 						.AddHostedService<FuelTransactionsControlWorker>()
 						.AddFuelTransactionsControlWorker(hostContext)
-						.ConfigureZabbixSenderFromDataBase(nameof(FuelTransactionsControlWorker))
 						
 						.AddExportTo1c()
 						
 						.AddHostedService<ExportTo1cWorker>()
 						.ConfigureExportTo1cWorker(hostContext)
-						.ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cWorker))
 
 						// 1с Апи
 						.AddHostedService<ExportTo1cApiWorker>()
 						.ConfigureExportTo1cApiWorker(hostContext)
-						.ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cApiWorker))
 
 
 						// Пока отключаем воркер экпорта в PowerBi
