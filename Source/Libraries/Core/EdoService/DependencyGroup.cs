@@ -2,11 +2,13 @@
 using Edo.Problems.Custom;
 using Edo.Problems.Custom.Sources;
 using Edo.Problems.Exception;
+using Edo.Transport;
 using EdoService.Library.Converters;
 using EdoService.Library.Factories;
 using EdoService.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
-using QS.Services;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Vodovoz.Core.Domain.Controllers;
 
 namespace EdoService.Library
 {
@@ -21,10 +23,11 @@ namespace EdoService.Library
 				.AddScoped<IAuthorizationService, TaxcomAuthorizationService>()
 				.AddScoped<IContactStateConverter, ContactStateConverter>()
 				.AddScoped<IInformalEdoRequestFactory, EquipmentTransferEdoRequestFactory>()
-				.AddScoped<IUserService, UserService>()
 				.AddScoped<EdoTaskCustomSourcesPersister>()
 				.AddScoped<EdoTaskExceptionSourcesPersister>()
 				.AddScoped<EdoProblemRegistrar>()
+				.AddScoped<MessageService>()
+				.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>()
 				;
 
 			return services;

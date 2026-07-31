@@ -248,7 +248,6 @@ namespace Vodovoz
 				.AddTransient<EntityModelFactory>()
 
 				.AddPacs()
-				.AddScoped<MessageService>()
 				.AddSingleton<EntityToJournalMappings>()
 				.AddScoped<EntityJournalOpener>()
 
