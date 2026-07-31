@@ -1088,24 +1088,5 @@ where ecr.order_id = :order_id
 
 			return task;
 		}
-
-		public async Task<List<ExceptionEdoTaskProblem>> GetActiveProblems(
-			IUnitOfWork uow,
-			string problemSourceName,
-			int batchSize,
-			int maxAttempts,
-			CancellationToken cancellationToken)
-		{
-			var problems = await uow.Session.Query<ExceptionEdoTaskProblem>()
-				.Where(p => p.SourceName == problemSourceName
-					&& p.State == TaskProblemState.Active
-					&& (p.Attempts == null || p.Attempts < maxAttempts))
-				.OrderBy(p => p.Attempts)
-				.ThenBy(p => p.CreationTime)
-				.Take(batchSize)
-				.ToListAsync(cancellationToken);
-
-			return problems;
-		}
 	}
 }

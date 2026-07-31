@@ -17,7 +17,6 @@ namespace Vodovoz.Core.Domain.Edo
 		private EdoTask _edoTask;
 		private string _sourceName;
 		private TaskProblemState _state;
-		private int? _attempts;
 		private IObservableList<EdoTaskItem> _taskItems = new ObservableList<EdoTaskItem>();
 		private IObservableList<EdoProblemCustomItem> _customItems = new ObservableList<EdoProblemCustomItem>();
 
@@ -89,16 +88,6 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _state;
 			set => SetField(ref _state, value);
-		}
-
-		/// <summary>
-		/// Количество попыток решения проблемы
-		/// </summary>
-		[Display(Name = "Количество попыток")]
-		public virtual int? Attempts
-		{
-			get => _attempts;
-			set => SetField(ref _attempts, value);
 		}
 
 		/// <summary>

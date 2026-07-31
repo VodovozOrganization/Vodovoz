@@ -38,9 +38,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.State)
 				.Column("state");
 
-			Map(x => x.Attempts)
-				.Column("attempts");
-
 			HasManyToMany(x => x.TaskItems)
 				.Table("edo_task_problem_items")
 				.ParentKeyColumn("edo_task_problem_id")

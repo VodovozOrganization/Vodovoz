@@ -29,7 +29,7 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 				?? throw new ArgumentNullException(nameof(problemSourceProvider));
 		}
 
-		public Task<bool>  TryNotifyAsync(
+		public Task<bool> TryNotifyAsync(
 			IUnitOfWork unitOfWork,
 			ReceiptEdoTask receiptTask,
 			EdoTaskProblem problem,

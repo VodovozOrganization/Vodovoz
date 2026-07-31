@@ -195,22 +195,6 @@ namespace Vodovoz.Core.Data.Repositories
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Получить список активных проблем
-		/// </summary>
-		/// <param name="uow">IUnitOfWork</param>
-		/// <param name="problemSourceName">Имя источника проблемы</param>
-		/// <param name="batchSize">Размер партии</param>
-		/// <param name="maxAttempts">Максимальное количество попыток</param>
-		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns></returns>
-		Task<List<ExceptionEdoTaskProblem>> GetActiveProblems(
-			IUnitOfWork uow,
-			string problemSourceName,
-			int batchSize,
-			int maxAttempts,
-			CancellationToken cancellationToken);
-
-		/// <summary>
 		/// Получить список чеков для указанного заказа
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
