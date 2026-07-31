@@ -713,7 +713,16 @@ namespace Vodovoz.Core.Domain.Orders
 			IsOrderForTender
 			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
 			&& PaymentType == PaymentType.Cashless;
-			
+
+		/// <summary>
+		/// Предполагает ли форма оплаты заказа отправку чека
+		/// </summary>
+		public virtual bool IsSendingReceiptExpectedByPaymentType =>
+			OrderReceiptRules.IsSendingReceiptExpectedByPaymentType(
+				Client?.ReasonForLeaving,
+				PaymentType,
+				PaymentByCardFrom?.ReceiptRequired);
+
 		/// <summary>
 		/// Полная сумма заказа
 		/// </summary>

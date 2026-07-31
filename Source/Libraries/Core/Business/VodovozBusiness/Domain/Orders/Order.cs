@@ -1450,6 +1450,15 @@ namespace Vodovoz.Domain.Orders
 			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
 			&& PaymentType == PaymentType.Cashless;
 
+		/// <summary>
+		/// Предполагает ли форма оплаты заказа отправку чека
+		/// </summary>
+		public virtual new bool IsSendingReceiptExpectedByPaymentType =>
+			OrderReceiptRules.IsSendingReceiptExpectedByPaymentType(
+				Client?.ReasonForLeaving,
+				PaymentType,
+				PaymentByCardFrom?.ReceiptRequired);
+
 		public virtual string OrderDocumentStringNumber(DocumentContainerType documentContainerType)
 		{
 			if(DeliveryDate.Value.Year < 2026)
