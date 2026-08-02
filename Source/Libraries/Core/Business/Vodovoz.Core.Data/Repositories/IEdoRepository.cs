@@ -1,9 +1,8 @@
-﻿using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
@@ -72,6 +71,21 @@ namespace Vodovoz.Core.Data.Repositories
 		) where T : OrderEdoTask;
 
 		/// <summary>
+		/// Возвращает данные для обработки активных проблем контакта при отправке чека
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="problemSourceNames">Имена источников проблем</param>
+		/// <param name="minCreationTime">Минимальное время создания задачи</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные задач, проблем и состояния их обработки</returns>
+		Task<IList<ReceiptContactProblemNode>> GetReceiptContactProblemNodes(
+			IUnitOfWork uow,
+			IEnumerable<string> problemSourceNames,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken
+		);
+
+		/// <summary>
 		/// Возвращает идентификаторы задач ЭДО с ошибкой отправки, которые связаны с документами, созданными после указанного времени
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
@@ -104,5 +118,16 @@ namespace Vodovoz.Core.Data.Repositories
 		);
 		IEnumerable<EdoInOrderProblemNode> GetEdoProblemsForOrder(IUnitOfWork uow, int orderId);
 		IEnumerable<EdoInOrderTransferNode> GetTransferEdoTasksForOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает сгруппированные данные ЭДО, по которым истекло время подтверждения УПД от клиента
+		/// </summary>
+		/// <param name="unitOfWork">UnitOfWork</param>
+		/// <param name="timeoutDays">Количество дней до истечения принятия УПД</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<IList<TimedOutDocFlowGrouppedNode>> GetTimedOutDocFlows(IUnitOfWork unitOfWork, int timeoutDays, CancellationToken cancellationToken);
+		IEnumerable<EdoInOrderReceiptNode> GetReceiptsForOrder(IUnitOfWork uow, int orderId);
+		IEnumerable<EdoInOrderTaxcomDocflowNode> GetEdoInOrderDocflows(IUnitOfWork uow, int orderId);
 	}
 }

@@ -16,7 +16,7 @@
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Osrm\Osrm.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
   </ItemGroup>

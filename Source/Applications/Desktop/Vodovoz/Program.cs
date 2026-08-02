@@ -112,10 +112,12 @@ using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
 using VodovozInfrastructure.Passwords;
 using VodovozInfrastructure.StringHandlers;
+using VodovozBusiness.Services.TrueMark;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
 using Vodovoz.Application.TrueMark;
+using VodovozBusiness.Models.TrueMark;
 
 namespace Vodovoz
 {
@@ -261,6 +263,10 @@ namespace Vodovoz
 
 					builder.RegisterType<TrueMarkWaterCodeParser>()
 						.AsSelf()
+						.InstancePerLifetimeScope();
+
+					builder.RegisterType<CancelledOrderTrueMarkCodesTransferService>()
+						.As<ICancelledOrderTrueMarkCodesTransferService>()
 						.InstancePerLifetimeScope();
 
 					#endregion TrueMark

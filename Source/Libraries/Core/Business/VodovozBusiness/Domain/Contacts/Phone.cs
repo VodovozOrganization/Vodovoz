@@ -124,6 +124,13 @@ namespace Vodovoz.Domain.Contacts
 			return "+7 " + Number;
 		}
 
-		public virtual string Title => $"{ ToString() }, { DeliveryPoint?.Title ?? Counterparty?.Name }";
+		public virtual string Title
+		{
+			get
+			{
+				var owner = DeliveryPoint?.Title ?? Counterparty?.Name;
+				return string.IsNullOrWhiteSpace(owner) ? ToString() : $"{ToString()}, {owner}";
+			}
+		}
 	}
 }

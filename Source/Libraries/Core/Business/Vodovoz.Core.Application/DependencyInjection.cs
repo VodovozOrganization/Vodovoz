@@ -16,6 +16,8 @@ using Vodovoz.Core.Application.Logistics;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Application.Payments;
+using Vodovoz.Core.Application.Payments.OnlinePayments;
+using Vodovoz.Core.Application.Payments.OnlinePayments.Builders;
 using Vodovoz.Core.Application.Receipts;
 using Vodovoz.Core.Application.Services.Subdivisions;
 using Vodovoz.Core.Application.TrueMark;
@@ -30,11 +32,13 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Employees;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Clients;
+using VodovozBusiness.Services.Clients.DeliveryPoints;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Receipts;
 using VodovozBusiness.Services.Subdivisions;
@@ -68,6 +72,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IComplaintService, ComplaintService>()
 				.AddScoped<ISubdivisionPermissionsService, SubdivisionPermissionsService>()
 				.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
+				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
 				.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 				.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
@@ -78,9 +83,12 @@ namespace Vodovoz.Core.Application
 				.AddScoped<OrderCancellationService>()
 				.AddScoped<SelfdeliveryCancellationService>()
 				.AddScoped<IExternalCounterpartyHandler, ExternalCounterpartyHandler>()
+				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>()
 				.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
+				.AddScoped<IPaymentByCardOnlineBuilderFactory, PaymentByCardOnlineBuilderFactory>()
+				.AddScoped<PaymentsFromYookassaParser>()
 				.AddTrueMarkApiClient()
-				.AddCoreApplicationOrderServices()				
+				.AddCoreApplicationOrderServices()
 				;
 
 			services.TryAddScoped<IFastPaymentSender, FastPaymentSender>();

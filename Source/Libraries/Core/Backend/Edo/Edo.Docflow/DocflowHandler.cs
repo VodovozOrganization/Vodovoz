@@ -263,6 +263,11 @@ namespace Edo.Docflow
 					// Тут сделать обработку успешной отправки
 					// проверять по документам такскома не по статусу InProgress
 					document.Status = EdoDocumentStatus.InProgress;
+
+					if(updatedEvent.DocFlowId.HasValue && updatedEvent.IsReceived)
+					{
+						message = OrderDocumentSentEvent.Create(document.Id);
+					}
 					break;
 				case EdoDocFlowStatus.Succeed:
 					var acceptTime = updatedEvent.StatusChangeTime ?? DateTime.Now;
@@ -367,7 +372,7 @@ namespace Edo.Docflow
 			}
 
 			await _uow.SaveAsync(document, cancellationToken: cancellationToken);
-			await _uow.CommitAsync();
+			await _uow.CommitAsync(cancellationToken);
 
 			if(message != null)
 			{

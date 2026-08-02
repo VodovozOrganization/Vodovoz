@@ -1,4 +1,4 @@
-using CustomerNotifications.Application.Builders;
+﻿using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
 using DriverAPI.Data;
 using DriverAPI.HealthChecks;
@@ -116,12 +116,6 @@ namespace DriverAPI
 				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 
-			services
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>,
-					OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
-				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-				.AddCustomerNotificationsSettingsProvider();
-
 			services.Configure<IdentityOptions>(options =>
 			{
 				// Password settings
@@ -161,7 +155,7 @@ namespace DriverAPI
 
 			// Уведомления клиентов
 
-			services.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+			services.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 					.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
 					.AddCustomerNotificationsSettingsProvider();
 

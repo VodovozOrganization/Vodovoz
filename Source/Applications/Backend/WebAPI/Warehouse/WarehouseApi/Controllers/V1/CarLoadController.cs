@@ -20,7 +20,7 @@ using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Filters;
 using WarehouseApi.Library.Services;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocumentErrors;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
+using TrueMarkCodeErrors = Vodovoz.Core.Domain.Errors.TrueMarkCodeErrors;
 
 namespace WarehouseApi.Controllers.V1
 {

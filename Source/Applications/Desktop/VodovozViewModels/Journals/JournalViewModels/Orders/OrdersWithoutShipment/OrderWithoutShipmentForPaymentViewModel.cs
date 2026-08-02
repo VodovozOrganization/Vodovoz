@@ -38,6 +38,7 @@ using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Organizations;
 using EdoDocumentType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using VodOrder = Vodovoz.Domain.Orders.Order;
+using VodovozBusiness.Errors.Edo;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -326,7 +327,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			if(edoValidateResult.IsFailure)
 			{
-				if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.EdoErrors.AlreadySuccefullSended)
+				if(edoValidateResult.Errors.Any(error => error.Code == EdoErrors.AlreadySuccefullSended)
 					&& !CommonServices.InteractiveService.Question(
 						"Вы уверены, что хотите отправить дубль?\n" +
 						string.Join("\n", errorMessages),

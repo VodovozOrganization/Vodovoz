@@ -3,7 +3,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Core.Domain.StoredEmails;
 
 namespace Vodovoz.Domain.Client
 {

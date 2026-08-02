@@ -24,11 +24,5 @@ namespace Vodovoz.EntityRepositories.Orders
 		Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(
 			IUnitOfWork uow, Order currOrder, bool ignoreCurrentOrder = false);
 		bool AddressHasAlreadyBeenUsedForPromoForNewClients(IUnitOfWork uow, DeliveryPoint deliveryPoint);
-		IEnumerable<PromotionalSetOnlineParametersNode> GetActivePromotionalSetsOnlineParametersForSend(
-			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
-		IEnumerable<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
-			IUnitOfWork uow,
-			GoodsOnlineParameterType parameterType,
-			IEnumerable<int> warehouses);
 	}
 }

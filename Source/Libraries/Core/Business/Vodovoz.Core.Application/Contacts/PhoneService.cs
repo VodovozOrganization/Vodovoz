@@ -99,11 +99,6 @@ namespace Vodovoz.Core.Application.Contacts
 					return Result.Failure<string>(Vodovoz.Errors.Employees.DriverErrors.NotFound);
 				}
 
-				if(!driver.CanRecieveCounterpartyCalls)
-				{
-					return Result.Failure<string>(Vodovoz.Errors.Employees.DriverErrors.CantRecieveCounterpartyCalls);
-				}
-
 				var phone = driver.PhoneForCounterpartyCalls;
 
 				if(phone is null)

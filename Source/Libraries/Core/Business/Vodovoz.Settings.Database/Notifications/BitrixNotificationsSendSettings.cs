@@ -28,5 +28,47 @@ namespace Vodovoz.Settings.Database.Notifications
 
 		public TimeSpan ClientTimeout =>
 			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}ClientTimeout");
+
+		public string BitrixDealsBaseUrl =>
+			_settingsController.GetStringValue($"{_parametersPrefix}BitrixDealsBaseUrl");
+
+		public string BitrixDealsUser =>
+			_settingsController.GetStringValue($"{_parametersPrefix}BitrixDealsUser");
+
+		public string BitrixDealsToken =>
+			_settingsController.GetStringValue($"{_parametersPrefix}BitrixDealsToken");
+
+		public TimeSpan PlannedOrdersNotificationsSendInterval =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}PlannedOrdersNotificationsSendInterval");
+
+		public TimeSpan PlannedOrdersSendTimeFrom =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}PlannedOrdersSendTimeFrom");
+
+		public TimeSpan PlannedOrdersSendTimeTo =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}PlannedOrdersSendTimeTo");
+
+		public int PlannedOrdersDaysToNextOrderAfterSingleOrder =>
+			_settingsController.GetIntValue($"{_parametersPrefix}PlannedOrdersDaysAfterSingleOrder");
+
+		public bool PlannedOrdersNotificationsSendEnabled =>
+			_settingsController.GetBoolValue($"{_parametersPrefix}PlannedOrdersNotificationsSendEnabled");
+
+		public TimeSpan LastServiceOrdersNotificationsSendInterval =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}LastServiceOrdersSendInterval");
+
+		public TimeSpan LastServiceOrdersSendTimeFrom =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}LastServiceOrdersSendTimeFrom");
+
+		public TimeSpan LastServiceOrdersSendTimeTo =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}LastServiceOrdersSendTimeTo");
+
+		public bool LastServiceOrdersNotificationsSendEnabled =>
+			_settingsController.GetBoolValue($"{_parametersPrefix}LastServiceOrdersSendEnabled");
+
+		public int LastServiceOrdersMinDaysSinceLastOrder =>
+			_settingsController.GetIntValue($"{_parametersPrefix}LastServiceOrdersMinDaysSinceLastOrder");
+
+		public DateTime LastServiceOrdersMinDeliveryDate =>
+			_settingsController.GetDateTimeValue($"{_parametersPrefix}LastServiceOrdersMinDeliveryDate");
 	}
 }

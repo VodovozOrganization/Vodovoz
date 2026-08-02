@@ -3,10 +3,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
-using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
+using VodovozBusiness.Models.TrueMark;
 
-namespace TrueMarkCodesWorker
+namespace TrueMarkCodePoolCheckWorker
 {
 	public class CodePoolCheckWorker : TimerBackgroundServiceBase
 	{

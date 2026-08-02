@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -43,5 +44,12 @@ namespace EmailDebtNotificationWorker.Services.Common.Generators
 		/// <param name="unsubscribeUrl">Ссылка для отписки</param>
 		/// <returns>Тело письма о закрытии поставок</returns>
 		string GenerateClosingDeliveriesEmailBody(decimal debt, int daysBeforeClosingDeliveries, string unsubscribeUrl);
+
+		/// <summary>
+		/// Создает и возвращает тело письма с напоминанием о необходимости принять УПД
+		/// </summary>
+		/// <param name="timedOutDocFlowGrouppedNode">Сгрппированная информация ко клиентам, по которым есть непринятый УПД в ЭДO</param>
+		/// <returns>Тело письма с напоминанием о необходимости принятия УПД</returns>
+		string GenerateReminderToAcceptUpdEmailBody(TimedOutDocFlowGrouppedNode timedOutDocFlowGrouppedNode);
 	}
 }

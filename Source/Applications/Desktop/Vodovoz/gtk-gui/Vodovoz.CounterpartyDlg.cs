@@ -604,6 +604,12 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yButton ybuttonEdoDocumentsSendAllUnsent;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonEdoDocumentsPreviousPage;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelEdoDocumentsPage;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonEdoDocumentsNextPage;
+
 		private global::Gtk.Label labelEdoDocuments;
 
 		protected virtual void Build()
@@ -3790,16 +3796,49 @@ namespace Vodovoz
 			w315.Position = 1;
 			w315.Expand = false;
 			w315.Fill = false;
-			this.yvboxEdoDocumentsMain.Add(this.yhboxEdoDocumentsButtons);
-			global::Gtk.Box.BoxChild w316 = ((global::Gtk.Box.BoxChild)(this.yvboxEdoDocumentsMain[this.yhboxEdoDocumentsButtons]));
+			// Container child yhboxEdoDocumentsButtons.Gtk.Box+BoxChild
+			this.ybuttonEdoDocumentsPreviousPage = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonEdoDocumentsPreviousPage.CanFocus = true;
+			this.ybuttonEdoDocumentsPreviousPage.Name = "ybuttonEdoDocumentsPreviousPage";
+			this.ybuttonEdoDocumentsPreviousPage.Sensitive = false;
+			this.ybuttonEdoDocumentsPreviousPage.UseUnderline = true;
+			this.ybuttonEdoDocumentsPreviousPage.Label = global::Mono.Unix.Catalog.GetString("Назад");
+			this.yhboxEdoDocumentsButtons.Add(this.ybuttonEdoDocumentsPreviousPage);
+			global::Gtk.Box.BoxChild w316 = ((global::Gtk.Box.BoxChild)(this.yhboxEdoDocumentsButtons[this.ybuttonEdoDocumentsPreviousPage]));
 			w316.Position = 2;
 			w316.Expand = false;
 			w316.Fill = false;
+			// Container child yhboxEdoDocumentsButtons.Gtk.Box+BoxChild
+			this.ylabelEdoDocumentsPage = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelEdoDocumentsPage.Name = "ylabelEdoDocumentsPage";
+			this.ylabelEdoDocumentsPage.LabelProp = global::Mono.Unix.Catalog.GetString("Страница 1");
+			this.yhboxEdoDocumentsButtons.Add(this.ylabelEdoDocumentsPage);
+			global::Gtk.Box.BoxChild w317 = ((global::Gtk.Box.BoxChild)(this.yhboxEdoDocumentsButtons[this.ylabelEdoDocumentsPage]));
+			w317.Position = 3;
+			w317.Expand = false;
+			w317.Fill = false;
+			// Container child yhboxEdoDocumentsButtons.Gtk.Box+BoxChild
+			this.ybuttonEdoDocumentsNextPage = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonEdoDocumentsNextPage.CanFocus = true;
+			this.ybuttonEdoDocumentsNextPage.Name = "ybuttonEdoDocumentsNextPage";
+			this.ybuttonEdoDocumentsNextPage.Sensitive = false;
+			this.ybuttonEdoDocumentsNextPage.UseUnderline = true;
+			this.ybuttonEdoDocumentsNextPage.Label = global::Mono.Unix.Catalog.GetString("Вперед");
+			this.yhboxEdoDocumentsButtons.Add(this.ybuttonEdoDocumentsNextPage);
+			global::Gtk.Box.BoxChild w318 = ((global::Gtk.Box.BoxChild)(this.yhboxEdoDocumentsButtons[this.ybuttonEdoDocumentsNextPage]));
+			w318.Position = 4;
+			w318.Expand = false;
+			w318.Fill = false;
+			this.yvboxEdoDocumentsMain.Add(this.yhboxEdoDocumentsButtons);
+			global::Gtk.Box.BoxChild w319 = ((global::Gtk.Box.BoxChild)(this.yvboxEdoDocumentsMain[this.yhboxEdoDocumentsButtons]));
+			w319.Position = 2;
+			w319.Expand = false;
+			w319.Fill = false;
 			w309.Add(this.yvboxEdoDocumentsMain);
 			this.scrolledwindowEdoDocuments.Add(w309);
 			this.notebook1.Add(this.scrolledwindowEdoDocuments);
-			global::Gtk.Notebook.NotebookChild w319 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.scrolledwindowEdoDocuments]));
-			w319.Position = 13;
+			global::Gtk.Notebook.NotebookChild w322 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.scrolledwindowEdoDocuments]));
+			w322.Position = 13;
 			// Notebook tab
 			this.labelEdoDocuments = new global::Gtk.Label();
 			this.labelEdoDocuments.Name = "labelEdoDocuments";
@@ -3807,8 +3846,8 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.scrolledwindowEdoDocuments, this.labelEdoDocuments);
 			this.labelEdoDocuments.ShowAll();
 			this.vbox2.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w320 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
-			w320.Position = 3;
+			global::Gtk.Box.BoxChild w323 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
+			w323.Position = 3;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

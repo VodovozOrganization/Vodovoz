@@ -14,6 +14,8 @@ using Vodovoz.Tools.Orders;
 using Email = Vodovoz.Domain.Contacts.Email;
 using Order = Vodovoz.Domain.Orders.Order;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
+using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Core.Domain.Orders.Documents;
 
 namespace Vodovoz.Services
 {
@@ -188,7 +190,7 @@ namespace Vodovoz.Services
 			{
 				StoredEmail = storedEmail,
 				Counterparty = order.Client,
-				OrderDocument = document
+				OrderDocument = unitOfWork.GetById<OrderDocumentEntity>(document.Id)
 			};
 
 			unitOfWork.Save(updDocumentEmail);
@@ -235,7 +237,7 @@ namespace Vodovoz.Services
 				{
 					StoredEmail = storedEmail,
 					Counterparty = order.Client,
-					OrderDocument = document
+					OrderDocument = unitOfWork.GetById<OrderDocumentEntity>(document.Id)
 				};
 
 				unitOfWork.Save(orderDocumentEmail);

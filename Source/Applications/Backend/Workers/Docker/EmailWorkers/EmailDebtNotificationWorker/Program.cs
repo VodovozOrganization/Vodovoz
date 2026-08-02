@@ -1,14 +1,14 @@
-﻿using Autofac.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using BitrixApi.Library.Services;
+using Email.Infrastructure.Factories;
 using EmailDebtNotificationWorker.Options;
-using EmailDebtNotificationWorker.Repositories;
 using EmailDebtNotificationWorker.Services.ClaimLetters;
 using EmailDebtNotificationWorker.Services.ClosingDeliveries;
 using EmailDebtNotificationWorker.Services.Common;
-using EmailDebtNotificationWorker.Services.Common.Factories;
 using EmailDebtNotificationWorker.Services.Common.Generators;
 using EmailDebtNotificationWorker.Services.Common.Selectors;
 using EmailDebtNotificationWorker.Services.InformationLetters;
+using EmailDebtNotificationWorker.Services.ReminderToAcceptUpd;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
@@ -22,10 +22,12 @@ using QS.Report;
 using RabbitMQ.MailSending;
 using System;
 using System.Text;
+using TaxcomEdo.Client;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Infrastructure.Scheduling;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database.Common;
@@ -33,6 +35,7 @@ using Vodovoz.Settings.Database.Counterparty;
 using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Services.Orders;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
+using Email.Infrastructure;
 
 namespace EmailDebtNotificationWorker
 {
@@ -101,7 +104,7 @@ namespace EmailDebtNotificationWorker
 							transportSettings);
 						});
 
-					services.AddScoped<IDatabaseRepository, DataBaseRepositiry>();
+					services.AddEmailInfrastructure();
 
 					services.AddScoped<IWorkingDayService, WorkingDayService>();
 					services.AddScoped<IDebtorsSettings, DebtorsSettings>();
@@ -109,9 +112,7 @@ namespace EmailDebtNotificationWorker
 					services.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>();
 					services.AddScoped<IEmailAttachmentsCreateService, EmailAttachmentsCreateService>();
 					services.AddScoped<IClientEmailSelector, ClientEmailSelector>();
-					services.AddScoped<IEmailLinkGenerator, EmailLinkGenerator>();
 					services.AddScoped<IEmailBodyGenerator, EmailBodyGenerator>();
-					services.AddScoped<IEmailMessageFactory, EmailMessageFactory>();
 					services.AddScoped<IEmailDebtNotificationService, EmailDebtNotificationService>();
 					services.AddHostedService<EmailDebtNotificationWorker>();
 
@@ -132,6 +133,16 @@ namespace EmailDebtNotificationWorker
 						.AddHostedService<EmailClosingDeliveriesWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(EmailClosingDeliveriesWorker))
 						;
+
+					services.AddSingleton<IDailyScheduler, DailyScheduler>();
+
+					services
+						.Configure<ReminderToAcceptUpdEmailOptions>(hostContext.Configuration.GetSection(ReminderToAcceptUpdEmailOptions.SectionName))
+						.AddScoped<IReminderToAcceptUpdService, ReminderToAcceptUpdService>()
+						.AddScoped<IReminderToAcceptUpdEmailPreparer, ReminderToAcceptUpdEmailPreparer>()
+						.AddHttpClient()
+						.AddTaxcomClient()
+						.AddHostedService<ReminderToAcceptUpdEmailWorker>();
 				});
 	}
 }

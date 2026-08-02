@@ -39,6 +39,7 @@ using SmsPaymentServiceV5 = DriverAPI.Library.V5.Services.SmsPaymentService;
 using TrackPointsServiceV5 = DriverAPI.Library.V5.Services.TrackPointsService;
 using DriverApiLibraryV7 = DriverAPI.Library.V7.Services;
 using Mango.Vpbx.Client;
+using VodovozBusiness.Models.TrueMark;
 
 namespace DriverAPI.Library
 {
@@ -165,7 +166,7 @@ namespace DriverAPI.Library
 		{
 			return services
 				.AddScoped<TrueMarkWaterCodeParser>()
-				.AddScoped<TrueMarkCodesChecker>()
+				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>();
 		}
 	}

@@ -21,6 +21,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -67,7 +68,8 @@ namespace Vodovoz
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
 		private IGenericRepository<FormalEdoRequest> _orderEdoRequestRepository;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
-		private readonly MessageService _messageService = ScopeProvider.Scope.Resolve<MessageService>();
+		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher =
+			ScopeProvider.Scope.Resolve<IEdoRequestCreatedEventPublisher>();
 		private CodesScanViewModel _codesScanViewModel;
 		private ValidationContext _validationContext;
 		private ICounterpartyEdoAccountController _edoAccountController;
@@ -424,7 +426,10 @@ namespace Vodovoz
 
 			if(edoRequest != null)
 			{
-				_messageService.PublishEdoRequestCreatedEvent(edoRequest.Id).GetAwaiter().GetResult();
+				_edoRequestCreatedEventPublisher
+					.Publish(edoRequest.Id, "Создание ЭДО-заявки по документу самовывоза")
+					.GetAwaiter()
+					.GetResult();
 			}
 
 			//FIXME Необходимо проверить правильность этого кода, так как если заказ именялся то уведомление на его придет и без кода.
@@ -445,7 +450,7 @@ namespace Vodovoz
 			{
 				if(isAllTrueMarkProductCodesMustBeAdded)
 				{
-					return Result.Failure(Errors.TrueMark.TrueMarkCodeErrors.NotAllCodesAdded);
+					return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
 				}
 
 				return Result.Success();

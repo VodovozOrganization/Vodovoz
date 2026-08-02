@@ -1,5 +1,5 @@
-﻿using EmailDebtNotificationWorker.DTO;
-using EmailDebtNotificationWorker.Repositories;
+﻿using Email.Infrastructure.Repositories;
+using EmailDebtNotificationWorker.DTO;
 using Mailjet.Api.Abstractions;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Settings.Orders;
 
 namespace EmailDebtNotificationWorker.Services.ClosingDeliveries

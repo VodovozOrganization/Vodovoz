@@ -1,6 +1,6 @@
 ﻿namespace VodovozInfrastructure.Cryptography
 {
-	public class OrderSignatureParams : SignatureParams
+	public class OrderSignatureParams : ShopIdSignatureParams
 	{
 		[PositionForGenerateSignature(2)]
 		public string OrderId { get; set; }

@@ -5,6 +5,7 @@ namespace DateTimeHelpers
 {
 	public static class DateTimeExtensions
 	{
+		private const int _moscowUtcOffsetHours = 3;
 		private static GregorianCalendar _calendar = new GregorianCalendar();
 
 		public static int GetWeekNumber(this DateTime dateTime)
@@ -178,5 +179,20 @@ namespace DateTimeHelpers
 		
 		public static string ToEdoShortDateString(this DateTime dateTime) => $"{dateTime:yyyy.MM.dd}";
 		public static string ToEdoShortTimeString(this DateTime dateTime) => $"{dateTime:HH.mm.ss}";
+
+		/// <summary>
+		/// Возвращает значение даты и времени, показывающее, сколько в этот момент времени в Москве (UTC+3)
+		/// Результат не привязан к тайм-зоне (<see cref="DateTimeKind.Unspecified"/>)
+		/// </summary>
+		public static DateTime ToMoscowDateTime(this DateTime dateTime)
+		{
+			var utcDateTime = dateTime.Kind == DateTimeKind.Utc
+				? dateTime
+				: dateTime.ToUniversalTime();
+
+			return DateTime.SpecifyKind(
+				utcDateTime.AddHours(_moscowUtcOffsetHours),
+				DateTimeKind.Unspecified);
+		}
 	}
 }

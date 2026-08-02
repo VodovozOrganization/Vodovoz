@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Core.Domain.StoredEmails;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 {

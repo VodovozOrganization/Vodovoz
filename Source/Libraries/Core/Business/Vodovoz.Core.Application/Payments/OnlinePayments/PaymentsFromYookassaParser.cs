@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Vodovoz.Core.Application.Payments.OnlinePayments.Builders;
+using Vodovoz.Core.Application.Payments.OnlinePayments.Configs;
 using Vodovoz.Domain.Payments;
 using VodovozBusiness.Domain.Payments;
 
@@ -13,6 +13,14 @@ namespace Vodovoz.Core.Application.Payments.OnlinePayments
 	/// </summary>
 	public class PaymentsFromYookassaParser : IPaymentByCardOnlineParser
 	{
+		private readonly IPaymentByCardOnlineBuilderFactory _paymentBuilderFactory;
+		private IPaymentByCardOnlineBuilder _paymentBuilder;
+
+		public PaymentsFromYookassaParser(IPaymentByCardOnlineBuilderFactory paymentBuilderFactory)
+		{
+			_paymentBuilderFactory = paymentBuilderFactory ?? throw new ArgumentNullException(nameof(paymentBuilderFactory));
+		}
+		
 		private readonly IList<PaymentByCardOnline> _parsedPayments = new List<PaymentByCardOnline>();
 		/// <summary>
 		/// 
@@ -50,6 +58,10 @@ namespace Vodovoz.Core.Application.Payments.OnlinePayments
 		/// Выписка ВВ Восток
 		/// </summary>
 		private const string _yookassaVvEast = "НЭК.385952.01";
+		/// <summary>
+		/// Выписка ВВ Юг
+		/// </summary>
+		private const string _yookassaVvSouth = "НЭК.172884.01";
 
 		public IEnumerable<PaymentByCardOnline> ParsedPayments => _parsedPayments;
 
@@ -58,36 +70,14 @@ namespace Vodovoz.Core.Application.Payments.OnlinePayments
 			using(var reader = new StreamReader(filename, Encoding.GetEncoding(1251)))
 			{
 				string line;
-				var count = 0;
-				(IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom) registerData = (null, null);
-				
+
+				TryInitializePaymentsBuilder(reader);
+
 				while((line = reader.ReadLine()) != null)
 				{
-					count++;
 					if(line == string.Empty)
 					{
 						continue;
-					}
-
-					if(count == 1)
-					{
-						var paymentFrom = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-						registerData = TryGetRegisterFormat(paymentFrom[3].Trim('.', '/'));
-
-						if(registerData.PaymentFrom != null)
-						{
-							continue;
-						}
-
-						if(paymentFrom.Length > 4)
-						{
-							registerData = TryGetRegisterFormat(paymentFrom[4].Trim('.', '/'));
-						}
-					}
-					
-					if(registerData.PaymentFrom is null || registerData.Columns is null)
-					{
-						throw new ArgumentException("Невозможно определить откуда оплата");
 					}
 
 					var data = line.Split(new [] {';'}, StringSplitOptions.RemoveEmptyEntries);
@@ -97,24 +87,50 @@ namespace Vodovoz.Core.Application.Payments.OnlinePayments
 						continue;
 					}
 
-					var payment = DefaultYookassaPaymentByCardOnlineBuilder
-						.Create(registerData)
-						.Build(data);
-					
+					var payment = _paymentBuilder.Build(data);
 					_parsedPayments.Add(payment);
 				}
 			}
 		}
-		
+
+		private void TryInitializePaymentsBuilder(StreamReader reader)
+		{
+			(IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom) registeredFormat = (null, null);
+			var line = reader.ReadLine();
+			
+			var paymentFrom = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+			registeredFormat = TryGetRegisterFormat(paymentFrom[3].Trim('.', '/'));
+
+			if(registeredFormat.PaymentFrom != null)
+			{
+				_paymentBuilder = _paymentBuilderFactory.Create(registeredFormat);
+				return;
+			}
+
+			if(paymentFrom.Length > 4)
+			{
+				registeredFormat = TryGetRegisterFormat(paymentFrom[4].Trim('.', '/'));
+			}
+					
+			if(registeredFormat.PaymentFrom is null || registeredFormat.Columns is null)
+			{
+				throw new ArgumentException("Невозможно определить откуда оплата");
+			}
+			
+			_paymentBuilder = _paymentBuilderFactory.Create(registeredFormat);
+		}
+
 		private (IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom) TryGetRegisterFormat(string data)
 		{
 			PaymentByCardOnlineFrom? paymentFrom = null;
 			switch(data)
 			{
 				case _yookassaBeveragesWorld:
-					return (BwYookassaOnlinePaymentRegisterColumns.Create(), PaymentByCardOnlineFrom.FromVodovozWebSite);
+					return (MirNapitkovYookassaOnlinePaymentRegisterColumns.Create(), PaymentByCardOnlineFrom.FromVodovozWebSite);
 				case _yookassaVvEast:
 					return (VvEastYookassaOnlinePaymentRegisterColumns.Create(), PaymentByCardOnlineFrom.FromVodovozWebSite);
+				case _yookassaVvSouth:
+					return (VvSouthYookassaOnlinePaymentRegisterColumns.Create(), PaymentByCardOnlineFrom.FromVodovozWebSite);
 				case _vodovozString:
 				case _vodovozString2:
 				case _vodovozPromoString:

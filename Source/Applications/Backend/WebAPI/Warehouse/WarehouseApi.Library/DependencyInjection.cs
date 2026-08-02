@@ -17,6 +17,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
@@ -49,7 +50,7 @@ namespace WarehouseApi.Library
 				.AddScoped<CarLoadDocumentConverter>()
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
-				.AddScoped<TrueMarkCodesChecker>()
+				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<ICarLoadDocumentTrueMarkCodesProcessingService, CarLoadDocumentTrueMarkCodesProcessingService>()
 				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
 				.AddScoped<ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService, SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService>()

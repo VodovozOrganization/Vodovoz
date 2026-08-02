@@ -2,13 +2,20 @@
 {
 	public class OrderItemDto
 	{
-		private OrderItemDto(int nomenclatureId, decimal count, decimal price, bool isDiscountInMoney, decimal discount)
+		private OrderItemDto(
+			int nomenclatureId,
+			decimal count,
+			decimal price,
+			bool isDiscountInMoney,
+			decimal discount,
+			bool giftItem)
 		{
 			NomenclatureId = nomenclatureId;
 			Count = count;
 			Price = price;
 			IsDiscountInMoney = isDiscountInMoney;
 			Discount = discount;
+			GiftItem = giftItem;
 		}
 		
 		/// <summary>
@@ -36,12 +43,18 @@
 		/// </summary>
 		public decimal Discount { get; }
 
+		/// <summary>
+		/// Этот товар - подарок?
+		/// </summary>
+		public bool GiftItem { get; }
+
 		public static OrderItemDto Create(
 			int nomenclatureId,
 			decimal count,
 			decimal price,
 			bool isDiscountInMoney,
-			decimal discount) =>
-			new OrderItemDto(nomenclatureId, count, price, isDiscountInMoney, discount);
+			decimal discount,
+			bool giftItem) =>
+			new OrderItemDto(nomenclatureId, count, price, isDiscountInMoney, discount, giftItem);
 	}
 }

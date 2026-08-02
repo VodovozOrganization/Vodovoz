@@ -17,6 +17,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			Map(x => x.EdoDocumentId).Column("edo_document_id");
 			Map(x => x.IsReceived).Column("is_received");
 			Map(x => x.AcceptingIngoingDocflowTime).Column("accepting_ingoing_docflow_time");
+			Map(x => x.IsReminderToAcceptUpdEmailSent).Column("is_reminder_to_accept_upd_email_sent");
 
 			HasMany(x => x.Actions)
 				.KeyColumn("taxcom_docflow_id")

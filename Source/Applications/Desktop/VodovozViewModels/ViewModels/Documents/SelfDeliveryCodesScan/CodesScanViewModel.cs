@@ -16,12 +16,12 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Application.Errors;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Errors.TrueMark;
 using Vodovoz.Models.TrueMark;
 using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Domain.Goods;
@@ -441,7 +441,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				if(createStagingTrueMarkCodeResult.IsFailure)
 				{
-					if(createStagingTrueMarkCodeResult.Errors.Any(x => x == Errors.TrueMark.TrueMarkCodeErrors.StagingTrueMarkCodeDuplicate))
+					if(createStagingTrueMarkCodeResult.Errors.Any(x => x == TrueMarkCodeErrors.StagingTrueMarkCodeDuplicate))
 					{
 						additionalInformation.Add("Повторное сканирование");
 						UpdateCodeScanRows(code, gtin, additionalInformation: additionalInformation);
@@ -496,7 +496,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				if(addingCodeResult.IsFailure)
 				{
-					if(addingCodeResult.Errors.Any(x => x == Errors.TrueMark.TrueMarkCodeErrors.StagingTrueMarkCodeDuplicate))
+					if(addingCodeResult.Errors.Any(x => x == TrueMarkCodeErrors.StagingTrueMarkCodeDuplicate))
 					{
 						additionalInformation.Add("Повторное сканирование");
 						UpdateCodeScanRows(code, gtin, true, additionalInformation: additionalInformation);

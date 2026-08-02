@@ -1,17 +1,13 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Edo.CodesSaver;
 using Edo.Common;
+using Edo.Common.Services;
 using Edo.Docflow;
-using Edo.Docflow.Consumers;
 using Edo.Documents;
 using Edo.ErrorDebugWorker.Consumers;
 using Edo.ErrorDebugWorker.Consumers.Definitions;
 using Edo.Problems;
 using Edo.Receipt.Dispatcher;
-using Edo.Receipt.Dispatcher.Consumers;
-using Edo.Receipt.Dispatcher.Consumers.Definitions;
-using Edo.Receipt.Dispatcher.ErrorDebug.Consumers;
-using Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions;
 using Edo.Receipt.Sender;
 using Edo.Scheduler;
 using Edo.Transport;
@@ -19,6 +15,7 @@ using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ModulKassa;
@@ -93,6 +90,9 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 						.AddEdoTransferSenderServices()
 						;
 
+
+					services.TryAddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>();
+
 					services.AddEdo();
 					services.AddEdoProblemRegistration();
 					services.AddCodesPool();
@@ -108,7 +108,7 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 							//document
 							//cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
 							//cfg.AddConsumer<DocumentTransferCompleteErrorConsumer, DocumentTransferCompleteErrorConsumerDefinition>();
-							//cfg.AddConsumer<OrderDocumentAcceptedErrorConsumer, OrderDocumentAcceptedErrorConsumerDefinition>();
+							cfg.AddConsumer<OrderDocumentAcceptedErrorConsumer, OrderDocumentAcceptedErrorConsumerDefinition>();
 
 							//receipt
 							//cfg.AddConsumer<ReceiptTaskCreatedErrorConsumer, ReceiptTaskCreatedErrorConsumerDefinition>();
@@ -121,7 +121,7 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 							//docflow
 							//cfg.AddConsumer<DocflowUpdatedErrorConsumer, DocflowUpdatedErrorConsumerDefinition>();
 							//cfg.AddConsumer<OrderDocumentSendErrorConsumer, OrderDocumentSendErrorConsumerDefinition>();
-							cfg.AddConsumer<TransferDocumentSendErrorConsumer, TransferDocumentSendErrorConsumerDefinition>();
+							//cfg.AddConsumer<TransferDocumentSendErrorConsumer, TransferDocumentSendErrorConsumerDefinition>();
 						}
 					);
 				});

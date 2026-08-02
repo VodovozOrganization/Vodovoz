@@ -46,5 +46,30 @@ namespace Vodovoz.Settings.Edo
 		/// Интервал работы воркера обработки проблемы отложенной ночной отправки чеков
 		/// </summary>
 		TimeSpan ReceiptNightSendProblemWorkerInterval { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки проблемы дубликатом кода
+		/// </summary>
+		TimeSpan CodeDuplicatedProblemTimeout { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки проблемы дубликатом кода
+		/// </summary>
+		TimeSpan CodeDuplicatedProblemWorkerInterval { get; }
+
+		/// <summary>
+		/// Таймаут обработки проблемы с контактом чека
+		/// </summary>
+		TimeSpan ReceiptContactProblemTimeout { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки проблемы с контактом чека
+		/// </summary>
+		TimeSpan ReceiptContactProblemWorkerInterval { get; }
+
+		/// <summary>
+		/// Количество попыток повторной обработки проблемы с контактом чека до уведомления
+		/// </summary>
+		int ReceiptContactProblemRetryAttemptsBeforeNotification { get; }
 	}
 }
