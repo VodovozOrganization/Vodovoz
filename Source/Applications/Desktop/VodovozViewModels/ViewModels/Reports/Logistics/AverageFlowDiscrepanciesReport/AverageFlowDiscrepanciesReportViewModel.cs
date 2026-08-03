@@ -100,6 +100,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 			var includedCarModelIds = _carModelSelectionFilterViewModel?.IncludedCarModelIds;
 			var excludedCarModelIds = _carModelSelectionFilterViewModel?.ExcludedCarModelIds;
 
+			var odometerReadings = UoW.Session.Query<OdometerReading>()
+				.Where(o => o.StartDate >= StartDate && o.StartDate <= EndDate)
+				.OrderBy(o => o.Car.Id)
+				.ThenBy(o => o.StartDate)
+				.ToList();
+
 			var events = (
 				from carEvent in UoW.Session.Query<CarEvent>()
 
@@ -117,30 +123,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 
 				let confirmedDistance =
 					(decimal?)(from routeList in UoW.Session.Query<RouteList>()
-					where
-						routeList.Car.Id == carEvent.Car.Id
-						&& routeList.Date >= carEvent.CreateDate.Date
-						&& routeList.Date < nextCalibrationDate.Date
-					select routeList.ConfirmedDistance
+							   where
+								   routeList.Car.Id == carEvent.Car.Id
+								   && routeList.Date >= carEvent.CreateDate.Date
+								   && routeList.Date < nextCalibrationDate.Date
+							   select routeList.ConfirmedDistance
 				).Sum() ?? 0
-
-				let recalculatedDistance =
-					(decimal?)(from routeList in UoW.Session.Query<RouteList>()
-						where
-							routeList.Car.Id == carEvent.Car.Id
-							&& routeList.Date >= carEvent.CreateDate.Date
-							&& routeList.Date < nextCalibrationDate.Date
-						select routeList.RecalculatedDistance
-					).Sum() ?? 0
 
 				let mileageWriteOffKmSum =
 					(decimal?)(from mileageWriteOff in UoW.Session.Query<MileageWriteOff>()
-					where
-						mileageWriteOff.Car.Id == carEvent.Car.Id
-						&& mileageWriteOff.WriteOffDate != null
-						&& mileageWriteOff.WriteOffDate >= carEvent.CreateDate.Date
-						&& mileageWriteOff.WriteOffDate < nextCalibrationDate.Date
-					select mileageWriteOff.DistanceKm
+							   where
+								   mileageWriteOff.Car.Id == carEvent.Car.Id
+								   && mileageWriteOff.WriteOffDate != null
+								   && mileageWriteOff.WriteOffDate >= carEvent.CreateDate.Date
+								   && mileageWriteOff.WriteOffDate < nextCalibrationDate.Date
+							   select mileageWriteOff.DistanceKm
 					).Sum() ?? 0
 
 				let carFuelConsumption = (
@@ -187,7 +184,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					CurrentBalance = carEvent.CurrentFuelBalance ?? 0,
 					Car = carEvent.Car.RegistrationNumber,
 					ConfirmedDistance = confirmedDistance + mileageWriteOffKmSum,
-					RecalculatedDistance = recalculatedDistance,
 					Consumption100KmPlan = carFuelConsumption,
 					LastFuelCost = lastFuelCost,
 					NextCalibrationDate = nextCalibrationDate,
@@ -208,7 +204,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					{
 						CarId = singleRow.CarId,
 						Car = singleRow.Car,
-						CalibrationDate= singleRow.CalibrationDate,
+						CalibrationDate = singleRow.CalibrationDate,
 						IsSingleCalibrationForPeriod = true
 					};
 
@@ -220,7 +216,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				for(int i = 0; i < row.Value.Count - 1; i++)
 				{
 					row.Value[i].ConsumptionFact =
-						(row.Value[i].ConsumptionPlan??0)
+						(row.Value[i].ConsumptionPlan ?? 0)
 						- (row.Value[i].NextCalibrationFuelOperation ?? 0);
 
 					row.Value[i].ActualBalance = row.Value[i + 1].ActualBalance;
@@ -232,7 +228,56 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 			var resultRows = eventsDict.SelectMany(ed => ed.Value).ToList();
 			FillCarInfo(resultRows);
 
+			FillOdometerReadings(resultRows, odometerReadings);
+
 			return resultRows;
+		}
+
+		private void FillOdometerReadings(IEnumerable<AverageFlowDiscrepanciesReportRow> rows, List<OdometerReading> odometerReadings)
+		{
+			var carIds = rows.Select(x => x.CarId).Distinct().ToArray();
+
+			if(!carIds.Any())
+			{
+				return;
+			}
+
+			var allReadings = UoW.Session.Query<OdometerReading>()
+				.Where(o => carIds.Contains(o.Car.Id))
+				.OrderBy(o => o.StartDate)
+				.ToList();
+
+			var readingsByCar = allReadings
+				.GroupBy(o => o.Car.Id)
+				.ToDictionary(g => g.Key, g => g.OrderBy(o => o.StartDate).ToList());
+
+			foreach(var row in rows)
+			{
+				if(!readingsByCar.TryGetValue(row.CarId, out var readings))
+				{
+					continue;
+				}
+
+				DateTime periodEnd = row.NextCalibrationDate ?? EndDate;
+
+				var lastReading = readings
+					.LastOrDefault(o => o.StartDate <= periodEnd);
+
+				if(lastReading != null)
+				{
+					var previousReading = readings
+						.LastOrDefault(o => o.StartDate < lastReading.StartDate);
+
+					if(previousReading != null)
+					{
+						row.OdometerFact = lastReading.Odometer - previousReading.Odometer;
+					}
+					else
+					{
+						row.OdometerFact = lastReading.Odometer;
+					}
+				}
+			}
 		}
 
 		private void FillCarInfo(IEnumerable<AverageFlowDiscrepanciesReportRow> rows)

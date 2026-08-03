@@ -1,6 +1,7 @@
 ﻿using System;
 using Gamma.Utilities;
 using Vodovoz.Domain.Logistic.Cars;
+using VodovozCarTypeOfUse = Vodovoz.Domain.Logistic.Cars.CarTypeOfUse;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanciesReport
 {
@@ -12,12 +13,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		/// Авто (номер)
 		/// </summary>
 		public string Car { get; internal set; }
-		
+
 		/// <summary>
 		/// Тип автомобиля
 		/// </summary>
 		public CarTypeOfUse? CarTypeOfUse { get; internal set; }
-		
+
 		/// <summary>
 		/// Тип автомобиля
 		/// </summary>
@@ -49,30 +50,30 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		public decimal? ActualBalance { get; internal set; }
 
 		/// <summary>
-		/// Подтверждённое расстояние
+		/// Сумма км по МЛ на выполнение адресов (бывш. Подтверждённое расстояние)
 		/// </summary>
 		public decimal? ConfirmedDistance { get; internal set; }
+
+		/// <summary>
+		/// Факт по одометру (разница между последним и предпоследним показанием)
+		/// </summary>
+		public decimal? OdometerFact { get; internal set; }
 
 		/// <summary>
 		/// Полезный Пробег в процентах
 		/// </summary>
 		public string UsefulMileagePercent =>
-			ConfirmedDistance.HasValue && RecalculatedDistance.HasValue && ConfirmedDistance != 0
-				? $"{(100 * RecalculatedDistance / ConfirmedDistance): # ##0.00}"
+			ConfirmedDistance.HasValue && OdometerFact.HasValue && ConfirmedDistance != 0
+				? $"{(100 * OdometerFact / ConfirmedDistance): # ##0.00}"
 				: string.Empty;
 
 		/// <summary>
 		/// Полезный Пробег в процентах
 		/// </summary>
 		public decimal? UsefulMileagePercentValue =>
-			ConfirmedDistance.HasValue && RecalculatedDistance.HasValue && ConfirmedDistance != 0
-				? 100 * RecalculatedDistance / ConfirmedDistance
+			ConfirmedDistance.HasValue && OdometerFact.HasValue && ConfirmedDistance != 0
+				? 100 * OdometerFact / ConfirmedDistance
 				: null;
-
-		/// <summary>
-		/// Пересчитанное расстояние
-		/// </summary>
-		public decimal? RecalculatedDistance { get; internal set; }
 
 		/// <summary>
 		/// Факт. расход
@@ -80,12 +81,19 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		public decimal? ConsumptionFact { get; internal set; }
 
 		/// <summary>
-		/// План. расход
+		/// План. расход - вычисляется как OdometerFact * коэффициент в зависимости от типа ТС
 		/// </summary>
-		public decimal? ConsumptionPlan =>
-			ConfirmedDistance is null || ConfirmedDistance == 0
-			? RecalculatedDistance / 100 * (decimal?)Consumption100KmPlan
-			: ConfirmedDistance / 100 * (decimal?)Consumption100KmPlan;
+		public decimal? ConsumptionPlan
+		{
+			get
+			{
+				if(OdometerFact.HasValue && CarTypeOfUse.HasValue)
+				{
+					return OdometerFact.Value * GetFuelCoefficient(CarTypeOfUse.Value);
+				}
+				return null;
+			}
+		}
 
 		/// <summary>
 		/// Разница по топливу между факт.расход и план.расход
@@ -98,13 +106,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		public decimal? LastFuelCost { get; internal set; }
 
 		/// <summary>
-		/// Факт. расход на 100 км
+		/// Факт. расход на 100 км (расход / одометр * 100)
 		/// </summary>
-		public decimal Consumption100KmFact => ConfirmedDistance.HasValue && ConfirmedDistance != 0
-			? (ConsumptionFact ?? 0) / ((ConfirmedDistance ?? 0) / 100)
-			: RecalculatedDistance.HasValue && RecalculatedDistance != 0
-				? (ConsumptionFact ?? 0) / ((RecalculatedDistance ?? 0) / 100)
-				: 0;
+		public decimal Consumption100KmFact => OdometerFact.HasValue && OdometerFact != 0
+			? (ConsumptionFact ?? 0) / (OdometerFact.Value / 100)
+			: 0;
 
 		/// <summary>
 		/// План. расход на 100 км
@@ -134,5 +140,23 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		/// Единственная калибровка за период
 		/// </summary>
 		public bool IsSingleCalibrationForPeriod { get; internal set; }
+
+		/// <summary>
+		/// Получить коэффициент расхода топлива в зависимости от типа ТС
+		/// </summary>
+		private decimal GetFuelCoefficient(CarTypeOfUse carType)
+		{
+			switch(carType)
+			{
+				case VodovozCarTypeOfUse.Largus:
+					return 0.12m; 
+				case VodovozCarTypeOfUse.Minivan:
+				case VodovozCarTypeOfUse.GAZelle:
+				case VodovozCarTypeOfUse.Truck:
+					return 0.17m;
+				default:
+					return 0.17m;
+			}
+		}
 	}
 }
