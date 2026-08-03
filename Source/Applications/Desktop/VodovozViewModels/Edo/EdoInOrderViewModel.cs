@@ -34,6 +34,8 @@ namespace Vodovoz.ViewModels.Edo
 		private EdoInOrderProblemViewModel _selectedProblem;
 		private IEnumerable<EdoInOrderProblemNode> _allProblems;
 		private IEnumerable<EdoInOrderTransferNode> _allTransfers;
+		private IEnumerable<EdoInOrderReceiptNode> _allReceipts;
+		private IEnumerable<EdoInOrderTaxcomDocflowNode> _allDocflows;
 		private bool _hasProblems;
 		private string _problemDescription;
 		private string _problemRecommendation;
@@ -49,7 +51,6 @@ namespace Vodovoz.ViewModels.Edo
 			_edoRepository = edoRepository ?? throw new System.ArgumentNullException(nameof(edoRepository));
 			EdoInOrderDocumentActionsViewModel = edoInOrderDocumentActionsViewModel ?? throw new ArgumentNullException(nameof(edoInOrderDocumentActionsViewModel));
 			OrderCodesViewModel = orderCodesViewModel ?? throw new ArgumentNullException(nameof(orderCodesViewModel));
-
 			_allProblems = new List<EdoInOrderProblemNode>();
 
 			RefreshCommnand = new DelegateCommand(Refresh);
@@ -88,12 +89,15 @@ namespace Vodovoz.ViewModels.Edo
 			get => _selectedDocument;
 			set
 			{
-				if(SetField(ref _selectedDocument, value))
+				if(_selectedDocument == value)
 				{
-					SelectDocument();
-					SelectProblemsByDocument();
-					EdoInOrderDocumentActionsViewModel.SelectedDocument = _selectedDocument;
+					return;
 				}
+				_selectedDocument = value;
+				SelectDocument();
+				SelectProblemsByDocument();
+				EdoInOrderDocumentActionsViewModel.SelectedDocument = _selectedDocument;
+				OnPropertyChanged(nameof(SelectedDocument));
 			}
 		}
 
@@ -229,6 +233,23 @@ namespace Vodovoz.ViewModels.Edo
 				_orderId,
 				_allTransfers.Count(),
 				stepStopwatch.Elapsed);
+
+			stepStopwatch.Restart();
+			_allReceipts = _edoRepository.GetReceiptsForOrder(_uow, _orderId);
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка чеков, получено {Count}: {Elapsed}",
+				_orderId,
+				_allTransfers.Count(),
+				stepStopwatch.Elapsed);
+
+			stepStopwatch.Restart();
+			_allDocflows = _edoRepository.GetEdoInOrderDocflows(_uow, _orderId);
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка документооборотов, получено {Count}: {Elapsed}",
+				_orderId,
+				_allTransfers.Count(),
+				stepStopwatch.Elapsed);
+
 			_logger.Info("ЭДО заказа {OrderId}: полное обновление данных вкладки: {Elapsed}", _orderId, totalStopwatch.Elapsed);
 		}
 
@@ -257,6 +278,8 @@ namespace Vodovoz.ViewModels.Edo
 			Documents = _allDocuments
 				.Where(x => x.DocumentGroupType == SelectedDocumentGroupType.DocumentGroupType)
 				.ToList();
+
+			SelectedDocument = Documents.FirstOrDefault();
 		}
 
 		private void SelectDocument()
@@ -272,7 +295,9 @@ namespace Vodovoz.ViewModels.Edo
 			DocumentViewModel = new EdoInOrderDocumentViewModel(
 				SelectedDocument,
 				PipelineViewModel,
-				_allTransfers
+				_allTransfers,
+				_allReceipts,
+				_allDocflows
 			);
 		}
 
@@ -320,6 +345,14 @@ namespace Vodovoz.ViewModels.Edo
 			foreach(var enumValue in updValues)
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
+
+				if(enumValue == DocumentEdoTaskStage.Completed &&
+					document.TaskUpdStage.Value == DocumentEdoTaskStage.Completed)
+				{
+					pipelineStageViewModel.Status = StageStatus.Completed;
+					stageViewModels.Add(pipelineStageViewModel);
+					continue;
+				}
 
 				if(enumValue == document.TaskUpdStage.Value)
 				{
@@ -373,6 +406,14 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
 
+				if(enumValue == EdoReceiptStatus.Completed && 
+					document.TaskReceiptStage.Value == EdoReceiptStatus.Completed)
+				{
+					pipelineStageViewModel.Status = StageStatus.Completed;
+					stageViewModels.Add(pipelineStageViewModel);
+					continue;
+				}
+
 				if(enumValue == EdoReceiptStatus.SavedToPool)
 				{
 					if(document.TaskReceiptStage.Value == EdoReceiptStatus.SavedToPool)
@@ -383,8 +424,6 @@ namespace Vodovoz.ViewModels.Edo
 					}
 					else
 					{
-						pipelineStageViewModel.Status = StageStatus.NotStarted;
-						stageViewModels.Add(pipelineStageViewModel);
 						continue;
 					}
 				}
@@ -440,6 +479,14 @@ namespace Vodovoz.ViewModels.Edo
 			foreach(var enumValue in updValues)
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
+
+				if(enumValue == TenderEdoTaskStage.ManualUploaded &&
+					document.TaskTenderStage.Value == TenderEdoTaskStage.ManualUploaded)
+				{
+					pipelineStageViewModel.Status = StageStatus.Completed;
+					stageViewModels.Add(pipelineStageViewModel);
+					continue;
+				}
 
 				if(enumValue == document.TaskTenderStage.Value)
 				{

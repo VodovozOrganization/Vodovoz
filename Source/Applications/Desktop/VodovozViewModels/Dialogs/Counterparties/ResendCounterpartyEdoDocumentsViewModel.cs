@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Orders.Documents;
+using VodovozBusiness.Errors.Edo;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparties
@@ -116,7 +117,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 
 				if(edoValidateResult.IsFailure)
 				{
-					if(edoValidateResult.Errors.Any(error => error.Code == Errors.Edo.EdoErrors.AlreadyPaidUpd)
+					if(edoValidateResult.Errors.Any(error => error.Code == EdoErrors.AlreadyPaidUpd)
 						&& !CommonServices.InteractiveService.Question(
 							"Вы уверены, что хотите отправить повторно?\n" +
 							string.Join("\n - ", errorMessages),

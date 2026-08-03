@@ -104,7 +104,6 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Errors.Edo;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Errors.Orders;
 using Vodovoz.Extensions;
@@ -162,6 +161,7 @@ using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
+using VodovozBusiness.Errors.Edo;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.NotificationSenders;
@@ -3614,11 +3614,11 @@ namespace Vodovoz
 
 			var stopwatch = Stopwatch.StartNew();
 			_logger.Info("ЭДО заказа {OrderId}: начало конфигурации ViewModel", Entity.Id);
-			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
-			edoForOrderViewModel.Setup(UoW, Entity.Id);
+			var edoInOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
+			edoInOrderViewModel.Setup(UoW, Entity.Id);
 			var transferTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
 					this,
-					edoForOrderViewModel.OrderCodesViewModel,
+					edoInOrderViewModel.OrderCodesViewModel,
 					UoW,
 					NavigationManager,
 					_lifetimeScope)
@@ -3626,8 +3626,8 @@ namespace Vodovoz
 				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(
 					filter => filter.RestrictHideService = true)
 				.Finish();
-			edoForOrderViewModel.OrderCodesViewModel.ConfigureTransferTargetOrderEntry(transferTargetOrderViewModel);
-			edofororderview1.ViewModel = edoForOrderViewModel;
+			edoInOrderViewModel.OrderCodesViewModel.ConfigureTransferTargetOrderEntry(transferTargetOrderViewModel);
+			edoinorderview1.ViewModel = edoInOrderViewModel;
 			_edoInOrderViewModelConfigured = true;
 			_logger.Info("ЭДО заказа {OrderId}: конфигурация ViewModel завершена за {Elapsed}", Entity.Id, stopwatch.Elapsed);
 		}

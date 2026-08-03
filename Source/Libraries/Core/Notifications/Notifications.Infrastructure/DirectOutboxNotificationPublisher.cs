@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
@@ -14,7 +15,8 @@ namespace Notifications.Infrastructure
 		where T : IIdempotentOutboxMessage
 	{
 		private readonly IOutboxSettingsProvider<T> _settingsProvider;
-		private readonly Dictionary<int, OutboxMessage> _sessionLastEvents = new Dictionary<int, OutboxMessage>();
+		private readonly ConditionalWeakTable<IUnitOfWork, Dictionary<int, OutboxMessage>> _unitOfWorkLastEvents =
+			new ConditionalWeakTable<IUnitOfWork, Dictionary<int, OutboxMessage>>();
 
 		public DirectOutboxNotificationPublisher(
 			IOutboxSettingsProvider<T> settingsProvider
@@ -45,20 +47,22 @@ namespace Notifications.Infrastructure
 
 			OutboxMessage outboxMessage;
 
-			if(_sessionLastEvents.TryGetValue(message.GetAggregateId(), out var existing))
-            {
-                existing.SavePayload(message);
+			var unitOfWorkLastEvents = _unitOfWorkLastEvents.GetOrCreateValue(unitOfWork);
 
-                outboxMessage = existing;
-            }
-            else
-            {
-                outboxMessage = new OutboxMessage(message);
-            }
+			if(unitOfWorkLastEvents.TryGetValue(message.GetAggregateId(), out var existing))
+			{
+				existing.SavePayload(message);
 
-            await unitOfWork.SaveAsync(outboxMessage, cancellationToken: cancellationToken);
+				outboxMessage = existing;
+			}
+			else
+			{
+				outboxMessage = new OutboxMessage(message);
+			}
 
-			_sessionLastEvents[message.GetAggregateId()] = outboxMessage;
+			await unitOfWork.SaveAsync(outboxMessage, cancellationToken: cancellationToken);
+
+			unitOfWorkLastEvents[message.GetAggregateId()] = outboxMessage;
 
 			return true;
 		}

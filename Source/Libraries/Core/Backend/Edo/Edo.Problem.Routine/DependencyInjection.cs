@@ -3,7 +3,6 @@ using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
 using Edo.Problems;
 using Edo.Transport;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
@@ -29,6 +28,8 @@ namespace Edo.Problem.Routine
 				.AddEdoNotifications();
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+ 			services.AddScoped<EdoProblemRoutineNotificationFactory>();
+			services.AddScoped<IEdoProblemRoutineNotificationService, EdoProblemRoutineNotificationService>();
 
 			services
 				.AddOrderSelfDeliveryPaidProblem()
@@ -36,6 +37,7 @@ namespace Edo.Problem.Routine
 				.AddReceiptNightSendProblem()
 				.AddOrderStatusProblem()
 				.AddCodeDuplicatedProblem()
+				.AddReceiptContactProblem()
 				;
 
 			return services;
@@ -93,6 +95,14 @@ namespace Edo.Problem.Routine
 
 			return services;
 		}
+
+		private static IServiceCollection AddReceiptContactProblem(this IServiceCollection services) =>
+			services
+				.ConfigureOptions<ConfigureReceiptContactProblemWorkerOptions>()
+				.AddScoped<IReceiptContactProblemSourceProvider, ReceiptContactProblemSourceProvider>()
+				.AddScoped<IReceiptContactProblemService, ReceiptContactProblemService>()
+				.AddScoped<IReceiptEdoTaskResendService, ReceiptEdoTaskResendService>()
+				.AddScoped<IReceiptContactProblemNotificationService, ReceiptContactProblemNotificationService>();
 		
 		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)
 		{

@@ -3,8 +3,9 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Problems.Exception.Sources
 {
-	public class OrderContactMissing : EdoTaskProblemExceptionSource
+	public class OrderContactMissing : EdoTaskProblemExceptionSource, IReceiptContactProblemSource
 	{
+		public string NotificationName => "Отсутствие контакта";
 		public override string Name => nameof(OrderContactMissingException);
 		public override string Description => "Появляется когда не найден ни один подходящий контакт в заказе";
 		public override string Recommendation => "Заполните необходимые контакты";

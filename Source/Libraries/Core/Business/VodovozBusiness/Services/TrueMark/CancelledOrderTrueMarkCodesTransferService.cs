@@ -6,7 +6,7 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.TrueMark;
-using Vodovoz.Errors.Edo;
+using VodovozBusiness.Errors.Edo;
 using VodovozBusiness.Services.Edo;
 
 namespace VodovozBusiness.Services.TrueMark
