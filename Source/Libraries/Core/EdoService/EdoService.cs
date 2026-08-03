@@ -130,6 +130,7 @@ namespace EdoService.Library
 				return Result.Failure(EdoErrors.HasProblem);
 			}
 
+			// Проверяем документы на возможность переотправки
 			foreach(var doc in documents)
 			{
 				if(!CanResendEdoDocument(doc.Status))
@@ -162,15 +163,27 @@ namespace EdoService.Library
 				}
 			}
 
+			// Получаем активную задачу для переотправки
 			var activeEdoTask = GetActiveEdoTaskForResend(uow, order);
 			if(activeEdoTask is null)
 			{
 				return Result.Failure(EdoErrors.NoActiveEdoTaskForResend);
 			}
 
-			var productCodes = new ObservableList<TrueMarkProductCode>(
+			ObservableList<TrueMarkProductCode> productCodes;
+
+			if(activeEdoTask.Status == EdoTaskStatus.Cancelled)
+			{
+				// Для отменённой задачи создаём новые коды с OwnerType = Auto
+				productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(activeEdoTask);
+			}
+			else
+			{
+				// Для активной задачи используем существующие коды
+				productCodes = new ObservableList<TrueMarkProductCode>(
 					activeEdoTask.Items.Select(x => x.ProductCode)
 				);
+			}
 
 			var request = ManualEdoRequestFactory.Create(order, productCodes);
 
@@ -178,6 +191,13 @@ namespace EdoService.Library
 
 			uow.Save(request);
 			uow.Save(activeEdoTask);
+
+			// Сохраняем все новые коды
+			foreach(var code in productCodes)
+			{
+				uow.Save(code);
+			}
+
 			uow.Commit();
 
 			_edoRequestCreatedEventPublisher.Publish(request.Id, "Ручная переотправка документов ЭДО")
@@ -220,11 +240,10 @@ namespace EdoService.Library
 			var hasMarkedProducts = orderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
 			if(!hasMarkedProducts)
 			{
-				return edoTasks.FirstOrDefault(x => x.Status != EdoTaskStatus.Cancelled);
+				return edoTasks.FirstOrDefault();
 			}
 
 			var activeTasksWithAcceptedCodes = edoTasks
-				.Where(x => x.Status != EdoTaskStatus.Cancelled)
 				.Where(x => x.FormalEdoRequest.ProductCodes.Any(c =>
 					c.SourceCodeStatus.IsIn(
 						SourceProductCodeStatus.Accepted,
@@ -674,16 +693,7 @@ namespace EdoService.Library
 						);
 					}
 
-					var newRequest = new ManualEdoRequest
-					{
-						Order = new Order
-						{
-							Id = request.Order.Id
-						},
-						Time = DateTime.Now,
-						Source = EdoRequestSource.Manual,
-						DocumentType = EdoDocumentType.UPD
-					};
+					var newRequest = ManualEdoRequestFactory.Create(request.Order);
 
 					uow.Save(newRequest);
 					uow.Commit();
@@ -779,15 +789,9 @@ namespace EdoService.Library
 						);
 					}
 
-					var newRequest = new ManualEdoRequest
-					{
-						Order = new Order
-						{
-							Id = request.Order.Id
-						},
-						Time = DateTime.Now,
-						Source = EdoRequestSource.Manual
-					};
+					var newRequest = ManualEdoRequestFactory.Create(request.Order, new ObservableList<TrueMarkProductCode>(
+						receiptTask.Items.Select(x => x.ProductCode)
+					));
 
 					uow.Save(newRequest);
 					uow.Commit();
