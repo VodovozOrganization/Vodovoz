@@ -703,6 +703,52 @@ namespace EdoService.Library
 			}
 		}
 
+		public void RehandleNewUpdDocumentWithProblem(int updEdoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var task = uow.Session.Get<DocumentEdoTask>(updEdoTaskId);
+				if(task == null)
+				{
+					return;
+				}
+
+				if(task.Status != EdoTaskStatus.Problem && task.Stage != DocumentEdoTaskStage.New)
+				{
+					return;
+				}
+
+				var message = new DocumentTaskCreatedEvent
+				{
+					Id = updEdoTaskId,
+				};
+				_bus.Publish(message);
+			}
+		}
+
+		public void RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var task = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
+				if(task == null)
+				{
+					return;
+				}
+
+				if(task.Status != EdoTaskStatus.Problem && task.ReceiptStatus != EdoReceiptStatus.New)
+				{
+					return;
+				}
+
+				var message = new ReceiptTaskCreatedEvent
+				{
+					ReceiptEdoTaskId = receiptEdoTaskId,
+				};
+				_bus.Publish(message);
+			}
+		}
+
 		public Result<string> TryResendReceiptDocument(int orderEdoTaskId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())

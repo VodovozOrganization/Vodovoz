@@ -101,6 +101,13 @@ namespace Vodovoz.ViewModels.Edo
 					}
 				));
 			}
+			else if(document.TaskUpdStage == DocumentEdoTaskStage.New && document.TaskStatus == EdoTaskStatus.Problem)
+			{
+				newActions.Add(new BusyCommand(
+					"Переобработать проблему",
+					() => _edoService.RehandleNewUpdDocumentWithProblem(document.TaskId)
+				));
+			}
 		}
 
 
