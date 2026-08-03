@@ -72,7 +72,7 @@ namespace Edo.Transport
 			}
 		}
 
-		public async Task PublishResumeEvent(OrderEdoTask edoTask, CancellationToken cancellationToken)
+		public async Task PublishResumeEvent(OrderEdoTask edoTask, CancellationToken cancellationToken = default)
 		{
 			switch(edoTask)
 			{

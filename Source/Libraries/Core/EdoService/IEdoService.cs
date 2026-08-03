@@ -85,7 +85,7 @@ namespace EdoService.Library
 		/// Запускает переобработку задачи на отправку УПД, 
 		/// которая попала в проблему в статусе New
 		/// </summary>
-		void RehandleNewUpdDocumentWithProblem(int updEdoTaskId);
+		void ResendNewTaskDocument(int updEdoTaskId);
 
 		/// <summary>
 		/// Запускает переобработку задачи на отправку чека, 

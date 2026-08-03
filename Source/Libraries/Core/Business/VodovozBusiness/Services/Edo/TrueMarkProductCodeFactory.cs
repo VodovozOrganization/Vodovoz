@@ -14,7 +14,7 @@ namespace VodovozBusiness.Services.Edo
 		/// </summary>
 		/// <param name="sourceCodes">Исходные коды маркировки</param>
 		/// <returns>Список новых кодов маркировки типа Auto</returns>
-		public static ObservableList<TrueMarkProductCode> CreateAutoCodesFromSource(
+		public static List<TrueMarkProductCode> CreateAutoCodesFromSource(
 			IEnumerable<TrueMarkProductCode> sourceCodes)
 		{
 			if(sourceCodes is null)
@@ -22,7 +22,7 @@ namespace VodovozBusiness.Services.Edo
 				throw new ArgumentNullException(nameof(sourceCodes));
 			}
 
-			var newCodes = new ObservableList<TrueMarkProductCode>();
+			var newCodes = new List<TrueMarkProductCode>();
 
 			foreach(var sourceCode in sourceCodes)
 			{
@@ -47,24 +47,8 @@ namespace VodovozBusiness.Services.Edo
 		/// </summary>
 		/// <param name="cancelledTask">Отменённая задача ЭДО</param>
 		/// <returns>Список новых кодов маркировки типа Auto</returns>
-		public static ObservableList<TrueMarkProductCode> CreateAutoCodesFromCancelledTask(
+		public static List<TrueMarkProductCode> CreateAutoCodesFromCancelledTask(
 			OrderEdoTask cancelledTask)
-		{
-			if(cancelledTask is null)
-			{
-				throw new ArgumentNullException(nameof(cancelledTask));
-			}
-
-			return CreateAutoCodesFromSource(cancelledTask.Items.Select(x => x.ProductCode));
-		}
-
-		/// <summary>
-		/// Создает коды маркировки типа Auto на основе кодов из отменённой задачи по чекам
-		/// </summary>
-		/// <param name="cancelledTask">Отменённая задача ЭДО по чеку</param>
-		/// <returns>Список новых кодов маркировки типа Auto</returns>
-		public static ObservableList<TrueMarkProductCode> CreateAutoCodesFromCancelledReceiptTask(
-			ReceiptEdoTask cancelledTask)
 		{
 			if(cancelledTask is null)
 			{

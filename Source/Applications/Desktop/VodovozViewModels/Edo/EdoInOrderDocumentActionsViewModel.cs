@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				newActions.Add(new BusyCommand(
 					"Переобработать проблему",
-					() => _edoService.RehandleNewUpdDocumentWithProblem(document.TaskId)
+					() => _edoService.ResendNewTaskDocument(document.TaskId)
 				));
 			}
 		}

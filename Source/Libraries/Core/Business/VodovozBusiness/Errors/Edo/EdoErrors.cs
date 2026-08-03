@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Renci.SshNet.Messages;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
@@ -79,12 +80,12 @@ namespace VodovozBusiness.Errors.Edo
 				"Некорректный тип документа");
 
 		/// <summary>
-		/// Ошибка: нет активной задачи ЭДО для переотправки
+		/// Ошибка: нет отмененной задачи ЭДО для переотправки
 		/// </summary>
-		public static Error NoActiveEdoTaskForResend =>
+		public static Error NoCancelledEdoTaskForResend =>
 			new Error(typeof(EdoErrors),
-				nameof(NoActiveEdoTaskForResend),
-				"Нет активной ЭДО задачи для переотправки");
+				nameof(NoCancelledEdoTaskForResend),
+				"Нет отмененной ЭДО задачи для переотправки");
 
 		/// <summary>
 		/// Ошибка: произошла ошибка во время переотправки документа
@@ -343,5 +344,17 @@ namespace VodovozBusiness.Errors.Edo
 				typeof(EdoErrors),
 				nameof(CreateCannotResendPrintedOrCompletedReceipt),
 				$"Нельзя переотправить напечатанный или завершенный чек {taskId}");
+
+		/// <summary>
+		/// Создает ошибку о том, что задача отправлена на аннулирование
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Ошибка с описанием</returns>
+		public static Error CreateTaskPendingCancellation(int taskId) =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(CreateTaskPendingCancellation),
+				$"Задача {taskId} отправлена на аннулирование"
+			);
 	}
 }
