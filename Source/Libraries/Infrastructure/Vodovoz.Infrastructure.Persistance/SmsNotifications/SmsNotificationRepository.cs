@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.SmsNotifications;
@@ -19,6 +20,20 @@ namespace Vodovoz.Infrastructure.Persistance.SmsNotifications
 			return uow.Session.QueryOver<UndeliveryNotApprovedSmsNotification>()
 				.Where(x => x.Status == SmsNotificationStatus.New)
 				.List();
+		}
+
+		public IEnumerable<CourierOnTheWaySmsNotification> GetUnsendedCourierOnTheWaySmsNotifications(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<CourierOnTheWaySmsNotification>()
+				.Where(x => x.Status == SmsNotificationStatus.New)
+				.List();
+		}
+
+		/// <inheritdoc/>
+		public bool HasCourierOnTheWaySmsNotification(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.Query<CourierOnTheWaySmsNotification>()
+				.Any(x => x.Order.Id == orderId);
 		}
 	}
 }

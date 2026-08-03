@@ -52,11 +52,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Sms
 		}
 	}
 
-	public class OrderOnTheWaySmsNotificationMap : SubclassMap<OrderOnTheWaySmsNotification>
+	public class CourierOnTheWaySmsNotificationMap : SubclassMap<CourierOnTheWaySmsNotification>
 	{
-		public OrderOnTheWaySmsNotificationMap()
+		public CourierOnTheWaySmsNotificationMap()
 		{
-			DiscriminatorValue(nameof(SmsNotificationType.OrderOnTheWay));
+			DiscriminatorValue(nameof(SmsNotificationType.CourierOnTheWay));
 			References(x => x.Order).Column("order_id");
 			References(x => x.Counterparty).Column("counterparty_id");
 		}

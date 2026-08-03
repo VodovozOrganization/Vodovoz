@@ -8,5 +8,13 @@ namespace Vodovoz.EntityRepositories.SmsNotifications
 	{
 		IEnumerable<NewClientSmsNotification> GetUnsendedNewClientSmsNotifications(IUnitOfWork uow);
 		IEnumerable<UndeliveryNotApprovedSmsNotification> GetUnsendedUndeliveryNotApprovedSmsNotifications(IUnitOfWork uow);
+		IEnumerable<CourierOnTheWaySmsNotification> GetUnsendedCourierOnTheWaySmsNotifications(IUnitOfWork uow);
+
+		/// <summary>
+		/// Создавалось ли ранее смс уведомление о том, что курьер в пути, по указанному заказу
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Код заказа</param>
+		bool HasCourierOnTheWaySmsNotification(IUnitOfWork uow, int orderId);
 	}
 }

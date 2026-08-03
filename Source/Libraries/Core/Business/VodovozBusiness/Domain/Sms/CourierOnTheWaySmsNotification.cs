@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -8,14 +8,14 @@ using Vodovoz.Domain.Orders;
 namespace Vodovoz.Domain.Sms
 {
 	/// <summary>
-	/// Смс уведомление о заказе в пути
+	/// Смс уведомление о том, что курьер в пути
 	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "смс уведомления о заказе в пути",
-		Nominative = "смс уведомление о заказе в пути")]
+		NominativePlural = "смс уведомления о том, что курьер в пути",
+		Nominative = "смс уведомление о том, что курьер в пути")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class OrderOnTheWaySmsNotification : SmsNotification
+	public class CourierOnTheWaySmsNotification : SmsNotification
 	{
 		private Order _order;
 		private Counterparty _counterparty;
@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Sms
 		/// <summary>
 		/// Тип смс уведомления
 		/// </summary>
-		public override SmsNotificationType SmsNotificationType => SmsNotificationType.OrderOnTheWay;
+		public override SmsNotificationType SmsNotificationType => SmsNotificationType.CourierOnTheWay;
 
 		/// <summary>
 		/// Заказ, по которому создано смс уведомление
