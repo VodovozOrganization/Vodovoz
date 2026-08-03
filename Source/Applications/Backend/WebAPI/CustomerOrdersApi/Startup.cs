@@ -103,7 +103,7 @@ namespace CustomerOrdersApi
 				});
 
 			services
-				.AddCustomerNotificationsWithSmsFallback();
+				.AddCustomerNotifications();
 
 			services
 				.Configure<CourierCoordinatesOptions>(

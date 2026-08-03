@@ -30,7 +30,7 @@ namespace CustomerOnlineOrdersUpdater
 				.AddHostedService<CustomerOnlineOrdersUpdateWorker>()
 
 				// Уведомления клиентов
-				.AddCustomerNotificationsWithSmsFallback()
+				.AddCustomerNotifications()
 				;
 
 			return services;

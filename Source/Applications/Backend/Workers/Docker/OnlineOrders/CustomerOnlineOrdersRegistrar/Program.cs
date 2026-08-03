@@ -95,7 +95,7 @@ namespace CustomerOnlineOrdersRegistrar
 							busConf.ConfigureRabbitMq();
 						})
 
-						.AddCustomerNotificationsWithSmsFallback()
+						.AddCustomerNotifications()
 						;
 
 					services.AddStaticScopeForEntity();

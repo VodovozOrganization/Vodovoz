@@ -67,7 +67,7 @@ namespace FastPaymentsAPI.Library
 
 				// Уведомления клиентов
 
-				.AddCustomerNotificationsWithSmsFallback();
+				.AddCustomerNotifications();
 			;
 
 			return services;
