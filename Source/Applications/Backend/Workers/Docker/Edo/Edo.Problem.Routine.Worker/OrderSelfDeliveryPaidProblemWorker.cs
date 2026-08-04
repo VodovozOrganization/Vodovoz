@@ -49,7 +49,7 @@ namespace Edo.Problem.Routine.Worker
 					_logger.LogError(ex, "Ошибка при обработке задач ЭДО с активной проблемой оплаты самовывоза");
 				}
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(OrderSelfDeliveryPaidProblemWorker), stoppingToken);
 			}
 		}
 	}

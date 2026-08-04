@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
 using EdoDocumentFlowUpdater.Configs;
 using MassTransit;
@@ -13,6 +8,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using QS.Services;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Application.FileStorage;
@@ -47,6 +47,7 @@ namespace EdoDocumentFlowUpdater
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ITaxcomEdoDocflowLastProcessTimeRepository _edoDocflowLastProcessTimeRepository;
+		private readonly string _serviceName;
 		private readonly IEdoContainerFileStorageService _edoContainerFileStorageService;
 		private readonly IPublishEndpoint _publishEndpoint;
 
@@ -80,6 +81,8 @@ namespace EdoDocumentFlowUpdater
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_edoDocflowLastProcessTimeRepository =
 				edoDocflowLastProcessTimeRepository ?? throw new ArgumentNullException(nameof(edoDocflowLastProcessTimeRepository));
+
+			_serviceName = $"{nameof(TaxcomEdoDocumentFlowUpdater)}_{_documentFlowUpdaterOptions.EdoAccount}";
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -93,6 +96,9 @@ namespace EdoDocumentFlowUpdater
 
 				if(_lastEventsProcessTime is null)
 				{
+					await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+						$"Не найдены временные метки по указанному кабинету в ЭДО {_documentFlowUpdaterOptions.EdoAccount}", cancellationToken);	
+					
 					throw new InvalidOperationException("Не найдены временные метки по указанному кабинету в ЭДО");
 				}
 			}
@@ -113,11 +119,14 @@ namespace EdoDocumentFlowUpdater
 					await ProcessIngoingDocuments(cancellationToken);
 					await ProcessWaitingForCancellationDocuments(cancellationToken);
 
-					await _zabbixSender.SendIsHealthyAsync(cancellationToken);
+					await _zabbixSender.SendIsHealthyAsync(_serviceName, cancellationToken);
 				}
 				catch(Exception e)
 				{
 					_logger.LogError(e, "Ошибка при запуске обновления статусов документооборотов");
+
+					await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+						$"Ошибка при запуске обновления статусов документооборотов: {e}", cancellationToken);
 				}
 			}
 		}
@@ -210,10 +219,13 @@ namespace EdoDocumentFlowUpdater
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе обработки исходящих документов");
+
+				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+					$"Ошибка в процессе обработки исходящих документов: {e}", cancellationToken);
 			}
 			finally
 			{
-				await SaveLastEventProcessTime();
+				await SaveLastEventProcessTime(cancellationToken);
 			}
 		}
 
@@ -322,10 +334,13 @@ namespace EdoDocumentFlowUpdater
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе обработки входящих документов");
+
+				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+					$"Ошибка в процессе обработки входящих документов: {e}", cancellationToken);
 			}
 			finally
 			{
-				await SaveLastEventProcessTime();
+				await SaveLastEventProcessTime(cancellationToken);
 			}
 		}
 
@@ -380,10 +395,13 @@ namespace EdoDocumentFlowUpdater
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе обработки документов ожидающих аннулирования");
+
+				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+					$"Ошибка в процессе обработки документов ожидающих аннулирования: {e}", cancellationToken);
 			}
 			finally
 			{
-				await SaveLastEventProcessTime();
+				await SaveLastEventProcessTime(cancellationToken);
 			}
 		}
 
@@ -455,6 +473,9 @@ namespace EdoDocumentFlowUpdater
 				catch(Exception ex)
 				{
 					_logger.LogError(ex, "Не удалось обновить контейнер в хранилище");
+
+					await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+						$"Не удалось обновить контейнер в хранилище: {ex}", cancellationToken);
 				}
 
 				if(result != null && result.IsFailure)
@@ -566,6 +587,9 @@ namespace EdoDocumentFlowUpdater
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе аннулирования документов");
+
+				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+					$"Ошибка в процессе аннулирования документов: {e}", cancellationToken);
 			}
 		}
 		
@@ -583,6 +607,10 @@ namespace EdoDocumentFlowUpdater
 					edoContainer.DocFlowId,
 					edoContainer.Id,
 					edoContainer.Order.Id);
+
+				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+					$"Ошибка в процессе аннулирования документооборота {edoContainer.DocFlowId} из контейнера №{edoContainer.Id}, Заказа №{edoContainer.Order.Id}: {e}",
+					cancellationToken);
 			}
 		}
 
@@ -594,7 +622,7 @@ namespace EdoDocumentFlowUpdater
 			await Task.Delay(delay * 1000, cancellationToken);
 		}
 		
-		private async Task SaveLastEventProcessTime()
+		private async Task SaveLastEventProcessTime(CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -605,6 +633,10 @@ namespace EdoDocumentFlowUpdater
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Не удалось сохранить временную метку");
+
+				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+					$"Не удалось сохранить временную метку: {e}",
+					cancellationToken);
 			}
 		}
 	}

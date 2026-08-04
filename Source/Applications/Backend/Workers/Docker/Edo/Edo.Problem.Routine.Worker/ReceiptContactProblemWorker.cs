@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Problem.Routine.Options;
@@ -44,7 +44,7 @@ namespace Edo.Problem.Routine.Worker
 
 				_logger.LogInformation("Обработка задач ЭДО с активной проблемой контакта чека успешно завершена");
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(ReceiptContactProblemWorker), stoppingToken);
 			}
 			catch(Exception ex)
 			{

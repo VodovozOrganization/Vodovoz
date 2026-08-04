@@ -91,7 +91,7 @@ namespace TrueMarkWorker
 
 				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(TrueMarkWorker), stoppingToken);
 			}
 			catch(Exception e)
 			{

@@ -58,7 +58,7 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 						.AddTrackedUoW()
 						.AddScannedTrueMarkCodesDelayedProcessing()
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-						.ConfigureZabbixSenderFromDataBase(nameof(ScannedCodesDelayedProcessingWorker));
+						.ConfigureZabbixSenderFromDataBase();
 
 					services
 						.AddOpenTelemetry()

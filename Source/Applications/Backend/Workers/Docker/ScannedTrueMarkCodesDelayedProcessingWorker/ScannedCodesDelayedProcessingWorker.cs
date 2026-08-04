@@ -48,7 +48,7 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 					_logger.LogError(ex, "Ошибка при обработке сохраненных водителями отсканированных кодов ЧЗ");
 				}
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(ScannedCodesDelayedProcessingWorker), stoppingToken);
 
 				_logger.LogInformation("Завершение обработки сохраненных водителями кодов ЧЗ");
 			}

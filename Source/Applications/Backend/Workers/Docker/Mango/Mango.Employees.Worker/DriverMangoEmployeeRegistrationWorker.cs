@@ -55,7 +55,7 @@ namespace Mango.Employees.Worker
 				{
 					_logger.LogInformation("Работа воркера регистрации сотрудников Манго отключена в настройках");
 
-					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+					await _zabbixSender.SendIsHealthyAsync(nameof(DriverMangoEmployeeRegistrationWorker), stoppingToken);
 
 					return;
 				}
@@ -64,13 +64,14 @@ namespace Mango.Employees.Worker
 
 				await registrationService.ProcessNewRequestsAsync(stoppingToken);
 
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(DriverMangoEmployeeRegistrationWorker), stoppingToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при обработке заявок на регистрацию сотрудников Манго");
 
 				await _zabbixSender.SendProblemMessageAsync(
+					nameof(DriverMangoEmployeeRegistrationWorker),
 					ZabixSenderMessageType.Problem,
 					$"Ошибка при обработке заявок на регистрацию сотрудников Манго: {ex.Message}",
 					stoppingToken);
