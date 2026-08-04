@@ -196,6 +196,8 @@ namespace Vodovoz.Views.Edo
 			this.textViewHelp = new global::Gamma.GtkWidgets.yTextView();
 			this.textViewHelp.CanFocus = true;
 			this.textViewHelp.Name = "textViewHelp";
+			this.textViewHelp.Editable = false;
+			this.textViewHelp.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindow.Add(this.textViewHelp);
 			this.ynotebookEdoInOrder.Add(this.GtkScrolledWindow);
 			// Notebook tab

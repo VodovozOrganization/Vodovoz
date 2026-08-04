@@ -199581,6 +199581,7 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Справка</property>
+                    <property name="Active">True</property>
                     <property name="DrawIndicator">False</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -199662,7 +199663,9 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="ShowScrollbars">True</property>
+                    <property name="Editable">False</property>
                     <property name="Text" translatable="yes" />
+                    <property name="WrapMode">Word</property>
                   </widget>
                 </child>
               </widget>
