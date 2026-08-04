@@ -2184,6 +2184,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderDocflowsStageView.cs" />
     <Compile Include="Views\Edo\EdoNotificationSettingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoNotificationSettingView.cs" />
+    <Compile Include="Views\Edo\EdoView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

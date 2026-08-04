@@ -127581,7 +127581,6 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Логистика</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -192980,7 +192979,6 @@ not tooltip</property>
           <widget class="Gamma.GtkWidgets.yHBox" id="yhboxTransferCodes">
             <property name="MemberName" />
             <property name="Visible">False</property>
-            <property name="NoShowAll">True</property>
             <property name="Spacing">6</property>
             <property name="BorderWidth">4</property>
             <child>
@@ -199535,7 +199533,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Views.Edo.EdoInOrderView" design-size="953 605">
+  <widget class="Gtk.Bin" id="Vodovoz.Views.Edo.EdoInOrderView" design-size="974 605">
     <property name="MemberName" />
     <property name="WidthRequest">0</property>
     <property name="HeightRequest">0</property>
@@ -199748,11 +199746,11 @@ not tooltip</property>
                                   </widget>
                                   <packing>
                                     <property name="Position">1</property>
-                                    <property name="AutoSize">True</property>
+                                    <property name="AutoSize">False</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="QS.Widgets.GtkUI.Pipeline.PipelineView" id="pipelineTransferStages">
+                                  <widget class="QS.Widgets.GtkUI.Pipeline.PipelineView" id="pipelineDocumentStages">
                                     <property name="MemberName" />
                                     <property name="HeightRequest">150</property>
                                   </widget>
@@ -199765,9 +199763,7 @@ not tooltip</property>
                               </widget>
                               <packing>
                                 <property name="Position">1</property>
-                                <property name="AutoSize">True</property>
-                                <property name="Expand">False</property>
-                                <property name="Fill">False</property>
+                                <property name="AutoSize">False</property>
                               </packing>
                             </child>
                           </widget>
@@ -199788,14 +199784,13 @@ not tooltip</property>
                   <packing>
                     <property name="Position">0</property>
                     <property name="AutoSize">False</property>
-                    <property name="Expand">True</property>
                   </packing>
                 </child>
                 <child>
                   <widget class="Gamma.GtkWidgets.yNotebook" id="ynotebookDocData">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="CurrentPage">0</property>
+                    <property name="CurrentPage">1</property>
                     <child>
                       <widget class="Vodovoz.Views.Edo.EdoInOrderDocumentView" id="edoinorderdocumentview1">
                         <property name="MemberName" />
@@ -201531,6 +201526,18 @@ not tooltip</property>
             <property name="AutoSize">False</property>
           </packing>
         </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.Views.Edo.EdoView" design-size="658 482">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Vodovoz.Views.Edo.EdoInOrderView" id="edoinorderview">
+        <property name="MemberName" />
+        <property name="WidthRequest">0</property>
+        <property name="HeightRequest">0</property>
+        <property name="Events">ButtonPressMask</property>
       </widget>
     </child>
   </widget>
