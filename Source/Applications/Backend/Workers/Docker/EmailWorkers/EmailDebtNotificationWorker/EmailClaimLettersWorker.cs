@@ -1,4 +1,4 @@
-using EmailDebtNotificationWorker.Options;
+﻿using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Services.ClaimLetters;
 using EmailDebtNotificationWorker.Services.Common;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,7 +44,7 @@ namespace EmailDebtNotificationWorker
 			if(!CanSendNow(workingDayService))
 			{
 				_logger.LogInformation("Сейчас нерабочее время, пропускаем отправку писем с претензиями");
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(EmailClaimLettersWorker), stoppingToken);
 				return;
 			}
 
@@ -53,12 +53,12 @@ namespace EmailDebtNotificationWorker
 			try
 			{
 				await emailClaimLettersService.SendClaimLetters(stoppingToken);
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(EmailClaimLettersWorker), stoppingToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при отправке писем с претензиями");
-				await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, ex.Message, stoppingToken);
+				await _zabbixSender.SendProblemMessageAsync(nameof(EmailClaimLettersWorker), ZabixSenderMessageType.Problem, ex.Message, stoppingToken);
 			}
 
 			_logger.LogInformation("Завершение отправки писем с претензиями");

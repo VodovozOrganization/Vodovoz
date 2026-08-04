@@ -39,6 +39,7 @@ namespace EdoContactsUpdater
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ITaxcomEdoDocflowLastProcessTimeRepository _edoDocflowLastProcessTimeRepository;
+		private readonly string _serviceName;
 		private TaxcomEdoDocflowLastProcessTime _lastEventsProcessTime;
 		private DateTime? _lastStateChangedTime;
 
@@ -67,6 +68,8 @@ namespace EdoContactsUpdater
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_edoDocflowLastProcessTimeRepository =
 				edoDocflowLastProcessTimeRepository ?? throw new ArgumentNullException(nameof(edoDocflowLastProcessTimeRepository));
+
+			_serviceName = $"{nameof(TaxcomEdoContactsUpdaterService)}_{_contactsUpdaterOptions.EdoAccount}";
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -127,9 +130,11 @@ namespace EdoContactsUpdater
 							{
 								const string errorMessage = "Ошибка при запросе списка контактов";
 								_logger.LogError(e, errorMessage);
+								await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem, $"{errorMessage}: {e}", cancellationToken);
+
 							}
 
-							await _zabbixSender.SendIsHealthyAsync(cancellationToken);
+							await _zabbixSender.SendIsHealthyAsync(_serviceName, cancellationToken);
 
 							if(contactUpdates.Contacts is null)
 							{
@@ -176,15 +181,21 @@ namespace EdoContactsUpdater
 					catch(Exception e)
 					{
 						_logger.LogError(e, "Ошибка при обновлении списка контактов");
+
+						await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+							$"Ошибка при обновлении списка контактов: {e}", cancellationToken);
 					}
 					finally
 					{
-						await SaveLastEventProcessTime(uow);
+						await SaveLastEventProcessTime(uow, cancellationToken);
 					}
 				}
 				catch(Exception e)
 				{
 					_logger.LogError(e, "Ошибка при обновлении списка контактов");
+
+					await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+						$"Ошибка при обновлении списка контактов: {e}", cancellationToken);
 				}
 			}
 		}
@@ -314,6 +325,11 @@ namespace EdoContactsUpdater
 			catch(Exception e)
 			{
 				_logger.LogError(e, dontAcceptMessage, contact.Inn, contact.EdxClientId);
+
+				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+					$"Не удалось принять входящее приглашение от клиента, ИНН {contact.Inn} аккаунт {contact.EdxClientId}: {e}",
+					cancellationToken);
+
 				return;
 			}
 
@@ -385,7 +401,7 @@ namespace EdoContactsUpdater
 			);
 		}
 		
-		private async Task SaveLastEventProcessTime(IUnitOfWork uow)
+		private async Task SaveLastEventProcessTime(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -400,6 +416,9 @@ namespace EdoContactsUpdater
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Не удалось сохранить временную метку");
+
+				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+					$"Не удалось сохранить временную метку: {e}", cancellationToken);
 			}
 		}
 	}

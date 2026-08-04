@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using Edo.Docflow.Taxcom;
 using EdoDocumentFlowUpdater.Configs;
 using EdoDocumentFlowUpdater.Options;
@@ -60,7 +60,7 @@ namespace EdoDocumentFlowUpdater
 						.AddHttpClient()
 						.AddTaxcomClient()
 						
-						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoDocumentFlowUpdater))
+						.ConfigureZabbixSenderFromDataBase()
 						.AddHostedService<TaxcomEdoDocumentFlowUpdater>()
 						
 						.AddMessageTransportSettings()

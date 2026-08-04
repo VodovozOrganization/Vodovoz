@@ -1,4 +1,4 @@
-﻿using MassTransit;
+using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TransactionalOutbox.Abstractions;
 using TransactionalOutbox.Extensions;
+using Vodovoz.Zabbix.Sender;
 
 namespace OutboxWorker
 {
@@ -19,6 +20,7 @@ namespace OutboxWorker
 	{
 		private readonly string _connectionString;
 		private readonly IServiceScopeFactory _scopeFactory;
+		private readonly IZabbixSender _zabbixSender;
 		private readonly ILogger<OutboxWorker> _logger;
 		private readonly IReadOnlyDictionary<string, Type> _knownTypes;
 		private const int _messageBatchSize = 50;
@@ -29,7 +31,8 @@ namespace OutboxWorker
 			ILogger<OutboxWorker> logger,
 			IConfiguration config,
 			IServiceScopeFactory scopeFactory,
-			IEnumerable<Assembly> outboxContractAssemblies)
+			IEnumerable<Assembly> outboxContractAssemblies,
+			IZabbixSender zabbixSender)
 		{
 			if(config == null)
 			{
@@ -43,6 +46,7 @@ namespace OutboxWorker
 
 			_connectionString = config.GetConnectionString("Default");
 			_scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_knownTypes = BuildKnownTypes(outboxContractAssemblies, _logger);
 		}
@@ -147,11 +151,14 @@ namespace OutboxWorker
 
 					await outboxRepository.CleanupAsync(conn);
 
+					await _zabbixSender.SendIsHealthyAsync(nameof(OutboxWorker), token);
+
 					await Task.Delay(TimeSpan.FromSeconds(_delayBeetweenMessagesInSeconds), token);
 				}
 				catch(Exception ex)
 				{
 					_logger.LogError(ex, "Outbox worker crash");
+					await _zabbixSender.SendProblemMessageAsync(nameof(OutboxWorker), ZabixSenderMessageType.Problem, $"Outbox worker crash: {ex}", token);
 					await Task.Delay(TimeSpan.FromSeconds(_delayWhenErrorInSeconds), token);
 				}
 			}

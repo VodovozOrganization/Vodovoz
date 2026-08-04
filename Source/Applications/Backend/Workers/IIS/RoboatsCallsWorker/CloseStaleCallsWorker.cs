@@ -45,7 +45,7 @@ namespace RoboatsService.Workers
 			{
 				_logger.LogInformation("Вызов закрытия устаревших звонков");
 				_staleCallsController.CloseStaleCalls();
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(CloseStaleCallsWorker), stoppingToken);
 			}
 			finally
 			{
