@@ -106,16 +106,68 @@ namespace EdoService.Library
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
 			{
-				var order = GetOrderByTaskId(uow, taskId);
-				if(order is null)
-				{
-					return Result.Failure(EdoErrors.HasProblem);
-				}
-
-				return ResendEdoDocument(uow, order);
+				return ResendEdoDocument(uow, taskId);
 			}
 		}
 
+		private Result ResendEdoDocument(IUnitOfWork uow, int taskId)
+		{
+			var edoTask = uow.Session.Get<OrderEdoTask>(taskId);
+			if(edoTask is null)
+			{
+				return Result.Failure(EdoErrors.NoCancelledEdoTaskForResend);
+			}
+
+			var order = GetOrderByTaskId(uow, taskId);
+
+			if(order.IsUndeliveredStatus)
+			{
+				return Result.Failure(EdoErrors.IsUndeliveredOrder);
+			}
+
+			bool hasDocflow = HasDocflow(uow, edoTask);
+			bool hasCancelledDocflow = HasCancelledDocflow(uow, edoTask);
+
+			if(hasCancelledDocflow) // Есть ДО
+			{
+				if(EdoTaskHasBeenCancelled(uow, edoTask))
+				{
+					ResendDocumentForCancelledEdoTask(uow, order, edoTask);
+				}
+				else // 3.2 Если задачу можем отменить на нашей стороне и ДО аннулирован
+				{
+					CancelEdoTaskWithReason(uow, edoTask);
+					ResendDocumentForCancelledEdoTask(uow, order, edoTask);
+				}
+			}
+			else if(!hasDocflow) // Нет ДО
+			{
+				if(edoTask.Status is EdoTaskStatus.Problem)
+				{
+					ResendNewTaskDocument(edoTask.Id); // 4.
+				}
+				else if(EdoTaskHasBeenCancelled(uow, edoTask))
+				{
+					ResendDocumentForCancelledEdoTask(uow, order, edoTask); // 1. Задача уже отменена, можно переотправлять 
+				}
+				else
+				{
+					// 2. Задача есть, но она не отменена, нужно отменить и переотправить
+					CancelEdoTaskWithReason(uow, edoTask);
+					ResendDocumentForCancelledEdoTask(uow, order, edoTask);
+				}
+			}
+			else
+			{
+				CreateEventForEdoTaskCancellation(edoTask); // 3.1 Отправляем запрос на аннулирование, нужно отобразить пользователю, что задача поставлена на отмену, и после отмены можно будет переотправить
+
+				return Result.Failure(EdoErrors.CreateTaskPendingCancellation(edoTask.Id));
+			}
+
+			uow.Commit();
+
+			return Result.Success();
+		}
 		private Result ResendEdoDocument(IUnitOfWork uow, OrderEntity order)
 		{
 			if(order.IsUndeliveredStatus)
@@ -193,7 +245,7 @@ namespace EdoService.Library
 				.Where(x => x.DocumentTaskId == edoTask.Id)
 				.SingleOrDefault();
 
-			if(orderDocument is null)
+			if(orderDocument != null)
 			{
 				return true;
 			}

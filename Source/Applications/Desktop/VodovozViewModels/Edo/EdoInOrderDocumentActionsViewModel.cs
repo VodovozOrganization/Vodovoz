@@ -81,12 +81,10 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document
 			) 
 		{
-			if(_edoService.CanResendEdoDocument(document.EdoDocumentStatus))
-			{
-				newActions.Add(new BusyCommand(
+			newActions.Add(new BusyCommand(
 					"Переотправить УПД",
-					() => 
-					{ 
+					() =>
+					{
 						var result = _edoService.ResendEdoDocumentForOrder(document.TaskId);
 						if(result.IsSuccess)
 						{
@@ -100,7 +98,6 @@ namespace Vodovoz.ViewModels.Edo
 						}
 					}
 				));
-			}
 		}
 
 		private void CreateReceiptActions(
