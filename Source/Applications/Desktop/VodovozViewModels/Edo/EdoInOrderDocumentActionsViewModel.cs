@@ -103,7 +103,6 @@ namespace Vodovoz.ViewModels.Edo
 			}
 		}
 
-
 		private void CreateReceiptActions(
 			List<BusyCommand> newActions,
 			EdoInOrderDocumentNode document
