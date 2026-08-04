@@ -56,9 +56,9 @@ namespace Edo.Transfer.Sender
 
 			var seller = await _organizationRepository.GetOrganizationByIdAsync(transferEdoTask.FromOrganizationId);
 			var customer = await _organizationRepository.GetOrganizationByIdAsync(transferEdoTask.ToOrganizationId);
-			var transferDocument = await CreateDocumentOrganizationCounterAsync(transferDate.Value, seller, cancellationToken);
+			var transferDocumentCounter = await CreateDocumentOrganizationCounterAsync(transferDate.Value, seller, cancellationToken);
 
-			return TransferOrder.Create(transferDate.Value, seller, customer, transferDocument);
+			return TransferOrder.Create(transferDate.Value, seller, customer, transferDocumentCounter);
 		}
 
 		private async Task<DocumentOrganizationCounter> CreateDocumentOrganizationCounterAsync(
