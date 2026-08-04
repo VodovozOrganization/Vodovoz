@@ -436,34 +436,42 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 		public async Task<IList<CodePoolMissingProblemNode>> GetCodePoolMissingProblemNodes(
 			IUnitOfWork uow,
 			string problemSourceName,
-			int maxAttempts,
 			int? batchSize,
 			CancellationToken cancellationToken)
 		{
-			var query =
-				from problem in uow.Session.Query<ExceptionEdoTaskProblem>()
-				join orderTask in uow.Session.Query<OrderEdoTask>()
-					on problem.EdoTask.Id equals orderTask.Id
-				join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
-					on problem.Id equals routineState.Problem.Id into routineStates
-				from routineState in routineStates.DefaultIfEmpty()
-				where problem.SourceName == problemSourceName
-					&& problem.State == TaskProblemState.Active
-					&& (routineState == null || routineState.RetryCount <= maxAttempts)
-				orderby routineState == null ? 0 : routineState.RetryCount, problem.CreationTime
-				select new CodePoolMissingProblemNode
-				{
-					Problem = problem,
-					EdoTask = orderTask,
-					RoutineState = routineState
-				};
+			var sixHoursAgo = DateTime.UtcNow.AddHours(-6);
+
+			var query = from problem in uow.Session.Query<ExceptionEdoTaskProblem>()
+						join orderTask in uow.Session.Query<OrderEdoTask>()
+							on problem.EdoTask.Id equals orderTask.Id
+						join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
+							on problem.Id equals routineState.Problem.Id into routineStates
+						from routineState in routineStates.DefaultIfEmpty()
+						where problem.SourceName == problemSourceName
+							&& problem.State == TaskProblemState.Active
+							&& (routineState == null
+								|| (routineState.LastRetryTime == null || routineState.LastRetryTime <= sixHoursAgo))
+						orderby routineState == null ? 0 : routineState.RetryCount, problem.CreationTime
+						select new
+						{
+							Problem = problem,
+							OrderTask = orderTask,
+							RoutineState = routineState
+						};
 
 			if(batchSize.HasValue)
 			{
-				return await query.Take(batchSize.Value).ToListAsync(cancellationToken);
+				query = query.Take(batchSize.Value);
 			}
 
-			return await query.ToListAsync(cancellationToken);
+			var rawResult = await query.ToListAsync(cancellationToken);
+
+			return rawResult.Select(x => new CodePoolMissingProblemNode
+			{
+				Problem = x.Problem,
+				EdoTask = x.OrderTask,
+				RoutineState = x.RoutineState
+			}).ToList();
 		}
 
 		public async Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(

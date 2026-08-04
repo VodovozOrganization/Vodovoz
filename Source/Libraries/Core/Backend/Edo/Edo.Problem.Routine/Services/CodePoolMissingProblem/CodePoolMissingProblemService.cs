@@ -151,7 +151,6 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 					var problemNodes = await _edoRepository.GetCodePoolMissingProblemNodes(
 						uow,
 						_problemSourceName,
-						_options.MaxAttempts,
 						_options.BatchSize,
 						cancellationToken);
 
