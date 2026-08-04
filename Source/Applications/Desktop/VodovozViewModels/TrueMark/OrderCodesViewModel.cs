@@ -52,7 +52,6 @@ namespace Vodovoz.ViewModels.TrueMark
 	public class OrderCodesViewModel : WidgetViewModelBase
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly ICommonServices _commonServices;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IClipboard _clipboard;
@@ -94,7 +93,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		private string _parsedSearchCodeSerialNumber;
 		private Order _transferTargetOrder;
 		private bool _canShowTransferRejectedCodesControls;
-		private bool _canTransferRejectedCodesFromCanceledOrder;
+		private readonly bool _canTransferRejectedCodesFromCanceledOrder;
 
 		public OrderCodesViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -113,7 +112,14 @@ namespace Vodovoz.ViewModels.TrueMark
 			) : base()
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			if(commonServices is null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+
+			_canTransferRejectedCodesFromCanceledOrder =
+				commonServices.CurrentPermissionService.ValidatePresetPermission(
+					OrderPermissions.CanTransferRejectedCodesFromCanceledOrder);
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
@@ -529,9 +535,6 @@ namespace Vodovoz.ViewModels.TrueMark
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				_canTransferRejectedCodesFromCanceledOrder =
-					_commonServices.CurrentPermissionService.ValidatePresetPermission(
-						OrderPermissions.CanTransferRejectedCodesFromCanceledOrder);
 				var order = uow.GetById<Order>(OrderId);
 				CanShowTransferRejectedCodesControls = order?.OrderStatus == OrderStatus.Canceled
 					&& _canTransferRejectedCodesFromCanceledOrder;

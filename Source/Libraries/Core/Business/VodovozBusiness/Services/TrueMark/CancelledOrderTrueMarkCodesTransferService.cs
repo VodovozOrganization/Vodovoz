@@ -72,8 +72,9 @@ namespace VodovozBusiness.Services.TrueMark
 				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
 			}
 
-			var transferredProductCodes = CreateTransferredProductCodes(sourceProductCodes);
+			ClearSourceProductCodeResults(sourceProductCodes);
 			FlushClearedResultCodes(uow);
+			var transferredProductCodes = CreateTransferredProductCodes(sourceProductCodes);
 			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, transferredProductCodes);
 			uow.Save(edoRequest);
 
@@ -257,12 +258,12 @@ namespace VodovozBusiness.Services.TrueMark
 			foreach(var sourceProductCode in sourceProductCodes)
 			{
 				var transferredCode = sourceProductCode.SourceCode;
-				sourceProductCode.ResultCode = null;
 
 				transferredProductCodes.Add(new AutoTrueMarkProductCode
 				{
 					CreationTime = now,
 					LastModified = now,
+					SourceCode = transferredCode,
 					ResultCode = transferredCode,
 					SourceCodeStatus = SourceProductCodeStatus.Accepted,
 					Problem = ProductCodeProblem.None
@@ -270,6 +271,14 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			return transferredProductCodes;
+		}
+
+		private static void ClearSourceProductCodeResults(IEnumerable<TrueMarkProductCode> sourceProductCodes)
+		{
+			foreach(var sourceProductCode in sourceProductCodes)
+			{
+				sourceProductCode.ResultCode = null;
+			}
 		}
 
 		private static void FlushClearedResultCodes(IUnitOfWork uow)

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.TrueMark
 {
@@ -94,13 +95,20 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		IList<TrueMarkProductCode> GetRejectedProductCodesByOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
-		/// Возвращает перенесенный код отмененного заказа для указанного заказа-получателя и GTIN.
+		/// Возвращает автоматические коды ручных ЭДО-заявок указанного заказа по GTIN.
 		/// </summary>
 		/// <param name="uow">Unit of Work</param>
-		/// <param name="orderId">Номер заказа-получателя</param>
-		/// <param name="gtin">GTIN отсканированного водителем кода</param>
-		/// <returns>Перенесенный код или null, если код не найден</returns>
-		AutoTrueMarkProductCode GetTransferredProductCode(IUnitOfWork uow, int orderId, string gtin);
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="gtin">GTIN кода</param>
+		/// <param name="sourceCodeStatus">Статус исходного кода</param>
+		/// <param name="problem">Проблема кода</param>
+		/// <returns>Список автоматических кодов ручных ЭДО-заявок</returns>
+		IList<AutoTrueMarkProductCode> GetAutoProductCodesByManualEdoRequests(
+			IUnitOfWork uow,
+			int orderId,
+			string gtin,
+			SourceProductCodeStatus sourceCodeStatus,
+			ProductCodeProblem problem);
 
 		/// <summary>
 		/// Возвращает коды товара, в которых указаны переданные идентификационные коды.
@@ -113,6 +121,18 @@ namespace Vodovoz.EntityRepositories.TrueMark
 			IUnitOfWork uow,
 			HashSet<int> identificationCodeIds,
 			HashSet<int> excludedProductCodeIds);
+
+		/// <summary>
+		/// Возвращает идентификаторы исходных кодов отклоненных кодов товара без результирующего кода.
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="identificationCodeIds">Идентификаторы исходных кодов</param>
+		/// <param name="orderStatus">Статус заказа, которому принадлежат коды</param>
+		/// <returns>Множество идентификаторов исходных кодов</returns>
+		HashSet<int> GetRejectedIdentificationCodeIds(
+			IUnitOfWork uow,
+			HashSet<int> identificationCodeIds,
+			OrderStatus orderStatus);
 
 		/// <summary>
 		/// Возвращает количество привязанных кодов товара по строкам заказа.

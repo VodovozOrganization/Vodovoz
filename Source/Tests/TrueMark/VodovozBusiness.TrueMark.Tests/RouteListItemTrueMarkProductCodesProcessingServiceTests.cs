@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,8 +40,19 @@ namespace VodovozBusiness.TrueMark.Tests
 			_trueMarkRepository = Substitute.For<ITrueMarkRepository>();
 			_trueMarkCodesPool = Substitute.For<ITrueMarkCodesPool>();
 			_trueMarkRepository
-				.GetTransferredProductCode(Arg.Any<IUnitOfWork>(), Arg.Any<int>(), Arg.Any<string>())
-				.Returns((AutoTrueMarkProductCode)null);
+				.GetAutoProductCodesByManualEdoRequests(
+					Arg.Any<IUnitOfWork>(),
+					Arg.Any<int>(),
+					Arg.Any<string>(),
+					Arg.Any<SourceProductCodeStatus>(),
+					Arg.Any<ProductCodeProblem>())
+				.Returns(new List<AutoTrueMarkProductCode>());
+			_trueMarkRepository
+				.GetRejectedIdentificationCodeIds(
+					Arg.Any<IUnitOfWork>(),
+					Arg.Any<HashSet<int>>(),
+					Arg.Any<OrderStatus>())
+				.Returns(new HashSet<int>());
 
 			var trueMarkCodesPoolFactory = Substitute.ForPartsOf<TrueMarkCodesPoolFactory>(
 				Substitute.For<IUnitOfWorkFactory>());
@@ -66,9 +78,7 @@ namespace VodovozBusiness.TrueMark.Tests
 			var routeListItem = CreateRouteListItem();
 			var driverIdentificationCode = CreateDriverIdentificationCode();
 
-			_trueMarkRepository
-				.GetTransferredProductCode(_uow, _orderId, _gtin)
-				.Returns(transferredProductCode);
+			ConfigureTransferredProductCode(transferredProductCode);
 
 			await _service.AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
 				_uow,
@@ -111,6 +121,38 @@ namespace VodovozBusiness.TrueMark.Tests
 		}
 
 		/// <summary>
+		/// Проверяет, что код ручной заявки без исходной отклоненной записи
+		/// не считается перенесенным и не возвращается в пул.
+		/// </summary>
+		[Fact]
+		public async Task AcceptedDriverCode_WithoutRejectedSourceCode_DoesNotUsePool()
+		{
+			var transferredProductCode = CreateTransferredProductCode();
+			_trueMarkRepository
+				.GetAutoProductCodesByManualEdoRequests(
+					_uow,
+					_orderId,
+					_gtin,
+					SourceProductCodeStatus.Accepted,
+					ProductCodeProblem.None)
+				.Returns(new List<AutoTrueMarkProductCode> { transferredProductCode });
+
+			await _service.AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
+				_uow,
+				CreateRouteListItem(),
+				_orderItemId,
+				CreateDriverIdentificationCode(),
+				SourceProductCodeStatus.Accepted,
+				ProductCodeProblem.None);
+
+			await _trueMarkCodesPool
+				.DidNotReceive()
+				.PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
+			Assert.NotNull(transferredProductCode.ResultCode);
+			Assert.Equal(SourceProductCodeStatus.Accepted, transferredProductCode.SourceCodeStatus);
+		}
+
+		/// <summary>
 		/// Проверяет, что отклоненный или проблемный водительский код
 		/// не вытесняет ранее перенесенный код.
 		/// </summary>
@@ -133,23 +175,52 @@ namespace VodovozBusiness.TrueMark.Tests
 
 			_trueMarkRepository
 				.DidNotReceive()
-				.GetTransferredProductCode(Arg.Any<IUnitOfWork>(), Arg.Any<int>(), Arg.Any<string>());
+				.GetAutoProductCodesByManualEdoRequests(
+					Arg.Any<IUnitOfWork>(),
+					Arg.Any<int>(),
+					Arg.Any<string>(),
+					Arg.Any<SourceProductCodeStatus>(),
+					Arg.Any<ProductCodeProblem>());
 			await _trueMarkCodesPool
 				.DidNotReceive()
 				.PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
 		}
 
-		private static AutoTrueMarkProductCode CreateTransferredProductCode() =>
-			new AutoTrueMarkProductCode
+		private static AutoTrueMarkProductCode CreateTransferredProductCode()
+		{
+			var identificationCode = new TrueMarkWaterIdentificationCode
 			{
-				ResultCode = new TrueMarkWaterIdentificationCode
-				{
-					Id = _transferredIdentificationCodeId,
-					Gtin = _gtin
-				},
+				Id = _transferredIdentificationCodeId,
+				Gtin = _gtin
+			};
+
+			return new AutoTrueMarkProductCode
+			{
+				Id = 5,
+				SourceCode = identificationCode,
+				ResultCode = identificationCode,
 				SourceCodeStatus = SourceProductCodeStatus.Accepted,
 				Problem = ProductCodeProblem.None
 			};
+		}
+
+		private void ConfigureTransferredProductCode(AutoTrueMarkProductCode transferredProductCode)
+		{
+			_trueMarkRepository
+				.GetAutoProductCodesByManualEdoRequests(
+					_uow,
+					_orderId,
+					_gtin,
+					SourceProductCodeStatus.Accepted,
+					ProductCodeProblem.None)
+				.Returns(new List<AutoTrueMarkProductCode> { transferredProductCode });
+			_trueMarkRepository
+				.GetRejectedIdentificationCodeIds(
+					_uow,
+					Arg.Is<HashSet<int>>(x => x.SetEquals(new[] { _transferredIdentificationCodeId })),
+					OrderStatus.Canceled)
+				.Returns(new HashSet<int> { transferredProductCode.ResultCode.Id });
+		}
 
 		private static RouteListItemEntity CreateRouteListItem() =>
 			new RouteListItemEntity

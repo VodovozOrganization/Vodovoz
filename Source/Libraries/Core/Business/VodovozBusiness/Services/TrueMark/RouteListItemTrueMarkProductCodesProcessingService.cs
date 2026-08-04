@@ -180,7 +180,7 @@ namespace VodovozBusiness.Services.TrueMark
 				return;
 			}
 
-			var transferredProductCode = _trueMarkRepository.GetTransferredProductCode(
+			var transferredProductCode = GetTransferredProductCode(
 				uow,
 				orderId,
 				gtin);
@@ -196,6 +196,33 @@ namespace VodovozBusiness.Services.TrueMark
 
 			transferredProductCode.ResultCode = null;
 			transferredProductCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
+		}
+
+		private AutoTrueMarkProductCode GetTransferredProductCode(IUnitOfWork uow, int orderId, string gtin)
+		{
+			var transferredProductCodeCandidates = _trueMarkRepository
+				.GetAutoProductCodesByManualEdoRequests(
+					uow,
+					orderId,
+					gtin,
+					SourceProductCodeStatus.Accepted,
+					ProductCodeProblem.None);
+
+			if(!transferredProductCodeCandidates.Any())
+			{
+				return null;
+			}
+
+			var identificationCodeIds = new HashSet<int>(
+				transferredProductCodeCandidates.Select(x => x.ResultCode.Id));
+
+			var rejectedIdentificationCodeIds = _trueMarkRepository.GetRejectedIdentificationCodeIds(
+				uow,
+				identificationCodeIds,
+				OrderStatus.Canceled);
+
+			return transferredProductCodeCandidates
+				.FirstOrDefault(x => rejectedIdentificationCodeIds.Contains(x.ResultCode.Id));
 		}
 
 		private RouteListItemTrueMarkProductCode CreateRouteListItemTrueMarkProductCode(

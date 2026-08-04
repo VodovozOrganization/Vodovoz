@@ -137,7 +137,7 @@ namespace DriverAPI.Library
 		/// <returns>Обновленная коллекция сервисов</returns>
 		public static IServiceCollection AddTrueMarkCodesCheckDependencies(this IServiceCollection services)
 		{
-			services.AddCodesPool();
+			services.AddScoped<TrueMarkCodesPoolFactory>();
 
 			return services
 				.AddScoped<TrueMarkWaterCodeParser>()
