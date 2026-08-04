@@ -341,42 +341,6 @@ namespace EdoService.Library
 			return cancelledEdoTaskWithRejectedCodes;
 		}
 
-		public async Task<Result> ResendReceiptFromSavedToPool(
-			IUnitOfWork uow,
-			int? orderTaskId,
-			int orderId,
-			CancellationToken cancellationToken = default)
-		{
-			var tasksResult = await _receiptRepository.GetAsync(
-				uow,
-				f => f.FormalEdoRequest.Order.Id == orderId
-					&& f.Id != orderTaskId, cancellationToken: cancellationToken);
-
-			if(tasksResult.IsFailure) 
-			{
-				return Result.Failure(tasksResult.Errors);
-			}
-			var tasks = tasksResult.Value;
-
-			if(tasks.Any(x => x.ReceiptStatus != EdoReceiptStatus.SavedToPool))
-			{
-				return Result.Failure(EdoErrors.CreateCannotResendReceiptFromSavedToPoolTask(orderId));
-			}
-
-			var order = await _orderRepository.GetOrderByIdAsync(uow, orderId, cancellationToken);
-
-			var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(tasks.FirstOrDefault());
-
-			var newRequest = ManualEdoRequestFactory.Create(order, productCodes);
-
-			await uow.SaveAsync(newRequest, cancellationToken: cancellationToken);
-			await uow.CommitAsync(cancellationToken);
-
-			await _edoRequestCreatedEventPublisher.Publish(newRequest.Id, "Ручная переотправка чека из пула", cancellationToken);
-
-			return Result.Success();
-		}
-
 		public virtual void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
