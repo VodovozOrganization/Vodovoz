@@ -50,7 +50,6 @@ namespace EdoService.Library
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly IBus _bus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
-		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 
 		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[]
 		{
@@ -76,8 +75,7 @@ namespace EdoService.Library
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			IBus bus,
-			IEnumerable<IInformalEdoRequestFactory> requestFactories,
-			EdoProblemRegistrar edoProblemRegistrar
+			IEnumerable<IInformalEdoRequestFactory> requestFactories
 			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -94,7 +92,6 @@ namespace EdoService.Library
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
-			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 		}
 
 		public Result ResendEdoDocumentForOrder(OrderEntity order)
@@ -132,27 +129,22 @@ namespace EdoService.Library
 				return Result.Failure(EdoErrors.NoCancelledEdoTaskForResend);
 			}
 
-			bool hasDocflow = CheckDocflow();
+			bool hasDocflow = HasDocflow(uow, edoTask);
+			bool hasCancelledDocflow = HasCancelledDocflow(uow, edoTask);
 
-			if(hasDocflow) // Есть ДО
+			if(hasCancelledDocflow) // Есть ДО
 			{
 				if(EdoTaskHasBeenCancelled(uow, edoTask))
 				{
 					ResendDocumentForCancelledEdoTask(uow, order, edoTask);
 				}
-				else if(IsLocalCancellationAllowed(uow, edoTask)) // 3.2 Если задачу можем отменить на нашей стороне и ДО аннулирован
+				else // 3.2 Если задачу можем отменить на нашей стороне и ДО аннулирован
 				{
 					CancelEdoTaskWithReason(uow, edoTask);
 					ResendDocumentForCancelledEdoTask(uow, order, edoTask);
 				}
-				else
-				{
-					CreateEventForEdoTaskCancellation(edoTask); // 3.1 Отправляем запрос на аннулирование, нужно отобразить пользователю, что задача поставлена на отмену, и после отмены можно будет переотправить
-
-					return Result.Failure(EdoErrors.CreateTaskPendingCancellation(edoTask.Id));
-				}
 			}
-			else if(!hasDocflow && IsLocalCancellationAllowed(uow, edoTask)) // Нет ДО
+			else if(!hasDocflow) // Нет ДО
 			{
 				if(edoTask.Status is EdoTaskStatus.Problem)
 				{
@@ -171,80 +163,23 @@ namespace EdoService.Library
 			}
 			else
 			{
-				return Result.Failure(EdoErrors.CreateCannotResendCompletedTask(edoTask.Id));
-			}
+				CreateEventForEdoTaskCancellation(edoTask); // 3.1 Отправляем запрос на аннулирование, нужно отобразить пользователю, что задача поставлена на отмену, и после отмены можно будет переотправить
 
-			var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
-			if(documents is null || !documents.Any())
-			{
-				return Result.Failure(EdoErrors.HasProblem);
-			}
-
-			// Проверяем документы на возможность переотправки
-			foreach(var doc in documents)
-			{
-				if(!CanResendEdoDocument(doc.Status))
-				{
-					return Result.Failure(EdoErrors.CreateAlreadySuccefullSended(order, doc));
-				}
-
-				var validateResult = ValidateEdoOrderDocument(uow, doc);
-				if(validateResult.IsFailure)
-				{
-					return validateResult;
-				}
-			}
-
-			var orderItems = _orderRepository.GetOrderItems(uow, order.Id);
-			var hasMarkedProducts = orderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
-
-			var document = documents.First();
-			if(document.Type != OutgoingEdoDocumentType.Order)
-			{
-				return Result.Failure(EdoErrors.CreateInvalidOutgoingDocumentType(order.Id, document.Type));
-			}
-
-			if(hasMarkedProducts && document.CreationTime != null)
-			{
-				var threeMonthAgo = DateTime.Now.AddMonths(-3);
-				if(document.CreationTime < threeMonthAgo)
-				{
-					return Result.Failure(EdoErrors.CreateResendTimeLimitExceeded(document, order.Id));
-				}
-			}
-
-			var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(edoTask);
-
-			var request = ManualEdoRequestFactory.Create(order, productCodes);
-
-			CancelEdoTaskWithReason(uow, edoTask);
-
-			uow.Save(request);
-			uow.Save(edoTask);
-
-			// Сохраняем все новые коды
-			foreach(var code in productCodes)
-			{
-				uow.Save(code);
+				return Result.Failure(EdoErrors.CreateTaskPendingCancellation(edoTask.Id));
 			}
 
 			uow.Commit();
 
-			_edoRequestCreatedEventPublisher.Publish(request.Id, "Ручная переотправка документов ЭДО")
-				.ConfigureAwait(false)
-				.GetAwaiter()
-				.GetResult();
-
 			return Result.Success();
 		}
 
-		private bool IsLocalCancellationAllowed(IUnitOfWork uow, OrderEdoTask edoTask)
+		private bool HasCancelledDocflow(IUnitOfWork uow, OrderEdoTask edoTask)
 		{
 			var orderDocument = uow.Session.QueryOver<OrderEdoDocument>()
 				.Where(x => x.DocumentTaskId == edoTask.Id)
 				.SingleOrDefault();
 
-			if(orderDocument is null || orderDocument.Status is EdoDocumentStatus.Cancelled)
+			if(CanResendEdoDocument(orderDocument.Status))
 			{
 				return true;
 			}
@@ -252,9 +187,18 @@ namespace EdoService.Library
 			return false;
 		}
 
-		private bool CheckDocflow()
+		private bool HasDocflow(IUnitOfWork uow, OrderEdoTask edoTask)
 		{
-			throw new NotImplementedException();
+			var orderDocument = uow.Session.QueryOver<OrderEdoDocument>()
+				.Where(x => x.DocumentTaskId == edoTask.Id)
+				.SingleOrDefault();
+
+			if(orderDocument is null)
+			{
+				return true;
+			}
+
+			return false;
 		}
 
 		private void ResendDocumentForCancelledEdoTask(IUnitOfWork uow, OrderEntity order, OrderEdoTask edoTask)
@@ -264,6 +208,7 @@ namespace EdoService.Library
 			var request = ManualEdoRequestFactory.Create(order, productCodes);
 
 			uow.Save(request);
+			uow.Save(edoTask);
 
 			_edoRequestCreatedEventPublisher.Publish(request.Id, "Ручная переотправка документов ЭДО")
 				.ConfigureAwait(false)
