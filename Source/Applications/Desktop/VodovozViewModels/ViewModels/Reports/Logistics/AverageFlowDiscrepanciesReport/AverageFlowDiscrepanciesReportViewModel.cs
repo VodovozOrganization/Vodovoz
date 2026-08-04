@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using ClosedXML.Excel;
 using ClosedXML.Report;
 using QS.Commands;
 using QS.Dialog;
@@ -10,7 +11,6 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Settings.Car;
@@ -25,7 +25,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICarSettings _carSettings;
 		private readonly ICarEventSettings _carEventSettings;
-		private const string _templatePath = @".\Reports\Cars\AverageFlowDiscrepanciesReport.xlsx";
 		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
 
 		public AverageFlowDiscrepanciesReportViewModel(
@@ -70,12 +69,104 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				SelectedCarTypesOfUse = new List<CarTypeOfUse>(Enum.GetValues(typeof(CarTypeOfUse)).Cast<CarTypeOfUse>())
 			};
 		}
+
 		private void ExportReport(string path)
 		{
-			var template = new XLTemplate(_templatePath);
-			template.AddVariable(Report);
-			template.Generate();
-			template.SaveAs(path);
+			using(var workbook = new XLWorkbook())
+			{
+				var worksheet = workbook.Worksheets.Add("Отчет");
+
+				worksheet.Cell(1, 5).Value = $"Отчет по расходу топлива за период {Report.StartDate:dd-MM-yyyy} – {Report.EndDate:dd-MM-yyyy}";
+				worksheet.Range(1, 5, 1, 15).Merge();
+				worksheet.Cell(1, 5).Style.Font.Bold = true;
+				worksheet.Cell(1, 5).Style.Font.FontSize = 14;
+
+				worksheet.Cell(2, 2).Value = "Выбранные авто:";
+				worksheet.Cell(2, 3).Value = Report.SelectedCars;
+				worksheet.Cell(2, 2).Style.Font.Bold = true;
+
+				worksheet.Cell(3, 2).Value = "Расхождения % ≥ :";
+				worksheet.Cell(3, 3).Value = Report.SelectedDiscrepancyPercent;
+				worksheet.Cell(3, 2).Style.Font.Bold = true;
+
+				var headers = new[]
+				{
+					"Авто",
+					"Тип автомобиля",
+					"ФИО последнего водителя",
+					"Прикрепление к площадке",
+					"Дата калибровки",
+					"Дата след.калибровки",
+					"Начальный баланс",
+					"Актуальный баланс",
+					"Сумма км по МЛ на выполнение адресов",
+					"Факт по одометру",
+					"Полезный пробег, %",
+					"Факт расход",
+					"План расход",
+					"Разница",
+					"Факт расход на 100км",
+					"План расход на 100км",
+					"Разница в %"
+				};
+
+				int headerRow = 5;
+				for(int i = 0; i < headers.Length; i++)
+				{
+					var cell = worksheet.Cell(headerRow, i + 1);
+					cell.Value = headers[i];
+					cell.Style.Font.Bold = true;
+					cell.Style.Fill.BackgroundColor = XLColor.LightGray;
+					cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+					cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+				}
+
+				int dataRow = 6;
+				foreach(var item in Report.Rows)
+				{
+					worksheet.Cell(dataRow, 1).Value = item.Car ?? "";
+					worksheet.Cell(dataRow, 2).Value = item.CarTypeOfUseString ?? "";
+					worksheet.Cell(dataRow, 3).Value = item.DriverFullName ?? "";
+					worksheet.Cell(dataRow, 4).Value = item.GeographicGroups ?? "";
+					worksheet.Cell(dataRow, 5).Value = item.CalibrationDate?.ToString("dd.MM.yyyy") ?? "";
+					worksheet.Cell(dataRow, 6).Value = item.NextCalibrationDate?.ToString("dd.MM.yyyy") ?? "";
+					worksheet.Cell(dataRow, 7).Value = item.CurrentBalance ?? 0;
+					worksheet.Cell(dataRow, 8).Value = item.ActualBalance ?? 0;
+					worksheet.Cell(dataRow, 9).Value = item.ConfirmedDistance ?? 0;
+					worksheet.Cell(dataRow, 10).Value = item.OdometerFact ?? 0;
+					worksheet.Cell(dataRow, 11).Value = item.UsefulMileagePercentValue ?? 0;
+					worksheet.Cell(dataRow, 12).Value = item.ConsumptionFact ?? 0;
+					worksheet.Cell(dataRow, 13).Value = item.ConsumptionPlan ?? 0;
+					worksheet.Cell(dataRow, 14).Value = item.DiscrepancyFuel;
+					worksheet.Cell(dataRow, 15).Value = item.Consumption100KmFact;
+					worksheet.Cell(dataRow, 16).Value = item.Consumption100KmPlan ?? 0;
+					worksheet.Cell(dataRow, 17).Value = item.DiscrepancyPercent;
+
+					dataRow++;
+				}
+
+				worksheet.Columns().AdjustToContents();
+
+				var dataRange = worksheet.Range(headerRow, 1, dataRow - 1, headers.Length);
+				dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+				dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+				var numberColumns = new[] { 7, 8, 9, 10, 12, 13, 14, 15, 16 };
+				foreach(var col in numberColumns)
+				{
+					var range = worksheet.Range(headerRow + 1, col, dataRow - 1, col);
+					range.Style.NumberFormat.Format = "#,##0.00";
+				}
+
+				var percentColumns = new[] { 11, 17 };
+				foreach(var col in percentColumns)
+				{
+					var range = worksheet.Range(headerRow + 1, col, dataRow - 1, col);
+					range.Style.NumberFormat.Format = "#,##0.00\"%\"";
+				}
+
+				workbook.SaveAs(path);
+			}
 		}
 
 		private void CreateReport()

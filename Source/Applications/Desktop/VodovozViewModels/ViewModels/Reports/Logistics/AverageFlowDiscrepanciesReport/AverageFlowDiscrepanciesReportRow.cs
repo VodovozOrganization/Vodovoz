@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		public decimal? ActualBalance { get; internal set; }
 
 		/// <summary>
-		/// Сумма км по МЛ на выполнение адресов (бывш. Подтверждённое расстояние)
+		/// Сумма км по МЛ на выполнение адресов
 		/// </summary>
 		public decimal? ConfirmedDistance { get; internal set; }
 
