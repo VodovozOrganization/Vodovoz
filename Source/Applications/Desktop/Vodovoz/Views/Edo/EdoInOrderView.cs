@@ -176,21 +176,35 @@ namespace Vodovoz.Views.Edo
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(EdoInOrderViewModel.HasProblems))
+			if(e.PropertyName == nameof(EdoInOrderViewModel.HasActiveProblems))
 			{
-				if(ViewModel.HasProblems)
-				{
-					tabLabelProblems.Markup = "<span foreground=\"red\"><b>Проблемы</b></span>";
-				}
-				else
-				{
-					tabLabelProblems.LabelProp = "Проблемы";
-				}
+				UpdateProblemsTab();
+			}
+
+			if(e.PropertyName == nameof(EdoInOrderViewModel.Problems))
+			{
+				UpdateProblemsTab();
 			}
 
 			if(e.PropertyName == nameof(EdoInOrderViewModel.DocumentViewModel))
 			{
 				edoinorderdocumentview1.ViewModel = ViewModel.DocumentViewModel;
+			}
+		}
+
+		private void UpdateProblemsTab()
+		{
+			var problemsCount = ViewModel.Problems.Count > 0
+				? $" ({ViewModel.Problems.Count})"
+				: "";
+
+			if(ViewModel.HasActiveProblems)
+			{
+				tabLabelProblems.Markup = $"<span foreground=\"red\"><b>Проблемы{problemsCount}</b></span>";
+			}
+			else
+			{
+				tabLabelProblems.LabelProp = $"Проблемы{problemsCount}";
 			}
 		}
 

@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Edo
 		private IEnumerable<EdoInOrderTransferNode> _allTransfers;
 		private IEnumerable<EdoInOrderReceiptNode> _allReceipts;
 		private IEnumerable<EdoInOrderTaxcomDocflowNode> _allDocflows;
-		private bool _hasProblems;
+		private bool _hasActiveProblems;
 		private string _problemDescription;
 		private string _problemRecommendation;
 		private IList<string> _problemItems;
@@ -131,10 +131,10 @@ namespace Vodovoz.ViewModels.Edo
 			}
 		}
 
-		public virtual bool HasProblems
+		public virtual bool HasActiveProblems
 		{
-			get => _hasProblems;
-			set => SetField(ref _hasProblems, value);
+			get => _hasActiveProblems;
+			set => SetField(ref _hasActiveProblems, value);
 		}
 
 		public virtual string ProblemDescription
@@ -525,7 +525,7 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			if(_selectedDocument == null)
 			{
-				HasProblems = false;
+				HasActiveProblems = false;
 				Problems = new List<EdoInOrderProblemViewModel>();
 				return;
 			}
@@ -538,7 +538,7 @@ namespace Vodovoz.ViewModels.Edo
 			Problems = new List<EdoInOrderProblemViewModel>(viewModels);
 			if(viewModels.Any(x => x.ProblemNode?.State == TaskProblemState.Active))
 			{
-				HasProblems = true;
+				HasActiveProblems = true;
 			}
 		}
 
