@@ -15,6 +15,7 @@ using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Edo;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
 using Vodovoz.ViewModels.TrueMark;
@@ -75,6 +76,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			CreateCopyTaskIdToClipboardAction();
 			CreateOpenTenderPopupAction();
 			CreateOpenOrderCodesAction();
+			CreateOpenEdoDialogAction();
 		}
 
 		private void CreateOpenTenderPopupAction()
@@ -164,6 +166,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 						return;
 					}
 					NavigationManager.OpenViewModel<OrderCodesDialogViewModel, int>(null, selectedNode.OrderId, OpenPageOptions.IgnoreHash);
+				}
+			);
+
+			PopupActionsList.Add(action);
+		}
+
+		private void CreateOpenEdoDialogAction()
+		{
+			var action = new JournalAction(
+				"Открыть диалог ЭДО",
+				selected => selected.Count() == 1,
+				selected => true,
+				selected =>
+				{
+					var selectedNode = selected.FirstOrDefault() as EdoProcessJournalNode;
+					if(selectedNode == null)
+					{
+						return;
+					}
+					NavigationManager.OpenViewModel<EdoViewModel, int>(null, selectedNode.OrderId, OpenPageOptions.IgnoreHash);
 				}
 			);
 
@@ -266,6 +288,7 @@ and o.delivery_date >= :delivery_date_from and o.delivery_date <= :delivery_date
 group by o.id, ecr.id
 {havingSql}
 order by o.delivery_date desc
+limit 100
 ";
 
 				var query = uow.Session.CreateSQLQuery(sql)

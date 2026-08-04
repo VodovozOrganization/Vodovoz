@@ -536,9 +536,8 @@ namespace Vodovoz.ViewModels.Edo
 				;
 
 			Problems = new List<EdoInOrderProblemViewModel>(viewModels);
-			if(viewModels.Any())
+			if(viewModels.Any(x => x.ProblemNode?.State == TaskProblemState.Active))
 			{
-
 				HasProblems = true;
 			}
 		}
