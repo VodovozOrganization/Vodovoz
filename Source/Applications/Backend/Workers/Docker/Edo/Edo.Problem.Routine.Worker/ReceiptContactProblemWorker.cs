@@ -16,15 +16,19 @@ namespace Edo.Problem.Routine.Worker
 		private readonly ILogger<ReceiptContactProblemWorker> _logger;
 		private readonly IOptions<ReceiptContactProblemWorkerOptions> _options;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly IZabbixSender _zabbixSender;
 
 		public ReceiptContactProblemWorker(
 			ILogger<ReceiptContactProblemWorker> logger,
 			IOptions<ReceiptContactProblemWorkerOptions> options,
-			IServiceScopeFactory serviceScopeFactory)
+			IServiceScopeFactory serviceScopeFactory,
+			IZabbixSender zabbixSender
+		)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
 		protected override TimeSpan Interval => _options.Value.WorkerInterval;
@@ -33,7 +37,6 @@ namespace Edo.Problem.Routine.Worker
 		{
 			using var scope = _serviceScopeFactory.CreateScope();
 
-			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 			var receiptContactProblemService = scope.ServiceProvider.GetRequiredService<IReceiptContactProblemService>();
 
 			_logger.LogInformation("Запуск обработки задач ЭДО с активной проблемой контакта чека");
@@ -44,7 +47,7 @@ namespace Edo.Problem.Routine.Worker
 
 				_logger.LogInformation("Обработка задач ЭДО с активной проблемой контакта чека успешно завершена");
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception ex)
 			{

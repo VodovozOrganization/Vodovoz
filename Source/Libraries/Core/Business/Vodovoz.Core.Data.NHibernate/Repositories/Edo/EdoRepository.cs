@@ -437,9 +437,10 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			IUnitOfWork uow,
 			string problemSourceName,
 			int? batchSize,
+			int retryIntervalHours,
 			CancellationToken cancellationToken)
 		{
-			var sixHoursAgo = DateTime.UtcNow.AddHours(-6);
+			var retryIntervalHoursAgo = DateTime.UtcNow.AddHours(-retryIntervalHours);
 
 			var query = from problem in uow.Session.Query<ExceptionEdoTaskProblem>()
 						join orderTask in uow.Session.Query<OrderEdoTask>()
@@ -450,7 +451,7 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 						where problem.SourceName == problemSourceName
 							&& problem.State == TaskProblemState.Active
 							&& (routineState == null
-								|| (routineState.LastRetryTime == null || routineState.LastRetryTime <= sixHoursAgo))
+								|| (routineState.LastRetryTime == null || routineState.LastRetryTime <= retryIntervalHoursAgo))
 						orderby routineState == null ? 0 : routineState.RetryCount, problem.CreationTime
 						select new
 						{

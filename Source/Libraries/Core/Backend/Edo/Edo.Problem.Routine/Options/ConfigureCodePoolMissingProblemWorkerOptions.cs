@@ -19,6 +19,7 @@ namespace Edo.Problem.Routine.Options
 			options.WorkerInterval = _edoProblemRoutineSettings.CodePoolMissingProblemWorkerInterval;
 			options.MaxAttempts = _edoProblemRoutineSettings.CodePoolMissingProblemWorkerMaxAttempts;
 			options.BatchSize = _edoProblemRoutineSettings.CodePoolMissingProblemWorkerBatchSize;
+			options.RetryIntervalHours = _edoProblemRoutineSettings.CodePoolMissingProblemWorkerRetryIntervalHours;
 
 			if(options.WorkerInterval <= TimeSpan.Zero)
 			{
@@ -33,6 +34,11 @@ namespace Edo.Problem.Routine.Options
 			if(options.BatchSize < 1) 
 			{ 
 				throw new InvalidOperationException("Размер батча задач должен быть не меньше одного"); 
+			}
+
+			if(options.RetryIntervalHours < 1)
+			{
+				throw new InvalidOperationException("Интервал повторной попытки должен быть не меньше одного часа");
 			}
 		}
 	}

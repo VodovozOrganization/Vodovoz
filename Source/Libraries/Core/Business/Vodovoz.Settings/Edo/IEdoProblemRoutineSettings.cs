@@ -86,5 +86,10 @@ namespace Vodovoz.Settings.Edo
 		/// Размер батча задач для обработки воркером проблемы отсутствия кода в пуле
 		/// </summary>
 		int CodePoolMissingProblemWorkerBatchSize { get; }
+
+		/// <summary>
+		/// Интервал между попытками обработки проблемной задачи отсутствия кода в пуле в часах
+		/// </summary>
+		int CodePoolMissingProblemWorkerRetryIntervalHours { get; }
 	}
 }

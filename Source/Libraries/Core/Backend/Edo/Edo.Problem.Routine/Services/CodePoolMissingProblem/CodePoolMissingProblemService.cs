@@ -152,6 +152,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 						uow,
 						_problemSourceName,
 						_options.BatchSize,
+						_options.RetryIntervalHours,
 						cancellationToken);
 
 					if(!problemNodes.Any())
@@ -402,19 +403,5 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 				return (null, null);
 			}
 		}
-	}
-
-	public readonly struct CodePoolMissingProblemProcessResult
-	{
-		public static CodePoolMissingProblemProcessResult Empty => new CodePoolMissingProblemProcessResult(false, false);
-
-		public CodePoolMissingProblemProcessResult(bool processed, bool notificationSent)
-		{
-			Processed = processed;
-			NotificationSent = notificationSent;
-		}
-
-		public bool Processed { get; }
-		public bool NotificationSent { get; }
 	}
 }

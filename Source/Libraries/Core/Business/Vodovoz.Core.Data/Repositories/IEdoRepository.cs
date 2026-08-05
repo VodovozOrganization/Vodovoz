@@ -216,12 +216,14 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="problemSourceName">Имя источника проблемы</param>
 		/// <param name="batchSize">Размер партии (опционально)</param>
+		/// <param name="retryIntervalHours">Интервал повторной попытки в часах</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Коллекция узлов проблем с отсутствием кодов в пуле</returns>
 		Task<IList<CodePoolMissingProblemNode>> GetCodePoolMissingProblemNodes(
 			IUnitOfWork uow,
 			string problemSourceName,
 			int? batchSize,
+			int retryIntervalHours,
 			CancellationToken cancellationToken);
 	}
 }

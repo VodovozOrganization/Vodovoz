@@ -59,5 +59,8 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public int CodePoolMissingProblemWorkerBatchSize => _settingsController
 			.GetValue<int>("edo.problem.routine.code-pool-missing-worker-batch-size");
+
+		public int CodePoolMissingProblemWorkerRetryIntervalHours => _settingsController
+			.GetValue<int>("edo.problem.routine.code-pool-missing-worker-retry-interval");
 	}
 }
