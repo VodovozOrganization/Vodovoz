@@ -508,19 +508,14 @@ select
 	document_task_stage as :task_upd_stage,
 	receipt_status as :task_receipt_stage,
 	tender_task_stage as :task_tender_stage,
-	(select count(*) from true_mark_product_codes tmpc where tmpc.customer_request_id = ecr.id) as :codes_count,
-	eod.status as :edo_document_status,
-	tda.error_message as :error_description
+	(select count(*) from true_mark_product_codes tmpc where tmpc.customer_request_id = ecr.id) as :codes_count_in_request,
+	(select count(*) from true_mark_product_codes tmpc 
+		left join edo_order_task_items eoti on eoti.product_code_id = tmpc.id
+		where eoti.order_edo_task_id = et.id) as :codes_used_in_task,
+	eod.status as :edo_document_status
 from edo_customer_requests ecr
 left join edo_tasks et on et.id = ecr.order_task_id
 left join edo_outgoing_documents eod on eod.document_task_id = et.id
-left join taxcom_docflows td on td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda on tda.taxcom_docflow_id = td.id
-	and tda.`time` = (
-		select max(tda2.`time`) 
-		from taxcom_docflow_actions tda2 
-		where tda2.taxcom_docflow_id = td.id
-	)
 where ecr.order_id = :order_id
 	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
 union all
@@ -535,19 +530,12 @@ select
 	null as :task_upd_stage,
 	null as :task_receipt_stage,
 	null as :task_tender_stage,
-	null as :codes_count,
-	eod.status as :edo_document_status,
-	tda.error_message as :error_description
+	null as :codes_count_in_request,
+	null as :codes_used_in_task,
+	eod.status as :edo_document_status
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
 left join edo_outgoing_documents eod on eod.document_task_id = et.id
-left join taxcom_docflows td on td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda on tda.taxcom_docflow_id = td.id
-	and tda.`time` = (
-		select max(tda2.`time`) 
-		from taxcom_docflow_actions tda2 
-		where tda2.taxcom_docflow_id = td.id
-	)
 where eir.order_id = :order_id
 	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
 ;
@@ -565,9 +553,9 @@ where eir.order_id = :order_id
 				.Map("task_upd_stage", x => x.TaskUpdStage, new EnumStringType<DocumentEdoTaskStage>())
 				.Map("task_receipt_stage", x => x.TaskReceiptStage, new EnumStringType<EdoReceiptStatus>())
 				.Map("task_tender_stage", x => x.TaskTenderStage, new EnumStringType<TenderEdoTaskStage>())
-				.Map("codes_count", x => x.CodesQuantity, NHibernateUtil.Int32)
+				.Map("codes_count_in_request", x => x.CodesInRequest, NHibernateUtil.Int32)
+				.Map("codes_used_in_task", x => x.CodesUsedInTask, NHibernateUtil.Int32)
 				.Map("edo_document_status", x => x.EdoDocumentStatus, new EnumStringType<EdoDocumentStatus>())
-				.Map("error_description", x => x.ErrorDescription, NHibernateUtil.String)
 				.SetResultTransformer();
 
 			query.SetParameter("order_id", orderId);
