@@ -1,7 +1,7 @@
-using System;
+﻿using System;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Problem.Routine.Services
+namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 {
 	/// <summary>
 	/// Правила повторной обработки проблем с контактом для отправки чека.

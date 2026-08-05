@@ -6,9 +6,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Edo.Problem.Routine.Services
+namespace Edo.Problem.Routine.Services.CodeDuplicatedProblem
 {
-	public class CodeDuplicatedProblemService
+	public class CodeDuplicatedProblemService : ICodeDuplicatedProblemService
 	{
 		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _codeDuplicatedMessagePublisher;
 		private readonly IEdoNotificationMessageFactory _edoNotificationMessageFactory;

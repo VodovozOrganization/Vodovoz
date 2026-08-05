@@ -23,6 +23,7 @@ using TrueMark.Codes.Pool;
 using TrueMark.Library;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Data.Repositories.Goods;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
@@ -762,7 +763,7 @@ namespace Receipt.Dispatcher.Tests
 			var transferRequestCreator = CreateTransferRequestCreatorFixture(edoRepository);
 			var edoReceiptSettings = Substitute.For<IEdoReceiptSettings>();
 			edoReceiptSettings.MaxCodesInReceiptCount.Returns(1000);
-			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, Substitute.For<ITrueMarkApiClient>());
+			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, Substitute.For<INomenclatureRepository>(), Substitute.For<ITrueMarkApiClient>());
 			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
 			trueMarkCodeRepository
@@ -848,9 +849,9 @@ namespace Receipt.Dispatcher.Tests
 			return new TransferRequestCreator(edoRepository);
 		}
 
-		private TrueMarkTaskCodesValidator CreateTrueMarkTaskCodesValidatorFixture(IEdoRepository edoRepository, ITrueMarkApiClient trueMarkApiClient)
+		private TrueMarkTaskCodesValidator CreateTrueMarkTaskCodesValidatorFixture(IEdoRepository edoRepository, INomenclatureRepository nomenclatureRepository, ITrueMarkApiClient trueMarkApiClient)
 		{
-			return new TrueMarkTaskCodesValidator(edoRepository, trueMarkApiClient);
+			return new TrueMarkTaskCodesValidator(edoRepository, nomenclatureRepository, trueMarkApiClient);
 		}
 
 		private TrueMarkCodesPool CreateTrueMarkCodesPoolFixture(IUnitOfWork unitOfWork)

@@ -1,7 +1,7 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Edo.Problem.Routine.Services
+namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 {
 	/// <summary>
 	/// Сервис обработки активных проблем с контактом для отправки чека.

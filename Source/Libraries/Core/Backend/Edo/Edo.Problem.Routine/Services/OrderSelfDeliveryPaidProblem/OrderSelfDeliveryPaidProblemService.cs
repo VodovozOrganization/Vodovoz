@@ -1,5 +1,6 @@
 ﻿using Edo.Contracts.Messages.Events;
 using Edo.Problem.Routine.Options;
+using Edo.Problem.Routine.Services.Common;
 using Edo.Problems.Validation;
 using EdoNotifications.Contracts;
 using MassTransit;
@@ -14,28 +15,28 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Problem.Routine.Services
+namespace Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem
 {
 	/// <summary>
-	/// Сервис обработки проблем с неверным статусом заказа в ЭДО
+	/// Сервис обработки проблем с оплатой при самовывозе в ЭДО
 	/// </summary>
-	public class OrderStatusProblemService
+	public class OrderSelfDeliveryPaidProblemService
 	{
-		private const string _problemSourceName = "Order.Status";
+		private const string _problemSourceName = "Order.SelfdeliveryPaid";
 
-		private readonly ILogger<OrderStatusProblemService> _logger;
+		private readonly ILogger<OrderSelfDeliveryPaidProblemService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IOptionsMonitor<OrderStatusProblemWorkerOptions> _options;
-		private readonly IEdoTaskValidator _orderStatusValidator;
+		private readonly IOptionsMonitor<OrderSelfDeliveryPaidProblemWorkerOptions> _options;
+		private readonly IEdoTaskValidator _selfDeliveryPaidValidator;
 		private readonly IServiceProvider _serviceProvider;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IBus _messageBus;
 		private readonly IEdoProblemRoutineNotificationService _notificationService;
 
-		public OrderStatusProblemService(
-			ILogger<OrderStatusProblemService> logger,
+		public OrderSelfDeliveryPaidProblemService(
+			ILogger<OrderSelfDeliveryPaidProblemService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IOptionsMonitor<OrderStatusProblemWorkerOptions> options,
+			IOptionsMonitor<OrderSelfDeliveryPaidProblemWorkerOptions> options,
 			IEnumerable<IEdoTaskValidator> validators,
 			IServiceProvider serviceProvider,
 			IEdoRepository edoRepository,
@@ -47,18 +48,17 @@ namespace Edo.Problem.Routine.Services
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-			_notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
-
-			_orderStatusValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
+			_selfDeliveryPaidValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
 				.FirstOrDefault(v => v.Name == _problemSourceName)
 				?? throw new InvalidOperationException($"Валидатор с именем '{_problemSourceName}' не зарегистрирован");
+			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
 		}
 
 		private DateTime _minEdoTaskCreationTime => DateTime.Today - _options.CurrentValue.ProblemTimeout;
 
 		/// <summary>
-		/// Обработчик задач с неверным статусом заказа в ЭДО
+		/// Обработчик задач с проблемой оплаты при самовывозе в ЭДО
 		/// </summary>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
@@ -66,14 +66,23 @@ namespace Edo.Problem.Routine.Services
 		{
 			IList<int> taskIds;
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(OrderStatusProblemService)))
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(OrderSelfDeliveryPaidProblemService)))
 			{
-				var tasks = await _edoRepository.GetProblemEdoTasks(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+				var documentTasks =
+					await _edoRepository.GetProblemEdoTasks<DocumentEdoTask>(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+				var receiptTasks =
+					await _edoRepository.GetProblemEdoTasks<ReceiptEdoTask>(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+				var tenderTasks =
+					await _edoRepository.GetProblemEdoTasks<TenderEdoTask>(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+
+				taskIds = documentTasks
+					.Select(x => x.Id)
+					.Concat(receiptTasks.Select(x => x.Id))
+					.Concat(tenderTasks.Select(x => x.Id))
+					.ToList();
 
 				_logger.LogInformation("Найдено {Count} задач ЭДО с активной проблемой {ProblemName}",
-					tasks.Count, _problemSourceName);
-
-				taskIds = tasks.Select(x => x.Id).ToList();
+					taskIds.Count, _problemSourceName);
 			}
 
 			await TryResumeTasks(taskIds, cancellationToken);
@@ -88,7 +97,7 @@ namespace Edo.Problem.Routine.Services
 			{
 				try
 				{
-					using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(OrderStatusProblemService)))
+					using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(OrderSelfDeliveryPaidProblemService)))
 					{
 						var edoTask = await uow.Session.GetAsync<OrderEdoTask>(taskId, cancellationToken);
 
@@ -99,7 +108,6 @@ namespace Edo.Problem.Routine.Services
 						}
 
 						var resumed = await TryResumeTask(uow, edoTask, cancellationToken);
-
 						if(resumed)
 						{
 							successCount++;
@@ -125,23 +133,23 @@ namespace Edo.Problem.Routine.Services
 			OrderEdoTask edoTask,
 			CancellationToken cancellationToken)
 		{
-			if(!_orderStatusValidator.IsApplicable(edoTask))
+			if(!_selfDeliveryPaidValidator.IsApplicable(edoTask))
 			{
 				_logger.LogError(
-					"Задача ЭДО {EdoTaskId} не подходит для обработки проблемы с неверным статусом заказа",
+					"Задача ЭДО {EdoTaskId} не подходит для обработки проблемой оплаты при самовывозе",
 					edoTask.Id);
 				return false;
 			}
 
-			var validationResult = await _orderStatusValidator.ValidateAsync(edoTask, _serviceProvider, cancellationToken);
+			var validationResult = await _selfDeliveryPaidValidator.ValidateAsync(edoTask, _serviceProvider, cancellationToken);
 
 			if(!validationResult.IsValid)
 			{
 				var notificationPublished = await _notificationService.NotifyAsync(
 					uow,
 					edoTask,
-					EdoNotificationType.OrderStatusProblem,
-					_orderStatusValidator,
+					EdoNotificationType.OrderSelfDeliveryPaymentProblem,
+					_selfDeliveryPaidValidator,
 					cancellationToken);
 
 				if(notificationPublished)
@@ -150,14 +158,14 @@ namespace Edo.Problem.Routine.Services
 				}
 
 				_logger.LogDebug(
-					"Задача ЭДО {EdoTaskId}: статус заказа №{OrderId} не подхходит, пропускаем",
+					"Задача ЭДО {EdoTaskId}: оплата самовывоза по заказу №{OrderId} ещё не подтверждена, пропускаем",
 					edoTask.Id,
 					edoTask.FormalEdoRequest.Order.Id);
 				return false;
 			}
 
 			_logger.LogInformation(
-				"Задача ЭДО {EdoTaskId}: статус заказа №{OrderId} подтверждён, возобновляем документооборот",
+				"Задача ЭДО {EdoTaskId}: оплата самовывоза по заказу №{OrderId} подтверждена, возобновляем документооборот",
 				edoTask.Id,
 				edoTask.FormalEdoRequest.Order.Id);
 

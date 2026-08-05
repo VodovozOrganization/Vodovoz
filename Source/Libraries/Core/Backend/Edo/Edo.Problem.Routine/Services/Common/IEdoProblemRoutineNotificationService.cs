@@ -5,7 +5,7 @@ using EdoNotifications.Contracts;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Problem.Routine.Services
+namespace Edo.Problem.Routine.Services.Common
 {
 	public interface IEdoProblemRoutineNotificationService
 	{

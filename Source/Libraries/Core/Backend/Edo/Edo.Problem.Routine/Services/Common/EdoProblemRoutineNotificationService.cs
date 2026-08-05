@@ -1,4 +1,4 @@
-using Edo.Problems.Validation;
+﻿using Edo.Problems.Validation;
 using EdoNotifications.Contracts;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Problem.Routine.Services
+namespace Edo.Problem.Routine.Services.Common
 {
 	public class EdoProblemRoutineNotificationService : IEdoProblemRoutineNotificationService
 	{

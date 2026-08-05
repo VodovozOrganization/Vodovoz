@@ -1,9 +1,9 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Problem.Routine.Services
+namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 {
 	/// <summary>
 	/// Сервис формирования уведомлений о неустраненной проблеме контакта для отправки чека.

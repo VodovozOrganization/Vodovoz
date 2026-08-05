@@ -45,6 +45,7 @@ namespace Edo.Problem.Routine.Worker
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoProblemRoutine()
+						.AddOrderEdoCodePoolMissingProblem()
 						.ConfigureZabbixSenderFromDataBase()
 						;
 
@@ -57,9 +58,12 @@ namespace Edo.Problem.Routine.Worker
 					services
 						.AddHostedService<OrderStatusProblemWorker>();
 
-					//services
-					//	.AddHostedService<CodeDuplicatedProblemWorker>()
-					//	.ConfigureZabbixSenderFromDataBase(nameof(CodeDuplicatedProblemWorker));
+					services
+						.AddHostedService<CodePoolMissingProblemWorker>();
+
+					/*services
+						.AddHostedService<CodeDuplicatedProblemWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(CodeDuplicatedProblemWorker));*/
 
 					services
 						.AddHostedService<ReceiptContactProblemWorker>();
