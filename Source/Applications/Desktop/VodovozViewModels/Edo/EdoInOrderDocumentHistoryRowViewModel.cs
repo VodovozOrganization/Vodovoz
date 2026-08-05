@@ -1,6 +1,7 @@
 ﻿using Gamma.Utilities;
 using QS.ViewModels;
 using System;
+using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
@@ -20,14 +21,14 @@ namespace Vodovoz.ViewModels.Edo
 			Status = documentNode.TaskStatus;
 			StatusString = Status.GetEnumTitle();
 			EdoDocumentStatus = documentNode.EdoDocumentStatus;
-			CodesQuantity = documentNode.CodesQuantity;
-			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
-			ErrorDescription = documentNode.ErrorDescription;
 			DocumentType = MatchDocumentType(documentNode);
 			DocumentTypeString = DocumentType.GetEnumTitle();
 			DocumentGroupType = MatchDocumentsByGroupType(DocumentType);
 			DocumentGroupTypeString = DocumentGroupType.GetEnumTitle();
+			CodesQuantity = GetCodesQuantity();
+			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
 		}
+
 		public EdoInOrderDocumentNode Document { get; }
 
 		public virtual EdoInOrderDocumentGroupType DocumentGroupType { get; }
@@ -51,8 +52,22 @@ namespace Vodovoz.ViewModels.Edo
 		public virtual int? CodesQuantity { get; }
 		public virtual string CodesQuantityString { get; }
 
-		public virtual string ErrorDescription { get; }
+		private int? GetCodesQuantity()
+		{
+			var primaryDocuments = new[]
+			{
+				EdoInOrderDocumentType.Upd,
+				EdoInOrderDocumentType.Receipt,
+				EdoInOrderDocumentType.Tender
+			};
 
+			if(primaryDocuments.Contains(DocumentType))
+			{
+				return Document.CodesInRequest;
+			}
+
+			return Document.CodesUsedInTask;
+		}
 
 		private EdoInOrderDocumentType MatchDocumentType(EdoInOrderDocumentNode document)
 		{

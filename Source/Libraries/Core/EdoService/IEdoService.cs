@@ -106,5 +106,7 @@ namespace EdoService.Library
 			CancellationToken cancellationToken = default);
 		Result<string> TryResendUpdDocument(int orderEdoTaskId);
 		Result<string> TryResendReceiptDocument(int orderEdoTaskId);
+		Result RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
+		Result RehandleNewUpdDocumentWithProblem(int updEdoTaskId);
 	}
 }

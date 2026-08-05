@@ -46,9 +46,9 @@ namespace Vodovoz.Views.Edo
 					.AddTextRenderer(x => x.TrueMarkTraceabilityStatus)
 					.XAlign(0.5f)
 				.AddColumn("Ошибка")
-					.HeaderAlignment(0.5f)
+					.HeaderAlignment(0.05f)
 					.AddTextRenderer(x => x.ErrorMessage)
-					.XAlign(0.5f)
+					.XAlign(0f)
 				.Finish();
 			ytreeviewTaxcomDocflows.Binding
 				.AddSource(ViewModel)
