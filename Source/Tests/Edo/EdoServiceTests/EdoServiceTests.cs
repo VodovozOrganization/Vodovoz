@@ -1,10 +1,12 @@
-﻿using Edo.Problems;
+﻿using Edo.Admin;
+using Edo.Problems;
 using Edo.Problems.Custom;
 using Edo.Problems.Custom.Sources;
 using Edo.Problems.Exception;
 using Edo.Transport;
 using EdoService.Library.Factories;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -41,6 +43,7 @@ namespace EdoServices.Tests
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IBus _bus;
 		private readonly MessageService _messageService;
+		private readonly EdoCancellationService _edoCancellationService;
 		private readonly IUserService _userService;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 		private readonly EdoService.Library.EdoService _edoService;
@@ -80,10 +83,17 @@ namespace EdoServices.Tests
 			);
 
 			_messageService = new MessageService(
-				Substitute.For<Microsoft.Extensions.Logging.ILogger<MessageService>>(),
+				Substitute.For<ILogger<MessageService>>(),
 				_bus
 			);
 
+			_edoCancellationService = new EdoCancellationService(
+				Substitute.For<ILogger<EdoCancellationService>>(),
+				_uow,
+				Substitute.For<IEdoCancellationValidator>(),
+				_problemRegistrar,
+				Substitute.For<IPublishEndpoint>()
+				);
 			_userService = Substitute.For<IUserService>();
 
 			_counterpartyEdoAccountEntityController = Substitute.For<ICounterpartyEdoAccountEntityController>();
@@ -95,12 +105,12 @@ namespace EdoServices.Tests
 				_edoRepository,
 				_messageService,
 				_userService,
+				_edoCancellationService,
 				_edoRequestRepository,
 				_counterpartyEdoAccountEntityController,
 				_edoRequestCreatedEventPublisher,
 				_bus,
-				_requestFactories,
-				_problemRegistrar
+				_requestFactories
 			);
 		}
 

@@ -85,20 +85,47 @@ namespace Vodovoz.ViewModels.Edo
 					"Переотправить УПД",
 					() =>
 					{
-						var result = _edoService.ResendEdoDocumentForOrder(document.TaskId);
-						if(result.IsSuccess)
+						var hasDocflow = _edoService.HasDocflow(document.TaskId);
+						var hasCancelledDocflow = _edoService.HasCancelledDocflow(document.TaskId);
+						if(hasDocflow && !hasCancelledDocflow)
 						{
-							_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно переотправлено");
+							if(_interactiveService.Question(
+								"Документооборот по данному документу завершён .\n" +
+								"Для переотправки необходимо аннулировать документооборот.\n" +
+								"Начать процесс аннулирования?"
+							))
+							{
+								var result = _edoService.CancelDocflow(document.TaskId);
+								if(result.IsSuccess)
+								{
+									_interactiveService.ShowMessage(ImportanceLevel.Info, result.Value);
+								}
+								else
+								{
+									ShowErrorMessage(result.Errors);
+								}
+							}
+							else
+							{
+								return;
+							}
 						}
 						else
 						{
-							_interactiveService.ShowMessage(ImportanceLevel.Error,
-								$"Не удалось переотправить документ.\nПричины:\n - " +
-								string.Join("\n - ", result.Errors.Select(x => x.Message)));
+							var result = _edoService.ResendEdoDocumentForOrder(document.TaskId);
+							if(result.IsSuccess)
+							{
+								_interactiveService.ShowMessage(ImportanceLevel.Info, result.Value);
+							}
+							else
+							{
+								ShowErrorMessage(result.Errors);
+							}
 						}
 					}
 				));
 		}
+
 
 		private void CreateReceiptActions(
 			List<BusyCommand> newActions,
@@ -120,13 +147,19 @@ namespace Vodovoz.ViewModels.Edo
 						}
 						else
 						{
-							_interactiveService.ShowMessage(ImportanceLevel.Error,
-								$"Не удалось переотправить документ.\nПричины:\n - " +
-								string.Join("\n - ", result.Errors.Select(x => x.Message)));
+							ShowErrorMessage(result.Errors);
 						}
 					}
 				));
 			}
+		}
+
+		private void ShowErrorMessage(IEnumerable<Error> errors)
+		{
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Error,
+				$"Не удалось переотправить документ.\nПричины:\n - " +
+					string.Join("\n - ", errors.Select(x => x.Message)));
 		}
 
 		private void CreateSaveCodeActions(
