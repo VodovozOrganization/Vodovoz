@@ -50,7 +50,7 @@ namespace VodovozBusiness.TrueMark.Tests
 			_trueMarkRepository
 				.GetRejectedIdentificationCodeIds(
 					Arg.Any<IUnitOfWork>(),
-					Arg.Any<HashSet<int>>(),
+					Arg.Any<int[]>(),
 					Arg.Any<OrderStatus>())
 				.Returns(new HashSet<int>());
 
@@ -217,7 +217,7 @@ namespace VodovozBusiness.TrueMark.Tests
 			_trueMarkRepository
 				.GetRejectedIdentificationCodeIds(
 					_uow,
-					Arg.Is<HashSet<int>>(x => x.SetEquals(new[] { _transferredIdentificationCodeId })),
+					Arg.Is<int[]>(x => x.SequenceEqual(new[] { _transferredIdentificationCodeId })),
 					OrderStatus.Canceled)
 				.Returns(new HashSet<int> { transferredProductCode.ResultCode.Id });
 		}

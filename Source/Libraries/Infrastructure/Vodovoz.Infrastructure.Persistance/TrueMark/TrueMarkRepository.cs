@@ -385,16 +385,17 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			SourceProductCodeStatus sourceCodeStatus,
 			ProductCodeProblem problem)
 		{
-			var manualRequestIds = uow.Session.Query<ManualEdoRequest>()
-				.Where(x => x.Order.Id == orderId)
-				.Select(x => x.Id);
-
-			return uow.Session.Query<AutoTrueMarkProductCode>()
-				.Where(x => manualRequestIds.Contains(x.CustomerEdoRequest.Id))
-				.Where(x => x.ResultCode != null && x.ResultCode.Gtin == gtin)
-				.Where(x => x.SourceCodeStatus == sourceCodeStatus)
-				.Where(x => x.Problem == problem)
-				.OrderByDescending(x => x.CustomerEdoRequest.Time)
+			return (
+				from productCode in uow.Session.Query<AutoTrueMarkProductCode>()
+				join manualRequest in uow.Session.Query<ManualEdoRequest>()
+					on productCode.CustomerEdoRequest.Id equals manualRequest.Id
+				where manualRequest.Order.Id == orderId
+					&& productCode.ResultCode != null
+					&& productCode.ResultCode.Gtin == gtin
+					&& productCode.SourceCodeStatus == sourceCodeStatus
+					&& productCode.Problem == problem
+				orderby manualRequest.Time descending
+				select productCode)
 				.ToList();
 		}
 
@@ -425,17 +426,15 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 		public HashSet<int> GetRejectedIdentificationCodeIds(
 			IUnitOfWork uow,
-			HashSet<int> identificationCodeIds,
+			int[] identificationCodeIds,
 			OrderStatus orderStatus)
 		{
-			var codeIds = identificationCodeIds ?? new HashSet<int>();
+			var codeIds = identificationCodeIds ?? Array.Empty<int>();
 
 			if(!codeIds.Any())
 			{
 				return new HashSet<int>();
 			}
-
-			var ids = codeIds.ToArray();
 
 			RouteListItemTrueMarkProductCode routeListProductCodeAlias = null;
 			RouteListItemEntity routeListItemAlias = null;
@@ -444,7 +443,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			var routeListIdentificationCodeIds = uow.Session.QueryOver(() => routeListProductCodeAlias)
 				.JoinAlias(() => routeListProductCodeAlias.RouteListItem, () => routeListItemAlias)
 				.JoinAlias(() => routeListItemAlias.Order, () => routeListOrderAlias)
-				.WhereRestrictionOn(() => routeListProductCodeAlias.SourceCode.Id).IsIn(ids)
+				.WhereRestrictionOn(() => routeListProductCodeAlias.SourceCode.Id).IsIn(codeIds)
 				.Where(() => routeListProductCodeAlias.ResultCode == null)
 				.Where(() => routeListProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
 				.Where(() => routeListOrderAlias.OrderStatus == orderStatus)
@@ -458,7 +457,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			var carLoadIdentificationCodeIds = uow.Session.QueryOver(() => carLoadProductCodeAlias)
 				.JoinAlias(() => carLoadProductCodeAlias.CarLoadDocumentItem, () => carLoadDocumentItemAlias)
 				.JoinEntityAlias(() => carLoadOrderAlias, () => carLoadOrderAlias.Id == carLoadDocumentItemAlias.OrderId)
-				.WhereRestrictionOn(() => carLoadProductCodeAlias.SourceCode.Id).IsIn(ids)
+				.WhereRestrictionOn(() => carLoadProductCodeAlias.SourceCode.Id).IsIn(codeIds)
 				.Where(() => carLoadProductCodeAlias.ResultCode == null)
 				.Where(() => carLoadProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
 				.Where(() => carLoadOrderAlias.OrderStatus == orderStatus)
@@ -474,7 +473,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.JoinAlias(() => selfDeliveryProductCodeAlias.SelfDeliveryDocumentItem, () => selfDeliveryDocumentItemAlias)
 				.JoinAlias(() => selfDeliveryDocumentItemAlias.Document, () => selfDeliveryDocumentAlias)
 				.JoinAlias(() => selfDeliveryDocumentAlias.Order, () => selfDeliveryOrderAlias)
-				.WhereRestrictionOn(() => selfDeliveryProductCodeAlias.SourceCode.Id).IsIn(ids)
+				.WhereRestrictionOn(() => selfDeliveryProductCodeAlias.SourceCode.Id).IsIn(codeIds)
 				.Where(() => selfDeliveryProductCodeAlias.ResultCode == null)
 				.Where(() => selfDeliveryProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
 				.Where(() => selfDeliveryOrderAlias.OrderStatus == orderStatus)
@@ -488,7 +487,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			var autoIdentificationCodeIds = uow.Session.QueryOver(() => autoProductCodeAlias)
 				.JoinAlias(() => autoProductCodeAlias.CustomerEdoRequest, () => edoRequestAlias)
 				.JoinAlias(() => edoRequestAlias.Order, () => autoOrderAlias)
-				.WhereRestrictionOn(() => autoProductCodeAlias.SourceCode.Id).IsIn(ids)
+				.WhereRestrictionOn(() => autoProductCodeAlias.SourceCode.Id).IsIn(codeIds)
 				.Where(() => autoProductCodeAlias.ResultCode == null)
 				.Where(() => autoProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
 				.Where(() => autoOrderAlias.OrderStatus == orderStatus)

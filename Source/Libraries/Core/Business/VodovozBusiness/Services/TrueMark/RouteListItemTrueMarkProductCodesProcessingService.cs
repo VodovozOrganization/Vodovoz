@@ -213,8 +213,9 @@ namespace VodovozBusiness.Services.TrueMark
 				return null;
 			}
 
-			var identificationCodeIds = new HashSet<int>(
-				transferredProductCodeCandidates.Select(x => x.ResultCode.Id));
+			var identificationCodeIds = transferredProductCodeCandidates
+				.Select(x => x.ResultCode.Id)
+				.ToArray();
 
 			var rejectedIdentificationCodeIds = _trueMarkRepository.GetRejectedIdentificationCodeIds(
 				uow,

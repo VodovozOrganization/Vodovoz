@@ -112,14 +112,10 @@ namespace Vodovoz.ViewModels.TrueMark
 			) : base()
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			if(commonServices is null)
-			{
-				throw new ArgumentNullException(nameof(commonServices));
-			}
-
 			_canTransferRejectedCodesFromCanceledOrder =
-				commonServices.CurrentPermissionService.ValidatePresetPermission(
-					OrderPermissions.CanTransferRejectedCodesFromCanceledOrder);
+				commonServices?.CurrentPermissionService.ValidatePresetPermission(
+					OrderPermissions.CanTransferRejectedCodesFromCanceledOrder)
+				?? throw new ArgumentNullException(nameof(commonServices));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));

@@ -72,8 +72,7 @@ namespace VodovozBusiness.Services.TrueMark
 				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
 			}
 
-			ClearSourceProductCodeResults(sourceProductCodes);
-			FlushClearedResultCodes(uow);
+			ClearSourceProductCodeResults(uow, sourceProductCodes);
 			var transferredProductCodes = CreateTransferredProductCodes(sourceProductCodes);
 			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, transferredProductCodes);
 			uow.Save(edoRequest);
@@ -264,8 +263,7 @@ namespace VodovozBusiness.Services.TrueMark
 					CreationTime = now,
 					LastModified = now,
 					SourceCode = transferredCode,
-					ResultCode = transferredCode,
-					SourceCodeStatus = SourceProductCodeStatus.Accepted,
+					SourceCodeStatus = SourceProductCodeStatus.New,
 					Problem = ProductCodeProblem.None
 				});
 			}
@@ -273,18 +271,15 @@ namespace VodovozBusiness.Services.TrueMark
 			return transferredProductCodes;
 		}
 
-		private static void ClearSourceProductCodeResults(IEnumerable<TrueMarkProductCode> sourceProductCodes)
+		private static void ClearSourceProductCodeResults(
+			IUnitOfWork uow,
+			IEnumerable<TrueMarkProductCode> sourceProductCodes)
 		{
 			foreach(var sourceProductCode in sourceProductCodes)
 			{
 				sourceProductCode.ResultCode = null;
+				uow.Save(sourceProductCode);
 			}
-		}
-
-		private static void FlushClearedResultCodes(IUnitOfWork uow)
-		{
-			uow.OpenTransaction();
-			uow.Session.Flush();
 		}
 	}
 }

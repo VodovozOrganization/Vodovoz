@@ -131,7 +131,7 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <returns>Множество идентификаторов исходных кодов</returns>
 		HashSet<int> GetRejectedIdentificationCodeIds(
 			IUnitOfWork uow,
-			HashSet<int> identificationCodeIds,
+			int[] identificationCodeIds,
 			OrderStatus orderStatus);
 
 		/// <summary>
