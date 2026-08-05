@@ -1,5 +1,4 @@
-﻿using QS.Extensions.Observable.Collections.List;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Edo;
@@ -31,7 +30,7 @@ namespace VodovozBusiness.Services.Edo
 					CreationTime = DateTime.Now,
 					LastModified = DateTime.Now,
 					SourceCode = sourceCode.SourceCode,
-					ResultCode = null,
+					ResultCode = sourceCode.ResultCode,
 					SourceCodeStatus = SourceProductCodeStatus.New,
 					Problem = ProductCodeProblem.None
 				};

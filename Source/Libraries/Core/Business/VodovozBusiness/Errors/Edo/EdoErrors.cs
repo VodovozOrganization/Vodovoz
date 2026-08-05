@@ -280,17 +280,6 @@ namespace VodovozBusiness.Errors.Edo
 				$"переотправка возможна в течение 3х месяцев");
 
 		/// <summary>
-		/// Создает ошибку о невозможности переотправить чек из пула, если есть задача на сохранение кодов по заказу
-		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
-		/// <returns>Ошибка с описанием</returns>
-		public static Error CreateCannotResendReceiptFromSavedToPoolTask(int orderId) =>
-			new Error(
-				typeof(EdoErrors),
-				nameof(CreateCannotResendReceiptFromSavedToPoolTask),
-				$"Помимо задачи на сохранение кодов по заказу {orderId}, есть другая задача");
-
-		/// <summary>
 		/// Создает ошибку о невозможности переотправить завершенную задачу
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи</param>
@@ -322,39 +311,5 @@ namespace VodovozBusiness.Errors.Edo
 				typeof(EdoErrors),
 				nameof(CreateCannotResendReceiptFromSavedToPool),
 				$"Нельзя переотправить чек {taskId} из пула");
-
-		/// <summary>
-		/// Создает ошибку о невозможности переотправить чек с фискальным номером
-		/// </summary>
-		/// <param name="taskId">Идентификатор задачи</param>
-		/// <returns>Ошибка с описанием</returns>
-		public static Error CreateCannotResendReceiptWithFiscalNumber(int taskId) =>
-			new Error(
-				typeof(EdoErrors),
-				nameof(CreateCannotResendReceiptWithFiscalNumber),
-				$"Нельзя переотправить чек {taskId} с фискальным номером");
-
-		/// <summary>
-		/// Создает ошибку о невозможности переотправить напечатанный или завершенный чек
-		/// </summary>
-		/// <param name="taskId">Идентификатор задачи</param>
-		/// <returns>Ошибка с описанием</returns>
-		public static Error CreateCannotResendPrintedOrCompletedReceipt(int taskId) =>
-			new Error(
-				typeof(EdoErrors),
-				nameof(CreateCannotResendPrintedOrCompletedReceipt),
-				$"Нельзя переотправить напечатанный или завершенный чек {taskId}");
-
-		/// <summary>
-		/// Создает ошибку о том, что задача отправлена на аннулирование
-		/// </summary>
-		/// <param name="taskId">Идентификатор задачи</param>
-		/// <returns>Ошибка с описанием</returns>
-		public static Error CreateTaskPendingCancellation(int taskId) =>
-			new Error(
-				typeof(EdoErrors),
-				nameof(CreateTaskPendingCancellation),
-				$"Задача {taskId} отправлена на аннулирование"
-			);
 	}
 }
