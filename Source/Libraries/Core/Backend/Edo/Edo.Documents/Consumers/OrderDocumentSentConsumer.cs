@@ -19,7 +19,5 @@ namespace Edo.Documents.Consumers
 			await _documentEdoTaskHandler.HandleSent(context.Message.Id, context.CancellationToken);
 		}
 	}
-
-	
 }
 

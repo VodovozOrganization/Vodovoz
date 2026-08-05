@@ -188,7 +188,8 @@ namespace Edo.Docflow.Taxcom
 					EdoDocumentId = taxcomDocflow.EdoDocumentId,
 					DocFlowId = @event.DocFlowId,
 					DocFlowStatus = newAction.DocFlowState.ToString(),
-					TrueMarkTraceabilityStatus = newAction.TrueMarkTraceabilityStatus?.ToString()
+					TrueMarkTraceabilityStatus = newAction.TrueMarkTraceabilityStatus?.ToString(),
+					IsReceived = @event.IsReceived
 				};
 
 				if(newAction.DocFlowState == EdoDocFlowStatus.Succeed)

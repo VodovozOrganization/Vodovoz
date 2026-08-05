@@ -50,7 +50,7 @@ namespace BitrixNotificationsSendWorker.LastServiceOrders
 				if(!bitrixNotificationsSendSettings.LastServiceOrdersNotificationsSendEnabled)
 				{
 					_logger.LogInformation("Работа воркера отправки уведомлений по последним сервисным заказам отключена в настройках");
-					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+					await _zabbixSender.SendIsHealthyAsync(nameof(LastServiceOrdersDealsCreateWorker), stoppingToken);
 
 					return;
 				}
@@ -75,13 +75,14 @@ namespace BitrixNotificationsSendWorker.LastServiceOrders
 					await dealsCreateService.SendNotCreatedDeals(stoppingToken);
 				}
 
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(LastServiceOrdersDealsCreateWorker), stoppingToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка отправки данных по последним сервисным заказам клиентов");
 
 				await _zabbixSender.SendProblemMessageAsync(
+					nameof(LastServiceOrdersDealsCreateWorker),
 					ZabixSenderMessageType.Problem,
 					$"Ошибка отправки данных по последним сервисным заказам клиентов: {ex.Message}",
 					stoppingToken);

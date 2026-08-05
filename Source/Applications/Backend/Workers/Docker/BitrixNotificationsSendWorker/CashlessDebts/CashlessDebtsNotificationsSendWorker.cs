@@ -46,7 +46,7 @@ namespace BitrixNotificationsSendWorker.CashlessDebts
 				_logger.LogError(ex, "Ошибка отправки данных по компаниям с долгом по безналу");
 			}
 
-			await zabbixSender.SendIsHealthyAsync(stoppingToken);
+			await zabbixSender.SendIsHealthyAsync(nameof(CashlessDebtsNotificationsSendWorker), stoppingToken);
 
 			_logger.LogInformation("Окончание отправки данных по компаниям с долгом по безналу");
 		}

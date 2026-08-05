@@ -1,5 +1,5 @@
 ﻿using Edo.Problem.Routine.Options;
-using Edo.Problem.Routine.Services;
+using Edo.Problem.Routine.Services.OrderStatusProblem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -44,13 +44,13 @@ namespace Edo.Problem.Routine.Worker
 
 				_logger.LogInformation("Обработка задач ЭДО с активной проблемой статуса заказа успешно завершена");
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(OrderStatusProblemWorker), stoppingToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при обработке задач ЭДО с активной проблемой статуса заказа");
 
-				await zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem,
+				await zabbixSender.SendProblemMessageAsync(nameof(OrderStatusProblemWorker), ZabixSenderMessageType.Problem,
 					$"Ошибка при обработке задач ЭДО с активной проблемой статуса заказа: {ex.Message}", stoppingToken);
 			}			
 		}

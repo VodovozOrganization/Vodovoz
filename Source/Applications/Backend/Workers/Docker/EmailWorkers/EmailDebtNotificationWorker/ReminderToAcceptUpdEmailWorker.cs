@@ -51,7 +51,7 @@ namespace EmailDebtNotificationWorker
 
 					await RunCycleAsync(stoppingToken);
 
-					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+					await _zabbixSender.SendIsHealthyAsync(nameof(ReminderToAcceptUpdEmailWorker), stoppingToken);
 				}
 				catch(OperationCanceledException)
 				{
@@ -61,7 +61,7 @@ namespace EmailDebtNotificationWorker
 				catch(Exception ex)
 				{
 					_logger.LogError(ex, "{WorkerName} произошла ошибка в основном цикле", _workerName);
-					await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, ex.Message, stoppingToken);
+					await _zabbixSender.SendProblemMessageAsync(nameof(ReminderToAcceptUpdEmailWorker), ZabixSenderMessageType.Problem, ex.Message, stoppingToken);
 					await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
 				}
 			}

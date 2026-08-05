@@ -1,5 +1,5 @@
 ﻿using Edo.Problem.Routine.Options;
-using Edo.Problem.Routine.Services;
+using Edo.Problem.Routine.Services.CodeDuplicatedProblem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -45,13 +45,13 @@ namespace Edo.Problem.Routine.Worker
 
 				_logger.LogInformation($"Обработка задач ЭДО с активной проблемой {_workerName} успешно завершена");
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(CodeDuplicatedProblemWorker), stoppingToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, $"Ошибка при обработке задач ЭДО с активной проблемой {_workerName}");
 
-				await zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem,
+				await zabbixSender.SendProblemMessageAsync(nameof(CodeDuplicatedProblemWorker), ZabixSenderMessageType.Problem,
 					$"Ошибка при обработке задач ЭДО с активной проблемой {_workerName}: {ex.Message}", stoppingToken);
 			}
 		}

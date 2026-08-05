@@ -65,7 +65,7 @@ namespace Edo.Receipt.Dispatcher.Worker
 
 					services
 						.AddHostedService<ReceiptNightSendProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(ReceiptNightSendProblemWorker));
+						.ConfigureZabbixSenderFromDataBase();
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();
 				});

@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -50,7 +50,7 @@ namespace Vodovoz.SmsInformerWorker
 						.AddInfrastructure()
 						.AddTrackedUoW()
 						.AddSmsInformerWorker(hostContext)
-						.ConfigureZabbixSenderFromDataBase("SmsInformerWorker")
+						.ConfigureZabbixSenderFromDataBase()
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
