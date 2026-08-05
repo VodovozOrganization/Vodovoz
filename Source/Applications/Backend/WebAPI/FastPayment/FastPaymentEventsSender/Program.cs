@@ -67,7 +67,7 @@ namespace FastPaymentEventsSender
 						.AddHostedService<FastPaymentEventsProcessor>()
 						.AddMessageTransportSettings()
 
-						.ConfigureZabbixSenderFromDataBase(nameof(FastPaymentEventsProcessor))
+						.ConfigureZabbixSenderFromDataBase()
 
 						.AddMassTransit(busConf =>
 						{

@@ -46,32 +46,27 @@ namespace Edo.Problem.Routine.Worker
 						.AddMessageTransportSettings()
 						.AddEdoProblemRoutine()
 						.AddOrderEdoCodePoolMissingProblem()
-						.AddEdoNotifications()
+						.ConfigureZabbixSenderFromDataBase()
 						;
 
 					services
-						.AddHostedService<OrderSelfDeliveryPaidProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(OrderSelfDeliveryPaidProblemWorker));
+						.AddHostedService<OrderSelfDeliveryPaidProblemWorker>();
 
 					services
-						.AddHostedService<FiscalDocumentSendErrorProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(FiscalDocumentSendErrorProblemWorker));
+						.AddHostedService<FiscalDocumentSendErrorProblemWorker>();
 
 					services
-						.AddHostedService<OrderStatusProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(OrderStatusProblemWorker));
+						.AddHostedService<OrderStatusProblemWorker>();
 
 					services
-						.AddHostedService<CodePoolMissingProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(CodePoolMissingProblemWorker));
+						.AddHostedService<CodePoolMissingProblemWorker>();
 
-					//services
-					//	.AddHostedService<CodeDuplicatedProblemWorker>()
-					//	.ConfigureZabbixSenderFromDataBase(nameof(CodeDuplicatedProblemWorker));
+					/*services
+						.AddHostedService<CodeDuplicatedProblemWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(CodeDuplicatedProblemWorker));*/
 
 					services
-						.AddHostedService<ReceiptContactProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(ReceiptContactProblemWorker));
+						.AddHostedService<ReceiptContactProblemWorker>();
 				});
 	}
 }

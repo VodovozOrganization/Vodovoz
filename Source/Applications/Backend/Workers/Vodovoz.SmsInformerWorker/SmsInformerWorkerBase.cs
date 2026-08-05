@@ -85,7 +85,7 @@ namespace Vodovoz.SmsInformerWorker
 			var zabbixSender = serviceProvider.GetRequiredService<IZabbixSender>();
 			var unitOfWorkFactory = serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
 
-			zabbixSender.SendIsHealthyAsync(stoppingToken);
+			zabbixSender.SendIsHealthyAsync("SmsInformerWorker", stoppingToken);
 
 			if(_sendingInProgress)
 			{

@@ -677,7 +677,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			OrderDocument orderDocumentAlias = null;
 			DocumentOrganizationCounter documentOrganizationCounterAlias = null;
 			
-			ICriterion organizationRestrictions = null;
+			ICriterion organizationRestrictions;
 
 			if(Entity.Organization.Id == _organizationSettings.VodovozOrganizationId)
 			{
@@ -687,7 +687,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 			else
 			{
-				organizationRestrictions = Restrictions.Where(() =>  organisationAlias.Id == Entity.Organization.Id);
+				organizationRestrictions = Restrictions.Where(() => organisationAlias.Id == Entity.Organization.Id);
 			}
 
 			var incomePaymentQuery = UoW.Session.QueryOver(() => orderAlias)
@@ -823,22 +823,27 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public void GetCounterpartyDebt()
 		{
+			var includeOrdersWithoutOrganization =
+				Entity.Organization?.Id == _organizationSettings.VodovozOrganizationId;
+
 			CounterpartyTotalDebt = Entity.Counterparty != null
-				? _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id, Entity.Organization.Id)
+				? _orderRepository.GetCounterpartyDebt(
+					UoW, Entity.Counterparty.Id, Entity.Organization.Id, includeOrdersWithoutOrganization)
 				: default;
 
 			CounterpartyOtherOrdersDebt = Entity.Counterparty != null
 				? _orderRepository.GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(
-					UoW, Entity.Counterparty.Id, _deliveryScheduleSettings, Entity.Organization.Id)
+					UoW, Entity.Counterparty.Id, _deliveryScheduleSettings, Entity.Organization.Id, includeOrdersWithoutOrganization)
 				: default;
 
 			CounterpartyWaitingForPaymentOrdersDebt = Entity.Counterparty != null
-				? _orderRepository.GetCounterpartyWaitingForPaymentOrdersDebt(UoW, Entity.Counterparty.Id, Entity.Organization.Id)
+				? _orderRepository.GetCounterpartyWaitingForPaymentOrdersDebt(
+					UoW, Entity.Counterparty.Id, Entity.Organization.Id, includeOrdersWithoutOrganization)
 				: default;
 
 			CounterpartyClosingDocumentsOrdersDebt = Entity.Counterparty != null
 				? _orderRepository.GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(
-					UoW, Entity.Counterparty.Id, _deliveryScheduleSettings, Entity.Organization.Id)
+					UoW, Entity.Counterparty.Id, _deliveryScheduleSettings, Entity.Organization.Id, includeOrdersWithoutOrganization)
 				: default;
 		}
 		

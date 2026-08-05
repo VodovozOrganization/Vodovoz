@@ -1074,6 +1074,17 @@
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.OrderItemNode.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportLastSaleDetails.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportGroupingType.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportDateType.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportOrderNode.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportClientHistoryNode.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportGroup.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportMetrics.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportDisplayRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportIndicatorDescriptions.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReport.ExcelExporter.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\SelectableParameterReportFilterSelectionChangedArgs.cs" />
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.cs" />
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.Row.cs" />

@@ -50,9 +50,7 @@ namespace BitrixNotificationsSendWorker
 						.AddTrackedUoW()
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						.AddBitrixNotificationsSendServices()
-						.ConfigureZabbixSenderFromDataBase(nameof(CashlessDebtsNotificationsSendWorker))
-						.ConfigureZabbixSenderFromDataBase(nameof(PlannedOrdersDealsCreateWorker))
-						.ConfigureZabbixSenderFromDataBase(nameof(LastServiceOrdersDealsCreateWorker));
+						.ConfigureZabbixSenderFromDataBase();
 
 					services
 						.AddDatabaseConfigurationExposer(config =>

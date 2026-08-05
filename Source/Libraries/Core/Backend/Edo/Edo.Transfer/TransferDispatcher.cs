@@ -12,12 +12,12 @@ namespace Edo.Transfer
 	public class TransferDispatcher
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly TransferTaskRepository _transferTaskRepository;
+		private readonly ITransferTaskRepository _transferTaskRepository;
 		private readonly IEdoTransferSettings _edoTransferSettings;
 
 		public TransferDispatcher(
 			IUnitOfWork uow,
-			TransferTaskRepository transferTaskRepository,
+			ITransferTaskRepository transferTaskRepository,
 			IEdoTransferSettings edoTransferSettings
 			)
 		{

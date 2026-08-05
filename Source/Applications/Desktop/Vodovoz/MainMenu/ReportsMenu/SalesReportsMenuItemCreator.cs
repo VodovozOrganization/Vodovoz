@@ -65,6 +65,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Отчет по оборачиваемости с динамикой", OnTurnoverWithDynamicsReportPressed));
 			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
+				"Маркетинговый отчет", OnMarketingReportPressed));
+			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Аналитика продаж КБ", OnSalesBySubdivisionsAnalyticsPressed));
 			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Отчет по мотивации КЦ", OnCallCenterMotivationPressed));
@@ -145,6 +147,14 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private void OnTurnoverWithDynamicsReportPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<TurnoverWithDynamicsReportViewModel>(null, OpenPageOptions.IgnoreHash);
+		}
+
+		/// <summary>
+		/// Маркетинговый отчет
+		/// </summary>
+		private void OnMarketingReportPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<MarketingReportViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 
 		/// <summary>

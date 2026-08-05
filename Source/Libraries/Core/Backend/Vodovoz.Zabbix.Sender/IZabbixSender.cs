@@ -5,7 +5,7 @@ namespace Vodovoz.Zabbix.Sender
 {
 	public interface IZabbixSender
 	{
-		Task<bool> SendIsHealthyAsync(CancellationToken cancellationToken);
-		Task<bool> SendProblemMessageAsync(ZabixSenderMessageType zabixSenderMessageType, string message, CancellationToken cancellationToken);
+		Task<bool> SendIsHealthyAsync(string workerName, CancellationToken cancellationToken);
+		Task<bool> SendProblemMessageAsync(string workerName, ZabixSenderMessageType zabixSenderMessageType, string message, CancellationToken cancellationToken);
 	}
 }
