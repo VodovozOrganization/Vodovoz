@@ -8,7 +8,7 @@ namespace Vodovoz.Zabbix.Sender
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection ConfigureZabbixSenderFromDataBase(this IServiceCollection services, string workerName)
+		public static IServiceCollection ConfigureZabbixSenderFromDataBase(this IServiceCollection services)
 		{
 			services
 				.AddSingleton<IMetricSettings, MetricSettings>()
@@ -18,13 +18,13 @@ namespace Vodovoz.Zabbix.Sender
 					var metricSettings = x.GetRequiredService<IMetricSettings>();
 					var hostEnvironment = x.GetRequiredService<IHostEnvironment>();
 
-					return new VodovozZabbixSender(workerName, metricSettings, logger, hostEnvironment);
+					return new VodovozZabbixSender(metricSettings, logger, hostEnvironment);
 				});
 
 			return services;
 		}
 
-		public static IServiceCollection ConfigureZabbixSenderFromAppSettings(this IServiceCollection services, string workerName, HostBuilderContext hostContext)
+		public static IServiceCollection ConfigureZabbixSenderFromAppSettings(this IServiceCollection services, HostBuilderContext hostContext)
 		{
 			services
 				.AddSingleton<IZabbixSender, VodovozZabbixSender>(x =>
@@ -41,7 +41,7 @@ namespace Vodovoz.Zabbix.Sender
 						ZabbixNeedSendMetrics = Convert.ToBoolean(metricSettingsSection["ZabbixNeedSendMetrics"])
 					};
 
-					return new VodovozZabbixSender(workerName, metricSettings, logger, hostEnvironment);
+					return new VodovozZabbixSender(metricSettings, logger, hostEnvironment);
 				});
 
 			return services;

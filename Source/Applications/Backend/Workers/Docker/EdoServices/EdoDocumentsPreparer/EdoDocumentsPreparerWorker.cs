@@ -128,7 +128,7 @@ namespace EdoDocumentsPreparer
 					await PrepareBillsForSend(uow, stoppingToken);
 					await PrepareBillsWithoutShipmentForSend(uow);
 
-					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+					await _zabbixSender.SendIsHealthyAsync(nameof(EdoDocumentsPreparerWorker), stoppingToken);
 				}
 				catch(Exception e)
 				{

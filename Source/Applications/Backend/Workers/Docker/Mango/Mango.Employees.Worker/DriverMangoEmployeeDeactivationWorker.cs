@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using Mango.Employees.Library.Options;
 using Mango.Employees.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,7 +48,7 @@ namespace Mango.Employees.Worker
 				{
 					_logger.LogInformation("Работа воркера деактивации сотрудников Манго отключена в настройках");
 
-					await zabbixSender.SendIsHealthyAsync(stoppingToken);
+					await zabbixSender.SendIsHealthyAsync(nameof(DriverMangoEmployeeDeactivationWorker), stoppingToken);
 
 					return;
 				}
@@ -71,13 +71,14 @@ namespace Mango.Employees.Worker
 					_logger.LogInformation("Окончание деактивации сотрудников Манго");
 				}
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(DriverMangoEmployeeDeactivationWorker), stoppingToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при деактивации сотрудников Манго");
 
 				await zabbixSender.SendProblemMessageAsync(
+					nameof(DriverMangoEmployeeDeactivationWorker),
 					ZabixSenderMessageType.Problem,
 					$"Ошибка при деактивации сотрудников Манго: {ex.Message}",
 					stoppingToken);

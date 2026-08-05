@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
@@ -51,7 +51,7 @@ namespace EdoAutoSendReceiveWorker
 					using var scope = _serviceScopeFactory.CreateScope();
 					var taxcomClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
 					await taxcomClient.StartProcessAutoSendReceive(stoppingToken);
-					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+					await _zabbixSender.SendIsHealthyAsync(nameof(TaxcomEdoAutoSendReceiveWorker), stoppingToken);
 				}
 				catch(Exception e)
 				{
