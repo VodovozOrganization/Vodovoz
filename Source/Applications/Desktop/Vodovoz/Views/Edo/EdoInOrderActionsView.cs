@@ -1,4 +1,4 @@
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
 using System;
 using System.Collections.Generic;
@@ -48,8 +48,16 @@ namespace Vodovoz.Views.Edo
 		{
 			DeleteButtons();
 
+			if(ViewModel.SelectedDocument == null)
+			{
+				ylabelNotSelected.LabelProp = "Выберите документ";
+				ylabelNotSelected.Visible = true;
+				return;
+			}
+
 			if(!ViewModel.Actions.Any())
 			{
+				ylabelNotSelected.LabelProp = "Для выбранного документа нет доступных действий";
 				ylabelNotSelected.Visible = true;
 				return;
 			}

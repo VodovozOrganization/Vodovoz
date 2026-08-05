@@ -4,6 +4,7 @@ using Edo.Problems;
 using Edo.Problems.Custom.Sources;
 using Edo.Transport;
 using EdoService.Library.Factories;
+using Gamma.Utilities;
 using MassTransit;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -47,7 +48,7 @@ namespace EdoService.Library
 		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
-		private readonly IBus _bus;
+		private readonly IBus _messageBus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 
@@ -72,7 +73,7 @@ namespace EdoService.Library
 			IGenericRepository<FormalEdoRequest> edoRequestRepository,
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
-			IBus bus,
+			IBus messageBus,
 			IEnumerable<IInformalEdoRequestFactory> requestFactories,
 			EdoProblemRegistrar edoProblemRegistrar
 			)
@@ -87,7 +88,7 @@ namespace EdoService.Library
 				counterpartyEdoAccountEntityController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountEntityController));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
+			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 		}
@@ -692,10 +693,9 @@ namespace EdoService.Library
 					uow.Save(newRequest);
 					uow.Commit();
 
-					_bus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
+					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
 
-					return Result.Success($"Документ отправлен на переформирование. \n" +
-						$"Обновите список документов.");
+					return Result.Success($"Документ отправлен на переформирование.");
 				}
 
 				//Если сюда попадет документ, то значит не правильно выбраны условия доступности действия
@@ -750,10 +750,9 @@ namespace EdoService.Library
 					uow.Save(newRequest);
 					uow.Commit();
 
-					_bus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
+					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
 
-					return Result.Success($"Документ отправлен на переформирование. \n" +
-						$"Обновите список документов.");
+					return Result.Success($"Документ отправлен на переформирование.");
 				}
 
 				//Если сюда попадет документ, то значит не правильно выбраны условия доступности действия
@@ -762,6 +761,80 @@ namespace EdoService.Library
 					$"Для выбранного документа не реализована отправка. \n" +
 					$"Обратитесь за технической поддержкой.")
 				);
+			}
+		}
+
+		public Result RehandleNewUpdDocumentWithProblem(int updEdoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var task = uow.Session.Get<DocumentEdoTask>(updEdoTaskId);
+				if(task == null)
+				{
+					return Result.Failure(new Error("UpdEdoTaskNotFound",
+						$"ЭДО задача №{updEdoTaskId} на отправку УПД не найдена, " +
+						$"обратитесь в техподдержку"));
+				}
+
+				if(task.Status != EdoTaskStatus.Problem)
+				{
+					return Result.Failure(new Error("UpdEdoTaskDontHaveProblem",
+						$"ЭДО задача №{updEdoTaskId} на отправку УПД не имеет нерешенных проблем для переобработки."
+					));
+				}
+
+				if(task.Stage != DocumentEdoTaskStage.New)
+				{
+					return Result.Failure(new Error("UpdEdoTaskCantRehandleProblemInCurrentStage",
+						$"Для ЭДО задачи №{updEdoTaskId} на отправку УПД " +
+						$"в стадии {task.Stage.GetEnumTitle()} не доступна переобработка проблемы."
+					));
+				}
+
+				var message = new DocumentTaskCreatedEvent
+				{
+					Id = updEdoTaskId,
+				};
+				_messageBus.Publish(message);
+
+				return Result.Success();
+			}
+		}
+
+		public Result RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var task = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
+				if(task == null)
+				{
+					return Result.Failure(new Error("ReceiptEdoTaskNotFound",
+						$"ЭДО задача №{receiptEdoTaskId} на отправку чека не найдена, " +
+						$"обратитесь в техподдержку"));
+				}
+
+				if(task.Status != EdoTaskStatus.Problem)
+				{
+					return Result.Failure(new Error("ReceiptEdoTaskDontHaveProblem",
+						$"ЭДО задача №{receiptEdoTaskId} на отправку чека не имеет нерешенных проблем для переобработки."
+					));
+				}
+
+				if(task.ReceiptStatus != EdoReceiptStatus.New)
+				{
+					return Result.Failure(new Error("ReceiptEdoTaskCantRehandleProblemInCurrentStage",
+						$"Для ЭДО задачи №{receiptEdoTaskId} на отправку чека " +
+						$"в стадии {task.ReceiptStatus.GetEnumTitle()} не доступна переобработка проблемы."
+					));
+				}
+
+				var message = new ReceiptTaskCreatedEvent
+				{
+					ReceiptEdoTaskId = receiptEdoTaskId,
+				};
+				_messageBus.Publish(message);
+
+				return Result.Success();
 			}
 		}
 	}

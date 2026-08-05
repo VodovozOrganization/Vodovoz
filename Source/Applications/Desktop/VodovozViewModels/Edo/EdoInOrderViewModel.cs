@@ -54,6 +54,7 @@ namespace Vodovoz.ViewModels.Edo
 			_allProblems = new List<EdoInOrderProblemNode>();
 
 			RefreshCommnand = new DelegateCommand(Refresh);
+			EdoInOrderDocumentActionsViewModel.EdoInOrderRefreshCommand = RefreshCommnand;
 		}
 
 		public ICommand RefreshCommnand { get; }
@@ -251,6 +252,8 @@ namespace Vodovoz.ViewModels.Edo
 				stepStopwatch.Elapsed);
 
 			_logger.Info("ЭДО заказа {OrderId}: полное обновление данных вкладки: {Elapsed}", _orderId, totalStopwatch.Elapsed);
+
+			SelectedDocumentGroupType = DocumentGroupTypes.FirstOrDefault();
 		}
 
 		public virtual void LoadCodes()
