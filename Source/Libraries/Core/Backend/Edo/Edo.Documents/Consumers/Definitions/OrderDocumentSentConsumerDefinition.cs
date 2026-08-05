@@ -19,8 +19,8 @@ namespace Edo.Documents.Consumers.Definitions
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
-
 				rmq.Bind<OrderDocumentSentEvent>();
+				rmq.DiscardFaultedMessages();
 			}
 		}
 	}

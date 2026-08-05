@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using ModulKassa;
 using QS.DomainModel.UoW;
 using System.Reflection;
+using Edo.Transport.Factories;
 
 namespace Edo.Receipt.Sender
 {
@@ -22,9 +23,12 @@ namespace Edo.Receipt.Sender
 			services.TryAddScoped<FiscalDocumentFactory>();
 			services.TryAddScoped<ReceiptSender>();
 
-			services.AddEdo();
-			services.AddEdoProblemRegistration();
-			services.AddEdoAdminServices();
+			services
+				.AddEdo()
+				.AddEdoProblemRegistration()
+				.AddEdoAdminServices()
+				.AddFaultServices()
+				;
 
 			return services;
 		}
@@ -37,6 +41,14 @@ namespace Edo.Receipt.Sender
 			{
 				cfg.AddConsumers(Assembly.GetExecutingAssembly());
 			});
+
+			return services;
+		}
+
+		public static IServiceCollection AddFaultServices(this IServiceCollection services)
+		{
+			services.TryAddScoped<FaultReceiptReadyToSendExceptionHandler>();
+			services.TryAddScoped<IMassTransitExceptionInfoFactory, MassTransitExceptionInfoFactory>();
 
 			return services;
 		}

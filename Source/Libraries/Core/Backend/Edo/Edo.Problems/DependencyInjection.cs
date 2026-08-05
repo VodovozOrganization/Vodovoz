@@ -29,6 +29,7 @@ namespace Edo.Problems
 			services.TryAddScoped<EdoTaskValidatorsProvider>();
 			services.TryAddScoped<EdoTaskValidator>();
 			services.TryAddScoped<EdoProblemRegistrar>();
+			services.TryAddScoped<FaultEdoProblemRegistrar>();
 			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
 			return services;

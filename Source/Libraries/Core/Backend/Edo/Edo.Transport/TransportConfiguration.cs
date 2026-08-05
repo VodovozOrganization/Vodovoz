@@ -68,7 +68,6 @@ namespace Edo.Transport
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
-
 			
 			cfg.Message<TransferDocumentAcceptedEvent>(x => x.SetEntityName("edo.transfer-document-accepted.publish"));
 			cfg.Publish<TransferDocumentAcceptedEvent>(x =>

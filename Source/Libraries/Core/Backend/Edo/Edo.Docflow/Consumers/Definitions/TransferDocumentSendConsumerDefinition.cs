@@ -19,8 +19,8 @@ namespace Edo.Docflow.Consumers.Definitions
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
-
 				rmq.Bind<TransferDocumentSendEvent>();
+				rmq.DiscardFaultedMessages();
 			}
 		}
 	}

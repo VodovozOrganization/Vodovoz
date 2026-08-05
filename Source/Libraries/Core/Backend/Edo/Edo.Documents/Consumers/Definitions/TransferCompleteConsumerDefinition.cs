@@ -25,6 +25,7 @@ namespace Edo.Documents.Consumers.Definitions
 				{
 					x.RoutingKey = TransferInitiator.Document.ToString();
 				});
+				rmq.DiscardFaultedMessages();
 			}
 		}
 	}

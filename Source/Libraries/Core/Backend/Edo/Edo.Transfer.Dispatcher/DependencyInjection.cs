@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 using System.Reflection;
+using Edo.Documents;
+using Edo.Transport.Factories;
 
 namespace Edo.Transfer.Dispatcher
 {
@@ -21,6 +23,7 @@ namespace Edo.Transfer.Dispatcher
 				.AddEdo()
 				.AddEdoTransfer()
 				.AddEdoProblemRegistration()
+				.AddFaultServices()
 				;
 
 			return services;
@@ -35,6 +38,14 @@ namespace Edo.Transfer.Dispatcher
 				cfg.AddConsumers(Assembly.GetExecutingAssembly());
 			});
 
+			return services;
+		}
+
+		public static IServiceCollection AddFaultServices(this IServiceCollection services)
+		{
+			services.TryAddScoped<FaultTransferDocumentAcceptedExceptionHandler>();
+			services.TryAddScoped<IMassTransitExceptionInfoFactory, MassTransitExceptionInfoFactory>();
+			
 			return services;
 		}
 	}
