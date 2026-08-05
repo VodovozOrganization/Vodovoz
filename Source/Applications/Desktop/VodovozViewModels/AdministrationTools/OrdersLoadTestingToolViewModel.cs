@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModels.AdministrationTools
 				dataBaseInfo,
 				settingsController);
 
-			TabName = "Нагрузочное тестирование вставки заказов";
+			TabName = "Нагрузочное тестирование заказов и МЛ";
 
 			StartCommand = new DelegateCommand(
 				() => Start(),

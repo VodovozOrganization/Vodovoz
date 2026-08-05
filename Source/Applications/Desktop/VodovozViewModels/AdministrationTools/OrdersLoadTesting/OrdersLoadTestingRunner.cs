@@ -3,25 +3,28 @@ using QS.Project.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Settings;
-using VodovozBusiness.Services.Orders;
+using Employee = Vodovoz.Domain.Employees.Employee;
 
 namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 {
 	/// <summary>
-	/// Нагрузочный тест: параллельная массовая вставка заказов через NHibernate
-	/// без бизнес-логики (без AcceptOrder / договоров / МЛ).
-	/// Цель — поймать блокировки БД при конкурентных INSERT.
+	/// Нагрузочный тест: в одном потоке цикл
+	/// UoW1 — заказ, UoW2 — маршрутный лист на этот заказ (ручное заполнение сущностей).
 	/// </summary>
 	public class OrdersLoadTestingRunner
 	{
@@ -98,7 +101,8 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 			log?.Invoke(
 				$"Фикстуры: физ={fixtures.NaturalClientIds.Count}, юр={fixtures.LegalClientIds.Count}, " +
 				$"сеть={fixtures.ChainStoreClientIds.Count}, вода={fixtures.WaterNomenclatureIds.Count}, " +
-				$"интервалы={fixtures.DeliveryScheduleIds.Count}. Режим: только NH INSERT заказов.");
+				$"интервалы={fixtures.DeliveryScheduleIds.Count}, авто={fixtures.CarIds.Count}, " +
+				$"базы={fixtures.GeoGroupIds.Count}. Режим: UoW1 заказ → UoW2 МЛ (1 МЛ на заказ).");
 
 			var sharedState = new SharedRunState();
 
@@ -123,11 +127,11 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 			if(sharedState.FirstError != null)
 			{
 				throw new AggregateException(
-					$"Генерация остановлена из-за ошибки. Успешных вставок до остановки: {sharedState.SuccessCount}.",
+					$"Генерация остановлена из-за ошибки. Успешных итераций (заказ+МЛ) до остановки: {sharedState.SuccessCount}.",
 					sharedState.FirstError);
 			}
 
-			log?.Invoke($"Генерация остановлена. Успешных вставок: {sharedState.SuccessCount}.");
+			log?.Invoke($"Генерация остановлена. Успешных итераций (заказ+МЛ): {sharedState.SuccessCount}.");
 		}
 
 		private void WorkerLoop(
@@ -143,11 +147,11 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 			{
 				try
 				{
-					InsertOrder(threadId, fixtures, random, linkedCts.Token);
+					InsertOrderAndRouteList(threadId, fixtures, random, linkedCts.Token);
 					var successCount = Interlocked.Increment(ref sharedState.SuccessCount);
 					if(successCount == 1 || successCount % 10 == 0)
 					{
-						log?.Invoke($"Успешных вставок: {successCount}");
+						log?.Invoke($"Успешных итераций (заказ+МЛ): {successCount}");
 					}
 				}
 				catch(OperationCanceledException)
@@ -178,7 +182,7 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 			}
 		}
 
-		private void InsertOrder(
+		private void InsertOrderAndRouteList(
 			int threadId,
 			LoadTestFixtures fixtures,
 			Random random,
@@ -192,8 +196,14 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 			var waterId = fixtures.WaterNomenclatureIds[random.Next(fixtures.WaterNomenclatureIds.Count)];
 			var bottlesCount = random.Next(1, 4);
 			var deliveryScheduleId = fixtures.DeliveryScheduleIds[random.Next(fixtures.DeliveryScheduleIds.Count)];
+			var carId = fixtures.CarIds[random.Next(fixtures.CarIds.Count)];
+			var geoGroupId = fixtures.GeoGroupIds[random.Next(fixtures.GeoGroupIds.Count)];
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"LoadTest insert thread {threadId}"))
+			int orderId;
+			DateTime orderDeliveryDate;
+
+			// UoW 1: заказ
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"LoadTest order thread {threadId}"))
 			{
 				var author = uow.GetById<Employee>(fixtures.AuthorId)
 					?? throw new InvalidOperationException($"Автор (сотрудник {fixtures.AuthorId}) не найден.");
@@ -210,6 +220,9 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 				cancellationToken.ThrowIfCancellationRequested();
 
 				var now = DateTime.Now;
+				var price = nomenclature.GetPrice(bottlesCount);
+				orderDeliveryDate = DateTime.Today;
+
 				var order = new Order
 				{
 					UoW = uow,
@@ -217,17 +230,21 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 					LastEditor = author,
 					Version = now,
 					LastEditedTime = now,
+					BillDate = now,
 					DeliverySchedule = deliverySchedule,
 					BottlesReturn = bottlesCount,
+					OrderStatus = OrderStatus.NewOrder,
+					OrderSource = OrderSource.VodovozApp,
+					OrderAddressType = clientType == ClientFixtureType.ChainStore
+						? OrderAddressType.ChainStore
+						: OrderAddressType.Delivery,
 					Comment = $"LoadTest thread={threadId}"
 				};
 
-				// Первичная установка клиента/ТД/даты без UpdateContract (old* == null / Contract == null).
-				// Updater передаём null — ветки с вызовом контракта не должны сработать.
-				order.UpdateClient(counterparty, null, out _);
-				order.UpdateDeliveryPoint(deliveryPoint, null);
-				order.UpdatePaymentType(paymentType, null, needUpdateContract: false);
-				order.UpdateDeliveryDate(DateTime.Today, null, out _);
+				SetAccessibleProperty(order, nameof(Order.Client), counterparty);
+				SetAccessibleProperty(order, nameof(Order.DeliveryPoint), deliveryPoint);
+				SetAccessibleProperty(order, nameof(Order.PaymentType), paymentType);
+				SetAccessibleProperty(order, nameof(Order.DeliveryDate), (DateTime?)orderDeliveryDate);
 
 				if(paymentType == PaymentType.Cash)
 				{
@@ -242,23 +259,122 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 					order.SignatureType = OrderSignatureType.BySeal;
 				}
 
-				var price = nomenclature.GetPrice(bottlesCount);
-				var orderItem = OrderLoadTestItemFactory.CreateSaleItem(order, nomenclature, bottlesCount, price);
+				var orderItem = CreateBlankOrderItem();
+				SetAccessibleProperty(orderItem, nameof(OrderItem.Order), order);
+				SetAccessibleProperty(orderItem, nameof(OrderItem.Nomenclature), nomenclature);
+				SetAccessibleProperty(orderItem, nameof(OrderItem.Count), (decimal)bottlesCount);
+				SetAccessibleProperty(orderItem, nameof(OrderItem.Price), price);
 				order.ObservableOrderItems.Add(orderItem);
 
 				try
 				{
 					uow.Save(order);
 					uow.Commit();
+					orderId = order.Id;
 				}
 				catch(Exception ex)
 				{
 					throw new InvalidOperationException(
-						$"Поток {threadId}: ошибка NH INSERT заказа " +
+						$"Поток {threadId}: ошибка ORM Save заказа " +
 						$"(клиент={counterpartyId}, ТД={deliveryPointId}, оплата={paymentType}, вода={waterId}x{bottlesCount}).",
 						ex);
 				}
 			}
+
+			cancellationToken.ThrowIfCancellationRequested();
+
+			// UoW 2: маршрутный лист на сохранённый заказ
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"LoadTest route list thread {threadId}"))
+			{
+				var order = uow.GetById<Order>(orderId)
+					?? throw new InvalidOperationException($"Заказ {orderId} не найден во 2-й сессии.");
+				var car = uow.GetById<Car>(carId)
+					?? throw new InvalidOperationException($"Автомобиль {carId} не найден.");
+				var geoGroup = uow.GetById<GeoGroup>(geoGroupId)
+					?? throw new InvalidOperationException($"Часть города {geoGroupId} не найдена.");
+				var logistician = uow.GetById<Employee>(fixtures.AuthorId)
+					?? throw new InvalidOperationException($"Логист (сотрудник {fixtures.AuthorId}) не найден.");
+
+				if(car.Driver == null)
+				{
+					throw new InvalidOperationException($"У автомобиля {carId} нет водителя.");
+				}
+
+				var now = DateTime.Now;
+				var routeList = new RouteList
+				{
+					UoW = uow,
+					Date = order.DeliveryDate ?? orderDeliveryDate,
+					Status = RouteListStatus.New,
+					Version = now,
+					Logistician = logistician
+				};
+
+				routeList.Car = car;
+				if(routeList.Driver == null)
+				{
+					routeList.Driver = car.Driver;
+				}
+
+				if(!routeList.GeographicGroups.Any())
+				{
+					routeList.ObservableGeographicGroups.Add(geoGroup);
+				}
+
+				var address = new RouteListItem(routeList, order, RouteListItemStatus.EnRoute)
+				{
+					WithForwarder = routeList.Forwarder != null
+				};
+				routeList.ObservableAddresses.Add(address);
+
+				try
+				{
+					uow.Save(routeList);
+					uow.Commit();
+				}
+				catch(Exception ex)
+				{
+					throw new InvalidOperationException(
+						$"Поток {threadId}: ошибка ORM Save МЛ для заказа {orderId} " +
+						$"(авто={carId}, база={geoGroupId}).",
+						ex);
+				}
+			}
+		}
+
+		/// <summary>
+		/// OrderItem имеет protected-конструктор.
+		/// </summary>
+		private static OrderItem CreateBlankOrderItem()
+		{
+			return (OrderItem)Activator.CreateInstance(
+				typeof(OrderItem),
+				BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+				binder: null,
+				args: null,
+				culture: null);
+		}
+
+		private static void SetAccessibleProperty(object target, string propertyName, object value)
+		{
+			var type = target.GetType();
+			while(type != null)
+			{
+				var property = type.GetProperty(
+					propertyName,
+					BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+
+				if(property?.GetSetMethod(nonPublic: true) != null)
+				{
+					property.SetValue(target, value);
+					return;
+				}
+
+				type = type.BaseType;
+			}
+
+			throw new InvalidOperationException(
+				$"Не найдено set-свойство «{propertyName}» у типа {target.GetType().Name}.");
 		}
 
 		private LoadTestFixtures LoadFixtures(Employee author)
@@ -301,12 +417,43 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 					throw new InvalidOperationException("В тестовой БД нет активных интервалов доставки.");
 				}
 
+				Car carAlias = null;
+				Employee driverAlias = null;
+				var carIds = uow.Session.QueryOver(() => carAlias)
+					.JoinAlias(() => carAlias.Driver, () => driverAlias)
+					.Where(() => !carAlias.IsArchive)
+					.Where(() => driverAlias.Status == EmployeeStatus.IsWorking)
+					.Select(c => c.Id)
+					.Take(MaxFixturePoolSize)
+					.List<int>()
+					.ToList();
+
+				if(!carIds.Any())
+				{
+					throw new InvalidOperationException(
+						"В тестовой БД нет неархивных автомобилей с работающим водителем для МЛ.");
+				}
+
+				var geoGroupIds = uow.Session.QueryOver<GeoGroup>()
+					.Where(g => !g.IsArchived)
+					.Select(g => g.Id)
+					.Take(MaxFixturePoolSize)
+					.List<int>()
+					.ToList();
+
+				if(!geoGroupIds.Any())
+				{
+					throw new InvalidOperationException("В тестовой БД нет частей города (баз) для МЛ.");
+				}
+
 				return new LoadTestFixtures(
 					naturalIds,
 					legalIds,
 					chainIds,
 					waterIds,
 					scheduleIds,
+					carIds,
+					geoGroupIds,
 					author.Id);
 			}
 		}
@@ -422,6 +569,8 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 				IReadOnlyList<int> chainStoreClientIds,
 				IReadOnlyList<int> waterNomenclatureIds,
 				IReadOnlyList<int> deliveryScheduleIds,
+				IReadOnlyList<int> carIds,
+				IReadOnlyList<int> geoGroupIds,
 				int authorId)
 			{
 				NaturalClientIds = naturalClientIds;
@@ -429,6 +578,8 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 				ChainStoreClientIds = chainStoreClientIds;
 				WaterNomenclatureIds = waterNomenclatureIds;
 				DeliveryScheduleIds = deliveryScheduleIds;
+				CarIds = carIds;
+				GeoGroupIds = geoGroupIds;
 				AuthorId = authorId;
 			}
 
@@ -437,6 +588,8 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 			public IReadOnlyList<int> ChainStoreClientIds { get; }
 			public IReadOnlyList<int> WaterNomenclatureIds { get; }
 			public IReadOnlyList<int> DeliveryScheduleIds { get; }
+			public IReadOnlyList<int> CarIds { get; }
+			public IReadOnlyList<int> GeoGroupIds { get; }
 			public int AuthorId { get; }
 		}
 	}

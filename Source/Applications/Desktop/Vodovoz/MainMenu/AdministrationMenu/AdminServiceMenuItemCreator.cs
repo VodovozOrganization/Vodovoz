@@ -111,7 +111,7 @@ namespace Vodovoz.MainMenu.AdministrationMenu
 		}
 
 		/// <summary>
-		/// Нагрузочное тестирование массовой вставки заказов (NHibernate, без бизнес-логики)
+		/// Нагрузочное тестирование массовой вставки заказов
 		/// </summary>
 		private void OnOrdersLoadTestingPressed(object sender, ButtonPressEventArgs e)
 		{
