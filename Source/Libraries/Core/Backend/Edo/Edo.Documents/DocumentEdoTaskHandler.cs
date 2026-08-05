@@ -372,15 +372,27 @@ namespace Edo.Documents
 		// Changed to: Sent
 		// [событие от docflow]
 		// (проверяет отправлен ли документ)
-		public async Task HandleSent(int documentEdoTaskId, CancellationToken cancellationToken)
+		public async Task HandleSent(int edoDocumentId, CancellationToken cancellationToken)
 		{
-			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
+			const string sentEvent = "события отправки документа";
+			
+			_logger.LogInformation("Обработка {SentEvent} по документу {EdoDocumentId}", sentEvent, edoDocumentId);
+			
+			var document = await _uow.Session.GetAsync<OrderEdoDocument>(edoDocumentId, cancellationToken);
+			if(document is null)
+			{
+				_logger.LogWarning("Документ №{EdoDocumentId} не найден", edoDocumentId);
+				return;
+			}
+			
+			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
 
 			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 			{
+				_logger.LogWarning("Проблема с составом заказа при обработке {SentEvent} по документу {EdoDocumentId}", sentEvent, edoDocumentId);
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
-				await _edoCancellationService.CancelTask(documentEdoTaskId, reason, false, cancellationToken);
+				await _edoCancellationService.CancelTask(edoTask.Id, reason, false, cancellationToken);
 				return;
 			}
 			
@@ -388,6 +400,8 @@ namespace Edo.Documents
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
+				_logger.LogWarning("Не прошли валидацию {SentEvent} по документу {EdoDocumentId} таске {EdoTaskId}",
+					sentEvent, edoDocumentId, edoTask.Id);
 				return;
 			}
 
@@ -397,6 +411,9 @@ namespace Edo.Documents
 
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
+			_logger.LogInformation(
+				"Закончили обработку {SentEvent} по документу {EdoDocumentId} таске {EdoTaskId}",
+				sentEvent, edoDocumentId, edoTask.Id);
 		}
 
 		private void SentDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
