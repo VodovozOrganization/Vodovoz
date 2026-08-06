@@ -1,6 +1,5 @@
-using Edo.Admin;
+﻿using Edo.Admin;
 using Edo.Contracts.Messages.Events;
-using Edo.Problems;
 using Edo.Transport;
 using EdoService.Library.Factories;
 using Gamma.Utilities;
@@ -49,7 +48,7 @@ namespace EdoService.Library
 		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
-		private readonly IBus _messageBus;
+		private readonly IBus _bus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 
 		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[]
@@ -75,9 +74,6 @@ namespace EdoService.Library
 			IGenericRepository<FormalEdoRequest> edoRequestRepository,
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
-			IBus messageBus,
-			IEnumerable<IInformalEdoRequestFactory> requestFactories,
-			EdoProblemRegistrar edoProblemRegistrar
 			IBus bus,
 			IEnumerable<IInformalEdoRequestFactory> requestFactories
 			)
@@ -94,7 +90,7 @@ namespace EdoService.Library
 				counterpartyEdoAccountEntityController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountEntityController));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
 		}
 
@@ -149,7 +145,7 @@ namespace EdoService.Library
 			{
 				if(edoTask.Status is EdoTaskStatus.Problem)
 				{
-					ResendNewTaskDocument(edoTask.Id);
+					RehandleNewUpdDocumentWithProblem(taskId);
 				}
 				else if(EdoTaskHasBeenCancelled(uow, edoTask))
 				{
@@ -584,6 +580,7 @@ namespace EdoService.Library
 					return Result.Failure(EdoErrors.HasProblem);
 				}
 
+
 				var canResendResult = CanResendReceipt(receiptTask);
 				if(canResendResult.IsFailure)
 				{
@@ -704,7 +701,7 @@ namespace EdoService.Library
 					uow.Save(newRequest);
 					uow.Commit();
 
-					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
+					_bus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
 
 					return Result.Success($"Документ отправлен на переформирование.");
 				}
@@ -715,50 +712,6 @@ namespace EdoService.Library
 					$"Для выбранного документа не реализована отправка. \n" +
 					$"Обратитесь за технической поддержкой.")
 				);
-			}
-		}
-
-		public void ResendNewTaskDocument(int taskId)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var task = uow.Session.Get<OrderEdoTask>(taskId);
-				if(task is null)
-				{
-					return;
-				}
-
-				if(task.Status != EdoTaskStatus.Problem)
-				{
-					return;
-				}
-
-				_messageService.PublishResumeEvent(task)
-					.GetAwaiter()
-					.GetResult();
-			}
-		}
-
-		public void RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var task = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
-				if(task == null)
-				{
-					return;
-				}
-
-				if(task.Status != EdoTaskStatus.Problem && task.ReceiptStatus != EdoReceiptStatus.New)
-				{
-					return;
-				}
-
-				var message = new ReceiptTaskCreatedEvent
-				{
-					ReceiptEdoTaskId = receiptEdoTaskId,
-				};
-				_bus.Publish(message);
 			}
 		}
 
@@ -795,10 +748,11 @@ namespace EdoService.Library
 
 					var newRequest = ManualEdoRequestFactory.Create(request.Order, productCodes);
 
+					uow.Save(productCodes);
 					uow.Save(newRequest);
 					uow.Commit();
 
-					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
+					_bus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
 
 					return Result.Success($"Документ отправлен на переформирование.");
 				}
@@ -839,48 +793,9 @@ namespace EdoService.Library
 					));
 				}
 
-				var message = new DocumentTaskCreatedEvent
-				{
-					Id = updEdoTaskId,
-				};
-				_messageBus.Publish(message);
-
-				return Result.Success();
-			}
-		}
-
-		public Result RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var task = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
-				if(task == null)
-				{
-					return Result.Failure(new Error("ReceiptEdoTaskNotFound",
-						$"ЭДО задача №{receiptEdoTaskId} на отправку чека не найдена, " +
-						$"обратитесь в техподдержку"));
-				}
-
-				if(task.Status != EdoTaskStatus.Problem)
-				{
-					return Result.Failure(new Error("ReceiptEdoTaskDontHaveProblem",
-						$"ЭДО задача №{receiptEdoTaskId} на отправку чека не имеет нерешенных проблем для переобработки."
-					));
-				}
-
-				if(task.ReceiptStatus != EdoReceiptStatus.New)
-				{
-					return Result.Failure(new Error("ReceiptEdoTaskCantRehandleProblemInCurrentStage",
-						$"Для ЭДО задачи №{receiptEdoTaskId} на отправку чека " +
-						$"в стадии {task.ReceiptStatus.GetEnumTitle()} не доступна переобработка проблемы."
-					));
-				}
-
-				var message = new ReceiptTaskCreatedEvent
-				{
-					ReceiptEdoTaskId = receiptEdoTaskId,
-				};
-				_messageBus.Publish(message);
+				_messageService.PublishTaskCreatedEvent(task)
+					.GetAwaiter()
+					.GetResult();
 
 				return Result.Success();
 			}

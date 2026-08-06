@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.ViewModels;
 using System;
 using System.Linq;
@@ -21,9 +21,7 @@ namespace Vodovoz.ViewModels.Edo
 			Status = documentNode.TaskStatus;
 			StatusString = Status.GetEnumTitle();
 			EdoDocumentStatus = documentNode.EdoDocumentStatus;
-			CodesQuantity = documentNode.CodesQuantity;
 			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
-			ErrorDescription = documentNode.ErrorDescription;
 			DocumentType = MatchDocumentType(documentNode);
 			DocumentTypeString = DocumentType.GetEnumTitle();
 			DocumentGroupType = MatchDocumentsByGroupType(DocumentType);
@@ -57,6 +55,7 @@ namespace Vodovoz.ViewModels.Edo
 		public virtual string CodesQuantityString { get; }
 
 		public virtual string CancellationReason { get; }
+
 		private int? GetCodesQuantity()
 		{
 			var primaryDocuments = new[]

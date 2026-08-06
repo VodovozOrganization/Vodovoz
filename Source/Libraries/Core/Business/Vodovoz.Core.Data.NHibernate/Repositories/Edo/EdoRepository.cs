@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -508,13 +508,11 @@ select
 	document_task_stage as :task_upd_stage,
 	receipt_status as :task_receipt_stage,
 	tender_task_stage as :task_tender_stage,
-	(select count(*) from true_mark_product_codes tmpc where tmpc.customer_request_id = ecr.id) as :codes_count,
-	eod.status as :edo_document_status,
-	et.cancellation_reason as :cancellation_reason
 	(select count(*) from true_mark_product_codes tmpc where tmpc.customer_request_id = ecr.id) as :codes_count_in_request,
 	(select count(*) from true_mark_product_codes tmpc 
 		left join edo_order_task_items eoti on eoti.product_code_id = tmpc.id
 		where eoti.order_edo_task_id = et.id) as :codes_used_in_task,
+	et.cancellation_reason as :cancellation_reason,
 	eod.status as :edo_document_status
 from edo_customer_requests ecr
 left join edo_tasks et on et.id = ecr.order_task_id
@@ -536,8 +534,6 @@ select
 	null as :codes_count_in_request,
 	null as :codes_used_in_task,
 	eod.status as :edo_document_status
-	null as :codes_count,
-	eod.status as :edo_document_status,
 	et.cancellation_reason as :cancellation_reason
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 

@@ -1,4 +1,4 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Threading;
@@ -98,16 +98,12 @@ namespace EdoService.Library
 		Result SendDocumentTaskCreatedEvent(EdoTask edoTask);
 
 		/// <summary>
-		/// Запускает переобработку задачи на отправку УПД, 
-		/// которая попала в проблему в статусе New
-		/// </summary>
-		void ResendNewTaskDocument(int updEdoTaskId);
-
-		/// <summary>
 		/// Запускает переобработку задачи на отправку чека, 
 		/// которая попала в проблему в статусе New
 		/// </summary>
-		void RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
+		/// <param name="receiptEdoTaskId">Идентификатор задачи чека</param>
+		/// <returns>Результат переобработки</returns>
+		Result RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
 
 		/// <summary>
 		/// Можно ли переотправить документ
@@ -167,7 +163,6 @@ namespace EdoService.Library
 		/// <param name="edoTaskId">Идентификатор задачи ЭДО</param>
 		/// <returns>True - если документооборот есть, False - если нет</returns>
 		bool HasDocflow(int edoTaskId);
-		Result RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
 		Result RehandleNewUpdDocumentWithProblem(int updEdoTaskId);
 	}
 }

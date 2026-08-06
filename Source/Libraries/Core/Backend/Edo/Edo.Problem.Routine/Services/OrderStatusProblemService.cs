@@ -164,7 +164,7 @@ namespace Edo.Problem.Routine.Services
 				edoTask.Id,
 				edoTask.FormalEdoRequest.Order.Id);
 
-			await _messageService.PublishResumeEvent(edoTask, cancellationToken);
+			await _messageService.PublishTaskCreatedEvent(edoTask, cancellationToken);
 
 			return true;
 		}
