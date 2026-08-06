@@ -5,12 +5,14 @@ using Edo.Problems.Custom.Sources;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate.Criterion;
+using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Admin
 {
@@ -108,9 +110,16 @@ namespace Edo.Admin
 				.Where(x => x.DocumentTaskId == edoTask.Id)
 				.SingleOrDefaultAsync(cancellationToken);
 
-			if(orderDocument == null || orderDocument.Status == EdoDocumentStatus.Cancelled)
+			if(orderDocument == null || orderDocument.Status.IsIn(EdoDocumentStatus.Cancelled, EdoDocumentStatus.Error))
 			{
 				edoTask.Status = EdoTaskStatus.Cancelled;
+
+				foreach(var item in edoTask.Items)
+				{
+					item.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Rejected;
+					item.ProductCode.ResultCode = null;
+				}
+
 				edoTask.CancellationReason = reason;
 
 				await uow.SaveAsync(edoTask, cancellationToken: cancellationToken);

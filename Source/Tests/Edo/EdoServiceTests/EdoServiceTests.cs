@@ -39,6 +39,7 @@ namespace EdoServices.Tests
 		private readonly IEdoRepository _edoRepository;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
 		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
+		private readonly IGenericRepository<OrderEdoTask> _edoTaskRepository;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IBus _bus;
@@ -60,6 +61,7 @@ namespace EdoServices.Tests
 			_receiptRepository = Substitute.For<IGenericRepository<ReceiptEdoTask>>();
 
 			_edoRequestRepository = Substitute.For<IGenericRepository<FormalEdoRequest>>();
+			_edoTaskRepository = Substitute.For<IGenericRepository<OrderEdoTask>>();
 
 			_edoRequestCreatedEventPublisher = Substitute.For<IEdoRequestCreatedEventPublisher>();
 			_bus = Substitute.For<IBus>();
@@ -107,6 +109,7 @@ namespace EdoServices.Tests
 				_userService,
 				_edoCancellationService,
 				_edoRequestRepository,
+				_edoTaskRepository,
 				_counterpartyEdoAccountEntityController,
 				_edoRequestCreatedEventPublisher,
 				_bus,

@@ -533,7 +533,7 @@ select
 	null as :task_tender_stage,
 	null as :codes_count_in_request,
 	null as :codes_used_in_task,
-	eod.status as :edo_document_status
+	eod.status as :edo_document_status,
 	et.cancellation_reason as :cancellation_reason
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 

@@ -30,7 +30,7 @@ namespace VodovozBusiness.Services.Edo
 					CreationTime = DateTime.Now,
 					LastModified = DateTime.Now,
 					SourceCode = sourceCode.SourceCode,
-					ResultCode = sourceCode.ResultCode,
+					ResultCode = sourceCode.SourceCode,
 					SourceCodeStatus = SourceProductCodeStatus.New,
 					Problem = ProductCodeProblem.None
 				};
