@@ -29,7 +29,6 @@ public static class DependencyInjection
 	{
 		services.AddCustomerNotificationsSettingsProvider();
 
-		services.AddScoped<IDriverContactNumberService, DriverContactNumberService>();
 		services.AddScoped<ISmsNotificationSendingPolicy, SmsNotificationSendingPolicy>();
 
 		services.AddScoped<ISmsNotificationCreator<CustomerNotificationDomainEvent>, CourierOnTheWaySmsNotificationCreator>();
