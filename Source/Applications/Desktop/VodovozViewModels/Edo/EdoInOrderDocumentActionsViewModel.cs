@@ -1,10 +1,11 @@
-﻿using EdoService.Library;
+using EdoService.Library;
 using Gamma.Binding.Core;
 using QS.Dialog;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Results;
@@ -27,6 +28,8 @@ namespace Vodovoz.ViewModels.Edo
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
+
+		internal ICommand EdoInOrderRefreshCommand { get; set; }
 
 		public virtual EdoInOrderDocumentHistoryRowViewModel SelectedDocument
 		{
@@ -89,6 +92,8 @@ namespace Vodovoz.ViewModels.Edo
 						var hasCancelledDocflow = _edoService.HasCancelledDocflow(document.TaskId);
 						if(hasDocflow && !hasCancelledDocflow)
 						{
+							_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно переотправлено");
+							EdoInOrderRefreshCommand?.Execute(null);
 							if(_interactiveService.Question(
 								"Документооборот по данному документу завершён .\n" +
 								"Для переотправки необходимо аннулировать документооборот.\n" +
@@ -124,6 +129,28 @@ namespace Vodovoz.ViewModels.Edo
 						}
 					}
 				));
+			}
+
+			if(document.TaskUpdStage == DocumentEdoTaskStage.New && document.TaskStatus == EdoTaskStatus.Problem)
+			{
+				newActions.Add(new BusyCommand(
+					"Переобработать проблему",
+					() => {
+						var result = _edoService.RehandleNewUpdDocumentWithProblem(document.TaskId);
+						if(result.IsSuccess)
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно отправлен на переобработку");
+							EdoInOrderRefreshCommand?.Execute(null);
+						}
+						else
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Error,
+								$"Не удалось переобработать проблему.\nПричины:\n - " +
+								string.Join("\n - ", result.Errors.Select(x => x.Message)));
+						}
+					}
+				));
+			}
 		}
 
 
@@ -144,10 +171,32 @@ namespace Vodovoz.ViewModels.Edo
 						if(result.IsSuccess)
 						{
 							_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно переотправлено");
+							EdoInOrderRefreshCommand?.Execute(null);
 						}
 						else
 						{
 							ShowErrorMessage(result.Errors);
+						}
+					}
+				));
+			}
+
+			if(document.TaskReceiptStage == EdoReceiptStatus.New && document.TaskStatus == EdoTaskStatus.Problem)
+			{
+				newActions.Add(new BusyCommand(
+					"Переобработать проблему",
+					() => {
+						var result = _edoService.RehandleNewReceiptDocumentWithProblem(document.TaskId);
+						if(result.IsSuccess)
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно отправлен на переобработку");
+							EdoInOrderRefreshCommand?.Execute(null);
+						}
+						else
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Error,
+								$"Не удалось переобработать проблему.\nПричины:\n - " +
+								string.Join("\n - ", result.Errors.Select(x => x.Message)));
 						}
 					}
 				));

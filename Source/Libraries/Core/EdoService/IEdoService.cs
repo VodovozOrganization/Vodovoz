@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Threading;
@@ -167,5 +167,7 @@ namespace EdoService.Library
 		/// <param name="edoTaskId">Идентификатор задачи ЭДО</param>
 		/// <returns>True - если документооборот есть, False - если нет</returns>
 		bool HasDocflow(int edoTaskId);
+		Result RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
+		Result RehandleNewUpdDocumentWithProblem(int updEdoTaskId);
 	}
 }

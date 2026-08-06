@@ -113,6 +113,7 @@
     <Compile Include="Edo\EdoInOrderTransferStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderViewModel.cs" />
     <Compile Include="Edo\EdoInOrderProblemViewModel.cs" />
+    <Compile Include="Edo\EdoViewModel.cs" />
     <Compile Include="Employees\FineCategoryViewModel.cs" />
     <Compile Include="Factories\IVatRateVersionViewModelFactory.cs" />
     <Compile Include="Factories\VatRateVersionViewModelFactory.cs" />

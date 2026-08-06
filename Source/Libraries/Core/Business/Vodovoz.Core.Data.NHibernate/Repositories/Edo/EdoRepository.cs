@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -511,6 +511,11 @@ select
 	(select count(*) from true_mark_product_codes tmpc where tmpc.customer_request_id = ecr.id) as :codes_count,
 	eod.status as :edo_document_status,
 	et.cancellation_reason as :cancellation_reason
+	(select count(*) from true_mark_product_codes tmpc where tmpc.customer_request_id = ecr.id) as :codes_count_in_request,
+	(select count(*) from true_mark_product_codes tmpc 
+		left join edo_order_task_items eoti on eoti.product_code_id = tmpc.id
+		where eoti.order_edo_task_id = et.id) as :codes_used_in_task,
+	eod.status as :edo_document_status
 from edo_customer_requests ecr
 left join edo_tasks et on et.id = ecr.order_task_id
 left join edo_outgoing_documents eod on eod.document_task_id = et.id
@@ -528,6 +533,9 @@ select
 	null as :task_upd_stage,
 	null as :task_receipt_stage,
 	null as :task_tender_stage,
+	null as :codes_count_in_request,
+	null as :codes_used_in_task,
+	eod.status as :edo_document_status
 	null as :codes_count,
 	eod.status as :edo_document_status,
 	et.cancellation_reason as :cancellation_reason
@@ -551,7 +559,8 @@ where eir.order_id = :order_id
 				.Map("task_upd_stage", x => x.TaskUpdStage, new EnumStringType<DocumentEdoTaskStage>())
 				.Map("task_receipt_stage", x => x.TaskReceiptStage, new EnumStringType<EdoReceiptStatus>())
 				.Map("task_tender_stage", x => x.TaskTenderStage, new EnumStringType<TenderEdoTaskStage>())
-				.Map("codes_count", x => x.CodesQuantity, NHibernateUtil.Int32)
+				.Map("codes_count_in_request", x => x.CodesInRequest, NHibernateUtil.Int32)
+				.Map("codes_used_in_task", x => x.CodesUsedInTask, NHibernateUtil.Int32)
 				.Map("edo_document_status", x => x.EdoDocumentStatus, new EnumStringType<EdoDocumentStatus>())
 				.Map("cancellation_reason", x => x.CancellationReason, NHibernateUtil.String)
 				.SetResultTransformer();
