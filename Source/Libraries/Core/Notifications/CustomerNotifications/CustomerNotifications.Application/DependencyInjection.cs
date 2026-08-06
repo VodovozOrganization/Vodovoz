@@ -5,6 +5,7 @@ using CustomerNotifications.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Notifications.Infrastructure;
 using TransactionalOutbox.Abstractions;
+using VodovozBusiness.Services.Logistics;
 
 public static class DependencyInjection
 {
@@ -28,7 +29,7 @@ public static class DependencyInjection
 	{
 		services.AddCustomerNotificationsSettingsProvider();
 
-		services.AddScoped<IDriverContactNumberProvider, DriverContactNumberProvider>();
+		services.AddScoped<IDriverContactNumberService, DriverContactNumberService>();
 		services.AddScoped<ISmsNotificationSendingPolicy, SmsNotificationSendingPolicy>();
 
 		services.AddScoped<ISmsNotificationCreator<CustomerNotificationDomainEvent>, CourierOnTheWaySmsNotificationCreator>();

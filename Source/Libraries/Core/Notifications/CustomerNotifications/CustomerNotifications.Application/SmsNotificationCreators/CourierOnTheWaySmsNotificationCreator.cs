@@ -1,5 +1,4 @@
-﻿using CustomerNotifications.Application.Providers;
-using CustomerNotifications.Contracts;
+﻿using CustomerNotifications.Contracts;
 using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
@@ -15,6 +14,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Services;
+using VodovozBusiness.Services.Logistics;
 
 namespace CustomerNotifications.Application.SmsNotificationCreators
 {
@@ -35,7 +35,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IDriverContactNumberProvider _driverContactNumberProvider;
+		private readonly IDriverContactNumberService _driverContactNumberService;
 
 		public CourierOnTheWaySmsNotificationCreator(
 			ILogger<CourierOnTheWaySmsNotificationCreator> logger,
@@ -44,7 +44,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			IExternalCounterpartyRepository externalCounterpartyRepository,
 			IOrderRepository orderRepository,
 			IEmployeeRepository employeeRepository,
-			IDriverContactNumberProvider driverContactNumberProvider)
+			IDriverContactNumberService driverContactNumberService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_smsNotifierSettings = smsNotifierSettings ?? throw new ArgumentNullException(nameof(smsNotifierSettings));
@@ -52,7 +52,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			_externalCounterpartyRepository = externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_driverContactNumberProvider = driverContactNumberProvider ?? throw new ArgumentNullException(nameof(driverContactNumberProvider));
+			_driverContactNumberService = driverContactNumberService ?? throw new ArgumentNullException(nameof(driverContactNumberService));
 		}
 
 		/// <inheritdoc/>
@@ -143,7 +143,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			if(_smsNotificationRepository.HasCourierOnTheWaySmsNotification(unitOfWork, orderId, driver.Id))
 			{
 				_logger.LogInformation(
-					"По заказу {OrderId} смс уведомление о том, что курьер в пути по водителю {DriverId}, уже создавалось, повторное не создаётся",
+					"По заказу {OrderId} (водитель {DriverId}) смс уведомление о том, что курьер в пути, уже создавалось, повторное не создаётся",
 					orderId,
 					driver.Id);
 
@@ -163,7 +163,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			}
 
 			var driverPhone =
-				await _driverContactNumberProvider.GetDriverContactNumberAsync(unitOfWork, orderId, cancellationToken);
+				await _driverContactNumberService.GetDriverContactNumberAsync(unitOfWork, orderId, cancellationToken);
 
 			const string orderIdVariable = "$order_id$";
 			const string driverPhoneVariable = "$driver_phone$";

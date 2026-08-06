@@ -1,13 +1,13 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CustomerNotifications.Application.Providers
+namespace VodovozBusiness.Services.Logistics
 {
 	/// <summary>
-	/// Провайдер номера для связи клиента с водителем
+	/// Сервис для получения контактного номера водителя, доставляющего заказ
 	/// </summary>
-	public interface IDriverContactNumberProvider
+	public interface IDriverContactNumberService
 	{
 		/// <summary>
 		/// Возвращает номер для связи с водителем, доставляющим заказ.
@@ -18,6 +18,7 @@ namespace CustomerNotifications.Application.Providers
 		/// <param name="unitOfWork">Unit Of Work</param>
 		/// <param name="orderId">Код заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
 		Task<string> GetDriverContactNumberAsync(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken = default);
 	}
 }

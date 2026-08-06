@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Threading;
@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Mango;
 
-namespace CustomerNotifications.Application.Providers
+namespace VodovozBusiness.Services.Logistics
 {
 	/// <inheritdoc/>
-	public class DriverContactNumberProvider : IDriverContactNumberProvider
+	public class DriverContactNumberService : IDriverContactNumberService
 	{
-		private readonly ILogger<DriverContactNumberProvider> _logger;
+		private readonly ILogger<DriverContactNumberService> _logger;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IMangoSettings _mangoSettings;
 
-		public DriverContactNumberProvider(
-			ILogger<DriverContactNumberProvider> logger,
+		public DriverContactNumberService(
+			ILogger<DriverContactNumberService> logger,
 			IOrderRepository orderRepository,
 			IMangoSettings mangoSettings)
 		{
