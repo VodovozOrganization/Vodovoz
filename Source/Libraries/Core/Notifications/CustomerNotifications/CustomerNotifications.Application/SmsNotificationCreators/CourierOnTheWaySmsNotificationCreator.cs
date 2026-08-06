@@ -24,6 +24,9 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 	/// </summary>
 	public class CourierOnTheWaySmsNotificationCreator : ISmsNotificationCreator<CustomerNotificationDomainEvent>
 	{
+		private const string _orderIdVariable = "$order_id$";
+		private const string _driverPhoneVariable = "$driver_phone$";
+
 		/// <summary>
 		/// Время, в течение которого отправка смс уведомления остаётся актуальной
 		/// </summary>
@@ -165,12 +168,9 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			var driverPhone =
 				await _driverContactNumberService.GetDriverContactNumberAsync(unitOfWork, orderId, cancellationToken);
 
-			const string orderIdVariable = "$order_id$";
-			const string driverPhoneVariable = "$driver_phone$";
-
 			messageText = messageText
-				.Replace(orderIdVariable, orderId.ToString())
-				.Replace(driverPhoneVariable, driverPhone);
+				.Replace(_orderIdVariable, orderId.ToString())
+				.Replace(_driverPhoneVariable, driverPhone);
 
 			var notifyTime = DateTime.Now;
 
