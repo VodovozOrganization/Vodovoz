@@ -192751,14 +192751,14 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.GtkWidgets.yHBox" id="yhboxTransferCodes">
+          <widget class="Gamma.GtkWidgets.yHBox" id="yhboxReuseCodes">
             <property name="MemberName" />
             <property name="Visible">False</property>
             <property name="NoShowAll">True</property>
             <property name="Spacing">6</property>
             <property name="BorderWidth">4</property>
             <child>
-              <widget class="Gamma.GtkWidgets.yLabel" id="ylabelTransferTargetOrder">
+              <widget class="Gamma.GtkWidgets.yLabel" id="ylabelReuseTargetOrder">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Перенести отклоненные коды в заказ:</property>
               </widget>
@@ -192770,7 +192770,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="QS.Views.Control.EntityEntry" id="entityentryTransferTargetOrder">
+              <widget class="QS.Views.Control.EntityEntry" id="entityentryReuseTargetOrder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -192782,7 +192782,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.GtkWidgets.yButton" id="ybuttonTransferRejectedCodes">
+              <widget class="Gamma.GtkWidgets.yButton" id="ybuttonReuseRejectedCodes">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextOnly</property>

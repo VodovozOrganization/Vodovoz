@@ -26,7 +26,7 @@ namespace VodovozBusiness.TrueMark.Tests
 	{
 		private const int _orderId = 1;
 		private const int _orderItemId = 2;
-		private const int _transferredIdentificationCodeId = 3;
+		private const int _reusedIdentificationCodeId = 3;
 		private const string _gtin = "04602009723186";
 
 		private readonly IUnitOfWork _uow;
@@ -72,13 +72,13 @@ namespace VodovozBusiness.TrueMark.Tests
 		/// а ранее перенесенный код возвращается в пул.
 		/// </summary>
 		[Fact]
-		public async Task AcceptedDriverCode_ReturnsTransferredCodeToPool()
+		public async Task AcceptedDriverCode_ReturnsReusedCodeToPool()
 		{
-			var transferredProductCode = CreateTransferredProductCode();
+			var reusedProductCode = CreateReusedProductCode();
 			var routeListItem = CreateRouteListItem();
 			var driverIdentificationCode = CreateDriverIdentificationCode();
 
-			ConfigureTransferredProductCode(transferredProductCode);
+			ConfigureReusedProductCode(reusedProductCode);
 
 			await _service.AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
 				_uow,
@@ -90,9 +90,9 @@ namespace VodovozBusiness.TrueMark.Tests
 
 			await _trueMarkCodesPool
 				.Received(1)
-				.PutCodeAsync(_transferredIdentificationCodeId, Arg.Any<CancellationToken>());
-			Assert.Null(transferredProductCode.ResultCode);
-			Assert.Equal(SourceProductCodeStatus.SavedToPool, transferredProductCode.SourceCodeStatus);
+				.PutCodeAsync(_reusedIdentificationCodeId, Arg.Any<CancellationToken>());
+			Assert.Null(reusedProductCode.ResultCode);
+			Assert.Equal(SourceProductCodeStatus.SavedToPool, reusedProductCode.SourceCodeStatus);
 			Assert.Same(driverIdentificationCode, routeListItem.TrueMarkCodes.Single().SourceCode);
 		}
 
@@ -101,7 +101,7 @@ namespace VodovozBusiness.TrueMark.Tests
 		/// а водительский код добавляется в адрес маршрутного листа.
 		/// </summary>
 		[Fact]
-		public async Task AcceptedDriverCode_WithoutTransferredCode_DoesNotUsePool()
+		public async Task AcceptedDriverCode_WithoutReusedCode_DoesNotUsePool()
 		{
 			var routeListItem = CreateRouteListItem();
 			var driverIdentificationCode = CreateDriverIdentificationCode();
@@ -127,7 +127,7 @@ namespace VodovozBusiness.TrueMark.Tests
 		[Fact]
 		public async Task AcceptedDriverCode_WithoutRejectedSourceCode_DoesNotUsePool()
 		{
-			var transferredProductCode = CreateTransferredProductCode();
+			var reusedProductCode = CreateReusedProductCode();
 			_trueMarkRepository
 				.GetAutoProductCodesByManualEdoRequests(
 					_uow,
@@ -135,7 +135,7 @@ namespace VodovozBusiness.TrueMark.Tests
 					_gtin,
 					SourceProductCodeStatus.Accepted,
 					ProductCodeProblem.None)
-				.Returns(new List<AutoTrueMarkProductCode> { transferredProductCode });
+				.Returns(new List<AutoTrueMarkProductCode> { reusedProductCode });
 
 			await _service.AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
 				_uow,
@@ -148,8 +148,8 @@ namespace VodovozBusiness.TrueMark.Tests
 			await _trueMarkCodesPool
 				.DidNotReceive()
 				.PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
-			Assert.NotNull(transferredProductCode.ResultCode);
-			Assert.Equal(SourceProductCodeStatus.Accepted, transferredProductCode.SourceCodeStatus);
+			Assert.NotNull(reusedProductCode.ResultCode);
+			Assert.Equal(SourceProductCodeStatus.Accepted, reusedProductCode.SourceCodeStatus);
 		}
 
 		/// <summary>
@@ -159,7 +159,7 @@ namespace VodovozBusiness.TrueMark.Tests
 		[Theory]
 		[InlineData(SourceProductCodeStatus.Rejected, ProductCodeProblem.None)]
 		[InlineData(SourceProductCodeStatus.Accepted, ProductCodeProblem.Defect)]
-		public async Task UnacceptedDriverCode_DoesNotReturnTransferredCodeToPool(
+		public async Task UnacceptedDriverCode_DoesNotReturnReusedCodeToPool(
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem)
 		{
@@ -186,11 +186,11 @@ namespace VodovozBusiness.TrueMark.Tests
 				.PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
 		}
 
-		private static AutoTrueMarkProductCode CreateTransferredProductCode()
+		private static AutoTrueMarkProductCode CreateReusedProductCode()
 		{
 			var identificationCode = new TrueMarkWaterIdentificationCode
 			{
-				Id = _transferredIdentificationCodeId,
+				Id = _reusedIdentificationCodeId,
 				Gtin = _gtin
 			};
 
@@ -204,7 +204,7 @@ namespace VodovozBusiness.TrueMark.Tests
 			};
 		}
 
-		private void ConfigureTransferredProductCode(AutoTrueMarkProductCode transferredProductCode)
+		private void ConfigureReusedProductCode(AutoTrueMarkProductCode reusedProductCode)
 		{
 			_trueMarkRepository
 				.GetAutoProductCodesByManualEdoRequests(
@@ -213,13 +213,13 @@ namespace VodovozBusiness.TrueMark.Tests
 					_gtin,
 					SourceProductCodeStatus.Accepted,
 					ProductCodeProblem.None)
-				.Returns(new List<AutoTrueMarkProductCode> { transferredProductCode });
+				.Returns(new List<AutoTrueMarkProductCode> { reusedProductCode });
 			_trueMarkRepository
 				.GetRejectedIdentificationCodeIds(
 					_uow,
-					Arg.Is<int[]>(x => x.SequenceEqual(new[] { _transferredIdentificationCodeId })),
+					Arg.Is<int[]>(x => x.SequenceEqual(new[] { _reusedIdentificationCodeId })),
 					OrderStatus.Canceled)
-				.Returns(new HashSet<int> { transferredProductCode.ResultCode.Id });
+				.Returns(new HashSet<int> { reusedProductCode.ResultCode.Id });
 		}
 
 		private static RouteListItemEntity CreateRouteListItem() =>

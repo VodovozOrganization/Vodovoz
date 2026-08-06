@@ -117,7 +117,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 					if(!isCodeAlreadyAddedToRouteListItem)
 					{
-						await ReturnTransferredProductCodeToPool(
+						await ReturnReusedProductCodeToPool(
 							uow,
 							routeListAddress.Order.Id,
 							code.TrueMarkWaterIdentificationCode.Gtin,
@@ -166,7 +166,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 		}
 
-		private async Task ReturnTransferredProductCodeToPool(
+		private async Task ReturnReusedProductCodeToPool(
 			IUnitOfWork uow,
 			int orderId,
 			string gtin,
@@ -180,27 +180,27 @@ namespace VodovozBusiness.Services.TrueMark
 				return;
 			}
 
-			var transferredProductCode = GetTransferredProductCode(
+			var reusedProductCode = GetReusedProductCode(
 				uow,
 				orderId,
 				gtin);
 
-			if(transferredProductCode is null)
+			if(reusedProductCode is null)
 			{
 				return;
 			}
 
 			await _trueMarkCodesPoolFactory
 				.Create(uow)
-				.PutCodeAsync(transferredProductCode.ResultCode.Id, cancellationToken);
+				.PutCodeAsync(reusedProductCode.ResultCode.Id, cancellationToken);
 
-			transferredProductCode.ResultCode = null;
-			transferredProductCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
+			reusedProductCode.ResultCode = null;
+			reusedProductCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
 		}
 
-		private AutoTrueMarkProductCode GetTransferredProductCode(IUnitOfWork uow, int orderId, string gtin)
+		private AutoTrueMarkProductCode GetReusedProductCode(IUnitOfWork uow, int orderId, string gtin)
 		{
-			var transferredProductCodeCandidates = _trueMarkRepository
+			var reusedProductCodeCandidates = _trueMarkRepository
 				.GetAutoProductCodesByManualEdoRequests(
 					uow,
 					orderId,
@@ -208,12 +208,12 @@ namespace VodovozBusiness.Services.TrueMark
 					SourceProductCodeStatus.Accepted,
 					ProductCodeProblem.None);
 
-			if(!transferredProductCodeCandidates.Any())
+			if(!reusedProductCodeCandidates.Any())
 			{
 				return null;
 			}
 
-			var identificationCodeIds = transferredProductCodeCandidates
+			var identificationCodeIds = reusedProductCodeCandidates
 				.Select(x => x.ResultCode.Id)
 				.ToArray();
 
@@ -222,7 +222,7 @@ namespace VodovozBusiness.Services.TrueMark
 				identificationCodeIds,
 				OrderStatus.Canceled);
 
-			return transferredProductCodeCandidates
+			return reusedProductCodeCandidates
 				.FirstOrDefault(x => rejectedIdentificationCodeIds.Contains(x.ResultCode.Id));
 		}
 

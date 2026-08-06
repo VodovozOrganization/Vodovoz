@@ -15,7 +15,7 @@ namespace VodovozBusiness.Services.TrueMark
 	/// <summary>
 	/// Сервис переноса отклоненных кодов маркировки из отмененного заказа в другой заказ.
 	/// </summary>
-	public class CancelledOrderTrueMarkCodesTransferService : ICancelledOrderTrueMarkCodesTransferService
+	public class CancelledOrderTrueMarkCodesReuseService : ICancelledOrderTrueMarkCodesReuseService
 	{
 		private readonly ITrueMarkRepository _trueMarkRepository;
 
@@ -23,13 +23,13 @@ namespace VodovozBusiness.Services.TrueMark
 		/// Создает экземпляр сервиса переноса отклоненных кодов маркировки.
 		/// </summary>
 		/// <param name="trueMarkRepository">Репозиторий кодов маркировки</param>
-		public CancelledOrderTrueMarkCodesTransferService(ITrueMarkRepository trueMarkRepository)
+		public CancelledOrderTrueMarkCodesReuseService(ITrueMarkRepository trueMarkRepository)
 		{
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 		}
 
 		/// <inheritdoc />
-		public Result<CancelledOrderTrueMarkCodesTransferResult> TransferCodes(
+		public Result<CancelledOrderTrueMarkCodesReuseResult> ReuseCodes(
 			IUnitOfWork uow,
 			int sourceOrderId,
 			int targetOrderId)
@@ -43,7 +43,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(validationResult.IsFailure)
 			{
-				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
+				return Result.Failure<CancelledOrderTrueMarkCodesReuseResult>(validationResult.Errors);
 			}
 
 			var sourceOrder = uow.GetById<Order>(sourceOrderId);
@@ -53,7 +53,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(validationResult.IsFailure)
 			{
-				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
+				return Result.Failure<CancelledOrderTrueMarkCodesReuseResult>(validationResult.Errors);
 			}
 
 			var sourceProductCodes = _trueMarkRepository.GetRejectedProductCodesByOrder(uow, sourceOrderId);
@@ -62,26 +62,26 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(validationResult.IsFailure)
 			{
-				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
+				return Result.Failure<CancelledOrderTrueMarkCodesReuseResult>(validationResult.Errors);
 			}
 
 			validationResult = ValidateTargetOrderItems(uow, targetOrder, sourceProductCodes);
 
 			if(validationResult.IsFailure)
 			{
-				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
+				return Result.Failure<CancelledOrderTrueMarkCodesReuseResult>(validationResult.Errors);
 			}
 
 			ClearSourceProductCodeResults(uow, sourceProductCodes);
-			var transferredProductCodes = CreateTransferredProductCodes(sourceProductCodes);
-			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, transferredProductCodes);
+			var productCodesForReuse = CreateProductCodesForReuse(sourceProductCodes);
+			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, productCodesForReuse);
 			uow.Save(edoRequest);
 
-			return Result.Success(new CancelledOrderTrueMarkCodesTransferResult
+			return Result.Success(new CancelledOrderTrueMarkCodesReuseResult
 			{
 				TargetOrderId = targetOrderId,
 				EdoRequestId = edoRequest.Id,
-				TransferredCodesCount = sourceProductCodes.Count
+				ReusedCodesCount = sourceProductCodes.Count
 			});
 		}
 
@@ -101,7 +101,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(sourceOrderId == targetOrderId)
 			{
-				errors.Add(EdoErrors.SameTransferOrder);
+				errors.Add(EdoErrors.SameSourceAndTargetOrder);
 			}
 
 			return errors.Any() ? Result.Failure(errors) : Result.Success();
@@ -248,27 +248,27 @@ namespace VodovozBusiness.Services.TrueMark
 			int orderItemId) =>
 			assignedProductCodesCountByOrderItemId.TryGetValue(orderItemId, out var count) ? count : 0;
 
-		private static IList<TrueMarkProductCode> CreateTransferredProductCodes(
+		private static IList<TrueMarkProductCode> CreateProductCodesForReuse(
 			IList<TrueMarkProductCode> sourceProductCodes)
 		{
-			var transferredProductCodes = new List<TrueMarkProductCode>();
+			var productCodesForReuse = new List<TrueMarkProductCode>();
 			var now = DateTime.Now;
 
 			foreach(var sourceProductCode in sourceProductCodes)
 			{
-				var transferredCode = sourceProductCode.SourceCode;
+				var codeForReuse = sourceProductCode.SourceCode;
 
-				transferredProductCodes.Add(new AutoTrueMarkProductCode
+				productCodesForReuse.Add(new AutoTrueMarkProductCode
 				{
 					CreationTime = now,
 					LastModified = now,
-					SourceCode = transferredCode,
+					SourceCode = codeForReuse,
 					SourceCodeStatus = SourceProductCodeStatus.New,
 					Problem = ProductCodeProblem.None
 				});
 			}
 
-			return transferredProductCodes;
+			return productCodesForReuse;
 		}
 
 		private static void ClearSourceProductCodeResults(

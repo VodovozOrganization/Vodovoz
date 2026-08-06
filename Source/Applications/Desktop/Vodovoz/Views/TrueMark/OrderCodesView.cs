@@ -92,9 +92,9 @@ namespace Vodovoz.Views.TrueMark
 				.AddBinding(vm => vm.SearchText, w => w.Text)
 				.InitializeFromSource();
 
-			if(ViewModel.TransferTargetOrderViewModel != null)
+			if(ViewModel.ReuseTargetOrderViewModel != null)
 			{
-				ConfigureTransferCodesControls();
+				ConfigureReuseCodesControls();
 			}
 
 			var driverRecursiveConfig = new RecursiveConfig<OrderCodeItemViewModel>(
@@ -394,28 +394,28 @@ namespace Vodovoz.Views.TrueMark
 				SetColorForSearchEntry();
 			}
 
-			if(e.PropertyName == nameof(ViewModel.CanTransferRejectedCodes)
-				|| e.PropertyName == nameof(ViewModel.TransferTargetOrder)
-				|| e.PropertyName == nameof(ViewModel.CanShowTransferRejectedCodesControls))
+			if(e.PropertyName == nameof(ViewModel.CanReuseRejectedCodes)
+				|| e.PropertyName == nameof(ViewModel.ReuseTargetOrder)
+				|| e.PropertyName == nameof(ViewModel.CanShowReuseRejectedCodesControls))
 			{
-				UpdateTransferCodesControlsVisibility();
-				UpdateTransferRejectedCodesButtonSensitivity();
+				UpdateReuseCodesControlsVisibility();
+				UpdateReuseRejectedCodesButtonSensitivity();
 			}
 		}
 
-		private void UpdateTransferCodesControlsVisibility()
+		private void UpdateReuseCodesControlsVisibility()
 		{
-			if(yhboxTransferCodes != null)
+			if(yhboxReuseCodes != null)
 			{
-				yhboxTransferCodes.Visible = ViewModel.CanShowTransferRejectedCodesControls;
+				yhboxReuseCodes.Visible = ViewModel.CanShowReuseRejectedCodesControls;
 			}
 		}
 
-		private void UpdateTransferRejectedCodesButtonSensitivity()
+		private void UpdateReuseRejectedCodesButtonSensitivity()
 		{
-			if(ybuttonTransferRejectedCodes != null)
+			if(ybuttonReuseRejectedCodes != null)
 			{
-				ybuttonTransferRejectedCodes.Sensitive = ViewModel.CanTransferRejectedCodes;
+				ybuttonReuseRejectedCodes.Sensitive = ViewModel.CanReuseRejectedCodes;
 			}
 		}
 
@@ -440,16 +440,16 @@ namespace Vodovoz.Views.TrueMark
 			}
 		}
 
-		private void ConfigureTransferCodesControls()
+		private void ConfigureReuseCodesControls()
 		{
-			ViewModel.TransferTargetOrderViewModel.DisposeViewModel = false;
-			entityentryTransferTargetOrder.ViewModel = ViewModel.TransferTargetOrderViewModel;
-			yhboxTransferCodes.NoShowAll = false;
+			ViewModel.ReuseTargetOrderViewModel.DisposeViewModel = false;
+			entityentryReuseTargetOrder.ViewModel = ViewModel.ReuseTargetOrderViewModel;
+			yhboxReuseCodes.NoShowAll = false;
 
-			ybuttonTransferRejectedCodes.BindCommand(ViewModel.TransferRejectedCodesCommand);
-			yhboxTransferCodes.ShowAll();
-			UpdateTransferCodesControlsVisibility();
-			UpdateTransferRejectedCodesButtonSensitivity();
+			ybuttonReuseRejectedCodes.BindCommand(ViewModel.ReuseRejectedCodesCommand);
+			yhboxReuseCodes.ShowAll();
+			UpdateReuseCodesControlsVisibility();
+			UpdateReuseRejectedCodesButtonSensitivity();
 		}
 
 		private void HighlightSearchText()
@@ -563,7 +563,7 @@ namespace Vodovoz.Views.TrueMark
 			_selfdeliveryOpenAuthor?.Destroy();
 			_poolPopup?.Destroy();
 			_poolCopyCodes?.Destroy();
-			ViewModel?.DisposeTransferTargetOrderEntry();
+			ViewModel?.DisposeReuseTargetOrderEntry();
 			ytreeviewDriver?.Destroy();
 			ytreeviewWarehouse?.Destroy();
 			ytreeviewSelfdelivery?.Destroy();

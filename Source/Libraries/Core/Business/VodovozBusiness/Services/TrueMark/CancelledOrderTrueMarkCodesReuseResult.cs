@@ -3,7 +3,7 @@ namespace VodovozBusiness.Services.TrueMark
 	/// <summary>
 	/// Результат переноса кодов маркировки из отмененного заказа.
 	/// </summary>
-	public class CancelledOrderTrueMarkCodesTransferResult
+	public class CancelledOrderTrueMarkCodesReuseResult
 	{
 		/// <summary>
 		/// Номер заказа, в который перенесены коды.
@@ -18,6 +18,6 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <summary>
 		/// Количество перенесенных кодов.
 		/// </summary>
-		public int TransferredCodesCount { get; set; }
+		public int ReusedCodesCount { get; set; }
 	}
 }
