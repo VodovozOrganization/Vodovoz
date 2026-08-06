@@ -92,8 +92,6 @@ namespace Vodovoz.ViewModels.Edo
 					var hasCancelledDocflow = _edoService.HasCancelledDocflow(document.TaskId);
 					if(hasDocflow && !hasCancelledDocflow)
 					{
-						_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно переотправлено");
-						EdoInOrderRefreshCommand?.Execute(null);
 						if(_interactiveService.Question(
 							"Документооборот по данному документу завершён .\n" +
 							"Для переотправки необходимо аннулировать документооборот.\n" +
