@@ -1,4 +1,4 @@
-using CustomerNotifications.Application.Providers;
+﻿using CustomerNotifications.Application.Providers;
 using CustomerNotifications.Contracts;
 using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
@@ -13,6 +13,7 @@ using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Services;
 
@@ -42,6 +43,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 		private readonly ISmsNotifierSettings _smsNotifierSettings;
 		private readonly ISmsNotificationRepository _smsNotificationRepository;
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
+		private readonly IOrderRepository _orderRepository;
 		private readonly IDriverContactNumberProvider _driverContactNumberProvider;
 
 		public CourierOnTheWaySmsNotificationCreator(
@@ -49,15 +51,15 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			ISmsNotifierSettings smsNotifierSettings,
 			ISmsNotificationRepository smsNotificationRepository,
 			IExternalCounterpartyRepository externalCounterpartyRepository,
+			IOrderRepository orderRepository,
 			IDriverContactNumberProvider driverContactNumberProvider)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_smsNotifierSettings = smsNotifierSettings ?? throw new ArgumentNullException(nameof(smsNotifierSettings));
 			_smsNotificationRepository = smsNotificationRepository ?? throw new ArgumentNullException(nameof(smsNotificationRepository));
-			_externalCounterpartyRepository =
-				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
-			_driverContactNumberProvider =
-				driverContactNumberProvider ?? throw new ArgumentNullException(nameof(driverContactNumberProvider));
+			_externalCounterpartyRepository = externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_driverContactNumberProvider = driverContactNumberProvider ?? throw new ArgumentNullException(nameof(driverContactNumberProvider));
 		}
 
 		/// <inheritdoc/>
@@ -70,7 +72,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			CustomerNotificationDomainEvent domainEvent,
 			CancellationToken cancellationToken = default)
 		{
-			if(domainEvent.OrderId is null)
+			if(domainEvent?.OrderId is null)
 			{
 				_logger.LogWarning(
 					"В событии {CustomerNotificationEventType} не заполнен код заказа, "
@@ -82,7 +84,8 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 
 			var orderId = domainEvent.OrderId.Value;
 
-			var order = unitOfWork.GetById<Order>(orderId);
+			var order =
+				await _orderRepository.GetOrderByIdAsync(unitOfWork, orderId, cancellationToken);
 
 			if(order is null)
 			{
