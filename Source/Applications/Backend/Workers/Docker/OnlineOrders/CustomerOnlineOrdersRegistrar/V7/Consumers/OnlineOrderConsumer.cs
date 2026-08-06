@@ -125,7 +125,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 				" клиента {ClientId} с контактным номером {ContactPhone}",
 				externalOrderId,
 				message.ExternalCounterpartyId,
-				message.CounterpartyErpId,
+				message.ErpCounterpartyId,
 				message.ContactPhone);
 
 			var orderId = 0;
@@ -147,7 +147,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 					" клиента {ClientId} с контактным номером {ContactPhone}",
 					externalOrderId,
 					message.ExternalCounterpartyId,
-					message.CounterpartyErpId,
+					message.ErpCounterpartyId,
 					message.ContactPhone);
 			}
 			finally

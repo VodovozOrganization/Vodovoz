@@ -46,7 +46,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 			var onlineOrder = new OnlineOrderV2
 			{
 				Source = creatingOnlineOrder.Source,
-				CounterpartyId = creatingOnlineOrder.CounterpartyErpId,
+				CounterpartyId = creatingOnlineOrder.ErpCounterpartyId,
 				ExternalCounterpartyId = creatingOnlineOrder.ExternalCounterpartyId,
 				ExternalOrderId = creatingOnlineOrder.ExternalOrderId,
 				DeliveryPointId = creatingOnlineOrder.DeliveryPointId,
@@ -232,9 +232,9 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 		
 		private void InitializeOnlineOrderReferences(IUnitOfWork uow, OnlineOrderV2 onlineOrder, ICreatingOnlineOrder creatingOnlineOrder)
 		{
-			if(creatingOnlineOrder.CounterpartyErpId.HasValue)
+			if(creatingOnlineOrder.ErpCounterpartyId.HasValue)
 			{
-				onlineOrder.Counterparty = uow.GetById<Counterparty>(creatingOnlineOrder.CounterpartyErpId.Value);
+				onlineOrder.Counterparty = uow.GetById<Counterparty>(creatingOnlineOrder.ErpCounterpartyId.Value);
 			}
 			
 			if(creatingOnlineOrder.DeliveryPointId.HasValue)

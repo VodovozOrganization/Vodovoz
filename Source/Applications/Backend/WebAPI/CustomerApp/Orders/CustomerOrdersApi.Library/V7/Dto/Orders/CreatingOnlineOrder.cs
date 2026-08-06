@@ -24,7 +24,7 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		/// <summary>
 		/// Id контрагента в ДВ
 		/// </summary>
-		public int? CounterpartyErpId { get; set; }
+		public int? ErpCounterpartyId { get; set; }
 		
 		/// <summary>
 		/// Контрольная сумма заказа, для проверки валидности отправителя
