@@ -8,6 +8,7 @@ using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using TrueMark.Codes.Pool;
 using Vodovoz;
 using Vodovoz.Controllers;
 using Vodovoz.FirebaseCloudMessaging;
@@ -137,6 +138,7 @@ namespace DriverAPI.Library
 		public static IServiceCollection AddTrueMarkCodesCheckDependencies(this IServiceCollection services)
 		{
 			return services
+				.AddCodesPool()
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>();

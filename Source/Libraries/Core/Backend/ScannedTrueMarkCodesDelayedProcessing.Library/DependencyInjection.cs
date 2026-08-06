@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 using ScannedTrueMarkCodesDelayedProcessing.Library.Services;
+using TrueMark.Codes.Pool;
 using Vodovoz.Models.TrueMark;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services.TrueMark;
@@ -19,6 +20,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library
 			services
 				.AddMessageTransportSettings()
 				.AddEdoMassTransit()
+				.AddCodesPool()
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>()

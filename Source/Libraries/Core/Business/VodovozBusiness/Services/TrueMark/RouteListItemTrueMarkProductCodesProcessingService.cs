@@ -26,17 +26,21 @@ namespace VodovozBusiness.Services.TrueMark
 		private readonly IGenericRepository<RouteListItemEntity> _routeListItemRepository;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
 
 		public RouteListItemTrueMarkProductCodesProcessingService(
 			IOrderRepository orderRepository,
 			IGenericRepository<RouteListItemEntity> routeListItemRepository,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService)
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService;
+			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
+				?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCleanupService));
 		}
 		
 		public Result ValidateTrueMarkCodeIsInAggregationCode(TrueMarkAnyCode trueMarkCodeResult)
@@ -64,6 +68,18 @@ namespace VodovozBusiness.Services.TrueMark
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem)
 		{
+			if(status == SourceProductCodeStatus.Accepted)
+			{
+				var notUsedResult = _trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(
+					trueMarkWaterIdentificationCode);
+
+				if(notUsedResult.IsFailure)
+				{
+					status = SourceProductCodeStatus.Problem;
+					problem = ProductCodeProblem.Duplicate;
+				}
+			}
+
 			var productCode = CreateRouteListItemTrueMarkProductCode(
 				routeListAddress,
 				trueMarkWaterIdentificationCode,
@@ -395,6 +411,19 @@ namespace VodovozBusiness.Services.TrueMark
 			int orderItemId,
 			CancellationToken cancellationToken = default)
 		{
+			foreach(var stagingCode in stagingCodes.Where(x => x.ParentCodeId is null))
+			{
+				var alreadyUsedResult = await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(
+					uow,
+					stagingCode,
+					cancellationToken);
+
+				if(alreadyUsedResult.IsFailure)
+				{
+					return alreadyUsedResult;
+				}
+			}
+
 			var trueMarkAnyCodesResult =
 				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
 					uow,
@@ -409,6 +438,13 @@ namespace VodovozBusiness.Services.TrueMark
 
 			foreach(var trueMarkAnyCode in trueMarkAnyCodesResult.Value)
 			{
+				var notUsedResult = EnsureTrueMarkAnyCodeNotUsed(trueMarkAnyCode);
+
+				if(notUsedResult.IsFailure)
+				{
+					return notUsedResult;
+				}
+
 				await AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
 					uow,
 					routeListItem,
@@ -417,6 +453,27 @@ namespace VodovozBusiness.Services.TrueMark
 					SourceProductCodeStatus.Accepted,
 					ProductCodeProblem.None,
 					cancellationToken);
+			}
+
+			return Result.Success();
+		}
+
+		private Result EnsureTrueMarkAnyCodeNotUsed(TrueMarkAnyCode trueMarkAnyCode)
+		{
+			IEnumerable<TrueMarkAnyCode> allCodes = trueMarkAnyCode.Match(
+				transportCode => transportCode.GetAllCodes(),
+				groupCode => groupCode.GetAllCodes(),
+				waterCode => new TrueMarkAnyCode[] { waterCode });
+
+			foreach(var code in allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode))
+			{
+				var notUsedResult = _trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(
+					code.TrueMarkWaterIdentificationCode);
+
+				if(notUsedResult.IsFailure)
+				{
+					return notUsedResult;
+				}
 			}
 
 			return Result.Success();
@@ -472,6 +529,10 @@ namespace VodovozBusiness.Services.TrueMark
 				var error = isCodeCanBeAddedResult.Errors.FirstOrDefault();
 				return Result.Failure<StagingTrueMarkCode>(error);
 			}
+
+			await _trueMarkCodesPoolCleanupService.RemoveStagingCodeFromPoolIfPresentAsync(
+				stagingTrueMarkCode,
+				cancellationToken);
 
 			await uow.SaveAsync(stagingTrueMarkCode, cancellationToken: cancellationToken);
 

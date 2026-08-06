@@ -23,15 +23,19 @@ namespace VodovozBusiness.Services.TrueMark
 	{
 		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
 
 		public SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService(
 			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService)
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
 		{
 			_nomenclatureRepository =
 				nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_trueMarkWaterCodeService =
 				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
+				?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCleanupService));
 		}
 
 		public async Task<IEnumerable<StagingTrueMarkCode>> GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(
@@ -190,6 +194,19 @@ namespace VodovozBusiness.Services.TrueMark
 			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
+			foreach(var stagingCode in stagingCodes.Where(x => x.ParentCodeId is null))
+			{
+				var alreadyUsedResult = await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(
+					uow,
+					stagingCode,
+					cancellationToken);
+
+				if(alreadyUsedResult.IsFailure)
+				{
+					return alreadyUsedResult;
+				}
+			}
+
 			var trueMarkAnyCodesResult =
 				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
 					uow,
@@ -244,7 +261,16 @@ namespace VodovozBusiness.Services.TrueMark
 
 			checkCodeResult = await IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, stagingTrueMarkCode, cancellationToken);
 
-			return checkCodeResult;
+			if(checkCodeResult.IsFailure)
+			{
+				return checkCodeResult;
+			}
+
+			await _trueMarkCodesPoolCleanupService.RemoveStagingCodeFromPoolIfPresentAsync(
+				stagingTrueMarkCode,
+				cancellationToken);
+
+			return Result.Success();
 		}
 
 		private async Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(
