@@ -3618,7 +3618,7 @@ namespace Vodovoz
 			edoForOrderViewModel.Setup(UoW, Entity.Id);
 			var reuseTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
 					this,
-					edoInOrderViewModel.OrderCodesViewModel,
+					edoForOrderViewModel.OrderCodesViewModel,
 					UoW,
 					NavigationManager,
 					_lifetimeScope)
@@ -3631,7 +3631,7 @@ namespace Vodovoz
 					})
 				.Finish();
 			edoForOrderViewModel.OrderCodesViewModel.ConfigureReuseTargetOrderEntry(reuseTargetOrderViewModel);
-			edofororderview1.ViewModel = edoForOrderViewModel;
+			edoinorderview1.ViewModel = edoForOrderViewModel;
 			_edoInOrderViewModelConfigured = true;
 			_logger.Info("ЭДО заказа {OrderId}: конфигурация ViewModel завершена за {Elapsed}", Entity.Id, stopwatch.Elapsed);
 		}
