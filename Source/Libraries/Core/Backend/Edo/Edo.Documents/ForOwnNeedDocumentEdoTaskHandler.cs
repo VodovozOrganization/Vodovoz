@@ -122,9 +122,12 @@ namespace Edo.Documents
 						}
 						else
 						{
+							var productCode = codeResult.EdoTaskItem.ProductCode;
+							var gtinNumber = productCode.ResultCode?.Gtin ?? productCode.SourceCode?.Gtin;
+
 							var gtin = (
 									from gtinEntity in _uow.Session.Query<GtinEntity>()
-									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.Gtin
+									where gtinEntity.GtinNumber == gtinNumber
 									select gtinEntity
 								)
 								.FirstOrDefault();

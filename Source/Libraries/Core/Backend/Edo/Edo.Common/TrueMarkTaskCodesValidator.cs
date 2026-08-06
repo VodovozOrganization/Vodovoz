@@ -92,7 +92,7 @@ namespace Edo.Common
 
 			foreach(var taskItem in edoTask.Items)
 			{
-				var code = taskItem.ProductCode.ResultCode;
+				var code = taskItem.ProductCode.ResultCode ?? taskItem.ProductCode.SourceCode;
 
 				if(checkResults == null || !checkResults.TryGetValue(code.IdentificationCode, out var checkResult))
 				{
