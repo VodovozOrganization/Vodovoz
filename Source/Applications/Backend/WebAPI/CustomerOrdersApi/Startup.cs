@@ -103,7 +103,9 @@ namespace CustomerOrdersApi
 				});
 
 			services
-				.AddCustomerNotifications();
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+				.AddCustomerNotificationsSettingsProvider();
 
 			services
 				.Configure<CourierCoordinatesOptions>(

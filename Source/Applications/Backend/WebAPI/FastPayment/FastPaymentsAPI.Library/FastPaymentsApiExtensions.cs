@@ -67,7 +67,9 @@ namespace FastPaymentsAPI.Library
 
 				// Уведомления клиентов
 
-				.AddCustomerNotifications();
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+				.AddCustomerNotificationsSettingsProvider();
 			;
 
 			return services;

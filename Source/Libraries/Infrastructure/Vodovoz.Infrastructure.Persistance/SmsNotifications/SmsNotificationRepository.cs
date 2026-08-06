@@ -22,6 +22,7 @@ namespace Vodovoz.Infrastructure.Persistance.SmsNotifications
 				.List();
 		}
 
+		/// <inheritdoc/>
 		public IEnumerable<CourierOnTheWaySmsNotification> GetUnsendedCourierOnTheWaySmsNotifications(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<CourierOnTheWaySmsNotification>()

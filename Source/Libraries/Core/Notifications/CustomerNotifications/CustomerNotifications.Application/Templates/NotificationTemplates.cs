@@ -7,6 +7,5 @@
 		public const string BottlesReturned = "*пустые бутыли*";
 		public const string RescheduleDate = "*дата переноса*";
 		public const string RescheduleReason = "*причина переноса*";
-		public const string DriverPhone = "*телефон водителя*";
 	}
 }

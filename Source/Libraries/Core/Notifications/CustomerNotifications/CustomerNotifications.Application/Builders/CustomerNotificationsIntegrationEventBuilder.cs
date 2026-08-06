@@ -23,7 +23,6 @@ namespace CustomerNotifications.Application.Builders
 		private readonly ICustomerNotificationsSettingsProvider _customerNotificationSettingsProvider;
 		private readonly IGenericRepository<RouteListItem> _routeListItemRepository;
 		private readonly IGenericRepository<Order> _orderRepository;
-		private readonly IDriverContactNumberProvider _driverContactNumberProvider;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
 		public CustomerNotificationsIntegrationEventBuilder(
@@ -31,13 +30,11 @@ namespace CustomerNotifications.Application.Builders
 			IGenericRepository<RouteListItem> routeListItemRepository,
 			IGenericRepository<UndeliveredOrder> undeliveredOrdersRepository,
 			IGenericRepository<Order> orderRepository,
-			IDriverContactNumberProvider driverContactNumberProvider,
 			IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			_customerNotificationSettingsProvider = customerNotificationSettingsProvider ?? throw new ArgumentNullException(nameof(customerNotificationSettingsProvider));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_driverContactNumberProvider = driverContactNumberProvider ?? throw new ArgumentNullException(nameof(driverContactNumberProvider));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
@@ -96,8 +93,6 @@ namespace CustomerNotifications.Application.Builders
 					.Replace(NotificationTemplates.OrderId, (domainEvent.OnlineOrderId ?? domainEvent.OrderId).ToString())
 					.Replace(NotificationTemplates.DeliveryScheduleFrom, deliveryScheduleFrom ?? "[интервал в заказе не выбран]");
 
-				notificationText = await ApplyDriverPhoneAsync(unitOfWork, onlineOrder, order, notificationText, cancellationToken);
-
 				if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.DeliveryCompleted)
 				{
 					notificationText = await ApplyDeliveryCompletedAsync(unitOfWork, domainEvent, onlineOrder, order, notificationText, cancellationToken);
@@ -151,30 +146,6 @@ namespace CustomerNotifications.Application.Builders
 
 				return integrationEvent;
 			}
-		}
-
-		/// <summary>
-		/// Подставляет номер для связи с водителем, если он присутствует в шаблоне уведомления
-		/// </summary>
-		private async Task<string> ApplyDriverPhoneAsync(
-			IUnitOfWork unitOfWork,
-			OnlineOrder onlineOrder,
-			Order order,
-			string text,
-			CancellationToken cancellationToken)
-		{
-			if(!text.Contains(NotificationTemplates.DriverPhone))
-			{
-				return text;
-			}
-
-			var erpOrderId = order?.Id ?? onlineOrder?.Orders?.FirstOrDefault()?.Id;
-
-			var driverPhone = erpOrderId.HasValue
-				? await _driverContactNumberProvider.GetDriverContactNumberAsync(unitOfWork, erpOrderId.Value, cancellationToken)
-				: null;
-
-			return text.Replace(NotificationTemplates.DriverPhone, driverPhone ?? string.Empty);
 		}
 
 		private async Task<string> ApplyDeliveryCompletedAsync(

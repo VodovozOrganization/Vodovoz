@@ -30,7 +30,9 @@ namespace CustomerOnlineOrdersUpdater
 				.AddHostedService<CustomerOnlineOrdersUpdateWorker>()
 
 				// Уведомления клиентов
-				.AddCustomerNotifications()
+				.AddCustomerNotificationsSettingsProvider()
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				;
 
 			return services;

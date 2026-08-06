@@ -20,25 +20,6 @@ public static class DependencyInjection
 	}
 
 	/// <summary>
-	/// Регистрирует публикацию уведомлений клиентам.
-	/// Используется в приложениях, которые не публикуют события,
-	/// требующие резервной отправки смс уведомлений
-	/// </summary>
-	public static IServiceCollection AddCustomerNotifications(
-		this IServiceCollection services)
-	{
-		services
-			.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>,
-				MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
-			.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>,
-				CustomerNotificationsIntegrationEventBuilder>()
-			.AddScoped<IDriverContactNumberProvider, DriverContactNumberProvider>()
-			.AddCustomerNotificationsSettingsProvider();
-
-		return services;
-	}
-
-	/// <summary>
 	/// Регистрирует публикацию уведомлений клиентам с резервной отправкой смс уведомлений,
 	/// если событие не может быть отправлено по причине отсутствия внешнего пользователя у клиента
 	/// </summary>

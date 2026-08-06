@@ -95,7 +95,9 @@ namespace CustomerOnlineOrdersRegistrar
 							busConf.ConfigureRabbitMq();
 						})
 
-						.AddCustomerNotifications()
+						.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+						.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+						.AddCustomerNotificationsSettingsProvider()
 						;
 
 					services.AddStaticScopeForEntity();
