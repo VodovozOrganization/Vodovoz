@@ -59,6 +59,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Sms
 			DiscriminatorValue(nameof(SmsNotificationType.CourierOnTheWay));
 			References(x => x.Order).Column("order_id");
 			References(x => x.Counterparty).Column("counterparty_id");
+			References(x => x.Driver).Column("driver_id");
 		}
 	}
 }

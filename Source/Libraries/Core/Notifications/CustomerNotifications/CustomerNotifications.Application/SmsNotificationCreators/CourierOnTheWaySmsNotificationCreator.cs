@@ -4,15 +4,14 @@ using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Services;
@@ -30,20 +29,12 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 		/// </summary>
 		private static readonly TimeSpan _notificationLifetime = TimeSpan.FromHours(1);
 
-		/// <summary>
-		/// Заказы, по которым смс уведомление уже создано в рамках Unit Of Work.
-		/// Нужен потому, что сессия работает в режиме FlushMode.Commit
-		/// и запрос в базу не видит ещё не закоммиченные уведомления,
-		/// а событие по одному заказу может публиковаться несколько раз в одной транзакции
-		/// </summary>
-		private readonly ConditionalWeakTable<IUnitOfWork, HashSet<int>> _ordersWithCreatedNotification =
-			new ConditionalWeakTable<IUnitOfWork, HashSet<int>>();
-
 		private readonly ILogger<CourierOnTheWaySmsNotificationCreator> _logger;
 		private readonly ISmsNotifierSettings _smsNotifierSettings;
 		private readonly ISmsNotificationRepository _smsNotificationRepository;
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IDriverContactNumberProvider _driverContactNumberProvider;
 
 		public CourierOnTheWaySmsNotificationCreator(
@@ -52,6 +43,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			ISmsNotificationRepository smsNotificationRepository,
 			IExternalCounterpartyRepository externalCounterpartyRepository,
 			IOrderRepository orderRepository,
+			IEmployeeRepository employeeRepository,
 			IDriverContactNumberProvider driverContactNumberProvider)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -59,6 +51,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			_smsNotificationRepository = smsNotificationRepository ?? throw new ArgumentNullException(nameof(smsNotificationRepository));
 			_externalCounterpartyRepository = externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_driverContactNumberProvider = driverContactNumberProvider ?? throw new ArgumentNullException(nameof(driverContactNumberProvider));
 		}
 
@@ -127,7 +120,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 
 			var mobilePhoneNumber = GetMobilePhoneNumber(order);
 
-			if(mobilePhoneNumber is null)
+			if(string.IsNullOrWhiteSpace(mobilePhoneNumber))
 			{
 				_logger.LogInformation(
 					"У заказа {OrderId} не указан корректный мобильный номер для связи, "
@@ -137,19 +130,26 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 				return;
 			}
 
-			var ordersWithCreatedNotification = _ordersWithCreatedNotification.GetOrCreateValue(unitOfWork);
+			var driver = await _employeeRepository.GetDriverByOrderId(unitOfWork, orderId, cancellationToken);
 
-			if(ordersWithCreatedNotification.Contains(orderId)
-				|| _smsNotificationRepository.HasCourierOnTheWaySmsNotification(unitOfWork, orderId))
+			if(driver is null)
+			{
+				_logger.LogWarning(
+					"По заказу {OrderId} не найден назначенный курьер, смс уведомление о том, что курьер в пути, не создаётся",
+					orderId);
+				return;
+			}
+
+			if(_smsNotificationRepository.HasCourierOnTheWaySmsNotification(unitOfWork, orderId, driver.Id))
 			{
 				_logger.LogInformation(
-					"По заказу {OrderId} смс уведомление о том, что курьер в пути, уже создавалось, повторное не создаётся",
-					orderId);
+					"По заказу {OrderId} смс уведомление о том, что курьер в пути по водителю {DriverId}, уже создавалось, повторное не создаётся",
+					orderId,
+					driver.Id);
 
 				return;
 			}
 
-			//получение текста сообщения
 			var messageText = _smsNotifierSettings.CourierOnTheWaySmsTextTemplate;
 
 			if(string.IsNullOrWhiteSpace(messageText))
@@ -165,7 +165,6 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			var driverPhone =
 				await _driverContactNumberProvider.GetDriverContactNumberAsync(unitOfWork, orderId, cancellationToken);
 
-			//формирование текста сообщения
 			const string orderIdVariable = "$order_id$";
 			const string driverPhoneVariable = "$driver_phone$";
 
@@ -179,6 +178,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			{
 				Order = order,
 				Counterparty = order.Client,
+				Driver = driver,
 				MobilePhone = mobilePhoneNumber,
 				MessageText = messageText,
 				Status = SmsNotificationStatus.New,
@@ -187,8 +187,6 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			};
 
 			await unitOfWork.SaveAsync(smsNotification, cancellationToken: cancellationToken);
-
-			ordersWithCreatedNotification.Add(orderId);
 
 			_logger.LogInformation(
 				"Создано смс уведомление о том, что курьер в пути, по заказу {OrderId} на номер {MobilePhoneNumber}",

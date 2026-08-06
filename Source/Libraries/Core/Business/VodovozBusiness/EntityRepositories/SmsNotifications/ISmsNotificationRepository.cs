@@ -14,7 +14,8 @@ namespace Vodovoz.EntityRepositories.SmsNotifications
 		/// Создавалось ли ранее смс уведомление о том, что курьер в пути, по указанному заказу
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="orderId">Код заказа</param>
-		bool HasCourierOnTheWaySmsNotification(IUnitOfWork uow, int orderId);
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="driverId">Идентификатор водителя</param>
+		bool HasCourierOnTheWaySmsNotification(IUnitOfWork uow, int orderId, int driverId);
 	}
 }

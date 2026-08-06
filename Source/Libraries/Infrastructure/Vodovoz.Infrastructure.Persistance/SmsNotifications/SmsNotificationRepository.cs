@@ -30,10 +30,10 @@ namespace Vodovoz.Infrastructure.Persistance.SmsNotifications
 		}
 
 		/// <inheritdoc/>
-		public bool HasCourierOnTheWaySmsNotification(IUnitOfWork uow, int orderId)
+		public bool HasCourierOnTheWaySmsNotification(IUnitOfWork uow, int orderId, int driverId)
 		{
 			return uow.Session.Query<CourierOnTheWaySmsNotification>()
-				.Any(x => x.Order.Id == orderId);
+				.Any(x => x.Order.Id == orderId && x.Driver.Id == driverId);
 		}
 	}
 }

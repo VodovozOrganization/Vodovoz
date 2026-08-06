@@ -1,8 +1,9 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Sms
@@ -19,6 +20,7 @@ namespace Vodovoz.Domain.Sms
 	{
 		private Order _order;
 		private Counterparty _counterparty;
+		private Employee _driver;
 
 		/// <summary>
 		/// Тип смс уведомления
@@ -41,6 +43,15 @@ namespace Vodovoz.Domain.Sms
 		public virtual Counterparty Counterparty {
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
+		}
+
+		/// <summary>
+		/// Водитель, по которому создано смс уведомление
+		/// </summary>
+		[Display(Name = "Водитель")]
+		public virtual Employee Driver {
+			get => _driver;
+			set => SetField(ref _driver, value);
 		}
 	}
 }
