@@ -77,13 +77,13 @@ namespace Edo.Transport
 			switch(edoTask)
 			{
 				case DocumentEdoTask documentTask:
-					await PublishDocumentResumeEvent(documentTask, cancellationToken);
+					await PublishDocumentCreatedEvent(documentTask, cancellationToken);
 					break;
 				case TenderEdoTask tenderTask:
-					await PublishTenderResumeEvent(tenderTask, cancellationToken);
+					await PublishTenderCreatedEvent(tenderTask, cancellationToken);
 					break;
 				case ReceiptEdoTask receiptTask:
-					await PublishReceiptResumeEvent(receiptTask, cancellationToken);
+					await PublishReceiptCreatedEvent(receiptTask, cancellationToken);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(
@@ -91,7 +91,7 @@ namespace Edo.Transport
 			}
 		}
 
-		private async Task PublishDocumentResumeEvent(DocumentEdoTask edoTask, CancellationToken cancellationToken)
+		private async Task PublishDocumentCreatedEvent(DocumentEdoTask edoTask, CancellationToken cancellationToken)
 		{
 			if(edoTask.Stage != DocumentEdoTaskStage.New)
 			{
@@ -111,7 +111,7 @@ namespace Edo.Transport
 			await _bus.Publish(new DocumentTaskCreatedEvent { Id = edoTask.Id }, cancellationToken);
 		}
 
-		private async Task PublishTenderResumeEvent(TenderEdoTask edoTask, CancellationToken cancellationToken)
+		private async Task PublishTenderCreatedEvent(TenderEdoTask edoTask, CancellationToken cancellationToken)
 		{
 			if(edoTask.Stage != TenderEdoTaskStage.New)
 			{
@@ -131,7 +131,7 @@ namespace Edo.Transport
 			await _bus.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
 		}
 
-		private async Task PublishReceiptResumeEvent(ReceiptEdoTask edoTask, CancellationToken cancellationToken)
+		private async Task PublishReceiptCreatedEvent(ReceiptEdoTask edoTask, CancellationToken cancellationToken)
 		{
 			if(edoTask.ReceiptStatus != EdoReceiptStatus.New)
 			{

@@ -21,7 +21,6 @@ namespace Vodovoz.ViewModels.Edo
 			Status = documentNode.TaskStatus;
 			StatusString = Status.GetEnumTitle();
 			EdoDocumentStatus = documentNode.EdoDocumentStatus;
-			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
 			DocumentType = MatchDocumentType(documentNode);
 			DocumentTypeString = DocumentType.GetEnumTitle();
 			DocumentGroupType = MatchDocumentsByGroupType(DocumentType);

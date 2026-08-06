@@ -607,6 +607,43 @@ namespace EdoService.Library
 			}
 		}
 
+		public Result RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var task = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
+				if(task == null)
+				{
+					return Result.Failure(new Error("ReceiptEdoTaskNotFound",
+						$"ЭДО задача №{receiptEdoTaskId} на отправку чека не найдена, " +
+						$"обратитесь в техподдержку"));
+				}
+
+				if(task.Status != EdoTaskStatus.Problem)
+				{
+					return Result.Failure(new Error("ReceiptEdoTaskDontHaveProblem",
+						$"ЭДО задача №{receiptEdoTaskId} на отправку чека не имеет нерешенных проблем для переобработки."
+					));
+				}
+
+				if(task.ReceiptStatus != EdoReceiptStatus.New)
+				{
+					return Result.Failure(new Error("ReceiptEdoTaskCantRehandleProblemInCurrentStage",
+						$"Для ЭДО задачи №{receiptEdoTaskId} на отправку чека " +
+						$"в стадии {task.ReceiptStatus.GetEnumTitle()} не доступна переобработка проблемы."
+					));
+				}
+
+				var message = new ReceiptTaskCreatedEvent
+				{
+					ReceiptEdoTaskId = receiptEdoTaskId,
+				};
+				_bus.Publish(message);
+
+				return Result.Success();
+			}
+		}
+
 		private void CreateEventForEdoTaskCancellation(EdoTask edoTask)
 		{
 			var message = new RequestDocflowCancellationEvent
