@@ -23,10 +23,12 @@ namespace Vodovoz.Core.Domain.Mango
 	{
 		private int _id;
 		private int _driverId;
-		private uint? _extensionNumber;
+		private int? _extensionNumber;
+		private long? _mangoUserId;
 		private DriverMangoExtensionNumberStatus _status;
 		private DateTime _activatedAt;
 		private DateTime? _deactivatedAt;
+		private DriverMangoEmployeeRegistrationRequest _request;
 
 		/// <summary>
 		/// Код
@@ -52,14 +54,24 @@ namespace Vodovoz.Core.Domain.Mango
 		/// Добавочный номер
 		/// </summary>
 		[Display(Name = "Добавочный номер")]
-		public virtual uint? ExtensionNumber
+		public virtual int? ExtensionNumber
 		{
 			get => _extensionNumber;
 			set => SetField(ref _extensionNumber, value);
 		}
 
 		/// <summary>
-		/// Добавочный номер
+		/// Идентификатор сотрудника в системе Манго
+		/// </summary>
+		[Display(Name = "Идентификатор сотрудника Манго")]
+		public virtual long? MangoUserId
+		{
+			get => _mangoUserId;
+			set => SetField(ref _mangoUserId, value);
+		}
+
+		/// <summary>
+		/// Статус
 		/// </summary>
 		[Display(Name = "Статус")]
 		public virtual DriverMangoExtensionNumberStatus Status
@@ -86,6 +98,16 @@ namespace Vodovoz.Core.Domain.Mango
 		{
 			get => _deactivatedAt;
 			set => SetField(ref _deactivatedAt, value);
+		}
+
+		/// <summary>
+		/// Заявка на регистрацию сотрудника Манго, в рамках которой был создан добавочный номер
+		/// </summary>
+		[Display(Name = "Заявка на регистрацию сотрудника Манго")]
+		public virtual DriverMangoEmployeeRegistrationRequest Request
+		{
+			get => _request;
+			set => SetField(ref _request, value);
 		}
 	}
 }

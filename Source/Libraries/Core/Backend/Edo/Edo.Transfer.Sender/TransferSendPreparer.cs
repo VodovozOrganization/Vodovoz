@@ -1,23 +1,18 @@
-﻿using Edo.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
-using OneOf.Types;
 using QS.DomainModel.UoW;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Core.Data.Repositories.Document;
-using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 
 namespace Edo.Transfer.Sender
@@ -26,32 +21,29 @@ namespace Edo.Transfer.Sender
 	{
 		private readonly ILogger<TransferSendPreparer> _logger;
 		private readonly IUnitOfWork _uow;
-		private readonly TransferTaskRepository _transferTaskRepository;
+		private readonly ITransferTaskRepository _transferTaskRepository;
+		private readonly ITransferOrderHeaderPreparer _transferOrderHeaderPreparer;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
-		private readonly IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository;
-		private readonly IOrganizationRepository _organizationRepository;
 
 		public TransferSendPreparer(
 			ILogger<TransferSendPreparer> logger,
 			IUnitOfWork uow,
-			TransferTaskRepository transferTaskRepository,
+			ITransferTaskRepository transferTaskRepository,
+			ITransferOrderHeaderPreparer transferOrderHeaderPreparer,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			EdoProblemRegistrar edoProblemRegistrar,
-			IBus messageBus,
-			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository,
-			IOrganizationRepository organizationRepository
+			IBus messageBus
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_transferTaskRepository = transferTaskRepository ?? throw new ArgumentNullException(nameof(transferTaskRepository));
+			_transferOrderHeaderPreparer = transferOrderHeaderPreparer ?? throw new ArgumentNullException(nameof(transferOrderHeaderPreparer));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-			_documentOrganizationCounterRepository = documentOrganizationCounterRepository ?? throw new ArgumentNullException(nameof(documentOrganizationCounterRepository));
-			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 		}
 
 		public async Task PrepareSendAsync(
@@ -138,29 +130,18 @@ namespace Edo.Transfer.Sender
 				return;
 			}
 
-			var seller = await _organizationRepository.GetOrganizationByIdAsync(transferEdoTask.FromOrganizationId);
-			var customer = await _organizationRepository.GetOrganizationByIdAsync(transferEdoTask.ToOrganizationId);
+			var transferOrderResult = await _transferOrderHeaderPreparer.PrepareAsync(transferEdoTask, cancellationToken);
 
-			var transferDocument = await CreateTransferDocumentOrganizationCounterAsync(transferEdoTask.StartTime.Value, seller, cancellationToken);
-			
-			var transferOrderResult = TransferOrder.Create(
-				transferEdoTask.StartTime.Value,
-				seller,
-				customer,
-				transferDocument);
-
-			var transferOrder = transferOrderResult.Match(
-				to => to,
-				async errors => await _edoProblemRegistrar
-					.RegisterCustomProblem<EdoTransferTaskProblemCreateSource>(
-						transferEdoTask,
-						cancellationToken,
-						string.Join(", ", errors.Select(e => e.Message))));
-
-			if(transferOrder == null)
+			if(transferOrderResult.IsFailure)
 			{
+				await _edoProblemRegistrar.RegisterCustomProblem<EdoTransferTaskProblemCreateSource>(
+					transferEdoTask,
+					cancellationToken,
+					string.Join(", ", transferOrderResult.Errors.Select(e => e.Message)));
 				return;
 			}
+
+			var transferOrder = transferOrderResult.Value;
 		
 			var transferRequests = await _uow.Session.QueryOver<TransferEdoRequest>()
 				.Fetch(SelectMode.Fetch, x => x.Iteration)
@@ -428,25 +409,6 @@ namespace Edo.Transfer.Sender
 			return nomenclature;
 		}
 		
-		private async Task<DocumentOrganizationCounter> CreateTransferDocumentOrganizationCounterAsync(DateTime transferDate, OrganizationEntity seller, CancellationToken cancellationToken)
-		{
-			var lastDocument = await _documentOrganizationCounterRepository
-				.GetMaxDocumentOrganizationCounterOnYearAsync(_uow, transferDate, seller, cancellationToken);
-			var documentCounter = (lastDocument?.Counter ?? 0) + 1;
-			
-			var transferDocumentOrganization = new DocumentOrganizationCounter
-			{
-				Organization = seller,
-				Counter = documentCounter,
-				CounterDateYear = transferDate.Year,
-				DocumentNumber = DocumentNumberBuilder.BuildDocumentNumber(seller, transferDate, documentCounter),
-			};
-
-			await _uow.SaveAsync(transferDocumentOrganization, cancellationToken: cancellationToken);
-			
-			return transferDocumentOrganization;
-		}
-
 		public void Dispose()
 		{
 			_uow?.Dispose();

@@ -1,6 +1,7 @@
 ﻿using Gamma.Utilities;
 using QS.ViewModels;
 using System;
+using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
@@ -19,13 +20,15 @@ namespace Vodovoz.ViewModels.Edo
 			SourceString = Source.GetEnumTitle();
 			Status = documentNode.TaskStatus;
 			StatusString = Status.GetEnumTitle();
-			CodesQuantity = documentNode.CodesQuantity;
-			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
+			EdoDocumentStatus = documentNode.EdoDocumentStatus;
 			DocumentType = MatchDocumentType(documentNode);
 			DocumentTypeString = DocumentType.GetEnumTitle();
 			DocumentGroupType = MatchDocumentsByGroupType(DocumentType);
 			DocumentGroupTypeString = DocumentGroupType.GetEnumTitle();
+			CodesQuantity = GetCodesQuantity();
+			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
 		}
+
 		public EdoInOrderDocumentNode Document { get; }
 
 		public virtual EdoInOrderDocumentGroupType DocumentGroupType { get; }
@@ -40,12 +43,31 @@ namespace Vodovoz.ViewModels.Edo
 		public virtual EdoTaskStatus Status { get; }
 		public virtual string StatusString { get; }
 
+		public virtual EdoDocumentStatus? EdoDocumentStatus { get; }
+		public virtual string EdoDocumentStatusString => EdoDocumentStatus?.GetEnumTitle() ?? string.Empty;
+
 		public virtual EdoInOrderDocumentType DocumentType { get; }
 		public virtual string DocumentTypeString { get; }
 
 		public virtual int? CodesQuantity { get; }
 		public virtual string CodesQuantityString { get; }
 
+		private int? GetCodesQuantity()
+		{
+			var primaryDocuments = new[]
+			{
+				EdoInOrderDocumentType.Upd,
+				EdoInOrderDocumentType.Receipt,
+				EdoInOrderDocumentType.Tender
+			};
+
+			if(primaryDocuments.Contains(DocumentType))
+			{
+				return Document.CodesInRequest;
+			}
+
+			return Document.CodesUsedInTask;
+		}
 
 		private EdoInOrderDocumentType MatchDocumentType(EdoInOrderDocumentNode document)
 		{
@@ -98,8 +120,6 @@ namespace Vodovoz.ViewModels.Edo
 					return EdoInOrderDocumentGroupType.Primary;
 				case EdoInOrderDocumentType.Withdrawal:
 					return EdoInOrderDocumentGroupType.Withdrawal;
-				case EdoInOrderDocumentType.Bill:
-					return EdoInOrderDocumentGroupType.Bill;
 				default:
 					throw new NotSupportedException($"Не поддерживается отправка документа: {edoInOrderDocumentType}.");
 			}

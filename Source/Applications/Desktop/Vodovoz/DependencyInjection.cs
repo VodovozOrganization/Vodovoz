@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using CustomerNotifications.Application.Builders;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
@@ -248,7 +248,6 @@ namespace Vodovoz
 				.AddTransient<EntityModelFactory>()
 
 				.AddPacs()
-				.AddScoped<MessageService>()
 				.AddSingleton<EntityToJournalMappings>()
 				.AddScoped<EntityJournalOpener>()
 
@@ -269,7 +268,7 @@ namespace Vodovoz
 				.AddScoped<ISalesReportService, SalesReportService>()
 				.AddOrderEdoCodePoolMissingProblem()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				.AddCustomerNotificationsSettingsProvider();
 
 			services.AddScoped<IEdoRequestCreatedEventPublisher, EdoRequestCreatedEventPublisher>();

@@ -837,36 +837,44 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return null;
 		}
 
-		public decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null)
+		public decimal GetCounterpartyDebt(
+			IUnitOfWork uow, int counterpartyId, int? organizationId = null, bool includeOrdersWithoutOrganization = false)
 		{
 			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
-				uow, counterpartyId, organizationId: organizationId);
+				uow, counterpartyId, organizationId: organizationId, includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 			
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
-				uow, counterpartyId, organizationId: organizationId);
+				uow, counterpartyId, organizationId: organizationId, includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
 
-		public decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null)
+		public decimal GetCounterpartyWaitingForPaymentOrdersDebt(
+			IUnitOfWork uow, int counterpartyId, int? organizationId = null, bool includeOrdersWithoutOrganization = false)
 		{
 			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
 				uow,
 				counterpartyId,
 				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
 				uow,
 				counterpartyId,
 				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
 
 		public decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(
-			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null)
+			IUnitOfWork uow,
+			int counterpartyId,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false)
 		{
 			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
@@ -875,20 +883,26 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
 				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
 				uow,
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
 				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
 
 		public decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(
-			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null)
+			IUnitOfWork uow,
+			int counterpartyId,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false)
 		{
 			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
@@ -897,14 +911,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
 				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
 				uow,
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
 				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
@@ -916,12 +932,14 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IEnumerable<int> includeDeliveryScheduleIds = null,
 			IEnumerable<OrderStatus> excludeOrderStatuses = null,
 			IEnumerable<int> excludeDeliveryScheduleIds = null,
-			int? organizationId = null)
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract contractAlias = null;
+			Organization organisationAlias = null;
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
@@ -963,7 +981,18 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			{
 				query
 					.Left.JoinAlias(() => orderAlias.Contract, () => contractAlias)
-					.Where(() => contractAlias.Organization.Id == organizationId);
+					.Left.JoinAlias(() => contractAlias.Organization, () => organisationAlias);
+
+				if(includeOrdersWithoutOrganization)
+				{
+					query.And(Restrictions.Or(
+						Restrictions.Where(() => organisationAlias.Id == organizationId),
+						Restrictions.IsNull(Projections.Property(() => organisationAlias.Id))));
+				}
+				else
+				{
+					query.And(() => organisationAlias.Id == organizationId);
+				}
 			}
 
 			var total = query
@@ -980,13 +1009,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IEnumerable<int> includeDeliveryScheduleIds = null,
 			IEnumerable<OrderStatus> excludeOrderStatuses = null,
 			IEnumerable<int> excludeDeliveryScheduleIds = null,
-			int? organizationId = null)
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false)
 		{
 			VodovozOrder orderAlias = null;
 			Counterparty counterpartyAlias = null;
 			PaymentItem paymentItemAlias = null;
 			CashlessMovementOperation cashlessMovOperationAlias = null;
 			CounterpartyContract contractAlias = null;
+			Organization organisationAlias = null;
 
 			var query = uow.Session.QueryOver(() => paymentItemAlias)
 				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovOperationAlias)
@@ -1030,7 +1061,18 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			{
 				query
 					.Left.JoinAlias(() => orderAlias.Contract, () => contractAlias)
-					.Where(() => contractAlias.Organization.Id == organizationId);
+					.Left.JoinAlias(() => contractAlias.Organization, () => organisationAlias);
+
+				if(includeOrdersWithoutOrganization)
+				{
+					query.And(Restrictions.Or(
+						Restrictions.Where(() => organisationAlias.Id == organizationId),
+						Restrictions.IsNull(Projections.Property(() => organisationAlias.Id))));
+				}
+				else
+				{
+					query.And(() => organisationAlias.Id == organizationId);
+				}
 			}
 
 			var totalPaymentsSum = query
@@ -3532,6 +3574,90 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 								   select orderItem.ActualCount ?? orderItem.Count)
 								   .Sum() ?? 0
 				};
+		}
+
+		public async Task<IList<LastServiceOrderNode>> GetCounterpartiesLastServiceOrdersDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> serviceNomenclatureIds,
+			IEnumerable<OrderStatus> orderStatuses,
+			DateTime minLastOrderDeliveryDate,
+			DateTime maxLastOrderDeliveryDate,
+			CancellationToken cancellationToken)
+		{
+			var nomenclatureIds = serviceNomenclatureIds.ToArray();
+			var statuses = orderStatuses.ToArray();
+
+			var query =
+				from order in GetCompletedServiceOrders(uow, nomenclatureIds, statuses)
+				join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id into phones
+				from phone in phones.DefaultIfEmpty()
+				where
+					order.DeliveryDate >= minLastOrderDeliveryDate
+					&& order.DeliveryDate <= maxLastOrderDeliveryDate
+					&& !uow.Session.Query<LastServiceOrder>().Any(lastServiceOrder =>
+						lastServiceOrder.LastOrderId == order.Id)
+					&& !uow.Session.Query<VodovozOrder>().Any(laterOrder =>
+						laterOrder.Client.Id == order.Client.Id
+						&& statuses.Contains(laterOrder.OrderStatus)
+						&& (laterOrder.DeliveryDate > order.DeliveryDate
+							|| (laterOrder.DeliveryDate == order.DeliveryDate && laterOrder.Id > order.Id))
+						&& uow.Session.Query<OrderItem>().Any(orderItem =>
+							orderItem.Order.Id == laterOrder.Id
+							&& nomenclatureIds.Contains(orderItem.Nomenclature.Id)))
+				select new LastServiceOrderNode
+				{
+					OrderId = order.Id,
+					CounterpartyId = order.Client.Id,
+					DeliveryPointId = order.DeliveryPoint.Id == null ? (int?)null : order.DeliveryPoint.Id,
+					IsSelfDelivery = order.SelfDelivery,
+					DeliveryDate = order.DeliveryDate,
+					ContactPhoneNumber = phone.Number
+				};
+
+			return await query
+				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<int>> GetCounterpartyIdsWithUpcomingServiceOrdersAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			DateTime fromDeliveryDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			IEnumerable<int> serviceNomenclatureIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = counterpartyIds.ToArray();
+			var nomenclatureIds = serviceNomenclatureIds.ToArray();
+
+			var query =
+				(from order in GetUpcomingOrders(uow, fromDeliveryDate, excludeOrderStatuses)
+				 where
+					 ids.Contains(order.Client.Id)
+					 && uow.Session.Query<OrderItem>().Any(orderItem =>
+						 orderItem.Order.Id == order.Id
+						 && nomenclatureIds.Contains(orderItem.Nomenclature.Id))
+				 select order.Client.Id)
+				.Distinct();
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		private IQueryable<VodovozOrder> GetCompletedServiceOrders(
+			IUnitOfWork uow,
+			int[] serviceNomenclatureIds,
+			OrderStatus[] orderStatuses)
+		{
+			return
+				from order in uow.Session.Query<VodovozOrder>()
+				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
+				where
+					orderStatuses.Contains(order.OrderStatus)
+					&& order.DeliveryDate != null
+					&& !counterparty.IsArchive
+					&& uow.Session.Query<OrderItem>().Any(orderItem =>
+						orderItem.Order.Id == order.Id
+						&& serviceNomenclatureIds.Contains(orderItem.Nomenclature.Id))
+				select order;
 		}
 
 		public async Task<IDictionary<int, decimal>> GetCounterpartiesCashlessDebtsAsync(

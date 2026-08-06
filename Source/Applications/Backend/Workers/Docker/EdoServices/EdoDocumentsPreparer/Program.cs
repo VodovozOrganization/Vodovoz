@@ -58,7 +58,7 @@ namespace EdoDocumentsPreparer
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
-						.ConfigureZabbixSenderFromDataBase(nameof(EdoDocumentsPreparerWorker));
+						.ConfigureZabbixSenderFromDataBase();
 						;
 
 					services.AddStaticScopeForEntity();

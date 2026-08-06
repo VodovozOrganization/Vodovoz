@@ -48,8 +48,16 @@ namespace Vodovoz.Views.Edo
 		{
 			DeleteButtons();
 
+			if(ViewModel.SelectedDocument == null)
+			{
+				ylabelNotSelected.LabelProp = "Выберите документ";
+				ylabelNotSelected.Visible = true;
+				return;
+			}
+
 			if(!ViewModel.Actions.Any())
 			{
+				ylabelNotSelected.LabelProp = "Для выбранного документа нет доступных действий";
 				ylabelNotSelected.Visible = true;
 				return;
 			}
@@ -57,7 +65,7 @@ namespace Vodovoz.Views.Edo
 			foreach(var action in ViewModel.Actions.Reverse())
 			{
 				var button = new yButton();
-				button.Label = action.Name;
+				button.Label = action.Text;
 				button.BindCommand(action);
 				yhboxButtons.PackStart(button, false, false, 1);
 				button.ShowAll();

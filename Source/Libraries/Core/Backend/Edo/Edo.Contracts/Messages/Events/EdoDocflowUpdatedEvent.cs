@@ -23,7 +23,7 @@ namespace Edo.Contracts.Messages.Events
 		/// Общий статус документооборота
 		/// </summary>
 		public string DocFlowStatus { get; set; }
-		
+
 		/// <summary>
 		/// Статус прослеживаемости в ЧЗ
 		/// </summary>
@@ -33,5 +33,10 @@ namespace Edo.Contracts.Messages.Events
 		/// Время обновления статуса документооборота
 		/// </summary>
 		public DateTime? StatusChangeTime { get; set; }
+
+		/// <summary>
+		/// Доставлено
+		/// </summary>
+		public bool IsReceived { get; set; }
 	}
 }

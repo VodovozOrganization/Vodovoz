@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Settings.Common;
@@ -88,6 +89,7 @@ namespace FastPaymentEventsSender
 				if(totalRecords >= _criticalEventsCountThreshold)
 				{
 					await _zabbixSender.SendProblemMessageAsync(
+						nameof(FastPaymentEventsProcessor),
 						ZabixSenderMessageType.Problem,
 						"Не обрабатываются события изменения статуса оплаты",
 						stoppingToken);
@@ -106,7 +108,7 @@ namespace FastPaymentEventsSender
 					{
 						/*т.к. теоретически может быть несколько событий по одному быстрому платежу,
 						 то отправляем последнее, а всем остальным проставляем не отправку*/
-						if(i == groupedCount - 1)
+						if(i == groupedCount - 1 && @event.FastPaymentStatus != FastPaymentStatus.Refund)
 						{
 							await notifier.NotifyPaymentStatusChangeAsync(@event);
 						}
@@ -116,15 +118,17 @@ namespace FastPaymentEventsSender
 							@event.HttpCode = 0;
 						}
 						
-						await uow.SaveAsync(@event);
-						await uow.CommitAsync();
+						await uow.SaveAsync(@event, cancellationToken: stoppingToken);
+						await uow.CommitAsync(stoppingToken);
 						i++;
 					}
+					
+					_logger.LogInformation("Осталось уведомлений: {ChangedStatusEventsCount}", --eventsCount);
 				}
 
 				if(totalRecords < _criticalEventsCountThreshold)
 				{
-					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+					await _zabbixSender.SendIsHealthyAsync(nameof(FastPaymentEventsProcessor), stoppingToken);
 				}
 			}
 			catch(Exception ex)
@@ -132,6 +136,7 @@ namespace FastPaymentEventsSender
 				_logger.LogError(ex, "Произошла ошибка при обработке событий изменения статуса оплаты");
 
 				await _zabbixSender.SendProblemMessageAsync(
+					nameof(FastPaymentEventsProcessor),
 					ZabixSenderMessageType.Problem,
 					$"Произошла ошибка при обработке событий изменения статуса оплат {ex}",
 					stoppingToken);

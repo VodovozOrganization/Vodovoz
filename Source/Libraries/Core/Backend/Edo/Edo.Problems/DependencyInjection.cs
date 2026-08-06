@@ -4,6 +4,7 @@ using Edo.Problems.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
+using System;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Domain.Controllers;
@@ -15,6 +16,7 @@ namespace Edo.Problems
 		public static IServiceCollection AddEdoProblemRegistration(this IServiceCollection services)
 		{
 			services.TryAddScoped<IUnitOfWork>(x => x.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+			services.RemoveAll(typeof(IReceiptContactProblemSource));
 
 			services
 				.AddCustomProblemSourcesFromAssembly()
@@ -45,6 +47,7 @@ namespace Edo.Problems
 			foreach(var validatorType in validatorTypes)
 			{
 				services.AddSingleton(typeof(EdoTaskProblemCustomSource), validatorType);
+				AddReceiptContactProblemSource(services, validatorType);
 			}
 
 			return services;
@@ -61,6 +64,7 @@ namespace Edo.Problems
 			foreach(var validatorType in validatorTypes)
 			{
 				services.AddSingleton(typeof(EdoTaskProblemExceptionSource), validatorType);
+				AddReceiptContactProblemSource(services, validatorType);
 			}
 
 			return services;
@@ -77,9 +81,18 @@ namespace Edo.Problems
 			foreach(var validatorType in validatorTypes)
 			{
 				services.AddSingleton(typeof(IEdoTaskValidator), validatorType);
+				AddReceiptContactProblemSource(services, validatorType);
 			}
 
 			return services;
+		}
+
+		private static void AddReceiptContactProblemSource(IServiceCollection services, Type sourceType)
+		{
+			if(typeof(IReceiptContactProblemSource).IsAssignableFrom(sourceType))
+			{
+				services.AddSingleton(typeof(IReceiptContactProblemSource), sourceType);
+			}
 		}
 	}
 }

@@ -618,6 +618,16 @@ namespace FastPaymentsAPI.Controllers
 					_logger.LogError("Платеж с сессией: {Ticket} не найден в базе", ticket);
 					return new ReverseTicketResponseDTO("Не найден платеж в базе");
 				}
+				else if(fastPayment.FastPaymentStatus is FastPaymentStatus.Refund)
+				{
+					_logger.LogError("Платеж с сессией: {Ticket} уже возвращен", ticket);
+					return new ReverseTicketResponseDTO("Платёж уже возвращен");
+				}
+				else if(fastPayment.FastPaymentStatus is FastPaymentStatus.Rejected)
+				{
+					_logger.LogError("Платеж с сессией: {Ticket} отменен и не может быть возвращён", ticket);
+					return new ReverseTicketResponseDTO("Платёж отменен и не может быть возвращён");
+				}
 
 				_logger.LogInformation("Посылаем запрос в банк на возврат средств по сессии оплаты: {Ticket}", ticket);
 

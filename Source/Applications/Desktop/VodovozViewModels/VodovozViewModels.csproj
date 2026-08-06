@@ -99,16 +99,21 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderDocflowsStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentActionsViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentHistoryRowViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentGroupType.cs" />
     <Compile Include="Edo\EdoInOrderDocumentType.cs" />
     <Compile Include="Edo\EdoInOrderDocumentTypeViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderReceiptSendStageViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderReceiptViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderTaxcomDocflowViewModel.cs" />
     <Compile Include="Edo\EdoInOrderTransferRowViewModel.cs" />
     <Compile Include="Edo\EdoInOrderTransferStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderViewModel.cs" />
     <Compile Include="Edo\EdoInOrderProblemViewModel.cs" />
+    <Compile Include="Edo\EdoViewModel.cs" />
     <Compile Include="Employees\FineCategoryViewModel.cs" />
     <Compile Include="Factories\IVatRateVersionViewModelFactory.cs" />
     <Compile Include="Factories\VatRateVersionViewModelFactory.cs" />
@@ -121,6 +126,7 @@
     <Compile Include="Journals\JournalNodes\Banks\BanksJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoNotificationSettingJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrderForRouteListJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\BankAccountsMovementsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\NotAllocatedCounterpartiesJournalNode.cs" />
@@ -131,6 +137,7 @@
     <Compile Include="Journals\JournalViewModels\Cash\VatRateJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\EdoNotificationSettingJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OnlineOrderNotificationSettingJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FineCategoryJournalViewModel.cs" />
     <Compile Include="Journals\Nodes\Cash\VatRateJournalNode.cs" />
@@ -581,6 +588,7 @@
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.CodeToCheck.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.GtinFromNomenclatureDto.cs" />
     <Compile Include="ViewModels\Documents\SelfDeliveryCodesScan\CodesScanViewModel.cs" />
+    <Compile Include="ViewModels\Edo\EdoNotificationSettingViewModel.cs" />
     <Compile Include="ViewModels\Edo\TenderEdoViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\NomenclaturesForOrderJournalRestriction.cs" />
@@ -1067,6 +1075,17 @@
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.OrderItemNode.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportLastSaleDetails.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportGroupingType.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportDateType.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportOrderNode.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportClientHistoryNode.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportGroup.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportMetrics.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportDisplayRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportIndicatorDescriptions.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReport.ExcelExporter.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\SelectableParameterReportFilterSelectionChangedArgs.cs" />
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.cs" />
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.Row.cs" />
@@ -1088,6 +1107,7 @@
     <Compile Include="ViewModels\Service\ExportCashlessTo1cOperation.cs" />
     <Compile Include="ViewModels\Service\ExportTo1CViewModel.cs" />
     <Compile Include="ViewModels\Settings\EmployeeFixedPricesViewModel.cs" />
+    <Compile Include="ViewModels\Settings\ServiceNomenclaturesForBitrixDealsSettingsViewModel.cs" />
     <Compile Include="ViewModels\Settings\WarehousesSettingsViewModel.cs" />
     <Compile Include="ViewModels\Settings\NamedDomainEntitiesSettingsViewModelBase.cs" />
     <Compile Include="ViewModels\Settings\GeneralSettingsViewModel.cs" />
@@ -1403,9 +1423,13 @@
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
-      <Project>{CDDE0D70-E3C3-A1D6-147E-E805A70744E6}</Project>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
+      <Project>{c98a3f81-c25f-f282-46a3-fb51da0d98e2}</Project>
       <Name>CustomerNotifications.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\EdoNotifications\EdoNotifications.Contracts\EdoNotifications.Contracts.csproj">
+      <Project>{4851B429-7C79-8D8B-6299-DC1F6430111A}</Project>
+      <Name>EdoNotifications.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj">
       <Project>{F002AF1D-1958-EF09-F21A-0221E7874DE1}</Project>

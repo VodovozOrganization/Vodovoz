@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Edo.Contracts.Messages.Events;
+﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace Edo.Transport
 {

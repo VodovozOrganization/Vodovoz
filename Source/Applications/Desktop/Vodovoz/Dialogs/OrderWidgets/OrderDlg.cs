@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Core.Infrastructure;
 using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
@@ -104,7 +104,6 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Errors.Edo;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Errors.Orders;
 using Vodovoz.Extensions;
@@ -162,6 +161,7 @@ using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
+using VodovozBusiness.Errors.Edo;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.NotificationSenders;
@@ -2707,6 +2707,12 @@ namespace Vodovoz
 
 					if(_isNeedSendBillToEmail)
 					{
+						if(Entity.Id == 0)
+						{
+							// Пока не разберёмся с OrderDocument и OrderDocumentEntity
+							Entity.SaveEntity(UoW, _orderContractUpdater, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
+						}
+
 						_emailService.SendBillToEmail(UoW, Entity);
 					}
 					else if(needToResendBill)
@@ -3612,7 +3618,7 @@ namespace Vodovoz
 			edoForOrderViewModel.Setup(UoW, Entity.Id);
 			var reuseTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
 					this,
-					edoForOrderViewModel.OrderCodesViewModel,
+					edoInOrderViewModel.OrderCodesViewModel,
 					UoW,
 					NavigationManager,
 					_lifetimeScope)

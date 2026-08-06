@@ -12,10 +12,31 @@ namespace Vodovoz.Core.Data.Repositories
 		public int TaskId { get; set; }
 		public EdoTaskStatus TaskStatus { get; set; }
 		public EdoTaskType TaskType { get; set; }
-		public int? CodesQuantity { get; set; }
+
+		/// <summary>
+		/// Количество кодов, которые привязаны к заявке ЭДО.
+		/// </summary>
+		public int? CodesInRequest { get; set; }
+
+		/// <summary>
+		/// Количество кодов, которые использованы в задаче.
+		/// Это коды которые находяться в строках задачи.
+		/// </summary>
+		public int? CodesUsedInTask { get; set; }
+
 		public OrderDocumentType? InformalOrderDocumentType { get; set; }
 		public DocumentEdoTaskStage? TaskUpdStage { get; set; }
 		public EdoReceiptStatus? TaskReceiptStage { get; set; }
 		public TenderEdoTaskStage? TaskTenderStage { get; set; }
+
+		/// <summary>
+		/// Статус документа в ЭДО
+		/// </summary>
+		public EdoDocumentStatus? EdoDocumentStatus { get; set; }
+
+		/// <summary>
+		/// Описание ошибки
+		/// </summary>
+		public string ErrorDescription { get; set; }
 	}
 }

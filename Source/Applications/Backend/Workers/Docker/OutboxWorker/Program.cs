@@ -1,10 +1,7 @@
-﻿using CustomerNotifications.Transport;
-using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
+﻿using CustomerNotifications.Contracts;
 using Microsoft.Extensions.Hosting;
-using TransactionalOutbox.Abstractions;
-using TransactionalOutbox.Persistence;
 using NLog.Extensions.Logging;
+using Vodovoz.Zabbix.Sender;
 
 namespace OutboxWorker
 {
@@ -25,18 +22,16 @@ namespace OutboxWorker
 				})
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.Configure<CustomerNotificationTransportSettings>(hostContext.Configuration.GetSection("CustomerNotificationTransportSettings"));
+					services.AddOutboxWorker(
+						hostContext.Configuration,
+						contractAssemblies: new[]
+						{
+							typeof(CustomerNotificationIntegrationEvent).Assembly,
+							typeof(EdoNotifications.Contracts.AssemblyFinder).Assembly,
+						},
+						transportSectionName: "NotificationTransportSettings");
 
-					services.AddMassTransit(busConf =>
-					{
-						busConf.ConfigureCustomerNotificationsRabbitMq(services, hostContext.Configuration);
-
-					});
-
-					services.AddScoped<IOutboxRepository, OutboxRepository>();
-
-					services.AddHostedService<OutboxWorker>();
-
+					services.ConfigureZabbixSenderFromAppSettings(hostContext);
 				});
 	}
 }
