@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
 using EdoNotifications.Application.Factories;
 using EdoNotifications.Contracts;
@@ -18,7 +18,7 @@ namespace Edo.Problem.Routine.Services.CodeDuplicatedProblem
 	/// <summary>
 	/// Сервис обработки проблем с дубликатом кода в ЭДО
 	/// </summary>
-	public class CodeDuplicatedProblemService
+	public class CodeDuplicatedProblemService: ICodeDuplicatedProblemService
 	{
 		private const string _problemSourceName = "CodeDuplicatedException";
 
@@ -42,13 +42,6 @@ namespace Edo.Problem.Routine.Services.CodeDuplicatedProblem
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
-		/// <summary>
-		/// Обработчик задач с дубликатом кода в ЭДО
-		/// </summary>
-		/// <param name="unitOfWork">UnitOfWork</param>
-		/// <param name="minEdoTaskCreationTime">Минимальное время создания задачи ЭДО</param>
-		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns></returns>
 		public async Task ProcessProblemTasksAsync(IUnitOfWork unitOfWork, DateTime minEdoTaskCreationTime, CancellationToken cancellationToken)
 		{
 			var problemNodes = await _edoRepository.GetProblemEdoTasksForResume(

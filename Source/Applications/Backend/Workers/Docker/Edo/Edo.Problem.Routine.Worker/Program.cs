@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,13 +60,9 @@ namespace Edo.Problem.Routine.Worker
 
 					services
 						.AddHostedService<CodePoolMissingProblemWorker>();
-					services
-						.AddHostedService<CodeDuplicatedProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(CodeDuplicatedProblemWorker));
 
-					/*services
-						.AddHostedService<CodeDuplicatedProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(CodeDuplicatedProblemWorker));*/
+					services
+						.AddHostedService<CodeDuplicatedProblemWorker>();
 
 					services
 						.AddHostedService<ReceiptContactProblemWorker>();

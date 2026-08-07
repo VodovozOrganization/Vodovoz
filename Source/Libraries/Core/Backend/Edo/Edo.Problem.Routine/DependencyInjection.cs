@@ -89,7 +89,7 @@ namespace Edo.Problem.Routine
 		private static IServiceCollection AddCodeDuplicatedProblem(this IServiceCollection services)
 		{
 			services.ConfigureOptions<ConfigureCodeDuplicatedProblemWorkerOptions>();
-			services.AddScoped<CodeDuplicatedProblemService>();
+			services.AddScoped<ICodeDuplicatedProblemService, CodeDuplicatedProblemService>();
 
 			return services;
 		}
