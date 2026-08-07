@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
@@ -12,6 +6,12 @@ using NHibernate.Transform;
 using NHibernate.Type;
 using NLog;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
@@ -55,6 +55,17 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 					.OrderBy(g => g.Priority).Asc
 					.ListAsync(cancellationToken);
 
+				return result;
+			}
+		}
+
+		public async Task<GtinEntity> GetGtinByGtinNumberAsync(string gtinNumber, CancellationToken cancellationToken = default)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var result = await uow.Session.QueryOver<GtinEntity>()
+					.Where(g => g.GtinNumber == gtinNumber)
+					.SingleOrDefaultAsync(cancellationToken);
 				return result;
 			}
 		}
