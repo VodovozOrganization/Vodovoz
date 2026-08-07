@@ -795,6 +795,48 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
+		/// Предполагает ли форма оплаты заказа отправку чека
+		/// </summary>
+		public virtual bool IsSendingReceiptExpectedByPaymentType =>
+			CheckIsSendingReceiptExpectedByPaymentType(
+				Client?.ReasonForLeaving,
+				PaymentType,
+				PaymentByCardFrom?.ReceiptRequired);
+
+		/// <summary>
+		/// Предполагает ли форма оплаты заказа отправку чека
+		/// </summary>
+		/// <param name="reasonForLeaving">Цель приобретения воды клиентом по заказу</param>
+		/// <param name="paymentType">Форма оплаты заказа</param>
+		/// <param name="isReceiptRequiredForPaymentFrom">
+		/// Требуется ли чек для места, откуда проведена оплата. Имеет значение только для оплаты онлайн
+		/// </param>
+		/// <returns><see langword="true"/>, если форма оплаты предполагает отправку чека</returns>
+		protected bool CheckIsSendingReceiptExpectedByPaymentType(
+			ReasonForLeaving? reasonForLeaving,
+			PaymentType paymentType,
+			bool? isReceiptRequiredForPaymentFrom)
+		{
+			if(reasonForLeaving == ReasonForLeaving.Tender)
+			{
+				return false;
+			}
+
+			switch(paymentType)
+			{
+				case PaymentType.Cash:
+				case PaymentType.Terminal:
+				case PaymentType.DriverApplicationQR:
+				case PaymentType.SmsQR:
+					return true;
+				case PaymentType.PaidOnline:
+					return isReceiptRequiredForPaymentFrom ?? true;
+				default:
+					return false;
+			}
+		}
+
+		/// <summary>
 		/// Является ли заказ безналичным и организация по договору без НДС
 		/// </summary>
 		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless

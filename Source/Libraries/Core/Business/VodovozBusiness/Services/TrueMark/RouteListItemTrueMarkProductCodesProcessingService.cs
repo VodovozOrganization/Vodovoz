@@ -532,8 +532,15 @@ namespace VodovozBusiness.Services.TrueMark
 			{
 				throw new InvalidOperationException("Только коды ЧЗ, отсканированные в водительском приложении, могут быть добавлены");
 			}
-			
-			var codeCheckingProcessResult = IsNomeclatureAccountableInTrueMark(orderItem.Nomenclature);
+
+			var codeCheckingProcessResult = IsTransportCodeAllowedForOrder(stagingTrueMarkCode, orderItem.Order);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				return codeCheckingProcessResult;
+			}
+
+			codeCheckingProcessResult = IsNomeclatureAccountableInTrueMark(orderItem.Nomenclature);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -567,6 +574,17 @@ namespace VodovozBusiness.Services.TrueMark
 			if(codeCheckingProcessResult.IsFailure)
 			{
 				return codeCheckingProcessResult;
+			}
+
+			return Result.Success();
+		}
+
+		private Result IsTransportCodeAllowedForOrder(StagingTrueMarkCode stagingTrueMarkCode, Order order)
+		{
+			if(stagingTrueMarkCode.CodeType == StagingTrueMarkCodeType.Transport
+				&& order.IsSendingReceiptExpectedByPaymentType)
+			{
+				return Result.Failure(TrueMarkCodeErrors.TransportCodeIsNotAllowedForOrderWithReceipt);
 			}
 
 			return Result.Success();

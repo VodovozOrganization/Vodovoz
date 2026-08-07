@@ -13,6 +13,7 @@ using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 using VodovozBusiness.Controllers;
 using NomenclatureErrors = Vodovoz.Errors.Goods.NomenclatureErrors;
 using TrueMarkCodeErrors = Vodovoz.Core.Domain.Errors.TrueMarkCodeErrors;
@@ -235,7 +236,14 @@ namespace VodovozBusiness.Services.TrueMark
 			StagingTrueMarkCode stagingTrueMarkCode,
 			CancellationToken cancellationToken)
 		{
-			var checkCodeResult = await IsStagingTrueMarkCodeCanBeAddedToDocumentNomenclatures(uow, document, stagingTrueMarkCode, cancellationToken);
+			var checkCodeResult = IsTransportCodeAllowedForOrder(stagingTrueMarkCode, document.Order);
+
+			if(checkCodeResult.IsFailure)
+			{
+				return checkCodeResult;
+			}
+
+			checkCodeResult = await IsStagingTrueMarkCodeCanBeAddedToDocumentNomenclatures(uow, document, stagingTrueMarkCode, cancellationToken);
 
 			if(checkCodeResult.IsFailure)
 			{
@@ -252,6 +260,17 @@ namespace VodovozBusiness.Services.TrueMark
 			StagingTrueMarkCode stagingTrueMarkCode,
 			CancellationToken cancellationToken) =>
 			await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, stagingTrueMarkCode, cancellationToken);
+
+		private Result IsTransportCodeAllowedForOrder(StagingTrueMarkCode stagingTrueMarkCode, Order order)
+		{
+			if(stagingTrueMarkCode.CodeType == StagingTrueMarkCodeType.Transport
+				&& order.IsSendingReceiptExpectedByPaymentType)
+			{
+				return Result.Failure(TrueMarkCodeErrors.TransportCodeIsNotAllowedForOrderWithReceipt);
+			}
+
+			return Result.Success();
+		}
 
 		private async Task<Result> IsStagingTrueMarkCodeCanBeAddedToDocumentNomenclatures(
 			IUnitOfWork uow,
