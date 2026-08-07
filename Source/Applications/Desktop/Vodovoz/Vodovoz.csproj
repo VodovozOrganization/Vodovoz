@@ -1766,6 +1766,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarsMonitoringView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.TurnoverWithDynamicsReportView.cs" />
     <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.MarketingReportView.cs" />
+    <Compile Include="Views\Reports\MarketingReportView.cs" />
     <Compile Include="Views\Sale\DeliveryPriceRuleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Sale.DeliveryPriceRuleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReportGroupPrint.cs" />
@@ -2184,6 +2186,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderDocflowsStageView.cs" />
     <Compile Include="Views\Edo\EdoNotificationSettingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoNotificationSettingView.cs" />
+    <Compile Include="Views\Edo\EdoView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

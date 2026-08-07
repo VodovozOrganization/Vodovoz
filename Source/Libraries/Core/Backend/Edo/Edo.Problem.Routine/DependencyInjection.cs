@@ -1,6 +1,12 @@
 ﻿using Edo.Common;
 using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
+using Edo.Problem.Routine.Services.CodeDuplicatedProblem;
+using Edo.Problem.Routine.Services.CodePoolMissingProblem;
+using Edo.Problem.Routine.Services.Common;
+using Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem;
+using Edo.Problem.Routine.Services.OrderStatusProblem;
+using Edo.Problem.Routine.Services.ReceiptContactProblem;
 using Edo.Problems;
 using Edo.Transport;
 using Microsoft.Extensions.DependencyInjection;
@@ -107,7 +113,8 @@ namespace Edo.Problem.Routine
 		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)
 		{
 			services
-				.AddScoped<OrderEdoCodePoolMissingProblemService>()
+				.ConfigureOptions<ConfigureCodePoolMissingProblemWorkerOptions>()
+				.AddScoped<ICodePoolMissingProblemService, CodePoolMissingProblemService>()
 				.AddEdoProblemRegistration();;
 
 			return services;

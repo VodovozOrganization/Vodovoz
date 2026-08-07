@@ -11,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Problem.Routine.Services;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
@@ -20,6 +19,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.TempAdapters;
+using Edo.Problem.Routine.Services.CodePoolMissingProblem;
 
 namespace Vodovoz.ViewModels.TrueMark.CodesPool
 {
@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 		private readonly TrueMarkCodePoolLoader _codePoolLoader;
 		private readonly ITrueMarkCodesPoolManager _trueMarkCodesPoolManager;
 		private readonly IEdoRepository _edoRepository;
-		private readonly OrderEdoCodePoolMissingProblemService _codePoolMissingProblemService;
+		private readonly CodePoolMissingProblemService _codePoolMissingProblemService;
 
 		private IEnumerable<CodesPoolDataNode> _codesPoolData = new List<CodesPoolDataNode>();
 		private bool _isDataRefreshInProgress;
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			TrueMarkCodePoolLoader codePoolLoader,
 			ITrueMarkCodesPoolManager trueMarkCodesPoolManager,
 			IEdoRepository edoRepository,
-			OrderEdoCodePoolMissingProblemService codePoolMissingProblemService
+			CodePoolMissingProblemService codePoolMissingProblemService
 			)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
@@ -328,7 +328,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			{
 				if(SelectedCodesPoolProblemNode.EdoTask is OrderEdoTask orderEdoTask)
 				{
-					await _codePoolMissingProblemService.TryResumeTask(orderEdoTask, cancellationToken);
+					await _codePoolMissingProblemService.TryResumeTaskAsync(orderEdoTask, cancellationToken);
 					
 					_guiDispatcher.RunInGuiTread(() =>
 					{

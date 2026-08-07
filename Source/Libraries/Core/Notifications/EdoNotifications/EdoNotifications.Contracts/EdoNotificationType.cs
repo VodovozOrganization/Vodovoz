@@ -29,6 +29,12 @@ namespace EdoNotifications.Contracts
 		/// Некорректный статус заказа
 		/// </summary>
 		[Display(Name = "Некорректный статус заказа")]
-		OrderStatusProblem = 3
+		OrderStatusProblem = 3,
+
+		/// <summary>
+		/// Ошибка наличия кода в пуле
+		/// </summary>
+		[Display(Name = "Ошибка наличия кода в пуле")]
+		CodePoolMissingProblem = 4
 	}
 }

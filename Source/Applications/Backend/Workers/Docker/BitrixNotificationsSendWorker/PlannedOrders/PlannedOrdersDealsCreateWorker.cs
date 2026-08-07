@@ -50,7 +50,7 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 				if(!bitrixNotificationsSendSettings.PlannedOrdersNotificationsSendEnabled)
 				{
 					_logger.LogInformation("Работа воркера отправки уведомлений по плановым заказам отключена в настройках");
-					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+					await _zabbixSender.SendIsHealthyAsync(nameof(PlannedOrdersDealsCreateWorker), stoppingToken);
 
 					return;
 				}
@@ -75,13 +75,14 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 					await dealsCreateService.SendNotCreatedDeals(stoppingToken);
 				}
 
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(PlannedOrdersDealsCreateWorker), stoppingToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка отправки данных по плановым заказам клиентов");
 
 				await _zabbixSender.SendProblemMessageAsync(
+					nameof(PlannedOrdersDealsCreateWorker),
 					ZabixSenderMessageType.Problem,
 					$"Ошибка отправки данных по плановым заказам клиентов: {ex.Message}",
 					stoppingToken);

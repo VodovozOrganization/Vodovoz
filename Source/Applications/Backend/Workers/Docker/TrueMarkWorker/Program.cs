@@ -60,7 +60,7 @@ namespace TrueMarkWorker
 						.ConfigureTrueMarkWorker(hostContext)
 						;
 
-					services.ConfigureZabbixSenderFromDataBase(nameof(TrueMarkWorker));
+					services.ConfigureZabbixSenderFromDataBase();
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});
