@@ -163,7 +163,10 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 				before = before.Value.Date.AddDays(1).AddSeconds(-1);
 			}
 
-			var excludeOperationsIdsHashSet = new HashSet<int>(excludeOperationsIds);
+			var excludeOperationsIdsHashSet =
+				excludeOperationsIds is null
+				? new HashSet<int>()
+				: new HashSet<int>(excludeOperationsIds);
 
 			var lastFuelBalanceCalibrationCarEvent =
 				GetLastFuelCalibrationCarEvent(uow, car, fuelBalanceCalibrationCarEventTypeId, before);
