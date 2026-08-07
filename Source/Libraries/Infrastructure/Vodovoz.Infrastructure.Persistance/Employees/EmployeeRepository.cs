@@ -415,7 +415,7 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 			return !hasActiveExtensionNumber.Value && !hasNewRegistrationRequest.Value;
 		}
 
-		public Task<Employee> GetDriverByOrderId(
+		public async Task<Employee> GetDriverByOrderId(
 			IUnitOfWork uow,
 			int orderId,
 			CancellationToken cancellationToken)
@@ -434,7 +434,7 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 					&& routeListItemStatuses.Contains(routeListItem.Status)
 				select driver;
 
-			return query.FirstOrDefaultAsync(cancellationToken);
+			return await query.FirstOrDefaultAsync(cancellationToken);
 		}
 	}
 }

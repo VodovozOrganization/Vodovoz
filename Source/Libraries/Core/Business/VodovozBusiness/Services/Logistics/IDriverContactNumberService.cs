@@ -18,7 +18,7 @@ namespace VodovozBusiness.Services.Logistics
 		/// <param name="unitOfWork">Unit Of Work</param>
 		/// <param name="orderId">Код заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns></returns>
+		/// <returns>Контактный номер водителя</returns>
 		Task<string> GetDriverContactNumberAsync(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken = default);
 	}
 }
