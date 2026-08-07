@@ -235,7 +235,7 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 		{
 			if(car is null)
 			{
-				return null;
+				return Array.Empty<CarEvent>();
 			}
 
 			var targetDate = date.Date;
@@ -246,7 +246,6 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 				.Where(x => x.CarEventType.Id == fuelBalanceCalibrationCarEventTypeId)
 				.And(() => carEventAlias.Car.Id == car.Id)
 				.And(() => carEventAlias.StartDate >= targetDate && carEventAlias.StartDate < targetDate.AddDays(1))
-				.OrderBy(x => x.Id).Desc
 				.List();
 
 			return carEvents;
