@@ -2503,6 +2503,10 @@
       <Project>{6950e38b-66b7-4224-aa53-0bf28d4d4a8b}</Project>
       <Name>DriverApi.Notifications.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Admin\Edo.Admin.csproj">
+      <Project>{86CC5608-4BE8-493D-B9B5-C90EC65002BC}</Project>
+      <Name>Edo.Admin</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Common\Edo.Common.csproj">
       <Project>{b657cbf6-c803-4249-894b-87e8e6e94a62}</Project>
       <Name>Edo.Common</Name>
