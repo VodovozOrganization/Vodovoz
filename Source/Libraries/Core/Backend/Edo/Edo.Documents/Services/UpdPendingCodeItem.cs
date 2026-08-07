@@ -25,6 +25,11 @@ namespace Edo.Documents.Services
 			/// Позиция заказа, для которой необходимо получить код маркировки
 			/// </summary>
 			public OrderItemEntity OrderItem { get; set; }
+
+			/// <summary>
+			/// Строка задачи ЭДО, для которой необходимо заменить код маркировки
+			/// </summary>
+			public EdoTaskItem EdoTaskItemForCodeChange { get; internal set; }
 		}
 	}
 }

@@ -493,6 +493,49 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				.ToListAsync(cancellationToken);
 		}
 
+		public async Task<IList<EdoTaskProblemRoutineNode>> GetProblemEdoTasksForResume(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			ReasonForLeaving? reasonForLeaving = null,
+			CancellationToken cancellationToken = default)
+		{
+			var query =
+				from problem in uow.Session.Query<ExceptionEdoTaskProblem>()
+				join problemDescription in uow.Session.Query<EdoTaskProblemDescriptionSourceEntity>()
+					on problem.SourceName equals problemDescription.Name
+				join edoTask in uow.Session.Query<OrderEdoTask>()
+					on problem.EdoTask.Id equals edoTask.Id
+				join edoRequest in uow.Session.Query<FormalEdoRequest>()
+					on problem.EdoTask.Id equals edoRequest.Task.Id
+				join order in uow.Session.Query<OrderEntity>()
+					on edoRequest.Order.Id equals order.Id
+				join client in uow.Session.Query<CounterpartyEntity>()
+					on order.Client.Id equals client.Id
+				join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
+					on problem.Id equals routineState.Problem.Id into routineStates
+				from routineState in routineStates.DefaultIfEmpty()
+				where problem.SourceName == problemSourceName
+					&& problem.State == TaskProblemState.Active
+					&& problem.EdoTask.CreationTime >= minCreationTime
+					&& problem.EdoTask is OrderEdoTask
+					&& (reasonForLeaving == null || client.ReasonForLeaving == reasonForLeaving)
+					&& (routineState == null || routineState.RetryCount <= 1)
+				select new EdoTaskProblemRoutineNode
+				{
+					EdoTask = edoTask,
+					RoutineState = routineState,
+					Problem = problem,
+					ProblemDescription = problemDescription.Description,
+					Recommendation = problemDescription.Recommendation,
+					OrderId = order.Id,
+					ExceptionMessage = problem.ExceptionMessage
+				};
+			
+			return await query
+				.ToListAsync(cancellationToken);
+		}
+
 		public IEnumerable<EdoInOrderDocumentNode> GetEdoInOrderDocuments(IUnitOfWork uow, int orderId)
 		{
 			var stopwatch = Stopwatch.StartNew();

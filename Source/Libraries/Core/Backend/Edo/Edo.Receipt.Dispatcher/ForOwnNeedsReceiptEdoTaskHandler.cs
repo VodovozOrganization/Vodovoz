@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Edo.Admin;
 using Edo.Common;
 using Edo.Common.Services;
@@ -402,6 +402,8 @@ namespace Edo.Receipt.Dispatcher
 								GetOrderOrganizationInn(receiptEdoTask),
 								cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
+
+							await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, newCode, cancellationToken);
 						}
 					}
 

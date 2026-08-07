@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using Edo.Common.Services;
 using EdoService.Library;
 using Gamma.ColumnConfig;
@@ -66,7 +67,6 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;

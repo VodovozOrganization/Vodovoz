@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.Commands;
@@ -35,7 +36,6 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Models;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;

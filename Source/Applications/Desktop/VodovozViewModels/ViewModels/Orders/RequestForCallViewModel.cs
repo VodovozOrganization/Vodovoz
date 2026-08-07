@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Autofac;
+using Core.Infrastructure;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -14,7 +15,6 @@ using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Goods;

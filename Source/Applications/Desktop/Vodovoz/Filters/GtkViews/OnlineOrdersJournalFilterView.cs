@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Core.Infrastructure;
 using Gtk;
 using QS.Tdi;
 using QS.ViewModels.Control.EEVM;
@@ -9,7 +10,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;

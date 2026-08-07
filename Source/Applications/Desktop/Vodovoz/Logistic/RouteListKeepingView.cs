@@ -1,4 +1,5 @@
-﻿using Gamma.GtkWidgets;
+﻿using Core.Infrastructure;
+using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gdk;
 using Gtk;
@@ -15,7 +16,6 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
