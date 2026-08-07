@@ -1,5 +1,4 @@
 ﻿using Edo.Common;
-using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
 using Edo.Documents.Services;
 using Edo.Problems;
@@ -12,7 +11,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
-using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;

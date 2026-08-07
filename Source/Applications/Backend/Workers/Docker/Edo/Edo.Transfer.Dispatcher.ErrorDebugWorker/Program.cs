@@ -4,10 +4,10 @@ using Edo.Common;
 using Edo.Common.Services;
 using Edo.Docflow;
 using Edo.Documents;
-using Edo.ErrorDebugWorker.Consumers;
-using Edo.ErrorDebugWorker.Consumers.Definitions;
 using Edo.Problems;
 using Edo.Receipt.Dispatcher;
+using Edo.Receipt.Dispatcher.ErrorDebug.Consumers;
+using Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions;
 using Edo.Receipt.Sender;
 using Edo.Scheduler;
 using Edo.Transport;
@@ -106,9 +106,9 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 							//cfg.AddConsumer<EdoRequestCreatedErrorConsumer, EdoRequestCreatedErrorConsumerDefinition>();
 
 							//document
-							//cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
+							cfg.AddConsumer<DocumentTaskCreatedErrorConsumer, DocumentTaskCreatedErrorConsumerDefinition>();
 							//cfg.AddConsumer<DocumentTransferCompleteErrorConsumer, DocumentTransferCompleteErrorConsumerDefinition>();
-							cfg.AddConsumer<OrderDocumentAcceptedErrorConsumer, OrderDocumentAcceptedErrorConsumerDefinition>();
+							//cfg.AddConsumer<OrderDocumentAcceptedErrorConsumer, OrderDocumentAcceptedErrorConsumerDefinition>();
 
 							//receipt
 							//cfg.AddConsumer<ReceiptTaskCreatedErrorConsumer, ReceiptTaskCreatedErrorConsumerDefinition>();
