@@ -1,6 +1,7 @@
 ﻿<Project>
   <PropertyGroup>
     <ContainerRepository>database.service.worker</ContainerRepository>
+	  <ContainerBaseImage>docker.vod.qsolution.ru:5100/vodovoz-russian-trusted-base:latest</ContainerBaseImage>
   </PropertyGroup>
 </Project>
 
