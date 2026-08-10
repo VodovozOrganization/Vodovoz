@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace TrueMark.Contracts.Auth
 {
@@ -7,11 +8,8 @@ namespace TrueMark.Contracts.Auth
 	/// </summary>
 	public class TokenResponseDto
 	{
-		/// <summary>
-		/// Авторизационный токен в base64-строке
-		/// </summary>
-		[JsonPropertyName("token")]
-		public string Token { get; set; }
+		[JsonPropertyName("uuidToken")]
+		public string UuidToken { get; set; }
 
 		[JsonPropertyName("code")]
 		public string Code { get; set; }
@@ -21,5 +19,8 @@ namespace TrueMark.Contracts.Auth
 
 		[JsonPropertyName("description")]
 		public string Description { get; set; }
+
+		[JsonPropertyName("expireDate")]
+		public DateTime ExpireDate { get; set; }
 	}
 }
