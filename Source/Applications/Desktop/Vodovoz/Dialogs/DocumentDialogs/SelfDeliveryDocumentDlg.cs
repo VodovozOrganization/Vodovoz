@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using Edo.Transport;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
@@ -37,7 +38,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Employee;

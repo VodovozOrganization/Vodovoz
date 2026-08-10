@@ -1,4 +1,5 @@
-﻿using MoreLinq;
+﻿using Core.Infrastructure;
+using MoreLinq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -12,7 +13,6 @@ using System.Linq;
 using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;

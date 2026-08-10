@@ -86,26 +86,11 @@ namespace Edo.Documents.Services
 			// 5. Обновляем документ
 			UpdateDocument(documentEdoTask, updInventPositions);
 
-			// 6. Удаляем старые строки с заменёнными кодами (вместо которых созданы новые с кодами из пула)
-			CleanOldEdoTaskItemsWithChangedCodes(documentEdoTask);
-
 			_logger.LogInformation(
 				"Документ УПД для задачи {TaskId} успешно создан. Инвентарных позиций: {PositionCount}, кодов: {CodeCount}",
 				documentEdoTask.Id,
 				updInventPositions.Count,
 				updInventPositions.Sum(p => p.Codes.Count));
-		}
-
-		private void CleanOldEdoTaskItemsWithChangedCodes(DocumentEdoTask documentEdoTask)
-		{
-			var taskItemsWithChangedCodes = documentEdoTask.Items
-				.Where(x => x.ProductCode.SourceCodeStatus == SourceProductCodeStatus.Changed)
-				.ToList();
-
-			foreach(var taskItem in taskItemsWithChangedCodes)
-			{
-				documentEdoTask.Items.Remove(taskItem);
-			}
 		}
 
 		private async Task<List<EdoUpdInventPosition>> BuildInventPositionsAsync(
@@ -250,6 +235,9 @@ namespace Edo.Documents.Services
 				.OrderByDescending(x => x.CodesCount);
 
 			TrueMarkWaterGroupCode groupCode = null;
+
+			var isGroupCodeAssigned = false;
+
 			foreach(var availableGtin in availableGroupGtins)
 			{
 				groupCode = context.GroupCodesWithTaskItems.Keys
@@ -284,10 +272,13 @@ namespace Edo.Documents.Services
 				}
 
 				context.GroupCodesWithTaskItems.Remove(groupCode);
+
+				isGroupCodeAssigned = true;
+
 				break;
 			}
 
-			if(groupCode != null)
+			if(isGroupCodeAssigned)
 			{
 				var codesInGroup = groupCode
 					.GetAllCodes()
@@ -343,7 +334,7 @@ namespace Edo.Documents.Services
 					}
 					else
 					{
-						AddCodeRequirement(context, availableGtin, orderItem, codeItemsToAssign);
+						AddCodeRequirement(context, availableGtin, orderItem, codeItemsToAssign, edoTaskItemForChange: availableCode);
 						availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 
 						context.UnprocessedCodes.Remove(availableCode);
@@ -402,7 +393,7 @@ namespace Edo.Documents.Services
 
 				if(gtinEntity != null)
 				{
-					AddCodeRequirement(context, gtinEntity, orderItem, codeItemsToAssign);
+					AddCodeRequirement(context, gtinEntity, orderItem, codeItemsToAssign, edoTaskItemForChange: unscannedCode);
 					unscannedCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 				}
 			}
@@ -446,7 +437,8 @@ namespace Edo.Documents.Services
 			GtinEntity gtinEntity,
 			OrderItemEntity orderItem,
 			List<EdoUpdInventPositionCode> codeItemsToAssign,
-			int count = 1)
+			int count = 1,
+			EdoTaskItem edoTaskItemForChange = null)
 		{
 			if(context.CodesNeeded.ContainsKey(gtinEntity))
 			{
@@ -470,7 +462,8 @@ namespace Edo.Documents.Services
 				{
 					CodeItem = codeItem,
 					Gtin = gtinEntity,
-					OrderItem = orderItem
+					OrderItem = orderItem,
+					EdoTaskItemForCodeChange = edoTaskItemForChange
 				});
 			}
 		}
@@ -540,9 +533,10 @@ namespace Edo.Documents.Services
 					codes.RemoveAt(0);
 					codesToDisaggregate.Add(code);
 
-					var taskItem = await CreateTaskItemAsync(
+					var taskItem = await CreateOrUpdateTaskItemAsync(
 						context.DocumentEdoTask,
 						code,
+						pendingItem.EdoTaskItemForCodeChange,
 						cancellationToken);
 
 					pendingItem.CodeItem.IndividualCode = code;
@@ -559,9 +553,12 @@ namespace Edo.Documents.Services
 						gtinNumber,
 						pendingItem.OrderItem.Id);
 
-					await CreateTaskItemWithProblemAsync(
-						context.DocumentEdoTask,
-						cancellationToken);
+					if(pendingItem.EdoTaskItemForCodeChange is null)
+					{
+						await CreateTaskItemWithProblemAsync(
+							context.DocumentEdoTask,
+							cancellationToken);
+					}
 				}
 			}
 
@@ -580,28 +577,36 @@ namespace Edo.Documents.Services
 			await ReturnUnusedCodesAsync(availableCodes, cancellationToken);
 		}
 
-		private async Task<EdoTaskItem> CreateTaskItemAsync(
+		private async Task<EdoTaskItem> CreateOrUpdateTaskItemAsync(
 			DocumentEdoTask documentEdoTask,
 			TrueMarkWaterIdentificationCode code,
+			EdoTaskItem edoTaskItemToCodeChange,
 			CancellationToken cancellationToken)
 		{
-			var productCode = new AutoTrueMarkProductCode
+			var productCode = edoTaskItemToCodeChange?.ProductCode
+				?? new AutoTrueMarkProductCode
 			{
-				ResultCode = code,
 				SourceCode = code,
 				SourceCodeStatus = SourceProductCodeStatus.Accepted,
 				Problem = ProductCodeProblem.None,
 				CustomerEdoRequest = documentEdoTask.FormalEdoRequest
 			};
 
+			productCode.ResultCode = code;
+
 			await _uow.SaveAsync(productCode, cancellationToken: cancellationToken);
 
-			var taskItem = new EdoTaskItem
+			var taskItem = edoTaskItemToCodeChange
+				?? new EdoTaskItem
 			{
 				ProductCode = productCode,
 				CustomerEdoTask = documentEdoTask
 			};
-			documentEdoTask.Items.Add(taskItem);
+
+			if(!documentEdoTask.Items.Contains(taskItem))
+			{
+				documentEdoTask.Items.Add(taskItem);
+			}
 
 			return taskItem;
 		}

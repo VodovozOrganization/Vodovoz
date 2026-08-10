@@ -1,16 +1,18 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
 
 namespace Edo.Common
@@ -107,6 +109,16 @@ namespace Edo.Common
 
 					var code = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken) 
 						?? throw new InvalidOperationException($"Не найден код ЧЗ с Id {codeId}, полученный из пула.");
+
+					if(IsCodeAlreadyUsedAsResult(code.Id))
+					{
+						_logger.LogWarning(
+							"Код ЧЗ Id {CodeId} из пула уже используется как result_code в true_mark_product_codes " +
+							"(некорректно остался в пуле). Код исключён из пула, попытка: {Attempt}/{AttemptsLimit}.",
+							code.Id, attempt, takeValidCodeAttempts);
+
+						continue;
+					}
 
 					var validationResult = await ValidateAsync(code, organizationInn, cancellationToken);
 
@@ -313,6 +325,7 @@ namespace Edo.Common
 						var validCodes = validationResult.CodeResults
 							.Where(r => r.IsValid)
 							.Select(r => r.Code)
+							.Where(c => !IsCodeAlreadyUsedAsResult(c.Id))
 							.ToList();
 
 						collectedForGtin.AddRange(validCodes);
@@ -516,6 +529,13 @@ namespace Edo.Common
 			}
 
 			return codeResult;
+		}
+
+		private bool IsCodeAlreadyUsedAsResult(int codeId)
+		{
+			return _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Where(x => x.ResultCode.Id == codeId)
+				.RowCount() > 0;
 		}
 	}
 }

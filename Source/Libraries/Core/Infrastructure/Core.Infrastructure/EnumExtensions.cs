@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
-namespace Vodovoz.Extensions
+namespace Core.Infrastructure
 {
 	public static class EnumExtensions
 	{

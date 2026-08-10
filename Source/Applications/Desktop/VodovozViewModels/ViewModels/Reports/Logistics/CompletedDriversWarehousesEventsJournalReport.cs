@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using ClosedXML.Excel;
+using Core.Infrastructure;
 using QS.Project.Services.FileDialog;
-using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics

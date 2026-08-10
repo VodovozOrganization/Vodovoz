@@ -1,8 +1,9 @@
-﻿using System;
+using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
@@ -225,5 +226,20 @@ namespace Vodovoz.Core.Data.Repositories
 			int? batchSize,
 			int retryIntervalHours,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает задачи с активными проблемами для возобновления
+		/// </summary>
+		/// <param name="unitOfWork">UnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="minCreationTime">Минимальное время создания задачи</param>
+		/// <param name="reasonForLeaving">Причина выбытия из документооборота</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		Task<IList<EdoTaskProblemRoutineNode>> GetProblemEdoTasksForResume(
+			IUnitOfWork unitOfWork,
+			string problemSourceName,
+			DateTime minCreationTime,
+			ReasonForLeaving? reasonForLeaving = null,
+			CancellationToken cancellationToken = default);
 	}
 }
