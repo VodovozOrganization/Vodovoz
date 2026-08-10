@@ -64,10 +64,13 @@ namespace CustomerOrdersApi.Library.V5.Factories
 
 			await UpdateAvailableOperations(uow, orderInfo, order, onlineOrder, cancellationToken);
 
-			orderInfo.DriversMangoNumber =
-				driversMangoExtensionNumber != null && driversMangoExtensionNumber.IsActive
-				? _mangoSettings.DriversCallsLineNumber + ",," + driversMangoExtensionNumber.ExtensionNumber
-				: orderInfo.DriversMangoNumber = _mangoSettings.DriversCallsLineNumber;
+			if(orderInfo.OrderStatus == ExternalOrderStatus.OrderDelivering)
+			{
+				orderInfo.DriversMangoNumber =
+					driversMangoExtensionNumber != null && driversMangoExtensionNumber.IsActive
+					? _mangoSettings.DriversCallsLineNumber + ",," + driversMangoExtensionNumber.ExtensionNumber
+					: orderInfo.DriversMangoNumber = _mangoSettings.DriversCallsLineNumber;
+			}
 
 			return orderInfo;
 		}
