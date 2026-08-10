@@ -1,4 +1,4 @@
-using Mango.Core.Dto.Vpbx.Requests;
+﻿using Mango.Core.Dto.Vpbx.Requests;
 using Mango.Core.Dto.Vpbx.Responses;
 using Microsoft.Extensions.Logging;
 using System;
@@ -36,8 +36,6 @@ namespace Mango.Vpbx.Client.Services
 				throw new ArgumentException($"{nameof(toNumber)} не может быть пустым", nameof(toNumber));
 			}
 
-			// Идентификатор команды обязателен. Ответ на команду сейчас никак не сопоставляется
-			// с отправителем, поэтому достаточно любого уникального значения
 			var commandId = Guid.NewGuid().ToString("N");
 
 			var request = new MakeVpbxCallbackRequest

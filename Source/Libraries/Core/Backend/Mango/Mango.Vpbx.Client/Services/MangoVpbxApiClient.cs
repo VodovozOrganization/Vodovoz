@@ -1,4 +1,4 @@
-using Mango.Core.Dto.Vpbx.Responses;
+﻿using Mango.Core.Dto.Vpbx.Responses;
 using Mango.Core.Sign;
 using Mango.Vpbx.Client.Exceptions;
 using Microsoft.Extensions.Logging;
@@ -24,16 +24,12 @@ namespace Mango.Vpbx.Client.Services
 			// например, отсутствие extension означает запрос всех сотрудников ВАТС
 			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
 
-			// Запас на случай, если числовое поле придёт строкой. На практике ВАТС возвращает
+			// Страховка на случай, если числовое поле придёт строкой. На практике ВАТС возвращает
 			// числа числами, но в документации часть примеров ответа показывает order и wait_sec
 			// строками, поэтому разбор допускает оба варианта
 			NumberHandling = JsonNumberHandling.AllowReadingFromString,
 
-			// Кириллица в ФИО сотрудника уходит как есть, а не в виде \uXXXX.
-			// Требования API это не диктует, экранированный вариант тоже корректен:
-			// настройка нужна, чтобы тело запроса читалось в отладочном логе ниже.
-			// Ослаблять экранирование здесь безопасно: json уходит значением поля формы,
-			// которое кодируется целиком при формировании тела запроса
+			// Кириллица в ФИО сотрудника уходит как есть, а не в виде \uXXXX
 			Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
 		};
 

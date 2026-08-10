@@ -1,9 +1,9 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Mango.Core.Dto.Vpbx.Requests
 {
 	/// <summary>
-	/// Инициатор звонка в команде обратного звонка (POST /vpbx/commands/callback)
+	/// Инициатор звонка в команде обратного звонка
 	/// </summary>
 	public class VpbxCallbackFrom
 	{
