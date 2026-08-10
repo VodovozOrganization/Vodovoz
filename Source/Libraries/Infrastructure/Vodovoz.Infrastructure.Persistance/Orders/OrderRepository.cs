@@ -3254,7 +3254,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			CancellationToken cancellationToken)
 		{
 			var routeListItemStatuses =
-				new[] { RouteListItemStatus.EnRoute, RouteListItemStatus.Completed };
+				new[] { RouteListItemStatus.EnRoute };
 
 			var query =
 				from order in uow.Session.Query<Order>()
