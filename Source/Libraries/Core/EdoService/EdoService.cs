@@ -811,11 +811,8 @@ namespace EdoService.Library
 						return Result.Failure<string>(checkOtherRequestsResult.Errors);
 					}
 
-					var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(receiptTask);
+					var newRequest = ManualEdoRequestFactory.Create(request.Order);
 
-					var newRequest = ManualEdoRequestFactory.Create(request.Order, productCodes);
-
-					uow.Save(productCodes);
 					uow.Save(newRequest);
 					uow.Commit();
 
