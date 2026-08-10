@@ -21,7 +21,7 @@ namespace DriverAPI.Library.V6.Services
 
 		private readonly ILogger<CallsService> _logger;
 		private readonly IUnitOfWork _uow;
-		private readonly IMangoWebhookCallsService _mangoWebhookCallsService;
+		private readonly IMangoVpbxCallsService _mangoVpbxCallsService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 
@@ -29,20 +29,20 @@ namespace DriverAPI.Library.V6.Services
 		public CallsService(
 			ILogger<CallsService> logger,
 			IUnitOfWork uow,
-			IMangoWebhookCallsService mangoWebhookCallsService,
+			IMangoVpbxCallsService mangoVpbxCallsService,
 			IRouteListRepository routeListRepository,
 			IEmployeeRepository employeeRepository
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_mangoWebhookCallsService = mangoWebhookCallsService ?? throw new ArgumentNullException(nameof(mangoWebhookCallsService));
+			_mangoVpbxCallsService = mangoVpbxCallsService ?? throw new ArgumentNullException(nameof(mangoVpbxCallsService));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
 
 		/// <inheritdoc/>
-		public async Task<Result> MakeWebhookCall(int routeListId, Employee driver, string toNumber, CancellationToken cancellationToken)
+		public async Task<Result> MakeCall(int routeListId, Employee driver, string toNumber, CancellationToken cancellationToken)
 		{
 			if(driver is null)
 			{
@@ -106,7 +106,7 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure(Errors.PhoneNumberErrors.CreateActiveMangoExtensionNumberNotFound(driver.Id));
 			}
 
-			await _mangoWebhookCallsService.MakeCall(
+			await _mangoVpbxCallsService.SendCallbackCommand(
 				extension.ExtensionNumber.ToString(),
 				toNumber,
 				cancellationToken);
