@@ -498,7 +498,7 @@ namespace Edo.Documents.Services
 					"Ошибка при загрузке кодов из пула: {ErrorMessage}",
 					errorMessage);
 
-				throw new Exception($"Ошибка при загрузке кодов из пула: {errorMessage}");
+				return new Dictionary<string, List<TrueMarkWaterIdentificationCode>>();
 			}
 
 			context.CodesNeeded.Clear();
@@ -514,6 +514,11 @@ namespace Edo.Documents.Services
 			CancellationToken cancellationToken)
 		{
 			if(!context.PendingCodeItems.Any())
+			{
+				return;
+			}
+
+			if(!loadedCodesByGtin.Any())
 			{
 				return;
 			}

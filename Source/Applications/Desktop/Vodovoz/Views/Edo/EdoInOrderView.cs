@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
@@ -84,6 +84,10 @@ namespace Vodovoz.Views.Edo
 				.AddColumn("Кодов")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.CodesQuantityString)
+					.XAlign(0.5f)
+				.AddColumn("Причина отмены")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.CancellationReason)
 					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
