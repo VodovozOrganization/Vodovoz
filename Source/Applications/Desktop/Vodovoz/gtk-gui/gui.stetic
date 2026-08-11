@@ -1146,7 +1146,6 @@
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">Информация</property>
-                        <property name="Active">True</property>
                         <property name="DrawIndicator">False</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -6295,12 +6294,9 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.GtkWidgets.yButton" id="ybuttonEdoDocumentSendSelected">
+                              <widget class="Vodovoz.Views.Edo.EdoInOrderActionsView" id="edoinorderactionsview1">
                                 <property name="MemberName" />
-                                <property name="CanFocus">True</property>
-                                <property name="Type">TextOnly</property>
-                                <property name="Label" translatable="yes">&gt; Отправить выделенный документ</property>
-                                <property name="UseUnderline">True</property>
+                                <property name="Events">ButtonPressMask</property>
                               </widget>
                               <packing>
                                 <property name="Position">1</property>
@@ -199596,7 +199592,6 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Справка</property>
-                    <property name="Active">True</property>
                     <property name="DrawIndicator">False</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>

@@ -602,7 +602,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yButton ybuttonEdoDocementsUpdate;
 
-		private global::Gamma.GtkWidgets.yButton ybuttonEdoDocumentSendSelected;
+		private global::Vodovoz.Views.Edo.EdoInOrderActionsView edoinorderactionsview1;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonEdoDocumentsSendAllUnsent;
 
@@ -3788,13 +3788,11 @@ namespace Vodovoz
 			w314.Expand = false;
 			w314.Fill = false;
 			// Container child yhboxEdoDocumentsButtons.Gtk.Box+BoxChild
-			this.ybuttonEdoDocumentSendSelected = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonEdoDocumentSendSelected.CanFocus = true;
-			this.ybuttonEdoDocumentSendSelected.Name = "ybuttonEdoDocumentSendSelected";
-			this.ybuttonEdoDocumentSendSelected.UseUnderline = true;
-			this.ybuttonEdoDocumentSendSelected.Label = global::Mono.Unix.Catalog.GetString("> Отправить выделенный документ");
-			this.yhboxEdoDocumentsButtons.Add(this.ybuttonEdoDocumentSendSelected);
-			global::Gtk.Box.BoxChild w315 = ((global::Gtk.Box.BoxChild)(this.yhboxEdoDocumentsButtons[this.ybuttonEdoDocumentSendSelected]));
+			this.edoinorderactionsview1 = new global::Vodovoz.Views.Edo.EdoInOrderActionsView();
+			this.edoinorderactionsview1.Events = ((global::Gdk.EventMask)(256));
+			this.edoinorderactionsview1.Name = "edoinorderactionsview1";
+			this.yhboxEdoDocumentsButtons.Add(this.edoinorderactionsview1);
+			global::Gtk.Box.BoxChild w315 = ((global::Gtk.Box.BoxChild)(this.yhboxEdoDocumentsButtons[this.edoinorderactionsview1]));
 			w315.Position = 1;
 			w315.Expand = false;
 			w315.Fill = false;
