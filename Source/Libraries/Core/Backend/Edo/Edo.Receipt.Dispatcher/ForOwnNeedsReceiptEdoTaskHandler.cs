@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Admin;
 using Edo.Common;
 using Edo.Common.Services;
@@ -1032,7 +1032,8 @@ namespace Edo.Receipt.Dispatcher
 
 				return multipliedItems;
 			});
-			return expandedMarkedItems;
+
+			return expandedMarkedItems.ToList();
 		}
 
 		/// <summary>

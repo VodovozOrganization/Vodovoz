@@ -800,7 +800,8 @@ namespace Edo.Receipt.Dispatcher
 
 				return multipliedItems;
 			});
-			return expandedMarkedItems;
+
+			return expandedMarkedItems.ToList();
 		}
 
 		/// <summary>
