@@ -35,8 +35,8 @@ namespace Vodovoz.Core.Data.Repositories
 		public EdoDocumentStatus? EdoDocumentStatus { get; set; }
 
 		/// <summary>
-		/// Описание ошибки
+		/// Причина отмены
 		/// </summary>
-		public string ErrorDescription { get; set; }
+		public string CancellationReason { get; set; }
 	}
 }

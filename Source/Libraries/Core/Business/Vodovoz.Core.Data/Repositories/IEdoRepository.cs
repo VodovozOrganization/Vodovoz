@@ -212,6 +212,16 @@ namespace Vodovoz.Core.Data.Repositories
 		IEnumerable<EdoInOrderTaxcomDocflowNode> GetEdoInOrderDocflows(IUnitOfWork uow, int orderId);
 
 		/// <summary>
+		/// Получить GTIN по номеру GTIN
+		/// </summary>
+		/// <param name="gtinNumber">Номер GTIN</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Сущность GTIN</returns>
+		Task<GtinEntity> GetGtinByGtinNumberAsync(
+			string gtinNumber,
+			CancellationToken cancellationToken = default);
+
+		/// <summary>
 		/// Получить список узлов проблем с отсутствием кодов в пуле
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>

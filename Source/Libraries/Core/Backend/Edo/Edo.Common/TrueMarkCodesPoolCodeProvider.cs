@@ -24,13 +24,15 @@ namespace Edo.Common
 		private readonly IEdoSettings _edoSettings;
 		private readonly ILogger<TrueMarkCodesPoolCodeProvider> _logger;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
+		private readonly IEdoRepository _edoRepository;
 
 		public TrueMarkCodesPoolCodeProvider(
 			IUnitOfWork uow,
 			ITrueMarkCodesValidator trueMarkCodesValidator,
 			IEdoSettings edoSettings,
 			ILogger<TrueMarkCodesPoolCodeProvider> logger,
-			ITrueMarkCodeRepository trueMarkCodeRepository
+			ITrueMarkCodeRepository trueMarkCodeRepository,
+			IEdoRepository edoRepository
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -38,6 +40,7 @@ namespace Edo.Common
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 		}
 
 		public async Task<TrueMarkWaterIdentificationCode> TakeValidCodeAsync(
@@ -224,7 +227,6 @@ namespace Edo.Common
 					allTakenCodes[gtinCodes.Key].AddRange(gtinCodes.Value);
 				}
 
-
 				if(validCodesByGtin is null || !validCodesByGtin.Any())
 				{
 					_logger.LogInformation("Не получено валидных кодов на попытке {Attempt}.", attempt);
@@ -282,8 +284,9 @@ namespace Edo.Common
 
 			foreach(var remainingCount in remainingCounts)
 			{
-				var gtin = remainingCount.Key;
+				var gtinNumber = remainingCount.Key;
 				var needed = remainingCount.Value;
+				var gtin = await _edoRepository.GetGtinByGtinNumberAsync(gtinNumber, cancellationToken);
 				var collectedForGtin = new List<TrueMarkWaterIdentificationCode>();
 				var takenForGtin = new List<TrueMarkWaterIdentificationCode>();
 				var attemptsForGtin = 0;
@@ -296,17 +299,17 @@ namespace Edo.Common
 
 					try
 					{
-						var codeIds = await codesPool.TakeCodes(gtin, remainingForGtin, cancellationToken);
+						var codeIds = await codesPool.TakeCodes(gtinNumber, remainingForGtin, cancellationToken);
 
 						if(!codeIds.Any())
 						{
-							_logger.LogWarning("В пуле не найдены коды для GTIN {Gtin} (попытка {Attempt}).", gtin, attempt);
+							_logger.LogWarning("В пуле не найдены коды для GTIN {Gtin} (попытка {Attempt}).", gtinNumber, attempt);
 							break;
 						}
 
 						_logger.LogInformation(
 							"Для GTIN {Gtin} получено {Count} кодов для проверки (попытка {Attempt}).",
-							gtin,
+							gtinNumber,
 							codeIds.Count,
 							attempt);
 
@@ -332,7 +335,7 @@ namespace Edo.Common
 
 						_logger.LogInformation(
 							"Для GTIN {Gtin} собрано {CollectedCount} валидных кодов из {Needed}.",
-							gtin,
+							gtinNumber,
 							collectedForGtin.Count,
 							needed);
 
@@ -343,23 +346,24 @@ namespace Edo.Common
 					}
 					catch(EdoCodePoolMissingCodeException ex)
 					{
-						_logger.LogWarning(
-							"Не удалось получить коды для GTIN {Gtin} (попытка {Attempt}): {Error}",
-							gtin,
-							attempt,
-							ex.Message);
-						break;
+						throw new EdoProblemException(ex, new[]
+						{
+							new EdoProblemGtinItem
+							{
+								Gtin = gtin
+							}
+						});
 					}
 				}
 
 				if(collectedForGtin.Any())
 				{
-					validCodesResult[gtin] = collectedForGtin;
+					validCodesResult[gtinNumber] = collectedForGtin;
 				}
 
 				if(takenForGtin.Any())
 				{
-					takenCodesResult[gtin] = takenForGtin;
+					takenCodesResult[gtinNumber] = takenForGtin;
 				}
 			}
 
