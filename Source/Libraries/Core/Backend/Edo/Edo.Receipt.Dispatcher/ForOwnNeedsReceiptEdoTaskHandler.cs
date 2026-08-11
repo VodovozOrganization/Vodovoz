@@ -608,7 +608,7 @@ namespace Edo.Receipt.Dispatcher
 				.Where(x => x.Count > 0m)
 				.Where(x => x.Nomenclature.IsAccountableInTrueMark == true);
 
-			var expandedMarkedItems = ExpandMarkedOrderItems(markedOrderItems).ToList();
+			var expandedMarkedItems = ExpandMarkedOrderItems(markedOrderItems);
 			var unprocessedCodes = receiptEdoTask.Items.ToList();
 
 
