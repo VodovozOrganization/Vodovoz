@@ -768,7 +768,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 		}
 
-		private IEnumerable<(OrderItemEntity OrderItem, decimal DiscountPerSingleItem)> ExpandMarkedOrderItems(IEnumerable<OrderItemEntity> markedOrderItems)
+		private List<(OrderItemEntity OrderItem, decimal DiscountPerSingleItem)> ExpandMarkedOrderItems(IEnumerable<OrderItemEntity> markedOrderItems)
 		{
 			// предоставляет каждую единицу товара отдельным элементом
 			// с рассчитанной пропорциональной скидкой
