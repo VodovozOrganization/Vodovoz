@@ -1,3 +1,4 @@
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -22,6 +23,7 @@ namespace Vodovoz.ViewModels.AdministrationTools
 		private const int MinThreadCount = 1;
 		private const int MaxThreadCount = 100;
 		private const int MaxLogLength = 100_000;
+		private const int MaxErrorDialogLength = 2000;
 
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUserService _userService;
@@ -38,6 +40,7 @@ namespace Vodovoz.ViewModels.AdministrationTools
 
 		public OrdersLoadTestingToolViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
+			ILifetimeScope lifetimeScope,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IUserService userService,
@@ -55,8 +58,14 @@ namespace Vodovoz.ViewModels.AdministrationTools
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
 
+			if(lifetimeScope is null)
+			{
+				throw new ArgumentNullException(nameof(lifetimeScope));
+			}
+
 			_runner = new OrdersLoadTestingRunner(
 				unitOfWorkFactory,
+				lifetimeScope,
 				dataBaseInfo,
 				settingsController);
 
@@ -212,8 +221,9 @@ namespace Vodovoz.ViewModels.AdministrationTools
 			}
 			catch(Exception ex)
 			{
-				AppendLog($"ОСТАНОВКА: {ex.Message}");
-				ShowError(ex.Message);
+				var message = FormatExceptionChain(ex);
+				AppendLog($"ОСТАНОВКА: {message}");
+				ShowError(message);
 			}
 			finally
 			{
@@ -275,7 +285,9 @@ namespace Vodovoz.ViewModels.AdministrationTools
 
 		private void ShowError(string message)
 		{
-			RunOnUi(() => _interactiveService.ShowMessage(ImportanceLevel.Error, message));
+			RunOnUi(() => _interactiveService.ShowMessage(
+				ImportanceLevel.Error,
+				PrepareErrorMessageForDialog(message)));
 		}
 
 		private void RunOnUi(Action action)
@@ -297,12 +309,30 @@ namespace Vodovoz.ViewModels.AdministrationTools
 		private static string FormatAggregateError(AggregateException aggregateException)
 		{
 			aggregateException = aggregateException.Flatten();
-			if(aggregateException.InnerExceptions.Count == 1)
+			var sb = new StringBuilder();
+
+			if(!string.IsNullOrWhiteSpace(aggregateException.Message))
 			{
-				return FormatExceptionChain(aggregateException.InnerExceptions[0]);
+				sb.Append(aggregateException.Message);
 			}
 
-			return FormatExceptionChain(aggregateException);
+			foreach(var inner in aggregateException.InnerExceptions)
+			{
+				var chain = FormatExceptionChain(inner);
+				if(string.IsNullOrWhiteSpace(chain))
+				{
+					continue;
+				}
+
+				if(sb.Length > 0)
+				{
+					sb.AppendLine().AppendLine();
+				}
+
+				sb.Append(chain);
+			}
+
+			return EnsureNotEmpty(sb.ToString());
 		}
 
 		private static string FormatExceptionChain(Exception ex)
@@ -311,16 +341,64 @@ namespace Vodovoz.ViewModels.AdministrationTools
 			var current = ex;
 			while(current != null)
 			{
-				if(sb.Length > 0)
+				var part = FormatExceptionPart(current);
+				if(!string.IsNullOrWhiteSpace(part))
 				{
-					sb.AppendLine().Append("→ ");
+					if(sb.Length > 0)
+					{
+						sb.AppendLine().Append("→ ");
+					}
+
+					sb.Append(part);
 				}
 
-				sb.Append(current.Message);
 				current = current.InnerException;
 			}
 
-			return sb.ToString();
+			return EnsureNotEmpty(sb.ToString());
+		}
+
+		private static string FormatExceptionPart(Exception ex)
+		{
+			if(ex == null)
+			{
+				return string.Empty;
+			}
+
+			if(!string.IsNullOrWhiteSpace(ex.Message))
+			{
+				return ex.Message;
+			}
+
+			return ex.GetType().Name;
+		}
+
+		private static string EnsureNotEmpty(string message)
+		{
+			return string.IsNullOrWhiteSpace(message) ? "Неизвестная ошибка." : message;
+		}
+
+		/// <summary>
+		/// GTK-диалог ошибки использует Pango markup: символы &lt; и &gt; в SQL ломают отображение.
+		/// </summary>
+		private static string PrepareErrorMessageForDialog(string message)
+		{
+			message = EnsureNotEmpty(message);
+
+			if(message.Length > MaxErrorDialogLength)
+			{
+				message = message.Substring(0, MaxErrorDialogLength) + "… (полный текст в логе)";
+			}
+
+			return EscapeGtkMarkup(message);
+		}
+
+		private static string EscapeGtkMarkup(string text)
+		{
+			return text
+				.Replace("&", "&amp;")
+				.Replace("<", "&lt;")
+				.Replace(">", "&gt;");
 		}
 	}
 }

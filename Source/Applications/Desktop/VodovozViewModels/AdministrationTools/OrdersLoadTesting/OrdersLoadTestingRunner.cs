@@ -1,3 +1,4 @@
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using System;
@@ -40,15 +41,18 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 		};
 
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IDataBaseInfo _dataBaseInfo;
 		private readonly ISettingsController _settingsController;
 
 		public OrdersLoadTestingRunner(
 			IUnitOfWorkFactory unitOfWorkFactory,
+			ILifetimeScope lifetimeScope,
 			IDataBaseInfo dataBaseInfo,
 			ISettingsController settingsController)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_dataBaseInfo = dataBaseInfo ?? throw new ArgumentNullException(nameof(dataBaseInfo));
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
@@ -141,13 +145,30 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 			SharedRunState sharedState,
 			Action<string> log)
 		{
+			using(var threadScope = _lifetimeScope.BeginLifetimeScope())
+			using(ScopeProvider.BeginThreadScope(threadScope))
+			{
+				var sessionProvider = threadScope.Resolve<ISessionProvider>();
+				var unitOfWorkFactory = new NotTrackedUnitOfWorkFactory(sessionProvider);
+				WorkerLoopCore(threadId, fixtures, linkedCts, sharedState, log, unitOfWorkFactory);
+			}
+		}
+
+		private void WorkerLoopCore(
+			int threadId,
+			LoadTestFixtures fixtures,
+			CancellationTokenSource linkedCts,
+			SharedRunState sharedState,
+			Action<string> log,
+			IUnitOfWorkFactory unitOfWorkFactory)
+		{
 			var random = new Random(unchecked(Environment.TickCount * 31 + threadId * 997));
 
 			while(!linkedCts.IsCancellationRequested)
 			{
 				try
 				{
-					InsertOrderAndRouteList(threadId, fixtures, random, linkedCts.Token);
+					InsertOrderAndRouteList(threadId, fixtures, random, linkedCts.Token, unitOfWorkFactory);
 					var successCount = Interlocked.Increment(ref sharedState.SuccessCount);
 					if(successCount == 1 || successCount % 10 == 0)
 					{
@@ -186,7 +207,8 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 			int threadId,
 			LoadTestFixtures fixtures,
 			Random random,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken,
+			IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
@@ -203,7 +225,7 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 			DateTime orderDeliveryDate;
 
 			// UoW 1: заказ
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"LoadTest order thread {threadId}"))
+			using(var uow = unitOfWorkFactory.CreateWithoutRoot($"LoadTest order thread {threadId}"))
 			{
 				var author = uow.GetById<Employee>(fixtures.AuthorId)
 					?? throw new InvalidOperationException($"Автор (сотрудник {fixtures.AuthorId}) не найден.");
@@ -264,7 +286,8 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 				SetAccessibleProperty(orderItem, nameof(OrderItem.Nomenclature), nomenclature);
 				SetAccessibleProperty(orderItem, nameof(OrderItem.Count), (decimal)bottlesCount);
 				SetAccessibleProperty(orderItem, nameof(OrderItem.Price), price);
-				order.ObservableOrderItems.Add(orderItem);
+				// Без ObservableOrderItems.Add — иначе UpdateDocuments → запрос flyers на том же соединении.
+				order.OrderItems.Add(orderItem);
 
 				try
 				{
@@ -284,7 +307,7 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 			cancellationToken.ThrowIfCancellationRequested();
 
 			// UoW 2: маршрутный лист на сохранённый заказ
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"LoadTest route list thread {threadId}"))
+			using(var uow = unitOfWorkFactory.CreateWithoutRoot($"LoadTest route list thread {threadId}"))
 			{
 				var order = uow.GetById<Order>(orderId)
 					?? throw new InvalidOperationException($"Заказ {orderId} не найден во 2-й сессии.");
@@ -325,7 +348,7 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 				{
 					WithForwarder = routeList.Forwarder != null
 				};
-				routeList.ObservableAddresses.Add(address);
+				routeList.Addresses.Add(address);
 
 				try
 				{
