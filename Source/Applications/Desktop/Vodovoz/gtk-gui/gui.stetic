@@ -1393,7 +1393,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">13</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
@@ -6295,15 +6295,30 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.GtkWidgets.yButton" id="ybuttonEdoDocumentsSendAllUnsent">
+                              <widget class="Gamma.GtkWidgets.yButton" id="ybuttonEdoDocumentSendSelected">
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="Type">TextOnly</property>
-                                <property name="Label" translatable="yes">Отправить все неотправленные УПД</property>
+                                <property name="Label" translatable="yes">&gt; Отправить выделенный документ</property>
                                 <property name="UseUnderline">True</property>
                               </widget>
                               <packing>
                                 <property name="Position">1</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gamma.GtkWidgets.yButton" id="ybuttonEdoDocumentsSendAllUnsent">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextOnly</property>
+                                <property name="Label" translatable="yes">&gt;&gt; Отправить все неотправленные документы</property>
+                                <property name="UseUnderline">True</property>
+                              </widget>
+                              <packing>
+                                <property name="Position">2</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -6319,7 +6334,7 @@
                                 <property name="UseUnderline">True</property>
                               </widget>
                               <packing>
-                                <property name="Position">2</property>
+                                <property name="Position">3</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -6331,7 +6346,7 @@
                                 <property name="LabelProp" translatable="yes">Страница 1</property>
                               </widget>
                               <packing>
-                                <property name="Position">3</property>
+                                <property name="Position">4</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -6347,7 +6362,7 @@
                                 <property name="UseUnderline">True</property>
                               </widget>
                               <packing>
-                                <property name="Position">4</property>
+                                <property name="Position">5</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
