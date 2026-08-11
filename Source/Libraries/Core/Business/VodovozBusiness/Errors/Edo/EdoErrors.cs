@@ -174,10 +174,10 @@ namespace VodovozBusiness.Errors.Edo
 		/// <summary>
 		/// Ошибка: заказ-источник и заказ-получатель совпадают
 		/// </summary>
-		public static Error SameTransferOrder =>
+		public static Error SameSourceAndTargetOrder =>
 			new Error(
 				typeof(EdoErrors),
-				nameof(SameTransferOrder),
+				nameof(SameSourceAndTargetOrder),
 				"Нельзя перенести коды в тот же самый заказ.");
 
 		/// <summary>
