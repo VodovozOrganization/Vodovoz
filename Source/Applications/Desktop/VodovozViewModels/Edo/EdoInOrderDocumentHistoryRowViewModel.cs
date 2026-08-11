@@ -27,6 +27,7 @@ namespace Vodovoz.ViewModels.Edo
 			DocumentGroupTypeString = DocumentGroupType.GetEnumTitle();
 			CodesQuantity = GetCodesQuantity();
 			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
+			CancellationReason = documentNode.CancellationReason;
 		}
 
 		public EdoInOrderDocumentNode Document { get; }
@@ -51,6 +52,8 @@ namespace Vodovoz.ViewModels.Edo
 
 		public virtual int? CodesQuantity { get; }
 		public virtual string CodesQuantityString { get; }
+
+		public virtual string CancellationReason { get; }
 
 		private int? GetCodesQuantity()
 		{
