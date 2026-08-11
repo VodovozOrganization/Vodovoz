@@ -318,7 +318,7 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewPool.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewPool.ColumnsConfig = FluentColumnsConfig<OrderCodeItemViewModel>.Create()
 				.AddColumn("Код")
-					.AddTextRenderer(x => x.ResultIdentificationCode)
+					.AddTextRenderer(x => x.PoolIdentificationCode)
 					.Editable(false)
 					.SearchHighlight()
 				.AddColumn("Причина не отсканированных кодов")

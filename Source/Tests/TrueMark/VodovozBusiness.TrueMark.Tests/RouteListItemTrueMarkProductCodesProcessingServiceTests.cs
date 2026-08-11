@@ -44,7 +44,7 @@ namespace VodovozBusiness.TrueMark.Tests
 					Arg.Any<IUnitOfWork>(),
 					Arg.Any<int>(),
 					Arg.Any<string>(),
-					Arg.Any<SourceProductCodeStatus>(),
+					Arg.Any<SourceProductCodeStatus[]>(),
 					Arg.Any<ProductCodeProblem>())
 				.Returns(new List<AutoTrueMarkProductCode>());
 			_trueMarkRepository
@@ -97,6 +97,37 @@ namespace VodovozBusiness.TrueMark.Tests
 		}
 
 		/// <summary>
+		/// Проверяет реальный сценарий отложенной обработки: новый исправный водительский код
+		/// вытесняет ранее перенесенный код обратно в пул.
+		/// </summary>
+		[Fact]
+		public async Task NewDriverCode_ReturnsReusedCodeToPool()
+		{
+			var reusedProductCode = CreateReusedProductCode();
+			reusedProductCode.ResultCode = null;
+			reusedProductCode.SourceCodeStatus = SourceProductCodeStatus.New;
+			var routeListItem = CreateRouteListItem();
+			var driverIdentificationCode = CreateDriverIdentificationCode();
+
+			ConfigureReusedProductCode(reusedProductCode);
+
+			await _service.AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
+				_uow,
+				routeListItem,
+				_orderItemId,
+				driverIdentificationCode,
+				SourceProductCodeStatus.New,
+				ProductCodeProblem.None);
+
+			await _trueMarkCodesPool
+				.Received(1)
+				.PutCodeAsync(_reusedIdentificationCodeId, Arg.Any<CancellationToken>());
+			Assert.Null(reusedProductCode.ResultCode);
+			Assert.Equal(SourceProductCodeStatus.SavedToPool, reusedProductCode.SourceCodeStatus);
+			Assert.Same(driverIdentificationCode, routeListItem.TrueMarkCodes.Single().SourceCode);
+		}
+
+		/// <summary>
 		/// Проверяет, что при отсутствии перенесенного кода пул не изменяется,
 		/// а водительский код добавляется в адрес маршрутного листа.
 		/// </summary>
@@ -133,7 +164,7 @@ namespace VodovozBusiness.TrueMark.Tests
 					_uow,
 					_orderId,
 					_gtin,
-					SourceProductCodeStatus.Accepted,
+					Arg.Any<SourceProductCodeStatus[]>(),
 					ProductCodeProblem.None)
 				.Returns(new List<AutoTrueMarkProductCode> { reusedProductCode });
 
@@ -179,7 +210,7 @@ namespace VodovozBusiness.TrueMark.Tests
 					Arg.Any<IUnitOfWork>(),
 					Arg.Any<int>(),
 					Arg.Any<string>(),
-					Arg.Any<SourceProductCodeStatus>(),
+					Arg.Any<SourceProductCodeStatus[]>(),
 					Arg.Any<ProductCodeProblem>());
 			await _trueMarkCodesPool
 				.DidNotReceive()
@@ -211,7 +242,11 @@ namespace VodovozBusiness.TrueMark.Tests
 					_uow,
 					_orderId,
 					_gtin,
-					SourceProductCodeStatus.Accepted,
+					Arg.Is<SourceProductCodeStatus[]>(x => x.SequenceEqual(new[]
+					{
+						SourceProductCodeStatus.New,
+						SourceProductCodeStatus.Accepted
+					})),
 					ProductCodeProblem.None)
 				.Returns(new List<AutoTrueMarkProductCode> { reusedProductCode });
 			_trueMarkRepository
@@ -219,7 +254,7 @@ namespace VodovozBusiness.TrueMark.Tests
 					_uow,
 					Arg.Is<int[]>(x => x.SequenceEqual(new[] { _reusedIdentificationCodeId })),
 					OrderStatus.Canceled)
-				.Returns(new HashSet<int> { reusedProductCode.ResultCode.Id });
+				.Returns(new HashSet<int> { reusedProductCode.SourceCode.Id });
 		}
 
 		private static RouteListItemEntity CreateRouteListItem() =>

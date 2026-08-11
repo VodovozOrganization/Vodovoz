@@ -174,7 +174,8 @@ namespace VodovozBusiness.Services.TrueMark
 			ProductCodeProblem problem,
 			CancellationToken cancellationToken)
 		{
-			if(status != SourceProductCodeStatus.Accepted
+			if((status != SourceProductCodeStatus.New
+				&& status != SourceProductCodeStatus.Accepted)
 				|| problem != ProductCodeProblem.None)
 			{
 				return;
@@ -192,7 +193,9 @@ namespace VodovozBusiness.Services.TrueMark
 
 			await _trueMarkCodesPoolFactory
 				.Create(uow)
-				.PutCodeAsync(reusedProductCode.ResultCode.Id, cancellationToken);
+				.PutCodeAsync(
+					reusedProductCode.ResultCode?.Id ?? reusedProductCode.SourceCode.Id,
+					cancellationToken);
 
 			reusedProductCode.ResultCode = null;
 			reusedProductCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
@@ -200,12 +203,17 @@ namespace VodovozBusiness.Services.TrueMark
 
 		private AutoTrueMarkProductCode GetReusedProductCode(IUnitOfWork uow, int orderId, string gtin)
 		{
+			var reusableStatuses = new[]
+			{
+				SourceProductCodeStatus.New,
+				SourceProductCodeStatus.Accepted
+			};
 			var reusedProductCodeCandidates = _trueMarkRepository
 				.GetAutoProductCodesByManualEdoRequests(
 					uow,
 					orderId,
 					gtin,
-					SourceProductCodeStatus.Accepted,
+					reusableStatuses,
 					ProductCodeProblem.None);
 
 			if(!reusedProductCodeCandidates.Any())
@@ -214,7 +222,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			var identificationCodeIds = reusedProductCodeCandidates
-				.Select(x => x.ResultCode.Id)
+				.Select(x => x.SourceCode.Id)
 				.ToArray();
 
 			var rejectedIdentificationCodeIds = _trueMarkRepository.GetRejectedIdentificationCodeIds(
@@ -223,7 +231,7 @@ namespace VodovozBusiness.Services.TrueMark
 				OrderStatus.Canceled);
 
 			return reusedProductCodeCandidates
-				.FirstOrDefault(x => rejectedIdentificationCodeIds.Contains(x.ResultCode.Id));
+				.FirstOrDefault(x => rejectedIdentificationCodeIds.Contains(x.SourceCode.Id));
 		}
 
 		private RouteListItemTrueMarkProductCode CreateRouteListItemTrueMarkProductCode(

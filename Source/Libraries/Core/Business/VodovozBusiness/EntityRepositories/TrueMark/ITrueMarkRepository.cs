@@ -100,14 +100,14 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="uow">Unit of Work</param>
 		/// <param name="orderId">Номер заказа</param>
 		/// <param name="gtin">GTIN кода</param>
-		/// <param name="sourceCodeStatus">Статус исходного кода</param>
+		/// <param name="sourceCodeStatuses">Статусы исходного кода</param>
 		/// <param name="problem">Проблема кода</param>
 		/// <returns>Список автоматических кодов ручных ЭДО-заявок</returns>
 		IList<AutoTrueMarkProductCode> GetAutoProductCodesByManualEdoRequests(
 			IUnitOfWork uow,
 			int orderId,
 			string gtin,
-			SourceProductCodeStatus sourceCodeStatus,
+			SourceProductCodeStatus[] sourceCodeStatuses,
 			ProductCodeProblem problem);
 
 		/// <summary>

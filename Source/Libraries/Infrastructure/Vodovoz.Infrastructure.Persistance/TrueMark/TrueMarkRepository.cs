@@ -310,6 +310,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				)
 				.Where(() => edoTaskItemAlias.CustomerEdoTask.Id == edoRequestAlias.Task.Id)
 				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.Where(() => autoProductCodeAlias.SourceCodeStatus != SourceProductCodeStatus.SavedToPool)
 				.List();
 
 			return poolCodes;
@@ -382,17 +383,19 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			IUnitOfWork uow,
 			int orderId,
 			string gtin,
-			SourceProductCodeStatus sourceCodeStatus,
+			SourceProductCodeStatus[] sourceCodeStatuses,
 			ProductCodeProblem problem)
 		{
+			var statuses = sourceCodeStatuses ?? Array.Empty<SourceProductCodeStatus>();
+
 			return (
 				from productCode in uow.Session.Query<AutoTrueMarkProductCode>()
 				join manualRequest in uow.Session.Query<ManualEdoRequest>()
 					on productCode.CustomerEdoRequest.Id equals manualRequest.Id
 				where manualRequest.Order.Id == orderId
-					&& productCode.ResultCode != null
-					&& productCode.ResultCode.Gtin == gtin
-					&& productCode.SourceCodeStatus == sourceCodeStatus
+					&& productCode.SourceCode != null
+					&& productCode.SourceCode.Gtin == gtin
+					&& statuses.Contains(productCode.SourceCodeStatus)
 					&& productCode.Problem == problem
 				orderby manualRequest.Time descending
 				select productCode)
@@ -438,7 +441,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			RouteListItemTrueMarkProductCode routeListProductCodeAlias = null;
 			RouteListItemEntity routeListItemAlias = null;
-			Vodovoz.Domain.Orders.Order routeListOrderAlias = null;
+			OrderEntity routeListOrderAlias = null;
 
 			var routeListIdentificationCodeIds = uow.Session.QueryOver(() => routeListProductCodeAlias)
 				.JoinAlias(() => routeListProductCodeAlias.RouteListItem, () => routeListItemAlias)
@@ -452,7 +455,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			CarLoadDocumentItemTrueMarkProductCode carLoadProductCodeAlias = null;
 			CarLoadDocumentItemEntity carLoadDocumentItemAlias = null;
-			Vodovoz.Domain.Orders.Order carLoadOrderAlias = null;
+			OrderEntity carLoadOrderAlias = null;
 
 			var carLoadIdentificationCodeIds = uow.Session.QueryOver(() => carLoadProductCodeAlias)
 				.JoinAlias(() => carLoadProductCodeAlias.CarLoadDocumentItem, () => carLoadDocumentItemAlias)
@@ -467,7 +470,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryProductCodeAlias = null;
 			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemAlias = null;
 			SelfDeliveryDocumentEntity selfDeliveryDocumentAlias = null;
-			Vodovoz.Domain.Orders.Order selfDeliveryOrderAlias = null;
+			OrderEntity selfDeliveryOrderAlias = null;
 
 			var selfDeliveryIdentificationCodeIds = uow.Session.QueryOver(() => selfDeliveryProductCodeAlias)
 				.JoinAlias(() => selfDeliveryProductCodeAlias.SelfDeliveryDocumentItem, () => selfDeliveryDocumentItemAlias)
@@ -482,7 +485,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			AutoTrueMarkProductCode autoProductCodeAlias = null;
 			FormalEdoRequest edoRequestAlias = null;
-			Vodovoz.Domain.Orders.Order autoOrderAlias = null;
+			OrderEntity autoOrderAlias = null;
 
 			var autoIdentificationCodeIds = uow.Session.QueryOver(() => autoProductCodeAlias)
 				.JoinAlias(() => autoProductCodeAlias.CustomerEdoRequest, () => edoRequestAlias)
