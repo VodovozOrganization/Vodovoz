@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Errors.Orders;
 
-namespace VodovozBusiness.Controllers
+namespace Vodovoz.Core.Application.Orders.Services
 {
 	public class OrderDiscountsController : DiscountController, IOrderDiscountsController
 	{

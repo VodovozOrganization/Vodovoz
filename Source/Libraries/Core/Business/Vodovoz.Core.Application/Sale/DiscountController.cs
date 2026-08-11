@@ -4,8 +4,9 @@ using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Controllers;
 
-namespace VodovozBusiness.Controllers
+namespace Vodovoz.Core.Application.Sale
 {
 	public class DiscountController : IDiscountController
 	{

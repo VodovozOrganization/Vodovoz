@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using RevenueService.Client;
 using Sms.Internal.Client;
 using TrueMarkApi.Client;
+using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Clients;
 using Vodovoz.Core.Application.Clients.Services;
 using Vodovoz.Core.Application.Complaints;
@@ -19,6 +20,7 @@ using Vodovoz.Core.Application.Payments;
 using Vodovoz.Core.Application.Payments.OnlinePayments;
 using Vodovoz.Core.Application.Payments.OnlinePayments.Builders;
 using Vodovoz.Core.Application.Receipts;
+using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Application.Services.Subdivisions;
 using Vodovoz.Core.Application.TrueMark;
 using Vodovoz.Core.Application.Users;
@@ -104,36 +106,44 @@ namespace Vodovoz.Core.Application
 			.AddScoped<IClosingDeliveriesService, ClosingDeliveriesService>()
 			;
 
-		private static IServiceCollection AddCoreOrderServicesDependencies(this IServiceCollection services) => services
-			.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
-			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
-			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
-			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
-			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
-			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
-			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
-			.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
-			.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
-			.AddDriverApiNotificationsSenders()
-			.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
-			.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()
-			.AddTransient<IOrganizationForOrderFromSet, OrganizationForOrderFromSet>()
-			.AddScoped<IOrganizationForOnlinePaymentService, OrganizationForOnlinePaymentService>()
-			.AddTransient<OrderOurOrganizationForOrderHandler>()
-			.AddTransient<ContractOrganizationForOrderHandler>()
-			.AddTransient<OrganizationByOrderAuthorHandler>()
-			.AddTransient<OrganizationByOrderContentForOrderHandler>()
-			.AddTransient<OrganizationByPaymentTypeForOrderHandler>()
-			.AddTransient<OrganizationForDeliveryOrderByPaymentTypeHandler>()
-			.AddTransient<OrganizationForSelfDeliveryOrderByPaymentTypeHandler>()
-			.AddTransient<OrganizationFromClientForOrderHandler>()
-			.AddScoped<IOrderContractUpdater, OrderContractUpdater>()
-			.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
-			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
-			.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
-			.AddScoped<ICustomerOrderTransferService, CustomerOrderTransferService>()
-			.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
-		;
+		private static IServiceCollection AddCoreOrderServicesDependencies(this IServiceCollection services)
+		{
+			services
+				.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
+				.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
+				.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
+				.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
+				.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
+				.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
+				.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
+				.AddDriverApiNotificationsSenders()
+				.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
+				.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()
+				.AddTransient<IOrganizationForOrderFromSet, OrganizationForOrderFromSet>()
+				.AddScoped<IOrganizationForOnlinePaymentService, OrganizationForOnlinePaymentService>()
+				.AddTransient<OrderOurOrganizationForOrderHandler>()
+				.AddTransient<ContractOrganizationForOrderHandler>()
+				.AddTransient<OrganizationByOrderAuthorHandler>()
+				.AddTransient<OrganizationByOrderContentForOrderHandler>()
+				.AddTransient<OrganizationByPaymentTypeForOrderHandler>()
+				.AddTransient<OrganizationForDeliveryOrderByPaymentTypeHandler>()
+				.AddTransient<OrganizationForSelfDeliveryOrderByPaymentTypeHandler>()
+				.AddTransient<OrganizationFromClientForOrderHandler>()
+				.AddScoped<IOrderContractUpdater, OrderContractUpdater>()
+				.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
+				.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
+				.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
+				.AddScoped<ICustomerOrderTransferService, CustomerOrderTransferService>()
+				.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
+				;
+
+			services.TryAddScoped<IOrderDiscountsController, OrderDiscountsController>();
+			services.TryAddScoped<IDiscountController, DiscountController>();
+
+			return services;
+		}
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)
 			=> services.Configure<FileSecurityOptions>(options =>
