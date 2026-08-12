@@ -17,6 +17,8 @@ namespace BitrixNotificationsSend.Client
 	public class BitrixDealsClient : IBitrixDealsClient
 	{
 		private const string _dealAddMethod = "crm.deal.add";
+		private const string _dealUpdateMethod = "crm.deal.update";
+		private static readonly string[] _undeliveredOrderDealUpdateExcludedFields = { "CATEGORY_ID", "STAGE_ID" };
 
 		private readonly HttpClient _httpClient;
 		private readonly IBitrixNotificationsSendSettings _bitrixNotificationsSendSettings;
@@ -54,6 +56,40 @@ namespace BitrixNotificationsSend.Client
 			foreach(var lastServiceOrder in lastServiceOrders)
 			{
 				commands.Add(lastServiceOrder.DealCommandKey, BitrixCommandBuilder.CreateCommand(_dealAddMethod, lastServiceOrder));
+			}
+
+			return await SendBatch(commands, cancellationToken);
+		}
+
+		public async Task<Result<BitrixBatchResult>> SendUndeliveredOrderDeals(
+			IEnumerable<UndeliveredOrderDto> undeliveredOrders,
+			CancellationToken cancellationToken)
+		{
+			var commands = new Dictionary<string, string>();
+
+			foreach(var undeliveredOrder in undeliveredOrders)
+			{
+				commands.Add(undeliveredOrder.DealCommandKey, BitrixCommandBuilder.CreateCommand(_dealAddMethod, undeliveredOrder));
+			}
+
+			return await SendBatch(commands, cancellationToken);
+		}
+
+		public async Task<Result<BitrixBatchResult>> UpdateUndeliveredOrderDeals(
+			IEnumerable<UndeliveredOrderDto> undeliveredOrders,
+			CancellationToken cancellationToken)
+		{
+			var commands = new Dictionary<string, string>();
+
+			foreach(var undeliveredOrder in undeliveredOrders)
+			{
+				commands.Add(
+					undeliveredOrder.DealCommandKey,
+					BitrixCommandBuilder.CreateCommand(
+						_dealUpdateMethod,
+						undeliveredOrder,
+						_undeliveredOrderDealUpdateExcludedFields,
+						$"id={undeliveredOrder.BitrixDealId.Value}"));
 			}
 
 			return await SendBatch(commands, cancellationToken);
@@ -138,6 +174,11 @@ namespace BitrixNotificationsSend.Client
 			foreach(var successfulCommand in batchResponse.Result.SuccessfulCommands)
 			{
 				batchResult.SuccessfulCommandKeys.Add(successfulCommand.Key);
+
+				if(TryGetCreatedEntityId(successfulCommand.Value, out var entityId))
+				{
+					batchResult.SuccessfulCommandEntityIds.Add(successfulCommand.Key, entityId);
+				}
 			}
 
 			foreach(var commandError in batchResponse.Result.Errors)
@@ -153,6 +194,20 @@ namespace BitrixNotificationsSend.Client
 			FillOperatingData(batchResponse.Result.CommandsTime.Values, batchResult);
 
 			return batchResult;
+		}
+
+		private static bool TryGetCreatedEntityId(JsonElement value, out long entityId)
+		{
+			switch(value.ValueKind)
+			{
+				case JsonValueKind.Number:
+					return value.TryGetInt64(out entityId);
+				case JsonValueKind.String:
+					return long.TryParse(value.GetString(), out entityId);
+				default:
+					entityId = default;
+					return false;
+			}
 		}
 
 		private static void FillOperatingData(
