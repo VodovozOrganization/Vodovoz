@@ -20,7 +20,7 @@ namespace Edo.Docflow.Consumers.Definitions
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
 				rmq.Bind<OrderDocumentSendEvent>();
-				rmq.DiscardFaultedMessages();
+				//rmq.DiscardFaultedMessages();
 			}
 		}
 	}

@@ -20,7 +20,7 @@ namespace Edo.Receipt.Dispatcher.Consumers.Definitions
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
 				rmq.Bind<ReceiptTaskCreatedEvent>();
-				rmq.DiscardFaultedMessages();
+				//rmq.DiscardFaultedMessages();
 			}
 		}
 	}

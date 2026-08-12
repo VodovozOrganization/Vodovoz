@@ -26,7 +26,7 @@ namespace Edo.Receipt.Dispatcher.Consumers.Definitions
 					x.RoutingKey = TransferInitiator.Receipt.ToString();
 				});
 				
-				rmq.DiscardFaultedMessages();
+				//rmq.DiscardFaultedMessages();
 			}
 		}
 	}

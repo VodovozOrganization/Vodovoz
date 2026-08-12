@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 using System.Reflection;
+using Edo.Documents.Consumers.Fault;
 using Edo.Transport.Factories;
 using TrueMark.Codes.Pool;
 
@@ -41,7 +42,8 @@ namespace Edo.Documents
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumers(Assembly.GetExecutingAssembly());
+				cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
+				cfg.AddConsumer<FaultDocumentTaskCreatedConsumer>();
 			});
 
 			return services;

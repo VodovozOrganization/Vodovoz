@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using System;
 using System.Net.Security;
+using System.Reflection;
 using System.Security.Authentication;
 using Edo.Contracts.Messages.Events;
 using Vodovoz.Settings.Pacs;
@@ -306,7 +307,6 @@ namespace Edo.Transport
 					});
 
 					rabbitCfg.AddEdoTopology(context);
-
 					configureRabbit?.Invoke(context, rabbitCfg);
 
 					rabbitCfg.ConfigureEndpoints(context);

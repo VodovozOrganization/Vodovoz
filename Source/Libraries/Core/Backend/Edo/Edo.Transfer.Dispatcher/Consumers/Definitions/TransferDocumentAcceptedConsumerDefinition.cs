@@ -20,7 +20,7 @@ namespace Edo.Transfer.Dispatcher.Consumers.Definitions
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
 				rmq.Bind<TransferDocumentAcceptedEvent>();
-				rmq.DiscardFaultedMessages();
+				//rmq.DiscardFaultedMessages();
 			}
 		}
 	}
