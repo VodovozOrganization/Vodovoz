@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
@@ -145,6 +145,9 @@ namespace Vodovoz.Views.Edo
 				.AddBinding(vm => vm.SelectedProblem, w => w.SelectedRow)
 				.InitializeFromSource();
 
+			textViewProblemMessage.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ProblemMessage, w => w.Buffer.Text)
+				.InitializeFromSource();
 			textViewProblemDescription.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ProblemDescription, w => w.Buffer.Text)
 				.InitializeFromSource();
@@ -176,6 +179,8 @@ namespace Vodovoz.Views.Edo
 			radiobuttonDocuments.Click();
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+
+			UpdateProblemsTab();
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)

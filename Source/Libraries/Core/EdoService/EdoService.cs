@@ -49,8 +49,9 @@ namespace EdoService.Library
 		private readonly IGenericRepository<OrderEdoTask> _edoTaskRepository;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
-		private readonly IBus _bus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
+		private readonly IManualEdoRequestFactory _manualEdoRequestFactory;
+		private readonly IBus _bus;
 
 		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[]
 		{
@@ -76,8 +77,9 @@ namespace EdoService.Library
 			IGenericRepository<OrderEdoTask> edoTaskRepository,
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
-			IBus bus,
-			IEnumerable<IInformalEdoRequestFactory> requestFactories
+			IEnumerable<IInformalEdoRequestFactory> requestFactories,
+			IManualEdoRequestFactory manualEdoRequestFactory,
+			IBus bus
 			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -93,8 +95,9 @@ namespace EdoService.Library
 				counterpartyEdoAccountEntityController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountEntityController));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
+			_manualEdoRequestFactory = manualEdoRequestFactory ?? throw new ArgumentNullException(nameof(manualEdoRequestFactory));
+			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 
 		public Result ResendEdoDocumentForOrder(OrderEntity order)
@@ -280,7 +283,7 @@ namespace EdoService.Library
 		private void ResendDocumentForCancelledEdoTask(IUnitOfWork uow, OrderEntity order, OrderEdoTask edoTask)
 		{
 			var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(edoTask);
-			var request = ManualEdoRequestFactory.Create(order, productCodes);
+			var request = _manualEdoRequestFactory.Create(uow, order, productCodes);
 
 			uow.Save(request);
 			uow.Commit();
@@ -636,7 +639,7 @@ namespace EdoService.Library
 					receiptTask.Items.Select(x => x.ProductCode)
 				);
 
-				var request = ManualEdoRequestFactory.Create(order, productCodes);
+				var request = _manualEdoRequestFactory.Create(uow, order, productCodes);
 
 				CancelEdoTaskWithReason(uow, receiptTask);
 
@@ -769,7 +772,7 @@ namespace EdoService.Library
 						);
 					}
 
-					var newRequest = ManualEdoRequestFactory.Create(request.Order);
+					var newRequest = _manualEdoRequestFactory.Create(uow, request.Order);
 
 					uow.Save(newRequest);
 					uow.Commit();
@@ -811,7 +814,7 @@ namespace EdoService.Library
 						return Result.Failure<string>(checkOtherRequestsResult.Errors);
 					}
 
-					var newRequest = ManualEdoRequestFactory.Create(request.Order);
+					var newRequest = _manualEdoRequestFactory.Create(uow, request.Order);
 
 					uow.Save(newRequest);
 					uow.Commit();

@@ -85,7 +85,7 @@ namespace Vodovoz.ViewModels.Edo
 			) 
 		{
 			newActions.Add(new BusyCommand(
-				"Переотправить УПД",
+				"Переотправить",
 				() =>
 				{
 					var hasDocflow = _edoService.HasDocflow(document.TaskId);

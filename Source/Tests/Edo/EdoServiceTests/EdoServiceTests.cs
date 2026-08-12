@@ -26,6 +26,7 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Errors.Edo;
+using VodovozBusiness.Services.Edo;
 using Xunit;
 using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
 
@@ -47,6 +48,7 @@ namespace EdoServices.Tests
 		private readonly EdoCancellationService _edoCancellationService;
 		private readonly IUserService _userService;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
+		private readonly IManualEdoRequestFactory _manualEdoRequestFactory;
 		private readonly EdoService.Library.EdoService _edoService;
 		private readonly EdoProblemRegistrar _problemRegistrar;
 		private readonly EdoTaskCustomSourcesPersister _customSourcesPersister;
@@ -66,6 +68,7 @@ namespace EdoServices.Tests
 			_edoRequestCreatedEventPublisher = Substitute.For<IEdoRequestCreatedEventPublisher>();
 			_bus = Substitute.For<IBus>();
 			_requestFactories = Enumerable.Empty<IInformalEdoRequestFactory>();
+			_manualEdoRequestFactory = Substitute.For<IManualEdoRequestFactory>();
 
 			_customSourcesPersister = Substitute.For<EdoTaskCustomSourcesPersister>(
 				_uowFactory,
@@ -112,8 +115,9 @@ namespace EdoServices.Tests
 				_edoTaskRepository,
 				_counterpartyEdoAccountEntityController,
 				_edoRequestCreatedEventPublisher,
-				_bus,
-				_requestFactories
+				_requestFactories,
+				_manualEdoRequestFactory,
+				_bus
 			);
 		}
 
