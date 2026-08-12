@@ -102,18 +102,6 @@ namespace Vodovoz.Settings.Database.Mango
 			}
 		}
 
-		public string WebhookCallsUrl
-		{
-			get
-			{
-				if(TestMode)
-				{
-					return _settingsController.GetStringValue("Mango.Test.WebhookCallsUrl");
-				}
-				return _settingsController.GetStringValue("Mango.Work.WebhookCallsUrl");
-			}
-		}
-
 		public string VpbxApiUrl
 		{
 			get

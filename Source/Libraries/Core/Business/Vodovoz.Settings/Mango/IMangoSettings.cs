@@ -22,11 +22,6 @@ namespace Vodovoz.Settings.Mango
 		string DriversCallsLineNumber { get; }
 
 		/// <summary>
-		/// URL для совершения звонков через вебхук Манго
-		/// </summary>
-		string WebhookCallsUrl { get; }
-
-		/// <summary>
 		/// Базовый URL API ВАТС Манго
 		/// </summary>
 		string VpbxApiUrl { get; }
