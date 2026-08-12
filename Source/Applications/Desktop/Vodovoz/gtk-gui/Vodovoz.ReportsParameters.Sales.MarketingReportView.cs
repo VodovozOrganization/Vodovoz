@@ -64,7 +64,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.hpaned1 = new global::Gtk.HPaned();
 			this.hpaned1.CanFocus = true;
 			this.hpaned1.Name = "hpaned1";
-			this.hpaned1.Position = 680;
+			this.hpaned1.Position = 720;
 			this.hboxMain = new global::Gtk.HBox();
 			this.hboxMain.Name = "hboxMain";
 			this.hboxMain.Spacing = 6;
