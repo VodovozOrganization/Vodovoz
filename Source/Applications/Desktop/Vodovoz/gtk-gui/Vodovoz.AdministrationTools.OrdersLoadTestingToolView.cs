@@ -32,7 +32,7 @@ namespace Vodovoz.AdministrationTools
 
 			this.vboxMain = new global::Gtk.VBox();
 			this.vboxMain.Name = "vboxMain";
-			this.vboxMain.Spacing = 6;
+			this.vboxMain.Spacing = 8;
 
 			this.hboxControls = new global::Gtk.HBox();
 			this.hboxControls.Name = "hboxControls";
