@@ -265,18 +265,6 @@ namespace Edo.Docflow.Factories
 			return products;
 		}
 
-		private NomenclatureEntity GetNomenclatureByGtin(IUnitOfWork uow, string gtin)
-		{
-			GtinEntity gtinAlias = null;
-
-			var nomenclature = uow.Session.QueryOver<NomenclatureEntity>()
-				.Left.JoinAlias(x => x.Gtins, () => gtinAlias)
-				.Where(() => gtinAlias.GtinNumber == gtin)
-				.List().FirstOrDefault();
-
-			return nomenclature;
-		}
-
 		public void Dispose()
 		{
 			_uow.Dispose();

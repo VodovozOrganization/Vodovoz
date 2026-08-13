@@ -42,5 +42,37 @@ namespace BitrixNotificationsSend.Client
 		/// и данными об операционном бюджете Битрикс24
 		/// </returns>
 		Task<Result<BitrixBatchResult>> LastServiceOrderDeals(IEnumerable<LastServiceOrderDto> lastServiceOrders, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Пакетное создание сделок в Битрикс24 по недовозам.
+		/// </summary>
+		/// <param name="undeliveredOrders">
+		/// Данные по недовозам,
+		/// не более <see cref="BitrixApiLimits.MaxBatchCommandsCount"/> за один вызов.
+		/// </param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// Результат отправки с ключами команд созданных сделок, идентификаторами созданных сделок,
+		/// ошибками по отдельным сделкам и данными об операционном бюджете Битрикс24.
+		/// </returns>
+		Task<Result<BitrixBatchResult>> SendUndeliveredOrderDeals(
+			IEnumerable<UndeliveredOrderDto> undeliveredOrders,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Пакетное обновление сделок в Битрикс24 по недовозам.
+		/// </summary>
+		/// <param name="undeliveredOrders">
+		/// Данные по недовозам,
+		/// не более <see cref="BitrixApiLimits.MaxBatchCommandsCount"/> за один вызов.
+		/// </param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// Результат отправки с ключами команд обновленных сделок,
+		/// ошибками по отдельным сделкам и данными об операционном бюджете Битрикс24.
+		/// </returns>
+		Task<Result<BitrixBatchResult>> UpdateUndeliveredOrderDeals(
+			IEnumerable<UndeliveredOrderDto> undeliveredOrders,
+			CancellationToken cancellationToken);
 	}
 }

@@ -14,12 +14,14 @@ namespace BitrixNotificationsSend.Library
 			services.ConfigureOptions<ConfigureCashlessDebtsNotificationsSendOptions>();
 			services.ConfigureOptions<ConfigurePlannedOrdersDealsCreateOptions>();
 			services.ConfigureOptions<ConfigureLastServiceOrdersDealsCreateOptions>();
+			services.ConfigureOptions<ConfigureUndeliveredOrdersDealsCreateOptions>();
 
 			services.AddBitrixNotificationsSendClient();
 
 			services.AddTransient<CashlessDebtsNotificationsSendService>();
 			services.AddTransient<PlannedOrdersDealsCreateService>();
 			services.AddTransient<LastServiceOrdersDealsCreateService>();
+			services.AddTransient<IUndeliveredOrdersDealsCreateService, UndeliveredOrdersDealsCreateService>();
 			services.AddTransient<IBitrixBatchesSendService, BitrixBatchesSendService>();
 			services.AddTransient<ILastServiceOrderDtoFactory, LastServiceOrderDtoFactory>();
 

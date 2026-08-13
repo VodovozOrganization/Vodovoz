@@ -7,6 +7,7 @@ using Core.Infrastructure;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Data.Repositories.Goods;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Common
@@ -14,11 +15,17 @@ namespace Edo.Common
 	public class TrueMarkTaskCodesValidator : ITrueMarkCodesValidator
 	{
 		private readonly IEdoRepository _edoRepository;
-		private ITrueMarkApiClient _trueMarkApiClient;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly ITrueMarkApiClient _trueMarkApiClient;
 
-		public TrueMarkTaskCodesValidator(IEdoRepository edoRepository, ITrueMarkApiClient trueMarkApiClient)
+		public TrueMarkTaskCodesValidator(
+			IEdoRepository edoRepository,
+			INomenclatureRepository nomenclatureRepository,
+			ITrueMarkApiClient trueMarkApiClient
+			)
 		{
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
 		}
 
@@ -80,7 +87,7 @@ namespace Edo.Common
 			EdoTaskItemTrueMarkStatusProvider edoTaskItemTrueMarkStatusProvider,
 			CancellationToken cancellationToken)
 		{
-			var gtins = await _edoRepository.GetGtinsAsync(cancellationToken);
+			var gtins = await _nomenclatureRepository.GetGtinsAsync(cancellationToken);
 			var gtinNumbers = gtins.Select(x => x.GtinNumber);
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
@@ -115,7 +122,7 @@ namespace Edo.Common
 			string organizationInn,
 			CancellationToken cancellationToken)
 		{
-			var gtins = await _edoRepository.GetGtinsAsync(cancellationToken);
+			var gtins = await _nomenclatureRepository.GetGtinsAsync(cancellationToken);
 			var gtinNumbers = gtins.Select(x => x.GtinNumber);
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
@@ -135,7 +142,7 @@ namespace Edo.Common
 		
 		public async Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<TrueMarkWaterIdentificationCode> codes, string organizationInn, CancellationToken cancellationToken)
 		{
-			var gtins = await _edoRepository.GetGtinsAsync(cancellationToken);
+			var gtins = await _nomenclatureRepository.GetGtinsAsync(cancellationToken);
 			var gtinNumbers = gtins.Select(x => x.GtinNumber);
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
@@ -165,8 +172,8 @@ namespace Edo.Common
 
 		public async Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<string> codes, string organizationInn, CancellationToken cancellationToken)
 		{
-			var gtins = await _edoRepository.GetGtinsAsync(cancellationToken);
-			var groupGtins = await _edoRepository.GetGroupGtinsAsync(cancellationToken);
+			var gtins = await _nomenclatureRepository.GetGtinsAsync(cancellationToken);
+			var groupGtins = await _nomenclatureRepository.GetGroupGtinsAsync(cancellationToken);
 
 			var gtinNumbers =
 				gtins.Select(x => x.GtinNumber)

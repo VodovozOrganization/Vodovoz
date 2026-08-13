@@ -32,13 +32,13 @@ namespace Vodovoz.Views.TrueMark
 
 		private global::Gamma.Widgets.CleanableEntry entrySearch;
 
-		private global::Gamma.GtkWidgets.yHBox yhboxTransferCodes;
+		private global::Gamma.GtkWidgets.yHBox yhboxReuseCodes;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelTransferTargetOrder;
+		private global::Gamma.GtkWidgets.yLabel ylabelReuseTargetOrder;
 
-		private global::QS.Views.Control.EntityEntry entityentryTransferTargetOrder;
+		private global::QS.Views.Control.EntityEntry entityentryReuseTargetOrder;
 
-		private global::Gamma.GtkWidgets.yButton ybuttonTransferRejectedCodes;
+		private global::Gamma.GtkWidgets.yButton ybuttonReuseRejectedCodes;
 
 		private global::Gamma.GtkWidgets.yNotebook ynotebookCodes;
 
@@ -231,44 +231,44 @@ namespace Vodovoz.Views.TrueMark
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child vboxWidget.Gtk.Box+BoxChild
-			this.yhboxTransferCodes = new global::Gamma.GtkWidgets.yHBox();
-			this.yhboxTransferCodes.Name = "yhboxTransferCodes";
-			this.yhboxTransferCodes.NoShowAll = true;
-			this.yhboxTransferCodes.Spacing = 6;
-			this.yhboxTransferCodes.BorderWidth = ((uint)(4));
-			// Container child yhboxTransferCodes.Gtk.Box+BoxChild
-			this.ylabelTransferTargetOrder = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelTransferTargetOrder.Name = "ylabelTransferTargetOrder";
-			this.ylabelTransferTargetOrder.LabelProp = global::Mono.Unix.Catalog.GetString("\u041f\u0435\u0440\u0435\u043d\u0435\u0441\u0442\u0438 \u043e\u0442\u043a\u043b\u043e\u043d\u0435\u043d\u043d\u044b\u0435 \u043a\u043e\u0434\u044b \u0432 \u0437\u0430\u043a\u0430\u0437:");
-			this.yhboxTransferCodes.Add(this.ylabelTransferTargetOrder);
-			global::Gtk.Box.BoxChild transferChild1 = ((global::Gtk.Box.BoxChild)(this.yhboxTransferCodes[this.ylabelTransferTargetOrder]));
-			transferChild1.Position = 0;
-			transferChild1.Expand = false;
-			transferChild1.Fill = false;
-			// Container child yhboxTransferCodes.Gtk.Box+BoxChild
-			this.entityentryTransferTargetOrder = new global::QS.Views.Control.EntityEntry();
-			this.entityentryTransferTargetOrder.Name = "entityentryTransferTargetOrder";
-			this.yhboxTransferCodes.Add(this.entityentryTransferTargetOrder);
-			global::Gtk.Box.BoxChild transferChild2 = ((global::Gtk.Box.BoxChild)(this.yhboxTransferCodes[this.entityentryTransferTargetOrder]));
-			transferChild2.Position = 1;
-			transferChild2.Expand = false;
-			transferChild2.Fill = false;
-			// Container child yhboxTransferCodes.Gtk.Box+BoxChild
-			this.ybuttonTransferRejectedCodes = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonTransferRejectedCodes.CanFocus = true;
-			this.ybuttonTransferRejectedCodes.Name = "ybuttonTransferRejectedCodes";
-			this.ybuttonTransferRejectedCodes.UseUnderline = true;
-			this.ybuttonTransferRejectedCodes.Label = global::Mono.Unix.Catalog.GetString("\u041f\u0435\u0440\u0435\u043d\u0435\u0441\u0442\u0438");
-			this.yhboxTransferCodes.Add(this.ybuttonTransferRejectedCodes);
-			global::Gtk.Box.BoxChild transferChild3 = ((global::Gtk.Box.BoxChild)(this.yhboxTransferCodes[this.ybuttonTransferRejectedCodes]));
-			transferChild3.Position = 2;
-			transferChild3.Expand = false;
-			transferChild3.Fill = false;
-			this.vboxWidget.Add(this.yhboxTransferCodes);
-			global::Gtk.Box.BoxChild transferChild4 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.yhboxTransferCodes]));
-			transferChild4.Position = 2;
-			transferChild4.Expand = false;
-			transferChild4.Fill = false;
+			this.yhboxReuseCodes = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxReuseCodes.Name = "yhboxReuseCodes";
+			this.yhboxReuseCodes.NoShowAll = true;
+			this.yhboxReuseCodes.Spacing = 6;
+			this.yhboxReuseCodes.BorderWidth = ((uint)(4));
+			// Container child yhboxReuseCodes.Gtk.Box+BoxChild
+			this.ylabelReuseTargetOrder = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelReuseTargetOrder.Name = "ylabelReuseTargetOrder";
+			this.ylabelReuseTargetOrder.LabelProp = global::Mono.Unix.Catalog.GetString("\u041f\u0435\u0440\u0435\u043d\u0435\u0441\u0442\u0438 \u043e\u0442\u043a\u043b\u043e\u043d\u0435\u043d\u043d\u044b\u0435 \u043a\u043e\u0434\u044b \u0432 \u0437\u0430\u043a\u0430\u0437:");
+			this.yhboxReuseCodes.Add(this.ylabelReuseTargetOrder);
+			global::Gtk.Box.BoxChild reuseChild1 = ((global::Gtk.Box.BoxChild)(this.yhboxReuseCodes[this.ylabelReuseTargetOrder]));
+			reuseChild1.Position = 0;
+			reuseChild1.Expand = false;
+			reuseChild1.Fill = false;
+			// Container child yhboxReuseCodes.Gtk.Box+BoxChild
+			this.entityentryReuseTargetOrder = new global::QS.Views.Control.EntityEntry();
+			this.entityentryReuseTargetOrder.Name = "entityentryReuseTargetOrder";
+			this.yhboxReuseCodes.Add(this.entityentryReuseTargetOrder);
+			global::Gtk.Box.BoxChild reuseChild2 = ((global::Gtk.Box.BoxChild)(this.yhboxReuseCodes[this.entityentryReuseTargetOrder]));
+			reuseChild2.Position = 1;
+			reuseChild2.Expand = false;
+			reuseChild2.Fill = false;
+			// Container child yhboxReuseCodes.Gtk.Box+BoxChild
+			this.ybuttonReuseRejectedCodes = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonReuseRejectedCodes.CanFocus = true;
+			this.ybuttonReuseRejectedCodes.Name = "ybuttonReuseRejectedCodes";
+			this.ybuttonReuseRejectedCodes.UseUnderline = true;
+			this.ybuttonReuseRejectedCodes.Label = global::Mono.Unix.Catalog.GetString("\u041f\u0435\u0440\u0435\u043d\u0435\u0441\u0442\u0438");
+			this.yhboxReuseCodes.Add(this.ybuttonReuseRejectedCodes);
+			global::Gtk.Box.BoxChild reuseChild3 = ((global::Gtk.Box.BoxChild)(this.yhboxReuseCodes[this.ybuttonReuseRejectedCodes]));
+			reuseChild3.Position = 2;
+			reuseChild3.Expand = false;
+			reuseChild3.Fill = false;
+			this.vboxWidget.Add(this.yhboxReuseCodes);
+			global::Gtk.Box.BoxChild reuseChild4 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.yhboxReuseCodes]));
+			reuseChild4.Position = 2;
+			reuseChild4.Expand = false;
+			reuseChild4.Fill = false;
 			// Container child vboxWidget.Gtk.Box+BoxChild
 			this.ynotebookCodes = new global::Gamma.GtkWidgets.yNotebook();
 			this.ynotebookCodes.CanFocus = true;

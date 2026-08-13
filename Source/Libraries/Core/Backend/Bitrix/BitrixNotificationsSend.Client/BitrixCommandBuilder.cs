@@ -16,15 +16,38 @@ namespace BitrixNotificationsSend.Client
 		/// <param name="method">Имя REST-метода АПИ Битрикс 24, например crm.deal.add</param>
 		/// <param name="fieldsDto">DTO с полями сущности, размеченными JsonPropertyName</param>
 		/// <returns>Строка команды вида "method?fields[FIELD]=value&amp;..."</returns>
-		public static string CreateCommand(string method, object fieldsDto)
+		public static string CreateCommand(string method, object fieldsDto, params string[] additionalParameters)
+		{
+			return CreateCommand(method, fieldsDto, Array.Empty<string>(), additionalParameters);
+		}
+
+		/// <summary>
+		/// Построение команды вызова REST-метода Битрикс24 с параметрами полей из DTO и исключением части полей.
+		/// </summary>
+		/// <param name="method">Имя REST-метода АПИ Битрикс 24, например crm.deal.update</param>
+		/// <param name="fieldsDto">DTO с полями сущности, размеченными JsonPropertyName</param>
+		/// <param name="excludedFieldNames">Названия полей, которые не нужно добавлять в команду</param>
+		/// <param name="additionalParameters">Дополнительные параметры метода вне fields</param>
+		/// <returns>Строка команды вида "method?id=1&amp;fields[FIELD]=value&amp;..."</returns>
+		public static string CreateCommand(
+			string method,
+			object fieldsDto,
+			IEnumerable<string> excludedFieldNames,
+			params string[] additionalParameters)
 		{
 			using(var document = JsonDocument.Parse(JsonSerializer.Serialize(fieldsDto)))
 			{
 				var parameters = new List<string>();
+				var excludedFields = new HashSet<string>(excludedFieldNames ?? Array.Empty<string>());
+
+				if(additionalParameters != null)
+				{
+					parameters.AddRange(additionalParameters);
+				}
 
 				foreach(var property in document.RootElement.EnumerateObject())
 				{
-					if(property.Value.ValueKind == JsonValueKind.Null)
+					if(property.Value.ValueKind == JsonValueKind.Null || excludedFields.Contains(property.Name))
 					{
 						continue;
 					}

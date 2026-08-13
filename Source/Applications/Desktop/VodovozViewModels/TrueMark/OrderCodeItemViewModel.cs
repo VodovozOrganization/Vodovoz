@@ -112,6 +112,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			set => SetField(ref _resultIdentificationCode, value);
 		}
 
+		public virtual string PoolIdentificationCode => ResultIdentificationCode ?? SourceIdentificationCode;
+
 		public virtual bool ReplacedFromPool
 		{
 			get => _replacedFromPool;

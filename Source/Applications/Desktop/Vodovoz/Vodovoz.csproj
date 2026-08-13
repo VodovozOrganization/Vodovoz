@@ -1766,6 +1766,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarsMonitoringView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.TurnoverWithDynamicsReportView.cs" />
     <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.MarketingReportView.cs" />
+    <Compile Include="Views\Reports\MarketingReportView.cs" />
     <Compile Include="Views\Sale\DeliveryPriceRuleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Sale.DeliveryPriceRuleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReportGroupPrint.cs" />
@@ -1886,6 +1888,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMaxFastDeliveryOrdersView.cs" />
     <Compile Include="AdministrationTools\RevenueServiceMassCounterpartyUpdateToolView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdministrationTools.RevenueServiceMassCounterpartyUpdateToolView.cs" />
+    <Compile Include="AdministrationTools\OrdersLoadTestingToolView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AdministrationTools.OrdersLoadTestingToolView.cs" />
     <Compile Include="Views\Settings\NamedDomainEntitiesSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Settings.NamedDomainEntitiesSettingsView.cs" />
     <Compile Include="ViewWidgets\Search\CompositeSearchView.cs" />

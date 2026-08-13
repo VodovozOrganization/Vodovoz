@@ -1,4 +1,5 @@
-﻿using Renci.SshNet.Messages;
+﻿using Core.Infrastructure;
+using Renci.SshNet.Messages;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
@@ -6,7 +7,6 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Extensions;
 
 namespace VodovozBusiness.Errors.Edo
 {
@@ -175,10 +175,10 @@ namespace VodovozBusiness.Errors.Edo
 		/// <summary>
 		/// Ошибка: заказ-источник и заказ-получатель совпадают
 		/// </summary>
-		public static Error SameTransferOrder =>
+		public static Error SameSourceAndTargetOrder =>
 			new Error(
 				typeof(EdoErrors),
-				nameof(SameTransferOrder),
+				nameof(SameSourceAndTargetOrder),
 				"Нельзя перенести коды в тот же самый заказ.");
 
 		/// <summary>
