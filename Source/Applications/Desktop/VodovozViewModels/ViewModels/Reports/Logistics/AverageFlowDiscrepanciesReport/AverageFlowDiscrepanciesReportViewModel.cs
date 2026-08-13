@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using ClosedXML.Excel;
 using ClosedXML.Report;
 using QS.Commands;
 using QS.Dialog;
@@ -10,7 +11,6 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Settings.Car;
@@ -25,7 +25,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICarSettings _carSettings;
 		private readonly ICarEventSettings _carEventSettings;
-		private const string _templatePath = @".\Reports\Cars\AverageFlowDiscrepanciesReport.xlsx";
 		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
 
 		public AverageFlowDiscrepanciesReportViewModel(
@@ -70,12 +69,104 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				SelectedCarTypesOfUse = new List<CarTypeOfUse>(Enum.GetValues(typeof(CarTypeOfUse)).Cast<CarTypeOfUse>())
 			};
 		}
+
 		private void ExportReport(string path)
 		{
-			var template = new XLTemplate(_templatePath);
-			template.AddVariable(Report);
-			template.Generate();
-			template.SaveAs(path);
+			using(var workbook = new XLWorkbook())
+			{
+				var worksheet = workbook.Worksheets.Add("Отчет");
+
+				worksheet.Cell(1, 5).Value = $"Отчет по расходу топлива за период {Report.StartDate:dd-MM-yyyy} – {Report.EndDate:dd-MM-yyyy}";
+				worksheet.Range(1, 5, 1, 15).Merge();
+				worksheet.Cell(1, 5).Style.Font.Bold = true;
+				worksheet.Cell(1, 5).Style.Font.FontSize = 14;
+
+				worksheet.Cell(2, 2).Value = "Выбранные авто:";
+				worksheet.Cell(2, 3).Value = Report.SelectedCars;
+				worksheet.Cell(2, 2).Style.Font.Bold = true;
+
+				worksheet.Cell(3, 2).Value = "Расхождения % ≥ :";
+				worksheet.Cell(3, 3).Value = Report.SelectedDiscrepancyPercent;
+				worksheet.Cell(3, 2).Style.Font.Bold = true;
+
+				var headers = new[]
+				{
+					"Авто",
+					"Тип автомобиля",
+					"ФИО последнего водителя",
+					"Прикрепление к площадке",
+					"Дата калибровки",
+					"Дата след.калибровки",
+					"Начальный баланс",
+					"Актуальный баланс",
+					"Сумма км по МЛ на выполнение адресов",
+					"Факт по одометру",
+					"Полезный пробег, %",
+					"Факт расход",
+					"План расход",
+					"Разница",
+					"Факт расход на 100км",
+					"План расход на 100км",
+					"Разница в %"
+				};
+
+				int headerRow = 5;
+				for(int i = 0; i < headers.Length; i++)
+				{
+					var cell = worksheet.Cell(headerRow, i + 1);
+					cell.Value = headers[i];
+					cell.Style.Font.Bold = true;
+					cell.Style.Fill.BackgroundColor = XLColor.LightGray;
+					cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+					cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+				}
+
+				int dataRow = 6;
+				foreach(var item in Report.Rows)
+				{
+					worksheet.Cell(dataRow, 1).Value = item.Car ?? "";
+					worksheet.Cell(dataRow, 2).Value = item.CarTypeOfUseString ?? "";
+					worksheet.Cell(dataRow, 3).Value = item.DriverFullName ?? "";
+					worksheet.Cell(dataRow, 4).Value = item.GeographicGroups ?? "";
+					worksheet.Cell(dataRow, 5).Value = item.CalibrationDate?.ToString("dd.MM.yyyy") ?? "";
+					worksheet.Cell(dataRow, 6).Value = item.NextCalibrationDate?.ToString("dd.MM.yyyy") ?? "";
+					worksheet.Cell(dataRow, 7).Value = item.CurrentBalance ?? 0;
+					worksheet.Cell(dataRow, 8).Value = item.ActualBalance ?? 0;
+					worksheet.Cell(dataRow, 9).Value = item.ConfirmedDistance ?? 0;
+					worksheet.Cell(dataRow, 10).Value = item.OdometerFact ?? 0;
+					worksheet.Cell(dataRow, 11).Value = item.UsefulMileagePercentValue ?? 0;
+					worksheet.Cell(dataRow, 12).Value = item.ConsumptionFact ?? 0;
+					worksheet.Cell(dataRow, 13).Value = item.ConsumptionPlan ?? 0;
+					worksheet.Cell(dataRow, 14).Value = item.DiscrepancyFuel;
+					worksheet.Cell(dataRow, 15).Value = item.Consumption100KmFact;
+					worksheet.Cell(dataRow, 16).Value = item.Consumption100KmPlan ?? 0;
+					worksheet.Cell(dataRow, 17).Value = item.DiscrepancyPercent;
+
+					dataRow++;
+				}
+
+				worksheet.Columns().AdjustToContents();
+
+				var dataRange = worksheet.Range(headerRow, 1, dataRow - 1, headers.Length);
+				dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+				dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
+				var numberColumns = new[] { 7, 8, 9, 10, 12, 13, 14, 15, 16 };
+				foreach(var col in numberColumns)
+				{
+					var range = worksheet.Range(headerRow + 1, col, dataRow - 1, col);
+					range.Style.NumberFormat.Format = "#,##0.00";
+				}
+
+				var percentColumns = new[] { 11, 17 };
+				foreach(var col in percentColumns)
+				{
+					var range = worksheet.Range(headerRow + 1, col, dataRow - 1, col);
+					range.Style.NumberFormat.Format = "#,##0.00\"%\"";
+				}
+
+				workbook.SaveAs(path);
+			}
 		}
 
 		private void CreateReport()
@@ -100,6 +191,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 			var includedCarModelIds = _carModelSelectionFilterViewModel?.IncludedCarModelIds;
 			var excludedCarModelIds = _carModelSelectionFilterViewModel?.ExcludedCarModelIds;
 
+			var odometerReadings = UoW.Session.Query<OdometerReading>()
+				.Where(o => o.StartDate >= StartDate && o.StartDate <= EndDate)
+				.OrderBy(o => o.Car.Id)
+				.ThenBy(o => o.StartDate)
+				.ToList();
+
 			var events = (
 				from carEvent in UoW.Session.Query<CarEvent>()
 
@@ -117,30 +214,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 
 				let confirmedDistance =
 					(decimal?)(from routeList in UoW.Session.Query<RouteList>()
-					where
-						routeList.Car.Id == carEvent.Car.Id
-						&& routeList.Date >= carEvent.CreateDate.Date
-						&& routeList.Date < nextCalibrationDate.Date
-					select routeList.ConfirmedDistance
+							   where
+								   routeList.Car.Id == carEvent.Car.Id
+								   && routeList.Date >= carEvent.CreateDate.Date
+								   && routeList.Date < nextCalibrationDate.Date
+							   select routeList.ConfirmedDistance
 				).Sum() ?? 0
-
-				let recalculatedDistance =
-					(decimal?)(from routeList in UoW.Session.Query<RouteList>()
-						where
-							routeList.Car.Id == carEvent.Car.Id
-							&& routeList.Date >= carEvent.CreateDate.Date
-							&& routeList.Date < nextCalibrationDate.Date
-						select routeList.RecalculatedDistance
-					).Sum() ?? 0
 
 				let mileageWriteOffKmSum =
 					(decimal?)(from mileageWriteOff in UoW.Session.Query<MileageWriteOff>()
-					where
-						mileageWriteOff.Car.Id == carEvent.Car.Id
-						&& mileageWriteOff.WriteOffDate != null
-						&& mileageWriteOff.WriteOffDate >= carEvent.CreateDate.Date
-						&& mileageWriteOff.WriteOffDate < nextCalibrationDate.Date
-					select mileageWriteOff.DistanceKm
+							   where
+								   mileageWriteOff.Car.Id == carEvent.Car.Id
+								   && mileageWriteOff.WriteOffDate != null
+								   && mileageWriteOff.WriteOffDate >= carEvent.CreateDate.Date
+								   && mileageWriteOff.WriteOffDate < nextCalibrationDate.Date
+							   select mileageWriteOff.DistanceKm
 					).Sum() ?? 0
 
 				let carFuelConsumption = (
@@ -187,13 +275,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					CurrentBalance = carEvent.CurrentFuelBalance ?? 0,
 					Car = carEvent.Car.RegistrationNumber,
 					ConfirmedDistance = confirmedDistance + mileageWriteOffKmSum,
-					RecalculatedDistance = recalculatedDistance,
 					Consumption100KmPlan = carFuelConsumption,
 					LastFuelCost = lastFuelCost,
 					NextCalibrationDate = nextCalibrationDate,
 					NextCalibrationFuelOperation = nextCalibrationFuelOperation
 				}
 			).ToList();
+
+			FillCarInfo(events);
+			FillOdometerReadings(events, odometerReadings);
 
 			var eventsGrouped = events.GroupBy(e => e.Car);
 
@@ -208,7 +298,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					{
 						CarId = singleRow.CarId,
 						Car = singleRow.Car,
-						CalibrationDate= singleRow.CalibrationDate,
+						CalibrationDate = singleRow.CalibrationDate,
 						IsSingleCalibrationForPeriod = true
 					};
 
@@ -220,7 +310,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				for(int i = 0; i < row.Value.Count - 1; i++)
 				{
 					row.Value[i].ConsumptionFact =
-						(row.Value[i].ConsumptionPlan??0)
+						(row.Value[i].ConsumptionPlan ?? 0)
 						- (row.Value[i].NextCalibrationFuelOperation ?? 0);
 
 					row.Value[i].ActualBalance = row.Value[i + 1].ActualBalance;
@@ -230,9 +320,55 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 			}
 
 			var resultRows = eventsDict.SelectMany(ed => ed.Value).ToList();
-			FillCarInfo(resultRows);
 
 			return resultRows;
+		}
+
+		private void FillOdometerReadings(IEnumerable<AverageFlowDiscrepanciesReportRow> rows, List<OdometerReading> odometerReadings)
+		{
+			var carIds = rows.Select(x => x.CarId).Distinct().ToArray();
+
+			if(!carIds.Any())
+			{
+				return;
+			}
+
+			var allReadings = UoW.Session.Query<OdometerReading>()
+				.Where(o => carIds.Contains(o.Car.Id))
+				.OrderBy(o => o.StartDate)
+				.ToList();
+
+			var readingsByCar = allReadings
+				.GroupBy(o => o.Car.Id)
+				.ToDictionary(g => g.Key, g => g.OrderBy(o => o.StartDate).ToList());
+
+			foreach(var row in rows)
+			{
+				if(!readingsByCar.TryGetValue(row.CarId, out var readings))
+				{
+					continue;
+				}
+
+				DateTime periodEnd = row.NextCalibrationDate ?? EndDate;
+
+				var lastReading = readings
+					.LastOrDefault(o => o.StartDate <= periodEnd);
+
+				if(lastReading != null)
+				{
+					var previousReading = readings
+						.LastOrDefault(o => o.StartDate < lastReading.StartDate);
+
+					if(previousReading != null)
+					{
+						row.OdometerFact = lastReading.Odometer - previousReading.Odometer;
+					}
+					else
+					{
+						row.OdometerFact = lastReading.Odometer;
+					}
+				}
+			}
 		}
 
 		private void FillCarInfo(IEnumerable<AverageFlowDiscrepanciesReportRow> rows)

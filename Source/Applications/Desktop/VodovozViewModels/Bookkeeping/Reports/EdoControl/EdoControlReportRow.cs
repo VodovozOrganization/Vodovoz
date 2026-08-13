@@ -1,4 +1,4 @@
-﻿using Vodovoz.Extensions;
+﻿using Core.Infrastructure;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 {

@@ -89,6 +89,7 @@ namespace FastPaymentEventsSender
 				if(totalRecords >= _criticalEventsCountThreshold)
 				{
 					await _zabbixSender.SendProblemMessageAsync(
+						nameof(FastPaymentEventsProcessor),
 						ZabixSenderMessageType.Problem,
 						"Не обрабатываются события изменения статуса оплаты",
 						stoppingToken);
@@ -127,7 +128,7 @@ namespace FastPaymentEventsSender
 
 				if(totalRecords < _criticalEventsCountThreshold)
 				{
-					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+					await _zabbixSender.SendIsHealthyAsync(nameof(FastPaymentEventsProcessor), stoppingToken);
 				}
 			}
 			catch(Exception ex)
@@ -135,6 +136,7 @@ namespace FastPaymentEventsSender
 				_logger.LogError(ex, "Произошла ошибка при обработке событий изменения статуса оплаты");
 
 				await _zabbixSender.SendProblemMessageAsync(
+					nameof(FastPaymentEventsProcessor),
 					ZabixSenderMessageType.Problem,
 					$"Произошла ошибка при обработке событий изменения статуса оплат {ex}",
 					stoppingToken);

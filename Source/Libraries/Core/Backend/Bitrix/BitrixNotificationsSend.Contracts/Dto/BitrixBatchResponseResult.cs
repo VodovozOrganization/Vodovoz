@@ -1,5 +1,6 @@
 using BitrixNotificationsSend.Contracts.JsonConverters;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace BitrixNotificationsSend.Contracts.Dto
@@ -13,8 +14,8 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// Результаты успешных команд: "ключ команды - id созданной сущности"
 		/// </summary>
 		[JsonPropertyName("result")]
-		[JsonConverter(typeof(EmptyArrayAsEmptyDictionaryConverter<long>))]
-		public Dictionary<string, long> SuccessfulCommands { get; set; } = new Dictionary<string, long>();
+		[JsonConverter(typeof(EmptyArrayAsEmptyDictionaryConverter<JsonElement>))]
+		public Dictionary<string, JsonElement> SuccessfulCommands { get; set; } = new Dictionary<string, JsonElement>();
 
 		/// <summary>
 		/// Ошибки команд: "ключ команды - данные ошибки"

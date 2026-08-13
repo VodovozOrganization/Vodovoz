@@ -1,8 +1,8 @@
 ﻿using System.Linq;
+using Core.Infrastructure;
 using QS.Project.Journal;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
 {

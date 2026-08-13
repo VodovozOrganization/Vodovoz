@@ -1,5 +1,5 @@
 ﻿using Edo.Problem.Routine.Options;
-using Edo.Problem.Routine.Services;
+using Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -49,7 +49,7 @@ namespace Edo.Problem.Routine.Worker
 					_logger.LogError(ex, "Ошибка при обработке задач ЭДО с активной проблемой оплаты самовывоза");
 				}
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(OrderSelfDeliveryPaidProblemWorker), stoppingToken);
 			}
 		}
 	}

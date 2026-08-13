@@ -50,5 +50,17 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public int ReceiptContactProblemRetryAttemptsBeforeNotification => _settingsController
 			.GetValue<int>("edo.problem.routine.receipt-contact-retries");
+
+		public TimeSpan CodePoolMissingProblemWorkerInterval => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.code-pool-missing-worker-interval");
+
+		public int CodePoolMissingProblemWorkerMaxAttempts => _settingsController
+			.GetValue<int>("edo.problem.routine.code-pool-missing-problem-max-attempts");
+
+		public int CodePoolMissingProblemWorkerBatchSize => _settingsController
+			.GetValue<int>("edo.problem.routine.code-pool-missing-worker-batch-size");
+
+		public int CodePoolMissingProblemWorkerRetryIntervalHours => _settingsController
+			.GetValue<int>("edo.problem.routine.code-pool-missing-worker-retry-interval");
 	}
 }

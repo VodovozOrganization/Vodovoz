@@ -91,7 +91,7 @@ namespace ExternalCounterpartyAssignNotifier
 					}
 				}
 
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(ExternalCounterpartyAssignNotifier), stoppingToken);
 			}
 		}
 

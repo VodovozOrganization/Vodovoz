@@ -45,27 +45,27 @@ namespace Edo.Problem.Routine.Worker
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoProblemRoutine()
+						.AddOrderEdoCodePoolMissingProblem()
+						.ConfigureZabbixSenderFromDataBase()
 						;
 
 					services
-						.AddHostedService<OrderSelfDeliveryPaidProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(OrderSelfDeliveryPaidProblemWorker));
+						.AddHostedService<OrderSelfDeliveryPaidProblemWorker>();
 
 					services
-						.AddHostedService<FiscalDocumentSendErrorProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(FiscalDocumentSendErrorProblemWorker));
+						.AddHostedService<FiscalDocumentSendErrorProblemWorker>();
 
 					services
-						.AddHostedService<OrderStatusProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(OrderStatusProblemWorker));
-
-					//services
-					//	.AddHostedService<CodeDuplicatedProblemWorker>()
-					//	.ConfigureZabbixSenderFromDataBase(nameof(CodeDuplicatedProblemWorker));
+						.AddHostedService<OrderStatusProblemWorker>();
 
 					services
-						.AddHostedService<ReceiptContactProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(ReceiptContactProblemWorker));
+						.AddHostedService<CodePoolMissingProblemWorker>();
+
+					services
+						.AddHostedService<CodeDuplicatedProblemWorker>();
+
+					services
+						.AddHostedService<ReceiptContactProblemWorker>();
 				});
 	}
 }

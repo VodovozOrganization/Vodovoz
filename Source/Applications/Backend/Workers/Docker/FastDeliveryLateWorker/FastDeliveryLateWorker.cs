@@ -77,7 +77,7 @@ namespace FastDeliveryLateWorker
 				CreateComplaintsForFasteDeliveryLateOrders(scope.ServiceProvider);
 
 				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(FastDeliveryLateWorker), stoppingToken);
 			}
 			catch(Exception e)
 			{

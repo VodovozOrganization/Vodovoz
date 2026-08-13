@@ -2,7 +2,9 @@
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Transport
 {
@@ -68,6 +70,85 @@ namespace Edo.Transport
 					edoTaskId,
 					ex.Message);
 			}
+		}
+
+		public async Task PublishTaskCreatedEvent(OrderEdoTask edoTask, CancellationToken cancellationToken = default)
+		{
+			switch(edoTask)
+			{
+				case DocumentEdoTask documentTask:
+					await PublishDocumentCreatedEvent(documentTask, cancellationToken);
+					break;
+				case TenderEdoTask tenderTask:
+					await PublishTenderCreatedEvent(tenderTask, cancellationToken);
+					break;
+				case ReceiptEdoTask receiptTask:
+					await PublishReceiptCreatedEvent(receiptTask, cancellationToken);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(
+						$"Задача ЭДО {edoTask.Id}: неизвестный тип задачи {edoTask.GetType().Name}, не удалось определить событие для возобновления");
+			}
+		}
+
+		private async Task PublishDocumentCreatedEvent(DocumentEdoTask edoTask, CancellationToken cancellationToken)
+		{
+			if(edoTask.Stage != DocumentEdoTaskStage.New)
+			{
+				_logger.LogWarning(
+					"Задача ЭДО {EdoTaskId} (DocumentEdoTask) находится на стадии {Stage}. Возобновление возможно только на стадии New",
+					edoTask.Id,
+					edoTask.Stage);
+				return;
+			}
+
+			_logger.LogInformation(
+				"Задача ЭДО {EdoTaskId} (DocumentEdoTask) находится на стадии {Stage}. Публикуем событие {EventName}",
+				edoTask.Id,
+				edoTask.Stage,
+				nameof(DocumentTaskCreatedEvent));
+
+			await _bus.Publish(new DocumentTaskCreatedEvent { Id = edoTask.Id }, cancellationToken);
+		}
+
+		private async Task PublishTenderCreatedEvent(TenderEdoTask edoTask, CancellationToken cancellationToken)
+		{
+			if(edoTask.Stage != TenderEdoTaskStage.New)
+			{
+				_logger.LogWarning(
+					"Задача ЭДО {EdoTaskId} (TenderEdoTask) находится на стадии {Stage}. Возобновление возможно только на стадии New",
+					edoTask.Id,
+					edoTask.Stage);
+				return;
+			}
+
+			_logger.LogInformation(
+				"Задача ЭДО {EdoTaskId} (TenderEdoTask) находится на стадии {Stage}. Публикуем событие {EventName}",
+				edoTask.Id,
+				edoTask.Stage,
+				nameof(TenderTaskCreatedEvent));
+
+			await _bus.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
+		}
+
+		private async Task PublishReceiptCreatedEvent(ReceiptEdoTask edoTask, CancellationToken cancellationToken)
+		{
+			if(edoTask.ReceiptStatus != EdoReceiptStatus.New)
+			{
+				_logger.LogWarning(
+					"Задача ЭДО {EdoTaskId} (ReceiptEdoTask) находится в статусе {ReceiptStatus}. Возобновление возможно только в статусе New",
+					edoTask.Id,
+					edoTask.ReceiptStatus);
+				return;
+			}
+
+			_logger.LogInformation(
+				"Задача ЭДО {EdoTaskId} (ReceiptEdoTask) находится в статусе {ReceiptStatus}. Публикуем событие {EventName}",
+				edoTask.Id,
+				edoTask.ReceiptStatus,
+				nameof(ReceiptTaskCreatedEvent));
+
+			await _bus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id }, cancellationToken);
 		}
 	}
 }

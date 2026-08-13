@@ -1,4 +1,4 @@
-using QS.Extensions.Observable.Collections.List;
+﻿using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Edo;
@@ -40,6 +40,28 @@ namespace VodovozBusiness.Services.Edo
 				DocumentType = EdoDocumentType.UPD,
 				Order = order,
 				ProductCodes = new ObservableList<TrueMarkProductCode>(productCodes)
+			};
+		}
+
+		/// <summary>
+		/// Создает ручную заявку на отправку документов клиенту по ЭДО без КМ
+		/// </summary>
+		/// <param name="order">Заказ, для которого создается заявка</param>
+		/// <returns>Ручная заявка на отправку документов клиенту по ЭДО</returns>
+		public static ManualEdoRequest Create(OrderEntity order)
+		{
+			if(order is null)
+			{
+				throw new ArgumentNullException(nameof(order));
+			}
+
+			return new ManualEdoRequest
+			{
+				Type = CustomerEdoRequestType.Order,
+				Time = DateTime.Now,
+				Source = EdoRequestSource.Manual,
+				DocumentType = EdoDocumentType.UPD,
+				Order = order
 			};
 		}
 	}

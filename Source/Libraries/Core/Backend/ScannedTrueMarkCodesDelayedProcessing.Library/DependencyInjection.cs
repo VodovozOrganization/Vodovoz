@@ -16,6 +16,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library
 		public static IServiceCollection AddScannedTrueMarkCodesDelayedProcessing(this IServiceCollection services)
 		{
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+			services.AddScoped<TrueMarkCodesPoolFactory>();
 
 			services
 				.AddMessageTransportSettings()

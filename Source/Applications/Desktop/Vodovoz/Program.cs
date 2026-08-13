@@ -265,8 +265,8 @@ namespace Vodovoz
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
-					builder.RegisterType<CancelledOrderTrueMarkCodesTransferService>()
-						.As<ICancelledOrderTrueMarkCodesTransferService>()
+					builder.RegisterType<CancelledOrderTrueMarkCodesReuseService>()
+						.As<ICancelledOrderTrueMarkCodesReuseService>()
 						.InstancePerLifetimeScope();
 
 					#endregion TrueMark

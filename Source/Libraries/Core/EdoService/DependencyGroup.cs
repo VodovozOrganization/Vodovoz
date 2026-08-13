@@ -1,4 +1,5 @@
 ﻿using Edo.Problems;
+using Edo.Admin;
 using Edo.Problems.Custom;
 using Edo.Problems.Custom.Sources;
 using Edo.Problems.Exception;
@@ -17,6 +18,7 @@ namespace EdoService.Library
 		public static IServiceCollection AddEdoServicesLibrary(this IServiceCollection services)
 		{
 			services
+				.AddEdoAdminServices()
 				.AddScoped<IEdoService, EdoService>()
 				.AddScoped<IEdoLogger, EdoLogger>()
 				.AddScoped<IContactListService, ContactListService>()
@@ -25,7 +27,6 @@ namespace EdoService.Library
 				.AddScoped<IInformalEdoRequestFactory, EquipmentTransferEdoRequestFactory>()
 				.AddScoped<EdoTaskCustomSourcesPersister>()
 				.AddScoped<EdoTaskExceptionSourcesPersister>()
-				.AddScoped<TaskHasBeenCancelledWithReason>()
 				.AddScoped<EdoProblemRegistrar>()
 				.AddScoped<MessageService>()
 				.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>()

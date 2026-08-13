@@ -20,6 +20,7 @@ namespace Edo.Transfer.Dispatcher
 
 			services.TryAddScoped<TransferSender>();
 			services.TryAddScoped<TransferSendPreparer>();
+			services.TryAddScoped<ITransferOrderHeaderPreparer, TransferOrderHeaderPreparer>();
 
 			return services;
 		}
@@ -30,7 +31,7 @@ namespace Edo.Transfer.Dispatcher
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumers(Assembly.GetExecutingAssembly());
+				cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
 			});
 
 			return services;

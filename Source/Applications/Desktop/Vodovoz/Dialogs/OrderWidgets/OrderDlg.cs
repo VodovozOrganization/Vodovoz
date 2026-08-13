@@ -3614,20 +3614,24 @@ namespace Vodovoz
 
 			var stopwatch = Stopwatch.StartNew();
 			_logger.Info("ЭДО заказа {OrderId}: начало конфигурации ViewModel", Entity.Id);
-			var edoInOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
-			edoInOrderViewModel.Setup(UoW, Entity.Id);
-			var transferTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
+			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
+			edoForOrderViewModel.Setup(UoW, Entity.Id);
+			var reuseTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
 					this,
-					edoInOrderViewModel.OrderCodesViewModel,
+					edoForOrderViewModel.OrderCodesViewModel,
 					UoW,
 					NavigationManager,
 					_lifetimeScope)
-				.ForProperty(viewModel => viewModel.TransferTargetOrder)
+				.ForProperty(viewModel => viewModel.ReuseTargetOrder)
 				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(
-					filter => filter.RestrictHideService = true)
+					filter =>
+					{
+						filter.RestrictHideService = true;
+						filter.ExceptIds = new[] { Entity.Id };
+					})
 				.Finish();
-			edoInOrderViewModel.OrderCodesViewModel.ConfigureTransferTargetOrderEntry(transferTargetOrderViewModel);
-			edoinorderview1.ViewModel = edoInOrderViewModel;
+			edoForOrderViewModel.OrderCodesViewModel.ConfigureReuseTargetOrderEntry(reuseTargetOrderViewModel);
+			edoinorderview1.ViewModel = edoForOrderViewModel;
 			_edoInOrderViewModelConfigured = true;
 			_logger.Info("ЭДО заказа {OrderId}: конфигурация ViewModel завершена за {Elapsed}", Entity.Id, stopwatch.Elapsed);
 		}

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace EdoNotifications.Contracts
 {
@@ -29,6 +29,18 @@ namespace EdoNotifications.Contracts
 		/// Некорректный статус заказа
 		/// </summary>
 		[Display(Name = "Некорректный статус заказа")]
-		OrderStatusProblem = 3
+		OrderStatusProblem = 3,
+
+		/// <summary>
+		/// Ошибка наличия кода в пуле
+		/// </summary>
+		[Display(Name = "Ошибка наличия кода в пуле")]
+		CodePoolMissingProblem = 4,
+
+		/// <summary>
+		/// Ошибка отправки чека в кассу
+		/// </summary>
+		[Display(Name = "Ошибка отправки чека в кассу")]
+		ReceiptSendingFailed = 5
 	}
 }

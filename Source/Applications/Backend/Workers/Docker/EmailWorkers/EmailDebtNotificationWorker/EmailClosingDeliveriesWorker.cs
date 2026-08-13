@@ -96,7 +96,7 @@ namespace EmailDebtNotificationWorker
 				{
 					await unitOfWork.CommitAsync(stoppingToken);
 
-					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+					await _zabbixSender.SendIsHealthyAsync(nameof(EmailClosingDeliveriesWorker), stoppingToken);
 
 					_logger.LogInformation("Нет подходящих для отправки почты контрагентов. Ждём следующего запуска.");
 
@@ -115,13 +115,13 @@ namespace EmailDebtNotificationWorker
 
 				await unitOfWork.CommitAsync(stoppingToken);
 
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(EmailClosingDeliveriesWorker), stoppingToken);
 
 				_logger.LogInformation("Закрытие поставок контрагентам и отправка почты завершено");
 			}
 			catch(Exception ex)
 			{
-				await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, ex.Message, stoppingToken);
+				await _zabbixSender.SendProblemMessageAsync(nameof(EmailClosingDeliveriesWorker), ZabixSenderMessageType.Problem, ex.Message, stoppingToken);
 
 				_logger.LogError(ex, "Ошибка при выполнении закрытия поставок контрагентам и отправке почты");
 			}
