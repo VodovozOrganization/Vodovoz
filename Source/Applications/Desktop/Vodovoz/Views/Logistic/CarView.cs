@@ -23,7 +23,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			notebook1.Page = 0;
 			notebook1.ShowTabs = false;
-			
+
 			buttonSave.Sensitive = ViewModel.AskSaveOnClose;
 
 			vehicleNumberEntry.Binding.AddBinding(ViewModel.Entity, e => e.RegistrationNumber, w => w.Number).InitializeFromSource();
@@ -61,10 +61,16 @@ namespace Vodovoz.Views.Logistic
 			yentryPTSSeries.Binding.AddBinding(ViewModel.Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
 
 			entryDriver.ViewModel = ViewModel.DriverViewModel;
+			entryDriver.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
 			textDriverInfo.Binding.AddBinding(ViewModel, vm => vm.DriverInfoText, w => w.Text).InitializeFromSource();
 
 			entryFuelType.ViewModel = ViewModel.FuelTypeViewModel;
+			entryFuelType.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
 			radiobuttonMain.Active = true;
 
@@ -154,18 +160,68 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel.Entity, e => e.IncomeChannel, w => w.SelectedItem)
 				.InitializeFromSource();
 			
-			if(!ViewModel.CanEdit)
-			{
-				vboxMain.Sensitive = false;
-				vboxGeographicGroups.Sensitive = false;
-				attachedfileinformationsview1.Sensitive = false;
-			}
-
 			ybuttonOpenCarAcceptanceCertificate.BindCommand(ViewModel.CreateCarAcceptanceCertificateCommand);
 			ybuttonCreateRentalContract.BindCommand(ViewModel.CreateRentalContractCommand);
 
+			SetFieldsSensitivity();
+
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+		}
+
+		private void SetFieldsSensitivity()
+		{
+			var canEditCarCardFields = ViewModel.CanEdit && ViewModel.CanEditCarCard;
+			var fieldsRequiringCarCardPermission = new Gtk.Widget[]
+			{
+				vehicleNumberEntry,
+				entryCarModel,
+				entryFuelType,
+				minBottlesSpin,
+				maxBottlesSpin,
+				minBottlesFromAddressSpin,
+				maxBottlesFromAddressSpin,
+				yentryVIN,
+				yentryManufactureYear,
+				yentryMotorNumber,
+				yentryChassisNumber,
+				yentryCarcaseNumber,
+				yentryColor,
+				yentryDocSeries,
+				yentryDocNumber,
+				yentryDocIssuedOrg,
+				ydatepickerDocIssuedDate,
+				yentryPTSNum,
+				yentryPTSSeries,
+				yenumcomboboxArchivingReason,
+				checkIsArchive,
+				ycheckbuttonUsedInDelivery,
+				speciallistcomboboxIncomeChannel,
+				btnAddGeographicGroup,
+				btnRemoveGeographicGroup
+			};
+
+			foreach(var field in fieldsRequiringCarCardPermission)
+			{
+				field.Sensitive = canEditCarCardFields;
+			}
+
+			photoviewCar.Sensitive = ViewModel.CanEdit;
+			orderNumberSpin.Sensitive = ViewModel.CanEdit;
+			entryDriver.Sensitive = ViewModel.CanEdit;
+			datepickerArchivingDate.Sensitive = ViewModel.CanEdit;
+			yvboxTechInspectInfo.Sensitive = ViewModel.CanEdit;
+			odometerReadingView.Sensitive = ViewModel.CanEdit;
+			carVersionsView.Sensitive = canEditCarCardFields;
+			carversioneditingview.Sensitive = canEditCarCardFields;
+			fuelcardversionview.Sensitive = ViewModel.CanEdit;
+			carinsuranceversionviewOsago.Sensitive = ViewModel.CanEdit;
+			carinsuranceversionviewKasko.Sensitive = ViewModel.CanEdit;
+			carinsuranceversioneditingview.Sensitive = ViewModel.CanEdit;
+			ybuttonOpenCarAcceptanceCertificate.Sensitive = canEditCarCardFields;
+			ybuttonCreateRentalContract.Sensitive = canEditCarCardFields;
+			vboxGeographicGroups.Sensitive = canEditCarCardFields;
+			attachedfileinformationsview1.Sensitive = canEditCarCardFields;
 		}
 
 		private void OnUpcomingTechInspectKmChanged(object sender, EventArgs e)
