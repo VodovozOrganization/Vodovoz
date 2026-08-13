@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Core.Infrastructure;
+using System;
 using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport
 {

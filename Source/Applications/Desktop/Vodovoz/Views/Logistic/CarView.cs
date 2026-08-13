@@ -1,11 +1,11 @@
-﻿using Gamma.ColumnConfig;
+﻿using Core.Infrastructure;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Extensions;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 

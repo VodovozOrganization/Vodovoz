@@ -51,7 +51,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Extensions;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
@@ -1449,6 +1448,15 @@ namespace Vodovoz.Domain.Orders
 			IsOrderForTender
 			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
 			&& PaymentType == PaymentType.Cashless;
+
+		/// <summary>
+		/// Предполагает ли форма оплаты заказа отправку чека
+		/// </summary>
+		public virtual new bool IsSendingReceiptExpectedByPaymentType =>
+			CheckIsSendingReceiptExpectedByPaymentType(
+				Client?.ReasonForLeaving,
+				PaymentType,
+				PaymentByCardFrom?.ReceiptRequired);
 
 		public virtual string OrderDocumentStringNumber(DocumentContainerType documentContainerType)
 		{

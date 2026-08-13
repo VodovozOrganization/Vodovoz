@@ -52,7 +52,6 @@ namespace Vodovoz.ViewModels.TrueMark
 	public class OrderCodesViewModel : WidgetViewModelBase
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly ICommonServices _commonServices;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IClipboard _clipboard;
@@ -60,11 +59,11 @@ namespace Vodovoz.ViewModels.TrueMark
 		private readonly INavigationManager _navigation;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IGenericRepository<Employee> _employeeRepository;
-		private readonly ICancelledOrderTrueMarkCodesTransferService _cancelledOrderTrueMarkCodesTransferService;
+		private readonly ICancelledOrderTrueMarkCodesReuseService _cancelledOrderTrueMarkCodesReuseService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly ViewModelEEVMBuilder<Order> _orderViewModelEEVMBuilder;
-		private IUnitOfWork _transferTargetOrderEntryUow;
+		private IUnitOfWork _reuseTargetOrderEntryUow;
 		private int _orderId;
 		private int _codesRequired;
 		private int _codesProvided;
@@ -92,9 +91,9 @@ namespace Vodovoz.ViewModels.TrueMark
 		private string _searchText;
 		private bool? _isValidSearchCodeText;
 		private string _parsedSearchCodeSerialNumber;
-		private Order _transferTargetOrder;
-		private bool _canShowTransferRejectedCodesControls;
-		private readonly bool _canTransferRejectedCodesFromCanceledOrder;
+		private Order _reuseTargetOrder;
+		private bool _canShowReuseRejectedCodesControls;
+		private readonly bool _canReuseRejectedCodesFromCanceledOrder;
 
 		public OrderCodesViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -106,14 +105,17 @@ namespace Vodovoz.ViewModels.TrueMark
 			INavigationManager navigation,
 			IRouteListItemRepository routeListItemRepository,
 			IGenericRepository<Employee> employeeRepository,
-			ICancelledOrderTrueMarkCodesTransferService cancelledOrderTrueMarkCodesTransferService,
+			ICancelledOrderTrueMarkCodesReuseService cancelledOrderTrueMarkCodesReuseService,
 			IInteractiveService interactiveService,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			ViewModelEEVMBuilder<Order> orderViewModelEEVMBuilder
 			) : base()
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_canReuseRejectedCodesFromCanceledOrder =
+				commonServices?.CurrentPermissionService.ValidatePresetPermission(
+					OrderPermissions.CanReuseRejectedCodesFromCanceledOrder)
+				?? throw new ArgumentNullException(nameof(commonServices));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
@@ -121,14 +123,12 @@ namespace Vodovoz.ViewModels.TrueMark
 			_navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_cancelledOrderTrueMarkCodesTransferService = cancelledOrderTrueMarkCodesTransferService
-				?? throw new ArgumentNullException(nameof(cancelledOrderTrueMarkCodesTransferService));
+			_cancelledOrderTrueMarkCodesReuseService = cancelledOrderTrueMarkCodesReuseService
+				?? throw new ArgumentNullException(nameof(cancelledOrderTrueMarkCodesReuseService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_orderViewModelEEVMBuilder = orderViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(orderViewModelEEVMBuilder));
-			_canTransferRejectedCodesFromCanceledOrder = _commonServices.CurrentPermissionService.ValidatePresetPermission(
-				OrderPermissions.CanTransferRejectedCodesFromCanceledOrder);
 			_scannedByDriverCodes = new List<OrderCodeItemViewModel>();
 			_scannedByDriverCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 			_scannedByWarehouseCodes = new List<OrderCodeItemViewModel>();
@@ -159,12 +159,12 @@ namespace Vodovoz.ViewModels.TrueMark
 		public ICommand OpenFromDriverAuthorCommand { get; private set; }
 		public ICommand OpenFromWarehouseAuthorCommand { get; private set; }
 		public ICommand OpenFromSelfdeliveryAuthorCommand { get; private set; }
-		public ICommand TransferRejectedCodesCommand { get; private set; }
+		public ICommand ReuseRejectedCodesCommand { get; private set; }
 
 		/// <summary>
 		/// ViewModel поля выбора заказа, в который нужно перенести отклоненные коды.
 		/// </summary>
-		public IEntityEntryViewModel TransferTargetOrderViewModel { get; private set; }
+		public IEntityEntryViewModel ReuseTargetOrderViewModel { get; private set; }
 
 		public virtual int OrderId
 		{
@@ -305,14 +305,14 @@ namespace Vodovoz.ViewModels.TrueMark
 		/// <summary>
 		/// Заказ, в который нужно перенести отклоненные коды текущего отмененного заказа.
 		/// </summary>
-		public virtual Order TransferTargetOrder
+		public virtual Order ReuseTargetOrder
 		{
-			get => _transferTargetOrder;
+			get => _reuseTargetOrder;
 			set
 			{
-				if(SetField(ref _transferTargetOrder, value))
+				if(SetField(ref _reuseTargetOrder, value))
 				{
-					OnPropertyChanged(nameof(CanTransferRejectedCodes));
+					OnPropertyChanged(nameof(CanReuseRejectedCodes));
 				}
 			}
 		}
@@ -320,14 +320,14 @@ namespace Vodovoz.ViewModels.TrueMark
 		/// <summary>
 		/// Доступность блока переноса отклоненных кодов по статусу текущего заказа.
 		/// </summary>
-		public virtual bool CanShowTransferRejectedCodesControls
+		public virtual bool CanShowReuseRejectedCodesControls
 		{
-			get => _canShowTransferRejectedCodesControls;
+			get => _canShowReuseRejectedCodesControls;
 			set
 			{
-				if(SetField(ref _canShowTransferRejectedCodesControls, value))
+				if(SetField(ref _canShowReuseRejectedCodesControls, value))
 				{
-					OnPropertyChanged(nameof(CanTransferRejectedCodes));
+					OnPropertyChanged(nameof(CanReuseRejectedCodes));
 				}
 			}
 		}
@@ -335,66 +335,71 @@ namespace Vodovoz.ViewModels.TrueMark
 		/// <summary>
 		/// Доступность переноса отклоненных кодов в выбранный заказ.
 		/// </summary>
-		public virtual bool CanTransferRejectedCodes =>
-			CanShowTransferRejectedCodesControls
+		public virtual bool CanReuseRejectedCodes =>
+			CanShowReuseRejectedCodesControls
 			&& OrderId > 0
-			&& TransferTargetOrder?.Id > 0;
+			&& ReuseTargetOrder?.Id > 0
+			&& ReuseTargetOrder.Id != OrderId;
 
 		/// <summary>
 		/// Настраивает поле выбора заказа-получателя для переноса отклоненных кодов.
 		/// </summary>
 		/// <param name="parentDialogViewModel">Родительский диалог для открытия журнала выбора заказа.</param>
-		public void ConfigureTransferTargetOrderEntry(DialogViewModelBase parentDialogViewModel)
+		public void ConfigureReuseTargetOrderEntry(DialogViewModelBase parentDialogViewModel)
 		{
-			if(TransferTargetOrderViewModel != null)
+			if(ReuseTargetOrderViewModel != null)
 			{
 				return;
 			}
 
-			_transferTargetOrderEntryUow = _uowFactory.CreateWithoutRoot();
+			_reuseTargetOrderEntryUow = _uowFactory.CreateWithoutRoot();
 
-			var transferTargetOrderViewModel = _orderViewModelEEVMBuilder
-				.SetUnitOfWork(_transferTargetOrderEntryUow)
+			var reuseTargetOrderViewModel = _orderViewModelEEVMBuilder
+				.SetUnitOfWork(_reuseTargetOrderEntryUow)
 				.SetViewModel(parentDialogViewModel)
-				.ForProperty(this, x => x.TransferTargetOrder)
+				.ForProperty(this, x => x.ReuseTargetOrder)
 				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(
-					filter => filter.RestrictHideService = true)
+					filter =>
+					{
+						filter.RestrictHideService = true;
+						filter.ExceptIds = new[] { OrderId };
+					})
 				.Finish();
 
-			ConfigureTransferTargetOrderEntry(transferTargetOrderViewModel);
+			ConfigureReuseTargetOrderEntry(reuseTargetOrderViewModel);
 		}
 
 		/// <summary>
 		/// Настраивает поле выбора заказа-получателя готовой моделью поля выбора.
 		/// </summary>
-		/// <param name="transferTargetOrderViewModel">Модель поля выбора заказа-получателя.</param>
-		public void ConfigureTransferTargetOrderEntry(IEntityEntryViewModel transferTargetOrderViewModel)
+		/// <param name="reuseTargetOrderViewModel">Модель поля выбора заказа-получателя.</param>
+		public void ConfigureReuseTargetOrderEntry(IEntityEntryViewModel reuseTargetOrderViewModel)
 		{
-			if(TransferTargetOrderViewModel != null)
+			if(ReuseTargetOrderViewModel != null)
 			{
 				return;
 			}
 
-			TransferTargetOrderViewModel = transferTargetOrderViewModel
-				?? throw new ArgumentNullException(nameof(transferTargetOrderViewModel));
+			ReuseTargetOrderViewModel = reuseTargetOrderViewModel
+				?? throw new ArgumentNullException(nameof(reuseTargetOrderViewModel));
 
-			TransferTargetOrderViewModel.Changed += (sender, e) =>
-				OnPropertyChanged(nameof(CanTransferRejectedCodes));
+			ReuseTargetOrderViewModel.Changed += (sender, e) =>
+				OnPropertyChanged(nameof(CanReuseRejectedCodes));
 		}
 
 		/// <summary>
 		/// Освобождает ресурсы поля выбора заказа-получателя.
 		/// </summary>
-		public void DisposeTransferTargetOrderEntry()
+		public void DisposeReuseTargetOrderEntry()
 		{
-			if(TransferTargetOrderViewModel is IDisposable disposableTransferTargetOrderViewModel)
+			if(ReuseTargetOrderViewModel is IDisposable disposableReuseTargetOrderViewModel)
 			{
-				disposableTransferTargetOrderViewModel.Dispose();
+				disposableReuseTargetOrderViewModel.Dispose();
 			}
 
-			TransferTargetOrderViewModel = null;
-			_transferTargetOrderEntryUow?.Dispose();
-			_transferTargetOrderEntryUow = null;
+			ReuseTargetOrderViewModel = null;
+			_reuseTargetOrderEntryUow?.Dispose();
+			_reuseTargetOrderEntryUow = null;
 		}
 
 		private void CreateCommands()
@@ -506,15 +511,15 @@ namespace Vodovoz.ViewModels.TrueMark
 			openFromSelfdeliveryAuthorCommand.CanExecuteChangedWith(this, x => x.ScannedBySelfdeliveryCodesSelected);
 			OpenFromSelfdeliveryAuthorCommand = openFromSelfdeliveryAuthorCommand;
 
-			var transferRejectedCodesCommand = new DelegateCommand(
-				TransferRejectedCodes,
-				() => CanTransferRejectedCodes);
-			transferRejectedCodesCommand.CanExecuteChangedWith(
+			var reuseRejectedCodesCommand = new DelegateCommand(
+				ReuseRejectedCodes,
+				() => CanReuseRejectedCodes);
+			reuseRejectedCodesCommand.CanExecuteChangedWith(
 				this,
 				x => x.OrderId,
-				x => x.TransferTargetOrder,
-				x => x.CanShowTransferRejectedCodesControls);
-			TransferRejectedCodesCommand = transferRejectedCodesCommand;
+				x => x.ReuseTargetOrder,
+				x => x.CanShowReuseRejectedCodesControls);
+			ReuseRejectedCodesCommand = reuseRejectedCodesCommand;
 		}
 
 		private void Reload()
@@ -527,8 +532,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var order = uow.GetById<Order>(OrderId);
-				CanShowTransferRejectedCodesControls = order?.OrderStatus == OrderStatus.Canceled
-					&& _canTransferRejectedCodesFromCanceledOrder;
+				CanShowReuseRejectedCodesControls = order?.OrderStatus == OrderStatus.Canceled
+					&& _canReuseRejectedCodesFromCanceledOrder;
 
 				ReloadCodesFromDriver(uow);
 				ReloadCodesFromWarehouse(uow);
@@ -547,23 +552,23 @@ namespace Vodovoz.ViewModels.TrueMark
 
 				OnPropertyChanged(nameof(SearchText));
 				CodesProvided = CodesProvidedFromScan + TotalAddedFromPool;
-				OnPropertyChanged(nameof(CanTransferRejectedCodes));
+				OnPropertyChanged(nameof(CanReuseRejectedCodes));
 			}
 		}
 
-		private void TransferRejectedCodes()
+		private void ReuseRejectedCodes()
 		{
-			if(TransferTargetOrder is null)
+			if(ReuseTargetOrder is null)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Выберите заказ, в который нужно перенести коды.");
 				return;
 			}
 
-			var targetOrderId = TransferTargetOrder.Id;
+			var targetOrderId = ReuseTargetOrder.Id;
 
 			using(var uow = _uowFactory.CreateWithoutRoot("Перенос отклоненных кодов ЧЗ"))
 			{
-				var result = _cancelledOrderTrueMarkCodesTransferService.TransferCodes(uow, OrderId, targetOrderId);
+				var result = _cancelledOrderTrueMarkCodesReuseService.ReuseCodes(uow, OrderId, targetOrderId);
 
 				if(result.IsFailure)
 				{
@@ -580,10 +585,10 @@ namespace Vodovoz.ViewModels.TrueMark
 
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Info,
-					$"Перенесено кодов: {result.Value.TransferredCodesCount}.",
+					$"Перенесено кодов: {result.Value.ReusedCodesCount}.",
 					"Коды перенесены");
 
-				TransferTargetOrder = null;
+				ReuseTargetOrder = null;
 				Reload();
 				_navigation.OpenViewModel<OrderCodesDialogViewModel, int>(
 					null,

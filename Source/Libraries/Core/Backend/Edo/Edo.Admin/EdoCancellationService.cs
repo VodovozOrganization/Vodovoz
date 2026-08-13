@@ -5,12 +5,14 @@ using Edo.Problems.Custom.Sources;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate.Criterion;
+using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Admin
 {
@@ -41,10 +43,13 @@ namespace Edo.Admin
 			int taskId, 
 			string reason,
 			bool needPublish,
-			CancellationToken cancellationToken
+			CancellationToken cancellationToken = default,
+			IUnitOfWork uow = null
 		)
 		{
-			var edoTask = await _uow.Session.GetAsync<EdoTask>(taskId, cancellationToken);
+			var unitOfWork = uow ?? _uow;
+
+			var edoTask = await unitOfWork.Session.GetAsync<EdoTask>(taskId, cancellationToken);
 			if(edoTask == null)
 			{
 				_logger.LogWarning("Задача №{TaskId} не найдена.", taskId);
@@ -59,14 +64,14 @@ namespace Edo.Admin
 
 			if(edoTask.TaskType == EdoTaskType.Transfer)
 			{
-				await CancelTransferTask((TransferEdoTask)edoTask, reason, needPublish, cancellationToken);
+				await CancelTransferTask(unitOfWork, (TransferEdoTask)edoTask, reason, needPublish, cancellationToken);
 			}
 			else
 			{
-				await CancelOrderTask((OrderEdoTask)edoTask, reason, needPublish, cancellationToken);
+				await CancelOrderTask(unitOfWork, (OrderEdoTask)edoTask, reason, needPublish, cancellationToken);
 			}
 
-			await _uow.CommitAsync(cancellationToken);
+			await unitOfWork.CommitAsync(cancellationToken);
 		}
 
 		/// <summary>
@@ -94,28 +99,37 @@ namespace Edo.Admin
 			return isOrderPriceInvalid;
 		}
 
-		private async Task CancelOrderTask(OrderEdoTask edoTask,
+		private async Task CancelOrderTask(
+			IUnitOfWork uow,
+			OrderEdoTask edoTask,
 			string reason,
 			bool needPublish,
 			CancellationToken cancellationToken)
 		{
-			var orderDocument = await _uow.Session.QueryOver<OrderEdoDocument>()
+			var orderDocument = await uow.Session.QueryOver<OrderEdoDocument>()
 				.Where(x => x.DocumentTaskId == edoTask.Id)
 				.SingleOrDefaultAsync(cancellationToken);
 
-			if(orderDocument == null || orderDocument.Status == EdoDocumentStatus.Cancelled)
+			if(orderDocument == null || orderDocument.Status.IsIn(EdoDocumentStatus.Cancelled, EdoDocumentStatus.Error))
 			{
 				edoTask.Status = EdoTaskStatus.Cancelled;
+
+				foreach(var item in edoTask.Items)
+				{
+					item.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Rejected;
+					item.ProductCode.ResultCode = null;
+				}
+
 				edoTask.CancellationReason = reason;
 
-				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+				await uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 				return;
 			}
 
 			edoTask.Status = EdoTaskStatus.InCancellation;
 			edoTask.CancellationReason = reason;
 
-			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+			await uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 
 			if(needPublish)
 			{
@@ -129,7 +143,9 @@ namespace Edo.Admin
 			}
 		}
 		
-		private async Task CancelTransferTask(TransferEdoTask transferEdoTask,
+		private async Task CancelTransferTask(
+			IUnitOfWork uow,
+			TransferEdoTask transferEdoTask,
 			string reason,
 			bool needPublish,
 			CancellationToken cancellationToken)
@@ -143,7 +159,7 @@ namespace Edo.Admin
 				return;
 			}
 
-			var transferDocument = await _uow.Session.QueryOver<TransferEdoDocument>()
+			var transferDocument = await uow.Session.QueryOver<TransferEdoDocument>()
 				.Where(x => x.TransferTaskId == transferEdoTask.Id)
 				.SingleOrDefaultAsync(cancellationToken);
 
@@ -152,14 +168,14 @@ namespace Edo.Admin
 				transferEdoTask.Status = EdoTaskStatus.Cancelled;
 				transferEdoTask.CancellationReason = reason;
 
-				await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
+				await uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 				return;
 			}
 
 			transferEdoTask.Status = EdoTaskStatus.InCancellation;
 			transferEdoTask.CancellationReason = reason;
 
-			await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
+			await uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 
 			if(needPublish)
 			{

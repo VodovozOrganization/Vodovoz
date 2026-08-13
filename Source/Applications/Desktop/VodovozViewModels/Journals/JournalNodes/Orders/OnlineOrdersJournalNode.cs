@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Core.Infrastructure;
 using QS.Project.Journal;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders

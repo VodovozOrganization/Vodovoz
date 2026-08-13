@@ -34,6 +34,7 @@ namespace Edo.Problem.Routine
 				.AddEdoNotifications();
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+			services.AddScoped<MessageService>();
  			services.AddScoped<EdoProblemRoutineNotificationFactory>();
 			services.AddScoped<IEdoProblemRoutineNotificationService, EdoProblemRoutineNotificationService>();
 
@@ -89,7 +90,7 @@ namespace Edo.Problem.Routine
 		private static IServiceCollection AddCodeDuplicatedProblem(this IServiceCollection services)
 		{
 			services.ConfigureOptions<ConfigureCodeDuplicatedProblemWorkerOptions>();
-			services.AddScoped<CodeDuplicatedProblemService>();
+			services.AddScoped<ICodeDuplicatedProblemService, CodeDuplicatedProblemService>();
 
 			return services;
 		}

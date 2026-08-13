@@ -48,7 +48,7 @@ namespace DriverAPI.Controllers.V6
 		}
 
 		/// <summary>
-		/// Отправка запроса на звонок через вебхук Манго
+		/// Отправка запроса на звонок через API ВАТС Манго
 		/// </summary>
 		/// <param name="getCallRequest">Модель данных входящего запроса</param>
 		/// <param name="cancellationToken">Токен отмены</param>
@@ -71,7 +71,7 @@ namespace DriverAPI.Controllers.V6
 			try
 			{
 				var result =
-					await _callsService.MakeWebhookCall(getCallRequest.RouteListId, driver, getCallRequest.Number, cancellationToken);
+					await _callsService.MakeCall(getCallRequest.RouteListId, driver, getCallRequest.Number, cancellationToken);
 
 				return MapResult(
 					result,

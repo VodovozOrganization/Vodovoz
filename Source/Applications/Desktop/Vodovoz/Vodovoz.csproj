@@ -1888,6 +1888,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMaxFastDeliveryOrdersView.cs" />
     <Compile Include="AdministrationTools\RevenueServiceMassCounterpartyUpdateToolView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdministrationTools.RevenueServiceMassCounterpartyUpdateToolView.cs" />
+    <Compile Include="AdministrationTools\OrdersLoadTestingToolView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AdministrationTools.OrdersLoadTestingToolView.cs" />
     <Compile Include="Views\Settings\NamedDomainEntitiesSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Settings.NamedDomainEntitiesSettingsView.cs" />
     <Compile Include="ViewWidgets\Search\CompositeSearchView.cs" />
@@ -2504,6 +2506,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj">
       <Project>{6950e38b-66b7-4224-aa53-0bf28d4d4a8b}</Project>
       <Name>DriverApi.Notifications.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Admin\Edo.Admin.csproj">
+      <Project>{86CC5608-4BE8-493D-B9B5-C90EC65002BC}</Project>
+      <Name>Edo.Admin</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Common\Edo.Common.csproj">
       <Project>{b657cbf6-c803-4249-894b-87e8e6e94a62}</Project>

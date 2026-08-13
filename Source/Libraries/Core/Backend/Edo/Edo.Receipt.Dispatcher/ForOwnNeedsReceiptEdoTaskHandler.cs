@@ -402,6 +402,8 @@ namespace Edo.Receipt.Dispatcher
 								GetOrderOrganizationInn(receiptEdoTask),
 								cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
+
+							await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, newCode, cancellationToken);
 						}
 					}
 
@@ -606,7 +608,7 @@ namespace Edo.Receipt.Dispatcher
 				.Where(x => x.Count > 0m)
 				.Where(x => x.Nomenclature.IsAccountableInTrueMark == true);
 
-			var expandedMarkedItems = ExpandMarkedOrderItems(markedOrderItems).ToList();
+			var expandedMarkedItems = ExpandMarkedOrderItems(markedOrderItems);
 			var unprocessedCodes = receiptEdoTask.Items.ToList();
 
 
@@ -998,7 +1000,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 		}
 
-		private IEnumerable<(OrderItemEntity OrderItem, decimal DiscountPerSingleItem)> ExpandMarkedOrderItems(IEnumerable<OrderItemEntity> markedOrderItems)
+		private List<(OrderItemEntity OrderItem, decimal DiscountPerSingleItem)> ExpandMarkedOrderItems(IEnumerable<OrderItemEntity> markedOrderItems)
 		{
 			// предоставляет каждую единицу товара отдельным элементом
 			// с рассчитанной пропорциональной скидкой
@@ -1030,7 +1032,8 @@ namespace Edo.Receipt.Dispatcher
 
 				return multipliedItems;
 			});
-			return expandedMarkedItems;
+
+			return expandedMarkedItems.ToList();
 		}
 
 		/// <summary>

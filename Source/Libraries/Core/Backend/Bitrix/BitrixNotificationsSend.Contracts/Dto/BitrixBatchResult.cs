@@ -14,6 +14,11 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		public IList<string> SuccessfulCommandKeys { get; set; } = new List<string>();
 
 		/// <summary>
+		/// Идентификаторы сущностей, созданных успешными командами: ключ команды - идентификатор сущности
+		/// </summary>
+		public IDictionary<string, long> SuccessfulCommandEntityIds { get; set; } = new Dictionary<string, long>();
+
+		/// <summary>
 		/// Ошибки выполнения отдельных команд пакета
 		/// </summary>
 		public IList<BitrixBatchItemError> Errors { get; set; } = new List<BitrixBatchItemError>();

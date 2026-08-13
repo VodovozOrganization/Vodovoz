@@ -163,19 +163,32 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 				before = before.Value.Date.AddDays(1).AddSeconds(-1);
 			}
 
+			var excludeOperationsIdsHashSet =
+				excludeOperationsIds is null
+				? new HashSet<int>()
+				: new HashSet<int>(excludeOperationsIds);
+
 			var lastFuelBalanceCalibrationCarEvent =
 				GetLastFuelCalibrationCarEvent(uow, car, fuelBalanceCalibrationCarEventTypeId, before);
 
 			if(lastFuelBalanceCalibrationCarEvent?.CalibrationFuelOperation != null)
 			{
-				excludeOperationsIds =
-					excludeOperationsIds is null
-					? new int[] { lastFuelBalanceCalibrationCarEvent.CalibrationFuelOperation.Id }
-					: excludeOperationsIds.Append(lastFuelBalanceCalibrationCarEvent.CalibrationFuelOperation.Id).ToArray();
+				excludeOperationsIdsHashSet.Add(lastFuelBalanceCalibrationCarEvent.CalibrationFuelOperation.Id);
+
+				var allFuelCalibrationsOnLastCalibrationDay =
+					GetFuelCalibrationCarEventsOnDay(uow, car, fuelBalanceCalibrationCarEventTypeId, lastFuelBalanceCalibrationCarEvent.StartDate);
+
+				foreach(var fuelCalibration in allFuelCalibrationsOnLastCalibrationDay)
+				{
+					if(fuelCalibration.CalibrationFuelOperation != null)
+					{
+						excludeOperationsIdsHashSet.Add(fuelCalibration.CalibrationFuelOperation.Id);
+					}
+				}
 			}
 
 			var outlayedFuelOperationsSum =
-				GetCarFuelOperationsSums(uow, driver, car, lastFuelBalanceCalibrationCarEvent?.StartDate, before, excludeOperationsIds)
+				GetCarFuelOperationsSums(uow, driver, car, lastFuelBalanceCalibrationCarEvent?.StartDate, before, excludeOperationsIdsHashSet.ToArray())
 				?.Outlayed ?? 0;
 
 			var givedFuelTransactionsSum =
@@ -216,6 +229,26 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 				.FirstOrDefault();
 
 			return lastFuelBalanceCalibrationCarEvent;
+		}
+
+		private IEnumerable<CarEvent> GetFuelCalibrationCarEventsOnDay(IUnitOfWork uow, Car car, int fuelBalanceCalibrationCarEventTypeId, DateTime date)
+		{
+			if(car is null)
+			{
+				return Array.Empty<CarEvent>();
+			}
+
+			var targetDate = date.Date;
+
+			CarEvent carEventAlias = null;
+
+			var carEvents = uow.Session.QueryOver(() => carEventAlias)
+				.Where(x => x.CarEventType.Id == fuelBalanceCalibrationCarEventTypeId)
+				.And(() => carEventAlias.Car.Id == car.Id)
+				.And(() => carEventAlias.StartDate >= targetDate && carEventAlias.StartDate < targetDate.AddDays(1))
+				.List();
+
+			return carEvents;
 		}
 
 		private FuelQueryResult GetCarFuelOperationsSums(IUnitOfWork uow, Employee driver, Car car, DateTime? startDate = null, DateTime? endDate = null, params int[] excludeOperationsIds)

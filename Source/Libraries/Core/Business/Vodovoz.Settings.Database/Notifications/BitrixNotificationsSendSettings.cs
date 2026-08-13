@@ -70,5 +70,14 @@ namespace Vodovoz.Settings.Database.Notifications
 
 		public DateTime LastServiceOrdersMinDeliveryDate =>
 			_settingsController.GetDateTimeValue($"{_parametersPrefix}LastServiceOrdersMinDeliveryDate");
+
+		public TimeSpan UndeliveredOrdersSendInterval =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}UndeliveredOrdersSendInterval");
+
+		public bool UndeliveredOrdersSendEnabled =>
+			_settingsController.GetBoolValue($"{_parametersPrefix}UndeliveredOrdersSendEnabled");
+
+		public DateTime UndeliveredOrdersMinLastEditedTime =>
+			_settingsController.GetDateTimeValue($"{_parametersPrefix}UndeliveredOrdersMinLastEditedTime");
 	}
 }
