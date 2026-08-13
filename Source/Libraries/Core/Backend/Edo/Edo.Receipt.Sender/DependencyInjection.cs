@@ -1,4 +1,4 @@
-﻿using Edo.Admin;
+using Edo.Admin;
 using Edo.Common;
 using Edo.Problems;
 using Edo.Transport;
@@ -21,14 +21,16 @@ namespace Edo.Receipt.Sender
 			services.AddModulKassa();
 
 			services.TryAddScoped<FiscalDocumentFactory>();
+			services.TryAddScoped<ReceiptSendingFailedNotificationService>();
 			services.TryAddScoped<ReceiptSender>();
 
 			services
-				.AddEdo()
-				.AddEdoProblemRegistration()
-				.AddEdoAdminServices()
-				.AddFaultServices()
-				;
+	.AddEdo()
+	.AddEdoProblemRegistration()
+	.AddEdoAdminServices()
+	.AddEdoNotifications()
+	.AddFaultServices()
+	;
 
 			return services;
 		}
