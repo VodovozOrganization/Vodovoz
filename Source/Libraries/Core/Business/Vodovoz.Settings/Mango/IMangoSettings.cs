@@ -52,6 +52,11 @@ namespace Vodovoz.Settings.Mango
 		int DriverMangoExtensionNumberPoolEnd { get; }
 
 		/// <summary>
+		/// Таймаут ожидания звонка водителем в секундах
+		/// </summary>
+		int DriversCallTimeOut { get; }
+
+		/// <summary>
 		/// Включена ли работа воркера деактивации сотрудников Манго
 		/// </summary>
 		bool DriverMangoEmployeeDeactivationWorkerEnabled { get; }

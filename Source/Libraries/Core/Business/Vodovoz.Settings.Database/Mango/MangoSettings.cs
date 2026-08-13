@@ -160,6 +160,9 @@ namespace Vodovoz.Settings.Database.Mango
 		public int DriverMangoExtensionNumberPoolEnd =>
 			_settingsController.GetValue<int>("Mango.DriverMangoExtensionNumberPoolEnd");
 
+		public int DriversCallTimeOut =>
+			_settingsController.GetIntValue("Mango.DriversCallTimeOut");
+
 		public bool DriverMangoEmployeeDeactivationWorkerEnabled =>
 			_settingsController.GetBoolValue("Mango.DriverMangoEmployeeDeactivationWorkerEnabled");
 

@@ -1,11 +1,11 @@
 ﻿using DriverApi.Contracts.V6.Requests;
+using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.V6.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
 using System.Net.Mime;
@@ -52,10 +52,11 @@ namespace DriverAPI.Controllers.V6
 		/// </summary>
 		/// <param name="getCallRequest">Модель данных входящего запроса</param>
 		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns><see cref="GetCallResponse"/></returns>
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetCallResponse))]
 		public async Task<IActionResult> GetCall([FromBody] GetCallRequest getCallRequest, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Запрос на звонок на номер: {ClientPhoneNumber}, маршрутный лист {RouteListId} от пользователя {Username} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
@@ -79,7 +80,7 @@ namespace DriverAPI.Controllers.V6
 					{
 						if(result.IsSuccess)
 						{
-							return StatusCodes.Status204NoContent;
+							return StatusCodes.Status200OK;
 						}
 
 						var firstError = result.Errors.First();
