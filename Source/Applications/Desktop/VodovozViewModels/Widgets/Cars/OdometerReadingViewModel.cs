@@ -12,6 +12,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 	{
 		private DateTime? _selectedDate;
 		private OdometerReading _selectedOdometerReading;
+		private readonly bool _canCreate;
+		private readonly bool _canEdit;
+		private bool _canEditCar;
 		private readonly IOdometerReadingsController _odometerReadingController;
 		private DelegateCommand _addNewOdometerReadingCommand;
 		private DelegateCommand _changeOdometerReadingStartDateCommand;
@@ -22,9 +25,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			_odometerReadingController = odometerReadingController ?? throw new ArgumentNullException(nameof(odometerReadingController));
 
 			CanRead = PermissionResult.CanRead;
-			CanCreate = PermissionResult.CanCreate && Entity.Id == 0
+			_canCreate = PermissionResult.CanCreate && Entity.Id == 0
 				|| commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_odometer_reading");
-			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_odometer_reading");
+			_canEdit = commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_odometer_reading");
 
 			if(IsNewCar)
 			{
@@ -58,8 +61,22 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		}
 
 		public bool CanRead { get; }
-		public bool CanCreate { get; }
-		public bool CanEdit { get; }
+		public bool CanCreate => _canCreate || CanEditCar;
+		public bool CanEdit => _canEdit || CanEditCar;
+		public bool CanEditCar
+		{
+			get => _canEditCar;
+			set
+			{
+				if(SetField(ref _canEditCar, value))
+				{
+					OnPropertyChanged(nameof(CanCreate));
+					OnPropertyChanged(nameof(CanEdit));
+					OnPropertyChanged(nameof(CanAddNewOdometerReading));
+					OnPropertyChanged(nameof(CanChangeOdometerReadingDate));
+				}
+			}
+		}
 
 		public bool IsNewCar => Entity.Id == 0;
 
