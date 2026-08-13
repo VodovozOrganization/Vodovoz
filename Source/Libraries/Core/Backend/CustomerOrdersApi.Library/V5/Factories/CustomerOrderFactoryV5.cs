@@ -67,9 +67,11 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			if(orderInfo.OrderStatus == ExternalOrderStatus.OrderDelivering)
 			{
 				orderInfo.DriversMangoNumber =
-					driversMangoExtensionNumber != null && driversMangoExtensionNumber.IsActive
+					_mangoSettings.DriverMangoEmployeeRegistrationEnabled
+					&& driversMangoExtensionNumber != null
+					&& driversMangoExtensionNumber.IsActive
 					? _mangoSettings.DriversCallsLineNumber + ",," + driversMangoExtensionNumber.ExtensionNumber
-					: orderInfo.DriversMangoNumber = _mangoSettings.DriversCallsLineNumber;
+					: _mangoSettings.DriversCallsLineNumber;
 			}
 
 			return orderInfo;
