@@ -61,6 +61,7 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
@@ -491,11 +492,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		//TODO убрать метод из сущности
 		private void ResetClientSecondOrderDiscount(IOrderDiscountsController discountsController, int discountReasonId)
 		{
 			if(!IsSecondOrder)
 			{
-				var orderItemsHavingClientsSecondOrderDiscount = new List<IDiscount>();
+				var orderItemsHavingClientsSecondOrderDiscount = new List<IApplyDiscountReasonItem>();
 
 				foreach(var item in ObservableOrderItems)
 				{

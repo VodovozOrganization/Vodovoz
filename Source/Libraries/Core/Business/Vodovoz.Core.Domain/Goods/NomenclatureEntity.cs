@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 
@@ -28,7 +29,12 @@ namespace Vodovoz.Core.Domain.Goods
 		PrepositionalPlural = "номенклатурах")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class NomenclatureEntity : PropertyChangedBase, INamedDomainObject, IBusinessObject, IHasAttachedFilesInformations<NomenclatureFileInformation>
+	public class NomenclatureEntity :
+		PropertyChangedBase,
+		INamedDomainObject,
+		IBusinessObject,
+		IHasAttachedFilesInformations<NomenclatureFileInformation>,
+		IDepositNomenclature
 	{
 		private int _id;
 		private string _name;

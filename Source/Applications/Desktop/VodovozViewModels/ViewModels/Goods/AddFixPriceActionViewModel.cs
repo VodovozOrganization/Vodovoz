@@ -1,11 +1,11 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
-using System;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -16,7 +16,7 @@ using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
-namespace Vodovoz.ViewModels.Orders
+namespace Vodovoz.ViewModels.ViewModels.Goods
 {
 	public class AddFixPriceActionViewModel : UoWWidgetViewModelBase, ICreationControl, IDisposable
 	{

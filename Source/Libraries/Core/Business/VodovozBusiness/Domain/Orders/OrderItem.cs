@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Goods;
@@ -17,6 +18,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -24,7 +26,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
 	[HistoryTrace]
-	public class OrderItem : OrderItemEntity, IOrderItemWageCalculationSource, IDiscount, IProduct
+	public class OrderItem : OrderItemEntity, IOrderItemWageCalculationSource, IApplyDiscountReasonItem, IProduct
 	{
 		private Order _order;
 		private Equipment _equipment;
@@ -115,6 +117,21 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _originalDiscountReasons;
 			set => SetField(ref _originalDiscountReasons, value);
+		}
+
+		#endregion
+
+		#region IApplyDiscountReason implementation
+
+		decimal IApplyDiscountReasonItem.CurrentRawPrice => CurrentRawPrice;
+
+		public virtual IDiscountValue DiscountData => DiscountValue.Create(IsDiscountInMoney, Discount, DiscountMoney);
+
+		IList<DiscountReason> IApplyDiscountReasonItem.DiscountReasons => DiscountReasons;
+		
+		public virtual void SetDiscount(IDiscountValue discountValue)
+		{
+			SetDiscountValuesBatch(discountValue);
 		}
 
 		#endregion
@@ -234,8 +251,7 @@ namespace Vodovoz.Domain.Orders
 				discount = 100;
 			}
 
-			SetDiscountValuesBatch(discountMoney, discount, isDiscountInMoney);
-
+			SetDiscountValuesBatch(DiscountValue.Create(isDiscountInMoney, discount, discountMoney));
 			RecalculateVAT();
 		}
 

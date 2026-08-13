@@ -1,4 +1,6 @@
-﻿using QS.Extensions.Observable.Collections.List;
+﻿using System.Collections.Generic;
+using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
@@ -63,5 +65,24 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		/// <param name="discountReasonId">Id основания скидки</param>
 		void RemoveDiscount(int discountReasonId);
+	}
+
+	public interface IApplyDiscountReasonItem
+	{
+		/// <summary>
+		/// Текущее количество
+		/// </summary>
+		decimal CurrentCount { get; }
+		/// <summary>
+		/// Цена товара
+		/// </summary>
+		decimal Price { get; }
+		decimal CurrentRawPrice { get; }
+		IDiscountValue DiscountData { get; }
+		bool IsFixedPrice { get; }
+		Nomenclature Nomenclature { get; }
+		PromotionalSet PromoSet { get; }
+		IList<DiscountReason> DiscountReasons { get; }
+		void SetDiscount(IDiscountValue discountValue);
 	}
 }

@@ -3,6 +3,8 @@ using Gtk;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.JournalColumnsConfigs

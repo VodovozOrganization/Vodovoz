@@ -364,7 +364,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private void ValidateDiscountParametersFromNotPromoSet(OnlineOrderItem onlineOrderItem, CheckOnlineOrderSum checkOnlineOrderSum)
 		{
 			var isAllDiscountReasonsApplicable = onlineOrderItem.DiscountReasons
-				.All(reason => _discountController.IsApplicableDiscount(reason, onlineOrderItem.Nomenclature));
+				.All(reason => _discountController.IsApplicableDiscount(reason, onlineOrderItem).IsSuccess);
 
 			if(isAllDiscountReasonsApplicable)
 			{

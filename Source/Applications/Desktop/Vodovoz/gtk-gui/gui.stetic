@@ -112978,22 +112978,6 @@ not tooltip</property>
                                     <property name="Fill">False</property>
                                   </packing>
                                 </child>
-                                <child>
-                                  <widget class="Gamma.GtkWidgets.yCheckButton" id="chkPromoCode">
-                                    <property name="MemberName" />
-                                    <property name="CanFocus">True</property>
-                                    <property name="Label" translatable="yes">Промокод</property>
-                                    <property name="DrawIndicator">True</property>
-                                    <property name="HasLabel">True</property>
-                                    <property name="UseUnderline">True</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="Position">4</property>
-                                    <property name="AutoSize">True</property>
-                                    <property name="Expand">False</property>
-                                    <property name="Fill">False</property>
-                                  </packing>
-                                </child>
                               </widget>
                               <packing>
                                 <property name="TopAttach">2</property>
@@ -113372,7 +113356,7 @@ not tooltip</property>
                                     <property name="MemberName" />
                                     <property name="Spacing">6</property>
                                     <child>
-                                      <widget class="Vodovoz.Views.Common.AddOrRemoveIDomainObjectView" id="addorremoveidomainobjectview1">
+                                      <widget class="Vodovoz.Views.Common.AddOrRemoveIDomainObjectView" id="addOrRemovePromoSetsView">
                                         <property name="MemberName" />
                                         <property name="Events">ButtonPressMask</property>
                                       </widget>

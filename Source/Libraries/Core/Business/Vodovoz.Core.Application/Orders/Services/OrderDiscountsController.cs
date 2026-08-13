@@ -1,34 +1,77 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Sale;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Errors.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
-	public class OrderDiscountsController : DiscountController, IOrderDiscountsController
+	public class OrderDiscountsController : DiscountWithTaxController, IOrderDiscountsController
 	{
+		private readonly ILogger<OrderDiscountsController> _logger;
 		private readonly INomenclatureFixedPriceController _fixedPriceController;
 
-		public OrderDiscountsController(INomenclatureFixedPriceController fixedPriceController)
+		public OrderDiscountsController(
+			ILogger<OrderDiscountsController> logger,
+			INomenclatureFixedPriceController fixedPriceController,
+			SaleItemTaxHandler taxHandler
+			) : base(taxHandler)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
 		}
 
-		public void ClearOrdersItemDiscounts(IList<IDiscount> orderItems)
+		public Result TryApplyDiscountForSaleItem(
+			DiscountReason addingDiscount,
+			IApplyDiscountReasonItem saleItem,
+			bool isNotCheckPromoSetOrFixedPrice = false)
 		{
-			foreach(var item in orderItems)
+			var canApplyResult = CanApplyDiscount(addingDiscount, saleItem);
+			if(canApplyResult.IsFailure)
 			{
-				ClearOrderItemDiscounts(item);
+				return canApplyResult;
 			}
+
+			//TODO задать вопрос по логике применения фиксы на промик и фиксу с правами
+			if(!isNotCheckPromoSetOrFixedPrice
+				&& saleItem is OrderItem oi
+				&& OrderItemContainsPromoSetOrFixedPrice(oi))
+			{
+				return Result.Failure(DiscountErrors.OrderItemContainsPromoSetOrFixedPrice);
+			}
+
+			return AddDiscount(addingDiscount, saleItem);
+		}
+
+		/// <summary>
+		/// Возможность применения скидки на продаваемую позицию
+		/// </summary>
+		/// <param name="addingDiscount">Основание скидки</param>
+		/// <param name="saleItem">Строка заказа</param>
+		/// <returns>true/false</returns>
+		private Result CanApplyDiscount(
+			DiscountReason addingDiscount,
+			IApplyDiscountReasonItem saleItem)
+		{
+			if(saleItem.Price * saleItem.CurrentCount == 0m)
+			{
+				return Result.Failure(DiscountErrors.ZeroSaleItemSum);
+			}
+			
+			return IsApplicableDiscount(addingDiscount, saleItem);
 		}
 		
-		public void SetCustomDiscountForOrderItems(DiscountReason reason, decimal discount, DiscountUnits unit, IList<IDiscount> orderItems)
+		public void SetCustomDiscountForOrderItems(
+			DiscountReason reason,
+			decimal discount,
+			DiscountUnits unit,
+			IEnumerable<IApplyDiscountReasonItem> orderItems)
 		{
 			foreach(var item in orderItems)
 			{
@@ -37,27 +80,35 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 
 		public void SetDiscountFromDiscountReasonForOrder(
-			DiscountReason reason, IList<IDiscount> orderItems, bool canChangeDiscountValue, out string messages)
+			DiscountReason reason,
+			IEnumerable<IApplyDiscountReasonItem> saleItems,
+			bool canChangeDiscountValue,
+			out string messages)
 		{
 			messages = null;
-			
-			for(var i = 0; i < orderItems.Count; i++)
+			var i = 0;
+
+			foreach(var saleItem in saleItems)
 			{
-				SetDiscountFromDiscountReasonForOrderItem(reason, orderItems[i], canChangeDiscountValue, out string message);
+				SetDiscountFromDiscountReasonForOrderItem(reason, saleItem, canChangeDiscountValue, out string message);
 
 				if(message != null)
 				{
 					messages += $"№{i + 1} {message}";
 				}
+
+				i++;
 			}
 		}
 
 		public bool SetDiscountFromDiscountReasonForOrderItem(
-			DiscountReason reason, IDiscount orderItem, bool canChangeDiscountValue, out string message)
+			DiscountReason reason, IApplyDiscountReasonItem orderItem, bool canChangeDiscountValue, out string message)
 		{
 			message = null;
 			
-			if(!CanSetDiscount(reason, orderItem))
+			var canApplyResult = CanApplyDiscount(reason, orderItem);
+			
+			if(canApplyResult.IsFailure)
 			{
 				return false;
 			}
@@ -84,11 +135,15 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 
 		public Result AddDiscountFromDiscountReasonForOrderItem(
-			DiscountReason reason, IDiscount orderItem, bool isNotCheckPromoSetOrFixedPrice = false)
+			DiscountReason reason,
+			IApplyDiscountReasonItem orderItem,
+			bool isNotCheckPromoSetOrFixedPrice = false)
 		{
-			if(!CanSetDiscount(reason, orderItem))
+			var canApplyResult = CanApplyDiscount(reason, orderItem);
+			
+			if(canApplyResult.IsFailure)
 			{
-				return Result.Failure(DiscountErrors.DiscountForOrderItemNotAllowed);
+				return canApplyResult;
 			}
 
 			if(!isNotCheckPromoSetOrFixedPrice
@@ -101,25 +156,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return AddDiscount(reason, orderItem);
 		}
 
-		/// <summary>
-		/// Возможность установки скидки на строку заказа
-		/// </summary>
-		/// <param name="reason">Основание скидки</param>
-		/// <param name="orderItem">Строка заказа</param>
-		/// <returns>true/false</returns>
-		private bool CanSetDiscount(DiscountReason reason, IDiscount orderItem) =>
-			IsApplicableDiscount(reason, orderItem.Nomenclature)
-			&& orderItem.Price * orderItem.CurrentCount != default(decimal);
-
-		/// <summary>
-		/// Возможность установки скидки на строку счета без отгрузки на предоплату
-		/// </summary>
-		/// <param name="reason">Основание скидки</param>
-		/// <param name="orderItem">Строка счета без отгрузки на предоплату</param>
-		/// <returns>true/false</returns>
-		private bool CanSetDiscountForOrderWithoutShipment(DiscountReason reason, OrderWithoutShipmentForAdvancePaymentItem orderItem) =>
-			IsApplicableDiscount(reason, orderItem.Nomenclature)
-			&& orderItem.Price * orderItem.Count != default(decimal);
+		protected override void SetDiscount(IApplyDiscountReasonItem saleItem, IDiscountValue discountValue)
+		{
+			saleItem.SetDiscount(discountValue);
+		}
 
 		/// <summary>
 		/// Содержит ли строка заказа промонабор или есть фикса
@@ -164,9 +204,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 		/// <param name="discount">Скидка</param>
 		/// <param name="unit">Скидка в процентах или рублях</param>
 		/// <param name="orderItem">Строка заказа</param>
-		private void SetCustomDiscountForOrderItem(DiscountReason reason, decimal discount, DiscountUnits unit, IDiscount orderItem)
+		private void SetCustomDiscountForOrderItem(DiscountReason reason, decimal discount, DiscountUnits unit, IApplyDiscountReasonItem orderItem)
 		{
-			if(!CanSetDiscount(reason, orderItem))
+			var canApplyResult = CanApplyDiscount(reason, orderItem);
+			
+			if(canApplyResult.IsFailure)
 			{
 				return;
 			}
@@ -181,46 +223,76 @@ namespace Vodovoz.Core.Application.Orders.Services
 		/// <param name="discount">Скидка</param>
 		/// <param name="unit">Скидка в процентах или рублях</param>
 		/// <param name="orderItem">Строка заказа</param>
-		private void SetCustomDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, IDiscount orderItem)
+		private void SetCustomDiscount(
+			DiscountReason reason,
+			decimal discount,
+			DiscountUnits unit,
+			IApplyDiscountReasonItem orderItem)
 		{
-			orderItem.AddDiscount(unit == DiscountUnits.money, discount, reason);
+			AddDiscount(reason, orderItem);
 		}
 
 		/// <summary>
 		/// Установка скидки из основания скидки на конкретную позицию
 		/// </summary>
-		/// <param name="reason">Основание скидки</param>
-		/// <param name="item">Элемент, к которому применяется скидка</param>
-		private Result AddDiscount(DiscountReason reason, IDiscount item)
+		/// <param name="currentDiscounts">Текущие основания скидок</param>
+		/// <param name="addingDiscount">Основание скидки</param>
+		/// <param name="saleItem">Строка заказа</param>
+		private Result AddDiscount(
+			DiscountReason addingDiscount,
+			IApplyDiscountReasonItem saleItem
+			)
 		{
+			var currentDiscounts = saleItem.DiscountReasons;
+			
 			try
 			{
-				item.AddDiscount(reason.ValueType == DiscountUnits.money, reason.Value, reason);
+				if(addingDiscount != null && !IsDiscountReasonAdded(currentDiscounts, addingDiscount))
+				{
+					currentDiscounts.Add(addingDiscount);
+				}
+
+				RecalculateTotalDiscountFromReasons(saleItem);
 				return Result.Success();
 			}
 			catch(Exception ex)
 			{
-				return Result.Failure(DiscountErrors.CreateAddDiscountException(ex.Message));
+				_logger.LogError(ex, "При добавлении скидки произошла ошибка");
+				return Result.Failure(DiscountErrors.AddDiscountException);
 			}
+		}
+
+		private bool IsDiscountReasonAdded(
+			IEnumerable<DiscountReason> currentDiscounts,
+			DiscountReason addingDiscount
+			)
+		{
+			var foundDiscount = currentDiscounts.FirstOrDefault(x => x.Id == addingDiscount.Id);
+			return foundDiscount != null;
 		}
 
 		/// <summary>
 		/// Удаление скидки из строки заказа
 		/// </summary>
 		/// <param name="orderItem">Строка заказа</param>
-		private void ClearOrderItemDiscounts(IDiscount orderItem)
+		private void ClearOrderItemDiscounts(IApplyDiscountReasonItem orderItem)
 		{
-			orderItem.ClearDiscounts();
+			//orderItem.ClearDiscounts();
+		}
+		
+		public void ClearOrdersItemDiscounts(IList<IApplyDiscountReasonItem> orderItems)
+		{
+			throw new NotImplementedException();
 		}
 
-		public void RemoveDiscountFromOrdersItem(DiscountReason discountReason, IDiscount orderItem)
+		public void RemoveDiscountFromOrdersItem(DiscountReason discountReason, IApplyDiscountReasonItem orderItem)
 		{
 			var discountsToRemove = orderItem.DiscountReasons.Where(x => x.Id == discountReason.Id).ToList();
 			if(discountsToRemove.Any())
 			{
 				foreach(var discount in discountsToRemove)
 				{
-					orderItem.RemoveDiscount(discount.Id);
+					//orderItem.RemoveDiscount(discount.Id);
 				}
 			}
 		}

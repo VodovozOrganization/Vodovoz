@@ -1,17 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки счета без отгрузки на предоплату",
 		Nominative = "строка счета без отгрузки на предоплату")]
-	public class OrderWithoutShipmentForAdvancePaymentItem : PropertyChangedBase, IDomainObject, IDiscount
+	public class OrderWithoutShipmentForAdvancePaymentItem : PropertyChangedBase, IDomainObject, IApplyDiscountReasonItem
 	{
 		private IObservableList<DiscountReason> _discountReasons = new ObservableList<DiscountReason>();
 		private bool _isAlternativePrice;
@@ -26,6 +29,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		}
 
 		Nomenclature nomenclature;
+
 		[Display(Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get => nomenclature;
@@ -144,6 +148,27 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => _isAlternativePrice;
 			set => SetField(ref _isAlternativePrice, value);
 		}
+
+		#region IApplyDiscountReasonItem implementation
+
+		/// <inheritdoc/>
+		public virtual bool IsFixedPrice => false;
+		/// <inheritdoc/>
+		public virtual PromotionalSet PromoSet => null;
+		/// <inheritdoc/>
+		IList<DiscountReason> IApplyDiscountReasonItem.DiscountReasons => DiscountReasons;
+		/// <inheritdoc/>
+		decimal IApplyDiscountReasonItem.CurrentRawPrice => CurrentRawPrice;
+		/// <inheritdoc/>
+		public IDiscountValue DiscountData => DiscountValue.Create(IsDiscountInMoney, Discount, DiscountMoney);
+		/// <inheritdoc/>
+		public void SetDiscount(IDiscountValue discountValue)
+		{
+			
+		}
+
+		#endregion
+		
 
 		int RentEquipmentCount {
 			get {

@@ -1,7 +1,6 @@
 ﻿using System;
-using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.ViewModels.Orders
+namespace Vodovoz.ViewModels.ViewModels.Goods
 {
 	public interface ICreationControl
 	{

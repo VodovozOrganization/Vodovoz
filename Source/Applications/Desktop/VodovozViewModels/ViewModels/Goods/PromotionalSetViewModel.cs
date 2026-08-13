@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
-using Autofac;
-using QS.Navigation;
+using QS.ViewModels.Extension;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
 using Vodovoz.Domain.Orders;
@@ -15,11 +18,8 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
-using QS.ViewModels.Extension;
-using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 
-namespace Vodovoz.ViewModels.Orders
+namespace Vodovoz.ViewModels.ViewModels.Goods
 {
 	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult, IAskSaveOnCloseViewModel
 	{

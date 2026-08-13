@@ -1,4 +1,4 @@
-﻿using Vodovoz.Domain.Goods;
+﻿using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 
 namespace VodovozBusiness.Controllers
@@ -8,9 +8,12 @@ namespace VodovozBusiness.Controllers
 		/// <summary>
 		/// Проверка применимости скидки к номенклатуре
 		/// </summary>
-		/// <param name="reason">Основание скидки</param>
-		/// <param name="nomenclature">Номенклатура</param>
-		/// <returns>true/false</returns>
-		bool IsApplicableDiscount(DiscountReason reason, Nomenclature nomenclature);
+		/// <param name="addingDiscount">Добавляемая скидка</param>
+		/// <param name="saleItem">Продаваемая позиция</param>
+		/// <returns>При успешном выполнении Result.Success, иначе Result.Failure с указанием проблемы</returns>
+		Result IsApplicableDiscount(
+			DiscountReason addingDiscount,
+			IApplyDiscountReasonItem saleItem
+		);
 	}
 }

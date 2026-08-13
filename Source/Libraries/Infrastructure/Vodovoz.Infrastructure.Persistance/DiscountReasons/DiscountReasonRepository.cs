@@ -4,10 +4,9 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.Infrastructure.Persistance.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 {
@@ -94,12 +93,11 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 			return discountReason != null;
 		}
 
-		public DiscountReason GetActivePromoCode(IUnitOfWork uow, string promoCode)
+		public PromoCodeDiscount GetActivePromoCode(IUnitOfWork uow, string promoCode)
 		{
 			var discount = (
-				from discountReason in uow.Session.Query<DiscountReason>()
-				where discountReason.IsPromoCode
-					&& !discountReason.IsArchive
+				from discountReason in uow.Session.Query<PromoCodeDiscount>()
+				where !discountReason.IsArchive
 					&& discountReason.PromoCodeName.ToLower() == promoCode.ToLower()
 				select discountReason)
 				.SingleOrDefault();
@@ -107,12 +105,11 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 			return discount;
 		}
 		
-		public bool ExistsPromoCodeWithName(IUnitOfWork uow, int discountReasonId, string promoCode, out DiscountReason discountReason)
+		public bool ExistsPromoCodeWithName(IUnitOfWork uow, int discountReasonId, string promoCode, out PromoCodeDiscount discountReason)
 		{
 			discountReason = (
-				from discount in uow.Session.Query<DiscountReason>()
-				where discount.IsPromoCode
-					&& discount.PromoCodeName.ToLower() == promoCode.ToLower()
+				from discount in uow.Session.Query<PromoCodeDiscount>()
+				where discount.PromoCodeName.ToLower() == promoCode.ToLower()
 					&& discount.Id != discountReasonId
 				select discount)
 				.SingleOrDefault();

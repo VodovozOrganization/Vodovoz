@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using NHibernate;
 using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Orders
@@ -13,7 +14,7 @@ namespace Vodovoz.Core.Domain.Orders
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
 	[HistoryTrace]
-	public class OrderItemEntity : PropertyChangedBase, IDomainObject
+	public class OrderItemEntity : PropertyChangedBase, IDomainObject, IRecalculateTax
 	{
 		private int _id;
 		private decimal _price;
@@ -216,6 +217,14 @@ namespace Vodovoz.Core.Domain.Orders
 
 		#endregion
 
+		#region IRecalculateTax implementation
+
+		public virtual IRecalculateTaxSource RecalculateTaxSource => Order;
+		
+		IDepositNomenclature IRecalculateTax.Nomenclature => Nomenclature;
+
+		#endregion
+
 		public virtual decimal ReturnedCount => Count - ActualCount ?? 0;
 
 		public virtual bool IsDelivered => ReturnedCount == 0;
@@ -265,7 +274,7 @@ namespace Vodovoz.Core.Domain.Orders
 				throw new InvalidOperationException($"У товара #{Nomenclature.Id} отсутствует версия НДС на дату доставки заказа #{Order.DeliveryDate}");
 			}
 			
-			ValueAddedTax =  CanUseVAT() ? vatRateVersion.VatRate.VatNumericValue : 0;
+			ValueAddedTax = CanUseVAT() ? vatRateVersion.VatRate.VatNumericValue : 0;
 			
 			RecalculateVAT();
 		}
@@ -310,18 +319,16 @@ namespace Vodovoz.Core.Domain.Orders
 		/// Устанавливает значения скидки строки заказа без вызова событий изменения свойств. 
 		/// События вызываются только после установки всех значений
 		/// </summary>
-		/// <param name="discountMoney">Скидка в деньгах</param>
-		/// <param name="discountPercent">Скидка в процентах</param>
-		/// <param name="isDiscountInMoney">Флаг, указывающий, что скидка рассчитывается в деньгах</param>
-		public virtual void SetDiscountValuesBatch(decimal discountMoney, decimal discountPercent, bool isDiscountInMoney)
+		/// <param name="discountValue">Данные скидки <see cref="IDiscountValue"/></param>
+		protected void SetDiscountValuesBatch(IDiscountValue discountValue)
 		{
-			var isDiscountMoneyChanged = _discountMoney != discountMoney;
-			var isDiscountPercentChanged = _discount != discountPercent;
-			var isDiscountInMoneyChanged = _isDiscountInMoney != isDiscountInMoney;
+			var isDiscountMoneyChanged = _discountMoney != discountValue.DiscountMoney;
+			var isDiscountPercentChanged = _discount != discountValue.Discount;
+			var isDiscountInMoneyChanged = _isDiscountInMoney != discountValue.IsDiscountMoney;
 
-			_discountMoney = discountMoney;
-			_discount = discountPercent;
-			_isDiscountInMoney = isDiscountInMoney;
+			_discountMoney = discountValue.DiscountMoney;
+			_discount = discountValue.Discount;
+			_isDiscountInMoney = discountValue.IsDiscountMoney;
 
 			if(isDiscountMoneyChanged)
 			{

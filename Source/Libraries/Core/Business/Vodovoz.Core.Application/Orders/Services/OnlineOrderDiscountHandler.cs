@@ -6,13 +6,10 @@ using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.Errors;
 using Vodovoz.Handlers;
 using Vodovoz.Nodes;
-using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Extensions;
 
@@ -59,19 +56,19 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.NotFound);
 			}
 
-			if(date.Date < discountPromoCode.StartDatePromoCode || date.Date > discountPromoCode.EndDatePromoCode)
+			if(date.Date < discountPromoCode.StartDate || date.Date > discountPromoCode.EndDate)
 			{
 				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredDateDuration);
 			}
 
-			if(time < discountPromoCode.StartTimePromoCode || time > discountPromoCode.EndTimePromoCode)
+			if(time < discountPromoCode.StartTime || time > discountPromoCode.EndTime)
 			{
 				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
 					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredTimeDuration(
 						discountPromoCode.StartTimePromoCodeString, discountPromoCode.EndTimePromoCodeString));
 			}
 
-			if(orderSum < discountPromoCode.PromoCodeOrderMinSum)
+			if(orderSum < discountPromoCode.OrderMinSum)
 			{
 				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.InvalidMinimalOrderSum);
 			}
@@ -89,7 +86,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(
 			IUnitOfWork uow,
 			Source source,
-			DiscountReason discountPromoCode,
+			PromoCodeDiscount discountPromoCode,
 			IEnumerable<IOnlineOrderedProduct> products)
 		{
 			var promoCodeApplied = false;
@@ -107,7 +104,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		private bool TryApplyPromoCode(
 			Source source,
-			DiscountReason discountPromoCode,
+			PromoCodeDiscount discountPromoCode,
 			Nomenclature nomenclature,
 			IOnlineOrderedProduct product)
 		{
@@ -139,7 +136,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		/// <returns></returns>
 		private bool CanApplicableDiscount(
 			Source source,
-			DiscountReason discountPromoCode,
+			PromoCodeDiscount discountPromoCode,
 			Nomenclature nomenclature,
 			IOnlineOrderedProduct product)
 		{
@@ -163,10 +160,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return false;
 			}
 
-			if(!IsApplicableDiscount(discountPromoCode, nomenclature))
+			//TODO-5967 доработать проверку
+			/*var isApplicableResult = IsApplicableDiscount(discountPromoCode, nomenclature);
+			if(isApplicableResult.IsFailure)
 			{
 				return false;
-			}
+			}*/
 
 			var onlineParameters = nomenclature.NomenclatureOnlineParameters
 				.FirstOrDefault(x => x.Type == source.ToGoodsOnlineParameterType());
@@ -182,7 +181,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return product.Count * product.Price != 0;
 		}
 
-		private void ApplyPromoCode(DiscountReason discountPromoCode, IOnlineOrderedProduct product)
+		private void ApplyPromoCode(PromoCodeDiscount discountPromoCode, IOnlineOrderedProduct product)
 		{
 			product.DiscountReasonId = discountPromoCode.Id;
 			product.IsDiscountInMoney = discountPromoCode.ValueType == DiscountUnits.money;

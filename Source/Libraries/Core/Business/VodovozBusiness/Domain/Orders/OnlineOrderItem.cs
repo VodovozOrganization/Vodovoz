@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -16,7 +18,7 @@ namespace Vodovoz.Domain.Orders
 		PrepositionalPlural = "Строках онлайн заказа"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct
+	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct, IApplyDiscountReasonItem
 	{
 		private int? _nomenclatureId;
 		private decimal _price;
@@ -59,7 +61,7 @@ namespace Vodovoz.Domain.Orders
 			get => _price;
 			set => SetField(ref _price, value);
 		}
-		
+
 		[Display(Name = "Скидка в деньгах")]
 		public virtual bool IsDiscountInMoney
 		{
@@ -177,6 +179,20 @@ namespace Vodovoz.Domain.Orders
 			get => _giftItem;
 			set => SetField(ref _giftItem, value);
 		}
+
+		#region IApplyDiscountReasonItem implementation
+
+		decimal IApplyDiscountReasonItem.CurrentRawPrice => CurrentRawPrice;
+
+		public virtual IDiscountValue DiscountData => DiscountValue.Create(IsDiscountInMoney, PercentDiscount, MoneyDiscount);
+		IList<DiscountReason> IApplyDiscountReasonItem.DiscountReasons => DiscountReasons;
+		
+		public virtual void SetDiscount(IDiscountValue discountValue)
+		{
+			throw new NotImplementedException("Нельзя устанавливать скидку в онлайн заказе");
+		}
+
+		#endregion
 
 		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 

@@ -42,8 +42,6 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yCheckButton chkBtnPresent;
 
-		private global::Gamma.GtkWidgets.yCheckButton chkPromoCode;
-
 		private global::Gamma.GtkWidgets.yHBox hboxDiscountType;
 
 		private global::Gamma.Widgets.yEnumComboBox enumDiscountType;
@@ -98,7 +96,7 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yVBox yvboxRightReferences;
 
-		private global::Vodovoz.Views.Common.AddOrRemoveIDomainObjectView addorremoveidomainobjectview1;
+		private global::Vodovoz.Views.Common.AddOrRemoveIDomainObjectView addOrRemovePromoSetsView;
 
 		private global::Gtk.Label lblDiscountInfoTab;
 
@@ -325,18 +323,6 @@ namespace Vodovoz.Views.Orders
 			w16.Position = 3;
 			w16.Expand = false;
 			w16.Fill = false;
-			// Container child hboxDiscountParams.Gtk.Box+BoxChild
-			this.chkPromoCode = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkPromoCode.CanFocus = true;
-			this.chkPromoCode.Name = "chkPromoCode";
-			this.chkPromoCode.Label = global::Mono.Unix.Catalog.GetString("Промокод");
-			this.chkPromoCode.DrawIndicator = true;
-			this.chkPromoCode.UseUnderline = true;
-			this.hboxDiscountParams.Add(this.chkPromoCode);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxDiscountParams[this.chkPromoCode]));
-			w17.Position = 4;
-			w17.Expand = false;
-			w17.Fill = false;
 			this.tableDiscountInfo.Add(this.hboxDiscountParams);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableDiscountInfo[this.hboxDiscountParams]));
 			w18.TopAttach = ((uint)(2));
@@ -589,11 +575,11 @@ namespace Vodovoz.Views.Orders
 			this.yvboxRightReferences.Name = "yvboxRightReferences";
 			this.yvboxRightReferences.Spacing = 6;
 			// Container child yvboxRightReferences.Gtk.Box+BoxChild
-			this.addorremoveidomainobjectview1 = new global::Vodovoz.Views.Common.AddOrRemoveIDomainObjectView();
-			this.addorremoveidomainobjectview1.Events = ((global::Gdk.EventMask)(256));
-			this.addorremoveidomainobjectview1.Name = "addorremoveidomainobjectview1";
-			this.yvboxRightReferences.Add(this.addorremoveidomainobjectview1);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.yvboxRightReferences[this.addorremoveidomainobjectview1]));
+			this.addOrRemovePromoSetsView = new global::Vodovoz.Views.Common.AddOrRemoveIDomainObjectView();
+			this.addOrRemovePromoSetsView.Events = ((global::Gdk.EventMask)(256));
+			this.addOrRemovePromoSetsView.Name = "addOrRemovePromoSetsView";
+			this.yvboxRightReferences.Add(this.addOrRemovePromoSetsView);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.yvboxRightReferences[this.addOrRemovePromoSetsView]));
 			w44.Position = 0;
 			w44.Expand = false;
 			w44.Fill = false;

@@ -1354,15 +1354,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalesByDiscountReport.cs" />
     <Compile Include="Filters\GtkViews\CallTaskFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CallTaskFilterView.cs" />
-    <Compile Include="JournalNodes\PromotionalSetJournalNode.cs" />
-    <Compile Include="JournalViewModels\PromotionalSetsJournalViewModel.cs" />
     <Compile Include="Views\Orders\PromotionalSetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.PromotionalSetView.cs" />
-    <Compile Include="ViewModels\Orders\PromotionalSetViewModel.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PromoSetAction.AddFixPriceActionView.cs" />
     <Compile Include="ViewWidgets\PromoSetAction\AddFixPriceActionView.cs" />
-    <Compile Include="ViewModels\Orders\AddFixPriceActionViewModel.cs" />
-    <Compile Include="ViewModels\Orders\ICreationControl.cs" />
     <Compile Include="Filters\GtkViews\CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SetBillsReportView.cs" />

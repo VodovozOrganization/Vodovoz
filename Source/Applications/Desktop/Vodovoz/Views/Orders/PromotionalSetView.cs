@@ -8,6 +8,7 @@ using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.Views.Orders
 {

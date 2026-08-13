@@ -305,7 +305,6 @@ namespace Vodovoz
 		private Employee _currentEmployee;
 		private bool _canChangeDiscountValue;
 		private bool _canChoosePremiumDiscount;
-		private INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private IOrderDiscountsController _discountsController;
 		private IOrderDailyNumberController _dailyNumberController;
 		private bool _isNeedSendBillToEmail;
@@ -719,6 +718,7 @@ namespace Vodovoz
 			_exportsOrderTo1cReporitory = _lifetimeScope.Resolve<IGenericRepository<OrderTo1cExport>>();
 			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
 			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
+			_discountsController = _lifetimeScope.Resolve<IOrderDiscountsController>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -729,8 +729,6 @@ namespace Vodovoz
 
 			_previousDeliveryDate = DeliveryDate;
 
-			_nomenclatureFixedPriceController = _lifetimeScope.Resolve<INomenclatureFixedPriceController>();
-			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceController);
 			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
@@ -4839,7 +4837,7 @@ namespace Vodovoz
 
 		protected void OnSpinDiscountValueChanged(object sender, EventArgs e)
 		{
-			if(spinDiscount.ValueAsDecimal != default(decimal))
+			if(spinDiscount.ValueAsDecimal != 0)
 			{
 				SetDiscount();
 			}
@@ -4854,9 +4852,10 @@ namespace Vodovoz
 			else
 			{
 				SetDiscountUnitEditable();
-				spinDiscount.ValueAsDecimal = default(decimal);
+				spinDiscount.ValueAsDecimal = 0;
 				SetDiscountEditable();
-				_discountsController.ClearOrdersItemDiscounts(Entity.ObservableOrderItems.Cast<IDiscount>().ToList());
+				//TODO-5967 доработать удаление
+				//_discountsController.ClearOrdersItemDiscounts(Entity.ObservableOrderItems);
 			}
 		}
 
@@ -4871,7 +4870,7 @@ namespace Vodovoz
 			{
 				spinDiscount.Value = 100;
 			}
-			if(spinDiscount.ValueAsDecimal == default(decimal))
+			if(spinDiscount.ValueAsDecimal == 0)
 			{
 				return;
 			}
@@ -5512,12 +5511,12 @@ namespace Vodovoz
 				if(discount > 0)
 				{
 					var unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
-					_discountsController.SetCustomDiscountForOrderItems(reason, discount, unit, Entity.ObservableOrderItems.Cast<IDiscount>().ToList());
+					_discountsController.SetCustomDiscountForOrderItems(reason, discount, unit, Entity.ObservableOrderItems);
 				}
 				else
 				{
 					_discountsController.SetDiscountFromDiscountReasonForOrder(
-						reason, Entity.ObservableOrderItems.Cast<IDiscount>().ToList(), _canChangeDiscountValue, out string messages);
+						reason, Entity.ObservableOrderItems, _canChangeDiscountValue, out string messages);
 
 					if(messages?.Length > 0)
 					{

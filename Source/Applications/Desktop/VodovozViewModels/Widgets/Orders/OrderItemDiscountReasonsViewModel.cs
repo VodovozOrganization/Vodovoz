@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 	public class OrderItemDiscountReasonsViewModel : WidgetViewModelBase
 	{
 		private bool _isEditEnabled;
-		private IDiscount _orderItem;
+		private IApplyDiscountReasonItem _orderItem;
 		private DiscountReason _newDiscountReason;
 		private DiscountReason _selectedDiscountReason;
 		private IList<DiscountReason> _allDiscountReasons;
@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 		[PropertyChangedAlso(
 			nameof(OrderItemDiscountReasons),
 			nameof(IsEditable))]
-		public IDiscount OrderItem
+		public IApplyDiscountReasonItem OrderItem
 		{
 			get => _orderItem;
 			private set => SetField(ref _orderItem, value);
@@ -121,7 +121,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			SetAllDiscountReasons();
 		}
 
-		public void SetOrderItem(IDiscount orderItem)
+		public void SetOrderItem(IApplyDiscountReasonItem orderItem)
 		{
 			if(orderItem is null)
 			{
@@ -146,7 +146,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			UpdateOrderItem();
 		}
 
-		private void UpdateOrderItem(IDiscount orderItem = null)
+		private void UpdateOrderItem(IApplyDiscountReasonItem orderItem = null)
 		{
 			OrderItem = orderItem;
 			UpdateOrderItemDiscountReasons();
@@ -164,10 +164,13 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 
 			foreach(var discountReason in _allDiscountReasons)
 			{
-				if(!_orderDiscountController.IsApplicableDiscount(discountReason, OrderItem.Nomenclature))
+				var isApplicableResult = _orderDiscountController.IsApplicableDiscount(discountReason, OrderItem);
+				
+				if(isApplicableResult.IsFailure)
 				{
 					continue;
 				}
+				
 				_applicableDiscountReasons.Add(discountReason);
 			}
 
@@ -202,20 +205,12 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 				return;
 			}
 
-			if(OrderItem.IsDiscountReasonAdded(NewDiscountReason))
-			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					"Скидка с указанным основанием уже добавлена");
-				return;
-			}
-
-			if(!OrderItem.IsDiscountValueCanBeAdded(NewDiscountReason.ValueType == DiscountUnits.money, NewDiscountReason.Value))
+			/*if(!OrderItem.IsDiscountValueCanBeAdded(NewDiscountReason.ValueType == DiscountUnits.money, NewDiscountReason.Value))
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
 					"Суммарное значение скидок превышает сумму строки заказа. Скидка будет добавлена, но будет пересчитана");
-			}
+			}*/
 
 			var addingDiscountResult =
 				_orderDiscountController.AddDiscountFromDiscountReasonForOrderItem(NewDiscountReason, OrderItem, _userCanSetDirectDiscountValue);
@@ -223,7 +218,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			if(addingDiscountResult.IsFailure)
 			{
 				_interactiveService.ShowMessage(
-					ImportanceLevel.Error,
+					ImportanceLevel.Warning,
 					string.Join(Environment.NewLine, addingDiscountResult.Errors.Select(e => e.Message)),
 					"Не удалось добавить скидку с указанным основанием");
 				return;

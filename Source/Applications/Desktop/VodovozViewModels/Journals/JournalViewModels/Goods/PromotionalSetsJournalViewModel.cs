@@ -1,20 +1,20 @@
-﻿using Autofac;
+﻿using System;
+using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
-using System;
-using QS.Navigation;
 using Vodovoz.Domain.Orders;
-using Vodovoz.JournalNodes;
-using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.ViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
-using System.Linq;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
 	public class PromotionalSetsJournalViewModel : SingleEntityJournalViewModelBase<PromotionalSet, PromotionalSetViewModel, PromotionalSetJournalNode>
 	{

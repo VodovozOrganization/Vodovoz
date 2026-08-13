@@ -1,8 +1,7 @@
-﻿using System;
-using QS.Project.Journal;
+﻿using QS.Project.Journal;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
 {
 	public class PromotionalSetJournalNode : JournalEntityNodeBase<PromotionalSet>
 	{

@@ -296,6 +296,7 @@ namespace Vodovoz.Views.Orders
 		
 		private void ConfigureTreeNotPromoItems()
 		{
+			//TODO-5967 переделать выделение цветом неверной скидки, чтобы не вызывать сто раз IsApplicableDiscount
 			treeViewNotPromoItems.ColumnsConfig = FluentColumnsConfig<OnlineOrderItem>.Create()
 				.AddColumn("№")
 				.AddNumericRenderer(node => ViewModel.OnlineOrderNotPromoItems.IndexOf(node) + 1)
@@ -321,7 +322,7 @@ namespace Vodovoz.Views.Orders
 						foreach(var discountReason in node.DiscountReasons)
 						{
 							if(node.Nomenclature != null
-								&& !ViewModel.DiscountController.IsApplicableDiscount(discountReason, node.Nomenclature))
+								&& ViewModel.DiscountController.IsApplicableDiscount(discountReason, node).IsFailure)
 							{
 								cell.CellBackgroundGdk = GdkColors.DangerBase;
 								return;
@@ -374,12 +375,11 @@ namespace Vodovoz.Views.Orders
 				.AddTextRenderer(node => node.DiscountReasons.Any() ? node.DiscountReasonsNames : string.Empty)
 				.AddSetter((cell, node) =>
 				{
-					if(node.Nomenclature != null
-						&& node.DiscountReasons.Any())
+					if(node.Nomenclature != null && node.DiscountReasons.Any())
 					{
 						foreach(var discountReason in node.DiscountReasons)
 						{
-							if(!ViewModel.DiscountController.IsApplicableDiscount(discountReason, node.Nomenclature))
+							if(ViewModel.DiscountController.IsApplicableDiscount(discountReason, node).IsFailure)
 							{
 								cell.CellBackgroundGdk = GdkColors.DangerBase;
 								return;

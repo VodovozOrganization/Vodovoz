@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.DiscountReasons
 {
@@ -24,8 +25,8 @@ namespace Vodovoz.EntityRepositories.DiscountReasons
 		/// <returns>Список оснований для скидки</returns>
 		IList<DiscountReason> GetActiveDiscountReasonsFetchReferences(IUnitOfWork uow, bool canChoosePremiumDiscount);
 		bool ExistsActiveDiscountReasonWithName(IUnitOfWork uow, int discountReasonId, string name, out DiscountReason discountReason);
-		DiscountReason GetActivePromoCode(IUnitOfWork uow, string promoCode);
+		PromoCodeDiscount GetActivePromoCode(IUnitOfWork uow, string promoCode);
 		bool HasBeenUsagePromoCode(IUnitOfWork uow, int counterpartyId, int discountReasonId);
-		bool ExistsPromoCodeWithName(IUnitOfWork uow, int discountReasonId, string promoCode, out DiscountReason discountReason);
+		bool ExistsPromoCodeWithName(IUnitOfWork uow, int discountReasonId, string promoCode, out PromoCodeDiscount discountReason);
 	}
 }
