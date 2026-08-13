@@ -34,6 +34,7 @@ namespace Edo.Problem.Routine
 				.AddEdoNotifications();
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+			services.AddScoped<MessageService>();
  			services.AddScoped<EdoProblemRoutineNotificationFactory>();
 			services.AddScoped<IEdoProblemRoutineNotificationService, EdoProblemRoutineNotificationService>();
 
