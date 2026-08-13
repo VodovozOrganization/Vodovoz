@@ -8,6 +8,10 @@ namespace Vodovoz.Settings.Database.Mango
 	public class MangoSettings : IMangoSettings
 	{
 		private const string _deactivationLastRunDateSettingName = "Mango.DriverMangoEmployeeDeactivationLastRunDate";
+		private const string _registrationEnabledSettingName = "Mango.DriverMangoEmployeeRegistrationEnabled";
+		private const string _registrationEnabledChangedAtSettingName = "Mango.DriverMangoEmployeeRegistrationEnabledChangedAt";
+		private const string _registrationSwitchTimeoutSettingName = "Mango.DriverMangoEmployeeRegistrationSwitchTimeout";
+		private const string _dateTimeSettingFormat = "yyyy-MM-dd HH:mm:ss";
 
 		private readonly ISettingsController _settingsController;
 		private readonly IDataBaseInfo _dataBaseInfo;
@@ -156,9 +160,6 @@ namespace Vodovoz.Settings.Database.Mango
 		public int DriverMangoExtensionNumberPoolEnd =>
 			_settingsController.GetValue<int>("Mango.DriverMangoExtensionNumberPoolEnd");
 
-		public bool DriverMangoEmployeeRegistrationWorkerEnabled =>
-			_settingsController.GetBoolValue("Mango.DriverMangoEmployeeRegistrationWorkerEnabled");
-
 		public bool DriverMangoEmployeeDeactivationWorkerEnabled =>
 			_settingsController.GetBoolValue("Mango.DriverMangoEmployeeDeactivationWorkerEnabled");
 
@@ -174,11 +175,35 @@ namespace Vodovoz.Settings.Database.Mango
 		public DateTime DriverMangoEmployeeDeactivationLastRunDate =>
 			_settingsController.GetDateTimeValue(_deactivationLastRunDateSettingName, CultureInfo.InvariantCulture);
 
+		public bool DriverMangoEmployeeRegistrationEnabled =>
+			_settingsController.GetBoolValue(_registrationEnabledSettingName);
+
+		public DateTime DriverMangoEmployeeRegistrationEnabledChangedAt =>
+			_settingsController.GetDateTimeValue(_registrationEnabledChangedAtSettingName, CultureInfo.InvariantCulture);
+
+		public TimeSpan DriverMangoEmployeeRegistrationSwitchTimeout =>
+			_settingsController.GetValue<TimeSpan>(_registrationSwitchTimeoutSettingName);
+
+		public bool IsDriverMangoEmployeeRegistrationActive =>
+			DriverMangoEmployeeRegistrationEnabled
+			&& DriverMangoEmployeeDeactivationLastRunDate > DriverMangoEmployeeRegistrationEnabledChangedAt.Date;
+
 		public void UpdateDriverMangoEmployeeDeactivationLastRunDate(DateTime lastRunDate)
 		{
 			_settingsController.CreateOrUpdateSetting(
 				_deactivationLastRunDateSettingName,
 				lastRunDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+		}
+
+		public void UpdateDriverMangoEmployeeRegistrationEnabled(bool enabled, DateTime changedAt)
+		{
+			_settingsController.CreateOrUpdateSetting(
+				_registrationEnabledSettingName,
+				enabled.ToString());
+
+			_settingsController.CreateOrUpdateSetting(
+				_registrationEnabledChangedAtSettingName,
+				changedAt.ToString(_dateTimeSettingFormat, CultureInfo.InvariantCulture));
 		}
 	}
 }
