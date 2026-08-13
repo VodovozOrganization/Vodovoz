@@ -1689,6 +1689,18 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual void UpdateOrderPaymentStatus(OrderPaymentStatus paymentStatus)
+		{
+			OrderPaymentStatus = paymentStatus;
+
+			if(SelfDelivery
+				&& PaymentType == PaymentType.Cashless
+				&& paymentStatus == OrderPaymentStatus.Paid)
+			{
+				IsSelfDeliveryPaid = true;
+			}
+		}
+
 		public virtual void UpdateClient(Counterparty counterparty, IOrderContractUpdater orderContractUpdater, out string message)
 		{
 			message = string.Empty;

@@ -177,7 +177,7 @@ namespace Vodovoz.Views
 							foreach(var paymentItem in payment.Items)
 							{
 								var order = uow.GetById<Order>(paymentItem.Order.Id);
-								order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+								order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid);
 							}
 							ViewModel.CreateOperations(uow, payment);
 						}

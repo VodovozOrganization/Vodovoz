@@ -15,6 +15,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.FastPayments;
 
 namespace Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem
 {
@@ -145,6 +148,8 @@ namespace Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem
 				return false;
 			}
 
+			await RestoreSelfDeliveryPaidFlagForPerformedQrPayment(uow, edoTask, cancellationToken);
+
 			var validationResult = await _selfDeliveryPaidValidator.ValidateAsync(edoTask, _serviceProvider, cancellationToken);
 
 			if(!validationResult.IsValid)
@@ -176,6 +181,40 @@ namespace Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem
 			await _messageService.PublishTaskCreatedEvent(edoTask, cancellationToken);
 
 			return true;
+		}
+
+		private async Task RestoreSelfDeliveryPaidFlagForPerformedQrPayment(
+			IUnitOfWork uow,
+			OrderEdoTask edoTask,
+			CancellationToken cancellationToken)
+		{
+			var order = edoTask.FormalEdoRequest.Order;
+
+			if(!order.SelfDelivery || order.IsSelfDeliveryPaid || order.PaymentType != PaymentType.SmsQR)
+			{
+				return;
+			}
+
+			var performedQrPayment = await uow.Session.QueryOver<FastPayment>()
+				.Where(payment => payment.Order.Id == order.Id)
+				.And(payment => payment.PaymentType == PaymentType.SmsQR)
+				.And(payment => payment.FastPaymentStatus == FastPaymentStatus.Performed)
+				.Take(1)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			if(performedQrPayment == null)
+			{
+				return;
+			}
+
+			order.IsSelfDeliveryPaid = true;
+			await uow.SaveAsync(order, cancellationToken: cancellationToken);
+			await uow.CommitAsync(cancellationToken);
+
+			_logger.LogInformation(
+				"Задача ЭДО {EdoTaskId}: для самовывоза по заказу №{OrderId} найден проведённый QR-платёж, признак оплаты восстановлен",
+				edoTask.Id,
+				order.Id);
 		}
 	}
 }

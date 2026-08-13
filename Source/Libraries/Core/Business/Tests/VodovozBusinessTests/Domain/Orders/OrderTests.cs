@@ -8,20 +8,26 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
+using CustomerNotifications.Contracts;
+using Notifications.Infrastructure;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Domain.Contacts;
 using VodovozBusiness.Services.Orders;
@@ -181,6 +187,90 @@ namespace VodovozBusinessTests.Domain.Orders
 			testClient.DeliveryPoints.Add(testDeliveryPoint);
 
 			return testOrder;
+		}
+
+		#endregion
+
+		#region Cashless self-delivery payment
+
+		[Test(Description = "Полная оплата безналичного самовывоза отмечает самовывоз оплаченным")]
+		public void UpdateOrderPaymentStatus_WhenCashlessSelfDeliveryIsPaid_MarksSelfDeliveryAsPaid()
+		{
+			var order = new Order
+			{
+				SelfDelivery = true
+			};
+			order.UpdatePaymentType(PaymentType.Cashless, _contractUpdater, false);
+
+			order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid);
+
+			Assert.That(order.IsSelfDeliveryPaid, Is.True);
+		}
+
+		[Test(Description = "Частичная оплата безналичного самовывоза не отмечает его оплаченным")]
+		public void UpdateOrderPaymentStatus_WhenCashlessSelfDeliveryIsPartiallyPaid_DoesNotMarkSelfDeliveryAsPaid()
+		{
+			var order = new Order
+			{
+				SelfDelivery = true
+			};
+			order.UpdatePaymentType(PaymentType.Cashless, _contractUpdater, false);
+
+			order.UpdateOrderPaymentStatus(OrderPaymentStatus.PartiallyPaid);
+
+			Assert.That(order.IsSelfDeliveryPaid, Is.False);
+		}
+
+		[Test(Description = "Оплата безналичного заказа с доставкой не меняет признак оплаты самовывоза")]
+		public void UpdateOrderPaymentStatus_WhenCashlessDeliveryOrderIsPaid_DoesNotMarkSelfDeliveryAsPaid()
+		{
+			var order = new Order();
+			order.UpdatePaymentType(PaymentType.Cashless, _contractUpdater, false);
+
+			order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid);
+
+			Assert.That(order.IsSelfDeliveryPaid, Is.False);
+		}
+
+		#endregion
+
+		#region QR self-delivery payment
+
+		[Test(Description = "Оплата QR-самовывоза после смены статуса заказа отмечает самовывоз оплаченным")]
+		public void AcceptOnlinePayment_WhenSmsQrSelfDeliveryOrderIsNotWaitingForPayment_MarksSelfDeliveryAsPaid()
+		{
+			var uow = Substitute.For<IUnitOfWork>();
+			var order = new Order
+			{
+				Id = 1,
+				SelfDelivery = true,
+				OrderStatus = OrderStatus.Closed
+			};
+			order.UpdatePaymentType(PaymentType.SmsQR, _contractUpdater, false);
+
+			var routeListItemRepository = Substitute.For<IRouteListItemRepository>();
+			routeListItemRepository.GetRouteListItemsForOrder(uow, order.Id).Returns(new List<RouteListItem>());
+			var handler = new OrderOnlinePaymentAcceptanceHandler(
+				Substitute.For<INomenclatureSettings>(),
+				routeListItemRepository,
+				Substitute.For<ISelfDeliveryRepository>(),
+				Substitute.For<ICashRepository>(),
+				Substitute.For<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>(),
+				Substitute.For<IFastPaymentRepository>(),
+				_contractUpdater);
+			var fastPayment = new FastPayment
+			{
+				Order = order,
+				ExternalId = 1,
+				PaymentType = PaymentType.SmsQR,
+				PaymentByCardFrom = new PaymentFrom(),
+				Organization = new Organization()
+			};
+
+			handler.AcceptOnlinePayment(uow, fastPayment);
+
+			Assert.That(order.IsSelfDeliveryPaid, Is.True);
+			Assert.That(order.OrderStatus, Is.EqualTo(OrderStatus.Closed));
 		}
 
 		#endregion
