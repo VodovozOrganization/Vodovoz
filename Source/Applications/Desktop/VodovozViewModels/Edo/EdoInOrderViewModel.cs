@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentActionsViewModel = edoInOrderDocumentActionsViewModel ?? throw new ArgumentNullException(nameof(edoInOrderDocumentActionsViewModel));
 			OrderCodesViewModel = orderCodesViewModel ?? throw new ArgumentNullException(nameof(orderCodesViewModel));
 			_allProblems = new List<EdoInOrderProblemNode>();
+			_problems = new List<EdoInOrderProblemViewModel>();
 
 			RefreshCommnand = new DelegateCommand(Refresh);
 			EdoInOrderDocumentActionsViewModel.EdoInOrderRefreshCommand = RefreshCommnand;
