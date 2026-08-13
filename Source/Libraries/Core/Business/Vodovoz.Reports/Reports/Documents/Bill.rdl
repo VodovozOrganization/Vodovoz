@@ -1488,10 +1488,10 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
         <ZIndex>0</ZIndex>
       </Table>
       <List Name="List3">
-        <Height>103.22pt</Height>
-        <Width>535.30pt</Width>
-        <Left>31.4pt</Left>
-        <Top>537.2pt</Top>
+        <Height>152.10pt</Height>
+        <Width>524.04pt</Width>
+        <Left>31.40pt</Left>
+        <Top>560.40pt</Top>
         <ReportItems>
           <Textbox Name="Textbox24">
             <Height>16.50pt</Height>
@@ -1499,7 +1499,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>Руководитель________________</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>97.9pt</Top>
+            <Top>75.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1519,7 +1519,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
 + '.)'</Value>
             <ZIndex>0</ZIndex>
             <Left>156.8pt</Left>
-            <Top>97.9pt</Top>
+            <Top>75.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1540,7 +1540,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
 + '.)'</Value>
             <ZIndex>0</ZIndex>
             <Left>407.8pt</Left>
-            <Top>98.7pt</Top>
+            <Top>76.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1556,7 +1556,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>Бухгалтер______________</Value>
             <ZIndex>1</ZIndex>
             <Left>283.4pt</Left>
-            <Top>97.2pt</Top>
+            <Top>74.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1570,7 +1570,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
             <Left>72.9pt</Left>
-            <Top>66.4pt</Top>
+            <Top>44.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1590,7 +1590,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
             <Left>323.8pt</Left>
-            <Top>74.4pt</Top>
+            <Top>52.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1610,7 +1610,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Height>102.39pt</Height>
             <Width>112.93pt</Width>
             <Left>290.0pt</Left>
-            <Top>21.6pt</Top>
+            <Top>0.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1646,7 +1646,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
 P.S. И помни, мы тебя любим ❣</Value>
         <ZIndex>0</ZIndex>
         <Left>12.8pt</Left>
-        <Top>705.7pt</Top>
+        <Top>726.5pt</Top>
         <Style>
           <BorderStyle>
             <Default>None</Default>
@@ -2044,7 +2044,7 @@ Iif(
         <Height>112.04pt</Height>
         <Width>222.99pt</Width>
         <Left>203.0pt</Left>
-        <Top>659.6pt</Top>
+        <Top>680.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2100,7 +2100,7 @@ Iif(
           <TextAlign>Left</TextAlign>
           <Color>Black</Color>
           <VerticalAlign>Middle</VerticalAlign>
-          <FontSize >9pt</FontSize>
+          <FontSize>9pt</FontSize>
         </Style>
         <CanGrow>false</CanGrow>
         <CanShrink>false</CanShrink>
@@ -2174,7 +2174,7 @@ Iif(
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
