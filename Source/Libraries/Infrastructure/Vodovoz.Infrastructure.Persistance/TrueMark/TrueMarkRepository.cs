@@ -681,20 +681,45 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 					}
 				case SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryDocumentItemTrueMarkProductCode:
 					{
+						var selfDeliveryDocumentItemId = selfDeliveryDocumentItemTrueMarkProductCode
+							.SelfDeliveryDocumentItem?.Id;
+
+						if(selfDeliveryDocumentItemId is null)
+						{
+							var customerEdoRequestId = trueMarkProductCode.CustomerEdoRequest?.Id;
+
+							if(customerEdoRequestId is null)
+							{
+								return null;
+							}
+
+							var fallbackQuery =
+								from customerEdoRequest in uow.Session.Query<FormalEdoRequest>()
+								where customerEdoRequest.Id == customerEdoRequestId.Value
+								select customerEdoRequest.Order.Id;
+
+							return await fallbackQuery.FirstOrDefaultAsync(cancellationToken);
+						}
+
 						var query =
 							from selfDeliveryDocumentItem in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
-							join selfDeliveryDocument in uow.Session.Query<SelfDeliveryDocumentEntity>()
-								on selfDeliveryDocumentItem.Document.Id equals selfDeliveryDocument.Id
-							where selfDeliveryDocumentItem.Id == selfDeliveryDocumentItemTrueMarkProductCode.SelfDeliveryDocumentItem.Id
-							select selfDeliveryDocument.Order.Id;
+							where selfDeliveryDocumentItem.Id == selfDeliveryDocumentItemId.Value
+							select selfDeliveryDocumentItem.Document.Order.Id;
 
 						return await query.FirstOrDefaultAsync(cancellationToken);
 					}
 				case AutoTrueMarkProductCode autoTrueMarkProductCode:
 					{
+						var customerEdoRequestId = autoTrueMarkProductCode.CustomerEdoRequest?.Id;
+
+						if(customerEdoRequestId is null)
+						{
+							return null;
+						}
+
 						var query =
 							from orderEdoReques in uow.Session.Query<FormalEdoRequest>()
-							where orderEdoReques.Id == autoTrueMarkProductCode.CustomerEdoRequest.Id
+							where orderEdoReques.Id == customerEdoRequestId.Value
 							select orderEdoReques.Order.Id;
 
 						return await query.FirstOrDefaultAsync(cancellationToken);

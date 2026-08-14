@@ -112,14 +112,24 @@ namespace VodovozBusiness.Services.TrueMark
 				{
 					var isCodeAlreadyAddedToRouteListItem =
 						routeListAddress.TrueMarkCodes.Any(x =>
-						x.SourceCode.Gtin == code.TrueMarkWaterIdentificationCode.Gtin
+						x.SourceCode != null
+						&& x.SourceCode.Gtin == code.TrueMarkWaterIdentificationCode.Gtin
 						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber);
 
 					if(!isCodeAlreadyAddedToRouteListItem)
 					{
+						var orderId = routeListAddress.Order?.Id
+							?? (routeListAddress as RouteListItem)?.Order?.Id;
+
+						if(orderId is null)
+						{
+							throw new InvalidOperationException(
+								$"Не найден заказ для адреса МЛ {routeListAddress.Id}");
+						}
+
 						await ReturnReusedProductCodeToPool(
 							uow,
-							routeListAddress.Order.Id,
+							orderId.Value,
 							code.TrueMarkWaterIdentificationCode.Gtin,
 							status,
 							problem,
