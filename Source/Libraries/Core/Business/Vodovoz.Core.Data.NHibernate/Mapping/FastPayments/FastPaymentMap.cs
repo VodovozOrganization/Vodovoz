@@ -1,4 +1,5 @@
 using FluentNHibernate.Mapping;
+using NHibernate.Type;
 using Vodovoz.Core.Domain.FastPayments;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.FastPayments
@@ -9,9 +10,16 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.FastPayments
 		{
 			Table("fast_payments");
 
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			Map(x => x.OrderId).Column("order_id");
-			Map(x => x.PaymentStatus).Column("payment_status");
+			Id(x => x.Id)
+				.Column("id")
+				.GeneratedBy.Native();
+
+			Map(x => x.FastPaymentStatus)
+				.Column("payment_status")
+				.CustomType<EnumStringType<FastPaymentStatus>>();
+
+			References(x => x.Order)
+				.Column("order_id");
 		}
 	}
 }

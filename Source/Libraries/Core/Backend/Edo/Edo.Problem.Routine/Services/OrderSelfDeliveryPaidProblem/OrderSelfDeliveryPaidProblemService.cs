@@ -194,8 +194,8 @@ namespace Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem
 			}
 
 			var performedFastPayment = await uow.Session.QueryOver<FastPaymentEntity>()
-				.Where(payment => payment.OrderId == order.Id)
-				.And(payment => payment.PaymentStatus == nameof(FastPaymentStatus.Performed))
+				.Where(payment => payment.Order.Id == order.Id)
+				.And(payment => payment.FastPaymentStatus == FastPaymentStatus.Performed)
 				.Take(1)
 				.SingleOrDefaultAsync(cancellationToken);
 
