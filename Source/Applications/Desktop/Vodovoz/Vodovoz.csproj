@@ -2667,6 +2667,10 @@
       <Project>{4851B429-7C79-8D8B-6299-DC1F6430111A}</Project>
       <Name>EdoNotifications.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\EdoNotifications\EdoNotifications.Application\EdoNotifications.Application.csproj">
+      <Project>{8BD3D49B-0542-F42C-17D9-F4B2738E7268}</Project>
+      <Name>EdoNotifications.Application</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj">
       <Project>{F002AF1D-1958-EF09-F21A-0221E7874DE1}</Project>
       <Name>Notifications.Infrastructure</Name>
