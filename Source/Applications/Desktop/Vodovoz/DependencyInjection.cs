@@ -268,6 +268,7 @@ namespace Vodovoz
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
 				.AddScoped<ISalesReportService, SalesReportService>()
 				.AddEdoAdminServices()
+				.AddEdoNotifications()
 				.AddOrderEdoCodePoolMissingProblem()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
 				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
