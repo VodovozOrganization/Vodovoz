@@ -38,7 +38,6 @@ namespace Edo.Problem.Routine.Worker
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
-							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
 							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
 						)
 						.AddDatabaseConnection()

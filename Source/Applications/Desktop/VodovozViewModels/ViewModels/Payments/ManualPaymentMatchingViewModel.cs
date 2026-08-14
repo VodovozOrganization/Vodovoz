@@ -575,7 +575,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				item.Order.UpdateOrderPaymentStatus(
 					item.Order.OrderSum > totalSum
 						? OrderPaymentStatus.PartiallyPaid
-						: OrderPaymentStatus.Paid);
+						: OrderPaymentStatus.Paid,
+					item.Order.PaymentType);
 			}
 
 			Entity.Status = PaymentState.completed;

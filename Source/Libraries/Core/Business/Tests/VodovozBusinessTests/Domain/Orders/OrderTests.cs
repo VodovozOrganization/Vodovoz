@@ -202,7 +202,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			};
 			order.UpdatePaymentType(PaymentType.Cashless, _contractUpdater, false);
 
-			order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid);
+			order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
 
 			Assert.That(order.IsSelfDeliveryPaid, Is.True);
 		}
@@ -216,7 +216,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			};
 			order.UpdatePaymentType(PaymentType.Cashless, _contractUpdater, false);
 
-			order.UpdateOrderPaymentStatus(OrderPaymentStatus.PartiallyPaid);
+			order.UpdateOrderPaymentStatus(OrderPaymentStatus.PartiallyPaid, order.PaymentType);
 
 			Assert.That(order.IsSelfDeliveryPaid, Is.False);
 		}
@@ -227,7 +227,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var order = new Order();
 			order.UpdatePaymentType(PaymentType.Cashless, _contractUpdater, false);
 
-			order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid);
+			order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
 
 			Assert.That(order.IsSelfDeliveryPaid, Is.False);
 		}

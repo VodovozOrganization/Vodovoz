@@ -16,8 +16,6 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.FastPayments;
 
 namespace Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem
 {
@@ -148,7 +146,7 @@ namespace Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem
 				return false;
 			}
 
-			await RestoreSelfDeliveryPaidFlagForPerformedQrPayment(uow, edoTask, cancellationToken);
+			await RestoreSelfDeliveryPaidFlagForPerformedFastPayment(uow, edoTask, cancellationToken);
 
 			var validationResult = await _selfDeliveryPaidValidator.ValidateAsync(edoTask, _serviceProvider, cancellationToken);
 
@@ -183,26 +181,25 @@ namespace Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem
 			return true;
 		}
 
-		private async Task RestoreSelfDeliveryPaidFlagForPerformedQrPayment(
+		private async Task RestoreSelfDeliveryPaidFlagForPerformedFastPayment(
 			IUnitOfWork uow,
 			OrderEdoTask edoTask,
 			CancellationToken cancellationToken)
 		{
 			var order = edoTask.FormalEdoRequest.Order;
 
-			if(!order.SelfDelivery || order.IsSelfDeliveryPaid || order.PaymentType != PaymentType.SmsQR)
+			if(!order.SelfDelivery || order.IsSelfDeliveryPaid)
 			{
 				return;
 			}
 
-			var performedQrPayment = await uow.Session.QueryOver<FastPayment>()
-				.Where(payment => payment.Order.Id == order.Id)
-				.And(payment => payment.PaymentType == PaymentType.SmsQR)
-				.And(payment => payment.FastPaymentStatus == FastPaymentStatus.Performed)
+			var performedFastPayment = await uow.Session.QueryOver<FastPaymentEntity>()
+				.Where(payment => payment.OrderId == order.Id)
+				.And(payment => payment.PaymentStatus == nameof(FastPaymentStatus.Performed))
 				.Take(1)
 				.SingleOrDefaultAsync(cancellationToken);
 
-			if(performedQrPayment == null)
+			if(performedFastPayment == null)
 			{
 				return;
 			}
@@ -212,7 +209,7 @@ namespace Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem
 			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
-				"Задача ЭДО {EdoTaskId}: для самовывоза по заказу №{OrderId} найден проведённый QR-платёж, признак оплаты восстановлен",
+				"Задача ЭДО {EdoTaskId}: для самовывоза по заказу №{OrderId} найден проведённый быстрый платёж, признак оплаты восстановлен",
 				edoTask.Id,
 				order.Id);
 		}

@@ -62,7 +62,7 @@ namespace Vodovoz.Controllers
 			
 			if(order.OrderSum > allocatedSum)
 			{
-				order.UpdateOrderPaymentStatus(OrderPaymentStatus.PartiallyPaid);
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.PartiallyPaid, order.PaymentType);
 			}
 			else if(order.OrderSum < allocatedSum)
 			{
@@ -87,11 +87,11 @@ namespace Vodovoz.Controllers
 						break;
 					}
 				}
-				order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid);
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
 			}
 			else
 			{
-				order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid);
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
 			}
 		}
 
@@ -176,7 +176,8 @@ namespace Vodovoz.Controllers
 
 				var allocatedSum = cancelledPaymentItems.Sum(pi => pi.Sum);
 				order.UpdateOrderPaymentStatus(
-					allocatedSum >= order.OrderSum ? OrderPaymentStatus.Paid : OrderPaymentStatus.PartiallyPaid);
+					allocatedSum >= order.OrderSum ? OrderPaymentStatus.Paid : OrderPaymentStatus.PartiallyPaid,
+					order.PaymentType);
 			}
 		}
 
@@ -256,7 +257,8 @@ namespace Vodovoz.Controllers
 				order.UpdateOrderPaymentStatus(
 					order.PaymentType == PaymentType.Cashless
 						? OrderPaymentStatus.UnPaid
-						: OrderPaymentStatus.None);
+						: OrderPaymentStatus.None,
+					order.PaymentType);
 			}
 
 			var profitCategory = uow.GetById<ProfitCategory>(_paymentSettings.RefundCancelOrderProfitCategoryId);

@@ -11,7 +11,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
     <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
-    <ProjectReference Include="..\..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\..\..\Notifications\EdoNotifications\EdoNotifications.Application\EdoNotifications.Application.csproj" />
     <ProjectReference Include="..\..\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\MessageTransport\MessageTransport.csproj" />
