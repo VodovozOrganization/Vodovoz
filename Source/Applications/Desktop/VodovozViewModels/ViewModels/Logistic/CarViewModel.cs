@@ -231,6 +231,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					_cancellationTokenSource.Token,
 					Entity.AddFileInformation,
 					Entity.RemoveFileInformation);
+			AttachedFileInformationsViewModel.ReadOnly = !CanEditCarCard;
 
 			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
 			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);
@@ -311,6 +312,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			get => _canChangeBottlesFromAddress;
 			set => SetField(ref _canChangeBottlesFromAddress, value);
 		}
+		public bool CanEditBottlesFromAddress => CanEditCarCard && CanChangeBottlesFromAddress;
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
 		public bool CanChangeCarModel { get; private set; }
