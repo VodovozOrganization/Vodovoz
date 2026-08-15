@@ -15,6 +15,7 @@ using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
@@ -35,6 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IConfirmationQuestionInteractive _confirmationQuestionInteractive;
 		private readonly IAddressTransferController _addressTransferController;
 		private readonly IRouteListTransferService _routeListTransferService;
+		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IWageParameterService _wageParameterService;
@@ -60,6 +62,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IConfirmationQuestionInteractive confirmationQuestionInteractive,
 			IAddressTransferController addressTransferController,
 			IRouteListTransferService routeListTransferService,
+			IDeliveryRepository deliveryRepository,
 			int routeListAddressId)
 			: base(navigationManager)
 		{
@@ -70,6 +73,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_confirmationQuestionInteractive = confirmationQuestionInteractive ?? throw new ArgumentNullException(nameof(confirmationQuestionInteractive));
 			_addressTransferController = addressTransferController ?? throw new ArgumentNullException(nameof(addressTransferController));
 			_routeListTransferService = routeListTransferService ?? throw new ArgumentNullException(nameof(routeListTransferService));
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			FilterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
@@ -221,9 +225,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			_unitOfWork.Session.Flush();
 
-			routeListFrom.CalculateWages(_wageParameterService);
+			routeListFrom.CalculateWages(_unitOfWork, _wageParameterService);
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(_unitOfWork, routeListFrom);
-			routeListTo.CalculateWages(_wageParameterService);
+			routeListTo.CalculateWages(_unitOfWork, _wageParameterService);
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(_unitOfWork, routeListTo);
 
 			address.RecalculateTotalCash();
@@ -231,7 +235,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(routeListTo.ClosingFilled)
 			{
-				newItem.FirstFillClosing(_wageParameterService);
+				newItem.FirstFillClosing(_unitOfWork, _wageParameterService);
 			}
 
 			_unitOfWork.Save(address);
@@ -250,7 +254,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			var confirmationQuestions = new List<ConfirmationQuestion>();
 
-			var maxFastDeliveryOrdersCountInRouteList = routeListTo.GetMaxFastDeliveryOrdersValue();
+			var maxFastDeliveryOrdersCountInRouteList = _deliveryRepository.GetMaxFastDeliveryOrdersValue(_unitOfWork, routeListTo.Id);
 			if(GetFastDeliveryOrdersCountInRouteList(routeListTo) >= maxFastDeliveryOrdersCountInRouteList)
 			{
 				_logger.LogDebug("В выбранном маршрутном листе уже имеется максимально допустимое количество заказов с быстрой доставкой. " +
@@ -263,7 +267,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				});
 			}
 
-			if(distance == null || distance.Value > routeListTo.GetFastDeliveryMaxDistanceValue())
+			if(distance == null || distance.Value > _deliveryRepository.GetFastDeliveryMaxDistanceValue(_unitOfWork, routeListTo.Id))
 			{
 				var distanceValue =
 					distance.HasValue

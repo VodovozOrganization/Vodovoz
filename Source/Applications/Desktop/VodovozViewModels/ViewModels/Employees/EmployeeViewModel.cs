@@ -33,6 +33,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -84,6 +85,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private readonly IEmployeeFileStorageService _employeeFileStorageService;
 		private readonly ViewModelEEVMBuilder<Phone> _phoneViewModelEEVMBuilder;
+		private readonly IWageParameterService _wageParameterService;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private readonly IInteractiveService _interactiveService;
 		private readonly Vodovoz.Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
@@ -157,6 +159,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IEmployeeFileStorageService employeeFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			ViewModelEEVMBuilder<Phone> phoneViewModelEEVMBuilder,
+			IWageParameterService wageParameterService,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -188,6 +191,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				nomenclatureFixedPriceController ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceController));
 			_employeeFileStorageService = employeeFileStorageService ?? throw new ArgumentNullException(nameof(employeeFileStorageService));
 			_phoneViewModelEEVMBuilder = phoneViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(phoneViewModelEEVMBuilder));
+			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
 			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
 
@@ -1494,7 +1498,15 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				}
 			}
 
-			Entity.CreateDefaultWageParameter(_wageCalculationRepository, _wageSettings, CommonServices.InteractiveService);
+			var createWageParameterResult = _wageParameterService.TryCreateDefaultWageParameterForNewEmployee(UoW, Entity);
+
+			if(!createWageParameterResult.IsFailure)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					createWageParameterResult.Errors.First().Message,
+					"Невозможно создать расчет зарплаты");
+			}
 			
 			if(Entity.Counterparty != null)
 			{
@@ -1633,6 +1645,18 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		{
 			UoW?.Dispose();
 			LifetimeScope = null;
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+
+			if(DriverAppUser != null)
+			{
+				DriverAppUser.PropertyChanged -= OnDriverAppUserPropertyChanged;
+			}
+
+			if(WarehouseAppUser != null)
+			{
+				WarehouseAppUser.PropertyChanged -= OnWarehouseAppUserPropertyChanged;
+			}
+			
 			base.Dispose();
 		}
 	}

@@ -8,7 +8,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Models
 {
-    public class DeliveryPointFixedPricesModel : IFixedPricesModel
+    public class DeliveryPointFixedPricesModel : IFixedPricesModel, IDisposable
     {
         private readonly IUnitOfWork _uow;
         private readonly DeliveryPoint _deliveryPoint;
@@ -70,5 +70,13 @@ namespace Vodovoz.Models
 
             _fixedPriceController.DeleteFixedPrice(_deliveryPoint, nomenclatureFixedPrice);
         }
-    }
+
+		public void Dispose()
+		{
+			if(_deliveryPoint != null)
+			{
+				_deliveryPoint.PropertyChanged -= DeliveryPointOnPropertyChanged;
+			}
+		}
+	}
 }

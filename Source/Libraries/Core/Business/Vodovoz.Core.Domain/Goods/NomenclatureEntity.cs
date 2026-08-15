@@ -1,7 +1,6 @@
 ﻿using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
@@ -28,7 +27,7 @@ namespace Vodovoz.Core.Domain.Goods
 		PrepositionalPlural = "номенклатурах")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class NomenclatureEntity : PropertyChangedBase, INamedDomainObject, IBusinessObject, IHasAttachedFilesInformations<NomenclatureFileInformation>
+	public class NomenclatureEntity : PropertyChangedBase, INamedDomainObject, IHasAttachedFilesInformations<NomenclatureFileInformation>
 	{
 		private int _id;
 		private string _name;
@@ -146,8 +145,6 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			Category = NomenclatureCategory.water;
 		}
-
-		public virtual IUnitOfWork UoW { set; get; }
 
 		/// <summary>
 		/// Идентификатор

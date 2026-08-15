@@ -473,7 +473,6 @@ namespace Vodovoz.ViewModels.Orders
 			UndeliveredOrderViewModel.SaveUndelivery -= SaveUndelivery;
 			Entity.ObservableUndeliveryDiscussions.ElementChanged -= OnObservableUndeliveryDiscussionsElementChanged;
 			Entity.ObservableUndeliveryDiscussions.ListContentChanged -= OnObservableUndeliveryDiscussionsListContentChanged;
-			UndeliveredOrderViewModel.Dispose();
 
 			if(!_isExternalUoW)
 			{

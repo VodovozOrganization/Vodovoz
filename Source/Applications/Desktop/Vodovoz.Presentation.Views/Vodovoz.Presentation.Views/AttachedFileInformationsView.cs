@@ -134,18 +134,10 @@ namespace Vodovoz.Presentation.Views
 			ViewModel.OpenCommand.Execute();
 		}
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
-			treeFiles.RowActivated -= OnRowActivated;
-
-			buttonAdd.Clicked -= OnAddClicked;
-			buttonScan.Clicked -= OnScanClicked;
-			btnOpen.Clicked -= OnOpenClicked;
-			btnSave.Clicked -= OnSaveClicked;
-			btnDelete.Clicked -= OnDeleteClicked;
-
 			ViewModel.OnFileInformationChanged -= OnViewModelFileInformationChanged;
-			base.Destroy();
+			base.OnDestroyed();
 		}
 	}
 }

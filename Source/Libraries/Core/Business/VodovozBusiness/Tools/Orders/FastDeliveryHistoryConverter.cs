@@ -1,20 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Nodes;
 
 namespace Vodovoz.Tools.Orders
 {
-	public class FastDeliveryHistoryConverter
+	public class FastDeliveryHistoryConverter : IFastDeliveryHistoryConverter
 	{
+		private readonly IDeliveryRepository _deliveryRepository;
+
+		public FastDeliveryHistoryConverter(IDeliveryRepository deliveryRepository)
+		{
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+		}
+
 		public IList<FastDeliveryVerificationDetailsNode> ConvertAvailabilityHistoryItemsToVerificationDetailsNodes(
-			IEnumerable<FastDeliveryAvailabilityHistoryItem> items)
+			IUnitOfWork uow,
+			IEnumerable<FastDeliveryAvailabilityHistoryItem> items
+			)
 		{
 			var nodes = new List<FastDeliveryVerificationDetailsNode>();
 
@@ -22,12 +30,14 @@ namespace Vodovoz.Tools.Orders
 			{
 				DateTime dateOfRouteListFastDeliveryMaxDistance, dateOfRouteListMaxFastDeliveryOrders;
 				dateOfRouteListFastDeliveryMaxDistance = dateOfRouteListMaxFastDeliveryOrders =
-					item.FastDeliveryAvailabilityHistory.VerificationDate > DateTime.MinValue 
+					item.FastDeliveryAvailabilityHistory.VerificationDate > DateTime.MinValue
 					? item.FastDeliveryAvailabilityHistory.VerificationDate
 					: DateTime.Now;
 
-				double routeListFastDeliveryRadius = (double)item.RouteList.GetFastDeliveryMaxDistanceValue(dateOfRouteListFastDeliveryMaxDistance);
-				var routeListMaxFastDeliveryOrders = item.RouteList.GetMaxFastDeliveryOrdersValue(dateOfRouteListMaxFastDeliveryOrders);
+				var routeListFastDeliveryRadius =
+					(double)_deliveryRepository.GetFastDeliveryMaxDistanceValue(uow, item.RouteList.Id, dateOfRouteListFastDeliveryMaxDistance);
+				var routeListMaxFastDeliveryOrders =
+					_deliveryRepository.GetMaxFastDeliveryOrdersValue(uow, item.RouteList.Id, dateOfRouteListMaxFastDeliveryOrders);
 
 				var node = new FastDeliveryVerificationDetailsNode
 				{
@@ -66,7 +76,7 @@ namespace Vodovoz.Tools.Orders
 					},
 					RouteListFastDeliveryRadius = routeListFastDeliveryRadius,
 					RouteListMaxFastDeliveryOrders = routeListMaxFastDeliveryOrders
-			};
+				};
 
 				nodes.Add(node);
 			}
@@ -90,7 +100,7 @@ namespace Vodovoz.Tools.Orders
 					Driver = node.RouteList.Driver,
 					IsGoodsEnough = node.IsGoodsEnough.ParameterValue,
 					IsValidIsGoodsEnough = node.IsGoodsEnough.IsValidParameter,
-					LastCoordinateTimeElapsed =  node.LastCoordinateTime.ParameterValue,
+					LastCoordinateTimeElapsed = node.LastCoordinateTime.ParameterValue,
 					IsValidLastCoordinateTime = node.LastCoordinateTime.IsValidParameter,
 					RemainingTimeForShipmentNewOrder = node.RemainingTimeForShipmentNewOrder.ParameterValue,
 					IsValidRemainingTimeForShipmentNewOrder = node.RemainingTimeForShipmentNewOrder.IsValidParameter,
@@ -108,7 +118,7 @@ namespace Vodovoz.Tools.Orders
 		}
 
 		public IList<FastDeliveryOrderItemHistory> ConvertNomenclatureAmountNodesToOrderItemsHistory(
-			IEnumerable<NomenclatureAmountNode> nomenclatureNodes, 
+			IEnumerable<NomenclatureAmountNode> nomenclatureNodes,
 			FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory
 			)
 		{

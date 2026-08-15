@@ -467,7 +467,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Order orderUnderTest = new Order();
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
-			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, orderUnderTest, null).ReturnsNull();
+			orderRepository.FirstRealClientOrderForActionBottleExists(uow, orderUnderTest, null).Returns(false);
 
 			// act
 			var res = orderUnderTest.CanAddStockBottle(orderRepository);
@@ -488,7 +488,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
-			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, orderUnderTest, client).ReturnsNull();
+			orderRepository.FirstRealClientOrderForActionBottleExists(uow, orderUnderTest, client).Returns(true);
 
 			// act
 			var res = orderUnderTest.CanAddStockBottle(orderRepository);
@@ -528,11 +528,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
-			if(result) {
-				orderRepository.GetFirstRealOrderForClientForActionBottle(uow, orderUnderTest, client).ReturnsNull();
-			} else {
-				orderRepository.GetFirstRealOrderForClientForActionBottle(uow, orderUnderTest, client).Returns(firstOrder);
-			}
+			orderRepository.FirstRealClientOrderForActionBottleExists(uow, orderUnderTest, client).Returns(result);
 
 			// act
 			var res = orderUnderTest.CanAddStockBottle(orderRepository);
@@ -555,7 +551,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
-			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, firstOrder, client).Returns(Substitute.For<Order>());
+			orderRepository.FirstRealClientOrderForActionBottleExists(uow, firstOrder, client).Returns(false);
 
 			// act
 			var res = orderUnderTest.CanAddStockBottle(orderRepository);

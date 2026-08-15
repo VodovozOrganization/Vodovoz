@@ -221,7 +221,7 @@ namespace Vodovoz
 
 		private void RollBackEnRouteStatus()
 		{
-			Entity.RollBackEnRouteStatus();
+			Entity.RollBackEnRouteStatus(UoW);
 
 			foreach(var item in Entity.Addresses.Where(x => x.Status == RouteListItemStatus.Completed))
 			{
@@ -410,7 +410,7 @@ namespace Vodovoz
 		{
 			if(Entity.Driver != null)
 			{
-				if(!Entity.IsDriversDebtInPermittedRangeVerification())
+				if(!Entity.IsDriversDebtInPermittedRangeVerification(UoW))
 				{
 					Entity.Driver = null;
 				}
@@ -576,7 +576,7 @@ namespace Vodovoz
 					vm =>
 					{
 						vm.Saved += OnUndeliveryViewModelSaved;
-						vm.Initialize(rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id, cancellationPermit: permit);
+						vm.Initialize(UoW, rli.RouteListItem.Order.Id, cancellationPermit: permit);
 					}
 					).ViewModel;
 
@@ -605,7 +605,7 @@ namespace Vodovoz
 				rli.RouteListItemStatusHasChangedToCompeteStatus = true;
 			}
 
-			rli.UpdateStatus(_routeListService, _routeListItemStatusToChange, CallTaskWorker);
+			rli.UpdateStatus(UoW, _routeListService, _routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(rli, _routeListItemStatusToChange);
 		}
 
@@ -718,7 +718,7 @@ namespace Vodovoz
 				.Where(x => x.RouteListItem.Order.Id == e.UndeliveredOrder.OldOrder.Id)
 				.FirstOrDefault();
 
-			address.UpdateStatus(_routeListService,  _routeListItemStatusToChange, CallTaskWorker);
+			address.UpdateStatus(UoW, _routeListService,  _routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(address, _routeListItemStatusToChange);
 			UoW.Save(address.RouteListItem);
 
@@ -854,7 +854,7 @@ namespace Vodovoz
 				&& ((_previousForwarder == null && newForwarder != null)
 					|| (_previousForwarder != null && newForwarder == null)))
 			{
-				Entity.RecalculateAllWages(_wageParameterService);
+				Entity.RecalculateAllWages(UoW, _wageParameterService);
 			}
 
 			_previousForwarder = Entity.Forwarder;
@@ -936,7 +936,7 @@ namespace Vodovoz
 						"Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
 				}
 
-				Entity.CalculateWages(_wageParameterService);
+				Entity.CalculateWages(UoW, _wageParameterService);
 			}
 			catch(GenericADOException ex) when(
 				ex.InnerException?.Message.Contains("Lock wait timeout exceeded") == true ||

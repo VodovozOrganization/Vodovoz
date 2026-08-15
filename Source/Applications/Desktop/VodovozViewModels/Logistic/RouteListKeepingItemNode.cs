@@ -1,5 +1,6 @@
 using QS.DomainModel.Entity;
 using System;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Services.Logistics;
@@ -85,6 +86,7 @@ namespace Vodovoz
 				if(RouteListItem != null)
 				{
 					_paymentType = RouteListItem.Order.PaymentType;
+					//TODO MemoryLeaking
 					RouteListItem.PropertyChanged += (sender, e) => OnPropertyChanged(() => RouteListItem);
 				}
 			}
@@ -92,7 +94,7 @@ namespace Vodovoz
 
 		public DateTime? RecievedTransferAt => RouteListItem.RecievedTransferAt;
 
-		public string Transferred => RouteListItem.GetTransferText();
+		public string Transferred(IUnitOfWork uow) => RouteListItem.GetTransferText(uow);
 
 		#region Контроль отмены автоотмены автопереноса
 
@@ -101,9 +103,9 @@ namespace Vodovoz
 
 		#endregion Контроль отмены автоотмены автопереноса
 
-		public void UpdateStatus(IRouteListService routeListService, RouteListItemStatus value, ICallTaskWorker callTaskWorker)
+		//TODO не должна нода выполнять такие операции
+		public void UpdateStatus(IUnitOfWork uow, IRouteListService routeListService, RouteListItemStatus value, ICallTaskWorker callTaskWorker)
 		{
-			var uow = RouteListItem.RouteList.UoW;
 			routeListService.ChangeAddressStatusAndCreateTask(uow, RouteListItem.RouteList, RouteListItem.Id, value, callTaskWorker);
 
 			if(RouteListItem.Status == RouteListItemStatus.Overdue || RouteListItem.Status == RouteListItemStatus.Canceled)

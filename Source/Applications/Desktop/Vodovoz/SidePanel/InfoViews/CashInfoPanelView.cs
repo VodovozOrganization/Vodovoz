@@ -86,11 +86,5 @@ namespace Vodovoz.SidePanel.InfoViews
 		
 
 		#endregion
-
-		public override void Destroy()
-		{
-			yTreeView?.Destroy();
-			base.Destroy();
-		}
 	}
 }

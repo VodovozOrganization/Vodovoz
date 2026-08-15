@@ -581,6 +581,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 		public override void Dispose()
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
 		}
 	}

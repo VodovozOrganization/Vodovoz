@@ -9,11 +9,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
-using Gamma.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.TempAdapters;
@@ -29,7 +27,7 @@ namespace Vodovoz.Filters.ViewModels
 	{
 		#region Поля
 		
-		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
+		private DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private PaymentType[] _allowPaymentTypes;
 		private OrderStatus[] _allowStatuses;
 		private object[] _hideStatuses;
@@ -586,6 +584,7 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			_journal = null;
 			_lifetimeScope = null;
+			_deliveryPointJournalFilterViewModel = null;
 			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
 			base.Dispose();
 		}

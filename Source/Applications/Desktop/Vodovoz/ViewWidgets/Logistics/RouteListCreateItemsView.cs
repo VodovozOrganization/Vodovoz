@@ -327,7 +327,7 @@ namespace Vodovoz
 		{
 			foreach(var selectedRouteListItem in _selectedRouteListItems)
 			{
-				if(!RouteListUoW.Root.TryRemoveAddress(selectedRouteListItem, out string message, _routeListItemRepository))
+				if(!RouteListUoW.Root.TryRemoveAddress(RouteListUoW, selectedRouteListItem, out string message, _routeListItemRepository))
 				{
 					ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message, "Невозможно удалить");
 				}

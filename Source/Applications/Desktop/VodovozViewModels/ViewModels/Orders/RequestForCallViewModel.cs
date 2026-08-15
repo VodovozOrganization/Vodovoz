@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Autofac;
@@ -15,6 +15,8 @@ using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Goods;
@@ -36,7 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			ICurrentPermissionService currentPermissionService,
-			IEmployeeService employeeService,
+			IEmployeeRepository employeeRepository,
 			INavigationManager navigation,
 			IValidator validator,
 			IValidationContextFactory validationContextFactory,
@@ -48,7 +50,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 
 			_currentEmployee =
-				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
+				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
 				.GetEmployeeForCurrentUser(UoW);
 
 			if(_currentEmployee is null)

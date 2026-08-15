@@ -1,9 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
-using QS.Project.Services;
+using QS.Services;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.HistoryChanges;
@@ -13,10 +14,17 @@ namespace Vodovoz.Infrastructure.Persistance
 {
 	internal sealed class UserRepository : IUserRepository
 	{
+		private readonly IUserService _userService;
+
+		public UserRepository(IUserService userService)
+		{
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+		}
+		
 		public User GetCurrentUser(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<User>()
-				.Where(u => u.Id == ServicesConfig.UserService.CurrentUserId)
+				.Where(u => u.Id == _userService.CurrentUserId)
 				.SingleOrDefault();
 		}
 
@@ -40,7 +48,7 @@ namespace Vodovoz.Infrastructure.Persistance
 		/// </summary>
 		public UserSettings GetCurrentUserSettings(IUnitOfWork uow)
 		{
-			return GetUserSettings(uow, ServicesConfig.UserService.CurrentUserId);
+			return GetUserSettings(uow, _userService.CurrentUserId);
 		}
 
 		public UserSettings GetUserSettings(IUnitOfWork uow, int userId)

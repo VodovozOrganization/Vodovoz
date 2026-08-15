@@ -30,6 +30,7 @@ using CustomerNotifications.Contracts;
 using CustomerNotifications.Contracts.Extensions;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Notifications.Infrastructure;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Core.Application.Logistics
 {
@@ -49,6 +50,7 @@ namespace Vodovoz.Core.Application.Logistics
 		private readonly IPermissionRepository _permissionRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ITrackRepository _trackRepository;
+		private readonly ICashRepository _cashRepository;
 		private readonly IRouteListSpecialConditionsService _routeListSpecialConditionsService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IOrderService _orderService;
@@ -67,6 +69,7 @@ namespace Vodovoz.Core.Application.Logistics
 			IPermissionRepository permissionRepository,
 			IEmployeeRepository employeeRepository,
 			ITrackRepository trackRepository,
+			ICashRepository cashRepository,
 			IRouteListSpecialConditionsService routeListSpecialConditionsService,
 			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IOrderService orderService,
@@ -85,6 +88,7 @@ namespace Vodovoz.Core.Application.Logistics
 			_permissionRepository = permissionRepository ?? throw new ArgumentNullException(nameof(permissionRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
+			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			_routeListSpecialConditionsService =
 				routeListSpecialConditionsService ?? throw new ArgumentNullException(nameof(routeListSpecialConditionsService));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
@@ -314,7 +318,7 @@ namespace Vodovoz.Core.Application.Logistics
 				unitOfWork.Save(track);
 			}
 
-			routeList.FirstFillClosing(wageParameterService);
+			routeList.FirstFillClosing(unitOfWork, wageParameterService);
 			unitOfWork.Save(routeList);
 		}
 
@@ -341,7 +345,7 @@ namespace Vodovoz.Core.Application.Logistics
 				unitOfWork.Save(track);
 			}
 
-			routeList.FirstFillClosing(wageParameterService);
+			routeList.FirstFillClosing(unitOfWork, wageParameterService);
 			unitOfWork.Save(routeList);
 		}
 
@@ -553,7 +557,7 @@ namespace Vodovoz.Core.Application.Logistics
 			}
 
 			routeList.UpdateDeliveryDocuments(unitOfWork);
-			routeList.UpdateClosedInformation();
+			routeList.UpdateClosedInformation(unitOfWork);
 		}
 
 		public void ChangeStatusAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, RouteListStatus newStatus, ICallTaskWorker callTaskWorker)
@@ -731,12 +735,12 @@ namespace Vodovoz.Core.Application.Logistics
 			}
 
 			routeList.UpdateDeliveryDocuments(unitOfWork);
-			routeList.UpdateClosedInformation();
+			routeList.UpdateClosedInformation(unitOfWork);
 		}
 
 		private void RecalculateRouteList(IUnitOfWork unitOfWork, RouteList routeList, IWageParameterService wageParameterService)
 		{
-			routeList.CalculateWages(wageParameterService);
+			routeList.CalculateWages(unitOfWork, wageParameterService);
 
 			var commonFastDeliveryMaxDistance = (decimal)_deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(DateTime.Now);
 			routeList.UpdateFastDeliveryMaxDistanceValue(commonFastDeliveryMaxDistance);
@@ -784,8 +788,12 @@ namespace Vodovoz.Core.Application.Logistics
 			{
 				return;
 			}
+			
+			var hasMoneyDiscrepancy = routeList.Total != _cashRepository.CurrentRouteListCash(unitOfWork, routeList.Id);
 
-			if(routeList.WasAcceptedByCashier && routeList.IsConsistentWithUnloadDocument() && !routeList.HasMoneyDiscrepancy)
+			if(routeList.WasAcceptedByCashier
+				&& routeList.IsConsistentWithUnloadDocument(unitOfWork)
+				&& !hasMoneyDiscrepancy)
 			{
 				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.Closed, callTaskWorker);
 			}
@@ -806,7 +814,7 @@ namespace Vodovoz.Core.Application.Logistics
 			}
 
 			if((!routeList.NeedMileageCheck || routeList.NeedMileageCheck && routeList.ConfirmedDistance > 0)
-			   && routeList.IsConsistentWithUnloadDocument()
+			   && routeList.IsConsistentWithUnloadDocument(unitOfWork)
 			   && _permissionRepository.HasAccessToClosingRoutelist(unitOfWork, _subdivisionRepository, _employeeRepository, _userService))
 			{
 				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.Closed, callTaskWorker);

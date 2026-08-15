@@ -440,6 +440,8 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 		public override void Dispose()
 		{
 			_lifetimeScope = null;
+			Entity.PropertyChanged -= EntityPropertyChanged;
+			
 			base.Dispose();
 		}
 	}

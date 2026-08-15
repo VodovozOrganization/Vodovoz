@@ -112,13 +112,5 @@ namespace Vodovoz.JournalViewers
 		}
 
 		protected void OnButtonRefreshClicked(object sender, EventArgs e) => DisposeUowAndUpdate();
-
-		protected override void OnDestroyed()
-		{
-			tableWarehouses.ItemsDataSource = Enumerable.Empty<string>();
-			tableWarehouses?.Destroy();
-			_vm?.Destroy();
-			base.OnDestroyed();
-		}
 	}
 }

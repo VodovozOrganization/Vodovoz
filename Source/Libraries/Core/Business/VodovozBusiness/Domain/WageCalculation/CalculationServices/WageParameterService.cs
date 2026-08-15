@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
@@ -10,13 +11,13 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
 	public class WageParameterService : IWageParameterService
 	{
-		private readonly IWageCalculationRepository wageCalculationRepository;
-		private readonly IWageSettings wageSettings;
+		private readonly IWageCalculationRepository _wageCalculationRepository;
+		private readonly IWageSettings _wageSettings;
 
 		public WageParameterService(IWageCalculationRepository wageCalculationRepository, IWageSettings wageSettings)
 		{
-			this.wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
-			this.wageSettings = wageSettings ?? throw new ArgumentNullException(nameof(wageSettings));
+			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
+			_wageSettings = wageSettings ?? throw new ArgumentNullException(nameof(wageSettings));
 		}
 
 		public IRouteListWageCalculationService ActualizeWageParameterAndGetCalculationService(IUnitOfWork uow, Employee employee, IRouteListWageCalculationSource source)
@@ -26,7 +27,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			if(source == null) throw new ArgumentNullException(nameof(source));
 
 			//Не пересчитывать зарплату для МЛ до этой даты
-			if(source.RouteListDate <= wageSettings.DontRecalculateWagesForRouteListsBefore)
+			if(source.RouteListDate <= _wageSettings.DontRecalculateWagesForRouteListsBefore)
 			{
 				return new WageCalculationServiceForOldRouteLists(source);
 			}
@@ -47,8 +48,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 			if(startedWageParameter == null || !startedWageParameter.IsStartedWageParameter) return;
 
-			IEnumerable<DateTime> workedDays = wageCalculationRepository.GetDaysWorkedWithRouteLists(uow, employee).OrderBy(x => x);
-			int daysWorkedNeeded = wageSettings.DaysWorkedForMinRatesLevel;
+			IEnumerable<DateTime> workedDays = _wageCalculationRepository.GetDaysWorkedWithRouteLists(uow, employee).OrderBy(x => x);
+			int daysWorkedNeeded = _wageSettings.DaysWorkedForMinRatesLevel;
 
 			if(workedDays.Count() < daysWorkedNeeded || daysWorkedNeeded < 1) return;
 
@@ -58,15 +59,15 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			{
 				WageParameterItem = new RatesLevelWageParameterItem
 				{
-					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployees(uow)
+					WageDistrictLevelRates = _wageCalculationRepository.DefaultLevelForNewEmployees(uow)
 				},
 				WageParameterItemForOurCars = new RatesLevelWageParameterItem
 				{
-					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployeesOnOurCars(uow)
+					WageDistrictLevelRates = _wageCalculationRepository.DefaultLevelForNewEmployeesOnOurCars(uow)
 				},
 				WageParameterItemForRaskatCars = new RatesLevelWageParameterItem
 				{
-					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployeesOnRaskatCars(uow)
+					WageDistrictLevelRates = _wageCalculationRepository.DefaultLevelForNewEmployeesOnRaskatCars(uow)
 				}
 			};
 
@@ -74,6 +75,41 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 				ratesLevelWageParameter,
 				wageChangeDate
 			);
+		}
+		
+		public Result TryCreateDefaultWageParameterForNewEmployee(IUnitOfWork uow, Employee employee)
+		{
+			if(employee.Id != 0)
+			{
+				return Result.Success();
+			}
+
+			var defaultLevel = _wageCalculationRepository.DefaultLevelForNewEmployees(uow);
+			if(defaultLevel == null)
+			{
+				return Result.Failure(new Error(
+					"500",
+					"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Найм)!\""));
+			}
+
+			var defaultLevelForOurCar = _wageCalculationRepository.DefaultLevelForNewEmployeesOnOurCars(uow);
+			if(defaultLevelForOurCar == null)
+			{
+				return Result.Failure(new Error(
+					"500",
+					"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для наших авто)!\""));
+			}
+
+			var defaultLevelForRaskatCar = _wageCalculationRepository.DefaultLevelForNewEmployeesOnRaskatCars(uow);
+			if(defaultLevelForRaskatCar == null)
+			{
+				return Result.Failure(new Error(
+					"500",
+					"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для авто в раскате)!\""));
+			}
+
+			employee.CreateDefaultWageParameterForNewEmployee(defaultLevel, defaultLevelForOurCar, defaultLevelForRaskatCar);
+			return Result.Success();
 		}
 	}
 }

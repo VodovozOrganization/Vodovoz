@@ -29,6 +29,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using QS.DomainModel.UoW;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
@@ -375,7 +376,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Получили возврат на склад");
 			//FIXME Убрать из этого места первоначальное заполнение. Сейчас оно вызывается при переводе статуса на сдачу. После того как не нормально не переведенных в закрытие маршрутников, тут заполение можно убрать.
 			if(!Entity.ClosingFilled)
-				Entity.FirstFillClosing(_wageParameterService);
+				Entity.FirstFillClosing(UoW, _wageParameterService);
 
 			PerformanceHelper.AddTimePoint("Закончено первоначальное заполнение");
 
@@ -498,7 +499,7 @@ namespace Vodovoz
 		{
 			if(Entity.Driver != null)
 			{
-				if(!Entity.IsDriversDebtInPermittedRangeVerification())
+				if(!Entity.IsDriversDebtInPermittedRangeVerification(UoW))
 				{
 					Entity.Driver = null;
 				}
@@ -579,8 +580,8 @@ namespace Vodovoz
 		{
 			decimal driverCurrentWage = Entity.GetDriversTotalWage();
 			decimal forwarderCurrentWage = Entity.GetForwardersTotalWage();
-			decimal driverRecalcWage = Entity.GetRecalculatedDriverWage(_wageParameterService);
-			decimal forwarderRecalcWage = Entity.GetRecalculatedForwarderWage(_wageParameterService);
+			decimal driverRecalcWage = Entity.GetRecalculatedDriverWage(UoW, _wageParameterService);
+			decimal forwarderRecalcWage = Entity.GetRecalculatedForwarderWage(UoW, _wageParameterService);
 
 			string recalcWageMessage = "Найдены расхождения после пересчета зарплаты:";
 			bool hasDiscrepancy = false;
@@ -596,7 +597,7 @@ namespace Vodovoz
 
 			if(hasDiscrepancy && Entity.Status == RouteListStatus.Closed) {
 				MessageDialogHelper.RunInfoDialog(recalcWageMessage);
-				Entity.RecalculateAllWages(_wageParameterService);
+				Entity.RecalculateAllWages(UoW, _wageParameterService);
 			}
 		}
 
@@ -641,7 +642,7 @@ namespace Vodovoz
 				case nameof(Entity.NormalWage):
 				case nameof(Entity.Driver) when Entity.Car != null && Entity.Driver != null:
 				case nameof(Entity.Car) when Entity.Car != null && Entity.Driver != null:
-					Entity.RecalculateAllWages(_wageParameterService);
+					Entity.RecalculateAllWages(UoW, _wageParameterService);
 					break;
 			}
 		}
@@ -726,7 +727,7 @@ namespace Vodovoz
 				if((previousForwarder == null && newForwarder != null)
 						|| (previousForwarder != null && newForwarder == null))
 				{
-					Entity.RecalculateAllWages(_wageParameterService);
+					Entity.RecalculateAllWages(UoW, _wageParameterService);
 				}
 			}
 
@@ -906,7 +907,7 @@ namespace Vodovoz
 			
 			if(Entity.Driver != null)
 			{
-				Entity.RecalculateWagesForRouteListItem(item, _wageParameterService);
+				Entity.RecalculateWagesForRouteListItem(UoW, item, _wageParameterService);
 			}
 
 			item.RecalculateTotalCash();
@@ -937,7 +938,7 @@ namespace Vodovoz
 		{
 			foreach(var item in routeListAddressesView.Items) {
 				var rli = item as RouteListItem;
-				Entity.RecalculateWagesForRouteListItem(rli, _wageParameterService);
+				Entity.RecalculateWagesForRouteListItem(UoW, rli, _wageParameterService);
 				rli.RecalculateTotalCash();
 			}
 			routelistdiscrepancyview.FindDiscrepancies();
@@ -994,7 +995,7 @@ namespace Vodovoz
 			decimal depositsCollectedTotal = items.Sum(item => item.BottleDepositsCollected);
 			decimal equipmentDepositsCollectedTotal = items.Sum(item => item.EquipmentDepositsCollected);
 			decimal totalCollected = items.Sum(item => item.TotalCash);
-			Entity.CalculateWages(_wageParameterService);
+			Entity.CalculateWages(UoW, _wageParameterService);
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
 
@@ -1296,7 +1297,7 @@ namespace Vodovoz
 				Entity.RecountMileage();
 			}
 
-			Entity.UpdateOperations();
+			Entity.UpdateOperations(UoW);
 
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
 
@@ -1692,7 +1693,7 @@ namespace Vodovoz
 				return;
 			}
 
-			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput, _financialCategoriesGroupsSettings);
+			message = Entity.EmployeeAdvanceOperation(UoW, ref cashExpense, cashInput, _financialCategoriesGroupsSettings);
 
 			if(cashExpense != null)
 				UoW.Save(cashExpense);
@@ -1778,52 +1779,22 @@ namespace Vodovoz
 		{
 			TabParent.OpenTab(
 				$"FuelDocument_{DialogHelper.GenerateDialogHashName<RouteList>(Entity.Id)}",
-				() => new FuelDocumentViewModel(
-				UoW,
-				Entity,
-				ServicesConfig.CommonServices,
-				_subdivisionRepository,
-				_lifetimeScope.Resolve<IEmployeeRepository>(),
-				_fuelRepository,
-				NavigationManager,
-				_lifetimeScope.Resolve<ITrackRepository>(),
-				_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
-				_financialCategoriesGroupsSettings,
-				_lifetimeScope.Resolve<IOrganizationRepository>(),
-				_lifetimeScope.Resolve<IFuelApiService>(),
-				_lifetimeScope.Resolve<IFuelControlSettings>(),
-				_carEventSettings,
-				_lifetimeScope.Resolve<IGuiDispatcher>(),
-				_lifetimeScope.Resolve<IUserSettingsService>(),
-				_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
-				_lifetimeScope
-				));
+				() => _lifetimeScope.Resolve<FuelDocumentViewModel>(
+					new TypedParameter(typeof(IUnitOfWork), UoW),
+					new TypedParameter(typeof(RouteList), Entity)
+					)
+				);
 		}
 
 		protected void OnYtreeviewFuelDocumentsRowActivated(object o, RowActivatedArgs args)
 		{
 			TabParent.OpenTab(
 				$"FuelDocument_{DialogHelper.GenerateDialogHashName<RouteList>(Entity.Id)}",
-				() => new FuelDocumentViewModel(
-				UoW,
-				ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>(),
-				ServicesConfig.CommonServices,
-				_subdivisionRepository,
-				_lifetimeScope.Resolve<IEmployeeRepository>(),
-				_fuelRepository,
-				NavigationManager,
-				_lifetimeScope.Resolve<ITrackRepository>(),
-				_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
-				_financialCategoriesGroupsSettings,
-				_lifetimeScope.Resolve<IOrganizationRepository>(),
-				_lifetimeScope.Resolve<IFuelApiService>(),
-				_lifetimeScope.Resolve<IFuelControlSettings>(),
-				_carEventSettings,
-				_lifetimeScope.Resolve<IGuiDispatcher>(),
-				_lifetimeScope.Resolve<IUserSettingsService>(),
-				_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
-				_lifetimeScope
-				));
+				() => _lifetimeScope.Resolve<FuelDocumentViewModel>(
+					new TypedParameter(typeof(IUnitOfWork), UoW),
+					new TypedParameter(typeof(FuelDocument), ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>())
+					)
+				);
 		}
 
 		protected void OnButtonCalculateCashClicked(object sender, EventArgs e)
@@ -1878,7 +1849,7 @@ namespace Vodovoz
 			if(toggleWageDetails.Active)
 			{
 				notebook1.CurrentPage = 1;
-				textWageDetails.Buffer.Text = Entity.GetWageCalculationDetails(_wageParameterService);
+				textWageDetails.Buffer.Text = Entity.GetWageCalculationDetails(UoW, _wageParameterService);
 			}
 		}
 

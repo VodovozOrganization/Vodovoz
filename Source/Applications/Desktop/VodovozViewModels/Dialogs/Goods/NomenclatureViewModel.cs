@@ -19,7 +19,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Windows.Input;
 using Vodovoz.Core.Application.Errors;
 using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Data.Repositories.Cash;
@@ -38,14 +37,11 @@ using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Dialogs.Nodes;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Goods.ProductGroups;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.Cash;
@@ -910,7 +906,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		protected override bool BeforeSave()
 		{
 			_logger.LogInformation("Сохраняем номенклатуру...");
-			Entity.SetNomenclatureCreationInfo(_userRepository);
+			Entity.SetNomenclatureCreationInfo(_userRepository.GetCurrentUser(UoW));
 
 			if(PriceChanged && Entity.Id > 0)
 			{
@@ -1105,6 +1101,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			{
 				_groupGtinsJornalViewModel.TabClosed -= OnGroupGtinsJournalClosed;
 			}
+			
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
 
 			base.Dispose();
 		}
@@ -1315,7 +1313,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				VatRate = vatRateVersion22,
 				StartDate = new DateTime(2026, 1, 1),
 			});
-				
 		}
 	}
 }

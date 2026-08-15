@@ -617,6 +617,12 @@ namespace Vodovoz.ViewModels.Cash
 
 		public string GetCachedExpenseCategoryTitle(int id) =>
 			_financialExpenseCategoryNodeInMemoryCacheRepository.GetTitleById(id);
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+		}
 	}
 
 	public enum CreatingMessageState

@@ -4698,7 +4698,8 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool CanAddStockBottle(IOrderRepository orderRepository)
 		{
-			bool result = Client != null && orderRepository.GetFirstRealOrderForClientForActionBottle(UoW, this,Client) == null;
+			var result = Client != null && !orderRepository.FirstRealClientOrderForActionBottleExists(UoW, this, Client);
+			
 			if(result) {
 				BottlesReturn = 0;
 			}

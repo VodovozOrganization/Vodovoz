@@ -284,7 +284,7 @@ namespace Vodovoz
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
 				.AddColumn("Тип переноса").HeaderAlignment(0.5f)
-					.AddTextRenderer(item => item.GetTransferText(true))
+					.AddTextRenderer(item => item.GetTransferText(UoW, true))
 				.AddColumn("Чужой район\n для водит.").HeaderAlignment(0.5f)
 					.AddToggleRenderer(item => item.IsDriverForeignDistrict)
 						.Editing(false)
@@ -569,12 +569,13 @@ namespace Vodovoz
 		{
 			if(args.Column.Title == "Заказ" && (
 				GetSelectedRouteListItem().Status == RouteListItemStatus.Transfered
-				|| GetSelectedRouteListItem ().WasTransfered
+				|| GetSelectedRouteListItem().WasTransfered
 			))
 			{
-				MessageDialogHelper.RunInfoDialog (GetSelectedRouteListItem ().GetTransferText());
+				MessageDialogHelper.RunInfoDialog(GetSelectedRouteListItem ().GetTransferText(UoW));
 				return;
 			}
+			
 			OnClosingItemActivated(sender, args);
 		}
 

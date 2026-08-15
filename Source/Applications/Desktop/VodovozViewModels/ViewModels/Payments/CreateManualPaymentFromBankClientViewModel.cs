@@ -189,5 +189,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				_defaultPaymentNum = Entity.PaymentNum;
 			}
 		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+		}
 	}
 }

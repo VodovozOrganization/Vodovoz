@@ -1238,6 +1238,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public override void Dispose()
 		{
 			Entity.OutgoingPayments.CollectionChanged -= OnOutgoingPaymentsChanged;
+			Entity.PropertyChanged -= OnCashlessRequestPropertyChanged;
+			
 			base.Dispose();
 		}
 	}

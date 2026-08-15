@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Fuel;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 {
@@ -25,7 +26,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 		private readonly IFuelControlFuelCardsDataService _fuelCardsDataService;
 		private readonly IFuelLimitsManagementService _fuelLimitsManagementService;
 		private readonly IFuelControlFuelCardProductRestrictionService _productRestrictionService;
-		private readonly IUserSettingsService _userSettingsService;
+		private readonly IUserSettingsManager _userSettingsManager;
 		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly IFuelRepository _fuelRepository;
 
@@ -36,7 +37,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			IFuelControlFuelCardsDataService fuelCardsDataService,
 			IFuelLimitsManagementService fuelLimitsManagementService,
 			IFuelControlFuelCardProductRestrictionService productRestrictionService,
-			IUserSettingsService userSettingsService,
+			IUserSettingsManager userSettingsManager,
 			IFuelControlSettings fuelControlSettings,
 			IFuelRepository fuelRepository)
 		{
@@ -46,7 +47,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			_fuelCardsDataService = fuelCardsDataService ?? throw new ArgumentNullException(nameof(fuelCardsDataService));
 			_fuelLimitsManagementService = fuelLimitsManagementService ?? throw new ArgumentNullException(nameof(fuelLimitsManagementService));
 			_productRestrictionService = productRestrictionService ?? throw new ArgumentNullException(nameof(productRestrictionService));
-			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 		}
@@ -100,7 +101,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 				var limits = await _fuelLimitsManagementService.GetFuelLimitsByCardId(
 					cardId,
 					sessionId,
-					_userSettingsService.Settings.FuelControlApiKey,
+					_userSettingsManager.Settings.FuelControlApiKey,
 					cancellationToken);
 
 				requestData.ResponseResult = FuelApiResponseResult.Success;
@@ -131,7 +132,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 				var isRemoved = await _fuelLimitsManagementService.RemoveFuelLimitById(
 					limitId,
 					sessionId,
-					_userSettingsService.Settings.FuelControlApiKey,
+					_userSettingsManager.Settings.FuelControlApiKey,
 					cancellationToken);
 
 				requestData.ResponseResult = FuelApiResponseResult.Success;
@@ -162,7 +163,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 				var createdLimits = await _fuelLimitsManagementService.SetFuelLimit(
 					fuelLimit,
 					sessionId,
-					_userSettingsService.Settings.FuelControlApiKey,
+					_userSettingsManager.Settings.FuelControlApiKey,
 					cancellationToken);
 
 				requestData.ResponseResult = FuelApiResponseResult.Success;
@@ -226,7 +227,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			{
 				var cardsSet = await _fuelCardsDataService.GetFuelCards(
 						sessionId,
-						_userSettingsService.Settings.FuelControlApiKey,
+						_userSettingsManager.Settings.FuelControlApiKey,
 						cancellationToken,
 						pageLimit,
 						pageOffset
@@ -289,7 +290,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 				var restrictions = await _productRestrictionService.GetProductRestrictionsByCardId(
 					cardId,
 					sessionId,
-					_userSettingsService.Settings.FuelControlApiKey,
+					_userSettingsManager.Settings.FuelControlApiKey,
 					cancellationToken);
 
 				requestData.ResponseResult = FuelApiResponseResult.Success;
@@ -320,7 +321,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 				var isRemoved = await _productRestrictionService.RemoveProductRestictionById(
 					restrictionId,
 					sessionId,
-					_userSettingsService.Settings.FuelControlApiKey,
+					_userSettingsManager.Settings.FuelControlApiKey,
 					cancellationToken);
 
 				requestData.ResponseResult = FuelApiResponseResult.Success;
@@ -358,7 +359,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 					createdRestrictions = await _productRestrictionService.SetCommonFuelRestriction(
 						cardId,
 						sessionId,
-						_userSettingsService.Settings.FuelControlApiKey,
+						_userSettingsManager.Settings.FuelControlApiKey,
 						cancellationToken);
 				}
 				else
@@ -367,7 +368,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 						cardId,
 						productGroupId,
 						sessionId,
-						_userSettingsService.Settings.FuelControlApiKey,
+						_userSettingsManager.Settings.FuelControlApiKey,
 						cancellationToken);
 				}
 
@@ -390,7 +391,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 
 		private async Task<string> GetSessionIdOrLogin(CancellationToken cancellationToken)
 		{
-			var userSettings = _userSettingsService.Settings;
+			var userSettings = _userSettingsManager.Settings;
 
 			if(!userSettings.IsNeedToLoginFuelControlApi)
 			{
@@ -407,7 +408,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 		private async Task<(string SessionId, DateTime SessionExpirationDate)> LoginAndSaveSessionData(
 			CancellationToken cancellationToken)
 		{
-			var userSettings = _userSettingsService.Settings;
+			var userSettings = _userSettingsManager.Settings;
 
 			var session = await Login(
 				userSettings.FuelControlApiLogin,
@@ -422,7 +423,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 
 		private async Task SaveFuelControlApiSessionData(string sessionId, DateTime sessionExpirationDate)
 		{
-			using(var uow = _unitOfWorkFactory.CreateForRoot<UserSettings>(_userSettingsService.Settings.Id))
+			using(var uow = _unitOfWorkFactory.CreateForRoot<UserSettings>(_userSettingsManager.Settings.Id))
 			{
 				uow.Root.FuelControlApiSessionId = sessionId;
 				uow.Root.FuelControlApiSessionExpirationDate = sessionExpirationDate;
@@ -436,7 +437,7 @@ namespace Vodovoz.ViewModels.Infrastructure.Services.Fuel
 			return new FuelApiRequest
 			{
 				RequestDateTime = DateTime.Now,
-				Author = _userSettingsService.Settings.User,
+				Author = _userSettingsManager.Settings.User,
 				RequestFunction = requestFunction
 			};
 		}

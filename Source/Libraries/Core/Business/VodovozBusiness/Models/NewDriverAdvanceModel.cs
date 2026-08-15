@@ -52,7 +52,7 @@ namespace Vodovoz.Models
 		{
 			Expense cashExpense = null;
 
-			_routeList.EmployeeAdvanceOperation(ref cashExpense, cashInput, financialCategoriesGroupsSettings);
+			_routeList.EmployeeAdvanceOperation(uow, ref cashExpense, cashInput, financialCategoriesGroupsSettings);
 
 			if(cashExpense != null)
 			{

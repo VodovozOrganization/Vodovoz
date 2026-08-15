@@ -48,6 +48,7 @@ namespace Vodovoz
 		private IEventsQrPlacer _eventsQrPlacer;
 		private ICounterpartyEdoAccountController _edoAccountController;
 		private ICallTaskWorker _callTaskWorker;
+		private IStoreDocumentHelper _storeDocumentHelper;
 
 		public INavigationManager NavigationManager { get; private set; }
 
@@ -99,6 +100,7 @@ namespace Vodovoz
 			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
 			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 			_callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
+			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 		}
 
 		private void ConfigureNewDoc()
@@ -112,8 +114,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
-			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarLoadEdit);
+			Entity.Warehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarLoadEdit);
 		}
 
 		private void OnWarehouseChangedByUser(object sender, EventArgs e)
@@ -126,8 +127,7 @@ namespace Vodovoz
 		{
 			NavigationManager = Startup.MainWin.NavigationManager;
 
-			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
-			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.CarLoadEdit, Entity.Warehouse))
+			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.CarLoadEdit, Entity.Warehouse))
 			{
 				FailInitialize = true;
 				return;
@@ -138,7 +138,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
 					"can_change_car_load_and_unload_docs", currentUserId);
 
-			var editing = storeDocument.CanEditDocument(WarehousePermissionsType.CarLoadEdit, Entity.Warehouse);
+			var editing = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.CarLoadEdit, Entity.Warehouse);
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 
 			entryRouteList.ViewModel = new LegacyEEVMBuilderFactory<CarLoadDocument>(this, Entity, UoW, NavigationManager, _lifetimeScope)
@@ -157,13 +157,18 @@ namespace Vodovoz
 			ytextviewCommnet.Editable = editing;
 			carloaddocumentview1.Sensitive = editing;
 
-			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
+			ylabelDate.Binding
+				.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp)
+				.InitializeFromSource();
 
 			var warehouseViewModel = new LegacyEEVMBuilderFactory< CarLoadDocument >(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(x=>x.Warehouse)
 				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>
 				{
-					filter.IncludeWarehouseIds = storeDocument.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit).Select(x => x.Id).ToList();
+					filter.IncludeWarehouseIds = _storeDocumentHelper
+						.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit)
+						.Select(x => x.Id)
+						.ToList();
 				})
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
@@ -374,11 +379,12 @@ namespace Vodovoz
 			printDocumentsViewModel.ConfigureForCarLoadDocumentsPrint(Entity);
 		}
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
-			base.Destroy();
+			
+			base.OnDestroyed();
 		}
 	}
 

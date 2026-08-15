@@ -706,5 +706,11 @@ namespace Vodovoz.ViewModels.Cash
 		}
 
 		private IDictionary<int, decimal> _orderIdsToChanges => Entity.RouteListClosing?.GetCashChangesForOrders() ?? new Dictionary<int, decimal>();
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+		}
 	}
 }

@@ -299,7 +299,7 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 				fastDeliveryAvailabilityHistory.Counterparty = order.Client;
 			}
 
-			var fastDeliveryHistoryConverter = new FastDeliveryHistoryConverter();
+			var fastDeliveryHistoryConverter = new FastDeliveryHistoryConverter(this);
 
 			if(nomenclatureNodes != null)
 			{
@@ -615,7 +615,7 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 				fastDeliveryAvailabilityHistory.Counterparty = order.Client;
 			}
 
-			var fastDeliveryHistoryConverter = new FastDeliveryHistoryConverter();
+			var fastDeliveryHistoryConverter = new FastDeliveryHistoryConverter(this);
 
 			if(nomenclatureNodes != null)
 			{
@@ -986,21 +986,51 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 			return uow.Session.QueryOver<FastDeliveryMaxDistanceParameterVersion>()
 				.Where(x => x.EndDate == null);
 		}
-
+		
 		public double GetMaxDistanceToLatestTrackPointKmFor(DateTime dateTime)
 		{
 			using(var unitOfWork = _uowFactory.CreateWithoutRoot())
 			{
-				FastDeliveryMaxDistanceParameterVersion fastDeliveryMaxDistanceParameterVersionAlias = null;
-
-				return unitOfWork.Session.QueryOver(() => fastDeliveryMaxDistanceParameterVersionAlias)
-					.Where(Restrictions.And(
-						Restrictions.Le(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.StartDate), dateTime),
-						Restrictions.Or(
-							Restrictions.Gt(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.EndDate), dateTime),
-							Restrictions.IsNull(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.EndDate)))))
-					.SingleOrDefault().Value;
+				return GetMaxDistanceToLatestTrackPointKmFor(unitOfWork, dateTime);
 			}
+		}
+		
+		public decimal GetFastDeliveryMaxDistanceValue(IUnitOfWork uow, int routeListId, DateTime? date = null)
+		{
+			if(date is null)
+			{
+				date = DateTime.Now;
+			}
+
+			var fastDeliveryMaxDistanceItem = uow
+				.GetAll<RouteListFastDeliveryMaxDistance>()
+				.FirstOrDefault(d => d.RouteList.Id == routeListId && d.StartDate <= date && (d.EndDate == null || d.EndDate > date));
+
+			if(fastDeliveryMaxDistanceItem != null)
+			{
+				return fastDeliveryMaxDistanceItem.Distance;
+			}
+
+			return (decimal)GetMaxDistanceToLatestTrackPointKmFor(uow, date.Value);
+		}
+		
+		public int GetMaxFastDeliveryOrdersValue(IUnitOfWork uow, int routeListId, DateTime? date = null)
+		{
+			if(date == null)
+			{
+				date = DateTime.Now;
+			}
+
+			var maxFastDeliveryOrdersItem = uow
+				.GetAll<RouteListMaxFastDeliveryOrders>()
+				.FirstOrDefault(d => d.RouteList.Id == routeListId && d.StartDate <= date && (d.EndDate == null || d.EndDate > date));
+
+			if(maxFastDeliveryOrdersItem != null)
+			{
+				return maxFastDeliveryOrdersItem.MaxOrders;
+			}
+
+			return _deliveryRulesSettings.MaxFastOrdersPerSpecificTime;
 		}
 
 		public void UpdateFastDeliveryMaxDistanceParameter(double value)
@@ -1119,6 +1149,19 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 			var result = serviceDistricts.FirstOrDefault(x => x.ServiceDistrictBorder.Contains(point));
 
 			return result;
+		}
+		
+		private double GetMaxDistanceToLatestTrackPointKmFor(IUnitOfWork uow, DateTime dateTime)
+		{
+			FastDeliveryMaxDistanceParameterVersion fastDeliveryMaxDistanceParameterVersionAlias = null;
+
+			return uow.Session.QueryOver(() => fastDeliveryMaxDistanceParameterVersionAlias)
+				.Where(Restrictions.And(
+					Restrictions.Le(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.StartDate), dateTime),
+					Restrictions.Or(
+						Restrictions.Gt(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.EndDate), dateTime),
+						Restrictions.IsNull(Projections.Property(() => fastDeliveryMaxDistanceParameterVersionAlias.EndDate)))))
+				.SingleOrDefault().Value;
 		}
 	}
 }

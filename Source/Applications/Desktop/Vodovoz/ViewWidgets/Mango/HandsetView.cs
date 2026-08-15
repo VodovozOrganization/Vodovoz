@@ -73,5 +73,12 @@ namespace Vodovoz.ViewWidgets.Mango
 		{
 			Binding.FireChange(w => w.Sensitive);
 		}
+
+		protected override void OnDestroyed()
+		{
+			_mangoManager.PropertyChanged -= MangoManagerPropertyChanged;
+			Binding.CleanSources();
+			base.OnDestroyed();
+		}
 	}
 }

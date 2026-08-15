@@ -38,6 +38,7 @@ using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.ViewModels.FuelDocuments
 {
@@ -57,7 +58,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IGuiDispatcher _guiDispatcher;
-		private readonly IUserSettingsService _userSettingsService;
+		private readonly IUserSettingsManager _userSettingsManager;
 		private readonly IYesNoCancelQuestionInteractive _yesNoCancelQuestionInteractive;
 		private FuelCashOrganisationDistributor _fuelCashOrganisationDistributor;
 
@@ -100,7 +101,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelControlSettings fuelControlSettings,
 			ICarEventSettings carEventSettings,
 			IGuiDispatcher guiDispatcher,
-			IUserSettingsService userSettingsService,
+			IUserSettingsManager userSettingsManager,
 			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
 			ILifetimeScope lifetimeScope)
 			: base(commonServices?.InteractiveService, navigationManager)
@@ -120,7 +121,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
@@ -159,7 +160,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelControlSettings fuelControlSettings,
 			ICarEventSettings carEventSettings,
 			IGuiDispatcher guiDispatcher,
-			IUserSettingsService userSettingsService,
+			IUserSettingsManager userSettingsManager,
 			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
 			ILifetimeScope lifetimeScope)
 			: base(commonServices?.InteractiveService, navigationManager)
@@ -179,7 +180,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
@@ -220,7 +221,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelControlSettings fuelControlSettings,
 			ICarEventSettings carEventSettings,
 			IGuiDispatcher guiDispatcher,
-			IUserSettingsService userSettingsService,
+			IUserSettingsManager userSettingsManager,
 			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
 			ILifetimeScope lifetimeScope)
 			: base(commonServices?.InteractiveService, navigationManager)
@@ -240,7 +241,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
@@ -281,7 +282,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelControlSettings fuelControlSettings,
 			ICarEventSettings carEventSettings,
 			IGuiDispatcher guiDispatcher,
-			IUserSettingsService userSettingsService,
+			IUserSettingsManager userSettingsManager,
 			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
 			ILifetimeScope lifetimeScope)
 			: base(commonServices?.InteractiveService, navigationManager)
@@ -301,7 +302,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			EmployeeAutocompleteSelector =
@@ -680,9 +681,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 					if(isNeedToCreateFuelLimitOnServer)
 					{
 						var isGazpromServiceAuthDataNotSet =
-							string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiLogin)
-							|| string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiPassword)
-							|| string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiKey);
+							string.IsNullOrWhiteSpace(_userSettingsManager.Settings.FuelControlApiLogin)
+							|| string.IsNullOrWhiteSpace(_userSettingsManager.Settings.FuelControlApiPassword)
+							|| string.IsNullOrWhiteSpace(_userSettingsManager.Settings.FuelControlApiKey);
 
 						if(isGazpromServiceAuthDataNotSet)
 						{
@@ -1172,9 +1173,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public override void Dispose()
 		{
-			if(UoW.RootObject is FuelDocument)
+			if(UoW.RootObject is FuelDocument document)
 			{
 				UoW.Dispose();
+				document.PropertyChanged -= FuelDocument_PropertyChanged;
 			}
 
 			_cancellationTokenSource?.Dispose();

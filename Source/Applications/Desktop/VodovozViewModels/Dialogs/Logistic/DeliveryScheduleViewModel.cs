@@ -162,5 +162,11 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 		{
 			return (time.Minutes == 0) ? $"{time.Hours}" : $"{time.Hours}:{time.Minutes}";
 		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= Entity_PropertyChanged;
+			base.Dispose();
+		}
 	}
 }

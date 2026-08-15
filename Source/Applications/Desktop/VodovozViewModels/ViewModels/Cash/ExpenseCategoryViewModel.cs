@@ -120,5 +120,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			get => Entity.IsArchive;
 			set => Entity.SetIsArchiveRecursively(value);
 		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			
+			base.Dispose();
+		}
 	}
 }

@@ -83,5 +83,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties
 		public bool CanChangeEmployee => RestrictEmployee != null;
 
 		public IEntityEntryViewModel EmployeeViewModel { get; set; }
+
+		public override void Dispose()
+		{
+			_journal = null;
+			base.Dispose();
+		}
 	}
 }

@@ -17,6 +17,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -199,16 +200,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 				.UseViewModelDialog<NomenclatureViewModel>()
 				.Finish();
 
-			Entity.PropertyChanged += (sender, e) =>
-			{
-				switch(e.PropertyName)
-				{ // от этого события зависит панель цен доставки, которые в свою очередь зависят от района и, возможно, фиксов
-					case nameof(Entity.Latitude):
-					case nameof(Entity.Longitude):
-						CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
-						break;
-				}
-			};
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			if(Entity.LogisticsRequirements == null)
 			{
@@ -223,6 +215,18 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 
 			AllActiveDistrictsWithBorders = scheduleRestrictionRepository.GetDistrictsWithBorder(UoW);
 			TryAddEmployeeFixedPrices();
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			switch(e.PropertyName)
+			{
+				// от этого события зависит панель цен доставки, которые в свою очередь зависят от района и, возможно, фиксов
+				case nameof(Entity.Latitude):
+				case nameof(Entity.Longitude):
+					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+					break;
+			}
 		}
 
 		private void TryAddEmployeeFixedPrices()
@@ -639,6 +643,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		{
 			IsDisposed = true;
 			_cancellationTokenSource.Cancel();
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			
 			base.Dispose();
 		}
 	}

@@ -307,7 +307,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					}
 				}
 
-				routeList.UpdateFuelOperation();
+				routeList.UpdateFuelOperation(_uow);
 			}
 
 			if(!routeList.TryValidateFuelOperation(_validator))
@@ -320,7 +320,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				ChangeStatusAndCreateTaskFromDelivered(routeList);
 			}
 
-			routeList.CalculateWages(_wageParameterService);
+			routeList.CalculateWages(_uow, _wageParameterService);
 			return true;
 		}
 

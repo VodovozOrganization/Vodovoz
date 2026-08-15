@@ -270,5 +270,12 @@ namespace Vodovoz.ViewModels.Complaints
 					.GetResult();
 			}
 		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= EntityPropertyChanged;
+			
+			base.Dispose();
+		}
 	}
 }

@@ -39,26 +39,13 @@ namespace Vodovoz.Views.Payments
 				.AddFuncBinding(ViewModel, vm => vm.SelectedCheckMode, w => w.CurrentPage)
 				.InitializeFromSource();
 
-			yradiobuttonCounterpartyMode.Toggled += (s, e) =>
-			{
-				if(yradiobuttonCounterpartyMode.Active)
-				{
-					ViewModel.SetByCounterpartyCheckModeCommand.Execute();
-				}
-			};
-
-			yradiobuttonCommonMode.Toggled += (s, e) =>
-			{
-				if(yradiobuttonCommonMode.Active)
-				{
-					ViewModel.SetCommonReconciliationCheckModeCommand.Execute();
-				}
-			};
+			yradiobuttonCounterpartyMode.Toggled += OnCounterpartyModeToggled;
+			yradiobuttonCommonMode.Toggled += OnCommonModeToggled;
 
 			ybuttonReadFile.Binding
 				.AddBinding(ViewModel, vm => vm.CanReadFile, w => w.Sensitive)
 				.InitializeFromSource();
-			ybuttonReadFile.Clicked += (s, e) => ViewModel.AnalyseDiscrepanciesCommand.Execute();
+			ybuttonReadFile.BindCommand(ViewModel.AnalyseDiscrepanciesCommand);
 
 			ConfigureOrganizationEntry();
 
@@ -136,6 +123,22 @@ namespace Vodovoz.Views.Payments
 			ConfigurePaymentsTree();
 			ConfigureOtherIncomesTree();
 			ConfigureCounterpartiesTree();
+		}
+
+		private void OnCommonModeToggled(object s, EventArgs e)
+		{
+			if(yradiobuttonCommonMode.Active)
+			{
+				ViewModel.SetCommonReconciliationCheckModeCommand.Execute();
+			}
+		}
+
+		private void OnCounterpartyModeToggled(object s, EventArgs e)
+		{
+			if(yradiobuttonCounterpartyMode.Active)
+			{
+				ViewModel.SetByCounterpartyCheckModeCommand.Execute();
+			}
 		}
 
 		private void ConfigureFileChooser()
@@ -386,15 +389,10 @@ namespace Vodovoz.Views.Payments
 			}
 		}
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
-			ytreeviewOrdersData.Destroy();
-			ytreeviewOtherWriteOffsData.Destroy();
-			ytreeviewPaymentsData.Destroy();
-			ytreeviewOtherIncomesData.Destroy();
-			ytreeviewCounterpartiesData.Destroy();
-
-			base.Destroy();
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			base.OnDestroyed();
 		}
 	}
 }

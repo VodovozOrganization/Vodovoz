@@ -22,11 +22,11 @@ namespace Vodovoz.Views.Client
 				return;
 			}
 
-			ybuttonSendSelected.Clicked += (sender, args) => ViewModel.ResendSelectedEdoDocumentsCommand.Execute();
-			ybuttonCancel.Clicked += (sender, args) => ViewModel.CancelCommand.Execute();
-			ybuttonSelectAll.Clicked += (sender, args) => ViewModel.SelectAllCommand.Execute();
-			ybuttonUnselectAll.Clicked += (sender, args) => ViewModel.UnselectAllCommand.Execute();
-			ybuttonInvertSelected.Clicked += (sender, args) => ViewModel.InvertSelectionCommand.Execute();
+			ybuttonSendSelected.BindCommand(ViewModel.ResendSelectedEdoDocumentsCommand);
+			ybuttonCancel.BindCommand(ViewModel.CancelCommand);
+			ybuttonSelectAll.BindCommand(ViewModel.SelectAllCommand);
+			ybuttonUnselectAll.BindCommand(ViewModel.UnselectAllCommand);
+			ybuttonInvertSelected.BindCommand(ViewModel.InvertSelectionCommand);
 
 			ytreeviewEdoDocuments.ColumnsConfig = FluentColumnsConfig<EdoContainerSelectableNode>.Create()
 				.AddColumn(" Выбор ")
@@ -61,14 +61,13 @@ namespace Vodovoz.Views.Client
 			ytreeviewEdoDocuments.ItemsDataSource = ViewModel.EdoContainerNodes;
 		}
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
 			if(ViewModel != null)
 			{
 				ViewModel.EdoContainerNodesListChanged -= OnEdoContainerListChanged;
 			}
-			ytreeviewEdoDocuments?.Destroy();
-			base.Destroy();
+			base.OnDestroyed();
 		}
 	}
 }

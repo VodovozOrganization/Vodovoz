@@ -287,6 +287,11 @@ namespace Vodovoz.ViewModels.Profitability
 
 		public virtual void Dispose()
 		{
+			if(MonthPickerViewModel != null)
+			{
+				MonthPickerViewModel.PropertyChanged -= OnMonthPickerViewModelPropertyChanged;
+			}
+			
 			UoW?.Dispose();
 		}
 	}

@@ -180,6 +180,8 @@ namespace Vodovoz.ViewModels.Store
 		public override void Dispose()
 		{
 			ItemsViewModel?.Dispose();
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			
 			base.Dispose();
 		}
 	}

@@ -326,7 +326,6 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 				var now = DateTime.Now;
 				var routeList = new RouteList
 				{
-					UoW = uow,
 					Date = order.DeliveryDate ?? orderDeliveryDate,
 					Status = RouteListStatus.New,
 					Version = now,

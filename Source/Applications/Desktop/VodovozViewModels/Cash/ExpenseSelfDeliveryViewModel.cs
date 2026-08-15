@@ -286,5 +286,11 @@ namespace Vodovoz.ViewModels.Cash
 
 			_reportViewOpener.OpenReport(this, reportInfo);
 		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+		}
 	}
 }

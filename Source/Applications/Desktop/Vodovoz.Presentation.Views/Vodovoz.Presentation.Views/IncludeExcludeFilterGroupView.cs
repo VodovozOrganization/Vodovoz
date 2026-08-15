@@ -55,12 +55,17 @@ namespace Vodovoz.Presentation.Views
 				.AddBinding(ViewModel, vm => vm.ShowArchived, w => w.Active)
 				.InitializeFromSource();
 
-			ViewModel.FilteredElementsChanged += (s, e) => ReBindElementsList();
+			ViewModel.FilteredElementsChanged += OnFilteredElementsChanged;
 
 			ytreeviewElements.Binding
 				.AddBinding(ViewModel, vm => vm.Elements, w => w.ItemsDataSource)
 				.InitializeFromSource();
 
+			ReBindElementsList();
+		}
+
+		private void OnFilteredElementsChanged(object sender, EventArgs args)
+		{
 			ReBindElementsList();
 		}
 
@@ -113,9 +118,10 @@ namespace Vodovoz.Presentation.Views
 			ytreeviewElements.QueueDraw();
 		}
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
-			base.Destroy();
+			ViewModel.FilteredElementsChanged -= OnFilteredElementsChanged;
+			base.OnDestroyed();
 		}
 	}
 }

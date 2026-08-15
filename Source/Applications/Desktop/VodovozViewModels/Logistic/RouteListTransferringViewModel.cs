@@ -273,11 +273,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 					RefreshSourceRouteListAddresses();
 
-					if(_sourceRouteListId != null)
-					{
-						SourceRouteList.UoW = UoW;
-					}
-
 					FillObservableDriverBalance(SourceRouteListDriverNomenclatureBalance, SourceRouteList);
 
 					RefreshSourceFreeBalanceOperations();
@@ -355,11 +350,6 @@ namespace Vodovoz.ViewModels.Logistic
 					_targetRouteListId = value?.Id;
 
 					RefreshTargetRouteListAddresses();
-
-					if(_targetRouteList != null)
-					{
-						TargetRouteList.UoW = UoW;
-					}
 
 					FillObservableDriverBalance(TargetRouteListDriverNomenclatureBalance, TargetRouteList);
 

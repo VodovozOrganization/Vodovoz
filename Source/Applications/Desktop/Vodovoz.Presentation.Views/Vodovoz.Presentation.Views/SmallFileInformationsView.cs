@@ -126,11 +126,10 @@ namespace Vodovoz.Presentation.Views
 			ytreeviewFiles.Binding.CleanSources();
 		}
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
 			CleanUpBindingsAndSubscribtions();
-
-			base.Destroy();
+			base.OnDestroyed();
 		}
 	}
 }

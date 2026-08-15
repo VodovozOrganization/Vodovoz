@@ -822,5 +822,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		}
 
 		#endregion
+
+		public override void Dispose()
+		{
+			FilterViewModel.PropertyChanged -= UpdateDataLoader;
+			base.Dispose();
+		}
 	}
 }

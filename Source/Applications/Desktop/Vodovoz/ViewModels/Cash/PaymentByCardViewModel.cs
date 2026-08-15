@@ -13,6 +13,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Services;
@@ -40,7 +41,7 @@ namespace Vodovoz.ViewModels.Cash
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IOrderContractUpdater contractUpdater,
-			IEmployeeService employeeService,
+			IEmployeeRepository employeeRepository,
 			IInteractiveService interactiveService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(orderSettings == null)
@@ -55,7 +56,7 @@ namespace Vodovoz.ViewModels.Cash
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_currentEmployee =
-				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
+				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
 				.GetEmployeeForCurrentUser(UoW);
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 

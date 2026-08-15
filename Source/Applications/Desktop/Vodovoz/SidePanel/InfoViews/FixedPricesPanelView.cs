@@ -1,4 +1,5 @@
-﻿using Gamma.ColumnConfig;
+﻿using System;
+using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Goods;
 using Vodovoz.SidePanel.InfoProviders;
@@ -11,7 +12,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		public FixedPricesPanelView(FixedPricesPanelViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureWidget();
 		}
 
@@ -28,18 +29,29 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			ylabelSource.Binding.AddFuncBinding(ViewModel, vm => vm.Title, w => w.LabelProp).InitializeFromSource();
 
-			ybuttonOpenSource.Clicked += (s, e) => ViewModel.OpenFixedPricesDialogCommand.Execute();
-			ViewModel.OpenFixedPricesDialogCommand.CanExecuteChanged += (s, e) =>
-				ybuttonOpenSource.Sensitive = ViewModel.OpenFixedPricesDialogCommand.CanExecute();
+			ybuttonOpenSource.Clicked += OnOpenSourceClicked;
+			ViewModel.OpenFixedPricesDialogCommand.CanExecuteChanged += OnCanExecuteOpenFixedPricesDialogChanged;
+			ybuttonOpenSource.Sensitive = ViewModel.OpenFixedPricesDialogCommand.CanExecute();
+		}
+
+		private void OnOpenSourceClicked(object s, EventArgs e)
+		{
+			ViewModel.OpenFixedPricesDialogCommand.Execute();
+		}
+
+		private void OnCanExecuteOpenFixedPricesDialogChanged(object sender, EventArgs e)
+		{
 			ybuttonOpenSource.Sensitive = ViewModel.OpenFixedPricesDialogCommand.CanExecute();
 		}
 
 		#region IPanelView implementation
 
 		private IInfoProvider infoProvider;
-		public IInfoProvider InfoProvider {
+		public IInfoProvider InfoProvider
+		{
 			get => infoProvider;
-			set {
+			set
+			{
 				infoProvider = value;
 				Refresh();
 			}
@@ -48,7 +60,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		public void Refresh()
 		{
 			IFixedPricesHolderProvider pricesHolderProvider = InfoProvider as IFixedPricesHolderProvider;
-			if(pricesHolderProvider == null) {
+			if(pricesHolderProvider == null)
+			{
 				return;
 			}
 			ViewModel.Refresh(pricesHolderProvider.Counterparty, pricesHolderProvider.DeliveryPoint);
@@ -63,10 +76,12 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		#endregion IPanelView implementation
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
+			ViewModel.OpenFixedPricesDialogCommand.CanExecuteChanged -= OnCanExecuteOpenFixedPricesDialogChanged;
 			ViewModel?.Dispose();
-			base.Destroy();
+
+			base.OnDestroyed();
 		}
 	}
 }

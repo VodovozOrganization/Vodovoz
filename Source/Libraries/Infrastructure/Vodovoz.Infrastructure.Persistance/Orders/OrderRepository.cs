@@ -48,6 +48,7 @@ using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.StoredEmails;
 using VodovozBusiness.EntityRepositories.Nodes;
+using VodovozBusiness.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
@@ -125,28 +126,29 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List<VodovozOrder>();
 		}
 
-		public VodovozOrder GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)
+		public DateTime? GetDateLatestCompleteOrderForCounterparty(IUnitOfWork uow, Counterparty counterparty)
 		{
-			VodovozOrder orderAlias = null;
-			var queryResult = UoW.Session.QueryOver(() => orderAlias)
-				.Where(() => orderAlias.Client.Id == counterparty.Id)
-				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
-				.OrderBy(() => orderAlias.Id).Desc
-				.Take(1).List();
-			return queryResult.FirstOrDefault();
+			var query =
+				from order in uow.Session.Query<VodovozOrder>()
+				where order.Client.Id == counterparty.Id
+					&& order.OrderStatus == OrderStatus.Closed
+				orderby order.Id descending
+				select order.DeliveryDate;
+			
+			return query.FirstOrDefault();
 		}
 
-		public IList<VodovozOrder> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty)
+		public IList<CounterpartyCurrentOrderNode> GetCurrentOrders(IUnitOfWork uow, int counterpartyId)
 		{
-			VodovozOrder orderAlias = null;
-			return UoW.Session.QueryOver(() => orderAlias)
-				.Where(() => orderAlias.Client.Id == counterparty.Id)
-				.Where(() => orderAlias.DeliveryDate >= DateTime.Today)
-				.Where(() => orderAlias.OrderStatus != OrderStatus.Closed
-					&& orderAlias.OrderStatus != OrderStatus.Canceled
-					&& orderAlias.OrderStatus != OrderStatus.DeliveryCanceled
-					&& orderAlias.OrderStatus != OrderStatus.NotDelivered)
-				.List();
+			return (from order in uow.Session.Query<VodovozOrder>()
+				where order.Client.Id == counterpartyId
+					&& order.DeliveryDate >= DateTime.Today
+					&& order.OrderStatus != OrderStatus.Closed
+					&& order.OrderStatus != OrderStatus.Canceled
+					&& order.OrderStatus != OrderStatus.DeliveryCanceled
+					&& order.OrderStatus != OrderStatus.NotDelivered
+				select CounterpartyCurrentOrderNode.Create(order.Id, order.DeliveryDate, order.OrderStatus))
+				.ToList();
 		}
 
 		public IList<VodovozOrder> GetCounterpartyOrders(IUnitOfWork UoW, Counterparty counterparty)
@@ -322,33 +324,35 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List<VodovozOrder>();
 		}
 
-		/// <summary>
-		/// Первый заказ контрагента, который можно считать выполненым.
-		/// </summary>
-		/// <returns>Первый заказ</returns>
-		/// <param name="uow">UoW</param>
-		/// <param name="counterparty">Контрагент</param>
-		public VodovozOrder GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, VodovozOrder order, Counterparty counterparty)
+		/// <inheritdoc/>
+		public bool FirstRealClientOrderForActionBottleExists(IUnitOfWork uow, VodovozOrder order, Counterparty counterparty)
 		{
 			if(uow == null)
+			{
 				throw new ArgumentNullException(nameof(uow));
+			}
+
 			if(order == null)
+			{
 				throw new ArgumentNullException(nameof(order));
+			}
+
 			if(counterparty == null)
+			{
 				throw new ArgumentNullException(nameof(counterparty));
+			}
 
+			var validStatuses = GetValidStatusesToUseActionBottle();
 
-			if(counterparty?.FirstOrder != null && GetValidStatusesToUseActionBottle().Contains(counterparty.FirstOrder.OrderStatus))
-				return counterparty.FirstOrder;
+			var query = uow.Session.Query<VodovozOrder>()
+				.Where(o => o.Id != order.Id)
+				.Where(o => o.Client == counterparty)
+				.Where(o => validStatuses.Contains(o.OrderStatus))
+				.OrderBy(o => o.DeliveryDate)
+				.Select(x => x.Id)
+				.Take(1);
 
-			var query = uow.Session.QueryOver<VodovozOrder>()
-						   .Where(o => o.Id != order.Id)
-						   .Where(o => o.Client == counterparty)
-						   .Where(o => o.OrderStatus.IsIn(GetValidStatusesToUseActionBottle()))
-						   .OrderBy(o => o.DeliveryDate).Asc
-						   .Take(1)
-						   ;
-			return query.List().FirstOrDefault();
+			return query.Any();
 		}
 
 		public bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty)
@@ -464,23 +468,28 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return equipFromClient;
 		}
 
-		/// <summary>
-		/// Список последних заказов для точки доставки.
-		/// </summary>
-		/// <returns>Список последних заказов для точки доставки.</returns>
-		/// <param name="UoW">IUnitOfWork</param>
-		/// <param name="deliveryPoint">Точка доставки.</param>
-		/// <param name="count">Требуемое количество последних заказов.</param>
-		public IList<VodovozOrder> GetLatestOrdersForDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, int? count = null)
+		/// <inheritdoc/>
+		public IList<LatestOrderForDeliveryPointNode> GetLatestOrdersForDeliveryPoint(IUnitOfWork uow, int deliveryPointId, int? count = null)
 		{
-			VodovozOrder orderAlias = null;
-			var queryResult = UoW.Session.QueryOver(() => orderAlias)
-				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
-				.OrderBy(() => orderAlias.Id).Desc;
-			if(count != null)
-				return queryResult.Take(count.Value).List();
-			else
-				return queryResult.List();
+			var queryResult =
+				from order in uow.Session.Query<Order>()
+				
+				let total19LBottles =
+					(int?)(from orderItem in uow.Session.Query<OrderItem>()
+					join nomenclature in uow.Session.Query<Nomenclature>()
+						on orderItem.Nomenclature.Id equals nomenclature.Id
+					where orderItem.Order.Id == order.Id
+						&& nomenclature.Category == NomenclatureCategory.water
+						&& nomenclature.TareVolume == TareVolume.Vol19L
+					select orderItem.ActualCount ?? orderItem.Count).Sum()
+				
+				where order.DeliveryPoint.Id == deliveryPointId
+				orderby order.Id descending
+				select LatestOrderForDeliveryPointNode.Create(order.DeliveryDate, order.PaymentType, total19LBottles);
+				
+			return count != null
+				? queryResult.Take(count.Value).ToList()
+				: queryResult.ToList();
 		}
 
 		/// <summary>
@@ -583,19 +592,20 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return rls;
 		}
 
-		public VodovozOrder GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
+		public bool OtherOrderOnDateAndDeliveryPointExists(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
 		{
 			var notSupportedStatuses = new OrderStatus[] {
 				OrderStatus.NewOrder,
 				OrderStatus.Canceled,
 				OrderStatus.NotDelivered
 			};
+			
+			var query = uow.Session.Query<VodovozOrder>()
+				.Where(x => !notSupportedStatuses.Contains(x.OrderStatus))
+				.Where(x => x.DeliveryDate == date)
+				.Where(x => x.DeliveryPoint.Id == deliveryPoint.Id);
 
-			return uow.Session.QueryOver<VodovozOrder>()
-					  .WhereRestrictionOn(x => x.OrderStatus).Not.IsIn(notSupportedStatuses)
-					  .Where(x => x.DeliveryDate == date)
-					  .Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
-					  .List().FirstOrDefault();
+			return query.Any();
 		}
 
 		public IList<Domain.Orders.Order> GetSameOrderForDateAndDeliveryPoint(
@@ -1209,9 +1219,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			var movedOrderItems = uow.Session.QueryOver<OrderItem>()
 				.Where(o => o.CopiedFromUndelivery.Id == orderItem.Id && o.Id != orderItem.Id)
-				.List<OrderItem>();
+				.Select(o => o.Id)
+				.List<int>();
 
-			return movedOrderItems.Count > 0;
+			return movedOrderItems.Any();
 		}
 
 		public IEnumerable<VodovozOrder> GetOrders(IUnitOfWork uow, int[] ids)

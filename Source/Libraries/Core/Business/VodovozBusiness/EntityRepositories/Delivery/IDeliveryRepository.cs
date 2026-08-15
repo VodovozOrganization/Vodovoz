@@ -93,6 +93,22 @@ namespace Vodovoz.EntityRepositories.Delivery
 		void UpdateFastDeliveryMaxDistanceParameter(double value);
 		double GetMaxDistanceToLatestTrackPointKmFor(DateTime dateTime);
 		double GetGetMaxDistanceToLatestTrackPointKm();
+		/// <summary>
+		/// Получение максимального расстояния для ДЗЧ 
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="routeListId">Идентификатор МЛ</param>
+		/// <param name="date">Дата</param>
+		/// <returns></returns>
+		decimal GetFastDeliveryMaxDistanceValue(IUnitOfWork uow, int routeListId, DateTime? date = null);
+		/// <summary>
+		/// Получение маскимально возможного количества заказов ДЗЧ
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="routeListId">Идентификатор МЛ</param>
+		/// <param name="date">Дата</param>
+		/// <returns></returns>
+		int GetMaxFastDeliveryOrdersValue(IUnitOfWork uow, int routeListId, DateTime? date = null);
 		IList<Order> GetFastDeliveryLateOrders(IUnitOfWork uow, DateTime fromDateTime, IGeneralSettings generalSettings,
 			int complaintDetalizationId);
 		ServiceDistrict GetServiceDistrictByCoordinates(IUnitOfWork unitOfWork, decimal latitude, decimal longitude);

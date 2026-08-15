@@ -49,12 +49,9 @@ namespace Vodovoz.JournalViewModels
 	{
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IRouteListRepository _routeListRepository;
-		private readonly IFuelRepository _fuelRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
-		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
-		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly decimal _routeListProfitabilityIndicator;
 
@@ -64,16 +61,10 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
 			IRouteListRepository routeListRepository,
-			IFuelRepository fuelRepository,
-			ICallTaskRepository callTaskRepository,
 			ICallTaskWorker callTaskWorker,
-			IExpenseSettings expenseSettings,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			ISubdivisionRepository subdivisionRepository,
 			IAccountableDebtsRepository accountableDebtsRepository,
-			IGtkTabsOpener gtkTabsOpener,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
-			IOrganizationRepository organizationRepository,
 			INavigationManager navigationManager,
 			IRouteListService routeListService,
 			Action<RouteListJournalFilterViewModel> filterParams = null)
@@ -82,12 +73,9 @@ namespace Vodovoz.JournalViewModels
 			TabName = "Работа кассы с МЛ";
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
-			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
-			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
@@ -462,28 +450,10 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						var RouteList = UoW.GetById<RouteList>(selectedNode.Id);
+						var routeList = UoW.GetById<RouteList>(selectedNode.Id);
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new FuelDocumentViewModel(
-								RouteList,
-								UnitOfWorkFactory,
-								commonServices,
-								_subdivisionRepository,
-								_lifetimeScope.Resolve<IEmployeeRepository>(),
-								_fuelRepository,
-								NavigationManager,
-								_lifetimeScope.Resolve<ITrackRepository>(),
-								_lifetimeScope.Resolve<IEmployeeJournalFactory>(),
-								_financialCategoriesGroupsSettings,
-								_organizationRepository,
-								_lifetimeScope.Resolve<IFuelApiService>(),
-								_lifetimeScope.Resolve<IFuelControlSettings>(),
-								_lifetimeScope.Resolve<ICarEventSettings>(),
-								_lifetimeScope.Resolve<IGuiDispatcher>(),
-								_lifetimeScope.Resolve<IUserSettingsService>(),
-								_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
-								_lifetimeScope
+							() => _lifetimeScope.Resolve<FuelDocumentViewModel>(new TypedParameter(typeof(RouteList), routeList)
 							)
 						);
 					}
@@ -602,7 +572,7 @@ namespace Vodovoz.JournalViewModels
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
 						var routeList = UoW.GetById<RouteList>(selectedNode.Id);
-						routeList?.CreateSelfDriverTerminalTransferDocument();
+						routeList?.CreateSelfDriverTerminalTransferDocument(UoW);
 					}
 				}
 			));

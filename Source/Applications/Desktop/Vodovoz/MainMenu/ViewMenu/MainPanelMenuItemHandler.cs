@@ -1,6 +1,8 @@
 ﻿using System;
 using Gtk;
 using Vodovoz.Core.Domain.Users.Settings;
+using Vodovoz.Cores;
+using VodovozBusiness.Services.Users;
 using ToolbarStyle = Gtk.ToolbarStyle;
 
 namespace Vodovoz.MainMenu.ViewMenu
@@ -18,9 +20,14 @@ namespace Vodovoz.MainMenu.ViewMenu
 		private RadioAction _smallIconsToolbarAction;
 		private RadioAction _middleIconsToolbarAction;
 		private RadioAction _largeIconsToolbarAction;
+		private IUserSettingsManager _userSettingsManager;
 
-		public MainPanelMenuItemHandler(ConcreteMenuItemCreator concreteMenuItemCreator)
+		public MainPanelMenuItemHandler(
+			IUserSettingsManager userSettingsManager,
+			ConcreteMenuItemCreator concreteMenuItemCreator
+			)
 		{
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
 		}
 
@@ -176,10 +183,10 @@ namespace Vodovoz.MainMenu.ViewMenu
 
 		private void ToolBarMode(Vodovoz.Core.Domain.Users.Settings.ToolbarStyle style)
 		{
-			if(CurrentUserSettings.Settings.ToolbarStyle != style)
+			if(_userSettingsManager.Settings.ToolbarStyle != style)
 			{
-				CurrentUserSettings.Settings.ToolbarStyle = style;
-				CurrentUserSettings.SaveSettings();
+				_userSettingsManager.Settings.ToolbarStyle = style;
+				_userSettingsManager.SaveSettings();
 			}
 
 			Startup.MainWin.ToolbarMain.ToolbarStyle = (ToolbarStyle)style;
@@ -194,10 +201,10 @@ namespace Vodovoz.MainMenu.ViewMenu
 
 		private void ToolBarMode(IconsSize size)
 		{
-			if(CurrentUserSettings.Settings.ToolBarIconsSize != size)
+			if(_userSettingsManager.Settings.ToolBarIconsSize != size)
 			{
-				CurrentUserSettings.Settings.ToolBarIconsSize = size;
-				CurrentUserSettings.SaveSettings();
+				_userSettingsManager.Settings.ToolBarIconsSize = size;
+				_userSettingsManager.SaveSettings();
 			}
 
 			switch(size)
@@ -233,7 +240,7 @@ namespace Vodovoz.MainMenu.ViewMenu
 
 		private void ConfigureToolbarStyle()
 		{
-			switch(CurrentUserSettings.Settings.ToolbarStyle)
+			switch(_userSettingsManager.Settings.ToolbarStyle)
 			{
 				case Vodovoz.Core.Domain.Users.Settings.ToolbarStyle.Both:
 					_textAndIconsToolbarAction.Activate();
@@ -249,7 +256,7 @@ namespace Vodovoz.MainMenu.ViewMenu
 		
 		private void ConfigureIconSize()
 		{
-			switch(CurrentUserSettings.Settings.ToolBarIconsSize)
+			switch(_userSettingsManager.Settings.ToolBarIconsSize)
 			{
 				case IconsSize.ExtraSmall:
 					_extraSmallIconsToolbarAction.Activate();

@@ -447,6 +447,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public override void Dispose()
 		{
 			OrganizationViewModel.PropertyChanged -= OnOrganizationViewModelPropertyChanged;
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			_lifetimeScope = null;
 			base.Dispose();
 		}

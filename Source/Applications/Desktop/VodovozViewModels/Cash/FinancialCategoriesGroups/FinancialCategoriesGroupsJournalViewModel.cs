@@ -401,6 +401,12 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		public override void Dispose()
 		{
 			_filter.OnFiltered -= OnFilterViewModelFiltered;
+			
+			if(Search is SearchViewModel search)
+			{
+				search.PropertyChanged -= OnSearchPropertyChanged;
+			}
+			
 			base.Dispose();
 		}
 	}

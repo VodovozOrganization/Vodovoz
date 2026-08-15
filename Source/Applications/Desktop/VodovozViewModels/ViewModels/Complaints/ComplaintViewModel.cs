@@ -904,7 +904,10 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public override void Dispose()
 		{
-			_logger.Debug("Вызываем {Method}()", nameof(Dispose));
+			Entity.ObservableComplaintDiscussions.ElementChanged -= ObservableComplaintDiscussions_ElementChanged;
+			Entity.ObservableComplaintDiscussions.ListContentChanged -= ObservableComplaintDiscussions_ListContentChanged;
+			Entity.ObservableFines.ListContentChanged -= ObservableFines_ListContentChanged;
+			Entity.PropertyChanged -= EntityPropertyChanged;
 			LifetimeScope = null;
 			base.Dispose();
 		}

@@ -96,7 +96,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void UpdateLists()
 		{
-			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(true, _nomenclatureSettings.NomenclatureIdForTerminal);
+			var notLoadedNomenclatures = Entity.NotLoadedNomenclatures(UoW, true, _nomenclatureSettings.NomenclatureIdForTerminal);
 			ObservableNotLoadedList = new GenericObservableList<RouteListControlNotLoadedNode>(notLoadedNomenclatures);
 
 			ytreeviewNotLoaded.ItemsDataSource = ObservableNotLoadedList;

@@ -7,12 +7,20 @@ using NHibernate.Transform;
 using Vodovoz.Domain.Logistic;
 using NHibernate.Persister.Entity;
 using Vodovoz.Core.Domain;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	internal sealed class TrackRepository : ITrackRepository
 	{
+		private readonly IDeliveryRepository _deliveryRepository;
+
+		public TrackRepository(IDeliveryRepository deliveryRepository)
+		{
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+		}
+		
 		public Track GetTrackByRouteListId(IUnitOfWork unitOfWork, int routeListId)
 		{
 			return unitOfWork.Session.Query<Track>().SingleOrDefault(t => t.RouteList.Id == routeListId);
@@ -67,7 +75,11 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.List<DriverPosition>();
 		}
 
-		public IList<DriverPositionWithFastDeliveryRadius> GetLastPointForRouteListsWithRadius(IUnitOfWork uow, int[] routeListsIds, DateTime? beforeTime = null)
+		public IList<DriverPositionWithFastDeliveryRadius> GetLastPointForRouteListsWithRadius(
+			IUnitOfWork uow,
+			int[] routeListsIds,
+			DateTime? beforeTime = null
+			)
 		{
 			IList<DriverPosition> driverPositions;
 
@@ -82,14 +94,14 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			}
 
 			return driverPositions
-				.Select(pos => new DriverPositionWithFastDeliveryRadius()
+				.Select(pos => new DriverPositionWithFastDeliveryRadius
 				{
 					DriverId = pos.DriverId,
 					RouteListId = pos.RouteListId,
 					Time = pos.Time,
 					Latitude = pos.Latitude,
 					Longitude = pos.Longitude,
-					FastDeliveryRadius = (double)(uow.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).GetFastDeliveryMaxDistanceValue(pos.Time)
+					FastDeliveryRadius = (double)_deliveryRepository.GetFastDeliveryMaxDistanceValue(uow, pos.RouteListId, pos.Time)
 				}).ToList();
 		}
 
@@ -158,7 +170,12 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.List<DriverPosition>();
 		}
 
-		public IList<DriverPositionWithFastDeliveryRadius> GetLastRouteListFastDeliveryTrackPointsWithRadius(IUnitOfWork uow, int[] routeListsIds, TimeSpan timeSpanDisconnected, DateTime? beforeTime = null)
+		public IList<DriverPositionWithFastDeliveryRadius> GetLastRouteListFastDeliveryTrackPointsWithRadius(
+			IUnitOfWork uow,
+			int[] routeListsIds,
+			TimeSpan timeSpanDisconnected,
+			DateTime? beforeTime = null
+			)
 		{
 			IList<DriverPosition> driverPositions;
 
@@ -172,14 +189,15 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			}
 
 			return driverPositions
-				.Select(pos => new DriverPositionWithFastDeliveryRadius()
+				.Select(pos => new DriverPositionWithFastDeliveryRadius
 				{
 					DriverId = pos.DriverId,
 					RouteListId = pos.RouteListId,
 					Time = pos.Time,
 					Latitude = pos.Latitude,
 					Longitude = pos.Longitude,
-					FastDeliveryRadius = (double)(uow.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).GetFastDeliveryMaxDistanceValue(beforeTime.HasValue ? pos.Time : DateTime.Now)
+					FastDeliveryRadius = (double)_deliveryRepository
+						.GetFastDeliveryMaxDistanceValue(uow, pos.RouteListId, beforeTime.HasValue ? pos.Time : DateTime.Now)
 				}).ToList();
 		}
 	}

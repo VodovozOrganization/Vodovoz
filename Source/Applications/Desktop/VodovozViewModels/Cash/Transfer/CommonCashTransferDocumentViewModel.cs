@@ -372,5 +372,11 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 		}
 
 		#endregion Настройка списков доступных подразделений кассы
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= Entity_PropertyChanged;
+			base.Dispose();
+		}
 	}
 }

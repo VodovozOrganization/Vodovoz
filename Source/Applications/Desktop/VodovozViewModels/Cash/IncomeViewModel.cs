@@ -797,5 +797,11 @@ namespace Vodovoz.ViewModels.Cash
 
 			return true;
 		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+		}
 	}
 }

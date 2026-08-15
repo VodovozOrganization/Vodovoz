@@ -53,6 +53,7 @@ using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using VodovozInfrastructure.StringHandlers;
 using Vodovoz.Core.Application.Errors;
 using Vodovoz.Core.Application.FileStorage;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -75,7 +76,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IFuelRepository _fuelRepository;
 		private readonly IDocTemplateRepository _documentTemplateRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly IUserSettingsService _userSettingsService;
+		private readonly IUserSettingsManager _userSettingsManager;
 		private readonly CarVersionsManagementViewModel _carVersionsManagementViewModel;
 		private readonly IDocumentPrinter _documentPrinter;
 		private readonly IInteractiveService _interactiveService;
@@ -108,7 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IDocTemplateRepository documentTemplateRepository,
 			IUserRepository userRepository,
 			IStringHandler stringHandler,
-			IUserSettingsService userSettingsService,
+			IUserSettingsManager userSettingsManager,
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
@@ -140,7 +141,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_documentTemplateRepository = documentTemplateRepository ?? throw new ArgumentNullException(nameof(documentTemplateRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
-			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
 			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
 			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
@@ -197,7 +198,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Finish();
 
 			Entity.PropertyChanged += OnEntityPropertyChangedHandler;
-
 			Entity.ObservableCarVersions.ElementAdded += OnObservableCarVersionsElementAdded;
 
 			OnDriverChanged();
@@ -681,7 +681,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			.FirstOrDefault();
 
 		private bool IsUserHasAccessToGazprom =>
-			_userSettingsService.Settings.IsUserHasAuthDataForFuelControlApi;
+			_userSettingsManager.Settings.IsUserHasAuthDataForFuelControlApi;
 
 		private bool IsNeedToUpdateFuelCardProductRestriction =>
 			(IsFuelCardChanged() && Entity.FuelType != null)

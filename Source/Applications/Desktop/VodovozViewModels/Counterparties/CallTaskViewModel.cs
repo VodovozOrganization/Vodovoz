@@ -22,8 +22,6 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Models;
-using Vodovoz.Services;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -62,7 +60,6 @@ namespace Vodovoz.ViewModels.Counterparties
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigation,
 			IValidator validator,
-			IEmployeeService employeeService,
 			ViewModelEEVMBuilder<Employee> attachedEmployyeeViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelEEVMBuilder,
 			IPhoneTypeSettings phoneTypeSettings,
@@ -108,7 +105,7 @@ namespace Vodovoz.ViewModels.Counterparties
 				Title = "Новая задача";
 				Entity.CreationDate = DateTime.Now;
 				Entity.Source = TaskSource.Handmade;
-				Entity.TaskCreator = employeeService.GetEmployeeForCurrentUser(UoW);
+				Entity.TaskCreator = employeeRepository.GetEmployeeForCurrentUser(UoW);
 				Entity.EndActivePeriod = DateTime.Now.AddDays(1);
 			}
 			else
@@ -444,6 +441,12 @@ namespace Vodovoz.ViewModels.Counterparties
 		{
 			SaveAndClose();
 			EntitySaved?.Invoke(this, new EntitySavedEventArgs(Entity));
+		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
 		}
 	}
 }

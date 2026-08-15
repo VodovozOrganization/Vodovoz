@@ -49,7 +49,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			var itemsQuery = uow.Session.QueryOver(() => phoneAlias)
 			.Left.JoinAlias(x => x.PhoneType, () => phoneTypeAlias);
 
-
 			if(FilterViewModel.Counterparty != null)
 			{
 				if(FilterViewModel.DeliveryPoint == null)
@@ -99,5 +98,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 
 		protected override Func<PhonesJournalNode, PhoneViewModel> OpenDialogFunction => node =>
 			throw new NotSupportedException("Не поддерживается открытие телефона из журнала");
+
+		public override void Dispose()
+		{
+			base.Dispose();
+		}
 	}
 }

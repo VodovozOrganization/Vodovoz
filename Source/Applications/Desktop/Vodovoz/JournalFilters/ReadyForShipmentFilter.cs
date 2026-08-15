@@ -14,6 +14,7 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Warehouses;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz
 {
@@ -83,7 +84,10 @@ namespace Vodovoz
 
 		protected override void ConfigureWithUow()
 		{
-			var warehousesList = new StoreDocumentHelper(new UserSettingsService())
+			var storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
+			var userSettingsManager = _lifetimeScope.Resolve<IUserSettingsManager>();
+			
+			var warehousesList = storeDocumentHelper
 				.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.WarehouseView)
 				.OrderBy(w => w.Name).ToList();
 
@@ -103,7 +107,7 @@ namespace Vodovoz
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 
-			WarehouseViewModel.Entity = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
+			WarehouseViewModel.Entity = userSettingsManager.Settings.DefaultWarehouse ?? null;
 			
 			daterangepicker.Binding
 				.AddBinding(this, f => f.StartDate, w => w.StartDateOrNull)

@@ -82,6 +82,7 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
 		public void Dispose()
 		{
 			fixedPricesDialogOpener?.Dispose();
+			_openFixedPricesDialogCommand.Dispose();
 		}
     }
 }

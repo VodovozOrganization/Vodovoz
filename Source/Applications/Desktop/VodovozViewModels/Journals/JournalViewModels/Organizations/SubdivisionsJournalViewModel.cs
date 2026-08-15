@@ -260,6 +260,11 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		public override void Dispose()
 		{
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
+			if(Search is SearchViewModel search)
+			{
+				search.PropertyChanged -= OnSearchPropertyChanged;
+			}
+			
 			base.Dispose();
 		}
 	}

@@ -394,6 +394,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public override void Dispose()
 		{
 			Entity.ObservableFines.ListContentChanged -= ObservableFines_ListContentChanged;
+			Entity.PropertyChanged -= EntityPropertyChanged;
+			
 			_carEntryViewModel.ChangedByUser -= OnCarChangedByUser;
 			_carEntryViewModel.Dispose();
 			base.Dispose();

@@ -254,7 +254,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				if(Entity.Driver != null)
 				{
-					if(!Entity.IsDriversDebtInPermittedRangeVerification())
+					if(!Entity.IsDriversDebtInPermittedRangeVerification(UoW))
 					{
 						Entity.Driver = null;
 					}
@@ -378,7 +378,7 @@ namespace Vodovoz.ViewModels.Logistic
 					}
 				}
 
-				Entity.UpdateFuelOperation();
+				Entity.UpdateFuelOperation(UoW);
 			}
 
 			if(Entity.Status == RouteListStatus.Delivered)
@@ -387,7 +387,7 @@ namespace Vodovoz.ViewModels.Logistic
 				OnPropertyChanged(nameof(CanEdit));
 			}
 
-			Entity.CalculateWages(_wageParameterService);
+			Entity.CalculateWages(UoW, _wageParameterService);
 			return base.BeforeSave();
 		}
 		

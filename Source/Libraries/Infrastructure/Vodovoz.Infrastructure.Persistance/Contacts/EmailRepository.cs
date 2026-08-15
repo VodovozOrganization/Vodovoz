@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
@@ -28,6 +29,7 @@ using Vodovoz.Settings.Contacts;
 using Vodovoz.Settings.Delivery;
 using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.EntityRepositories.Nodes;
+using VodovozBusiness.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
@@ -51,13 +53,18 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			return unitOfWork.GetById<StoredEmail>(id);
 		}
 
-		public List<StoredEmail> GetAllEmailsForOrder(IUnitOfWork uow, int orderId)
+		public IList<SentStoredEmailNode> GetAllBillEmailsForOrder(IUnitOfWork uow, int orderId)
 		{
-			return uow.Session.QueryOver<BillDocumentEmail>()
-				.JoinQueryOver(ode => ode.OrderDocument)
-					.Where(od => od.Order.Id == orderId)
-					.Select(ode => ode.StoredEmail)
-					.List<StoredEmail>().ToList();
+			var query =
+				from billDocument in uow.Session.Query<BillDocumentEmail>()
+				join orderDocument in uow.Session.Query<OrderDocumentEntity>()
+					on billDocument.OrderDocument.Id equals orderDocument.Id
+				join storedEmail in uow.Session.Query<StoredEmail>()
+					on billDocument.StoredEmail.Id equals storedEmail.Id
+				where orderDocument.Order.Id == orderId
+				select SentStoredEmailNode.Create(storedEmail.SendDate, storedEmail.RecipientAddress, storedEmail.State);
+
+			return query.ToList();
 		}
 
 		public List<CounterpartyEmail> GetEmailsForPreparingOrderDocuments(IUnitOfWork uow)

@@ -21,7 +21,6 @@ namespace Vodovoz.SidePanel.InfoViews
 		public DeliveryPricePanelView(IDeliveryPriceCalculator deliveryPriceCalculator)
 		{
 			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new ArgumentNullException(nameof(deliveryPriceCalculator));
-
 			Build();
 		}
 

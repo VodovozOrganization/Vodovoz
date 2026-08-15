@@ -255,5 +255,12 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 			return base.BeforeSave();
 		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			
+			base.Dispose();
+		}
 	}
 }

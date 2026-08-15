@@ -218,5 +218,11 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				}
 			}
 		}
+
+		public override void Dispose()
+		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+		}
 	}
 }

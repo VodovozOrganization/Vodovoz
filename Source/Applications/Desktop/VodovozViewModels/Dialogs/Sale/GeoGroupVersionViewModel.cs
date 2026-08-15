@@ -8,7 +8,7 @@ using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.ViewModels.Dialogs.Sales
 {
-	public class GeoGroupVersionViewModel : ViewModelBase
+	public class GeoGroupVersionViewModel : ViewModelBase, IDisposable
 	{
 		public GeoGroupVersionViewModel(GeoGroupVersion geoGroupVersion)
 		{
@@ -130,6 +130,11 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 
 				return $"ш. {Coordinates.Value.Latitude:F5}, д. {Coordinates.Value.Longitude:F5}";
 			}
+		}
+		
+		public void Dispose()
+		{
+			Entity.PropertyChanged -= GeoGroupVersion_PropertyChanged;
 		}
 	}
 }

@@ -5,7 +5,7 @@ using Vodovoz.Models;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
-	public class NomenclatureGroupPricingItemViewModel : ViewModelBase, INomenclatureGroupPricingItemViewModel
+	public class NomenclatureGroupPricingItemViewModel : ViewModelBase, INomenclatureGroupPricingItemViewModel, IDisposable
 	{
 		private readonly NomenclatureGroupPricingPriceModel _groupNomenclaturePriceModel;
 
@@ -94,6 +94,14 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				{
 					_groupNomenclaturePriceModel.InnerDeliveryPrice = value;
 				}
+			}
+		}
+
+		public void Dispose()
+		{
+			if(_groupNomenclaturePriceModel != null)
+			{
+				_groupNomenclaturePriceModel.PropertyChanged -= GroupNomenclaturePriceModelPropertyChanged;
 			}
 		}
 	}
