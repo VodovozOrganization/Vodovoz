@@ -17,7 +17,9 @@ namespace Vodovoz.ViewModels.Edo
 			Time = documentNode.RequestTime;
 			TimeString = Time.ToString("dd.MM.yyyy HH:mm");
 			Source = documentNode.RequestSource;
-			SourceString = Source.GetEnumTitle();
+			SourceString = Source == EdoRequestSource.Manual
+				? documentNode.ManualRequestAuthor
+				: Source.GetEnumTitle();
 			Status = documentNode.TaskStatus;
 			StatusString = Status.GetEnumTitle();
 			EdoDocumentStatus = documentNode.EdoDocumentStatus;
