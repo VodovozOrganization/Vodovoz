@@ -2190,6 +2190,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoNotificationSettingView.cs" />
     <Compile Include="Views\Edo\EdoView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoView.cs" />
+    <Compile Include="ViewWidgets\Mango\MangoCallButtonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Mango.MangoCallButtonView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
