@@ -850,6 +850,18 @@ namespace Vodovoz.Core.Domain.Orders
 			}
 		}
 
+		public virtual void UpdateOrderPaymentStatus(OrderPaymentStatus paymentStatus, PaymentType paymentType)
+		{
+			OrderPaymentStatus = paymentStatus;
+
+			if(SelfDelivery
+				&& paymentType == PaymentType.Cashless
+				&& paymentStatus == OrderPaymentStatus.Paid)
+			{
+				IsSelfDeliveryPaid = true;
+			}
+		}
+		
 		public override string ToString()
 		{
 			if(IsLoadedFrom1C)
