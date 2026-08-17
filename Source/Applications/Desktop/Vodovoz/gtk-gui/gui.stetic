@@ -91274,7 +91274,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Views.Mango.Talks.UnknowTalkView" design-size="552 186">
+  <widget class="Gtk.Bin" id="Vodovoz.Views.Mango.Talks.UnknowTalkView" design-size="552 209">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -91456,9 +91456,16 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Table" id="table4">
                 <property name="MemberName" />
+                <property name="NRows">2</property>
                 <property name="NColumns">6</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
                 <child>
                   <placeholder />
                 </child>
@@ -91475,8 +91482,10 @@ not tooltip</property>
                     <signal name="Clicked" handler="Clicked_FinishButton" />
                   </widget>
                   <packing>
-                    <property name="LeftAttach">5</property>
-                    <property name="RightAttach">6</property>
+                    <property name="TopAttach">1</property>
+                    <property name="BottomAttach">2</property>
+                    <property name="LeftAttach">2</property>
+                    <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -91509,6 +91518,27 @@ not tooltip</property>
                     <property name="YShrink">False</property>
                   </packing>
                 </child>
+                <child>
+                  <widget class="Gamma.GtkWidgets.yButton" id="ybuttonDriverForwarding">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Переадресация на водителя</property>
+                    <property name="UseUnderline">True</property>
+                  </widget>
+                  <packing>
+                    <property name="LeftAttach">3</property>
+                    <property name="RightAttach">6</property>
+                    <property name="AutoSize">False</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">True</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -91528,7 +91558,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Views.Mango.Talks.CounterpartyTalkView" design-size="630 758">
+  <widget class="Gtk.Bin" id="Vodovoz.Views.Mango.Talks.CounterpartyTalkView" design-size="632 758">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -91747,9 +91777,16 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Table" id="table4">
                 <property name="MemberName" />
+                <property name="NRows">2</property>
                 <property name="NColumns">6</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
                 <child>
                   <placeholder />
                 </child>
@@ -91766,9 +91803,11 @@ not tooltip</property>
                     <signal name="Clicked" handler="Clicked_FinishButton" />
                   </widget>
                   <packing>
-                    <property name="LeftAttach">5</property>
-                    <property name="RightAttach">6</property>
-                    <property name="AutoSize">True</property>
+                    <property name="TopAttach">1</property>
+                    <property name="BottomAttach">2</property>
+                    <property name="LeftAttach">2</property>
+                    <property name="RightAttach">4</property>
+                    <property name="AutoSize">False</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
                     <property name="XExpand">False</property>
@@ -91790,6 +91829,27 @@ not tooltip</property>
                   </widget>
                   <packing>
                     <property name="RightAttach">3</property>
+                    <property name="AutoSize">False</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">True</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gamma.GtkWidgets.yButton" id="ybuttonDriverForwarding">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Переадресация на водителя</property>
+                    <property name="UseUnderline">True</property>
+                  </widget>
+                  <packing>
+                    <property name="LeftAttach">3</property>
+                    <property name="RightAttach">6</property>
                     <property name="AutoSize">False</property>
                     <property name="YOptions">Fill</property>
                     <property name="XExpand">True</property>
