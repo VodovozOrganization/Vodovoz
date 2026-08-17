@@ -47,6 +47,26 @@ namespace Vodovoz.Infrastructure.Persistance.Mango
 				.ToListAsync(cancellationToken);
 		}
 
+		public async Task<IReadOnlyList<DriverMangoExtensionNumber>> GetActiveExtensionNumbersByDriverIdsAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> driverIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = driverIds?.Distinct().ToArray() ?? Array.Empty<int>();
+
+			if(!ids.Any())
+			{
+				return new List<DriverMangoExtensionNumber>();
+			}
+
+			return await uow.Session.Query<DriverMangoExtensionNumber>()
+				.Where(x =>
+					ids.Contains(x.DriverId)
+					&& x.ExtensionNumber != null
+					&& x.Status == DriverMangoExtensionNumberStatus.Active)
+				.ToListAsync(cancellationToken);
+		}
+
 		public async Task<DriverMangoExtensionNumber> GetByIdAsync(IUnitOfWork uow, int id, CancellationToken cancellationToken)
 		{
 			return await uow.Session.GetAsync<DriverMangoExtensionNumber>(id, cancellationToken);
