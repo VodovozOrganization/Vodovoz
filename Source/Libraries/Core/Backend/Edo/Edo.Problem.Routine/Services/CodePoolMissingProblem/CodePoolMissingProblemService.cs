@@ -1,15 +1,15 @@
-﻿using Edo.Contracts.Messages.Events;
-using Edo.Problem.Routine.Options;
+﻿using Edo.Problem.Routine.Options;
 using Edo.Transport;
 using EdoNotifications.Application.Factories;
 using EdoNotifications.Contracts;
-using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
@@ -23,7 +23,6 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 	{
 		private readonly string _problemSourceName;
 		private readonly ILogger<CodePoolMissingProblemService> _logger;
-		private readonly IBus _bus;
 		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -34,7 +33,6 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 
 		public CodePoolMissingProblemService(
 			ILogger<CodePoolMissingProblemService> logger,
-			IBus messageBus,
 			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
 			IEdoNotificationMessageFactory notificationMessageFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -45,7 +43,6 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_bus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_notificationPublisher = notificationPublisher ?? throw new ArgumentNullException(nameof(notificationPublisher));
 			_notificationMessageFactory = notificationMessageFactory ?? throw new ArgumentNullException(nameof(notificationMessageFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -89,7 +86,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 
 					var processedCount = 0;
 					var failedCount = 0;
-					var notifiedCount = 0;
+					var notificationsToSend = new List<CodePoolMissingProblemNotificationData>();
 
 					foreach(var problemNode in problemNodes)
 					{
@@ -99,16 +96,14 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 
 							var result = await ProcessProblem(uow, problemNode, cancellationToken);
 
-							await uow.CommitAsync(cancellationToken);
-
-							if(result.NotificationSent)
-							{
-								notifiedCount++;
-							}
-
 							if(result.Processed)
 							{
 								processedCount++;
+							}
+
+							if(result.ShouldNotify)
+							{
+								notificationsToSend.Add(result.NotificationData);
 							}
 						}
 						catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
@@ -125,12 +120,22 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 						}
 					}
 
+					if(notificationsToSend.Any())
+					{
+						await SendGroupNotificationsAsync(uow, notificationsToSend, cancellationToken);
+					}
+
+					if(uow.HasChanges)
+					{
+						await uow.CommitAsync(cancellationToken);
+					}
+
 					_logger.LogInformation(
 						"Обработка проблем ЭДО с ошибкой нехватки кодов завершена: " +
 						"Обработано {ProcessedCount}, Ошибок {FailedCount}, Уведомлений {NotifiedCount}",
 						processedCount,
 						failedCount,
-						notifiedCount);
+						notificationsToSend.Count);
 				}
 			}
 			catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
@@ -180,13 +185,13 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 				await TryResumeTaskAsync(edoTask, cancellationToken);
 
 				if(CodePoolMissingProblemProcessingPolicy.ShouldRequestNotification(
-				state,
-				_options.MaxAttempts))
+					state,
+					_options.MaxAttempts))
 				{
-					return await SendNotification(uow, problem, edoTask, cancellationToken);
+					return await PrepareNotificationData(uow, problem, edoTask, cancellationToken);
 				}
 
-				return new CodePoolMissingProblemProcessResult(true, false);
+				return new CodePoolMissingProblemProcessResult(true, false, null);
 			}
 			catch(Exception ex)
 			{
@@ -196,72 +201,105 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 					edoTask?.Id ?? 0,
 					state.RetryCount);
 
-				return new CodePoolMissingProblemProcessResult(false, false);
+				return new CodePoolMissingProblemProcessResult(false, false, null);
 			}
 		}
 
-		private async Task<CodePoolMissingProblemProcessResult> SendNotification(
+		private async Task<CodePoolMissingProblemProcessResult> PrepareNotificationData(
 			IUnitOfWork uow,
 			ExceptionEdoTaskProblem problem,
 			OrderEdoTask edoTask,
 			CancellationToken cancellationToken)
 		{
 			_logger.LogError(
-				"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: достигнуто максимальное количество попыток ({MaxAttempts}), отправляем уведомление",
+				"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: достигнуто максимальное количество попыток ({MaxAttempts}), подготовка данных для уведомления",
 				problem.Id,
 				edoTask?.Id ?? 0,
 				_options.MaxAttempts);
 
 			var orderId = edoTask?.FormalEdoRequest?.Order?.Id ?? 0;
-			var notificationSent = await TryNotifyAsync(
-				uow,
-				orderId,
-				problem,
-				cancellationToken);
-
-			if(notificationSent)
-			{
-				_logger.LogInformation(
-					"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: уведомление отправлено успешно",
-					problem.Id,
-					edoTask?.Id ?? 0);
-			}
-			else
-			{
-				_logger.LogWarning(
-					"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: не удалось отправить уведомление",
-					problem.Id,
-					edoTask?.Id ?? 0);
-			}
-
-			return new CodePoolMissingProblemProcessResult(false, notificationSent);
-		}
-
-		public async Task<bool> TryNotifyAsync(
-			IUnitOfWork uow,
-			int orderId,
-			ExceptionEdoTaskProblem problem,
-			CancellationToken cancellationToken)
-		{
-			if(uow is null)
-			{
-				throw new ArgumentNullException(nameof(uow));
-			}
-
-			if(problem is null)
-			{
-				throw new ArgumentNullException(nameof(problem));
-			}
-
 			var (gtin, nomenclatureName) = await GetGtinAndNomenclature(uow, problem, cancellationToken);
 
-			var notification = _notificationMessageFactory.Create(
-				EdoNotificationType.CodePoolMissingProblem,
-				("OrderId", orderId.ToString()),
-				("Gtin", gtin ?? "не указан"),
-				("NomenclatureName", nomenclatureName ?? "не указана"));
+			var notificationData = new CodePoolMissingProblemNotificationData(
+				orderId: orderId,
+				gtin: gtin,
+				nomenclatureName: nomenclatureName,
+				problemId: problem.Id);
 
-			return await _notificationPublisher.TryPublishAsync(uow, notification, cancellationToken);
+			return new CodePoolMissingProblemProcessResult(
+				processed: false,
+				shouldNotify: true,
+				notificationData: notificationData);
+		}
+
+		private async Task SendGroupNotificationsAsync(
+			IUnitOfWork uow,
+			List<CodePoolMissingProblemNotificationData> notifications,
+			CancellationToken cancellationToken)
+		{
+			if(!notifications.Any())
+			{
+				return;
+			}
+
+			try
+			{
+				var gtinGroups = notifications
+					.Where(n => !string.IsNullOrEmpty(n.Gtin))
+					.GroupBy(n => n.Gtin)
+					.Select(g => new
+					{
+						Gtin = g.Key,
+						NomenclatureName = g.First().NomenclatureName ?? "неизвестная номенклатура",
+						OrderIds = g.Select(n => n.OrderId).Where(id => id > 0).Distinct().OrderBy(id => id).ToList(),
+						TotalCount = g.Count()
+					})
+					.ToList();
+
+				if(!gtinGroups.Any())
+				{
+					_logger.LogWarning("Нет данных с GTIN для формирования сводки уведомления");
+					return;
+				}
+
+				var messageBuilder = new StringBuilder();
+				messageBuilder.AppendLine();
+
+				foreach(var group in gtinGroups)
+				{
+					var nomenclatureInfo = group.NomenclatureName;
+					var ordersInfo = group.OrderIds.Any()
+						? $" (заказы: {string.Join(", ", group.OrderIds)})"
+						: " (заказ не указан)";
+
+					messageBuilder.AppendLine($"- GTIN: {group.Gtin}, номенклатура: \"{nomenclatureInfo}\", количество проблем: {group.TotalCount}{ordersInfo}");
+				}
+
+				var message = messageBuilder.ToString();
+
+				var notification = _notificationMessageFactory.Create(
+					EdoNotificationType.CodePoolMissingProblem,
+					("Message", message));
+
+				var published = await _notificationPublisher.TryPublishAsync(uow, notification, cancellationToken);
+
+				if(published)
+				{
+					_logger.LogInformation(
+						"Отправлено сводное уведомление по {ProblemCount} проблемам, затронуто GTIN: {GtinCount}",
+						notifications.Count,
+						gtinGroups.Count);
+				}
+				else
+				{
+					_logger.LogWarning("Не удалось отправить сводное уведомление по {ProblemCount} проблемам", notifications.Count);
+				}
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при отправке сводного уведомления");
+				throw;
+			}
 		}
 
 		private async Task<(string Gtin, string NomenclatureName)> GetGtinAndNomenclature(
