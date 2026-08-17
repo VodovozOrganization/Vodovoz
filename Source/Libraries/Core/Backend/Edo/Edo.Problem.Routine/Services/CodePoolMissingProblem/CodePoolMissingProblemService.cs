@@ -1,5 +1,6 @@
 ﻿using Edo.Contracts.Messages.Events;
 using Edo.Problem.Routine.Options;
+using Edo.Transport;
 using EdoNotifications.Application.Factories;
 using EdoNotifications.Contracts;
 using MassTransit;
@@ -29,6 +30,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 		private readonly IEdoRepository _edoRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly CodePoolMissingProblemWorkerOptions _options;
+		private readonly MessageService _messageService;
 
 		public CodePoolMissingProblemService(
 			ILogger<CodePoolMissingProblemService> logger,
@@ -38,6 +40,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEdoRepository edoRepository,
 			INomenclatureRepository nomenclatureRepository,
+			MessageService messageService,
 			IOptions<CodePoolMissingProblemWorkerOptions> options
 			)
 		{
@@ -48,6 +51,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
 			_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 
 			_problemSourceName = nameof(EdoCodePoolMissingCodeException);
@@ -55,87 +59,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 
 		public async Task TryResumeTaskAsync(OrderEdoTask edoTask, CancellationToken cancellationToken)
 		{
-			switch(edoTask)
-			{
-				case DocumentEdoTask documentTask:
-					await PublishDocumentResumeEvent(documentTask, cancellationToken);
-					break;
-				case TenderEdoTask tenderTask:
-					await PublishTenderResumeEvent(tenderTask, cancellationToken);
-					break;
-				case ReceiptEdoTask receiptTask:
-					await PublishReceiptResumeEvent(receiptTask, cancellationToken);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(
-						$"Задача ЭДО {edoTask.Id}: неизвестный тип задачи {edoTask.GetType().Name}, не удалось определить событие для возобновления");
-			}
-		}
-
-		private async Task PublishDocumentResumeEvent(DocumentEdoTask edoTask, CancellationToken cancellationToken)
-		{
-			if(edoTask.Stage != DocumentEdoTaskStage.New)
-			{
-				_logger.LogWarning(
-					"Задача ЭДО {EdoTaskId} (DocumentEdoTask) находится на стадии {Stage}. Возобновление возможно только на стадии New",
-					edoTask.Id,
-					edoTask.Stage);
-
-				throw new ArgumentException(
-					$"Задача ЭДО {edoTask.Id} (DocumentEdoTask) находится на стадии {edoTask.Stage}. Возобновление возможно только на стадии New");
-			}
-
-			_logger.LogInformation(
-				"Задача ЭДО {EdoTaskId} (DocumentEdoTask) находится на стадии {Stage}. Публикуем событие {EventName}",
-				edoTask.Id,
-				edoTask.Stage,
-				nameof(DocumentTaskCreatedEvent));
-
-			await _bus.Publish(new DocumentTaskCreatedEvent { Id = edoTask.Id }, cancellationToken);
-		}
-
-		private async Task PublishTenderResumeEvent(TenderEdoTask edoTask, CancellationToken cancellationToken)
-		{
-			if(edoTask.Stage != TenderEdoTaskStage.New)
-			{
-				_logger.LogWarning(
-					"Задача ЭДО {EdoTaskId} (TenderEdoTask) находится на стадии {Stage}. Возобновление возможно только на стадии New",
-					edoTask.Id,
-					edoTask.Stage);
-
-				throw new ArgumentException(
-					$"Задача ЭДО {edoTask.Id} (TenderEdoTask) находится на стадии {edoTask.Stage}. Возобновление возможно только на стадии New");
-			}
-
-			_logger.LogInformation(
-				"Задача ЭДО {EdoTaskId} (TenderEdoTask) находится на стадии {Stage}. Публикуем событие {EventName}",
-				edoTask.Id,
-				edoTask.Stage,
-				nameof(TenderTaskCreatedEvent));
-
-			await _bus.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
-		}
-
-		private async Task PublishReceiptResumeEvent(ReceiptEdoTask edoTask, CancellationToken cancellationToken)
-		{
-			if(edoTask.ReceiptStatus != EdoReceiptStatus.New)
-			{
-				_logger.LogWarning(
-					"Задача ЭДО {EdoTaskId} (ReceiptEdoTask) находится в статусе {ReceiptStatus}. Возобновление возможно только в статусе New",
-					edoTask.Id,
-					edoTask.ReceiptStatus);
-
-				throw new ArgumentException(
-					$"Задача ЭДО {edoTask.Id} (ReceiptEdoTask) находится в статусе {edoTask.ReceiptStatus}. Возобновление возможно только на стадии New");
-			}
-
-			_logger.LogInformation(
-				"Задача ЭДО {EdoTaskId} (ReceiptEdoTask) находится в статусе {ReceiptStatus}. Публикуем событие {EventName}",
-				edoTask.Id,
-				edoTask.ReceiptStatus,
-				nameof(ReceiptTaskCreatedEvent));
-
-			await _bus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id }, cancellationToken);
+			await _messageService.PublishTaskCreatedEvent(edoTask, cancellationToken);
 		}
 
 		public async Task ProcessProblemTasks(CancellationToken cancellationToken)
