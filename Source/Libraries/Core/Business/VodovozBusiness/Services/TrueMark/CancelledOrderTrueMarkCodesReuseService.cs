@@ -18,14 +18,19 @@ namespace VodovozBusiness.Services.TrueMark
 	public class CancelledOrderTrueMarkCodesReuseService : ICancelledOrderTrueMarkCodesReuseService
 	{
 		private readonly ITrueMarkRepository _trueMarkRepository;
+		private readonly IManualEdoRequestFactory _manualEdoRequestFactory;
 
 		/// <summary>
 		/// Создает экземпляр сервиса переноса отклоненных кодов маркировки.
 		/// </summary>
 		/// <param name="trueMarkRepository">Репозиторий кодов маркировки</param>
-		public CancelledOrderTrueMarkCodesReuseService(ITrueMarkRepository trueMarkRepository)
+		public CancelledOrderTrueMarkCodesReuseService(
+			ITrueMarkRepository trueMarkRepository,
+			IManualEdoRequestFactory manualEdoRequestFactory
+		)
 		{
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
+			_manualEdoRequestFactory = manualEdoRequestFactory ?? throw new ArgumentNullException(nameof(manualEdoRequestFactory));
 		}
 
 		/// <inheritdoc />
@@ -74,7 +79,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 			ClearSourceProductCodeResults(uow, sourceProductCodes);
 			var productCodesForReuse = CreateProductCodesForReuse(sourceProductCodes);
-			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, productCodesForReuse);
+			var edoRequest = _manualEdoRequestFactory.Create(uow, targetOrder, productCodesForReuse);
 			uow.Save(edoRequest);
 
 			return Result.Success(new CancelledOrderTrueMarkCodesReuseResult

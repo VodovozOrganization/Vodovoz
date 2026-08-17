@@ -200403,13 +200403,40 @@ not tooltip</property>
                             <property name="MemberName" />
                             <property name="Spacing">6</property>
                             <child>
+                              <widget class="Gamma.GtkWidgets.yLabel" id="labelProblemMessage">
+                                <property name="MemberName" />
+                                <property name="Xalign">0</property>
+                                <property name="LabelProp" translatable="yes">Сообщение:</property>
+                              </widget>
+                              <packing>
+                                <property name="Position">0</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gamma.GtkWidgets.yTextView" id="textViewProblemMessage">
+                                <property name="MemberName" />
+                                <property name="HeightRequest">40</property>
+                                <property name="CanFocus">True</property>
+                                <property name="Editable">False</property>
+                                <property name="Text" translatable="yes" />
+                                <property name="WrapMode">Word</property>
+                              </widget>
+                              <packing>
+                                <property name="Position">1</property>
+                                <property name="AutoSize">False</property>
+                              </packing>
+                            </child>
+                            <child>
                               <widget class="Gamma.GtkWidgets.yLabel" id="labelProblemDescription">
                                 <property name="MemberName" />
                                 <property name="Xalign">0</property>
                                 <property name="LabelProp" translatable="yes">Описание:</property>
                               </widget>
                               <packing>
-                                <property name="Position">0</property>
+                                <property name="Position">2</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -200425,7 +200452,7 @@ not tooltip</property>
                                 <property name="WrapMode">Word</property>
                               </widget>
                               <packing>
-                                <property name="Position">1</property>
+                                <property name="Position">3</property>
                                 <property name="AutoSize">False</property>
                               </packing>
                             </child>
@@ -200436,7 +200463,7 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Рекомендация:</property>
                               </widget>
                               <packing>
-                                <property name="Position">2</property>
+                                <property name="Position">4</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -200452,7 +200479,7 @@ not tooltip</property>
                                 <property name="WrapMode">Word</property>
                               </widget>
                               <packing>
-                                <property name="Position">3</property>
+                                <property name="Position">5</property>
                                 <property name="AutoSize">False</property>
                               </packing>
                             </child>

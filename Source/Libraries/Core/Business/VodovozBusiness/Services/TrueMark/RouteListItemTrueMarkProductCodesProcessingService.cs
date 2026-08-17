@@ -37,7 +37,7 @@ namespace VodovozBusiness.Services.TrueMark
 			IGenericRepository<RouteListItemEntity> routeListItemRepository,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
-			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
+			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService,
 			ITrueMarkRepository trueMarkRepository,
 			TrueMarkCodesPoolFactory trueMarkCodesPoolFactory)
 		{

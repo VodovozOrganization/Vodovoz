@@ -597,6 +597,7 @@ select
 	ecr.`time` as :request_time,
 	ecr.id as :request_id,
 	ecr.source as :request_source,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = ecr.author_id) as :manual_request_author,
 	null as :order_document_type,
 	et.id as :task_id,
 	et.`type` as :task_type,
@@ -620,6 +621,7 @@ select
 	eir.`time` as :request_time,
 	eir.id as :request_id,
 	eir.source as :request_source,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = eir.author_id) as :manual_request_author,
 	eir.order_document_type as :order_document_type,
 	et.id as :task_id,
 	et.`type` as :task_type,
@@ -644,6 +646,7 @@ where eir.order_id = :order_id
 				.Map("request_time", x => x.RequestTime, NHibernateUtil.DateTime)
 				.Map("request_id", x => x.RequestId, NHibernateUtil.Int32)
 				.Map("request_source", x => x.RequestSource, new EnumStringType<EdoRequestSource>())
+				.Map("manual_request_author", x => x.ManualRequestAuthor, NHibernateUtil.String)
 				.Map("order_document_type", x => x.InformalOrderDocumentType, new EnumStringType<OrderDocumentType>())
 				.Map("task_id", x => x.TaskId, NHibernateUtil.Int32)
 				.Map("task_type", x => x.TaskType, new EnumStringType<EdoTaskType>())

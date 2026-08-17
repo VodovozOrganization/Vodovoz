@@ -37,6 +37,7 @@ namespace Vodovoz.ViewModels.Edo
 		private IEnumerable<EdoInOrderReceiptNode> _allReceipts;
 		private IEnumerable<EdoInOrderTaxcomDocflowNode> _allDocflows;
 		private bool _hasActiveProblems;
+		private string _problemMessage;
 		private string _problemDescription;
 		private string _problemRecommendation;
 		private IList<string> _problemItems;
@@ -52,6 +53,7 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentActionsViewModel = edoInOrderDocumentActionsViewModel ?? throw new ArgumentNullException(nameof(edoInOrderDocumentActionsViewModel));
 			OrderCodesViewModel = orderCodesViewModel ?? throw new ArgumentNullException(nameof(orderCodesViewModel));
 			_allProblems = new List<EdoInOrderProblemNode>();
+			_problems = new List<EdoInOrderProblemViewModel>();
 
 			RefreshCommnand = new DelegateCommand(Refresh);
 			EdoInOrderDocumentActionsViewModel.EdoInOrderRefreshCommand = RefreshCommnand;
@@ -136,6 +138,12 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			get => _hasActiveProblems;
 			set => SetField(ref _hasActiveProblems, value);
+		}
+
+		public virtual string ProblemMessage
+		{
+			get => _problemMessage;
+			set => SetField(ref _problemMessage, value);
 		}
 
 		public virtual string ProblemDescription
@@ -530,6 +538,8 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				HasActiveProblems = false;
 				Problems = new List<EdoInOrderProblemViewModel>();
+				SelectedProblem = null;
+				ShowProblemDetails();
 				return;
 			}
 
@@ -539,6 +549,7 @@ namespace Vodovoz.ViewModels.Edo
 				;
 
 			Problems = new List<EdoInOrderProblemViewModel>(viewModels);
+			SelectedProblem = Problems.FirstOrDefault();
 			if(viewModels.Any(x => x.ProblemNode?.State == TaskProblemState.Active))
 			{
 				HasActiveProblems = true;
@@ -549,12 +560,14 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			if(SelectedProblem == null)
 			{
-				ProblemDescription = null;
-				ProblemRecommendation = null;
+				ProblemMessage = "";
+				ProblemDescription = "";
+				ProblemRecommendation = "";
 				ProblemItems = new List<string>();
 			}
 			else
 			{
+				ProblemMessage = SelectedProblem.Message;
 				ProblemDescription = SelectedProblem.Description;
 				ProblemRecommendation = SelectedProblem.Recomendation;
 				ProblemItems = SelectedProblem.ProblemItems;
