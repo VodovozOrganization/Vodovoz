@@ -29,8 +29,8 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEdoRepository _edoRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly CodePoolMissingProblemWorkerOptions _options;
 		private readonly MessageService _messageService;
+		private readonly CodePoolMissingProblemWorkerOptions _options;
 
 		public CodePoolMissingProblemService(
 			ILogger<CodePoolMissingProblemService> logger,
@@ -175,16 +175,16 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 			state.LastRetryTime = now;
 			await uow.SaveAsync(state, cancellationToken: cancellationToken);
 
-			if(CodePoolMissingProblemProcessingPolicy.ShouldRequestNotification(
-				state,
-				_options.MaxAttempts))
-			{
-				return await SendNotification(uow, problem, edoTask, cancellationToken);
-			}
-
 			try
 			{
 				await TryResumeTaskAsync(edoTask, cancellationToken);
+
+				if(CodePoolMissingProblemProcessingPolicy.ShouldRequestNotification(
+				state,
+				_options.MaxAttempts))
+				{
+					return await SendNotification(uow, problem, edoTask, cancellationToken);
+				}
 
 				return new CodePoolMissingProblemProcessResult(true, false);
 			}
