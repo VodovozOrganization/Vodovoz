@@ -42,5 +42,14 @@ namespace Vodovoz.Core.Domain.Permissions
 			Name = "Возможность изменять события и мощности после 13:00",
 			Description = "Пользователь может изменять события и мощности после 13:00")]
 		public static string CanEditEventsAndCapacitiesAfter13 => nameof(CanEditEventsAndCapacitiesAfter13);
+
+		/// <summary>
+		/// Возможность управлять работой сервиса создания карточек сотрудников в Манго
+		/// </summary>
+		[Display(
+			Name = "Возможность управлять работой сервиса создания карточек сотрудников в Манго для водителей",
+			Description = "Пользователь может включать и отключать сервис создания карточек сотрудников в Манго для водителей")]
+		public static string CanEditDriverMangoEmployeeRegistrationSettings =>
+			nameof(CanEditDriverMangoEmployeeRegistrationSettings);
 	}
 }
