@@ -184,6 +184,11 @@ namespace Edo.Scheduler.Service
 		
 		private EdoTask CreateTenderEdoTask(FormalEdoRequest edoRequest)
 		{
+			if(!edoRequest.ProductCodes.Any())
+			{
+				return null;
+			}
+
 			var task = new TenderEdoTask
 			{
 				Status = EdoTaskStatus.New

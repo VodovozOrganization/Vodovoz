@@ -83,6 +83,14 @@ namespace Edo.Scheduler.Service
 						$"{nameof(FormalEdoRequest)} {request.Type}");
 			}
 
+			if(edoTask == null)
+			{
+				_logger.LogInformation(
+					"Для клиентской ЭДО заявки Id {CustomerEdoRequestId} задача не требуется",
+					requestId);
+				return;
+			}
+
 			await _uow.SaveAsync(request, cancellationToken: cancellationToken);
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
