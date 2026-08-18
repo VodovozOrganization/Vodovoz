@@ -163,6 +163,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			FuelCardVersionViewModel.ParentDialog = this;
 
 			SetPermissions();
+			OdometerReadingsViewModel.CanEditCar = CanEdit;
+			FuelCardVersionViewModel.CanEditCar = CanEdit;
+			_carVersionsManagementViewModel.CanEditCarCard = CanEditCarCard;
 
 			CarModelViewModel = carModelEEVMBuilder
 				.SetUnitOfWork(UoW)
@@ -228,6 +231,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					_cancellationTokenSource.Token,
 					Entity.AddFileInformation,
 					Entity.RemoveFileInformation);
+			AttachedFileInformationsViewModel.ReadOnly = !CanEditCarCard;
 
 			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
 			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);
@@ -241,6 +245,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 		
 		public bool CanEdit { get; private set; }
+		public bool CanEditCarCard { get; private set; }
 		
 		public bool AskSaveOnClose { get; private set; }
 		
@@ -307,6 +312,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			get => _canChangeBottlesFromAddress;
 			set => SetField(ref _canChangeBottlesFromAddress, value);
 		}
+		public bool CanEditBottlesFromAddress => CanEditCarCard && CanChangeBottlesFromAddress;
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
 
 		public bool CanChangeCarModel { get; private set; }
@@ -563,16 +569,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		
 		private void SetPermissions()
 		{
-			CanEdit = (Entity.Id == 0 && PermissionResult.CanCreate) || PermissionResult.CanUpdate;
+			var canEditCarCardPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanEditCarCard);
+			CanEdit = (Entity.Id == 0 && PermissionResult.CanCreate)
+				|| (Entity.Id != 0 && (PermissionResult.CanUpdate || canEditCarCardPermission));
+			CanEditCarCard = CanEdit && (Entity.Id == 0 || canEditCarCardPermission);
 			AskSaveOnClose = CanEdit;
 			
 			CanChangeBottlesFromAddress = CommonServices.PermissionService.ValidateUserPresetPermission(
 				LogisticPermissions.Car.CanChangeCarsBottlesFromAddress, CommonServices.UserService.CurrentUserId);
 			
 			CanChangeCarModel =
-				Entity.Id == 0 || CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanChangeCarModel);
+				Entity.Id == 0
+				|| CanEditCarCard
+				|| CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanChangeCarModel);
 			CanEditFuelCardNumber =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanChangeFuelCardNumber);
+				CanEditCarCard
+				|| CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanChangeFuelCardNumber);
 			CanViewFuelCard =
 				CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelCard)).CanUpdate;
 			
