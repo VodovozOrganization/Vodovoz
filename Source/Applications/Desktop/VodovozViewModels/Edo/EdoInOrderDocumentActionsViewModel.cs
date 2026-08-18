@@ -190,6 +190,20 @@ namespace Vodovoz.ViewModels.Edo
 			}
 		}
 
+		private void CreateRefreshDocflowStatusAction(
+			List<BusyCommand> newActions,
+			EdoInOrderDocumentNode document
+			)
+		{
+			if(document.TaskType is EdoTaskType.SaveCode)
+			{
+				newActions.Add(new BusyCommand(
+					"Обновить статус",
+					() => ShowResult(_edoService.UpdateDocflowStatus(document.TaskId))
+				));
+			}
+		}
+
 		private void CreateResendReceiptAction(
 			List<BusyCommand> newActions,
 			EdoInOrderDocumentNode document

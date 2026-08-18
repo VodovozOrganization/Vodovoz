@@ -1,5 +1,6 @@
 ﻿using Core.Infrastructure;
 using Edo.Admin;
+using Edo.Contracts.Messages.Dto;
 using Edo.Contracts.Messages.Events;
 using Edo.Transport;
 using EdoService.Library.Factories;
@@ -15,6 +16,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using TaxcomEdo.Client;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Controllers;
@@ -26,6 +28,7 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Errors.Orders;
 using VodovozBusiness.Errors.Edo;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.Services.Edo;
@@ -40,11 +43,14 @@ namespace EdoService.Library
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
 		private readonly MessageService _messageService;
 		private readonly IUserService _userService;
 		private readonly EdoCancellationService _edoCancellationService;
+		private readonly ITaxcomApiClient  _taxcomApiClient;
+		private readonly IRequestClient<GetDocflowStatusRequest> _requestClient;
 		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
 		private readonly IGenericRepository<OrderEdoTask> _edoTaskRepository;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
@@ -68,11 +74,14 @@ namespace EdoService.Library
 		public EdoService(
 			IUnitOfWorkFactory uowFactory,
 			IOrderRepository orderRepository,
+			IOrganizationRepository organizationRepository,
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			IEdoRepository edoRepository,
 			MessageService messageService,
 			IUserService userService,
 			EdoCancellationService edoCancellationService,
+			ITaxcomApiClient taxcomApiClient,
+			IRequestClient<GetDocflowStatusRequest> requestClient,
 			IGenericRepository<FormalEdoRequest> edoRequestRepository,
 			IGenericRepository<OrderEdoTask> edoTaskRepository,
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
@@ -84,11 +93,14 @@ namespace EdoService.Library
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
+			_taxcomApiClient = taxcomApiClient ?? throw new ArgumentNullException(nameof(taxcomApiClient));
+			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
 			_edoRequestRepository = edoRequestRepository ?? throw new ArgumentNullException(nameof(edoRequestRepository));
 			_edoTaskRepository = edoTaskRepository ?? throw new ArgumentNullException(nameof(edoTaskRepository));
 			_counterpartyEdoAccountEntityController =
@@ -254,9 +266,7 @@ namespace EdoService.Library
 
 		private bool HasCancelledDocflow(IUnitOfWork uow, int edoTaskId)
 		{
-			var orderDocument = uow.Session.QueryOver<OrderEdoDocument>()
-				.Where(x => x.DocumentTaskId == edoTaskId)
-				.SingleOrDefault();
+			var orderDocument = _edoRepository.GetOrderEdoDocumentByTaskId(uow, edoTaskId);
 
 			if(orderDocument != null && CanResendEdoDocument(orderDocument.Status))
 			{
@@ -268,9 +278,7 @@ namespace EdoService.Library
 
 		private bool HasDocflow(IUnitOfWork uow, OrderEdoTask edoTask)
 		{
-			var orderDocument = uow.Session.QueryOver<OrderEdoDocument>()
-				.Where(x => x.DocumentTaskId == edoTask.Id)
-				.SingleOrDefault();
+			var orderDocument = _edoRepository.GetOrderEdoDocumentByTaskId(uow, edoTask.Id);
 
 			if(orderDocument != null)
 			{
@@ -865,6 +873,124 @@ namespace EdoService.Library
 					.GetResult();
 
 				return Result.Success();
+			}
+		}
+
+		public Result<string> UpdateDocflowStatus(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Обновление статуса документооборота из Taxcom"))
+			{
+				var edoTask = uow.Session.Get<OrderEdoTask>(taskId);
+				if(edoTask is null)
+				{
+					return Result.Failure<string>(EdoErrors.NoEdoTask);
+				}
+
+				var order = GetOrderByTaskId(uow, taskId);
+
+				if(order is null)
+				{
+					return Result.Failure<string>(OrderErrors.NotFound);
+				}
+
+				var taxcomDocflow = _edoRepository.GetTaxcomDocflowByTaskId(uow, taskId);
+				if(taxcomDocflow is null)
+				{
+					return Result.Failure<string>(EdoErrors.NoTaxcomDocflow);
+				}
+
+				return UpdateDocflowStatusAsync(uow, taxcomDocflow.DocflowId, order.Contract.Organization.Id)
+					.ConfigureAwait(false)
+					.GetAwaiter()
+					.GetResult();
+
+			}
+		}
+
+		public async Task<Result<string>> UpdateDocflowStatusAsync(
+			IUnitOfWork uow,
+			Guid? docflowId,
+			int organizationId,
+			CancellationToken cancellationToken = default)
+		{
+			if(docflowId.HasValue is false)
+			{
+				return Result.Failure<string>(new Error(
+					"DocflowIdRequired",
+					"ID документооборота не может быть пустым"
+				));
+			}
+
+			if(organizationId <= 0)
+			{
+				return Result.Failure<string>(new Error(
+					"OrganizationIdRequired",
+					"ID организации должен быть больше 0"
+				));
+			}
+
+			try
+			{
+				var org = _organizationRepository.GetOrganizationById(organizationId);
+				if(org is null)
+				{
+					return Result.Failure<string>(new Error(
+						"OrganizationNotFound",
+						$"Организация с ID {organizationId} не найдена"
+					));
+				}
+
+				if(org.TaxcomEdoSettings is null)
+				{
+					return Result.Failure<string>(new Error(
+						"TaxcomSettingsNotFound",
+						$"Taxcom ЭДО настройки не найдены для организации {org.Name}"
+					));
+				}
+
+				var edoAccount = org.TaxcomEdoSettings.EdoAccount;
+				var description = await _taxcomApiClient.GetDocflowStatus(docflowId.ToString(), edoAccount);
+
+				var mainDocument = description.DocFlow.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Definition.Identifiers.ExternalIdentifier))
+					?? throw new InvalidOperationException("Не найден главный документ");
+
+				if(mainDocument is null)
+				{
+					return Result.Failure<string>(new Error(
+						"MainDocumentNotFound",
+						"Главный документ не найден в документообороте"
+					));
+				}
+
+				var docflowUpdatedEvent = new OutgoingTaxcomDocflowUpdatedEvent
+				{
+					DocFlowId = description.DocFlow.Id,
+					EdoAccount = edoAccount,
+					MainDocumentId = mainDocument.Definition.Identifiers.ExternalIdentifier,
+					Status = description.DocFlow.Status,
+					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
+				};
+
+				docflowUpdatedEvent.IsReceived =
+					docflowUpdatedEvent.Status == nameof(EdoDocFlowStatus.Succeed);
+
+				await _bus.Publish(docflowUpdatedEvent, cancellationToken);
+
+				return Result.Success($"Статус документооборота {docflowId} обновлён. Текущий статус: {docflowUpdatedEvent.Status}");
+			}
+			catch(RequestTimeoutException)
+			{
+				return Result.Failure<string>(new Error(
+					"TaxcomTimeout",
+					"Превышено время ожидания ответа от Taxcom (30 сек)"
+				));
+			}
+			catch(Exception ex)
+			{
+				return Result.Failure<string>(new Error(
+					"UpdateDocflowStatusException",
+					$"Ошибка при обновлении статуса: {ex.Message}"
+				));
 			}
 		}
 	}

@@ -219,6 +219,28 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return edoDocuments.ToList();
 		}
 
+		public OrderEdoDocument GetOrderEdoDocumentByTaskId(IUnitOfWork uow, int taskId)
+		{
+			var orderDocument = uow.Session.QueryOver<OrderEdoDocument>()
+				.Where(x => x.DocumentTaskId == taskId)
+				.SingleOrDefault();
+
+			return orderDocument;
+		}
+
+		public TaxcomDocflow GetTaxcomDocflowByTaskId(IUnitOfWork uow, int taskId)
+		{
+			TaxcomDocflow taxcomDocflowAlias = null;
+			OrderEdoDocument orderEdoDocumentAlias = null;
+
+			var taxcomDocflow = uow.Session.QueryOver(() => taxcomDocflowAlias)
+				.Left.JoinAlias(() => taxcomDocflowAlias.EdoDocumentId, () => orderEdoDocumentAlias.Id)
+				.Where(() => orderEdoDocumentAlias.DocumentTaskId == taskId)
+				.SingleOrDefault();
+
+			return taxcomDocflow;
+		}
+
 		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
 			IUnitOfWork uow,
 			int timeoutDays,

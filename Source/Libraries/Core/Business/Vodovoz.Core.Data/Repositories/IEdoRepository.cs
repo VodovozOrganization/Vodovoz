@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
@@ -251,5 +252,21 @@ namespace Vodovoz.Core.Data.Repositories
 			DateTime minCreationTime,
 			ReasonForLeaving? reasonForLeaving = null,
 			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получить документ ЭДО по идентификатору задачи
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Документ ЭДО</returns>
+		OrderEdoDocument GetOrderEdoDocumentByTaskId(IUnitOfWork uow, int taskId);
+
+		/// <summary>
+		/// Получить документооборот Такском по идентификатору задачи
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Документооборот Такском</returns>
+		TaxcomDocflow GetTaxcomDocflowByTaskId(IUnitOfWork uow, int taskId);
 	}
 }
