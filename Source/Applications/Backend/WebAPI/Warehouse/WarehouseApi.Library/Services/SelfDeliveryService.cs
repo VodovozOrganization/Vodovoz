@@ -132,6 +132,12 @@ namespace WarehouseApi.Library.Services
 				return Vodovoz.Errors.Orders.OrderErrors.IsNotSelfDelivery;
 			}
 
+			if(order.OrderStatus != OrderStatus.OnLoading)
+			{
+				_logger.LogWarning($"Заказ с id {order.Id} не находится в статусе OnLoading.");
+				return Vodovoz.Errors.Orders.OrderErrors.CreateNotInOnLoadingStatus(order.Id);
+			}
+
 			var warehouse = _warehouseRepository
 				.Get(_unitOfWork, x => x.Id == warehouseId, 1)
 				.FirstOrDefault();
