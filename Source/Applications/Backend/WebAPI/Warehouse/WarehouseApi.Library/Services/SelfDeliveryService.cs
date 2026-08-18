@@ -151,9 +151,7 @@ namespace WarehouseApi.Library.Services
 				Warehouse = warehouse
 			};
 
-			var defaultBottleNomenclatureId =
-				_nomenclatureRepository.GetDefaultBottleNomenclatureId(_unitOfWork, cancellationToken);
-
+			selfDeliveryDocument.InitializeDefaultValues(_unitOfWork, _nomenclatureRepository);
 			selfDeliveryDocument.FillByOrder();
 			selfDeliveryDocument.UpdateStockAmount(_unitOfWork, _stockRepository);
 			selfDeliveryDocument.UpdateAlreadyUnloaded(_unitOfWork, _nomenclatureRepository, _bottlesRepository);
@@ -363,7 +361,6 @@ namespace WarehouseApi.Library.Services
 
 		public async Task<Result<SelfDeliveryDocument>> EndLoad(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
-			selfDeliveryDocument.InitializeDefaultValues(_unitOfWork, _nomenclatureRepository);
 			selfDeliveryDocument.UpdateOperations(_unitOfWork);
 
 			selfDeliveryDocument.UpdateReceptions(
