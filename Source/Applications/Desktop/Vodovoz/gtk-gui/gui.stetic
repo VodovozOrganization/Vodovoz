@@ -25011,6 +25011,38 @@
                       </packing>
                     </child>
                     <child>
+                      <widget class="Gamma.GtkWidgets.yHBox" id="yhboxDriversExtensionNumber">
+                        <property name="MemberName" />
+                        <property name="Spacing">6</property>
+                        <child>
+                          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelDriversExtensionNumber">
+                            <property name="MemberName" />
+                            <property name="LabelProp" translatable="yes">Доб. Манго</property>
+                          </widget>
+                          <packing>
+                            <property name="Position">0</property>
+                            <property name="AutoSize">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Vodovoz.ViewWidgets.Mango.MangoCallButtonView" id="mangocallbuttonviewDriverExtensionPhone">
+                            <property name="MemberName" />
+                            <property name="Events">ButtonPressMask</property>
+                          </widget>
+                          <packing>
+                            <property name="Position">1</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">False</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="Gtk.Table" id="PhonesTable2">
                         <property name="MemberName" />
                         <property name="NColumns">2</property>
@@ -25024,7 +25056,7 @@
                         </child>
                       </widget>
                       <packing>
-                        <property name="Position">1</property>
+                        <property name="Position">2</property>
                         <property name="AutoSize">True</property>
                       </packing>
                     </child>
@@ -25035,7 +25067,7 @@
                         <property name="LabelProp" translatable="yes">ylabel1</property>
                       </widget>
                       <packing>
-                        <property name="Position">2</property>
+                        <property name="Position">3</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>
