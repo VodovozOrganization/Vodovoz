@@ -61,6 +61,7 @@ using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewModels.Widgets.Mango;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.Orders;
@@ -141,7 +142,8 @@ namespace Vodovoz
 			IRouteListService routeListService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			OrderCancellationService orderCancellationService,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			IMangoCallButtonViewModelFactory mangoCallButtonViewModelFactory
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -184,6 +186,10 @@ namespace Vodovoz
 			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
 			
 			ActiveShifts = _deliveryShiftRepository.ActiveShifts(UoW);
+
+			DriverExtensionCallViewModel =
+				(mangoCallButtonViewModelFactory ?? throw new ArgumentNullException(nameof(mangoCallButtonViewModelFactory)))
+				.CreateForRouteListDriver(UoW, Entity);
 
 			CarViewModel = BuildCarEntryViewModel();
 			DriverViewModel = BuildDriverEntryViewModel();
@@ -265,6 +271,11 @@ namespace Vodovoz
 
         public string BottlesInfo { get; private set; }
 		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; } = new GenericObservableList<RouteListKeepingItemNode>();
+
+		/// <summary>
+		/// Вью-модель кнопки звонка на добавочный номер водителя маршрутного листа
+		/// </summary>
+		public MangoCallButtonViewModel DriverExtensionCallViewModel { get; }
 
 		#region EEVMs
 
