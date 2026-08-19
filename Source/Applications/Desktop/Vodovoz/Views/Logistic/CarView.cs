@@ -23,69 +23,136 @@ namespace Vodovoz.Views.Logistic
 		{
 			notebook1.Page = 0;
 			notebook1.ShowTabs = false;
-			
-			buttonSave.Sensitive = ViewModel.AskSaveOnClose;
 
-			vehicleNumberEntry.Binding.AddBinding(ViewModel.Entity, e => e.RegistrationNumber, w => w.Number).InitializeFromSource();
+			buttonSave.Binding.AddBinding(ViewModel, vm => vm.AskSaveOnClose, w => w.Sensitive).InitializeFromSource();
+
+			vehicleNumberEntry.Binding
+				.AddBinding(ViewModel.Entity, e => e.RegistrationNumber, w => w.Number)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
 
 			entryCarModel.ViewModel = ViewModel.CarModelViewModel;
 
 			entryCarModel.Binding
 				.AddBinding(ViewModel, e => e.CanChangeCarModel, w => w.ViewModel.IsEditable)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
 				.InitializeFromSource();
 
-			orderNumberSpin.Binding.AddBinding(ViewModel.Entity, e => e.OrderNumber, w => w.ValueAsInt).InitializeFromSource();
+			orderNumberSpin.Binding
+				.AddBinding(ViewModel.Entity, e => e.OrderNumber, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
-			yentryVIN.Binding.AddBinding(ViewModel.Entity, e => e.VIN, w => w.Text).InitializeFromSource();
-			yentryManufactureYear.Binding.AddBinding(ViewModel.Entity, e => e.ManufactureYear, w => w.Text).InitializeFromSource();
-			yentryMotorNumber.Binding.AddBinding(ViewModel.Entity, e => e.MotorNumber, w => w.Text).InitializeFromSource();
-			yentryChassisNumber.Binding.AddBinding(ViewModel.Entity, e => e.ChassisNumber, w => w.Text).InitializeFromSource();
-			yentryCarcaseNumber.Binding.AddBinding(ViewModel.Entity, e => e.Carcase, w => w.Text).InitializeFromSource();
-			yentryColor.Binding.AddBinding(ViewModel.Entity, e => e.Color, w => w.Text).InitializeFromSource();
-			yentryDocSeries.Binding.AddBinding(ViewModel.Entity, e => e.DocSeries, w => w.Text).InitializeFromSource();
-			yentryDocNumber.Binding.AddBinding(ViewModel.Entity, e => e.DocNumber, w => w.Text).InitializeFromSource();
-			yentryDocIssuedOrg.Binding.AddBinding(ViewModel.Entity, e => e.DocIssuedOrg, w => w.Text).InitializeFromSource();
-			ydatepickerDocIssuedDate.Binding.AddBinding(ViewModel.Entity, e => e.DocIssuedDate, w => w.DateOrNull).InitializeFromSource();
+			yentryVIN.Binding
+				.AddBinding(ViewModel.Entity, e => e.VIN, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryManufactureYear.Binding
+				.AddBinding(ViewModel.Entity, e => e.ManufactureYear, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryMotorNumber.Binding
+				.AddBinding(ViewModel.Entity, e => e.MotorNumber, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryChassisNumber.Binding
+				.AddBinding(ViewModel.Entity, e => e.ChassisNumber, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryCarcaseNumber.Binding
+				.AddBinding(ViewModel.Entity, e => e.Carcase, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryColor.Binding
+				.AddBinding(ViewModel.Entity, e => e.Color, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryDocSeries.Binding
+				.AddBinding(ViewModel.Entity, e => e.DocSeries, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryDocNumber.Binding
+				.AddBinding(ViewModel.Entity, e => e.DocNumber, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryDocIssuedOrg.Binding
+				.AddBinding(ViewModel.Entity, e => e.DocIssuedOrg, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			ydatepickerDocIssuedDate.Binding
+				.AddBinding(ViewModel.Entity, e => e.DocIssuedDate, w => w.DateOrNull)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
 
 			yenumcomboboxArchivingReason.ItemsEnum = typeof(ArchivingReason);
 			yenumcomboboxArchivingReason.Binding.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.ArchivingReason, w => w.SelectedItemOrNull)
 				.AddBinding(e => e.IsArchive, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ylabelArchivingReason.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Visible)
 				.InitializeFromSource();
 
-			yentryPTSNum.Binding.AddBinding(ViewModel.Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
-			yentryPTSSeries.Binding.AddBinding(ViewModel.Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
+			yentryPTSNum.Binding
+				.AddBinding(ViewModel.Entity, e => e.DocPTSNumber, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryPTSSeries.Binding
+				.AddBinding(ViewModel.Entity, e => e.DocPTSSeries, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
 
 			entryDriver.ViewModel = ViewModel.DriverViewModel;
+			entryDriver.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			textDriverInfo.Binding.AddBinding(ViewModel, vm => vm.DriverInfoText, w => w.Text).InitializeFromSource();
 
 			entryFuelType.ViewModel = ViewModel.FuelTypeViewModel;
+			entryFuelType.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.ViewModel.IsEditable)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
 
 			radiobuttonMain.Active = true;
 
-			minBottlesSpin.Binding.AddBinding(ViewModel.Entity, e => e.MinBottles, w => w.ValueAsInt).InitializeFromSource();
-			maxBottlesSpin.Binding.AddBinding(ViewModel.Entity, e => e.MaxBottles, w => w.ValueAsInt).InitializeFromSource();
-			minBottlesFromAddressSpin.Binding.AddBinding(ViewModel.Entity, e => e.MinBottlesFromAddress, w => w.ValueAsInt).InitializeFromSource();
-			maxBottlesFromAddressSpin.Binding.AddBinding(ViewModel.Entity, e => e.MaxBottlesFromAddress, w => w.ValueAsInt).InitializeFromSource();
+			minBottlesSpin.Binding
+				.AddBinding(ViewModel.Entity, e => e.MinBottles, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			maxBottlesSpin.Binding
+				.AddBinding(ViewModel.Entity, e => e.MaxBottles, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.InitializeFromSource();
+			minBottlesFromAddressSpin.Binding
+				.AddBinding(ViewModel.Entity, e => e.MinBottlesFromAddress, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanEditBottlesFromAddress, w => w.Sensitive)
+				.InitializeFromSource();
+			maxBottlesFromAddressSpin.Binding
+				.AddBinding(ViewModel.Entity, e => e.MaxBottlesFromAddress, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanEditBottlesFromAddress, w => w.Sensitive)
+				.InitializeFromSource();
 
 			photoviewCar.Binding
 				.AddBinding(ViewModel, vm => vm.Photo, w => w.ImageFile)
 				.AddBinding(ViewModel, vm => vm.PhotoFilename, w => w.FileName)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			attachedfileinformationsview1.InitializeViewModel(ViewModel.AttachedFileInformationsViewModel);
 
 			checkIsArchive.Binding
 				.AddBinding(ViewModel, e => e.IsArchive, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ycheckbuttonUsedInDelivery.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsUsedInDelivery, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ylabelArchivingDate.Binding
@@ -96,12 +163,10 @@ namespace Vodovoz.Views.Logistic
 				.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.ArchivingDate, w => w.DateOrNull)
 				.AddFuncBinding(e => e.ArchivingDate != null, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
 			textDriverInfo.Selectable = true;
-
-			minBottlesFromAddressSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeBottlesFromAddress, w => w.Sensitive).InitializeFromSource();
-			maxBottlesFromAddressSpin.Binding.AddBinding(ViewModel, vm => vm.CanChangeBottlesFromAddress, w => w.Sensitive).InitializeFromSource();
 
 			yTreeGeographicGroups.Selection.Mode = Gtk.SelectionMode.Single;
 			yTreeGeographicGroups.ColumnsConfig = FluentColumnsConfig<GeoGroup>.Create()
@@ -123,12 +188,13 @@ namespace Vodovoz.Views.Logistic
 			btnRemoveGeographicGroup.Clicked += OnBtnRemoveGeographicGroupClicked;
 
 			btnAddGeographicGroup.Clicked += (s, e) => ViewModel.AddGeoGroupCommand.Execute();
-			ViewModel.AddGeoGroupCommand.CanExecuteChanged += (s, e) => btnAddGeographicGroup.Sensitive = ViewModel.AddGeoGroupCommand.CanExecute();
-			ViewModel.AddGeoGroupCommand.RaiseCanExecuteChanged();
+			btnAddGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive).InitializeFromSource();
+			btnRemoveGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive).InitializeFromSource();
 
 			yentryCarTechnicalCheckup.Binding
 				.AddBinding(ViewModel, vm => vm.LastCarTechnicalCheckupDate, w => w.Text)
 				.InitializeFromSource();
+			yvboxTechInspectInfo.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			yentryPreviousTechInspectDate.Binding
 				.AddBinding(ViewModel, vm => vm.PreviousTechInspectDate, w => w.Text)
@@ -152,17 +218,13 @@ namespace Vodovoz.Views.Logistic
 			speciallistcomboboxIncomeChannel.ItemsList = Enum.GetValues(typeof(IncomeChannel));
 			speciallistcomboboxIncomeChannel.Binding
 				.AddBinding(ViewModel.Entity, e => e.IncomeChannel, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
 				.InitializeFromSource();
 			
-			if(!ViewModel.CanEdit)
-			{
-				vboxMain.Sensitive = false;
-				vboxGeographicGroups.Sensitive = false;
-				attachedfileinformationsview1.Sensitive = false;
-			}
-
 			ybuttonOpenCarAcceptanceCertificate.BindCommand(ViewModel.CreateCarAcceptanceCertificateCommand);
 			ybuttonCreateRentalContract.BindCommand(ViewModel.CreateRentalContractCommand);
+			ybuttonOpenCarAcceptanceCertificate.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ybuttonCreateRentalContract.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
