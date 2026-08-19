@@ -57,6 +57,8 @@ namespace Vodovoz.Views.Logistic
 			
 			//Заполняем телефоны
 			FillPhones();
+
+			mangocallbuttonviewDriverExtensionPhone.ViewModel = ViewModel.DriverExtensionCallViewModel;
 			
 			//Заполняем информацию о бутылях
 			UpdateBottlesSummaryInfo();

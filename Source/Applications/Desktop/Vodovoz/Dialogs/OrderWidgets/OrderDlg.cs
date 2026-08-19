@@ -155,6 +155,7 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using Vodovoz.ViewModels.Widgets.Mango;
 using Vodovoz.ViewModels.Widgets.Orders;
 using Vodovoz.Views.Edo;
 using VodovozBusiness.Controllers;
@@ -1194,6 +1195,8 @@ namespace Vodovoz
 
 			SetOrderItemDiscountReasonsViewModel();
 
+			SetDriverExtensionCallViewModel();
+
 			UpdateUIState();
 
 			yChkActionBottle.Toggled += (sender, e) =>
@@ -1263,6 +1266,13 @@ namespace Vodovoz
 			RefreshDebtorDebtNotifier();
 
 			UpdateDocumentsDescription();
+		}
+
+		private void SetDriverExtensionCallViewModel()
+		{
+			mangocallbuttonviewDriverExtensionPhone.ViewModel = _lifetimeScope
+				.Resolve<IMangoCallButtonViewModelFactory>()
+				.CreateForOrderDriver(UoW, Entity);
 		}
 
 		private void SetOrderItemDiscountReasonsViewModel()

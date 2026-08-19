@@ -1202,7 +1202,9 @@
     <Compile Include="Widgets\Cash\VatRateOrganizationVersionViewModel.cs" />
     <Compile Include="Dialogs\Mango\Talks\DriverForwardingOrderNode.cs" />
     <Compile Include="Dialogs\Mango\Talks\DriverForwardingOrderSelectionViewModel.cs" />
+    <Compile Include="Widgets\Mango\IMangoCallButtonViewModelFactory.cs" />
     <Compile Include="Widgets\Mango\MangoCallButtonViewModel.cs" />
+    <Compile Include="Widgets\Mango\MangoCallButtonViewModelFactory.cs" />
     <Compile Include="Widgets\OrderDateFilterViewModel.cs" />
     <Compile Include="Widgets\Goods\NomenclatureMinimumBalanceByWarehouseViewModel.cs" />
     <Compile Include="Widgets\Orders\OrderItemDiscountReasonsViewModel.cs" />
