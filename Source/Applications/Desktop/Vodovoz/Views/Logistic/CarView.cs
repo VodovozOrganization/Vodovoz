@@ -223,8 +223,8 @@ namespace Vodovoz.Views.Logistic
 			
 			ybuttonOpenCarAcceptanceCertificate.BindCommand(ViewModel.CreateCarAcceptanceCertificateCommand);
 			ybuttonCreateRentalContract.BindCommand(ViewModel.CreateRentalContractCommand);
-			ybuttonOpenCarAcceptanceCertificate.Binding.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive).InitializeFromSource();
-			ybuttonCreateRentalContract.Binding.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive).InitializeFromSource();
+			ybuttonOpenCarAcceptanceCertificate.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ybuttonCreateRentalContract.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
