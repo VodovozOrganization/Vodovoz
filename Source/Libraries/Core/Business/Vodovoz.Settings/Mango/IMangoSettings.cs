@@ -22,11 +22,6 @@ namespace Vodovoz.Settings.Mango
 		string DriversCallsLineNumber { get; }
 
 		/// <summary>
-		/// URL для совершения звонков через вебхук Манго
-		/// </summary>
-		string WebhookCallsUrl { get; }
-
-		/// <summary>
 		/// Базовый URL API ВАТС Манго
 		/// </summary>
 		string VpbxApiUrl { get; }
@@ -57,9 +52,9 @@ namespace Vodovoz.Settings.Mango
 		int DriverMangoExtensionNumberPoolEnd { get; }
 
 		/// <summary>
-		/// Включена ли работа воркера регистрации водителей в Манго
+		/// Таймаут ожидания звонка водителем в секундах
 		/// </summary>
-		bool DriverMangoEmployeeRegistrationWorkerEnabled { get; }
+		int DriversCallTimeOut { get; }
 
 		/// <summary>
 		/// Включена ли работа воркера деактивации сотрудников Манго
@@ -87,8 +82,34 @@ namespace Vodovoz.Settings.Mango
 		DateTime DriverMangoEmployeeDeactivationLastRunDate { get; }
 
 		/// <summary>
+		/// Включён ли сервис создания карточек сотрудников Манго для водителей
+		/// </summary>
+		bool DriverMangoEmployeeRegistrationEnabled { get; }
+
+		/// <summary>
+		/// Дата и время последнего изменения настройки включения сервиса создания карточек сотрудников Манго
+		/// </summary>
+		DateTime DriverMangoEmployeeRegistrationEnabledChangedAt { get; }
+
+		/// <summary>
+		/// Минимальный интервал между переключениями сервиса создания карточек сотрудников Манго
+		/// </summary>
+		TimeSpan DriverMangoEmployeeRegistrationSwitchTimeout { get; }
+
+		/// <summary>
+		/// Сервис создания карточек сотрудников Манго включён и воркер деактивации отработал после его включения,
+		/// то есть наступили следующие сутки после включения
+		/// </summary>
+		bool IsDriverMangoEmployeeRegistrationActive { get; }
+
+		/// <summary>
 		/// Сохраняет дату последнего запуска воркера удаления сотрудников (водителей) в Манго
 		/// </summary>
 		void UpdateDriverMangoEmployeeDeactivationLastRunDate(DateTime lastRunDate);
+
+		/// <summary>
+		/// Сохраняет статус включения сервиса создания карточек сотрудников Манго и время изменения настройки
+		/// </summary>
+		void UpdateDriverMangoEmployeeRegistrationEnabled(bool enabled, DateTime changedAt);
 	}
 }

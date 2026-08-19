@@ -10,7 +10,7 @@ namespace Vodovoz.Core.Domain.Permissions
 		[Display(
 			Name = "Перенос отклоненных кодов Честного знака из отмененного заказа",
 			Description = "Пользователь может переносить отклоненные коды Честного знака из отмененного заказа")]
-		public static string CanTransferRejectedCodesFromCanceledOrder =>
-			nameof(CanTransferRejectedCodesFromCanceledOrder);
+		public static string CanReuseRejectedCodesFromCanceledOrder =>
+			"can_reuse_rejected_codes_from_canceled_order";
 	}
 }

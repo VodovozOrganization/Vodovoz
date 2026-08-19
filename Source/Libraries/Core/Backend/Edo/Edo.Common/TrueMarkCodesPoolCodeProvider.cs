@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using NHibernate.Linq;
+using QS.DomainModel.UoW;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
@@ -24,13 +26,15 @@ namespace Edo.Common
 		private readonly IEdoSettings _edoSettings;
 		private readonly ILogger<TrueMarkCodesPoolCodeProvider> _logger;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
+		private readonly IEdoRepository _edoRepository;
 
 		public TrueMarkCodesPoolCodeProvider(
 			IUnitOfWork uow,
 			ITrueMarkCodesValidator trueMarkCodesValidator,
 			IEdoSettings edoSettings,
 			ILogger<TrueMarkCodesPoolCodeProvider> logger,
-			ITrueMarkCodeRepository trueMarkCodeRepository
+			ITrueMarkCodeRepository trueMarkCodeRepository,
+			IEdoRepository edoRepository
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -38,6 +42,7 @@ namespace Edo.Common
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 		}
 
 		public async Task<TrueMarkWaterIdentificationCode> TakeValidCodeAsync(
@@ -110,13 +115,13 @@ namespace Edo.Common
 					var code = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken) 
 						?? throw new InvalidOperationException($"Не найден код ЧЗ с Id {codeId}, полученный из пула.");
 
-					if(IsCodeAlreadyUsedAsResult(code.Id))
+					if(await IsCodeAlreadyUsedAsResultCodeAsync(code.Id, cancellationToken))
 					{
 						_logger.LogWarning(
-							"Код ЧЗ Id {CodeId} из пула уже используется как result_code в true_mark_product_codes " +
-							"(некорректно остался в пуле). Код исключён из пула, попытка: {Attempt}/{AttemptsLimit}.",
-							code.Id, attempt, takeValidCodeAttempts);
-
+							"Код ЧЗ Id {CodeId} из пула уже используется в true_mark_product_codes. Код не возвращается в пул. Попытка: {Attempt}/{AttemptsLimit}.",
+							code.Id,
+							attempt,
+							takeValidCodeAttempts);
 						continue;
 					}
 
@@ -224,7 +229,6 @@ namespace Edo.Common
 					allTakenCodes[gtinCodes.Key].AddRange(gtinCodes.Value);
 				}
 
-
 				if(validCodesByGtin is null || !validCodesByGtin.Any())
 				{
 					_logger.LogInformation("Не получено валидных кодов на попытке {Attempt}.", attempt);
@@ -282,8 +286,9 @@ namespace Edo.Common
 
 			foreach(var remainingCount in remainingCounts)
 			{
-				var gtin = remainingCount.Key;
+				var gtinNumber = remainingCount.Key;
 				var needed = remainingCount.Value;
+				var gtin = await _edoRepository.GetGtinByGtinNumberAsync(gtinNumber, cancellationToken);
 				var collectedForGtin = new List<TrueMarkWaterIdentificationCode>();
 				var takenForGtin = new List<TrueMarkWaterIdentificationCode>();
 				var attemptsForGtin = 0;
@@ -296,17 +301,17 @@ namespace Edo.Common
 
 					try
 					{
-						var codeIds = await codesPool.TakeCodes(gtin, remainingForGtin, cancellationToken);
+						var codeIds = await codesPool.TakeCodes(gtinNumber, remainingForGtin, cancellationToken);
 
 						if(!codeIds.Any())
 						{
-							_logger.LogWarning("В пуле не найдены коды для GTIN {Gtin} (попытка {Attempt}).", gtin, attempt);
+							_logger.LogWarning("В пуле не найдены коды для GTIN {Gtin} (попытка {Attempt}).", gtinNumber, attempt);
 							break;
 						}
 
 						_logger.LogInformation(
 							"Для GTIN {Gtin} получено {Count} кодов для проверки (попытка {Attempt}).",
-							gtin,
+							gtinNumber,
 							codeIds.Count,
 							attempt);
 
@@ -322,17 +327,26 @@ namespace Edo.Common
 							organizationInn,
 							cancellationToken);
 
-						var validCodes = validationResult.CodeResults
-							.Where(r => r.IsValid)
-							.Select(r => r.Code)
-							.Where(c => !IsCodeAlreadyUsedAsResult(c.Id))
-							.ToList();
+						var validCodes = new List<TrueMarkWaterIdentificationCode>();
+
+						foreach(var codeResult in validationResult.CodeResults.Where(r => r.IsValid))
+						{
+							if(await IsCodeAlreadyUsedAsResultCodeAsync(codeResult.Code.Id, cancellationToken))
+							{
+								_logger.LogWarning(
+									"Код ЧЗ Id {CodeId} из пула уже используется в true_mark_product_codes и не будет использован. Код не возвращается в пул.",
+									codeResult.Code.Id);
+								continue;
+							}
+
+							validCodes.Add(codeResult.Code);
+						}
 
 						collectedForGtin.AddRange(validCodes);
 
 						_logger.LogInformation(
 							"Для GTIN {Gtin} собрано {CollectedCount} валидных кодов из {Needed}.",
-							gtin,
+							gtinNumber,
 							collectedForGtin.Count,
 							needed);
 
@@ -343,23 +357,24 @@ namespace Edo.Common
 					}
 					catch(EdoCodePoolMissingCodeException ex)
 					{
-						_logger.LogWarning(
-							"Не удалось получить коды для GTIN {Gtin} (попытка {Attempt}): {Error}",
-							gtin,
-							attempt,
-							ex.Message);
-						break;
+						throw new EdoProblemException(ex, new[]
+						{
+							new EdoProblemGtinItem
+							{
+								Gtin = gtin
+							}
+						});
 					}
 				}
 
 				if(collectedForGtin.Any())
 				{
-					validCodesResult[gtin] = collectedForGtin;
+					validCodesResult[gtinNumber] = collectedForGtin;
 				}
 
 				if(takenForGtin.Any())
 				{
-					takenCodesResult[gtin] = takenForGtin;
+					takenCodesResult[gtinNumber] = takenForGtin;
 				}
 			}
 
@@ -418,6 +433,14 @@ namespace Edo.Common
 		{
 			foreach(var code in codes)
 			{
+				if(await IsCodeAlreadyUsedAsResultCodeAsync(code.Id, cancellationToken))
+				{
+					_logger.LogWarning(
+						"Код ЧЗ Id {CodeId} уже используется в true_mark_product_codes и не возвращается в пул.",
+						code.Id);
+					continue;
+				}
+
 				await codesPool.PutCodeAsync(code.Id, cancellationToken);
 			}
 
@@ -425,6 +448,17 @@ namespace Edo.Common
 				"Для GTIN {Gtin} {CodeCount} кодов возвращено в пул.",
 				gtin,
 				codes.Count);
+		}
+
+		private async Task<bool> IsCodeAlreadyUsedAsResultCodeAsync(int identificationCodeId, CancellationToken cancellationToken)
+		{
+			return await _uow.Session.Query<TrueMarkProductCode>()
+				.AnyAsync(
+					x => x.ResultCode != null
+						&& x.ResultCode.Id == identificationCodeId
+						&& (x.SourceCodeStatus == SourceProductCodeStatus.Accepted
+							|| x.SourceCodeStatus == SourceProductCodeStatus.Changed),
+					cancellationToken);
 		}
 
 		private async Task<Result<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>>> BuildResult(

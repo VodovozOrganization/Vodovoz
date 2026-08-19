@@ -17,6 +17,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -40,6 +41,40 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			{
 				var result = await uow.Session.QueryOver<OrganizationEntity>()
 					.Where(x => x.OrganizationEdoType != OrganizationEdoType.WithoutEdo)
+					.ListAsync(cancellationToken);
+
+				return result;
+			}
+		}
+
+		public async Task<IEnumerable<GtinEntity>> GetGtinsAsync(CancellationToken cancellationToken)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var result = await uow.Session.QueryOver<GtinEntity>()
+					.OrderBy(g => g.Priority).Asc
+					.ListAsync(cancellationToken);
+
+				return result;
+			}
+		}
+
+		public async Task<GtinEntity> GetGtinByGtinNumberAsync(string gtinNumber, CancellationToken cancellationToken = default)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var result = await uow.Session.QueryOver<GtinEntity>()
+					.Where(g => g.GtinNumber == gtinNumber)
+					.SingleOrDefaultAsync(cancellationToken);
+				return result;
+			}
+		}
+
+		public async Task<IEnumerable<GroupGtinEntity>> GetGroupGtinsAsync(CancellationToken cancellationToken)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var result = await uow.Session.QueryOver<GroupGtinEntity>()
 					.ListAsync(cancellationToken);
 
 				return result;
@@ -562,6 +597,7 @@ select
 	ecr.`time` as :request_time,
 	ecr.id as :request_id,
 	ecr.source as :request_source,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = ecr.author_id) as :manual_request_author,
 	null as :order_document_type,
 	et.id as :task_id,
 	et.`type` as :task_type,
@@ -573,6 +609,7 @@ select
 	(select count(*) from true_mark_product_codes tmpc 
 		left join edo_order_task_items eoti on eoti.product_code_id = tmpc.id
 		where eoti.order_edo_task_id = et.id) as :codes_used_in_task,
+	et.cancellation_reason as :cancellation_reason,
 	eod.status as :edo_document_status
 from edo_customer_requests ecr
 left join edo_tasks et on et.id = ecr.order_task_id
@@ -584,6 +621,7 @@ select
 	eir.`time` as :request_time,
 	eir.id as :request_id,
 	eir.source as :request_source,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = eir.author_id) as :manual_request_author,
 	eir.order_document_type as :order_document_type,
 	et.id as :task_id,
 	et.`type` as :task_type,
@@ -593,7 +631,8 @@ select
 	null as :task_tender_stage,
 	null as :codes_count_in_request,
 	null as :codes_used_in_task,
-	eod.status as :edo_document_status
+	eod.status as :edo_document_status,
+	et.cancellation_reason as :cancellation_reason
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
 left join edo_outgoing_documents eod on eod.document_task_id = et.id
@@ -607,6 +646,7 @@ where eir.order_id = :order_id
 				.Map("request_time", x => x.RequestTime, NHibernateUtil.DateTime)
 				.Map("request_id", x => x.RequestId, NHibernateUtil.Int32)
 				.Map("request_source", x => x.RequestSource, new EnumStringType<EdoRequestSource>())
+				.Map("manual_request_author", x => x.ManualRequestAuthor, NHibernateUtil.String)
 				.Map("order_document_type", x => x.InformalOrderDocumentType, new EnumStringType<OrderDocumentType>())
 				.Map("task_id", x => x.TaskId, NHibernateUtil.Int32)
 				.Map("task_type", x => x.TaskType, new EnumStringType<EdoTaskType>())
@@ -617,6 +657,7 @@ where eir.order_id = :order_id
 				.Map("codes_count_in_request", x => x.CodesInRequest, NHibernateUtil.Int32)
 				.Map("codes_used_in_task", x => x.CodesUsedInTask, NHibernateUtil.Int32)
 				.Map("edo_document_status", x => x.EdoDocumentStatus, new EnumStringType<EdoDocumentStatus>())
+				.Map("cancellation_reason", x => x.CancellationReason, NHibernateUtil.String)
 				.SetResultTransformer();
 
 			query.SetParameter("order_id", orderId);

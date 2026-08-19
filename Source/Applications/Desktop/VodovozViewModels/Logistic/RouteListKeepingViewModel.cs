@@ -627,7 +627,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var request = CreateOrderRequest(rli, rli.RouteListItem.TrueMarkCodes);
+			var request = CreateOrderRequest(UoW, rli, rli.RouteListItem.TrueMarkCodes);
 			UpdateCreatedEdoRequests(request, addressStatus);
 		}
 
@@ -1100,7 +1100,8 @@ namespace Vodovoz
 			}
 		}
 
-		private static PrimaryEdoRequest CreateOrderRequest(
+		private PrimaryEdoRequest CreateOrderRequest(
+			IUnitOfWork uow,
 			RouteListKeepingItemNode item,
 			IObservableList<RouteListItemTrueMarkProductCode> codes)
 		{
@@ -1111,7 +1112,8 @@ namespace Vodovoz
 				Time = DateTime.Now,
 				DocumentType = EdoDocumentType.UPD,
 				Type = CustomerEdoRequestType.Order,
-				ProductCodes = new ObservableList<TrueMarkProductCode>(codes)
+				ProductCodes = new ObservableList<TrueMarkProductCode>(codes),
+				Author = _employeeRepository.GetEmployeeForCurrentUser(uow)
 			};
 		}
 

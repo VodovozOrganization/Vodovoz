@@ -85,6 +85,10 @@ namespace Vodovoz.Views.Edo
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.CodesQuantityString)
 					.XAlign(0.5f)
+				.AddColumn("Причина отмены")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.CancellationReason)
+					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 			ytreeviewDocuments.Selection.Mode = Gtk.SelectionMode.Single;
@@ -141,6 +145,9 @@ namespace Vodovoz.Views.Edo
 				.AddBinding(vm => vm.SelectedProblem, w => w.SelectedRow)
 				.InitializeFromSource();
 
+			textViewProblemMessage.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ProblemMessage, w => w.Buffer.Text)
+				.InitializeFromSource();
 			textViewProblemDescription.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ProblemDescription, w => w.Buffer.Text)
 				.InitializeFromSource();
@@ -172,6 +179,8 @@ namespace Vodovoz.Views.Edo
 			radiobuttonDocuments.Click();
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+
+			UpdateProblemsTab();
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)

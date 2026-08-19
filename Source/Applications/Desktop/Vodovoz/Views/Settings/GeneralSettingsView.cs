@@ -136,6 +136,8 @@ namespace Vodovoz.Views.Settings
 
 			ConfigureMaxDailyFuelLimits();
 
+			ConfigureDriversMangoEmployeesSettings();
+
 			#endregion Вкладка Логистика
 
 			#region Вкладка Рекламации
@@ -689,6 +691,17 @@ namespace Vodovoz.Views.Settings
 				.InitializeFromSource();
 			
 			ybuttonSaveMaxDailyFuelLimits.BindCommand(ViewModel.SaveDailyFuelLimitsCommand);
+		}
+
+		private void ConfigureDriversMangoEmployeesSettings()
+		{
+			yhboxDriversMangoEmployeesSettings.Sensitive = ViewModel.CanEditDriverMangoEmployeeRegistrationSettings;
+
+			ycheckbuttonIsDriverMangoEmployeeRegistrationEnabled.Binding
+				.AddBinding(ViewModel, vm => vm.IsDriverMangoEmployeeRegistrationEnabled, w => w.Active)
+				.InitializeFromSource();
+
+			ybuttonSaveDriversMangoEmployeesSettings.BindCommand(ViewModel.SaveDriverMangoEmployeeRegistrationSettingsCommand);
 		}
 
 		private void ConfigureInsuranceNotificationsSettings()

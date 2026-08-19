@@ -1,5 +1,4 @@
-using Edo.Common;
-using Edo.Common.Services;
+﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Documents.Services;
 using Edo.Problems;
@@ -11,8 +10,8 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Common.Services;
 using TrueMark.Codes.Pool;
-using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
@@ -125,9 +124,12 @@ namespace Edo.Documents
 						}
 						else
 						{
+							var productCode = codeResult.EdoTaskItem.ProductCode;
+							var gtinNumber = productCode.ResultCode?.Gtin ?? productCode.SourceCode?.Gtin;
+
 							var gtin = (
 									from gtinEntity in _uow.Session.Query<GtinEntity>()
-									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.Gtin
+									where gtinEntity.GtinNumber == gtinNumber
 									select gtinEntity
 								)
 								.FirstOrDefault();

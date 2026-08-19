@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
@@ -14,21 +15,26 @@ namespace VodovozBusiness.Services.TrueMark
 	/// <summary>
 	/// Сервис переноса отклоненных кодов маркировки из отмененного заказа в другой заказ.
 	/// </summary>
-	public class CancelledOrderTrueMarkCodesTransferService : ICancelledOrderTrueMarkCodesTransferService
+	public class CancelledOrderTrueMarkCodesReuseService : ICancelledOrderTrueMarkCodesReuseService
 	{
 		private readonly ITrueMarkRepository _trueMarkRepository;
+		private readonly IManualEdoRequestFactory _manualEdoRequestFactory;
 
 		/// <summary>
 		/// Создает экземпляр сервиса переноса отклоненных кодов маркировки.
 		/// </summary>
 		/// <param name="trueMarkRepository">Репозиторий кодов маркировки</param>
-		public CancelledOrderTrueMarkCodesTransferService(ITrueMarkRepository trueMarkRepository)
+		public CancelledOrderTrueMarkCodesReuseService(
+			ITrueMarkRepository trueMarkRepository,
+			IManualEdoRequestFactory manualEdoRequestFactory
+		)
 		{
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
+			_manualEdoRequestFactory = manualEdoRequestFactory ?? throw new ArgumentNullException(nameof(manualEdoRequestFactory));
 		}
 
 		/// <inheritdoc />
-		public Result<CancelledOrderTrueMarkCodesTransferResult> TransferCodes(
+		public Result<CancelledOrderTrueMarkCodesReuseResult> ReuseCodes(
 			IUnitOfWork uow,
 			int sourceOrderId,
 			int targetOrderId)
@@ -42,7 +48,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(validationResult.IsFailure)
 			{
-				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
+				return Result.Failure<CancelledOrderTrueMarkCodesReuseResult>(validationResult.Errors);
 			}
 
 			var sourceOrder = uow.GetById<Order>(sourceOrderId);
@@ -52,7 +58,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(validationResult.IsFailure)
 			{
-				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
+				return Result.Failure<CancelledOrderTrueMarkCodesReuseResult>(validationResult.Errors);
 			}
 
 			var sourceProductCodes = _trueMarkRepository.GetRejectedProductCodesByOrder(uow, sourceOrderId);
@@ -61,25 +67,26 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(validationResult.IsFailure)
 			{
-				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
+				return Result.Failure<CancelledOrderTrueMarkCodesReuseResult>(validationResult.Errors);
 			}
 
 			validationResult = ValidateTargetOrderItems(uow, targetOrder, sourceProductCodes);
 
 			if(validationResult.IsFailure)
 			{
-				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
+				return Result.Failure<CancelledOrderTrueMarkCodesReuseResult>(validationResult.Errors);
 			}
 
-			var createdProductCodes = CreateProductCodes(sourceProductCodes);
-			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, createdProductCodes);
+			ClearSourceProductCodeResults(uow, sourceProductCodes);
+			var productCodesForReuse = CreateProductCodesForReuse(sourceProductCodes);
+			var edoRequest = _manualEdoRequestFactory.Create(uow, targetOrder, productCodesForReuse);
 			uow.Save(edoRequest);
 
-			return Result.Success(new CancelledOrderTrueMarkCodesTransferResult
+			return Result.Success(new CancelledOrderTrueMarkCodesReuseResult
 			{
 				TargetOrderId = targetOrderId,
 				EdoRequestId = edoRequest.Id,
-				TransferredCodesCount = createdProductCodes.Count
+				ReusedCodesCount = sourceProductCodes.Count
 			});
 		}
 
@@ -99,7 +106,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(sourceOrderId == targetOrderId)
 			{
-				errors.Add(EdoErrors.SameTransferOrder);
+				errors.Add(EdoErrors.SameSourceAndTargetOrder);
 			}
 
 			return errors.Any() ? Result.Failure(errors) : Result.Success();
@@ -154,13 +161,36 @@ namespace VodovozBusiness.Services.TrueMark
 				uow,
 				sourceCodeIds,
 				excludedProductCodeIds);
-			
-			if(usedProductCodes.Any())
+
+			if(!usedProductCodes.Any())
 			{
-				return EdoErrors.ProductCodesAlreadyUsed;
+				return Result.Success();
 			}
 
-			return Result.Success();
+			var orderId = usedProductCodes
+				.Select(GetProductCodeOrderId)
+				.Where(x => x > 0)
+				.FirstOrDefault();
+
+			return orderId > 0
+				? TrueMarkCodeErrors.CreateTrueMarkCodeIsAlreadyUsedInOrder(orderId)
+				: EdoErrors.ProductCodesAlreadyUsed;
+
+		}
+
+		private static int GetProductCodeOrderId(TrueMarkProductCode productCode)
+		{
+			switch(productCode)
+			{
+				case RouteListItemTrueMarkProductCode routeListProductCode:
+					return routeListProductCode.RouteListItem?.Order?.Id ?? 0;
+				case CarLoadDocumentItemTrueMarkProductCode carLoadProductCode:
+					return carLoadProductCode.CarLoadDocumentItem?.OrderId ?? 0;
+				case SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryProductCode:
+					return selfDeliveryProductCode.SelfDeliveryDocumentItem?.Document?.Order?.Id ?? 0;
+				default:
+					return productCode.CustomerEdoRequest?.Order?.Id ?? 0;
+			}
 		}
 
 		private Result ValidateTargetOrderItems(
@@ -223,22 +253,38 @@ namespace VodovozBusiness.Services.TrueMark
 			int orderItemId) =>
 			assignedProductCodesCountByOrderItemId.TryGetValue(orderItemId, out var count) ? count : 0;
 
-		private static IList<TrueMarkProductCode> CreateProductCodes(
+		private static IList<TrueMarkProductCode> CreateProductCodesForReuse(
 			IList<TrueMarkProductCode> sourceProductCodes)
 		{
+			var productCodesForReuse = new List<TrueMarkProductCode>();
 			var now = DateTime.Now;
 
-			return sourceProductCodes
-				.Select(sourceProductCode => (TrueMarkProductCode)new AutoTrueMarkProductCode
+			foreach(var sourceProductCode in sourceProductCodes)
+			{
+				var codeForReuse = sourceProductCode.SourceCode;
+
+				productCodesForReuse.Add(new AutoTrueMarkProductCode
 				{
 					CreationTime = now,
 					LastModified = now,
-					SourceCode = sourceProductCode.SourceCode,
-					ResultCode = sourceProductCode.SourceCode,
-					SourceCodeStatus = SourceProductCodeStatus.Accepted,
+					SourceCode = codeForReuse,
+					SourceCodeStatus = SourceProductCodeStatus.New,
 					Problem = ProductCodeProblem.None
-				})
-				.ToList();
+				});
+			}
+
+			return productCodesForReuse;
+		}
+
+		private static void ClearSourceProductCodeResults(
+			IUnitOfWork uow,
+			IEnumerable<TrueMarkProductCode> sourceProductCodes)
+		{
+			foreach(var sourceProductCode in sourceProductCodes)
+			{
+				sourceProductCode.ResultCode = null;
+				uow.Save(sourceProductCode);
+			}
 		}
 	}
 }
