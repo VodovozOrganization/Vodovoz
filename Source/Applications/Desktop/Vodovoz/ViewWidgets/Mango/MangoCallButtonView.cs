@@ -1,5 +1,4 @@
-using QS.Views.GtkUI;
-using System;
+﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Widgets.Mango;
 
 namespace Vodovoz.ViewWidgets.Mango
@@ -7,25 +6,34 @@ namespace Vodovoz.ViewWidgets.Mango
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MangoCallButtonView : WidgetViewBase<MangoCallButtonViewModel>
 	{
-		public MangoCallButtonView(MangoCallButtonViewModel viewModel) : base(viewModel)
+		public MangoCallButtonView()
 		{
-			this.Build();
-			Configure();
+			Build();
 		}
 
-		private void Configure()
+		protected override void ConfigureWidget()
 		{
+			base.ConfigureWidget();
+
+			if(ViewModel is null)
+			{
+				return;
+			}
+
+			ybuttonMakeCall.HasTooltip = true;
+
 			ybuttonMakeCall.Binding
 				.AddBinding(ViewModel, vm => vm.CanMakeCall, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.TooltipText, w => w.TooltipText)
 				.InitializeFromSource();
 
-			ybuttonMakeCall.Clicked += OnMakeCallButtonClicked;
+			ybuttonMakeCall.BindCommand(ViewModel.MakeCallCommand);
 		}
 
-		private void OnMakeCallButtonClicked(object sender, EventArgs e)
+		protected override void OnDestroyed()
 		{
-			ViewModel.MakeCallCommand.Execute();
+			ViewModel?.Dispose();
+			base.OnDestroyed();
 		}
 	}
 }

@@ -1,11 +1,10 @@
 ﻿using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.ViewModels;
 using System;
 using System.ComponentModel;
-using System.Text.RegularExpressions;
 using Vodovoz.Application.Mango;
-using Vodovoz.Core.Domain.Extensions;
 
 namespace Vodovoz.ViewModels.Widgets.Mango
 {
@@ -14,27 +13,35 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 	/// </summary>
 	public class MangoCallButtonViewModel : WidgetViewModelBase, IDisposable
 	{
-		private const string _notDigitPattern = "[^0-9]";
-		private const string _russianCountryCode = "7";
-		private const int _minExtensionNumberLength = 3;
-		private const int _maxExtensionNumberLength = 6;
-		private const int _localPhoneNumberLength = 10;
-
-		private readonly IMangoManager _mangoManager;
+		private const string _mangoIsNotConnectedMessage = "Нет подключения к Манго";
 
 		private string _phoneNumber;
+		private string _unavailabilityReason;
+		private bool _disposed;
+
+		private readonly IMangoManager _mangoManager;
+		private readonly IGuiDispatcher _guiDispatcher;
+		private readonly IInteractiveService _interactiveService;
 
 		/// <summary>
 		/// Конструктор
 		/// </summary>
 		/// <param name="mangoManager">Менеджер Манго, через который совершается звонок</param>
-		public MangoCallButtonViewModel(IMangoManager mangoManager)
+		/// <param name="guiDispatcher">Диспетчер, через который обновления от Манго передаются в основной поток приложения</param>
+		/// <param name="interactiveService">Сервис взаимодействия с пользователем</param>
+		public MangoCallButtonViewModel(
+			IMangoManager mangoManager,
+			IGuiDispatcher guiDispatcher,
+			IInteractiveService interactiveService)
 		{
 			_mangoManager = mangoManager ?? throw new ArgumentNullException(nameof(mangoManager));
-			_mangoManager.PropertyChanged += OnMangoManagerPropertyChanged;
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
 			MakeCallCommand = new DelegateCommand(MakeCall, () => CanMakeCall);
 			MakeCallCommand.CanExecuteChangedWith(this, x => x.CanMakeCall);
+
+			_mangoManager.PropertyChanged += OnMangoManagerPropertyChanged;
 		}
 
 		/// <summary>
@@ -43,20 +50,33 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 		public DelegateCommand MakeCallCommand { get; }
 
 		/// <summary>
-		/// Номер, на который совершается звонок.
-		/// Может быть как внутренним добавочным номером, так и телефонным номером в любом из принятых форматов
+		/// Номер, на который совершается звонок
 		/// </summary>
 		[PropertyChangedAlso(nameof(CanMakeCall), nameof(TooltipText))]
 		public string PhoneNumber
 		{
 			get => _phoneNumber;
-			set => SetField(ref _phoneNumber, value);
+			private set => SetField(ref _phoneNumber, value);
+		}
+
+		/// <summary>
+		/// Причина, по которой звонок недоступен, заданная владельцем виджета.
+		/// Задаётся через <see cref="SetUnavailabilityReason(string)"/>
+		/// </summary>
+		[PropertyChangedAlso(nameof(CanMakeCall), nameof(TooltipText))]
+		public string UnavailabilityReason
+		{
+			get => _unavailabilityReason;
+			private set => SetField(ref _unavailabilityReason, value);
 		}
 
 		/// <summary>
 		/// Можно ли совершить звонок
 		/// </summary>
-		public bool CanMakeCall => _mangoManager.IsActive && NumberToCall != null;
+		public bool CanMakeCall =>
+			string.IsNullOrWhiteSpace(UnavailabilityReason)
+			&& _mangoManager.IsActive
+			&& PhoneNumber != null;
 
 		/// <summary>
 		/// Подсказка к кнопке звонка
@@ -65,9 +85,14 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 		{
 			get
 			{
+				if(!string.IsNullOrWhiteSpace(UnavailabilityReason))
+				{
+					return UnavailabilityReason;
+				}
+
 				if(!_mangoManager.IsActive)
 				{
-					return "Нет подключения к Манго";
+					return _mangoIsNotConnectedMessage;
 				}
 
 				if(string.IsNullOrWhiteSpace(PhoneNumber))
@@ -75,41 +100,28 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 					return "Номер для звонка не указан";
 				}
 
-				if(NumberToCall == null)
-				{
-					return $"Некорректный номер для звонка: {PhoneNumber}";
-				}
-
 				return $"Позвонить: {PhoneNumber}";
 			}
 		}
 
 		/// <summary>
-		/// Номер в том виде, в котором его принимает Манго,
-		/// либо <c>null</c>, если из указанного номера не удалось его получить
+		/// Задать внутренний добавочный номер, на который будет совершён звонок
 		/// </summary>
-		private string NumberToCall
+		/// <param name="extensionNumber">Добавочный номер</param>
+		public void SetExtension(int extensionNumber)
 		{
-			get
-			{
-				if(string.IsNullOrWhiteSpace(PhoneNumber))
-				{
-					return null;
-				}
+			UnavailabilityReason = null;
+			PhoneNumber = extensionNumber.ToString();
+		}
 
-				var digits = Regex.Replace(PhoneNumber, _notDigitPattern, string.Empty);
-
-				if(digits.Length >= _minExtensionNumberLength && digits.Length <= _maxExtensionNumberLength)
-				{
-					return digits;
-				}
-
-				var localNumber = PhoneNumber.NormalizePhone();
-
-				return localNumber.Length == _localPhoneNumberLength
-					? _russianCountryCode + localNumber
-					: null;
-			}
+		/// <summary>
+		/// Задать причину, по которой звонок недоступен
+		/// </summary>
+		/// <param name="unavailabilityReason">Текст причины недоступности звонка</param>
+		public void SetUnavailabilityReason(string unavailabilityReason)
+		{
+			PhoneNumber = null;
+			UnavailabilityReason = unavailabilityReason;
 		}
 
 		private void OnMangoManagerPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -119,25 +131,42 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 				return;
 			}
 
-			OnPropertyChanged(nameof(CanMakeCall));
-			OnPropertyChanged(nameof(TooltipText));
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				OnPropertyChanged(nameof(CanMakeCall));
+				OnPropertyChanged(nameof(TooltipText));
+			});
 		}
 
 		private void MakeCall()
 		{
-			var numberToCall = NumberToCall;
-
-			if(!_mangoManager.IsActive || numberToCall == null)
+			if(!string.IsNullOrWhiteSpace(UnavailabilityReason))
 			{
 				return;
 			}
 
-			_mangoManager.MakeCall(numberToCall);
+			if(!_mangoManager.IsActive)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, _mangoIsNotConnectedMessage);
+				return;
+			}
+
+			if(PhoneNumber == null)
+			{
+				return;
+			}
+
+			_mangoManager.MakeCall(PhoneNumber);
 		}
 
-		/// <inheritdoc/>
 		public void Dispose()
 		{
+			if(_disposed)
+			{
+				return;
+			}
+
+			_disposed = true;
 			_mangoManager.PropertyChanged -= OnMangoManagerPropertyChanged;
 		}
 	}
