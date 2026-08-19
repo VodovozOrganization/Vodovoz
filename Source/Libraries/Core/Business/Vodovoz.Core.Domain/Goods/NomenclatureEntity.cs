@@ -138,6 +138,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private IObservableList<GtinEntity> _gtins = new ObservableList<GtinEntity>();
 		private IObservableList<GroupGtinEntity> _groupGtins = new ObservableList<GroupGtinEntity>();
 		private IObservableList<NomenclaturePurchasePrice> _purchasePrices = new ObservableList<NomenclaturePurchasePrice>();
+		private IObservableList<NomenclatureCostPrice> _costPrices = new ObservableList<NomenclatureCostPrice>();
 		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
 		private decimal? _motivationCoefficient;
 		private NomenclatureMotivationUnitType? _motivationUnitType;
@@ -652,6 +653,16 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _purchasePrices;
 			set => SetField(ref _purchasePrices, value);
+		}
+
+		/// <summary>
+		/// Себестоимость ТМЦ
+		/// </summary>
+		[Display(Name = "Себестоимость ТМЦ")]
+		public virtual IObservableList<NomenclatureCostPrice> CostPrices
+		{
+			get => _costPrices;
+			set => SetField(ref _costPrices, value);
 		}
 
 		/// <summary>
@@ -1404,19 +1415,27 @@ namespace Vodovoz.Core.Domain.Goods
 		/// <summary>
 		/// Получение цены закупки на дату
 		/// </summary>
-		/// <param name="date"></param>
-		/// <returns></returns>
-		public virtual decimal GetPurchasePriceOnDate(DateTime date)
+		public virtual NomenclaturePurchasePrice GetPurchasePriceOnDate(DateTime date)
 		{
-			var purchasePrice =
-				PurchasePrices
+			var purchasePrice = PurchasePrices
 				.Where(p => p.StartDate <= date && (p.EndDate == null || p.EndDate >= date))
-				.Select(p => p.PurchasePrice)
 				.FirstOrDefault();
 
 			return purchasePrice;
 		}
-		
+
+		/// <summary>
+		/// Получение себестоимости на дату
+		/// </summary>
+		public virtual NomenclatureCostPrice GetCostPriceOnDate(DateTime date)
+		{
+			var purchasePrice = CostPrices
+				.Where(p => p.StartDate <= date && (p.EndDate == null || p.EndDate >= date))
+				.FirstOrDefault();
+
+			return purchasePrice;
+		}
+
 		/// <summary>
 		/// Получить актуальную версию НДС на выбранную дату
 		/// </summary>
