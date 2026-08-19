@@ -11919,7 +11919,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Logistic.RouteListCreateView" design-size="1158 516">
+  <widget class="Gtk.Bin" id="Vodovoz.Logistic.RouteListCreateView" design-size="1238 516">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -11978,6 +11978,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -12066,9 +12067,51 @@
                   <widget class="Gtk.Table" id="dataRouteList">
                     <property name="MemberName" />
                     <property name="NRows">8</property>
-                    <property name="NColumns">7</property>
+                    <property name="NColumns">9</property>
                     <property name="RowSpacing">6</property>
                     <property name="ColumnSpacing">6</property>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
                     <child>
                       <placeholder />
                     </child>
@@ -12688,6 +12731,27 @@
                       </packing>
                     </child>
                     <child>
+                      <widget class="Vodovoz.ViewWidgets.Mango.MangoCallButtonView" id="mangocallbuttonviewDriverExtensionPhone">
+                        <property name="MemberName" />
+                        <property name="Events">ButtonPressMask</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">3</property>
+                        <property name="BottomAttach">4</property>
+                        <property name="LeftAttach">8</property>
+                        <property name="RightAttach">9</property>
+                        <property name="AutoSize">False</property>
+                        <property name="XOptions">0</property>
+                        <property name="YOptions">0</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">False</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">False</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="Vodovoz.ViewWidgets.Mango.EmployeePhone" id="phoneDriver">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
@@ -12786,6 +12850,27 @@
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>
                         <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.yLabel" id="ylabelDriverExtensionPhoneCall">
+                        <property name="MemberName" />
+                        <property name="LabelProp" translatable="yes">Вызов на доб.</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">3</property>
+                        <property name="BottomAttach">4</property>
+                        <property name="LeftAttach">7</property>
+                        <property name="RightAttach">8</property>
+                        <property name="AutoSize">False</property>
+                        <property name="XOptions">0</property>
+                        <property name="YOptions">0</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">False</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">False</property>
                         <property name="YShrink">False</property>
                       </packing>
                     </child>
