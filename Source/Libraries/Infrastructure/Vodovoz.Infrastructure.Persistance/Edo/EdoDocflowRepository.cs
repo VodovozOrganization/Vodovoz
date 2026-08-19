@@ -112,6 +112,12 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 select
 	ecr.order_id as :order_id,
 	td.docflow_id as :docflow_id,
+	et.id as :task_id,
+	et.`type` as :task_type,
+	et.document_task_stage as :task_upd_stage,
+	et.receipt_status as :task_receipt_stage,
+	et.tender_task_stage as :task_tender_stage,
+	et.cancellation_reason as :cancellation_reason,
 	ecr.`time` as :edo_request_creation_time,
 	td.creation_time as :taxcom_docflow_creation_time,
 	tda.state as :edo_docflow_status,
@@ -158,6 +164,12 @@ order by ecr.`time` desc
 select
 	eir.order_id as :order_id,
 	td.docflow_id as :docflow_id,
+	et.id as :task_id,
+	et.`type` as :task_type,
+	et.document_task_stage as :task_upd_stage,
+	et.receipt_status as :task_receipt_stage,
+	et.tender_task_stage as :task_tender_stage,
+	et.cancellation_reason as :cancellation_reason,
 	eir.`time` as :edo_request_creation_time,
 	td.creation_time as :taxcom_docflow_creation_time,
 	tda.state as :edo_docflow_status,
@@ -204,6 +216,12 @@ order by eir.`time` desc
 				.MapParametersToNode<EdoDockflowData>()
 				.Map("order_id", x => x.OrderId, NHibernateUtil.Int32)
 				.Map("docflow_id", x => x.DocFlowId, NHibernateUtil.Guid)
+				.Map("task_id", x => x.TaskId, NHibernateUtil.Int32)
+				.Map("task_type", x => x.TaskType, new EnumStringType<EdoTaskType>())
+				.Map("task_upd_stage", x => x.TaskUpdStage, new EnumStringType<DocumentEdoTaskStage>())
+				.Map("task_receipt_stage", x => x.TaskReceiptStage, new EnumStringType<EdoReceiptStatus>())
+				.Map("task_tender_stage", x => x.TaskTenderStage, new EnumStringType<TenderEdoTaskStage>())
+				.Map("cancellation_reason", x => x.CancellationReason, NHibernateUtil.String)
 				.Map("edo_request_creation_time", x => x.EdoRequestCreationTime, NHibernateUtil.DateTime)
 				.Map("taxcom_docflow_creation_time", x => x.TaxcomDocflowCreationTime, NHibernateUtil.DateTime)
 				.Map("edo_docflow_status", x => x.EdoDocFlowStatus, new EnumStringType<EdoDocFlowStatus>())
@@ -328,6 +346,38 @@ order by eir.`time` desc
 				.SingleOrDefault();
 
 			return taxcomDocflow;
+		}
+
+		public IEnumerable<SaveCodesEdoTask> GetClientSavedToPoolDocumentTaskIdsForResend(IUnitOfWork uow, int counterpartyId)
+		{
+			var tasks = uow.Session.Query<SaveCodesEdoTask>();
+
+			return tasks
+				.Where(task =>
+					task.Status == EdoTaskStatus.Completed
+					&& task.FormalEdoRequest.Order.Client.Id == counterpartyId
+					&& !tasks.Any(otherTask =>
+						otherTask.FormalEdoRequest.Order.Id == task.FormalEdoRequest.Order.Id
+						&& otherTask.Id > task.Id))
+				.ToList();
+		}
+
+		public IEnumerable<ReceiptEdoTask> GetClientSavedToPoolReceiptTaskIdsForResend(
+			IUnitOfWork uow,
+			int counterpartyId)
+		{
+			var tasks = uow.Session.Query<ReceiptEdoTask>();
+
+			return tasks
+				.Where(task =>
+					task.ReceiptStatus == EdoReceiptStatus.SavedToPool
+					&& task.Status == EdoTaskStatus.Completed
+					&& task.FormalEdoRequest.Order.Client.Id == counterpartyId
+					&& !tasks.Any(otherTask =>
+						otherTask.FormalEdoRequest.Order.Id ==
+							task.FormalEdoRequest.Order.Id
+						&& otherTask.Id > task.Id))
+				.ToList();
 		}
 	}
 }

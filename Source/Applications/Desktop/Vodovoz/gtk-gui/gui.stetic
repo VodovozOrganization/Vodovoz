@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <stetic-interface>
   <configuration>
     <images-root-path>..</images-root-path>
@@ -1392,7 +1392,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">13</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
@@ -6294,7 +6294,7 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Vodovoz.Views.Edo.EdoInOrderActionsView" id="edoinorderactionsview1">
+                              <widget class="Vodovoz.Views.Edo.EdoInOrderActionsView" id="edoinorderactionsview">
                                 <property name="MemberName" />
                                 <property name="Events">ButtonPressMask</property>
                               </widget>
@@ -6310,7 +6310,7 @@
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="Type">TextOnly</property>
-                                <property name="Label" translatable="yes">&gt;&gt; Отправить все неотправленные документы</property>
+                                <property name="Label" translatable="yes">Отправить все неотправленные документы</property>
                                 <property name="UseUnderline">True</property>
                               </widget>
                               <packing>

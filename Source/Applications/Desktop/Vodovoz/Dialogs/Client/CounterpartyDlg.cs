@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Core.Infrastructure;
 using Edo.Common.Services;
+using Edo.Transport;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -51,8 +52,11 @@ using System.Threading;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Application.Errors;
 using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain;
@@ -66,7 +70,6 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
@@ -88,6 +91,7 @@ using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Client;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Complaints;
+using Vodovoz.ViewModels.Edo;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
@@ -102,6 +106,7 @@ using Vodovoz.Views.Client;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
+using IOrganizationRepository = Vodovoz.EntityRepositories.Organizations.IOrganizationRepository;
 using Selection = Gdk.Selection;
 
 namespace Vodovoz
@@ -130,6 +135,8 @@ namespace Vodovoz
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private readonly IEmailTypeSettings _emailTypeSettings = ScopeProvider.Scope.Resolve<IEmailTypeSettings>();
 		private readonly IClientsTrueMarkRegistrationCheckService _clientsTrueMarkRegistration = ScopeProvider.Scope.Resolve<IClientsTrueMarkRegistrationCheckService>();
+		private EdoInOrderDocumentActionsViewModel _edoInOrderDocumentActionsViewModel;
+		private IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailSettings _emailSettings;
@@ -165,6 +172,7 @@ namespace Vodovoz
 		private int _edoDocumentsCurrentPage = 0;
 		private Organization _vodovozOrganization;
 		private bool _disableClosingDeliveriesMailingInitValue;
+		private EdoDockflowData _selectedEdoDockflowData;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -1415,10 +1423,25 @@ namespace Vodovoz
 				.Finish();
 
 			treeViewEdoDocumentsContainer.ItemsDataSource = _edoEdoDocumentDataNodes;
-			ybuttonEdoDocumentsSendAllUnsent.Visible = false;
+
+			treeViewEdoDocumentsContainer.Binding
+				.AddBinding(this, dlg => dlg.SelectedEdoDockflowData, w => w.SelectedRow)
+				.InitializeFromSource();
+
 			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoDocumentDataNodes(_edoDocumentsCurrentPage);
 			ConfigureEdoDocumentsPagination();
+			ConfigureEdoDocumentActionsPanel();
 		}
+
+		private void ConfigureEdoDocumentActionsPanel()
+		{
+			_edoInOrderDocumentActionsViewModel = _lifetimeScope.Resolve<EdoInOrderDocumentActionsViewModel>();
+			_edoRequestCreatedEventPublisher = _lifetimeScope.Resolve<IEdoRequestCreatedEventPublisher>();
+
+			edoinorderactionsview.ViewModel = _edoInOrderDocumentActionsViewModel;
+
+			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnYButtonEdoDocumentsSendAllUnsentClicked;
+		}		
 
 		private void ConfigureEdoDocumentsPagination()
 		{
@@ -2572,8 +2595,101 @@ namespace Vodovoz
 			unitOfWork.Save(subscribingEvent);
 		}
 
+		#region ResendEdoDocuments
+
+		public EdoDockflowData SelectedEdoDockflowData
+		{
+			get => _selectedEdoDockflowData;
+			set
+			{
+				if(value == _selectedEdoDockflowData)
+				{
+					return;
+				}
+
+				_selectedEdoDockflowData = value;
+
+				_edoInOrderDocumentActionsViewModel.SelectedDocument = BuildHistoryRowOrNull(value);
+			}
+		}
+
+		private void OnYButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
+		{
+			var documentEdoTasks = _edoDocflowRepository.GetClientSavedToPoolDocumentTaskIdsForResend(UoW, Entity.Id).Cast<OrderEdoTask>();
+
+			var receiptEdoTasks = _edoDocflowRepository.GetClientSavedToPoolReceiptTaskIdsForResend(UoW, Entity.Id).Cast<OrderEdoTask>();
+
+			var edoTasks = documentEdoTasks.Concat(receiptEdoTasks).ToList();
+
+			var newRequests = new List<PrimaryEdoRequest>();
+
+			foreach(var task in edoTasks)
+			{
+				var orderId = task.FormalEdoRequest.Order.Id;
+
+				var newRequest = new PrimaryEdoRequest
+				{
+					Order = new OrderEntity
+					{
+						Id = orderId
+					},
+					Time = DateTime.Now,
+					Source = EdoRequestSource.Manual,
+					DocumentType = EdoDocumentType.UPD
+				};
+
+				UoW.Save(newRequest);
+				newRequests.Add(newRequest);
+			}
+
+			UoW.Commit();
+
+			foreach(var newRequest in newRequests)
+			{
+				_edoRequestCreatedEventPublisher.Publish(
+					newRequest.Id,
+					"Переотправка ушедших на сохранение кодов задач");
+			}
+		}
+
+		private EdoInOrderDocumentHistoryRowViewModel BuildHistoryRowOrNull(EdoDockflowData dockflowData)
+		{
+			if(dockflowData?.TaskId == null || dockflowData.TaskType == null)
+			{
+				return null;
+			}
+
+			var node = new EdoInOrderDocumentNode
+			{
+				TaskId = dockflowData.TaskId.Value,
+				TaskType = dockflowData.TaskType.Value,
+				TaskStatus = dockflowData.EdoTaskStatus ?? EdoTaskStatus.InProgress,
+				TaskUpdStage = dockflowData.TaskUpdStage,
+				TaskReceiptStage = dockflowData.TaskReceiptStage,
+				TaskTenderStage = dockflowData.TaskTenderStage,
+				InformalOrderDocumentType = dockflowData.OrderDocumentType,
+				EdoDocumentStatus = dockflowData.EdoDocumentStatus,
+				CancellationReason = dockflowData.CancellationReason,
+				RequestTime = dockflowData.EdoRequestCreationTime ?? dockflowData.TaxcomDocflowCreationTime ?? default,
+				RequestSource = EdoRequestSource.Manual
+			};
+
+			try
+			{
+				return new EdoInOrderDocumentHistoryRowViewModel(node);
+			}
+			catch
+			{
+				return null;
+			}
+		}
+
+		#endregion ResendEdoDocuments
+
 		public override void Destroy()
 		{
+			ybuttonEdoDocumentsSendAllUnsent.Clicked -= OnYButtonEdoDocumentsSendAllUnsentClicked;
+
 			if(_lifetimeScope != null)
 			{
 				_lifetimeScope.Dispose();
