@@ -1,9 +1,13 @@
+﻿using Gamma.Utilities;
+using QS.Utilities.Text;
 using System;
+using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
+namespace VodovozBusiness.EntityRepositories.Nodes
 {
 	/// <summary>
-	/// Строка списка заказов клиента для перевода звонка на водителя
+	/// Заказ контрагента в пути с данными водителя, доставляющего этот заказ.
+	/// Используется для перевода звонка на добавочный номер водителя
 	/// </summary>
 	public class DriverForwardingOrderNode
 	{
@@ -11,7 +15,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private const string _emptyValueText = "—";
 
 		/// <summary>
-		/// Номер заказа
+		/// Id заказа
 		/// </summary>
 		public int OrderId { get; set; }
 
@@ -28,22 +32,51 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		/// <summary>
 		/// Статус заказа
 		/// </summary>
-		public string OrderStatusTitle { get; set; }
+		public OrderStatus OrderStatus { get; set; }
 
 		/// <summary>
-		/// Фамилия и инициалы водителя, доставляющего заказ
+		/// Id водителя, доставляющего заказ. <see langword="null"/>, если заказа нет в маршрутном листе
 		/// </summary>
-		public string DriverName { get; set; }
+		public int? DriverId { get; set; }
 
 		/// <summary>
-		/// Активный добавочный номер Манго водителя
+		/// Фамилия водителя
+		/// </summary>
+		public string DriverLastName { get; set; }
+
+		/// <summary>
+		/// Имя водителя
+		/// </summary>
+		public string DriverFirstName { get; set; }
+
+		/// <summary>
+		/// Отчество водителя
+		/// </summary>
+		public string DriverPatronymic { get; set; }
+
+		/// <summary>
+		/// Активный добавочный номер Манго водителя.
+		/// <see langword="null"/>, если добавочного номера нет
 		/// </summary>
 		public int? DriverExtensionNumber { get; set; }
+
+		/// <summary>
+		/// Название статуса заказа
+		/// </summary>
+		public string OrderStatusTitle => OrderStatus.GetEnumTitle();
 
 		/// <summary>
 		/// Дата доставки для отображения
 		/// </summary>
 		public string DeliveryDateText => DeliveryDate?.ToString(_deliveryDateFormat) ?? _emptyValueText;
+
+		/// <summary>
+		/// Фамилия и инициалы водителя
+		/// </summary>
+		public string DriverName =>
+			DriverId.HasValue
+				? PersonHelper.PersonNameWithInitials(DriverLastName, DriverFirstName, DriverPatronymic)
+				: string.Empty;
 
 		/// <summary>
 		/// Добавочный номер водителя для отображения
@@ -63,7 +96,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		{
 			get
 			{
-				if(string.IsNullOrWhiteSpace(DriverName))
+				if(!DriverId.HasValue)
 				{
 					return "Заказ не в маршрутном листе";
 				}

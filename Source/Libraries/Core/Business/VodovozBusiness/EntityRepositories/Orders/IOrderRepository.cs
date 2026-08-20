@@ -51,6 +51,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty);
 
 		/// <summary>
+		/// Возвращает заказы контрагента, находящиеся в пути,
+		/// вместе с водителем и его активным добавочным номером Манго
+		/// </summary>
+		/// <param name="uow">Единица работы</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		IList<DriverForwardingOrderNode> GetCounterpartyOrdersOnTheWay(IUnitOfWork uow, int counterpartyId);
+
+		/// <summary>
 		/// Оборудование заказа от клиента
 		/// </summary>
 		/// <returns>Список оборудования от клиенту</returns>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1200,7 +1200,7 @@
     <Compile Include="Widgets\Cars\Insurance\EditCarInsuranceEventArgs.cs" />
     <Compile Include="Widgets\Cash\VatRateNomenclatureVersionViewModel.cs" />
     <Compile Include="Widgets\Cash\VatRateOrganizationVersionViewModel.cs" />
-    <Compile Include="Dialogs\Mango\Talks\DriverForwardingOrderNode.cs" />
+    <Compile Include="Dialogs\Mango\Talks\DriverCallForwardingMessages.cs" />
     <Compile Include="Dialogs\Mango\Talks\DriverForwardingOrderSelectionViewModel.cs" />
     <Compile Include="Widgets\Mango\IMangoCallButtonViewModelFactory.cs" />
     <Compile Include="Widgets\Mango\MangoCallButtonViewModel.cs" />

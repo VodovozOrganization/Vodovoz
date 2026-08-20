@@ -1,7 +1,7 @@
-using Gtk;
+﻿using Gtk;
 using QS.Views.Dialog;
-using System;
 using Vodovoz.ViewModels.Dialogs.Mango.Talks;
+using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace Vodovoz.Views.Mango.Talks
 {
@@ -10,7 +10,7 @@ namespace Vodovoz.Views.Mango.Talks
 	{
 		public DriverForwardingOrderSelectionView(DriverForwardingOrderSelectionViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -42,17 +42,12 @@ namespace Vodovoz.Views.Mango.Talks
 
 			ytreeviewOrders.RowActivated += OnOrdersRowActivated;
 
-			ybuttonCancel.Clicked += OnCancelButtonClicked;
+			ybuttonCancel.BindCommand(ViewModel.CancelCommand);
 		}
 
 		private void OnOrdersRowActivated(object sender, RowActivatedArgs args)
 		{
 			ViewModel.ForwardCallCommand.Execute();
-		}
-
-		private void OnCancelButtonClicked(object sender, EventArgs e)
-		{
-			ViewModel.CancelCommand.Execute();
 		}
 	}
 }
