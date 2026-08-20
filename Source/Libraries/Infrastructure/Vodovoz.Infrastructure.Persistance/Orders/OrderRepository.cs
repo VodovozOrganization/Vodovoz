@@ -174,8 +174,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					() => routeListItemAlias.Order.Id == orderAlias.Id
 						&& routeListItemAlias.Status == RouteListItemStatus.EnRoute,
 					JoinType.InnerJoin)
-				.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
-				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Where(() => orderAlias.Client.Id == counterpartyId)
 				.And(() => orderAlias.OrderStatus == OrderStatus.OnTheWay)
 				.SelectList(list => list
