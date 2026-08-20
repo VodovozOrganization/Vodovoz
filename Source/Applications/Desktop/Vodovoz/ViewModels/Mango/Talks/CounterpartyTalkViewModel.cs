@@ -362,13 +362,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				return false;
 			}
 
-			var question = $"Перевести звонок на водителя {orderNode.DriverName} по заказу №{orderNode.OrderId}?";
-
-			if(!_interactiveService.Question(question, DriverCallForwardingMessages.DialogTitle))
-			{
-				return false;
-			}
-
 			MangoManager.ForwardCall(orderNode.DriverExtensionNumber.Value.ToString(), ForwardingMethod.blind);
 
 			return true;

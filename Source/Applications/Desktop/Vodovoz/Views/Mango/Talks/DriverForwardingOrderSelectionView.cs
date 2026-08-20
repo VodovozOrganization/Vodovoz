@@ -6,6 +6,7 @@ using VodovozBusiness.EntityRepositories.Nodes;
 namespace Vodovoz.Views.Mango.Talks
 {
 	[System.ComponentModel.ToolboxItem(true)]
+	[WindowSize(800, 300)]
 	public partial class DriverForwardingOrderSelectionView : DialogViewBase<DriverForwardingOrderSelectionViewModel>
 	{
 		public DriverForwardingOrderSelectionView(DriverForwardingOrderSelectionViewModel viewModel) : base(viewModel)
