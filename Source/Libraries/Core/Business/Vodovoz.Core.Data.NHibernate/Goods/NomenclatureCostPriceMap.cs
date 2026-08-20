@@ -3,11 +3,11 @@ using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Core.Data.NHibernate.Goods
 {
-	public class NomenclaturePurchasePriceMap : ClassMap<NomenclaturePurchasePrice>
+	public class NomenclatureCostPriceMap : ClassMap<NomenclatureCostPrice>
 	{
-		public NomenclaturePurchasePriceMap()
+		public NomenclatureCostPriceMap()
 		{
-			Table("nomenclature_purchase_prices");
+			Table("nomenclature_cost_prices");
 
 			Id(x => x.Id)
 				.Column("id")
@@ -19,8 +19,8 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 			Map(x => x.EndDate)
 				.Column("end_date");
 
-			Map(x => x.PurchasePrice)
-				.Column("purchase_price");
+			Map(x => x.CostPrice)
+				.Column("cost_price");
 
 			References(x => x.Nomenclature)
 				.Column("nomenclature_id")

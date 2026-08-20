@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -192,15 +192,7 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref _groupGtins, value);
 		}
 
-		/// <summary>
-		/// Себестоимость ТМЦ
-		/// </summary>
-		[Display(Name = "Себестоимость ТМЦ")]
-		public virtual IObservableList<NomenclatureCostPrice> CostPrices
-		{
-			get => _costPrices;
-			set => SetField(ref _costPrices, value);
-		}
+
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<NomenclatureCostPrice> ObservableCostPrices =>
