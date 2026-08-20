@@ -28,7 +28,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void Configure()
 		{
-			table1.Sensitive = false;
+			SetTableFieldsInsensitive();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveWithClose();
 			buttonSave.Sensitive = ViewModel.CanEditRouteList;
@@ -74,6 +74,19 @@ namespace Vodovoz.Views.Logistic
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
 
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		private void SetTableFieldsInsensitive()
+		{
+			foreach(var widget in table1.Children)
+			{
+				if(widget.Name == mangocallbuttonviewDriverExtensionPhone.Name)
+				{
+					continue;
+				}
+
+				widget.Sensitive = false;
+			}
 		}
 
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
