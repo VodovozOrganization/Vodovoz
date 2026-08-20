@@ -145,7 +145,7 @@ namespace Vodovoz.Domain.Documents
 				{
 					yield return new ValidationResult(
 						$"На складе недостаточное количество <{group.Nomenclature.Name}>. " +
-						$"Требуется: {group.TotalAmount}, доступно: {group.AmountInStock}",
+						$"Требуется: {group.TotalAmount:F2}, доступно: {group.AmountInStock:F2}",
 						new[] { this.GetPropertyName(o => o.Items) });
 				}
 			}
