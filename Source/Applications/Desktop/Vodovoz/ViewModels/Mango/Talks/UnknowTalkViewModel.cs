@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_uow = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory)))
 				.CreateWithoutRoot();
 
-			ForwardCallToDriverCommand = new DelegateCommand(ForwardCallToDriver, () => true);
+			ForwardCallToDriverCommand = new DelegateCommand(ForwardCallToDriver, () => false);
 		}
 
 		public DelegateCommand ForwardCallToDriverCommand { get; }
