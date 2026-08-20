@@ -104,6 +104,7 @@ namespace Vodovoz
 		private readonly OrderCancellationService _orderCancellationService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
+		private readonly IMangoCallButtonViewModelFactory _mangoCallButtonViewModelFactory;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
@@ -187,9 +188,10 @@ namespace Vodovoz
 			
 			ActiveShifts = _deliveryShiftRepository.ActiveShifts(UoW);
 
-			DriverExtensionCallViewModel =
-				(mangoCallButtonViewModelFactory ?? throw new ArgumentNullException(nameof(mangoCallButtonViewModelFactory)))
-				.CreateForRouteListDriver(UoW, Entity);
+			_mangoCallButtonViewModelFactory =
+				mangoCallButtonViewModelFactory ?? throw new ArgumentNullException(nameof(mangoCallButtonViewModelFactory));
+
+			DriverExtensionCallViewModel = _mangoCallButtonViewModelFactory.CreateForRouteListDriver(UoW, Entity);
 
 			CarViewModel = BuildCarEntryViewModel();
 			DriverViewModel = BuildDriverEntryViewModel();
@@ -426,6 +428,8 @@ namespace Vodovoz
 					Entity.Driver = null;
 				}
 			}
+
+			_mangoCallButtonViewModelFactory.UpdateForRouteListDriver(DriverExtensionCallViewModel, UoW, Entity);
 		}
 
 		private IEntityEntryViewModel BuildLogisticianEntryViewModel()

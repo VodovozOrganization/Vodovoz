@@ -15,7 +15,6 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 	public class MangoCallButtonViewModelFactory : IMangoCallButtonViewModelFactory
 	{
 		private const string _orderIsNotInRouteListMessage = "Заказ не добавлен в маршрутный лист";
-		private const string _orderIsNotEnRouteMessage = "Заказ не в пути";
 		private const string _routeListNotFoundMessage = "Маршрутный лист не найден";
 		private const string _routeListIsNotEnRouteMessage = "Маршрутный лист не в пути";
 		private const string _routeListHasNoDriverMessage = "В маршрутном листе не указан водитель";
@@ -71,12 +70,6 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 				return viewModel;
 			}
 
-			if(routeListItem.Status != RouteListItemStatus.EnRoute)
-			{
-				viewModel.SetUnavailabilityReason(_orderIsNotEnRouteMessage);
-				return viewModel;
-			}
-
 			SetRouteListDriverAvailability(viewModel, uow, routeListItem.RouteList);
 
 			return viewModel;
@@ -96,10 +89,6 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 		private MangoCallButtonViewModel CreateViewModel() =>
 			new MangoCallButtonViewModel(_mangoManager, _guiDispatcher, _interactiveService);
 
-		/// <summary>
-		/// Проверяет, можно ли позвонить водителю маршрутного листа,
-		/// и задаёт вью-модели либо добавочный номер, либо причину недоступности звонка
-		/// </summary>
 		private void SetRouteListDriverAvailability(MangoCallButtonViewModel viewModel, IUnitOfWork uow, RouteList routeList)
 		{
 			if(routeList is null)

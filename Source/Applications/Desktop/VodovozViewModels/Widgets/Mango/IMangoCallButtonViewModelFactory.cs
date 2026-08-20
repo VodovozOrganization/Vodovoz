@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 		MangoCallButtonViewModel CreateForOrderDriver(IUnitOfWork uow, Order order);
 
 		/// <summary>
-		/// Пересчитывает доступность звонка на добавочный номер водителя маршрутного листа.
+		/// Пересчитывает доступность звонка на добавочный номер водителя маршрутного листа
 		/// Нужен, если водитель маршрутного листа мог измениться после создания вью-модели
 		/// </summary>
 		/// <param name="viewModel">Вью-модель кнопки звонка</param>
