@@ -1277,11 +1277,6 @@ namespace Vodovoz
 				.CreateForOrderDriver(UoW, Entity);
 		}
 
-		/// <summary>
-		/// Заполняет телефон водителя для приёма звонков контрагента.
-		/// Водитель определяется по маршрутному листу, в котором находится заказ.
-		/// Поле только для чтения, текст можно выделить и скопировать
-		/// </summary>
 		private void SetDriverPhoneForCounterpartyCalls()
 		{
 			yentryDriversPhone.IsEditable = false;
