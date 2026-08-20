@@ -1197,6 +1197,8 @@ namespace Vodovoz
 
 			SetDriverExtensionCallViewModel();
 
+			SetDriverPhoneForCounterpartyCalls();
+
 			UpdateUIState();
 
 			yChkActionBottle.Toggled += (sender, e) =>
@@ -1273,6 +1275,21 @@ namespace Vodovoz
 			mangocallbuttonviewDriverExtensionPhone.ViewModel = _lifetimeScope
 				.Resolve<IMangoCallButtonViewModelFactory>()
 				.CreateForOrderDriver(UoW, Entity);
+		}
+
+		/// <summary>
+		/// Заполняет телефон водителя для приёма звонков контрагента.
+		/// Водитель определяется по маршрутному листу, в котором находится заказ.
+		/// Поле только для чтения, текст можно выделить и скопировать
+		/// </summary>
+		private void SetDriverPhoneForCounterpartyCalls()
+		{
+			yentryDriversPhone.IsEditable = false;
+
+			yentryDriversPhone.Text =
+				_routeListItemRepository.GetRouteListItemForOrder(UoW, Entity)
+					?.RouteList?.Driver?.PhoneForCounterpartyCalls?.ToString()
+				?? string.Empty;
 		}
 
 		private void SetOrderItemDiscountReasonsViewModel()
@@ -5346,6 +5363,11 @@ namespace Vodovoz
 				if(widget.Name == yhbox4.Name)
 				{
 					widget.Sensitive = IsWaitUntilActive;
+				}
+				else if(widget.Name == mangocallbuttonviewDriverExtensionPhone.Name
+					|| widget.Name == yentryDriversPhone.Name)
+				{
+					continue;
 				}
 				else
 				{
