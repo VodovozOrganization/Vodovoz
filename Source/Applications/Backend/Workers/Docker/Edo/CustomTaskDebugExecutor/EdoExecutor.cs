@@ -596,21 +596,13 @@ namespace CustomTaskDebugExecutor
 				var uowFactory = _serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
 
 				using var uow = uowFactory.CreateWithoutRoot();
-				var org = uow.GetById<OrganizationEntity>(organizationId);
-
-				if(org is null)
-				{
-					throw new InvalidOperationException("Не найдена организация, по которой был отправлен документ");
-				}
+				var org = uow.GetById<OrganizationEntity>(organizationId) 
+					?? throw new InvalidOperationException("Не найдена организация, по которой был отправлен документ");
 
 				var edoAccount = org.TaxcomEdoSettings.EdoAccount;
 				var description = await taxcomApiClient.GetDocflowStatus(docflowId, edoAccount);
-				var mainDocument = description.DocFlow.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Definition.Identifiers.ExternalIdentifier));
-
-				if(mainDocument is null)
-				{
-					throw new InvalidOperationException("Не найден главный документ");
-				}
+				var mainDocument = description.DocFlow.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Definition.Identifiers.ExternalIdentifier)) 
+					?? throw new InvalidOperationException("Не найден главный документ");
 
 				var docflowUpdatedEvent = new OutgoingTaxcomDocflowUpdatedEvent
 				{
@@ -635,22 +627,21 @@ namespace CustomTaskDebugExecutor
 		private async Task SendEvents(CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException("Перепроверь запрос");
-			using(var uow = _serviceProvider.GetRequiredService<IUnitOfWork>())
-			{
-				var ids = await uow.Session.CreateSQLQuery(
-@"
-select 
-	ecr.id
-from edo_customer_requests ecr
-where ecr.order_task_id is null
-and ecr.source != 'Manual'
-;
-").ListAsync<uint>();
 
-				var bus = _serviceProvider.GetRequiredService<IBus>();
-				var events = ids.Select(x => bus.Publish(new EdoRequestCreatedEvent { Id = (int)x }, cancellationToken));
-				await Task.WhenAll(events);
-			}
+			/*using var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
+			var ids = await uow.Session.CreateSQLQuery(
+				@"
+				select 
+					ecr.id
+				from edo_customer_requests ecr
+				where ecr.order_task_id is null
+				and ecr.source != 'Manual'
+				;
+				").ListAsync<uint>(cancellationToken);
+
+			var bus = _serviceProvider.GetRequiredService<IBus>();
+			var events = ids.Select(x => bus.Publish(new EdoRequestCreatedEvent { Id = (int)x }, cancellationToken));
+			await Task.WhenAll(events);*/
 		}
 
 		private async Task ReceiveWithdrawalCreateEvent(CancellationToken cancellationToken)

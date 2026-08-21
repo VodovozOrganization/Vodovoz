@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -164,5 +165,34 @@ namespace EdoService.Library
 		/// <returns>True - если документооборот есть, False - если нет</returns>
 		bool HasDocflow(int edoTaskId);
 		Result RehandleNewUpdDocumentWithProblem(int updEdoTaskId);
+
+		/// <summary>
+		/// Обновить статус документооборота Такском по ЭДО задаче
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи ЭДО</param>
+		/// <returns>Результат обновления статуса</returns>
+		Result<string> UpdateDocflowStatus(int taskId);
+
+		/// <summary>
+		/// Проверяет возможность обновления статуса документооборота по задаче ЭДО
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи ЭДО</param>
+		/// <param name="unitOfWork">IUnitOfWork</param>
+		/// <returns>Результат проверки</returns>
+		Result CanUpdateDocflow(int taskId, IUnitOfWork unitOfWork = null);
+
+		/// <summary>
+		/// Обновляет статус документооборота из Taxcom по ID документооборота
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="docflowId">ID документооборота в Taxcom</param>
+		/// <param name="organizationId">ID организации, отправившей документ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат с информацией о статусе</returns>
+		Task<Result<string>> UpdateDocflowStatusAsync(
+			IUnitOfWork uow,
+			Guid? docflowId,
+			int organizationId,
+			CancellationToken cancellationToken = default);
 	}
 }

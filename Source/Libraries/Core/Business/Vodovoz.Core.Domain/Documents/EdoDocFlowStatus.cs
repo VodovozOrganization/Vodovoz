@@ -13,6 +13,11 @@ namespace Vodovoz.Core.Domain.Documents
 		[Display(Name = "Неизвестно")]
 		Unknown,
 		/// <summary>
+		/// Получено
+		/// </summary>
+		[Display(Name = "Получено")]
+		Sent,
+		/// <summary>
 		/// В процессе
 		/// </summary>
 		[Display(Name = "В процессе")]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Settings.Edo;
 
@@ -7,6 +8,7 @@ namespace Vodovoz.Settings.Database.Edo
 	public class EdoSettings : IEdoSettings
 	{
 		private readonly ISettingsController _settingsController;
+		private IReadOnlyDictionary<int, string> _taxcomOrganizationBaseAddresses;
 
 		public EdoSettings(ISettingsController settingsController)
 		{
@@ -45,5 +47,36 @@ namespace Vodovoz.Settings.Database.Edo
 		public int ExpiredCodesCleanerIntervalMinutes => _settingsController.GetIntValue(nameof(ExpiredCodesCleanerIntervalMinutes));
 
 		public int UsedCodesCleanerIntervalHours => _settingsController.GetIntValue(nameof(UsedCodesCleanerIntervalHours));
+
+		public string TaxcomGetDocflowStatusEndpoint => _settingsController.GetStringValue(nameof(TaxcomGetDocflowStatusEndpoint));
+
+		public IReadOnlyDictionary<int, string> TaxcomOrganizationBaseAddresses
+		{
+			get
+			{
+				var dict = new Dictionary<int, string>();
+
+				var addressesString = _settingsController.GetStringValue(nameof(TaxcomOrganizationBaseAddresses));
+
+				if(!string.IsNullOrWhiteSpace(addressesString))
+				{
+					var cleaned = addressesString.Replace(" ", "");
+					var blocks = cleaned.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+					foreach(var block in blocks)
+					{
+						var inner = block.Trim('{', '}');
+						var parts = inner.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+						if(parts.Count() == 2 && int.TryParse(parts[0].Trim(), out int organizationId))
+						{
+							dict[organizationId] = parts[1].Trim();
+						}
+					}
+				}
+
+				return dict;
+			}
+		}
 	}
 }
