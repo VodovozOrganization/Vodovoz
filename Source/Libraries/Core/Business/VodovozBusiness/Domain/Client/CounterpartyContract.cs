@@ -20,13 +20,11 @@ namespace Vodovoz.Domain.Client
 		Accusative = "договор"
 	)]
 	[EntityPermission]
-	public class CounterpartyContract : CounterpartyContractEntity, IDomainObject, IBusinessObject, IValidatableObject
+	public class CounterpartyContract : CounterpartyContractEntity, IDomainObject, IValidatableObject
 	{
 		private Organization _organization;
 		private Counterparty _counterparty;
 		private DocTemplate _contractTemplate;
-
-		public virtual IUnitOfWork UoW { get; set; }
 
 		#region Сохраняемые поля
 

@@ -3,8 +3,9 @@ using QS.DomainModel.Entity.EntityPermissions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Sale;
 
 namespace Vodovoz.Domain.Sale
@@ -16,7 +17,7 @@ namespace Vodovoz.Domain.Sale
 		Prepositional = "правиле цены доставки",
 		PrepositionalPlural = "правилах цен доставки")]
 	[EntityPermission]
-	public class DeliveryPriceRule : BusinessObjectBase<DeliveryPriceRule>, IDomainObject, IDeliveryPriceRule, IValidatableObject
+	public class DeliveryPriceRule : PropertyChangedBase, IDomainObject, IDeliveryPriceRule, IValidatableObject
 	{
 		private string _ruleName;
 		private int _water19LCount;
@@ -93,9 +94,17 @@ namespace Vodovoz.Domain.Sale
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(districtRuleRepository)}");
 			}
 
-			if(districtRuleRepository.GetAllDeliveryPriceRules(UoW).Where(r => r.Id != Id).Contains(this))
+			if(!(validationContext.GetRequiredService(typeof(IUnitOfWorkFactory)) is IUnitOfWorkFactory uowFactory))
 			{
-				yield return new ValidationResult("Такое правило уже существует и нельзя его создавать");
+				throw new ArgumentNullException($"Не найдена фабрика unit of work {nameof(IUnitOfWorkFactory)}");
+			}
+
+			using(var uow = uowFactory.CreateWithoutRoot("Проверка наличия такого же правила"))
+			{
+				if(districtRuleRepository.SameDeliveryPriceRuleExists(uow, this))
+				{
+					yield return new ValidationResult("Такое правило уже существует и нельзя его создавать");
+				}
 			}
 		}
 

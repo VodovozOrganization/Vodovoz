@@ -14,9 +14,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
-using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Tools;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.ViewModels.Fuel.FuelCards
 {
@@ -26,16 +26,17 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 		private readonly IFuelApiService _fuelApiService;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly IGuiDispatcher _guiDispatcher;
-		private readonly IUserSettingsService _userSettingsService;
+		private readonly IUserSettingsManager _userSettingsManager;
 		private CancellationTokenSource _cancellationTokenSource;
 		private bool _isCardIdObtainingProcessInWork;
+		private bool _disposed;
 
 		public FuelCardViewModel(
 			ILogger<FuelCardViewModel> logger,
 			IFuelApiService fuelApiService,
 			IFuelRepository fuelRepository,
 			IGuiDispatcher guiDispatcher,
-			IUserSettingsService userSettingsService,
+			IUserSettingsManager userSettingsManager,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -51,7 +52,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
-			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 
 			if(!CanRead)
 			{
@@ -109,9 +110,9 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 				return;
 			}
 
-			if(string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiLogin)
-				|| string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiPassword)
-				|| string.IsNullOrWhiteSpace(_userSettingsService.Settings.FuelControlApiKey))
+			if(string.IsNullOrWhiteSpace(_userSettingsManager.Settings.FuelControlApiLogin)
+				|| string.IsNullOrWhiteSpace(_userSettingsManager.Settings.FuelControlApiPassword)
+				|| string.IsNullOrWhiteSpace(_userSettingsManager.Settings.FuelControlApiKey))
 			{
 				ShowMessageInGuiThread(
 					ImportanceLevel.Error,
@@ -199,10 +200,13 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_cancellationTokenSource?.Dispose();
 			_cancellationTokenSource = null;
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
 
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

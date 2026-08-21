@@ -726,7 +726,7 @@ namespace Vodovoz
 			_routeListService.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.RouteList, _routeListItem.Id, RouteListItemStatus.Completed, 
 				_callTaskWorker, true);
 			_routeListItem.RestoreOrder();
-			_routeListItem.FirstFillClosing(_wageParameterService);
+			_routeListItem.FirstFillClosing(UoW, _wageParameterService);
 
 			UpdateListsSentivity();
 			UpdateButtonsState();

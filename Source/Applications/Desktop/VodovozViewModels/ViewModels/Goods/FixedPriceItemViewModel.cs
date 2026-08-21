@@ -6,7 +6,7 @@ using Vodovoz.Models;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
-    public class FixedPriceItemViewModel : ViewModelBase
+    public class FixedPriceItemViewModel : ViewModelBase, IDisposable
     {
         public NomenclatureFixedPrice NomenclatureFixedPrice { get; }
         private readonly IFixedPricesModel fixedPriceModel;
@@ -16,7 +16,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
             NomenclatureFixedPrice = fixedPrice ?? throw new ArgumentNullException(nameof(fixedPrice));
             this.fixedPriceModel = fixedPriceModel ?? throw new ArgumentNullException(nameof(fixedPriceModel));
 			
-            fixedPrice.PropertyChanged += FixedPriceOnPropertyChanged;
+			NomenclatureFixedPrice.PropertyChanged += FixedPriceOnPropertyChanged;
         }
 
         private void FixedPriceOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -56,6 +56,12 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		{
 			get => NomenclatureFixedPrice.MinCount;
 			set => fixedPriceModel.UpdateFixedPrice(NomenclatureFixedPrice, FixedPrice, value);
+		}
+		
+		public void Dispose()
+		{
+			NomenclatureFixedPrice.PropertyChanged -= FixedPriceOnPropertyChanged;
+			NomenclatureFixedPrice.Nomenclature.PropertyChanged -= NomenclatureOnPropertyChanged;
 		}
 	}
 }

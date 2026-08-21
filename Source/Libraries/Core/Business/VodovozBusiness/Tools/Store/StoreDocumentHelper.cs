@@ -7,27 +7,27 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Services;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.Tools.Store
 {
 	public class StoreDocumentHelper : IStoreDocumentHelper
 	{
-		private readonly IUserSettingsService _userSettings;
+		private readonly IUserSettingsManager _userSettingsManager;
 		private readonly IInteractiveService _interactiveService;
 		private CurrentWarehousePermissions WarehousePermissions { get; }
 
-		public StoreDocumentHelper(IUserSettingsService userSettings)
+		public StoreDocumentHelper(IUserSettingsManager userSettingsManager)
 		{
-			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 			WarehousePermissions = new CurrentWarehousePermissions();
 			_interactiveService = ServicesConfig.CommonServices.InteractiveService;
 		}
 		public Warehouse GetDefaultWarehouse(IUnitOfWork uow, WarehousePermissionsType edit)
 		{
-			if(_userSettings.Settings.DefaultWarehouse != null)
+			if(_userSettingsManager.Settings.DefaultWarehouse != null)
 			{
-				var warehouse = uow.GetById<Warehouse>(_userSettings.Settings.DefaultWarehouse.Id);
+				var warehouse = uow.GetById<Warehouse>(_userSettingsManager.Settings.DefaultWarehouse.Id);
 				var warehouses = WarehousePermissions.WarehousePermissions.Where(x => x.Warehouse.Id == warehouse.Id);
 				var permission = warehouses
 					.SingleOrDefault(x => x.WarehousePermissionType == WarehousePermissionsType.WarehouseView)

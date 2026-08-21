@@ -21,6 +21,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private readonly ViewModelEEVMBuilder<BusinessActivity> _businessActivityViewModelBuilder;
 		private readonly ViewModelEEVMBuilder<Funds> _fundsViewModelBuilder;
 		private Subdivision _subdivision;
+		private bool _disposed;
 
 		public BusinessAccountViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -148,8 +149,10 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

@@ -339,16 +339,10 @@ namespace Vodovoz.ViewWidgets
 			btnChooseOrder.Binding.RefreshFromSource();
 		}
 
-		public override void Dispose()
+		protected override void OnDestroyed()
 		{
 			entryInProcessAtSubdivision.ViewModel.ChangedByUser -= OnYentInProcessAtDepartmentChangedByUser;
-			evmeOldUndeliveredOrder.Changed -= OnUndeliveredOrderChanged;
-			ytreeviewResult.ButtonReleaseEvent -= OnYtreeviewResultButtonReleaseEvent;
-			cmbUndeliveryObject.Changed -= OnDetalizationParentObjectChanged;
-			ytreeviewResult?.Destroy();
-			yTreeFines?.Destroy();
-
-			base.Dispose();
+			base.OnDestroyed();
 		}
 	}
 }

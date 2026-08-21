@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
@@ -11,16 +11,28 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 {
 	internal sealed class DistrictRuleRepository : IDistrictRuleRepository
 	{
-		public QueryOver<DeliveryPriceRule> GetQueryOverWithAllDeliveryPriceRules()
+		private readonly IUnitOfWorkFactory _uowFactory;
+
+		public DistrictRuleRepository(IUnitOfWorkFactory uowFactory)
 		{
-			var res = QueryOver.Of<DeliveryPriceRule>();
-			return res;
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
-		public IList<DeliveryPriceRule> GetAllDeliveryPriceRules(IUnitOfWork uow)
+		/// <inheritdoc/>
+		public bool SameDeliveryPriceRuleExists(IUnitOfWork uow, DeliveryPriceRule rule)
 		{
-			var res = GetQueryOverWithAllDeliveryPriceRules().GetExecutableQueryOver(uow.Session).List();
-			return res;
+			var query =
+				from deliveryPriceRule in uow.Session.Query<DeliveryPriceRule>()
+				where deliveryPriceRule.Water19LCount == rule.Water19LCount
+					&& deliveryPriceRule.Water6LCount == rule.Water6LCount
+					&& deliveryPriceRule.Water1500mlCount == rule.Water1500mlCount
+					&& deliveryPriceRule.Water600mlCount == rule.Water600mlCount
+					&& deliveryPriceRule.Water500mlCount == rule.Water500mlCount
+					&& deliveryPriceRule.OrderMinSumEShopGoods == rule.OrderMinSumEShopGoods
+					&& deliveryPriceRule.Id != rule.Id
+				select deliveryPriceRule.Id;
+
+			return query.Any();
 		}
 
 		public IList<CommonDistrictRuleItem> GetCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, District district)

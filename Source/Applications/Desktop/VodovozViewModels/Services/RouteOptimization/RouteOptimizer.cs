@@ -542,7 +542,7 @@ namespace Vodovoz.ViewModels.Services.RouteOptimization
 		// </summary>
 		// <returns>Предолженый маршрут</returns>
 		// <param name="route">Первоначальный маршрутный лист, чтобы взять адреса.</param>
-		public ProposedRoute RebuidOneRoute(RouteList route)
+		public ProposedRoute RebuidOneRoute(IUnitOfWork uow, RouteList route)
 		{
 			var trip = new PossibleTrip(route);
 
@@ -562,7 +562,7 @@ namespace Vodovoz.ViewModels.Services.RouteOptimization
 			}
 			_nodes = calculatedOrders.ToArray();
 
-			var geoGroupVersions = _geographicGroupRepository.GetGeographicGroupVersionsOnDate(route.UoW, route.Date);
+			var geoGroupVersions = _geographicGroupRepository.GetGeographicGroupVersionsOnDate(uow, route.Date);
 			_distanceCalculator = new ExtDistanceCalculator(_extDistanceCalculatorLogger, _osrmSettings, _osrmClient, _cachedDistanceRepository, _nodes.Select(x => x.Order.DeliveryPoint).ToArray(), geoGroupVersions, StatisticsTxtAction);
 
 			PerformanceHelper.AddTimePoint($"Подготовка заказов");

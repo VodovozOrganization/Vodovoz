@@ -21,6 +21,7 @@ using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Services;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Tools;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {
@@ -34,7 +35,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 		private readonly IDialogSettingsFactory _dialogSettingsFactory;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IGenericRepository<CarEvent> _carEventRepository;
-		private readonly IUserSettingsService _userSettingsService;
+		private readonly IUserSettingsManager _userSettingsManager;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IGuiDispatcher _guiDispatcher;
@@ -49,7 +50,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			IGenericRepository<CarEventType> carEventTypeRepository,
 			IGenericRepository<CarEvent> carEventRepository,
 			IncludeExludeFilterGroupViewModel includeExludeFilterGroupViewModel,
-			IUserSettingsService userSettingsService,
+			IUserSettingsManager userSettingsManager,
 			IInteractiveService interactiveService,
 			ICarEventSettings carEventSettings,
 			INavigationManager navigation,
@@ -75,8 +76,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				?? throw new ArgumentNullException(nameof(carEventSettings));
 			_guiDispatcher = guiDispatcher
 				?? throw new ArgumentNullException(nameof(guiDispatcher));
-			_userSettingsService = userSettingsService
-				?? throw new ArgumentNullException(nameof(userSettingsService));
+			_userSettingsManager = userSettingsManager
+				?? throw new ArgumentNullException(nameof(userSettingsManager));
 
 			Title = typeof(CarIsNotAtLineReport).GetClassUserFriendlyName().Nominative;
 
@@ -86,8 +87,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			includeExludeFilterGroupViewModel.InitializeFor(UoW, carEventTypeRepository);
 			includeExludeFilterGroupViewModel.RefreshFilteredElementsCommand.Execute();
 
-			var lastIncludedElements = _userSettingsService.Settings.CarIsNotAtLineReportIncludedEventTypeIds;
-			var lastExcludedElements = _userSettingsService.Settings.CarIsNotAtLineReportExcludedEventTypeIds;
+			var lastIncludedElements = _userSettingsManager.Settings.CarIsNotAtLineReportIncludedEventTypeIds;
+			var lastExcludedElements = _userSettingsManager.Settings.CarIsNotAtLineReportExcludedEventTypeIds;
 
 			foreach(var element in includeExludeFilterGroupViewModel.Elements)
 			{
@@ -337,8 +338,8 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 		private void SaveIncludeExcludeParameters()
 		{
-			_userSettingsService.Settings.CarIsNotAtLineReportIncludedEventTypeIds = IncludeExludeFilterGroupViewModel.IncludedElements.Select(iee => int.Parse(iee.Number));
-			_userSettingsService.Settings.CarIsNotAtLineReportExcludedEventTypeIds = IncludeExludeFilterGroupViewModel.ExcludedElements.Select(iee => int.Parse(iee.Number));
+			_userSettingsManager.Settings.CarIsNotAtLineReportIncludedEventTypeIds = IncludeExludeFilterGroupViewModel.IncludedElements.Select(iee => int.Parse(iee.Number));
+			_userSettingsManager.Settings.CarIsNotAtLineReportExcludedEventTypeIds = IncludeExludeFilterGroupViewModel.ExcludedElements.Select(iee => int.Parse(iee.Number));
 		}
 	}
 }

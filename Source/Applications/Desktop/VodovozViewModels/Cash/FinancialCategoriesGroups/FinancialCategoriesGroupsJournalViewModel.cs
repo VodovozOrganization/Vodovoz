@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private readonly Type[] _domainObjectsTypes;
 		private readonly Dictionary<Type, IPermissionResult> _domainObjectsPermissions;
 		private readonly bool _hasAccessToHiddenFinancialCategories;
+		private bool _disposed;
 
 		public FinancialCategoriesGroupsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -400,8 +401,16 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filter.OnFiltered -= OnFilterViewModelFiltered;
+			
+			if(Search is SearchViewModel search)
+			{
+				search.PropertyChanged -= OnSearchPropertyChanged;
+			}
+			
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

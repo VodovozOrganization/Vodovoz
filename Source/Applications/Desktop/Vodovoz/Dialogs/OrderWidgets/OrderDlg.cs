@@ -134,6 +134,7 @@ using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Orders;
 using Vodovoz.Validation;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Email;
@@ -167,6 +168,7 @@ using VodovozBusiness.Nodes;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Users;
 using VodovozInfrastructure.Utils;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
@@ -198,15 +200,12 @@ namespace Vodovoz
 		private static Logger _logger = LogManager.GetCurrentClassLogger();
 		private CancellationTokenSource _cancellationTokenCheckLiquidationSource;
 
-		private readonly IRouteListService _routeListService = ScopeProvider.Scope.Resolve<IRouteListService>();
-		private readonly INomenclatureSettings _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
-		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
-
+		private IRouteListService _routeListService;
+		private INomenclatureSettings _nomenclatureSettings;
+		private INomenclatureRepository _nomenclatureRepository;
 		private IFastDeliveryValidator _fastDeliveryValidator;
-
-		private static readonly IDeliveryRulesSettings _deliveryRulesSettings = ScopeProvider.Scope.Resolve<IDeliveryRulesSettings>();
-
-		private static readonly IDeliveryRepository _deliveryRepository = ScopeProvider.Scope.Resolve<IDeliveryRepository>();
+		private static IDeliveryRulesSettings _deliveryRulesSettings;
+		private static IDeliveryRepository _deliveryRepository;
 
 		private IEdoService _edoService;
 		private IEmailService _emailService;
@@ -226,6 +225,8 @@ namespace Vodovoz
 		private int _fastDeliveryNomenclatureId;
 		private int _advancedPaymentNomenclatureId;
 
+		private IUserSettingsManager _userSettingsManager;
+		private IGeneralSettings _generalSettings;
 		private IOrderSettings _orderSettings;
 		private IOrganizationSettings _organizationSettings;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
@@ -236,48 +237,39 @@ namespace Vodovoz
 
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
-		private readonly IRouteListSettings _routeListSettings = ScopeProvider.Scope.Resolve<IRouteListSettings>();
-		private readonly IDocumentPrinter _documentPrinter = ScopeProvider.Scope.Resolve<IDocumentPrinter>();
-		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = ScopeProvider.Scope.Resolve<IEntityDocumentsPrinterFactory>();
-		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
-		private readonly IEmployeeRepository _employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
-		private readonly IUserRepository _userRepository = ScopeProvider.Scope.Resolve<IUserRepository>();
-		private readonly IFlyerRepository _flyerRepository = ScopeProvider.Scope.Resolve<IFlyerRepository>();
-		private readonly IDocTemplateRepository _docTemplateRepository = ScopeProvider.Scope.Resolve<IDocTemplateRepository>();
-		private readonly IServiceClaimRepository _serviceClaimRepository = ScopeProvider.Scope.Resolve<IServiceClaimRepository>();
-		private readonly IStockRepository _stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
-		private readonly IOrderRepository _orderRepository = ScopeProvider.Scope.Resolve<IOrderRepository>();
-		private readonly IDiscountReasonRepository _discountReasonRepository = ScopeProvider.Scope.Resolve<IDiscountReasonRepository>();
-		private readonly IRouteListItemRepository _routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
-		private readonly IEmailRepository _emailRepository = ScopeProvider.Scope.Resolve<IEmailRepository>();
-		private readonly ICashRepository _cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
-		private readonly IPromotionalSetRepository _promotionalSetRepository = ScopeProvider.Scope.Resolve<IPromotionalSetRepository>();
-		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
-		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
-		private readonly ICounterpartyRepository _counterpartyRepository = ScopeProvider.Scope.Resolve<ICounterpartyRepository>();
-		private readonly IOrganizationRepository _organizationRepository = ScopeProvider.Scope.Resolve<IOrganizationRepository>();
-		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender = ScopeProvider.Scope.Resolve<IRouteListChangesNotificationSender>();
-		private readonly IInteractiveService _interactiveService = ScopeProvider.Scope.Resolve<IInteractiveService>();
-		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
-		private readonly OrderCancellationService _orderCancellationService = ScopeProvider.Scope.Resolve<OrderCancellationService>();
-		
-		private IOrderService _orderService => ScopeProvider.Scope
-			.Resolve<IOrderService>();
-		private IPaymentService _paymentService => ScopeProvider.Scope
-			.Resolve<IPaymentService>();
-
+		private IRouteListSettings _routeListSettings;
+		private IDocumentPrinter _documentPrinter;
+		private IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory;
+		private IEmployeeService _employeeService;
+		private IEmployeeRepository _employeeRepository;
+		private IUserRepository _userRepository;
+		private IFlyerRepository _flyerRepository;
+		private IDocTemplateRepository _docTemplateRepository;
+		private IServiceClaimRepository _serviceClaimRepository;
+		private IStockRepository _stockRepository;
+		private IOrderRepository _orderRepository;
+		private IDiscountReasonRepository _discountReasonRepository;
+		private IRouteListItemRepository _routeListItemRepository;
+		private IEmailRepository _emailRepository;
+		private ICashRepository _cashRepository;
+		private IPromotionalSetRepository _promotionalSetRepository;
+		private IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private IEdoDocflowRepository _edoDocflowRepository;
+		private ICounterpartyRepository _counterpartyRepository;
+		private IOrganizationRepository _organizationRepository;
+		private IRouteListChangesNotificationSender _routeListChangesNotificationSender;
+		private IInteractiveService _interactiveService;
+		private ICurrentPermissionService _currentPermissionService;
+		private IUnitOfWorkFactory _unitOfWorkFactory;
+		private OrderCancellationService _orderCancellationService;
+		private IOrderService _orderService;
+		private IPaymentService _paymentService;
 		private ICounterpartyService _counterpartyService;
 		private IPartitioningOrderService _partitioningOrderService;
+		private IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory;
+		private INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory;
+		private IFastDeliveryHistoryConverter _deliveryHistoryConverter;
 
-		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
-			= ScopeProvider.Scope.Resolve<IRentPackagesJournalsViewModelsFactory>();
-
-		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
-			= ScopeProvider.Scope.Resolve<INonSerialEquipmentsForRentJournalViewModelFactory>();
-
-		private readonly IPaymentItemsRepository _paymentItemsRepository = ScopeProvider.Scope.Resolve<IPaymentItemsRepository>();
-		private readonly IPaymentsRepository _paymentsRepository = ScopeProvider.Scope.Resolve<IPaymentsRepository>();
 		private readonly DateTime _date = new DateTime(2020, 11, 09, 11, 0, 0);
 
 		private readonly bool _canSetOurOrganization =
@@ -350,13 +342,12 @@ namespace Vodovoz
 
 		private Result _lastSaveResult;
 
-		private readonly IGeneralSettings _generalSettingsSettings = ScopeProvider.Scope.Resolve<IGeneralSettings>();
 		public bool IsWaitUntilActive => Entity.OrderStatus.IsIn(
 			OrderStatus.Accepted, 
 			OrderStatus.OnLoading, 
 			OrderStatus.InTravelList, 
 			OrderStatus.OnTheWay)
-			&& _generalSettingsSettings.GetIsOrderWaitUntilActive;
+			&& _generalSettings.GetIsOrderWaitUntilActive;
 		private TimeSpan? _lastWaitUntilTime;
 
 		private List<(int Id, decimal Count, decimal Sum)> _orderItemsOriginalValues = new List<(int Id, decimal Count, decimal Sum)>();
@@ -406,7 +397,7 @@ namespace Vodovoz
 
 		public Order Order => Entity;
 
-		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? _emailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
+		public IList<SentStoredEmailNode> GetEmails() => Entity.Id != 0 ? _emailRepository.GetAllBillEmailsForOrder(UoW, Entity.Id) : null;
 
 		private ICallTaskWorker _callTaskWorker;
 
@@ -502,10 +493,60 @@ namespace Vodovoz
 			base.Destroy();
 		}
 
+		protected override void OnDestroyed()
+		{
+			if(_undeliveryViewModel != null)
+			{
+				_undeliveryViewModel.Saved -= OnUndeliveryViewModelSaved;
+			}
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+
+			orderEquipmentItemsView.OnDeleteEquipment -= OrderEquipmentItemsView_OnDeleteEquipment;
+
+			Entity.ObservableOrderDocuments.ListChanged -= ObservableOrderDocuments_ListChanged;
+			Entity.ObservableOrderDocuments.ElementRemoved -= ObservableOrderDocuments_ElementRemoved;
+			Entity.ObservableOrderDocuments.ElementAdded -= ObservableOrderDocuments_ElementAdded;
+			Entity.ObservableOrderDocuments.ElementAdded -= Entity_UpdateClientCanChange;
+			Entity.ObservableFinalOrderService.ElementAdded -= Entity_UpdateClientCanChange;
+			Entity.ObservableInitialOrderService.ElementAdded -= Entity_UpdateClientCanChange;
+
+			Entity.ObservableOrderItems.ElementAdded -= Entity_ObservableOrderItems_ElementAdded;
+			Entity.ObservableOrderItems.ElementRemoved -= ObservableOrderItems_ElementRemoved;
+
+			Entity.ObservablePromotionalSets.ListChanged -= ObservablePromotionalSets_ListChanged;
+			Entity.ObservablePromotionalSets.ElementAdded -= ObservablePromotionalSets_ElementAdded;
+			Entity.ObservablePromotionalSets.ElementRemoved -= ObservablePromotionalSets_ElementRemoved;
+
+			Entity.ObservableOrderItems.ElementChanged -= ObservableOrderItems_ElementChanged_ChangeCount;
+			Entity.ObservableOrderEquipments.ElementChanged -= ObservableOrderEquipments_ElementChanged_ChangeCount;
+
+			Entity.ObservableOrderDepositItems.ElementAdded -= ObservableOrderDepositItemsOnElementAdded;
+			Entity.ObservableOrderDepositItems.ElementRemoved -= ObservableOrderDepositItemsOnElementRemoved;
+
+			Entity.ObservableOrderEquipments.ElementAdded -= ObservableOrderEquipmentsOnElementAdded;
+			Entity.ObservableOrderEquipments.ElementRemoved -= ObservableOrderEquipmentsOnElementRemoved;
+			
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			
+			enumAddRentButton.EnumItemClicked -= OnAddRentClicked;
+			_menuItemCloseOrder.Activated -= OnButtonCloseOrderClicked;
+			_menuItemReturnToAccepted.Activated -= OnButtonReturnToAcceptedClicked;
+			_menuItemSelfDeliveryToLoading.Activated -= OnButtonSelfDeliveryToLoadingClicked;
+			_menuItemSelfDeliveryPaid.Activated -= OnButtonSelfDeliveryAcceptPaidClicked;
+			
+			logisticsRequirementsView.ViewModel.Entity.PropertyChanged -= OnLogisticsRequirementsSelectionChanged;
+			
+			base.OnDestroyed();
+			UoWGeneric?.Dispose();
+		}
+
 		public OrderDlg()
 		{
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Order>();
+			ResolveDependencies();
+			UoWGeneric = _unitOfWorkFactory.CreateWithNewRoot<Order>();
 			Entity.Author = _currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			if(Entity.Author == null)
 			{
@@ -538,6 +579,7 @@ namespace Vodovoz
 		public OrderDlg(IUnitOfWorkGeneric<Order> unitOfWork)
 		{
 			Build();
+			ResolveDependencies();
 			UoWGeneric = unitOfWork;
 			Entity.OrderStatus = OrderStatus.NewOrder;
 			TabName = "Новый заказ на забор оборудования";
@@ -571,7 +613,8 @@ namespace Vodovoz
 		public OrderDlg(int id)
 		{
 			Build();
-			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Order>(id);
+			ResolveDependencies();
+			UoWGeneric = _unitOfWorkFactory.CreateForRoot<Order>(id);
 			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
 			IsForSalesDepartment = UoWGeneric.Root.Client.IsForSalesDepartment;
 			ConfigureDlg();
@@ -692,34 +735,7 @@ namespace Vodovoz
 		public void ConfigureDlg()
 		{
 			SetPermissions();
-
-			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
-			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
-			_advancedPaymentNomenclatureId = _nomenclatureSettings.AdvancedPaymentNomenclatureId;
-			_fastDeliveryHandler = _lifetimeScope.Resolve<IFastDeliveryHandler>();
-			_fastDeliveryValidator = _lifetimeScope.Resolve<IFastDeliveryValidator>();
-			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
-			_edoService = _lifetimeScope.Resolve<IEdoService>();
-			_emailService = _lifetimeScope.Resolve<IEmailService>();
-			NavigationManager = Startup.MainWin.NavigationManager;
-			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
 			_lastDeliveryPointComment = DeliveryPoint?.Comment.Trim('\n').Trim(' ') ?? string.Empty;
-			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
-			_orderFromOnlineOrderCreator = _lifetimeScope.Resolve<IOrderFromOnlineOrderCreator>();
-			_bottlesRepository = _lifetimeScope.Resolve<IBottlesRepository>();
-			_deliveryPointRepository = _lifetimeScope.Resolve<IDeliveryPointRepository>();
-			_orderContractUpdater = _lifetimeScope.Resolve<IOrderContractUpdater>();
-
-			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
-			_freeLoaderChecker = _lifetimeScope.Resolve<IFreeLoaderChecker>();
-			_partitioningOrderService = _lifetimeScope.Resolve<IPartitioningOrderService>();
-			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
-			_organizationSettings = _lifetimeScope.Resolve<IOrganizationSettings>();
-			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
-			_exportsOrderTo1cReporitory = _lifetimeScope.Resolve<IGenericRepository<OrderTo1cExport>>();
-			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
-			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
-
 			_justCreated = UoWGeneric.IsNew;
 
 			if(_currentEmployee == null)
@@ -734,9 +750,7 @@ namespace Vodovoz
 			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
-
-			_orderSettings = ScopeProvider.Scope.Resolve<IOrderSettings>();
-			_dailyNumberController = new OrderDailyNumberController(_orderRepository, ServicesConfig.UnitOfWorkFactory);
+			_dailyNumberController = new OrderDailyNumberController(_orderRepository, _unitOfWorkFactory);
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint, Phone>(OnDeliveryPointChanged);
@@ -888,7 +902,8 @@ namespace Vodovoz
 
 			if(Entity.OrderStatus == OrderStatus.Closed)
 			{
-				entryTareReturned.Text = ScopeProvider.Scope.Resolve<IBottlesRepository>().GetEmptyBottlesFromClientByOrder(UoW, _nomenclatureRepository, Entity)
+				entryTareReturned.Text = _bottlesRepository
+					.GetEmptyBottlesFromClientByOrder(UoW, _nomenclatureRepository, Entity)
 					.ToString();
 				entryTareReturned.Visible = lblTareReturned.Visible = true;
 			}
@@ -951,7 +966,7 @@ namespace Vodovoz
 
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
 				new EntityAutocompleteSelectorFactory<CounterpartyJournalViewModel>(typeof(Counterparty),
-					() => new CounterpartyJournalViewModel(counterpartyFilter, ServicesConfig.UnitOfWorkFactory,
+					() => new CounterpartyJournalViewModel(counterpartyFilter, _unitOfWorkFactory,
 						ServicesConfig.CommonServices, Startup.MainWin.NavigationManager, filter =>
 						{
 							filter.IsForRetail = IsForRetail;
@@ -1000,10 +1015,9 @@ namespace Vodovoz
 			entryDeliveryPoint.ViewModel.Changed += OnReferenceDeliveryPointChanged;
 			entryDeliveryPoint.ViewModel.ChangedByUser += OnReferenceDeliveryPointChangedByUser;
 
-			_phonesJournal = ScopeProvider.Scope.Resolve<PhonesJournalViewModel>();
+			_phonesJournal = _lifetimeScope.Resolve<PhonesJournalViewModel>();
 
-			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone),
-				() => _phonesJournal);
+			var phoneSelectoFactory = new EntityAutocompleteSelectorFactory<PhonesJournalViewModel>(typeof(Phone), () => _phonesJournal);
 			evmeContactPhone.SetEntitySelectorFactory(phoneSelectoFactory);
 
 			_phonesJournal.FilterViewModel.Counterparty = Counterparty;
@@ -1044,7 +1058,7 @@ namespace Vodovoz
 			SetSensitivityOfPaymentType();
 
 			enumAddRentButton.ItemsEnum = typeof(RentType);
-			enumAddRentButton.EnumItemClicked += (sender, e) => AddRent((RentType)e.ItemEnum);
+			enumAddRentButton.EnumItemClicked += OnAddRentClicked;
 
 			checkSelfDelivery.Toggled += (sender, e) =>
 			{
@@ -1263,6 +1277,80 @@ namespace Vodovoz
 			RefreshDebtorDebtNotifier();
 
 			UpdateDocumentsDescription();
+		}
+
+		private void ResolveDependencies()
+		{
+			_userSettingsManager = _lifetimeScope.Resolve<IUserSettingsManager>();
+			_generalSettings = _lifetimeScope.Resolve<IGeneralSettings>();
+			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
+			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
+			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
+			_deliveryRulesSettings = _lifetimeScope.Resolve<IDeliveryRulesSettings>();
+			_deliveryRepository = _lifetimeScope.Resolve<IDeliveryRepository>();
+			_orderSettings = _lifetimeScope.Resolve<IOrderSettings>();
+			
+			_routeListSettings = _lifetimeScope.Resolve<IRouteListSettings>();
+			_documentPrinter = _lifetimeScope.Resolve<IDocumentPrinter>();
+			_entityDocumentsPrinterFactory = _lifetimeScope.Resolve<IEntityDocumentsPrinterFactory>();
+			_employeeService = _lifetimeScope.Resolve<IEmployeeService>();
+			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
+			_userRepository = _lifetimeScope.Resolve<IUserRepository>();
+			_flyerRepository = _lifetimeScope.Resolve<IFlyerRepository>();
+			_docTemplateRepository = _lifetimeScope.Resolve<IDocTemplateRepository>();
+			_serviceClaimRepository = _lifetimeScope.Resolve<IServiceClaimRepository>();
+			_stockRepository = _lifetimeScope.Resolve<IStockRepository>();
+			_orderRepository = _lifetimeScope.Resolve<IOrderRepository>();
+			_discountReasonRepository = _lifetimeScope.Resolve<IDiscountReasonRepository>();
+			_routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
+			_emailRepository = _lifetimeScope.Resolve<IEmailRepository>();
+			_cashRepository = _lifetimeScope.Resolve<ICashRepository>();
+			_promotionalSetRepository = _lifetimeScope.Resolve<IPromotionalSetRepository>();
+			 _undeliveredOrdersRepository = _lifetimeScope.Resolve<IUndeliveredOrdersRepository>();
+			_edoDocflowRepository = _lifetimeScope.Resolve<IEdoDocflowRepository>();
+			_counterpartyRepository = _lifetimeScope.Resolve<ICounterpartyRepository>();
+			_organizationRepository = _lifetimeScope.Resolve<IOrganizationRepository>();
+			_routeListChangesNotificationSender = _lifetimeScope.Resolve<IRouteListChangesNotificationSender>();
+			_interactiveService = _lifetimeScope.Resolve<IInteractiveService>();
+			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
+			_unitOfWorkFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
+			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
+			_orderService = _lifetimeScope.Resolve<IOrderService>();
+			_paymentService = _lifetimeScope.Resolve<IPaymentService>();
+			
+			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
+			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
+			_advancedPaymentNomenclatureId = _nomenclatureSettings.AdvancedPaymentNomenclatureId;
+			_fastDeliveryHandler = _lifetimeScope.Resolve<IFastDeliveryHandler>();
+			_fastDeliveryValidator = _lifetimeScope.Resolve<IFastDeliveryValidator>();
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_edoService = _lifetimeScope.Resolve<IEdoService>();
+			_emailService = _lifetimeScope.Resolve<IEmailService>();
+			NavigationManager = Startup.MainWin.NavigationManager;
+			_selectPaymentTypeViewModel = new SelectPaymentTypeViewModel(NavigationManager);
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
+			_orderFromOnlineOrderCreator = _lifetimeScope.Resolve<IOrderFromOnlineOrderCreator>();
+			_bottlesRepository = _lifetimeScope.Resolve<IBottlesRepository>();
+			_deliveryPointRepository = _lifetimeScope.Resolve<IDeliveryPointRepository>();
+			_orderContractUpdater = _lifetimeScope.Resolve<IOrderContractUpdater>();
+
+			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
+			_freeLoaderChecker = _lifetimeScope.Resolve<IFreeLoaderChecker>();
+			_partitioningOrderService = _lifetimeScope.Resolve<IPartitioningOrderService>();
+			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
+			_organizationSettings = _lifetimeScope.Resolve<IOrganizationSettings>();
+			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
+			_exportsOrderTo1cReporitory = _lifetimeScope.Resolve<IGenericRepository<OrderTo1cExport>>();
+			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
+			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
+			_rentPackagesJournalsViewModelsFactory = _lifetimeScope.Resolve<IRentPackagesJournalsViewModelsFactory>();
+			_nonSerialEquipmentsForRentJournalViewModelFactory = _lifetimeScope.Resolve<INonSerialEquipmentsForRentJournalViewModelFactory>();
+			_deliveryHistoryConverter = _lifetimeScope.Resolve<IFastDeliveryHistoryConverter>();
+		}
+
+		private void OnAddRentClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
+		{
+			AddRent((RentType)e.ItemEnum);
 		}
 
 		private void SetOrderItemDiscountReasonsViewModel()
@@ -1565,7 +1653,7 @@ namespace Vodovoz
 
 				OrderEdoTrueMarkDocumentsActions resendAction;
 
-				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot($"Переотправка счета из {nameof(OrderDlg)}"))
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Переотправка счета из {nameof(OrderDlg)}"))
 				{
 					var resendActionQuery = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
 							.Where(x => x.Order.Id == Entity.Id);
@@ -1957,10 +2045,11 @@ namespace Vodovoz
 				fastDeliveryOrder: Entity
 			);
 
-			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
+			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(_unitOfWorkFactory);
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
-			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
+			var fastDeliveryVerificationViewModel =
+				new FastDeliveryVerificationViewModel(UoW, _deliveryHistoryConverter, fastDeliveryAvailabilityHistory);
 			Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
 				null, fastDeliveryVerificationViewModel);
 		}
@@ -2497,7 +2586,7 @@ namespace Vodovoz
 
 			var documents = new List<EdoDockflowData>();
 
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Отправка документов по ЭДО, диалог заказа"))
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Отправка документов по ЭДО, диалог заказа"))
 			{
 				UpdateEdoContainers(uow);
 
@@ -2562,7 +2651,7 @@ namespace Vodovoz
 		{
 			SendDocumentByEmailViewModel =
 				new SendDocumentByEmailViewModel(
-					ServicesConfig.UnitOfWorkFactory,
+					_unitOfWorkFactory,
 					_emailRepository,
 					_lifetimeScope.Resolve<IEmailSettings>(),
 					_currentEmployee,
@@ -2687,7 +2776,7 @@ namespace Vodovoz
 					return false;
 				}
 
-				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Обновление статуса оплаты из карточки заказа"))
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Обновление статуса оплаты из карточки заказа"))
 				{
 					_orderService.UpdatePaymentStatus(uow, Entity);
 				}
@@ -2794,7 +2883,7 @@ namespace Vodovoz
 				return;
 			}
 
-			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, ServicesConfig.UnitOfWorkFactory, routeListItem, forceUsePlanCount: true);
+			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, _unitOfWorkFactory, routeListItem, forceUsePlanCount: true);
 		}
 
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
@@ -2956,7 +3045,7 @@ namespace Vodovoz
 				if(fastDeliveryResult.Errors.Any(x => x.Code == nameof(FastDeliveryErrors.RouteListForFastDeliveryIsMissing)))
 				{
 					var fastDeliveryVerificationViewModel =
-						new FastDeliveryVerificationViewModel(_fastDeliveryHandler.FastDeliveryAvailabilityHistory);
+						new FastDeliveryVerificationViewModel(UoW, _deliveryHistoryConverter, _fastDeliveryHandler.FastDeliveryAvailabilityHistory);
 					NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
 						null, UoW, fastDeliveryVerificationViewModel);
 				}
@@ -3494,10 +3583,15 @@ namespace Vodovoz
 			{
 				ylabelDocumentsDescription.LabelProp = string.Empty;
 			}
-
-			var lastExport = _exportsOrderTo1cReporitory.Get(UoW, e => e.Order.Id == Entity.Id).SingleOrDefault();
-			var lastExportDate = lastExport?.LastExportDate;
-			var lastChangeDate = lastExport?.LastOrderChangeDate;
+			
+			var lastExport = _exportsOrderTo1cReporitory
+				.GetValue(UoW,
+					e => new ValueTuple<DateTime?, DateTime?>(e.LastExportDate, e.LastOrderChangeDate),
+					e => e.Order.Id == Entity.Id)
+				.SingleOrDefault();
+			
+			var lastExportDate = lastExport.Item1;
+			var lastChangeDate = lastExport.Item2;
 			var lastFiscalDocumentDate = _cashReceiptRepository.GetLastEdoFiscalDocumentByOrderId(UoW, Entity.Id)?.CreationTime;
 			var lastTaxcomDocflowDate = _edoDocflowRepository.GetLastTaxcomDocflowByOrderId(UoW, Entity.Id)?.CreationTime;
 
@@ -3800,9 +3894,9 @@ namespace Vodovoz
 			}
 
 			var defaultCategory = NomenclatureCategory.water;
-			if(CurrentUserSettings.Settings.DefaultSaleCategory.HasValue)
+			if(_userSettingsManager.Settings.DefaultSaleCategory.HasValue)
 			{
-				defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;
+				defaultCategory = _userSettingsManager.Settings.DefaultSaleCategory.Value;
 			}
 
 			var journalViewModel =
@@ -5285,7 +5379,7 @@ namespace Vodovoz
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
 			RouteListStatus? rlStatus = null;
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot($"Получение списка МЛ из {nameof(OrderDlg)}"))
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Получение списка МЛ из {nameof(OrderDlg)}"))
 			{
 				if(Entity.Id != 0)
 				{
@@ -5476,8 +5570,8 @@ namespace Vodovoz
 				return;
 			}
 
-			var sameOrder = _orderRepository.GetOrderOnDateAndDeliveryPoint(UoW, DeliveryDate.Value, DeliveryPoint);
-			if(sameOrder != null && _templateOrder == null)
+			var hasSameOrder = _orderRepository.OtherOrderOnDateAndDeliveryPointExists(UoW, DeliveryDate.Value, DeliveryPoint);
+			if(hasSameOrder && _templateOrder == null)
 			{
 				MessageDialogHelper.RunWarningDialog("На выбранную дату и точку доставки уже есть созданный заказ!");
 			}
@@ -5882,7 +5976,7 @@ namespace Vodovoz
 
 		private IUnitOfWorkGeneric<Order> CreateNewOrderForDailyRentEquipmentReturn(Order sourceOrder)
 		{
-			var result = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Order>();
+			var result = _unitOfWorkFactory.CreateWithNewRoot<Order>();
 
 			result.Root.UpdateClient(sourceOrder.Client, _orderContractUpdater, out var updateClientMessage);
 			result.Root.Author = sourceOrder.Author;

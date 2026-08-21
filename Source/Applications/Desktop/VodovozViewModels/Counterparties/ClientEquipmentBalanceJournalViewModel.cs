@@ -19,6 +19,7 @@ namespace Vodovoz.ViewModels.Counterparties
 	public partial class ClientEquipmentBalanceJournalViewModel : EntityJournalViewModelBase<CounterpartyMovementOperation, DialogViewModelBase, ClientEquipmentBalanceNode>
 	{
 		private readonly ClientBalanceFilterViewModel _clientBalanceFilterViewModel;
+		private bool _disposed;
 
 		public ClientEquipmentBalanceJournalViewModel(
 			ClientBalanceFilterViewModel clientBalanceFilterViewModel,
@@ -119,9 +120,10 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_clientBalanceFilterViewModel.OnFiltered -= OnFilterViewModelFiltered;
-
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

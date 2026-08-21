@@ -77,6 +77,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private DelegateCommand _fillFromOrdersCommand;
 		private DelegateCommand _printCommand;
 		private DelegateCommand _addInventoryInstanceCommand;
+		private bool _disposed;
 
 		public MovementDocumentViewModel(
 			IEntityUoWBuilder uowBuilder, 
@@ -907,9 +908,10 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnMovementDocumentPropertyChanged;
-
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

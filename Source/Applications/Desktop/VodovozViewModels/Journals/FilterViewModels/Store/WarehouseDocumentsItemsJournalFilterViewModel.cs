@@ -65,6 +65,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
 		private readonly IGenericRepository<ProductGroup> _productGroupRepository;
 		private EntityEntryViewModel<Nomenclature> _nomenclatureEntityEntryViewModel;
+		private bool _disposed;
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
 			ICurrentPermissionService currentPermissionService,
@@ -520,11 +521,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			FilterViewModel.SelectionChanged -= OnFilterViewModelSelectionChanged;
 			FilterViewModel.FilterModeChanged -= OnFilterViewModelFilterModeChanged;
 			IncludeExcludeFilterViewModel.SelectionChanged -= OnIncludeExcludeFilterSelectionChanged;
 
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

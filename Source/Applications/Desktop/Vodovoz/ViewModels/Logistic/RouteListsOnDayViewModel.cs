@@ -1,13 +1,15 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Osrm;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
@@ -19,7 +21,6 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NHibernate.SqlCommand;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
@@ -33,13 +34,13 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
@@ -48,10 +49,9 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Services.DriverSchedule;
-using VodovozBusiness.Domain.Client;
 using Vodovoz.ViewModels.Services.RouteOptimization;
+using VodovozBusiness.Domain.Client;
 using Order = Vodovoz.Domain.Orders.Order;
-using QS.Osrm;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -66,7 +66,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly DeliveryDaySchedule _defaultDeliveryDaySchedule;
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly IEmployeeService _employeeService;
 		private readonly IDriverScheduleService _driverScheduleService;
 		private readonly IOsrmSettings _osrmSettings;
 		private readonly IOsrmClient _osrmClient;
@@ -117,7 +116,7 @@ namespace Vodovoz.ViewModels.Logistic
 			INavigationManager navigationManager,
 			IUserRepository userRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
-			IEmployeeService employeeService,
+			IEmployeeRepository employeeRepository,
 			IDriverScheduleService driverScheduleService,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
@@ -142,7 +141,6 @@ namespace Vodovoz.ViewModels.Logistic
 			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_driverScheduleService = driverScheduleService ?? throw new ArgumentNullException(nameof(driverScheduleService));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
@@ -165,7 +163,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 			CreateUoW();
 
-			_employee = _employeeService.GetEmployeeForCurrentUser(UoW);
+			_employee = (employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
+				.GetEmployeeForCurrentUser(UoW);
+			
 			if(_employee == null)
 			{
 				ShowWarningMessage("Ваш пользователь не привязан к сотруднику, продолжение работы невозможно");
@@ -276,7 +276,7 @@ namespace Vodovoz.ViewModels.Logistic
 				i =>
 				{
 					var route = i.RouteList;
-					route.RemoveAddress(i);
+					route.RemoveAddress(UoW, i);
 
 					if(!CheckRouteListWasChanged(route))
 					{
@@ -516,7 +516,7 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					RouteList route = obj is RouteListItem routeListItem ? routeListItem.RouteList : obj as RouteList;
 
-					var newRoute = Optimizer.RebuidOneRoute(route);
+					var newRoute = Optimizer.RebuidOneRoute(UoW, route);
 					if(newRoute != null)
 					{
 						newRoute.UpdateAddressOrderInRealRoute(route);
@@ -1410,7 +1410,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool AddOrdersToRouteList(IList<OrderOnDayNode> selectedOrderNodes, RouteList routeList)
 		{
-			if(!routeList.IsDriversDebtInPermittedRangeVerification())
+			if(!routeList.IsDriversDebtInPermittedRangeVerification(UoW))
 			{
 				return false;
 			}
@@ -1442,7 +1442,7 @@ namespace Vodovoz.ViewModels.Logistic
 							recalculateLoading = true;
 						}
 
-						alreadyIn.RemoveAddress(toRemoveAddress);
+						alreadyIn.RemoveAddress(UoW, toRemoveAddress);
 						UoW.Save(alreadyIn);
 					}
 
@@ -1567,7 +1567,7 @@ namespace Vodovoz.ViewModels.Logistic
 				ix++;
 				actionUpdateInfo?.Invoke($"Строим {ix} из {RoutesOnDay.Count}");
 
-				var newRoute = Optimizer.RebuidOneRoute(route);
+				var newRoute = Optimizer.RebuidOneRoute(UoW, route);
 
 				if(newRoute != null)
 				{
@@ -1665,7 +1665,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 			GetWorkDriversInfo();
 			CalculateOnDeliverySum();
-			RoutesOnDay.ToList().ForEach(rl => rl.UoW = UoW);
 
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
 			RoutesOnDay.ToList().ForEach(rl => rl.CheckAddressOrder());
@@ -1735,7 +1734,7 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					foreach(var odrer in route.Addresses.ToList())
 					{
-						route.RemoveAddress(odrer);
+						route.RemoveAddress(UoW, odrer);
 					}
 				}
 
@@ -1743,7 +1742,6 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					var rl = propose.Trip.OldRoute ?? new RouteList();
 
-					rl.UoW = UoW;
 					rl.Car = propose.Trip.Car;
 					rl.Driver = propose.Trip.Driver;
 					rl.Shift = propose.Trip.Shift;

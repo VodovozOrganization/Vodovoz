@@ -15,8 +15,8 @@ using System.Threading.Tasks;
 using System.Timers;
 using Vodovoz.Application.Mango;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Pacs;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
 using Timer = System.Timers.Timer;
 
@@ -31,8 +31,7 @@ namespace Vodovoz.Application.Pacs
 		private static TimeSpan _commandTimeout = TimeSpan.FromSeconds(10);
 
 		private readonly ILogger<OperatorService> _logger;
-		private readonly IEmployeeService _employeeService;
-		private readonly Employee _employee;
+		private readonly IEmployeeInnerPhone _employeeInnerPhone;
 		private readonly IOperatorClient _client;
 		private readonly IMangoManager _mangoManager;
 		private readonly OperatorKeepAliveController _operatorKeepAliveController;
@@ -77,7 +76,6 @@ namespace Vodovoz.Application.Pacs
 			OperatorKeepAliveController operatorKeepAliveController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_mangoManager = mangoManager ?? throw new ArgumentNullException(nameof(mangoManager));
 			_operatorStateAgent = operatorStateAgent ?? throw new ArgumentNullException(nameof(operatorStateAgent));
 			_pacsRepository = pacsRepository ?? throw new ArgumentNullException(nameof(pacsRepository));
@@ -94,7 +92,8 @@ namespace Vodovoz.Application.Pacs
 			_delayedBreakUpdateTimer = new Timer();
 			_delayedBreakUpdateTimer.Elapsed += async (s, e) => await OnBreakAvailabilityTimerElapsedAsync(s, e);
 
-			_employee = _employeeService.GetEmployeeForCurrentUser();
+			_employeeInnerPhone = (employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
+				.GetEmployeeInnerPhone();
 
 			IsAdministrator = _pacsEmployeeProvider.IsAdministrator;
 			IsOperator = _pacsEmployeeProvider.IsOperator;
@@ -804,15 +803,15 @@ namespace Vodovoz.Application.Pacs
 			else
 			{
 				//инициализация без скуд
-				if(_employee.InnerPhone == null)
+				if(_employeeInnerPhone.InnerPhone == null)
 				{
-					_logger.LogWarning("Не указан внутренний телефон сотрудника Id {EmployeeId} используемый для Манго.", _employee.Id);
+					_logger.LogWarning("Не указан внутренний телефон сотрудника Id {EmployeeId} используемый для Манго.", _employeeInnerPhone.EmployeeId);
 				}
 
-				if(_mangoManager.CanConnect && _employee.InnerPhone.HasValue)
+				if(_mangoManager.CanConnect && _employeeInnerPhone.InnerPhone.HasValue)
 				{
-					_mangoManager.Connect(_employee.InnerPhone.Value);
-					MangoPhone = _employee.InnerPhone.Value.ToString();
+					_mangoManager.Connect(_employeeInnerPhone.InnerPhone.Value);
+					MangoPhone = _employeeInnerPhone.InnerPhone.Value.ToString();
 					CanOpenMango = true;
 				}
 				else
@@ -902,6 +901,11 @@ namespace Vodovoz.Application.Pacs
 
 		public void Dispose()
 		{
+			if(_mangoManager != null)
+			{
+				_mangoManager.PropertyChanged -= MangoManagerPropertyChanged;
+			}
+			
 			if(_connectingTimer != null)
 			{
 				_connectingTimer.Stop();

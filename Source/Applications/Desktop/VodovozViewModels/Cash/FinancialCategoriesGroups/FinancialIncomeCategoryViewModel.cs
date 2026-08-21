@@ -22,6 +22,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private readonly ILifetimeScope _scope;
 		private FinancialCategoriesGroup _parentFinancialCategoriesGroup;
 		private Subdivision _subdivision;
+		private bool _disposed;
 
 		public FinancialIncomeCategoryViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -217,6 +218,14 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 						"Родительская категория статьи является скрытой. Чтобы изменить параметр, сделайте не скрытой родительскую категорию, либо перенесите в не скрытую.");
 				}
 			}
+		}
+
+		public override void Dispose()
+		{
+			if(_disposed) return;
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

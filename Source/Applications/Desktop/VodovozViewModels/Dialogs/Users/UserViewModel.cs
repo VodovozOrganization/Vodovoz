@@ -46,6 +46,7 @@ namespace Vodovoz.ViewModels
 		private DelegateCommand _addUserRoleToUserCommand;
 		private DelegateCommand _removeUserRoleCommand;
 		private IEnumerable<string> _userGrants;
+		private bool _disposed;
 
 		public UserViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -447,8 +448,10 @@ namespace Vodovoz.ViewModels
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			UnsubscribeUpdateOnChanges();
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

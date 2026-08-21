@@ -48,13 +48,11 @@ namespace VodovozBusinessTests.Domain.Logistic
 			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
 			routeListItemRepository.GetTransferredFrom(uow, routeListItemRemovingMock).Returns(routeListItemSourceMock);
 
-			RouteList routeListUnderTest = new RouteList {
-				UoW = uow
-			};
+			RouteList routeListUnderTest = new RouteList();
 			routeListUnderTest.Addresses.Add(routeListItemRemovingMock);
 
 			// act
-			routeListUnderTest.TryRemoveAddress(routeListItemRemovingMock, out string msg, routeListItemRepository);
+			routeListUnderTest.TryRemoveAddress(uow, routeListItemRemovingMock, out string msg, routeListItemRepository);
 
 			// assert
 			Assert.That(routeListUnderTest.Addresses.Count, Is.EqualTo(1));
@@ -75,13 +73,11 @@ namespace VodovozBusinessTests.Domain.Logistic
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
 
-			RouteList routeListUnderTest = new RouteList {
-				UoW = uow
-			};
+			RouteList routeListUnderTest = new RouteList();
 			routeListUnderTest.Addresses.Add(routeListItemRemovingMock);
 
 			// act
-			routeListUnderTest.TryRemoveAddress(routeListItemRemovingMock, out string msg, routeListItemRepository);
+			routeListUnderTest.TryRemoveAddress(uow, routeListItemRemovingMock, out string msg, routeListItemRepository);
 
 			// assert
 			Assert.That(routeListUnderTest.Addresses.Count, Is.EqualTo(0));

@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class PromotionalSet : BusinessObjectBase<PromotionalSet>, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class PromotionalSet : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
 		private const int _onlineNameLimit = 45;
 		private string _name;

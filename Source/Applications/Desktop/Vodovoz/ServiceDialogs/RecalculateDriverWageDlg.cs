@@ -145,8 +145,8 @@ namespace Vodovoz.ServiceDialogs
                 {
                     address.DriverWageCalculationMethodic = null;
                 }
-                rl.RecalculateAllWages(_wageParameterService);
-                rl.UpdateWageOperation();
+                rl.RecalculateAllWages(uow, _wageParameterService);
+                rl.UpdateWageOperation(uow);
                 uow.Save(rl);
             }
             uow.Commit();
@@ -160,8 +160,8 @@ namespace Vodovoz.ServiceDialogs
                 {
                     address.ForwarderWageCalculationMethodic = null;
                 }
-                rl.RecalculateAllWages(_wageParameterService);
-                rl.UpdateWageOperation();
+                rl.RecalculateAllWages(uow, _wageParameterService);
+                rl.UpdateWageOperation(uow);
                 uow.Save(rl);
             }
             uow.Commit();

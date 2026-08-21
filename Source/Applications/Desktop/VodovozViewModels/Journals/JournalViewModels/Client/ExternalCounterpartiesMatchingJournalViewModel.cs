@@ -24,6 +24,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 	{
 		private readonly ILifetimeScope _scope;
 		private ExternalCounterpartiesMatchingJournalFilterViewModel _filterViewModel;
+		private bool _disposed;
 
 		public ExternalCounterpartiesMatchingJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -160,8 +161,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

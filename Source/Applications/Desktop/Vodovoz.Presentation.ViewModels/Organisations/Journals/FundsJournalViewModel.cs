@@ -14,6 +14,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 		EntityJournalViewModelBase<Funds, FundsViewModel, FundsJournalNode>
 	{
 		private readonly FundsFilterViewModel _filterViewModel;
+		private bool _disposed;
 
 		public FundsJournalViewModel(
 			FundsFilterViewModel filterViewModel,
@@ -57,8 +58,10 @@ namespace Vodovoz.Presentation.ViewModels.Organisations.Journals
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterFiltered;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

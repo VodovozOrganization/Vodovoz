@@ -1,4 +1,4 @@
-﻿using Gamma.Binding;
+using Gamma.Binding;
 using Gamma.Binding.Converters;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using Gamma.ColumnConfig;
@@ -160,10 +160,10 @@ namespace Vodovoz.Views.TrueMark
 			_driverOpenDocument.Show();
 			_driverOpenAuthor.Show();
 			_driverPopup.Show();
-			_driverCopySourceCodes.Activated += (sender, e) => ViewModel.CopyDriverSourceCodesCommand.Execute(null);
-			_driverCopyResultCodes.Activated += (sender, e) => ViewModel.CopyDriverResultCodesCommand.Execute(null);
-			_driverOpenDocument.Activated += (sender, e) => ViewModel.OpenRouteListCommand.Execute(null);
-			_driverOpenAuthor.Activated += (sender, e) => ViewModel.OpenFromDriverAuthorCommand.Execute(null);
+			_driverCopySourceCodes.Activated += OnDriverCopySourceCodesActivated;
+            _driverCopyResultCodes.Activated += OnDriverCopyResultCodesActivated;
+			_driverOpenDocument.Activated += OnDriverOpenDocumentActivated;
+			_driverOpenAuthor.Activated += OnDriverOpenAuthorActivated;
 			ytreeviewDriver.ButtonReleaseEvent += TableDriverRightClick;
 			ytreeviewDriver.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
@@ -231,10 +231,10 @@ namespace Vodovoz.Views.TrueMark
 			_warehouseOpenDocument.Show();
 			_warehouseOpenAuthor.Show();
 			_warehousePopup.Show();
-			_warehouseCopySourceCodes.Activated += (sender, e) => ViewModel.CopyWarehouseSourceCodesCommand.Execute(null);
-			_warehouseCopyResultCodes.Activated += (sender, e) => ViewModel.CopyWarehouseResultCodesCommand.Execute(null);
-			_warehouseOpenDocument.Activated += (sender, e) => ViewModel.OpenCarLoadDocumentCommand.Execute(null);
-			_warehouseOpenAuthor.Activated += (sender, e) => ViewModel.OpenFromWarehouseAuthorCommand.Execute(null);
+			_warehouseCopySourceCodes.Activated += OnWarehouseCopySourceCodesActivated;
+			_warehouseCopyResultCodes.Activated += OnWarehouseCopyResultCodesActivated;
+			_warehouseOpenDocument.Activated += OnWarehouseOpenDocumentActivated;
+			_warehouseOpenAuthor.Activated += OnWarehouseOpenAuthorActivated;
 			ytreeviewWarehouse.ButtonReleaseEvent += TableWarehouseRightClick;
 			ytreeviewWarehouse.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
@@ -302,10 +302,10 @@ namespace Vodovoz.Views.TrueMark
 			_selfdeliveryOpenDocument.Show();
 			_selfdeliveryOpenAuthor.Show();
 			_selfdeliveryPopup.Show();
-			_selfdeliveryCopySourceCodes.Activated += (sender, e) => ViewModel.CopySelfdeliverySourceCodesCommand.Execute(null);
-			_selfdeliveryCopyResultCodes.Activated += (sender, e) => ViewModel.CopySelfdeliveryResultCodesCommand.Execute(null);
-			_selfdeliveryOpenDocument.Activated += (sender, e) => ViewModel.OpenSelfdeliveryDocumentCommand.Execute(null);
-			_selfdeliveryOpenAuthor.Activated += (sender, e) => ViewModel.OpenFromSelfdeliveryAuthorCommand.Execute(null);
+			_selfdeliveryCopySourceCodes.Activated += OnSelfdeliveryCopySourceCodesActivated;
+			_selfdeliveryCopyResultCodes.Activated += OnSelfdeliveryCopyResultCodesActivated;
+			_selfdeliveryOpenDocument.Activated += OnSelfdeliveryOpenDocumentActivated;
+			_selfdeliveryOpenAuthor.Activated += OnSelfdeliveryOpenAuthorActivated;
 			ytreeviewSelfdelivery.ButtonReleaseEvent += TableSelfdeliveryRightClick;
 			ytreeviewSelfdelivery.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
@@ -333,7 +333,7 @@ namespace Vodovoz.Views.TrueMark
 			_poolPopup.Add(_poolCopyCodes);
 			_poolCopyCodes.Show();
 			_poolPopup.Show();
-			_poolCopyCodes.Activated += (sender, e) => ViewModel.CopyPoolCodesCommand.Execute(null);
+			_poolCopyCodes.Activated += OnPoolCopyCodesActivated;
 			ytreeviewPool.ButtonReleaseEvent += OnTablePoolRightClick;
 			ytreeviewPool.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
@@ -369,11 +369,81 @@ namespace Vodovoz.Views.TrueMark
 			_stagingPopup.Add(_stagingCopyCodes);
 			_stagingCopyCodes.Show();
 			_stagingPopup.Show();
-			_stagingCopyCodes.Activated += (sender, e) => ViewModel.CopyStagingCodesCommand.Execute(null);
+			_stagingCopyCodes.Activated += OnStagingCopyCodesActivated;
 			ytreeviewStaging.ButtonReleaseEvent += OnTableStagingRightClick;
 			ytreeviewStaging.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+		}
+
+		private void OnPoolCopyCodesActivated(object sender, EventArgs e)
+		{
+			ViewModel.CopyPoolCodesCommand.Execute(null);
+		}
+
+		private void OnStagingCopyCodesActivated(object sender, EventArgs e)
+		{
+			ViewModel.CopyStagingCodesCommand.Execute(null);
+		}
+
+		private void OnSelfdeliveryOpenAuthorActivated(object sender, EventArgs e)
+		{
+			ViewModel.OpenFromSelfdeliveryAuthorCommand.Execute(null);
+		}
+
+		private void OnSelfdeliveryOpenDocumentActivated(object sender, EventArgs e)
+		{
+			ViewModel.OpenSelfdeliveryDocumentCommand.Execute(null);
+		}
+
+		private void OnSelfdeliveryCopyResultCodesActivated(object sender, EventArgs e)
+		{
+			ViewModel.CopySelfdeliveryResultCodesCommand.Execute(null);
+		}
+
+		private void OnSelfdeliveryCopySourceCodesActivated(object sender, EventArgs e)
+		{
+			ViewModel.CopySelfdeliverySourceCodesCommand.Execute(null);
+		}
+
+		private void OnWarehouseOpenAuthorActivated(object sender, EventArgs e)
+		{
+			ViewModel.OpenFromWarehouseAuthorCommand.Execute(null);
+		}
+
+		private void OnWarehouseOpenDocumentActivated(object sender, EventArgs e)
+		{
+			ViewModel.OpenCarLoadDocumentCommand.Execute(null);
+		}
+
+		private void OnWarehouseCopyResultCodesActivated(object sender, EventArgs e)
+		{
+			ViewModel.CopyWarehouseResultCodesCommand.Execute(null);
+		}
+
+		private void OnWarehouseCopySourceCodesActivated(object sender, EventArgs e)
+		{
+			ViewModel.CopyWarehouseSourceCodesCommand.Execute(null);
+		}
+
+		private void OnDriverOpenAuthorActivated(object sender, EventArgs e)
+		{
+			ViewModel.OpenFromDriverAuthorCommand.Execute(null);
+		}
+
+		private void OnDriverOpenDocumentActivated(object sender, EventArgs e)
+		{
+			ViewModel.OpenRouteListCommand.Execute(null);
+		}
+
+		private void OnDriverCopyResultCodesActivated(object sender, EventArgs e)
+		{
+			ViewModel.CopyDriverResultCodesCommand.Execute(null);
+		}
+
+		private void OnDriverCopySourceCodesActivated(object sender, EventArgs e)
+		{
+			ViewModel.CopyDriverSourceCodesCommand.Execute(null);
 		}
 
 		private void TreeViewAfterModelChanged(object sender, EventArgs e)
@@ -546,28 +616,28 @@ namespace Vodovoz.Views.TrueMark
 
 		protected override void OnDestroyed()
 		{
-			_driverPopup?.Destroy();
-			_driverCopySourceCodes?.Destroy();
-			_driverCopyResultCodes?.Destroy();
-			_driverOpenDocument?.Destroy();
-			_driverOpenAuthor?.Destroy();
-			_warehousePopup?.Destroy();
-			_warehouseCopySourceCodes?.Destroy();
-			_warehouseCopyResultCodes?.Destroy();
-			_warehouseOpenDocument?.Destroy();
-			_warehouseOpenAuthor?.Destroy();
-			_selfdeliveryPopup?.Destroy();
-			_selfdeliveryCopySourceCodes?.Destroy();
-			_selfdeliveryCopyResultCodes?.Destroy();
-			_selfdeliveryOpenDocument?.Destroy();
-			_selfdeliveryOpenAuthor?.Destroy();
-			_poolPopup?.Destroy();
-			_poolCopyCodes?.Destroy();
-			ViewModel?.DisposeReuseTargetOrderEntry();
-			ytreeviewDriver?.Destroy();
-			ytreeviewWarehouse?.Destroy();
-			ytreeviewSelfdelivery?.Destroy();
-			ytreeviewPool?.Destroy();
+			if(ViewModel != null)
+			{
+				ViewModel.PropertyChanged -= ViewModelPropertyChanged;
+			}
+
+			_driverCopySourceCodes.Activated -= OnDriverCopySourceCodesActivated;
+			_driverCopyResultCodes.Activated -= OnDriverCopyResultCodesActivated;
+			_driverOpenDocument.Activated -= OnDriverOpenDocumentActivated;
+			_driverOpenAuthor.Activated -= OnDriverOpenAuthorActivated;
+			
+			_warehouseCopySourceCodes.Activated -= OnWarehouseCopySourceCodesActivated;
+			_warehouseCopyResultCodes.Activated -= OnWarehouseCopyResultCodesActivated;
+			_warehouseOpenDocument.Activated -= OnWarehouseOpenDocumentActivated;
+			_warehouseOpenAuthor.Activated -= OnWarehouseOpenAuthorActivated;
+			
+			_selfdeliveryCopySourceCodes.Activated -= OnSelfdeliveryCopySourceCodesActivated;
+			_selfdeliveryCopyResultCodes.Activated -= OnSelfdeliveryCopyResultCodesActivated;
+			_selfdeliveryOpenDocument.Activated -= OnSelfdeliveryOpenDocumentActivated;
+			_selfdeliveryOpenAuthor.Activated -= OnSelfdeliveryOpenAuthorActivated;
+			
+			_poolCopyCodes.Activated -= OnPoolCopyCodesActivated;
+			_stagingCopyCodes.Activated -= OnStagingCopyCodesActivated;
 
 			base.OnDestroyed();
 		}

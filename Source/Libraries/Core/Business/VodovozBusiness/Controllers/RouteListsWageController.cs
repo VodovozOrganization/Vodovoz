@@ -68,8 +68,8 @@ namespace Vodovoz.Controllers
 					address.DriverWageCalculationMethodic = null;
 					address.ForwarderWageCalculationMethodic = null;
 				}
-				rl.RecalculateAllWages(_wageParameterService);
-				rl.UpdateWageOperation();
+				rl.RecalculateAllWages(uow, _wageParameterService);
+				rl.UpdateWageOperation(uow);
 
 				ProgressBarDisplayable?.Add(1, string.Format(formatString, i + 1));
 			}

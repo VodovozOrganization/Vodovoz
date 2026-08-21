@@ -27,7 +27,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
-		
+
 		public UndeliveredOrdersPanelView(IUndeliveredOrdersRepository undeliveredOrdersRepository)
 		{
 			_undeliveredOrdersRepository = undeliveredOrdersRepository
@@ -45,7 +45,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				.RowCells()
 					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? GdkColors.PrimaryBase : GdkColors.InsensitiveBase)
 				.Finish();
-			
+
 			_uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot($"Инициализация панели недовозов из {nameof(UndeliveredOrdersPanelView)}");
 		}
 
@@ -76,11 +76,11 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			yTreeView.ItemsDataSource = guilties;
 
-			lblTotalUdeliveredBottles.Markup = 
-				$"Воды 19л: <b>{guilties.Sum(g => (decimal) g[3]):N0}</b> бут.";
+			lblTotalUdeliveredBottles.Markup =
+				$"Воды 19л: <b>{guilties.Sum(g => (decimal)g[3]):N0}</b> бут.";
 
-			lblTotalUndeliveredOrders.Markup = 
-				$"Заказов: <b>{guilties.Sum(o => (int) o[1])}</b> шт.";
+			lblTotalUndeliveredOrders.Markup =
+				$"Заказов: <b>{guilties.Sum(o => (int)o[1])}</b> шт.";
 		}
 
 		#region Queries
@@ -116,7 +116,8 @@ namespace Vodovoz.SidePanel.InfoViews
 				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
 				.Left.JoinAlias(u => u.Author, () => authorAlias);
 
-			if(filter?.RestrictDriver != null) {
+			if(filter?.RestrictDriver != null)
+			{
 				var oldOrderIds = _undeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(_uow, filter.RestrictDriver);
 				query.Where(() => oldOrderAlias.Id.IsIn(oldOrderIds.ToArray()));
 			}
@@ -160,7 +161,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(filter?.RestrictInProcessAtDepartment != null)
 				query.Where(u => u.InProcessAtDepartment.Id == filter.RestrictInProcessAtDepartment.Id);
 
-			if(filter?.NewInvoiceCreated != null) {
+			if(filter?.NewInvoiceCreated != null)
+			{
 				if(filter.NewInvoiceCreated.Value)
 					query.Where(u => u.NewOrder != null);
 				else
@@ -180,7 +182,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 
 			int position = 0;
-			var result = 
+			var result =
 				query.SelectList(list => list
 					.SelectGroup(u => u.Id)
 					.Select(Projections.SqlFunction(
@@ -213,10 +215,10 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		#endregion
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
 			_uow?.Dispose();
-			base.Destroy();
+			base.OnDestroyed();
 		}
 	}
 }

@@ -719,7 +719,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(RouteList.ClosingFilled)
 			{
-				FirstFillClosing(wageParameterService);
+				FirstFillClosing(uow, wageParameterService);
 			}
 		}
 
@@ -760,7 +760,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Функция вызывается при переходе адреса в закрытие.
 		/// Если адрес в пути, при закрытии МЛ он считается автоматически доставленным.
 		/// </summary>
-		public virtual void FirstFillClosing(IWageParameterService wageParameterService)
+		public virtual void FirstFillClosing(IUnitOfWork uow, IWageParameterService wageParameterService)
 		{
 			//В этом месте изменяем статус для подстраховки.
 			if(Status == RouteListItemStatus.EnRoute)
@@ -791,7 +791,7 @@ namespace Vodovoz.Domain.Logistic
 			PerformanceHelper.AddTimePoint(_logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
 			RecalculateTotalCash();
-			RouteList.RecalculateWagesForRouteListItem(this, wageParameterService);
+			RouteList.RecalculateWagesForRouteListItem(uow, this, wageParameterService);
 		}
 
 		/// <summary>
@@ -865,18 +865,19 @@ namespace Vodovoz.Domain.Logistic
 			routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, oldStatus, newStatus);
 		}
 
-		public virtual string GetTransferText(bool isShort = false)
+		[Obsolete("Убрать отсюда этот метод в места вызова и желательно, чтобы он обрабатывался единожды")]
+		public virtual string GetTransferText(IUnitOfWork uow, bool isShort = false)
 		{
 			if(Status == RouteListItemStatus.Transfered)
 			{
-				var transferredTo = _routeListItemRepository.GetTransferredTo(RouteList.UoW, this);
+				var transferredTo = _routeListItemRepository.GetTransferredTo(uow, this);
 
 				if(transferredTo is null)
 				{
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 				}
 
-				var addressTransferType = _routeListItemRepository.GetAddressTransferType(_routeList.UoW, Id, transferredTo.Id);
+				var addressTransferType = _routeListItemRepository.GetAddressTransferType(uow, Id, transferredTo.Id);
 				var transferType = addressTransferType?.GetEnumTitle();
 
 				var result = isShort
@@ -890,7 +891,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(WasTransfered)
 			{
-				var transferredFrom = _routeListItemRepository.GetTransferredFrom(RouteList.UoW, this);
+				var transferredFrom = _routeListItemRepository.GetTransferredFrom(uow, this);
 
 				if(transferredFrom != null)
 				{

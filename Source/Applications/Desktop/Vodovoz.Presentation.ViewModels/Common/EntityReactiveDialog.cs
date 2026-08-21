@@ -9,6 +9,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 	public class EntityReactiveDialog<TEntity> : ReactiveDialogViewModel, IDisposable
 		where TEntity : class, new()
 	{
+		protected bool disposed;
 		protected EntityModel<TEntity> Model { get; }
 
 		public EntityReactiveDialog(
@@ -49,8 +50,14 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public override void Dispose()
 		{
+			if(disposed)
+			{
+				return;
+			}
+			
 			Model.Dispose();
 			base.Dispose();
+			disposed = true;
 		}
 	}
 }

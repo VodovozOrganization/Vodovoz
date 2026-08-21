@@ -372,5 +372,11 @@ namespace Vodovoz.ViewWidgets.GtkUI
 		{
 			public DateTime Date { get; set; }
 		}
+
+		protected override void OnDestroyed()
+		{
+			Binding.CleanSources();
+			base.OnDestroyed();
+		}
 	}
 }

@@ -20,6 +20,7 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 		private JournalViewModelBase _journal;
 		private ILifetimeScope _lifetimeScope;
 		private ComplaintFilterViewModel _filterViewModel;
+		private bool _disposed;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -109,6 +110,7 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			DisposeOldJournal();
 			UoW.Dispose();
 			
@@ -120,6 +122,7 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 			
 			_lifetimeScope = null;
 			base.Dispose();
+			_disposed = true;
 		}
 		
 		private void DisposeOldJournal()

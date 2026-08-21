@@ -18,11 +18,11 @@ using Stetic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Mango;
+using VodovozBusiness.Nodes;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -59,13 +59,13 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelName.LineWrapMode = WrapMode.WordChar;
 			labelLatestOrderDate.LineWrapMode = WrapMode.WordChar;
 			textviewComment.Editable = _counterpartyPermissionResult.CanUpdate;
-			ytreeCurrentOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
+			ytreeCurrentOrders.ColumnsConfig = ColumnsConfigFactory.Create<CounterpartyCurrentOrderNode>()
 				.AddColumn("Номер")
-				.AddNumericRenderer(node => node.Id)
+					.AddNumericRenderer(node => node.OrderId)
 				.AddColumn("Дата")
-				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty)
+					.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty)
 				.AddColumn("Статус")
-				.AddTextRenderer(node => node.OrderStatus.GetEnumTitle())
+					.AddTextRenderer(node => node.OrderStatus.GetEnumTitle())
 				.Finish();
 
 			textviewComment.Buffer.Changed += OnTextviewCommentBufferChanged;
@@ -80,7 +80,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				return;
 			}
-			
+
 			_counterparty = changedObj as Counterparty;
 			RefreshData();
 		}
@@ -140,13 +140,16 @@ namespace Vodovoz.SidePanel.InfoViews
 			textviewComment.Buffer.Text = _counterparty.Comment;
 			_textviewcommentBufferChanged = false;
 
-			var latestOrder = _orderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, _counterparty);
-			if(latestOrder != null)
+			var latestOrderDeliveryDate = _orderRepository.GetDateLatestCompleteOrderForCounterparty(InfoProvider.UoW, _counterparty);
+			
+			if(latestOrderDeliveryDate != null)
 			{
-				var daysFromLastOrder = (DateTime.Today - latestOrder.DeliveryDate.Value).Days;
+				var date = latestOrderDeliveryDate.Value;
+				var daysFromLastOrder = (DateTime.Today - date).Days;
+				
 				labelLatestOrderDate.Text = string.Format(
 					"{0} ({1} {2} назад)",
-					latestOrder.DeliveryDate.Value.ToShortDateString(),
+					date.ToShortDateString(),
 					daysFromLastOrder,
 					NumberToTextRus.Case(daysFromLastOrder, "день", "дня", "дней")
 				);
@@ -156,8 +159,8 @@ namespace Vodovoz.SidePanel.InfoViews
 				labelLatestOrderDate.Text = "(Выполненных заказов нет)";
 			}
 
-			var currentOrders = _orderRepository.GetCurrentOrders(InfoProvider.UoW, _counterparty);
-			ytreeCurrentOrders.SetItemsSource<Order>(currentOrders);
+			var currentOrders = _orderRepository.GetCurrentOrders(InfoProvider.UoW, _counterparty.Id);
+			ytreeCurrentOrders.SetItemsSource(currentOrders);
 			vboxCurrentOrders.Visible = currentOrders.Count > 0;
 
 			foreach(var child in PhonesTable.Children)
@@ -310,7 +313,7 @@ namespace Vodovoz.SidePanel.InfoViews
 						_textviewcommentBufferChanged = false;
 						return;
 					}
-					
+
 					var isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
 					if(isRequiredToSaveComment)
 					{
@@ -333,10 +336,20 @@ namespace Vodovoz.SidePanel.InfoViews
 				{
 					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpen(_counterparty.Id), ServicesConfig.UnitOfWorkFactory);
 					dlg.ActivateContactsTab();
-					dlg.EntitySaved += (o, args) => Refresh(args.Entity);
+					dlg.EntitySaved += OnEntitySaved;
 					return dlg;
 				}
 			);
+		}
+
+		private void OnEntitySaved(object sender, EntitySavedEventArgs args)
+		{
+			if(sender is CounterpartyDlg dlg)
+			{
+				dlg.EntitySaved -= OnEntitySaved;
+			}
+
+			Refresh(args.Entity);
 		}
 
 		#endregion
@@ -367,5 +380,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			_disposed = true;
 		}
 		#endregion
+
+		protected override void OnDestroyed()
+		{
+			Dispose(true);
+		}
 	}
 }

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using Autofac;
+using Core.Infrastructure;
 using Gamma.GtkWidgets;
-using Gamma.Utilities;
 using Gtk;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
@@ -16,10 +16,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Factories;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Mango;
+using VodovozBusiness.Nodes;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -31,7 +32,6 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly IDepositRepository _depositRepository;
 		private readonly IOrderRepository _orderRepository;
-		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly IPermissionResult _deliveryPointPermissionResult;
 		private readonly IPermissionResult _orderPermissionResult;
 		private readonly ICommonServices _commonServices;
@@ -56,7 +56,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			Build();
 			_deliveryPointPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
 			_orderPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
-			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(_lifetimeScope);
 			Configure();
 		}
 
@@ -69,13 +68,16 @@ namespace Vodovoz.SidePanel.InfoViews
 			ytreeLastOrders.RowActivated += OnOrdersRowActivated;
 			ytreeLastOrders.Selection.Changed += OnOrdersSelectionChanged;
 
-			ytreeLastOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
+			ytreeLastOrders.ColumnsConfig = ColumnsConfigFactory.Create<LatestOrderForDeliveryPointNode>()
 				.AddColumn("Дата")
-				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToString("dd.MM.yy") : String.Empty)
+					.AddTextRenderer(node => node.DeliveryDate.HasValue
+						? node.DeliveryDate.Value.ToString("dd.MM.yy")
+						: string.Empty)
 				.AddColumn("Тип оплаты")
-				.AddTextRenderer(node => GetDisplayShortName(node.PaymentType))
+					.AddTextRenderer(node => node.PaymentType.GetEnumDisplayName(true))
 				.AddColumn("Бутылей")
-				.AddNumericRenderer(node => node.Total19LBottlesToDeliver).Editing(false)
+					.AddNumericRenderer(node => node.Total19LBottlesToDeliver)
+					.Editing(false)
 				.Finish();
 
 			textviewComment.Buffer.Changed += OnTextviewCommentBufferChanged;
@@ -141,7 +143,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private void RefreshData()
 		{
-			if(DeliveryPoint == null)
+			if(DeliveryPoint is null)
 			{
 				buttonSaveComment.Sensitive = false;
 				return;
@@ -197,14 +199,14 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
 
-			var currentOrders = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
-			ytreeLastOrders.SetItemsSource<Order>(currentOrders);
-			vboxLastOrders.Visible = currentOrders.Any();
+			var latestOrdersForDeliveryPoint = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint.Id, 5);
+			ytreeLastOrders.SetItemsSource(latestOrdersForDeliveryPoint);
+			vboxLastOrders.Visible = latestOrdersForDeliveryPoint.Any();
 
 			table2.ShowAll();
 
-			buttonSaveComment.Sensitive = 
-				btn.Sensitive = 
+			buttonSaveComment.Sensitive =
+				btn.Sensitive =
 				textviewComment.Editable = _deliveryPointPermissionResult.CanUpdate;
 
 			var isLogistcsRequirementsEditable = _deliveryPointPermissionResult.CanUpdate && DeliveryPoint.Id != 0;
@@ -240,12 +242,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 		}
 		#endregion
-
-		string GetDisplayShortName(Enum enumerator)
-		{
-			var attr = enumerator.GetAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
-			return attr == null ? "" : attr.ShortName;
-		}
 
 		void OnOrdersRowActivated(object sender, RowActivatedArgs args)
 		{
@@ -332,9 +328,21 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnBtnAddPhoneClicked(object sender, EventArgs e)
 		{
-			var dpViewModel = _deliveryPointViewModelFactory.GetForOpenDeliveryPointViewModel(DeliveryPoint.Id);
-			dpViewModel.EntitySaved += (o, args) => Refresh(args.Entity);
+			var dpViewModel = _lifetimeScope.Resolve<DeliveryPointViewModel>(
+				new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(DeliveryPoint.Id)));
+
+			dpViewModel.EntitySaved += OnDeliveryPointSaved;
 			TDIMain.MainNotebook.OpenTab(() => dpViewModel);
+		}
+
+		private void OnDeliveryPointSaved(object sender, EntitySavedEventArgs args)
+		{
+			if(sender is DeliveryPointViewModel dpViewModel)
+			{
+				dpViewModel.EntitySaved -= OnDeliveryPointSaved;
+			}
+
+			Refresh(args.Entity);
 		}
 
 		#region overrided Dispose() method
@@ -355,9 +363,12 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			if(disposing)
 			{
-
+				ytreeLastOrders.RowActivated -= OnOrdersRowActivated;
+				ytreeLastOrders.Selection.Changed -= OnOrdersSelectionChanged;
 				textviewComment.Buffer.Changed -= OnTextviewCommentBufferChanged;
 				textviewComment.FocusOutEvent -= OnTextviewCommentFocusOut;
+				_lifetimeScope?.Dispose();
+				_lifetimeScope = null;
 
 				base.Dispose();
 			}
@@ -366,11 +377,10 @@ namespace Vodovoz.SidePanel.InfoViews
 		}
 		#endregion
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
-			_lifetimeScope?.Dispose();
-			_lifetimeScope = null;
-			base.Destroy();
+			Dispose(true);
+			base.OnDestroyed();
 		}
 	}
 }

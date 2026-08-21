@@ -18,27 +18,16 @@ namespace Vodovoz.ViewModels.Factories
 {
 	public class UndeliveredOrderViewModelFactory : IUndeliveredOrderViewModelFactory
 	{
-		public UndeliveredOrderViewModel CreateUndeliveredOrderViewModel(UndeliveredOrder undeliveredOrder, ILifetimeScope scope, ITdiTab tab, IUnitOfWork uow)
+		public UndeliveredOrderViewModel CreateUndeliveredOrderViewModel(
+			UndeliveredOrder undeliveredOrder,
+			ILifetimeScope scope,
+			ITdiTab tab,
+			IUnitOfWork uow)
 		{
-			return new UndeliveredOrderViewModel(
-				undeliveredOrder,
-				scope.Resolve<ICommonServices>(),
-				scope.Resolve<IUnitOfWorkFactory>(),
-				scope.Resolve<IUndeliveryDetalizationJournalFactory>(),
-				uow,
-				scope.Resolve<INavigationManager>(),
-				scope,
-				tab,
-				scope.Resolve<IOrderRepository>(),
-				scope.Resolve<IOrderSelectorFactory>(),
-				scope.Resolve<IDeliveryScheduleJournalFactory>(),
-				scope.Resolve<ISubdivisionRepository>(),
-				scope.Resolve<IEmployeeJournalFactory>(),
-				scope.Resolve<IEmployeeRepository>(),
-				scope.Resolve<IGtkTabsOpener>(),
-				scope.Resolve<IRouteListItemRepository>(),
-				scope.Resolve<IOrderContractUpdater>()
-				);
+			return scope.Resolve<UndeliveredOrderViewModel>(
+				new TypedParameter(typeof(UndeliveredOrder), undeliveredOrder),
+				new TypedParameter(typeof(IUnitOfWork), uow),
+				new TypedParameter(typeof(ITdiTab), tab));
 		}
 	}
 }

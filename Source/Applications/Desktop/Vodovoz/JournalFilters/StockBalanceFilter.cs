@@ -7,6 +7,7 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.EntityRepositories.Store;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz
 {
@@ -14,12 +15,18 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class StockBalanceFilter : RepresentationFilterBase<StockBalanceFilter>
 	{
+		private ILifetimeScope _lifetimeScope = ScopeProvider.Scope.BeginLifetimeScope();
+		
 		protected override void ConfigureWithUow()
 		{
 			speccomboStock.SetRenderTextFunc<Warehouse>(x => x.Name);
-			speccomboStock.ItemsList = ScopeProvider.Scope.Resolve<IWarehouseRepository>().GetActiveWarehouse(UoW);
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
-				speccomboStock.SelectedItem = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+			speccomboStock.ItemsList = _lifetimeScope.Resolve<IWarehouseRepository>().GetActiveWarehouse(UoW);
+			var userSettingsManager = _lifetimeScope.Resolve<IUserSettingsManager>();
+			
+			if(userSettingsManager.Settings.DefaultWarehouse != null)
+			{
+				speccomboStock.SelectedItem = UoW.GetById<Warehouse>(userSettingsManager.Settings.DefaultWarehouse.Id);
+			}
 		}
 
 		bool showArchive;
@@ -69,10 +76,11 @@ namespace Vodovoz
 			OnRefiltered();
 		}
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
+			_lifetimeScope.Dispose();
 			UoW?.Dispose();
-			base.Destroy();
+			base.OnDestroyed();
 		}
 	}
 }

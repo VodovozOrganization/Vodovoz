@@ -91,6 +91,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private AttachedFileInformationsViewModel _attachedFileInformationsViewModel;
 		private bool _canEdit;
 		private OutgoingPayment _selectedOutgoingPayment;
+		private bool _disposed;
 
 		public CashlessRequestViewModel(
 			IUserRepository userRepository,
@@ -1237,8 +1238,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.OutgoingPayments.CollectionChanged -= OnOutgoingPaymentsChanged;
+			Entity.PropertyChanged -= OnCashlessRequestPropertyChanged;
+			
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

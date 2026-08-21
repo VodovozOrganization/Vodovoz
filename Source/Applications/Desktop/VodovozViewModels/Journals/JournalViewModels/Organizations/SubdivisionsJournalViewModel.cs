@@ -35,6 +35,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		private readonly ILifetimeScope _scope;
 		private HierarchicalChunkLinqLoader<Subdivision, SubdivisionJournalNode> _hierarchicalChunkLinqLoader;
 		private Dictionary<Type, IPermissionResult> _domainObjectsPermissions = new Dictionary<Type, IPermissionResult>();
+		private bool _disposed;
 
 		public SubdivisionsJournalViewModel(
 			SubdivisionFilterViewModel filterViewModel,
@@ -259,8 +260,15 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
+			if(Search is SearchViewModel search)
+			{
+				search.PropertyChanged -= OnSearchPropertyChanged;
+			}
+			
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

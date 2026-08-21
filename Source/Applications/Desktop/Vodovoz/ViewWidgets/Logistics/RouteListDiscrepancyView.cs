@@ -86,7 +86,7 @@ namespace Vodovoz
 		}
 
 		public void FindDiscrepancies() {
-			Items = RouteList.GetDiscrepancies();
+			Items = RouteList.GetDiscrepancies(UoW);
 		}
 	}
 }

@@ -27,6 +27,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 	{
 		private readonly ILifetimeScope _scope;
 		private InventoryInstancesJournalFilterViewModel _filterViewModel;
+		private bool _disposed;
 
 		public InventoryInstancesJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
@@ -183,8 +184,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

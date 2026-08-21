@@ -56,6 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool _canCreateFuelBalanceCalibrationCarEvent;
 		private IInteractiveService _interactiveService;
 		private readonly ICarEventFileStorageService _carEventFileStorageService;
+		private bool _disposed;
 
 		public CarEventViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -393,10 +394,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.ObservableFines.ListContentChanged -= ObservableFines_ListContentChanged;
+			Entity.PropertyChanged -= EntityPropertyChanged;
+			
 			_carEntryViewModel.ChangedByUser -= OnCarChangedByUser;
 			_carEntryViewModel.Dispose();
 			base.Dispose();
+			_disposed = true;
 		}
 
 		public IEntityAutocompleteSelectorFactory CarEventTypeSelectorFactory { get; }

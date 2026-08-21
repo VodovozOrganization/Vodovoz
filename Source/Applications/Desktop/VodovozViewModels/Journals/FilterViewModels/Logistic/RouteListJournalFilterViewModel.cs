@@ -32,6 +32,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private DelegateCommand _infoCommand;
 		private int[] _excludeIds;
 		private readonly IInteractiveService _interactiveService;
+		private bool _disposed;
 
 		public RouteListJournalFilterViewModel(
 			IUserRepository userRepository,
@@ -303,10 +304,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			UnsubscribeOnCheckChanged();
 			_addressTypeNodes.ForEach(x => x.PropertyChanged -= OnStatusCheckChanged);
 			DisposeOnDestroy = true;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

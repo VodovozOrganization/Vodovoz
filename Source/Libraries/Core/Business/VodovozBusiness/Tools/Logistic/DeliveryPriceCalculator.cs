@@ -42,7 +42,6 @@ namespace Vodovoz.Tools.Logistic
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 		}
 
-
 		private double _fuelCost;
 		private double _distance;
 		private DeliveryPoint _deliveryPoint;
@@ -144,16 +143,6 @@ namespace Vodovoz.Tools.Logistic
 				}
 				result.Distance = _distance.ToString("N1") + " км";
 
-				result.Prices = Enumerable
-					.Range(1, 100)
-					.Select(
-						x => new DeliveryPriceRow
-						{
-							Amount = x,
-							Price = PriceByDistance(x).ToString("C2")
-						})
-					.ToList();
-
 				//Расчет цены
 				var point = new Point((double)latitude, (double)longitude);
 				var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
@@ -172,6 +161,16 @@ namespace Vodovoz.Tools.Logistic
 
 				if(result.ByDistance)
 				{
+					result.Prices = Enumerable
+						.Range(1, 100)
+						.Select(
+							x => new DeliveryPriceRow
+							{
+								Amount = x,
+								Price = PriceByDistance(x).ToString("C2")
+							})
+						.ToList();
+					
 					if(bottlesCount.HasValue)
 					{
 						result.Price = PriceByDistance(bottlesCount.Value).ToString("C2");

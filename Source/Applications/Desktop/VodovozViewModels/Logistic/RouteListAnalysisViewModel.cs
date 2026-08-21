@@ -352,7 +352,7 @@ namespace Vodovoz.ViewModels.Logistic
 		protected override bool BeforeSave()
 		{
 			SetLogisticianCommentAuthor();
-			Entity.CalculateWages(_wageParameterService);
+			Entity.CalculateWages(UoW, _wageParameterService);
 			return true;
 		}
 

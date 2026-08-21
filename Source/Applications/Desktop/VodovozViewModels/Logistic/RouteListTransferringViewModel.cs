@@ -98,6 +98,7 @@ namespace Vodovoz.ViewModels.Logistic
 			DateTime.Today.AddDays(_defaultTargetRouteListEndDateOffsetDays);
 		private object[] _selectedSourceRouteListAddresses = new object[] { };
 		private object[] _selectedTargetRouteListAddresses = new object[] { };
+		private bool _disposed;
 
 		public RouteListTransferringViewModel(
 			ILogger<RouteListTransferringViewModel> logger,
@@ -273,11 +274,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 					RefreshSourceRouteListAddresses();
 
-					if(_sourceRouteListId != null)
-					{
-						SourceRouteList.UoW = UoW;
-					}
-
 					FillObservableDriverBalance(SourceRouteListDriverNomenclatureBalance, SourceRouteList);
 
 					RefreshSourceFreeBalanceOperations();
@@ -355,11 +351,6 @@ namespace Vodovoz.ViewModels.Logistic
 					_targetRouteListId = value?.Id;
 
 					RefreshTargetRouteListAddresses();
-
-					if(_targetRouteList != null)
-					{
-						TargetRouteList.UoW = UoW;
-					}
 
 					FillObservableDriverBalance(TargetRouteListDriverNomenclatureBalance, TargetRouteList);
 
@@ -1035,9 +1026,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			SourceRouteListJournalFilterViewModel?.Dispose();
 			TargetRouteListJournalFilterViewModel?.Dispose();
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

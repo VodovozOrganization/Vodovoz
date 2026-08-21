@@ -671,6 +671,8 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public void Dispose()
 		{
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			
 			if(_newOrderDlg != null)
 			{
 				_newOrderDlg.TabClosed -= OnNewOrderDlgClosed;

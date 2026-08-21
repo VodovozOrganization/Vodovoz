@@ -229,7 +229,6 @@ namespace Vodovoz.ViewWidgets
 			else if(District?.Id != null)
 			{
 				RefreshDistrictData();
-
 			}
 			else
 			{

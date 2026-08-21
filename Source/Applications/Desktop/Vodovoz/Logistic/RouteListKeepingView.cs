@@ -367,7 +367,7 @@ namespace Vodovoz.Logistic
 					.AddTextRenderer(node => node.RecievedTransferAt == null ? "": node.RecievedTransferAt.Value.ToString("dd.MM.yyyy hh:mm:ss"))
 					.Editable(ViewModel.AllEditing)
 				.AddColumn("Переносы")
-					.AddTextRenderer(node => node.Transferred)
+					.AddTextRenderer(node => node.Transferred(ViewModel.UoW))
 				.RowCells()
 					.AddSetter<CellRenderer>((cell, node) =>
 					{

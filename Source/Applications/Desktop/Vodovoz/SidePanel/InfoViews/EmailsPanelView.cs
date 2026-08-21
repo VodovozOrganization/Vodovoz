@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Gamma.GtkWidgets;
-using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.SidePanel.InfoProviders;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -11,12 +11,15 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		public EmailsPanelView()
 		{
-			this.Build();
-			ytreeviewEmails.ColumnsConfig = ColumnsConfigFactory
-				.Create<StoredEmail>()
-				.AddColumn("Дата").AddTextRenderer(x => x.SendDate.ToString("dd.MM.yy HH:mm"))
-				.AddColumn("Почта").AddTextRenderer(x => x.RecipientAddress)
-				.AddColumn("Статус").AddEnumRenderer(x => x.State)
+			Build();
+			
+			ytreeviewEmails.ColumnsConfig = ColumnsConfigFactory.Create<SentStoredEmailNode>()
+				.AddColumn("Дата")
+					.AddTextRenderer(x => x.SentDate.ToString("dd.MM.yy HH:mm"))
+				.AddColumn("Почта")
+					.AddTextRenderer(x => x.RecipientAddress)
+				.AddColumn("Статус")
+					.AddEnumRenderer(x => x.State)
 				.Finish();
 		}
 
@@ -32,7 +35,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			var haveEmails = emailsList != null && emailsList.Any();
 
 			if(haveEmails) {
-				ytreeviewEmails.SetItemsSource<StoredEmail>(emailsList);
+				ytreeviewEmails.SetItemsSource(emailsList);
 			}
 
 			labelUnsendedBill.Visible = !haveEmails;

@@ -70,6 +70,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _canAccessSalesReports;
 		private readonly bool _canViewReportSalesWithCashReceipts;
+		private bool _disposed;
 
 		public SalesReportDetailedViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -977,6 +978,7 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			base.Dispose();
 
 			if(_filterViewModel != null)
@@ -995,6 +997,7 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 				_cancellationTokenSource.Dispose();
 				_cancellationTokenSource = null;
 			}
+			_disposed = true;
 		}
 	}
 }

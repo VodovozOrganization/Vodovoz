@@ -83,6 +83,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private IList<ComplaintKind> _complaintKindSource;
 
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private bool _disposed;
 
 		public ComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -421,6 +422,7 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		private string _newResultCommentText;
+
 		[PropertyChangedAlso(nameof(CanAddResultComment))]
 		public virtual string NewResultCommentText
 		{
@@ -904,9 +906,15 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public override void Dispose()
 		{
-			_logger.Debug("Вызываем {Method}()", nameof(Dispose));
+			if(_disposed) return;
+			
+			Entity.ObservableComplaintDiscussions.ElementChanged -= ObservableComplaintDiscussions_ElementChanged;
+			Entity.ObservableComplaintDiscussions.ListContentChanged -= ObservableComplaintDiscussions_ListContentChanged;
+			Entity.ObservableFines.ListContentChanged -= ObservableFines_ListContentChanged;
+			Entity.PropertyChanged -= EntityPropertyChanged;
 			LifetimeScope = null;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

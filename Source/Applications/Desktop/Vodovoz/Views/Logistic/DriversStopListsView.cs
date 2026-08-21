@@ -1,5 +1,5 @@
 ﻿using Gamma.ColumnConfig;
-using Pango;
+using Gtk;
 using QS.Views.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Core.Domain.Employees;
@@ -7,6 +7,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using static Vodovoz.ViewModels.Logistic.DriversStopLists.DriversStopListsViewModel;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -71,7 +72,7 @@ namespace Vodovoz.Views.Logistic
 
 			ytreeviewCurrent.Binding.AddBinding(ViewModel, vm => vm.CurrentDriversList, w => w.ItemsDataSource).InitializeFromSource();
 			ytreeviewCurrent.Binding.AddBinding(ViewModel, vm => vm.SelectedDriverNode, w => w.SelectedRow).InitializeFromSource();
-			ytreeviewCurrent.RowActivated += (sender, e) => ViewModel.RemoveStopListCommand?.Execute();
+			ytreeviewCurrent.RowActivated += OnYtreeviewCurrentRowActivated;
 
 			ytreeviewHystory.ColumnsConfig = FluentColumnsConfig<DriverStopListRemoval>
 				.Create()
@@ -91,17 +92,14 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => ViewModel.CanCreateStopListRemoval, v => v.Sensitive)
 				.InitializeFromSource();
 
-			ybuttonRemoveStopList.Clicked += (s, e) => ViewModel.RemoveStopListCommand?.Execute();
-			ybuttonFilter.Clicked += (s, e) => ViewModel.CloseFilterCommand?.Execute();
-			ybuttonRefresh.Clicked += (s, e) => ViewModel.UpdateCommand?.Execute();
+			ybuttonRemoveStopList.BindCommand(ViewModel.RemoveStopListCommand);
+			ybuttonFilter.BindCommand(ViewModel.CloseFilterCommand);
+			ybuttonRefresh.BindCommand(ViewModel.UpdateCommand);
 		}
 
-		public override void Destroy()
+		private void OnYtreeviewCurrentRowActivated(object sender, RowActivatedArgs e)
 		{
-			ytreeviewCurrent?.Destroy();
-			ytreeviewHystory?.Destroy();
-
-			base.Destroy();
+			ViewModel.RemoveStopListCommand?.Execute();
 		}
 	}
 }

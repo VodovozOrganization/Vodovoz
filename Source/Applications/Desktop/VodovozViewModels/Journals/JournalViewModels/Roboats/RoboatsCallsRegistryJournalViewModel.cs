@@ -339,8 +339,5 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_autoRefreshTimer?.Dispose();
 			base.Dispose();
 		}
-
 	}
-
-	
 }

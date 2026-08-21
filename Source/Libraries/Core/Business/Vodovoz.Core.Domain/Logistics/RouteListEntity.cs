@@ -14,7 +14,7 @@ namespace Vodovoz.Core.Domain.Logistics
 		Nominative = "маршрутный лист")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class RouteListEntity : PropertyChangedBase, IDomainObject, IBusinessObject
+	public class RouteListEntity : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private DateTime _version;
@@ -33,8 +33,6 @@ namespace Vodovoz.Core.Domain.Logistics
 			get => _id;
 			set => SetField(ref _id, value);
 		}
-
-		public virtual IUnitOfWork UoW { set; get; }
 
 		[Display(Name = "Дата")]
 		[HistoryDateOnly]

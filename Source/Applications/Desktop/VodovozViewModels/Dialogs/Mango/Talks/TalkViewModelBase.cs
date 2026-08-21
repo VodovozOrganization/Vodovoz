@@ -7,7 +7,7 @@ using Vodovoz.Presentation.ViewModels.Mango;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
-	public class TalkViewModelBase : WindowDialogViewModelBase
+	public class TalkViewModelBase : WindowDialogViewModelBase, IDisposable
 	{
 		protected readonly MangoManager MangoManager;
 
@@ -15,11 +15,12 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		{
 			MangoManager = manager ?? throw new ArgumentNullException(nameof(manager));
 			ActiveCall = MangoManager.CurrentTalk ?? MangoManager.CurrentHold;
-			manager.PropertyChanged += Manager_PropertyChanged;
+			MangoManager.PropertyChanged += Manager_PropertyChanged;
 			SetTitle();
 			IsModal = false;
 			WindowPosition = WindowGravity.RightBottom;
 			EnableMinimizeMaximize = true;
+			//TODO MemoryLeaking
 			ActiveCall.PropertyChanged += ActiveCall_PropertyChanged;
 		}
 
@@ -66,5 +67,12 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			(this, MangoManager, DialogType.Transfer);
 		}
 
+		public virtual void Dispose()
+		{
+			if(MangoManager != null)
+			{
+				MangoManager.PropertyChanged -= Manager_PropertyChanged;
+			}
+		}
 	}
 }

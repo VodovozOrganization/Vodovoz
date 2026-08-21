@@ -330,6 +330,12 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		public void Dispose()
 		{
 			_lifetimeScope = null;
+
+			if(FixedPrices != null)
+			{
+				FixedPrices.PropertyChanged -= OnFixedPricesPropertyChanged;
+			}
+			
 			_parentTab = null;
 		}
 	}

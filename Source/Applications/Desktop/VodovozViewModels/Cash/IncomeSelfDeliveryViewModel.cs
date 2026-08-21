@@ -51,6 +51,8 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly IPermissionResult _entityPermissionResult;
 		private FinancialIncomeCategory _financialIncomeCategory;
 		private IEntityEntryViewModel _orderViewModel;
+		public bool CanEditTypeOperation = false;
+		private bool _disposed;
 
 		public IncomeSelfDeliveryViewModel(
 			ILogger<IncomeViewModel> logger,
@@ -179,8 +181,6 @@ namespace Vodovoz.ViewModels.Cash
 		public bool IsNew => UoWGeneric.IsNew;
 		
 		public ILifetimeScope Scope => _lifetimeScope; // убрать при обновлении Counterparty на MVVM
-
-		public bool CanEditTypeOperation = false;
 
 		public bool CanEditRectroactively { get; }
 
@@ -360,6 +360,14 @@ namespace Vodovoz.ViewModels.Cash
 			};
 
 			_reportViewOpener.OpenReport(this, reportInfo);
+		}
+
+		public override void Dispose()
+		{
+			if(_disposed) return;
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

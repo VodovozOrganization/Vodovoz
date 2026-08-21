@@ -143,7 +143,7 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(n => n.CommentForFineAuthor != null ?
 						n.CommentForFineAuthor.ShortName : String.Empty)
 				.AddColumn("Переносы")
-					.AddTextRenderer(n => n.GetTransferText(false))
+					.AddTextRenderer(n => n.GetTransferText(ViewModel.UoW, false))
 				.RowCells()
 					.AddSetter<CellRenderer>((c, n) => {
 

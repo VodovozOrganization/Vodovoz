@@ -14,6 +14,7 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _restrictDeliveryPointId;
 		private string _restrictCounterpartyNameLike;
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
+		private bool _disposed;
 
 		public DeliveryPointJournalFilterViewModel()
 		{
@@ -62,8 +63,10 @@ namespace Vodovoz.Filters.ViewModels
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

@@ -17,6 +17,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 	public class ComplaintKindJournalViewModel : EntityJournalViewModelBase<ComplaintKind, ComplaintKindViewModel, ComplaintKindJournalNode>
 	{
 		private readonly ComplaintKindJournalFilterViewModel _filterViewModel;
+		private bool _disposed;
 
 		public ComplaintKindJournalViewModel(
 			ComplaintKindJournalFilterViewModel filterViewModel,
@@ -96,9 +97,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
-
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

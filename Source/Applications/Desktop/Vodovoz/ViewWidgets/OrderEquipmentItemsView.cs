@@ -443,5 +443,11 @@ namespace Vodovoz.ViewWidgets
 		{
 			Order.AddEquipmentNomenclatureFromClient(nomenclature, UoW);
 		}
+
+		protected override void OnDestroyed()
+		{
+			Order.ObservableOrderEquipments.ElementAdded -= Order_ObservableOrderEquipments_ElementAdded;
+			base.OnDestroyed();
+		}
 	}
 }

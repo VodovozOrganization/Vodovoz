@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.FastDelivery;
-using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.Tools.Orders;
 
@@ -18,17 +17,26 @@ namespace Vodovoz.ViewModels.Widgets
 		private readonly Employee _logistician;
 		private readonly IUnitOfWork _uow;
 
-		public FastDeliveryVerificationViewModel(FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory)
+		public FastDeliveryVerificationViewModel(
+			IUnitOfWork uow,
+			IFastDeliveryHistoryConverter deliveryHistoryConverter,
+			FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory
+			)
 		{
+			if(deliveryHistoryConverter is null)
+			{
+				throw new ArgumentNullException(nameof(deliveryHistoryConverter));
+			}
+			
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			
 			var order = fastDeliveryAvailabilityHistory.Order;
 			var deliveryPoint = fastDeliveryAvailabilityHistory.DeliveryPoint;
 			DetailsTitle = $"Детализация по заказу №{order?.Id ?? 0}, адрес: {deliveryPoint?.ShortAddress ?? fastDeliveryAvailabilityHistory.AddressWithoutDeliveryPoint}";
 
-			FastDeliveryAvailabilityHistory = fastDeliveryAvailabilityHistory ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistory)); ;
+			FastDeliveryAvailabilityHistory = fastDeliveryAvailabilityHistory ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistory));
 
-			var fastDeliveryHistoryConverter = new FastDeliveryHistoryConverter();
-
-			Nodes = fastDeliveryHistoryConverter.ConvertAvailabilityHistoryItemsToVerificationDetailsNodes(fastDeliveryAvailabilityHistory.Items);
+			Nodes = deliveryHistoryConverter.ConvertAvailabilityHistoryItemsToVerificationDetailsNodes(_uow, fastDeliveryAvailabilityHistory.Items);
 
 			Message = Nodes.Any(x => x.IsValidRLToFastDelivery)
 				? "Есть доступные водители для быстрой доставки"
@@ -40,10 +48,13 @@ namespace Vodovoz.ViewModels.Widgets
 			}
 		}
 
-		public FastDeliveryVerificationViewModel(FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory, IUnitOfWork uow, Employee logistician)
-			: this(fastDeliveryAvailabilityHistory)
+		public FastDeliveryVerificationViewModel(
+			IUnitOfWork uow,
+			FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory,
+			IFastDeliveryHistoryConverter deliveryHistoryConverter,
+			Employee logistician)
+			: this(uow, deliveryHistoryConverter, fastDeliveryAvailabilityHistory)
 		{
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_logistician = logistician ?? throw new ArgumentNullException(nameof(logistician));
 		}
 

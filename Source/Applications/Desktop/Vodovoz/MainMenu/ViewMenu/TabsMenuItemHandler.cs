@@ -1,6 +1,7 @@
 ﻿using System;
 using Gtk;
 using QS.Dialog.GtkUI;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.MainMenu.ViewMenu
 {
@@ -10,13 +11,18 @@ namespace Vodovoz.MainMenu.ViewMenu
 	public class TabsMenuItemHandler : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
+		private readonly IUserSettingsManager _userSettingsManager;
 		private CheckMenuItem _reorderTabsMenuItem;
 		private CheckMenuItem _highlightTabsWithColorMenuItem;
 		private CheckMenuItem _keepTabColorMenuItem;
 
-		public TabsMenuItemHandler(ConcreteMenuItemCreator concreteMenuItemCreator)
+		public TabsMenuItemHandler(
+			ConcreteMenuItemCreator concreteMenuItemCreator,
+			IUserSettingsManager userSettingsManager
+			)
 		{
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 		}
 
 		/// <inheritdoc/>
@@ -42,17 +48,17 @@ namespace Vodovoz.MainMenu.ViewMenu
 
 		private void Initialize()
 		{
-			if(CurrentUserSettings.Settings.ReorderTabs)
+			if(_userSettingsManager.Settings.ReorderTabs)
 			{
 				_reorderTabsMenuItem.Activate();
 			}
 
-			if(CurrentUserSettings.Settings.HighlightTabsWithColor)
+			if(_userSettingsManager.Settings.HighlightTabsWithColor)
 			{
 				_highlightTabsWithColorMenuItem.Activate();
 			}
 
-			if(CurrentUserSettings.Settings.KeepTabColor)
+			if(_userSettingsManager.Settings.KeepTabColor)
 			{
 				_keepTabColorMenuItem.Activate();
 			}
@@ -67,10 +73,10 @@ namespace Vodovoz.MainMenu.ViewMenu
 		{
 			var isActive = _reorderTabsMenuItem.Active;
 			
-        	if(CurrentUserSettings.Settings.ReorderTabs != isActive)
+        	if(_userSettingsManager.Settings.ReorderTabs != isActive)
         	{
-        		CurrentUserSettings.Settings.ReorderTabs = isActive;
-        		CurrentUserSettings.SaveSettings();
+				_userSettingsManager.Settings.ReorderTabs = isActive;
+				_userSettingsManager.SaveSettings();
         		MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
         	}
         }
@@ -91,10 +97,10 @@ namespace Vodovoz.MainMenu.ViewMenu
 
 			_keepTabColorMenuItem.Sensitive = isActive;
         	
-			if(CurrentUserSettings.Settings.HighlightTabsWithColor != isActive)
+			if(_userSettingsManager.Settings.HighlightTabsWithColor != isActive)
         	{
-        		CurrentUserSettings.Settings.HighlightTabsWithColor = isActive;
-        		CurrentUserSettings.SaveSettings();
+				_userSettingsManager.Settings.HighlightTabsWithColor = isActive;
+				_userSettingsManager.SaveSettings();
         		MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
         	}
         }
@@ -108,10 +114,10 @@ namespace Vodovoz.MainMenu.ViewMenu
 		{
 			var isActive = _keepTabColorMenuItem.Active;
 			
-			if(CurrentUserSettings.Settings.KeepTabColor != isActive)
+			if(_userSettingsManager.Settings.KeepTabColor != isActive)
 			{
-				CurrentUserSettings.Settings.KeepTabColor = isActive;
-				CurrentUserSettings.SaveSettings();
+				_userSettingsManager.Settings.KeepTabColor = isActive;
+				_userSettingsManager.SaveSettings();
 				MessageDialogHelper.RunInfoDialog("Изменения вступят в силу после перезапуска программы");
 			}
 		}

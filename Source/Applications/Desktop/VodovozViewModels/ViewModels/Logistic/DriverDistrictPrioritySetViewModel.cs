@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.Commands;
@@ -21,6 +22,8 @@ namespace Vodovoz.ViewModels.Logistic
 {
     public sealed class DriverDistrictPrioritySetViewModel : TabViewModelBase
     {
+		private bool _disposed;
+		
         public DriverDistrictPrioritySetViewModel(
             DriverDistrictPrioritySet entity,
             IUnitOfWork uow,
@@ -42,29 +45,10 @@ namespace Vodovoz.ViewModels.Logistic
             FillObservableDriverWorkSchedules();
             UpdateTabName();
             
-            Entity.PropertyChanged += (sender, args) => {
-                switch(args.PropertyName) {
-                    case nameof(Entity.Driver):
-                        UpdateTabName();
-                        break;
-                    case nameof(Entity.Id):
-                        OnPropertyChanged(nameof(Id));
-                        OnPropertyChanged(nameof(IsInfoVisible));
-                        break;
-                    case nameof(Entity.Author):
-                        OnPropertyChanged(nameof(Author));
-                        break;
-                    case nameof(Entity.DateActivated):
-                        OnPropertyChanged(nameof(DateActivated));
-                        break;
-                    case nameof(Entity.DateDeactivated):
-                        OnPropertyChanged(nameof(DateDeactivated));
-                        break;
-                }
-            };
+            Entity.PropertyChanged += OnEntityPropertyChanged;
         }
 
-        #region Поля и свойства
+		#region Поля и свойства
 
         private readonly IUnitOfWork uow;
         private readonly IUnitOfWorkFactory unitOfWorkFactory;
@@ -165,7 +149,7 @@ namespace Vodovoz.ViewModels.Logistic
             ));
         
         private DelegateCommand checkAndFixDistrictsPrioritiesCommand;
-        public DelegateCommand CheckAndFixDistrictsPrioritiesCommand => checkAndFixDistrictsPrioritiesCommand ?? (checkAndFixDistrictsPrioritiesCommand = new DelegateCommand(
+		public DelegateCommand CheckAndFixDistrictsPrioritiesCommand => checkAndFixDistrictsPrioritiesCommand ?? (checkAndFixDistrictsPrioritiesCommand = new DelegateCommand(
             () => {
                 for(int i = 0; i < ObservableDriverDistrictPriorities.Count; i++) {
                     if(ObservableDriverDistrictPriorities[i].Priority != i) {
@@ -179,6 +163,29 @@ namespace Vodovoz.ViewModels.Logistic
         #endregion
 
         #region Приватные методы
+		
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs args)
+		{
+			switch(args.PropertyName)
+			{
+				case nameof(Entity.Driver):
+					UpdateTabName();
+					break;
+				case nameof(Entity.Id):
+					OnPropertyChanged(nameof(Id));
+					OnPropertyChanged(nameof(IsInfoVisible));
+					break;
+				case nameof(Entity.Author):
+					OnPropertyChanged(nameof(Author));
+					break;
+				case nameof(Entity.DateActivated):
+					OnPropertyChanged(nameof(DateActivated));
+					break;
+				case nameof(Entity.DateDeactivated):
+					OnPropertyChanged(nameof(DateDeactivated));
+					break;
+			}
+		}
 
         private void FillObservableDriverWorkSchedules()
         {
@@ -234,7 +241,15 @@ namespace Vodovoz.ViewModels.Logistic
         }
 
         #endregion
-    }
+
+		public override void Dispose()
+		{
+			if(_disposed) return;
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+			_disposed = true;
+		}
+	}
 
 	public class DriverDistrictPrioritySetAcceptedEventArgs : EventArgs
 	{

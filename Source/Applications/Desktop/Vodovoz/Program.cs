@@ -117,7 +117,9 @@ using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
 using Vodovoz.Application.TrueMark;
+using Vodovoz.Cores;
 using VodovozBusiness.Models.TrueMark;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz
 {
@@ -349,8 +351,9 @@ namespace Vodovoz
 					builder.RegisterType<UsersEntityPermissionValuesGetter>().AsSelf();
 					builder.RegisterType<UserPermissionsExporter>().AsSelf();
 					builder.RegisterType<AuthorizationService>().As<IAuthorizationService>();
-					builder.RegisterType<UserSettingsService>().As<IUserSettingsService>();
-					builder.RegisterType<StoreDocumentHelper>().AsSelf();
+					builder.RegisterType<StoreDocumentHelper>()
+						.As<IStoreDocumentHelper>()
+						.AsSelf();
 					builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 					builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
 					builder.RegisterType<EdoService.Library.EdoService>().As<IEdoService>();
@@ -543,11 +546,11 @@ namespace Vodovoz
 						}
 						).As<DriverApiUserRegisterEndpoint>();
 
-					builder.Register(c => CurrentUserSettings.Settings).As<UserSettings>();
+					builder.RegisterType<UserSettingsManager>()
+						.As<IUserSettingsManager>()
+						.SingleInstance();
 
 					builder.RegisterType<PasswordGenerator>().As<IPasswordGenerator>();
-
-					builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 					builder.RegisterType<AdvanceCashOrganisationDistributor>().As<IAdvanceCashOrganisationDistributor>();
 
@@ -558,8 +561,6 @@ namespace Vodovoz
 					builder.RegisterType<ExpenseCashOrganisationDistributor>().As<IExpenseCashOrganisationDistributor>();
 
 					builder.RegisterType<FuelCashOrganisationDistributor>().As<IFuelCashOrganisationDistributor>();
-
-					builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 					builder.RegisterType<CashFlowDdsReportRenderer>().AsSelf();
 

@@ -3,11 +3,8 @@ using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
-using QS.Project.Services;
 using QS.Navigation;
-using QS.Dialog.GtkUI.FileDialog;
 using Vodovoz.Core.Domain.Clients;
-using DynamicData;
 
 namespace Vodovoz.Views.Client
 {
@@ -31,15 +28,25 @@ namespace Vodovoz.Views.Client
 			ConfigureCloseSupplyControls();
 			ConfigureNotSensitiveControls();
 
-			buttonSave.Clicked += (sender, args) => ViewModel.Save(true);
+			buttonSave.Clicked += OnSaveClicked;
 			buttonSave.Binding
 				.AddFuncBinding(ViewModel, vm => vm.CanCloseDelivery, w => w.Sensitive)
 				.InitializeFromSource();
 
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			buttonCancel.Clicked += OnCancelClicked;
 			buttonCancel.Binding
 				.AddFuncBinding(ViewModel, vm => true, w => w.Sensitive)
 				.InitializeFromSource();
+		}
+
+		private void OnSaveClicked(object sender, EventArgs args)
+		{
+			ViewModel.Save(true);
+		}
+
+		private void OnCancelClicked(object sender, EventArgs args)
+		{
+			ViewModel.Close(false, CloseSource.Cancel);
 		}
 
 		private void ConfigureCloseSupplyControls()
@@ -73,19 +80,19 @@ namespace Vodovoz.Views.Client
 				.AddFuncBinding(e => string.IsNullOrWhiteSpace(e.CloseDeliveryComment), b => b.Sensitive)
 				.AddBinding(e => e.IsDeliveriesClosed, b => b.Visible)
 				.InitializeFromSource();
-			buttonSaveCloseComment.Clicked += (s, e) => ViewModel.SaveCloseCommentCommand.Execute();
+			buttonSaveCloseComment.BindCommand(ViewModel.SaveCloseCommentCommand);
 
 			buttonEditCloseDeliveryComment.Binding
 				.AddSource(ViewModel.Entity)
 				.AddFuncBinding(e => !string.IsNullOrWhiteSpace(e.CloseDeliveryComment), b => b.Sensitive)
 				.AddBinding(e => e.IsDeliveriesClosed, b => b.Visible)
 				.InitializeFromSource();
-			buttonEditCloseDeliveryComment.Clicked += (s, e) => ViewModel.EditCloseCommentCommand.Execute();
+			buttonEditCloseDeliveryComment.BindCommand(ViewModel.EditCloseCommentCommand);
 
 			buttonCloseDelivery.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки", l => l.Label)
 				.InitializeFromSource();
-			buttonCloseDelivery.Clicked += (s, e) => ViewModel.CloseDeliveryCommand.Execute();
+			buttonCloseDelivery.BindCommand(ViewModel.CloseDeliveryCommand);
 		}
 
 		private void ConfigureNotSensitiveControls()
@@ -273,13 +280,6 @@ namespace Vodovoz.Views.Client
 				ytreeviewSalesChannels.ItemsDataSource = ViewModel.SalesChannels;
 			}
 			frame2.Visible = ViewModel.Entity.IsForRetail;
-		}
-
-		public override void Dispose()
-		{
-			ytreeviewSalesChannels?.Destroy();
-			smallfileinformationsview?.Destroy();
-			base.Dispose();
 		}
 	}
 }

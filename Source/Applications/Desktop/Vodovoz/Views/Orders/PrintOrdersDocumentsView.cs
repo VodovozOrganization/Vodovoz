@@ -21,21 +21,19 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
-			ybuttonPrint.Clicked += (_, _2) => ViewModel.PrintCommand.Execute();
+			ybuttonPrint.BindCommand(ViewModel.PrintCommand);
 			ybuttonPrint.Binding
 				.AddBinding(ViewModel, vm => vm.CanPrintOrSaveDocuments, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ybuttonSave.Clicked += (_, _2) => ViewModel.SaveCommand.Execute();
+			ybuttonSave.BindCommand(ViewModel.SaveCommand);
 			ybuttonSave.Binding
 				.AddBinding(ViewModel, vm => vm.CanPrintOrSaveDocuments, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ybuttonCancel.Clicked += (_, _2) => ViewModel.CloseDialogCommand.Execute();
-
-			ybuttonSelectAll.Clicked += (_, _2) => ViewModel.SelectAllOrdersCommand.Execute();
-
-			ybuttonDeselectAll.Clicked += (_, _2) => ViewModel.DeselectAllOrdersCommand.Execute();
+			ybuttonCancel.BindCommand(ViewModel.CloseDialogCommand);
+			ybuttonSelectAll.BindCommand(ViewModel.SelectAllOrdersCommand);
+			ybuttonDeselectAll.BindCommand(ViewModel.DeselectAllOrdersCommand);
 
 			ycheckbuttonBill.Binding
 				.AddBinding(ViewModel, vm => vm.IsPrintBill, w => w.Active)
@@ -105,14 +103,6 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(vm => vm.PrintingDocumentInfo, w => w.Text)
 				.AddBinding(vm => vm.OrdersPrintedCount, w => w.Adjustment.Value)
 				.InitializeFromSource();
-		}
-
-		public override void Destroy()
-		{
-			ytreeviewOrders?.Destroy();
-			ytreeviewWarnings?.Destroy();
-
-			base.Destroy();
 		}
 	}
 }

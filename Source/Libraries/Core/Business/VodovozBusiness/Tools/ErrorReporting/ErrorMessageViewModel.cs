@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using QS.Commands;
 using QS.Dialog;
 using QS.ErrorReporting;
@@ -6,16 +7,13 @@ using QS.ViewModels;
 
 namespace Vodovoz.Tools
 {
-	public class ErrorMessageViewModel : ViewModelBase
+	public class ErrorMessageViewModel : ViewModelBase, IDisposable
 	{
 		public ErrorMessageViewModel(ErrorMessageModelBase errorMessageModel, IInteractiveMessage interactiveMessage = null)
 		{
 			this.errorMessageModel = errorMessageModel ?? throw new ArgumentNullException(nameof(errorMessageModel));
 			this.interactiveMessage = interactiveMessage;
-			errorMessageModel.PropertyChanged += (sender, e) => {
-				OnPropertyChanged(nameof(CanSendErrorReportManually));
-				OnPropertyChanged(nameof(IsEmailValid));
-			};
+			errorMessageModel.PropertyChanged += OnErrorMessageModelPropertyChanged;
 			CreateSendReportCommand();
 		}
 
@@ -75,6 +73,20 @@ namespace Vodovoz.Tools
 				},
 				(errorReportType) => errorReportType == ReportType.Automatic || CanSendErrorReportManually
 			);
+		}
+		
+		private void OnErrorMessageModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			OnPropertyChanged(nameof(CanSendErrorReportManually));
+			OnPropertyChanged(nameof(IsEmailValid));
+		}
+		
+		public void Dispose()
+		{
+			if(errorMessageModel != null)
+			{
+				errorMessageModel.PropertyChanged -= OnErrorMessageModelPropertyChanged;
+			}
 		}
 	}
 }

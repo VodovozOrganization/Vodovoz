@@ -67,6 +67,7 @@ namespace Vodovoz.ViewModels.Cash
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private FinancialIncomeCategory _financialIncomeCategory;
 		private bool _noClose;
+		private bool _disposed;
 
 		public delegate void DebtsChangedHandler(bool isListReloaded = false, bool isSelectionChanged = false);
 		public event DebtsChangedHandler OnDebtsChanged;
@@ -796,6 +797,14 @@ namespace Vodovoz.ViewModels.Cash
 			}
 
 			return true;
+		}
+
+		public override void Dispose()
+		{
+			if(_disposed) return;
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+			_disposed = true;
 		}
 	}
 }
