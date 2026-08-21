@@ -1,13 +1,16 @@
-﻿using Edo.Problems;
+﻿using Edo.Admin;
+using Edo.Problems;
 using Edo.Problems.Custom;
 using Edo.Problems.Custom.Sources;
 using Edo.Problems.Exception;
 using Edo.Transport;
 using EdoService.Library.Factories;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
+using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +26,7 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Errors.Edo;
+using VodovozBusiness.Services.Edo;
 using Xunit;
 using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
 
@@ -36,11 +40,15 @@ namespace EdoServices.Tests
 		private readonly IEdoRepository _edoRepository;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
 		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
+		private readonly IGenericRepository<OrderEdoTask> _edoTaskRepository;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IBus _bus;
 		private readonly MessageService _messageService;
+		private readonly EdoCancellationService _edoCancellationService;
+		private readonly IUserService _userService;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
+		private readonly IManualEdoRequestFactory _manualEdoRequestFactory;
 		private readonly EdoService.Library.EdoService _edoService;
 		private readonly EdoProblemRegistrar _problemRegistrar;
 		private readonly EdoTaskCustomSourcesPersister _customSourcesPersister;
@@ -55,10 +63,12 @@ namespace EdoServices.Tests
 			_receiptRepository = Substitute.For<IGenericRepository<ReceiptEdoTask>>();
 
 			_edoRequestRepository = Substitute.For<IGenericRepository<FormalEdoRequest>>();
+			_edoTaskRepository = Substitute.For<IGenericRepository<OrderEdoTask>>();
 
 			_edoRequestCreatedEventPublisher = Substitute.For<IEdoRequestCreatedEventPublisher>();
 			_bus = Substitute.For<IBus>();
 			_requestFactories = Enumerable.Empty<IInformalEdoRequestFactory>();
+			_manualEdoRequestFactory = Substitute.For<IManualEdoRequestFactory>();
 
 			_customSourcesPersister = Substitute.For<EdoTaskCustomSourcesPersister>(
 				_uowFactory,
@@ -78,9 +88,18 @@ namespace EdoServices.Tests
 			);
 
 			_messageService = new MessageService(
-				Substitute.For<Microsoft.Extensions.Logging.ILogger<MessageService>>(),
+				Substitute.For<ILogger<MessageService>>(),
 				_bus
 			);
+
+			_edoCancellationService = new EdoCancellationService(
+				Substitute.For<ILogger<EdoCancellationService>>(),
+				_uow,
+				Substitute.For<IEdoCancellationValidator>(),
+				_problemRegistrar,
+				Substitute.For<IPublishEndpoint>()
+				);
+			_userService = Substitute.For<IUserService>();
 
 			_counterpartyEdoAccountEntityController = Substitute.For<ICounterpartyEdoAccountEntityController>();
 
@@ -90,12 +109,15 @@ namespace EdoServices.Tests
 				_receiptRepository,
 				_edoRepository,
 				_messageService,
+				_userService,
+				_edoCancellationService,
 				_edoRequestRepository,
+				_edoTaskRepository,
 				_counterpartyEdoAccountEntityController,
 				_edoRequestCreatedEventPublisher,
-				_bus,
 				_requestFactories,
-				_problemRegistrar
+				_manualEdoRequestFactory,
+				_bus
 			);
 		}
 
@@ -474,15 +496,6 @@ namespace EdoServices.Tests
 		private void SetupUowFactoryForReceiptEdoTaskWithRequest(ReceiptEdoTask receiptTask)
 		{
 			var taskId = receiptTask.Id;
-
-			_problemRegistrar
-				.RegisterCustomProblem<TaskHasBeenCancelledWithReason>(
-					Arg.Any<EdoTask>(),
-					Arg.Any<IEnumerable<EdoTaskItem>>(),
-					Arg.Any<CancellationToken>(),
-					Arg.Any<string>()
-				)
-				.Returns(Task.CompletedTask);
 
 			_uowFactory.CreateWithoutRoot(Arg.Any<string>())
 				.ReturnsForAnyArgs(x => {

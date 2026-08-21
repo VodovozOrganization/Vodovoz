@@ -10,6 +10,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Core.Application;
+using Vodovoz.Zabbix.Sender;
 
 namespace CustomerOnlineOrdersUpdater
 {
@@ -49,7 +50,9 @@ namespace CustomerOnlineOrdersUpdater
 						.AddCoreApplicationOrderServices()
 
 						.AddStaticScopeForEntity()
-						.AddStaticHistoryTracker();
+						.AddStaticHistoryTracker()
+						
+						.ConfigureZabbixSenderFromDataBase();
 				});
 	}
 }

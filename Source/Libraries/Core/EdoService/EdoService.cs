@@ -1,15 +1,14 @@
 ﻿using Core.Infrastructure;
+using Edo.Admin;
 using Edo.Contracts.Messages.Events;
-using Edo.Problems;
-using Edo.Problems.Custom.Sources;
 using Edo.Transport;
 using EdoService.Library.Factories;
 using Gamma.Utilities;
 using MassTransit;
-using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
+using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +26,6 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Extensions;
 using VodovozBusiness.Errors.Edo;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.Services.Edo;
@@ -45,12 +43,15 @@ namespace EdoService.Library
 		private readonly IEdoRepository _edoRepository;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
 		private readonly MessageService _messageService;
+		private readonly IUserService _userService;
+		private readonly EdoCancellationService _edoCancellationService;
 		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
+		private readonly IGenericRepository<OrderEdoTask> _edoTaskRepository;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
-		private readonly IBus _messageBus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
-		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly IManualEdoRequestFactory _manualEdoRequestFactory;
+		private readonly IBus _bus;
 
 		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[]
 		{
@@ -70,12 +71,15 @@ namespace EdoService.Library
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			IEdoRepository edoRepository,
 			MessageService messageService,
+			IUserService userService,
+			EdoCancellationService edoCancellationService,
 			IGenericRepository<FormalEdoRequest> edoRequestRepository,
+			IGenericRepository<OrderEdoTask> edoTaskRepository,
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
-			IBus messageBus,
 			IEnumerable<IInformalEdoRequestFactory> requestFactories,
-			EdoProblemRegistrar edoProblemRegistrar
+			IManualEdoRequestFactory manualEdoRequestFactory,
+			IBus bus
 			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -83,111 +87,213 @@ namespace EdoService.Library
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 			_edoRequestRepository = edoRequestRepository ?? throw new ArgumentNullException(nameof(edoRequestRepository));
+			_edoTaskRepository = edoTaskRepository ?? throw new ArgumentNullException(nameof(edoTaskRepository));
 			_counterpartyEdoAccountEntityController =
 				counterpartyEdoAccountEntityController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountEntityController));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
-			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
+			_manualEdoRequestFactory = manualEdoRequestFactory ?? throw new ArgumentNullException(nameof(manualEdoRequestFactory));
+			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 
 		public Result ResendEdoDocumentForOrder(OrderEntity order)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
 			{
-				return ResendEdoDocument(uow, order);
+				var task = _edoRepository.GetEdoTaskByOrder(uow, order.Id).FirstOrDefault();
+				return ResendEdoDocument(uow, task.Id);
 			}
 		}
 
-		public Result ResendEdoDocumentForOrder(int taskId)
+		public Result<string> ResendEdoDocumentForOrder(int taskId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
 			{
-				var order = GetOrderByTaskId(uow, taskId);
-				if(order is null)
-				{
-					return Result.Failure(EdoErrors.HasProblem);
-				}
-
-				return ResendEdoDocument(uow, order);
+				return ResendEdoDocument(uow, taskId);
 			}
 		}
 
-		private Result ResendEdoDocument(IUnitOfWork uow, OrderEntity order)
+		private Result<string> ResendEdoDocument(IUnitOfWork uow, int taskId)
 		{
+			var edoTask = uow.Session.Get<OrderEdoTask>(taskId);
+			if(edoTask is null)
+			{
+				return Result.Failure<string>(EdoErrors.NoCancelledEdoTaskForResend);
+			}
+
+			var order = GetOrderByTaskId(uow, taskId);
+
 			if(order.IsUndeliveredStatus)
 			{
-				return Result.Failure(EdoErrors.IsUndeliveredOrder);
+				return Result.Failure<string>(EdoErrors.IsUndeliveredOrder);
 			}
 
-			var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
-			if(documents is null || !documents.Any())
+			bool hasDocflow = HasDocflow(uow, edoTask);
+			bool hasCancelledDocflow = HasCancelledDocflow(uow, edoTask.Id);
+
+			var checkOtherRequestsResult = CheckOtherRequests(uow, edoTask.FormalEdoRequest, taskId);
+			if(checkOtherRequestsResult.IsFailure)
 			{
-				return Result.Failure(EdoErrors.HasProblem);
+				return Result.Failure<string>(checkOtherRequestsResult.Errors);
 			}
 
-			foreach(var doc in documents)
+			var checkOtherTasksResult = CheckOtherTasks(uow, edoTask, taskId);
+			if(checkOtherTasksResult.IsFailure)
 			{
-				if(!CanResendEdoDocument(doc.Status))
+				return Result.Failure<string>(checkOtherRequestsResult.Errors);
+			}
+
+			if(hasCancelledDocflow)
+			{
+				if(EdoTaskHasBeenCancelled(uow, edoTask))
 				{
-					return Result.Failure(EdoErrors.CreateAlreadySuccefullSended(order, doc));
+					ResendDocumentForCancelledEdoTask(uow, order, edoTask);
 				}
-
-				var validateResult = ValidateEdoOrderDocument(uow, doc);
-				if(validateResult.IsFailure)
+				else
 				{
-					return validateResult;
-				}
-			}
-
-			var orderItems = _orderRepository.GetOrderItems(uow, order.Id);
-			var hasMarkedProducts = orderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
-
-			var document = documents.First();
-			if(document.Type != OutgoingEdoDocumentType.Order)
-			{
-				return Result.Failure(EdoErrors.CreateInvalidOutgoingDocumentType(order.Id, document.Type));
-			}
-
-			if(hasMarkedProducts && document.CreationTime != null)
-			{
-				var threeMonthAgo = DateTime.Now.AddMonths(-3);
-				if(document.CreationTime < threeMonthAgo)
-				{
-					return Result.Failure(EdoErrors.CreateResendTimeLimitExceeded(document, order.Id));
+					CancelEdoTaskWithReason(uow, edoTask);
+					ResendDocumentForCancelledEdoTask(uow, order, edoTask);
 				}
 			}
-
-			var activeEdoTask = GetActiveEdoTaskForResend(uow, order);
-			if(activeEdoTask is null)
+			else if(!hasDocflow)
 			{
-				return Result.Failure(EdoErrors.NoActiveEdoTaskForResend);
+				if(edoTask.Status is EdoTaskStatus.Problem)
+				{
+					RehandleNewUpdDocumentWithProblem(taskId);
+				}
+				else if(EdoTaskHasBeenCancelled(uow, edoTask))
+				{
+					ResendDocumentForCancelledEdoTask(uow, order, edoTask);
+				}
+				else
+				{
+					CancelEdoTaskWithReason(uow, edoTask);
+					ResendDocumentForCancelledEdoTask(uow, order, edoTask);
+				}
+			}
+			else
+			{
+				return Result.Failure<string>(EdoErrors.HasProblem);
 			}
 
-			var productCodes = new ObservableList<TrueMarkProductCode>(
-					activeEdoTask.Items.Select(x => x.ProductCode)
+			return Result.Success("Успешно переотправлено");
+		}
+
+		private Result<string> CheckOtherRequests(IUnitOfWork uow, FormalEdoRequest request, int taskId)
+		{
+			var hasOtherRequests = _edoRequestRepository.GetCount(uow, x =>
+				x.Order.Id == request.Order.Id
+				&& x.Task.Id != taskId
+				&& !(x.Task is SaveCodesEdoTask)
+			) > 0;
+
+			if(hasOtherRequests)
+			{
+				return Result.Failure<string>(new Error("DocumentHasOtherRequests",
+					$"Переотправка документа невозможна, т.к. помимо текущего документа " +
+					$"по заказу {request.Order.Id} уже есть другая отправка")
 				);
+			}
 
-			var request = ManualEdoRequestFactory.Create(order, productCodes);
+			return Result.Success("OK");
+		}
 
-			activeEdoTask.Status = EdoTaskStatus.Cancelled;
+		private Result<string> CheckOtherTasks(IUnitOfWork uow, OrderEdoTask edoTask, int taskId)
+		{
+			var hasOtherTasks = _edoTaskRepository.GetCount(uow, x =>
+				x.FormalEdoRequest.Order.Id == edoTask.FormalEdoRequest.Order.Id
+				&& x.Id != taskId
+				&& x.Status != EdoTaskStatus.Cancelled
+				&& !(x is SaveCodesEdoTask)
+			) > 0;
 
-			RegisterProblem(activeEdoTask, CancellationToken.None)
-				.GetAwaiter()
-				.GetResult();
+			if(hasOtherTasks)
+			{
+				return Result.Failure<string>(new Error("DocumentHasOtherTasks",
+					$"Переотправка документа невозможна, т.к. помимо текущего документа " +
+					$"по заказу {edoTask.FormalEdoRequest.Order.Id} уже есть другая неотмененная задача")
+				);
+			}
+			return Result.Success("OK");
+		}
+
+		public Result<string> CancelDocflow(int edoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Создаем запрос на аннулирование в ДО"))
+			{
+				var edoTask = uow.Session.Get<OrderEdoTask>(edoTaskId);
+
+				CreateEventForEdoTaskCancellation(edoTask);
+
+				return Result.Success($"Задача {edoTask.Id} отправлена на аннулирование");
+			}
+		}
+
+		public bool HasCancelledDocflow(int edoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Проверка возможности переотправки документа ЭДО"))
+			{
+				return HasCancelledDocflow(uow, edoTaskId);
+			}
+		}
+
+		public bool HasDocflow(int edoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Проверка наличия документооборота ЭДО"))
+			{
+				var edoTask = uow.Session.Get<OrderEdoTask>(edoTaskId);
+				if(edoTask is null)
+				{
+					return false;
+				}
+				return HasDocflow(uow, edoTask);
+			}
+		}
+
+		private bool HasCancelledDocflow(IUnitOfWork uow, int edoTaskId)
+		{
+			var orderDocument = uow.Session.QueryOver<OrderEdoDocument>()
+				.Where(x => x.DocumentTaskId == edoTaskId)
+				.SingleOrDefault();
+
+			if(orderDocument != null && CanResendEdoDocument(orderDocument.Status))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool HasDocflow(IUnitOfWork uow, OrderEdoTask edoTask)
+		{
+			var orderDocument = uow.Session.QueryOver<OrderEdoDocument>()
+				.Where(x => x.DocumentTaskId == edoTask.Id)
+				.SingleOrDefault();
+
+			if(orderDocument != null)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private void ResendDocumentForCancelledEdoTask(IUnitOfWork uow, OrderEntity order, OrderEdoTask edoTask)
+		{
+			var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(edoTask);
+			var request = _manualEdoRequestFactory.Create(uow, order, productCodes);
 
 			uow.Save(request);
-			uow.Save(activeEdoTask);
 			uow.Commit();
 
 			_edoRequestCreatedEventPublisher.Publish(request.Id, "Ручная переотправка документов ЭДО")
 				.ConfigureAwait(false)
 				.GetAwaiter()
 				.GetResult();
-
-			return Result.Success();
 		}
 
 		private OrderEntity GetOrderByTaskId(IUnitOfWork uow, int taskId)
@@ -200,79 +306,28 @@ namespace EdoService.Library
 			&& _resendableEdoDocumentStatuses.Contains(status.Value);
 
 		/// <summary>
-		/// Получает активную ЭДО задачу для переотправки документа
+		/// Проверяет, была ли отменена ЭДО задача для переотправки документа (при наличии маркированной продукции в заказе)
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="order">Заказ</param>
-		/// <returns>Активная ЭДО задача или null, если нет подходящей</returns>
-		private OrderEdoTask GetActiveEdoTaskForResend(IUnitOfWork uow, OrderEntity order)
+		/// <param name="edoTask">ЭДО задача</param>
+		/// <returns>True, если задача была отменена или в заказе нет КМ, False в противном случае</returns>
+		private bool EdoTaskHasBeenCancelled(IUnitOfWork uow, OrderEdoTask edoTask)
 		{
-			if(order is null)
-			{
-				return null;
-			}
-
-			var edoTasks = _edoRepository.GetEdoTaskByOrder(uow, order.Id);
-			if(!edoTasks.Any())
-			{
-				return null;
-			}
-
+			var order = edoTask.FormalEdoRequest?.Order;
 			var orderItems = _orderRepository.GetOrderItems(uow, order.Id);
 			var hasMarkedProducts = orderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
+
 			if(!hasMarkedProducts)
 			{
-				return edoTasks.FirstOrDefault(x => x.Status != EdoTaskStatus.Cancelled);
+				return true;
 			}
 
-			var activeTasksWithAcceptedCodes = edoTasks
-				.Where(x => x.Status != EdoTaskStatus.Cancelled)
-				.Where(x => x.FormalEdoRequest.ProductCodes.Any(c =>
-					c.SourceCodeStatus.IsIn(
-						SourceProductCodeStatus.Accepted,
-						SourceProductCodeStatus.Changed
-					)))
-				.ToList(); 
+			var cancelledEdoTaskWithRejectedCodes = edoTask.Status is EdoTaskStatus.Cancelled 
+				&& edoTask.FormalEdoRequest.ProductCodes.Any(c =>
+				c.SourceCodeStatus is SourceProductCodeStatus.Rejected
+				&& c.ResultCode != null);
 
-			return activeTasksWithAcceptedCodes.FirstOrDefault();
-		}
-
-		public async Task<Result> ResendReceiptFromSavedToPool(
-			IUnitOfWork uow,
-			int? orderTaskId,
-			int orderId,
-			CancellationToken cancellationToken = default)
-		{
-			var tasksResult = await _receiptRepository.GetAsync(
-				uow,
-				f => f.FormalEdoRequest.Order.Id == orderId
-					&& f.Id != orderTaskId, cancellationToken: cancellationToken);
-
-			if(tasksResult.IsFailure) 
-			{
-				return Result.Failure(tasksResult.Errors);
-			}
-			var tasks = tasksResult.Value;
-
-			if(tasks.Any(x => x.ReceiptStatus != EdoReceiptStatus.SavedToPool))
-			{
-				return Result.Failure(EdoErrors.CreateCannotResendReceiptFromSavedToPoolTask(orderId));
-			}
-
-			var order = await _orderRepository.GetOrderByIdAsync(uow, orderId, cancellationToken);
-
-			var productCodes = new ObservableList<TrueMarkProductCode>(
-				tasks.FirstOrDefault().Items.Select(x => x.ProductCode)
-			);
-
-			var newRequest = ManualEdoRequestFactory.Create(order, productCodes);
-
-			await uow.SaveAsync(newRequest, cancellationToken: cancellationToken);
-			await uow.CommitAsync(cancellationToken);
-
-			await _edoRequestCreatedEventPublisher.Publish(newRequest.Id, "Ручная переотправка чека из пула", cancellationToken);
-
-			return Result.Success();
+			return cancelledEdoTaskWithRejectedCodes;
 		}
 
 		public virtual void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject
@@ -580,16 +635,15 @@ namespace EdoService.Library
 					return canResendResult;
 				}
 
-				receiptTask.Status = EdoTaskStatus.Cancelled;
 				receiptTask.ReceiptStatus = EdoReceiptStatus.New;
 
 				var productCodes = new ObservableList<TrueMarkProductCode>(
 					receiptTask.Items.Select(x => x.ProductCode)
 				);
 
-				var request = ManualEdoRequestFactory.Create(order, productCodes);
+				var request = _manualEdoRequestFactory.Create(uow, order, productCodes);
 
-				await RegisterProblem(receiptTask, cancellationToken);
+				CancelEdoTaskWithReason(uow, receiptTask);
 
 				await uow.SaveAsync(request, cancellationToken: cancellationToken);
 				await uow.SaveAsync(receiptTask, cancellationToken: cancellationToken);
@@ -601,12 +655,60 @@ namespace EdoService.Library
 			}
 		}
 
-		private async Task RegisterProblem(OrderEdoTask task, CancellationToken cancellationToken)
+		public Result RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId)
 		{
-			await _edoProblemRegistrar.RegisterCustomProblem<TaskHasBeenCancelledWithReason>(
-									task,
-									Enumerable.Empty<EdoTaskItem>(),
-									cancellationToken);
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var task = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
+				if(task == null)
+				{
+					return Result.Failure(new Error("ReceiptEdoTaskNotFound",
+						$"ЭДО задача №{receiptEdoTaskId} на отправку чека не найдена, " +
+						$"обратитесь в техподдержку"));
+				}
+
+				if(task.Status != EdoTaskStatus.Problem)
+				{
+					return Result.Failure(new Error("ReceiptEdoTaskDontHaveProblem",
+						$"ЭДО задача №{receiptEdoTaskId} на отправку чека не имеет нерешенных проблем для переобработки."
+					));
+				}
+
+				if(task.ReceiptStatus != EdoReceiptStatus.New)
+				{
+					return Result.Failure(new Error("ReceiptEdoTaskCantRehandleProblemInCurrentStage",
+						$"Для ЭДО задачи №{receiptEdoTaskId} на отправку чека " +
+						$"в стадии {task.ReceiptStatus.GetEnumTitle()} не доступна переобработка проблемы."
+					));
+				}
+
+				var message = new ReceiptTaskCreatedEvent
+				{
+					ReceiptEdoTaskId = receiptEdoTaskId,
+				};
+				_bus.Publish(message);
+
+				return Result.Success();
+			}
+		}
+
+		private void CreateEventForEdoTaskCancellation(EdoTask edoTask)
+		{
+			var message = new RequestDocflowCancellationEvent
+			{
+				TaskId = edoTask.Id,
+				Reason = $"Новая ручная переотправка пользователем {_userService.GetCurrentUser().Name}"
+			};
+
+			_bus.Publish(message)
+				.GetAwaiter()
+				.GetResult();
+		}
+
+		private void CancelEdoTaskWithReason(IUnitOfWork uow, EdoTask edoTask)
+		{
+			var cancellationReason = $"Новая ручная переотправка пользователем {_userService.GetCurrentUser().Name}";
+			_edoCancellationService.CancelTask(edoTask.Id, cancellationReason, true, uow: uow).GetAwaiter().GetResult();
 		}
 
 		private Result CanResendReceipt(ReceiptEdoTask receiptTask)
@@ -654,17 +756,10 @@ namespace EdoService.Library
 
 				if(request.Task.TaskType == EdoTaskType.SaveCode)
 				{
-					var hasOtherRequests = _edoRequestRepository.GetCount(uow, x =>
-						x.Order.Id == request.Order.Id
-						&& x.Task.Id != orderEdoTaskId
-					) > 0;
-
-					if(hasOtherRequests)
+					var checkOtherRequestsResult = CheckOtherRequests(uow, request, orderEdoTaskId);
+					if(checkOtherRequestsResult.IsFailure)
 					{
-						return Result.Failure<string>(new Error("DocumentHasOtherRequests",
-							$"Переотправка документа невозможна, т.к. помимо текущего документа" +
-							$"по заказу {request.Order.Id} уже есть другая отправка")
-						);
+						return Result.Failure<string>(checkOtherRequestsResult.Errors);
 					}
 
 					var edoAccount = _counterpartyEdoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(
@@ -679,21 +774,12 @@ namespace EdoService.Library
 						);
 					}
 
-					var newRequest = new ManualEdoRequest
-					{
-						Order = new Order
-						{
-							Id = request.Order.Id
-						},
-						Time = DateTime.Now,
-						Source = EdoRequestSource.Manual,
-						DocumentType = EdoDocumentType.UPD
-					};
+					var newRequest = _manualEdoRequestFactory.Create(uow, request.Order);
 
 					uow.Save(newRequest);
 					uow.Commit();
 
-					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
+					_bus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
 
 					return Result.Success($"Документ отправлен на переформирование.");
 				}
@@ -724,33 +810,18 @@ namespace EdoService.Library
 
 				if(receiptTask.ReceiptStatus == EdoReceiptStatus.SavedToPool)
 				{
-					var hasOtherRequests = _edoRequestRepository.GetCount(uow, x =>
-						x.Order.Id == request.Order.Id
-						&& x.Task.Id != orderEdoTaskId
-					) > 0;
-
-					if(hasOtherRequests)
+					var checkOtherRequestsResult = CheckOtherRequests(uow, request, orderEdoTaskId);
+					if(checkOtherRequestsResult.IsFailure)
 					{
-						return Result.Failure<string>(new Error("DocumentHasOtherRequests",
-							$"Переотправка документа невозможна, т.к. помимо текущего документа" +
-							$"по заказу {request.Order.Id} уже есть другая отправка")
-						);
+						return Result.Failure<string>(checkOtherRequestsResult.Errors);
 					}
 
-					var newRequest = new ManualEdoRequest
-					{
-						Order = new Order
-						{
-							Id = request.Order.Id
-						},
-						Time = DateTime.Now,
-						Source = EdoRequestSource.Manual
-					};
+					var newRequest = _manualEdoRequestFactory.Create(uow, request.Order);
 
 					uow.Save(newRequest);
 					uow.Commit();
 
-					_messageBus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
+					_bus.Publish(new EdoRequestCreatedEvent { Id = newRequest.Id });
 
 					return Result.Success($"Документ отправлен на переформирование.");
 				}
@@ -791,48 +862,9 @@ namespace EdoService.Library
 					));
 				}
 
-				var message = new DocumentTaskCreatedEvent
-				{
-					Id = updEdoTaskId,
-				};
-				_messageBus.Publish(message);
-
-				return Result.Success();
-			}
-		}
-
-		public Result RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var task = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
-				if(task == null)
-				{
-					return Result.Failure(new Error("ReceiptEdoTaskNotFound",
-						$"ЭДО задача №{receiptEdoTaskId} на отправку чека не найдена, " +
-						$"обратитесь в техподдержку"));
-				}
-
-				if(task.Status != EdoTaskStatus.Problem)
-				{
-					return Result.Failure(new Error("ReceiptEdoTaskDontHaveProblem",
-						$"ЭДО задача №{receiptEdoTaskId} на отправку чека не имеет нерешенных проблем для переобработки."
-					));
-				}
-
-				if(task.ReceiptStatus != EdoReceiptStatus.New)
-				{
-					return Result.Failure(new Error("ReceiptEdoTaskCantRehandleProblemInCurrentStage",
-						$"Для ЭДО задачи №{receiptEdoTaskId} на отправку чека " +
-						$"в стадии {task.ReceiptStatus.GetEnumTitle()} не доступна переобработка проблемы."
-					));
-				}
-
-				var message = new ReceiptTaskCreatedEvent
-				{
-					ReceiptEdoTaskId = receiptEdoTaskId,
-				};
-				_messageBus.Publish(message);
+				_messageService.PublishTaskCreatedEvent(task)
+					.GetAwaiter()
+					.GetResult();
 
 				return Result.Success();
 			}

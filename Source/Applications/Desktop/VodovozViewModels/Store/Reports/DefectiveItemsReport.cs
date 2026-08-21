@@ -1,4 +1,5 @@
-﻿using DateTimeHelpers;
+﻿using Core.Infrastructure;
+using DateTimeHelpers;
 using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.DomainModel.Entity;
@@ -16,7 +17,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.Store.Reports

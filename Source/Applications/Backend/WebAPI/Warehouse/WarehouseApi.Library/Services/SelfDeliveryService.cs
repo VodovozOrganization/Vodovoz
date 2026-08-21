@@ -132,6 +132,12 @@ namespace WarehouseApi.Library.Services
 				return Vodovoz.Errors.Orders.OrderErrors.IsNotSelfDelivery;
 			}
 
+			if(order.OrderStatus != OrderStatus.OnLoading)
+			{
+				_logger.LogWarning($"Заказ с id {order.Id} не находится в статусе OnLoading.");
+				return Vodovoz.Errors.Orders.OrderErrors.CreateNotInOnLoadingStatus(order.Id);
+			}
+
 			var warehouse = _warehouseRepository
 				.Get(_unitOfWork, x => x.Id == warehouseId, 1)
 				.FirstOrDefault();
@@ -151,9 +157,7 @@ namespace WarehouseApi.Library.Services
 				Warehouse = warehouse
 			};
 
-			var defaultBottleNomenclatureId =
-				_nomenclatureRepository.GetDefaultBottleNomenclatureId(_unitOfWork, cancellationToken);
-
+			selfDeliveryDocument.InitializeDefaultValues(_unitOfWork, _nomenclatureRepository);
 			selfDeliveryDocument.FillByOrder();
 			selfDeliveryDocument.UpdateStockAmount(_unitOfWork, _stockRepository);
 			selfDeliveryDocument.UpdateAlreadyUnloaded(_unitOfWork, _nomenclatureRepository, _bottlesRepository);
@@ -363,7 +367,6 @@ namespace WarehouseApi.Library.Services
 
 		public async Task<Result<SelfDeliveryDocument>> EndLoad(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
-			selfDeliveryDocument.InitializeDefaultValues(_unitOfWork, _nomenclatureRepository);
 			selfDeliveryDocument.UpdateOperations(_unitOfWork);
 
 			selfDeliveryDocument.UpdateReceptions(

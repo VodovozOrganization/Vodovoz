@@ -103,5 +103,20 @@ namespace Vodovoz.Settings.Notifications
 		/// начиная с которой по клиенту создаётся сделка в Битрикс24
 		/// </summary>
 		DateTime LastServiceOrdersMinDeliveryDate { get; }
+
+		/// <summary>
+		/// Интервал работы воркера создания сделок по недовозам в Битрикс24.
+		/// </summary>
+		TimeSpan UndeliveredOrdersSendInterval { get; }
+
+		/// <summary>
+		/// Включена ли отправка недовозов в Битрикс24.
+		/// </summary>
+		bool UndeliveredOrdersSendEnabled { get; }
+
+		/// <summary>
+		/// Минимальное время изменения недовоза, начиная с которого недовозы попадают в синхронизацию с Битрикс24.
+		/// </summary>
+		DateTime UndeliveredOrdersMinLastEditedTime { get; }
 	}
 }

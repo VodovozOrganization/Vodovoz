@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using Core.Infrastructure;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Text;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Reports;
 using District = Vodovoz.Domain.Sale.District;
 

@@ -113,6 +113,7 @@ using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
 using CustomerNotifications.Contracts;
 using CustomerNotifications.Application;
 using Vodovoz.ViewModels.Services.SalesReport;
+using Edo.Admin;
 
 namespace Vodovoz
 {
@@ -266,6 +267,8 @@ namespace Vodovoz
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
 				.AddScoped<ISalesReportService, SalesReportService>()
+				.AddEdoAdminServices()
+				.AddEdoNotifications()
 				.AddOrderEdoCodePoolMissingProblem()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
 				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()

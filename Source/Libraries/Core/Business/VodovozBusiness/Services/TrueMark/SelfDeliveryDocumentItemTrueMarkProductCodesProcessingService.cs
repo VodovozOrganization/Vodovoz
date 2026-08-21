@@ -13,6 +13,7 @@ using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 using VodovozBusiness.Controllers;
 using NomenclatureErrors = Vodovoz.Errors.Goods.NomenclatureErrors;
 using TrueMarkCodeErrors = Vodovoz.Core.Domain.Errors.TrueMarkCodeErrors;
@@ -23,15 +24,19 @@ namespace VodovozBusiness.Services.TrueMark
 	{
 		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
 
 		public SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService(
 			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService)
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
 		{
 			_nomenclatureRepository =
 				nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_trueMarkWaterCodeService =
 				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
+				?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCleanupService));
 		}
 
 		public async Task<IEnumerable<StagingTrueMarkCode>> GetStagingTrueMarkCodesBySelfDeliveryDocumentItem(
@@ -190,6 +195,19 @@ namespace VodovozBusiness.Services.TrueMark
 			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
+			foreach(var stagingCode in stagingCodes.Where(x => x.ParentCodeId is null))
+			{
+				var alreadyUsedResult = await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(
+					uow,
+					stagingCode,
+					cancellationToken);
+
+				if(alreadyUsedResult.IsFailure)
+				{
+					return alreadyUsedResult;
+				}
+			}
+
 			var trueMarkAnyCodesResult =
 				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
 					uow,
@@ -235,7 +253,14 @@ namespace VodovozBusiness.Services.TrueMark
 			StagingTrueMarkCode stagingTrueMarkCode,
 			CancellationToken cancellationToken)
 		{
-			var checkCodeResult = await IsStagingTrueMarkCodeCanBeAddedToDocumentNomenclatures(uow, document, stagingTrueMarkCode, cancellationToken);
+			var checkCodeResult = IsTransportCodeAllowedForOrder(stagingTrueMarkCode, document.Order);
+
+			if(checkCodeResult.IsFailure)
+			{
+				return checkCodeResult;
+			}
+
+			checkCodeResult = await IsStagingTrueMarkCodeCanBeAddedToDocumentNomenclatures(uow, document, stagingTrueMarkCode, cancellationToken);
 
 			if(checkCodeResult.IsFailure)
 			{
@@ -244,7 +269,16 @@ namespace VodovozBusiness.Services.TrueMark
 
 			checkCodeResult = await IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, stagingTrueMarkCode, cancellationToken);
 
-			return checkCodeResult;
+			if(checkCodeResult.IsFailure)
+			{
+				return checkCodeResult;
+			}
+
+			await _trueMarkCodesPoolCleanupService.RemoveStagingCodeFromPoolIfPresentAsync(
+				stagingTrueMarkCode,
+				cancellationToken);
+
+			return Result.Success();
 		}
 
 		private async Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(
@@ -252,6 +286,17 @@ namespace VodovozBusiness.Services.TrueMark
 			StagingTrueMarkCode stagingTrueMarkCode,
 			CancellationToken cancellationToken) =>
 			await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, stagingTrueMarkCode, cancellationToken);
+
+		private Result IsTransportCodeAllowedForOrder(StagingTrueMarkCode stagingTrueMarkCode, Order order)
+		{
+			if(stagingTrueMarkCode.CodeType == StagingTrueMarkCodeType.Transport
+				&& order.IsSendingReceiptExpectedByPaymentType)
+			{
+				return Result.Failure(TrueMarkCodeErrors.TransportCodeIsNotAllowedForOrderWithReceipt);
+			}
+
+			return Result.Success();
+		}
 
 		private async Task<Result> IsStagingTrueMarkCodeCanBeAddedToDocumentNomenclatures(
 			IUnitOfWork uow,

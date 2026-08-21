@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Core.Infrastructure;
+using Renci.SshNet.Messages;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Extensions;
 
 namespace VodovozBusiness.Errors.Edo
 {
@@ -79,12 +80,12 @@ namespace VodovozBusiness.Errors.Edo
 				"Некорректный тип документа");
 
 		/// <summary>
-		/// Ошибка: нет активной задачи ЭДО для переотправки
+		/// Ошибка: нет отмененной задачи ЭДО для переотправки
 		/// </summary>
-		public static Error NoActiveEdoTaskForResend =>
+		public static Error NoCancelledEdoTaskForResend =>
 			new Error(typeof(EdoErrors),
-				nameof(NoActiveEdoTaskForResend),
-				"Нет активной ЭДО задачи для переотправки");
+				nameof(NoCancelledEdoTaskForResend),
+				"Нет отмененной ЭДО задачи для переотправки");
 
 		/// <summary>
 		/// Ошибка: произошла ошибка во время переотправки документа
@@ -174,10 +175,10 @@ namespace VodovozBusiness.Errors.Edo
 		/// <summary>
 		/// Ошибка: заказ-источник и заказ-получатель совпадают
 		/// </summary>
-		public static Error SameTransferOrder =>
+		public static Error SameSourceAndTargetOrder =>
 			new Error(
 				typeof(EdoErrors),
-				nameof(SameTransferOrder),
+				nameof(SameSourceAndTargetOrder),
 				"Нельзя перенести коды в тот же самый заказ.");
 
 		/// <summary>
@@ -279,17 +280,6 @@ namespace VodovozBusiness.Errors.Edo
 				$"переотправка возможна в течение 3х месяцев");
 
 		/// <summary>
-		/// Создает ошибку о невозможности переотправить чек из пула, если есть задача на сохранение кодов по заказу
-		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
-		/// <returns>Ошибка с описанием</returns>
-		public static Error CreateCannotResendReceiptFromSavedToPoolTask(int orderId) =>
-			new Error(
-				typeof(EdoErrors),
-				nameof(CreateCannotResendReceiptFromSavedToPoolTask),
-				$"Помимо задачи на сохранение кодов по заказу {orderId}, есть другая задача");
-
-		/// <summary>
 		/// Создает ошибку о невозможности переотправить завершенную задачу
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи</param>
@@ -321,27 +311,5 @@ namespace VodovozBusiness.Errors.Edo
 				typeof(EdoErrors),
 				nameof(CreateCannotResendReceiptFromSavedToPool),
 				$"Нельзя переотправить чек {taskId} из пула");
-
-		/// <summary>
-		/// Создает ошибку о невозможности переотправить чек с фискальным номером
-		/// </summary>
-		/// <param name="taskId">Идентификатор задачи</param>
-		/// <returns>Ошибка с описанием</returns>
-		public static Error CreateCannotResendReceiptWithFiscalNumber(int taskId) =>
-			new Error(
-				typeof(EdoErrors),
-				nameof(CreateCannotResendReceiptWithFiscalNumber),
-				$"Нельзя переотправить чек {taskId} с фискальным номером");
-
-		/// <summary>
-		/// Создает ошибку о невозможности переотправить напечатанный или завершенный чек
-		/// </summary>
-		/// <param name="taskId">Идентификатор задачи</param>
-		/// <returns>Ошибка с описанием</returns>
-		public static Error CreateCannotResendPrintedOrCompletedReceipt(int taskId) =>
-			new Error(
-				typeof(EdoErrors),
-				nameof(CreateCannotResendPrintedOrCompletedReceipt),
-				$"Нельзя переотправить напечатанный или завершенный чек {taskId}");
 	}
 }

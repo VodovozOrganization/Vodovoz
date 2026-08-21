@@ -1,4 +1,5 @@
-﻿using EdoNotifications.Application.Providers;
+﻿using Core.Infrastructure;
+using EdoNotifications.Application.Providers;
 using EdoNotifications.Contracts;
 using EdoNotificationsWorker.Services.Bitrix;
 using EdoNotificationsWorker.Services.Email;
@@ -7,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Vodovoz.Extensions;
 
 namespace EdoNotificationsWorker
 {

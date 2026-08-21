@@ -9,6 +9,7 @@ namespace Vodovoz.Core.Data.Repositories
 		public DateTime RequestTime { get; set; }
 		public int RequestId { get; set; }
 		public EdoRequestSource RequestSource { get; set; }
+		public string ManualRequestAuthor { get; set; }
 		public int TaskId { get; set; }
 		public EdoTaskStatus TaskStatus { get; set; }
 		public EdoTaskType TaskType { get; set; }
@@ -35,8 +36,8 @@ namespace Vodovoz.Core.Data.Repositories
 		public EdoDocumentStatus? EdoDocumentStatus { get; set; }
 
 		/// <summary>
-		/// Описание ошибки
+		/// Причина отмены
 		/// </summary>
-		public string ErrorDescription { get; set; }
+		public string CancellationReason { get; set; }
 	}
 }
