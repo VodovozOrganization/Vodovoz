@@ -39,6 +39,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 		private DelegateCommand _cancelCommand;
 		private GeoGroupVersionViewModel _selectedVersion;
 		private GenericObservableList<GeoGroupVersionViewModel> _versions;
+		private bool _disposed;
 
 		public GeoGroupViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -439,10 +440,12 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_lifetimeScope = null;
 			Entity.PropertyChanged -= EntityPropertyChanged;
 			
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

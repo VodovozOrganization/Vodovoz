@@ -80,6 +80,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private bool _canClose = true;
 		private Employee _oldDriver;
 		private DateTime _previousSelectedDate;
+		private bool _disposed;
 
 		public event EventHandler DocumentPrinted; 
 
@@ -1026,9 +1027,10 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnRouteListPropertyChanged;
-			
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

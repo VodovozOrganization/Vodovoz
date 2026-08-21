@@ -45,6 +45,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 		private Employee _cashier;
 
 		private bool _isUpdatingSubdivisions = false;
+		private bool _disposed;
 
 		public CommonCashTransferDocumentViewModel(
 			IEntityUoWBuilder entityUoWBuilder,
@@ -375,8 +376,10 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= Entity_PropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

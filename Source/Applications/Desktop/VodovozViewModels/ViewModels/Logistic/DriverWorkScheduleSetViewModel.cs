@@ -17,6 +17,8 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public sealed class DriverWorkScheduleSetViewModel : TabViewModelBase
     {
+		private bool _disposed;
+		
         public DriverWorkScheduleSetViewModel(
             DriverWorkScheduleSet entity,
             IUnitOfWork uow,
@@ -76,7 +78,7 @@ namespace Vodovoz.ViewModels.Logistic
         #region Команды
 
         private DelegateCommand acceptCommand;
-        public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
+		public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
             () => {
                 var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(uow);
                 if(Entity.Author == null) {
@@ -183,8 +185,10 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
             Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

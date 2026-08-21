@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		private readonly EdoProblemFilterViewModel _filterViewModel;
 		private readonly IClipboard _clipboard;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private bool _disposed;
 
 		public EdoProblemJournalViewModel(
 			IUnitOfWorkFactory uowFactory,
@@ -272,8 +273,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

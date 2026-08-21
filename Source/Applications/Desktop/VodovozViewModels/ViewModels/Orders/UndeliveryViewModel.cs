@@ -457,6 +457,7 @@ namespace Vodovoz.ViewModels.Orders
 		public UndeliveredOrder Entity { get; private set; }
 
 		private Employee _currentUser;
+		private bool _disposed;
 
 		public UndeliveryDiscussionsViewModel UndeliveryDiscussionsViewModel { get; private set; }
 
@@ -470,6 +471,7 @@ namespace Vodovoz.ViewModels.Orders
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			UndeliveredOrderViewModel.SaveUndelivery -= SaveUndelivery;
 			Entity.ObservableUndeliveryDiscussions.ElementChanged -= OnObservableUndeliveryDiscussionsElementChanged;
 			Entity.ObservableUndeliveryDiscussions.ListContentChanged -= OnObservableUndeliveryDiscussionsListContentChanged;
@@ -478,6 +480,7 @@ namespace Vodovoz.ViewModels.Orders
 			{
 				base.Dispose();
 			}
+			_disposed = true;
 		}
 	}
 }

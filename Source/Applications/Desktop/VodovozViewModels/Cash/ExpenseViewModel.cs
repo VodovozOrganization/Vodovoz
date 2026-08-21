@@ -63,6 +63,7 @@ namespace Vodovoz.ViewModels.Cash
 		private bool _canEditDate;
 		private bool _canEditDdrDate;
 		private Employee _restrictEmployee;
+		private bool _disposed;
 
 		public ExpenseViewModel(
 			ILogger<ExpenseViewModel> logger,
@@ -709,8 +710,10 @@ namespace Vodovoz.ViewModels.Cash
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

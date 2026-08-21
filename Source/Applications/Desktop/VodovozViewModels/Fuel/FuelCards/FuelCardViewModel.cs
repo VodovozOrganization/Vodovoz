@@ -29,6 +29,7 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 		private readonly IUserSettingsManager _userSettingsManager;
 		private CancellationTokenSource _cancellationTokenSource;
 		private bool _isCardIdObtainingProcessInWork;
+		private bool _disposed;
 
 		public FuelCardViewModel(
 			ILogger<FuelCardViewModel> logger,
@@ -199,11 +200,13 @@ namespace Vodovoz.ViewModels.Fuel.FuelCards
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_cancellationTokenSource?.Dispose();
 			_cancellationTokenSource = null;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

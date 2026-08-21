@@ -79,6 +79,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private IEnumerable<string> _lastGenerationErrors;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private bool _showContacts;
+		private bool _disposed;
 		private static OrderStatus[] _clientOneOrderStatuses = { OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered };
 
 		public TurnoverWithDynamicsReportViewModel(
@@ -1590,10 +1591,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			ReportGenerationCancelationTokenSource?.Dispose();
 			_filterViewModel.SelectionChanged -= OnFilterViewModelSelectionChanged;
 			_groupViewModel.RightItems.ContentChanged -= OnGroupingsRightItemsListContentChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

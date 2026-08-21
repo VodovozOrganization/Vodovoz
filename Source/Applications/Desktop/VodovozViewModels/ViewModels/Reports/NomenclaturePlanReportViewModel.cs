@@ -1092,6 +1092,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private DelegateCommand _employeeSearchCommand;
 		private DelegateCommand _equipmentKindSearchCommand;
 		private DelegateCommand _equipmentTypeSearchCommand;
+		private bool _disposed;
 		public SelectedProceeds SelectedProceeds { get; set; }
 		public bool CanSaveCallCenterMotivationReportFilter { get; private set; }
 		public bool IsNomenclatureNextPage { get; set; }
@@ -1117,9 +1118,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			ProductGroupEntityEntryViewModel.ChangedByUser -= OnProductGroupChangedByUser;
-
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

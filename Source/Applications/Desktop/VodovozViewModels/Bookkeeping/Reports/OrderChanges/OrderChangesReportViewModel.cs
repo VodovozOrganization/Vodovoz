@@ -43,6 +43,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 		private bool _isReportGenerationInProgress;
 		private OrderChangesReport _report;
 		private CancellationTokenSource _cancellationTokenSource;
+		private bool _disposed;
 
 		public OrderChangesReportViewModel(
 			ILogger<OrderChangesReportViewModel> logger,
@@ -413,6 +414,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			foreach(var changeType in ChangeTypes)
 			{
 				changeType.PropertyChanged -= OnChangeTypeSelectionPropertyChanged;
@@ -424,6 +426,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			}
 
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

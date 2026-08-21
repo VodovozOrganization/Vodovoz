@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private ComplaintDetalizationJournalFilterViewModel _filterViewModel;
 		private IPermissionResult _premissionResult;
 		private readonly ILifetimeScope _scope;
+		private bool _disposed;
 
 		public ComplaintDetalizationJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -173,8 +174,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

@@ -52,6 +52,7 @@ namespace Vodovoz.ViewModels.Counterparties
 		private string _lastComment;
 		private Action _createNewOrderLegacyCallback;
 		private string _comment;
+		private bool _disposed;
 
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
@@ -445,8 +446,10 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

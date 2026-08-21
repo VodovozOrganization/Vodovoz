@@ -46,6 +46,8 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 		private Employee _cashier;
 		private bool _incomesSelected;
 		private bool _expensesSelected;
+		private bool _isUpdatingSubdivisions = false;
+		private bool _disposed;
 
 		public IncomeCashTransferDocumentViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -536,8 +538,6 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			SubdivisionsTo = _cashSubdivisions;
 		}
 
-		private bool _isUpdatingSubdivisions = false;
-
 		private void UpdateSubdivisionsFrom()
 		{
 			if(_isUpdatingSubdivisions)
@@ -580,9 +580,11 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

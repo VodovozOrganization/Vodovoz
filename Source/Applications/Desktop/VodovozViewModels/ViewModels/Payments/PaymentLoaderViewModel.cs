@@ -124,6 +124,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public GenericObservableList<Payment> ObservablePayments { get; } =	new GenericObservableList<Payment>();
 		public IList<ProfitCategory> ProfitCategories { get; private set; }
 		public IList<BankAccountMovement> BankAccountMovements = new List<BankAccountMovement>();
+		private bool _disposed;
 		public event Action<string, double> UpdateProgress;
 		public IInteractiveService InteractiveService { get; }
 		
@@ -539,8 +540,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_resourceLocker.DisposeAsync().AsTask().GetAwaiter().GetResult();
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

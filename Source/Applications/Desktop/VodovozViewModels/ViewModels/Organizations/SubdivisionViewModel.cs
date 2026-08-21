@@ -45,6 +45,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 		private bool _isReplaceSubdivisionPermissionsSelected;
 
 		private FinancialResponsibilityCenter _financialResponsibilityCenter;
+		private bool _disposed;
 
 		public SubdivisionViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -373,6 +374,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			if(_subdivisionsJournalViewModel != null)
 			{
 				_subdivisionsJournalViewModel.OnSelectResult -= OnSourceSubdivisionToCopyPermissionsSelected;
@@ -380,6 +382,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 			UnsubscribeUpdateOnChanges();
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

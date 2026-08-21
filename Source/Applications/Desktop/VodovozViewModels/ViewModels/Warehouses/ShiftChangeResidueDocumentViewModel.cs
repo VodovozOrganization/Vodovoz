@@ -77,6 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private Dictionary<int, string> _instancesDiscrepancies = new Dictionary<int, string>();
 		private IEnumerable<int> _availableWarehousesIdsForCreate;
 		private IEnumerable<int> _availableWarehousesIdsForEdit;
+		private bool _disposed;
 
 		public ShiftChangeResidueDocumentViewModel(
 			IEntityUoWBuilder entityUoWBuilder,
@@ -929,12 +930,14 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= EntityPropertyChanged;
 			WarehouseStorageEntryViewModel.BeforeChangeByUser -= OnWarehouseBeforeChangeByUser;
 			WarehouseStorageEntryViewModel.ChangedByUser -= OnWarehouseChangedByUser;
 			CarStorageEntryViewModel.BeforeChangeByUser -= OnCarBeforeChangeByUser;
 			CarStorageEntryViewModel.ChangedByUser -= OnCarChangedByUser;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

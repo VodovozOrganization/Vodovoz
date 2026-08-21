@@ -57,6 +57,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 		private PaymentsJournalFilterViewModel _filterViewModel;
 		private ThreadDataLoader<PaymentJournalNode> _threadDataLoader;
 		private bool _isExportToExcelInProcess;
+		private bool _disposed;
 
 		public PaymentsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -1007,8 +1008,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

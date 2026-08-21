@@ -22,6 +22,8 @@ namespace Vodovoz.ViewModels.Logistic
 {
     public sealed class DriverDistrictPrioritySetViewModel : TabViewModelBase
     {
+		private bool _disposed;
+		
         public DriverDistrictPrioritySetViewModel(
             DriverDistrictPrioritySet entity,
             IUnitOfWork uow,
@@ -147,7 +149,7 @@ namespace Vodovoz.ViewModels.Logistic
             ));
         
         private DelegateCommand checkAndFixDistrictsPrioritiesCommand;
-        public DelegateCommand CheckAndFixDistrictsPrioritiesCommand => checkAndFixDistrictsPrioritiesCommand ?? (checkAndFixDistrictsPrioritiesCommand = new DelegateCommand(
+		public DelegateCommand CheckAndFixDistrictsPrioritiesCommand => checkAndFixDistrictsPrioritiesCommand ?? (checkAndFixDistrictsPrioritiesCommand = new DelegateCommand(
             () => {
                 for(int i = 0; i < ObservableDriverDistrictPriorities.Count; i++) {
                     if(ObservableDriverDistrictPriorities[i].Priority != i) {
@@ -242,8 +244,10 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 

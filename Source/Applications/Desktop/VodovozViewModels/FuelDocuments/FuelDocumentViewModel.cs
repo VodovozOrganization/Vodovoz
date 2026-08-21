@@ -78,6 +78,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private int _fuelLimitMaxTransactionsCount;
 		private decimal _maxDailyFuelLimitForCar;
+		private bool _disposed;
 
 		#region ctor
 		/// <summary>
@@ -1173,6 +1174,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
+			
 			if(UoW.RootObject is FuelDocument document)
 			{
 				UoW.Dispose();
@@ -1183,6 +1186,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_cancellationTokenSource = null;
 
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

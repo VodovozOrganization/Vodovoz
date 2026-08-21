@@ -86,6 +86,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private RobotMiaParameters _robotMiaParameters;
 		private SlangWord _selectedSlangWord;
+		private bool _disposed;
 
 		public NomenclatureViewModel(
 			ILogger<NomenclatureViewModel> logger,
@@ -1090,6 +1091,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_lifetimeScope = null;
 
 			if(_gtinsJornalViewModel != null)
@@ -1105,6 +1107,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 
 			base.Dispose();
+			_disposed = true;
 		}
 
 		public override bool Save(bool close)

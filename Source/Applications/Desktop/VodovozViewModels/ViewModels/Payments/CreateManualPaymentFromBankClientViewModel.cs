@@ -32,6 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		
 		private int _defaultPaymentNum = 1;
 		private bool _isPaymentForUpdateBalance;
+		private bool _disposed;
 
 		public CreateManualPaymentFromBankClientViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -192,8 +193,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

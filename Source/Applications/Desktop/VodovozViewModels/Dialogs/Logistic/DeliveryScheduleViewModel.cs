@@ -20,6 +20,7 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly bool _canEdit;
 		private readonly bool _canCreate;
+		private bool _disposed;
 
 		private bool _isDefaultName;
 
@@ -165,8 +166,10 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= Entity_PropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

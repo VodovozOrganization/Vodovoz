@@ -20,6 +20,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private FinancialCategoriesGroup _parentFinancialCategoriesGroup;
 		private bool _initialIsArchivePropertyValue;
 		private bool _initialIsHiddenFromPublicAccessPropertyValue;
+		private bool _disposed;
 
 		public FinancialCategoriesGroupViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -241,8 +242,10 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

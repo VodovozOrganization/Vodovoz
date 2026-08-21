@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _authorViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<MileageWriteOffReason> _writeOffReasonViewModelEEVMBuilder;
+		private bool _disposed;
 
 		public MileageWriteOffViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -258,9 +259,10 @@ namespace Vodovoz.ViewModels.Logistic.MileagesWriteOff
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
-			
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

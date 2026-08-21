@@ -75,6 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IClosingDeliveriesService _closingDeliveriesService;
 		private readonly IOrganizationSettings _organizationSettings;
 		private IResourceLocker _resourceLocker;
+		private bool _disposed;
 
 		public ManualPaymentMatchingViewModel(
 			ILifetimeScope lifetimeScope,
@@ -950,9 +951,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			LifetimeScope = null;
 			Entity.Items.CollectionChanged -= OnPaymentItemsChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 

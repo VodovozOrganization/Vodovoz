@@ -21,6 +21,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	{
 		private readonly ILifetimeScope _scope;
 		private FinancialExpenseCategory _financialExpenseCategory;
+		private bool _disposed;
 
 		public ExpenseCategoryViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -123,9 +124,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
-			
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

@@ -68,6 +68,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		
 		public Action<string> OpenCounterpartyJournal;
 		private bool _canSetOrganization = true;
+		private bool _disposed;
 
 		public OrderWithoutShipmentForAdvancePaymentViewModel(
 			ILifetimeScope lifetimeScope,
@@ -446,10 +447,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			OrganizationViewModel.PropertyChanged -= OnOrganizationViewModelPropertyChanged;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			_lifetimeScope = null;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

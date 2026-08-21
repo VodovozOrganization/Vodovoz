@@ -59,6 +59,7 @@ namespace Vodovoz.FilterViewModels
 		private ComplaintDetalization _complainDetalization;
 		private DialogViewModelBase _journalViewModel;
 		private ComplaintKindJournalFilterViewModel _complaintKindJournalFilter;
+		private bool _disposed;
 
 		public ComplaintFilterViewModel(
 			ICommonServices commonServices,
@@ -416,12 +417,14 @@ namespace Vodovoz.FilterViewModels
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_lifetimeScope = null;
 			JournalTab = null;
 			_journalViewModel = null;
 			GuiltyItemVM.OnGuiltyItemReady -= OnGuiltyItemReady;
 			GuiltyItemVM.Entity.OnGuiltyTypeChange = null;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

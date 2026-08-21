@@ -46,6 +46,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private string _newComment;
 		private string _operatorsComments;
 		private OnlineOrderTimers _onlineOrderTimers;
+		private bool _disposed;
 
 		public OnlineOrderViewModel(
 			ILogger<OnlineOrderViewModel> logger,
@@ -600,8 +601,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
+			
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			
+			_disposed = true;
 		}
 	}
 }

@@ -16,6 +16,7 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 	{
 		private ComplaintObject _selectedComplainObject;
 		private IEnumerable<ComplaintKind> _visibleComplaintKinds;
+		private bool _disposed;
 
 		public ComplaintDetalizationViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -127,8 +128,10 @@ namespace Vodovoz.ViewModels.ViewModels.Complaints
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= EntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

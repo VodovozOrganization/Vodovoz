@@ -40,6 +40,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IFastDeliveryHistoryConverter _deliveryHistoryConverter;
 		private IList<FastDeliveryAvailabilityHistoryJournalNode> _sequenceNodes;
+		private bool _disposed;
 
 		public FastDeliveryAvailabilityHistoryJournalViewModel(
 			FastDeliveryAvailabilityFilterViewModel filterViewModel,
@@ -476,9 +477,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			FilterViewModel.PropertyChanged -= OnFilterViewModelPropertyChanged;
 			_timer?.Dispose();
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

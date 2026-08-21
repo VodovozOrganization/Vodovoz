@@ -111,6 +111,8 @@ namespace Vodovoz
 		private readonly Dictionary<RouteListItem, bool> _addOnlyAvailableStagingCodesByRouteListItem =
 			new Dictionary<RouteListItem, bool>();
 
+		private bool _disposed;
+
 		public RouteListKeepingViewModel(
 			ILogger<RouteListKeepingViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
@@ -1165,6 +1167,7 @@ namespace Vodovoz
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			if(_undeliveryViewModel != null)
 			{
 				_undeliveryViewModel.Saved -= OnUndeliveryViewModelSaved;
@@ -1174,6 +1177,7 @@ namespace Vodovoz
 			Entity.ObservableAddresses.ElementChanged -= OnObservableAddressesElementChanged;
 
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

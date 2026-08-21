@@ -36,6 +36,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 		private readonly IInteractiveService _interactiveService;
 		private readonly INavigationManager _navigationManager;
 		private readonly ICommonServices _commonServices;
+		private bool _disposed;
 
 		public ProductGroupsJournalViewModel(
 			ProductGroupsJournalFilterViewModel filter,
@@ -453,6 +454,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Filter.OnFiltered -= OnFilterViewModelFiltered;
 			Filter.PropertyChanged -= OnFilterPropertyChanged;
 
@@ -462,6 +464,7 @@ namespace Vodovoz.ViewModels.Goods.ProductGroups
 			}
 
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

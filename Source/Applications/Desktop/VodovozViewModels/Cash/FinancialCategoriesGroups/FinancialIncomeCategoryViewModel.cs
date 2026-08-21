@@ -22,6 +22,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private readonly ILifetimeScope _scope;
 		private FinancialCategoriesGroup _parentFinancialCategoriesGroup;
 		private Subdivision _subdivision;
+		private bool _disposed;
 
 		public FinancialIncomeCategoryViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -221,8 +222,10 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

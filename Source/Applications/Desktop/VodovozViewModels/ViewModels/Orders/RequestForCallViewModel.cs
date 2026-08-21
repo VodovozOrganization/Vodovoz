@@ -32,6 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly ValidationContext _validationContext;
 		private readonly IPermissionResult _permissionResult;
 		private ILifetimeScope _lifetimeScope;
+		private bool _disposed;
 
 		public RequestForCallViewModel(
 			IEntityUoWBuilder entityUoWBuilder,
@@ -224,9 +225,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			_lifetimeScope = null;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

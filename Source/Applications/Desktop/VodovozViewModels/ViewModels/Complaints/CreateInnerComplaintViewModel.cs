@@ -43,6 +43,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
+		private GuiltyItemsViewModel _guiltyItemsViewModel;
+		private bool _disposed;
 
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -153,18 +155,17 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEnumerable<ComplaintObject> ComplaintObjectSource =>
 			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().Where(x => !x.IsArchive).ToList());
 
-		private GuiltyItemsViewModel guiltyItemsViewModel;
 		public GuiltyItemsViewModel GuiltyItemsViewModel
 		{
 			get
 			{
-				if(guiltyItemsViewModel == null)
+				if(_guiltyItemsViewModel == null)
 				{
-					guiltyItemsViewModel =
+					_guiltyItemsViewModel =
 						new GuiltyItemsViewModel(Entity, UoW, this, _lifetimeScope, CommonServices, _subdivisionRepository, _employeeJournalFactory, _subdivisionSettings);
 				}
 
-				return guiltyItemsViewModel;
+				return _guiltyItemsViewModel;
 			}
 		}
 
@@ -273,9 +274,10 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= EntityPropertyChanged;
-			
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

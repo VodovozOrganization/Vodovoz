@@ -91,6 +91,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private IList<GeoGroup> _geogroups;
 		private GeoGroup _selectedGeoGroup;
 		private bool _hideTrucks;
+		private bool _disposed;
 
 		public CarsMonitoringViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -886,11 +887,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		#region IDisposable
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			FastDeliveryDistricts.Clear();
 			WorkingDrivers.Clear();
 			SelectedWorkingDrivers.Clear();
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			base.Dispose();
+			_disposed = true;
 		}
 		#endregion
 	}

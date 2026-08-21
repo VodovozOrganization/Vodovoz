@@ -25,7 +25,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		private ILifetimeScope _lifetimeScope;
 		private WarehouseJournalFilterViewModel _filterViewModel;
 		private WarehousePermissionsType[] _warehousePermissions;
-		
+		private bool _disposed;
+
 		public WarehouseJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -132,9 +133,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterFiltered;
 			_lifetimeScope = null;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

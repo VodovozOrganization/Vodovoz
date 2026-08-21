@@ -41,6 +41,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICarRepository _carRepository;
 		private readonly ICarInsuranceSettings _carInsuranceSettings;
+		private bool _disposed;
 
 		public CarJournalViewModel(
 			CarJournalFilterViewModel filterViewModel,
@@ -564,8 +565,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		}
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

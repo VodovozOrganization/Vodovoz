@@ -48,6 +48,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public Action<string> OpenCounterpartyJournal;
 		private bool _userHavePermissionToResendEdoDocuments;
 		private bool _canSetOrganization = true;
+		private bool _disposed;
 
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
@@ -303,9 +304,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			OrganizationViewModel.PropertyChanged -= OnOrganizationViewModelPropertyChanged;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

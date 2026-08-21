@@ -57,6 +57,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private GuiltyItemsViewModel _guiltyItemsViewModel;
 
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+		private bool _disposed;
 
 		public CreateComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -402,9 +403,11 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			LifetimeScope = null;
 			Entity.PropertyChanged -= EntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

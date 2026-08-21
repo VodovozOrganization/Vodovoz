@@ -43,6 +43,7 @@ namespace Vodovoz.Filters.ViewModels
 		private Type _documentType;
 		private bool _canChangeDocumentType = true;
 		private bool _outgoingPaymentsWithoutCashlessRequestAssigned;
+		private bool _disposed;
 
 		public PaymentsJournalFilterViewModel(
 			ILifetimeScope scope,
@@ -295,6 +296,8 @@ namespace Vodovoz.Filters.ViewModels
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
+			
 			foreach(var profitCategory in ProfitCategories)
 			{
 				profitCategory.SelectChanged -= OnProfitCategorySelectChanged;
@@ -302,6 +305,7 @@ namespace Vodovoz.Filters.ViewModels
 
 			base.Dispose();
 			JournalTab = null;
+			_disposed = true;
 		}
 	}
 }

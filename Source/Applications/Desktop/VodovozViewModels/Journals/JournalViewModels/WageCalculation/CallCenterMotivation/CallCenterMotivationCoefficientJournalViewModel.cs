@@ -29,6 +29,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation
 		private readonly IInteractiveService _interactiveService;
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
 		private readonly CallCenterMotivationCoefficientJournalFilterViewModel _filter;
+		private bool _disposed;
 
 		public CallCenterMotivationCoefficientJournalViewModel(
 			CallCenterMotivationCoefficientJournalFilterViewModel filter,
@@ -359,8 +360,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filter.OnFiltered -= OnFilterViewModelFiltered;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

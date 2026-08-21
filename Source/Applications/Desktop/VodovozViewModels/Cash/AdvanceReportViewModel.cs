@@ -51,6 +51,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		private List<SelectableNode<Expense>> _advanceList = new List<SelectableNode<Expense>>();
 		private FinancialExpenseCategory _financialExpenseCategory;
+		private bool _disposed;
 
 		public event Action<EventArgs> OnDebtsChanged;
 
@@ -620,8 +621,10 @@ namespace Vodovoz.ViewModels.Cash
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 

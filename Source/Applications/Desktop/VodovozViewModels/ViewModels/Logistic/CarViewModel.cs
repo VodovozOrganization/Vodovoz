@@ -89,6 +89,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private FuelCardVersion _oldLastFuelCardVersion;
 		private EmployeeCategory? _oldDriverCategory;
 		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
+		private bool _disposed;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
@@ -1000,12 +1001,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.ObservableCarVersions.ElementAdded -= OnObservableCarVersionsElementAdded;
 			CarModelViewModel.ChangedByUser -= OnCarModelViewModelChangedByUser;
 			DriverViewModel.ChangedByUser -= OnDriverViewModelChangedByUser;
 			Entity.PropertyChanged -= OnEntityPropertyChangedHandler;
 
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

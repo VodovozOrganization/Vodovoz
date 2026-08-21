@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.Store
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
 		private bool _canEditItems;
 		private bool _canSave;
+		private bool _disposed;
 
 		public RegradingOfGoodsDocumentViewModel(
 			ILogger<RegradingOfGoodsDocumentViewModel> logger,
@@ -179,10 +180,12 @@ namespace Vodovoz.ViewModels.Store
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			ItemsViewModel?.Dispose();
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

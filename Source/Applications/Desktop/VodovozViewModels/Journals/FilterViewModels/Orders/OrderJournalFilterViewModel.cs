@@ -432,6 +432,7 @@ namespace Vodovoz.Filters.ViewModels
 		private string _counterpartyNameLike;
 		private DialogViewModelBase _journal;
 		private string _updDocumentNumber;
+		private bool _disposed;
 
 		/// <summary>
 		/// Часть города
@@ -582,11 +583,13 @@ namespace Vodovoz.Filters.ViewModels
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_journal = null;
 			_lifetimeScope = null;
 			_deliveryPointJournalFilterViewModel = null;
 			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 

@@ -126,6 +126,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public IReadOnlyList<Organization> organizations;
 		private string _photoFilename;
 		private byte[] _photo;
+		private bool _disposed;
 
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
@@ -1643,6 +1644,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		
 		public override void Dispose()
 		{
+			if(_disposed) return;
+			
 			UoW?.Dispose();
 			LifetimeScope = null;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
@@ -1658,6 +1661,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 			
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

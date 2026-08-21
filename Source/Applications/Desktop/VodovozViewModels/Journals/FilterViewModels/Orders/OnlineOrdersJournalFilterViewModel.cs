@@ -63,6 +63,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private OnlineOrderCancellationReason _cancellationReason;
 		private DateTime? _nextCallStartDate;
 		private DateTime? _nextCallEndDate;
+		private bool _disposed;
 
 		public OnlineOrdersJournalFilterViewModel(
 			ILifetimeScope lifetimeScope)
@@ -470,10 +471,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			LifetimeScope = null;
 			_journal = null;
 			_searchByAddressViewModel.OnSearch -= OnSearchByAddressViewModel;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }
