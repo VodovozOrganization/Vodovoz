@@ -2,15 +2,20 @@
 {
 	public readonly struct CodePoolMissingProblemProcessResult
 	{
-		public static CodePoolMissingProblemProcessResult Empty => new CodePoolMissingProblemProcessResult(false, false);
-
-		public CodePoolMissingProblemProcessResult(bool processed, bool notificationSent)
-		{
-			Processed = processed;
-			NotificationSent = notificationSent;
-		}
+		public static CodePoolMissingProblemProcessResult Empty => new CodePoolMissingProblemProcessResult(false, false, null);
 
 		public bool Processed { get; }
-		public bool NotificationSent { get; }
+		public bool ShouldNotify { get; }
+		public CodePoolMissingProblemNotificationData NotificationData { get; }
+
+		public CodePoolMissingProblemProcessResult(
+			bool processed,
+			bool shouldNotify,
+			CodePoolMissingProblemNotificationData notificationData)
+		{
+			Processed = processed;
+			ShouldNotify = shouldNotify;
+			NotificationData = notificationData;
+		}
 	}
 }

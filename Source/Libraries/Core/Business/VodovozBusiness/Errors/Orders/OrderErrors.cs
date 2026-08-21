@@ -88,6 +88,18 @@ namespace Vodovoz.Errors.Orders
 				nameof(NotInOnTheWayStatus),
 				"Заказ не в статусе в пути");
 
+		public static Error NotInOnLoadingStatus =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(NotInOnLoadingStatus),
+				"Заказ не в статусе в процессе загрузки");
+
+		public static Error CreateNotInOnLoadingStatus(int orderId) =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(NotInOnLoadingStatus),
+				$"Заказ {orderId} не в статусе в процессе загрузки");
+
 		public static Error OrderDoesNotBelongToCounterparty =>
 			new Error(
 				typeof(OrderErrors),

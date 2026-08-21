@@ -185,6 +185,8 @@ namespace EdoService.Library
 			var hasOtherRequests = _edoRequestRepository.GetCount(uow, x =>
 				x.Order.Id == request.Order.Id
 				&& x.Task.Id != taskId
+				&& !(x.Task is SaveCodesEdoTask)
+				&& x.Task.Status != EdoTaskStatus.Cancelled
 			) > 0;
 
 			if(hasOtherRequests)
@@ -204,6 +206,7 @@ namespace EdoService.Library
 				x.FormalEdoRequest.Order.Id == edoTask.FormalEdoRequest.Order.Id
 				&& x.Id != taskId
 				&& x.Status != EdoTaskStatus.Cancelled
+				&& !(x is SaveCodesEdoTask)
 			) > 0;
 
 			if(hasOtherTasks)

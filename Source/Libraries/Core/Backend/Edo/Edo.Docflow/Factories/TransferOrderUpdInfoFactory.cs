@@ -10,7 +10,6 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Settings.Edo;
@@ -217,15 +216,23 @@ namespace Edo.Docflow.Factories
 					productCodes.Add(productCode);
 				}
 
-				var price = nomenclature.GetPurchasePriceOnDate(DateTime.Now);
-				if(price == 0m)
+				var purchasePrice = nomenclature.GetPurchasePriceOnDate(DateTime.Now);
+				var costPrice = nomenclature.GetCostPriceOnDate(DateTime.Now);
+				var newestPrice = purchasePrice?.StartDate > costPrice?.StartDate 
+					? purchasePrice?.PurchasePrice 
+					: costPrice?.CostPrice;
+				var additionalPercent = _edoTransferSettings.AdditionalPurchasePricePrecentForTransfer;
+				var price = 0m;
+
+				if(newestPrice == null || newestPrice == 0m)
 				{
 					price = nomenclature.GetPrice(quantity);
+					price *= 1 - ((decimal)additionalPercent) / 100;
 				}
 				else
 				{
-					var additionalPercent = _edoTransferSettings.AdditionalPurchasePricePrecentForTransfer;
-					price *= 1 + additionalPercent / 100;
+					price = newestPrice.Value;
+					price *= 1 + ((decimal)additionalPercent) / 100;
 				}
 
 				var sum = price * quantity;
@@ -234,7 +241,8 @@ namespace Edo.Docflow.Factories
 				
 				if(vatRateVersion == null)
 				{
-					throw new InvalidOperationException($"У товара #{nomenclature.Id} отсутствует версия НДС на дату трансфера заказа #{transferOrder.Date}");
+					throw new InvalidOperationException($"У товара #{nomenclature.Id} отсутствует версия " +
+						$"НДС на дату трансфера заказа #{transferOrder.Date}");
 				}
 				
 				var includeVat = vatRateVersion.VatRate.VatRateValue != 0 
