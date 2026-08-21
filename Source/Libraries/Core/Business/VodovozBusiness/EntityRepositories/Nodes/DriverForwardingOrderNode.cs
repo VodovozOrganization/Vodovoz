@@ -6,13 +6,13 @@ using Vodovoz.Domain.Orders;
 namespace VodovozBusiness.EntityRepositories.Nodes
 {
 	/// <summary>
-	/// Заказ контрагента в пути с данными водителя, доставляющего этот заказ.
+	/// Заказ контрагента в пути с данными водителя, доставляющего этот заказ
 	/// Используется для перевода звонка на добавочный номер водителя
 	/// </summary>
 	public class DriverForwardingOrderNode
 	{
 		private const string _deliveryDateFormat = "dd.MM.yyyy";
-		private const string _emptyValueText = "—";
+		private const string _emptyValueText = "-";
 
 		/// <summary>
 		/// Id заказа

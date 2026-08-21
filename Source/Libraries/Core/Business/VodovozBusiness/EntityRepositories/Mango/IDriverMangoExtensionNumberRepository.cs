@@ -35,15 +35,6 @@ namespace Vodovoz.EntityRepositories.Mango
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Возвращает активные добавочные номера указанных водителей
-		/// </summary>
-		/// <param name="driverIds">Идентификаторы водителей</param>
-		Task<IReadOnlyList<DriverMangoExtensionNumber>> GetActiveExtensionNumbersByDriverIdsAsync(
-			IUnitOfWork uow,
-			IEnumerable<int> driverIds,
-			CancellationToken cancellationToken);
-
-		/// <summary>
 		/// Возвращает добавочный номер по идентификатору
 		/// </summary>
 		Task<DriverMangoExtensionNumber> GetByIdAsync(IUnitOfWork uow, int id, CancellationToken cancellationToken);

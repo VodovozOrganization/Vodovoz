@@ -12,14 +12,14 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 		/// <summary>
 		/// Создаёт вью-модель кнопки звонка на добавочный номер водителя маршрутного листа
 		/// </summary>
-		/// <param name="uow">Единица работы</param>
+		/// <param name="uow">Unit Of Work</param>
 		/// <param name="routeList">Маршрутный лист</param>
 		MangoCallButtonViewModel CreateForRouteListDriver(IUnitOfWork uow, RouteList routeList);
 
 		/// <summary>
 		/// Создаёт вью-модель кнопки звонка на добавочный номер водителя, за которым закреплён заказ
 		/// </summary>
-		/// <param name="uow">Единица работы</param>
+		/// <param name="uow">Unit Of Work</param>
 		/// <param name="order">Заказ</param>
 		MangoCallButtonViewModel CreateForOrderDriver(IUnitOfWork uow, Order order);
 
@@ -28,7 +28,7 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 		/// Нужен, если водитель маршрутного листа мог измениться после создания вью-модели
 		/// </summary>
 		/// <param name="viewModel">Вью-модель кнопки звонка</param>
-		/// <param name="uow">Единица работы</param>
+		/// <param name="uow">Unit Of Work</param>
 		/// <param name="routeList">Маршрутный лист</param>
 		void UpdateForRouteListDriver(MangoCallButtonViewModel viewModel, IUnitOfWork uow, RouteList routeList);
 	}

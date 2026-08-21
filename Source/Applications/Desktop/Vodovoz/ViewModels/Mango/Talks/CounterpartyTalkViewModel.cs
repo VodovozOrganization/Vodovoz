@@ -344,10 +344,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				viewModel => viewModel.ForwardCallHandler = TryForwardCallToDriver);
 		}
 
-		/// <summary>
-		/// Переводит текущий звонок на добавочный номер водителя, доставляющего заказ.
-		/// Возвращает <c>true</c>, если перевод выполнен
-		/// </summary>
 		private bool TryForwardCallToDriver(DriverForwardingOrderNode orderNode)
 		{
 			if(!orderNode.CanForwardCall)
