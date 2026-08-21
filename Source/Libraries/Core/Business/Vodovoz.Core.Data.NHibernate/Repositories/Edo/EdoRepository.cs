@@ -234,7 +234,8 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			OrderEdoDocument orderEdoDocumentAlias = null;
 
 			var taxcomDocflow = uow.Session.QueryOver(() => taxcomDocflowAlias)
-				.Left.JoinAlias(() => taxcomDocflowAlias.EdoDocumentId, () => orderEdoDocumentAlias.Id)
+				.JoinEntityAlias(() => orderEdoDocumentAlias,
+					() => taxcomDocflowAlias.EdoDocumentId == orderEdoDocumentAlias.Id)
 				.Where(() => orderEdoDocumentAlias.DocumentTaskId == taskId)
 				.SingleOrDefault();
 

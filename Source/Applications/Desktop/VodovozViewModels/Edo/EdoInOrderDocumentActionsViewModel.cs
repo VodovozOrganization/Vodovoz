@@ -76,6 +76,8 @@ namespace Vodovoz.ViewModels.Edo
 					break;
 			}
 
+			CreateRefreshDocflowStatusAction(newActions, SelectedDocument.Document);
+
 			Actions = newActions;
 		}
 
@@ -195,7 +197,9 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document
 			)
 		{
-			if(document.TaskType is EdoTaskType.SaveCode)
+			var canUpdateDocflowStatus = _edoService.CanUpdateDocflow(document.TaskId);
+
+			if(canUpdateDocflowStatus.IsSuccess)
 			{
 				newActions.Add(new BusyCommand(
 					"Обновить статус",

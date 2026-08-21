@@ -174,6 +174,14 @@ namespace EdoService.Library
 		Result<string> UpdateDocflowStatus(int taskId);
 
 		/// <summary>
+		/// Проверяет возможность обновления статуса документооборота по задаче ЭДО
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи ЭДО</param>
+		/// <param name="unitOfWork">IUnitOfWork</param>
+		/// <returns>Результат проверки</returns>
+		Result CanUpdateDocflow(int taskId, IUnitOfWork unitOfWork = null);
+
+		/// <summary>
 		/// Обновляет статус документооборота из Taxcom по ID документооборота
 		/// </summary>
 		/// <param name="uow">IUnitOfWork</param>
