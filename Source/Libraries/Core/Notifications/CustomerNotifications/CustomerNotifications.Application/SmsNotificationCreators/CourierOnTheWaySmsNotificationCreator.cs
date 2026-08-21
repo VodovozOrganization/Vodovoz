@@ -166,7 +166,7 @@ namespace CustomerNotifications.Application.SmsNotificationCreators
 			}
 
 			var driverPhone =
-				await _driverContactNumberService.GetDriverContactNumberAsync(unitOfWork, orderId, cancellationToken);
+				await _driverContactNumberService.GetDriverContactNumberForSmsNotificationAsync(unitOfWork, orderId, cancellationToken);
 
 			messageText = messageText
 				.Replace(_orderIdVariable, orderId.ToString())

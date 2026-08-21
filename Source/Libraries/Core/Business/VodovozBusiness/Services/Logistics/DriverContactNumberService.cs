@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using QS.Utilities.Numeric;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace VodovozBusiness.Services.Logistics
 		}
 
 		/// <inheritdoc/>
-		public async Task<string> GetDriverContactNumberAsync(
+		public async Task<string> GetDriverContactNumberForCustomersApiAsync(
 			IUnitOfWork unitOfWork,
 			int orderId,
 			CancellationToken cancellationToken = default)
@@ -41,10 +42,12 @@ namespace VodovozBusiness.Services.Logistics
 			var driverMangoExtensionNumber =
 				await _orderRepository.GetDriversMangoExtensionNumberByOrderId(unitOfWork, orderId, cancellationToken);
 
-			if(driverMangoExtensionNumber?.ExtensionNumber is null)
+			if(!_mangoSettings.DriverMangoEmployeeRegistrationEnabled
+				|| driverMangoExtensionNumber?.ExtensionNumber is null)
 			{
 				_logger.LogWarning(
-					"Не найден активный добавочный номер Манго водителя, доставляющего заказ {OrderId}, "
+					"Сервис регистрации карточек сотрудников Манго для водителей отключен, "
+					+ "либо не найден активный добавочный номер Манго водителя, доставляющего заказ {OrderId}, "
 					+ "номер для связи с водителем будет содержать только номер линии Манго",
 					orderId);
 
@@ -52,6 +55,38 @@ namespace VodovozBusiness.Services.Logistics
 			}
 
 			return $"{driversCallsLineNumber},,{driverMangoExtensionNumber.ExtensionNumber}";
+		}
+
+		/// <inheritdoc/>
+		public async Task<string> GetDriverContactNumberForSmsNotificationAsync(
+			IUnitOfWork unitOfWork,
+			int orderId,
+			CancellationToken cancellationToken = default)
+		{
+			if(unitOfWork is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWork));
+			}
+
+			var formatter = new PhoneFormatter(PhoneFormat.DigitsTen);
+			var driversCallsLineNumber = "8" + formatter.FormatString(_mangoSettings.DriversCallsLineNumber);
+
+			var driverMangoExtensionNumber =
+				await _orderRepository.GetDriversMangoExtensionNumberByOrderId(unitOfWork, orderId, cancellationToken);
+
+			if(!_mangoSettings.DriverMangoEmployeeRegistrationEnabled
+				|| driverMangoExtensionNumber?.ExtensionNumber is null)
+			{
+				_logger.LogWarning(
+					"Сервис регистрации карточек сотрудников Манго для водителей отключен, "
+					+ "либо не найден активный добавочный номер Манго водителя, доставляющего заказ {OrderId}, "
+					+ "номер для связи с водителем будет содержать только номер линии Манго",
+					orderId);
+
+				return driversCallsLineNumber;
+			}
+
+			return $"{driversCallsLineNumber},,{driverMangoExtensionNumber.ExtensionNumber} (доб. {driverMangoExtensionNumber.ExtensionNumber})";
 		}
 	}
 }
