@@ -186,6 +186,7 @@ namespace EdoService.Library
 				x.Order.Id == request.Order.Id
 				&& x.Task.Id != taskId
 				&& !(x.Task is SaveCodesEdoTask)
+				&& x.Task.Status != EdoTaskStatus.Cancelled
 			) > 0;
 
 			if(hasOtherRequests)
