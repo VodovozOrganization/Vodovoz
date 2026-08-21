@@ -262,6 +262,8 @@ namespace Vodovoz.Logistic
 			phoneForwarder.Binding
 				.AddBinding(ViewModel.Entity, e => e.Forwarder, w => w.Employee)
 				.InitializeFromSource();
+
+			mangocallbuttonviewDriverExtensionPhone.ViewModel = ViewModel.DriverExtensionCallViewModel;
 		}
 
 		private void InitializeRouteListAddressesTreeView()

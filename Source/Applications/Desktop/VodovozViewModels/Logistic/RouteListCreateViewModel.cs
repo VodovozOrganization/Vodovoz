@@ -49,6 +49,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Services.RouteOptimization;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets.Mango;
 using VodovozBusiness.EntityRepositories.Logistic;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -77,6 +78,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly ILogisticRepository _logisticRepository;
+		private readonly IMangoCallButtonViewModelFactory _mangoCallButtonViewModelFactory;
 		private bool _canClose = true;
 		private Employee _oldDriver;
 		private DateTime _previousSelectedDate;
@@ -109,7 +111,8 @@ namespace Vodovoz.ViewModels.Logistic
 			RouteGeometryCalculator routeGeometryCalculator,
 			IWageParameterService wageParameterService,
 			IDeliveryRepository deliveryRepository,
-			ILogisticRepository logisticRepository
+			ILogisticRepository logisticRepository,
+			IMangoCallButtonViewModelFactory mangoCallButtonViewModelFactory
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -136,6 +139,9 @@ namespace Vodovoz.ViewModels.Logistic
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_logisticRepository = logisticRepository ?? throw new ArgumentNullException(nameof(logisticRepository));
+			_mangoCallButtonViewModelFactory = mangoCallButtonViewModelFactory ?? throw new ArgumentNullException(nameof(mangoCallButtonViewModelFactory));
+
+			DriverExtensionCallViewModel = _mangoCallButtonViewModelFactory.CreateForRouteListDriver(UoW, Entity);
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -306,6 +312,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool CanChangeIsFixPrice =>
 			CanEditFixedPrice && Entity.Status != RouteListStatus.Closed;
+
+		/// <summary>
+		/// Вью-модель кнопки звонка на добавочный номер водителя маршрутного листа
+		/// </summary>
+		public MangoCallButtonViewModel DriverExtensionCallViewModel { get; }
 
 		#region EEVM
 
@@ -497,6 +508,8 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				Entity.Driver = null;
 			}
+
+			_mangoCallButtonViewModelFactory.UpdateForRouteListDriver(DriverExtensionCallViewModel, UoW, Entity);
 		}
 
 		private bool TryAssignDriver(Employee driver)

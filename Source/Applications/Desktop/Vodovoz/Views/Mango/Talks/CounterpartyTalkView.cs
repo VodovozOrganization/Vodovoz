@@ -1,5 +1,6 @@
 ﻿using Gtk;
 using QS.Views.Dialog;
+using ReactiveUI;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
@@ -39,6 +40,8 @@ namespace Vodovoz.Views.Mango.Talks
 			ViewModel.CounterpartyOrdersModelsUpdateEvent += Update_WidgetPlace;
 
 			CostAndDeliveryIntervalButton.Sensitive = ViewModel.currentCounterparty.DeliveryPoints?.Count > 0;
+
+			ybuttonDriverForwarding.BindCommand(ViewModel.ForwardCallToDriverCommand);
 		}
 
 		#region Events

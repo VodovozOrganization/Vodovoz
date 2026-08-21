@@ -61,6 +61,7 @@ using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewModels.Widgets.Mango;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.Orders;
@@ -103,6 +104,7 @@ namespace Vodovoz
 		private readonly OrderCancellationService _orderCancellationService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
+		private readonly IMangoCallButtonViewModelFactory _mangoCallButtonViewModelFactory;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
@@ -141,7 +143,8 @@ namespace Vodovoz
 			IRouteListService routeListService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			OrderCancellationService orderCancellationService,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			IMangoCallButtonViewModelFactory mangoCallButtonViewModelFactory
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -184,6 +187,11 @@ namespace Vodovoz
 			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
 			
 			ActiveShifts = _deliveryShiftRepository.ActiveShifts(UoW);
+
+			_mangoCallButtonViewModelFactory =
+				mangoCallButtonViewModelFactory ?? throw new ArgumentNullException(nameof(mangoCallButtonViewModelFactory));
+
+			DriverExtensionCallViewModel = _mangoCallButtonViewModelFactory.CreateForRouteListDriver(UoW, Entity);
 
 			CarViewModel = BuildCarEntryViewModel();
 			DriverViewModel = BuildDriverEntryViewModel();
@@ -265,6 +273,11 @@ namespace Vodovoz
 
         public string BottlesInfo { get; private set; }
 		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; } = new GenericObservableList<RouteListKeepingItemNode>();
+
+		/// <summary>
+		/// Вью-модель кнопки звонка на добавочный номер водителя маршрутного листа
+		/// </summary>
+		public MangoCallButtonViewModel DriverExtensionCallViewModel { get; }
 
 		#region EEVMs
 
@@ -415,6 +428,8 @@ namespace Vodovoz
 					Entity.Driver = null;
 				}
 			}
+
+			_mangoCallButtonViewModelFactory.UpdateForRouteListDriver(DriverExtensionCallViewModel, UoW, Entity);
 		}
 
 		private IEntityEntryViewModel BuildLogisticianEntryViewModel()
