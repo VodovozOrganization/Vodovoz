@@ -5355,7 +5355,6 @@ namespace Vodovoz
 		{
 			foreach(var widget in table1.Children)
 			{
-				var widgetName = widget.Name;
 				if(widget.Name == yhbox4.Name)
 				{
 					widget.Sensitive = IsWaitUntilActive;
