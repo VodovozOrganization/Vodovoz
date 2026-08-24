@@ -18,9 +18,9 @@ namespace Vodovoz.Core.Domain.Documents
 		[Display(Name = "В процессе")]
 		InProgress,
 		/// <summary>
-		/// Получено
+		/// Получено оператором
 		/// </summary>
-		[Display(Name = "Получено")]
+		[Display(Name = "Получено оператором")]
 		Sent,
 		/// <summary>
 		/// Успешно завершен

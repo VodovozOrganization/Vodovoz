@@ -11,7 +11,7 @@ namespace Vodovoz.Core.Domain.Edo
 		Unknown,
 		[Display(Name = "В процессе")]
 		InProgress,
-		[Display(Name = "Получено")]
+		[Display(Name = "Получено оператором")]
 		Sent,
 		[Display(Name = "Успешно завершен")]
 		Succeed,
