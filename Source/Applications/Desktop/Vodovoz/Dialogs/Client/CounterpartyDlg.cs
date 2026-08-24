@@ -2642,6 +2642,23 @@ namespace Vodovoz
 				newRequests.Add(newRequest);
 			}
 
+			foreach(var orderId in _edoDocflowRepository.GetClientOrdersWithoutEdoRequestsForUpdResend(UoW, Entity.Id))
+			{
+				var newRequest = new PrimaryEdoRequest
+				{
+					Order = new OrderEntity
+					{
+						Id = orderId
+					},
+					Time = DateTime.Now,
+					Source = EdoRequestSource.Manual,
+					DocumentType = EdoDocumentType.UPD
+				};
+
+				UoW.Save(newRequest);
+				newRequests.Add(newRequest);
+			}
+
 			UoW.Commit();
 
 			foreach(var newRequest in newRequests)

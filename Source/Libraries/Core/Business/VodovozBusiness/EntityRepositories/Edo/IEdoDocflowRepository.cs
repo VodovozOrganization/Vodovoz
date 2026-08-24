@@ -73,8 +73,7 @@ namespace VodovozBusiness.EntityRepositories.Edo
 		/// Возвращает список идентификаторов задач ЧЗ для УПД с сохранёнными в пул кодами по идентификатору контрагента
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="conterpartyId">Идентификатор контрагента</param>
-		/// <param name="cancellationToken">Токен отмены</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
 		/// <returns>Список идентификаторов задач</returns>
 		IEnumerable<SaveCodesEdoTask> GetClientSavedToPoolDocumentTaskIdsForResend(IUnitOfWork uow, int counterpartyId);
 
@@ -82,9 +81,16 @@ namespace VodovozBusiness.EntityRepositories.Edo
 		/// Возвращает список идентификаторов задач ЧЗ для чека с сохранёнными в пул кодами по идентификатору контрагента
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="conterpartyId">Идентификатор контрагента</param>
-		/// <param name="cancellationToken">Токен отмены</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
 		/// <returns>Список идентификаторов задач</returns>
 		IEnumerable<ReceiptEdoTask> GetClientSavedToPoolReceiptTaskIdsForResend(IUnitOfWork uow, int counterpartyId);
+
+		/// <summary>
+		/// Возвращает заказы контрагента, по которым нужно отправить УПД, но заявка ЭДО еще не создавалась.
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		/// <returns>Список идентификаторов заказов без заявок ЭДО</returns>
+		IEnumerable<int> GetClientOrdersWithoutEdoRequestsForUpdResend(IUnitOfWork uow, int counterpartyId);
 	}
 }

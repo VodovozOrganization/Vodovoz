@@ -8,9 +8,13 @@ using NHibernate.Linq;
 using NHibernate.Type;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.NHibernate.Extensions;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.Documents;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
@@ -378,6 +382,57 @@ order by eir.`time` desc
 							task.FormalEdoRequest.Order.Id
 						&& otherTask.Id > task.Id))
 				.ToList();
+		}
+
+		public IEnumerable<int> GetClientOrdersWithoutEdoRequestsForUpdResend(IUnitOfWork uow, int counterpartyId)
+		{
+			var availableOrderStatuses = new[]
+			{
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
+
+			var orders =
+				from order in uow.Session.Query<OrderEntity>()
+				join defaultEdoAccount in uow.Session.Query<CounterpartyEdoAccountEntity>()
+					on new
+					{
+						CounterpartyId = order.Client.Id,
+						OrganizationId = (int?)order.Contract.Organization.Id,
+						IsDefault = true
+					}
+					equals new
+					{
+						CounterpartyId = defaultEdoAccount.Counterparty.Id,
+						defaultEdoAccount.OrganizationId,
+						defaultEdoAccount.IsDefault
+					}
+				where
+					order.Client.Id == counterpartyId
+					&& order.PaymentType == PaymentType.Cashless
+					&& order.Client.IsNewEdoProcessing
+					&& !order.Client.IsNotSendDocumentsByEdo
+					&& defaultEdoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+					&& availableOrderStatuses.Contains(order.OrderStatus)
+					&& (order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
+						|| order.OrderStatus != OrderStatus.OnTheWay)
+					&& (uow.Session.Query<UPDDocumentEntity>().Any(document => document.Order.Id == order.Id)
+						|| uow.Session.Query<SpecialUPDDocumentEntity>().Any(document => document.Order.Id == order.Id))
+					&& !uow.Session.Query<FormalEdoRequest>().Any(request =>
+						request.Order.Id == order.Id
+						&& request.DocumentType == EdoDocumentType.UPD)
+					&& !uow.Session.Query<EdoContainerEntity>().Any(container =>
+						container.Order.Id == order.Id
+						&& container.Type == DocumentContainerType.Upd
+						&& !container.IsIncoming)
+				select order;
+
+			return orders
+				.Select(order => order.Id)
+				.ToList()
+				.Distinct();
 		}
 	}
 }
