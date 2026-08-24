@@ -6,7 +6,7 @@ using VodovozBusiness.EntityRepositories.Nodes;
 namespace Vodovoz.Views.Mango.Talks
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	[WindowSize(800, 300)]
+	[WindowSize(900, 300)]
 	public partial class DriverForwardingOrderSelectionView : DialogViewBase<DriverForwardingOrderSelectionViewModel>
 	{
 		public DriverForwardingOrderSelectionView(DriverForwardingOrderSelectionViewModel viewModel) : base(viewModel)
@@ -18,21 +18,23 @@ namespace Vodovoz.Views.Mango.Talks
 		private void Configure()
 		{
 			ytreeviewOrders.CreateFluentColumnsConfig<DriverForwardingOrderNode>()
-				.AddColumn("Заказ")
+				.AddColumn("Заказ").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.OrderId)
-				.AddColumn("Дата доставки")
+				.AddColumn("Дата доставки").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.DeliveryDateText)
-				.AddColumn("Адрес")
+				.AddColumn("Адрес").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.Address)
 					.WrapWidth(300).WrapMode(Pango.WrapMode.WordChar)
-				.AddColumn("Статус заказа")
+				.AddColumn("Статус заказа").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.OrderStatusTitle)
-				.AddColumn("Водитель")
+				.AddColumn("Водитель").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.DriverName)
-				.AddColumn("Доб. номер")
+				.AddColumn("Доб. номер").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.DriverExtensionNumberText)
-				.AddColumn("")
+				.AddColumn("Комментарий").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.ForwardingUnavailableReason)
+					.WrapWidth(200).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("")
 				.Finish();
 
 			ytreeviewOrders.SetItemsSource(ViewModel.Orders);

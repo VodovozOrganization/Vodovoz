@@ -1,4 +1,7 @@
-﻿namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
+﻿using Gamma.Utilities;
+using Vodovoz.Domain.Orders;
+
+namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
 	/// <summary>
 	/// Сообщения, показываемые пользователю при переводе звонка на водителя
@@ -16,13 +19,14 @@
 		public const string CounterpartyNotFound = "По данному номеру не зарегистрирован контрагент";
 
 		/// <summary>
-		/// У контрагента нет заказов в пути, то есть переводить звонок не на кого
-		/// </summary>
-		public const string NoOrdersOnTheWay = "У контрагента нет заказов в статусе \"В пути\"";
-
-		/// <summary>
 		/// Разговор уже завершён, переводить нечего
 		/// </summary>
 		public const string NoActiveTalk = "Нет активного разговора, перевести звонок невозможно";
+
+		/// <summary>
+		/// У контрагента нет заказов в пути, то есть переводить звонок не на кого
+		/// </summary>
+		public static readonly string NoOrdersOnTheWay =
+			$"У контрагента нет заказов в статусе \"{OrderStatus.OnTheWay.GetEnumTitle()}\"";
 	}
 }
