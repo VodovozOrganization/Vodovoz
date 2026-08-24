@@ -1012,11 +1012,10 @@ namespace EdoService.Library
 					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
 				};
 
-				docflowUpdatedEvent.IsReceived = docflowUpdatedEvent.Status is nameof(EdoDocFlowStatus.Succeed);
+				var recievedStatuses = _edoRepository.GetRecievedStatuses();
+				docflowUpdatedEvent.IsReceived = recievedStatuses.Contains(docflowUpdatedEvent.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
 
 				await _bus.Publish(docflowUpdatedEvent, cancellationToken);
-
-
 
 				return Result.Success($"Статус документооборота {docflowId} обновлён. Текущий статус: {docflowUpdatedEvent.Status}");
 			}

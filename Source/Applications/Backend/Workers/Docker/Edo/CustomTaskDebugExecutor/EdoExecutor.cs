@@ -11,7 +11,6 @@ using Edo.Transfer.Dispatcher;
 using Edo.Transfer.Sender;
 using Edo.Withdrawal;
 using MassTransit;
-using MassTransit.Initializers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -21,18 +20,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using Taxcom.Docflow.Utility;
 using TaxcomEdo.Client;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Organizations;
+using Core.Infrastructure;
 
 namespace CustomTaskDebugExecutor
 {
 	public class EdoExecutor
 	{
 		private readonly IServiceProvider _serviceProvider;
+		private readonly IEdoRepository _edoRepository;
 
-		public EdoExecutor(IServiceProvider serviceProvider)
+		public EdoExecutor(
+			IServiceProvider serviceProvider,
+			IEdoRepository edoRepository)
 		{
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 		}
 
 		public async Task TrySendEdoEvent(CancellationToken cancellationToken)
@@ -612,7 +617,9 @@ namespace CustomTaskDebugExecutor
 					Status = description.DocFlow.Status,
 					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
 				};
-				docflowUpdatedEvent.IsReceived = docflowUpdatedEvent.Status == nameof(EdoDocFlowStatus.Succeed);
+
+				var recievedStatuses = _edoRepository.GetRecievedStatuses();
+				docflowUpdatedEvent.IsReceived = recievedStatuses.Contains(docflowUpdatedEvent.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
 				
 				var publishEndpoint = _serviceProvider.GetRequiredService<IPublishEndpoint>();
 				await publishEndpoint.Publish(docflowUpdatedEvent);

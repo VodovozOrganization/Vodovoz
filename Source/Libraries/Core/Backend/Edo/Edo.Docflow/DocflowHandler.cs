@@ -260,9 +260,15 @@ namespace Edo.Docflow
 			switch(docflowStatus)
 			{
 				case EdoDocFlowStatus.InProgress:
-					// Тут сделать обработку успешной отправки
-					// проверять по документам такскома не по статусу InProgress
 					document.Status = EdoDocumentStatus.InProgress;
+
+					if(updatedEvent.DocFlowId.HasValue && !updatedEvent.IsReceived)
+					{
+						message = OrderDocumentSentEvent.Create(document.Id);
+					}
+					break;
+				case EdoDocFlowStatus.Sent:
+					document.Status = EdoDocumentStatus.Sent;
 
 					if(updatedEvent.DocFlowId.HasValue && updatedEvent.IsReceived)
 					{

@@ -1191,5 +1191,19 @@ where ecr.order_id = :order_id
 
 			return task;
 		}
+
+		public EdoDocFlowStatus[] GetRecievedStatuses()
+		{
+			return new EdoDocFlowStatus[]
+				{
+					EdoDocFlowStatus.Sent,
+					EdoDocFlowStatus.Succeed,
+					EdoDocFlowStatus.Warning,
+					EdoDocFlowStatus.Cancelled,
+					EdoDocFlowStatus.WaitingForCancellation,
+					EdoDocFlowStatus.CompletedWithDivergences,
+					EdoDocFlowStatus.NotAccepted
+				};
+		}
 	}
 }
