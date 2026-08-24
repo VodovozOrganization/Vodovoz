@@ -16,6 +16,7 @@ using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -794,6 +795,9 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 
 			var query =
 				from counterparty in uow.Session.Query<Counterparty>()
+				join employee in uow.Session.Query<Employee>()
+					on counterparty.SalesManager.Id equals employee.Id into salesManagers
+				from salesManager in salesManagers.DefaultIfEmpty()
 				where ids.Contains(counterparty.Id)
 				select new PlannedOrderCounterpartyNode
 				{
@@ -801,7 +805,11 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 					FullName = counterparty.FullName,
 					Inn = counterparty.INN,
 					PersonType = counterparty.PersonType,
-					DelayDaysForBuyers = counterparty.DelayDaysForBuyers
+					DelayDaysForBuyers = counterparty.DelayDaysForBuyers,
+					SalesManagerId = (int?)salesManager.Id,
+					SalesManagerLastName = salesManager.LastName,
+					SalesManagerFirstName = salesManager.Name,
+					SalesManagerPatronymic = salesManager.Patronymic
 				};
 
 			return await query.ToListAsync(cancellationToken);

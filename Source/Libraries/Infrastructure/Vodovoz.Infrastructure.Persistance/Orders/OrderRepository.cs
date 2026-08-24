@@ -3717,5 +3717,32 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					x => x.Key,
 					x => x.Value - (paymentsSumsByCounterparties.TryGetValue(x.Key, out var paymentsSum) ? paymentsSum : 0));
 		}
+
+		public async Task<IList<PlannedOrderCreatedOrderNode>> GetOrdersCreatedFromDateAsync(
+			IUnitOfWork uow,
+			DateTime fromCreateDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var excludeStatuses = excludeOrderStatuses.ToArray();
+
+			var query =
+				from order in uow.Session.Query<VodovozOrder>()
+				where
+					!excludeStatuses.Contains(order.OrderStatus)
+					&& order.CreateDate != null
+					&& order.CreateDate >= fromCreateDate
+					&& order.DeliveryDate != null
+				select new PlannedOrderCreatedOrderNode
+				{
+					OrderId = order.Id,
+					DeliveryPointId = order.DeliveryPoint == null ? (int?)null : order.DeliveryPoint.Id,
+					CounterpartyId = order.Client.Id,
+					IsSelfDelivery = order.SelfDelivery,
+					DeliveryDate = order.DeliveryDate
+				};
+
+			return await query.ToListAsync(cancellationToken);
+		}
 	}
 }

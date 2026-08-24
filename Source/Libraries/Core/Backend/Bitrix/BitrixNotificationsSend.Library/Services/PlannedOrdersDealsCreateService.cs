@@ -143,11 +143,13 @@ namespace BitrixNotificationsSend.Library.Services
 
 			List<PlannedOrderDto> plannedOrderDtos;
 
+			var newStageId = _bitrixNotificationsSendSettings.PlannedOrdersNewStageId;
+
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersDealsCreateService)}. Поиск не созданных сделок"))
 			{
 				plannedOrderDtos = _plannedOrderRepository
-					.Get(uow, x => x.PlannedOrderDate == today && x.Stage == BitrixDealCreationStage.DealNotCreated)
-					.Select(CreatePlannedOrderDto)
+					.Get(uow, x => x.PlannedOrderDate == today && x.Stage == PlannedOrderBitrixDealStage.DealNotCreated)
+					.Select(plannedOrder => CreatePlannedOrderDto(plannedOrder, newStageId))
 					.ToList();
 			}
 
@@ -172,6 +174,8 @@ namespace BitrixNotificationsSend.Library.Services
 				MarkDealsCreated,
 				cancellationToken);
 
+			await SaveDealErrors(sendResult.Errors, PlannedOrderDealCommandKeys.CreateCommandKeyPrefix, cancellationToken);
+
 			_logger.LogInformation("Успешно создано {SuccessfulDealsCount} сделок из запланированных {PlannedDealsCount}",
 				sendResult.SuccessfulCount,
 				plannedOrderDtos.Count);
@@ -179,25 +183,119 @@ namespace BitrixNotificationsSend.Library.Services
 
 		private async Task MarkDealsCreated(
 			IReadOnlyList<PlannedOrderDto> succeededPlannedOrders,
+			IDictionary<string, long> createdDealIdsByCommandKey,
 			CancellationToken cancellationToken)
 		{
 			var plannedOrderIds = succeededPlannedOrders
 				.Select(x => x.PlannedOrderId)
 				.ToArray();
 
+			var succeededPlannedOrdersByIds = succeededPlannedOrders
+				.ToDictionary(x => x.PlannedOrderId);
+
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersDealsCreateService)}. Обновление статуса сделок"))
 			{
 				var createdDealPlannedOrders = _plannedOrderRepository
 					.Get(uow, x => plannedOrderIds.Contains(x.Id));
 
+				var now = DateTime.UtcNow.ToMoscowDateTime();
+
 				foreach(var createdDealPlannedOrder in createdDealPlannedOrders)
 				{
-					createdDealPlannedOrder.Stage = BitrixDealCreationStage.DealCreated;
+					createdDealPlannedOrder.Stage = PlannedOrderBitrixDealStage.DealCreated;
+					createdDealPlannedOrder.LastUpdateDate = now;
+					createdDealPlannedOrder.LastSynchronizedDate = now;
+					createdDealPlannedOrder.LastError = null;
+
+					if(succeededPlannedOrdersByIds.TryGetValue(createdDealPlannedOrder.Id, out var succeededPlannedOrder)
+						&& createdDealIdsByCommandKey.TryGetValue(succeededPlannedOrder.DealCommandKey, out var bitrixDealId))
+					{
+						createdDealPlannedOrder.BitrixDealId = bitrixDealId;
+					}
+
 					await uow.SaveAsync(createdDealPlannedOrder, cancellationToken: cancellationToken);
 				}
 
 				await uow.CommitAsync(cancellationToken);
 			}
+		}
+
+		/// <summary>
+		/// Сохранение ошибок выполнения команд Битрикс24 в записях планируемых заказов
+		/// </summary>
+		/// <param name="dealErrors">Ошибки команд</param>
+		/// <param name="commandKeyPrefix">Префикс ключа команды, по которому определяется id планируемого заказа</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		private async Task SaveDealErrors(
+			IEnumerable<BitrixBatchItemError> dealErrors,
+			string commandKeyPrefix,
+			CancellationToken cancellationToken)
+		{
+			var errors = dealErrors?.ToArray();
+
+			if(errors == null || !errors.Any())
+			{
+				return;
+			}
+
+			var plannedOrderIdsByCommandKeys = new Dictionary<string, int>();
+
+			foreach(var error in errors)
+			{
+				var plannedOrderId = GetPlannedOrderIdFromCommandKey(error.CommandKey, commandKeyPrefix);
+
+				if(plannedOrderId.HasValue && !plannedOrderIdsByCommandKeys.ContainsKey(error.CommandKey))
+				{
+					plannedOrderIdsByCommandKeys.Add(error.CommandKey, plannedOrderId.Value);
+				}
+			}
+
+			if(!plannedOrderIdsByCommandKeys.Any())
+			{
+				return;
+			}
+
+			var plannedOrderIds = plannedOrderIdsByCommandKeys.Values.ToArray();
+
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(
+				$"Сервис {nameof(PlannedOrdersDealsCreateService)}. Сохранение ошибок сделок"))
+			{
+				var plannedOrders = _plannedOrderRepository
+					.Get(uow, x => plannedOrderIds.Contains(x.Id))
+					.ToDictionary(x => x.Id);
+
+				var now = DateTime.UtcNow.ToMoscowDateTime();
+
+				foreach(var error in errors)
+				{
+					if(!plannedOrderIdsByCommandKeys.TryGetValue(error.CommandKey, out var plannedOrderId)
+						|| !plannedOrders.TryGetValue(plannedOrderId, out var plannedOrder))
+					{
+						continue;
+					}
+
+					plannedOrder.LastError = string.IsNullOrWhiteSpace(error.ErrorCode)
+						? error.Message
+						: $"{error.ErrorCode}: {error.Message}";
+					plannedOrder.LastUpdateDate = now;
+
+					await uow.SaveAsync(plannedOrder, cancellationToken: cancellationToken);
+				}
+
+				await uow.CommitAsync(cancellationToken);
+			}
+		}
+
+		private static int? GetPlannedOrderIdFromCommandKey(string commandKey, string commandKeyPrefix)
+		{
+			if(string.IsNullOrWhiteSpace(commandKey) || !commandKey.StartsWith(commandKeyPrefix, StringComparison.Ordinal))
+			{
+				return null;
+			}
+
+			return int.TryParse(commandKey.Substring(commandKeyPrefix.Length), out var plannedOrderId)
+				? (int?)plannedOrderId
+				: null;
 		}
 
 		private async Task<IEnumerable<PlannedOrder>> GetPlannedOrders(
@@ -296,7 +394,7 @@ namespace BitrixNotificationsSend.Library.Services
 				var plannedOrder = new PlannedOrder
 				{
 					CreationDate = creationDate,
-					Stage = BitrixDealCreationStage.DealNotCreated,
+					Stage = PlannedOrderBitrixDealStage.DealNotCreated,
 					CounterpartyId = counterpartyId,
 					DeliveryPointId = deliveryPointId,
 					CounterpartyName = counterpartyData?.FullName,
@@ -314,7 +412,10 @@ namespace BitrixNotificationsSend.Library.Services
 					DebtorDebt =
 						isLegalCounterparty && counterpartiesCashlessDebts.TryGetValue(counterpartyId, out var cashlessDebt)
 						? cashlessDebt
-						: 0
+						: 0,
+					LastOrderId = candidate.LastOrder?.OrderId,
+					SalesManagerId = counterpartyData?.SalesManagerId,
+					SalesManagerName = counterpartyData?.SalesManagerFullName
 				};
 
 				plannedOrders.Add(plannedOrder);
@@ -534,9 +635,10 @@ namespace BitrixNotificationsSend.Library.Services
 			return lastOrder.BottlesMovementDelivered ?? (int)lastOrder.WaterBottlesCount;
 		}
 
-		private static PlannedOrderDto CreatePlannedOrderDto(PlannedOrder plannedOrder) =>
+		private static PlannedOrderDto CreatePlannedOrderDto(PlannedOrder plannedOrder, string stageId) =>
 			new PlannedOrderDto
 			{
+				StageId = stageId,
 				PlannedOrderId = plannedOrder.Id,
 				CounterpartyId = plannedOrder.CounterpartyId,
 				DeliveryPointId = plannedOrder.DeliveryPointId,
@@ -552,7 +654,9 @@ namespace BitrixNotificationsSend.Library.Services
 				BottlesDebtByAddress = plannedOrder.BottlesDebtByAddress,
 				BottlesDebtByCounterparty = plannedOrder.BottlesDebtByCounterparty,
 				DelayDaysForCounterparty = plannedOrder.DelayDaysForCounterparty,
-				DebtorDebt = plannedOrder.DebtorDebt
+				DebtorDebt = plannedOrder.DebtorDebt,
+				LastOrderId = plannedOrder.LastOrderId,
+				SalesManagerName = plannedOrder.SalesManagerName
 			};
 	}
 }
