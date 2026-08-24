@@ -61,8 +61,8 @@ namespace Edo.Docflow
 				return;
 			}
 
-			var inProgress = _edoRepository.GetInProgressEdoDocumentStatuses().Contains(document.Status);
-			if(inProgress)
+			var isNotValidStatus = _edoRepository.GetInProgressOrCompletedStatuses().Contains(document.Status);
+			if(isNotValidStatus)
 			{
 				_logger.LogError("Документ {documentId} уже в работе, повторно отправить нельзя.");
 				return;
@@ -99,8 +99,8 @@ namespace Edo.Docflow
 				return;
 			}
 
-			var inProgress = _edoRepository.GetInProgressEdoDocumentStatuses().Contains(document.Status); 
-			if(inProgress)
+			var isNotValidStatus = _edoRepository.GetInProgressOrCompletedStatuses().Contains(document.Status); 
+			if(isNotValidStatus)
 			{
 				_logger.LogError("Документ {documentId} уже в работе, повторно отправить нельзя.");
 				return;
@@ -161,8 +161,8 @@ namespace Edo.Docflow
 				return;
 			}
 
-			var inProgress = _edoRepository.GetInProgressEdoDocumentStatuses().Contains(document.Status);
-			if(inProgress)
+			var isNotValidStatus = _edoRepository.GetInProgressOrCompletedStatuses().Contains(document.Status);
+			if(isNotValidStatus)
 			{
 				_logger.LogError($"Документ {orderDocumentId} уже в работе, повторно отправить нельзя.");
 				return;
@@ -257,14 +257,6 @@ namespace Edo.Docflow
 
 			switch(docflowStatus)
 			{
-				case EdoDocFlowStatus.InProgress:
-					document.Status = EdoDocumentStatus.InProgress;
-
-					if(updatedEvent.DocFlowId.HasValue && !updatedEvent.IsReceived)
-					{
-						message = OrderDocumentSentEvent.Create(document.Id);
-					}
-					break;
 				case EdoDocFlowStatus.Sent:
 					document.Status = EdoDocumentStatus.Sent;
 

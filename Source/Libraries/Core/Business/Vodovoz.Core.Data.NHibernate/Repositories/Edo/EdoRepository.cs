@@ -1208,7 +1208,7 @@ where ecr.order_id = :order_id
 				};
 		}
 
-		public EdoDocumentStatus[] GetInProgressEdoDocumentStatuses()
+		public EdoDocumentStatus[] GetInProgressOrCompletedStatuses()
 		{
 			return new EdoDocumentStatus[]
 				{

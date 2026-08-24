@@ -71,8 +71,8 @@ namespace Edo.Docflow.Handlers
 					return;
 				}
 
-				var inProgress = _edoRepository.GetInProgressEdoDocumentStatuses().Contains(document.Status);
-				if(inProgress)
+				var isNotValidStatus = _edoRepository.GetInProgressOrCompletedStatuses().Contains(document.Status);
+				if(isNotValidStatus)
 				{
 					_logger.LogError("Документ {DocumentId} уже в работе, повторно отправить нельзя", documentId);
 					return;
