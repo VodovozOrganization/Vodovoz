@@ -1,14 +1,15 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Transport.Factories;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
 
@@ -20,6 +21,7 @@ namespace Edo.Docflow.Handlers
 		private readonly IMassTransitExceptionInfoFactory _exceptionInfoFactory;
 		private readonly IGenericRepository<OrderEdoDocument> _edoDocumentRepository;
 		private readonly IGenericRepository<DocumentEdoTask> _edoTaskRepository;
+		private readonly IEdoRepository _edoRepository;
 		private readonly FaultEdoProblemRegistrar _problemRegistrar;
 
 		public FaultOrderDocumentSendExceptionHandler(
@@ -27,14 +29,15 @@ namespace Edo.Docflow.Handlers
 			IMassTransitExceptionInfoFactory exceptionInfoFactory,
 			IGenericRepository<OrderEdoDocument> edoDocumentRepository,
 			IGenericRepository<DocumentEdoTask> edoTaskRepository,
-			FaultEdoProblemRegistrar problemRegistrar
-		)
+			IEdoRepository edoRepository,
+			FaultEdoProblemRegistrar problemRegistrar)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_exceptionInfoFactory = exceptionInfoFactory ?? throw new ArgumentNullException(nameof(exceptionInfoFactory));
 			_edoDocumentRepository = edoDocumentRepository ?? throw new ArgumentNullException(nameof(edoDocumentRepository));
 			_edoTaskRepository = edoTaskRepository ?? throw new ArgumentNullException(nameof(edoTaskRepository));
 			_problemRegistrar = problemRegistrar ?? throw new ArgumentNullException(nameof(problemRegistrar));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 		}
 
 		public async Task HandleAsync(
@@ -64,11 +67,8 @@ namespace Edo.Docflow.Handlers
 					return;
 				}
 
-				if(document.Status.IsIn(
-						EdoDocumentStatus.InProgress,
-						EdoDocumentStatus.CompletedWithDivergences,
-						EdoDocumentStatus.Succeed
-					))
+				var inProgress = _edoRepository.GetInProgressEdoDocumentStatuses().Contains(document.Status);
+				if(inProgress)
 				{
 					_logger.LogError("Документ {DocumentId} уже в работе, повторно отправить нельзя", documentId);
 					return;

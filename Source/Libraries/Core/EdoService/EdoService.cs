@@ -1012,7 +1012,7 @@ namespace EdoService.Library
 					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
 				};
 
-				var recievedStatuses = _edoRepository.GetRecievedStatuses();
+				var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
 				docflowUpdatedEvent.IsReceived = recievedStatuses.Contains(docflowUpdatedEvent.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
 
 				await _bus.Publish(docflowUpdatedEvent, cancellationToken);

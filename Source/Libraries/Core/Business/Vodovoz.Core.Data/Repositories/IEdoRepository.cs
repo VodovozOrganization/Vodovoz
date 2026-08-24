@@ -273,6 +273,12 @@ namespace Vodovoz.Core.Data.Repositories
 		/// Получить список статусов ЭДО, которые считаются полученными
 		/// </summary>
 		/// <returns>Массив статусов ЭДО</returns>
-		EdoDocFlowStatus[] GetRecievedStatuses();
+		EdoDocFlowStatus[] GetRecievedEdoDocFlowStatuses();
+
+		// <summary>
+		/// Получить список статусов ЭДО документов, которые считаются полученными
+		/// </summary>
+		/// <returns>Массив статусов ЭДО документов</returns>
+		EdoDocumentStatus[] GetInProgressEdoDocumentStatuses();
 	}
 }

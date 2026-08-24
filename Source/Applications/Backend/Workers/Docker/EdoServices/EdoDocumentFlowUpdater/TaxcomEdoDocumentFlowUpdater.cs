@@ -243,7 +243,7 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 
-			var recievedStatuses = _edoRepository.GetRecievedStatuses();
+			var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
 			var isReceived = recievedStatuses.Contains(docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
 
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent

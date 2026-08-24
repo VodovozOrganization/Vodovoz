@@ -1192,7 +1192,7 @@ where ecr.order_id = :order_id
 			return task;
 		}
 
-		public EdoDocFlowStatus[] GetRecievedStatuses()
+		public EdoDocFlowStatus[] GetRecievedEdoDocFlowStatuses()
 		{
 			return new EdoDocFlowStatus[]
 				{
@@ -1203,6 +1203,17 @@ where ecr.order_id = :order_id
 					EdoDocFlowStatus.WaitingForCancellation,
 					EdoDocFlowStatus.CompletedWithDivergences,
 					EdoDocFlowStatus.NotAccepted
+				};
+		}
+
+		public EdoDocumentStatus[] GetInProgressEdoDocumentStatuses()
+		{
+			return new EdoDocumentStatus[]
+				{
+					EdoDocumentStatus.InProgress,
+					EdoDocumentStatus.Sent,
+					EdoDocumentStatus.Succeed,
+					EdoDocumentStatus.CompletedWithDivergences
 				};
 		}
 	}

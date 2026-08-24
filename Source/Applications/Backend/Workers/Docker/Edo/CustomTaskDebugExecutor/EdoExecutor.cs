@@ -618,7 +618,7 @@ namespace CustomTaskDebugExecutor
 					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
 				};
 
-				var recievedStatuses = _edoRepository.GetRecievedStatuses();
+				var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
 				docflowUpdatedEvent.IsReceived = recievedStatuses.Contains(docflowUpdatedEvent.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
 				
 				var publishEndpoint = _serviceProvider.GetRequiredService<IPublishEndpoint>();
