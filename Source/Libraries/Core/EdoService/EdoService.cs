@@ -1017,7 +1017,7 @@ namespace EdoService.Library
 
 				await _bus.Publish(docflowUpdatedEvent, cancellationToken);
 
-				return Result.Success($"Статус документооборота {docflowId} обновлён. Текущий статус: {docflowUpdatedEvent.Status}");
+				return Result.Success($"Статус документооборота {docflowId} обновится в течение нескольких минут. Обновленный статус: {docflowUpdatedEvent.Status}");
 			}
 			catch(Exception ex)
 			{

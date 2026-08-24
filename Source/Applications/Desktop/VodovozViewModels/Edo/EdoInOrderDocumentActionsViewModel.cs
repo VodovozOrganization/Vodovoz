@@ -203,7 +203,11 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				newActions.Add(new BusyCommand(
 					"Обновить статус",
-					() => ShowResult(_edoService.UpdateDocflowStatus(document.TaskId))
+					() =>
+					{
+						ShowResult(_edoService.UpdateDocflowStatus(document.TaskId));
+						EdoInOrderRefreshCommand?.Execute(null);
+					}
 				));
 			}
 		}
