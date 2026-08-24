@@ -23,5 +23,7 @@ namespace Vodovoz.Settings.Database.Sms
 		public string LowBalanceNotifyText => _settingsController.GetStringValue("low_balance_sms_notify_text");
 
 		public string UndeliveryAutoTransferNotApprovedTextTemplate => _settingsController.GetStringValue("undelivery_autotransport_notapproved_sms_text_template");
+
+		public string CourierOnTheWaySmsTextTemplate => _settingsController.GetStringValue("courier_on_the_way_sms_text_template");
 	}
 }
