@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	[Appellative(
 		Gender = GrammaticalGender.Masculine,
@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Goods
 	public class NomenclatureCostPrice : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 
-		private Nomenclature _nomenclature;
+		private NomenclatureEntity _nomenclature;
 		private DateTime _startDate;
 		private DateTime? _endDate;
 		private decimal _costPrice;
@@ -27,7 +27,7 @@ namespace Vodovoz.Domain.Goods
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Дата начала")]
-		public virtual Nomenclature Nomenclature
+		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);

@@ -128,26 +128,39 @@ namespace Vodovoz.Domain.Documents
 					new[] { this.GetPropertyName(o => o.Items) });
 			}
 
-			foreach(var item in Items)
-			{
-				if(item.Amount > item.AmountInStock)
+			var groupedByOldNomenclature = Items
+				.Where(item => item.NomenclatureOld != null)
+				.GroupBy(item => item.NomenclatureOld)
+				.Select(group => new
 				{
-					yield return new ValidationResult(
-						$"На складе недостаточное количество <{item.NomenclatureOld.Name}>",
-						new[] { this.GetPropertyName(o => o.Items) });
-				}
+					Nomenclature = group.Key,
+					TotalAmount = group.Sum(item => item.Amount),
+					group.First().AmountInStock
+				})
+				.ToList();
 
-				if(item.NomenclatureOld.Category == NomenclatureCategory.bottle
-				   && item.NomenclatureNew.Category == NomenclatureCategory.water
-				   && !item.NomenclatureNew.IsDisposableTare
-				   && item.Amount > 39)
+			foreach(var group in groupedByOldNomenclature)
+			{
+				if(group.TotalAmount > group.AmountInStock)
 				{
 					yield return new ValidationResult(
-						$"Пересортица из {item.Amount} ед. '{item.NomenclatureOld.Name}'" +
-						$" в {item.Amount} ед. '{item.NomenclatureNew.Name}' невозможна!",
+						$"На складе недостаточное количество <{group.Nomenclature.Name}>. " +
+						$"Требуется: {group.TotalAmount:F2}, доступно: {group.AmountInStock:F2}",
 						new[] { this.GetPropertyName(o => o.Items) });
 				}
 			}
+
+			if(Items.Any(x => x.NomenclatureOld.Category is NomenclatureCategory.bottle
+			   && x.NomenclatureNew.Category is NomenclatureCategory.water
+			   && !x.NomenclatureNew.IsDisposableTare
+			   && x.Amount > 39))
+			{
+				yield return new ValidationResult(
+					$"Пересортица из бутылей в воду возможна только в количестве не более 39 ед. " +
+					$"Проверьте строки документа.",
+					new[] { this.GetPropertyName(o => o.Items) });
+			}
+
 
 			if(Items.Any(x => x.IsDefective && x.TypeOfDefect == null))
 			{

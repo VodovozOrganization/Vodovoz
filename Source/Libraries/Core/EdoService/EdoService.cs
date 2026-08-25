@@ -389,6 +389,7 @@ namespace EdoService.Library
 				&& x.Id != taskId
 				&& !ignoredTaskIdsArray.Contains(x.Id)
 				&& x.Status != EdoTaskStatus.Cancelled
+				&& !(x is SaveCodesEdoTask)
 			) > 0;
 
 			if(hasOtherTasks)
