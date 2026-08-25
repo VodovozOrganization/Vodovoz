@@ -28,8 +28,10 @@ namespace Vodovoz.ViewModels.Edo
 			_interactiveService = interactiveService ?? throw new System.ArgumentNullException(nameof(interactiveService));
 
 			var docflowNode = _docflows.FirstOrDefault();
-			if(docflowNode == null)
+			RefreshCommand = new DelegateCommand(() => UpdateDocflow(docflowNode));
+			if(docflowNode is null)
 			{
+				RefreshButtonSensetive = false;
 				return;
 			}
 
@@ -40,12 +42,13 @@ namespace Vodovoz.ViewModels.Edo
 				.Where(x => x.TaxcomDocflowSendTime != null)
 				.Select(x => new EdoInOrderTaxcomDocflowViewModel(x)).ToList();
 
-			RefreshCommand = new DelegateCommand(() => UpdateDocflow(docflowNode));
 		}
 
 		public string CreationTime { get; }
 
 		public string Status { get; }
+
+		public bool RefreshButtonSensetive { get; }
 
 		public virtual IList<EdoInOrderTaxcomDocflowViewModel> TaxcomDocflows
 		{

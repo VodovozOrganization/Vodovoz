@@ -1,6 +1,5 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
-using System;
 using Vodovoz.ViewModels.Edo;
 namespace Vodovoz.Views.Edo
 {
@@ -57,6 +56,9 @@ namespace Vodovoz.Views.Edo
 				.InitializeFromSource();
 
 			ybuttonRefreshFromTaxcom.BindCommand(ViewModel.RefreshCommand);
+			ybuttonRefreshFromTaxcom.Binding
+				.AddBinding(ViewModel, vm => vm.RefreshButtonSensetive, v => v.Sensitive)
+				.InitializeFromSource();
 		}
 	}
 }

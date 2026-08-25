@@ -49,6 +49,7 @@ namespace EdoDocumentFlowUpdater
 						)
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddCoreDataRepositories()
 						.AddTrackedUoW()
 						.AddInfrastructure(ServiceLifetime.Singleton)
 						.ConfigureOptions<ConfigureS3Options>()
