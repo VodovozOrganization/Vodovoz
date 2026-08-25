@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -99,6 +99,7 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Edo\EdoDocumentActionsFactory.cs" />
     <Compile Include="Edo\EdoInOrderDocflowsStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentActionsViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentHistoryRowViewModel.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Edo\EdoInOrderViewModel.cs" />
     <Compile Include="Edo\EdoInOrderProblemViewModel.cs" />
     <Compile Include="Edo\EdoViewModel.cs" />
+    <Compile Include="Edo\IEdoDocumentActionsFactory.cs" />
     <Compile Include="Employees\FineCategoryViewModel.cs" />
     <Compile Include="Factories\IVatRateVersionViewModelFactory.cs" />
     <Compile Include="Factories\VatRateVersionViewModelFactory.cs" />
@@ -1200,6 +1202,11 @@
     <Compile Include="Widgets\Cars\Insurance\EditCarInsuranceEventArgs.cs" />
     <Compile Include="Widgets\Cash\VatRateNomenclatureVersionViewModel.cs" />
     <Compile Include="Widgets\Cash\VatRateOrganizationVersionViewModel.cs" />
+    <Compile Include="Dialogs\Mango\Talks\DriverCallForwardingMessages.cs" />
+    <Compile Include="Dialogs\Mango\Talks\DriverForwardingOrderSelectionViewModel.cs" />
+    <Compile Include="Widgets\Mango\IMangoCallButtonViewModelFactory.cs" />
+    <Compile Include="Widgets\Mango\MangoCallButtonViewModel.cs" />
+    <Compile Include="Widgets\Mango\MangoCallButtonViewModelFactory.cs" />
     <Compile Include="Widgets\OrderDateFilterViewModel.cs" />
     <Compile Include="Widgets\Goods\NomenclatureMinimumBalanceByWarehouseViewModel.cs" />
     <Compile Include="Widgets\Orders\OrderItemDiscountReasonsViewModel.cs" />

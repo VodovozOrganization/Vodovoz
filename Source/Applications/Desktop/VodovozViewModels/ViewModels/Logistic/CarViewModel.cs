@@ -231,7 +231,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					_cancellationTokenSource.Token,
 					Entity.AddFileInformation,
 					Entity.RemoveFileInformation);
-			AttachedFileInformationsViewModel.ReadOnly = !CanEditCarCard;
+			AttachedFileInformationsViewModel.ReadOnly = !CanEdit;
 
 			AddGeoGroupCommand = new DelegateCommand(AddGeoGroup);
 			CreateCarAcceptanceCertificateCommand = new DelegateCommand(CreateCarAcceptanceCertificate);

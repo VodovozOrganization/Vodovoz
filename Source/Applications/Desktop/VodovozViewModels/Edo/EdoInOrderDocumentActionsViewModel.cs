@@ -1,4 +1,3 @@
-﻿using EdoService.Library;
 using Gamma.Binding.Core;
 using QS.Dialog;
 using QS.Services;
@@ -16,6 +15,7 @@ namespace Vodovoz.ViewModels.Edo
 {
 	public class EdoInOrderDocumentActionsViewModel : WidgetViewModelBase
 	{
+		private readonly IEdoDocumentActionsFactory _actionsFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEdoService _edoService;
 		private readonly ICurrentPermissionService _currentPermissionService;
@@ -25,15 +25,16 @@ namespace Vodovoz.ViewModels.Edo
 		public EdoInOrderDocumentActionsViewModel(
 			IInteractiveService interactiveService,
 			IEdoService edoService,
-			ICurrentPermissionService currentPermissionService
-			)
+			ICurrentPermissionService currentPermissionService,
+			IEdoDocumentActionsFactory actionsFactory)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_actionsFactory = actionsFactory ?? throw new ArgumentNullException(nameof(actionsFactory));
 		}
 
-		internal ICommand EdoInOrderRefreshCommand { get; set; }
+		public ICommand EdoInOrderRefreshCommand { get; set; }
 
 		public virtual EdoInOrderDocumentHistoryRowViewModel SelectedDocument
 		{
@@ -42,7 +43,9 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				if(SetField(ref _selectedDocument, value))
 				{
-					CreateActions();
+					Actions = _actionsFactory.CreateActions(
+						_selectedDocument,
+						() => EdoInOrderRefreshCommand?.Execute(null));
 				}
 			}
 		}

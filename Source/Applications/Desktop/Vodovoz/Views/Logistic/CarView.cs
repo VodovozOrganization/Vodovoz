@@ -188,8 +188,8 @@ namespace Vodovoz.Views.Logistic
 			btnRemoveGeographicGroup.Clicked += OnBtnRemoveGeographicGroupClicked;
 
 			btnAddGeographicGroup.Clicked += (s, e) => ViewModel.AddGeoGroupCommand.Execute();
-			btnAddGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive).InitializeFromSource();
-			btnRemoveGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive).InitializeFromSource();
+			btnAddGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			btnRemoveGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			yentryCarTechnicalCheckup.Binding
 				.AddBinding(ViewModel, vm => vm.LastCarTechnicalCheckupDate, w => w.Text)

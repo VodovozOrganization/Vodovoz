@@ -184,6 +184,8 @@ namespace Vodovoz.Logistic
 				.AddBinding(ViewModel.Entity, e => e.Forwarder, w => w.Employee)
 				.InitializeFromSource();
 
+			mangocallbuttonviewDriverExtensionPhone.ViewModel = ViewModel.DriverExtensionCallViewModel;
+
 			labelTerminalCondition.Binding
 				.AddBinding(ViewModel, vm => vm.DriverTerminalCondition, w => w.Text)
 				.InitializeFromSource();
