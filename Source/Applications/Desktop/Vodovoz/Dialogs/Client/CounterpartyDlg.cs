@@ -2667,6 +2667,9 @@ namespace Vodovoz
 					newRequest.Id,
 					"Переотправка ушедших на сохранение кодов задач");
 			}
+
+			UpdateEdoDocumentDataNodes(_edoDocumentsCurrentPage);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Переотправка выполнена.");
 		}
 
 		private EdoInOrderDocumentHistoryRowViewModel BuildHistoryRowOrNull(EdoDockflowData dockflowData)
