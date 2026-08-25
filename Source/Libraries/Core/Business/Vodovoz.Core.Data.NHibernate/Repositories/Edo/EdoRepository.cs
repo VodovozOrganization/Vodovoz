@@ -228,15 +228,12 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return orderDocument;
 		}
 
-		public TaxcomDocflow GetTaxcomDocflowByTaskId(IUnitOfWork uow, int taskId)
+		public TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId)
 		{
 			TaxcomDocflow taxcomDocflowAlias = null;
-			OrderEdoDocument orderEdoDocumentAlias = null;
 
 			var taxcomDocflow = uow.Session.QueryOver(() => taxcomDocflowAlias)
-				.JoinEntityAlias(() => orderEdoDocumentAlias,
-					() => taxcomDocflowAlias.EdoDocumentId == orderEdoDocumentAlias.Id)
-				.Where(() => orderEdoDocumentAlias.DocumentTaskId == taskId)
+				.Where(() => taxcomDocflowAlias.DocflowId == docflowId)
 				.SingleOrDefault();
 
 			return taxcomDocflow;

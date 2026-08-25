@@ -872,46 +872,7 @@ namespace EdoService.Library
 			}
 		}
 
-
-		public Result CanUpdateDocflow(
-			int taskId,
-			IUnitOfWork unitOfWork = null)
-		{
-			if(taskId < 0)
-			{
-				throw new ArgumentOutOfRangeException(nameof(taskId), taskId, $"{nameof(taskId)} не может быть отрицательным");
-			}
-
-			var uow = unitOfWork ?? _uowFactory.CreateWithoutRoot("Проверка возможности обновления статуса ДО из Taxcom");
-			var shouldDispose = unitOfWork is null;
-
-			try
-			{
-				var hasEdoDocuments = _edoDocumentRepository
-					.GetCount(uow, x =>
-						x.DocumentTaskId == taskId
-					) > 0;
-
-				if(hasEdoDocuments)
-				{
-					return Result.Success();
-				}
-
-				return Result.Failure(new Error(
-					"DocflowNotFound",
-					$"Документооборот для задачи {taskId} не найден"
-				));
-			}
-			finally
-			{
-				if(shouldDispose)
-				{
-					uow.Dispose();
-				}
-			}
-		}
-
-		public Result<string> UpdateDocflowStatus(int taskId)
+		public Result<string> UpdateDocflowStatus(int taskId, Guid? docflowId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot("Обновление статуса документооборота из Taxcom"))
 			{
@@ -921,10 +882,9 @@ namespace EdoService.Library
 					return Result.Failure<string>(EdoErrors.NoEdoTask);
 				}
 
-				var canUpdateDocflowResult = CanUpdateDocflow(taskId, uow);
-				if(canUpdateDocflowResult.IsFailure)
+				if(docflowId.HasValue is false)
 				{
-					return Result.Failure<string>(canUpdateDocflowResult.Errors);
+					return Result.Failure<string>(EdoErrors.NoTaxcomDocflow);
 				}
 
 				var order = GetOrderByTaskId(uow, taskId);
@@ -933,7 +893,7 @@ namespace EdoService.Library
 					return Result.Failure<string>(OrderErrors.NotFound);
 				}
 
-				var taxcomDocflow = _edoRepository.GetTaxcomDocflowByTaskId(uow, taskId);
+				var taxcomDocflow = _edoRepository.GetTaxcomDocflowByDocflowId(uow, docflowId.Value);
 				if(taxcomDocflow is null)
 				{
 					return Result.Failure<string>(EdoErrors.NoTaxcomDocflow);

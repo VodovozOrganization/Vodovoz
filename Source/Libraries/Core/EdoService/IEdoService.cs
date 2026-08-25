@@ -170,16 +170,9 @@ namespace EdoService.Library
 		/// Обновить статус документооборота Такском по ЭДО задаче
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи ЭДО</param>
+		/// <param name="docflowId">Идентификатор документооборота</param>
 		/// <returns>Результат обновления статуса</returns>
-		Result<string> UpdateDocflowStatus(int taskId);
-
-		/// <summary>
-		/// Проверяет возможность обновления статуса документооборота по задаче ЭДО
-		/// </summary>
-		/// <param name="taskId">Идентификатор задачи ЭДО</param>
-		/// <param name="unitOfWork">IUnitOfWork</param>
-		/// <returns>Результат проверки</returns>
-		Result CanUpdateDocflow(int taskId, IUnitOfWork unitOfWork = null);
+		Result<string> UpdateDocflowStatus(int taskId, Guid? docflowId);
 
 		/// <summary>
 		/// Обновляет статус документооборота из Taxcom по ID документооборота

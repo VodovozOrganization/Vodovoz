@@ -12,6 +12,8 @@ using NLog;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.ViewModels.TrueMark;
+using EdoService.Library;
+using QS.Dialog;
 
 namespace Vodovoz.ViewModels.Edo
 {
@@ -19,6 +21,8 @@ namespace Vodovoz.ViewModels.Edo
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IEdoRepository _edoRepository;
+		private readonly IEdoService _edoService;
+		private readonly IInteractiveService _interactiveService;
 		private int _orderId;
 		private IUnitOfWork _uow;
 		private bool _loaded;
@@ -45,8 +49,9 @@ namespace Vodovoz.ViewModels.Edo
 		public EdoInOrderViewModel(
 			IEdoRepository edoRepository,
 			EdoInOrderDocumentActionsViewModel edoInOrderDocumentActionsViewModel,
-			OrderCodesViewModel orderCodesViewModel
-			)
+			OrderCodesViewModel orderCodesViewModel,
+			IEdoService edoService,
+			IInteractiveService interactiveService)
 		{
 			_documents = new List<EdoInOrderDocumentHistoryRowViewModel>();
 			_edoRepository = edoRepository ?? throw new System.ArgumentNullException(nameof(edoRepository));
@@ -57,6 +62,8 @@ namespace Vodovoz.ViewModels.Edo
 
 			RefreshCommnand = new DelegateCommand(Refresh);
 			EdoInOrderDocumentActionsViewModel.EdoInOrderRefreshCommand = RefreshCommnand;
+			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 
 		public ICommand RefreshCommnand { get; }
@@ -163,7 +170,6 @@ namespace Vodovoz.ViewModels.Edo
 			get => _problemItems;
 			set => SetField(ref _problemItems, value);
 		}
-
 
 		public virtual void Setup(IUnitOfWork uow, int orderId)
 		{
@@ -308,7 +314,9 @@ namespace Vodovoz.ViewModels.Edo
 				PipelineViewModel,
 				_allTransfers,
 				_allReceipts,
-				_allDocflows
+				_allDocflows,
+				_edoService,
+				_interactiveService
 			);
 		}
 

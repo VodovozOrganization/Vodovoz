@@ -257,6 +257,9 @@ namespace Edo.Docflow
 
 			switch(docflowStatus)
 			{
+				case EdoDocFlowStatus.InProgress:
+					document.Status = EdoDocumentStatus.InProgress;
+				break;
 				case EdoDocFlowStatus.Sent:
 					document.Status = EdoDocumentStatus.Sent;
 

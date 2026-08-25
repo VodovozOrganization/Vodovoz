@@ -262,14 +262,6 @@ namespace Vodovoz.Core.Data.Repositories
 		OrderEdoDocument GetOrderEdoDocumentByTaskId(IUnitOfWork uow, int taskId);
 
 		/// <summary>
-		/// Получить документооборот Такском по идентификатору задачи
-		/// </summary>
-		/// <param name="uow">IUnitOfWork</param>
-		/// <param name="taskId">Идентификатор задачи</param>
-		/// <returns>Документооборот Такском</returns>
-		TaxcomDocflow GetTaxcomDocflowByTaskId(IUnitOfWork uow, int taskId);
-
-		/// <summary>
 		/// Получить список статусов ЭДО, которые считаются полученными
 		/// </summary>
 		/// <returns>Массив статусов ЭДО</returns>
@@ -280,5 +272,13 @@ namespace Vodovoz.Core.Data.Repositories
 		/// </summary>
 		/// <returns>Массив статусов ЭДО документов</returns>
 		EdoDocumentStatus[] GetInProgressOrCompletedStatuses();
+
+		/// <summary>
+		/// Получить ДО Такском по идентификатору ДО
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="docflowId">Идентификатор ДО</param>
+		/// <returns>ДО Такском</returns>
+		TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId);
 	}
 }

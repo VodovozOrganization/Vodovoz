@@ -76,8 +76,6 @@ namespace Vodovoz.ViewModels.Edo
 					break;
 			}
 
-			CreateRefreshDocflowStatusAction(newActions, SelectedDocument.Document);
-
 			Actions = newActions;
 		}
 
@@ -188,26 +186,6 @@ namespace Vodovoz.ViewModels.Edo
 				newActions.Add(new BusyCommand(
 					"Переотправить",
 					() => ShowResult(_edoService.TryResendUpdDocument(document.TaskId))
-				));
-			}
-		}
-
-		private void CreateRefreshDocflowStatusAction(
-			List<BusyCommand> newActions,
-			EdoInOrderDocumentNode document
-			)
-		{
-			var canUpdateDocflowStatus = _edoService.CanUpdateDocflow(document.TaskId);
-
-			if(canUpdateDocflowStatus.IsSuccess)
-			{
-				newActions.Add(new BusyCommand(
-					"Обновить статус",
-					() =>
-					{
-						ShowResult(_edoService.UpdateDocflowStatus(document.TaskId));
-						EdoInOrderRefreshCommand?.Execute(null);
-					}
 				));
 			}
 		}
