@@ -1146,7 +1146,6 @@
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">Информация</property>
-                        <property name="Active">True</property>
                         <property name="DrawIndicator">False</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -6295,15 +6294,27 @@
                               </packing>
                             </child>
                             <child>
+                              <widget class="Vodovoz.Views.Edo.EdoInOrderActionsView" id="edoinorderactionsview">
+                                <property name="MemberName" />
+                                <property name="Events">ButtonPressMask</property>
+                              </widget>
+                              <packing>
+                                <property name="Position">1</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
                               <widget class="Gamma.GtkWidgets.yButton" id="ybuttonEdoDocumentsSendAllUnsent">
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="Type">TextOnly</property>
-                                <property name="Label" translatable="yes">Отправить все неотправленные УПД</property>
+                                <property name="Label" translatable="yes">Отправить все неотправленные документы</property>
                                 <property name="UseUnderline">True</property>
                               </widget>
                               <packing>
-                                <property name="Position">1</property>
+                                <property name="Position">2</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -6319,7 +6330,7 @@
                                 <property name="UseUnderline">True</property>
                               </widget>
                               <packing>
-                                <property name="Position">2</property>
+                                <property name="Position">3</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -6331,7 +6342,7 @@
                                 <property name="LabelProp" translatable="yes">Страница 1</property>
                               </widget>
                               <packing>
-                                <property name="Position">3</property>
+                                <property name="Position">4</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -6347,7 +6358,7 @@
                                 <property name="UseUnderline">True</property>
                               </widget>
                               <packing>
-                                <property name="Position">4</property>
+                                <property name="Position">5</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -200414,7 +200425,6 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Справка</property>
-                    <property name="Active">True</property>
                     <property name="DrawIndicator">False</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>

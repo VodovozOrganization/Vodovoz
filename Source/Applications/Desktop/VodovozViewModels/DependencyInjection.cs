@@ -23,6 +23,7 @@ namespace Vodovoz.ViewModels
 				.AddEdoServicesLibrary()
 				.ConfigureOptions<ConfigureGeoCoderApiOptions>()
 				.AddScoped<EdoInOrderDocumentActionsViewModel>()
+				.AddScoped<IEdoDocumentActionsFactory, EdoDocumentActionsFactory>()
 			;
 	}
 }
