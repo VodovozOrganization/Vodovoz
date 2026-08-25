@@ -43,5 +43,17 @@ namespace TrueMarkApi.Client
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Номер созданного документа</returns>
 		Task<string> SendIndividualAccountingWithdrawalDocument(string document, string inn, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Отправка документа отмены вывода из оборота (индивидуальный учет)
+		/// </summary>
+		/// <param name="withdrawalDocumentId">Идентификатор отменяемого документа вывода из оборота</param>
+		/// <param name="inn">ИНН организации</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Номер созданного документа отмены</returns>
+		Task<string> SendIndividualAccountingWithdrawalCancellationDocument(
+			Guid withdrawalDocumentId,
+			string inn,
+			CancellationToken cancellationToken);
 	}
 }

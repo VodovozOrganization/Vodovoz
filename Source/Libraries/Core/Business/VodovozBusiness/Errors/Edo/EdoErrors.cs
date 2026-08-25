@@ -104,6 +104,15 @@ namespace VodovozBusiness.Errors.Edo
 				"Невозможно переотправить документ у отмененного заказа");
 
 		/// <summary>
+		/// Ошибка: для исходной задачи уже создан процесс переотправки после отмены вывода кодов из оборота в ЧЗ
+		/// </summary>
+		public static Error TrueMarkCancellationResendAlreadyExists =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(TrueMarkCancellationResendAlreadyExists),
+				"Для документа уже создан процесс переотправки после отмены вывода кодов из оборота в ЧЗ");
+
+		/// <summary>
 		/// Создает ошибку о том, что документ уже успешно отправлен
 		/// </summary>
 		/// <param name="edoContainer">Контейнер ЭДО</param>
