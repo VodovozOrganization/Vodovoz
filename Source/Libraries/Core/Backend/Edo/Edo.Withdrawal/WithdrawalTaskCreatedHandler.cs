@@ -346,7 +346,8 @@ namespace Edo.Withdrawal
 				Order = order,
 				Guid = new Guid(trueMarkDocumentId),
 				Organization = order.Contract.Organization,
-				Type = TrueMarkDocument.TrueMarkDocumentType.Withdrawal
+				Type = TrueMarkDocument.TrueMarkDocumentType.Withdrawal,
+				WithdrawalEdoTask = withdrawalEdoTask
 			};
 
 			await uow.SaveAsync(trueMarkDocument, cancellationToken: cancellationToken);

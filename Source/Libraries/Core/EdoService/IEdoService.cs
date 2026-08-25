@@ -120,6 +120,20 @@ namespace EdoService.Library
 		Result<string> ResendEdoDocumentForOrder(int taskId);
 
 		/// <summary>
+		/// Ставит документ в очередь на переотправку после отмены вывода кодов из оборота в ЧЗ.
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Результат постановки в очередь</returns>
+		Result<string> ScheduleResendEdoDocumentAfterTrueMarkCancellation(int taskId);
+
+		/// <summary>
+		/// Переотправляет документ ЭДО с подбором новых кодов ЧЗ из пула.
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Результат переотправки документа</returns>
+		Result<string> ResendEdoDocumentForOrderWithCodesFromPool(int taskId);
+
+		/// <summary>
 		/// Переотправка чека по ЭДО по идентификатору задачи
 		/// </summary>
 		/// <param name="receiptEdoTaskId">Идентификатор задачи чека</param>

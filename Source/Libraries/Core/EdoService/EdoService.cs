@@ -5,6 +5,7 @@ using Edo.Transport;
 using EdoService.Library.Factories;
 using Gamma.Utilities;
 using MassTransit;
+using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -117,6 +118,156 @@ namespace EdoService.Library
 			}
 		}
 
+		public Result<string> ScheduleResendEdoDocumentAfterTrueMarkCancellation(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку после отмены вывода из оборота в ЧЗ"))
+			{
+				var edoTask = GetEdoTaskWithPessimisticLock(uow, taskId);
+				if(edoTask is null)
+				{
+					return Result.Failure<string>(EdoErrors.NoCancelledEdoTaskForResend);
+				}
+
+				var order = GetOrderByTaskId(uow, taskId);
+				var orderValidationResult = ValidateOrderForResend(order);
+				if(orderValidationResult.IsFailure)
+				{
+					return Result.Failure<string>(orderValidationResult.Errors);
+				}
+
+				var existingCancellationRequest = uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
+					.FirstOrDefault(x => x.OriginalEdoTask.Id == taskId);
+
+				if(existingCancellationRequest != null)
+				{
+					if(existingCancellationRequest.Status != EdoResendAfterTrueMarkCancellationStatus.CancellationFailed)
+					{
+						return Result.Success(
+							existingCancellationRequest.Status == EdoResendAfterTrueMarkCancellationStatus.Completed
+								? "Переотправка документа уже запущена"
+								: "Документ уже находится в очереди на отмену вывода кодов из оборота и переотправку");
+					}
+
+					existingCancellationRequest.RetryCancellation();
+					uow.Save(existingCancellationRequest);
+					uow.Commit();
+
+					return Result.Success("Повторная отмена вывода кодов из оборота поставлена в очередь");
+
+				}
+
+				var withdrawalTaskIds = GetWithdrawalTaskIdsForBaseTask(uow, taskId);
+				var checkOtherRequestsResult = CheckOtherRequests(
+					uow,
+					edoTask.FormalEdoRequest,
+					taskId,
+					withdrawalTaskIds,
+					includeRequestsWithoutTask: true);
+				if(checkOtherRequestsResult.IsFailure)
+				{
+					return Result.Failure<string>(checkOtherRequestsResult.Errors);
+				}
+
+				var checkOtherTasksResult = CheckOtherTasks(uow, edoTask, taskId, withdrawalTaskIds);
+				if(checkOtherTasksResult.IsFailure)
+				{
+					return Result.Failure<string>(checkOtherTasksResult.Errors);
+				}
+
+				var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(edoTask);
+				var resendEdoRequest = _manualEdoRequestFactory.Create(uow, order, productCodes);
+				var withdrawalDocumentResult = GetSuccessfulWithdrawalDocumentForTask(
+					uow,
+					taskId,
+					order.Id,
+					withdrawalTaskIds);
+				if(withdrawalDocumentResult.IsFailure)
+				{
+					return Result.Failure<string>(withdrawalDocumentResult.Errors);
+				}
+
+				var withdrawalDocument = withdrawalDocumentResult.Value;
+
+				CancelEdoTaskWithReason(uow, edoTask);
+				uow.Save(resendEdoRequest);
+
+				var cancellationRequest = new EdoResendAfterTrueMarkCancellationRequest
+				{
+					Order = order,
+					OriginalEdoTask = edoTask,
+					ResendEdoRequest = resendEdoRequest,
+					WithdrawalDocument = withdrawalDocument,
+					Status = EdoResendAfterTrueMarkCancellationStatus.WaitingForCancellation,
+					CreationTime = DateTime.Now,
+					LastUpdateTime = DateTime.Now
+				};
+
+				uow.Save(cancellationRequest);
+				uow.Commit();
+
+				return Result.Success("Документ поставлен в очередь на переотправку после отмены вывода кодов из оборота в ЧЗ");
+			}
+		}
+
+		public Result<string> ResendEdoDocumentForOrderWithCodesFromPool(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Переотправка документа ЭДО с кодами ЧЗ из пула"))
+			{
+				var edoTask = GetEdoTaskWithPessimisticLock(uow, taskId);
+				if(edoTask is null)
+				{
+					return Result.Failure<string>(EdoErrors.NoCancelledEdoTaskForResend);
+				}
+
+				var order = GetOrderByTaskId(uow, taskId);
+				var orderValidationResult = ValidateOrderForResend(order);
+				if(orderValidationResult.IsFailure)
+				{
+					return Result.Failure<string>(orderValidationResult.Errors);
+				}
+
+				var cancellationResendAlreadyExists = uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
+					.Any(x => x.OriginalEdoTask.Id == taskId);
+
+				if(cancellationResendAlreadyExists)
+				{
+					return Result.Failure<string>(EdoErrors.TrueMarkCancellationResendAlreadyExists);
+				}
+
+				var withdrawalTaskIds = GetWithdrawalTaskIdsForBaseTask(uow, taskId);
+				var checkOtherRequestsResult = CheckOtherRequests(
+					uow,
+					edoTask.FormalEdoRequest,
+					taskId,
+					withdrawalTaskIds,
+					includeRequestsWithoutTask: true);
+				if(checkOtherRequestsResult.IsFailure)
+				{
+					return Result.Failure<string>(checkOtherRequestsResult.Errors);
+				}
+
+				var checkOtherTasksResult = CheckOtherTasks(uow, edoTask, taskId, withdrawalTaskIds);
+				if(checkOtherTasksResult.IsFailure)
+				{
+					return Result.Failure<string>(checkOtherTasksResult.Errors);
+				}
+
+				var request = _manualEdoRequestFactory.Create(uow, order);
+
+				CancelEdoTaskWithReason(uow, edoTask);
+
+				uow.Save(request);
+				uow.Commit();
+
+				_edoRequestCreatedEventPublisher.Publish(request.Id, "Ручная переотправка документов ЭДО с кодами ЧЗ из пула")
+					.ConfigureAwait(false)
+					.GetAwaiter()
+					.GetResult();
+
+				return Result.Success("Документ отправлен на переотправку с подбором кодов ЧЗ из пула");
+			}
+		}
+
 		private Result<string> ResendEdoDocument(IUnitOfWork uow, int taskId)
 		{
 			var edoTask = uow.Session.Get<OrderEdoTask>(taskId);
@@ -183,12 +334,36 @@ namespace EdoService.Library
 			return Result.Success("Успешно переотправлено");
 		}
 
-		private Result<string> CheckOtherRequests(IUnitOfWork uow, FormalEdoRequest request, int taskId)
+		private static OrderEdoTask GetEdoTaskWithPessimisticLock(IUnitOfWork uow, int taskId)
 		{
-			var hasOtherRequests = _edoRequestRepository.GetCount(uow, x =>
-				x.Order.Id == request.Order.Id
-				&& x.Task.Id != taskId
-			) > 0;
+			uow.OpenTransaction();
+
+			return uow.Session.Get<OrderEdoTask>(taskId, LockMode.Upgrade);
+		}
+
+		private Result<string> CheckOtherRequests(
+			IUnitOfWork uow,
+			FormalEdoRequest request,
+			int taskId,
+			IEnumerable<int> ignoredTaskIds = null,
+			bool includeRequestsWithoutTask = false)
+		{
+			var ignoredTaskIdsArray = ignoredTaskIds ?? Enumerable.Empty<int>();
+			Expression<Func<FormalEdoRequest, bool>> otherRequestsExpression;
+
+			if(includeRequestsWithoutTask)
+			{
+				otherRequestsExpression = x => x.Order.Id == request.Order.Id
+					&& (x.Task == null || x.Task.Id != taskId)
+					&& (x.Task == null || !ignoredTaskIdsArray.Contains(x.Task.Id));
+			}
+			else
+			{
+				otherRequestsExpression = x => x.Order.Id == request.Order.Id
+					&& x.Task.Id != taskId;
+			}
+
+			var hasOtherRequests = _edoRequestRepository.GetCount(uow, otherRequestsExpression) > 0;
 
 			if(hasOtherRequests)
 			{
@@ -201,11 +376,18 @@ namespace EdoService.Library
 			return Result.Success("OK");
 		}
 
-		private Result<string> CheckOtherTasks(IUnitOfWork uow, OrderEdoTask edoTask, int taskId)
+		private Result<string> CheckOtherTasks(
+			IUnitOfWork uow,
+			OrderEdoTask edoTask,
+			int taskId,
+			IEnumerable<int> ignoredTaskIds = null)
 		{
+			var ignoredTaskIdsArray = ignoredTaskIds ?? Array.Empty<int>();
+
 			var hasOtherTasks = _edoTaskRepository.GetCount(uow, x =>
 				x.FormalEdoRequest.Order.Id == edoTask.FormalEdoRequest.Order.Id
 				&& x.Id != taskId
+				&& !ignoredTaskIdsArray.Contains(x.Id)
 				&& x.Status != EdoTaskStatus.Cancelled
 			) > 0;
 
@@ -300,8 +482,79 @@ namespace EdoService.Library
 			return edoTask?.FormalEdoRequest?.Order;
 		}
 
+		private static Result ValidateOrderForResend(OrderEntity order)
+		{
+			if(order is null)
+			{
+				return Result.Failure(EdoErrors.HasProblem);
+			}
+
+			return order.IsUndeliveredStatus ? Result.Failure(EdoErrors.IsUndeliveredOrder) : Result.Success();
+		}
+
 		public bool CanResendEdoDocument(EdoDocumentStatus? status) => status.HasValue
 			&& _resendableEdoDocumentStatuses.Contains(status.Value);
+
+		private static int[] GetWithdrawalTaskIdsForBaseTask(IUnitOfWork uow, int taskId)
+		{
+			return uow.GetAll<WithdrawalEdoRequest>()
+				.Where(x => x.BaseDocumentEdoTask.Id == taskId && x.Task != null)
+				.Select(x => x.Task.Id)
+				.ToArray();
+		}
+
+		private static Result<TrueMarkDocument> GetSuccessfulWithdrawalDocumentForTask(
+			IUnitOfWork uow,
+			int taskId,
+			int orderId,
+			IEnumerable<int> withdrawalTaskIds)
+		{
+			var withdrawalTaskIdsArray = withdrawalTaskIds ?? Array.Empty<int>();
+			var withdrawalDocuments = withdrawalTaskIdsArray.Any()
+				? uow.GetAll<TrueMarkDocument>()
+					.Where(x => x.WithdrawalEdoTask != null
+						&& withdrawalTaskIdsArray.Contains(x.WithdrawalEdoTask.Id)
+						&& x.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal
+						&& x.IsSuccess
+						&& x.Guid != null)
+					.ToArray()
+				: Array.Empty<TrueMarkDocument>();
+
+			if(withdrawalDocuments.Length == 0)
+			{
+				// У документов, созданных до добавления связи с задачей вывода, доступна только привязка к заказу.
+				withdrawalDocuments = uow.GetAll<TrueMarkDocument>()
+					.Where(x => x.Order.Id == orderId
+						&& x.WithdrawalEdoTask == null
+						&& x.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal
+						&& x.IsSuccess
+						&& x.Guid != null)
+					.ToArray();
+			}
+
+			if(withdrawalDocuments.Length == 0)
+			{
+				if(!withdrawalTaskIdsArray.Any())
+				{
+					return Result.Failure<TrueMarkDocument>(new Error(
+						"WithdrawalRequestForTaskNotFound",
+						$"Не найдена заявка на вывод кодов из оборота для задачи ЭДО {taskId}"));
+				}
+
+				return Result.Failure<TrueMarkDocument>(new Error(
+					"WithdrawalDocumentForTaskNotFound",
+					$"Не найден успешный документ вывода кодов из оборота для задачи ЭДО {taskId}"));
+			}
+
+			if(withdrawalDocuments.Length > 1)
+			{
+				return Result.Failure<TrueMarkDocument>(new Error(
+					"WithdrawalDocumentForTaskNotUnique",
+					$"Найдено несколько документов вывода кодов из оборота для задачи ЭДО {taskId}"));
+			}
+
+			return Result.Success(withdrawalDocuments.Single());
+		}
 
 		/// <summary>
 		/// Проверяет, была ли отменена ЭДО задача для переотправки документа (при наличии маркированной продукции в заказе)
