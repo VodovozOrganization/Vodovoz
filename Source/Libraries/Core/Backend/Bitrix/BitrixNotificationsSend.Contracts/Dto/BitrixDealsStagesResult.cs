@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace BitrixNotificationsSend.Contracts.Dto
 {
@@ -18,8 +18,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		public IList<long> NotFoundDealIds { get; set; } = new List<long>();
 
 		/// <summary>
-		/// Прочие ошибки чтения сделок.
-		/// По таким сделкам стадия не известна, обработку нужно повторить позднее
+		/// Прочие ошибки чтения сделок
 		/// </summary>
 		public IList<BitrixBatchItemError> Errors { get; set; } = new List<BitrixBatchItemError>();
 	}

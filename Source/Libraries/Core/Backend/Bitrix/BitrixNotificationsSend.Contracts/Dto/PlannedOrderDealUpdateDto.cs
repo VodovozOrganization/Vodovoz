@@ -1,12 +1,10 @@
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
 
 namespace BitrixNotificationsSend.Contracts.Dto
 {
 	/// <summary>
-	/// Данные для обновления сделки по планируемому заказу в Битрикс24
-	/// после создания клиентом заказа.
-	/// Содержит только изменяемые поля, чтобы не затирать данные сделки, изменённые менеджером
+	/// Данные для обновления сделки по планируемому заказу в Битрикс24 после создания клиентом заказа
 	/// </summary>
 	public class PlannedOrderDealUpdateDto
 	{
@@ -23,8 +21,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		public long BitrixDealId { get; set; }
 
 		/// <summary>
-		/// Ключ команды обновления сделки в пакетном запросе,
-		/// содержит id сохранённых данных о планируемом заказе
+		/// Ключ команды обновления сделки в пакетном запросе, содержит id сохранённых данных о планируемом заказе
 		/// </summary>
 		[JsonIgnore]
 		public string DealCommandKey => $"{PlannedOrderDealCommandKeys.UpdateCommandKeyPrefix}{PlannedOrderId}";
@@ -48,8 +45,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		public DateTime? CreatedOrderDeliveryDate { get; set; }
 
 		/// <summary>
-		/// Дата доставки созданного клиентом заказа,
-		/// заменяет в сделке дату планируемого заказа
+		/// Дата доставки созданного клиентом заказа, заменяет в сделке дату планируемого заказа
 		/// </summary>
 		[JsonPropertyName("UF_CRM_5ED7643476A24")]
 		public string CreatedOrderDeliveryDateString =>

@@ -30,11 +30,10 @@ namespace BitrixNotificationsSend.Library.Services
 		private static readonly TimeSpan _delayBetweenReadBatches = TimeSpan.FromSeconds(1);
 
 		/// <summary>
-		/// Поиск заказов, созданных клиентами начиная с даты последней проверки.
+		/// Поиск заказов, созданных клиентами начиная с даты последней проверки
 		/// Планируемые заказы, по которым найден созданный заказ, переводятся
 		/// в стадию "Требуется обновление сделки".
-		/// Дата последней проверки сдвигается только после успешного сохранения найденных данных,
-		/// поэтому отправка обновлений в Битрикс24 повторяется до успеха независимо от неё
+		/// Дата последней проверки сдвигается только после успешного сохранения найденных данных
 		/// </summary>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		public async Task CollectCreatedOrders(CancellationToken cancellationToken)
@@ -162,9 +161,13 @@ namespace BitrixNotificationsSend.Library.Services
 		}
 
 		/// <summary>
-		/// Поиск первого заказа, созданного клиентом по планируемому заказу.
+		/// Поиск первого заказа, созданного клиентом по планируемому заказу
 		/// Учитываются заказы с датой доставки не ранее даты планируемого заказа
 		/// </summary>
+		/// <param name="plannedOrder">Планируемый заказ</param>
+		/// <param name="ordersByDeliveryPoints">Заказы, сгруппированные по точкам доставки</param>
+		/// <param name="ordersBySelfDeliveryCounterparties">Заказы, сгруппированные по контрагентам с самовывозом</param>
+		/// <returns>Данные заказа, созданного клиентом</returns>
 		private static PlannedOrderCreatedOrderNode FindCreatedOrder(
 			PlannedOrder plannedOrder,
 			IDictionary<int, PlannedOrderCreatedOrderNode[]> ordersByDeliveryPoints,
@@ -321,9 +324,12 @@ namespace BitrixNotificationsSend.Library.Services
 		}
 
 		/// <summary>
-		/// Чтение текущих стадий сделок из Битрикс24 пакетами.
+		/// Чтение текущих стадий сделок из Битрикс24 пакетами
 		/// Сделки, по которым запрос не выполнен, остаются без стадии и будут обработаны при следующем запуске
 		/// </summary>
+		/// <param name="dealUpdates">Плановые заказы, для которых нужно получить стадии сделок</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат чтения стадий сделок</returns>
 		private async Task<BitrixDealsStagesResult> GetDealsStages(
 			IReadOnlyList<PlannedOrderDealUpdateDto> dealUpdates,
 			CancellationToken cancellationToken)
