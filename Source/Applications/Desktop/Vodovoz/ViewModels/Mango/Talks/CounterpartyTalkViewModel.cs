@@ -1,6 +1,8 @@
 ﻿using Autofac;
+using Mango.Client;
 using CustomerNotifications.Contracts;
 using Notifications.Infrastructure;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -29,6 +31,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.Views.Mango;
+using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
@@ -132,7 +135,14 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			{
 				throw new InvalidProgramException("Открыт диалог разговора с имеющимся контрагентом, но ни одного id контрагента не найдено.");
 			}
+
+			ForwardCallToDriverCommand = new DelegateCommand(ForwardCallToDriver, () => currentCounterparty != null);
 		}
+
+		/// <summary>
+		/// Команда перевода звонка на водителя
+		/// </summary>
+		public DelegateCommand ForwardCallToDriverCommand { get; }
 
 		public IDictionary<string, CounterpartyOrderView> GetCounterpartyViewModels()
 		{
@@ -299,6 +309,58 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		public void CostAndDeliveryIntervalCommand(DeliveryPoint point)
 		{
 			_tdiNavigation.OpenTdiTab<DeliveryPriceDlg, DeliveryPoint>(null, point);
+		}
+
+		/// <summary>
+		/// Переводит звонок на водителя заказа контрагента, находящегося в пути.
+		/// Если таких заказов несколько, открывает окно выбора заказа
+		/// </summary>
+		public void ForwardCallToDriver()
+		{
+			if(currentCounterparty is null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, DriverCallForwardingMessages.CounterpartyNotFound);
+				return;
+			}
+
+			var orderNodes = _orderRepository.GetCounterpartyOrdersOnTheWay(_uow, currentCounterparty.Id);
+
+			if(!orderNodes.Any())
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, DriverCallForwardingMessages.NoOrdersOnTheWay);
+				return;
+			}
+
+			if(orderNodes.Count == 1)
+			{
+				TryForwardCallToDriver(orderNodes.First());
+				return;
+			}
+
+			NavigationManager.OpenViewModel<DriverForwardingOrderSelectionViewModel, IList<DriverForwardingOrderNode>>(
+				this,
+				orderNodes,
+				OpenPageOptions.IgnoreHash,
+				viewModel => viewModel.ForwardCallHandler = TryForwardCallToDriver);
+		}
+
+		private bool TryForwardCallToDriver(DriverForwardingOrderNode orderNode)
+		{
+			if(!orderNode.CanForwardCall)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, orderNode.ForwardingUnavailableReason);
+				return false;
+			}
+
+			if(MangoManager.CurrentTalk is null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, DriverCallForwardingMessages.NoActiveTalk);
+				return false;
+			}
+
+			MangoManager.ForwardCall(orderNode.DriverExtensionNumber.Value.ToString(), ForwardingMethod.blind);
+
+			return true;
 		}
 
 		#endregion

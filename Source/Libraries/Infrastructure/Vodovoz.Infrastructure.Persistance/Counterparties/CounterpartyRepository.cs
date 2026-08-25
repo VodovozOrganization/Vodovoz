@@ -315,6 +315,11 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.SingleOrDefault();
 		}
 
+		public Counterparty GetCounterpartyById(IUnitOfWork uow, int clientId)
+		{
+			return uow.GetById<Counterparty>(clientId);
+		}
+
 		public async Task<Counterparty> GetCounterpartyByIdAsync(IUnitOfWork uow, int clientId, CancellationToken cancellationToken)
 		{
 			return await uow.Session.GetAsync<Counterparty>(clientId, cancellationToken);

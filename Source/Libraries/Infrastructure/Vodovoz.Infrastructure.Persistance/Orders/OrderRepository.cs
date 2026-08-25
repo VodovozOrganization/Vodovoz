@@ -149,6 +149,51 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List();
 		}
 
+		public IList<DriverForwardingOrderNode> GetCounterpartyOrdersOnTheWay(IUnitOfWork uow, int counterpartyId)
+		{
+			DriverForwardingOrderNode resultAlias = null;
+			VodovozOrder orderAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			RouteListItem routeListItemAlias = null;
+			RouteList routeListAlias = null;
+			Employee driverAlias = null;
+			DriverMangoExtensionNumber driverMangoExtensionNumberAlias = null;
+
+			var driverExtensionNumberSubquery = QueryOver.Of(() => driverMangoExtensionNumberAlias)
+				.Where(() => driverMangoExtensionNumberAlias.DriverId == driverAlias.Id)
+				.And(() => driverMangoExtensionNumberAlias.Status == DriverMangoExtensionNumberStatus.Active)
+				.And(() => driverMangoExtensionNumberAlias.ExtensionNumber != null)
+				.Select(x => x.ExtensionNumber)
+				.OrderBy(x => x.ActivatedAt).Desc
+				.Take(1);
+
+			return uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.JoinEntityAlias(
+					() => routeListItemAlias,
+					() => routeListItemAlias.Order.Id == orderAlias.Id
+						&& routeListItemAlias.Status == RouteListItemStatus.EnRoute,
+					JoinType.InnerJoin)
+				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.And(() => orderAlias.OrderStatus == OrderStatus.OnTheWay)
+				.SelectList(list => list
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
+					.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
+					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
+					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
+					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverFirstName)
+					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+					.SelectSubQuery(driverExtensionNumberSubquery).WithAlias(() => resultAlias.DriverExtensionNumber))
+				.OrderBy(() => orderAlias.DeliveryDate).Asc
+				.ThenBy(() => orderAlias.Id).Asc
+				.TransformUsing(Transformers.AliasToBean<DriverForwardingOrderNode>())
+				.List<DriverForwardingOrderNode>();
+		}
+
 		public IList<VodovozOrder> GetCounterpartyOrders(IUnitOfWork UoW, Counterparty counterparty)
 		{
 			VodovozOrder orderAlias = null;
