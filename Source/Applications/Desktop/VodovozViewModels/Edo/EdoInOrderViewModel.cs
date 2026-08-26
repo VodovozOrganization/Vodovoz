@@ -1,4 +1,7 @@
-﻿using QS.Commands;
+﻿using EdoService.Library;
+using NLog;
+using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.ViewModels;
 using QS.ViewModels.Widgets.Pipeline;
@@ -8,12 +11,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
-using NLog;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.ViewModels.TrueMark;
-using EdoService.Library;
-using QS.Dialog;
 
 namespace Vodovoz.ViewModels.Edo
 {
@@ -317,7 +317,10 @@ namespace Vodovoz.ViewModels.Edo
 				_allDocflows,
 				_edoService,
 				_interactiveService
-			);
+			)
+			{
+				EdoInOrderRefreshCommand = RefreshCommnand
+			};
 		}
 
 		private PipelineViewModel CreateStages(EdoInOrderDocumentHistoryRowViewModel historyRow)

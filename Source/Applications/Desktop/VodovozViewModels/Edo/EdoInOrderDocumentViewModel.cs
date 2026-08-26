@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
@@ -42,6 +43,8 @@ namespace Vodovoz.ViewModels.Edo
 			_pipelineViewModel.PropertyChanged += PipelineOnPropertyChanged;
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
+
+		public ICommand EdoInOrderRefreshCommand { get; set; }
 
 		public virtual WidgetViewModelBase StageViewModel
 		{
@@ -112,7 +115,10 @@ namespace Vodovoz.ViewModels.Edo
 				var docflowsStageViewModel = new EdoInOrderDocflowsStageViewModel(
 					docflowsByTask,
 					_edoService,
-					_interactiveService);
+					_interactiveService)
+				{
+					EdoInOrderRefreshCommand = EdoInOrderRefreshCommand
+				};
 
 				StageViewModel = docflowsStageViewModel;
 				return;

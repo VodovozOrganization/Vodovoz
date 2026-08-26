@@ -5,6 +5,7 @@ using QS.Dialog;
 using QS.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Results;
 
@@ -35,6 +36,8 @@ namespace Vodovoz.ViewModels.Edo
 				return;
 			}
 
+			RefreshButtonSensetive = true;
+
 			CreationTime = docflowNode.DocflowCreationTime.ToString("dd.MM.yyyy HH:mm");
 			Status = docflowNode.DocflowStatus.GetEnumTitle();
 
@@ -64,9 +67,12 @@ namespace Vodovoz.ViewModels.Edo
 
 		public DelegateCommand RefreshCommand { get; set; }
 
+		internal ICommand EdoInOrderRefreshCommand { get; set; }
+
 		public void UpdateDocflow(EdoInOrderTaxcomDocflowNode node)
 		{
 			ShowResult(_edoService.UpdateDocflowStatus(node.TaskId, node.TaxcomDocflowId));
+			EdoInOrderRefreshCommand?.Execute(null);
 		}
 
 		private void ShowResult(Result<string> result)
