@@ -51,7 +51,6 @@ namespace EdoService.Library
 		private readonly ITaxcomApiFactory _taxcomApiFactory;
 		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
 		private readonly IGenericRepository<OrderEdoTask> _edoTaskRepository;
-		private readonly IGenericRepository<OrderEdoDocument> _edoDocumentRepository;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
@@ -81,7 +80,6 @@ namespace EdoService.Library
 			ITaxcomApiFactory taxcomApiFactory,
 			IGenericRepository<FormalEdoRequest> edoRequestRepository,
 			IGenericRepository<OrderEdoTask> edoTaskRepository,
-			IGenericRepository<OrderEdoDocument> edoDocumentRepository,
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			IEnumerable<IInformalEdoRequestFactory> requestFactories,
@@ -99,7 +97,6 @@ namespace EdoService.Library
 			_taxcomApiFactory = taxcomApiFactory ?? throw new ArgumentNullException(nameof(taxcomApiFactory));
 			_edoRequestRepository = edoRequestRepository ?? throw new ArgumentNullException(nameof(edoRequestRepository));
 			_edoTaskRepository = edoTaskRepository ?? throw new ArgumentNullException(nameof(edoTaskRepository));
-			_edoDocumentRepository = edoDocumentRepository ?? throw new ArgumentNullException(nameof(edoDocumentRepository));
 			_counterpartyEdoAccountEntityController =
 				counterpartyEdoAccountEntityController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountEntityController));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
