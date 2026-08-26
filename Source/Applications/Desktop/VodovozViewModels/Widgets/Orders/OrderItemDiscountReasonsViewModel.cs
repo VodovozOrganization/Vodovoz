@@ -7,6 +7,7 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Orders;
@@ -14,7 +15,7 @@ using Vodovoz.EntityRepositories.DiscountReasons;
 
 namespace Vodovoz.ViewModels.Widgets.Orders
 {
-	public class OrderItemDiscountReasonsViewModel : WidgetViewModelBase
+	public class OrderItemDiscountReasonsViewModel : WidgetViewModelBase, IDisposable
 	{
 		private bool _isEditEnabled;
 		private IApplyDiscountReasonItem _orderItem;
@@ -148,8 +149,35 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 
 		private void UpdateOrderItem(IApplyDiscountReasonItem orderItem = null)
 		{
+			UnSubscribeOrderItemDiscountReasons();
+
 			OrderItem = orderItem;
+
+			SubscribeOrderItemDiscountReasons();
+
 			UpdateOrderItemDiscountReasons();
+			UpdateApplicableDiscountReasons();
+		}
+
+		private void SubscribeOrderItemDiscountReasons()
+		{
+			if(OrderItem?.DiscountReasons is INotifyCollectionChanged newObservable)
+			{
+				newObservable.CollectionChanged += OnDiscountReasonsCollectionChanged;
+			}
+		}
+
+		private void UnSubscribeOrderItemDiscountReasons()
+		{
+			if(_orderItem?.DiscountReasons is INotifyCollectionChanged oldObservable)
+			{
+				oldObservable.CollectionChanged -= OnDiscountReasonsCollectionChanged;
+			}
+		}
+
+		private void OnDiscountReasonsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			OnDiscountReasonsChanged();
 			UpdateApplicableDiscountReasons();
 		}
 
@@ -224,7 +252,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 				return;
 			}
 
-			OnDiscountReasonsChanged();
+			//OnDiscountReasonsChanged();
 		}
 
 		private void DeleteDiscountReason()
@@ -234,14 +262,19 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 				return;
 			}
 
-			_orderDiscountController.RemoveDiscountFromOrdersItem(SelectedDiscountReason, OrderItem);
+			_orderDiscountController.RemoveDiscount(SelectedDiscountReason.Id, OrderItem);
 
-			OnDiscountReasonsChanged();
+			//OnDiscountReasonsChanged();
 		}
 
 		protected virtual void OnDiscountReasonsChanged()
 		{
 			UpdateOrderItemDiscountReasons();
+		}
+
+		public void Dispose()
+		{
+			UnSubscribeOrderItemDiscountReasons();
 		}
 	}
 }

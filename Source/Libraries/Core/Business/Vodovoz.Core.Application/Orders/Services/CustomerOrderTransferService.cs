@@ -22,6 +22,7 @@ using Vodovoz.Models.Orders;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -37,6 +38,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IOrderContractUpdater _orderContractUpdater;
+		private readonly IOrderSaleHandler _saleHandler;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
 		public CustomerOrderTransferService(
@@ -49,6 +51,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			INomenclatureSettings nomenclatureSettings,
 			ICallTaskWorker callTaskWorker,
 			IOrderContractUpdater orderContractUpdater,
+			IOrderSaleHandler saleHandler,
 			IRouteListItemRepository routeListItemRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -60,6 +63,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 		}
 
@@ -276,7 +280,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				var routeList = routeListItem.RouteList;
 				routeList.RemoveAddress(routeListItem);
 
-				order.ChangeStatus(OrderStatus.Accepted);
+				order.ChangeStatus(_saleHandler, OrderStatus.Accepted);
 				order.TransferToNewDateAndSchedule(
 					newDeliveryDate,
 					newDeliverySchedule,
@@ -362,6 +366,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				order.SetUndeliveredStatus(
 					uow,
 					_routeListService,
+					_saleHandler,
 					_nomenclatureSettings,
 					_callTaskWorker,
 					needCreateDeliveryFreeBalanceOperation: false);
@@ -413,7 +418,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				UoW = uow
 			};
 
-			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater);
+			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater, _saleHandler);
 
 			var copying = orderCopyModel.StartCopyOrder(uow, originalOrder.Id, newOrder)
 				.CopyFields()

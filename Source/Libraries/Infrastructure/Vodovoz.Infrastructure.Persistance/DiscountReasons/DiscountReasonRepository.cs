@@ -117,6 +117,13 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 			return discountReason != null;
 		}
 
+		public DiscountReason GetDiscountReason(IUnitOfWork uow, int discountReasonId)
+		{
+			return uow.Query<DiscountReason>()
+				.Where(dr => dr.Id == discountReasonId)
+				.SingleOrDefault();
+		}
+
 		public bool HasBeenUsagePromoCode(IUnitOfWork uow, int counterpartyId, int discountReasonId)
 		{
 			var onlineOrderItems = 

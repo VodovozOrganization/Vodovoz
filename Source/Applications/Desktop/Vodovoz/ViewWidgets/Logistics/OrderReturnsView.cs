@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Controllers;
@@ -28,12 +29,14 @@ using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Service;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
@@ -56,6 +59,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Widgets.Orders;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -69,6 +74,8 @@ namespace Vodovoz
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly IRouteListService _routeListService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly IOrderSaleHandler _saleHandler;
+		private readonly IGoodsPriceCalculator _goodsPriceCalculator;
 		private readonly ICounterpartyService _counterpartyService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeService _employeeService;
@@ -191,7 +198,9 @@ namespace Vodovoz
 			ILifetimeScope lifetimeScope,
 			IOrderContractUpdater orderContractUpdater,
 			IRouteListService routeListService,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			IOrderSaleHandler saleHandler,
+			IGoodsPriceCalculator goodsPriceCalculator
 			)
 		{
 			if(currentPermissionService is null)
@@ -229,6 +238,8 @@ namespace Vodovoz
 			_contractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_goodsPriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
 			SetOrderItemDiscountReasonsViewModel();
 			CancellationPermit = OrderCancellationPermit.Default();
@@ -385,13 +396,18 @@ namespace Vodovoz
 			switch(nomenclature.Category)
 			{
 				case NomenclatureCategory.water:
-					_routeListItem.Order.AddWaterForSale(UoW, _contractUpdater, nomenclature, 0, 0);
+					_routeListItem.Order.AddWaterForSale(
+						UoW,
+						_contractUpdater,
+						_saleHandler,
+						_goodsPriceCalculator,
+						NewOrderSaleItem.Create(nomenclature, 0));
 					break;
 				case NomenclatureCategory.master:
-					_routeListItem.Order.AddMasterNomenclature(UoW, _contractUpdater, nomenclature, 0);
+					_routeListItem.Order.AddMasterNomenclature(UoW, _contractUpdater, _saleHandler, nomenclature, 0);
 					break;
 				default:
-					_routeListItem.Order.AddAnyGoodsNomenclatureForSale(UoW, _contractUpdater, nomenclature, true);
+					_routeListItem.Order.AddAnyGoodsNomenclatureForSale(UoW, _contractUpdater, _saleHandler, nomenclature, true);
 					break;
 			}
 
@@ -414,7 +430,7 @@ namespace Vodovoz
 
 			clientEntry.ViewModel = GetClientEntityEntryViewModel();
 
-			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, _flyerRepository);
+			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, _flyerRepository, _saleHandler);
 			ConfigureDeliveryPointRefference(Client);
 
 			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
@@ -427,13 +443,13 @@ namespace Vodovoz
 				.AddColumn("Кол-во по факту")
 					.AddToggleRenderer(node => node.IsDelivered, false)
 						.AddSetter((cell, node) => cell.Visible = node.IsSerialEquipment)
-					.AddNumericRenderer(node => node.ActualCount, false)
+					.AddNumericRenderer(node => node.ActualCount, OnActualCountEdited, false)
 						.AddSetter((cell, node) => cell.Editable = node.Nomenclature.Category != NomenclatureCategory.deposit)
 						.Adjustment(new Adjustment(0, 0, 9999, 1, 1, 0))
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
-					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
+					.AddNumericRenderer(node => node.Price, OnPriceEdited).Digits(2).WidthChars(10)
 						.Adjustment(new Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice && _canEditPrices)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
@@ -524,6 +540,64 @@ namespace Vodovoz
 			OnClientEntryViewModelChanged(null, null);
 		}
 
+		private void OnActualCountEdited(object o, EditedArgs args)
+		{
+			var stringCount = args.NewText.Replace(',', '.');
+			decimal.TryParse(stringCount, NumberStyles.Any, CultureInfo.InvariantCulture, out var newCount);
+			var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
+
+			if(!(node is OrderItemReturnsNode itemReturnsNode))
+			{
+				return;
+			}
+			
+			if(itemReturnsNode.IsEquipment)
+			{
+				if(itemReturnsNode.IsSerialEquipment)
+				{
+					itemReturnsNode.OrderEquipment.ActualCount = newCount > 0 ? 1 : 0;
+				}
+
+				itemReturnsNode.OrderEquipment.ActualCount = (int?)newCount;
+			}
+			else
+			{
+				_saleHandler.SetActualCountWithPreserveOrRestoreDiscount(itemReturnsNode.OrderItem, newCount);
+			}
+			
+			var path = new TreePath(args.Path);
+			ytreeToClient.YTreeModel.GetIter(out var iter, path);
+			ytreeToClient.YTreeModel.Adapter.EmitRowChanged(path, iter);
+		}
+		
+		private void OnPriceEdited(object o, EditedArgs args)
+		{
+			var stringCount = args.NewText.Replace(',', '.');
+			decimal.TryParse(stringCount, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
+			var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
+
+			if(!(node is OrderItemReturnsNode itemReturnsNode))
+			{
+				return;
+			}
+			
+			if(itemReturnsNode.IsEquipment)
+			{
+				if(itemReturnsNode.OrderEquipment.OrderItem != null)
+				{
+					_saleHandler.SetPrice(itemReturnsNode.OrderEquipment.OrderItem, (SaleItemPriceType.User, newPrice));
+				}
+			}
+			else
+			{
+				_saleHandler.SetPrice(itemReturnsNode.OrderItem, (SaleItemPriceType.User, newPrice));
+			}
+			
+			var path = new TreePath(args.Path);
+			ytreeToClient.YTreeModel.GetIter(out var iter, path);
+			ytreeToClient.YTreeModel.Adapter.EmitRowChanged(path, iter);
+		}
+
 		private void OnTreeToClientSelectionChanged(object sender, EventArgs e)
 		{
 			UpdateOrderItemDiscountReasonsViewModel();
@@ -537,6 +611,7 @@ namespace Vodovoz
 			}
 			
 			Order = order;
+			_saleHandler.SetSource(order);
 			Order.PropertyChanged += OnOrderPropertyChanged;
 
 			_oldDeliveryPointId = order.DeliveryPoint?.Id;
@@ -615,13 +690,7 @@ namespace Vodovoz
 
 		void ActualCountsOfOrderItemsFromNullToZero()
 		{
-			foreach(var item in _routeListItem.Order.OrderItems)
-			{
-				if(item.ActualCount == null)
-				{
-					item.SetActualCountZero();
-				}
-			}
+			_saleHandler.SetActualCountZero();
 		}
 
 		private void ConfigureDeliveryPointRefference(Counterparty client = null)
@@ -694,7 +763,7 @@ namespace Vodovoz
 				_callTaskWorker,
 				true
 			);
-			_routeListItem.SetOrderActualCountsToZeroOnCanceled();
+			_routeListItem.SetOrderActualCountsToZeroOnCanceled(_saleHandler);
 			_routeListItem.BottlesReturned = 0;
 			UpdateButtonsState();
 
@@ -725,8 +794,8 @@ namespace Vodovoz
 		{
 			_routeListService.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.RouteList, _routeListItem.Id, RouteListItemStatus.Completed, 
 				_callTaskWorker, true);
-			_routeListItem.RestoreOrder();
-			_routeListItem.FirstFillClosing(_wageParameterService);
+			_routeListItem.RestoreOrder(_saleHandler);
+			_routeListItem.FirstFillClosing(_wageParameterService, _saleHandler);
 
 			UpdateListsSentivity();
 			UpdateButtonsState();
@@ -884,7 +953,7 @@ namespace Vodovoz
 			//значит такое оборудование можно удалять из изменения заказа
 			if(e.OrderItem == null && e.Count == 0)
 			{
-				_routeListItem.Order.RemoveEquipment(UoW, _contractUpdater, e);
+				_routeListItem.Order.RemoveEquipment(UoW, _contractUpdater, _saleHandler, e);
 			}
 		}
 

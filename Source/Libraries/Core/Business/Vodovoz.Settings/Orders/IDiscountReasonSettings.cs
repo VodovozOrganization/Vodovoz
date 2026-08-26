@@ -3,5 +3,6 @@
 	public interface IDiscountReasonSettings
 	{
 		int GetSelfDeliveryDiscountReasonId { get; }
+		int PersonalDiscountReasonId { get; }
 	}
 }

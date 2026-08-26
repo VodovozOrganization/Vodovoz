@@ -10,6 +10,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Handlers;
 using Vodovoz.Nodes;
+using Vodovoz.Settings.Orders;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Extensions;
 
@@ -17,13 +18,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 {
 	public class OnlineOrderDiscountHandler : DiscountController, IOnlineOrderDiscountHandler
 	{
-		private readonly IDiscountReasonRepository _discountReasonRepository;
-
 		public OnlineOrderDiscountHandler(
-			IDiscountReasonRepository discountReasonRepository)
-		{
-			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
-		}
+			IDiscountReasonRepository discountReasonRepository,
+			IDiscountReasonSettings discountReasonSettings)
+			: base(discountReasonRepository, discountReasonSettings) { }
 
 		/// <summary>
 		/// Применение промокода к онлайн заказу
@@ -46,7 +44,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		/// <returns></returns>
 		public Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(IUnitOfWork uow, CanApplyOnlineOrderPromoCode onlineOrderPromoCode)
 		{
-			var discountPromoCode = _discountReasonRepository.GetActivePromoCode(uow, onlineOrderPromoCode.PromoCode);
+			var discountPromoCode = DiscountReasonRepository.GetActivePromoCode(uow, onlineOrderPromoCode.PromoCode);
 			var date = onlineOrderPromoCode.Time.Date;
 			var time = onlineOrderPromoCode.Time.TimeOfDay;
 			var orderSum = GetOnlineOrderSum(onlineOrderPromoCode.Products);
@@ -74,7 +72,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 
 			if(discountPromoCode.IsOneTimePromoCode
-				&& _discountReasonRepository.HasBeenUsagePromoCode(uow, onlineOrderPromoCode.CounterpartyId, discountPromoCode.Id))
+				&& DiscountReasonRepository.HasBeenUsagePromoCode(uow, onlineOrderPromoCode.CounterpartyId, discountPromoCode.Id))
 			{
 				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
 					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UsageLimitHasBeenExceeded);

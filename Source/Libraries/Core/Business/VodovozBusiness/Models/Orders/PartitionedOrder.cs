@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Models.Orders
@@ -15,6 +18,7 @@ namespace Vodovoz.Models.Orders
 		private readonly Order _copiedOrder;
 		private readonly Order _resultOrder;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IOrderSaleHandler _saleHandler;
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
 		private bool _needCopyStockBottleDiscount;
@@ -25,12 +29,16 @@ namespace Vodovoz.Models.Orders
 			Order resultOrder,
 			INomenclatureSettings nomenclatureSettings,
 			IFlyerRepository flyerRepository,
-			IOrderContractUpdater contractUpdater)
+			IOrderContractUpdater contractUpdater,
+			IOrderSaleHandler saleHandler
+			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_copiedOrder = copiedOrder ?? throw new ArgumentNullException(nameof(copiedOrder));
 			_resultOrder = resultOrder ?? throw new ArgumentNullException(nameof(resultOrder));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_saleHandler.SetSource(_resultOrder);
 
 			if(nomenclatureSettings is null)
 			{
@@ -138,7 +146,7 @@ namespace Vodovoz.Models.Orders
 
 			CopyGoods(withDiscounts, goods);
 
-			_resultOrder.RecalculateItemsPrice();
+			_saleHandler.Recalculate();
 
 			return this;
 		}
@@ -219,7 +227,12 @@ namespace Vodovoz.Models.Orders
 			OrderItem orderItem,
 			bool withDiscounts = false)
 		{
-			var newOrderItem = OrderItem.CreateForSale(_resultOrder, orderItem.Nomenclature, orderItem.Count, orderItem.Price);
+			//TODO-5967 нужно проверить алгоритм установки булевых
+			var newOrderItem = OrderItem.CreateForSale(
+				_saleHandler,
+				_resultOrder,
+				NewOrderSaleItem.Create(orderItem.Nomenclature, orderItem.Count, (SaleItemPriceType.General, orderItem.Price))
+			);
 			
 			newOrderItem.PromoSet = orderItem.PromoSet;
 			newOrderItem.IsAlternativePrice = orderItem.IsAlternativePrice;
@@ -230,7 +243,7 @@ namespace Vodovoz.Models.Orders
 				CopyingDiscounts(orderItem, newOrderItem, _needCopyStockBottleDiscount);
 			}
 
-			_resultOrder.AddOrderItem(_uow, _contractUpdater, newOrderItem);
+			_resultOrder.AddOrderItem(_uow, _contractUpdater, _saleHandler, newOrderItem);
 		}
 
 		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo, bool withStockBottleDiscount)
@@ -254,25 +267,8 @@ namespace Vodovoz.Models.Orders
 
 		private void AddOrderEquipments(IEnumerable<OrderEquipment> orderEquipments)
 		{
-			foreach(var orderEquipment in orderEquipments)
-			{
-				var newOrderEquipment = new OrderEquipment
-				{
-					Order = _resultOrder,
-					Direction = orderEquipment.Direction,
-					DirectionReason = orderEquipment.DirectionReason,
-					OrderItem = orderEquipment.OrderItem,
-					Equipment = orderEquipment.Equipment,
-					OwnType = orderEquipment.OwnType,
-					Nomenclature = orderEquipment.Nomenclature,
-					Reason = orderEquipment.Reason,
-					Confirmed = orderEquipment.Confirmed,
-					ConfirmedComment = orderEquipment.ConfirmedComment,
-					Count = orderEquipment.Count
-				};
-				
-				_resultOrder.ObservableOrderEquipments.Add(newOrderEquipment);
-			}
+			_resultOrder.AddNewOrderEquipments(orderEquipments);
+			_saleHandler.UpdateRentsCount();
 		}
 		
 		private void AddDepositItems(IEnumerable<OrderDepositItem> orderDepositItems)

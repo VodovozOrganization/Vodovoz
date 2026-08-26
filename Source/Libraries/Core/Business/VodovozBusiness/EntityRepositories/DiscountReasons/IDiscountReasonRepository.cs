@@ -28,5 +28,12 @@ namespace Vodovoz.EntityRepositories.DiscountReasons
 		PromoCodeDiscount GetActivePromoCode(IUnitOfWork uow, string promoCode);
 		bool HasBeenUsagePromoCode(IUnitOfWork uow, int counterpartyId, int discountReasonId);
 		bool ExistsPromoCodeWithName(IUnitOfWork uow, int discountReasonId, string promoCode, out PromoCodeDiscount discountReason);
+		/// <summary>
+		/// Получение основания скидки по id
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="discountReasonId">Идентификатор основания скидки</param>
+		/// <returns></returns>
+		DiscountReason GetDiscountReason(IUnitOfWork uow, int discountReasonId);
 	}
 }

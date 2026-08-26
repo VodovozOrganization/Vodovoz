@@ -699,7 +699,10 @@ namespace VodovozBusinessTests.Domain.Orders
 
 			// act
 			discountController.SetCustomDiscountForOrderItems(
-				discountReason, discountInMoney, DiscountUnits.money, testOrder.ObservableOrderItems.Cast<IDiscount>().ToList());
+				discountReason,
+				discountInMoney,
+				DiscountUnits.money,
+				testOrder.ObservableOrderItems.Cast<IApplyDiscountReasonItem>().ToList());
 
 			// assert
 			for(int i = 0; i < testOrder.OrderItems.Count; i++)
@@ -730,7 +733,10 @@ namespace VodovozBusinessTests.Domain.Orders
 
 			// act
 			discountController.SetCustomDiscountForOrderItems(
-				discountReason, discountInPercent, DiscountUnits.percent, testOrder.ObservableOrderItems.Cast<IDiscount>().ToList());
+				discountReason,
+				discountInPercent,
+				DiscountUnits.percent,
+				testOrder.ObservableOrderItems.Cast<IApplyDiscountReasonItem>().ToList());
 
 			// assert
 			for(int i = 0; i < testOrder.OrderItems.Count; i++)

@@ -385,7 +385,7 @@ namespace Vodovoz
 			{
 				ServiceClaim = UoWGeneric.Root,
 				Nomenclature = e.Subject as Nomenclature,
-				Price = (e.Subject as Nomenclature).GetPrice(1),
+				Price = (e.Subject as Nomenclature).GetPrice(1).Price,
 				Count = 1
 			});
 		}
@@ -393,7 +393,7 @@ namespace Vodovoz
 		void FixPrice(int id)
 		{
 			ServiceClaimItem item = UoWGeneric.Root.ObservableServiceClaimItems[id];
-			item.Price = item.Nomenclature.GetPrice((int)item.Count);
+			item.Price = item.Nomenclature.GetPrice((int)item.Count).Price;
 		}
 
 		protected void OnToggleInfoToggled(object sender, EventArgs e)

@@ -7,11 +7,14 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -24,6 +27,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IPhoneRepository _phoneRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IOrderSaleHandler _saleHandler;
+		private readonly IGoodsPriceCalculator _goodsPriceCalculator;
 
 		public OrderFromOnlineOrderCreator(
 			ILogger<OrderFromOnlineOrderCreator> logger,
@@ -31,7 +36,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 			INomenclatureRepository nomenclatureRepository,
 			INomenclatureSettings nomenclatureSettings,
 			IPhoneRepository phoneRepository,
-			IOrderContractUpdater contractUpdater)
+			IOrderContractUpdater contractUpdater,
+			IOrderSaleHandler saleHandler,
+			IGoodsPriceCalculator goodsPriceCalculator
+			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
@@ -39,6 +47,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_goodsPriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 		}
 
 		public Order CreateOrderFromOnlineOrder(IUnitOfWork uow, Employee orderCreator, OnlineOrder onlineOrder)
@@ -58,6 +68,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			Employee author = null,
 			bool manualCreation = false)
 		{
+			_saleHandler.SetSource(order);
 			var paymentFrom = onlineOrder.OnlinePaymentSource.HasValue
 				? uow.GetById<PaymentFrom>(
 					onlineOrder.OnlinePaymentSource.ConvertToPaymentFromId(_orderSettings))
@@ -249,13 +260,17 @@ namespace Vodovoz.Core.Application.Orders.Services
 						order.AddNomenclature(
 							uow,
 							_contractUpdater,
-							proSetItem.Nomenclature,
-							proSetItem.Count,
-							proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
-							proSetItem.IsDiscountInMoney,
-							true,
-							null,
-							proSetItem.PromoSet);
+							_saleHandler,
+							_goodsPriceCalculator,
+							NewOrderSaleItem.Create(
+								proSetItem.Nomenclature,
+								proSetItem.Count,
+								priceData: default,
+								proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
+								proSetItem.IsDiscountInMoney,
+								null,
+								proSetItem.PromoSet
+								));
 					}
 					
 					order.ObservablePromotionalSets.Add(promoSet);
@@ -291,35 +306,31 @@ namespace Vodovoz.Core.Application.Orders.Services
 					order.AddNomenclature(
 						uow,
 						_contractUpdater,
-						product.Nomenclature,
-						product.Count,
-						giftItem: product.GiftItem);
+						_saleHandler,
+						_goodsPriceCalculator,
+						NewOrderSaleItem.Create(
+							product.Nomenclature,
+							product.Count,
+							giftItem: product.GiftItem)
+						);
 				}
 				else
 				{
-					if(!product.DiscountReasons.Any())
-					{
-						order.AddNomenclature(
-							uow,
-							_contractUpdater,
+					order.AddNomenclature(
+						uow,
+						_contractUpdater,
+						_saleHandler,
+						_goodsPriceCalculator,
+						NewOrderSaleItem.Create(
 							product.Nomenclature,
 							product.Count,
-							needGetFixedPrice: product.IsFixedPrice,
-							giftItem: product.GiftItem);
-					}
-					else
-					{
-						order.AddNomenclature(
-							uow,
-							_contractUpdater,
-							product.Nomenclature,
-							product.Count,
+							priceData: default,
 							product.GetDiscount,
 							product.IsDiscountInMoney,
-							product.IsFixedPrice,
 							discountReasons: product.DiscountReasons,
-							giftItem: product.GiftItem);
-					}
+							giftItem: product.GiftItem
+							)
+						);
 				}
 			}
 		}
@@ -336,13 +347,18 @@ namespace Vodovoz.Core.Application.Orders.Services
 				order.AddNomenclature(
 					uow,
 					_contractUpdater,
-					onlineOrderItem.Nomenclature,
-					onlineOrderItem.Count,
-					onlineOrderItem.GetDiscount,
-					onlineOrderItem.IsDiscountInMoney,
-					onlineOrderItem.IsFixedPrice,
-					onlineOrderItem.DiscountReasons,
-					giftItem: onlineOrderItem.GiftItem);
+					_saleHandler,
+					_goodsPriceCalculator,
+					NewOrderSaleItem.Create(
+						onlineOrderItem.Nomenclature,
+						onlineOrderItem.Count,
+						priceData: default,
+						onlineOrderItem.GetDiscount,
+						onlineOrderItem.IsDiscountInMoney,
+						onlineOrderItem.DiscountReasons,
+						giftItem: onlineOrderItem.GiftItem
+						)
+					);
 			}
 		}
 
@@ -368,7 +384,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					rentPackage.EquipmentKind,
 					existingItems);
 				
-				order.AddFreeRent(uow, _contractUpdater, rentPackage, anyNomenclature);
+				order.AddFreeRent(uow, _contractUpdater, _saleHandler, rentPackage, anyNomenclature);
 			}
 		}
 		
@@ -384,7 +400,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				order.AddEquipmentFromPartOrder(equipment);
 			}
 			
-			order.UpdateRentsCount();
+			_saleHandler.UpdateRentsCount();
+			order.UpdateDocuments();
 		}
 	}
 }

@@ -31,4 +31,24 @@ namespace Vodovoz.Core.Domain.Specifications
 			ExpressionSpecification<T> specification)
 			=> specification.Not();
 	}
+	
+	public class ExpressionSpecification<T1, T2> : ISpecification<T1, T2>
+	{
+		protected new Expression<Func<T1, T2, bool>> Expression { get; }
+
+		public ExpressionSpecification(Expression<Func<T1, T2, bool>> expression)
+		{
+			Expression = expression;
+		}
+
+		public bool IsSatisfiedBy(T1 entity1, T2 entity2) =>
+			Expression
+				.Compile()
+				.Invoke(entity1, entity2);
+
+		bool ISpecificationTwoArgs.IsSatisfiedBy(object entity1, object entity2) =>
+			Expression
+				.Compile()
+				.Invoke((T1)entity1, (T2)entity2);
+	}
 }

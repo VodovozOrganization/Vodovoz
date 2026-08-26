@@ -66,6 +66,7 @@ using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Cores;
 using Vodovoz.Dialogs;
@@ -324,6 +325,8 @@ namespace Vodovoz
 		private IDeliveryPointRepository _deliveryPointRepository;
 		private IOrderContractUpdater _orderContractUpdater;
 		private ICounterpartyEdoAccountController _counterpartyEdoAccountController;
+		private IOrderSaleHandler _saleHandler;
+		private IGoodsPriceCalculator _goodsPriceCalculator;
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
 		private bool _canEditOrderExtraCash;
@@ -505,6 +508,7 @@ namespace Vodovoz
 		{
 			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<Order>();
+			ResolveDependencies();
 			Entity.Author = _currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			if(Entity.Author == null)
 			{
@@ -538,6 +542,7 @@ namespace Vodovoz
 		{
 			Build();
 			UoWGeneric = unitOfWork;
+			ResolveDependencies();
 			Entity.OrderStatus = OrderStatus.NewOrder;
 			TabName = "Новый заказ на забор оборудования";
 			Entity.OrderAddressType = OrderAddressType.Delivery;
@@ -571,6 +576,7 @@ namespace Vodovoz
 		{
 			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<Order>(id);
+			ResolveDependencies();
 			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
 			IsForSalesDepartment = UoWGeneric.Root.Client.IsForSalesDepartment;
 			ConfigureDlg();
@@ -611,7 +617,7 @@ namespace Vodovoz
 		{
 			Entity.IsCopiedFromUndelivery = true;
 
-			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater);
+			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater, _saleHandler);
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields()
 				.CopyStockBottle()
@@ -664,7 +670,7 @@ namespace Vodovoz
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
 		public void CopyLesserOrderFrom(int orderId)
 		{
-			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater);
+			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater, _saleHandler);
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields(
 					x => x.Client,
@@ -688,10 +694,8 @@ namespace Vodovoz
 			SetLogisticsRequirementsCheckboxes();
 		}
 
-		public void ConfigureDlg()
+		private void ResolveDependencies()
 		{
-			SetPermissions();
-
 			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
 			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
 			_advancedPaymentNomenclatureId = _nomenclatureSettings.AdvancedPaymentNomenclatureId;
@@ -719,7 +723,15 @@ namespace Vodovoz
 			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
 			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
 			_discountsController = _lifetimeScope.Resolve<IOrderDiscountsController>();
+			_saleHandler = _lifetimeScope.Resolve<IOrderSaleHandler>();
+			_saleHandler.SetSource(Entity);
+			_goodsPriceCalculator = _lifetimeScope.Resolve<IGoodsPriceCalculator>();
+		}
 
+		private void ConfigureDlg()
+		{
+			SetPermissions();
+			
 			_justCreated = UoWGeneric.IsNew;
 
 			if(_currentEmployee == null)
@@ -767,7 +779,7 @@ namespace Vodovoz
 				|| Entity.OrderStatus == OrderStatus.Closed
 				|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
 
-			orderEquipmentItemsView.Configure(UoWGeneric, Entity, _flyerRepository);
+			orderEquipmentItemsView.Configure(UoWGeneric, Entity, _flyerRepository, _saleHandler);
 			orderEquipmentItemsView.OnDeleteEquipment += OrderEquipmentItemsView_OnDeleteEquipment;
 
 			//Подписывемся на изменения листов для засеривания клиента
@@ -1479,13 +1491,13 @@ namespace Vodovoz
 				case nameof(Entity.OrderAddressType):
 					UpdateOrderAddressTypeUI();
 					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderAddressType));
-					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater);
+					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater, _saleHandler);
 					break;
 				case nameof(Counterparty.IsChainStore):
 					UpdateOrderAddressTypeWithUI();
 					break;
 				case nameof(Order.SelfDelivery):
-					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater);
+					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater, _saleHandler);
 					UpdateCallBeforeArrival();
 					break;
 				case nameof(Order.IsFastDelivery):
@@ -1908,7 +1920,7 @@ namespace Vodovoz
 					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesSettings.FastDeliveryScheduleId);
 				}
 
-				Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater);
+				Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater, _saleHandler);
 				return;
 			}
 
@@ -2228,19 +2240,18 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 					.AddSetter((c, node) => c.Editable = node.CanEditPrice)
 					.EditedEvent(OnSpinPriceEdited)
-					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) =>
+					.AddSetter((NodeCellRendererSpin<OrderItem> cell, OrderItem node) =>
 					{
 						if(Entity.OrderStatus == OrderStatus.NewOrder || (Entity.OrderStatus == OrderStatus.WaitForPayment && !Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
-							c.ForegroundGdk = colorPrimaryText;
-							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature, node.TotalCountInOrder);
-							if(fixedPrice != null && node.PromoSet == null && node.CopiedFromUndelivery == null)
+							cell.ForegroundGdk = colorPrimaryText;
+							if(node.IsFixedPrice && node.PromoSet == null && node.CopiedFromUndelivery == null)
 							{
-								c.ForegroundGdk = colorGreen;
+								cell.ForegroundGdk = colorGreen;
 							}
 							else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
 							{
-								c.ForegroundGdk = colorBlue;
+								cell.ForegroundGdk = colorBlue;
 							}
 						}
 					})
@@ -2262,7 +2273,7 @@ namespace Vodovoz
 					)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.ManualChangingDiscount)
+					.AddNumericRenderer(node => node.ManualChangingDiscount, OnDiscountEdited)
 					.AddSetter((c, n) => c.Editable = _canChangeDiscountValue)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
@@ -2436,7 +2447,7 @@ namespace Vodovoz
 				return;
 			}
 
-			orderItem.SetPrice(newPrice);
+			_saleHandler.SetPrice(orderItem, (SaleItemPriceType.User, newPrice));
 		}
 
 		private void OnCountEdited(object o, EditedArgs args)
@@ -2450,7 +2461,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.SetOrderItemCount(orderItem, newCount);
+			_saleHandler.SetCountWithRecalculateRents(orderItem, newCount);
 			var path = new TreePath(args.Path);
 			treeItems.YTreeModel.GetIter(out var iter, path);
 			treeItems.YTreeModel.Adapter.EmitRowChanged(path, iter);
@@ -2465,7 +2476,25 @@ namespace Vodovoz
 				return;
 			}
 
-			orderItem.UpdateRentCount(newRentCount);
+			_saleHandler.SetRentCount(orderItem, newRentCount);
+		}
+		
+		private void OnDiscountEdited(object o, EditedArgs args)
+		{
+			var stringPrice = args.NewText.Replace(',', '.');
+			decimal.TryParse(stringPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var newDiscount);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			
+			if(!(node is OrderItem orderItem))
+			{
+				return;
+			}
+			
+			_discountsController.SetCustomDiscount(
+				UoW,
+				orderItem,
+				DiscountValue.Create(orderItem.IsDiscountInMoney, newDiscount, newDiscount)
+			);
 		}
 
 		private void OnOpCommentChanged(object o, EventArgs args)
@@ -2812,7 +2841,7 @@ namespace Vodovoz
 			{
 				return;
 			}
-			Entity.EditOrder(CallTaskWorker);
+			Entity.EditOrder(CallTaskWorker, _saleHandler);
 			UpdateUIState();
 		}
 
@@ -3063,7 +3092,7 @@ namespace Vodovoz
 				_orderContractUpdater.UpdateOrCreateContract(UoW, Entity);
 			}
 
-			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
+			Entity.AcceptOrder(_currentEmployee, CallTaskWorker, _saleHandler);
 			treeItems.Selection.UnselectAll();
 
 			var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteList(UoW, Entity, _routeListService, CallTaskWorker);
@@ -3236,12 +3265,18 @@ namespace Vodovoz
 				}
 
 				Entity.UpdateBottlesMovementOperationWithoutDelivery(
-					UoW, _nomenclatureSettings, ScopeProvider.Scope.Resolve<IRouteListItemRepository>(), ScopeProvider.Scope.Resolve<ICashRepository>());
+					UoW,
+					_saleHandler,
+					_nomenclatureSettings,
+					ScopeProvider.Scope.Resolve<IRouteListItemRepository>(),
+					ScopeProvider.Scope.Resolve<ICashRepository>()
+					);
+				
 				Entity.UpdateDepositOperations(UoW);
 
-				Entity.ChangeStatusAndCreateTasks(OrderStatus.Closed, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.Closed, CallTaskWorker);
 
-				Entity.ResetOrderItemsActualCounts();
+				_saleHandler.PreserveActualCount(true);
 			}
 			UpdateUIState();
 		}
@@ -3256,7 +3291,7 @@ namespace Vodovoz
 				{
 					return;
 				}
-				Entity.ChangeStatusAndCreateTasks(OrderStatus.Accepted, CallTaskWorker);
+				Entity.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.Accepted, CallTaskWorker);
 			}
 			UpdateUIState();
 		}
@@ -3266,7 +3301,12 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonSelfDeliveryToLoadingClicked(object sender, EventArgs e)
 		{
-			Entity.SelfDeliveryToLoading(_currentEmployee, ServicesConfig.CommonServices.CurrentPermissionService, CallTaskWorker);
+			Entity.SelfDeliveryToLoading(
+				_currentEmployee,
+				ServicesConfig.CommonServices.CurrentPermissionService,
+				CallTaskWorker,
+				_saleHandler);
+			
 			UpdateUIState();
 
 			OrderDocumentsOpener(Entity.OrderDocuments
@@ -3282,7 +3322,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonSelfDeliveryAcceptPaidClicked(object sender, EventArgs e)
 		{
-			Entity.SelfDeliveryAcceptCashlessPaid(CallTaskWorker);
+			Entity.SelfDeliveryAcceptCashlessPaid(_saleHandler, CallTaskWorker);
 			UpdateUIState();
 		}
 
@@ -3909,7 +3949,20 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReasons: discountReasons);
+			Entity.AddNomenclature(
+				UoW,
+				_orderContractUpdater,
+				_saleHandler,
+				_goodsPriceCalculator,
+				NewOrderSaleItem.Create(
+					nomenclature,
+					count,
+					priceData: default,
+					discount,
+					false,
+					discountReasons: discountReasons
+					)
+				);
 		}
 
 		private void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
@@ -3942,13 +3995,17 @@ namespace Vodovoz
 					Entity.AddNomenclature(
 						UoW,
 						_orderContractUpdater,
-						proSetItem.Nomenclature,
-						proSetItem.Count,
-						proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
-						proSetItem.IsDiscountInMoney,
-						true,
-						null,
-						proSetItem.PromoSet
+						_saleHandler,
+						_goodsPriceCalculator,
+						NewOrderSaleItem.Create(
+							proSetItem.Nomenclature,
+							proSetItem.Count,
+							priceData: default,
+							proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
+							proSetItem.IsDiscountInMoney,
+							null,
+							proSetItem.PromoSet
+							)
 					);
 				}
 
@@ -3971,7 +4028,7 @@ namespace Vodovoz
 				switch(orderItem.Nomenclature.Category)
 				{
 					case NomenclatureCategory.additional:
-						Entity.AddNomenclatureForSaleFromPreviousOrder(UoW, _orderContractUpdater, orderItem);
+						Entity.AddNomenclatureForSaleFromPreviousOrder(UoW, _orderContractUpdater, _saleHandler, orderItem);
 						continue;
 					case NomenclatureCategory.water:
 						TryAddNomenclature(orderItem.Nomenclature, orderItem.Count);
@@ -3981,7 +4038,8 @@ namespace Vodovoz
 						continue;
 				}
 			}
-			Entity.RecalculateItemsPrice();
+			//TODO-5967 проверить пересчет
+			//Entity.RecalculateItemsPrice();
 			UpdateOrderAddressTypeWithUI();
 		}
 		#endregion
@@ -4024,7 +4082,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				Entity.RemoveEquipment(UoW, _orderContractUpdater, e);
+				Entity.RemoveEquipment(UoW, _orderContractUpdater, _saleHandler, e);
 			}
 		}
 
@@ -4674,14 +4732,19 @@ namespace Vodovoz
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
-			Entity.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, CallTaskWorker, 
+			Entity.SetUndeliveredStatus(
+				UoW,
+				_routeListService,
+				_saleHandler,
+				_nomenclatureSettings,
+				CallTaskWorker, 
 				needCreateDeliveryFreeBalanceOperation: true);
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
 			if(routeListItem != null)
 			{
 				routeListItem.StatusLastUpdate = DateTime.Now;
-				routeListItem.SetOrderActualCountsToZeroOnCanceled();
+				routeListItem.SetOrderActualCountsToZeroOnCanceled(_saleHandler);
 				UoW.Save(routeListItem);
 
 				var notificationRequest = new NotificationRouteListChangesRequest
@@ -4705,7 +4768,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				Entity.SetActualCountsToZeroOnCanceled();
+				Entity.SetActualCountsToZeroOnCanceled(_saleHandler);
 			}
 
 			UpdateUIState();
@@ -4786,7 +4849,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, CallTaskWorker);
+			Entity.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.WaitForPayment, CallTaskWorker);
 			UpdateUIState();
 		}
 
@@ -5023,8 +5086,8 @@ namespace Vodovoz
 				UpdateDelivery();
 			}
 
-			Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater);
-			Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater);
+			Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater, _saleHandler);
+			Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater, _saleHandler);
 
 			UpdateClientSecondOrderDiscount();
 			UpdateUIState();
@@ -5067,7 +5130,7 @@ namespace Vodovoz
 				return;
 			}
 
-			item.RecalculatePrice();
+			_saleHandler.RecalculatePrice(item);
 		}
 
 		private void TreeItems_Selection_Changed(object sender, EventArgs e)
@@ -5103,13 +5166,14 @@ namespace Vodovoz
 
 					FixPrice(aIdx[0]);
 
-					if(oItem?.CopiedFromUndelivery == null)
+					//TODO-5967 почему это здесь? Признак альтернативной цены должен устанавливаться в установке цены
+					/*if(oItem?.CopiedFromUndelivery == null)
 					{
 						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(true, true) : oItem.Count;
 						oItem.IsAlternativePrice = Entity.HasPermissionsForAlternativePrice
-												   && oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
-												   && oItem.GetWaterFixedPrice() == null;
-					}
+							&& oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
+							&& oItem.GetWaterFixedPrice() == null;
+					}*/
 
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
 					{
@@ -5195,15 +5259,12 @@ namespace Vodovoz
 		/// товаров заказа, в списке оборудования дополнительного соглашения и
 		/// меняет количество залогов за оборудование в списке товаров заказа
 		/// </summary>
+		[Obsolete("Перенести всю логику в OrderSaleHandler")]
 		private void ChangeEquipmentsCount(OrderItem orderItem, int newCount)
 		{
-			Entity.SetOrderItemCount(orderItem, newCount);
-
-			OrderEquipment orderEquip = Entity.OrderEquipments.FirstOrDefault(x => x.OrderItem == orderItem);
-			if(orderEquip != null)
-			{
-				orderEquip.Count = newCount;
-			}
+			var orderEquip = Entity.OrderEquipments.FirstOrDefault(x => x.OrderItem == orderItem);
+			orderEquip?.SetCountWithoutRecalculate(newCount);
+			_saleHandler.SetCountWithRecalculateRents(orderItem, newCount);
 		}
 
 		public bool CanFormOrderWithLiquidatedCounterparty { get; private set; }
@@ -5510,8 +5571,19 @@ namespace Vodovoz
 
 				if(discount > 0)
 				{
+					if(!_interactiveService.Question(
+						"Будет установлено выбранное основание скидки и дополнительно выбранная скидка. Продолжаем?"))
+					{
+						return;
+					}
+					
 					var unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
-					_discountsController.SetCustomDiscountForOrderItems(reason, discount, unit, Entity.ObservableOrderItems);
+					var discountValue = DiscountValue.Create(
+						unit == DiscountUnits.money,
+						discount,
+						discount);
+					
+					_discountsController.SetCustomDiscountForOrder(UoW, reason, discountValue, Entity.ObservableOrderItems);
 				}
 				else
 				{
@@ -5893,11 +5965,13 @@ namespace Vodovoz
 					&& oe.OrderRentDepositItem?.RentType == OrderRentType.DailyRent)
 				.Select(oe => (oe.Nomenclature, oe.Count)).ToList();
 
+			var saleHandler = _lifetimeScope.Resolve<IOrderSaleHandler>();
+			saleHandler.SetSource(result.Root);
+			
 			foreach(var equipmentItem in equipmentItems)
 			{
 				result.Root.AddEquipmentNomenclatureFromClient(
 					equipmentItem.Nomenclature,
-					result,
 					equipmentItem.Count,
 					Core.Domain.Orders.Direction.PickUp,
 					DirectionReason.Rent,
@@ -5906,6 +5980,7 @@ namespace Vodovoz
 			}
 
 			result.Root.UpdateDocuments();
+			saleHandler.UpdateRentsCount();
 
 			return result;
 		}
@@ -6026,10 +6101,10 @@ namespace Vodovoz
 			switch(rentType)
 			{
 				case RentType.NonfreeRent:
-					Entity.AddNonFreeRent(UoW, _orderContractUpdater, paidRentPackage, equipmentNomenclature);
+					Entity.AddNonFreeRent(UoW, _orderContractUpdater, _saleHandler, paidRentPackage, equipmentNomenclature);
 					break;
 				case RentType.DailyRent:
-					Entity.AddDailyRent(UoW, _orderContractUpdater, paidRentPackage, equipmentNomenclature);
+					Entity.AddDailyRent(UoW, _orderContractUpdater, _saleHandler, paidRentPackage, equipmentNomenclature);
 					break;
 			}
 		}
@@ -6112,7 +6187,7 @@ namespace Vodovoz
 				}
 			}
 
-			Entity.AddFreeRent(UoW, _orderContractUpdater, freeRentPackage, equipmentNomenclature);
+			Entity.AddFreeRent(UoW, _orderContractUpdater, _saleHandler, freeRentPackage, equipmentNomenclature);
 		}
 
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)

@@ -2,17 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Sale;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Errors.Orders;
+using Vodovoz.Settings.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
-	public class OrderDiscountsController : DiscountWithTaxController, IOrderDiscountsController
+	public class OrderDiscountsController : DiscountController, IOrderDiscountsController
 	{
 		private readonly ILogger<OrderDiscountsController> _logger;
 		private readonly INomenclatureFixedPriceController _fixedPriceController;
@@ -20,8 +25,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 		public OrderDiscountsController(
 			ILogger<OrderDiscountsController> logger,
 			INomenclatureFixedPriceController fixedPriceController,
-			SaleItemTaxHandler taxHandler
-			) : base(taxHandler)
+			IDiscountReasonRepository discountReasonRepository,
+			IDiscountReasonSettings discountReasonSettings
+			)
+			: base(discountReasonRepository, discountReasonSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
@@ -67,15 +74,15 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return IsApplicableDiscount(addingDiscount, saleItem);
 		}
 		
-		public void SetCustomDiscountForOrderItems(
+		public void SetCustomDiscountForOrder(
+			IUnitOfWork uow,
 			DiscountReason reason,
-			decimal discount,
-			DiscountUnits unit,
-			IEnumerable<IApplyDiscountReasonItem> orderItems)
+			IDiscountValue discountValue,
+			IEnumerable<IApplyDiscountReasonItem> saleItems)
 		{
-			foreach(var item in orderItems)
+			foreach(var saleItem in saleItems)
 			{
-				SetCustomDiscountForOrderItem(reason, discount, unit, item);
+				SetCustomDiscountForOrderItem(uow, saleItem, reason, discountValue);
 			}
 		}
 
@@ -121,7 +128,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return false;
 			}
 
-			ClearOrderItemDiscounts(orderItem);
+			ClearDiscounts(orderItem);
 			var addDiscountResult = AddDiscount(reason, orderItem);
 
 			if(addDiscountResult.IsFailure)
@@ -155,10 +162,110 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			return AddDiscount(reason, orderItem);
 		}
-
-		protected override void SetDiscount(IApplyDiscountReasonItem saleItem, IDiscountValue discountValue)
+		
+		public override void RecalculateDiscount(IDataContext context)
 		{
-			saleItem.SetDiscount(discountValue);
+			/*if(!CheckInitializedProperties())
+			{
+				return;
+			}*/
+			
+			if(context.Data is not OrderRecalculateDiscount data)
+			{
+				throw new InvalidOperationException(
+					$"Передаваемый контекст для пересчета скидки в заказе должен быть {nameof(OrderRecalculateDiscount)}");
+			}
+			
+			var saleItem = data.SaleItem;
+			var newDiscountValue = data.DiscountValue;
+
+			if(saleItem.CurrentCount == 0)
+			{
+				if(data.OrderInUndeliveredStatus)
+				{
+					RemoveAndPreserveDiscount(saleItem);
+				}
+				else
+				{
+					ClearDiscounts(saleItem);
+				}
+			}
+			else
+			{
+				/*var discount = IsDiscountInMoney
+					? DiscountMoney
+					: Discount;
+					*/
+				CalculateAndSetDiscount(saleItem, newDiscountValue);
+			}
+		}
+		
+		/// <summary>
+		/// Удаляет текущие скидки и сохраняет их в <see cref="OriginalDiscountReasons"/>.
+		/// Восстановить скидку можно методом <see cref="RestoreOriginalDiscount"/>.
+		/// </summary>
+		public void RemoveAndPreserveDiscount(IPreserveDiscount saleItem)
+		{
+			if(saleItem.DiscountData.DiscountMoney > 0)
+			{
+				saleItem.OriginalDiscountMoney = saleItem.DiscountData.DiscountMoney;
+				saleItem.OriginalDiscount = saleItem.DiscountData.Discount;
+
+				saleItem.OriginalDiscountReasons.Clear();
+				foreach(var reason in saleItem.DiscountReasons)
+				{
+					saleItem.OriginalDiscountReasons.Add(reason);
+				}
+			}
+			
+			ClearDiscounts(saleItem);
+		}
+		
+		public void RecalculateDiscountWithPreserveOrRestoreDiscount(IPreserveDiscount saleItem)
+		{
+			/*if(!CheckInitializedProperties())
+			{
+				return;
+			}*/
+			
+			if(saleItem.CurrentCount == 0)
+			{
+				RemoveAndPreserveDiscount(saleItem);
+			}
+			else
+			{
+				RestoreOriginalDiscount(saleItem);
+			}
+		}
+
+		public void TryRestoreOriginalDiscount(IPreserveDiscount saleItem)
+		{
+			if(!saleItem.OriginalDiscountMoney.HasValue && !saleItem.OriginalDiscount.HasValue)
+			{
+				return;
+			}
+
+			saleItem.SetDiscount(
+				DiscountValue.Create(
+					saleItem.DiscountData.IsDiscountMoney,
+					saleItem.OriginalDiscountMoney ?? 0,
+					saleItem.OriginalDiscount ?? 0));
+
+			saleItem.DiscountReasons.Clear();
+			foreach(var reason in saleItem.OriginalDiscountReasons)
+			{
+				saleItem.DiscountReasons.Add(reason);
+			}
+
+			saleItem.OriginalDiscountMoney = null;
+			saleItem.OriginalDiscount = null;
+			saleItem.OriginalDiscountReasons.Clear();
+		}
+
+		private void RestoreOriginalDiscount(IPreserveDiscount saleItem)
+		{
+			TryRestoreOriginalDiscount(saleItem);
+			CalculateAndSetDiscount(saleItem, saleItem.DiscountData);
 		}
 
 		/// <summary>
@@ -200,36 +307,32 @@ namespace Vodovoz.Core.Application.Orders.Services
 		/// Установка определенной скидки на строку заказа с прикреплением указанного основания скидки,
 		/// после проверки возможности этого действия
 		/// </summary>
+		/// <param name="uow">unit of work</param>
 		/// <param name="reason">Основание скидки</param>
-		/// <param name="discount">Скидка</param>
-		/// <param name="unit">Скидка в процентах или рублях</param>
-		/// <param name="orderItem">Строка заказа</param>
-		private void SetCustomDiscountForOrderItem(DiscountReason reason, decimal discount, DiscountUnits unit, IApplyDiscountReasonItem orderItem)
+		/// <param name="discountValue">Значение скидки</param>
+		/// <param name="saleItem">Строка заказа</param>
+		private void SetCustomDiscountForOrderItem(
+			IUnitOfWork uow,
+			IApplyDiscountReasonItem saleItem,
+			DiscountReason reason,
+			IDiscountValue discountValue)
 		{
-			var canApplyResult = CanApplyDiscount(reason, orderItem);
+			var canApplyResult = CanApplyDiscount(reason, saleItem);
 			
 			if(canApplyResult.IsFailure)
 			{
 				return;
 			}
 
-			SetCustomDiscount(reason, discount, unit, orderItem);
-		}
+			ClearDiscounts(saleItem);
+			var addingResult = AddDiscount(reason, saleItem, true);
 
-		/// <summary>
-		/// Установка определенной скидки на строку заказа с прикреплением указанного основания скидки
-		/// </summary>
-		/// <param name="reason">Основание скидки</param>
-		/// <param name="discount">Скидка</param>
-		/// <param name="unit">Скидка в процентах или рублях</param>
-		/// <param name="orderItem">Строка заказа</param>
-		private void SetCustomDiscount(
-			DiscountReason reason,
-			decimal discount,
-			DiscountUnits unit,
-			IApplyDiscountReasonItem orderItem)
-		{
-			AddDiscount(reason, orderItem);
+			if(addingResult.IsFailure)
+			{
+				return;
+			}
+			
+			SetCustomDiscount(uow, saleItem, discountValue);
 		}
 
 		/// <summary>
@@ -238,9 +341,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 		/// <param name="currentDiscounts">Текущие основания скидок</param>
 		/// <param name="addingDiscount">Основание скидки</param>
 		/// <param name="saleItem">Строка заказа</param>
+		/// <param name="withoutRecalculate">Без пересчета скидки(актуально, когда нужно выполнить еще действия после добавления и потом пересчитать)</param>
 		private Result AddDiscount(
 			DiscountReason addingDiscount,
-			IApplyDiscountReasonItem saleItem
+			IApplyDiscountReasonItem saleItem,
+			bool withoutRecalculate = false
 			)
 		{
 			var currentDiscounts = saleItem.DiscountReasons;
@@ -252,7 +357,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 					currentDiscounts.Add(addingDiscount);
 				}
 
-				RecalculateTotalDiscountFromReasons(saleItem);
+				if(!withoutRecalculate)
+				{
+					RecalculateTotalDiscount(saleItem);
+				}
+				
 				return Result.Success();
 			}
 			catch(Exception ex)
@@ -270,31 +379,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 			var foundDiscount = currentDiscounts.FirstOrDefault(x => x.Id == addingDiscount.Id);
 			return foundDiscount != null;
 		}
-
-		/// <summary>
-		/// Удаление скидки из строки заказа
-		/// </summary>
-		/// <param name="orderItem">Строка заказа</param>
-		private void ClearOrderItemDiscounts(IApplyDiscountReasonItem orderItem)
-		{
-			//orderItem.ClearDiscounts();
-		}
 		
 		public void ClearOrdersItemDiscounts(IList<IApplyDiscountReasonItem> orderItems)
 		{
 			throw new NotImplementedException();
-		}
-
-		public void RemoveDiscountFromOrdersItem(DiscountReason discountReason, IApplyDiscountReasonItem orderItem)
-		{
-			var discountsToRemove = orderItem.DiscountReasons.Where(x => x.Id == discountReason.Id).ToList();
-			if(discountsToRemove.Any())
-			{
-				foreach(var discount in discountsToRemove)
-				{
-					//orderItem.RemoveDiscount(discount.Id);
-				}
-			}
 		}
 	}
 }

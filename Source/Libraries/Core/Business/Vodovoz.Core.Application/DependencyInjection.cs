@@ -43,6 +43,7 @@ using VodovozBusiness.Services.Clients;
 using VodovozBusiness.Services.Clients.DeliveryPoints;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Receipts;
+using VodovozBusiness.Services.Sale;
 using VodovozBusiness.Services.Subdivisions;
 using VodovozBusiness.Services.TrueMark;
 
@@ -113,6 +114,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
 				.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
 				.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
+				.AddScoped<IGoodsCountCalculator, GoodsCountCalculator>()
 				.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 				.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 				.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
@@ -137,10 +139,15 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
 				.AddScoped<ICustomerOrderTransferService, CustomerOrderTransferService>()
 				.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
+				.AddScoped<IOrderSaleHandler, OrderSaleHandler>()
+				.AddScoped<OrderSaleItemHandler>()
 				;
 
 			services.TryAddScoped<IOrderDiscountsController, OrderDiscountsController>();
 			services.TryAddScoped<IDiscountController, DiscountController>();
+			services.TryAddScoped<ISaleItemTaxHandler, SaleItemTaxHandler>();
+			services.TryAddScoped<IVatRateProvider, VatRateFromDbProvider>();
+			services.TryAddScoped<ISaleHandler, SaleWithTaxHandler>();
 
 			return services;
 		}

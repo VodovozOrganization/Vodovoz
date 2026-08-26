@@ -87,7 +87,9 @@ namespace Vodovoz.Domain.Suppliers
 			}
 		}
 
-		public virtual string NomenclaturePrice => (Nomenclature?.GetPrice(1) ?? 0).ToShortCurrencyString();
+		public virtual string NomenclaturePrice => Nomenclature is null
+			? 0m.ToShortCurrencyString()
+			: Nomenclature.GetPrice(1).Price.ToShortCurrencyString();
 
 		#endregion Calculatable methods
 	}

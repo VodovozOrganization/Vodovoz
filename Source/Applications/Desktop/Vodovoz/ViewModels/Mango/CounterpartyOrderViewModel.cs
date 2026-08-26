@@ -36,6 +36,7 @@ using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Orders;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango
 {
@@ -61,6 +62,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		private readonly OrderCancellationService _orderCancellationService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly IOrderSaleHandler _saleHandler;
 		private IUnitOfWork UoW;
 		
 		private List<DeliveryPoint> _deliveryPoints = new List<DeliveryPoint>();
@@ -111,6 +113,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			IRouteListService routeListService,
 			OrderCancellationService orderCancellationService,
 			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			IOrderSaleHandler saleHandler,
 			int count = 5)
 		{
 			Client = client;
@@ -130,6 +133,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
@@ -330,7 +334,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			}
 			else
 			{
-				order.ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
+				order.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.Canceled, callTaskWorker);
 				UoW.Save(order);
 				UoW.Commit();
 			}
@@ -338,14 +342,14 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
-			SelectedOrder.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker);
+			SelectedOrder.SetUndeliveredStatus(UoW, _routeListService, _saleHandler, _nomenclatureSettings, _callTaskWorker);
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, SelectedOrder);
 			if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled)
 			{
 				_routeListService.SetAddressStatusWithoutOrderChange(UoW,  routeListItem.RouteList, routeListItem, RouteListItemStatus.Canceled);
 				routeListItem.StatusLastUpdate = DateTime.Now;
-				routeListItem.SetOrderActualCountsToZeroOnCanceled();
+				routeListItem.SetOrderActualCountsToZeroOnCanceled(_saleHandler);
 				UoW.Save(routeListItem.RouteList);
 				UoW.Save(routeListItem);
 			}

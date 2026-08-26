@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -111,19 +112,18 @@ namespace Vodovoz.Views.Logistic
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 					.AddSetter((c, n) => c.Editable = ViewModel.CanChangeDiscountValue)
 					.EditedEvent((o, args) => OnSpinPriceEdited(o, args, treeItems))
-					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) =>
+					.AddSetter((NodeCellRendererSpin<OrderItem> cell, OrderItem node) =>
 					{
 						if(ViewModel.Entity.OrderStatus == OrderStatus.NewOrder || (ViewModel.Entity.OrderStatus == OrderStatus.WaitForPayment && !ViewModel.Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
-							c.ForegroundGdk = colorPrimaryText;
-							var fixedPrice = new Order().GetFixedPriceOrNull(node.Nomenclature, node.TotalCountInOrder);
-							if(fixedPrice != null && node.PromoSet == null && node.CopiedFromUndelivery == null)
+							cell.ForegroundGdk = colorPrimaryText;
+							if(node.IsFixedPrice && node.PromoSet == null && node.CopiedFromUndelivery == null)
 							{
-								c.ForegroundGdk = colorGreen;
+								cell.ForegroundGdk = colorGreen;
 							}
 							else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
 							{
-								c.ForegroundGdk = colorBlue;
+								cell.ForegroundGdk = colorBlue;
 							}
 						}
 					})
@@ -195,7 +195,7 @@ namespace Vodovoz.Views.Logistic
 				return;
 			}
 
-			orderItem.SetPrice(newPrice);
+			ViewModel.SaleHandler.SetPrice(orderItem, (SaleItemPriceType.User, newPrice));
 		}
 
 		private string GetDiscountReasonsString(IEnumerable<DiscountReason> discountReasons)

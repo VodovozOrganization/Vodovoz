@@ -1,15 +1,17 @@
 ﻿using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.DiscountReasons;
+using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Core.Application.Sale
 {
-	public class OrderWithoutShipmentDiscountController : DiscountWithTaxController
+	public class OrderWithoutShipmentDiscountController : DiscountController
 	{
-		protected OrderWithoutShipmentDiscountController(SaleItemTaxHandler taxHandler) : base(taxHandler)
-		{
-			
-		}
 		
 		//TODO проверить работу установки скидки, должны устанавливаться все параметры(скидка деньгами, проценты и булево)
+		public OrderWithoutShipmentDiscountController(IDiscountReasonRepository discountReasonRepository, IDiscountReasonSettings discountReasonSettings) : base(discountReasonRepository, discountReasonSettings)
+		{
+		}
+
 		/*protected override void RecalculateTotalDiscountFromReasons(IApplyDiscountReason saleItem)
 		{
 			var currentPrice = saleItem.CurrentRawPrice;

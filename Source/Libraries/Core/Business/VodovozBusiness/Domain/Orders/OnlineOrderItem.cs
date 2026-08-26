@@ -8,6 +8,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Goods;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -75,7 +76,7 @@ namespace Vodovoz.Domain.Orders
 			get => _isFixedPrice;
 			set => SetField(ref _isFixedPrice, value);
 		}
-		
+
 		[Display(Name = "Скидка в процентах")]
 		public virtual decimal PercentDiscount
 		{
@@ -127,6 +128,8 @@ namespace Vodovoz.Domain.Orders
 			get => _discountReasons;
 			set => SetField(ref _discountReasons, value);
 		}
+		
+		IEnumerable<DiscountReason> IDiscountReasons.DiscountReasons => DiscountReasons;
 
 		/// <summary>
 		/// Сумма скидок из всех полученных оснований, приведенная к деньгам
@@ -185,6 +188,13 @@ namespace Vodovoz.Domain.Orders
 		decimal IApplyDiscountReasonItem.CurrentRawPrice => CurrentRawPrice;
 
 		public virtual IDiscountValue DiscountData => DiscountValue.Create(IsDiscountInMoney, PercentDiscount, MoneyDiscount);
+		
+		public virtual PersonalDiscount PersonalDiscount
+		{
+			get => null;
+			set => throw new NotImplementedException("Нельзя устанавливать персональную скидку в онлайн заказе");
+		}
+
 		IList<DiscountReason> IApplyDiscountReasonItem.DiscountReasons => DiscountReasons;
 		
 		public virtual void SetDiscount(IDiscountValue discountValue)
@@ -192,6 +202,41 @@ namespace Vodovoz.Domain.Orders
 			throw new NotImplementedException("Нельзя устанавливать скидку в онлайн заказе");
 		}
 
+		#endregion
+		
+		#region ICount implementation
+
+		decimal ISetCount.Count
+		{
+			get => Count;
+			set
+			{
+				if(Count == value)
+				{
+					return;
+				}
+        		
+				Count = value;
+				OnPropertyChanged();
+			}
+		}
+		
+		#endregion
+
+		#region ISaleItem implementation
+
+		public virtual bool IsAlternativePrice
+		{
+			get => false;
+			set => throw new InvalidOperationException("У позиции онлайн заказа нет альтернативной цены!");
+		}
+		
+		public virtual bool IsUserPrice
+		{
+			get => false;
+			set => throw new InvalidOperationException("У позиции онлайн заказа нет пользовательской цены!");
+		}
+		
 		#endregion
 
 		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;

@@ -220,7 +220,7 @@ namespace Edo.Docflow.Factories
 				var price = nomenclature.GetPurchasePriceOnDate(DateTime.Now);
 				if(price == 0m)
 				{
-					price = nomenclature.GetPrice(quantity);
+					price = nomenclature.GetPrice(quantity).Price;
 				}
 				else
 				{

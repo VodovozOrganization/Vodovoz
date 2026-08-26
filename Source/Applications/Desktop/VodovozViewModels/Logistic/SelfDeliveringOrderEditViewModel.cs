@@ -15,6 +15,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -38,6 +39,7 @@ namespace Vodovoz.ViewModels.Logistic
 			ICurrentPermissionService currentPermissionService,
 			IOrderContractUpdater orderContractUpdater,
 			SelectPaymentTypeViewModel selectPaymentTypeViewModel,
+			IOrderSaleHandler saleHandler,
 			INavigationManager navigation = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -49,6 +51,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			CanChangeDiscountValue = _canEditPriceDiscountFromRouteListAndSelfDelivery;
 			DiscountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
+			SaleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			var orderDate = Entity.DeliveryDate.HasValue
@@ -66,6 +69,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand PaymentTypeCommand { get; }
 		public bool CanChangeDiscountValue { get; }
 		public IOrderDiscountsController DiscountsController { get; }
+		public IOrderSaleHandler SaleHandler { get; }
 		public ILifetimeScope LifetimeScope { get; }
 
 		public IEnumerable<GeoGroup> GetSelfDeliveryGeoGroups()

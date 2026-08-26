@@ -12,6 +12,7 @@ using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Sale;
 
 namespace Vodovoz.Core.Domain.Goods
 {
@@ -1383,14 +1384,15 @@ namespace Vodovoz.Core.Domain.Goods
 		/// <param name="itemsCount">Количество единиц товара</param>
 		/// <param name="useAlternativePrice">Использовать ли альтернативную цену</param>
 		/// <returns></returns>
-		public virtual decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
+		public virtual (SaleItemPriceType PriceType, decimal Price) GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
 		{
 			if(itemsCount < 1)
 			{
 				itemsCount = 1;
 			}
 
-			decimal price = 0m;
+			(SaleItemPriceType PriceType, decimal Price) price;
+			
 			if(DependsOnNomenclature != null)
 			{
 				price = DependsOnNomenclature.GetPrice(itemsCount, useAlternativePrice);
@@ -1402,8 +1404,23 @@ namespace Vodovoz.Core.Domain.Goods
 						: NomenclaturePrice.Cast<NomenclaturePriceGeneralBase>())
 					.OrderByDescending(p => p.MinCount)
 					.FirstOrDefault(p => p.MinCount <= itemsCount);
-				price = nomPrice?.Price ?? 0;
+
+				if(nomPrice != null)
+				{
+					switch(nomPrice.Type)
+					{
+						case NomenclaturePriceGeneralBase.NomenclaturePriceType.General:
+							return (SaleItemPriceType.General, nomPrice.Price);
+						case NomenclaturePriceGeneralBase.NomenclaturePriceType.Alternative:
+							return (SaleItemPriceType.Alternative, nomPrice.Price);
+						default:
+							throw new ArgumentOutOfRangeException("Неизвестный тип цены номенклатуры. Невозможно рассчитать цену позиции");
+					}
+				}
+				
+				return (SaleItemPriceType.General, 0);
 			}
+			
 			return price;
 		}
 

@@ -33,6 +33,7 @@ using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -57,6 +58,7 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IRouteListService _routeListService;
 		private readonly OrderCancellationService _orderCancellationService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly IOrderSaleHandler _saleHandler;
 		private ValidationContext _validationContext;
 		private bool _addedCommentToOldUndelivery;
 		private bool _forceSave;
@@ -85,7 +87,8 @@ namespace Vodovoz.ViewModels.Orders
 			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService,
 			IRouteListService routeListService,
 			OrderCancellationService orderCancellationService,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			IOrderSaleHandler saleHandler
 			)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
@@ -108,6 +111,7 @@ namespace Vodovoz.ViewModels.Orders
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			_orderCancellationPermit = OrderCancellationPermit.Default();
 		}
 
@@ -294,7 +298,13 @@ namespace Vodovoz.ViewModels.Orders
 					return false;
 				}
 
-				Entity.OldOrder.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker, needCreateDeliveryFreeBalanceOperation: !_isFromRouteListClosing);
+				Entity.OldOrder.SetUndeliveredStatus(
+					UoW,
+					_routeListService,
+					_saleHandler,
+					_nomenclatureSettings,
+					_callTaskWorker,
+					needCreateDeliveryFreeBalanceOperation: !_isFromRouteListClosing);
 			}
 
 			UndeliveredOrderViewModel.BeforeSaveCommand.Execute();

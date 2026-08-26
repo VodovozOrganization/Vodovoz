@@ -344,7 +344,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				_onlineOrder.DeliveryPoint,
 				_onlineOrder.Counterparty,
 				onlineOrderItem,
-				false);
+				false)
+				.Price;
 
 			onlineOrderItem.NomenclaturePrice = price;
 			checkOnlineOrderSum.Price = price;

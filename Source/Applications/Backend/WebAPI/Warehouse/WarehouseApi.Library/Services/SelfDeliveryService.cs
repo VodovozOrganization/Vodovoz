@@ -53,6 +53,7 @@ namespace WarehouseApi.Library.Services
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IStockRepository _stockRepository;
 		private readonly IBottlesRepository _bottlesRepository;
+		private readonly IOrderSaleHandler _saleHandler;
 		private readonly IBus _messageBus;
 
 		public SelfDeliveryService(
@@ -72,6 +73,7 @@ namespace WarehouseApi.Library.Services
 			ICallTaskWorker callTaskWorker,
 			IStockRepository stockRepository,
 			IBottlesRepository bottlesRepository,
+			IOrderSaleHandler saleHandler,
 			IBus messageBus)
 		{
 			_logger = logger
@@ -106,6 +108,8 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(stockRepository));
 			_bottlesRepository = bottlesRepository
 				?? throw new ArgumentNullException(nameof(bottlesRepository));
+			_saleHandler = saleHandler
+				?? throw new ArgumentNullException(nameof(saleHandler));
 			_messageBus = messageBus
 				?? throw new ArgumentNullException(nameof(messageBus));
 		}
@@ -378,7 +382,8 @@ namespace WarehouseApi.Library.Services
 				_routeListItemRepository,
 				_selfDeliveryRepository,
 				_cashRepository,
-				_callTaskWorker);
+				_callTaskWorker,
+				_saleHandler);
 
 			if(!isFullyShiped)
 			{

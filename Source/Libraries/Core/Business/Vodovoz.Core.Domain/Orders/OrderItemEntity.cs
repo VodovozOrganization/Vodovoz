@@ -6,6 +6,7 @@ using NHibernate;
 using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Interfaces;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Orders
@@ -14,7 +15,7 @@ namespace Vodovoz.Core.Domain.Orders
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
 	[HistoryTrace]
-	public class OrderItemEntity : PropertyChangedBase, IDomainObject, IRecalculateTax
+	public class OrderItemEntity : PropertyChangedBase, IDomainObject, IPrice, IRecalculateTax
 	{
 		private int _id;
 		private decimal _price;
@@ -224,6 +225,25 @@ namespace Vodovoz.Core.Domain.Orders
 		IDepositNomenclature IRecalculateTax.Nomenclature => Nomenclature;
 
 		#endregion
+		
+		#region IOrderSetPrice implementaiton
+        
+        decimal IPrice.Price
+        {
+        	get => Price;
+        	set
+        	{
+        		if(Price == value)
+        		{
+        			return;
+        		}
+        		
+        		Price = value;
+        		OnPropertyChanged();
+        	} 
+        }
+
+        #endregion
 
 		public virtual decimal ReturnedCount => Count - ActualCount ?? 0;
 

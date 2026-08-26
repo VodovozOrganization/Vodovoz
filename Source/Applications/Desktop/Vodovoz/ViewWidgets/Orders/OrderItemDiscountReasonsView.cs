@@ -45,5 +45,11 @@ namespace Vodovoz.ViewWidgets.Orders
 			ybuttonAdd.BindCommand(ViewModel.AddDiscountReasonCommand);
 			ybuttonDelete.BindCommand(ViewModel.DeleteDiscountReasonCommand);
 		}
+
+		protected override void OnDestroyed()
+		{
+			ViewModel.Dispose();
+			base.OnDestroyed();
+		}
 	}
 }
