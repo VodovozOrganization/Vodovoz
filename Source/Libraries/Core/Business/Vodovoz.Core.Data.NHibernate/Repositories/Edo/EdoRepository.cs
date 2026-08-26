@@ -219,6 +219,26 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return edoDocuments.ToList();
 		}
 
+		public OrderEdoDocument GetOrderEdoDocumentByTaskId(IUnitOfWork uow, int taskId)
+		{
+			var orderDocument = uow.Session.QueryOver<OrderEdoDocument>()
+				.Where(x => x.DocumentTaskId == taskId)
+				.SingleOrDefault();
+
+			return orderDocument;
+		}
+
+		public TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId)
+		{
+			TaxcomDocflow taxcomDocflowAlias = null;
+
+			var taxcomDocflow = uow.Session.QueryOver(() => taxcomDocflowAlias)
+				.Where(() => taxcomDocflowAlias.DocflowId == docflowId)
+				.SingleOrDefault();
+
+			return taxcomDocflow;
+		}
+
 		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
 			IUnitOfWork uow,
 			int timeoutDays,
@@ -269,9 +289,10 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				where
 					task.Status == EdoTaskStatus.InProgress
 					&& orderEdoDocument.CreationTime < thresholdDate
-					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
+					&& (orderEdoDocument.Status == EdoDocumentStatus.Sent
+						|| orderEdoDocument.Status == EdoDocumentStatus.InProgress
+						&& taxcomDocflow.IsReceived)
 					&& orderEdoDocument.AcceptTime == null
-					&& taxcomDocflow.IsReceived
 					&& order.PaymentType == PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
@@ -346,9 +367,10 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				where
 					task.Status == EdoTaskStatus.InProgress
 					&& taxcomDocflow.CreationTime < thresholdDate && taxcomDocflow.CreationTime >= thresholdDate.AddDays(-1)
-					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
+					&& (orderEdoDocument.Status == EdoDocumentStatus.Sent
+						|| orderEdoDocument.Status == EdoDocumentStatus.InProgress
+						&& taxcomDocflow.IsReceived)
 					&& orderEdoDocument.AcceptTime == null
-					&& taxcomDocflow.IsReceived
 					&& order.PaymentType == PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
@@ -1167,6 +1189,31 @@ where ecr.order_id = :order_id
 				.FirstOrDefaultAsync(t => t.Id == taskId, cancellationToken);
 
 			return task;
+		}
+
+		public EdoDocFlowStatus[] GetRecievedEdoDocFlowStatuses()
+		{
+			return new EdoDocFlowStatus[]
+				{
+					EdoDocFlowStatus.Sent,
+					EdoDocFlowStatus.Succeed,
+					EdoDocFlowStatus.Warning,
+					EdoDocFlowStatus.Cancelled,
+					EdoDocFlowStatus.WaitingForCancellation,
+					EdoDocFlowStatus.CompletedWithDivergences,
+					EdoDocFlowStatus.NotAccepted
+				};
+		}
+
+		public EdoDocumentStatus[] GetInProgressOrCompletedStatuses()
+		{
+			return new EdoDocumentStatus[]
+				{
+					EdoDocumentStatus.InProgress,
+					EdoDocumentStatus.Sent,
+					EdoDocumentStatus.Succeed,
+					EdoDocumentStatus.CompletedWithDivergences
+				};
 		}
 	}
 }

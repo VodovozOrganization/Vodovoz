@@ -291,7 +291,8 @@ namespace Edo.Withdrawal
 		}
 
 		private bool IsDocumentHasValidStatus(OrderEdoDocument orderEdoDocument) =>
-			orderEdoDocument.Status == EdoDocumentStatus.InProgress;
+			orderEdoDocument.Status is EdoDocumentStatus.InProgress 
+			|| orderEdoDocument.Status is EdoDocumentStatus.Sent;
 
 		private async Task<bool> IsTrueMarkWithdrawalDocumentExists(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
 		{
