@@ -18,6 +18,11 @@ namespace BitrixNotificationsSend.Client
 	{
 		private const string _dealAddMethod = "crm.deal.add";
 		private const string _dealUpdateMethod = "crm.deal.update";
+		private const string _dealGetMethod = "crm.deal.get";
+		private const string _dealStageFieldName = "STAGE_ID";
+		private const string _dealStageCommandKeyPrefix = "deal_stage_";
+		private const string _notFoundMessage = "not found";
+
 		private static readonly string[] _undeliveredOrderDealUpdateExcludedFields = { "CATEGORY_ID", "STAGE_ID" };
 
 		private readonly HttpClient _httpClient;
@@ -45,6 +50,51 @@ namespace BitrixNotificationsSend.Client
 			}
 
 			return await SendBatch(commands, cancellationToken);
+		}
+
+		public async Task<Result<BitrixBatchResult>> UpdatePlannedOrderDeals(
+			IEnumerable<PlannedOrderDealUpdateDto> plannedOrderDealUpdates,
+			CancellationToken cancellationToken)
+		{
+			var commands = new Dictionary<string, string>();
+
+			foreach(var plannedOrderDealUpdate in plannedOrderDealUpdates)
+			{
+				commands.Add(
+					plannedOrderDealUpdate.DealCommandKey,
+					BitrixCommandBuilder.CreateCommand(
+						_dealUpdateMethod,
+						plannedOrderDealUpdate,
+						$"id={plannedOrderDealUpdate.BitrixDealId}"));
+			}
+
+			return await SendBatch(commands, cancellationToken);
+		}
+
+		public async Task<Result<BitrixDealsStagesResult>> GetDealsStages(
+			IEnumerable<long> dealIds,
+			CancellationToken cancellationToken)
+		{
+			var commands = new Dictionary<string, string>();
+
+			foreach(var dealId in dealIds)
+			{
+				commands.Add($"{_dealStageCommandKeyPrefix}{dealId}", $"{_dealGetMethod}?id={dealId}");
+			}
+
+			if(commands.Count == 0)
+			{
+				return new BitrixDealsStagesResult();
+			}
+
+			var batchResponse = await SendBatchRequest(commands, cancellationToken);
+
+			if(batchResponse.IsFailure)
+			{
+				return Result.Failure<BitrixDealsStagesResult>(batchResponse.Errors);
+			}
+
+			return ParseDealsStages(batchResponse.Value);
 		}
 
 		public async Task<Result<BitrixBatchResult>> LastServiceOrderDeals(
@@ -104,6 +154,26 @@ namespace BitrixNotificationsSend.Client
 				return new BitrixBatchResult();
 			}
 
+			var batchResponse = await SendBatchRequest(commands, cancellationToken);
+
+			if(batchResponse.IsFailure)
+			{
+				return Result.Failure<BitrixBatchResult>(batchResponse.Errors);
+			}
+
+			return CreateBatchResult(batchResponse.Value);
+		}
+
+		/// <summary>
+		/// Отправка пакетного запроса batch.json в Битрикс24 с повторами при сетевых ошибках
+		/// </summary>
+		/// <param name="commands">Команды пакета: ключ команды - строка вызова метода</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Разобранный ответ Битрикс24 на пакетный запрос</returns>
+		private async Task<Result<BitrixBatchResponse>> SendBatchRequest(
+			IDictionary<string, string> commands,
+			CancellationToken cancellationToken)
+		{
 			if(commands.Count > BitrixApiLimits.MaxBatchCommandsCount)
 			{
 				throw new ArgumentException(
@@ -132,7 +202,7 @@ namespace BitrixNotificationsSend.Client
 
 					if(!response.IsSuccessStatusCode)
 					{
-						return Result.Failure<BitrixBatchResult>(
+						return Result.Failure<BitrixBatchResponse>(
 							Errors.BitrixNotificationsSendErrors.CreateBatchRequestError(response.ReasonPhrase));
 					}
 
@@ -143,11 +213,11 @@ namespace BitrixNotificationsSend.Client
 				cancellationToken);
 
 			return result.Result
-				?? Result.Failure<BitrixBatchResult>(
+				?? Result.Failure<BitrixBatchResponse>(
 					Errors.BitrixNotificationsSendErrors.CreateBatchRequestError(result.FinalException.Message));
 		}
 
-		private static Result<BitrixBatchResult> ParseBatchResponse(string responseBody)
+		private static Result<BitrixBatchResponse> ParseBatchResponse(string responseBody)
 		{
 			BitrixBatchResponse batchResponse;
 
@@ -157,18 +227,23 @@ namespace BitrixNotificationsSend.Client
 			}
 			catch(JsonException ex)
 			{
-				return Result.Failure<BitrixBatchResult>(
+				return Result.Failure<BitrixBatchResponse>(
 					Errors.BitrixNotificationsSendErrors.CreateBatchRequestError(
 						$"Не удалось разобрать ответ пакетного запроса: {ex.Message}"));
 			}
 
 			if(batchResponse?.Result == null)
 			{
-				return Result.Failure<BitrixBatchResult>(
+				return Result.Failure<BitrixBatchResponse>(
 					Errors.BitrixNotificationsSendErrors.CreateBatchRequestError(
 						"Ответ пакетного запроса не содержит результата"));
 			}
 
+			return batchResponse;
+		}
+
+		private static BitrixBatchResult CreateBatchResult(BitrixBatchResponse batchResponse)
+		{
 			var batchResult = new BitrixBatchResult();
 
 			foreach(var successfulCommand in batchResponse.Result.SuccessfulCommands)
@@ -194,6 +269,85 @@ namespace BitrixNotificationsSend.Client
 			FillOperatingData(batchResponse.Result.CommandsTime.Values, batchResult);
 
 			return batchResult;
+		}
+
+		/// <summary>
+		/// Разбор ответа пакетного запроса чтения сделок.
+		/// Сделки, по которым Битрикс24 вернул ошибку отсутствия сделки, считаются удалёнными,
+		/// остальные ошибки возвращаются для повторной обработки
+		/// </summary>
+		/// <param name="batchResponse">Ответ Битрикс24 на пакетный запрос batch.json</param>
+		/// <returns>Результат чтения текущих стадий сделок из Битрикс24</returns>
+		private static BitrixDealsStagesResult ParseDealsStages(BitrixBatchResponse batchResponse)
+		{
+			var stagesResult = new BitrixDealsStagesResult();
+
+			foreach(var successfulCommand in batchResponse.Result.SuccessfulCommands)
+			{
+				if(!TryGetDealIdFromCommandKey(successfulCommand.Key, out var dealId))
+				{
+					continue;
+				}
+
+				if(successfulCommand.Value.ValueKind == JsonValueKind.Object
+					&& successfulCommand.Value.TryGetProperty(_dealStageFieldName, out var stageValue)
+					&& stageValue.ValueKind == JsonValueKind.String)
+				{
+					stagesResult.StagesByDealIds[dealId] = stageValue.GetString();
+				}
+			}
+
+			foreach(var commandError in batchResponse.Result.Errors)
+			{
+				if(!TryGetDealIdFromCommandKey(commandError.Key, out var dealId))
+				{
+					continue;
+				}
+
+				var itemError = new BitrixBatchItemError
+				{
+					CommandKey = commandError.Key,
+					ErrorCode = commandError.Value?.Error,
+					Message = commandError.Value?.ErrorDescription
+				};
+
+				if(IsDealNotFoundError(itemError))
+				{
+					stagesResult.NotFoundDealIds.Add(dealId);
+					continue;
+				}
+
+				stagesResult.Errors.Add(itemError);
+			}
+
+			return stagesResult;
+		}
+
+		private static bool TryGetDealIdFromCommandKey(string commandKey, out long dealId)
+		{
+			dealId = default;
+
+			if(string.IsNullOrWhiteSpace(commandKey)
+				|| !commandKey.StartsWith(_dealStageCommandKeyPrefix, StringComparison.Ordinal))
+			{
+				return false;
+			}
+
+			return long.TryParse(commandKey.Substring(_dealStageCommandKeyPrefix.Length), out dealId);
+		}
+
+		private static bool IsDealNotFoundError(BitrixBatchItemError itemError)
+		{
+			if(itemError.IsOperatingLimitError)
+			{
+				return false;
+			}
+
+			var isNotFound =
+				!string.IsNullOrWhiteSpace(itemError.Message)
+				&& (itemError.Message.IndexOf(_notFoundMessage, StringComparison.OrdinalIgnoreCase) >= 0);
+
+			return isNotFound;
 		}
 
 		private static bool TryGetCreatedEntityId(JsonElement value, out long entityId)

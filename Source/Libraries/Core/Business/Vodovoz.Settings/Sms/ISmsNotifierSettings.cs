@@ -8,5 +8,10 @@
 		string LowBalanceNotifiedPhone { get; }
 		string LowBalanceNotifyText { get; }
 		string UndeliveryAutoTransferNotApprovedTextTemplate { get; }
+
+		/// <summary>
+		/// Шаблон текста смс уведомления о том, что курьер в пути
+		/// </summary>
+		string CourierOnTheWaySmsTextTemplate { get; }
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using EdoService.Library;
 using Gamma.Binding.Core;
 using QS.Dialog;
+using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -8,28 +9,33 @@ using System.Linq;
 using System.Windows.Input;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.ViewModels.Edo
 {
 	public class EdoInOrderDocumentActionsViewModel : WidgetViewModelBase
 	{
+		private readonly IEdoDocumentActionsFactory _actionsFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEdoService _edoService;
+		private readonly ICurrentPermissionService _currentPermissionService;
 		private EdoInOrderDocumentHistoryRowViewModel _selectedDocument;
 		private IEnumerable<BusyCommand> _actions = Enumerable.Empty<BusyCommand>();
 
 		public EdoInOrderDocumentActionsViewModel(
 			IInteractiveService interactiveService,
-			IEdoService edoService
-			)
+			IEdoService edoService,
+			ICurrentPermissionService currentPermissionService,
+			IEdoDocumentActionsFactory actionsFactory)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_actionsFactory = actionsFactory ?? throw new ArgumentNullException(nameof(actionsFactory));
 		}
 
-		internal ICommand EdoInOrderRefreshCommand { get; set; }
+		public ICommand EdoInOrderRefreshCommand { get; set; }
 
 		public virtual EdoInOrderDocumentHistoryRowViewModel SelectedDocument
 		{
@@ -38,7 +44,9 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				if(SetField(ref _selectedDocument, value))
 				{
-					CreateActions();
+					Actions = _actionsFactory.CreateActions(
+						_selectedDocument,
+						() => EdoInOrderRefreshCommand?.Execute(null));
 				}
 			}
 		}
@@ -85,9 +93,16 @@ namespace Vodovoz.ViewModels.Edo
 			) 
 		{
 			newActions.Add(new BusyCommand(
-				"Переотправить УПД",
+				"Переотправить",
 				() =>
 				{
+					if(IsDocumentCompletedWithClarification(document))
+					{
+						ShowResult(_edoService.ScheduleResendEdoDocumentAfterTrueMarkCancellation(document.TaskId));
+						EdoInOrderRefreshCommand?.Execute(null);
+						return;
+					}
+
 					var hasDocflow = _edoService.HasDocflow(document.TaskId);
 					var hasCancelledDocflow = _edoService.HasCancelledDocflow(document.TaskId);
 					if(hasDocflow && !hasCancelledDocflow)
@@ -129,6 +144,31 @@ namespace Vodovoz.ViewModels.Edo
 					}
 				}
 			));
+
+			if(IsDocumentCompletedWithClarification(document)
+				&& _currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentWithCodesFromPool))
+			{
+				newActions.Add(new BusyCommand(
+					"Переотправить с кодами из пула",
+					() =>
+					{
+						if(!_interactiveService.Question(
+							"Документ будет переотправлен с подбором новых кодов ЧЗ из пула. Продолжить?"))
+						{
+							return;
+						}
+
+						ShowResult(_edoService.ResendEdoDocumentForOrderWithCodesFromPool(document.TaskId));
+						EdoInOrderRefreshCommand?.Execute(null);
+					}
+				));
+			}
+		}
+
+		private bool IsDocumentCompletedWithClarification(EdoInOrderDocumentNode document)
+		{
+			return document.EdoDocumentStatus == EdoDocumentStatus.Warning
+				|| document.EdoDocumentStatus == EdoDocumentStatus.CompletedWithDivergences;
 		}
 
 		private void CreateReceiptActions(

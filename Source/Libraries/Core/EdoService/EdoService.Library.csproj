@@ -13,6 +13,7 @@
 	  <ProjectReference Include="..\Backend\Edo\Edo.Admin\Edo.Admin.csproj" />
 	  <ProjectReference Include="..\Backend\Edo\Edo.Problems\Edo.Problems.csproj" />
 	  <ProjectReference Include="..\Backend\Edo\Edo.Transport\Edo.Transport.csproj" />
+	  <ProjectReference Include="..\Backend\TaxcomEdo\TaxcomEdo.Client\TaxcomEdo.Client.csproj" />
 	  <ProjectReference Include="..\Backend\TaxcomEdo\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
 	  <ProjectReference Include="..\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
 	  <ProjectReference Include="..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />

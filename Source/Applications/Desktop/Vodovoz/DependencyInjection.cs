@@ -1,6 +1,9 @@
 ﻿using Core.Infrastructure;
 using CustomerNotifications.Application.Builders;
+using CustomerNotifications.Contracts;
 using DriverApi.Notifications.Client;
+using Edo.Admin;
+using Edo.Problem.Routine;
 using Edo.Transport;
 using ExportTo1c.Library.Factories;
 using Fias.Client;
@@ -9,6 +12,7 @@ using Mailganer.Api.Client;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySqlConnector;
 using Notifications.Infrastructure;
 using Osrm;
@@ -44,7 +48,9 @@ using QSProjectsLib;
 using RabbitMQ.MailSending;
 using ResourceLocker.Library;
 using System;
-using Edo.Problem.Routine;
+using System.Text.Json;
+using Taxcom.Docflow.Utility;
+using TaxcomEdo.Client;
 using TransactionalOutbox.Abstractions;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
@@ -95,6 +101,8 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Counterparty;
+using Vodovoz.Settings.Database.Edo;
+using Vodovoz.Settings.Edo;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Trackers;
@@ -105,15 +113,12 @@ using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.ViewModels.Journals.Mappings;
 using Vodovoz.ViewModels.Services;
 using Vodovoz.ViewModels.Services.DriverSchedule;
+using Vodovoz.ViewModels.Services.SalesReport;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
-using CustomerNotifications.Contracts;
-using CustomerNotifications.Application;
-using Vodovoz.ViewModels.Services.SalesReport;
-using Edo.Admin;
 
 namespace Vodovoz
 {
@@ -279,6 +284,7 @@ namespace Vodovoz
 			services.AddStaticScopeForEntity();
 			services.AddStaticServicesConfig();
 			services.AddOrderTrackerFor1c();
+			services.AddTaxcomApiClientFactory();
 
 			return services;
 		}

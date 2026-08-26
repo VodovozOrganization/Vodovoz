@@ -2190,6 +2190,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoNotificationSettingView.cs" />
     <Compile Include="Views\Edo\EdoView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoView.cs" />
+    <Compile Include="ViewWidgets\Mango\MangoCallButtonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Mango.MangoCallButtonView.cs" />
+    <Compile Include="Views\Mango\Talks\DriverForwardingOrderSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.DriverForwardingOrderSelectionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2578,6 +2582,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdo.Client\TaxcomEdo.Client.csproj">
+      <Project>{ec46f330-1887-4176-81ce-b95d5c3e469a}</Project>
+      <Name>TaxcomEdo.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj">
       <Project>{88eea039-f3d5-4069-a160-939fdf186ab4}</Project>

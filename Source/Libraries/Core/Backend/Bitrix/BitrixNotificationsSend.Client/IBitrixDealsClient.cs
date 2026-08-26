@@ -74,5 +74,38 @@ namespace BitrixNotificationsSend.Client
 		Task<Result<BitrixBatchResult>> UpdateUndeliveredOrderDeals(
 			IEnumerable<UndeliveredOrderDto> undeliveredOrders,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Пакетное обновление сделок в Битрикс24 по планируемым заказам,
+		/// по которым клиент создал заказ
+		/// </summary>
+		/// <param name="plannedOrderDealUpdates">
+		/// Данные для обновления сделок,
+		/// не более <see cref="BitrixApiLimits.MaxBatchCommandsCount"/> за один вызов
+		/// </param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// Результат отправки с ключами команд обновлённых сделок, ошибками по отдельным сделкам
+		/// и данными об операционном бюджете Битрикс24
+		/// </returns>
+		Task<Result<BitrixBatchResult>> UpdatePlannedOrderDeals(
+			IEnumerable<PlannedOrderDealUpdateDto> plannedOrderDealUpdates,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Пакетное чтение текущих стадий сделок из Битрикс24
+		/// </summary>
+		/// <param name="dealIds">
+		/// Id сделок в Битрикс24,
+		/// не более <see cref="BitrixApiLimits.MaxBatchCommandsCount"/> за один вызов
+		/// </param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// Стадии найденных сделок, id не найденных (удалённых) сделок
+		/// и ошибки чтения по остальным сделкам
+		/// </returns>
+		Task<Result<BitrixDealsStagesResult>> GetDealsStages(
+			IEnumerable<long> dealIds,
+			CancellationToken cancellationToken);
 	}
 }

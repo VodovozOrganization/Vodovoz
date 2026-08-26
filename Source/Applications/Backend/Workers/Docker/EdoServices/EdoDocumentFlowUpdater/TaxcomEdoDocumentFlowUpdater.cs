@@ -16,23 +16,23 @@ using System.Threading.Tasks;
 using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Edo;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Settings;
 using Vodovoz.Zabbix.Sender;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
+using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
+using IOrganizationRepository = Vodovoz.EntityRepositories.Organizations.IOrganizationRepository;
 
 namespace EdoDocumentFlowUpdater
 {
 	public class TaxcomEdoDocumentFlowUpdater : BackgroundService
 	{
-		private const string _postDateConfirmation = "PostDateConfirmation";
 		private const string _trueMarkAccepted = "TracingAccepted";
 		private const string _trueMarkRejected = "TracingRejected";
 		private const string _trueMarkCancellationAccepted = "TracingCancellationAccepted";
@@ -47,6 +47,7 @@ namespace EdoDocumentFlowUpdater
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ITaxcomEdoDocflowLastProcessTimeRepository _edoDocflowLastProcessTimeRepository;
+		private readonly IEdoRepository _edoRepository;
 		private readonly string _serviceName;
 		private readonly IEdoContainerFileStorageService _edoContainerFileStorageService;
 		private readonly IPublishEndpoint _publishEndpoint;
@@ -65,7 +66,8 @@ namespace EdoDocumentFlowUpdater
 			ISettingsController settingController,
 			IZabbixSender zabbixSender,
 			IEdoContainerFileStorageService edoContainerFileStorageService,
-			IPublishEndpoint publishEndpoint)
+			IPublishEndpoint publishEndpoint,
+			IEdoRepository edoRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
@@ -83,6 +85,7 @@ namespace EdoDocumentFlowUpdater
 				edoDocflowLastProcessTimeRepository ?? throw new ArgumentNullException(nameof(edoDocflowLastProcessTimeRepository));
 
 			_serviceName = $"{nameof(TaxcomEdoDocumentFlowUpdater)}_{_documentFlowUpdaterOptions.EdoAccount}";
+			_edoRepository = edoRepository;
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -240,8 +243,8 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 
-			var isReceived =
-				docflow.Documents.FirstOrDefault(x => x.TransactionCode == _postDateConfirmation) != null;
+			var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
+			var isReceived = recievedStatuses.Contains(docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
 
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent
 			{
@@ -259,7 +262,7 @@ namespace EdoDocumentFlowUpdater
 			await _publishEndpoint.Publish(@event, cancellationToken);
 		}
 
-		private void UpdateTrueMarkTraceabilityInfo(EdoDocFlow docflow, OutgoingTaxcomDocflowUpdatedEvent @event)
+		private static void UpdateTrueMarkTraceabilityInfo(EdoDocFlow docflow, OutgoingTaxcomDocflowUpdatedEvent @event)
 		{
 			TrueMarkTraceabilityStatus? trueMarkStatus = null;
 
@@ -449,7 +452,7 @@ namespace EdoDocumentFlowUpdater
 			}
 			
 			var containerReceived =
-				docflow.Documents.FirstOrDefault(x => x.TransactionCode == _postDateConfirmation) != null;
+				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value is EdoDocFlowStatus.Sent;
 
 			container.DocFlowId = docflow.Id;
 			container.Received = containerReceived;
