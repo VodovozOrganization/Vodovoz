@@ -69410,7 +69410,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Filters.GtkViews.DebtorsFilterView" design-size="1910 208">
+  <widget class="Gtk.Bin" id="Vodovoz.Filters.GtkViews.DebtorsFilterView" design-size="1984 208">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -69700,9 +69700,21 @@ not tooltip</property>
           <widget class="Gtk.Table" id="table2">
             <property name="MemberName" />
             <property name="NRows">5</property>
-            <property name="NColumns">5</property>
+            <property name="NColumns">6</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
             <child>
               <placeholder />
             </child>
@@ -70174,6 +70186,28 @@ not tooltip</property>
               </packing>
             </child>
             <child>
+              <widget class="Gamma.GtkWidgets.yCheckButton" id="ycheckbuttonShowAllOrderStatuses">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Включить все статусы заказов</property>
+                <property name="DrawIndicator">True</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+              </widget>
+              <packing>
+                <property name="LeftAttach">5</property>
+                <property name="RightAttach">6</property>
+                <property name="AutoSize">True</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gamma.GtkWidgets.yCheckButton" id="ycheckbuttonShowCancellation">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
@@ -70343,8 +70377,6 @@ not tooltip</property>
           <packing>
             <property name="Position">2</property>
             <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
           </packing>
         </child>
         <child>
