@@ -274,7 +274,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			try
 			{
 				var routeList = routeListItem.RouteList;
-				routeList.RemoveAddress(routeListItem);
+				routeList.RemoveAddress(uow, routeListItem);
 
 				order.ChangeStatus(OrderStatus.Accepted);
 				order.TransferToNewDateAndSchedule(

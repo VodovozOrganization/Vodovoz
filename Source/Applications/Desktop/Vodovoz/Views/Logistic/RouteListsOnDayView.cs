@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using Gamma.Widgets;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
@@ -112,8 +113,7 @@ namespace Vodovoz.Views.Logistic
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
-			yenumcomboMapType.EnumItemSelected += (sender, args) =>
-				gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
+			yenumcomboMapType.EnumItemSelected += OnMapTypeEnumItemSelected;
 			yenumcomboMapType.SelectedItem = _defaultMapProvider;
 
 			LoadDistrictsGeometry();
@@ -218,10 +218,10 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewShift.ItemsDataSource = ViewModel.DeliveryShiftNodes;
 
 
-			buttonAddDriver.Clicked += (sender, e) => ViewModel.AddDriverCommand.Execute();
+			buttonAddDriver.BindCommand(ViewModel.AddDriverCommand);
 
 			buttonRemoveDriver.Binding.AddBinding(ViewModel, vm => vm.AreDriversSelected, w => w.Sensitive).InitializeFromSource();
-			buttonRemoveDriver.Clicked += (sender, e) => ViewModel.RemoveDriverCommand.Execute(null);
+			buttonRemoveDriver.BindCommand(ViewModel.RemoveDriverCommand);
 
 			buttonDriverSelectAuto.Binding.AddBinding(ViewModel, vm => vm.AreDriversSelected, w => w.Sensitive).InitializeFromSource();
 
@@ -234,10 +234,10 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewOnDayForwarders.Selection.Changed += (sender, e) => ViewModel.SelectedForwarder = ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>().FirstOrDefault();
 			ytreeviewOnDayForwarders.Binding.AddBinding(ViewModel, vm => vm.ObservableForwardersOnDay, w => w.ItemsDataSource).InitializeFromSource();
 
-			buttonAddForwarder.Clicked += (sender, e) => ViewModel.AddForwarderCommand.Execute();
+			buttonAddForwarder.BindCommand(ViewModel.AddForwarderCommand);
 
 			buttonRemoveForwarder.Binding.AddBinding(ViewModel, vm => vm.IsForwarderSelected, w => w.Sensitive).InitializeFromSource();
-			buttonRemoveForwarder.Clicked += (sender, e) => ViewModel.RemoveForwarderCommand.Execute(ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>());
+			buttonRemoveForwarder.BindCommand(ViewModel.RemoveForwarderCommand, () => ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>());
 
 			yspinMaxTime.Binding.AddBinding(ViewModel.Optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt).InitializeFromSource();
 
@@ -266,7 +266,7 @@ namespace Vodovoz.Views.Logistic
 			ViewModel.AutoroutingResultsSaved += (sender, e) => FillDialogAtDay();
 
 			btnSave.Binding.AddBinding(ViewModel, e => e.IsAutoroutingModeActive, w => w.Visible).InitializeFromSource();
-			btnSave.Clicked += (sender, e) => ViewModel.SaveCommand.Execute();
+			btnSave.BindCommand(ViewModel.SaveCommand);
 
 			btnCancel.Binding.AddBinding(ViewModel, e => e.IsAutoroutingModeActive, w => w.Visible).InitializeFromSource();
 			btnCancel.Clicked += (sender, e) =>
@@ -288,14 +288,14 @@ namespace Vodovoz.Views.Logistic
 				UpdateAddressesOnMap();
 			};
 			checkShowCompleted.Toggled += (sender, e) => FillDialogAtDay();
-			buttonOpen.Clicked += (sender, e) => ViewModel.OpenOrderOrRouteListCommand.Execute(ytreeRoutes.GetSelectedObject());
+			buttonOpen.BindCommand(ViewModel.OpenOrderOrRouteListCommand, () => ytreeRoutes.GetSelectedObject());
 			buttonMapHelp.Clicked += (sender, e) => new RouresAtDayInfoWnd().Show();
 			buttonRebuildRoute.Clicked += (sender, e) =>
 			{
 				ViewModel.RebuilOneRouteCommand.Execute(ytreeRoutes.GetSelectedObject());
 				ytreeRoutes.YTreeModel.EmitModelChanged();
 			};
-			buttonWarnings.Clicked += (sender, e) => ViewModel.ShowWarningsCommand.Execute();
+			buttonWarnings.BindCommand(ViewModel.ShowWarningsCommand);
 			ytreeviewOnDayDrivers.RowActivated += OnButtonDriverSelectAutoClicked;
 			buttonFilter.Clicked += (sender, e) => FillItems();
 			enumCmbDeliveryType.ItemsEnum = typeof(DeliveryScheduleFilterType);
@@ -316,6 +316,11 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.ExcludeTrucks, w => w.Active)
 				.InitializeFromSource();
 			chkExcludeTrukcs.Toggled += (sender, args) => FillFullOrdersInfo();
+		}
+
+		private void OnMapTypeEnumItemSelected(object sender, ItemSelectedEventArgs args)
+		{
+			gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 		}
 
 		private void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
@@ -1454,21 +1459,12 @@ namespace Vodovoz.Views.Logistic
 			}
 		}
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
 			ViewModel.Dispose();
 			gmapWidget.Destroy();
-			ytreeRoutes.Destroy();
-			ytreeviewOnDayDrivers.Destroy();
-			ytreeviewOnDayForwarders.Destroy();
-			ytreeviewShift.Destroy();
-			ytreeviewGeographicGroup.Destroy();
-			ytreeviewAddressesTypes.Destroy();
-			viewDeliverySummary.Destroy();
-			yenumcomboMapType.Destroy();
-			enumCmbDeliveryType.Destroy();
-
-			base.Destroy();
+			
+			base.OnDestroyed();
 		}
 	}
 }

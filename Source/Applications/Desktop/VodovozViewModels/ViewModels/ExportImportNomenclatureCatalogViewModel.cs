@@ -427,8 +427,10 @@ namespace Vodovoz.ViewModels
 						newNomenclature.ShipperCounterparty = counterparty;
 					}
 					if(node.Id.HasValue)
+					{
 						newNomenclature.Id = node.Id.Value;
-					newNomenclature.UoW = UoW;
+					}
+
 					node.Nomenclature = newNomenclature;
 
 					//Validation

@@ -23,6 +23,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 		private readonly string _normalEntryToolTipMarkup;
 		private readonly string _dangerEntryToolTipMarkup = "Введён текст для поиска, но не выбрана сущность из справочника или выпадающего списка.";
 
+		private CellRendererText _cellRendererMatchCompletion;
 		private IEntitySelectionViewModel _viewModel;
 
 		private bool _isInternalTextSet;
@@ -37,9 +38,9 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 			ConfigureEntryComplition();
 
-			yentryObject.FocusOutEvent += (s, e) => OnEntryObjectFocusOutEvent(s, e);
-			yentryObject.Changed += (s, e) => OnEntryObjectChanged(s, e);
-			yentryObject.WidgetEvent += (s, e) => OnEntryObjectWidgetEvent(s, e);
+			yentryObject.FocusOutEvent += OnEntryObjectFocusOutEvent;
+			yentryObject.Changed += OnEntryObjectChanged;
+			yentryObject.WidgetEvent += OnEntryObjectWidgetEvent;
 
 			_normalEntryToolTipMarkup = yentryObject.TooltipMarkup;
 		}
@@ -112,21 +113,21 @@ namespace Vodovoz.ViewWidgets.GtkUI
 		private void ConfigureEntryComplition()
 		{
 			yentryObject.Completion = new EntryCompletion();
-			yentryObject.Completion.MatchSelected += Completion_MatchSelected;
-			yentryObject.Completion.MatchFunc = Completion_MatchFunc;
+			yentryObject.Completion.MatchSelected += CompletionMatchSelected;
+			yentryObject.Completion.MatchFunc = CompletionMatchFunc;
 
-			var cell = new CellRendererText();
+			_cellRendererMatchCompletion = new CellRendererText();
 
-			yentryObject.Completion.PackStart(cell, true);
-			yentryObject.Completion.SetCellDataFunc(cell, OnCellLayoutDataFunc);
+			yentryObject.Completion.PackStart(_cellRendererMatchCompletion, true);
+			yentryObject.Completion.SetCellDataFunc(_cellRendererMatchCompletion, OnCellLayoutDataFunc);
 		}
 
-		bool Completion_MatchFunc(EntryCompletion completion, string key, TreeIter iter)
+		private bool CompletionMatchFunc(EntryCompletion completion, string key, TreeIter iter)
 		{
 			return true;
 		}
 
-		void OnCellLayoutDataFunc(CellLayout cell_layout, CellRenderer cell, TreeModel tree_model, TreeIter iter)
+		private void OnCellLayoutDataFunc(CellLayout cell_layout, CellRenderer cell, TreeModel tree_model, TreeIter iter)
 		{
 			var title = _viewModel.GetAutocompleteTitle(tree_model.GetValue(iter, 0)) ?? string.Empty;
 			var words = yentryObject.Text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -139,7 +140,7 @@ namespace Vodovoz.ViewWidgets.GtkUI
 		}
 
 		[GLib.ConnectBefore]
-		void Completion_MatchSelected(object o, MatchSelectedArgs args)
+		void CompletionMatchSelected(object o, MatchSelectedArgs args)
 		{
 			var node = args.Model.GetValue(args.Iter, 0);
 			_viewModel.AutocompleteSelectNode(node);
@@ -230,6 +231,12 @@ namespace Vodovoz.ViewWidgets.GtkUI
 
 		protected override void OnDestroyed()
 		{
+			if(yentryObject?.Completion != null)
+			{
+				yentryObject.Completion.MatchFunc = null;
+				yentryObject.Completion.SetCellDataFunc(_cellRendererMatchCompletion, null);
+			}
+			
 			if(_viewModel != null)
 			{
 				_viewModel.PropertyChanged -= ViewModel_PropertyChanged;

@@ -19,6 +19,7 @@ namespace Vodovoz.JournalViewModels
 	public class CarModelJournalViewModel : EntityJournalViewModelBase<CarModel, CarModelViewModel, CarModelJournalNode>
 	{
 		private readonly CarModelJournalFilterViewModel _filterViewModel;
+		private bool _disposed;
 
 		public CarModelJournalViewModel(
 			CarModelJournalFilterViewModel filterViewModel,
@@ -94,8 +95,10 @@ namespace Vodovoz.JournalViewModels
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
 			base.Dispose();
+			_disposed = true;
 		}
 
 		protected override void CreateNodeActions()

@@ -8,6 +8,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 		public UserSettingsMap()
 		{
 			Table("user_settings");
+			Not.LazyLoad();
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.ToolbarStyle).Column("toolbar_style");
@@ -39,10 +40,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			References(x => x.DefaultWarehouse).Column("default_warehouse_id");
 
 			HasMany(x => x.CashSubdivisionSortingSettings).KeyColumn("user_settings_id")
-				.Cascade.AllDeleteOrphan().Inverse().LazyLoad().OrderBy("sorting_index");
+				.Cascade.AllDeleteOrphan().Inverse().OrderBy("sorting_index");
 
 			HasMany(x => x.DocumentPrinterSettings).KeyColumn("user_settings_id")
-				.Cascade.AllDeleteOrphan().Inverse().LazyLoad().OrderBy("id");
+				.Cascade.AllDeleteOrphan().Inverse().OrderBy("id");
 		}
 	}
 }

@@ -11,7 +11,6 @@ using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -20,6 +19,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
+using VodovozBusiness.Services.Users;
 using DocumentTypeEnum = Vodovoz.Core.Domain.Warehouses.Documents.DocumentType;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 	public class WarehouseDocumentsJournalFilterViewModel : FilterViewModelBase<WarehouseDocumentsJournalFilterViewModel>
 	{
 		private readonly ICommonServices _commonServices;
-		private readonly IUserSettingsService _userSettingsService;
+		private readonly IUserSettingsManager _userSettingsManager;
 		private readonly IGenericRepository<Warehouse> _warehouseRepository;
 		private readonly ViewModelEEVMBuilder<Warehouse> _warehouseEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _driverEEVMBuilder;
@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public WarehouseDocumentsJournalFilterViewModel(
 			ICommonServices commonServices,
-			IUserSettingsService userSettingsService,
+			IUserSettingsManager userSettingsManager,
 			IGenericRepository<Warehouse> warehouseRepository,
 			ViewModelEEVMBuilder<Warehouse> warehouseEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverEEVMBuilder,
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			ViewModelEEVMBuilder<Car> carEEVMBuilder)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_warehouseEEVMBuilder = warehouseEEVMBuilder ?? throw new ArgumentNullException(nameof(warehouseEEVMBuilder));
 			_driverEEVMBuilder = driverEEVMBuilder ?? throw new ArgumentNullException(nameof(driverEEVMBuilder));
@@ -235,7 +235,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		private void SetDefaultWarehouse(IUnitOfWork uow)
 		{
-			var defaultWarehouse = _userSettingsService.Settings.DefaultWarehouse;
+			var defaultWarehouse = _userSettingsManager.Settings.DefaultWarehouse;
 
 			if(defaultWarehouse == null)
 			{

@@ -20,6 +20,6 @@ namespace Vodovoz.ViewModels.Services.RouteOptimization
 		IList<AtWorkForwarder> Forwarders { get; set; }
 
 		void CreateRoutes(DateTime date, TimeSpan drvStartTime, TimeSpan drvEndTime, Func<string, bool> askIfAvailableFunc);
-		ProposedRoute RebuidOneRoute(RouteList route);
+		ProposedRoute RebuidOneRoute(IUnitOfWork uow, RouteList route);
 	}
 }

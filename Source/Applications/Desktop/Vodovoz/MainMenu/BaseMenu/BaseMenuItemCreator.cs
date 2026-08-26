@@ -10,6 +10,7 @@ using QS.Validation;
 using QS.ViewModels;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels.ViewModels.Settings;
+using VodovozBusiness.Services.Users;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 
@@ -21,10 +22,14 @@ namespace Vodovoz.MainMenu.BaseMenu
 	public class BaseMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
+		private readonly IUserSettingsManager _userSettingsManager;
 
-		public BaseMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
+		public BaseMenuItemCreator(
+			ConcreteMenuItemCreator concreteMenuItemCreator,
+			IUserSettingsManager userSettingsManager)
 		{
 			_concreteMenuItemCreator = concreteMenuItemCreator ?? throw new ArgumentNullException(nameof(concreteMenuItemCreator));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 		}
 
 		/// <inheritdoc/>
@@ -112,7 +117,7 @@ namespace Vodovoz.MainMenu.BaseMenu
 		private void OnUserPropertiesPressed(object sender, EventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<UserSettingsViewModel, IEntityUoWBuilder>(
-				null, EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id));
+				null, EntityUoWBuilder.ForOpen(_userSettingsManager.Settings.Id));
 		}
 
 		/// <summary>

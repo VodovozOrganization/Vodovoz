@@ -5,6 +5,7 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
 
@@ -12,6 +13,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class RouteListMaxFastDeliveryOrdersViewModel : EntityTabViewModelBase<RouteList>
 	{
+		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly ILogger<RouteListFastDeliveryMaxDistanceViewModel> _logger;
 		private int _maxFastDeliveryOrders;
 
@@ -20,11 +22,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IRouteListItemRepository routeListItemRepository,
+			IDeliveryRepository deliveryRepository,
 			ILogger<RouteListFastDeliveryMaxDistanceViewModel> logger) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			_maxFastDeliveryOrders = Entity.GetMaxFastDeliveryOrdersValue();
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+			_maxFastDeliveryOrders = _deliveryRepository.GetMaxFastDeliveryOrdersValue(UoW, Entity.Id);
 			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
 			//Для возможности изменения пустых МЛ
 			ValidationContext.Items.Add(
@@ -42,7 +46,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public override bool Save(bool close)
 		{
-			if(MaxFastDeliveryOrders != Entity.GetMaxFastDeliveryOrdersValue())
+			if(MaxFastDeliveryOrders != _deliveryRepository.GetMaxFastDeliveryOrdersValue(UoW, Entity.Id))
 			{
 				Entity.UpdateMaxFastDeliveryOrdersValue(MaxFastDeliveryOrders);
 			}

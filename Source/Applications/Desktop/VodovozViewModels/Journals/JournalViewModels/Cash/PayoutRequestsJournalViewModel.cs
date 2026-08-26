@@ -64,6 +64,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private string _footerInfo;
 		private bool _hasAccessToHiddenFinancialCategories;
 		private IEnumerable<int> _subdivisionsControlledByCurrentEmployee;
+		private bool _disposed;
 
 		public PayoutRequestsJournalViewModel(
 			PayoutRequestJournalFilterViewModel filterViewModel,
@@ -822,5 +823,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		}
 
 		#endregion
+
+		public override void Dispose()
+		{
+			if(_disposed) return;
+			FilterViewModel.PropertyChanged -= UpdateDataLoader;
+			base.Dispose();
+			_disposed = true;
+		}
 	}
 }

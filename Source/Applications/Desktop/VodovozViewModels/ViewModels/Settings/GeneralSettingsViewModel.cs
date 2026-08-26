@@ -906,6 +906,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private int _daysBeforeBlockingDeliveriesTarget;
 		private int _daysBeforeBlockingDeliveriesNew;
 		private string _closingDeliveriesNotificationEmailsTo;
+		private bool _disposed;
 
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
@@ -1528,9 +1529,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			EmployeeFixedPricesViewModel.Dispose();
 			UowOrderOrganizationSettings.Dispose();
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

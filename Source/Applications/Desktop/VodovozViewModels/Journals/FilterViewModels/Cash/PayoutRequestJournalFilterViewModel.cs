@@ -233,7 +233,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 		public override void Dispose()
 		{
 			_journalViewModel = null;
-
 			base.Dispose();
 		}
 	}

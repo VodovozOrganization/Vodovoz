@@ -1,7 +1,5 @@
 ﻿using System;
-using Newtonsoft.Json;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Delivery;
 
 namespace Vodovoz.EntityRepositories.Nodes
 {

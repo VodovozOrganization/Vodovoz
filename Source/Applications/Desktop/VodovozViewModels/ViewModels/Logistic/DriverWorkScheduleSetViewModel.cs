@@ -5,6 +5,7 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
@@ -16,6 +17,8 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public sealed class DriverWorkScheduleSetViewModel : TabViewModelBase
     {
+		private bool _disposed;
+		
         public DriverWorkScheduleSetViewModel(
             DriverWorkScheduleSet entity,
             IUnitOfWork uow,
@@ -42,29 +45,10 @@ namespace Vodovoz.ViewModels.Logistic
             FillObservableDriverWorkSchedules(deliveryScheduleSettings);
             UpdateTabName();
             
-            Entity.PropertyChanged += (sender, args) => {
-                switch(args.PropertyName) {
-                    case nameof(Entity.Driver):
-                        UpdateTabName();
-                        break;
-                    case nameof(Entity.Id):
-                        OnPropertyChanged(nameof(Id));
-                        OnPropertyChanged(nameof(IsInfoVisible));
-                        break;
-                    case nameof(Entity.Author):
-                        OnPropertyChanged(nameof(Author));
-                        break;
-                    case nameof(Entity.DateActivated):
-                        OnPropertyChanged(nameof(DateActivated));
-                        break;
-                    case nameof(Entity.DateDeactivated):
-                        OnPropertyChanged(nameof(DateDeactivated));
-                        break;
-                }
-            };
+            Entity.PropertyChanged += OnEntityPropertyChanged;
         }
 
-        #region Поля и свойства
+		#region Поля и свойства
 
         private readonly IUnitOfWork uow;
         private readonly IEmployeeRepository employeeRepository;
@@ -94,7 +78,7 @@ namespace Vodovoz.ViewModels.Logistic
         #region Команды
 
         private DelegateCommand acceptCommand;
-        public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
+		public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
             () => {
                 var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(uow);
                 if(Entity.Author == null) {
@@ -112,6 +96,29 @@ namespace Vodovoz.ViewModels.Logistic
         #endregion
 
         #region Приватные методы
+		
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs args)
+		{
+			switch(args.PropertyName)
+			{
+				case nameof(Entity.Driver):
+					UpdateTabName();
+					break;
+				case nameof(Entity.Id):
+					OnPropertyChanged(nameof(Id));
+					OnPropertyChanged(nameof(IsInfoVisible));
+					break;
+				case nameof(Entity.Author):
+					OnPropertyChanged(nameof(Author));
+					break;
+				case nameof(Entity.DateActivated):
+					OnPropertyChanged(nameof(DateActivated));
+					break;
+				case nameof(Entity.DateDeactivated):
+					OnPropertyChanged(nameof(DateDeactivated));
+					break;
+			}
+		}
 
         private void FillObservableDriverWorkSchedules(IDeliveryScheduleSettings deliveryScheduleSettings)
         {
@@ -175,5 +182,13 @@ namespace Vodovoz.ViewModels.Logistic
         }
 
         #endregion
-    }
+
+		public override void Dispose()
+		{
+			if(_disposed) return;
+            Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+			_disposed = true;
+		}
+	}
 }

@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Settings.Common;
 
@@ -9,7 +10,6 @@ namespace Vodovoz.Services
 	{
 		Employee GetEmployeeForUser(IUnitOfWork uow, int userId);
 		Employee GetEmployeeForCurrentUser();
-		Employee GetEmployeeForCurrentUser(IUnitOfWork uow);
 		Employee GetEmployee(int employeeId);
 		Employee GetEmployee(IUnitOfWork uow, int employeeId);
 		void SendCounterpartyClassificationCalculationReportToEmail(
@@ -18,5 +18,11 @@ namespace Vodovoz.Services
 			string employeeName,
 			IEnumerable<string> emailAddresses,
 			byte[] attachmentData);
+		/// <summary>
+		/// Получение идентификатора сотрудника и его внутреннего телефона
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <returns></returns>
+		IEmployeeInnerPhone GetEmployeeInnerPhone();
 	}
 }

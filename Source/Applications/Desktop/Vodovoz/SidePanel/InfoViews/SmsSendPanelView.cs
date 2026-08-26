@@ -3,7 +3,6 @@ using Gamma.GtkWidgets;
 using QS.Dialog;
 using QS.Project.DB;
 using QS.Services;
-using Sms.Internal;
 using System;
 using System.Linq;
 using Vodovoz.Core.Application.FastPayment;
@@ -11,7 +10,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.Models;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database.Sms;
 using Vodovoz.Settings.FastPayments;
@@ -36,7 +34,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private Counterparty _counterparty;
 		private Order _order;
 		private bool _isPaidOrder;
-		
+
 		public SmsSendPanelView(
 			ICommonServices commonServices,
 			IFastPaymentRepository fastPaymentRepository,
@@ -83,11 +81,11 @@ namespace Vodovoz.SidePanel.InfoViews
 			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanRead;
 
 			btnSendFastPaymentPayByCardUrlBySms.Sensitive = _canSendSmsForPayFromSbpByCard;
-				
+
 			btnSendFastPaymentPayByQrUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
 			btnSendFastPaymentPayByCardUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
 		}
-		
+
 		private void OnSendFastPaymentUrlBySmsClicked(object btn, EventArgs args)
 		{
 			if(_order.Id == 0)

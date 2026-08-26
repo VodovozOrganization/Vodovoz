@@ -4,11 +4,9 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -17,17 +15,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ILogger<RouteListFastDeliveryMaxDistanceViewModel> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly IDeliveryRepository _deliveryRepository;
 
 		public RouteListFastDeliveryMaxDistanceViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IRouteListItemRepository routeListItemRepository,
+			IDeliveryRepository deliveryRepository,
 			ILogger<RouteListFastDeliveryMaxDistanceViewModel> logger) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_fastDeliveryMaxDistance = Entity.CurrentFastDeliveryMaxDistanceValue;
+			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			_fastDeliveryMaxDistance = _deliveryRepository.GetFastDeliveryMaxDistanceValue(UoW, Entity.Id);
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
@@ -48,7 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public override bool Save(bool close)
 		{
-			if(FastDeliveryMaxDistance != Entity.CurrentFastDeliveryMaxDistanceValue)
+			if(FastDeliveryMaxDistance != _deliveryRepository.GetFastDeliveryMaxDistanceValue(UoW, Entity.Id))
 			{
 				Entity.UpdateFastDeliveryMaxDistanceValue(FastDeliveryMaxDistance);
 			}

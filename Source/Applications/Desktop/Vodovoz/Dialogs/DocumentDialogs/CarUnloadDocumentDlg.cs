@@ -10,6 +10,7 @@ using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
@@ -204,18 +205,7 @@ namespace Vodovoz
 
 			routeListViewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			Entity.PropertyChanged += (sender, e) =>
-			{
-				if(e.PropertyName == nameof(Entity.Warehouse))
-				{
-					OnWarehouseChanged();
-				}
-
-				if(e.PropertyName == nameof(Entity.RouteList))
-				{
-					UpdateWidgetsVisible();
-				}
-			};
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
 			spnTareToReturn.Binding.AddBinding(Entity, e => e.TareToReturn, w => w.ValueAsInt).InitializeFromSource();
@@ -702,12 +692,18 @@ namespace Vodovoz
 			}
 		}
 		#endregion
-
-		public override void Destroy()
+		
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			_lifetimeScope?.Dispose();
-			_lifetimeScope = null;
-			base.Destroy();
+			if(e.PropertyName == nameof(Entity.Warehouse))
+			{
+				OnWarehouseChanged();
+			}
+
+			if(e.PropertyName == nameof(Entity.RouteList))
+			{
+				UpdateWidgetsVisible();
+			}
 		}
 
 		private class InternalItem
@@ -736,6 +732,15 @@ namespace Vodovoz
 				eq &= item.TypeOfDefect.Id == TypeOfDefect.Id;
 				return eq;
 			}
+		}
+
+		protected override void OnDestroyed()
+		{
+			_lifetimeScope?.Dispose();
+			_lifetimeScope = null;
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			
+			base.OnDestroyed();
 		}
 	}
 }

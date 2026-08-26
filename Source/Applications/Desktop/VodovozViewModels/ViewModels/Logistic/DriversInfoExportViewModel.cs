@@ -532,7 +532,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			//Планируемая ЗП
 			foreach(var routeList in routeListsFuture.ToList())
 			{
-				routeList.RecalculateAllWages(wageParameterService);
+				routeList.RecalculateAllWages(uow, wageParameterService);
 				var driverWage = routeList.GetDriversTotalWage();
 				driverInfoNodes.First(x => x.RouteListId == routeList.Id).DriverRouteListWagePlanned = driverWage;
 			}
@@ -735,7 +735,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			//Планируемая ЗП
 			foreach(var routeList in routeListsFuture)
 			{
-				routeList.RecalculateAllWages(wageParameterService);
+				routeList.RecalculateAllWages(uow, wageParameterService);
 			}
 
 			foreach(var driverInfoNode in driverInfoNodes)

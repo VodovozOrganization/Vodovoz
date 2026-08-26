@@ -19,9 +19,9 @@ namespace Vodovoz.ViewWidgets.Reports
 				.AddBinding(ViewModel, vm => vm.SearchString, w => w.Text)
 				.InitializeFromSource();
 
-			ybuttonSearchClear.Clicked += (s, e) => ViewModel.ClearSearchStringCommand?.Execute();
-			ybuttonClearIncludes.Clicked += (s, e) => ViewModel.ClearAllIncludesCommand?.Execute();
-			ybuttonClearExcludes.Clicked += (s, e) => ViewModel.ClearAllExcludesCommand?.Execute();
+			ybuttonSearchClear.BindCommand(ViewModel.ClearSearchStringCommand);
+			ybuttonClearIncludes.BindCommand(ViewModel.ClearAllIncludesCommand);
+			ybuttonClearExcludes.BindCommand(ViewModel.ClearAllExcludesCommand);
 
 			ycheckbuttonShowArchive.Binding
 				.AddBinding(ViewModel, vm => vm.IsShowArchiveCarModels, w => w.Active)
@@ -64,13 +64,6 @@ namespace Vodovoz.ViewWidgets.Reports
 				.AddSource(ViewModel)
 				.AddFuncBinding(vm => vm.CarModelNodes.Where(n => n.IsVisible).ToList(), w => w.ItemsDataSource)
 				.InitializeFromSource();
-		}
-
-		public override void Destroy()
-		{
-			ytreeviewCarModelsList?.Destroy();
-
-			base.Destroy();
 		}
 	}
 }

@@ -2,7 +2,6 @@
 using QS.Attachments.Domain;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
-using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,19 +12,24 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Core.Domain.Users;
 using MassTransit;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Infrastructure.Services
 {
 	public class EmployeeService : IEmployeeService
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IUserService _userService;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IBus _messageBus;
 
-		public EmployeeService(IUnitOfWorkFactory uowFactory, IUserService userService, IBus messageBus)
+		public EmployeeService(
+			IUnitOfWorkFactory uowFactory,
+			IEmployeeRepository employeeRepository,
+			IBus messageBus)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -46,17 +50,8 @@ namespace Vodovoz.Infrastructure.Services
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				return GetEmployeeForCurrentUser(uow);
+				return _employeeRepository.GetEmployeeForCurrentUser(uow);
 			}
-		}
-
-		public Employee GetEmployeeForCurrentUser(IUnitOfWork uow)
-		{
-			User userAlias = null;
-			return uow.Session.QueryOver<Employee>()
-				.JoinAlias(e => e.User, () => userAlias)
-				.Where(() => userAlias.Id == _userService.CurrentUserId)
-				.SingleOrDefault();
 		}
 
 		public Employee GetEmployeeForUser(IUnitOfWork uow, int userId)
@@ -127,6 +122,14 @@ namespace Vodovoz.Infrastructure.Services
 			};
 
 			SendMessageToEmail(message).GetAwaiter().GetResult();
+		}
+
+		public IEmployeeInnerPhone GetEmployeeInnerPhone()
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				return _employeeRepository.GetEmployeeInnerPhone(uow);
+			}
 		}
 
 		private async Task SendMessageToEmail(SendEmailMessage message)

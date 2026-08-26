@@ -707,9 +707,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool NeedToLoad =>
 			Addresses.Any(address => address.NeedToLoad)
 			|| (AdditionalLoadingDocument != null && AdditionalLoadingDocument.HasItemsNeededToLoad);
-
-		public virtual bool HasMoneyDiscrepancy => Total != _cashRepository.CurrentRouteListCash(UoW, Id);
-
+		
 		public virtual bool CanChangeStatusToDelivered
 		{
 			get
@@ -735,8 +733,6 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool CanBeOpenedInClosingDlg
 			=> new[] { RouteListStatus.Delivered, RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }
 				.Contains(Status);
-
-		public virtual decimal CurrentFastDeliveryMaxDistanceValue => GetFastDeliveryMaxDistanceValue();
 
 		public virtual List<RouteListItem> DeliveredRouteListAddresses =>
 			Addresses.Where(a => a.IsDelivered()).ToList();
@@ -828,14 +824,14 @@ namespace Vodovoz.Domain.Logistic
 			return carDiff || driverDiff;
 		}
 
-		public virtual bool TryRemoveAddress(RouteListItem address, out string msg, IRouteListItemRepository routeListItemRepository)
+		public virtual bool TryRemoveAddress(IUnitOfWork uow, RouteListItem address, out string msg, IRouteListItemRepository routeListItemRepository)
 		{
 			if(routeListItemRepository == null)
 				throw new ArgumentNullException(nameof(routeListItemRepository));
 
 			msg = string.Empty;
 			if(address.WasTransfered) {
-				var from = routeListItemRepository.GetTransferredFrom(UoW, address)?.RouteList?.Id;
+				var from = routeListItemRepository.GetTransferredFrom(uow, address)?.RouteList?.Id;
 				msg = string.Format(
 					"Адрес \"{0}\" не может быть удалён, т.к. был перенесён из МЛ №{1}. Воспользуйтесь функционалом из вкладки \"Перенос адресов маршрутных листов\" для возврата этого адреса в исходный МЛ.",
 					address.Order.DeliveryPoint?.ShortAddress,
@@ -851,19 +847,19 @@ namespace Vodovoz.Domain.Logistic
 				return false;
 			}
 
-			if(_routeListRepository.GetCarLoadDocuments(UoW, Id).Any())
+			if(_routeListRepository.GetCarLoadDocuments(uow, Id).Any())
 			{
 				msg = "Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.";
 				return false;
 			}
 			if(address.Status == RouteListItemStatus.Transfered && address.TransferedTo != null)
 			{
-				var toAddress = routeListItemRepository.GetRouteListItemById(UoW, address.TransferedTo.Id);
+				var toAddress = routeListItemRepository.GetRouteListItemById(uow, address.TransferedTo.Id);
 				toAddress.SetTransferTo(null);
 				toAddress.WasTransfered = false;
 				toAddress.AddressTransferType = null;
 
-				UoW.Save(toAddress);
+				uow.Save(toAddress);
 			}
 			else
 			{
@@ -871,16 +867,18 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			var routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
-			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address, true);
+			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(uow, address, true);
 
 			ObservableAddresses.Remove(address);
 			return true;
 		}
 
-		public virtual void RemoveAddress(RouteListItem address)
+		public virtual void RemoveAddress(IUnitOfWork uow, RouteListItem address)
 		{
-			if(!TryRemoveAddress(address, out string message, _routeListItemRepository))
-				throw new NotSupportedException(string.Format("\n\n{0}\n", message));
+			if(!TryRemoveAddress(uow, address, out string message, _routeListItemRepository))
+			{
+				throw new NotSupportedException($"\n\n{message}\n");
+			}
 		}
 
 		public virtual void CheckAddressOrder()
@@ -924,7 +922,7 @@ namespace Vodovoz.Domain.Logistic
 			observableAddresses = null;
 		}
 
-		public virtual void RollBackEnRouteStatus()
+		public virtual void RollBackEnRouteStatus(IUnitOfWork uow)
 		{
 			Status = RouteListStatus.EnRoute;
 			ClosingFilled = false;
@@ -934,18 +932,18 @@ namespace Vodovoz.Domain.Logistic
 				item.Order.OrderStatus = OrderStatus.OnTheWay;
 			}
 
-			UoW.Save(this);
+			uow.Save(this);
 		}
 
-		public virtual List<Discrepancy> GetDiscrepancies()
+		public virtual List<Discrepancy> GetDiscrepancies(IUnitOfWork uow)
 		{
 			List<Discrepancy> result = new List<Discrepancy>();
 
 			#region Талон погрузки
 
-			var allLoaded = _routeListRepository.AllGoodsLoaded(UoW, this);
+			var allLoaded = _routeListRepository.AllGoodsLoaded(uow, this);
 
-			AddDiscrepancy(allLoaded, result, (discrepancy, amount) => discrepancy.FromWarehouse = amount);
+			AddDiscrepancy(uow, allLoaded, result, (discrepancy, amount) => discrepancy.FromWarehouse = amount);
 
 			#endregion
 
@@ -953,39 +951,40 @@ namespace Vodovoz.Domain.Logistic
 
 			var shipmentCategories = Nomenclature.GetCategoriesForShipment().ToArray();
 
-			var allUnloaded = _routeListRepository.GetReturnsToWarehouse(UoW, Id, shipmentCategories, new[] { _nomenclatureSettings.DefaultBottleNomenclatureId })
+			var allUnloaded = _routeListRepository.GetReturnsToWarehouse(uow, Id, shipmentCategories, new[] { _nomenclatureSettings.DefaultBottleNomenclatureId })
 				.Select(x => new GoodsInRouteListResult { NomenclatureId = x.NomenclatureId, Amount = x.Amount });
 
-			AddDiscrepancy(allUnloaded, result, (discrepancy, amount) => discrepancy.ToWarehouse = amount);
+			AddDiscrepancy(uow, allUnloaded, result, (discrepancy, amount) => discrepancy.ToWarehouse = amount);
 
 			#endregion
 
 			#region Получено от других водителей
 
-			var allGoodsTransferredFromDrivers = _routeListRepository.AllGoodsTransferredFromDrivers(UoW, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromHandToHand);
-			AddDiscrepancy(allGoodsTransferredFromDrivers, result, (discrepancy, amount) => discrepancy.TransferedFromDrivers = amount);
+			var allGoodsTransferredFromDrivers =
+				_routeListRepository.AllGoodsTransferredFromDrivers(uow, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromHandToHand);
+			AddDiscrepancy(uow, allGoodsTransferredFromDrivers, result, (discrepancy, amount) => discrepancy.TransferedFromDrivers = amount);
 
 			#endregion
 
 			#region Передано другим водителям
 
 			var allGoodsTransferedToAnotherDrivers = _routeListRepository.AllGoodsTransferredToAnotherDrivers(
-				UoW, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromHandToHand);
+				uow, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromHandToHand);
 
-			AddDiscrepancy(allGoodsTransferedToAnotherDrivers, result, (discrepancy, amount) => discrepancy.TransferedToAnotherDrivers = amount);
+			AddDiscrepancy(uow, allGoodsTransferedToAnotherDrivers, result, (discrepancy, amount) => discrepancy.TransferedToAnotherDrivers = amount);
 
 			#endregion
 
 			#region Доставлено клиентам
 
-			var allDelivered = _routeListRepository.GetActualGoodsForShipment(UoW, Id).ToList();
+			var allDelivered = _routeListRepository.GetActualGoodsForShipment(uow, Id).ToList();
 
-			if(_routeListRepository.GetActualEquipmentForShipment(UoW, this.Id, Direction.Deliver) is IEnumerable<GoodsInRouteListResult> equipmentActualCount)
+			if(_routeListRepository.GetActualEquipmentForShipment(uow, Id, Direction.Deliver) is IEnumerable<GoodsInRouteListResult> equipmentActualCount)
 			{
 				allDelivered.AddRange(equipmentActualCount);
 			}
 
-			AddDiscrepancy(allDelivered, result, (discrepancy, amount) => discrepancy.DeliveredToClient = amount);
+			AddDiscrepancy(uow, allDelivered, result, (discrepancy, amount) => discrepancy.DeliveredToClient = amount);
 
 			#endregion
 
@@ -1071,9 +1070,9 @@ namespace Vodovoz.Domain.Logistic
 			//TODO: Если используются операции по водителю с терминалами, переделать на них.
 
 			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
-			var terminal = UoW.GetById<Nomenclature>(terminalId);
-			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
-			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
+			var terminal = uow.GetById<Nomenclature>(terminalId);
+			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(uow, Id, terminalId);
+			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(uow, Id, terminalId);
 
 			if(loadedTerminalAmount > 0)
 			{
@@ -1102,16 +1101,20 @@ namespace Vodovoz.Domain.Logistic
 					Amount = list.Sum(o => o.Amount)
 				});
 
-			AddDiscrepancy(freeBalance, result, (discrepancy, amount) => discrepancy.FreeBalance = amount);
+			AddDiscrepancy(uow, freeBalance, result, (discrepancy, amount) => discrepancy.FreeBalance = amount);
 
 			#endregion
 
 			return result;
 		}
 
-		private void AddDiscrepancy(IEnumerable<GoodsInRouteListResult> goods, List<Discrepancy> discrepancies, Action<Discrepancy, decimal> setAmountAction)
+		private void AddDiscrepancy(
+			IUnitOfWork uow,
+			IEnumerable<GoodsInRouteListResult> goods,
+			List<Discrepancy> discrepancies,
+			Action<Discrepancy, decimal> setAmountAction)
 		{
-			var nomenclatures = UoW.Session.QueryOver<Nomenclature>()
+			var nomenclatures = uow.Session.QueryOver<Nomenclature>()
 				.Where(n => n.Id.IsIn(goods.Select(g => g.NomenclatureId).ToArray()))
 				.List();
 
@@ -1152,15 +1155,15 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual bool IsConsistentWithUnloadDocument()
+		public virtual bool IsConsistentWithUnloadDocument(IUnitOfWork uow)
 		{
 			var bottlesReturnedToWarehouse = (int)_routeListRepository.GetReturnsToWarehouse(
-				UoW,
+				uow,
 				Id,
 				_nomenclatureSettings.ReturnedBottleNomenclatureId)
 			.Sum(item => item.Amount);
 
-			var discrepancies = GetDiscrepancies();
+			var discrepancies = GetDiscrepancies(uow);
 
 			var hasItemsDiscrepancies = discrepancies.Any(discrepancy => discrepancy.Remainder != 0);
 			bool hasFine = BottleFine != null;
@@ -1170,11 +1173,11 @@ namespace Vodovoz.Domain.Logistic
 			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies) || DifferencesConfirmed;
 		}
 
-		public virtual void UpdateClosedInformation()
+		public virtual void UpdateClosedInformation(IUnitOfWork uow)
 		{
 			if(Status == RouteListStatus.Closed)
 			{
-				ClosedBy = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+				ClosedBy = _employeeRepository.GetEmployeeForCurrentUser(uow);
 				ClosingDate = DateTime.Now;
 				if(!FirstClosingDate.HasValue)
 				{
@@ -1187,8 +1190,6 @@ namespace Vodovoz.Domain.Logistic
 				ClosingDate = null;
 			}
 		}
-
-
 
 		public virtual void AddPrintHistory()
 		{
@@ -1206,9 +1207,9 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual bool PrintAsClosed() => CanBeOpenedInClosingDlg;
 
-		public virtual void CreateSelfDriverTerminalTransferDocument()
+		public virtual void CreateSelfDriverTerminalTransferDocument(IUnitOfWork uow)
 		{
-			if(_routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Driver) is DriverAttachedTerminalGiveoutDocument)
+			if(_routeListRepository.GetLastTerminalDocumentForEmployee(uow, Driver) is DriverAttachedTerminalGiveoutDocument)
 			{
 				ServicesConfig.InteractiveService.ShowMessage(
 					ImportanceLevel.Warning,
@@ -1218,7 +1219,7 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
-			var foundRouteLists = UoW.Session.QueryOver<RouteList>()
+			var foundRouteLists = uow.Session.QueryOver<RouteList>()
 				.Where(x => x.Driver == this.Driver
 							&& x.Date == this.Date
 							&& x.Status == RouteListStatus.InLoading
@@ -1236,8 +1237,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			var terminalId = _nomenclatureSettings.NomenclatureIdForTerminal;
-			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
-			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
+			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(uow, Id, terminalId);
+			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(uow, Id, terminalId);
 
 			if(loadedTerminalAmount - unloadedTerminalAmount <= 0)
 			{
@@ -1261,7 +1262,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var foundRouteList = foundRouteLists.FirstOrDefault();
 
-			var selfDriverTerminalTransferDocument = _routeListRepository.GetSelfDriverTerminalTransferDocument(UoW, foundRouteList.Driver, foundRouteList);
+			var selfDriverTerminalTransferDocument = _routeListRepository.GetSelfDriverTerminalTransferDocument(uow, foundRouteList.Driver, foundRouteList);
 
 			if(selfDriverTerminalTransferDocument != null)
 			{
@@ -1278,7 +1279,7 @@ namespace Vodovoz.Domain.Logistic
 				{
 					var terminalTransferDocumentForOneDriver = new SelfDriverTerminalTransferDocument()
 					{
-						Author = _employeeRepository.GetEmployeeForCurrentUser(UoW),
+						Author = _employeeRepository.GetEmployeeForCurrentUser(uow),
 						CreateDate = DateTime.Now,
 						DriverFrom = foundRouteList.Driver,
 						DriverTo = foundRouteList.Driver,
@@ -1385,52 +1386,14 @@ namespace Vodovoz.Domain.Logistic
 			MaxFastDeliveryOrdersItems.Add(maxFastDeliveryOrders);
 		}
 
-		public virtual decimal GetFastDeliveryMaxDistanceValue(DateTime? date = null)
-		{
-			if(date == null)
-			{
-				date = DateTime.Now;
-			}
-
-			var fastDeliveryMaxDistanceItem = UoW.GetAll<RouteListFastDeliveryMaxDistance>()
-				.Where(d => d.RouteList.Id == this.Id && d.StartDate <= date && (d.EndDate == null || d.EndDate > date))
-				.FirstOrDefault();
-
-			if(fastDeliveryMaxDistanceItem != null)
-			{
-				return fastDeliveryMaxDistanceItem.Distance;
-			}
-
-			return (decimal)_deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(date ?? DateTime.Now);
-		}
-
-		public virtual int GetMaxFastDeliveryOrdersValue(DateTime? date = null)
-		{
-			if(date == null)
-			{
-				date = DateTime.Now;
-			}
-
-			var maxFastDeliveryOrdersItem = UoW.GetAll<RouteListMaxFastDeliveryOrders>()
-				.Where(d => d.RouteList.Id == Id && d.StartDate <= date && (d.EndDate == null || d.EndDate > date))
-				.FirstOrDefault();
-
-			if(maxFastDeliveryOrdersItem != null)
-			{
-				return maxFastDeliveryOrdersItem.MaxOrders;
-			}
-
-			return _deliveryRulesSettings.MaxFastOrdersPerSpecificTime;
-		}
-
-		public virtual bool IsDriversDebtInPermittedRangeVerification()
+		public virtual bool IsDriversDebtInPermittedRangeVerification(IUnitOfWork uow)
 		{
 			if(Driver != null)
 			{
 				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount;
 				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsSettings.DriversRouteListsMaxDebtSum;
 
-				var isDriverHasActiveStopListRemoval = Driver.IsDriverHasActiveStopListRemoval(UoW);
+				var isDriverHasActiveStopListRemoval = Driver.IsDriverHasActiveStopListRemoval(uow);
 
 				if(isDriverHasActiveStopListRemoval)
 				{
@@ -1438,9 +1401,9 @@ namespace Vodovoz.Domain.Logistic
 				}
 
 				var unclosedRouteListsHavingDebtsCount =
-					_routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
+					_routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(uow, Driver.Id, Id);
 				var unclosedRouteListsDebtsSum =
-					_routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
+					_routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(uow, Driver.Id, Id);
 
 				if(unclosedRouteListsHavingDebtsCount > maxDriversUnclosedRouteListsCountParameter 
 					|| unclosedRouteListsDebtsSum > maxDriversRouteListsDebtsSumParameter)
@@ -1557,29 +1520,34 @@ namespace Vodovoz.Domain.Logistic
 				rliRepository = validationContext.GetService<IRouteListItemRepository>();
 			}
 
-			if(rliRepository != null)
+			var uowFactory = validationContext.GetService<IUnitOfWorkFactory>();
+
+			using(var uow = uowFactory.CreateWithoutRoot("Проверка корректности добавления адресов"))
 			{
-				foreach(var address in Addresses)
+				if(rliRepository != null)
 				{
-					if(rliRepository.AnotherRouteListItemForOrderExist(UoW, address))
+					foreach(var address in Addresses)
 					{
-						yield return new ValidationResult($"Адрес {address.Order.Id} находится в другом МЛ");
-					}
+						if(rliRepository.AnotherRouteListItemForOrderExist(uow, address))
+						{
+							yield return new ValidationResult($"Адрес {address.Order.Id} находится в другом МЛ");
+						}
 
-					if(rliRepository.CurrentRouteListHasOrderDuplicate(UoW, address, Addresses.Select(x => x.Id).ToArray()))
-					{
-						yield return new ValidationResult($"Адрес {address.Order.Id} дублируется в текущем МЛ");
-					}
+						if(rliRepository.CurrentRouteListHasOrderDuplicate(uow, address, Addresses.Select(x => x.Id).ToArray()))
+						{
+							yield return new ValidationResult($"Адрес {address.Order.Id} дублируется в текущем МЛ");
+						}
 
-					foreach(var result in address.Validate(new ValidationContext(address)))
-					{
-						yield return result;
+						foreach(var result in address.Validate(new ValidationContext(address)))
+						{
+							yield return result;
+						}
 					}
 				}
-			}
-			else
-			{
-				throw new ArgumentException($"Для валидации МЛ должен быть доступен {nameof(IRouteListItemRepository)}");
+				else
+				{
+					throw new ArgumentException($"Для валидации МЛ должен быть доступен {nameof(IRouteListItemRepository)}");
+				}
 			}
 
 			if(!GeographicGroups.Any())
@@ -1705,7 +1673,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
-		public virtual void FirstFillClosing(IWageParameterService wageParameterService)
+		public virtual void FirstFillClosing(IUnitOfWork uow, IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -1717,7 +1685,7 @@ namespace Vodovoz.Domain.Logistic
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 
 				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
-				routeListItem.FirstFillClosing(wageParameterService);
+				routeListItem.FirstFillClosing(uow, wageParameterService);
 				PerformanceHelper.EndPointsGroup();
 			}
 
@@ -1726,22 +1694,26 @@ namespace Vodovoz.Domain.Logistic
 			ClosingFilled = true;
 		}
 
-		public virtual void UpdateBottlesMovementOperation()
+		public virtual void UpdateBottlesMovementOperation(IUnitOfWork uow)
 		{
 			foreach(RouteListItem address in addresses.Where(x => x.Status != RouteListItemStatus.Transfered))
-				address.Order.UpdateBottleMovementOperation(UoW, _nomenclatureSettings, returnByStock: address.BottlesReturned);
+			{
+				address.Order.UpdateBottleMovementOperation(uow, _nomenclatureSettings, returnByStock: address.BottlesReturned);
+			}
 		}
 
-		public virtual List<CounterpartyMovementOperation> UpdateCounterpartyMovementOperations()
+		public virtual List<CounterpartyMovementOperation> UpdateCounterpartyMovementOperations(IUnitOfWork uow)
 		{
 			var result = new List<CounterpartyMovementOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
 			foreach(var orderItem in addresesDelivered.SelectMany(item => item.Order.OrderItems)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.Where(item => !item.Nomenclature.IsSerial)) {
-				var operation = orderItem.UpdateCounterpartyOperation(UoW);
+				var operation = orderItem.UpdateCounterpartyOperation(uow);
 				if(operation != null)
+				{
 					result.Add(operation);
+				}
 			}
 
 			foreach(var orderEquipment in addresesDelivered.SelectMany(item => item.Order.OrderEquipments)
@@ -1754,7 +1726,7 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork UoW)
+		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow)
 		{
 			var result = new List<DepositOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
@@ -1764,7 +1736,7 @@ namespace Vodovoz.Domain.Logistic
 				var bottleRefundDeposit = Math.Abs(item.BottleDepositsCollected);
 				var equipmentRefundDeposit = Math.Abs(item.EquipmentDepositsCollected);
 
-				var operations = item.Order.UpdateDepositOperations(UoW, equipmentRefundDeposit, bottleRefundDeposit);
+				var operations = item.Order.UpdateDepositOperations(uow, equipmentRefundDeposit, bottleRefundDeposit);
 
 				operations?.ForEach(x => result.Add(x));
 			}
@@ -1804,7 +1776,11 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
+		public virtual string EmployeeAdvanceOperation(
+			IUnitOfWork uow,
+			ref Expense cashExpense,
+			decimal cashInput,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
 			string message;
 			if(Cashier?.Subdivision == null)
@@ -1816,7 +1792,7 @@ namespace Vodovoz.Domain.Logistic
 				Date = DateTime.Now,
 				Casher = this.Cashier,
 				Employee = Driver,
-				Organisation = _organizationRepository.GetCommonOrganisation(UoW),
+				Organisation = _organizationRepository.GetCommonOrganisation(uow),
 				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}",
 				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
 				RouteListClosing = this,
@@ -1824,7 +1800,7 @@ namespace Vodovoz.Domain.Logistic
 			};
 
 			message = $"Создан расходный ордер на сумму {cashExpense.Money:C0}";
-			expenseCashOrganisationDistributor.DistributeCashForExpense(UoW, cashExpense, true);
+			expenseCashOrganisationDistributor.DistributeCashForExpense(uow, cashExpense, true);
 			return (message);
 		}
 
@@ -1849,7 +1825,7 @@ namespace Vodovoz.Domain.Logistic
 			return true;
 		}
 
-		public virtual void UpdateFuelOperation()
+		public virtual void UpdateFuelOperation(IUnitOfWork uow)
 		{
 			//Необходимо для того что бы случайно не пересчитать операцию расхода топлива. После массовой смены расхода.
 			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6)) {
@@ -1858,7 +1834,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(ConfirmedDistance == 0) {
 				if(FuelOutlayedOperation != null) {
-					UoW.Delete(FuelOutlayedOperation);
+					uow.Delete(FuelOutlayedOperation);
 					FuelOutlayedOperation = null;
 				}
 			} else {
@@ -1944,9 +1920,9 @@ namespace Vodovoz.Domain.Logistic
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				routeListDebt = uow.GetAll<RouteListDebt>()
-					.Where(r => r.RouteList.Id == Id)
-					.FirstOrDefault();
+				routeListDebt = uow
+					.GetAll<RouteListDebt>()
+					.FirstOrDefault(r => r.RouteList.Id == Id);
 
 				if(routeListDebt?.Debt == debt)
 				{
@@ -2010,20 +1986,20 @@ namespace Vodovoz.Domain.Logistic
 			return reportInfo;
 		}
 
-		public virtual void UpdateOperations()
+		public virtual void UpdateOperations(IUnitOfWork uow)
 		{
-			this.UpdateFuelOperation();
+			UpdateFuelOperation(uow);
 
-			var counterpartyMovementOperations = this.UpdateCounterpartyMovementOperations();
+			var counterpartyMovementOperations = this.UpdateCounterpartyMovementOperations(uow);
 			var moneyMovementOperations = this.UpdateMoneyMovementOperations();
-			var depositsOperations = this.UpdateDepositOperations(UoW);
+			var depositsOperations = this.UpdateDepositOperations(uow);
 
-			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-			UpdateBottlesMovementOperation();
-			depositsOperations.ForEach(op => UoW.Save(op));
-			moneyMovementOperations.ForEach(op => UoW.Save(op));
+			counterpartyMovementOperations.ForEach(op => uow.Save(op));
+			UpdateBottlesMovementOperation(uow);
+			depositsOperations.ForEach(op => uow.Save(op));
+			moneyMovementOperations.ForEach(op => uow.Save(op));
 
-			UpdateWageOperation();
+			UpdateWageOperation(uow);
 			var premiumRaskatSettings = ScopeProvider.Scope.Resolve<IPremiumRaskatGAZelleSettings>();
 			var wageSettings = ScopeProvider.Scope.Resolve<IWageSettings>();
 			var premiumRaskatGAZelleWageModel = new PremiumRaskatGAZelleWageModel(_employeeRepository, wageSettings,
@@ -2362,13 +2338,16 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Нода с номенклатурами и различными количествами после погрузки МЛ на складе
 		/// </summary>
-		public virtual List<RouteListControlNotLoadedNode> NotLoadedNomenclatures(bool needTerminalAccounting, int? terminalId = null)
+		public virtual List<RouteListControlNotLoadedNode> NotLoadedNomenclatures(
+			IUnitOfWork uow,
+			bool needTerminalAccounting,
+			int? terminalId = null)
 		{
 			List<RouteListControlNotLoadedNode> notLoadedNomenclatures = new List<RouteListControlNotLoadedNode>();
 			if(Id > 0) {
-				var loadedNomenclatures = _routeListRepository.AllGoodsLoaded(UoW, this);
-				var nomenclaturesToLoad = _routeListRepository.GetGoodsAndEquipsInRL(UoW, this);
-				var hasSelfDriverTerminalTransferDocument = _routeListRepository.GetSelfDriverTerminalTransferDocument(UoW, this.Driver, this) != null;
+				var loadedNomenclatures = _routeListRepository.AllGoodsLoaded(uow, this);
+				var nomenclaturesToLoad = _routeListRepository.GetGoodsAndEquipsInRL(uow, this);
+				var hasSelfDriverTerminalTransferDocument = _routeListRepository.GetSelfDriverTerminalTransferDocument(uow, this.Driver, this) != null;
 
 				foreach(var n in nomenclaturesToLoad) {
 
@@ -2392,11 +2371,11 @@ namespace Vodovoz.Domain.Logistic
 					}
 				}
 				DomainHelper.FillPropertyByEntity<RouteListControlNotLoadedNode, Nomenclature>(
-								UoW,
-								notLoadedNomenclatures,
-								x => x.NomenclatureId,
-								(node, obj) => node.Nomenclature = obj
-							);
+					uow,
+					notLoadedNomenclatures,
+					x => x.NomenclatureId,
+					(node, obj) => node.Nomenclature = obj
+				);
 			}
 			return notLoadedNomenclatures;
 		}
@@ -2503,16 +2482,16 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Зарплата
 
-		private IRouteListWageCalculationService GetDriverWageCalculationService(IWageParameterService wageParameterService)
+		private IRouteListWageCalculationService GetDriverWageCalculationService(IUnitOfWork uow, IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
-			return wageParameterService.ActualizeWageParameterAndGetCalculationService(UoW, Driver, DriverWageCalculationSrc);
+			return wageParameterService.ActualizeWageParameterAndGetCalculationService(uow, Driver, DriverWageCalculationSrc);
 		}
 
-		private IRouteListWageCalculationService GetForwarderWageCalculationService(IWageParameterService wageParameterService)
+		private IRouteListWageCalculationService GetForwarderWageCalculationService(IUnitOfWork uow, IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -2529,16 +2508,16 @@ namespace Vodovoz.Domain.Logistic
 				throw new InvalidOperationException(exceptionMessage);
 			}
 
-			return wageParameterService.ActualizeWageParameterAndGetCalculationService(UoW, Forwarder, ForwarderWageCalculationSrc);
+			return wageParameterService.ActualizeWageParameterAndGetCalculationService(uow, Forwarder, ForwarderWageCalculationSrc);
 		}
 
 
 		/// <summary>
 		/// Возвращает пересчитанную заново зарплату водителя (не записывает)
 		/// </summary>
-		public virtual decimal GetRecalculatedDriverWage(IWageParameterService wageParameterService)
+		public virtual decimal GetRecalculatedDriverWage(IUnitOfWork uow, IWageParameterService wageParameterService)
 		{
-			var routeListWageCalculationService = GetDriverWageCalculationService(wageParameterService);
+			var routeListWageCalculationService = GetDriverWageCalculationService(uow, wageParameterService);
 			var wageResult = routeListWageCalculationService.CalculateWage();
 			return wageResult.Wage;
 		}
@@ -2546,7 +2525,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Возвращает пересчитанную заного зарплату экспедитора (не записывает)
 		/// </summary>
-		public virtual decimal GetRecalculatedForwarderWage(IWageParameterService wageParameterService)
+		public virtual decimal GetRecalculatedForwarderWage(IUnitOfWork uow, IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -2556,7 +2535,7 @@ namespace Vodovoz.Domain.Logistic
 				return 0;
 			}
 
-			var routeListWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
+			var routeListWageCalculationService = GetForwarderWageCalculationService(uow, wageParameterService);
 			var wageResult = routeListWageCalculationService.CalculateWage();
 			return wageResult.Wage;
 		}
@@ -2586,18 +2565,18 @@ namespace Vodovoz.Domain.Logistic
 			return Addresses.Sum(item => item.ForwarderWage);
 		}
 
-		public virtual void RecalculateWagesForRouteListItem(RouteListItem address, IWageParameterService wageParameterService)
+		public virtual void RecalculateWagesForRouteListItem(IUnitOfWork uow, RouteListItem address, IWageParameterService wageParameterService)
 		{
 			if(!Addresses.Contains(address)) {
 				throw new InvalidOperationException("Расчет зарплаты возможен только для адресов текущего маршрутного листа.");
 			}
 
-			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
+			var routeListDriverWageCalculationService = GetDriverWageCalculationService(uow, wageParameterService);
 			var drvWageResult = routeListDriverWageCalculationService.CalculateWageForRouteListItem(address.DriverWageCalculationSrc);
 			address.DriverWage = drvWageResult.Wage;
 			address.DriverWageCalcMethodicTemporaryStore = drvWageResult.WageDistrictLevelRate;
 			if(Forwarder != null) {
-				var routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
+				var routeListForwarderWageCalculationService = GetForwarderWageCalculationService(uow, wageParameterService);
 				var fwdWageResult = routeListForwarderWageCalculationService.CalculateWageForRouteListItem(address.ForwarderWageCalculationSrc);
 				address.ForwarderWage = fwdWageResult.Wage;
 				address.ForwarderWageCalcMethodicTemporaryStore = fwdWageResult.WageDistrictLevelRate;
@@ -2607,7 +2586,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Расчитывает и записывает зарплату
 		/// </summary>
-		public virtual void CalculateWages(IWageParameterService wageParameterService)
+		public virtual void CalculateWages(IUnitOfWork uow, IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -2622,14 +2601,14 @@ namespace Vodovoz.Domain.Logistic
 			IRouteListWageCalculationService routeListDriverWageCalculationService = null;
 			if(Driver != null)
 			{
-				routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
+				routeListDriverWageCalculationService = GetDriverWageCalculationService(uow, wageParameterService);
 				FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().FixedWage;
 			}
 
 			IRouteListWageCalculationService routeListForwarderWageCalculationService = null;
 			if(Driver != null && Forwarder != null) 
 			{
-				routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
+				routeListForwarderWageCalculationService = GetForwarderWageCalculationService(uow, wageParameterService);
 				FixedForwarderWage = routeListForwarderWageCalculationService.CalculateWage().FixedWage;
 			}
 
@@ -2666,7 +2645,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void RecalculateAllWages(IWageParameterService wageParameterService)
+		public virtual void RecalculateAllWages(IUnitOfWork uow, IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -2686,10 +2665,10 @@ namespace Vodovoz.Domain.Logistic
 				throw new InvalidOperationException(exceptionMessage);
 			}
 
-			CalculateWages(wageParameterService);
+			CalculateWages(uow, wageParameterService);
 		}
 
-		public virtual void UpdateWageOperation()
+		public virtual void UpdateWageOperation(IUnitOfWork uow)
 		{
 			decimal driverWage = GetDriversTotalWage();
 
@@ -2704,7 +2683,7 @@ namespace Vodovoz.Domain.Logistic
 				DriverWageOperation.Employee = Driver;
 				DriverWageOperation.Money = driverWage;
 			}
-			UoW.Save(DriverWageOperation);
+			uow.Save(DriverWageOperation);
 
 			decimal forwarderWage = GetForwardersTotalWage();
 
@@ -2719,12 +2698,12 @@ namespace Vodovoz.Domain.Logistic
 				ForwarderWageOperation.Money = forwarderWage;
 				ForwarderWageOperation.Employee = Forwarder;
 			} else if(ForwarderWageOperation != null) {
-				UoW.Delete(ForwarderWageOperation);
+				uow.Delete(ForwarderWageOperation);
 				ForwarderWageOperation = null;
 			}
 
 			if(ForwarderWageOperation != null)
-				UoW.Save(ForwarderWageOperation);
+				uow.Save(ForwarderWageOperation);
 
 			foreach(var address in Addresses) {
 				address.SaveWageCalculationMethodics();
@@ -2781,10 +2760,10 @@ namespace Vodovoz.Domain.Logistic
 			return addressDetailsText;
 		}
 
-		public virtual string GetWageCalculationDetails(IWageParameterService wageParameterService)
+		public virtual string GetWageCalculationDetails(IUnitOfWork uow, IWageParameterService wageParameterService)
 		{
-			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
-			var routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
+			var routeListDriverWageCalculationService = GetDriverWageCalculationService(uow, wageParameterService);
+			var routeListForwarderWageCalculationService = GetForwarderWageCalculationService(uow, wageParameterService);
 
 			List<RouteListItemWageCalculationDetails> addressWageDetailsList = new List<RouteListItemWageCalculationDetails>();
 

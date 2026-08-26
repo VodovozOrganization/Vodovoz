@@ -80,6 +80,14 @@ namespace Vodovoz.ViewModelBased
 			}
 		}
 
-
+		public override void Dispose()
+		{
+			if(Entity != null)
+			{
+				Entity.PropertyChanged -= Entity_PropertyChanged;
+			}
+			
+			base.Dispose();
+		}
 	}
 }

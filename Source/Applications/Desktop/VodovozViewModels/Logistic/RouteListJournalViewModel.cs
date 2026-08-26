@@ -48,6 +48,7 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Print.Store;
+using VodovozBusiness.Services.Users;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -69,7 +70,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IStockRepository _stockRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
-		private readonly IUserSettingsService _userSettings;
+		private readonly IUserSettingsManager _userSettingsManager;
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
 		private readonly decimal _routeListProfitabilityIndicator;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
@@ -94,7 +95,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
-			IUserSettingsService userSettings,
+			IUserSettingsManager userSettingsManager,
 			IStoreDocumentHelper storeDocumentHelper,
 			IRouteListService routeListService,
 			IEventsQrPlacer eventsQrPlacer,
@@ -119,7 +120,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_carLoadDocumentsPrinter = carLoadDocumentsPrinter ?? throw new ArgumentNullException(nameof(carLoadDocumentsPrinter));
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
-			_userSettings = userSettings;
+			_userSettingsManager = userSettingsManager;
 			_storeDocumentHelper = storeDocumentHelper;
 			_currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			_warehousePermissionValidator =
@@ -431,7 +432,7 @@ namespace Vodovoz.ViewModels.Logistic
 				.Select(x => x.Id)
 				.List<int>();
 
-			var defaultWarehouse = _userSettings.Settings.DefaultWarehouse;
+			var defaultWarehouse = _userSettingsManager.Settings.DefaultWarehouse;
 
 			if(defaultWarehouse != null
 			   && !cashWarehouseIds.Contains(defaultWarehouse.Id)
@@ -751,7 +752,7 @@ namespace Vodovoz.ViewModels.Logistic
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
 						var routeList = UoW.GetById<RouteList>(selectedNode.Id);
-						routeList?.CreateSelfDriverTerminalTransferDocument();
+						routeList?.CreateSelfDriverTerminalTransferDocument(UoW);
 					}
 				}
 			);
@@ -772,7 +773,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 
-				if(!routeList.IsDriversDebtInPermittedRangeVerification())
+				if(!routeList.IsDriversDebtInPermittedRangeVerification(UoW))
 				{
 					return;
 				}
@@ -844,9 +845,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void PrintCarLoadDocuments(CarLoadDocument carLoadDocument)
 		{
-			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, CarLoadDocumentPlaceEventsQr, _reportInfoFactory);
-			var controlCarLoadDocument = ControlCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, _reportInfoFactory);
-			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettings.Settings, carLoadDocument, _reportInfoFactory);
+			var waterCarLoadDocument = WaterCarLoadDocumentRdl.Create(_userSettingsManager.Settings, carLoadDocument, CarLoadDocumentPlaceEventsQr, _reportInfoFactory);
+			var controlCarLoadDocument = ControlCarLoadDocumentRdl.Create(_userSettingsManager.Settings, carLoadDocument, _reportInfoFactory);
+			var equipmentCarLoadDocument = EquipmentCarLoadDocumentRdl.Create(_userSettingsManager.Settings, carLoadDocument, _reportInfoFactory);
 
 			_carLoadDocumentsPrinter.Print(waterCarLoadDocument);
 			_carLoadDocumentsPrinter.Print(controlCarLoadDocument);
@@ -897,7 +898,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 				foreach(var routeList in routeLists)
 				{
-					if(!routeList.IsDriversDebtInPermittedRangeVerification())
+					if(!routeList.IsDriversDebtInPermittedRangeVerification(UoW))
 					{
 						return;
 					}

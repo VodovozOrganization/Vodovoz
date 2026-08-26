@@ -38,6 +38,7 @@ namespace Vodovoz.ViewModels.Goods
 		private bool _flyerForNewCounterpartyEnabled;
 		private int _flyerForNewCounterpartyBottlesCount;
 		private int _maxFastOrdersPerSpecificTime;
+		private bool _disposed;
 
 		public AdditionalLoadingSettingsViewModel(
 			ILifetimeScope scope,
@@ -313,10 +314,12 @@ namespace Vodovoz.ViewModels.Goods
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			ObservableNomenclatureDistributions.ElementAdded -= OnElementAdded;
 			ObservableNomenclatureDistributions.ElementRemoved -= OnElementRemoved;
 			ObservableNomenclatureDistributions.ElementChanged -= OnElementChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 
 		public bool AskSaveOnClose => CanEdit;

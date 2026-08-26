@@ -41,6 +41,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			parameterNames.Add(parameterName);
 
 			SelectableParameterSet parameterSet = new SelectableParameterSet(name, parametersFactory, parameterName, includeSuffix, excludeSuffix);
+			//TODO MemoryLeaking
 			parameterSet.PropertyChanged += ParameterSetOnPropertyChanged;
 			ParameterSets.Add(parameterSet);
 

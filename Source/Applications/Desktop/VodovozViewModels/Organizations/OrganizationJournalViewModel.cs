@@ -17,6 +17,7 @@ namespace Vodovoz.ViewModels.Organizations
 	public class OrganizationJournalViewModel : EntityJournalViewModelBase<Organization, OrganizationViewModel, OrganizationJournalNode>
 	{
 		private readonly OrganizationJournalFilterViewModel _filterViewModel;
+		private bool _disposed;
 
 		public OrganizationJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -117,9 +118,10 @@ namespace Vodovoz.ViewModels.Organizations
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterFiltered;
-
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

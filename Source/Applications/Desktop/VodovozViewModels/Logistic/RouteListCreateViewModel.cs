@@ -80,6 +80,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private bool _canClose = true;
 		private Employee _oldDriver;
 		private DateTime _previousSelectedDate;
+		private bool _disposed;
 
 		public event EventHandler DocumentPrinted; 
 
@@ -561,7 +562,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			_logger.LogInformation("Вызван метод сохранения МЛ {RouteListId}...", Entity.Id);
 
-			if(!Entity.IsDriversDebtInPermittedRangeVerification())
+			if(!Entity.IsDriversDebtInPermittedRangeVerification(UoW))
 			{
 				return false;
 			}
@@ -925,7 +926,7 @@ namespace Vodovoz.ViewModels.Logistic
 			//Строим маршрут для МЛ.
 			if((!routeList.PrintsHistory?.Any() ?? true) || confirmRecalculateRoute)
 			{
-				var newRoute = _routeOptimizer.RebuidOneRoute(routeList);
+				var newRoute = _routeOptimizer.RebuidOneRoute(UoW, routeList);
 
 				if(newRoute != null)
 				{
@@ -1013,7 +1014,7 @@ namespace Vodovoz.ViewModels.Logistic
 		
 		private void RecalculateRouteList(IUnitOfWork unitOfWork, RouteList routeList)
 		{
-			routeList.CalculateWages(_wageParameterService);
+			routeList.CalculateWages(UoW, _wageParameterService);
 
 			var commonFastDeliveryMaxDistance = (decimal)_deliveryRepository.GetMaxDistanceToLatestTrackPointKmFor(DateTime.Now);
 			routeList.UpdateFastDeliveryMaxDistanceValue(commonFastDeliveryMaxDistance);
@@ -1023,5 +1024,13 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 
 		#endregion
+
+		public override void Dispose()
+		{
+			if(_disposed) return;
+			Entity.PropertyChanged -= OnRouteListPropertyChanged;
+			base.Dispose();
+			_disposed = true;
+		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -93,5 +93,11 @@ namespace Vodovoz.EntityRepositories.Employees
 		/// <param name="driverId">Id водителя (сотрудника)</param>
 		/// <returns>Результат проверки</returns>
 		bool CanCreateDriverMangoRegistrationRequest(IUnitOfWork uow, int driverId);
+		/// <summary>
+		/// Получение идентификатора сотрудника и его внутреннего телефона
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <returns></returns>
+		IEmployeeInnerPhone GetEmployeeInnerPhone(IUnitOfWork uow);
 	}
 }

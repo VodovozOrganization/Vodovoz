@@ -4,7 +4,7 @@ using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
-	public class NomenclaturePurchasePriceViewModel : WidgetViewModelBase
+	public class NomenclaturePurchasePriceViewModel : WidgetViewModelBase, IDisposable
 	{
 		public NomenclaturePurchasePrice Entity { get; }
 
@@ -65,6 +65,11 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				}
 				Entity.PurchasePrice = value;
 			}
+		}
+
+		public void Dispose()
+		{
+			Entity.PropertyChanged -= Entity_PropertyChanged;
 		}
 	}
 }

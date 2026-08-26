@@ -6,7 +6,7 @@ using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 
 namespace Vodovoz.ViewModels.Reports
 {
-	public class SelectableParameterReportFilterViewModel : WidgetViewModelBase
+	public class SelectableParameterReportFilterViewModel : WidgetViewModelBase, IDisposable
 	{
 		private SelectableParameterSet _currentParameterSet;
 		private string _searchValue;
@@ -177,6 +177,15 @@ namespace Vodovoz.ViewModels.Reports
 		public void SilentUpdateSearchValue(string value)
 		{
 			_searchValue = value;
+		}
+		
+		public virtual void Dispose()
+		{
+			if(_currentParameterSet != null)
+			{
+				_currentParameterSet.PropertyChanged -= OnCurrentParameterSet_PropertyChanged;
+				_currentParameterSet.SelectionChanged -= OnCurrentParameterSet_SelectionChanged;
+			}
 		}
 	}
 }

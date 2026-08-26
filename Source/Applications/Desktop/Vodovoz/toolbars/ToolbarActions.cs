@@ -620,7 +620,13 @@ public partial class MainWindow : Window
 	private void OnStockMovementsActivated(object sender, EventArgs e)
 	{
 		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
-		var report = new StockMovements(reportInfoFactory, NavigationManager, Startup.AppDIContainer.BeginLifetimeScope());
+		var report = new StockMovements(
+			reportInfoFactory,
+			NavigationManager,
+			UserSettingsManager,
+			Startup.AppDIContainer.BeginLifetimeScope()
+			);
+		
 		var dlg = new ReportViewDlg(report);
 		report.ParentTab = dlg;
 
@@ -916,7 +922,7 @@ public partial class MainWindow : Window
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
-		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
+		var defaultWarehouse = UserSettingsManager.Settings.DefaultWarehouse;
 		Action<NomenclatureStockFilterViewModel> filterParams = null;
 
 		if(_accessOnlyToWarehouseAndComplaints && defaultWarehouse != null)

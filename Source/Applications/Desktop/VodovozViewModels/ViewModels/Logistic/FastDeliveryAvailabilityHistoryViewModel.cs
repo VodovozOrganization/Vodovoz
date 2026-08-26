@@ -19,10 +19,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
+			IFastDeliveryHistoryConverter deliveryHistoryConverter,
 			INavigationManager navigation = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			var logistician = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
-			FastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(Entity, UoW, logistician);
+			FastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(UoW, Entity, deliveryHistoryConverter, logistician);
 		}
 
 		public override bool HasChanges => false;

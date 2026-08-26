@@ -21,6 +21,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.EntityRepositories.Nodes;
+using VodovozBusiness.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -48,7 +49,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		Dictionary<int, IEnumerable<int>> GetAllRouteListsForOrders(IUnitOfWork UoW, IEnumerable<Order> orders);
 		Dictionary<int, IEnumerable<int>> GetAllRouteListsForOrders(IUnitOfWork UoW, IEnumerable<int> orders);
 
-		IList<Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty);
+		IList<CounterpartyCurrentOrderNode> GetCurrentOrders(IUnitOfWork uow, int counterpartyId);
 
 		/// <summary>
 		/// Оборудование заказа от клиента
@@ -65,24 +66,25 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// </summary>
 		/// <returns>Первый заказ</returns>
 		/// <param name="uow">UoW</param>
+		/// <param name="order">Заказ над которым идет работа</param>
 		/// <param name="client">Контрагент</param>
-		Order GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Order order, Counterparty client);
+		bool FirstRealClientOrderForActionBottleExists(IUnitOfWork uow, Order order, Counterparty client);
 
 		bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty);
 		bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId);
 
 		OrderStatus[] GetGrantedStatusesToCreateSeveralOrders();
 
-		Order GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty);
+		DateTime? GetDateLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty);
 
 		/// <summary>
 		/// Список последних заказов для точки доставки.
 		/// </summary>
 		/// <returns>Список последних заказов для точки доставки.</returns>
-		/// <param name="UoW">IUnitOfWork</param>
-		/// <param name="deliveryPoint">Точка доставки.</param>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="deliveryPointId">Идентификатор точки доставки</param>
 		/// <param name="count">Требуемое количество последних заказов.</param>
-		IList<Order> GetLatestOrdersForDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, int? count = null);
+		IList<LatestOrderForDeliveryPointNode> GetLatestOrdersForDeliveryPoint(IUnitOfWork uow, int deliveryPointId, int? count = null);
 
 		/// <summary>
 		/// Список последних заказов для контрагента .
@@ -104,8 +106,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="orderId">Текущий изменяемый заказ</param>
 		/// <returns>Возможность смены даты контракта</returns>
 		bool CanChangeContractDate(IUnitOfWork uow, Counterparty client, DateTime newDeliveryDate, int orderId);
-
-		Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
+		/// <summary>
+		/// Есть ли еще заказ на ту же дату и точку доставки
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="date">Дата</param>
+		/// <param name="deliveryPoint">Точка доставки</param>
+		/// <returns></returns>
+		bool OtherOrderOnDateAndDeliveryPointExists(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
 		IList<Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uow, DateTime date, DeliveryPoint deliveryPoint);
 		Order GetOrder(IUnitOfWork unitOfWork, int orderId);
 

@@ -13,12 +13,13 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using VodovozBusiness.EntityRepositories.Nodes;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.EntityRepositories
 {
 	public interface IEmailRepository
 	{
-		List<StoredEmail> GetAllEmailsForOrder(IUnitOfWork uow, int orderId);
+		IList<SentStoredEmailNode> GetAllBillEmailsForOrder(IUnitOfWork uow, int orderId);
 		List<CounterpartyEmail> GetEmailsForPreparingOrderDocuments(IUnitOfWork uow);
 		StoredEmail GetStoredEmailByMessageId(IUnitOfWork uow, string messageId);
 		bool HaveSendedEmailForBill(int orderId);

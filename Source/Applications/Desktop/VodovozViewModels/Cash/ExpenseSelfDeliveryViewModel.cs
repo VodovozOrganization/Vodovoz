@@ -42,6 +42,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly IReportInfoFactory _reportInfoFactory;
 		private IEntityEntryViewModel _orderViewModel;
 		private FinancialExpenseCategory _financialExpenseCategory;
+		private bool _disposed;
 
 		public ExpenseSelfDeliveryViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -285,6 +286,14 @@ namespace Vodovoz.ViewModels.Cash
 			};
 
 			_reportViewOpener.OpenReport(this, reportInfo);
+		}
+
+		public override void Dispose()
+		{
+			if(_disposed) return;
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

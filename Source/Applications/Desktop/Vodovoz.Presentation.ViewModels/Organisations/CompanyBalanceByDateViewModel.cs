@@ -35,6 +35,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private readonly BankStatementHandler _bankStatementHandler;
 		private readonly IPermissionResult _permissionResult;
 		private readonly string _bankStatementsDirectory;
+		private bool _disposed;
 
 		public CompanyBalanceByDateViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -583,9 +584,11 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			DatePickerViewModel.PropertyChanged -= OnDatePickerViewModelPropertyChanged;
 			DatePickerViewModel.Dispose();
 			base.Dispose();
+			_disposed = true;
 		}
 
 		public void RecalculateTotal(BusinessAccountSummary accountSummary)

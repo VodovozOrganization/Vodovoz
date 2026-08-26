@@ -1,4 +1,5 @@
-﻿using Gamma.ColumnConfig;
+﻿using System;
+using Gamma.ColumnConfig;
 using Gdk;
 using QS.Views.GtkUI;
 using System.ComponentModel;
@@ -51,7 +52,7 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(e => e.IsInsuranceNotRelevantForCar, w => w.Active)
 				.InitializeFromSource();
 
-			ycheckbuttonIsNotRelevantForCar.Clicked += (sender, e) => ViewModel.ChangeIsKaskoNotRelevantCommand.Execute();
+			ycheckbuttonIsNotRelevantForCar.Clicked += OnIsNotRelevantForCarClicked;
 
 			ybuttonNewVersion.Binding
 				.AddBinding(ViewModel, vm => vm.CanAddCarInsurance, w => w.Sensitive)
@@ -65,11 +66,9 @@ namespace Vodovoz.Views.Logistic
 			ybuttonEditVersion.BindCommand(ViewModel.EditCarInsuranceCommand);
 		}
 
-		public override void Destroy()
+		private void OnIsNotRelevantForCarClicked(object sender, EventArgs e)
 		{
-			ytreeCarInsuranceVersion.Destroy();
-
-			base.Destroy();
+			ViewModel.ChangeIsKaskoNotRelevantCommand.Execute();
 		}
 	}
 }

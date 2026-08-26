@@ -44,6 +44,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database.Logistics;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Validation;
+using VodovozBusiness.Services.Users;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
@@ -381,6 +382,7 @@ namespace Vodovoz
 			//Запускаем программу
 			MainWin = new MainWindow(
 				AppDIContainer.Resolve<IInteractiveService>(),
+				AppDIContainer.Resolve<IUserSettingsManager>(),
 				AppDIContainer.Resolve<IApplicationInfo>(),
 				wikiSettings);
 			

@@ -8,7 +8,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Models
 {
-	public class CounterpartyFixedPricesModel : IFixedPricesModel
+	public class CounterpartyFixedPricesModel : IFixedPricesModel, IDisposable
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly Counterparty _counterparty;
@@ -71,6 +71,14 @@ namespace Vodovoz.Models
 			}
 
 			_fixedPriceController.DeleteFixedPrice(_counterparty, nomenclatureFixedPrice);
+		}
+
+		public void Dispose()
+		{
+			if(_counterparty != null)
+			{
+				_counterparty.PropertyChanged -= CounterpartyOnPropertyChanged;
+			}
 		}
 	}
 }

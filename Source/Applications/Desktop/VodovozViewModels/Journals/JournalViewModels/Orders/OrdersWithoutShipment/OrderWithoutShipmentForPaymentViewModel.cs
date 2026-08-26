@@ -60,6 +60,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private bool _userHavePermissionToResendEdoDocuments;
 		private bool _canSetOrganization = true;
+		private bool _disposed;
 
 		public OrderWithoutShipmentForPaymentViewModel(
 			ILifetimeScope lifetimeScope,
@@ -390,8 +391,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			OrganizationViewModel.PropertyChanged -= OnOrganizationViewModelPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 		
 		private void InitializeCommands()

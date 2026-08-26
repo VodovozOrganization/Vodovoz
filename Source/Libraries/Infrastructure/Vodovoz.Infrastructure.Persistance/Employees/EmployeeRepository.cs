@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Banks.Domain;
@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using QS.Project.Domain;
+using QS.Services;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Employees;
@@ -22,6 +24,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Settings.Employee;
+using VodovozBusiness.Nodes;
+using VodovozBusiness.Services.Users;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Employees
@@ -29,9 +33,15 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 	internal sealed class EmployeeRepository : IEmployeeRepository
 	{
 		private readonly IEmployeeSettings _employeeSettings;
-		public EmployeeRepository(IEmployeeSettings employeeSettings)
+		private readonly IUserService _userService;
+
+		public EmployeeRepository(
+			IEmployeeSettings employeeSettings,
+			IUserService userService
+			)
 		{
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 		}
 
 		public Employee GetEmployeeForCurrentUser(IUnitOfWork unitOfWork)
@@ -43,7 +53,7 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 
 			User userAlias = null;
 
-			var userId = ServicesConfig.UserService.CurrentUserId;
+			var userId = _userService.CurrentUserId;
 
 			return unitOfWork.Session.QueryOver<Employee>()
 				.JoinAlias(e => e.User, () => userAlias)
@@ -413,6 +423,19 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 				.ToFutureValue(q => q.Any());
 
 			return !hasActiveExtensionNumber.Value && !hasNewRegistrationRequest.Value;
+		}
+
+		public IEmployeeInnerPhone GetEmployeeInnerPhone(IUnitOfWork uow)
+		{
+			var userId = _userService.CurrentUserId;
+
+			var query = from employee in uow.Session.Query<Employee>()
+				join user in uow.Session.Query<UserBase>()
+					on employee.User.Id equals user.Id
+				where user.Id == userId
+				select EmployeeInnerPhoneNode.Create(employee.Id, employee.InnerPhone);
+
+			return query.FirstOrDefault();
 		}
 	}
 }

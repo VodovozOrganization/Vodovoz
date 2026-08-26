@@ -21,7 +21,7 @@ namespace Vodovoz.Domain.Sale
 		Nominative = "район")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class District : BusinessObjectBase<District>, IDomainObject, IValidatableObject, ICloneable
+	public class District : PropertyChangedBase, IDomainObject, IValidatableObject, ICloneable
 	{
 		#region Fields
 

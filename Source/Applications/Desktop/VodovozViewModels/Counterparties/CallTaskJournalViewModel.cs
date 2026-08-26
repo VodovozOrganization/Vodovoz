@@ -31,6 +31,7 @@ namespace Vodovoz.ViewModels.Counterparties
 	{
 		private readonly IFileDialogService _fileDialogService;
 		private readonly CallTaskFilterViewModel _filterViewModel;
+		private bool _disposed;
 
 		public CallTaskJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -519,9 +520,11 @@ namespace Vodovoz.ViewModels.Counterparties
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterRefiltered;
 			DataLoader.ItemsListUpdated -= OnDataLoaderItemsListUpdated;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

@@ -19,12 +19,10 @@ namespace Vodovoz.Dialogs.Email
 
 		private void Configure()
 		{
-			buttonSendEmail.Clicked += (sender, e) => ViewModel.SendEmailCommand.Execute();
-			ViewModel.SendEmailCommand.CanExecuteChanged += (sender, args) =>
-				buttonSendEmail.Sensitive = ViewModel.SendEmailCommand.CanExecute();
-			buttonRefreshEmailList.Clicked += (sender, e) => ViewModel.RefreshEmailListCommand.Execute();
-			ViewModel.RefreshEmailListCommand.CanExecuteChanged += (sender, args) =>
-				buttonRefreshEmailList.Sensitive = ViewModel.RefreshEmailListCommand.CanExecute();
+			buttonSendEmail.BindCommand(ViewModel.SendEmailCommand);
+			ViewModel.SendEmailCommand.CanExecuteChanged += OnSendEmailCanExecuteChanged;
+			buttonRefreshEmailList.BindCommand(ViewModel.RefreshEmailListCommand);
+			ViewModel.RefreshEmailListCommand.CanExecuteChanged += OnRefreshEmailListCanExecuteChanged;
 
 			buttonSendEmail.Binding.AddBinding(ViewModel, vm => vm.BtnSendEmailSensitive, w => w.Sensitive).InitializeFromSource();
 			
@@ -45,6 +43,16 @@ namespace Vodovoz.Dialogs.Email
 			ytreeviewStoredEmails.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedStoredEmail, w => w.SelectedRow)
 				.InitializeFromSource();
+		}
+
+		private void OnRefreshEmailListCanExecuteChanged(object sender, EventArgs args)
+		{
+			buttonRefreshEmailList.Sensitive = ViewModel.RefreshEmailListCommand.CanExecute();
+		}
+
+		private void OnSendEmailCanExecuteChanged(object sender, EventArgs args)
+		{
+			buttonSendEmail.Sensitive = ViewModel.SendEmailCommand.CanExecute();
 		}
 
 		private void OnEmailChanged(object sender, EventArgs e)
@@ -70,10 +78,12 @@ namespace Vodovoz.Dialogs.Email
 			}
 		}
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
 			yvalidatedentryEmail.Changed -= OnEmailChanged;
-			base.Destroy();
+			ViewModel.SendEmailCommand.CanExecuteChanged -= OnSendEmailCanExecuteChanged;
+			ViewModel.RefreshEmailListCommand.CanExecuteChanged -= OnRefreshEmailListCanExecuteChanged;
+			base.OnDestroyed();
 		}
 	}
 }

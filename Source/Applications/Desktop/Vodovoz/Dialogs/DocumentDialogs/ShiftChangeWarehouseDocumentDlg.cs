@@ -37,16 +37,18 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	public partial class ShiftChangeWarehouseDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<ShiftChangeWarehouseDocument>
 	{
 		private static ILogger<ShiftChangeWarehouseDocumentDlg> _logger;
+		private ILifetimeScope _scope = ScopeProvider.Scope.BeginLifetimeScope();
 
 		private IEmployeeRepository _employeeRepository;
 		private IStockRepository _stockRepository;
+		private IStoreDocumentHelper _storeDocumentHelper;
 
 		private SelectableParametersReportFilter _filter;
 
 		public ShiftChangeWarehouseDocumentDlg()
 		{
 			ResolveDependencies();
-			this.Build();
+			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateWithNewRoot<ShiftChangeWarehouseDocument>();
 			Entity.AuthorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
 			if(Entity.AuthorId == null) {
@@ -55,29 +57,27 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
 			if(UoW.IsNew)
-				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
+				Entity.Warehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
 			if(!UoW.IsNew)
-				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeEdit);
+				Entity.Warehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeEdit);
 
-			ConfigureDlg(storeDocument);
+			ConfigureDlg();
 		}
 
 		public ShiftChangeWarehouseDocumentDlg(int id)
 		{
 			ResolveDependencies();
-			this.Build();
+			Build();
 			UoWGeneric = ServicesConfig.UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
-			
-			var storeDocument = new StoreDocumentHelper(new UserSettingsService());
-			ConfigureDlg(storeDocument);
+			ConfigureDlg();
 		}
 
 		private void ResolveDependencies()
 		{
-			_employeeRepository = ScopeProvider.Scope.Resolve<IEmployeeRepository>();
-			_stockRepository = ScopeProvider.Scope.Resolve<IStockRepository>();
+			_employeeRepository = _scope.Resolve<IEmployeeRepository>();
+			_stockRepository = _scope.Resolve<IStockRepository>();
+			_storeDocumentHelper = _scope.Resolve<IStoreDocumentHelper>();
 		}
 
 		public ShiftChangeWarehouseDocumentDlg(ShiftChangeWarehouseDocument sub) : this (sub.Id)
@@ -89,9 +89,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		public bool CanSave => canCreate || canEdit;
 
-		void ConfigureDlg(StoreDocumentHelper storeDocument)
+		void ConfigureDlg()
 		{
-			canEdit = !UoW.IsNew && storeDocument.CanEditDocument(WarehousePermissionsType.ShiftChangeEdit, Entity.Warehouse);
+			canEdit = !UoW.IsNew && _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.ShiftChangeEdit, Entity.Warehouse);
 
 			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today)
 			{
@@ -102,7 +102,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 					typeof(ShiftChangeWarehouseDocument), ServicesConfig.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
 			}
 
-			canCreate = UoW.IsNew && !storeDocument.CheckCreateDocument(WarehousePermissionsType.ShiftChangeCreate, Entity.Warehouse);
+			canCreate = UoW.IsNew && !_storeDocumentHelper.CheckCreateDocument(WarehousePermissionsType.ShiftChangeCreate, Entity.Warehouse);
 
 			if(!canCreate && UoW.IsNew){
 				FailInitialize = true;
@@ -123,9 +123,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			if(UoW.IsNew)
-				yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissionsType.ShiftChangeCreate);
+				yentryrefWarehouse.ItemsQuery = _storeDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissionsType.ShiftChangeCreate);
 			if(!UoW.IsNew)
-				yentryrefWarehouse.ItemsQuery = storeDocument.GetRestrictedWarehouseQuery(WarehousePermissionsType.ShiftChangeEdit);
+				yentryrefWarehouse.ItemsQuery = _storeDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissionsType.ShiftChangeEdit);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			yentryrefWarehouse.Changed += OnWarehouseChanged;
 
@@ -426,5 +426,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		}
 
 		#endregion
+
+		protected override void OnDestroyed()
+		{
+			_scope.Dispose();
+			_scope = null;
+			base.OnDestroyed();
+		}
 	}
 }

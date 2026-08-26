@@ -24,7 +24,7 @@ using Source = GLib.Source;
 namespace Vodovoz.SidePanel.InfoViews
 {
 	[ToolboxItem(true)]
-	public partial class CarsMonitoringInfoPanelView : Bin, IPanelView, INotifyPropertyChanged, IDisposable
+	public partial class CarsMonitoringInfoPanelView : Bin, IPanelView, INotifyPropertyChanged
 	{
 		private const string _radioButtonPrefix = "yrbtn";
 		private const string _groupFilterOrdersPrefix = "FilterOrders";
@@ -342,11 +342,10 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private static string Green(string input) => $"<span color=\"{GdkColors.SuccessText.ToHtmlColor()}\">{input}</span>";
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
 			Source.Remove(_timerId);
-			ytvAddressesInProcess.Destroy();
-			base.Destroy();
+			base.OnDestroyed();
 		}
 
 		public class FastDeliveryMonitoringNode

@@ -10,7 +10,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Client;
@@ -306,12 +305,12 @@ namespace Vodovoz.Domain.Goods
 
 		#region Методы
 
-		public virtual void SetNomenclatureCreationInfo(IUserRepository userRepository)
+		public virtual void SetNomenclatureCreationInfo(User user)
 		{
 			if(Id == 0 && !CreateDate.HasValue)
 			{
 				CreateDate = DateTime.Now;
-				CreatedBy = userRepository.GetCurrentUser(UoW);
+				CreatedBy = user;
 			}
 		}
 
@@ -386,6 +385,11 @@ namespace Vodovoz.Domain.Goods
 				typeof(INomenclatureRepository)) is INomenclatureRepository nomenclatureRepository))
 			{
 				throw new ArgumentNullException($"Не найден репозиторий {nameof(nomenclatureRepository)}");
+			}
+			
+			if(!(validationContext.GetRequiredService(typeof(IUnitOfWorkFactory)) is IUnitOfWorkFactory uowFactory))
+			{
+				throw new ArgumentNullException($"Не найдена фабрика unit of work {nameof(IUnitOfWorkFactory)}");
 			}
 
 			if(string.IsNullOrWhiteSpace(Name))
@@ -476,46 +480,52 @@ namespace Vodovoz.Domain.Goods
 					new[] { nameof(Unit) });
 			}
 
-			//Проверка зависимостей номенклатур #1: если есть зависимые
-			if(DependsOnNomenclature != null)
+			using(var uow = uowFactory.CreateWithoutRoot("Проверка зависимостей номенклатур"))
 			{
-				IList<Nomenclature> dependedNomenclatures = nomenclatureRepository.GetDependedNomenclatures(UoW, this);
-
-				if(dependedNomenclatures.Any())
+				//Проверка зависимостей номенклатур #1: если есть зависимые
+				if(DependsOnNomenclature != null)
 				{
-					string dependedNomenclaturesText = "Цена данной номенклатуры не может зависеть от другой номенклатуры, т.к. от данной номенклатуры зависят цены следующих номенклатур:\n";
+					IList<Nomenclature> dependedNomenclatures = nomenclatureRepository.GetDependedNomenclatures(uow, this);
 
-					foreach(Nomenclature n in dependedNomenclatures)
+					if(dependedNomenclatures.Any())
 					{
-						dependedNomenclaturesText += $"{n.Id}: {n.OfficialName} ({n.CategoryString})\n";
+						string dependedNomenclaturesText = "Цена данной номенклатуры не может зависеть от другой номенклатуры, т.к. от данной номенклатуры зависят цены следующих номенклатур:\n";
+
+						foreach(Nomenclature n in dependedNomenclatures)
+						{
+							dependedNomenclaturesText += $"{n.Id}: {n.OfficialName} ({n.CategoryString})\n";
+						}
+
+						yield return new ValidationResult(dependedNomenclaturesText, new[] { nameof(DependsOnNomenclature) });
 					}
 
-					yield return new ValidationResult(dependedNomenclaturesText, new[] { nameof(DependsOnNomenclature) });
-				}
-
-				if(DependsOnNomenclature.DependsOnNomenclature != null)
-				{
-					yield return new ValidationResult(
-						$"Номенклатура '{DependsOnNomenclature.ShortOrFullName}' указанная в качеcтве основной для цен этой номеклатуры, сама зависит от '{DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName}'",
-						new[] { nameof(DependsOnNomenclature) });
+					if(DependsOnNomenclature.DependsOnNomenclature != null)
+					{
+						yield return new ValidationResult(
+							$"Номенклатура '{DependsOnNomenclature.ShortOrFullName}' указанная в качеcтве основной для цен этой номеклатуры, сама зависит от '{DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName}'",
+							new[] { nameof(DependsOnNomenclature) });
+					}
 				}
 			}
 
-			if(Code1c != null && Code1c.StartsWith(PrefixOfCode1c))
+			using(var uow = uowFactory.CreateWithoutRoot("Проверка кода 1С"))
 			{
-				if(Code1c.Length != LengthOfCode1c)
+				if(Code1c != null && Code1c.StartsWith(PrefixOfCode1c))
 				{
-					yield return new ValidationResult(
-						$"Код 1с с префиксом автоформирования '{PrefixOfCode1c}', должен содержать {LengthOfCode1c}-символов.",
-						new[] { nameof(Code1c) });
-				}
+					if(Code1c.Length != LengthOfCode1c)
+					{
+						yield return new ValidationResult(
+							$"Код 1с с префиксом автоформирования '{PrefixOfCode1c}', должен содержать {LengthOfCode1c}-символов.",
+							new[] { nameof(Code1c) });
+					}
 
-				var next = nomenclatureRepository.GetNextCode1c(UoW);
-				if(string.Compare(Code1c, next) > 0)
-				{
-					yield return new ValidationResult(
-						$"Код 1с использует префикс автоматического формирования кодов '{PrefixOfCode1c}'. При этом пропускает некоторое количество значений. Используйте в качестве следующего кода {next} или оставьте это поле пустым для автозаполенения.",
-						new[] { nameof(Code1c) });
+					var next = nomenclatureRepository.GetNextCode1c(uow);
+					if(string.Compare(Code1c, next) > 0)
+					{
+						yield return new ValidationResult(
+							$"Код 1с использует префикс автоматического формирования кодов '{PrefixOfCode1c}'. При этом пропускает некоторое количество значений. Используйте в качестве следующего кода {next} или оставьте это поле пустым для автозаполенения.",
+							new[] { nameof(Code1c) });
+					}
 				}
 			}
 			
@@ -569,103 +579,106 @@ namespace Vodovoz.Domain.Goods
 			
 			#region Gtins
 
-			if(Gtins.Any(x => x.GtinNumber.Length < 8 || x.GtinNumber.Length > 14))
+			using(var uow = uowFactory.CreateWithoutRoot("Проверка GTINs"))
 			{
-				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
-					new[] { nameof(Gtins) });
+				if(Gtins.Any(x => x.GtinNumber.Length < 8 || x.GtinNumber.Length > 14))
+				{
+					yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
+						new[] { nameof(Gtins) });
+				}
+
+				var gtinRepository = validationContext.GetRequiredService<IGenericRepository<Gtin>>();
+				var groupGtinRepository = validationContext.GetRequiredService<IGenericRepository<GroupGtin>>();
+
+				var gtinNumbers = Gtins.Select(x => x.GtinNumber);
+				var groupGtinNumbers = GroupGtins.Select(x => x.GtinNumber);
+
+				var gtinDuplicates = gtinRepository.Get(uow, x => x.Nomenclature.Id != Id && gtinNumbers.Contains(x.GtinNumber));
+
+				if(gtinDuplicates.Any())
+				{
+					yield return new ValidationResult(
+						$"Найдены дубликаты Gtin {string.Join("; ", gtinDuplicates.Select(x => $"[{x.Nomenclature.Name} : {x.GtinNumber}]"))}",
+						new[] { nameof(Gtins) });
+				}
+
+				var gtinsDuplicatesInNomenclature = Gtins.GroupBy(x => x.GtinNumber).Where(g => g.Count() > 1).Select(g => g.Key);
+
+				if(gtinsDuplicatesInNomenclature.Any())
+				{
+					yield return new ValidationResult(
+						$"Найдены дубликаты Gtin в текущей номенклатуре {string.Join(", ", gtinsDuplicatesInNomenclature.Select(x => x))}",
+						new[] { nameof(Gtins) });
+				}
+
+				//Gtin не должен повторяться в номерах групповых Gtin в любой номенклатуре
+				var gtinDuplicatesInGroupGtins = groupGtinRepository.Get(uow, x => gtinNumbers.Contains(x.GtinNumber));
+				if(gtinDuplicatesInGroupGtins.Any())
+				{
+					yield return new ValidationResult(
+						$"Найдены номенклатуры, у которых групповой Gtin равен Gtin текущей номенклатуры " +
+						$"{string.Join("; ", gtinDuplicatesInGroupGtins.Select(x => $"[{x.Nomenclature.Name} : {x.GtinNumber}]"))}",
+						new[] { nameof(Gtins) });
+				}
+
+				if(GroupGtins.Any(x => x.GtinNumber.Length < 8 || x.GtinNumber.Length > 14))
+				{
+					yield return new ValidationResult("Длина GTIN группы должна быть от 8 до 14 символов",
+						new[] { nameof(GroupGtins) });
+				}
+
+				if(GroupGtins.Any(x => x.CodesCount == 0))
+				{
+					yield return new ValidationResult("Установленное количество кодов в групповых GTIN должно быть больше 0",
+						new[] { nameof(GroupGtins) });
+				}
+
+				//В текущей номенклатуре не должно быть одинаковых групповых Gtin
+				var groupGtinsDuplicatesInNomenclature =
+					GroupGtins.GroupBy(x => new { x.GtinNumber }).Where(g => g.Count() > 1).Select(g => g.Key);
+
+				if(groupGtinsDuplicatesInNomenclature.Any())
+				{
+					yield return new ValidationResult(
+						$"Найдены дубликаты групповых Gtin в текущей номенклатуре " +
+						$"{string.Join(", ", groupGtinsDuplicatesInNomenclature.Select(x => $"{x.GtinNumber}"))}",
+						new[] { nameof(Gtins) });
+				}
+
+				//Номера групповых Gtin не должны повторяться в других номенклатурах
+				var groupGtinDuplicates = groupGtinRepository.Get(uow, x => x.Nomenclature.Id != Id && groupGtinNumbers.Contains(x.GtinNumber));
+				if(groupGtinDuplicates.Any())
+				{
+					yield return new ValidationResult(
+						$"Найдены дубликаты групповых Gtin {string.Join("; ", groupGtinDuplicates.Select(x => $"[{x.Nomenclature.Name} : {x.GtinNumber}]"))}",
+						new[] { nameof(Gtins) });
+				}
+
+				//Номера групповых Gtin не должны повторяться в номерах Gtin в любой номенклатуре
+				var groupGtinDuplicatesInGtins = gtinRepository.Get(uow, x => groupGtinNumbers.Contains(x.GtinNumber));
+				if(groupGtinDuplicatesInGtins.Any())
+				{
+					yield return new ValidationResult(
+						$"Найдены номенклатуры, имеющие Gtin равные групповым Gtin текущей номенклатуры " +
+						$"{string.Join(", ", groupGtinDuplicatesInGtins.Select(x => $"{x.Nomenclature.Name} : {x.GtinNumber}"))}",
+						new[] { nameof(Gtins) });
+				}
+
+				var gtinPriorityDuplicates = Gtins
+					.GroupBy(g => g.Priority)
+					.Where(g => g.Count() > 1)
+					.ToList();
+
+				if(gtinPriorityDuplicates.Any())
+				{
+					yield return new ValidationResult(
+						$"Дубли приоритетов Gtin: " + string.Join("; ", gtinPriorityDuplicates.Select(g =>
+							$"Приоритет = {g.Key}: {string.Join(", ", g.Select(x => x.GtinNumber))}"
+						)),
+						new[] { nameof(Gtins) });
+				}
 			}
 
-			var gtinRepository = validationContext.GetRequiredService<IGenericRepository<Gtin>>();
-			var groupGtinRepository = validationContext.GetRequiredService<IGenericRepository<GroupGtin>>();
-
-			var gtinNumbers = Gtins.Select(x => x.GtinNumber);
-			var groupGtinNumbers = GroupGtins.Select(x => x.GtinNumber);
-
-			var gtinDuplicates = gtinRepository.Get(UoW, x => x.Nomenclature.Id != Id && gtinNumbers.Contains(x.GtinNumber));
-
-			if(gtinDuplicates.Any())
-			{
-				yield return new ValidationResult(
-					$"Найдены дубликаты Gtin {string.Join("; ", gtinDuplicates.Select(x => $"[{x.Nomenclature.Name} : {x.GtinNumber}]"))}",
-					new[] { nameof(Gtins) });
-			}
-
-			var gtinsDuplicatesInNomenclature = Gtins.GroupBy(x => x.GtinNumber).Where(g => g.Count() > 1).Select(g => g.Key);
-
-			if(gtinsDuplicatesInNomenclature.Any())
-			{
-				yield return new ValidationResult(
-					$"Найдены дубликаты Gtin в текущей номенклатуре {string.Join(", ", gtinsDuplicatesInNomenclature.Select(x => x))}",
-					new[] { nameof(Gtins) });
-			}
-
-			//Gtin не должен повторяться в номерах групповых Gtin в любой номенклатуре
-			var gtinDuplicatesInGroupGtins = groupGtinRepository.Get(UoW, x => gtinNumbers.Contains(x.GtinNumber));
-			if(gtinDuplicatesInGroupGtins.Any())
-			{
-				yield return new ValidationResult(
-					$"Найдены номенклатуры, у которых групповой Gtin равен Gtin текущей номенклатуры " +
-					$"{string.Join("; ", gtinDuplicatesInGroupGtins.Select(x => $"[{x.Nomenclature.Name} : {x.GtinNumber}]"))}",
-					new[] { nameof(Gtins) });
-			}
-
-			if(GroupGtins.Any(x => x.GtinNumber.Length < 8 || x.GtinNumber.Length > 14))
-			{
-				yield return new ValidationResult("Длина GTIN группы должна быть от 8 до 14 символов",
-					new[] { nameof(GroupGtins) });
-			}
-
-			if(GroupGtins.Any(x => x.CodesCount == 0))
-			{
-				yield return new ValidationResult("Установленное количество кодов в групповых GTIN должно быть больше 0",
-					new[] { nameof(GroupGtins) });
-			}
-
-			//В текущей номенклатуре не должно быть одинаковых групповых Gtin
-			var groupGtinsDuplicatesInNomenclature =
-				GroupGtins.GroupBy(x => new { x.GtinNumber }).Where(g => g.Count() > 1).Select(g => g.Key);
-
-			if(groupGtinsDuplicatesInNomenclature.Any())
-			{
-				yield return new ValidationResult(
-					$"Найдены дубликаты групповых Gtin в текущей номенклатуре " +
-					$"{string.Join(", ", groupGtinsDuplicatesInNomenclature.Select(x => $"{x.GtinNumber}"))}",
-					new[] { nameof(Gtins) });
-			}
-
-			//Номера групповых Gtin не должны повторяться в других номенклатурах
-			var groupGtinDuplicates = groupGtinRepository.Get(UoW, x => x.Nomenclature.Id != Id && groupGtinNumbers.Contains(x.GtinNumber));
-			if(groupGtinDuplicates.Any())
-			{
-				yield return new ValidationResult(
-					$"Найдены дубликаты групповых Gtin {string.Join("; ", groupGtinDuplicates.Select(x => $"[{x.Nomenclature.Name} : {x.GtinNumber}]"))}",
-					new[] { nameof(Gtins) });
-			}
-
-			//Номера групповых Gtin не должны повторяться в номерах Gtin в любой номенклатуре
-			var groupGtinDuplicatesInGtins = gtinRepository.Get(UoW, x => groupGtinNumbers.Contains(x.GtinNumber));
-			if(groupGtinDuplicatesInGtins.Any())
-			{
-				yield return new ValidationResult(
-					$"Найдены номенклатуры, имеющие Gtin равные групповым Gtin текущей номенклатуры " +
-					$"{string.Join(", ", groupGtinDuplicatesInGtins.Select(x => $"{x.Nomenclature.Name} : {x.GtinNumber}"))}",
-					new[] { nameof(Gtins) });
-			}
-			
-			var gtinPriorityDuplicates = Gtins
-				.GroupBy(g => g.Priority)
-				.Where(g => g.Count() > 1)
-				.ToList();
-
-			if (gtinPriorityDuplicates.Any())
-			{
-				yield return new ValidationResult(
-					$"Дубли приоритетов Gtin: " + string.Join("; ", gtinPriorityDuplicates.Select(g =>
-						$"Приоритет = {g.Key}: {string.Join(", ", g.Select(x => x.GtinNumber))}"
-					)),
-					new[] { nameof(Gtins) });
-			}
-			
 			#endregion Gtins
 			
 			if(!VatRateVersions.Any())

@@ -21,6 +21,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Tools.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -37,7 +38,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private readonly IEmployeeService _employeeService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IFastDeliveryHistoryConverter _deliveryHistoryConverter;
 		private IList<FastDeliveryAvailabilityHistoryJournalNode> _sequenceNodes;
+		private bool _disposed;
 
 		public FastDeliveryAvailabilityHistoryJournalViewModel(
 			FastDeliveryAvailabilityFilterViewModel filterViewModel,
@@ -47,12 +50,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			IFileDialogService fileDialogService,
 			IFastDeliveryAvailabilityHistorySettings fastDeliveryAvailabilityHistorySettings,
 			INomenclatureSettings nomenclatureSettings,
+			IFastDeliveryHistoryConverter deliveryHistoryConverter,
 			Action<FastDeliveryAvailabilityFilterViewModel> filterParams = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_deliveryHistoryConverter = deliveryHistoryConverter ?? throw new ArgumentNullException(nameof(deliveryHistoryConverter));
 			var availabilityHistorySettings = fastDeliveryAvailabilityHistorySettings
 													   ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistorySettings));
 
@@ -467,13 +472,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				EntityUoWBuilder.ForOpen(node.Id),
 				UnitOfWorkFactory,
 				commonServices,
-				_employeeService);
+				_employeeService,
+				_deliveryHistoryConverter);
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			FilterViewModel.PropertyChanged -= OnFilterViewModelPropertyChanged;
 			_timer?.Dispose();
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

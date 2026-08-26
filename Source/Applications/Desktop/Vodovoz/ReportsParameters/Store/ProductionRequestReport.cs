@@ -11,6 +11,7 @@ using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.ViewModels.Logistic;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.ReportsParameters.Store
 {
@@ -21,12 +22,18 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IUserSettingsManager _userSettingsManager;
 		private readonly int _defaultStockRate = 20;
 
-		public ProductionRequestReport(IReportInfoFactory reportInfoFactory, IEmployeeRepository employeeRepository)
+		public ProductionRequestReport(
+			IReportInfoFactory reportInfoFactory,
+			IEmployeeRepository employeeRepository,
+			IUserSettingsManager userSettingsManager
+			)
 		{
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();
@@ -39,9 +46,9 @@ namespace Vodovoz.ReportsParameters.Store
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.ChangedByUser += YentryrefWarehouseChangedByUser;
 
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+			if(_userSettingsManager.Settings.DefaultWarehouse != null)
 			{
-				yentryrefWarehouse.Subject = CurrentUserSettings.Settings.DefaultWarehouse;
+				yentryrefWarehouse.Subject = _userSettingsManager.Settings.DefaultWarehouse;
 			}
 
 			dateperiodpickerMaxSales.StartDate = DateTime.Today.AddYears(-1);

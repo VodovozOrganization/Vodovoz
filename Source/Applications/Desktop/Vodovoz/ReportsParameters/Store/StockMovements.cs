@@ -25,6 +25,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.Core.Domain.Warehouses;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.Reports
 {
@@ -32,6 +33,7 @@ namespace Vodovoz.Reports
 	{
 		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly INavigationManager _navigationManager;
+		private readonly IUserSettingsManager _userSettingsManager;
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly GenericObservableList<SelectableSortTypeNode> _selectableSortTypeNodes =
 			new GenericObservableList<SelectableSortTypeNode>();
@@ -42,10 +44,12 @@ namespace Vodovoz.Reports
 		public StockMovements(
 			IReportInfoFactory reportInfoFactory,
 			INavigationManager navigationManager,
+			IUserSettingsManager userSettingsManager,
 			ILifetimeScope lifetimeScope)
 		{
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_userSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 			_scope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
 			Build();
@@ -78,9 +82,9 @@ namespace Vodovoz.Reports
 
 		private void ConfigureWarehouseEntryViewModel()
 		{
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+			if(_userSettingsManager.Settings.DefaultWarehouse != null)
 			{
-				Warehouse = CurrentUserSettings.Settings.DefaultWarehouse;
+				Warehouse = _userSettingsManager.Settings.DefaultWarehouse;
 			}
 
 			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
@@ -320,6 +324,5 @@ namespace Vodovoz.Reports
 		public bool Selected { get; set; }
 
 		public SortType SortType { get; private set; }
-
 	}
 }

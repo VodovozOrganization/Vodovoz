@@ -18,6 +18,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Client;
@@ -41,7 +42,7 @@ namespace Vodovoz.Domain.Employees
 		GenitivePlural = "сотрудников")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Employee : EmployeeEntity, IBusinessObject, IAccountOwner, IValidatableObject
+	public class Employee : EmployeeEntity, IAccountOwner, IValidatableObject
 	{
 		private const int _commentLimit = 255;
 
@@ -80,8 +81,6 @@ namespace Vodovoz.Domain.Employees
 		private bool _isNoPhoneForCounterpartyCallsRequired;
 		private Phone _phoneForCounterpartyCalls;
 		private District _district;
-
-		public virtual IUnitOfWork UoW { set; get; }
 
 		[Display(Name = "Иностранное граждансво")]
 		public virtual Citizenship Citizenship
@@ -332,80 +331,79 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult("Фамилия должна быть заполнена", new[] { "LastName" });
 			}
 
-			var employees = UoW.Session.QueryOver<Employee>()
-				.Where(p => p.Name == this.Name && p.LastName == this.LastName && p.Patronymic == this.Patronymic)
-				.WhereNot(p => p.Id == this.Id)
-				.List();
-
-			if(employees.Count > 0)
+			if(!(validationContext.GetRequiredService(typeof(IUnitOfWorkFactory)) is IUnitOfWorkFactory uowFactory))
 			{
+				throw new ArgumentNullException($"Не найдена фабрика unit of work {nameof(IUnitOfWorkFactory)}");
 			}
 
-			if(ExternalApplicationsUsers.Any())
+			using(var uow = uowFactory.CreateWithoutRoot("Проверка сущности на корректность"))
 			{
-				var login = ExternalApplicationsUsers.First().Login;
-				var exist = employeeRepository.GetEmployeeByAndroidLogin(UoW, login);
+				if(ExternalApplicationsUsers.Any())
+				{
+					var login = ExternalApplicationsUsers.First().Login;
+					var exist = employeeRepository.GetEmployeeByAndroidLogin(uow, login);
 
-				if(exist != null && exist.Id != Id)
+					if(exist != null && exist.Id != Id)
+					{
+						yield return new ValidationResult(
+							$"Пользователь с таким логином {login} уже есть в БД");
+					}
+				}
+
+				if(!String.IsNullOrEmpty(LoginForNewUser) && User != null)
+				{
+					yield return new ValidationResult($"Сотрудник уже привязан к пользователю",
+						new[] { nameof(LoginForNewUser) });
+				}
+
+				var regex = new Regex(@"^[A-Za-z\d.,_-]+\Z");
+				if(!string.IsNullOrEmpty(LoginForNewUser) && !regex.IsMatch(LoginForNewUser))
 				{
 					yield return new ValidationResult(
-						$"Пользователь с таким логином {login} уже есть в БД");
-				}
-			}
-
-			if(!String.IsNullOrEmpty(LoginForNewUser) && User != null)
-			{
-				yield return new ValidationResult($"Сотрудник уже привязан к пользователю",
-					new[] { nameof(LoginForNewUser) });
-			}
-
-			var regex = new Regex(@"^[A-Za-z\d.,_-]+\Z");
-			if(!string.IsNullOrEmpty(LoginForNewUser) && !regex.IsMatch(LoginForNewUser))
-			{
-				yield return new ValidationResult(
-					"Логин может состоять только из букв английского алфавита, нижнего подчеркивания, дефиса, точки и запятой",
-					new[] { nameof(LoginForNewUser) });
-			}
-
-			if(!String.IsNullOrEmpty(LoginForNewUser))
-			{
-				User exist = userRepository.GetUserByLogin(UoW, LoginForNewUser);
-				if(exist != null && exist.Id != Id)
-				{
-					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует в базе",
+						"Логин может состоять только из букв английского алфавита, нижнего подчеркивания, дефиса, точки и запятой",
 						new[] { nameof(LoginForNewUser) });
 				}
-			}
 
-			if(!String.IsNullOrEmpty(LoginForNewUser))
-			{
-				string mes = null;
-				bool userExists = false;
-
-				try
+				if(!String.IsNullOrEmpty(LoginForNewUser))
 				{
-					userExists = userRepository.MySQLUserWithLoginExists(UoW, LoginForNewUser);
-				}
-				catch(HibernateException ex)
-				{
-					if(ex.InnerException is MySqlException mysqlEx && mysqlEx.Number == 1142)
+					User exist = userRepository.GetUserByLogin(uow, LoginForNewUser);
+					if(exist != null && exist.Id != Id)
 					{
-						mes = $"У вас недостаточно прав для создания нового пользователя";
-					}
-					else
-					{
-						throw;
+						yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует в базе",
+							new[] { nameof(LoginForNewUser) });
 					}
 				}
 
-				if(!String.IsNullOrWhiteSpace(mes))
+				if(!String.IsNullOrEmpty(LoginForNewUser))
 				{
-					yield return new ValidationResult(mes, new[] { nameof(LoginForNewUser) });
-				}
-				else if(userExists)
-				{
-					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует на сервере",
-						new[] { nameof(LoginForNewUser) });
+					string mes = null;
+					bool userExists = false;
+
+					try
+					{
+						userExists = userRepository.MySQLUserWithLoginExists(uow, LoginForNewUser);
+					}
+					catch(HibernateException ex)
+					{
+						if(ex.InnerException is MySqlException mysqlEx && mysqlEx.Number == 1142)
+						{
+							mes = $"У вас недостаточно прав для создания нового пользователя";
+						}
+						else
+						{
+							throw;
+						}
+					}
+
+					if(!String.IsNullOrWhiteSpace(mes))
+					{
+						yield return new ValidationResult(mes, new[] { nameof(LoginForNewUser) });
+					}
+					else if(userExists)
+					{
+						yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует на сервере",
+							new[] { nameof(LoginForNewUser) });
+					}
 				}
 			}
 
@@ -596,7 +594,6 @@ namespace Vodovoz.Domain.Employees
 			ObservableWageParameters.Add(wageParameter);
 		}
 
-
 		public virtual EmployeeWageParameter GetActualWageParameter(DateTime date)
 		{
 			return WageParameters.Where(x => x.StartDate <= date)
@@ -605,58 +602,24 @@ namespace Vodovoz.Domain.Employees
 				.SingleOrDefault();
 		}
 
-		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository,
-			IWageSettings wageSettings, IInteractiveService interactiveService)
+		public virtual void CreateDefaultWageParameterForNewEmployee(
+			WageDistrictLevelRates defaultLevel,
+			WageDistrictLevelRates defaultLevelForOurCar,
+			WageDistrictLevelRates defaultLevelForRaskatCar
+			)
 		{
-			if(wageRepository == null)
+			if(Id != 0)
 			{
-				throw new ArgumentNullException(nameof(wageRepository));
-			}
-
-			if(wageSettings == null)
-			{
-				throw new ArgumentNullException(nameof(wageSettings));
-			}
-
-			if(interactiveService == null)
-			{
-				throw new ArgumentNullException(nameof(interactiveService));
-			}
-
-			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
-			if(defaultLevel == null)
-			{
-				interactiveService.ShowMessage(ImportanceLevel.Warning,
-					"\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Найм)\"!\"",
-					"Невозможно создать расчет зарплаты");
 				return;
 			}
-
-			var defaultLevelForOurCar = wageRepository.DefaultLevelForNewEmployeesOnOurCars(UoW);
-			if(defaultLevelForOurCar == null)
-			{
-				interactiveService.ShowMessage(ImportanceLevel.Warning,
-					"\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для наших авто)\"!\"",
-					"Невозможно создать расчет зарплаты");
-				return;
-			}
-
-			var defaultLevelForRaskatCar = wageRepository.DefaultLevelForNewEmployeesOnRaskatCars(UoW);
-			if(defaultLevelForRaskatCar == null)
-			{
-				interactiveService.ShowMessage(ImportanceLevel.Warning,
-					"\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для авто в раскате)\"!\"",
-					"Невозможно создать расчет зарплаты");
-				return;
-			}
-
-			if(Id != 0) return;
 
 			ObservableWageParameters.Clear();
+			EmployeeWageParameter wageParameter = null;
+
 			switch(Category)
 			{
 				case EmployeeCategory.driver:
-					EmployeeWageParameter parameterForDriver = new EmployeeWageParameter
+					wageParameter = new EmployeeWageParameter
 					{
 						WageParameterItem = new ManualWageParameterItem(),
 						WageParameterItemForOurCars = new ManualWageParameterItem(),
@@ -664,7 +627,7 @@ namespace Vodovoz.Domain.Employees
 					};
 					if(VisitingMaster && !IsDriverForOneDay)
 					{
-						parameterForDriver = new EmployeeWageParameter
+						wageParameter = new EmployeeWageParameter
 						{
 							WageParameterItem = new PercentWageParameterItem
 							{
@@ -682,7 +645,7 @@ namespace Vodovoz.Domain.Employees
 					}
 					else if(!IsDriverForOneDay)
 					{
-						parameterForDriver = new EmployeeWageParameter
+						wageParameter = new EmployeeWageParameter
 						{
 							WageParameterItem = new RatesLevelWageParameterItem
 							{
@@ -698,11 +661,9 @@ namespace Vodovoz.Domain.Employees
 							}
 						};
 					}
-
-					ChangeWageParameter(parameterForDriver, DateTime.Today);
 					break;
 				case EmployeeCategory.forwarder:
-					var parameterForForwarder = new EmployeeWageParameter
+					wageParameter = new EmployeeWageParameter
 					{
 						WageParameterItem = new RatesLevelWageParameterItem
 						{
@@ -717,14 +678,13 @@ namespace Vodovoz.Domain.Employees
 							WageDistrictLevelRates = defaultLevelForRaskatCar
 						}
 					};
-					ChangeWageParameter(parameterForForwarder, DateTime.Today);
 					break;
 				case EmployeeCategory.office:
 				default:
 					WageParameterItem wageParameterItem;
 					if(Subdivision?.DefaultSalesPlan != null)
 					{
-						wageParameterItem = new SalesPlanWageParameterItem()
+						wageParameterItem = new SalesPlanWageParameterItem
 						{
 							SalesPlan = Subdivision.DefaultSalesPlan
 						};
@@ -734,14 +694,15 @@ namespace Vodovoz.Domain.Employees
 						wageParameterItem = new ManualWageParameterItem();
 					}
 
-					ChangeWageParameter(
+					wageParameter =
 						new EmployeeWageParameter
 						{
 							WageParameterItem = wageParameterItem
-						},
-						DateTime.Today);
+						};
 					break;
 			}
+
+			ChangeWageParameter(wageParameter, DateTime.Today);
 		}
 
 		public virtual string GetPhoneForSmsNotification()

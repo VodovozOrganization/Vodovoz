@@ -45,6 +45,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		private CashRequestSumItem _selectedItem;
 		private CashRequestSumItem _selectedCashRequestSumItem;
+		private PayoutRequestUserRole _userRole;
+		private bool _disposed;
 		private decimal _sumForPartiallyGive;
 
 		#region Статья расхода
@@ -486,8 +488,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		#region Properties
 
-		private PayoutRequestUserRole _userRole;
-
 		[PropertyChangedAlso(
 			nameof(CanEditOnlyCoordinator),
 			nameof(SensitiveForFinancier),
@@ -834,8 +834,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

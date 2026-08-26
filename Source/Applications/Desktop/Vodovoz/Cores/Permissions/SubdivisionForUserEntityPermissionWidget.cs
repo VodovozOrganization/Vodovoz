@@ -193,12 +193,11 @@ namespace Vodovoz.Core.Permissions
 			ytreeviewEntities.ItemsDataSource = ViewModel.ObservableTypeOfEntitiesList;
 		}
 
-		public override void Destroy()
+		protected override void OnDestroyed()
 		{
-			_employeeRepository = null;
 			_lifetimeScope?.Dispose();
 			_lifetimeScope = null;
-			base.Destroy();
+			base.OnDestroyed();
 		}
 	}
 }

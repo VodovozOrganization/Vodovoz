@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Autofac;
@@ -15,6 +15,8 @@ using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Goods;
@@ -30,13 +32,14 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly ValidationContext _validationContext;
 		private readonly IPermissionResult _permissionResult;
 		private ILifetimeScope _lifetimeScope;
+		private bool _disposed;
 
 		public RequestForCallViewModel(
 			IEntityUoWBuilder entityUoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			ICurrentPermissionService currentPermissionService,
-			IEmployeeService employeeService,
+			IEmployeeRepository employeeRepository,
 			INavigationManager navigation,
 			IValidator validator,
 			IValidationContextFactory validationContextFactory,
@@ -48,7 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 
 			_currentEmployee =
-				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
+				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
 				.GetEmployeeForCurrentUser(UoW);
 
 			if(_currentEmployee is null)
@@ -222,9 +225,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			_lifetimeScope = null;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

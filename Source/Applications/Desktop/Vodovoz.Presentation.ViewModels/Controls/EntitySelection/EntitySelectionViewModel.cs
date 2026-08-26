@@ -74,7 +74,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 
 				if(_entity is INotifyPropertyChanged notifyPropertyNewEntity)
 				{
-					notifyPropertyNewEntity.PropertyChanged += OnEntityPropertyChanged; ;
+					notifyPropertyNewEntity.PropertyChanged += OnEntityPropertyChanged;
 				}
 
 				if(EntityBinder != null)
@@ -366,7 +366,7 @@ namespace Vodovoz.Presentation.ViewModels.Controls.EntitySelection
 		{
 			if(_entityJournalSelector != null)
 			{
-				_entityJournalSelector.EntitySelected += OnEntityJournalSelectorEntitySelected;
+				_entityJournalSelector.EntitySelected -= OnEntityJournalSelectorEntitySelected;
 			}
 		}
 	}

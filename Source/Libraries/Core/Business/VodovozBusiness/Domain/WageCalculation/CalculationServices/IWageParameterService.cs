@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
@@ -6,5 +7,6 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 	public interface IWageParameterService
 	{
 		IRouteListWageCalculationService ActualizeWageParameterAndGetCalculationService(IUnitOfWork uow, Employee employee, IRouteListWageCalculationSource source);
+		Result TryCreateDefaultWageParameterForNewEmployee(IUnitOfWork uow, Employee employee);
 	}
 }

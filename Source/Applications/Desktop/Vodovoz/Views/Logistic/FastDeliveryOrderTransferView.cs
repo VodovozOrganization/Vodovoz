@@ -46,14 +46,8 @@ namespace Vodovoz.Views.Logistic
 
 			ytreeviewDriversList.Binding.AddBinding(ViewModel, v => v.RouteListNodes, w => w.ItemsDataSource).InitializeFromSource();
 
-			ybuttonTransfer.Clicked += (s, e) => ViewModel.TransferCommand.Execute();
-			ybuttonCancel.Clicked += (s, e) => ViewModel.CancelCommand.Execute();
-		}
-
-		public override void Destroy()
-		{
-			ytreeviewDriversList?.Destroy();
-			base.Destroy();
+			ybuttonTransfer.BindCommand(ViewModel.TransferCommand);
+			ybuttonCancel.BindCommand(ViewModel.CancelCommand);
 		}
 	}
 }

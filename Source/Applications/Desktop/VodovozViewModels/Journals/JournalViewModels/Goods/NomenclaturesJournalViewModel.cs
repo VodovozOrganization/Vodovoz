@@ -31,6 +31,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			NomenclatureJournalNode>
 	{
 		private readonly NomenclatureFilterViewModel _filterViewModel;
+		private bool _disposed;
 
 		public NomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filterViewModel,
@@ -240,9 +241,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
-
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }

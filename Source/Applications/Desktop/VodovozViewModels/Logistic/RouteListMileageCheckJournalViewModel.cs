@@ -24,6 +24,7 @@ using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -45,7 +46,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
-			IUserSettingsService userSettings,
+			IUserSettingsManager userSettingsManager,
 			IStoreDocumentHelper storeDocumentHelper,
 			IRouteListService routeListService,
 			IEventsQrPlacer eventsQrPlacer,
@@ -68,7 +69,7 @@ namespace Vodovoz.ViewModels.Logistic
 				routeListProfitabilitySettings,
 				warehousePermissionService,
 				routeListDailyNumberProvider,
-				userSettings,
+				userSettingsManager,
 				storeDocumentHelper,
 				routeListService,
 				eventsQrPlacer,

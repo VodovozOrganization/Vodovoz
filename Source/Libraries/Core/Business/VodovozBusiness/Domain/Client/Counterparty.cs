@@ -753,13 +753,13 @@ namespace Vodovoz.Domain.Client
 							$"Вы не можете сдать контрагента в архив так как у него имеется долг: {CurrencyWorks.GetShortCurrencyString(debt)}");
 					}
 
-					var activeOrders = orderRepository.GetCurrentOrders(uow, this);
+					var activeOrders = orderRepository.GetCurrentOrders(uow, Id);
 
 					if(activeOrders.Count > 0)
 					{
 						yield return new ValidationResult(
 							string.Format("Вы не можете сдать контрагента в архив с незакрытыми заказами: {0}",
-								string.Join(", ", activeOrders.Select(o => o.Id.ToString()))),
+								string.Join(", ", activeOrders.Select(o => o.OrderId.ToString()))),
 							new[] { nameof(CounterpartyContracts) });
 					}
 

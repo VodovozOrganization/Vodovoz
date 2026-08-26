@@ -10,7 +10,7 @@ namespace Vodovoz.Views.BaseParameters
 	{
 		public BaseParametersView(BaseParametersViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 		private void Configure()
@@ -37,16 +37,10 @@ namespace Vodovoz.Views.BaseParameters
 				.AddFuncBinding(ViewModel, vm => vm.SelectedSetting != null, v => v.Sensitive)
 				.InitializeFromSource();
 
-			buttonAdd.Clicked += (s, e) => ViewModel.AddParameterCommand?.Execute();
-			buttonDelete.Clicked += (s, e) => ViewModel.RemoveParameterCommand?.Execute();
-			buttonOk.Clicked += (s, e) => ViewModel.SaveParametersCommand?.Execute();
-			buttonCancel.Clicked += (s, e) => ViewModel.CancelCommand?.Execute();
-		}
-
-		public override void Destroy()
-		{
-			treeParameters?.Destroy();
-			base.Destroy();
+			buttonAdd.BindCommand(ViewModel.AddParameterCommand);
+			buttonDelete.BindCommand(ViewModel.RemoveParameterCommand);
+			buttonOk.BindCommand(ViewModel.SaveParametersCommand);
+			buttonCancel.BindCommand(ViewModel.CancelCommand);
 		}
 	}
 }

@@ -33,6 +33,7 @@ using Vodovoz.SidePanel;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.Views.Pacs;
+using VodovozBusiness.Services.Users;
 using Order = Vodovoz.Domain.Orders.Order;
 
 public partial class MainWindow : Gtk.Window
@@ -52,11 +53,13 @@ public partial class MainWindow : Gtk.Window
 
 	public MainWindow(
 		IInteractiveService interactiveService,
+		IUserSettingsManager userSettingsManager,
 		IApplicationInfo applicationInfo,
 		IWikiSettings wikiSettings) : base(Gtk.WindowType.Toplevel)
 	{
 		ApplicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
 		_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+		UserSettingsManager = userSettingsManager ?? throw new ArgumentNullException(nameof(userSettingsManager));
 		_wikiSettings = wikiSettings ?? throw new ArgumentNullException(nameof(wikiSettings));
 		CurrentPermissionService = ServicesConfig.CommonServices.CurrentPermissionService;
 		
@@ -78,14 +81,14 @@ public partial class MainWindow : Gtk.Window
 
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
-		_hideComplaintsNotifications = CurrentUserSettings.Settings.HideComplaintNotification;
+		_hideComplaintsNotifications = UserSettingsManager.Settings.HideComplaintNotification;
 		var tabsSettings = _autofacScope.Resolve<ITabsSettings>();
 		TDIMain.SetTabsColorHighlighting(
-			CurrentUserSettings.Settings.HighlightTabsWithColor,
-			CurrentUserSettings.Settings.KeepTabColor,
+			UserSettingsManager.Settings.HighlightTabsWithColor,
+			UserSettingsManager.Settings.KeepTabColor,
 			GetTabsColors(),
 			tabsSettings.TabsPrefix);
-		TDIMain.SetTabsReordering(CurrentUserSettings.Settings.ReorderTabs);
+		TDIMain.SetTabsReordering(UserSettingsManager.Settings.ReorderTabs);
 
 		bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
@@ -166,7 +169,7 @@ public partial class MainWindow : Gtk.Window
 			var employeeService = _autofacScope.Resolve<IEmployeeService>();
 
 			_currentUserSubdivisionId = employeeService.GetEmployeeForCurrentUser()?.Subdivision?.Id ?? 0;
-			_curentUserMovementDocumentsNotificationWarehouses = CurrentUserSettings.Settings.MovementDocumentsNotificationUserSelectedWarehouses;
+			_curentUserMovementDocumentsNotificationWarehouses = UserSettingsManager.Settings.MovementDocumentsNotificationUserSelectedWarehouses;
 			_movementsNotificationsController = _autofacScope
 				.Resolve<IMovementDocumentsNotificationsController>(
 					new TypedParameter(typeof(int), _currentUserSubdivisionId),
@@ -234,6 +237,7 @@ public partial class MainWindow : Gtk.Window
 
 	public ICurrentPermissionService CurrentPermissionService { get; }
 	public IApplicationInfo ApplicationInfo { get; }
+	public IUserSettingsManager UserSettingsManager { get; }
 	public TdiNotebook TdiMain { get; }
 	public InfoPanel InfoPanel { get; }
 	public Toolbar ToolbarMain { get; }

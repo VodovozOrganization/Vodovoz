@@ -93,6 +93,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private DelegateCommand _deleteFineFromNomenclatureInstanceItemCommand;
 		private Dictionary<int, string> _instancesDiscrepancies = new Dictionary<int, string>();
 		private IEnumerable<int> _availableWarehousesIdsForEdit;
+		private bool _disposed;
 
 		public InventoryDocumentViewModel(
 			IEntityUoWBuilder entityUoWBuilder,
@@ -1158,6 +1159,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		public override void Dispose()
 		{
+			if(_disposed) return;
 			Entity.PropertyChanged -= EntityPropertyChanged;
 			InventoryWarehouseViewModel.BeforeChangeByUser -= OnWarehouseBeforeChangeByUser;
 			InventoryWarehouseViewModel.ChangedByUser -= OnWarehouseChangedByUser;
@@ -1166,6 +1168,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			InventoryCarViewModel.BeforeChangeByUser -= OnCarBeforeChangeByUser;
 			InventoryCarViewModel.ChangedByUser -= OnCarChangedByUser;
 			base.Dispose();
+			_disposed = true;
 		}
 	}
 }
