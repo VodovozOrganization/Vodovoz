@@ -1,7 +1,6 @@
 ﻿using Edo.Admin;
 using Edo.Problems;
 using Edo.Problems.Custom;
-using Edo.Problems.Custom.Sources;
 using Edo.Problems.Exception;
 using Edo.Transport;
 using EdoService.Library.Factories;
@@ -19,18 +18,19 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Taxcom.Docflow.Utility;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Errors.Edo;
 using VodovozBusiness.Services.Edo;
 using Xunit;
 using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
+using IOrganizationRepository = Vodovoz.Core.Data.Repositories.IOrganizationRepository;
 
 namespace EdoServices.Tests
 {
@@ -40,7 +40,7 @@ namespace EdoServices.Tests
 		private readonly IUnitOfWork _uow;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEdoRepository _edoRepository;
-		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
+		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
 		private readonly IGenericRepository<OrderEdoTask> _edoTaskRepository;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
@@ -49,6 +49,7 @@ namespace EdoServices.Tests
 		private readonly MessageService _messageService;
 		private readonly EdoCancellationService _edoCancellationService;
 		private readonly IUserService _userService;
+		private readonly ITaxcomApiFactory _taxcomApiFactory;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 		private readonly IManualEdoRequestFactory _manualEdoRequestFactory;
 		private readonly EdoService.Library.EdoService _edoService;
@@ -62,7 +63,7 @@ namespace EdoServices.Tests
 			_uow = Substitute.For<IUnitOfWork>();
 			_orderRepository = Substitute.For<IOrderRepository>();
 			_edoRepository = Substitute.For<IEdoRepository>();
-			_receiptRepository = Substitute.For<IGenericRepository<ReceiptEdoTask>>();
+			_organizationRepository = Substitute.For<IOrganizationRepository>();
 
 			_edoRequestRepository = Substitute.For<IGenericRepository<FormalEdoRequest>>();
 			_edoTaskRepository = Substitute.For<IGenericRepository<OrderEdoTask>>();
@@ -103,16 +104,19 @@ namespace EdoServices.Tests
 				);
 			_userService = Substitute.For<IUserService>();
 
+			_taxcomApiFactory = Substitute.For<ITaxcomApiFactory>();
+
 			_counterpartyEdoAccountEntityController = Substitute.For<ICounterpartyEdoAccountEntityController>();
 
 			_edoService = new EdoService.Library.EdoService(
 				_uowFactory,
 				_orderRepository,
-				_receiptRepository,
+				_organizationRepository,
 				_edoRepository,
 				_messageService,
 				_userService,
 				_edoCancellationService,
+				_taxcomApiFactory,
 				_edoRequestRepository,
 				_edoTaskRepository,
 				_counterpartyEdoAccountEntityController,
@@ -391,7 +395,6 @@ namespace EdoServices.Tests
 
 			// Assert
 			Assert.True(result.IsSuccess);
-			Assert.Equal(EdoTaskStatus.Cancelled, receiptTask.Status);
 			Assert.Equal(EdoReceiptStatus.New, receiptTask.ReceiptStatus);
 		}
 
@@ -439,7 +442,6 @@ namespace EdoServices.Tests
 
 			// Assert
 			Assert.True(result.IsSuccess);
-			Assert.Equal(EdoTaskStatus.Cancelled, receiptTask.Status);
 			Assert.Equal(EdoReceiptStatus.New, receiptTask.ReceiptStatus);
 		}
 

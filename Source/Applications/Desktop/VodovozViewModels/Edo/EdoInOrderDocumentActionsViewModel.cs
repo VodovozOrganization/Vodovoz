@@ -1,3 +1,4 @@
+﻿using EdoService.Library;
 using Gamma.Binding.Core;
 using QS.Dialog;
 using QS.Services;
@@ -6,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using EdoService.Library;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Permissions;
