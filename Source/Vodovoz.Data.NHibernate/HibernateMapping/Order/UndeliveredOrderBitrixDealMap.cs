@@ -22,7 +22,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.SourceLastEditedTime).Column("source_last_edited_time");
 			Map(x => x.DealTitle).Column("deal_title");
 			Map(x => x.OrderId).Column("order_id");
-			Map(x => x.CounterpartyName).Column("counterparty_name");
+			Map(x => x.CounterpartyName).Column("counterparty_name").Length(1000);
 			Map(x => x.DeliveryAddress).Column("delivery_address");
 			Map(x => x.DeliveryDate).Column("delivery_date");
 			Map(x => x.DeliveryInterval).Column("delivery_interval");
