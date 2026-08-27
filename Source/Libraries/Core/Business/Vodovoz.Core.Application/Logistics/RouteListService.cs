@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Mango;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Services.Orders;
@@ -54,6 +55,7 @@ namespace Vodovoz.Core.Application.Logistics
 		private readonly IOrderService _orderService;
 		private readonly IOsrmSettings _osrmSettings;
 		private readonly IOsrmClient _osrmClient;
+		private readonly IMangoSettings _mangoSettings;
 
 		public RouteListService(
 			ILogger<RouteListService> logger,
@@ -71,7 +73,8 @@ namespace Vodovoz.Core.Application.Logistics
 			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IOrderService orderService,
 			IOsrmSettings osrmSettings,
-			IOsrmClient osrmClient)
+			IOsrmClient osrmClient,
+			IMangoSettings mangoSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -91,6 +94,7 @@ namespace Vodovoz.Core.Application.Logistics
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
+			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
 		}
 
 		private void SendCustomerNotification(IUnitOfWork unitOfWork, Order order)
@@ -113,6 +117,16 @@ namespace Vodovoz.Core.Application.Logistics
 		/// <param name="routeList">Маршрутный лист</param>
 		private void TryCreateDriverMangoRegistrationRequest(IUnitOfWork unitOfWork, RouteList routeList)
 		{
+			if(!_mangoSettings.IsDriverMangoEmployeeRegistrationActive)
+			{
+				_logger.LogInformation(
+					"Сервис создания карточек сотрудников Манго отключён либо ещё не наступили следующие сутки "
+					+ "после его включения, заявка по МЛ {RouteListId} не создаётся",
+					routeList.Id);
+
+				return;
+			}
+
 			var driver = routeList.Driver;
 
 			if(driver is null)

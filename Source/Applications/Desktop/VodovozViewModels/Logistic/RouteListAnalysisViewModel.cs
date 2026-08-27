@@ -35,6 +35,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets.Mango;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -77,7 +78,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IFileDialogService fileDialogService,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager,
-			ICurrentPermissionService currentPermissionService)
+			ICurrentPermissionService currentPermissionService,
+			IMangoCallButtonViewModelFactory mangoCallButtonViewModelFactory)
 			: base (uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -131,6 +133,10 @@ namespace Vodovoz.ViewModels.Logistic
 			ForwarderSelectorFactory = _employeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
 			CarEntryViewModel = BuildCarEntryViewModel();
 
+			DriverExtensionCallViewModel =
+				(mangoCallButtonViewModelFactory ?? throw new ArgumentNullException(nameof(mangoCallButtonViewModelFactory)))
+				.CreateForRouteListDriver(UoW, Entity);
+
 			TabName = $"Диалог разбора {Entity.Title}";
 			
 			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
@@ -141,6 +147,11 @@ namespace Vodovoz.ViewModels.Logistic
 		#endregion
 		
 		#region Properties
+
+		/// <summary>
+		/// Вью-модель кнопки звонка на добавочный номер водителя маршрутного листа
+		/// </summary>
+		public MangoCallButtonViewModel DriverExtensionCallViewModel { get; }
 
 		public IEntityAutocompleteSelectorFactory LogisticanSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }

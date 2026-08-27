@@ -155,6 +155,7 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using Vodovoz.ViewModels.Widgets.Mango;
 using Vodovoz.ViewModels.Widgets.Orders;
 using Vodovoz.Views.Edo;
 using VodovozBusiness.Controllers;
@@ -1194,6 +1195,10 @@ namespace Vodovoz
 
 			SetOrderItemDiscountReasonsViewModel();
 
+			SetDriverExtensionCallViewModel();
+
+			SetDriverPhoneForCounterpartyCalls();
+
 			UpdateUIState();
 
 			yChkActionBottle.Toggled += (sender, e) =>
@@ -1263,6 +1268,23 @@ namespace Vodovoz
 			RefreshDebtorDebtNotifier();
 
 			UpdateDocumentsDescription();
+		}
+
+		private void SetDriverExtensionCallViewModel()
+		{
+			mangocallbuttonviewDriverExtensionPhone.ViewModel = _lifetimeScope
+				.Resolve<IMangoCallButtonViewModelFactory>()
+				.CreateForOrderDriver(UoW, Entity);
+		}
+
+		private void SetDriverPhoneForCounterpartyCalls()
+		{
+			yentryDriversPhone.IsEditable = false;
+
+			yentryDriversPhone.Text =
+				_routeListItemRepository.GetRouteListItemForOrder(UoW, Entity)
+					?.RouteList?.Driver?.PhoneForCounterpartyCalls?.ToString()
+				?? string.Empty;
 		}
 
 		private void SetOrderItemDiscountReasonsViewModel()
@@ -5336,6 +5358,10 @@ namespace Vodovoz
 				if(widget.Name == yhbox4.Name)
 				{
 					widget.Sensitive = IsWaitUntilActive;
+				}
+				else if(widget.Name == yhboxDriversPhone.Name)
+				{
+					continue;
 				}
 				else
 				{

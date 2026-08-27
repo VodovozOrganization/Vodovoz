@@ -25,6 +25,7 @@ namespace Edo.Docflow
 		private readonly TransferOrderUpdInfoFactory _transferOrderUpdInfoFactory;
 		private readonly OrderUpdInfoFactory _orderUpdInfoFactory;
 		private readonly IPaymentRepository _paymentRepository;
+		private readonly IEdoRepository _edoRepository;
 		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly IUnitOfWork _uow;
 		private readonly IInformalOrderDocumentHandlerFactory _documentHandlerFactory;
@@ -35,7 +36,7 @@ namespace Edo.Docflow
 			TransferOrderUpdInfoFactory transferOrderUpdInfoFactory,
 			OrderUpdInfoFactory orderUpdInfoFactory,
 			IPaymentRepository paymentRepository,
-			IBus messageBus,
+			IEdoRepository edoRepository,
 			IInformalOrderDocumentHandlerFactory informalOrderDocumentHandlerFactory,
 			IPublishEndpoint publishEndpoint
 			)
@@ -45,6 +46,7 @@ namespace Edo.Docflow
 			_transferOrderUpdInfoFactory = transferOrderUpdInfoFactory ?? throw new ArgumentNullException(nameof(transferOrderUpdInfoFactory));
 			_orderUpdInfoFactory = orderUpdInfoFactory ?? throw new ArgumentNullException(nameof(orderUpdInfoFactory));
 			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_documentHandlerFactory = informalOrderDocumentHandlerFactory ?? throw new ArgumentNullException(nameof(informalOrderDocumentHandlerFactory));
 		}
@@ -52,24 +54,21 @@ namespace Edo.Docflow
 		public async Task HandleTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(transferDocumentId, cancellationToken);
-			if(document == null)
+			if(document is null)
 			{
 				_logger.LogWarning("Документ {documentId} не найден", transferDocumentId);
 				return;
 			}
 
-			if(document.Status.IsIn(
-				EdoDocumentStatus.InProgress,
-				EdoDocumentStatus.CompletedWithDivergences,
-				EdoDocumentStatus.Succeed
-				))
+			var isNotValidStatus = _edoRepository.GetInProgressOrCompletedStatuses().Contains(document.Status);
+			if(isNotValidStatus)
 			{
 				_logger.LogError("Документ {documentId} уже в работе, повторно отправить нельзя.");
 				return;
 			}
 
 			var transferTask = await _uow.Session.GetAsync<TransferEdoTask>(document.TransferTaskId, cancellationToken);
-			if(transferTask == null)
+			if(transferTask is null)
 			{
 				_logger.LogWarning("Задача для документа {documentId} не найдена", transferDocumentId);
 				return;
@@ -93,24 +92,21 @@ namespace Edo.Docflow
 		public async Task HandleOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(orderDocumentId, cancellationToken);
-			if(document == null)
+			if(document is null)
 			{
 				_logger.LogWarning("Документ {documentId} не найден", orderDocumentId);
 				return;
 			}
 
-			if(document.Status.IsIn(
-				EdoDocumentStatus.InProgress,
-				EdoDocumentStatus.CompletedWithDivergences,
-				EdoDocumentStatus.Succeed
-				))
+			var isNotValidStatus = _edoRepository.GetInProgressOrCompletedStatuses().Contains(document.Status); 
+			if(isNotValidStatus)
 			{
 				_logger.LogError("Документ {documentId} уже в работе, повторно отправить нельзя.");
 				return;
 			}
 
 			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
-			if(documentTask == null)
+			if(documentTask is null)
 			{
 				_logger.LogWarning("Задача для документа {documentId} не найдена", orderDocumentId);
 				return;
@@ -158,19 +154,20 @@ namespace Edo.Docflow
 		public async Task HandleInformalOrderDocument(int orderDocumentId, OrderDocumentFileData orderDocumentFileData, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<OutgoingInformalEdoDocument>(orderDocumentId, cancellationToken);
-			if(document == null)
+			if(document is null)
 			{
 				_logger.LogWarning($"Документ {orderDocumentId} не найден");
 				return;
 			}
 
-			if(document.Status.IsIn(EdoDocumentStatus.InProgress, EdoDocumentStatus.Succeed))
+			var isNotValidStatus = _edoRepository.GetInProgressOrCompletedStatuses().Contains(document.Status);
+			if(isNotValidStatus)
 			{
 				_logger.LogError($"Документ {orderDocumentId} уже в работе, повторно отправить нельзя.");
 				return;
 			}
 
-			if(orderDocumentFileData.Image == null || orderDocumentFileData.Image.Length == 0)
+			if(orderDocumentFileData.Image is null || orderDocumentFileData.Image.Length == 0)
 			{
 				_logger.LogWarning($"Файл документа {orderDocumentId} пустой.");
 				return;
@@ -180,28 +177,28 @@ namespace Edo.Docflow
 				.Where(x => x.Task.Id == document.InformalDocumentTaskId)
 				.FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
-			if(informalEdoRequest == null)
+			if(informalEdoRequest is null)
 			{
 				_logger.LogWarning($"Заявка на неформальный ЭДО для задачи с идентификатором {document.InformalDocumentTaskId} не найдена.");
 				return;
 			}
 
 			var edoTask = informalEdoRequest.Task;
-			if(edoTask == null)
+			if(edoTask is null)
 			{
 				_logger.LogWarning($"Задача ЭДО акта №{document.InformalDocumentTaskId} не найдена");
 				return;
 			}
 
 			var order = await _uow.Session.GetAsync<OrderEntity>(orderDocumentFileData.OrderId, cancellationToken);
-			if(order == null)
+			if(order is null)
 			{
 				_logger.LogWarning($"Заказ №{orderDocumentFileData.OrderId} не найден");
 				return;
 			}
 
 			var sender = order.Contract.Organization;
-			if(sender.TaxcomEdoSettings == null)
+			if(sender.TaxcomEdoSettings is null)
 			{
 				_logger.LogWarning($"Настройки ЭДО Такском не найдены для организации отправителя {sender.Id}");
 				return;
@@ -212,7 +209,7 @@ namespace Edo.Docflow
 				var informalDocument = order.OrderDocuments
 					.FirstOrDefault(x => x.Type == informalEdoRequest.OrderDocumentType);
 
-				if(informalDocument == null)
+				if(informalDocument is null)
 				{
 					_logger.LogWarning($"Документ заказа {informalEdoRequest.OrderDocumentType} для заказа {order.Id} не найден");
 					return;
@@ -247,7 +244,7 @@ namespace Edo.Docflow
 		{
 			var documentId = updatedEvent.EdoDocumentId;
 			var document = await _uow.Session.GetAsync<OutgoingEdoDocument>(documentId, cancellationToken);
-			if(document == null)
+			if(document is null)
 			{
 				_logger.LogWarning("Документ {documentId} не найден", documentId);
 				return;
@@ -260,9 +257,10 @@ namespace Edo.Docflow
 			switch(docflowStatus)
 			{
 				case EdoDocFlowStatus.InProgress:
-					// Тут сделать обработку успешной отправки
-					// проверять по документам такскома не по статусу InProgress
 					document.Status = EdoDocumentStatus.InProgress;
+					break;
+				case EdoDocFlowStatus.Sent:
+					document.Status = EdoDocumentStatus.Sent;
 
 					if(updatedEvent.DocFlowId.HasValue && updatedEvent.IsReceived)
 					{
@@ -411,13 +409,13 @@ namespace Edo.Docflow
 				.Where(x => x.DocumentTaskId == documentEdoTask.Id)
 				.SingleOrDefaultAsync(cancellationToken);
 
-			if(document == null)
+			if(document is null)
 			{
 				_logger.LogWarning("Документ для задачи №{TaskId} не найден.", documentEdoTask.Id);
 				return;
 			}
 
-			if(document.Status == EdoDocumentStatus.Cancelled)
+			if(document.Status is EdoDocumentStatus.Cancelled)
 			{
 				_logger.LogWarning("Документ для задачи №{TaskId} уже отменен.", documentEdoTask.Id);
 				return;
@@ -439,13 +437,13 @@ namespace Edo.Docflow
 				.Where(x => x.TransferTaskId == transferEdoTask.Id)
 				.SingleOrDefaultAsync(cancellationToken);
 
-			if(document == null)
+			if(document is null)
 			{
 				_logger.LogWarning("Документ для задачи №{TaskId} не найден.", transferEdoTask.Id);
 				return;
 			}
 
-			if(document.Status == EdoDocumentStatus.Cancelled)
+			if(document.Status is EdoDocumentStatus.Cancelled)
 			{
 				_logger.LogWarning("Документ для задачи №{TaskId} уже отменен.", transferEdoTask.Id);
 				return;

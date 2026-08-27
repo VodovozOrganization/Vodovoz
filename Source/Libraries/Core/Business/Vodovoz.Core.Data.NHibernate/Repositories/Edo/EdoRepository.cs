@@ -219,6 +219,26 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return edoDocuments.ToList();
 		}
 
+		public OrderEdoDocument GetOrderEdoDocumentByTaskId(IUnitOfWork uow, int taskId)
+		{
+			var orderDocument = uow.Session.QueryOver<OrderEdoDocument>()
+				.Where(x => x.DocumentTaskId == taskId)
+				.SingleOrDefault();
+
+			return orderDocument;
+		}
+
+		public TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId)
+		{
+			TaxcomDocflow taxcomDocflowAlias = null;
+
+			var taxcomDocflow = uow.Session.QueryOver(() => taxcomDocflowAlias)
+				.Where(() => taxcomDocflowAlias.DocflowId == docflowId)
+				.SingleOrDefault();
+
+			return taxcomDocflow;
+		}
+
 		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
 			IUnitOfWork uow,
 			int timeoutDays,
@@ -269,9 +289,10 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				where
 					task.Status == EdoTaskStatus.InProgress
 					&& orderEdoDocument.CreationTime < thresholdDate
-					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
+					&& (orderEdoDocument.Status == EdoDocumentStatus.Sent
+						|| orderEdoDocument.Status == EdoDocumentStatus.InProgress
+						&& taxcomDocflow.IsReceived)
 					&& orderEdoDocument.AcceptTime == null
-					&& taxcomDocflow.IsReceived
 					&& order.PaymentType == PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
@@ -346,9 +367,10 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				where
 					task.Status == EdoTaskStatus.InProgress
 					&& taxcomDocflow.CreationTime < thresholdDate && taxcomDocflow.CreationTime >= thresholdDate.AddDays(-1)
-					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
+					&& (orderEdoDocument.Status == EdoDocumentStatus.Sent
+						|| orderEdoDocument.Status == EdoDocumentStatus.InProgress
+						&& taxcomDocflow.IsReceived)
 					&& orderEdoDocument.AcceptTime == null
-					&& taxcomDocflow.IsReceived
 					&& order.PaymentType == PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
@@ -597,6 +619,7 @@ select
 	ecr.`time` as :request_time,
 	ecr.id as :request_id,
 	ecr.source as :request_source,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = ecr.author_id) as :manual_request_author,
 	null as :order_document_type,
 	et.id as :task_id,
 	et.`type` as :task_type,
@@ -620,6 +643,7 @@ select
 	eir.`time` as :request_time,
 	eir.id as :request_id,
 	eir.source as :request_source,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = eir.author_id) as :manual_request_author,
 	eir.order_document_type as :order_document_type,
 	et.id as :task_id,
 	et.`type` as :task_type,
@@ -644,6 +668,7 @@ where eir.order_id = :order_id
 				.Map("request_time", x => x.RequestTime, NHibernateUtil.DateTime)
 				.Map("request_id", x => x.RequestId, NHibernateUtil.Int32)
 				.Map("request_source", x => x.RequestSource, new EnumStringType<EdoRequestSource>())
+				.Map("manual_request_author", x => x.ManualRequestAuthor, NHibernateUtil.String)
 				.Map("order_document_type", x => x.InformalOrderDocumentType, new EnumStringType<OrderDocumentType>())
 				.Map("task_id", x => x.TaskId, NHibernateUtil.Int32)
 				.Map("task_type", x => x.TaskType, new EnumStringType<EdoTaskType>())
@@ -1164,6 +1189,31 @@ where ecr.order_id = :order_id
 				.FirstOrDefaultAsync(t => t.Id == taskId, cancellationToken);
 
 			return task;
+		}
+
+		public EdoDocFlowStatus[] GetRecievedEdoDocFlowStatuses()
+		{
+			return new EdoDocFlowStatus[]
+				{
+					EdoDocFlowStatus.Sent,
+					EdoDocFlowStatus.Succeed,
+					EdoDocFlowStatus.Warning,
+					EdoDocFlowStatus.Cancelled,
+					EdoDocFlowStatus.WaitingForCancellation,
+					EdoDocFlowStatus.CompletedWithDivergences,
+					EdoDocFlowStatus.NotAccepted
+				};
+		}
+
+		public EdoDocumentStatus[] GetInProgressOrCompletedStatuses()
+		{
+			return new EdoDocumentStatus[]
+				{
+					EdoDocumentStatus.InProgress,
+					EdoDocumentStatus.Sent,
+					EdoDocumentStatus.Succeed,
+					EdoDocumentStatus.CompletedWithDivergences
+				};
 		}
 	}
 }
