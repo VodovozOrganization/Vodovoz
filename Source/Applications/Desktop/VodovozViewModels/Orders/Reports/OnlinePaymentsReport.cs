@@ -19,6 +19,7 @@ namespace Vodovoz.ViewModels.Orders.Reports
 	public partial class OnlinePaymentsReport : IClosedXmlReport
 	{
 		private static readonly int[] _avangardPayments = new int[] { 10, 11, 12, 13 };
+		private static readonly int[] _avangardPaymentsAfter26082026 = new int[] { 10, 11, 12 };
 
 		private OnlinePaymentsReport(
 			DateTime startDate,
@@ -356,44 +357,59 @@ namespace Vodovoz.ViewModels.Orders.Reports
 		private static IQueryable<OrderRow> GetOrdersQuery(
 			DateTime startDate,
 			DateTime endDate,
-			IUnitOfWork unitOfWork) =>
-			from order in unitOfWork.Session.Query<Order>()
-			join counterparty in unitOfWork.Session.Query<Counterparty>()
-			on order.Client.Id equals counterparty.Id
-			where order.PaymentType == PaymentType.PaidOnline
-				&& order.OnlinePaymentNumber != null
-				&& (order.PaymentByCardFrom == null
-					|| !_avangardPayments.Contains(order.PaymentByCardFrom.Id))
-				&& order.DeliveryDate >= startDate
-				&& order.DeliveryDate <= endDate
-			let address = order.SelfDelivery
-				? "Самовывоз"
-				: (from deliveryPoint in unitOfWork.Session.Query<DeliveryPoint>()
-				   where deliveryPoint.Id == order.DeliveryPoint.Id
-				   select deliveryPoint.ShortAddress).FirstOrDefault()
-			let orderTotalSum =
-				(decimal?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
-						   where orderItem.Order.Id == order.Id
-						   select orderItem.ActualSum).Sum() ?? 0m
-			select new OrderRow
+			IUnitOfWork unitOfWork)
+		{
+			DateTime transitionDate = new DateTime(2026, 8, 26);
+
+			int[] activeAvangardPayments;
+
+			if(endDate < transitionDate)
 			{
-				OrderCreateDate = order.CreateDate,
-				OrderDeliveryDate = order.DeliveryDate,
-				OrderId = order.Id,
-				CcounterpartyFullName = counterparty.FullName,
-				Address = address,
-				OnlineOrderId = order.OnlinePaymentNumber,
-				TotalSumFromBank = 0,
-				OrderTotalSum = orderTotalSum,
-				OrderStatus = order.OrderStatus,
-				Author = order.Author.ShortName,
-				PaymentId = null,
-				PaymentDateTimeOrError = "Оплата не найдена",
-				ReportPaymentStatusEnum = OrderRow.ReportPaymentStatus.Missing,
-				OrderPaymentType = order.PaymentType,
-				IsFutureOrder = order.DeliveryDate > endDate,
-				NumberAndShop = order.OnlinePaymentNumber.ToString()
-			};
+				activeAvangardPayments = _avangardPayments;
+			}
+			else
+			{
+				activeAvangardPayments = _avangardPaymentsAfter26082026;
+			}
+
+			return from order in unitOfWork.Session.Query<Order>()
+				   join counterparty in unitOfWork.Session.Query<Counterparty>()
+				   on order.Client.Id equals counterparty.Id
+				   where order.PaymentType == PaymentType.PaidOnline
+					   && order.OnlinePaymentNumber != null
+					   && (order.PaymentByCardFrom == null
+						   || !activeAvangardPayments.Contains(order.PaymentByCardFrom.Id))
+					   && order.DeliveryDate >= startDate
+					   && order.DeliveryDate <= endDate
+				   let address = order.SelfDelivery
+					   ? "Самовывоз"
+					   : (from deliveryPoint in unitOfWork.Session.Query<DeliveryPoint>()
+						  where deliveryPoint.Id == order.DeliveryPoint.Id
+						  select deliveryPoint.ShortAddress).FirstOrDefault()
+				   let orderTotalSum =
+					   (decimal?)(from orderItem in unitOfWork.Session.Query<OrderItem>()
+								  where orderItem.Order.Id == order.Id
+								  select orderItem.ActualSum).Sum() ?? 0m
+				   select new OrderRow
+				   {
+					   OrderCreateDate = order.CreateDate,
+					   OrderDeliveryDate = order.DeliveryDate,
+					   OrderId = order.Id,
+					   CcounterpartyFullName = counterparty.FullName,
+					   Address = address,
+					   OnlineOrderId = order.OnlinePaymentNumber,
+					   TotalSumFromBank = 0,
+					   OrderTotalSum = orderTotalSum,
+					   OrderStatus = order.OrderStatus,
+					   Author = order.Author.ShortName,
+					   PaymentId = null,
+					   PaymentDateTimeOrError = "Оплата не найдена",
+					   ReportPaymentStatusEnum = OrderRow.ReportPaymentStatus.Missing,
+					   OrderPaymentType = order.PaymentType,
+					   IsFutureOrder = order.DeliveryDate > endDate,
+					   NumberAndShop = order.OnlinePaymentNumber.ToString()
+				   };
+		}
 
 		#endregion Generation
 	}

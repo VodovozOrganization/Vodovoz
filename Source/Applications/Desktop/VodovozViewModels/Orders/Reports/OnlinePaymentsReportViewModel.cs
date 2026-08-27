@@ -263,6 +263,28 @@ namespace Vodovoz.ViewModels.Orders.Reports
 
 		private async Task GenerateReport(CancellationToken token)
 		{
+			var tcs = new TaskCompletionSource<bool>();
+
+			_guiDispatcher.RunInGuiTread(() =>
+			{
+				try
+				{
+					bool result = ValidateDateRange();
+					tcs.SetResult(result);
+				}
+				catch(Exception ex)
+				{
+					tcs.SetException(ex);
+				}
+			});
+
+			bool isValidDateRange = await tcs.Task;
+
+			if(!isValidDateRange)
+			{
+				return;
+			}
+
 			CanGenerateReport = false;
 			CanCancelGeneration = true;
 
@@ -296,6 +318,30 @@ namespace Vodovoz.ViewModels.Orders.Reports
 					CanCancelGeneration = false;
 				});
 			}
+		}
+
+		private bool ValidateDateRange()
+		{
+			DateTime transitionDate = new DateTime(2026, 8, 26);
+			DateTime oldListEndDate = new DateTime(2026, 8, 25);
+
+			bool startsBeforeTransition = StartDate <= oldListEndDate;
+			bool endsAfterTransition = EndDate >= transitionDate;
+
+			if(startsBeforeTransition && endsAfterTransition)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Выбранный период содержит даты до 25.08.2026 и после 26.08.2026.\n\n" +
+					"Для корректного формирования отчета необходимо выбрать период:\n" +
+					$"• до 25.08.2026 включительно\n" +
+					$"• или с 26.08.2026\n\n" +
+					"Пожалуйста, выберите период в рамках одной из этих дат.",
+					"Некорректный период");
+				return false;
+			}
+
+			return true;
 		}
 
 		private void CancelGeneration()
