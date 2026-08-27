@@ -1,11 +1,13 @@
 ﻿using EdoService.Library;
 using Gamma.Binding.Core;
 using QS.Dialog;
+using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.ViewModels.Edo
@@ -14,13 +16,16 @@ namespace Vodovoz.ViewModels.Edo
 	{
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEdoService _edoService;
+		private readonly ICurrentPermissionService _currentPermissionService;
 
 		public EdoDocumentActionsFactory(
 			IInteractiveService interactiveService,
-			IEdoService edoService)
+			IEdoService edoService,
+			ICurrentPermissionService currentPermissionService)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 		}
 
 		public IEnumerable<BusyCommand> CreateActions(
@@ -62,10 +67,26 @@ namespace Vodovoz.ViewModels.Edo
 				"Переотправить",
 				() => ResendUpd(document, onActionCompleted)
 			));
+
+			if(IsDocumentCompletedWithClarification(document)
+				&& _currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentWithCodesFromPool))
+			{
+				actions.Add(new BusyCommand(
+					"Переотправить с кодами из пула",
+					() => ResendUpdWithCodesFromPool(document, onActionCompleted)
+				));
+			}
 		}
 
 		private void ResendUpd(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
+			if(IsDocumentCompletedWithClarification(document))
+			{
+				ShowResult(_edoService.ScheduleResendEdoDocumentAfterTrueMarkCancellation(document.TaskId));
+				onActionCompleted?.Invoke();
+				return;
+			}
+
 			var hasDocflow = _edoService.HasDocflow(document.TaskId);
 			var hasCancelledDocflow = _edoService.HasCancelledDocflow(document.TaskId);
 
@@ -103,6 +124,24 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				ShowErrorMessage(result.Errors);
 			}
+		}
+
+		private void ResendUpdWithCodesFromPool(EdoInOrderDocumentNode document, Action onActionCompleted)
+		{
+			if(!_interactiveService.Question(
+				"Документ будет переотправлен с подбором новых кодов ЧЗ из пула. Продолжить?"))
+			{
+				return;
+			}
+
+			ShowResult(_edoService.ResendEdoDocumentForOrderWithCodesFromPool(document.TaskId));
+			onActionCompleted?.Invoke();
+		}
+
+		private bool IsDocumentCompletedWithClarification(EdoInOrderDocumentNode document)
+		{
+			return document.EdoDocumentStatus == EdoDocumentStatus.Warning
+				|| document.EdoDocumentStatus == EdoDocumentStatus.CompletedWithDivergences;
 		}
 
 		private void CreateReceiptActions(
