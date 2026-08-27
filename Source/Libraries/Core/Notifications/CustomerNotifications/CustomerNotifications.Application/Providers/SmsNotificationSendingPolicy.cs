@@ -1,4 +1,4 @@
-using Notifications.Infrastructure;
+﻿using Notifications.Infrastructure;
 using System;
 using Vodovoz.Services;
 
@@ -15,6 +15,8 @@ namespace CustomerNotifications.Application.Providers
 		}
 
 		/// <inheritdoc/>
-		public bool IsSmsSendingEnabled => _smsNotifierSettings.IsSmsNotificationsEnabled;
+		public bool IsSmsSendingEnabled =>
+			_smsNotifierSettings.IsSmsNotificationsEnabled
+			&& _smsNotifierSettings.IsSmsFallbackNotificationsEnabled;
 	}
 }

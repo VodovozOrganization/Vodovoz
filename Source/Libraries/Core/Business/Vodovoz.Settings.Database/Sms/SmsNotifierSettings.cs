@@ -14,6 +14,8 @@ namespace Vodovoz.Settings.Database.Sms
 
 		public bool IsSmsNotificationsEnabled => _settingsController.GetBoolValue("is_sms_notification_enabled");
 
+		public bool IsSmsFallbackNotificationsEnabled => _settingsController.GetBoolValue("is_sms_fallback_notification_enabled");
+
 		public string NewClientSmsTextTemplate => _settingsController.GetStringValue("new_client_sms_text_template");
 
 		public decimal LowBalanceLevel => _settingsController.GetDecimalValue("low_balance_level_for_sms_notifications");
