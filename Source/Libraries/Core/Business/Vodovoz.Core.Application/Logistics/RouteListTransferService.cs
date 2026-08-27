@@ -267,8 +267,12 @@ namespace Vodovoz.Core.Application.Logistics
 			unitOfWork.Save(order);
 			unitOfWork.Save(newRouteListItem);
 
-			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(unitOfWork, newRouteListItem,
-				DeliveryFreeBalanceType.Decrease, needRouteListUpdate: true);
+			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
+				unitOfWork, 
+				newRouteListItem,
+				DeliveryFreeBalanceType.Decrease, 
+				needRouteListUpdate: true
+			);
 
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(unitOfWork, targetRouteList);
 
