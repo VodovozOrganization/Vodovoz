@@ -41,6 +41,20 @@ namespace Vodovoz.Core.Data.Repositories
 			CancellationToken cancellationToken = default);
 
 		/// <summary>
+		/// Получает просроченные новые задачи ЭДО, которые можно повторно запустить
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="maxCreationTime">Максимальное время создания задачи</param>
+		/// <param name="batchSize">Максимальное количество задач</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список задач для повторного запуска</returns>
+		Task<IList<OrderEdoTask>> GetStaleNewEdoTasks(
+			IUnitOfWork uow,
+			DateTime maxCreationTime,
+			int batchSize,
+			CancellationToken cancellationToken = default);
+
+		/// <summary>
 		/// Получает ЭДО документы заказа по идентификатору заказа
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
