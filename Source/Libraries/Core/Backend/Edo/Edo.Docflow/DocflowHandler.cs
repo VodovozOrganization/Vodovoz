@@ -37,7 +37,6 @@ namespace Edo.Docflow
 			OrderUpdInfoFactory orderUpdInfoFactory,
 			IPaymentRepository paymentRepository,
 			IEdoRepository edoRepository,
-			IBus messageBus,
 			IInformalOrderDocumentHandlerFactory informalOrderDocumentHandlerFactory,
 			IPublishEndpoint publishEndpoint
 			)
@@ -259,7 +258,7 @@ namespace Edo.Docflow
 			{
 				case EdoDocFlowStatus.InProgress:
 					document.Status = EdoDocumentStatus.InProgress;
-				break;
+					break;
 				case EdoDocFlowStatus.Sent:
 					document.Status = EdoDocumentStatus.Sent;
 
