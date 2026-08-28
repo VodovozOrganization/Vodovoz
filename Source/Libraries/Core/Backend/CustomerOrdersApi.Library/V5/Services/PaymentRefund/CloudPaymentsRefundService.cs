@@ -49,7 +49,7 @@ namespace CustomerOrdersApi.Library.V5.Services.PaymentRefund
 
 			if(transaction.Refunded is true || transaction.Type is CloudPaymentsOperationType.Refund)
 			{
-				Logger.LogWarning("Попытка повторного возврата по заказу {OnlineOrderId} транзакции {TransactionId}", request.OnlineOrder.Id, request.TransactionId);
+				Logger.LogWarning("Попытка повторного возврата по заказу {OnlineOrderId}, транзакция {TransactionId}", request.OnlineOrder.Id, request.TransactionId);
 			}
 
 			var refundDto = _mapper.MapToRefundRequest(request);
