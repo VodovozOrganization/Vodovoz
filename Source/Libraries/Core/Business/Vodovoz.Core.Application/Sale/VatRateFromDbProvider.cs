@@ -2,6 +2,7 @@ using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Repositories.Cash;
 using Vodovoz.Core.Domain.Interfaces;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 
 namespace Vodovoz.Core.Application.Sale
 {
@@ -22,6 +23,7 @@ namespace Vodovoz.Core.Application.Sale
 			_vatRateRepository = vatRateRepository ?? throw new ArgumentNullException(nameof(vatRateRepository));
 		}
 
+		/// <inheritdoc/>
 		public decimal? GetActualRate(IRecalculateTax saleItem)
 		{
 			var source = saleItem.RecalculateTaxSource;

@@ -90,6 +90,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IOrganizationSettings organizationSettings,
 			IOrderSettings orderSettings,
 			ISaleHandler saleHandler,
+			ISaleDiscountController saleDiscountController,
 			ViewModelEEVMBuilder<Organization> organizationViewModelEEVMBuilder,
 			OrderItemDiscountReasonsViewModel orderItemDiscountReasonsViewModel)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
@@ -157,7 +158,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 
-			OrderItemDiscountReasonsViewModel.Initialize(UoW);
+			OrderItemDiscountReasonsViewModel.Initialize(
+				UoW, saleDiscountController ?? throw new ArgumentNullException(nameof(saleDiscountController)));
 
 			UpdateEdoContainers();
 			InitializeCommands();
@@ -448,11 +450,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			if(SelectedItem != null
 				&& SelectedItem is OrderWithoutShipmentForAdvancePaymentItem orderItem)
 			{
-				OrderItemDiscountReasonsViewModel.SetOrderItem(orderItem);
+				OrderItemDiscountReasonsViewModel.SetSaleItem(orderItem);
 				return;
 			}
 
-			OrderItemDiscountReasonsViewModel.ResetOrderItem();
+			OrderItemDiscountReasonsViewModel.ResetSaleItem();
 		}
 
 		public override void Dispose()

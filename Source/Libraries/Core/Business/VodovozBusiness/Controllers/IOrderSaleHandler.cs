@@ -1,5 +1,7 @@
-﻿using Vodovoz.Core.Domain.Sale;
+﻿using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale;
 
@@ -51,5 +53,19 @@ namespace VodovozBusiness.Controllers
 		/// Восстановление скидок и установка фактического количества в null при восстановлении заказа(например, из отмены)
 		/// </summary>
 		void RestoreOriginalDiscountFromRestoreOrder();
+		/// <summary>
+		/// Копирование скидок из переданной позиции
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="saleItem">Позиция на продажу, куда копируются скидки</param>
+		/// <param name="copyingSaleItem">Позиция на продажу из которой копируются скидки</param>
+		void CopyDiscounts(IUnitOfWork uow, IApplyDiscountReasonItem saleItem, IApplyDiscountReasonItem copyingSaleItem);
+		/// <summary>
+		/// Копирование кэшированных скидок из переданной позиции
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="saleItem">Позиция на продажу, куда копируются скидк</param>
+		/// <param name="copyingSaleItem">Позиция на продажу из которой копируются скидки</param>
+		void CopyOriginalDiscounts(IUnitOfWork uow, IApplyDiscountReasonItem saleItem, IPreserveDiscount copyingSaleItem);
 	}
 }

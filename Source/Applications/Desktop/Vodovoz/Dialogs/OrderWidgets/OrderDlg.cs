@@ -617,7 +617,13 @@ namespace Vodovoz
 		{
 			Entity.IsCopiedFromUndelivery = true;
 
-			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater, _saleHandler);
+			var orderCopyModel = new OrderCopyModel(
+				_nomenclatureSettings,
+				_flyerRepository,
+				_orderContractUpdater,
+				_saleHandler
+				);
+			
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields()
 				.CopyStockBottle()
@@ -670,7 +676,13 @@ namespace Vodovoz
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
 		public void CopyLesserOrderFrom(int orderId)
 		{
-			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater, _saleHandler);
+			var orderCopyModel = new OrderCopyModel(
+				_nomenclatureSettings,
+				_flyerRepository,
+				_orderContractUpdater,
+				_saleHandler
+				);
+			
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields(
 					x => x.Client,
@@ -1278,7 +1290,7 @@ namespace Vodovoz
 		private void SetOrderItemDiscountReasonsViewModel()
 		{
 			_orderItemDiscountReasonsViewModel = _lifetimeScope.Resolve<OrderItemDiscountReasonsViewModel>();
-			_orderItemDiscountReasonsViewModel.Initialize(UoW);
+			_orderItemDiscountReasonsViewModel.Initialize(UoW, _discountsController);
 			orderitemdiscountreasonsview1.ViewModel = _orderItemDiscountReasonsViewModel;
 		}
 
@@ -1294,11 +1306,11 @@ namespace Vodovoz
 			if(items.Count() == 1
 				&& items.First() is OrderItem orderItem)
 			{
-				_orderItemDiscountReasonsViewModel.SetOrderItem(orderItem);
+				_orderItemDiscountReasonsViewModel.SetSaleItem(orderItem);
 				return;
 			}
 
-			_orderItemDiscountReasonsViewModel.ResetOrderItem();
+			_orderItemDiscountReasonsViewModel.ResetSaleItem();
 		}
 
 		private void OnYbuttonSaveWaitUntilClicked(object sender, EventArgs e)
@@ -2273,7 +2285,7 @@ namespace Vodovoz
 					)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.ManualChangingDiscount, OnDiscountEdited)
+					.AddNumericRenderer(node => node.GetDiscount, OnDiscountEdited)
 					.AddSetter((c, n) => c.Editable = _canChangeDiscountValue)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
@@ -5037,7 +5049,12 @@ namespace Vodovoz
 
 		private void UpdateClientSecondOrderDiscount()
 		{
-			Entity.UpdateClientSecondOrderDiscount(_discountsController);
+			var result = _discountsController.UpdateClientSecondOrderDiscount(UoW, Entity);
+			
+			if(result.IsFailureWithDescription)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, result.Description);
+			}
 		}
 
 		private void Entity_UpdateClientCanChange(object aList, int[] aIdx)

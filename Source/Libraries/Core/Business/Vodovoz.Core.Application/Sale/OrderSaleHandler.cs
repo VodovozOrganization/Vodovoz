@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -210,6 +211,16 @@ namespace Vodovoz.Core.Application.Sale
 						break;
 				}
 			}
+		}
+
+		public void CopyDiscounts(IUnitOfWork uow, IApplyDiscountReasonItem saleItem, IApplyDiscountReasonItem copyingSaleItem)
+		{
+			_saleItemHandler.CopyDiscounts(uow, saleItem, copyingSaleItem);
+		}
+
+		public void CopyOriginalDiscounts(IUnitOfWork uow, IApplyDiscountReasonItem saleItem, IPreserveDiscount copyingSaleItem)
+		{
+			_saleItemHandler.CopyOriginalDiscounts(uow, saleItem, copyingSaleItem);
 		}
 
 		protected virtual void SetRentEquipmentCount(IRecalculateRentCount saleItem, int newEquipmentCount)

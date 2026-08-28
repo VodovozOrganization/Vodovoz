@@ -256,7 +256,7 @@ namespace Vodovoz
 		private void SetOrderItemDiscountReasonsViewModel()
 		{
 			_orderItemDiscountReasonsViewModel = _lifetimeScope.Resolve<OrderItemDiscountReasonsViewModel>();
-			_orderItemDiscountReasonsViewModel.Initialize(UoW);
+			_orderItemDiscountReasonsViewModel.Initialize(UoW, _discountsController);
 			orderitemdiscountreasonsview.ViewModel = _orderItemDiscountReasonsViewModel;
 		}
 
@@ -272,12 +272,12 @@ namespace Vodovoz
 			if(items.Count() == 1
 				&& items.First() is OrderItemReturnsNode orderItemNode)
 			{
-				_orderItemDiscountReasonsViewModel.SetOrderItem(orderItemNode.OrderItem ?? orderItemNode.EquipmentOrderItem);
+				_orderItemDiscountReasonsViewModel.SetSaleItem(orderItemNode.OrderItem ?? orderItemNode.EquipmentOrderItem);
 				_orderItemDiscountReasonsViewModel.IsEditEnabled = _canEditPrices && orderItemNode.IsDiscountReasonsEditable;
 				return;
 			}
 
-			_orderItemDiscountReasonsViewModel.ResetOrderItem();
+			_orderItemDiscountReasonsViewModel.ResetSaleItem();
 		}
 
 		public void ConfigureForRouteListAddress(RouteListItem routeListItem)
@@ -457,7 +457,7 @@ namespace Vodovoz
 					.AddToggleRenderer(x => x.OrderItem.IsAlternativePrice).Editing(false)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.ManualChangingDiscount)
+					.AddNumericRenderer(node => node.GetDiscount, OnDiscountEdited)
 						.AddSetter((cell, node) => cell.Editable = _canEditPrices)
 						.AddSetter(
 							(c, n) => c.Adjustment = n.IsDiscountInMoney
@@ -596,6 +596,38 @@ namespace Vodovoz
 			var path = new TreePath(args.Path);
 			ytreeToClient.YTreeModel.GetIter(out var iter, path);
 			ytreeToClient.YTreeModel.Adapter.EmitRowChanged(path, iter);
+		}
+		
+		private void OnDiscountEdited(object o, EditedArgs args)
+		{
+			var stringPrice = args.NewText.Replace(',', '.');
+			decimal.TryParse(stringPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var newDiscount);
+			var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			
+			if(!(node is OrderItemReturnsNode itemReturnsNode))
+			{
+				return;
+			}
+			
+			if(itemReturnsNode.IsEquipment)
+			{
+				if(itemReturnsNode.OrderEquipment.OrderItem != null)
+				{
+					_discountsController.SetCustomDiscount(
+						UoW,
+						itemReturnsNode.OrderEquipment.OrderItem,
+						DiscountValue.Create(itemReturnsNode.OrderEquipment.OrderItem.IsDiscountInMoney, newDiscount, newDiscount)
+					);
+				}
+			}
+			else
+			{
+				_discountsController.SetCustomDiscount(
+					UoW,
+					itemReturnsNode.OrderItem,
+					DiscountValue.Create(itemReturnsNode.OrderItem.IsDiscountInMoney, newDiscount, newDiscount)
+				);
+			}
 		}
 
 		private void OnTreeToClientSelectionChanged(object sender, EventArgs e)

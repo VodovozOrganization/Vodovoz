@@ -78,7 +78,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class Order : OrderEntity, IValidatableObject, ISaleSource
+	public class Order : OrderEntity, IValidatableObject, ISaleSource, ISecondOrderDiscount
 	{
 		public const string DontArriveBeforeIntervalString = "Не приезжать раньше интервала!";
 		private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -462,82 +462,6 @@ namespace Vodovoz.Domain.Orders
 				: nextOrders.Count() == 0;
 		}
 
-		public virtual void UpdateClientSecondOrderDiscount(IOrderDiscountsController discountsController)
-		{
-			if(!_generalSettingsParameters.GetIsClientsSecondOrderDiscountActive)
-			{
-				return;
-			}
-
-			int discountReasonId = _orderSettings.GetClientsSecondOrderDiscountReasonId;
-
-			if(IsSecondOrder)
-			{
-				SetClientSecondOrderDiscount(discountsController, discountReasonId);
-				return;
-			}
-
-			ResetClientSecondOrderDiscount(discountsController, discountReasonId);
-		}
-
-		private void SetClientSecondOrderDiscount(IOrderDiscountsController discountsController, int discountReasonId)
-		{
-			if(IsSecondOrder)
-			{
-				foreach(var item in ObservableOrderItems)
-				{
-					if(item.DiscountReasons.All(r => r.Id != discountReasonId))
-					{
-						SetClientSecondOrderDiscount(discountsController, item, discountReasonId);
-					}
-				}
-			}
-		}
-
-		//TODO убрать метод из сущности
-		private void ResetClientSecondOrderDiscount(IOrderDiscountsController discountsController, int discountReasonId)
-		{
-			if(!IsSecondOrder)
-			{
-				var orderItemsHavingClientsSecondOrderDiscount = new List<IApplyDiscountReasonItem>();
-
-				foreach(var item in ObservableOrderItems)
-				{
-					if(item.DiscountReasons.Any(r => r.Id == discountReasonId))
-					{
-						orderItemsHavingClientsSecondOrderDiscount.Add(item);
-					}
-				}
-				discountsController.ClearOrdersItemDiscounts(orderItemsHavingClientsSecondOrderDiscount);
-			}
-		}
-
-		private void SetClientSecondOrderDiscount(IOrderDiscountsController discountsController, OrderItem orderItem, int discountReasonId)
-		{
-			if(!IsSecondOrder)
-			{
-				return;
-			}
-
-			if(orderItem.DiscountReasons.Any()
-				|| orderItem.PromoSet != null)
-			{
-				return;
-			}
-
-			var discountReason = UoW.GetById<DiscountReason>(discountReasonId);
-
-			if(discountReason != null)
-			{
-				discountsController.SetDiscountFromDiscountReasonForOrderItem(discountReason, orderItem, true, out string message);
-
-				if(message != null)
-				{
-					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						$"Не удалось применить скидку для второго заказа клиента!");
-				}
-			}
-		}
 		#endregion
 
 		public virtual bool CanChangeContractor()
@@ -721,6 +645,12 @@ namespace Vodovoz.Domain.Orders
         public virtual IEnumerable<ISaleItem> SaleItems => OrderItems;
 
         #endregion
+
+		#region ISecondOrderDiscount implementation
+
+		IEnumerable<IApplyDiscountReasonItem> ISecondOrderDiscount.SaleItems => OrderItems;
+
+		#endregion
 
 		#region IValidatableObject implementation
 
@@ -1519,7 +1449,7 @@ namespace Vodovoz.Domain.Orders
 			Nomenclature nomenclature,
 			decimal price)
 		{
-			//TODO-5967 возможно стоит переделать пересчет стоимости платной доставки, т.к. она сейчас считается отдельно и ей ставится флаг IsUserPrice, что не совсем корректно
+			//TODO возможно стоит переделать пересчет стоимости платной доставки, т.к. она сейчас считается отдельно и ей ставится флаг IsUserPrice, что не совсем корректно
 			//Т.к. запускается пересчет различных параметров, который может привести к добавлению платной доставки
 			//создание строки с платной доставкой лучше запускать до ее поиска в коллекции
 			var newDeliveryItem = OrderItem.CreateDeliveryOrderItem(saleHandler, this, nomenclature, price);
@@ -1548,20 +1478,6 @@ namespace Vodovoz.Domain.Orders
 			if(ObservableOrderItems.Contains(orderItem)) {
 				return;
 			}
-
-			/*var curCount = orderItem.Nomenclature.IsWater19L
-				? GetTotalWater19LCount(true, true)
-				: orderItem.Count;
-			
-			//TODO-5967 опять же почему это здесь? Убрать в расчет цены
-			var isAlternativePriceCopiedFromUndelivery = orderItem.CopiedFromUndelivery != null && orderItem.IsAlternativePrice;
-			var canApplyAlternativePrice =
-				isAlternativePriceCopiedFromUndelivery
-					|| (HasPermissionsForAlternativePrice
-						&& orderItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
-						&& orderItem.GetWaterFixedPrice() == null);
-
-			orderItem.IsAlternativePrice = canApplyAlternativePrice;*/
 
 			ObservableOrderItems.Add(orderItem);
 			

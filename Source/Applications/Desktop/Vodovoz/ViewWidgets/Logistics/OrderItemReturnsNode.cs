@@ -3,6 +3,7 @@ using QS.Extensions.Observable.Collections.List;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz
 {
@@ -126,7 +127,7 @@ namespace Vodovoz
 
 				return _orderItem.Price;
 			}
-			protected set => throw new InvalidOperationException("Нельзя устанавливать цену из ноды!");
+			protected set => throw new InvalidOperationException($"Нельзя устанавливать цену из ноды! Используйте {nameof(ISaleDiscountController)}");
 		}
 
 		public bool IsDiscountInMoney
@@ -140,7 +141,6 @@ namespace Vodovoz
 
 				return _orderItem.IsDiscountInMoney;
 			}
-
 			set
 			{
 				if(IsEquipment)
@@ -154,31 +154,16 @@ namespace Vodovoz
 			}
 		}
 
-		public decimal ManualChangingDiscount
+		public decimal GetDiscount
 		{
 			get
 			{
 				if(IsEquipment)
 				{
-					return OrderEquipment.OrderItem != null ? OrderEquipment.OrderItem.ManualChangingDiscount : 0;
+					return OrderEquipment.OrderItem?.GetDiscount ?? 0;
 				}
 
-				return _orderItem.ManualChangingDiscount;
-			}
-
-			set
-			{
-				if(IsEquipment)
-				{
-					if(OrderEquipment.OrderItem != null)
-					{
-						OrderEquipment.OrderItem.SetManualChangingDiscount(value);
-					}
-				}
-				else
-				{
-					_orderItem.SetManualChangingDiscount(value);
-				}
+				return _orderItem.GetDiscount;
 			}
 		}
 
@@ -188,24 +173,10 @@ namespace Vodovoz
 			{
 				if(IsEquipment)
 				{
-					return OrderEquipment.OrderItem != null ? OrderEquipment.OrderItem.Discount : 0m;
+					return OrderEquipment.OrderItem?.Discount ?? 0m;
 				}
 
 				return _orderItem.Discount;
-			}
-			set
-			{
-				if(IsEquipment)
-				{
-					if(OrderEquipment.OrderItem != null)
-					{
-						OrderEquipment.OrderItem.SetDiscount(value);
-					}
-				}
-				else
-				{
-					_orderItem.SetDiscount(value);
-				}
 			}
 		}
 
@@ -215,7 +186,7 @@ namespace Vodovoz
 			{
 				if(IsEquipment)
 				{
-					return OrderEquipment.OrderItem != null ? OrderEquipment.OrderItem.DiscountMoney : 0m;
+					return OrderEquipment.OrderItem?.DiscountMoney ?? 0m;
 				}
 
 				return _orderItem.DiscountMoney;

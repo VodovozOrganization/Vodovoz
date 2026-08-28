@@ -45,7 +45,6 @@ namespace VodovozBusiness.Domain.Orders
 		public (SaleItemPriceType PriceType, decimal Price) PriceData { get; set; }
 		public decimal Discount { get; }
 		public bool IsDiscountInMoney { get; }
-		//public bool needGetFixedPrice = true,
 		public IEnumerable<DiscountReason> DiscountReasons { get; set; }
 		public PromotionalSet PromoSet { get; }
 		public Equipment Equipment { get; }

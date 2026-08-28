@@ -2,6 +2,7 @@
 using Vodovoz.Core.Application.Extensions;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Interfaces;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Core.Application.Sale
@@ -9,7 +10,7 @@ namespace Vodovoz.Core.Application.Sale
 	public class SaleItemWithTaxHandler : SaleItemHandler
 	{
 		public SaleItemWithTaxHandler(
-			IDiscountController discountController,
+			ISaleDiscountController discountController,
 			ISaleItemTaxHandler saleItemTaxHandler
 		) : base(discountController)
 		{
@@ -35,7 +36,12 @@ namespace Vodovoz.Core.Application.Sale
 				.SaleItem;
 			
 			base.RecalculateDiscounts(context);
-			TaxHandler.RecalculateTaxSum(saleItem as IRecalculateTax);
+			RecalculateTaxSum(saleItem as IRecalculateTax);
+		}
+
+		internal void RecalculateTaxSum(IRecalculateTax saleItem)
+		{
+			TaxHandler.RecalculateTaxSum(saleItem);
 		}
 		
 		private void RecalculateDiscountAndSetTax(IDataContext context)

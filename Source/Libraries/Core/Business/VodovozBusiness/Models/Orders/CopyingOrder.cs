@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -437,11 +438,11 @@ namespace Vodovoz.Models.Orders
 
 			if(orderItemFrom.DiscountMoney > 0 && orderItemFrom.Discount > 0 && (orderItemFrom.DiscountReasons.Any() || isPromoset))
 			{
-				orderItemTo.SetDiscount(orderItemFrom.IsDiscountInMoney, orderItemFrom.Discount, orderItemFrom.DiscountMoney, orderItemFrom.DiscountReasons);
+				_saleHandler.CopyDiscounts(_uow, orderItemTo, orderItemFrom);
 			}
 			else if(orderItemFrom.OriginalDiscountMoney > 0 && orderItemFrom.OriginalDiscount > 0 && (orderItemFrom.OriginalDiscountReasons.Any() || isPromoset))
 			{
-				orderItemTo.SetDiscount(orderItemFrom.IsDiscountInMoney, orderItemFrom.OriginalDiscount.Value, orderItemFrom.OriginalDiscountMoney.Value, orderItemFrom.OriginalDiscountReasons);
+				_saleHandler.CopyOriginalDiscounts(_uow, orderItemTo, orderItemFrom);
 			}
 
 			if(withStockBottleDiscount)

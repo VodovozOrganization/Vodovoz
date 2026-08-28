@@ -25,6 +25,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		private PersonalDiscount _personalDiscount;
 		private IObservableList<DiscountReason> _discountReasons = new ObservableList<DiscountReason>();
 		private bool _isAlternativePrice;
+		private bool _isFixedPrice;
 
 		public virtual int Id { get; set; }
 
@@ -102,6 +103,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		}
 
 		private decimal discountByStock;
+
 		[Display(Name = "Скидка по акции")]
 		public virtual decimal DiscountByStock {
 			get => discountByStock;
@@ -136,11 +138,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		/// <inheritdoc/>
 		public decimal ActualSum => Sum;
 		/// <inheritdoc/>
-		public virtual bool IsFixedPrice => false;
-
-		//TODO-5967 не забыть переделать
-		bool ISaleItem.IsFixedPrice { get; set; }
-
+		public virtual bool IsFixedPrice => _isFixedPrice;
+		
 		/// <inheritdoc/>
 		public virtual PromotionalSet PromoSet => null;
 		/// <inheritdoc/>
@@ -186,6 +185,12 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		#endregion
 
 		#region ISaleItem implementation
+
+		bool ISaleItem.IsFixedPrice
+		{
+			get => _isFixedPrice;
+			set => _isFixedPrice = value;
+		}
 
 		PromotionalSet IGetFixedPrice.PromoSet => null;
 		IEnumerable<DiscountReason> IDiscountReasons.DiscountReasons => DiscountReasons;
@@ -266,26 +271,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		/// Текущее количество товара
 		/// </summary>
 		public decimal CurrentCount => Count;
-
-		/*public virtual bool IsDiscountValueCanBeAdded(bool isDiscountInMoney, decimal discount)
-		{
-			var isCalculateInPercent =
-				DiscountReasons.All(x => x.ValueType == DiscountUnits.percent) && !isDiscountInMoney;
-
-			if(isCalculateInPercent)
-			{
-				var totalPercentDiscount = DiscountReasons.Sum(x => x.Value) + discount;
-				if(totalPercentDiscount > 100)
-				{
-					return false;
-				}
-			}
-
-			var alreadyAddedDiscount = CalculateTotalDiscountInMoneyFromAddedReasons();
-			var discountMoneyToAdd = isDiscountInMoney ? discount : CurrentRawPrice * discount / 100;
-
-			return discountMoneyToAdd + alreadyAddedDiscount <= CurrentRawPrice;
-		}*/
 
 		private decimal CurrentRawPrice => Price * CurrentCount;
 

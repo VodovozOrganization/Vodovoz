@@ -25,6 +25,7 @@ using Vodovoz.Core.Application.Services.Subdivisions;
 using Vodovoz.Core.Application.TrueMark;
 using Vodovoz.Core.Application.Users;
 using Vodovoz.Core.Application.Warehouses;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Service;
@@ -139,16 +140,32 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
 				.AddScoped<ICustomerOrderTransferService, CustomerOrderTransferService>()
 				.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
-				.AddScoped<IOrderSaleHandler, OrderSaleHandler>()
-				.AddScoped<OrderSaleItemHandler>()
+				.AddSaleHandlers()
+				.AddDiscountControllers()
 				;
+			
 
+			return services;
+		}
+
+		private static IServiceCollection AddDiscountControllers(this IServiceCollection services)
+		{
 			services.TryAddScoped<IOrderDiscountsController, OrderDiscountsController>();
+			services.TryAddScoped<ISaleDiscountController, SaleDiscountController>();
 			services.TryAddScoped<IDiscountController, DiscountController>();
+			
+			return services;
+		}
+		
+		private static IServiceCollection AddSaleHandlers(this IServiceCollection services)
+		{
+			services.TryAddScoped<ISaleHandler, SaleWithTaxHandler>();
+			services.TryAddScoped<IOrderSaleHandler, OrderSaleHandler>();
+			services.TryAddScoped<OrderSaleItemHandler>();
+			services.TryAddScoped<SaleItemWithTaxHandler>();
 			services.TryAddScoped<ISaleItemTaxHandler, SaleItemTaxHandler>();
 			services.TryAddScoped<IVatRateProvider, VatRateFromDbProvider>();
-			services.TryAddScoped<ISaleHandler, SaleWithTaxHandler>();
-
+			
 			return services;
 		}
 

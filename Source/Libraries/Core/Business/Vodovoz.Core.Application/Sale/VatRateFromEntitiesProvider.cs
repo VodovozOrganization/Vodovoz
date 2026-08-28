@@ -1,6 +1,7 @@
 using System;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Interfaces;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Core.Application.Sale
@@ -10,6 +11,7 @@ namespace Vodovoz.Core.Application.Sale
 	/// </summary>
 	public class VatRateFromEntitiesProvider : IVatRateProvider
 	{
+		/// <inheritdoc/>
 		public decimal? GetActualRate(IRecalculateTax saleItem)
 		{
 			if(saleItem.Nomenclature is not NomenclatureEntity nomenclature)

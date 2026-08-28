@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Domain.Clients;
@@ -18,10 +19,19 @@ namespace Vodovoz.Core.Application.Orders.Services
 {
 	public class OnlineOrderDiscountHandler : DiscountController, IOnlineOrderDiscountHandler
 	{
+		private readonly IDiscountReasonRepository _discountReasonRepository;
+		private readonly IDiscountReasonSettings _discountReasonSettings;
+
 		public OnlineOrderDiscountHandler(
+			ILogger<OnlineOrderDiscountHandler> logger,
 			IDiscountReasonRepository discountReasonRepository,
-			IDiscountReasonSettings discountReasonSettings)
-			: base(discountReasonRepository, discountReasonSettings) { }
+			IDiscountReasonSettings discountReasonSettings
+			)
+			: base(logger)
+		{
+			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
+			_discountReasonSettings = discountReasonSettings ?? throw new ArgumentNullException(nameof(discountReasonSettings));
+		}
 
 		/// <summary>
 		/// Применение промокода к онлайн заказу
@@ -44,7 +54,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		/// <returns></returns>
 		public Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(IUnitOfWork uow, CanApplyOnlineOrderPromoCode onlineOrderPromoCode)
 		{
-			var discountPromoCode = DiscountReasonRepository.GetActivePromoCode(uow, onlineOrderPromoCode.PromoCode);
+			var discountPromoCode = _discountReasonRepository.GetActivePromoCode(uow, onlineOrderPromoCode.PromoCode);
 			var date = onlineOrderPromoCode.Time.Date;
 			var time = onlineOrderPromoCode.Time.TimeOfDay;
 			var orderSum = GetOnlineOrderSum(onlineOrderPromoCode.Products);
@@ -72,7 +82,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 
 			if(discountPromoCode.IsOneTimePromoCode
-				&& DiscountReasonRepository.HasBeenUsagePromoCode(uow, onlineOrderPromoCode.CounterpartyId, discountPromoCode.Id))
+				&& _discountReasonRepository.HasBeenUsagePromoCode(uow, onlineOrderPromoCode.CounterpartyId, discountPromoCode.Id))
 			{
 				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
 					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UsageLimitHasBeenExceeded);

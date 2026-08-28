@@ -37,6 +37,12 @@ namespace VodovozBusiness.Domain.Orders
 			
 			_discountReason = discountReason;
 		}
+
+		protected PersonalDiscount(PersonalDiscount copyingPersonalDiscount)
+		{
+			_discountReason = copyingPersonalDiscount.DiscountReason;
+			DiscountValue = copyingPersonalDiscount.DiscountValue;
+		}
 		
 		/// <summary>
 		/// Идентификатор
@@ -76,6 +82,9 @@ namespace VodovozBusiness.Domain.Orders
 
 		public static PersonalDiscount Create(DiscountReason personalDiscountReason, IDiscountReasonSettings discountReasonSettings) =>
 			new PersonalDiscount(personalDiscountReason, discountReasonSettings);
+		
+		public static PersonalDiscount Copy(PersonalDiscount copyingPersonalDiscount) =>
+			new PersonalDiscount(copyingPersonalDiscount);
 
 		public override string ToString()
 		{

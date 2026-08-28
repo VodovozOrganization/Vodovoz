@@ -48,7 +48,14 @@ namespace Vodovoz.Models.Orders
 			}	
 		
 			var copyingOrder = new CopyingOrder(
-				uow, copiedOrder, resultOrder, _nomenclatureSettings, _flyerRepository, _contractUpdater, _saleHandler);
+				uow,
+				copiedOrder,
+				resultOrder,
+				_nomenclatureSettings,
+				_flyerRepository,
+				_contractUpdater,
+				_saleHandler
+				);
 
 			return copyingOrder;
 		}

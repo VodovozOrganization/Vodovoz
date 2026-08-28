@@ -1,5 +1,6 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
@@ -30,9 +31,22 @@ namespace Vodovoz.Core.Application.Sale
 			return true;
 		}
 
+		internal void CopyDiscounts(IUnitOfWork uow, IApplyDiscountReasonItem saleItem, IApplyDiscountReasonItem copyingSaleItem)
+		{
+			_discountController.CopyDiscounts(uow, saleItem, copyingSaleItem);
+			RecalculateTaxSum(saleItem as IRecalculateTax);
+		}
+		
+		internal void CopyOriginalDiscounts(IUnitOfWork uow, IApplyDiscountReasonItem saleItem, IPreserveDiscount copyingSaleItem)
+		{
+			_discountController.CopyOriginalDiscounts(uow, saleItem, copyingSaleItem);
+			RecalculateTaxSum(saleItem as IRecalculateTax);
+		}
+
 		internal void RecalculateDiscountWithPreserveOrRestoreDiscount(IPreserveDiscount discountItem)
 		{
 			_discountController.RecalculateDiscountWithPreserveOrRestoreDiscount(discountItem);
+			RecalculateTaxSum(discountItem as IRecalculateTax);
 		}
 
 		internal void TryRestoreOriginalDiscount(IPreserveDiscount discountItem)

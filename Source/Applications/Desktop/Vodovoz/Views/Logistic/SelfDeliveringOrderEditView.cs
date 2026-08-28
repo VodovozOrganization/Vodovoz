@@ -17,6 +17,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Logistic;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -141,7 +142,7 @@ namespace Vodovoz.Views.Logistic
 					)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.ManualChangingDiscount)
+					.AddNumericRenderer(node => node.GetDiscount, OnDiscountEdited)
 					.AddSetter((c, n) => c.Editable = ViewModel.CanChangeDiscountValue)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
@@ -196,6 +197,24 @@ namespace Vodovoz.Views.Logistic
 			}
 
 			ViewModel.SaleHandler.SetPrice(orderItem, (SaleItemPriceType.User, newPrice));
+		}
+		
+		private void OnDiscountEdited(object o, EditedArgs args)
+		{
+			var stringPrice = args.NewText.Replace(',', '.');
+			decimal.TryParse(stringPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var newDiscount);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			
+			if(!(node is OrderItem orderItem))
+			{
+				return;
+			}
+			
+			ViewModel.DiscountsController.SetCustomDiscount(
+				ViewModel.UoW,
+				orderItem,
+				DiscountValue.Create(orderItem.IsDiscountInMoney, newDiscount, newDiscount)
+			);
 		}
 
 		private string GetDiscountReasonsString(IEnumerable<DiscountReason> discountReasons)

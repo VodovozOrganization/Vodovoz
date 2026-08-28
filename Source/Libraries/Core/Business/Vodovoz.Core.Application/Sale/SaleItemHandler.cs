@@ -10,13 +10,13 @@ namespace Vodovoz.Core.Application.Sale
 	public class SaleItemHandler
 	{
 		public SaleItemHandler(
-			IDiscountController discountController
+			ISaleDiscountController discountController
 			)
 		{
 			DiscountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 		}
 		
-		protected IDiscountController DiscountController { get; }
+		protected ISaleDiscountController DiscountController { get; }
 
 		internal virtual void RecalculateDiscounts(IDataContext context)
 		{

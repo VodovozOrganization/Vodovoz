@@ -163,90 +163,14 @@ namespace Vodovoz.Domain.Orders
 			Order.OrderStatus >= OrderStatus.OnTheWay && ReturnedCount > 0
 			&& Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category);
 
-		public virtual decimal ManualChangingDiscount
-		{
-			get => GetDiscount;
-			protected set
-			{
-				CalculateAndSetDiscount(value);
-				if(DiscountByStock != 0)
-				{
-					DiscountByStock = 0;
-					DiscountReasons.Clear();
-				}
-			}
-		}
-
 		public virtual decimal GetDiscount => IsDiscountInMoney ? DiscountMoney : Discount;
 
-		private bool CheckInitializedProperties()
-		{
-			if(!NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
-			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Discount))
-			   || !NHibernateUtil.IsPropertyInitialized(this, nameof(Price))
-			   || (Order == null || !NHibernateUtil.IsInitialized(Order.OrderItems)))
-			{
-				return false;
-			}
-
-			return true;
-		}
-
 		private decimal CurrentRawPrice => Price * CurrentCount;
-
-		/// <summary>
-		/// Удаляет все скидки
-		/// </summary>
-		public virtual void ClearDiscounts()
-		{
-			if(!DiscountReasons.Any())
-			{
-				return;
-			}
-
-			ClearDiscount();
-			RecalculateVAT();
-		}
 
 		public virtual void SetNomenclature(Nomenclature nomenclature)
 		{
 			Nomenclature = nomenclature;
 			CalculateVATType();
-		}
-
-		private void ClearDiscount()
-		{
-			DiscountReasons.Clear();
-			IsDiscountInMoney = false;
-			DiscountMoney = 0;
-			Discount = 0;
-		}
-
-		private void CalculateAndSetDiscount(decimal value)
-		{
-			if(value == 0)
-			{
-				DiscountReasons.Clear();
-			}
-
-			if((Price * CurrentCount) == 0)
-			{
-				DiscountMoney = 0;
-				Discount = 0;
-				return;
-			}
-			if(IsDiscountInMoney)
-			{
-				DiscountMoney = value > Price * CurrentCount ? Price * CurrentCount : (value < 0 ? 0 : value);
-				Discount = (100 * DiscountMoney) / (Price * CurrentCount);
-			}
-			else
-			{
-				Discount = value > 100 ? 100 : (value < 0 ? 0 : value);
-				DiscountMoney = Price * CurrentCount * Discount / 100;
-			}
-
-			RecalculateVAT();
 		}
 
 		private decimal GetPercentDiscount() => IsDiscountInMoney ? (100 * DiscountMoney) / (Price * CurrentCount) : Discount;
@@ -453,84 +377,12 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		/// <summary>
-		/// Устанавливает скидку в процентах или деньгах.
-		/// При значении 0 очищает все скидки.
-		/// </summary>
-		/// <param name="discount">Значение скидки (проценты 0-100 или деньги 0-цена товара)</param>
-		public virtual void SetDiscount(decimal discount)
-		{
-			if(discount != Discount && discount == 0)
-			{
-				DiscountReasons.Clear();
-			}
-
-			CalculateAndSetDiscount(discount);
-			RecalculateVAT();
-		}
-
-		/// <summary>
 		/// Устанавливает тип скидки (проценты или деньги).
 		/// </summary>
 		/// <param name="isDiscountInMoney">true - скидка в деньгах, false - в процентах</param>
 		public virtual void SetIsDiscountInMoney(bool isDiscountInMoney)
 		{
 			IsDiscountInMoney = isDiscountInMoney;
-			RecalculateVAT();
-		}
-
-		/// <summary>
-		/// Устанавливает ручное изменение скидки.
-		/// Используется при ручном редактировании скидки пользователем.
-		/// </summary>
-		/// <param name="manualChangingDiscount">Новое значение скидки</param>
-		public virtual void SetManualChangingDiscount(decimal manualChangingDiscount)
-		{
-			ManualChangingDiscount = manualChangingDiscount;
-		}
-
-		/*public virtual bool IsDiscountValueCanBeAdded(bool isDiscountInMoney, decimal discount)
-		{
-			var isCalculateInPercent =
-				DiscountReasons.All(x => x.ValueType == DiscountUnits.percent) && !isDiscountInMoney;
-
-			if(isCalculateInPercent)
-			{
-				var totalPercentDiscount = DiscountReasons.Sum(x => x.Value) + discount;
-				return totalPercentDiscount <= 100;
-			}
-
-			var alreadyAddedDiscount = CalculateTotalDiscountInMoneyFromAddedReasons();
-			var discountMoneyToAdd = isDiscountInMoney ? discount : CurrentRawPrice * discount / 100;
-
-			return discountMoneyToAdd + alreadyAddedDiscount <= CurrentRawPrice;
-		}*/
-
-		public virtual bool IsDiscountReasonAdded(DiscountReason discountReason)
-		{
-			if(discountReason is null)
-			{
-				throw new ArgumentNullException(nameof(discountReason));
-			}
-			
-			return DiscountReasons.Any(x => x.Id == discountReason.Id);
-		}
-
-		protected internal virtual void SetDiscount(bool isDiscountInMoney, decimal discount, decimal discountMoney, IList<DiscountReason> discountReasons)
-		{
-			IsDiscountInMoney = isDiscountInMoney;
-			Discount = discount;
-			DiscountMoney = discountMoney;
-
-			DiscountReasons.Clear();
-			foreach(var reason in discountReasons)
-			{
-				if(reason != null && !DiscountReasons.Contains(reason))
-				{
-					DiscountReasons.Add(reason);
-				}
-			}
-
-			RecalculateVAT();
 		}
 
 		internal static OrderItem CreateNewDailyRentServiceItem(IOrderSaleHandler saleHandler, Order order, PaidRentPackage paidRentPackage)
@@ -652,12 +504,12 @@ namespace Vodovoz.Domain.Orders
 				Equipment = null,
 				Nomenclature = newOrderSaleItem.Nomenclature,
 				IsDiscountInMoney = newOrderSaleItem.IsDiscountInMoney,
+				Discount = newOrderSaleItem.Discount,
+				DiscountMoney = newOrderSaleItem.Discount,
 				PromoSet = newOrderSaleItem.PromoSet,
 				GiftItem = newOrderSaleItem.GiftItem
 			};
-
-			newItem.UpdatePriceWithRecalculate(newOrderSaleItem.PriceData, saleHandler);
-
+			
 			if(newOrderSaleItem.DiscountReasons != null && newOrderSaleItem.DiscountReasons.Any())
 			{
 				foreach(var reason in newOrderSaleItem.DiscountReasons)
@@ -676,7 +528,7 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			newItem.CalculateAndSetDiscount(newOrderSaleItem.Discount);
+			newItem.UpdatePriceWithRecalculate(newOrderSaleItem.PriceData, saleHandler);
 
 			return newItem;
 		}
