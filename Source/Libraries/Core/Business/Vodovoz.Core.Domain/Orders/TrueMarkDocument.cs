@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Core.Domain.Orders
@@ -29,6 +30,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private bool _isSuccess;
 		private TrueMarkDocumentType _type;
 		private OrganizationEntity _organization;
+		private WithdrawalEdoTask _withdrawalEdoTask;
 
 		/// <summary>
 		/// Код
@@ -108,6 +110,16 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _organization;
 			set => SetField(ref _organization, value);
+		}
+
+		/// <summary>
+		/// Задача вывода из оборота, по которой создан документ ЧЗ
+		/// </summary>
+		[Display(Name = "Задача вывода из оборота")]
+		public virtual WithdrawalEdoTask WithdrawalEdoTask
+		{
+			get => _withdrawalEdoTask;
+			set => SetField(ref _withdrawalEdoTask, value);
 		}
 	}
 }

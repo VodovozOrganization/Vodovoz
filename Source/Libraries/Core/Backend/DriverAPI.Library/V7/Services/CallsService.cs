@@ -1,3 +1,4 @@
+using DriverApi.Contracts.V7.Responses;
 using Mango.Vpbx.Client.Services;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -11,6 +12,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors.Logistics;
+using Vodovoz.Settings.Mango;
 
 namespace DriverAPI.Library.V7.Services
 {
@@ -24,6 +26,7 @@ namespace DriverAPI.Library.V7.Services
 		private readonly IMangoVpbxCallsService _mangoVpbxCallsService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IMangoSettings _mangoSettings;
 
 		/// <inheritdoc/>
 		public CallsService(
@@ -31,7 +34,8 @@ namespace DriverAPI.Library.V7.Services
 			IUnitOfWork uow,
 			IMangoVpbxCallsService mangoVpbxCallsService,
 			IRouteListRepository routeListRepository,
-			IEmployeeRepository employeeRepository
+			IEmployeeRepository employeeRepository,
+			IMangoSettings mangoSettings
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -39,10 +43,11 @@ namespace DriverAPI.Library.V7.Services
 			_mangoVpbxCallsService = mangoVpbxCallsService ?? throw new ArgumentNullException(nameof(mangoVpbxCallsService));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
 		}
 
 		/// <inheritdoc/>
-		public async Task<Result> MakeCall(int routeListId, Employee driver, string toNumber, CancellationToken cancellationToken)
+		public async Task<Result<GetCallResponse>> MakeCall(int routeListId, Employee driver, string toNumber, CancellationToken cancellationToken)
 		{
 			if(driver is null)
 			{
@@ -58,7 +63,7 @@ namespace DriverAPI.Library.V7.Services
 
 			if(phoneNumberValidationResult.IsFailure)
 			{
-				return Result.Failure(phoneNumberValidationResult.Errors);
+				return Result.Failure<GetCallResponse>(phoneNumberValidationResult.Errors);
 			}
 
 			var routeList =
@@ -70,7 +75,7 @@ namespace DriverAPI.Library.V7.Services
 					"Маршрутный лист с номером {RouteListId} не найден",
 					routeListId);
 
-				return Result.Failure(RouteListErrors.CreateNotFound(routeListId));
+				return Result.Failure<GetCallResponse>(RouteListErrors.CreateNotFound(routeListId));
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
@@ -80,7 +85,7 @@ namespace DriverAPI.Library.V7.Services
 					routeListId,
 					routeList.Status);
 
-				return Result.Failure(RouteListErrors.NotEnRouteState);
+				return Result.Failure<GetCallResponse>(RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeList.Driver is null
@@ -92,7 +97,7 @@ namespace DriverAPI.Library.V7.Services
 					routeListId,
 					routeList.Driver?.Id);
 
-				return Result.Failure(Errors.Security.Authorization.RouteListAccessDenied);
+				return Result.Failure<GetCallResponse>(Errors.Security.Authorization.RouteListAccessDenied);
 			}
 
 			var extension = await _employeeRepository.GetActiveDriverMangoExtensionNumber(_uow, driver.Id, cancellationToken);
@@ -103,7 +108,7 @@ namespace DriverAPI.Library.V7.Services
 					"У водителя с id {DriverId} не найден активный добавочный номер Mango",
 					driver.Id);
 
-				return Result.Failure(Errors.PhoneNumberErrors.CreateActiveMangoExtensionNumberNotFound(driver.Id));
+				return Result.Failure<GetCallResponse>(Errors.PhoneNumberErrors.CreateActiveMangoExtensionNumberNotFound(driver.Id));
 			}
 
 			await _mangoVpbxCallsService.SendCallbackCommand(
@@ -111,7 +116,10 @@ namespace DriverAPI.Library.V7.Services
 				toNumber,
 				cancellationToken);
 
-			return Result.Success();
+			return Result.Success(new GetCallResponse
+			{
+				TimeOut = _mangoSettings.DriversCallTimeOut
+			});
 		}
 
 		private Result ValidatePhoneNumber(string phoneNumber)

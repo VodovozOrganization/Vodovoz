@@ -118,5 +118,35 @@ namespace Vodovoz.Settings.Notifications
 		/// Минимальное время изменения недовоза, начиная с которого недовозы попадают в синхронизацию с Битрикс24.
 		/// </summary>
 		DateTime UndeliveredOrdersMinLastEditedTime { get; }
+
+		/// <summary>
+		/// Идентификатор начальной стадии сделки по плановому заказу в Битрикс24
+		/// </summary>
+		string PlannedOrdersNewStageId { get; }
+
+		/// <summary>
+		/// Идентификатор завершающей стадии сделки по плановому заказу в Битрикс24,
+		/// в которую переводится сделка после создания клиентом заказа
+		/// </summary>
+		string PlannedOrdersCompletedStageId { get; }
+
+		/// <summary>
+		/// Идентификаторы завершённых стадий сделок по плановым заказам в Битрикс24.
+		/// Сделки в этих стадиях не обновляются
+		/// </summary>
+		string[] PlannedOrdersFinalStageIds { get; }
+
+		/// <summary>
+		/// Дата и время, начиная с которых ищутся созданные клиентами заказы
+		/// для обновления сделок по плановым заказам
+		/// </summary>
+		DateTime PlannedOrdersLastOrdersCheckDate { get; }
+
+		/// <summary>
+		/// Сохранение даты и времени, начиная с которых ищутся созданные клиентами заказы
+		/// для обновления сделок по плановым заказам
+		/// </summary>
+		/// <param name="lastOrdersCheckDate">Дата и время последней проверки созданных заказов</param>
+		void UpdatePlannedOrdersLastOrdersCheckDate(DateTime lastOrdersCheckDate);
 	}
 }

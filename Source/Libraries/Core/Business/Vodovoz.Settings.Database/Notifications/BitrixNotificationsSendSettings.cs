@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
 using Vodovoz.Settings.Notifications;
 
 namespace Vodovoz.Settings.Database.Notifications
@@ -7,6 +9,8 @@ namespace Vodovoz.Settings.Database.Notifications
 	{
 		private readonly ISettingsController _settingsController;
 		private readonly string _parametersPrefix = "BitrixNotifications.";
+		private const char _stageIdsSeparator = ',';
+		private const string _dateSettingFormat = "yyyy-MM-dd";
 
 		public BitrixNotificationsSendSettings(ISettingsController settingsController)
 		{
@@ -79,5 +83,27 @@ namespace Vodovoz.Settings.Database.Notifications
 
 		public DateTime UndeliveredOrdersMinLastEditedTime =>
 			_settingsController.GetDateTimeValue($"{_parametersPrefix}UndeliveredOrdersMinLastEditedTime");
+
+		public string PlannedOrdersNewStageId =>
+			_settingsController.GetStringValue($"{_parametersPrefix}PlannedOrdersNewStageId");
+
+		public string PlannedOrdersCompletedStageId =>
+			_settingsController.GetStringValue($"{_parametersPrefix}PlannedOrdersCompletedStageId");
+
+		public string[] PlannedOrdersFinalStageIds =>
+			_settingsController.GetStringValue($"{_parametersPrefix}PlannedOrdersFinalStageIds")
+			?.Split(_stageIdsSeparator)
+			.Select(x => x.Trim())
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.ToArray()
+			?? Array.Empty<string>();
+
+		public DateTime PlannedOrdersLastOrdersCheckDate =>
+			_settingsController.GetDateTimeValue($"{_parametersPrefix}PlannedOrdersLastOrdersCheckDate");
+
+		public void UpdatePlannedOrdersLastOrdersCheckDate(DateTime lastOrdersCheckDate) =>
+			_settingsController.CreateOrUpdateSetting(
+				$"{_parametersPrefix}PlannedOrdersLastOrdersCheckDate",
+				lastOrdersCheckDate.ToString(_dateSettingFormat, CultureInfo.InvariantCulture));
 	}
 }

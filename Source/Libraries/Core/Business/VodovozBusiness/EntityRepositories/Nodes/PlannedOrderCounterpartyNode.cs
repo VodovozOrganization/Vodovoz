@@ -1,3 +1,4 @@
+using QS.Utilities.Text;
 using Vodovoz.Core.Domain.Clients;
 
 namespace VodovozBusiness.EntityRepositories.Nodes
@@ -31,5 +32,33 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		/// Отсрочка по оплате для контрагента в днях
 		/// </summary>
 		public int DelayDaysForBuyers { get; set; }
+
+		/// <summary>
+		/// Id закрепленного за контрагентом менеджера по продажам
+		/// </summary>
+		public int? SalesManagerId { get; set; }
+
+		/// <summary>
+		/// Фамилия менеджера по продажам
+		/// </summary>
+		public string SalesManagerLastName { get; set; }
+
+		/// <summary>
+		/// Имя менеджера по продажам
+		/// </summary>
+		public string SalesManagerFirstName { get; set; }
+
+		/// <summary>
+		/// Отчество менеджера по продажам
+		/// </summary>
+		public string SalesManagerPatronymic { get; set; }
+
+		/// <summary>
+		/// ФИО менеджера по продажам, пусто - если менеджер не закреплен за контрагентом
+		/// </summary>
+		public string SalesManagerFullName =>
+			SalesManagerId.HasValue
+			? PersonHelper.PersonFullName(SalesManagerLastName, SalesManagerFirstName, SalesManagerPatronymic)
+			: null;
 	}
 }

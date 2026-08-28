@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Vodovoz.Settings.Edo
 {
@@ -45,5 +46,15 @@ namespace Vodovoz.Settings.Edo
 		/// Интервал в часах, через который будет вызываться процесс очистки использованных кодов из пула
 		/// </summary>
 		int UsedCodesCleanerIntervalHours { get; }
+
+		/// <summary>
+		/// Эндпоинт для получения статуса документооборота в Taxcom
+		/// </summary>
+		string TaxcomGetDocflowStatusEndpoint { get; }
+
+		/// <summary>
+		/// Словарь сопоставления ID организации с базовым адресом Taxcom
+		/// </summary>
+		IReadOnlyDictionary<int, string> TaxcomOrganizationBaseAddresses { get; }
 	}
 }

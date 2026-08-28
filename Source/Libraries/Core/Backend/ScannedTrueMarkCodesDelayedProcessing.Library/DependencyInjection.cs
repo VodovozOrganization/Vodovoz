@@ -21,9 +21,11 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library
 			services
 				.AddMessageTransportSettings()
 				.AddEdoMassTransit()
+				.AddCodesPool()
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>()
+				.AddScoped<ITrueMarkCodesPoolCleanupService, TrueMarkCodesPoolCleanupService>()
 				.AddScoped<ScannedCodesDelayedProcessingService>();
 
 			return services;

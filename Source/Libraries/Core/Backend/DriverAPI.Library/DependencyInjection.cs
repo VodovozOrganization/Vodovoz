@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Osrm;
 using System.Linq;
+using TrueMark.Codes.Pool;
 using Vodovoz;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application;
@@ -168,6 +169,7 @@ namespace DriverAPI.Library
 			services.AddScoped<TrueMarkCodesPoolFactory>();
 
 			return services
+				.AddCodesPool()
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>();

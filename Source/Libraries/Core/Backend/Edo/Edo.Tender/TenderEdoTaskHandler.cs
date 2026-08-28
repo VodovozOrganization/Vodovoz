@@ -217,23 +217,36 @@ namespace Edo.Tender
 				throw new EdoProblemException(new ResaleHasInvalidCodesException(), affectedCodes);
 			}
 
-			// создать трансфер
-			var iteration = await _transferRequestCreator.CreateTransferRequests(
-				_uow,
-				tenderEdoTask,
-				trueMarkCodesChecker,
-				cancellationToken
-			);
-
 			tenderEdoTask.Status = EdoTaskStatus.InProgress;
-			tenderEdoTask.Stage = TenderEdoTaskStage.Transfering;
 
-			var message = new TransferRequestCreatedEvent { TransferIterationId = iteration.Id };
+			TransferRequestCreatedEvent message = null;
+			if(taskValidationResult.ReadyToSell)
+			{
+				tenderEdoTask.Stage = TenderEdoTaskStage.Sending;
+			}
+			else
+			{
+				var iteration = await _transferRequestCreator.CreateTransferRequests(
+					_uow,
+					tenderEdoTask,
+					trueMarkCodesChecker,
+					cancellationToken
+				);
+
+				tenderEdoTask.Stage = TenderEdoTaskStage.Transfering;
+				message = new TransferRequestCreatedEvent
+				{
+					TransferIterationId = iteration.Id
+				};
+			}
 
 			await _uow.SaveAsync(tenderEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-			await _messageBus.Publish(message, cancellationToken);
+			if(message != null)
+			{
+				await _messageBus.Publish(message, cancellationToken);
+			}
 		}
 
 		// handle transfered

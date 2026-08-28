@@ -73,6 +73,14 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 					}
 
 					await dealsCreateService.SendNotCreatedDeals(stoppingToken);
+
+					_logger.LogInformation("Запуск поиска заказов, созданных клиентами по плановым заказам");
+
+					await dealsCreateService.CollectCreatedOrders(stoppingToken);
+
+					_logger.LogInformation("Окончание поиска заказов, созданных клиентами по плановым заказам");
+
+					await dealsCreateService.SendDealsUpdates(stoppingToken);
 				}
 
 				await _zabbixSender.SendIsHealthyAsync(nameof(PlannedOrdersDealsCreateWorker), stoppingToken);
