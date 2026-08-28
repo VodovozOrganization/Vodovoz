@@ -224,6 +224,16 @@ namespace Vodovoz.Representations
 			return resultExpression;
 		}
 
+		private IQueryOver<Order, Order> ApplyLastOrderStatusFilter(IQueryOver<Order, Order> ordersQuery)
+		{
+			if(_filterViewModel == null || !_filterViewModel.ShowAllOrderStatuses)
+			{
+				return ordersQuery.And((x) => x.OrderStatus == OrderStatus.Closed);
+			}
+
+			return ordersQuery;
+		}
+
 		protected Func<IUnitOfWork, int> CountQueryFunction => (uow) =>
 		{
 			DeliveryPoint deliveryPointAlias = null;
@@ -391,10 +401,7 @@ namespace Vodovoz.Representations
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
 			}
 
-			if(_filterViewModel == null || !_filterViewModel.ShowAllOrderStatuses)
-			{
-				ordersQuery = ordersQuery.And((x) => x.OrderStatus == OrderStatus.Closed);
-			}
+			ordersQuery = ApplyLastOrderStatusFilter(ordersQuery);
 
 			if(_filterViewModel != null && _filterViewModel.DebtorsTaskStatus != null)
 			{
@@ -1056,10 +1063,7 @@ namespace Vodovoz.Representations
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
 			}
 
-			if(_filterViewModel == null || !_filterViewModel.ShowAllOrderStatuses)
-			{
-				ordersQuery = ordersQuery.And((x) => x.OrderStatus == OrderStatus.Closed);
-			}
+			ordersQuery = ApplyLastOrderStatusFilter(ordersQuery);
 
 			#region Filter
 
