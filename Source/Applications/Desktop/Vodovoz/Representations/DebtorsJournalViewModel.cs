@@ -313,11 +313,17 @@ namespace Vodovoz.Representations
 
 			#region LastOrder
 
-			var lastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
+			var lastOrderQuery = QueryOver.Of(() => lastOrderAlias)
 				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
-					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
+					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id));
+
+			if(_filterViewModel == null || !_filterViewModel.ShowAllOrderStatuses)
+			{
+				lastOrderQuery.And((x) => x.OrderStatus == OrderStatus.Closed);
+			}
+
+			var lastOrderIdQuery = lastOrderQuery
 				.Select(Projections.Property<Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.Id).Desc
 				.Take(1);
@@ -752,6 +758,11 @@ namespace Vodovoz.Representations
 				query.And(() => lastOrderAlias.DeliveryDate <= _filterViewModel.EndDate);
 			}
 
+			if(_filterViewModel == null || !_filterViewModel.ShowAllOrderStatuses)
+			{
+				query.And((x) => x.OrderStatus == OrderStatus.Closed);
+			}
+
 			return query;
 		}
 
@@ -974,9 +985,16 @@ namespace Vodovoz.Representations
 
 			#region LastOrder
 
-			var lastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
+			var lastOrderQuery = QueryOver.Of(() => lastOrderAlias)
 				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
-				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
+				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id));
+
+			if(_filterViewModel == null || !_filterViewModel.ShowAllOrderStatuses)
+			{
+				lastOrderQuery.And((x) => x.OrderStatus == OrderStatus.Closed);
+			}
+
+			var lastOrderIdQuery = lastOrderQuery
 				.Select(Projections.Property<Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.Id).Desc
 				.Take(1);
@@ -1049,11 +1067,6 @@ namespace Vodovoz.Representations
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
 			}
 
-			if(_filterViewModel != null && !_filterViewModel.ShowAllOrderStatuses)
-			{
-				ordersQuery.And((x) => x.OrderStatus == OrderStatus.Closed);
-			}
-			
 			#region Filter
 
 			if(_filterViewModel != null)
