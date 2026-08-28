@@ -33,6 +33,7 @@ namespace EdoDocumentFlowUpdater
 {
 	public class TaxcomEdoDocumentFlowUpdater : BackgroundService
 	{
+		private const string _postDateConfirmation = "PostDateConfirmation";
 		private const string _trueMarkAccepted = "TracingAccepted";
 		private const string _trueMarkRejected = "TracingRejected";
 		private const string _trueMarkCancellationAccepted = "TracingCancellationAccepted";
@@ -243,8 +244,11 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 
-			var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
-			var isReceived = recievedStatuses.Contains(docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
+			/*var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
+			var isReceived = recievedStatuses.Contains(docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);*/
+
+			var isReceived =
+				docflow.Documents.FirstOrDefault(x => x.TransactionCode == _postDateConfirmation) != null;
 
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent
 			{
