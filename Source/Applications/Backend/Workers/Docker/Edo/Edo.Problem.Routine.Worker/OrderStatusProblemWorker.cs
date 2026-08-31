@@ -49,9 +49,6 @@ namespace Edo.Problem.Routine.Worker
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при обработке задач ЭДО с активной проблемой статуса заказа");
-
-				await zabbixSender.SendProblemMessageAsync(nameof(OrderStatusProblemWorker), ZabixSenderMessageType.Problem,
-					$"Ошибка при обработке задач ЭДО с активной проблемой статуса заказа: {ex.Message}", stoppingToken);
 			}			
 		}
 	}
