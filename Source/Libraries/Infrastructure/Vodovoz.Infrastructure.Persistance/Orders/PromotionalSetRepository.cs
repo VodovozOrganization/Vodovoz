@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.SqlCommand;
-using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Nodes;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Nodes;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
@@ -91,6 +86,64 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List<VodovozOrder>();
 
 			return result.Count != 0;
+		}
+
+		/// <inheritdoc/>
+		public IEnumerable<OnlineOrderPromoSetNode> GetOnlineOrderPromoSetsData(IUnitOfWork uow, int onlineOrderId)
+		{
+			var promoSetQuery =
+				from onlinePromoSet in uow.Session.Query<OnlineOrderPromoSet>()
+				join promoSet in uow.Session.Query<PromotionalSet>()
+					on onlinePromoSet.PromoSet.Id equals promoSet.Id
+				where onlinePromoSet.OnlineOrder.Id == onlineOrderId
+				select new OnlineOrderPromoSetNode
+				{
+					Id = onlinePromoSet.Id,
+					Name = promoSet.Name,
+					Count = onlinePromoSet.Count,
+					ReceivedPrice = onlinePromoSet.Price
+				};
+
+			return promoSetQuery.ToList();
+		}
+
+		/// <inheritdoc/>
+		public IEnumerable<OnlineOrderPromoSetItemNode> GetOnlineOrderPromoSetItemsData(IUnitOfWork uow, int onlineOrderId)
+		{
+			var itemsQuery =
+				from onlinePromoSet in uow.Session.Query<OnlineOrderPromoSet>()
+				join promoSet in uow.Session.Query<PromotionalSet>()
+					on onlinePromoSet.PromoSet.Id equals promoSet.Id
+				join promoSetItem in uow.Session.Query<PromotionalSetItem>()
+					on onlinePromoSet.Id equals promoSetItem.PromoSet.Id
+				join nomenclature in uow.Session.Query<Nomenclature>()
+					on promoSetItem.Nomenclature.Id equals nomenclature.Id
+				join dependNomenclature in uow.Session.Query<Nomenclature>()
+					on nomenclature.DependsOnNomenclature equals dependNomenclature into groupDependNomenclatures
+				from dependNomenclature in groupDependNomenclatures.DefaultIfEmpty()
+				where onlinePromoSet.OnlineOrder.Id == onlineOrderId
+
+				let nomenclaturePrice =
+					from price in uow.Session.Query<NomenclaturePrice>()
+					where price.Nomenclature.Id == nomenclature.Id
+						&& price.MinCount == 1
+					select price.Price
+				
+				let dependNomenclaturePrice =
+					from dependPrice in uow.Session.Query<NomenclaturePrice>()
+					where dependPrice.Nomenclature.Id == dependNomenclature.Id
+						&& dependPrice.MinCount == 1
+					select dependPrice.Price
+
+				select new OnlineOrderPromoSetItemNode
+				{
+					OnlinePromoSetId = onlinePromoSet.Id,
+					Name = nomenclature.Name,
+					Count = promoSetItem.Count * onlinePromoSet.Count,
+					OurPrice = dependNomenclature != null ? dependNomenclaturePrice.FirstOrDefault() : nomenclaturePrice.FirstOrDefault()
+				};
+			
+			return itemsQuery.ToList();
 		}
 
 		private string GetBuildingNumber(string building)

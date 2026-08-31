@@ -14,8 +14,8 @@ using System.Threading;
 using MySqlConnector;
 using QS.Utilities.Debug;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Services.Orders;
 using CustomerOnlineOrdersRegistrar.V4.Factories;
+using VodovozBusiness.Factories;
 
 namespace CustomerOnlineOrdersRegistrar.V4.Consumers
 {
@@ -29,7 +29,7 @@ namespace CustomerOnlineOrdersRegistrar.V4.Consumers
 		private readonly IOnlineOrderCancellationReasonSettings _onlineOrderCancellationReasonSettings;
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
-		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
+		private readonly IOnlineOrderValidatorCreator _onlineOrderValidatorCreator;
 
 		protected ILogger<OnlineOrderConsumer> Logger { get; }
 
@@ -43,7 +43,7 @@ namespace CustomerOnlineOrdersRegistrar.V4.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator
+			IOnlineOrderValidatorCreator onlineOrderValidatorCreator
 			)
 		{
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -56,7 +56,7 @@ namespace CustomerOnlineOrdersRegistrar.V4.Consumers
 				onlineOrderCancellationReasonSettings ?? throw new ArgumentNullException(nameof(onlineOrderCancellationReasonSettings));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
-			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
+			_onlineOrderValidatorCreator = onlineOrderValidatorCreator ?? throw new ArgumentNullException(nameof(onlineOrderValidatorCreator));
 		}
 				
 		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderAsync(ICreatingOnlineOrder message, CancellationToken cancellationToken)
@@ -70,7 +70,10 @@ namespace CustomerOnlineOrdersRegistrar.V4.Consumers
 				_discountReasonSettings.GetSelfDeliveryDiscountReasonId
 			);
 
-			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);
+			var validationResult = _onlineOrderValidatorCreator
+				.Create(onlineOrder)
+				.Validate(uow);
+			
 			var externalOrderId = message.ExternalOrderId;
 			var needSpecialProcessingDuplicate = NeedSpecialProcessingDuplicate(uow, onlineOrder);
 

@@ -4,8 +4,8 @@ using System.Linq;
 using CustomerAppsApi.Library.V2.Dto;
 using CustomerAppsApi.Library.V2.Dto.Goods;
 using CustomerAppsApi.Library.V2.Dto.Goods.Attributes;
-using CustomerAppsApi.Library.V2.Extensions;
 using Vodovoz.Converters;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Goods;
 
 namespace CustomerAppsApi.Library.V2.Factories

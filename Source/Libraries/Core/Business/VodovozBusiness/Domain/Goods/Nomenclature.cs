@@ -351,6 +351,16 @@ namespace Vodovoz.Domain.Goods
 			return false;
 		}
 		
+		/// <summary>
+		/// Получение цены позиции промонабора
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns>Стоимость</returns>
+		public override (SaleItemPriceType PriceType, decimal Price) GetPromoSetItemPrice(bool useAlternativePrice = false)
+		{
+			return GetPrice(1, useAlternativePrice);
+		}
+		
 		public override (SaleItemPriceType PriceType, decimal Price) GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
 		{
 			if(itemsCount < 1)

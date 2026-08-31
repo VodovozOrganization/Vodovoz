@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Errors;
 using Vodovoz.Handlers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Nodes;
@@ -16,7 +17,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 	{
 		private readonly IGenericRepository<NomenclatureFixedPrice> _nomenclatureFixedPriceRepository;
 
-		public OnlineOrderFixedPriceHandler(IGenericRepository<NomenclatureFixedPrice> nomenclatureFixedPriceRepository)
+		public OnlineOrderFixedPriceHandler(
+			IGenericRepository<NomenclatureFixedPrice> nomenclatureFixedPriceRepository
+			)
 		{
 			_nomenclatureFixedPriceRepository =
 				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
@@ -73,6 +76,23 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			return TryApplyFixedPrice(canApplyOnlineOrderFixedPrice, fixedPrices);
 		}
+		
+		public Result<IEnumerable<IOrderedCartItem>> TryApplyFixedPriceV7(
+			IUnitOfWork uow,
+			CanApplyOnlineOrderFixedPriceV7 canApplyOnlineOrderFixedPrice)
+		{
+			if(!HasFixedPrices(
+					uow,
+					canApplyOnlineOrderFixedPrice.CounterpartyId,
+					canApplyOnlineOrderFixedPrice.DeliveryPointId,
+					canApplyOnlineOrderFixedPrice.IsSelfDelivery,
+					out var fixedPrices))
+			{
+				return Result.Failure<IEnumerable<IOrderedCartItem>>(Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
+			}
+
+			return TryApplyFixedPrice(canApplyOnlineOrderFixedPrice.OnlineOrderItems, fixedPrices);
+		}
 
 		private Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> TryApplyFixedPrice(
 			CanApplyOnlineOrderFixedPrice canApplyOnlineOrderFixedPrice,
@@ -111,7 +131,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return Result.Success(itemsWithFixedPrice.AsEnumerable());
 		}
 
-		private bool CanApplyFixedPrice(IOnlineOrderedProduct onlineItem, NomenclatureFixedPrice fixedPrice)
+		private bool CanApplyFixedPrice(ICanApplyFixedPriceOnline onlineItem, NomenclatureFixedPrice fixedPrice)
 		{
 			if(onlineItem.PromoSetId.HasValue)
 			{
@@ -129,6 +149,52 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 
 			if(fixedPrice.Price >= onlineItem.PriceWithDiscount)
+			{
+				return false;
+			}
+			
+			return true;
+		}
+		
+		private Result<IEnumerable<IOrderedCartItem>> TryApplyFixedPrice(
+			IEnumerable<IOrderedCartItem> cartItems,
+			IEnumerable<NomenclatureFixedPrice> fixedPrices)
+		{
+			foreach(var cartItem in cartItems)
+			{
+				foreach(var fixedPrice in fixedPrices)
+				{
+					if(!CanApplyFixedPriceV7(cartItem, fixedPrice))
+					{
+						continue;
+					}
+
+					cartItem.AddFixedPrice(fixedPrice.Price);
+					break;
+				}
+			}
+			
+			return Result.Success(cartItems);
+		}
+		
+		private bool CanApplyFixedPriceV7(IOrderedCartItem cartItem, NomenclatureFixedPrice fixedPrice)
+		{
+			if(cartItem.ItemType is SaleItemType.PromoSet or SaleItemType.RentPackage)
+			{
+				return false;
+			}
+
+			if(cartItem.ErpId != fixedPrice.Nomenclature.Id)
+			{
+				return false;
+			}
+
+			if(cartItem.Count < fixedPrice.MinCount)
+			{
+				return false;
+			}
+
+			if(fixedPrice.Price >= cartItem.CurrentPrice)
 			{
 				return false;
 			}

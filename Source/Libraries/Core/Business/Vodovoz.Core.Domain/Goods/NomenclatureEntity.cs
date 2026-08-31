@@ -1377,6 +1377,16 @@ namespace Vodovoz.Core.Domain.Goods
 				fileInformation.NomenclatureId = Id;
 			}
 		}
+		
+		/// <summary>
+		/// Получение цены номенклатуры для позиции промонабора
+		/// </summary>
+		/// <param name="useAlternativePrice">Использовать ли альтернативную цену</param>
+		/// <returns></returns>
+		public virtual (SaleItemPriceType PriceType, decimal Price) GetPromoSetItemPrice(bool useAlternativePrice = false)
+		{
+			return GetPrice(1, useAlternativePrice);
+		}
 
 		/// <summary>
 		/// Получение цены номенклатуры

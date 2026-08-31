@@ -6,6 +6,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -21,10 +22,12 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class OnlineOrder : PropertyChangedBase, IDomainObject, IValidatableObject
+	public abstract class OnlineOrder : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public const string OnlineOrderName = "Онлайн заказ";
+		public const string OrderVersionColumn = "order_version";
 		public const int CommentMaxLength = 750;
+		
 		private DateTime _version;
 		private DateTime _created;
 		private Source _source;
@@ -64,7 +67,6 @@ namespace Vodovoz.Domain.Orders
 		private DateTime? _nextCallDate;
 		private IList<OnlineOrderOperatorComments> _operatorComments = new List<OnlineOrderOperatorComments>();
 		private DateTime? _nextCallDateChanged;
-
 
 		public virtual int Id { get; set; }
 		
@@ -349,6 +351,11 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		/// <summary>
+		/// Версия онлайн заказа
+		/// </summary>
+		public abstract OnlineOrderVersion OrderVersion { get; }
+
+		/// <summary>
 		/// Заказ не оплачен онлайн и время на оплату не истекло
 		/// </summary>
 		/// <param name="timeToPayInSeconds">Общее время на оплату в секундах</param>
@@ -517,6 +524,15 @@ namespace Vodovoz.Domain.Orders
 		{
 			ClearPaymentData();
 			UnPaidReason = null;
+		}
+		
+		/// <summary>
+		/// Необходимо чтобы Nhibernate мог привести  Proxy базового класса (OrderEdoTask)
+		/// к конкретному классу наследнику
+		/// </summary>
+		public virtual T As<T>() where T : OnlineOrder
+		{
+			return this as T;
 		}
 	}
 }

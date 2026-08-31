@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
@@ -12,17 +12,21 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 {
 	internal sealed class DiscountReasonRepository : IDiscountReasonRepository
 	{
-		/// <summary>
-		/// Возврат отсортированного списка скидок
-		/// </summary>
-		/// <returns>Список скидок</returns>
-		/// <param name="UoW">UoW</param>
-		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию имени скидки</param>
-		public IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false)
+		/// <inheritdoc/>
+		public IList<DiscountReason> GetDiscountReasons(IUnitOfWork uow, bool orderByDescending = false)
 		{
-			var query = UoW.Session.QueryOver<DiscountReason>()
+			var query = uow.Session.QueryOver<DiscountReason>()
 				.OrderBy(i => i.Name);
 			return orderByDescending ? query.Desc().List() : query.Asc().List();
+		}
+		
+		/// <inheritdoc/>
+		public IEnumerable<DiscountReason> GetDiscountReasons(IUnitOfWork uow, IEnumerable<int> disсountReasonIds)
+		{
+			var query = uow.Session.Query<DiscountReason>()
+				.Where(x => disсountReasonIds.Contains(x.Id));
+			
+			return query.ToList();
 		}
 
 		public IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow)
@@ -124,8 +128,13 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 				.SingleOrDefault();
 		}
 
-		public bool HasBeenUsagePromoCode(IUnitOfWork uow, int counterpartyId, int discountReasonId)
+		public bool HasBeenUsagePromoCode(IUnitOfWork uow, int? counterpartyId, int discountReasonId)
 		{
+			if(!counterpartyId.HasValue)
+			{
+				return true;
+			}
+
 			var onlineOrderItems = 
 				from onlineOrderItem in uow.Session.Query<OnlineOrderItem>()
 				join onlineOrder in uow.Session.Query<OnlineOrder>()
