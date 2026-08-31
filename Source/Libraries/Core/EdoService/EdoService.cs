@@ -123,9 +123,9 @@ namespace EdoService.Library
 			}
 		}
 
-		public Result<string> ScheduleResendEdoDocumentAfterTrueMarkCancellation(int taskId)
+		public Result<string> ResendEdoDocumentWithOriginalCodes(int taskId)
 		{
-			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку после отмены вывода из оборота в ЧЗ"))
+			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку с исходными кодами"))
 			{
 				var edoTask = GetEdoTaskWithPessimisticLock(uow, taskId);
 				if(edoTask is null)
@@ -138,27 +138,6 @@ namespace EdoService.Library
 				if(orderValidationResult.IsFailure)
 				{
 					return Result.Failure<string>(orderValidationResult.Errors);
-				}
-
-				var existingCancellationRequest = uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
-					.FirstOrDefault(x => x.OriginalEdoTask.Id == taskId);
-
-				if(existingCancellationRequest != null)
-				{
-					if(existingCancellationRequest.Status != EdoResendAfterTrueMarkCancellationStatus.CancellationFailed)
-					{
-						return Result.Success(
-							existingCancellationRequest.Status == EdoResendAfterTrueMarkCancellationStatus.Completed
-								? "Переотправка документа уже запущена"
-								: "Документ уже находится в очереди на отмену вывода кодов из оборота и переотправку");
-					}
-
-					existingCancellationRequest.RetryCancellation();
-					uow.Save(existingCancellationRequest);
-					uow.Commit();
-
-					return Result.Success("Повторная отмена вывода кодов из оборота поставлена в очередь");
-
 				}
 
 				var withdrawalTaskIds = GetWithdrawalTaskIdsForBaseTask(uow, taskId);
@@ -181,36 +160,19 @@ namespace EdoService.Library
 
 				var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(edoTask);
 				var resendEdoRequest = _manualEdoRequestFactory.Create(uow, order, productCodes);
-				var withdrawalDocumentResult = GetSuccessfulWithdrawalDocumentForTask(
-					uow,
-					taskId,
-					order.Id,
-					withdrawalTaskIds);
-				if(withdrawalDocumentResult.IsFailure)
-				{
-					return Result.Failure<string>(withdrawalDocumentResult.Errors);
-				}
-
-				var withdrawalDocument = withdrawalDocumentResult.Value;
 
 				CancelEdoTaskWithReason(uow, edoTask);
 				uow.Save(resendEdoRequest);
-
-				var cancellationRequest = new EdoResendAfterTrueMarkCancellationRequest
-				{
-					Order = order,
-					OriginalEdoTask = edoTask,
-					ResendEdoRequest = resendEdoRequest,
-					WithdrawalDocument = withdrawalDocument,
-					Status = EdoResendAfterTrueMarkCancellationStatus.WaitingForCancellation,
-					CreationTime = DateTime.Now,
-					LastUpdateTime = DateTime.Now
-				};
-
-				uow.Save(cancellationRequest);
 				uow.Commit();
 
-				return Result.Success("Документ поставлен в очередь на переотправку после отмены вывода кодов из оборота в ЧЗ");
+				_edoRequestCreatedEventPublisher.Publish(
+					resendEdoRequest.Id,
+					"Ручная переотправка документов ЭДО с исходными кодами")
+					.ConfigureAwait(false)
+					.GetAwaiter()
+					.GetResult();
+
+				return Result.Success("Документ отправлен на переотправку с исходными кодами");
 			}
 		}
 
@@ -503,59 +465,6 @@ namespace EdoService.Library
 				.Where(x => x.BaseDocumentEdoTask.Id == taskId && x.Task != null)
 				.Select(x => x.Task.Id)
 				.ToArray();
-		}
-
-		private static Result<TrueMarkDocument> GetSuccessfulWithdrawalDocumentForTask(
-			IUnitOfWork uow,
-			int taskId,
-			int orderId,
-			IEnumerable<int> withdrawalTaskIds)
-		{
-			var withdrawalTaskIdsArray = withdrawalTaskIds ?? Array.Empty<int>();
-			var withdrawalDocuments = withdrawalTaskIdsArray.Any()
-				? uow.GetAll<TrueMarkDocument>()
-					.Where(x => x.WithdrawalEdoTask != null
-						&& withdrawalTaskIdsArray.Contains(x.WithdrawalEdoTask.Id)
-						&& x.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal
-						&& x.IsSuccess
-						&& x.Guid != null)
-					.ToArray()
-				: Array.Empty<TrueMarkDocument>();
-
-			if(withdrawalDocuments.Length == 0)
-			{
-				// У документов, созданных до добавления связи с задачей вывода, доступна только привязка к заказу.
-				withdrawalDocuments = uow.GetAll<TrueMarkDocument>()
-					.Where(x => x.Order.Id == orderId
-						&& x.WithdrawalEdoTask == null
-						&& x.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal
-						&& x.IsSuccess
-						&& x.Guid != null)
-					.ToArray();
-			}
-
-			if(withdrawalDocuments.Length == 0)
-			{
-				if(!withdrawalTaskIdsArray.Any())
-				{
-					return Result.Failure<TrueMarkDocument>(new Error(
-						"WithdrawalRequestForTaskNotFound",
-						$"Не найдена заявка на вывод кодов из оборота для задачи ЭДО {taskId}"));
-				}
-
-				return Result.Failure<TrueMarkDocument>(new Error(
-					"WithdrawalDocumentForTaskNotFound",
-					$"Не найден успешный документ вывода кодов из оборота для задачи ЭДО {taskId}"));
-			}
-
-			if(withdrawalDocuments.Length > 1)
-			{
-				return Result.Failure<TrueMarkDocument>(new Error(
-					"WithdrawalDocumentForTaskNotUnique",
-					$"Найдено несколько документов вывода кодов из оборота для задачи ЭДО {taskId}"));
-			}
-
-			return Result.Success(withdrawalDocuments.Single());
 		}
 
 		/// <summary>
@@ -961,7 +870,9 @@ namespace EdoService.Library
 		private void CancelEdoTaskWithReason(IUnitOfWork uow, EdoTask edoTask)
 		{
 			var cancellationReason = $"Новая ручная переотправка пользователем {_userService.GetCurrentUser().Name}";
-			_edoCancellationService.CancelTask(edoTask.Id, cancellationReason, true, uow: uow).GetAwaiter().GetResult();
+			_edoCancellationService.CancelTask(edoTask.Id, cancellationReason, true, uow: uow, needCommit: false)
+				.GetAwaiter()
+				.GetResult();
 		}
 
 		private Result CanResendReceipt(ReceiptEdoTask receiptTask)
