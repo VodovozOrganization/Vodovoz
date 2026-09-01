@@ -17,12 +17,12 @@ namespace VodovozBusiness.Domain.Orders
 	)]
 	public class PersonalDiscount : PropertyChangedBase, IDomainObject
 	{
-		private readonly DiscountReason _discountReason;
+		private readonly DiscountReasonBase _discountReason;
 		
 		public PersonalDiscount() { }
 		
 		protected PersonalDiscount(
-			DiscountReason discountReason,
+			DiscountReasonBase discountReason,
 			IDiscountReasonSettings discountReasonSettings)
 		{
 			if(discountReason is null)
@@ -53,7 +53,7 @@ namespace VodovozBusiness.Domain.Orders
 		/// Основание скидки
 		/// </summary>
 		[Display(Name = "Основание скидки")]
-		public virtual DiscountReason DiscountReason => _discountReason;
+		public virtual DiscountReasonBase DiscountReason => _discountReason;
 		
 		/// <summary>
 		/// Параметры скидки <see cref="Vodovoz.Core.Domain.Interfaces.IDiscountValue"/>
@@ -80,7 +80,7 @@ namespace VodovozBusiness.Domain.Orders
 			DiscountValue.SetDiscount(discount, isDiscountMoney);
 		}
 
-		public static PersonalDiscount Create(DiscountReason personalDiscountReason, IDiscountReasonSettings discountReasonSettings) =>
+		public static PersonalDiscount Create(DiscountReasonBase personalDiscountReason, IDiscountReasonSettings discountReasonSettings) =>
 			new PersonalDiscount(personalDiscountReason, discountReasonSettings);
 		
 		public static PersonalDiscount Copy(PersonalDiscount copyingPersonalDiscount) =>

@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			ISaleItem
 	{
 		private PersonalDiscount _personalDiscount;
-		private IObservableList<DiscountReason> _discountReasons = new ObservableList<DiscountReason>();
+		private IObservableList<DiscountReasonBase> _discountReasons = new ObservableList<DiscountReasonBase>();
 		private bool _isAlternativePrice;
 		private bool _isFixedPrice;
 
@@ -111,7 +111,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		}
 
 		[Display(Name = "Основания скидок на товар")]
-		public virtual IObservableList<DiscountReason> DiscountReasons {
+		public virtual IObservableList<DiscountReasonBase> DiscountReasons {
 			get => _discountReasons;
 			set => SetField(ref _discountReasons, value);
 		}
@@ -143,9 +143,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		/// <inheritdoc/>
 		public virtual PromotionalSet PromoSet => null;
 		/// <inheritdoc/>
-		IList<DiscountReason> IApplyDiscountReasonItem.DiscountReasons => DiscountReasons;
-		/// <inheritdoc/>
-		decimal IApplyDiscountReasonItem.CurrentRawPrice => CurrentRawPrice;
+		IList<DiscountReasonBase> IApplyDiscountReasonItem.DiscountReasons => DiscountReasons;
 		/// <inheritdoc/>
 		public IDiscountValue DiscountData => DiscountValue.Create(IsDiscountInMoney, Discount, DiscountMoney);
 		/// <inheritdoc/>
@@ -193,7 +191,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		}
 
 		PromotionalSet IGetFixedPrice.PromoSet => null;
-		IEnumerable<DiscountReason> IDiscountReasons.DiscountReasons => DiscountReasons;
+		IEnumerable<DiscountReasonBase> IDiscountReasons.DiscountReasons => DiscountReasons;
 		
 		#endregion
 		
@@ -270,9 +268,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		/// <summary>
 		/// Текущее количество товара
 		/// </summary>
-		public decimal CurrentCount => Count;
+		public virtual decimal CurrentCount => Count;
 
-		private decimal CurrentRawPrice => Price * CurrentCount;
+		public virtual decimal CurrentRawPrice => Price * CurrentCount;
 
 		/// <summary>
 		/// Наименования оснований скидки через запятую

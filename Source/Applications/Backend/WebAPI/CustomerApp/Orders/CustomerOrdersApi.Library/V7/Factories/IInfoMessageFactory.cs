@@ -19,10 +19,22 @@ namespace CustomerOrdersApi.Library.V7.Factories
 		/// <returns>Сообщение о том, что заказ не был оплачен и менеджер свяжется с клиентом</returns>
 		InfoMessage CreateNotPaidOrderInfoMessage();
 
-		// <summary>
+		/// <summary>
 		/// Создает информационное сообщение о возврате средств при отмене заказа
 		/// </summary>
 		/// <returns>Сообщение, отображаемое в попапе при отмене заказа, о сроках возврата средств</returns>
 		InfoMessage CreateRefundPaymentInfoMessage();
+		
+		/// <summary>
+		/// Создает информационное сообщение о примененном промокоде не на все позиции
+		/// </summary>
+		/// <returns></returns>
+		InfoMessage CreatePromoCodeAppliedToNotAllItemsWarning();
+		
+		/// <summary>
+		/// Создает информационное сообщение о примененной фиксе не на все позиции
+		/// </summary>
+		/// <returns></returns>
+		InfoMessage CreateFixedPriceAppliedToNotAllItemsWarning();
 	}
 }

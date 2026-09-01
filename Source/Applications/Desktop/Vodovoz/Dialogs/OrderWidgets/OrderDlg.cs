@@ -300,7 +300,7 @@ namespace Vodovoz
 
 		private bool _isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
-		private IList<DiscountReason> _discountReasons;
+		private IList<DiscountReasonBase> _discountReasons;
 		private IList<int> _additionalLoadingNomenclatureIds;
 		private IList<int> _activeFlyersNomenclatureIds;
 		private Employee _currentEmployee;
@@ -1165,7 +1165,7 @@ namespace Vodovoz
 
 			SetSensitivityOfPaymentType();
 			depositrefunditemsview.Configure(UoWGeneric, Entity);
-			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
+			ycomboboxReason.SetRenderTextFunc<DiscountReasonBase>(x => x.Name);
 			ycomboboxReason.ItemsList = _discountReasons;
 			ycomboboxReason.ItemSelected += OnYComboBoxReasonItemSelected;
 
@@ -3916,7 +3916,7 @@ namespace Vodovoz
 			Nomenclature nomenclature,
 			decimal count = 0,
 			decimal discount = 0,
-			IEnumerable<DiscountReason> discountReasons = null)
+			IEnumerable<DiscountReasonBase> discountReasons = null)
 		{
 			if(Entity.IsLoadedFrom1C)
 			{
@@ -5577,7 +5577,7 @@ namespace Vodovoz
 
 		private void SetDiscount()
 		{
-			var reason = ycomboboxReason.SelectedItem as DiscountReason;
+			var reason = ycomboboxReason.SelectedItem as DiscountReasonBase;
 			if(decimal.TryParse(spinDiscount.Text, out decimal discount))
 			{
 				if(reason == null && discount > 0)

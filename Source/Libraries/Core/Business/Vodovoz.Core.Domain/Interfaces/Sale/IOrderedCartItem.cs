@@ -26,9 +26,9 @@ namespace Vodovoz.Core.Domain.Interfaces.Sale
 		/// </summary>
 		bool IsFixedPrice { get; set; }
 		/// <summary>
-		/// Скидки
+		/// Идентификаторы скидок
 		/// </summary>
-		IList<int> DiscountIds { get; }
+		IEnumerable<int> DiscountIds { get; }
 		void AddFixedPrice(decimal fixedPrice);
 	}
 }

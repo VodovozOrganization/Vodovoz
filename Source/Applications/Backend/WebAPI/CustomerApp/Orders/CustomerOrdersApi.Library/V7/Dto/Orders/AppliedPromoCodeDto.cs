@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using CustomerOrdersApi.Library.V7.Dto.Orders.Promotions;
+using Vodovoz.Core.Data.InfoMessages;
+using Vodovoz.Core.Domain.Interfaces.Common;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
 
@@ -14,11 +16,12 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		{
 		}
 
-		public AppliedPromoCodeDto(IEnumerable<IOrderedCartItem> saleItems) : base(saleItems)
+		public AppliedPromoCodeDto(IEnumerable<IOrderedCartItemWithDiscountDetails> saleItems, IInfoMessage warning = null) : base(saleItems, warning)
 		{
 		}
 
 		public static ISaleItemPromotion CreateError(Error error) => new AppliedPromoCodeDto(error.Message);
-		public static ISaleItemPromotion Create(IEnumerable<IOrderedCartItem> saleItems) => new AppliedPromoCodeDto(saleItems);
+		public static ISaleItemPromotion Create(IEnumerable<IOrderedCartItemWithDiscountDetails> saleItems, IInfoMessage warning = null) =>
+			new AppliedPromoCodeDto(saleItems, warning);
 	}
 }

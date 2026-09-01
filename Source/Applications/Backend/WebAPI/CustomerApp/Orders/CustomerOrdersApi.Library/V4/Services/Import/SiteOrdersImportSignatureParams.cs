@@ -1,6 +1,6 @@
 using VodovozInfrastructure.Cryptography;
 
-namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
+namespace CustomerOrdersApi.Library.V4.Services.Import
 {
 	/// <summary>
 	/// Параметры подписи для проверки пакета выгрузки с сайта.

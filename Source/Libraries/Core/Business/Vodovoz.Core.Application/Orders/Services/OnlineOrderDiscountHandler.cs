@@ -4,8 +4,8 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Sale;
+using Vodovoz.Core.Data.Sale;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
@@ -16,6 +16,7 @@ using Vodovoz.Nodes;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Extensions;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -24,16 +25,19 @@ namespace Vodovoz.Core.Application.Orders.Services
 	{
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IDiscountReasonSettings _discountReasonSettings;
+		private readonly IApplicableDiscountFactory _applicableDiscountFactory;
 
 		public OnlineOrderDiscountHandler(
 			ILogger<OnlineOrderDiscountHandler> logger,
 			IDiscountReasonRepository discountReasonRepository,
-			IDiscountReasonSettings discountReasonSettings
+			IDiscountReasonSettings discountReasonSettings,
+			IApplicableDiscountFactory applicableDiscountFactory
 			)
-			: base(logger)
+			: base(logger, discountReasonSettings)
 		{
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_discountReasonSettings = discountReasonSettings ?? throw new ArgumentNullException(nameof(discountReasonSettings));
+			_applicableDiscountFactory = applicableDiscountFactory ?? throw new ArgumentNullException(nameof(applicableDiscountFactory));
 		}
 
 		/// <summary>
@@ -113,7 +117,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		/// <param name="receivedData">Данные, необходимые для проверки промокода и товары
 		/// <see cref="CanApplyOnlineOrderPromoCode"/></param>
 		/// <returns></returns>
-		public Result<IEnumerable<IOrderedCartItem>> TryApplyPromoCodeV7(
+		public Result<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> CartItems)> TryApplyPromoCodeV7(
 			IUnitOfWork uow,
 			CanApplyOnlineOrderPromoCodeV7 receivedData)
 		{
@@ -123,30 +127,33 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			if(discountPromoCode is null)
 			{
-				return Result.Failure<IEnumerable<IOrderedCartItem>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.NotFound);
+				return Result.Failure<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> CartItems)>(
+					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.NotFound);
 			}
 
 			if(date.Date < discountPromoCode.StartDate || date.Date > discountPromoCode.EndDate)
 			{
-				return Result.Failure<IEnumerable<IOrderedCartItem>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredDateDuration);
+				return Result.Failure<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> CartItems)>(
+					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredDateDuration);
 			}
 
 			if(time < discountPromoCode.StartTime || time > discountPromoCode.EndTime)
 			{
-				return Result.Failure<IEnumerable<IOrderedCartItem>>(
+				return Result.Failure<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> CartItems)>(
 					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredTimeDuration(
 						discountPromoCode.StartTimePromoCodeString, discountPromoCode.EndTimePromoCodeString));
 			}
 
 			if(receivedData.OrderSum < discountPromoCode.OrderMinSum)
 			{
-				return Result.Failure<IEnumerable<IOrderedCartItem>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.InvalidMinimalOrderSum);
+				return Result.Failure<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> CartItems)>(
+					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.InvalidMinimalOrderSum);
 			}
 
 			if(discountPromoCode.IsOneTimePromoCode
 				&& _discountReasonRepository.HasBeenUsagePromoCode(uow, receivedData.CounterpartyId, discountPromoCode.Id))
 			{
-				return Result.Failure<IEnumerable<IOrderedCartItem>>(
+				return Result.Failure<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> CartItems)>(
 					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UsageLimitHasBeenExceeded);
 			}
 
@@ -169,7 +176,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			return promoCodeApplied
 				? Result.Success(products)
-				: Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UnsuitableItemsInCart);
+				: Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
+					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UnsuitableItemsInCart);
 		}
 
 		private bool TryApplyPromoCode(
@@ -267,22 +275,29 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 		}
 		
-		private Result<IEnumerable<IOrderedCartItem>> TryApplyPromoCode(
+		private Result<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> CartItems)> TryApplyPromoCode(
 			IUnitOfWork uow,
 			Source source,
 			PromoCodeDiscount discountPromoCode,
 			IEnumerable<IOrderedCartItem> cartItems)
 		{
 			var promoCodeApplied = false;
+			var promoCodeAppliedToAllItems = true;
+			var cartItemsWithDiscountDetails = new List<IOrderedCartItemWithDiscountDetails>();
 			
 			foreach(var cartItem in cartItems)
 			{
-				promoCodeApplied |= TryApplyPromoCode(uow, source, discountPromoCode, cartItem);
+				var cartItemWithDiscountDetails = OnlineOrderItemWithDiscountDetailsDto.Create(cartItem);
+				var applied = TryApplyPromoCode(uow, source, discountPromoCode, cartItem);
+				promoCodeAppliedToAllItems &= applied;
+				promoCodeApplied |= applied;
+				cartItemsWithDiscountDetails.Add(cartItemWithDiscountDetails);
 			}
 
 			return promoCodeApplied
-				? Result.Success(cartItems)
-				: Result.Failure<IEnumerable<IOrderedCartItem>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UnsuitableItemsInCart);
+				? Result.Success((promoCodeAppliedToAllItems, cartItemsWithDiscountDetails.AsEnumerable()))
+				: Result.Failure<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> CartItems)>(
+					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UnsuitableItemsInCart);
 		}
 
 		private bool TryApplyPromoCode(
@@ -323,19 +338,21 @@ namespace Vodovoz.Core.Application.Orders.Services
 			PromoCodeDiscount discountPromoCode,
 			IOrderedCartItem receivedCartItem)
 		{
-			if(receivedCartItem.ItemType is SaleItemType.PromoSet or SaleItemType.RentPackage)
+			var applicableDiscountItem = _applicableDiscountFactory.CreateApplicableDiscount(uow, receivedCartItem);
+			
+			/*if(receivedCartItem.ItemType is SaleItemType.PromoSet or SaleItemType.RentPackage)
 			{
 				return false;
-			}
-			
+			}*/
+			/*
 			var nomenclature = uow.GetById<Nomenclature>(receivedCartItem.ErpId);
 			
 			if(nomenclature is null)
 			{
 				return false;
 			}
-
-			if(receivedCartItem.IsFixedPrice)
+			*/
+			/*if(receivedCartItem.IsFixedPrice)
 			{
 				return false;
 			}
@@ -344,24 +361,27 @@ namespace Vodovoz.Core.Application.Orders.Services
 			{
 				return false;
 			}
-
-			if(!IsApplicableDiscount(discountPromoCode, nomenclature))
+*/
+			if(!IsApplicableDiscount(discountPromoCode, applicableDiscountItem).IsSuccess)
 			{
 				return false;
 			}
 
-			var onlineParameters = nomenclature.NomenclatureOnlineParameters
-				.FirstOrDefault(x => x.Type == source.ToGoodsOnlineParameterType());
-
-			var onlinePrice = onlineParameters?.GetOnlinePrice(receivedCartItem.Count);
-
-			if(onlineParameters?.NomenclatureOnlineDiscount != null
-				|| onlinePrice?.PriceWithoutDiscount != null)
+			if(applicableDiscountItem.Nomenclature != null)
 			{
-				return false;
+				var onlineParameters = applicableDiscountItem.Nomenclature.NomenclatureOnlineParameters
+					.FirstOrDefault(x => x.Type == source.ToGoodsOnlineParameterType());
+
+				var onlinePrice = onlineParameters?.GetOnlinePrice(receivedCartItem.Count);
+
+				if(onlineParameters?.NomenclatureOnlineDiscount != null
+					|| onlinePrice?.PriceWithoutDiscount != null)
+				{
+					return false;
+				}
 			}
 			
-			return receivedCartItem.Count * receivedCartItem.Price != 0;
+			return true;
 		}
 
 		private void ApplyPromoCode(
@@ -370,23 +390,23 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderedCartItem receivedCartItem
 			)
 		{
-			receivedCartItem.DiscountIds.Add(discountPromoCode.Id);
+			var discountIds = new List<int>(receivedCartItem.DiscountIds)
+			{
+				discountPromoCode.Id
+			};
+
 			receivedCartItem.PriceWithoutDiscount ??= receivedCartItem.CurrentPrice;
 
 			var currentRawPrice = receivedCartItem.Count * receivedCartItem.Price;
 			var calculatingTotalMoneyDiscountDto = CalculatingTotalMoneyDiscountNode.Create(
 				currentRawPrice,
-				_discountReasonRepository.GetDiscountReasons(uow, receivedCartItem.DiscountIds)
+				_discountReasonRepository.GetDiscountReasons(uow, discountIds)
 				);
-			var totalMoneyDiscount = CalculateTotalDiscountInMoneyFromAddedReasons(calculatingTotalMoneyDiscountDto);
-
-			if(currentRawPrice <= totalMoneyDiscount)
-			{
-				totalMoneyDiscount = currentRawPrice;
-			}
+			
+			var totalDiscountDetails = CalculateTotalDiscountDetails(calculatingTotalMoneyDiscountDto);
 
 			//TODO вынести в бизнес правило используемое в сущностях
-			receivedCartItem.CurrentSum = Math.Round(receivedCartItem.Count * receivedCartItem.Price - totalMoneyDiscount, 2);
+			receivedCartItem.CurrentSum = Math.Round(receivedCartItem.Count * receivedCartItem.Price - totalDiscountDetails.TotalDiscount, 2);
 			receivedCartItem.CurrentPrice = Math.Round(receivedCartItem.CurrentSum / receivedCartItem.Count, 2);
 		}
 

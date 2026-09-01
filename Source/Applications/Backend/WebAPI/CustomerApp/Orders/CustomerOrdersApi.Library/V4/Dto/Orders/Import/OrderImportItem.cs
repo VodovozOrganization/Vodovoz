@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace CustomerOrdersApi.Library.SiteOrdersImport.Dto
+namespace CustomerOrdersApi.Library.V4.Dto.Orders.Import
 {
 	/// <summary>
 	/// Одна сущность пакета выгрузки с сайта: заказ или брошенная корзина.

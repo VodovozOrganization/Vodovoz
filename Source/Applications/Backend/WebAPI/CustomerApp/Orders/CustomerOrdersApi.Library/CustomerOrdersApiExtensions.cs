@@ -3,7 +3,6 @@ using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Default.Factories;
 using CustomerOrdersApi.Library.Default.Services;
-using CustomerOrdersApi.Library.SiteOrdersImport.Services;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Factories;
 using CustomerOrdersApi.Library.V4.Services;
@@ -22,6 +21,7 @@ using System.Security.Authentication;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CustomerOrdersApi.Library.Default.Repositories;
+using CustomerOrdersApi.Library.V4.Services.Import;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
@@ -108,6 +108,7 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<V7.Services.ICourierTrackingService, V7.Services.CourierTrackingService>()
 				.AddScoped<V7.Factories.ICustomerOrderFactory, V7.Factories.CustomerOrderFactory>()
 				.AddScoped<V7.Factories.IInfoMessageFactory, V7.Factories.InfoMessageFactory>()
+				.AddScoped<V7.Factories.IOnlineOrderItemDtoFactory, V7.Factories.OnlineOrderItemDtoFactory>()
 				.AddScoped<V7.Repositories.ICustomerOrderRepository, V7.Repositories.CustomerOrderRepository>()
 				.AddDefault();
 

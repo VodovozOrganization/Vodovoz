@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Vodovoz.Core.Domain.Interfaces.Common;
 
 namespace Vodovoz.Core.Domain.Interfaces.Sale
 {
@@ -15,9 +16,10 @@ namespace Vodovoz.Core.Domain.Interfaces.Sale
 		/// Сообщение
 		/// </summary>
 		string Message { get; }
+		IInfoMessage Warning { get; }
 		/// <summary>
 		/// Список товаров с примененной акцией/скидкой/фиксой
 		/// </summary>
-		IEnumerable<IOrderedCartItem> SaleItems { get; }
+		IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems { get; }
 	}
 }

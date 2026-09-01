@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace CustomerOrdersApi.Library.SiteOrdersImport.Dto
+namespace CustomerOrdersApi.Library.V4.Dto.Orders.Import
 {
 	/// <summary>
 	/// Пакет выгрузки заказов и брошенных корзин, который сайт присылает на наш приёмный endpoint.

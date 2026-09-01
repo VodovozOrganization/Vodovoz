@@ -20,11 +20,11 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 	{
 		private bool _isEditEnabled;
 		private IApplyDiscountReasonItem _saleItem;
-		private DiscountReason _newDiscountReason;
-		private DiscountReason _selectedDiscountReason;
-		private IList<DiscountReason> _allDiscountReasons;
-		private IList<DiscountReason> _applicableDiscountReasons = new List<DiscountReason>();
-		private IObservableList<DiscountReason> _saleItemDiscountReasons = new ObservableList<DiscountReason>();
+		private DiscountReasonBase _newDiscountReason;
+		private DiscountReasonBase _selectedDiscountReason;
+		private IList<DiscountReasonBase> _allDiscountReasons;
+		private IList<DiscountReasonBase> _applicableDiscountReasons = new List<DiscountReasonBase>();
+		private IObservableList<DiscountReasonBase> _saleItemDiscountReasons = new ObservableList<DiscountReasonBase>();
 
 		private IUnitOfWork _uow;
 		private ISaleDiscountController _saleDiscountController;
@@ -60,13 +60,13 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 		public DelegateCommand DeleteDiscountReasonCommand { get; }
 
 		[PropertyChangedAlso(nameof(AvailableDiscountReasons))]
-		public IObservableList<DiscountReason> SaleItemDiscountReasons
+		public IObservableList<DiscountReasonBase> SaleItemDiscountReasons
 		{
 			get => _saleItemDiscountReasons;
 			private set => SetField(ref _saleItemDiscountReasons, value);
 		}
 
-		public IList<DiscountReason> AvailableDiscountReasons =>
+		public IList<DiscountReasonBase> AvailableDiscountReasons =>
 			_applicableDiscountReasons
 			.Where(x => !SaleItemDiscountReasons.Contains(x))
 			.ToList();
@@ -88,14 +88,14 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 		}
 
 		[PropertyChangedAlso(nameof(CanAddDiscountReason))]
-		public DiscountReason NewDiscountReason
+		public DiscountReasonBase NewDiscountReason
 		{
 			get => _newDiscountReason;
 			set => SetField(ref _newDiscountReason, value);
 		}
 
 		[PropertyChangedAlso(nameof(CanDeleteDiscountReason))]
-		public DiscountReason SelectedDiscountReason
+		public DiscountReasonBase SelectedDiscountReason
 		{
 			get => _selectedDiscountReason;
 			set => SetField(ref _selectedDiscountReason, value);
@@ -245,7 +245,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			}
 
 			var addingDiscountResult =
-				_saleDiscountController.AddDiscountFromDiscountReasonForOrderItem(NewDiscountReason, SaleItem, _userCanSetDirectDiscountValue);
+				_saleDiscountController.AddDiscountFromDiscountReason(NewDiscountReason, SaleItem, _userCanSetDirectDiscountValue);
 
 			if(addingDiscountResult.IsFailure)
 			{

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Interfaces.Sale;
-using Vodovoz.Domain.Goods;
 using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
@@ -9,40 +8,24 @@ namespace Vodovoz.Domain.Orders
 	/// <summary>
 	/// Интерфейс для применения скидки к позиции
 	/// </summary>
-	public interface IApplyDiscountReasonItem : IPrice
+	public interface IApplyDiscountReasonItem : IPrice, IApplicableDiscount, ICalculatingTotalMoneyDiscount
 	{
 		/// <summary>
 		/// Текущее количество
 		/// </summary>
 		decimal CurrentCount { get; }
 		/// <summary>
-		/// Текущая стоимость
-		/// </summary>
-		decimal CurrentRawPrice { get; }
-		/// <summary>
 		/// Данные скидки
 		/// </summary>
 		IDiscountValue DiscountData { get; }
 		/// <summary>
-		/// Фикса
-		/// </summary>
-		bool IsFixedPrice { get; }
-		/// <summary>
-		/// Номенклатура
-		/// </summary>
-		Nomenclature Nomenclature { get; }
-		/// <summary>
-		/// Промонабор
-		/// </summary>
-		PromotionalSet PromoSet { get; }
-		/// <summary>
 		/// Персональная скидка
 		/// </summary>
-		PersonalDiscount PersonalDiscount { get; set; }
+		new PersonalDiscount PersonalDiscount { get; set; }
 		/// <summary>
-		/// Скидки
+		/// Список оснований скидок <see cref="Vodovoz.Domain.Orders.DiscountReason"/>
 		/// </summary>
-		IList<DiscountReason> DiscountReasons { get; }
+		new IList<DiscountReasonBase> DiscountReasons { get; }
 		/// <summary>
 		/// Установка скидки
 		/// </summary>

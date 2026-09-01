@@ -61,7 +61,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
+		private readonly IGenericRepository<DiscountReasonBase> _discountReasonRepository;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderDiscountsController _orderDiscountsController;
@@ -90,7 +90,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IPaymentFromBankClientController paymentFromBankClientController,
 			IOrderFromOnlineOrderCreator orderFromOnlineOrderCreator,
 			INomenclatureRepository nomenclatureRepository,
-			IGenericRepository<DiscountReason> discountReasonRepository,
+			IGenericRepository<DiscountReasonBase> discountReasonRepository,
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
 			IOrderDiscountsController orderDiscountsController,

@@ -17,7 +17,7 @@ namespace VodovozBusiness.Domain.Orders
 			(SaleItemPriceType PriceType, decimal Price) priceData = default,
 			decimal discount = 0,
 			bool isDiscountInMoney = false,
-			IEnumerable<DiscountReason> discountReasons = null,
+			IEnumerable<DiscountReasonBase> discountReasons = null,
 			PromotionalSet promoSet = null,
 			Equipment equipment = null,
 			bool giftItem = false
@@ -45,7 +45,7 @@ namespace VodovozBusiness.Domain.Orders
 		public (SaleItemPriceType PriceType, decimal Price) PriceData { get; set; }
 		public decimal Discount { get; }
 		public bool IsDiscountInMoney { get; }
-		public IEnumerable<DiscountReason> DiscountReasons { get; set; }
+		public IEnumerable<DiscountReasonBase> DiscountReasons { get; set; }
 		public PromotionalSet PromoSet { get; }
 		public Equipment Equipment { get; }
 		public bool GiftItem { get; }
@@ -56,7 +56,7 @@ namespace VodovozBusiness.Domain.Orders
 			(SaleItemPriceType PriceType, decimal Price) priceData = default,
 			decimal discount = 0,
 			bool isDiscountInMoney = false,
-			IEnumerable<DiscountReason> discountReasons = null,
+			IEnumerable<DiscountReasonBase> discountReasons = null,
 			PromotionalSet promoSet = null,
 			Equipment equipment = null,
 			bool giftItem = false) =>

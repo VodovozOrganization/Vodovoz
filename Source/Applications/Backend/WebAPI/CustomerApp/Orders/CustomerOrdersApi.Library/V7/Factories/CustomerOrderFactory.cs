@@ -18,6 +18,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Mango;
+using VodovozBusiness.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V7.Factories
 {
@@ -30,6 +31,7 @@ namespace CustomerOrdersApi.Library.V7.Factories
 		private readonly ICustomerOrderTransferService _orderTransferService;
 		private readonly IMangoSettings _mangoSettings;
 		private readonly IOptionsMonitor<CourierCoordinatesOptions> _courierCoordinatesOptions;
+		private readonly IOnlineOrderItemDtoFactory _onlineOrderItemFactory;
 
 		public CustomerOrderFactory(
 			IExternalOrderStatusConverter externalOrderStatusConverter,
@@ -38,7 +40,8 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			ICustomerOrderCancellationService orderCancellationLogicService,
 			ICustomerOrderTransferService orderTransferService,
 			IMangoSettings mangoSettings,
-			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions
+			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions,
+			IOnlineOrderItemDtoFactory onlineOrderItemFactory
 			)
 		{
 			_externalOrderStatusConverter =
@@ -49,6 +52,7 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			_orderTransferService = orderTransferService ?? throw new ArgumentNullException(nameof(orderTransferService));
 			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
 			_courierCoordinatesOptions = courierCoordinatesOptions ?? throw new ArgumentNullException(nameof(courierCoordinatesOptions));
+			_onlineOrderItemFactory = onlineOrderItemFactory ?? throw new ArgumentNullException(nameof(onlineOrderItemFactory));
 		}
 
 		public async Task<DetailedOrderInfoDto> CreateDetailedOrderInfo(
@@ -65,20 +69,18 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			CancellationToken cancellationToken
 		)
 		{
-			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrder?.Id);
-			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
-			orderInfo.UpdateOrderItems(order);
-			orderInfo.UpdateTrackingAvailability(establishedRoute, driversCoordinatesLastUpdateTime, _courierCoordinatesOptions.CurrentValue.TrackingLostTimeout);
-			orderInfo.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
-
-			await UpdateAvailableOperations(uow, orderInfo, order, onlineOrder, cancellationToken);
-
-			if(driversMangoExtensionNumber != null
-				&& driversMangoExtensionNumber.Status == DriverMangoExtensionNumberStatus.Active)
-			{
-				orderInfo.DriversMangoNumber =
-					_mangoSettings.DriversCallsLineNumber + ",," + driversMangoExtensionNumber.ExtensionNumber;
-			}
+			var orderInfo = await CreateOrderInfoDto(
+				uow,
+				order,
+				orderRating,
+				timers,
+				onlineOrder,
+				ratingAvailableFrom,
+				driversMangoExtensionNumber,
+				establishedRoute,
+				isOrderWasSelectedAsNext,
+				driversCoordinatesLastUpdateTime,
+				cancellationToken);
 
 			return orderInfo;
 		}
@@ -93,13 +95,15 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			CancellationToken cancellationToken
 		)
 		{
-			var orderInfo = CreateOrderInfoDto(onlineOrder, timers, orderId);
-			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
-			orderInfo.UpdateOrderItems(onlineOrder);
-
-			var activeOrder = GetActiveOrder(onlineOrder);
-			await UpdateAvailableOperations(uow, orderInfo, activeOrder, onlineOrder, cancellationToken);
-
+			var orderInfo = await CreateOrderInfoDto(
+				uow,
+				onlineOrder,
+				orderRating,
+				timers,
+				orderId,
+				ratingAvailableFrom,
+				cancellationToken);
+			
 			return orderInfo;
 		}
 
@@ -129,7 +133,12 @@ namespace CustomerOrdersApi.Library.V7.Factories
 				InfoMessages = orderDto.InfoMessages
 			};
 
-			activeOrder.UpdateTrackingAvailability(establishedRoute, driversCoordinatesLastUpdateTime, _courierCoordinatesOptions.CurrentValue.TrackingLostTimeout);
+			activeOrder.UpdateTrackingAvailability(
+				establishedRoute,
+				driversCoordinatesLastUpdateTime,
+				_courierCoordinatesOptions.CurrentValue.TrackingLostTimeout
+				);
+			
 			activeOrder.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
 
 			return activeOrder;
@@ -146,12 +155,24 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			});
 		}
 
-		private DetailedOrderInfoDto CreateOrderInfoDto(Order order, OnlineOrderTimers timers, int? onlineOrderId)
+		private async Task<DetailedOrderInfoDto> CreateOrderInfoDto(
+			IUnitOfWork uow,
+			Order order,
+			OrderRating orderRating,
+			OnlineOrderTimers timers,
+			OnlineOrder onlineOrder,
+			DateTime ratingAvailableFrom,
+			DriverMangoExtensionNumber driversMangoExtensionNumber,
+			bool establishedRoute,
+			bool isOrderWasSelectedAsNext,
+			DateTime? driversCoordinatesLastUpdateTime,
+			CancellationToken cancellationToken
+			)
 		{
 			var orderInfo = new DetailedOrderInfoDto
 			{
 				OrderId = order.Id,
-				OnlineOrderId = onlineOrderId,
+				OnlineOrderId = onlineOrder?.Id,
 				CreatedDateTimeUtc = order.CreateDate.HasValue ? DateTimeOffset.Parse(order.CreateDate.ToString()) : default,
 				DeliveryDate = order.DeliveryDate ?? default,
 				IsFastDelivery = order.IsFastDelivery,
@@ -180,11 +201,38 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			}
 
 			UpdateAvailabilityRepeatOrder(orderInfo);
+			UpdateOrderRating(orderRating, ratingAvailableFrom, orderInfo);
+			UpdateOrderItems(order, orderInfo);
+			
+			orderInfo.UpdateTrackingAvailability(
+				establishedRoute,
+				driversCoordinatesLastUpdateTime,
+				_courierCoordinatesOptions.CurrentValue.TrackingLostTimeout
+				);
+			
+			orderInfo.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
+
+			await UpdateAvailableOperations(uow, orderInfo, order, onlineOrder, cancellationToken);
+
+			if(driversMangoExtensionNumber != null
+				&& driversMangoExtensionNumber.Status == DriverMangoExtensionNumberStatus.Active)
+			{
+				orderInfo.DriversMangoNumber =
+					_mangoSettings.DriversCallsLineNumber + ",," + driversMangoExtensionNumber.ExtensionNumber;
+			}
 
 			return orderInfo;
 		}
 
-		private DetailedOrderInfoDto CreateOrderInfoDto(OnlineOrder onlineOrder, OnlineOrderTimers timers, int? orderId)
+		private async Task<DetailedOrderInfoDto> CreateOrderInfoDto(
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			OrderRating orderRating,
+			OnlineOrderTimers timers,
+			int? orderId,
+			DateTime ratingAvailableFrom,
+			CancellationToken cancellationToken
+			)
 		{
 			var orderInfo = new DetailedOrderInfoDto
 			{
@@ -242,6 +290,11 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			}
 
 			UpdateAvailabilityRepeatOrder(orderInfo);
+			UpdateOrderRating(orderRating, ratingAvailableFrom, orderInfo);
+			UpdateOrderItems(onlineOrder, orderInfo);
+
+			var activeOrder = GetActiveOrder(onlineOrder);
+			await UpdateAvailableOperations(uow, orderInfo, activeOrder, onlineOrder, cancellationToken);
 
 			return orderInfo;
 		}
@@ -323,6 +376,100 @@ namespace CustomerOrdersApi.Library.V7.Factories
 				var existingMessages = orderInfo.InfoMessages?.ToList() ?? new List<InfoMessage>();
 				existingMessages.Add(_infoMessageFactory.CreateRefundPaymentInfoMessage());
 				orderInfo.InfoMessages = existingMessages;
+			}
+		}
+		
+		private void UpdateOrderRating(
+			OrderRating orderRating,
+			DateTime ratingAvailableFrom,
+			DetailedOrderInfoDto orderInfoDto)
+		{
+			if(orderRating is null)
+			{
+				orderInfoDto.IsRatingAvailable =
+					orderInfoDto.CreatedDateTimeUtc >= DateTimeOffset.Parse(ratingAvailableFrom.ToString())
+					&& (orderInfoDto.OrderStatus == ExternalOrderStatus.OrderCompleted
+						|| orderInfoDto.OrderStatus == ExternalOrderStatus.Canceled
+						|| orderInfoDto.OrderStatus == ExternalOrderStatus.OrderDelivering);
+				orderInfoDto.RatingReasonsIds = new List<int>();
+				return;
+			}
+
+			orderInfoDto.RatingReasonsIds = orderRating.OrderRatingReasons.Select(x => x.Id).ToList();
+			orderInfoDto.OrderRatingComment = orderRating.Comment;
+			orderInfoDto.RatingValue = orderRating.Rating;
+			orderInfoDto.IsRatingAvailable = false;
+		}
+		
+		private void UpdateOrderItems(Order order, DetailedOrderInfoDto orderInfoDto)
+		{
+			orderInfoDto.OrderItems = order.OrderItems
+				.Where(x => x.PromoSet is null)
+				.Select(_onlineOrderItemFactory.CreateWithDiscountDetailsDto)
+				.ToList();
+
+			AddPromoSets(order.PromotionalSets, orderInfoDto);
+		}
+		
+		private void UpdateOrderItems(OnlineOrder onlineOrder, DetailedOrderInfoDto orderInfoDto)
+		{
+			orderInfoDto.OrderItems = onlineOrder.OnlineOrderItems
+				.Where(x => x.PromoSet is null)
+				.Select(_onlineOrderItemFactory.CreateWithDiscountDetailsDto)
+				.ToList();
+
+			if(onlineOrder is OnlineOrderV2 onlineOrderV2)
+			{
+				AddPromoSets(onlineOrderV2.PromoSets, orderInfoDto);
+			}
+			else
+			{
+				AddPromoSets(onlineOrder.OnlineOrderItems, orderInfoDto);
+			}
+
+			AddRentPackages(onlineOrder.OnlineRentPackages, orderInfoDto);
+		}
+		
+		private void AddPromoSets(IEnumerable<IProduct> orderItems, DetailedOrderInfoDto orderInfoDto)
+		{
+			var promoSetsGroup = orderItems
+				.Where(x => x.PromoSet != null)
+				.ToLookup(x => x.PromoSet.Id);
+			
+			foreach(var orderItemGroup in promoSetsGroup)
+			{
+				var promo = orderItemGroup.First().PromoSet;
+				var promoItemsCount = promo.PromotionalSetItems.Count;
+					
+				orderInfoDto.OrderItems.Add(_onlineOrderItemFactory.CreateWithDiscountDetailsDto(promo, orderItemGroup.Count() / promoItemsCount));
+			}
+		}
+		
+		private void AddPromoSets(IEnumerable<OnlineOrderPromoSet> onlineOrderPromoSets, DetailedOrderInfoDto orderInfoDto)
+		{
+			foreach(var onlineOrderPromoSet in onlineOrderPromoSets)
+			{
+				orderInfoDto.OrderItems.Add(
+					_onlineOrderItemFactory.CreateWithDiscountDetailsDto(onlineOrderPromoSet.PromoSet, onlineOrderPromoSet.Count)
+					);
+			}
+		}
+		
+		private void AddPromoSets(IEnumerable<PromotionalSet> promoSets, DetailedOrderInfoDto orderInfoDto)
+		{
+			var onlineOrderItemPromoSets = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(promoSets);
+			
+			foreach(var promoSet in onlineOrderItemPromoSets)
+			{
+				orderInfoDto.OrderItems.Add(promoSet);
+			}
+		}
+		
+		private void AddRentPackages(IEnumerable<OnlineFreeRentPackage> freeRentPackages, DetailedOrderInfoDto orderInfoDto)
+		{
+			foreach(var freeRentPackage in freeRentPackages)
+			{
+				orderInfoDto.OrderItems.Add(_onlineOrderItemFactory.CreateWithDiscountDetailsDto(freeRentPackage));
 			}
 		}
 	}

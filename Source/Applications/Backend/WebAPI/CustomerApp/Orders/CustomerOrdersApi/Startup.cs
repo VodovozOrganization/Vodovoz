@@ -94,10 +94,6 @@ namespace CustomerOrdersApi
 				.AddMassTransit(busConf =>
 				{
 					busConf.ConfigureRabbitMq();
-				})
-				.AddMassTransit<ICustomerNotificationsBus>(busConf =>
-				{
-					busConf.ConfigureCustomerNotificationsRabbitMq(services, Configuration);
 				});
 
 			services

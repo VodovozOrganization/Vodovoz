@@ -64,7 +64,7 @@ namespace VodovozBusiness.Models.Orders
 								promoSetItem.IsDiscountInMoney ? promoSetItem.DiscountMoney : promoSetItem.Discount,
 								promoSetItem.Price().Price,
 								promoSet.Id,
-								new List<DiscountReason>(),
+								new List<DiscountReasonBase>(),
 								promoSetItem.Nomenclature,
 								promoSet,
 								onlineOrder)

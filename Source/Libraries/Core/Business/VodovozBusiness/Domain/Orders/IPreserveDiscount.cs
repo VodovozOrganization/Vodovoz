@@ -7,6 +7,6 @@ namespace VodovozBusiness.Domain.Orders
 	{
 		decimal? OriginalDiscountMoney { get; set; }
 		decimal? OriginalDiscount { get; set; }
-		IList<DiscountReason> OriginalDiscountReasons { get; }
+		IList<DiscountReasonBase> OriginalDiscountReasons { get; }
 	}
 }

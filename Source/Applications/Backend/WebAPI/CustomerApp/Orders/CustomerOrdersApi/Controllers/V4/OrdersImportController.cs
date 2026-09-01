@@ -1,11 +1,11 @@
-using CustomerOrdersApi.Library.SiteOrdersImport.Dto;
-using CustomerOrdersApi.Library.SiteOrdersImport.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrdersApi.Library.V4.Dto.Orders.Import;
+using CustomerOrdersApi.Library.V4.Services.Import;
 
 namespace CustomerOrdersApi.Controllers.V4
 {

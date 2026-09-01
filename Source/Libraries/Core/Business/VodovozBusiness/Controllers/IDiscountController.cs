@@ -1,4 +1,6 @@
-﻿using Vodovoz.Core.Domain.Results;
+﻿using System.Collections.Generic;
+using Vodovoz.Core.Domain.Interfaces.Sale;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 
 namespace VodovozBusiness.Controllers
@@ -12,8 +14,17 @@ namespace VodovozBusiness.Controllers
 		/// <param name="saleItem">Продаваемая позиция</param>
 		/// <returns>При успешном выполнении Result.Success, иначе Result.Failure с указанием проблемы</returns>
 		Result IsApplicableDiscount(
-			DiscountReason addingDiscount,
-			IApplyDiscountReasonItem saleItem
+			DiscountReasonBase addingDiscount,
+			IApplicableDiscount saleItem
+		);
+		
+		/// <summary>
+		/// Расчет детализации скидки в деньгах по основаниям скидки, исключая персональную скидку
+		/// </summary>
+		/// <param name="saleItem">Продаваемая позиция</param>
+		/// <returns>Скидка в деньгах</returns>
+		(decimal TotalDiscount, IEnumerable<IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+			ICalculatingTotalMoneyDiscount saleItem
 		);
 	}
 }

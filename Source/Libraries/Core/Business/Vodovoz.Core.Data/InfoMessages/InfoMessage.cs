@@ -1,6 +1,8 @@
-﻿namespace Vodovoz.Core.Data.InfoMessages
+﻿using Vodovoz.Core.Domain.Interfaces.Common;
+
+namespace Vodovoz.Core.Data.InfoMessages
 {
-	public class InfoMessage
+	public class InfoMessage : IInfoMessage
 	{
 		private InfoMessage(string position, int? iconId, string title, string description)
 		{

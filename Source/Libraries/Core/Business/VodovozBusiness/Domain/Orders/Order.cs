@@ -1792,14 +1792,14 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		private DiscountReason GetDiscountReasonStockBottle(
+		private DiscountReasonBase GetDiscountReasonStockBottle(
 			IOrderSettings orderSettings, decimal discount)
 		{
 			var reasonId = discount == 10m
 				? orderSettings.GetDiscountReasonStockBottle10PercentsId
 				: orderSettings.GetDiscountReasonStockBottle20PercentsId;
 
-			var discountReasonStockBottle = UoW.GetById<DiscountReason>(reasonId)
+			var discountReasonStockBottle = UoW.GetById<DiscountReasonBase>(reasonId)
 				?? throw new InvalidProgramException($"Не возможно найти причину скидки для акции Бутыль (id:{reasonId})");
 
 			return discountReasonStockBottle;
@@ -1816,7 +1816,7 @@ namespace Vodovoz.Domain.Orders
 
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
 			decimal stockBottleDiscountPercent = 0m;
-			DiscountReason stockBottleDiscountReason = null;
+			DiscountReasonBase stockBottleDiscountReason = null;
 
 			if(bottlesByStock == Total19LBottlesToDeliver)
 			{

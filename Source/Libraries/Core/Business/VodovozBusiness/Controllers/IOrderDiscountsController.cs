@@ -20,7 +20,7 @@ namespace Vodovoz.Controllers
 		/// <param name="orderItems">Список строк заказа</param>
 		void SetCustomDiscountForOrder(
 			IUnitOfWork uow,
-			DiscountReason reason,
+			DiscountReasonBase reason,
 			IDiscountValue discountValue,
 			IEnumerable<IApplyDiscountReasonItem> orderItems);
 
@@ -32,7 +32,7 @@ namespace Vodovoz.Controllers
 		/// <param name="canChangeDiscountValue">Может ли пользователь менять скидку</param>
 		/// <param name="messages">Описание позиций на которые не применилась скидка</param>
 		void SetDiscountFromDiscountReasonForOrder(
-			DiscountReason reason,
+			DiscountReasonBase reason,
 			IEnumerable<IApplyDiscountReasonItem> orderItems,
 			bool canChangeDiscountValue,
 			out string messages);
@@ -46,7 +46,20 @@ namespace Vodovoz.Controllers
 		/// <param name="message">Описание позици на которую не применилась скидка</param>
 		/// <returns>true/false - установилась скидка или нет</returns>
 		bool SetDiscountFromDiscountReasonForOrderItem(
-			DiscountReason reason, IApplyDiscountReasonItem orderItem, bool canChangeDiscountValue, out string message);
+			DiscountReasonBase reason, IApplyDiscountReasonItem orderItem, bool canChangeDiscountValue, out string message);
+
+		/// <summary>
+		/// "Тихая" установка скидки с основанием(не использовать без особой необходимости)
+		/// </summary>
+		/// <param name="discountReason">Основание скидки</param>
+		/// <param name="saleItem">Продаваемая позиция</param>
+		/// <param name="discountValue">Значение скидки</param>
+		void SilentSetCustomDiscount(
+			DiscountReasonBase discountReason,
+			IApplyDiscountReasonItem saleItem,
+			IDiscountValue discountValue
+		);
+		
 		/// <summary>
 		/// Сохранение текущих скидок в кэш или восстановление из него и пересчет по актуальным значениям
 		/// </summary>

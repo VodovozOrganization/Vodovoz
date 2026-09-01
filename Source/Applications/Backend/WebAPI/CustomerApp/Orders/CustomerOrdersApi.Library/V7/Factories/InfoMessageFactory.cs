@@ -18,5 +18,15 @@ namespace CustomerOrdersApi.Library.V7.Factories
 		{
 			return InfoMessage.Create("cancelOrderPopUp", null, default, "В случае отмены заказа, денежные средства будут возвращены в течение 10 дней");
 		}
+
+		public InfoMessage CreatePromoCodeAppliedToNotAllItemsWarning()
+		{
+			return InfoMessage.Create(null, null, "Скидка применена не ко всем товарам", "Промокод действует не на все позиции в заказе");
+		}
+		
+		public InfoMessage CreateFixedPriceAppliedToNotAllItemsWarning()
+		{
+			return InfoMessage.Create(null, null, "Фиксированная цена недоступна", "Индивидуальная цена недоступна для одного или нескольких товаров в заказе");
+		}
 	}
 }

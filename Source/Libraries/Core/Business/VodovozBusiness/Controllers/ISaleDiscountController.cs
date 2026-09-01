@@ -15,8 +15,8 @@ namespace VodovozBusiness.Controllers
 		/// <param name="saleItem">Позиция на продажу</param>
 		/// <param name="isNotCheckPromoSetOrFixedPrice">Можно добавить скидку независимо от наличия промонабора или фиксы</param>
 		/// <returns>Результат операции</returns>
-		Result AddDiscountFromDiscountReasonForOrderItem(
-			DiscountReason reason,
+		Result AddDiscountFromDiscountReason(
+			DiscountReasonBase reason,
 			IApplyDiscountReasonItem saleItem,
 			bool isNotCheckPromoSetOrFixedPrice = false
 		);
@@ -42,12 +42,9 @@ namespace VodovozBusiness.Controllers
 		void RemoveDiscount(int discountReasonId, IApplyDiscountReasonItem saleItem);
 
 		/// <summary>
-		/// 
+		/// Пересчет скидок
 		/// </summary>
-		/// <param name="saleItem"></param>
-		/// <param name="newDiscount">Новая скидка, установленная вручную</param>
 		/// <param name="context">Данные для пересчета скидки</param>
-		//void RecalculateDiscount(IApplyDiscountReasonItem saleItem, IDiscountValue newDiscount = null);
 		void RecalculateDiscount(IDataContext context);
 
 		/// <summary>

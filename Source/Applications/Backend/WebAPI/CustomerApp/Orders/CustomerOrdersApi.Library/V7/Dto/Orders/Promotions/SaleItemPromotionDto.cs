@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Vodovoz.Core.Domain.Interfaces.Common;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions
@@ -13,18 +14,22 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions
 			SaleItems = null;
 		}
 		
-		protected SaleItemPromotionDto(IEnumerable<IOrderedCartItem> saleItems)
+		protected SaleItemPromotionDto(IEnumerable<IOrderedCartItemWithDiscountDetails> saleItems, IInfoMessage warning = null)
 		{
 			Ok = true;
 			Message = null;
 			SaleItems = saleItems;
+			Warning = warning;
 		}
 		
 		/// <inheritdoc/>
 		public bool Ok { get; set; }
 		/// <inheritdoc/>
 		public string Message { get; set; }
+
+		public IInfoMessage Warning { get; set; }
+
 		/// <inheritdoc/>
-		public IEnumerable<IOrderedCartItem> SaleItems { get; set; }
+		public IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems { get; set; }
 	}
 }

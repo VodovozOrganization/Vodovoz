@@ -25,6 +25,7 @@ using Vodovoz.Errors.Orders;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Controllers;
 using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
 
 namespace CustomerOrdersApi.Library.V6.Services
@@ -45,6 +46,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IPaymentRefundServiceFactory _paymentRefundServiceFactory;
+		private readonly IOrderSaleHandler _saleHandler;
 
 		public CustomerOrderCancellationService(
 			ILogger<CustomerOrderCancellationService> logger,
@@ -60,7 +62,9 @@ namespace CustomerOrdersApi.Library.V6.Services
 			IRouteListService routeListService,
 			INomenclatureSettings nomenclatureSettings,
 			ICallTaskWorker callTaskWorker,
-			IPaymentRefundServiceFactory paymentRefundServiceFactory)
+			IPaymentRefundServiceFactory paymentRefundServiceFactory,
+			IOrderSaleHandler saleHandler
+			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -76,6 +80,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_paymentRefundServiceFactory = paymentRefundServiceFactory ?? throw new ArgumentNullException(nameof(paymentRefundServiceFactory));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 		}
 
 		public async Task<Result> CanCancel(
@@ -390,7 +395,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 				return Result.Failure<string>(refundResult.Errors);
 			}
 
-			order.ChangeStatus(OrderStatus.Canceled);
+			order.ChangeStatus(_saleHandler, OrderStatus.Canceled);
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
 			await CancelOnlineOrder(uow, onlineOrder, cancellationToken);
 
@@ -440,7 +445,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 				return Result.Failure<string>(refundResult.Errors);
 			}
 
-			order.ChangeStatus(OrderStatus.Canceled);
+			order.ChangeStatus(_saleHandler, OrderStatus.Canceled);
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
 			await uow.SaveAsync(routeList, cancellationToken: cancellationToken);
 			await CancelOnlineOrder(uow, onlineOrder, cancellationToken);
@@ -481,6 +486,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 			order.SetUndeliveredStatus(
 				uow,
 				_routeListService,
+				_saleHandler,
 				_nomenclatureSettings,
 				_callTaskWorker,
 				needCreateDeliveryFreeBalanceOperation: false);

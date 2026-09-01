@@ -43,7 +43,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 		protected override Func<IUnitOfWork, IQueryOver<PromotionalSet>> ItemsSourceQueryFunction => (uow) => {
 			PromotionalSetJournalNode resultAlias = null;
-			DiscountReason reasonAlias = null;
+			DiscountReasonBase reasonAlias = null;
 
 			var query = uow.Session.QueryOver<PromotionalSet>();
 			query.Where(

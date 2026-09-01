@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace CustomerOrdersApi.Library.SiteOrdersImport.Dto
+namespace CustomerOrdersApi.Library.V4.Dto.Orders.Import
 {
 	/// <summary>
 	/// Ответ нашей стороны на принятый пакет выгрузки.

@@ -1,19 +1,17 @@
-using System.Collections.Generic;
+using Vodovoz.Core.Domain.Interfaces.Sale;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 
 namespace Vodovoz.Domain.Orders
 {
 	/// <summary>
 	/// Контракт для расчета итоговой скидки в деньгах
 	/// </summary>
-	public interface ICalculatingTotalMoneyDiscount
+	public interface ICalculatingTotalMoneyDiscount : ICurrentRawPrice, IDiscountReasons
 	{
 		/// <summary>
-		/// Текущая цена по прайсу
+		/// Персональная скидка
 		/// </summary>
-		decimal CurrentRawPrice { get; }
-		/// <summary>
-		/// Список оснований скидок
-		/// </summary>
-		IEnumerable<DiscountReason> DiscountReasons { get; }
+		PersonalDiscount PersonalDiscount { get; }
 	}
 }

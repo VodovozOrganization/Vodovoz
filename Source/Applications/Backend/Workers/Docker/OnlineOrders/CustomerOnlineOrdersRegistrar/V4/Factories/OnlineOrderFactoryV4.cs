@@ -107,22 +107,18 @@ namespace CustomerOnlineOrdersRegistrar.V4.Factories
 			{
 				var nomenclature = uow.GetById<Nomenclature>(onlineOrderItemDto.NomenclatureId);
 
-				DiscountReason applicableDiscountReason = null;
+				DiscountReasonBase applicableDiscountReason = null;
 				
 				if(onlineOrderItemDto.DiscountReasonId.HasValue)
 				{
-					applicableDiscountReason = uow.GetById<DiscountReason>(onlineOrderItemDto.DiscountReasonId.Value);
+					applicableDiscountReason = uow.GetById<DiscountReasonBase>(onlineOrderItemDto.DiscountReasonId.Value);
 				}
 				else if(onlineOrder.IsSelfDelivery
 				        && !onlineOrderItemDto.PromoSetId.HasValue
 				        && nomenclature != null)
 				{
-					var discountReason = uow.GetById<DiscountReason>(selfDeliveryDiscountReasonId);
-
-					if(_discountController.IsApplicableDiscount(discountReason, nomenclature))
-					{
-						applicableDiscountReason = discountReason;
-					}
+					var discountReason = uow.GetById<DiscountReasonBase>(selfDeliveryDiscountReasonId);
+					applicableDiscountReason = discountReason;
 				}
 				
 				PromotionalSet promoSet = null;

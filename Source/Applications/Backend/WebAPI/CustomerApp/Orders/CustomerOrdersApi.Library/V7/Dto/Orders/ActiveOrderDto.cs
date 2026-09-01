@@ -1,5 +1,4 @@
-﻿using CustomerOrdersApi.Library.V6.Dto.Orders;
-using Vodovoz.Core.Domain.Orders;
+﻿using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders
 {
@@ -23,9 +22,9 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 				case ExternalOrderStatus.OrderDelivering:
 					TextStatusMessage =
 						establishedRoute ? "Курьер направляется к Вам"
-						: isOrderWasSelectedAsNext
-							? "Курьер задерживается"
-							: "Заказ в пути";
+							: isOrderWasSelectedAsNext
+								? "Курьер задерживается"
+								: "Заказ в пути";
 					break;
 				default:
 					TextStatusMessage = string.Empty;

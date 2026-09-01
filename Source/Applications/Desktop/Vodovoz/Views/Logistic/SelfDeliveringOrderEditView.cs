@@ -217,7 +217,7 @@ namespace Vodovoz.Views.Logistic
 			);
 		}
 
-		private string GetDiscountReasonsString(IEnumerable<DiscountReason> discountReasons)
+		private string GetDiscountReasonsString(IEnumerable<DiscountReasonBase> discountReasons)
 		{
 			if(discountReasons is null || !discountReasons.Any())
 			{

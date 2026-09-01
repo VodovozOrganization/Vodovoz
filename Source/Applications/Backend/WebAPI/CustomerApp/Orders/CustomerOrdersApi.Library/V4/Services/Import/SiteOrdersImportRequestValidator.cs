@@ -1,16 +1,16 @@
-using CustomerOrdersApi.Library.Config;
-using CustomerOrdersApi.Library.SiteOrdersImport.Dto;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
+using CustomerOrdersApi.Library.Config;
+using CustomerOrdersApi.Library.V4.Dto.Orders.Import;
+using Microsoft.Extensions.Options;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using VodovozInfrastructure.Cryptography;
 
-namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
+namespace CustomerOrdersApi.Library.V4.Services.Import
 {
 	/// <summary>
 	/// Проверяет структуру пакета и подпись запроса.

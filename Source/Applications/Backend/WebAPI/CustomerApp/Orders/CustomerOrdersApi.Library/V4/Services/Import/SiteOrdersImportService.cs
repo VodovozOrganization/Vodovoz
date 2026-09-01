@@ -1,16 +1,15 @@
-using CustomerOrdersApi.Library.SiteOrdersImport.Dto;
-using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrdersApi.Library.V4.Dto.Orders.Import;
+using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders.SiteOrdersImport;
 
-namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
+namespace CustomerOrdersApi.Library.V4.Services.Import
 {
 	/// <summary>
 	/// Приём пакета выгрузки с сайта: каждая запись идемпотентно сохраняется в БД.

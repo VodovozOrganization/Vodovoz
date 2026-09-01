@@ -20,7 +20,7 @@ namespace VodovozBusiness.Domain.Orders
 		private decimal _price;
 		private OnlineOrder _onlineOrder;
 		private PromotionalSet _promoSet;
-		private IList<DiscountReason> _discountReasons = new List<DiscountReason>();
+		private IList<DiscountReasonBase> _discountReasons = new List<DiscountReasonBase>();
 
 		protected OnlineOrderPromoSet() { }
 
@@ -80,7 +80,7 @@ namespace VodovozBusiness.Domain.Orders
 		/// Основания скидок на товар
 		/// </summary>
 		[Display(Name = "Основания скидок на товар")]
-		public virtual IList<DiscountReason> DiscountReasons
+		public virtual IList<DiscountReasonBase> DiscountReasons
 		{
 			get => _discountReasons;
 			set => SetField(ref _discountReasons, value);
@@ -92,7 +92,7 @@ namespace VodovozBusiness.Domain.Orders
 			decimal price,
 			OnlineOrder onlineOrder,
 			PromotionalSet promoSet,
-			IList<DiscountReason> discountReasons = null
+			IList<DiscountReasonBase> discountReasons = null
 		) => new OnlineOrderPromoSet
 		{
 			ReceivedPromoSetId = promoSetId,

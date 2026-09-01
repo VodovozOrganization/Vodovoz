@@ -23,22 +23,18 @@ namespace Vodovoz.Core.Application.Sale
 			INomenclatureFixedPriceController fixedPriceController,
 			IDiscountReasonRepository discountReasonRepository,
 			IDiscountReasonSettings discountReasonSettings
-			) : base(logger)
+			) : base(logger, discountReasonSettings)
 		{
 			FixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
 			DiscountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
-			DiscountReasonSettings = discountReasonSettings ?? throw new ArgumentNullException(nameof(discountReasonSettings));
-			PersonalDiscountReasonId = DiscountReasonSettings.PersonalDiscountReasonId;
 		}
 
 		protected INomenclatureFixedPriceController FixedPriceController { get; }
 		protected IDiscountReasonRepository DiscountReasonRepository { get; }
-		protected IDiscountReasonSettings DiscountReasonSettings { get; }
-		protected int PersonalDiscountReasonId { get; }
 		
 		/// <inheritdoc/>
-		public Result AddDiscountFromDiscountReasonForOrderItem(
-			DiscountReason reason,
+		public Result AddDiscountFromDiscountReason(
+			DiscountReasonBase reason,
 			IApplyDiscountReasonItem saleItem,
 			bool isNotCheckPromoSetOrFixedPrice = false
 			)
@@ -211,7 +207,8 @@ namespace Vodovoz.Core.Application.Sale
 		/// Удаление скидок из позиции на продажу
 		/// </summary>
 		/// <param name="saleItem">Продаваемая позиция</param>
-		protected virtual void ClearDiscounts(IApplyDiscountReasonItem saleItem)
+		/// <param name="needSetDiscount">Нужно установить скидку</param>
+		protected virtual void ClearDiscounts(IApplyDiscountReasonItem saleItem, bool needSetDiscount = true)
 		{
 			saleItem.DiscountReasons.Clear();
 			saleItem.PersonalDiscount = null;
@@ -258,7 +255,8 @@ namespace Vodovoz.Core.Application.Sale
 		protected virtual decimal CalculateTotalDiscount(IApplyDiscountReasonItem saleItem)
 		{
 			var totalDiscountInMoney = 0m;
-			totalDiscountInMoney += CalculateTotalDiscountValueFromDiscountReasonsWithoutPersonalDiscount(saleItem).DiscountMoney;
+			totalDiscountInMoney += CalculateTotalDiscountValueFromDiscountReasonsWithoutPersonalDiscount(saleItem)
+				.DiscountMoney;
 
 			if(saleItem.PersonalDiscount != null)
 			{
@@ -269,36 +267,6 @@ namespace Vodovoz.Core.Application.Sale
 		}
 		
 		/// <summary>
-		/// Расчет итоговой скидки в деньгах по основаниям скидки, исключая персональную скидку
-		/// </summary>
-		/// <param name="saleItem">Продаваемая позиция</param>
-		/// <returns>Скидка в деньгах</returns>
-		protected virtual IDiscountValue CalculateTotalDiscountValueFromDiscountReasonsWithoutPersonalDiscount(
-			IApplyDiscountReasonItem saleItem
-			)
-		{
-			var currentPrice = saleItem.CurrentRawPrice;
-			var tempDiscountValue = CalculateDiscountFromDiscountReasonsWithoutPersonalDiscount(saleItem);
-
-			if(tempDiscountValue.Discount < 0)
-			{
-				tempDiscountValue.SetDiscount(0m, false);
-			}
-
-			var discountFromPercent = currentPrice * (tempDiscountValue.Discount / 100);
-			var totalDiscountMoney = discountFromPercent + tempDiscountValue.DiscountMoney;
-			var totalDiscountPercent =
-				currentPrice == 0m
-					? 0m
-					: 100 * totalDiscountMoney / currentPrice;
-
-			return DiscountValue.Create(
-				tempDiscountValue.IsDiscountMoney,
-				totalDiscountPercent > 100 ? 100 : totalDiscountPercent,
-				totalDiscountMoney > currentPrice ? currentPrice : totalDiscountMoney);
-		}
-		
-		/// <summary>
 		/// Установка скидки из основания скидки на конкретную позицию
 		/// </summary>
 		/// <param name="currentDiscounts">Текущие основания скидок</param>
@@ -306,7 +274,7 @@ namespace Vodovoz.Core.Application.Sale
 		/// <param name="saleItem">Строка заказа</param>
 		/// <param name="withoutRecalculate">Без пересчета скидки(актуально, когда нужно выполнить еще действия после добавления и потом пересчитать)</param>
 		protected Result AddDiscount(
-			DiscountReason addingDiscount,
+			DiscountReasonBase addingDiscount,
 			IApplyDiscountReasonItem saleItem,
 			bool withoutRecalculate = false
 		)
@@ -317,6 +285,7 @@ namespace Vodovoz.Core.Application.Sale
 			{
 				if(addingDiscount != null && !IsDiscountReasonAdded(currentDiscounts, addingDiscount))
 				{
+					var totalDiscount = CalculateTotalDiscount(saleItem);
 					currentDiscounts.Add(addingDiscount);
 				}
 
@@ -335,8 +304,8 @@ namespace Vodovoz.Core.Application.Sale
 		}
 		
 		protected bool IsDiscountReasonAdded(
-			IEnumerable<DiscountReason> currentDiscounts,
-			DiscountReason addingDiscount
+			IEnumerable<DiscountReasonBase> currentDiscounts,
+			DiscountReasonBase addingDiscount
 		)
 		{
 			var foundDiscount = currentDiscounts.FirstOrDefault(x => x.Id == addingDiscount.Id);
@@ -454,34 +423,7 @@ namespace Vodovoz.Core.Application.Sale
 			return discountValue;
 		}
 		
-		private IDiscountValue CalculateDiscountFromDiscountReasonsWithoutPersonalDiscount(IApplyDiscountReasonItem saleItem)
-		{
-			var percentDiscount = 0m;
-			var moneyDiscount = 0m;
-			var isDiscountMoney = false;
-
-			foreach(var reason in saleItem.DiscountReasons)
-			{
-				if(reason.Id == PersonalDiscountReasonId)
-				{
-					continue;
-				}
-				
-				if(reason.ValueType == DiscountUnits.money)
-				{
-					moneyDiscount += reason.Value;
-					isDiscountMoney = true;
-				}
-				else
-				{
-					percentDiscount += reason.Value;
-				}
-			}
-
-			return DiscountValue.Create(isDiscountMoney, percentDiscount, moneyDiscount);
-		}
-		
-		private void RemoveDiscountReasons(IApplyDiscountReasonItem saleItem, IList<DiscountReason> discountReasons)
+		private void RemoveDiscountReasons(IApplyDiscountReasonItem saleItem, IList<DiscountReasonBase> discountReasons)
 		{
 			foreach(var reason in discountReasons)
 			{

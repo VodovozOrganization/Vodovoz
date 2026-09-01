@@ -40,7 +40,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		
 		public void SetCustomDiscountForOrder(
 			IUnitOfWork uow,
-			DiscountReason reason,
+			DiscountReasonBase reason,
 			IDiscountValue discountValue,
 			IEnumerable<IApplyDiscountReasonItem> saleItems)
 		{
@@ -51,7 +51,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 
 		public void SetDiscountFromDiscountReasonForOrder(
-			DiscountReason reason,
+			DiscountReasonBase reason,
 			IEnumerable<IApplyDiscountReasonItem> saleItems,
 			bool canChangeDiscountValue,
 			out string messages)
@@ -73,7 +73,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 
 		public bool SetDiscountFromDiscountReasonForOrderItem(
-			DiscountReason reason, IApplyDiscountReasonItem orderItem, bool canChangeDiscountValue, out string message)
+			DiscountReasonBase reason, IApplyDiscountReasonItem orderItem, bool canChangeDiscountValue, out string message)
 		{
 			message = null;
 			
@@ -107,11 +107,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 		
 		public override void RecalculateDiscount(IDataContext context)
 		{
-			/*if(!CheckInitializedProperties())
-			{
-				return;
-			}*/
-			
 			if(context.Data is not OrderRecalculateDiscount data)
 			{
 				throw new InvalidOperationException(
@@ -161,11 +156,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 		
 		public void RecalculateDiscountWithPreserveOrRestoreDiscount(IPreserveDiscount saleItem)
 		{
-			/*if(!CheckInitializedProperties())
-			{
-				return;
-			}*/
-			
 			if(saleItem.CurrentCount == 0)
 			{
 				RemoveAndPreserveDiscount(saleItem);
@@ -234,6 +224,18 @@ namespace Vodovoz.Core.Application.Orders.Services
 					copyingSaleItem.OriginalDiscountMoney ?? 0m),
 				copyingSaleItem.OriginalDiscountReasons,
 				copyingSaleItem.PersonalDiscount);
+		}
+
+		//Не использовать данный метод без особой необходимости, если можно обойтись стандартными методами
+		public void SilentSetCustomDiscount(
+			DiscountReasonBase discountReason,
+			IApplyDiscountReasonItem saleItem,
+			IDiscountValue discountValue
+			)
+		{
+			ClearDiscounts(saleItem);
+			saleItem.DiscountReasons.Add(discountReason);
+			CalculateAndSetDiscount(saleItem, discountValue);
 		}
 
 		private OkResult SetClientSecondOrderDiscount(
@@ -346,7 +348,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private void SetCustomDiscountForOrderItem(
 			IUnitOfWork uow,
 			IApplyDiscountReasonItem saleItem,
-			DiscountReason reason,
+			DiscountReasonBase reason,
 			IDiscountValue discountValue)
 		{
 			var canApplyResult = IsApplicableDiscount(reason, saleItem);
@@ -356,7 +358,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return;
 			}
 
-			ClearDiscounts(saleItem);
+			ClearDiscounts(saleItem, false);
 			var addingResult = AddDiscount(reason, saleItem, true);
 
 			if(addingResult.IsFailure)
@@ -371,7 +373,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IUnitOfWork uow,
 			IApplyDiscountReasonItem saleItem,
 			IDiscountValue discountValue,
-			IEnumerable<DiscountReason> copyingDiscountReasons,
+			IEnumerable<DiscountReasonBase> copyingDiscountReasons,
 			PersonalDiscount copyingPersonalDiscount
 			)
 		{

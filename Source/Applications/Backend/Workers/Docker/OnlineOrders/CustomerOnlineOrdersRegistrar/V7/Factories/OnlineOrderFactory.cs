@@ -22,13 +22,13 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
 		private readonly IGenericRepository<PromotionalSet> _promotionalSetRepository;
 		private readonly IGenericRepository<FreeRentPackage> _freeRentPackageRepository;
-		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
+		private readonly IGenericRepository<DiscountReasonBase> _discountReasonRepository;
 
 		public OnlineOrderFactory(
 			IGenericRepository<Nomenclature> nomenclatureRepository,
 			IGenericRepository<PromotionalSet> promotionalSetRepository,
 			IGenericRepository<FreeRentPackage> freeRentPackageRepository,
-			IGenericRepository<DiscountReason> discountReasonRepository
+			IGenericRepository<DiscountReasonBase> discountReasonRepository
 			)
 		{
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -143,7 +143,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 			var nomenclature = _nomenclatureRepository
 				.GetFirstOrDefault(uow, x => x.Id == onlineOrderItemDto.ErpId);
 			
-			IList<DiscountReason> discounts = null;
+			IList<DiscountReasonBase> discounts = null;
 
 			if(onlineOrderItemDto.DiscountIds.Any())
 			{
@@ -182,7 +182,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 			var promoSet = _promotionalSetRepository
 				.GetFirstOrDefault(uow, x => x.Id == onlineOrderItemDto.ErpId);
 
-			IList<DiscountReason> discounts = null;
+			IList<DiscountReasonBase> discounts = null;
 
 			if(onlineOrderItemDto.DiscountIds.Any())
 			{

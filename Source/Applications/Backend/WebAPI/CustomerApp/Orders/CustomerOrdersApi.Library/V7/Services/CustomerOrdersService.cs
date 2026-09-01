@@ -262,7 +262,10 @@ namespace CustomerOrdersApi.Library.V7.Services
 			foreach(var orderDto in orderDtos)
 			{
 				var driverPositionData = await _courierTrackingService.GetDriverPositionData(uow, orderDto, cancellationToken);
-				orderDto.UpdateTrackingAvailability(driverPositionData.EstablishedRoute, driverPositionData.CoordinatesLastUpdateTime, _courierCoordinatesOptions.CurrentValue.TrackingLostTimeout);
+				orderDto.UpdateTrackingAvailability(
+					driverPositionData.EstablishedRoute,
+					driverPositionData.CoordinatesLastUpdateTime,
+					_courierCoordinatesOptions.CurrentValue.TrackingLostTimeout);
 			}
 
 			return new OrdersDto

@@ -1,7 +1,7 @@
-using CustomerOrdersApi.Library.SiteOrdersImport.Dto;
+using CustomerOrdersApi.Library.V4.Dto.Orders.Import;
 using Vodovoz.Core.Domain.Results;
 
-namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
+namespace CustomerOrdersApi.Library.V4.Services.Import
 {
 	/// <summary>
 	/// Проверяет входящий пакет выгрузки заказов и брошенных корзин с сайта.

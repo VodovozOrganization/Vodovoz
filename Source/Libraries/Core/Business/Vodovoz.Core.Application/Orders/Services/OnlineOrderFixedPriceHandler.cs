@@ -82,11 +82,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 			CanApplyOnlineOrderFixedPriceV7 canApplyOnlineOrderFixedPrice)
 		{
 			if(!HasFixedPrices(
-					uow,
-					canApplyOnlineOrderFixedPrice.CounterpartyId,
-					canApplyOnlineOrderFixedPrice.DeliveryPointId,
-					canApplyOnlineOrderFixedPrice.IsSelfDelivery,
-					out var fixedPrices))
+				uow,
+				canApplyOnlineOrderFixedPrice.CounterpartyId,
+				canApplyOnlineOrderFixedPrice.DeliveryPointId,
+				canApplyOnlineOrderFixedPrice.IsSelfDelivery,
+				out var fixedPrices))
 			{
 				return Result.Failure<IEnumerable<IOrderedCartItem>>(Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
 			}

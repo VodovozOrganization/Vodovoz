@@ -2,6 +2,7 @@
 using System.Linq;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
+using CustomerOrdersApi.Library.V7.Factories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -19,6 +20,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderDiscountHandler _onlineOrderDiscountHandler;
+		private readonly IInfoMessageFactory _infoMessageFactory;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrdersDiscountService(
@@ -26,12 +28,14 @@ namespace CustomerOrdersApi.Library.V7.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
-			IOnlineOrderDiscountHandler onlineOrderDiscountHandler)
+			IOnlineOrderDiscountHandler onlineOrderDiscountHandler,
+			IInfoMessageFactory infoMessageFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
 			_onlineOrderDiscountHandler = onlineOrderDiscountHandler ?? throw new ArgumentNullException(nameof(onlineOrderDiscountHandler));
+			_infoMessageFactory = infoMessageFactory ?? throw new ArgumentNullException(nameof(infoMessageFactory));
 			_signatureOptions =
 				(signatureOptions ?? throw new ArgumentNullException(nameof(signatureOptions)))
 				.Value;
@@ -89,7 +93,11 @@ namespace CustomerOrdersApi.Library.V7.Services
 
 			return result.IsFailure
 				? AppliedPromoCodeDto.CreateError(result.Errors.First())
-				: AppliedPromoCodeDto.Create(result.Value);
+				: AppliedPromoCodeDto.Create(
+					result.Value.CartItems,
+					result.Value.AppliedToAllItems
+						? null
+						: _infoMessageFactory.CreatePromoCodeAppliedToNotAllItemsWarning());
 		}
 	}
 }

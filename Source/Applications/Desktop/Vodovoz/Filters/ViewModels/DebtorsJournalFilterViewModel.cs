@@ -40,7 +40,7 @@ namespace Vodovoz.Filters.ViewModels
 		private bool _showSuspendedCounterparty;
 		private bool _showCancellationCounterparty;
 		private DebtorsTaskStatus? _debtorsTaskStatus;
-		private DiscountReason _discountReason;
+		private DiscountReasonBase _discountReason;
 		private Nomenclature _lastOrderNomenclature;
 		private DeliveryPointCategory _selectedDeliveryPointCategory;
 		private IEnumerable<DeliveryPointCategory> _deliveryPointCategories;
@@ -207,7 +207,7 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _lastOrderNomenclature, value);
 		}
 
-		public DiscountReason DiscountReason
+		public DiscountReasonBase DiscountReason
 		{
 			get => _discountReason;
 			set => SetField(ref _discountReason, value);

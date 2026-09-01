@@ -28,6 +28,7 @@ namespace Vodovoz.Handlers
 		/// <param name="receivedData">Данные, необходимые для проверки промокода и товары
 		/// <see cref="CanApplyOnlineOrderPromoCode"/></param>
 		/// <returns></returns>
-		Result<IEnumerable<IOrderedCartItem>> TryApplyPromoCodeV7(IUnitOfWork uow, CanApplyOnlineOrderPromoCodeV7 receivedData);
+		Result<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> CartItems)> TryApplyPromoCodeV7(
+			IUnitOfWork uow, CanApplyOnlineOrderPromoCodeV7 receivedData);
 	}
 }

@@ -45,8 +45,8 @@ namespace Vodovoz.Domain.Orders
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
 		private PersonalDiscount _personalDiscount;
-		private IObservableList<DiscountReason> _discountReasons = new ObservableList<DiscountReason>();
-		private IObservableList<DiscountReason> _originalDiscountReasons = new ObservableList<DiscountReason>();
+		private IObservableList<DiscountReasonBase> _discountReasons = new ObservableList<DiscountReasonBase>();
+		private IObservableList<DiscountReasonBase> _originalDiscountReasons = new ObservableList<DiscountReasonBase>();
 		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 
 		protected OrderItem()
@@ -125,16 +125,16 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Основания скидки на товар")]
-		public virtual IObservableList<DiscountReason> DiscountReasons
+		public virtual IObservableList<DiscountReasonBase> DiscountReasons
 		{
 			get => _discountReasons;
 			set => SetField(ref _discountReasons, value);
 		}
 		
-		IEnumerable<DiscountReason> IDiscountReasons.DiscountReasons => DiscountReasons;
+		IEnumerable<DiscountReasonBase> IDiscountReasons.DiscountReasons => DiscountReasons;
 
 		[Display(Name = "Основания скидки на товар до отмены заказа")]
-		public virtual IObservableList<DiscountReason> OriginalDiscountReasons
+		public virtual IObservableList<DiscountReasonBase> OriginalDiscountReasons
 		{
 			get => _originalDiscountReasons;
 			set => SetField(ref _originalDiscountReasons, value);
@@ -144,11 +144,9 @@ namespace Vodovoz.Domain.Orders
 
 		#region IApplyDiscountReason implementation
 
-		decimal IApplyDiscountReasonItem.CurrentRawPrice => CurrentRawPrice;
-
 		public virtual IDiscountValue DiscountData => DiscountValue.Create(IsDiscountInMoney, Discount, DiscountMoney);
 
-		IList<DiscountReason> IApplyDiscountReasonItem.DiscountReasons => DiscountReasons;
+		IList<DiscountReasonBase> IApplyDiscountReasonItem.DiscountReasons => DiscountReasons;
 		
 		public virtual void SetDiscount(IDiscountValue discountValue)
 		{
@@ -164,8 +162,7 @@ namespace Vodovoz.Domain.Orders
 			&& Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category);
 
 		public virtual decimal GetDiscount => IsDiscountInMoney ? DiscountMoney : Discount;
-
-		private decimal CurrentRawPrice => Price * CurrentCount;
+		public virtual decimal CurrentRawPrice => Price * CurrentCount;
 
 		public virtual void SetNomenclature(Nomenclature nomenclature)
 		{
@@ -175,7 +172,7 @@ namespace Vodovoz.Domain.Orders
 
 		private decimal GetPercentDiscount() => IsDiscountInMoney ? (100 * DiscountMoney) / (Price * CurrentCount) : Discount;
 
-		public virtual void SetDiscountByStock(DiscountReason discountReasonForStockBottle, decimal discountPercent)
+		public virtual void SetDiscountByStock(DiscountReasonBase discountReasonForStockBottle, decimal discountPercent)
 		{
 			discountPercent = discountPercent > 100 ? 100 : discountPercent < 0 ? 0 : discountPercent;
 
@@ -610,7 +607,7 @@ namespace Vodovoz.Domain.Orders
 
 		#region IPreserveDiscount implementation
 
-		IList<DiscountReason> IPreserveDiscount.OriginalDiscountReasons => OriginalDiscountReasons;
+		IList<DiscountReasonBase> IPreserveDiscount.OriginalDiscountReasons => OriginalDiscountReasons;
 
 		#endregion
 

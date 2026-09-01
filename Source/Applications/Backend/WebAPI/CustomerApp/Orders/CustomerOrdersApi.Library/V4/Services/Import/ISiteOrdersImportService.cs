@@ -1,8 +1,8 @@
-using CustomerOrdersApi.Library.SiteOrdersImport.Dto;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrdersApi.Library.V4.Dto.Orders.Import;
 
-namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
+namespace CustomerOrdersApi.Library.V4.Services.Import
 {
 	/// <summary>
 	/// Приём и обработка пакета выгрузки заказов и брошенных корзин с сайта.

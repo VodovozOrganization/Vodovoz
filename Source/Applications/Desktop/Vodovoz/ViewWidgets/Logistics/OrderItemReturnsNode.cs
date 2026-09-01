@@ -22,7 +22,7 @@ namespace Vodovoz
 		public OrderItemReturnsNode(OrderEquipment equipment)
 		{
 			OrderEquipment = equipment;
-			DiscountReasons = OrderEquipment.OrderItem?.DiscountReasons ?? new ObservableList<DiscountReason>();
+			DiscountReasons = OrderEquipment.OrderItem?.DiscountReasons ?? new ObservableList<DiscountReasonBase>();
 			IsDiscountReasonsEditable = OrderEquipment.OrderItem != null;
 		}
 
@@ -30,7 +30,7 @@ namespace Vodovoz
 		public OrderEquipment OrderEquipment { get; private set; }
 		public OrderItem EquipmentOrderItem => OrderEquipment?.OrderItem;
 
-		public IObservableList<DiscountReason> DiscountReasons { get; }
+		public IObservableList<DiscountReasonBase> DiscountReasons { get; }
 
 		public string DiscountReasonsNames => string.Join(", ", DiscountReasons.Select(dr => dr.Name));
 
