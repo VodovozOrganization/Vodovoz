@@ -69,6 +69,12 @@ namespace EdoService.Library
 			EdoDocumentStatus.Error
 		};
 
+		private static EdoDocumentStatus[] _resendWithOriginalCodesStatuses => new[]
+		{
+			EdoDocumentStatus.Warning,
+			EdoDocumentStatus.CompletedWithDivergences
+		};
+
 		public EdoService(
 			IUnitOfWorkFactory uowFactory,
 			IOrderRepository orderRepository,
@@ -160,7 +166,25 @@ namespace EdoService.Library
 					return Result.Success("Повторная отмена вывода кодов из оборота поставлена в очередь");
 				}
 
+				var orderDocument = _edoRepository.GetOrderEdoDocumentByTaskId(uow, taskId);
+				if(!IsDocumentCompletedWithClarification(orderDocument?.Status))
+				{
+					return Result.Failure<string>(EdoErrors.ResendWithOriginalCodesStatusNotSupported);
+				}
+
 				var withdrawalTaskIds = GetWithdrawalTaskIdsForBaseTask(uow, taskId);
+				var withdrawalDocuments = GetSuccessfulWithdrawalDocumentsForTask(uow, order.Id, withdrawalTaskIds);
+
+				if(withdrawalDocuments.Length == 0)
+				{
+					return Result.Failure<string>(EdoErrors.SuccessfulWithdrawalForResendNotFound);
+				}
+
+				if(withdrawalDocuments.Length > 1)
+				{
+					return Result.Failure<string>(EdoErrors.MultipleSuccessfulWithdrawalsForResendFound);
+				}
+
 				var checkOtherRequestsResult = CheckOtherRequests(
 					uow,
 					edoTask.FormalEdoRequest,
@@ -180,55 +204,26 @@ namespace EdoService.Library
 
 				var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(edoTask);
 				var resendEdoRequest = _manualEdoRequestFactory.Create(uow, order, productCodes);
-				var withdrawalDocuments = GetSuccessfulWithdrawalDocumentsForTask(uow, order.Id, withdrawalTaskIds);
-
-				if(withdrawalDocuments.Length == 0 && withdrawalTaskIds.Any())
-				{
-					return Result.Failure<string>(new Error(
-						"WithdrawalDocumentForTaskNotFound",
-						$"Не найден успешный документ вывода кодов из оборота для задачи ЭДО {taskId}"));
-				}
-
-				if(withdrawalDocuments.Length > 1)
-				{
-					return Result.Failure<string>(new Error(
-						"WithdrawalDocumentForTaskNotUnique",
-						$"Найдено несколько документов вывода кодов из оборота для задачи ЭДО {taskId}"));
-				}
+				var withdrawalDocument = withdrawalDocuments.Single();
 
 				CancelEdoTaskWithReason(uow, edoTask);
 				uow.Save(resendEdoRequest);
 
-				var withdrawalDocument = withdrawalDocuments.SingleOrDefault();
-				if(withdrawalDocument != null)
+				var cancellationRequest = new EdoResendAfterTrueMarkCancellationRequest
 				{
-					var cancellationRequest = new EdoResendAfterTrueMarkCancellationRequest
-					{
-						Order = order,
-						OriginalEdoTask = edoTask,
-						ResendEdoRequest = resendEdoRequest,
-						WithdrawalDocument = withdrawalDocument,
-						Status = EdoResendAfterTrueMarkCancellationStatus.WaitingForCancellation,
-						CreationTime = DateTime.Now,
-						LastUpdateTime = DateTime.Now
-					};
+					Order = order,
+					OriginalEdoTask = edoTask,
+					ResendEdoRequest = resendEdoRequest,
+					WithdrawalDocument = withdrawalDocument,
+					Status = EdoResendAfterTrueMarkCancellationStatus.WaitingForCancellation,
+					CreationTime = DateTime.Now,
+					LastUpdateTime = DateTime.Now
+				};
 
-					uow.Save(cancellationRequest);
-					uow.Commit();
-
-					return Result.Success("Документ поставлен в очередь на переотправку после отмены вывода кодов из оборота в ЧЗ");
-				}
-
+				uow.Save(cancellationRequest);
 				uow.Commit();
 
-				_edoRequestCreatedEventPublisher.Publish(
-					resendEdoRequest.Id,
-					"Ручная переотправка документов ЭДО с исходными кодами")
-					.ConfigureAwait(false)
-					.GetAwaiter()
-					.GetResult();
-
-				return Result.Success("Документ отправлен на переотправку с исходными кодами");
+				return Result.Success("Документ поставлен в очередь на переотправку после отмены вывода кодов из оборота в ЧЗ");
 			}
 		}
 
@@ -514,6 +509,9 @@ namespace EdoService.Library
 
 		public bool CanResendEdoDocument(EdoDocumentStatus? status) => status.HasValue
 			&& _resendableEdoDocumentStatuses.Contains(status.Value);
+
+		private static bool IsDocumentCompletedWithClarification(EdoDocumentStatus? status) => status.HasValue
+			&& _resendWithOriginalCodesStatuses.Contains(status.Value);
 
 		private static int[] GetWithdrawalTaskIdsForBaseTask(IUnitOfWork uow, int taskId)
 		{
