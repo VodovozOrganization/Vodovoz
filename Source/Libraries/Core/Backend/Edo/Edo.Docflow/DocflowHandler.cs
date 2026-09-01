@@ -136,6 +136,10 @@ namespace Edo.Docflow
 					throw new InvalidOperationException($"Неизвестный тип заявки {documentTask.FormalEdoRequest.Type}");
 			}
 
+			document.RecipientEdoAccountId = updInfo.Customer.Organization.EdoAccountId;
+			await _uow.SaveAsync(document, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+
 			var message = new TaxcomDocflowSendEvent
 			{
 				EdoAccount = sender.TaxcomEdoSettings.EdoAccount,

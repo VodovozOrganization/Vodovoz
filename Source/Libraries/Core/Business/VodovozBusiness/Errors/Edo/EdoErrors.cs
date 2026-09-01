@@ -129,6 +129,61 @@ namespace VodovozBusiness.Errors.Edo
 				"Для документа уже создан процесс переотправки после отмены вывода кодов из оборота в ЧЗ");
 
 		/// <summary>
+		/// Ошибка: в документе отсутствует сохранённый аккаунт ЭДО получателя.
+		/// </summary>
+		public static Error RecipientEdoAccountNotSaved =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(RecipientEdoAccountNotSaved),
+				"Невозможно определить аккаунт ЭДО, на который был отправлен документ. Обратитесь в техническую поддержку.");
+
+		/// <summary>
+		/// Ошибка: у клиента не настроен текущий основной аккаунт ЭДО.
+		/// </summary>
+		public static Error CurrentRecipientEdoAccountNotConfigured =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(CurrentRecipientEdoAccountNotConfigured),
+				"У клиента не настроен основной аккаунт ЭДО для организации договора.");
+
+		/// <summary>
+		/// Ошибка: клиент не дал согласие на ЭДО для текущего основного аккаунта.
+		/// </summary>
+		public static Error CurrentRecipientEdoAccountHasNoConsent =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(CurrentRecipientEdoAccountHasNoConsent),
+				"У клиента нет согласия на ЭДО для текущего основного аккаунта.");
+
+		/// <summary>
+		/// Ошибка: основной аккаунт ЭДО клиента не изменился.
+		/// </summary>
+		public static Error RecipientEdoAccountNotChanged =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(RecipientEdoAccountNotChanged),
+				"Основной аккаунт ЭДО клиента не изменился.");
+
+		/// <summary>
+		/// Ошибка: принятый УПД нельзя автоматически переотправить на другой аккаунт ЭДО.
+		/// </summary>
+		public static Error AcceptedUpdCannotBeResentToChangedAccount =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(AcceptedUpdCannotBeResentToChangedAccount),
+				"УПД уже принят клиентом. Для переотправки необходимо отправить клиенту предложение об аннулировании "
+				+ "и дождаться полного аннулирования документооборота.");
+
+		/// <summary>
+		/// Ошибка: состояние документа изменилось во время запуска переотправки.
+		/// </summary>
+		public static Error EdoDocumentStatusChangedDuringResend =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(EdoDocumentStatusChangedDuringResend),
+				"Состояние документа изменилось. Обновите список документов и повторите операцию.");
+
+		/// <summary>
 		/// Создает ошибку о том, что документ уже успешно отправлен
 		/// </summary>
 		/// <param name="edoContainer">Контейнер ЭДО</param>

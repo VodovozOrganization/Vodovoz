@@ -27,5 +27,13 @@ namespace Vodovoz.Core.Domain.Permissions
 			Name = "Переотправка документов ЭДО с кодами ЧЗ из пула",
 			Description = "Пользователь может переотправлять документы ЭДО с подбором новых кодов ЧЗ из пула")]
 		public static string CanResendEdoDocumentWithCodesFromPool => nameof(CanResendEdoDocumentWithCodesFromPool);
+
+		/// <summary>
+		/// Пользователь может переотправлять незавершённый УПД на другой аккаунт ЭДО клиента.
+		/// </summary>
+		[Display(
+			Name = "Переотправка незавершённого УПД на другой аккаунт ЭДО",
+			Description = "Пользователь может отправить незавершённый УПД на аннулирование и сразу переотправить его на другой аккаунт ЭДО клиента")]
+		public static string CanResendEdoDocumentToChangedAccount => nameof(CanResendEdoDocumentToChangedAccount);
 	}
 }

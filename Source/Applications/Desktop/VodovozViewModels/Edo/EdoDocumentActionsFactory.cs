@@ -80,6 +80,19 @@ namespace Vodovoz.ViewModels.Edo
 
 		private void ResendUpd(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
+			var accountChangedResult = _edoService.IsRecipientEdoAccountChanged(document.TaskId);
+			if(accountChangedResult.IsFailure)
+			{
+				ShowErrorMessage(accountChangedResult.Errors);
+				return;
+			}
+
+			if(accountChangedResult.Value)
+			{
+				ResendUpdToChangedAccount(document, onActionCompleted);
+				return;
+			}
+
 			if(IsDocumentCompletedWithClarification(document))
 			{
 				ShowResult(_edoService.ScheduleResendEdoDocumentAfterTrueMarkCancellation(document.TaskId));
@@ -124,6 +137,50 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				ShowErrorMessage(result.Errors);
 			}
+		}
+
+		private void ResendUpdToChangedAccount(EdoInOrderDocumentNode document, Action onActionCompleted)
+		{
+			if(document.EdoDocumentStatus == EdoDocumentStatus.Succeed)
+			{
+				ShowResult(_edoService.ResendEdoDocumentToChangedAccount(document.TaskId));
+				return;
+			}
+
+			if(RequiresPermissionToResendToChangedAccount(document)
+				&& !_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentToChangedAccount))
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Для переотправки незавершённого УПД на другой аккаунт ЭДО недостаточно прав.");
+				return;
+			}
+
+			if(!_interactiveService.Question(
+				"У клиента изменился основной аккаунт ЭДО.\n" +
+				"Документ будет переотправлен на новый аккаунт.\n" +
+				"Старый документооборот при необходимости будет автоматически отправлен на аннулирование. Продолжить?"))
+			{
+				return;
+			}
+
+			var result = _edoService.ResendEdoDocumentToChangedAccount(document.TaskId);
+			ShowResult(result);
+
+			if(result.IsSuccess)
+			{
+				onActionCompleted?.Invoke();
+			}
+		}
+
+		private static bool RequiresPermissionToResendToChangedAccount(EdoInOrderDocumentNode document)
+		{
+			return document.EdoDocumentStatus.HasValue
+				&& document.EdoDocumentStatus is EdoDocumentStatus.Succeed
+				&& document.EdoDocumentStatus != EdoDocumentStatus.Warning
+				&& document.EdoDocumentStatus != EdoDocumentStatus.CompletedWithDivergences
+				&& document.EdoDocumentStatus != EdoDocumentStatus.Cancelled
+				&& document.EdoDocumentStatus != EdoDocumentStatus.Error;
 		}
 
 		private void ResendUpdWithCodesFromPool(EdoInOrderDocumentNode document, Action onActionCompleted)

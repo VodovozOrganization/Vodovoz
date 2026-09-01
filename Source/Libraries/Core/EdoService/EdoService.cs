@@ -57,6 +57,26 @@ namespace EdoService.Library
 		private readonly IManualEdoRequestFactory _manualEdoRequestFactory;
 		private readonly IBus _bus;
 
+		private sealed class ChangedAccountResendData
+		{
+			public ChangedAccountResendData(
+				DocumentEdoTask task,
+				OrderEntity order,
+				OrderEdoDocument document,
+				string currentEdoAccountId)
+			{
+				Task = task;
+				Order = order;
+				Document = document;
+				CurrentEdoAccountId = currentEdoAccountId;
+			}
+
+			public DocumentEdoTask Task { get; }
+			public OrderEntity Order { get; }
+			public OrderEdoDocument Document { get; }
+			public string CurrentEdoAccountId { get; }
+		}
+
 		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[]
 		{
 			EdoDocFlowStatus.Succeed,
@@ -122,6 +142,201 @@ namespace EdoService.Library
 				return ResendEdoDocument(uow, taskId);
 			}
 		}
+
+		public Result<bool> IsRecipientEdoAccountChanged(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Проверяем изменение аккаунта ЭДО получателя"))
+			{
+				var document = _edoRepository.GetOrderEdoDocumentByTaskId(uow, taskId);
+				if(document is null)
+				{
+					return Result.Success(false);
+				}
+
+				var resendDataResult = GetChangedAccountResendData(uow, taskId);
+				if(resendDataResult.IsFailure)
+				{
+					return Result.Failure<bool>(resendDataResult.Errors);
+				}
+
+				return Result.Success(!AreEdoAccountIdsEqual(
+					resendDataResult.Value.Document.RecipientEdoAccountId,
+					resendDataResult.Value.CurrentEdoAccountId));
+			}
+		}
+
+		public Result<string> ResendEdoDocumentToChangedAccount(int taskId)
+		{
+			EdoDocumentStatus documentStatus;
+			bool hasProductCodes;
+
+			using(var uow = _uowFactory.CreateWithoutRoot("Проверяем переотправку УПД на другой аккаунт ЭДО"))
+			{
+				var resendDataResult = GetChangedAccountResendData(uow, taskId, validateConsent: true);
+				if(resendDataResult.IsFailure)
+				{
+					return Result.Failure<string>(resendDataResult.Errors);
+				}
+
+				var resendData = resendDataResult.Value;
+				if(AreEdoAccountIdsEqual(resendData.Document.RecipientEdoAccountId, resendData.CurrentEdoAccountId))
+				{
+					return Result.Failure<string>(EdoErrors.RecipientEdoAccountNotChanged);
+				}
+
+				documentStatus = resendData.Document.Status;
+				hasProductCodes = resendData.Task.Items.Any();
+			}
+
+			switch(documentStatus)
+			{
+				case EdoDocumentStatus.Succeed:
+					return Result.Failure<string>(EdoErrors.AcceptedUpdCannotBeResentToChangedAccount);
+				case EdoDocumentStatus.Warning:
+				case EdoDocumentStatus.CompletedWithDivergences:
+					return hasProductCodes
+						? ScheduleResendEdoDocumentAfterTrueMarkCancellation(taskId)
+						: ResendActiveEdoDocumentToChangedAccount(taskId, allowCompletedWithClarification: true);
+				case EdoDocumentStatus.Cancelled:
+				case EdoDocumentStatus.Error:
+					return ResendEdoDocumentForOrder(taskId);
+				case EdoDocumentStatus.InProgress:
+				case EdoDocumentStatus.Sent:
+				case EdoDocumentStatus.WaitingForCancellation:
+					return ResendActiveEdoDocumentToChangedAccount(taskId);
+				default:
+					return Result.Failure<string>(EdoErrors.EdoDocumentStatusChangedDuringResend);
+			}
+		}
+
+		private Result<string> ResendActiveEdoDocumentToChangedAccount(
+			int taskId,
+			bool allowCompletedWithClarification = false)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Переотправляем активный УПД на другой аккаунт ЭДО"))
+			{
+				var resendDataResult = GetChangedAccountResendData(
+					uow,
+					taskId,
+					usePessimisticLock: true,
+					validateConsent: true);
+				if(resendDataResult.IsFailure)
+				{
+					return Result.Failure<string>(resendDataResult.Errors);
+				}
+
+				var resendData = resendDataResult.Value;
+				if(AreEdoAccountIdsEqual(resendData.Document.RecipientEdoAccountId, resendData.CurrentEdoAccountId))
+				{
+					return Result.Failure<string>(EdoErrors.RecipientEdoAccountNotChanged);
+				}
+
+				var completedWithClarification = resendData.Document.Status.IsIn(
+					EdoDocumentStatus.Warning,
+					EdoDocumentStatus.CompletedWithDivergences);
+
+				if(resendData.Document.Status.IsIn(
+					EdoDocumentStatus.Succeed,
+					EdoDocumentStatus.Cancelled,
+					EdoDocumentStatus.Error)
+					|| (completedWithClarification && !allowCompletedWithClarification))
+				{
+					return Result.Failure<string>(EdoErrors.EdoDocumentStatusChangedDuringResend);
+				}
+
+				var orderValidationResult = ValidateOrderForResend(resendData.Order);
+				if(orderValidationResult.IsFailure)
+				{
+					return Result.Failure<string>(orderValidationResult.Errors);
+				}
+
+				var checkOtherRequestsResult = CheckOtherRequests(
+					uow,
+					resendData.Task.FormalEdoRequest,
+					taskId);
+				if(checkOtherRequestsResult.IsFailure)
+				{
+					return Result.Failure<string>(checkOtherRequestsResult.Errors);
+				}
+
+				var checkOtherTasksResult = CheckOtherTasks(uow, resendData.Task, taskId);
+				if(checkOtherTasksResult.IsFailure)
+				{
+					return Result.Failure<string>(checkOtherTasksResult.Errors);
+				}
+
+				if(resendData.Task.Status != EdoTaskStatus.InCancellation)
+				{
+					CancelEdoTaskWithReason(uow, resendData.Task);
+				}
+
+				if(!resendData.Task.Status.IsIn(EdoTaskStatus.InCancellation, EdoTaskStatus.Cancelled))
+				{
+					return Result.Failure<string>(EdoErrors.EdoDocumentStatusChangedDuringResend);
+				}
+
+				ResendDocumentForCancelledEdoTask(uow, resendData.Order, resendData.Task);
+
+				return Result.Success("Старый документооборот отправлен на аннулирование. УПД отправлен на новый аккаунт ЭДО клиента.");
+			}
+		}
+
+		private Result<ChangedAccountResendData> GetChangedAccountResendData(
+			IUnitOfWork uow,
+			int taskId,
+			bool usePessimisticLock = false,
+			bool validateConsent = false)
+		{
+			var task = usePessimisticLock
+				? GetEdoTaskWithPessimisticLock(uow, taskId)
+				: uow.Session.Get<OrderEdoTask>(taskId);
+
+			if(!(task is DocumentEdoTask documentTask))
+			{
+				return Result.Failure<ChangedAccountResendData>(EdoErrors.NoEdoTask);
+			}
+
+			var order = documentTask.FormalEdoRequest?.Order;
+			if(order?.Client is null || order.Contract?.Organization is null)
+			{
+				return Result.Failure<ChangedAccountResendData>(EdoErrors.HasProblem);
+			}
+
+			var document = _edoRepository.GetOrderEdoDocumentByTaskId(uow, taskId);
+			if(document is null || document.DocumentType != EdoDocumentType.UPD)
+			{
+				return Result.Failure<ChangedAccountResendData>(EdoErrors.InvalidOutgoingDocumentType);
+			}
+
+			if(string.IsNullOrWhiteSpace(document.RecipientEdoAccountId))
+			{
+				return Result.Failure<ChangedAccountResendData>(EdoErrors.RecipientEdoAccountNotSaved);
+			}
+
+			var currentEdoAccount = _counterpartyEdoAccountEntityController
+				.GetDefaultCounterpartyEdoAccountByOrganizationId(order.Client, order.Contract.Organization.Id);
+
+			if(string.IsNullOrWhiteSpace(currentEdoAccount?.PersonalAccountIdInEdo))
+			{
+				return Result.Failure<ChangedAccountResendData>(EdoErrors.CurrentRecipientEdoAccountNotConfigured);
+			}
+
+			if(validateConsent
+				&& document.Status != EdoDocumentStatus.Succeed
+				&& currentEdoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+			{
+				return Result.Failure<ChangedAccountResendData>(EdoErrors.CurrentRecipientEdoAccountHasNoConsent);
+			}
+
+			return Result.Success(new ChangedAccountResendData(
+				documentTask,
+				order,
+				document,
+				currentEdoAccount.PersonalAccountIdInEdo));
+		}
+
+		private static bool AreEdoAccountIdsEqual(string firstAccountId, string secondAccountId) =>
+			string.Equals(firstAccountId, secondAccountId, StringComparison.OrdinalIgnoreCase);
 
 		public Result<string> ScheduleResendEdoDocumentAfterTrueMarkCancellation(int taskId)
 		{

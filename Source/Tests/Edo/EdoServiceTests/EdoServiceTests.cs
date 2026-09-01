@@ -20,9 +20,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Taxcom.Docflow.Utility;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
@@ -36,6 +38,14 @@ namespace EdoServices.Tests
 {
 	public class EdoServiceTests
 	{
+		private sealed class TestOrderEntity : OrderEntity
+		{
+			public void SetClient(CounterpartyEntity client)
+			{
+				Client = client;
+			}
+		}
+
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IUnitOfWork _uow;
 		private readonly IOrderRepository _orderRepository;
@@ -48,6 +58,7 @@ namespace EdoServices.Tests
 		private readonly IBus _bus;
 		private readonly MessageService _messageService;
 		private readonly EdoCancellationService _edoCancellationService;
+		private readonly IEdoCancellationValidator _edoCancellationValidator;
 		private readonly IUserService _userService;
 		private readonly ITaxcomApiFactory _taxcomApiFactory;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
@@ -95,10 +106,11 @@ namespace EdoServices.Tests
 				_bus
 			);
 
+			_edoCancellationValidator = Substitute.For<IEdoCancellationValidator>();
 			_edoCancellationService = new EdoCancellationService(
 				Substitute.For<ILogger<EdoCancellationService>>(),
 				_uow,
-				Substitute.For<IEdoCancellationValidator>(),
+				_edoCancellationValidator,
 				_problemRegistrar,
 				Substitute.For<IPublishEndpoint>()
 				);
@@ -627,6 +639,242 @@ namespace EdoServices.Tests
 				&& request.Status == EdoResendAfterTrueMarkCancellationStatus.WaitingForCancellation));
 			uow.Received().Commit();
 			_edoRequestCreatedEventPublisher.DidNotReceiveWithAnyArgs().Publish(default, default, default);
+		}
+
+		[Fact]
+		public void IsRecipientEdoAccountChanged_WhenAccountChanged_ReturnsTrue()
+		{
+			var taskId = 123;
+			SetupChangedAccountResendContext(
+				taskId,
+				"OLD-ACCOUNT",
+				"NEW-ACCOUNT",
+				EdoDocumentStatus.InProgress);
+
+			var result = _edoService.IsRecipientEdoAccountChanged(taskId);
+
+			Assert.True(result.IsSuccess);
+			Assert.True(result.Value);
+		}
+
+		[Fact]
+		public void IsRecipientEdoAccountChanged_WhenOutgoingDocumentNotCreated_ReturnsFalse()
+		{
+			var taskId = 123;
+			var uow = Substitute.For<IUnitOfWork>();
+			_uowFactory.CreateWithoutRoot(Arg.Any<string>()).ReturnsForAnyArgs(uow);
+			_edoRepository.GetOrderEdoDocumentByTaskId(uow, taskId).Returns((OrderEdoDocument)null);
+
+			var result = _edoService.IsRecipientEdoAccountChanged(taskId);
+
+			Assert.True(result.IsSuccess);
+			Assert.False(result.Value);
+		}
+
+		[Fact]
+		public void IsRecipientEdoAccountChanged_WhenAccountNotChanged_ReturnsFalse()
+		{
+			var taskId = 123;
+			SetupChangedAccountResendContext(
+				taskId,
+				"SAME-ACCOUNT",
+				"same-account",
+				EdoDocumentStatus.InProgress);
+
+			var result = _edoService.IsRecipientEdoAccountChanged(taskId);
+
+			Assert.True(result.IsSuccess);
+			Assert.False(result.Value);
+		}
+
+		[Fact]
+		public void IsRecipientEdoAccountChanged_WhenAccountNotChangedAndConsentMissing_ReturnsFalse()
+		{
+			var taskId = 123;
+			SetupChangedAccountResendContext(
+				taskId,
+				"SAME-ACCOUNT",
+				"SAME-ACCOUNT",
+				EdoDocumentStatus.InProgress,
+				currentAccountConsentStatus: ConsentForEdoStatus.Rejected);
+
+			var result = _edoService.IsRecipientEdoAccountChanged(taskId);
+
+			Assert.True(result.IsSuccess);
+			Assert.False(result.Value);
+		}
+
+		[Fact]
+		public void IsRecipientEdoAccountChanged_WhenSentAccountNotSaved_ReturnsFailure()
+		{
+			var taskId = 123;
+			SetupChangedAccountResendContext(
+				taskId,
+				null,
+				"NEW-ACCOUNT",
+				EdoDocumentStatus.InProgress);
+
+			var result = _edoService.IsRecipientEdoAccountChanged(taskId);
+
+			Assert.True(result.IsFailure);
+			Assert.Contains(result.Errors, error => error == EdoErrors.RecipientEdoAccountNotSaved);
+		}
+
+		[Fact]
+		public void ResendToChangedAccount_WhenDocumentAccepted_ReturnsFailure()
+		{
+			var taskId = 123;
+			SetupChangedAccountResendContext(
+				taskId,
+				"OLD-ACCOUNT",
+				"NEW-ACCOUNT",
+				EdoDocumentStatus.Succeed);
+
+			var result = _edoService.ResendEdoDocumentToChangedAccount(taskId);
+
+			Assert.True(result.IsFailure);
+			Assert.Contains(result.Errors, error => error == EdoErrors.AcceptedUpdCannotBeResentToChangedAccount);
+		}
+
+		[Fact]
+		public void ResendToChangedAccount_WhenDocumentAcceptedAndCurrentAccountConsentMissing_ReturnsAcceptedFailure()
+		{
+			var taskId = 123;
+			SetupChangedAccountResendContext(
+				taskId,
+				"OLD-ACCOUNT",
+				"NEW-ACCOUNT",
+				EdoDocumentStatus.Succeed,
+				currentAccountConsentStatus: ConsentForEdoStatus.Rejected);
+
+			var result = _edoService.ResendEdoDocumentToChangedAccount(taskId);
+
+			Assert.True(result.IsFailure);
+			Assert.Contains(result.Errors, error => error == EdoErrors.AcceptedUpdCannotBeResentToChangedAccount);
+		}
+
+		[Fact]
+		public void ResendToChangedAccount_WhenCurrentAccountConsentMissing_ReturnsFailure()
+		{
+			var taskId = 123;
+			SetupChangedAccountResendContext(
+				taskId,
+				"OLD-ACCOUNT",
+				"NEW-ACCOUNT",
+				EdoDocumentStatus.InProgress,
+				currentAccountConsentStatus: ConsentForEdoStatus.Rejected);
+
+			var result = _edoService.ResendEdoDocumentToChangedAccount(taskId);
+
+			Assert.True(result.IsFailure);
+			Assert.Contains(result.Errors, error => error == EdoErrors.CurrentRecipientEdoAccountHasNoConsent);
+		}
+
+		[Theory]
+		[InlineData(EdoDocumentStatus.InProgress)]
+		[InlineData(EdoDocumentStatus.Sent)]
+		[InlineData(EdoDocumentStatus.WaitingForCancellation)]
+		[InlineData(EdoDocumentStatus.Warning)]
+		[InlineData(EdoDocumentStatus.CompletedWithDivergences)]
+		public void ResendToChangedAccount_WhenDocumentHasNoCodes_CreatesAndPublishesManualRequest(
+			EdoDocumentStatus documentStatus)
+		{
+			var taskId = 123;
+			var resendRequest = new ManualEdoRequest { Id = 456 };
+			var context = SetupChangedAccountResendContext(
+				taskId,
+				"OLD-ACCOUNT",
+				"NEW-ACCOUNT",
+				documentStatus,
+				EdoTaskStatus.InCancellation);
+			resendRequest.Order = context.Order;
+			_manualEdoRequestFactory.Create(
+				context.Uow,
+				context.Order,
+				Arg.Any<IEnumerable<TrueMarkProductCode>>())
+				.Returns(resendRequest);
+
+			var result = _edoService.ResendEdoDocumentToChangedAccount(taskId);
+
+			Assert.True(result.IsSuccess);
+			context.Uow.Received().Save(resendRequest);
+			_edoRequestCreatedEventPublisher.Received(1).Publish(
+				resendRequest.Id,
+				"Ручная переотправка документов ЭДО");
+		}
+
+		[Theory]
+		[InlineData(EdoDocumentStatus.InProgress)]
+		[InlineData(EdoDocumentStatus.Sent)]
+		public void ResendToChangedAccount_WhenActiveTaskIsNotCancelling_RequestsCancellation(
+			EdoDocumentStatus documentStatus)
+		{
+			var taskId = 123;
+			var context = SetupChangedAccountResendContext(
+				taskId,
+				"OLD-ACCOUNT",
+				"NEW-ACCOUNT",
+				documentStatus);
+			context.Uow.Session.GetAsync<EdoTask>(taskId, Arg.Any<CancellationToken>())
+				.Returns(context.Task);
+
+			var result = _edoService.ResendEdoDocumentToChangedAccount(taskId);
+
+			Assert.True(result.IsFailure);
+			_edoCancellationValidator.Received(1).CanCancelEdoTask(context.Task);
+			_manualEdoRequestFactory.DidNotReceiveWithAnyArgs().Create(default, default, default);
+		}
+
+		private (IUnitOfWork Uow, DocumentEdoTask Task, OrderEntity Order) SetupChangedAccountResendContext(
+			int taskId,
+			string sentAccountId,
+			string currentAccountId,
+			EdoDocumentStatus documentStatus,
+			EdoTaskStatus taskStatus = EdoTaskStatus.InProgress,
+			ConsentForEdoStatus currentAccountConsentStatus = ConsentForEdoStatus.Agree)
+		{
+			var client = new CounterpartyEntity { Id = 10 };
+			var organization = new OrganizationEntity { Id = 20 };
+			var order = new TestOrderEntity
+			{
+				Id = 30,
+				Contract = new CounterpartyContractEntity { Organization = organization },
+				OrderStatus = OrderStatus.NewOrder
+			};
+			order.SetClient(client);
+			var task = CreateDocumentEdoTask(taskId, order);
+			task.Status = taskStatus;
+			var document = new OrderEdoDocument
+			{
+				DocumentTaskId = taskId,
+				DocumentType = EdoDocumentType.UPD,
+				Status = documentStatus,
+				RecipientEdoAccountId = sentAccountId
+			};
+			var currentAccount = CounterpartyEdoAccountEntity.Create(
+				client,
+				null,
+				currentAccountId,
+				organization.Id,
+				true,
+				currentAccountConsentStatus);
+			var uow = Substitute.For<IUnitOfWork>();
+			var transactionOpened = false;
+			uow.When(x => x.OpenTransaction()).Do(_ => transactionOpened = true);
+			uow.Session.Get<OrderEdoTask>(taskId).Returns(task);
+			uow.Session.Get<DocumentEdoTask>(taskId).Returns(task);
+			uow.Session.Get<OrderEdoTask>(taskId, LockMode.Upgrade).Returns(_ =>
+			{
+				Assert.True(transactionOpened);
+				return task;
+			});
+			_edoRepository.GetOrderEdoDocumentByTaskId(uow, taskId).Returns(document);
+			_counterpartyEdoAccountEntityController
+				.GetDefaultCounterpartyEdoAccountByOrganizationId(client, organization.Id)
+				.Returns(currentAccount);
+			_uowFactory.CreateWithoutRoot(Arg.Any<string>()).ReturnsForAnyArgs(uow);
+
+			return (uow, task, order);
 		}
 
 		private static DocumentEdoTask CreateDocumentEdoTask(int taskId, OrderEntity order)
