@@ -1,4 +1,5 @@
 ﻿using Core.Infrastructure;
+using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
@@ -22,6 +23,7 @@ namespace Edo.Admin
 		private readonly IUnitOfWork _uow;
 		private readonly IEdoCancellationValidator _edoCancellationValidator;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IPublishEndpoint _publishEndpoint;
 
 		public EdoCancellationService(
@@ -29,6 +31,7 @@ namespace Edo.Admin
 			IUnitOfWork uow,
 			IEdoCancellationValidator edoCancellationValidator,
 			EdoProblemRegistrar edoProblemRegistrar,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IPublishEndpoint publishEndpoint
 			)
 		{
@@ -36,6 +39,7 @@ namespace Edo.Admin
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_edoCancellationValidator = edoCancellationValidator ?? throw new ArgumentNullException(nameof(edoCancellationValidator));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
@@ -114,11 +118,7 @@ namespace Edo.Admin
 			{
 				edoTask.Status = EdoTaskStatus.Cancelled;
 
-				foreach(var item in edoTask.Items)
-				{
-					item.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Rejected;
-					item.ProductCode.ResultCode = null;
-				}
+				await RejectProductCodesAsync(uow, edoTask, cancellationToken);
 
 				edoTask.CancellationReason = reason;
 
@@ -251,8 +251,27 @@ namespace Edo.Admin
 			orderTask.Status = EdoTaskStatus.Cancelled;
 			orderTask.EndTime = DateTime.Now;
 
+			await RejectProductCodesAsync(_uow, orderTask, cancellationToken);
+
 			await _uow.SaveAsync(orderTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
+		}
+
+		private async Task RejectProductCodesAsync(
+			IUnitOfWork unitOfWork,
+			OrderEdoTask orderTask,
+			CancellationToken cancellationToken)
+		{
+			foreach(var item in orderTask.Items)
+			{
+				await _trueMarkWaterCodeService.DeleteRelatedGroupAndTransportCodesAsync(
+					unitOfWork,
+					item.ProductCode.SourceCode,
+					cancellationToken);
+
+				item.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Rejected;
+				item.ProductCode.ResultCode = null;
+			}
 		}
 	}
 }
