@@ -20,7 +20,7 @@ namespace Vodovoz.Core.Domain.Sale
 		public string Name { get; private set; }
 		public decimal Amount { get; private set; }
 
-		public void UpdateEntity(string name, decimal amount)
+		public void Update(string name, decimal amount)
 		{
 			Name = name;
 			Amount = amount;

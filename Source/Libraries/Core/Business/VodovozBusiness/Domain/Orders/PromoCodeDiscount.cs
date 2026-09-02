@@ -15,25 +15,14 @@ namespace VodovozBusiness.Domain.Orders
 	{
 		public const int OrderMinSumLimit = 1_000_000_000;
 		private const int _promoCodeNameLimit = 15;
-		
-		private string _promoCodeName;
+
 		private bool _isOneTimePromoCode;
 		private decimal _orderMinSum;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private TimeSpan? _startTime;
 		private TimeSpan? _endTime;
-		
-		/// <summary>
-		/// Промокод
-		/// </summary>
-		[Display(Name = "Промокод")]
-		public virtual string PromoCodeName
-		{
-			get => _promoCodeName;
-			set => SetField(ref _promoCodeName, value);
-		}
-		
+
 		/// <summary>
 		/// Одноразовый промокод
 		/// </summary>
@@ -118,19 +107,27 @@ namespace VodovozBusiness.Domain.Orders
 			EndTime = null;
 		}
 
-		//TODO надо сделать отдельный валидатор под сущность
-		public virtual IEnumerable<ValidationResult> Validate()
+		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(string.IsNullOrEmpty(PromoCodeName))
+			foreach(var validationResult in base.Validate(validationContext))
 			{
-				yield return new ValidationResult("Название промокода должно быть заполнено", new[] { nameof(PromoCodeName) });
+				yield return validationResult;
 			}
 
-			if(PromoCodeName?.Length > _promoCodeNameLimit)
+			if(!string.IsNullOrWhiteSpace(Name))
 			{
-				yield return new ValidationResult(
-					$"Превышена длина названия промокода на {PromoCodeName.Length}-{_promoCodeNameLimit}",
-					new[] { nameof(PromoCodeName) });
+				if(Name.ToLower().Contains("промокод"))
+				{
+					yield return new ValidationResult(
+						"Название промокода не должно содержать слова промокод, только само название", new[] { nameof(Name) });
+				}
+				
+				if(Name.Length > _promoCodeNameLimit)
+				{
+					var difference = Name.Length - _promoCodeNameLimit;
+					yield return new ValidationResult(
+						$"Превышена длина названия промокода на {difference}", new[] { nameof(Name) });
+				}
 			}
 
 			if(!StartDate.HasValue)
@@ -160,7 +157,14 @@ namespace VodovozBusiness.Domain.Orders
 				}
 			}*/
 		}
-		
+
+		public override string ToString()
+		{
+			return string.IsNullOrWhiteSpace(Name)
+				? "Новый промокод"
+				: $"Промокод {Name}";
+		}
+
 		public static PromoCodeDiscount Create(DiscountReasonBase copyingDiscount)
 		{
 			var newDiscount = new PromoCodeDiscount();

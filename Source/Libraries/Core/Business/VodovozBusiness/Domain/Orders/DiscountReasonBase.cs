@@ -211,14 +211,12 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult("Нельзя создать новое архивное основание", new[] { nameof(IsArchive) });
 			}
+
 			if(string.IsNullOrEmpty(Name))
 			{
 				yield return new ValidationResult("Название скидки должно быть заполнено", new[] { nameof(Name) });
 			}
-			if(Name?.Length > _nameLimit)
-			{
-				yield return new ValidationResult($"Превышена длина названия скидки ({Name.Length}/{_nameLimit})", new[] { nameof(Name) });
-			}
+
 			if(Value == 0)
 			{
 				yield return new ValidationResult("Размер скидки не может быть равен 0", new[] { nameof(Value) });
@@ -232,6 +230,12 @@ namespace Vodovoz.Domain.Orders
 
 			if(DiscountReasonType != DiscountReasonType.PromoCode)
 			{
+				if(Name?.Length > _nameLimit)
+				{
+					var difference = Name.Length - _nameLimit;
+					yield return new ValidationResult($"Превышена длина названия скидки на {difference}", new[] { nameof(Name) });
+				}
+				
 				using(var uow =
 				      validationContext.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Проверка основания скидки на дубли"))
 				{
@@ -246,6 +250,13 @@ namespace Vodovoz.Domain.Orders
 					}
 				}
 			}
+		}
+		
+		public override string ToString()
+		{
+			return string.IsNullOrWhiteSpace(Name)
+				? "Новое основание скидки"
+				: Name;
 		}
 
 		private void AddNomenclatureCategory(SelectableNomenclatureCategoryNode selectedCategory)

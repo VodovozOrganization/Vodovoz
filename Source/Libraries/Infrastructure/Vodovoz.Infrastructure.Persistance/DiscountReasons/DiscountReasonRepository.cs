@@ -19,7 +19,7 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 				.OrderBy(i => i.Name);
 			return orderByDescending ? query.Desc().List() : query.Asc().List();
 		}
-		
+
 		/// <inheritdoc/>
 		public IEnumerable<DiscountReasonBase> GetDiscountReasons(IUnitOfWork uow, IEnumerable<int> disсountReasonIds)
 		{
@@ -102,7 +102,7 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 			var discount = (
 				from discountReason in uow.Session.Query<PromoCodeDiscount>()
 				where !discountReason.IsArchive
-					&& discountReason.PromoCodeName.ToLower() == promoCode.ToLower()
+					&& discountReason.Name.ToLower() == promoCode.ToLower()
 				select discountReason)
 				.SingleOrDefault();
 			
@@ -113,7 +113,7 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 		{
 			discountReason = (
 				from discount in uow.Session.Query<PromoCodeDiscount>()
-				where discount.PromoCodeName.ToLower() == promoCode.ToLower()
+				where discount.Name.ToLower() == promoCode.ToLower()
 					&& discount.Id != discountReasonId
 				select discount)
 				.SingleOrDefault();

@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Nodes;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
@@ -30,5 +31,14 @@ namespace Vodovoz.Handlers
 		/// <returns></returns>
 		Result<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> CartItems)> TryApplyPromoCodeV7(
 			IUnitOfWork uow, CanApplyOnlineOrderPromoCodeV7 receivedData);
+		/// <summary>
+		/// Расчет детализированных скидок позиции 
+		/// </summary>
+		/// <param name="receivedCartItem">Позиция из корзины</param>
+		/// <param name="discountReasons">Основания скидок из позиции</param>
+		void CalculateDiscount(
+			IOrderedCartItemWithDiscountDetails receivedCartItem,
+			IEnumerable<DiscountReasonBase> discountReasons
+		);
 	}
 }

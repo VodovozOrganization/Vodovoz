@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Sale;
 
@@ -10,25 +9,18 @@ namespace Vodovoz.Core.Data.Sale
 	/// </summary>
 	public class OnlineOrderItemWithDiscountDetailsDto : OnlineOrderItemBaseDto, IOrderedCartItemWithDiscountDetails
 	{
-		/// <summary>
-		/// Идентификаторы скидок
-		/// </summary>
+		/// <inheritdoc/>
 		public IList<IDiscountAmount> Discounts { get; set; }
-		/// <summary>
-		/// Очистка скидки
-		/// </summary>
-		public void ClearDiscount()
+
+		public void AddFixedPrice(decimal fixedPrice)
 		{
-			Discounts.Clear();
-		}
-		/// <summary>
-		/// Добавление фиксы
-		/// </summary>
-		/// <param name="fixedPrice">Фикса</param>
-		public override void AddFixedPrice(decimal fixedPrice)
-		{
-			base.AddFixedPrice(fixedPrice);
-			ClearDiscount();
+			if(PriceWithoutDiscount is null)
+			{
+				PriceWithoutDiscount = fixedPrice;
+			}
+			
+			Price = fixedPrice;
+			IsFixedPrice = true;
 		}
 
 		public static OnlineOrderItemWithDiscountDetailsDto Create(IOrderedCartItem onlineOrderedItem)

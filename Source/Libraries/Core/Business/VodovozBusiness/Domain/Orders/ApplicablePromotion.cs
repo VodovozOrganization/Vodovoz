@@ -4,7 +4,7 @@ using Vodovoz.Domain.Orders;
 
 namespace VodovozBusiness.Domain.Orders
 {
-	public class ApplicableDiscount : IApplicableDiscount
+	public class ApplicablePromotion : IApplicablePromotion
 	{
 		public decimal Price { get; set; }
 		public decimal Count { get; set; }

@@ -16,7 +16,8 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		{
 		}
 
-		public AppliedPromoCodeDto(IEnumerable<IOrderedCartItemWithDiscountDetails> saleItems, IInfoMessage warning = null) : base(saleItems, warning)
+		public AppliedPromoCodeDto(IEnumerable<IOrderedCartItemWithDiscountDetails> saleItems, IInfoMessage warning = null)
+			: base(saleItems, warning)
 		{
 		}
 

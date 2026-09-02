@@ -33,7 +33,8 @@ namespace CustomerOrdersApi.Library.V7.Factories
 				ItemType = saleItem.Nomenclature.Category.ToSaleItemType(),
 				Discounts = new List<IDiscountAmount>(_discountController
 					.CalculateTotalDiscountDetails(saleItem as ICalculatingTotalMoneyDiscount)
-					.DiscountDetails)
+					.DiscountDetails
+					.Values)
 			};
 		}
 		

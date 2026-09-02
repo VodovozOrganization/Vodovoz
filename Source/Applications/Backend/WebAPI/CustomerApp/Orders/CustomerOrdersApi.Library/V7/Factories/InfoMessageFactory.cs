@@ -26,7 +26,11 @@ namespace CustomerOrdersApi.Library.V7.Factories
 		
 		public InfoMessage CreateFixedPriceAppliedToNotAllItemsWarning()
 		{
-			return InfoMessage.Create(null, null, "Фиксированная цена недоступна", "Индивидуальная цена недоступна для одного или нескольких товаров в заказе");
+			return InfoMessage.Create(
+				null,
+				null,
+				"Установлена действующая индивидуальная цена",
+				"Индивидуальная цена применена не на все позиции заказа");
 		}
 	}
 }

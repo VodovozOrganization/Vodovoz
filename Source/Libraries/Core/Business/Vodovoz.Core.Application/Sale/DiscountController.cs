@@ -35,7 +35,7 @@ namespace Vodovoz.Core.Application.Sale
 		protected int PersonalDiscountReasonId { get; }
 
 		/// <inheritdoc/>
-		public Result IsApplicableDiscount(DiscountReasonBase addingDiscount, IApplicableDiscount saleItem)
+		public Result IsApplicableDiscount(DiscountReasonBase addingDiscount, IApplicablePromotion saleItem)
 		{
 			if(addingDiscount is null)
 			{
@@ -53,7 +53,7 @@ namespace Vodovoz.Core.Application.Sale
 		}
 
 		/// <inheritdoc/>
-		public virtual (decimal TotalDiscount, IEnumerable<IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+		public virtual (decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
 			ICalculatingTotalMoneyDiscount saleItem
 		)
 		{
@@ -65,7 +65,7 @@ namespace Vodovoz.Core.Application.Sale
 			}
 			
 			var currentSumWithoutDiscount = saleItem.CurrentRawPrice;
-			var discountAmounts = new List<IDiscountAmount>();
+			var discountAmounts = new Dictionary<int, IDiscountAmount>();
 			var totalDiscountMoney = 0m;
 
 			foreach(var discountReason in saleItem.DiscountReasons)
@@ -77,29 +77,31 @@ namespace Vodovoz.Core.Application.Sale
 
 				if(currentSumWithoutDiscount >= totalDiscountMoney)
 				{
-					discountAmount = DiscountAmount.Create(discountReason.Id, discountReason.Name, discountMoney);
+					discountAmount = DiscountAmount.Create(discountReason.Id, discountReason.ToString(), discountMoney);
 				}
 				else
 				{
 					var difference = totalDiscountMoney - currentSumWithoutDiscount;
 					discountAmount = DiscountAmount.Create(
 						discountReason.Id,
-						discountReason.Name,
+						discountReason.ToString(),
 						difference >= discountMoney ? 0m : discountMoney - difference);
 					totalDiscountMoney = currentSumWithoutDiscount;
 				}
 
-				discountAmounts.Add(discountAmount);
+				discountAmounts.Add(discountAmount.Id, discountAmount);
 			}
 
 			if(saleItem.PersonalDiscount != null)
 			{
 				totalDiscountMoney += saleItem.PersonalDiscount.DiscountValue.DiscountMoney;
-				discountAmounts.Add(DiscountAmount.Create(
+				
+				var personalDiscountAmount = DiscountAmount.Create(
 					saleItem.PersonalDiscount.DiscountReason.Id,
-					saleItem.PersonalDiscount.DiscountReason.Name,
-					saleItem.PersonalDiscount.DiscountValue.DiscountMoney)
-				);
+					saleItem.PersonalDiscount.DiscountReason.ToString(),
+					saleItem.PersonalDiscount.DiscountValue.DiscountMoney);
+				
+				discountAmounts.Add(personalDiscountAmount.Id, personalDiscountAmount);
 			}
 
 			return (totalDiscountMoney, discountAmounts);
@@ -177,7 +179,7 @@ namespace Vodovoz.Core.Application.Sale
 			return DiscountValue.Create(isDiscountMoney, percentDiscount, moneyDiscount);
 		}
 
-		private bool CanApplyByType(DiscountReasonBase addingDiscount, IApplicableDiscount saleItem)
+		private bool CanApplyByType(DiscountReasonBase addingDiscount, IApplicablePromotion saleItem)
 		{
 			var notApplicableDiscounts = addingDiscount.DiscountApplicabilities
 				.Where(x => x.UseDiscountType == UseDiscountType.NotApplicable)
@@ -187,14 +189,10 @@ namespace Vodovoz.Core.Application.Sale
 			
 			foreach(var notApplicableDiscount in notApplicableDiscounts)
 			{
-				foreach(var discountReason in saleItem.DiscountReasons)
+				if(saleItem.DiscountReasons.Any(discountReason =>
+					(saleItem.IsFixedPrice && notApplicableDiscount.DiscountType == DiscountType.FixedPrice)
+						|| (int)discountReason.DiscountReasonType == (int)notApplicableDiscount.DiscountType))
 				{
-					if((!saleItem.IsFixedPrice || notApplicableDiscount.DiscountType != DiscountType.FixedPrice)
-						&& (int)discountReason.DiscountReasonType != (int)notApplicableDiscount.DiscountType)
-					{
-						continue;
-					}
-
 					isNotApplicableDiscount = true;
 					break;
 				}
@@ -203,7 +201,7 @@ namespace Vodovoz.Core.Application.Sale
 			return isNotApplicableDiscount;
 		}
 		
-		private Result CanApplyDiscount(DiscountReasonBase addingDiscount, IApplicableDiscount saleItem)
+		private Result CanApplyDiscount(DiscountReasonBase addingDiscount, IApplicablePromotion saleItem)
 		{
 			if(saleItem.Nomenclature is null && saleItem.PromoSet is null)
 			{

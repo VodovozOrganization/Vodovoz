@@ -4,7 +4,7 @@ using VodovozBusiness.Domain.Sale;
 
 namespace Vodovoz.Domain.Orders
 {
-	public interface IApplicableDiscount : ICurrentRawPrice, IDiscountReasons
+	public interface IApplicablePromotion : ICurrentRawPrice, IDiscountReasons
 	{
 		/// <summary>
 		/// Фикса

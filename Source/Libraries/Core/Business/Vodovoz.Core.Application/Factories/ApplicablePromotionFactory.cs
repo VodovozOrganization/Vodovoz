@@ -13,13 +13,13 @@ using VodovozBusiness.Factories;
 
 namespace Vodovoz.Core.Application.Factories
 {
-	public class ApplicableDiscountFactory : IApplicableDiscountFactory
+	public class ApplicablePromotionFactory : IApplicablePromotionFactory
 	{
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
 		private readonly IGenericRepository<PromotionalSet> _promotionalSetRepository;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 
-		public ApplicableDiscountFactory(
+		public ApplicablePromotionFactory(
 			IGenericRepository<Nomenclature> nomenclatureRepository,
 			IGenericRepository<PromotionalSet> promotionalSetRepository,
 			IDiscountReasonRepository discountReasonRepository
@@ -30,9 +30,9 @@ namespace Vodovoz.Core.Application.Factories
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 		}
 
-		public IApplicableDiscount CreateApplicableDiscount(
+		public IApplicablePromotion CreateApplicablePromotion(
 			IUnitOfWork uow,
-			IOrderedCartItem orderedCartItem)
+			IOrderedCartItemWithDiscountDetails orderedCartItem)
 		{
 			PromotionalSet promotionalSet = null;
 			Nomenclature nomenclature = null;
@@ -52,15 +52,36 @@ namespace Vodovoz.Core.Application.Factories
 					break;
 			}
 
-			return new ApplicableDiscount
+			return new ApplicablePromotion
 			{
 				Price = orderedCartItem.Price,
 				Count = orderedCartItem.Count,
 				IsFixedPrice = orderedCartItem.IsFixedPrice,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
-				DiscountReasons = orderedCartItem.DiscountIds
+				DiscountReasons = orderedCartItem.Discounts
+					.Select(x => x.Id)
+					.ToArray()
 					.ToDiscountReasonBases(uow, _discountReasonRepository)
+			};
+		}
+		
+		public IApplicablePromotion CreateApplicablePromotion(
+			IUnitOfWork uow,
+			IOnlineOrderedProduct orderedCartItem)
+		{
+			var nomenclature = _nomenclatureRepository.GetFirstOrDefault(
+				uow,
+				x => x.Id == orderedCartItem.NomenclatureId);
+
+			return new ApplicablePromotion
+			{
+				Price = orderedCartItem.Price,
+				Count = orderedCartItem.Count,
+				IsFixedPrice = orderedCartItem.IsFixedPrice,
+				Nomenclature = nomenclature,
+				PromoSet = null,
+				DiscountReasons = Enumerable.Empty<DiscountReasonBase>()
 			};
 		}
 	}

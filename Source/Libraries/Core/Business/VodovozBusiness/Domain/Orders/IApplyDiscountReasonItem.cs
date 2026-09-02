@@ -8,7 +8,7 @@ namespace Vodovoz.Domain.Orders
 	/// <summary>
 	/// Интерфейс для применения скидки к позиции
 	/// </summary>
-	public interface IApplyDiscountReasonItem : IPrice, IApplicableDiscount, ICalculatingTotalMoneyDiscount
+	public interface IApplyDiscountReasonItem : IPrice, IApplicablePromotion, ICalculatingTotalMoneyDiscount
 	{
 		/// <summary>
 		/// Текущее количество

@@ -29,6 +29,5 @@ namespace Vodovoz.Core.Domain.Interfaces.Sale
 		/// Идентификаторы скидок
 		/// </summary>
 		IEnumerable<int> DiscountIds { get; }
-		void AddFixedPrice(decimal fixedPrice);
 	}
 }

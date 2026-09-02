@@ -16,6 +16,9 @@ namespace Vodovoz.Core.Domain.Interfaces.Sale
 		/// Сообщение
 		/// </summary>
 		string Message { get; }
+		/// <summary>
+		/// Информационное сообщение
+		/// </summary>
 		IInfoMessage Warning { get; }
 		/// <summary>
 		/// Список товаров с примененной акцией/скидкой/фиксой

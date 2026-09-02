@@ -40,21 +40,5 @@ namespace Vodovoz.Core.Data.Sale
 		/// Фикса
 		/// </summary>
 		public bool IsFixedPrice { get; set; }
-		/// <summary>
-		/// Добавление фиксы
-		/// </summary>
-		/// <param name="fixedPrice">Фикса</param>
-		public virtual void AddFixedPrice(decimal fixedPrice)
-		{
-			if(PriceWithoutDiscount is null)
-			{
-				PriceWithoutDiscount = fixedPrice;
-			}
-			
-			Price = fixedPrice;
-			CurrentPrice = fixedPrice;
-			CurrentSum = Math.Round(CurrentPrice * Count, 2);
-			IsFixedPrice = true;
-		}
 	}
 }

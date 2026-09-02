@@ -2,62 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Application.Sale;
+using Vodovoz.Core.Data.Sale;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Handlers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
-	public class OnlineOrderFixedPriceHandler : IOnlineOrderFixedPriceHandler
+	public class OnlineOrderFixedPriceHandler : FixedPriceHandler, IOnlineOrderFixedPriceHandler
 	{
-		private readonly IGenericRepository<NomenclatureFixedPrice> _nomenclatureFixedPriceRepository;
+		private readonly IDiscountReasonRepository _discountReasonRepository;
+		private readonly IOnlineOrderDiscountHandler _discountHandler;
 
 		public OnlineOrderFixedPriceHandler(
-			IGenericRepository<NomenclatureFixedPrice> nomenclatureFixedPriceRepository
-			)
+			IGenericRepository<NomenclatureFixedPrice> nomenclatureFixedPriceRepository,
+			IDiscountReasonRepository discountReasonRepository,
+			IOnlineOrderDiscountHandler discountHandler
+			) : base(nomenclatureFixedPriceRepository)
 		{
-			_nomenclatureFixedPriceRepository =
-				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
-		}
-		
-		public bool HasFixedPrices(
-			IUnitOfWork uow,
-			int? counterpartyId,
-			int? deliveryPointId,
-			bool isSelfDelivery,
-			out IEnumerable<NomenclatureFixedPrice> fixedPrices)
-		{
-			fixedPrices = new List<NomenclatureFixedPrice>();
-			
-			if(isSelfDelivery)
-			{
-				if(!counterpartyId.HasValue)
-				{
-					return false;
-				}
-				
-				fixedPrices = _nomenclatureFixedPriceRepository
-					.Get(uow, x => x.Counterparty.Id == counterpartyId.Value)
-					.ToList();
-				
-				return fixedPrices.Any();
-			}
-
-			if(!deliveryPointId.HasValue)
-			{
-				return false;
-			}
-			
-			fixedPrices = _nomenclatureFixedPriceRepository
-				.Get(uow, x => x.DeliveryPoint.Id == deliveryPointId.Value)
-				.ToList();
-				
-			return fixedPrices.Any();
+			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
+			_discountHandler = discountHandler ?? throw new ArgumentNullException(nameof(discountHandler));
 		}
 
 		public Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> TryApplyFixedPrice(
@@ -77,7 +48,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return TryApplyFixedPrice(canApplyOnlineOrderFixedPrice, fixedPrices);
 		}
 		
-		public Result<IEnumerable<IOrderedCartItem>> TryApplyFixedPriceV7(
+		public Result<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)> TryApplyFixedPriceV7(
 			IUnitOfWork uow,
 			CanApplyOnlineOrderFixedPriceV7 canApplyOnlineOrderFixedPrice)
 		{
@@ -88,10 +59,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 				canApplyOnlineOrderFixedPrice.IsSelfDelivery,
 				out var fixedPrices))
 			{
-				return Result.Failure<IEnumerable<IOrderedCartItem>>(Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
+				return Result.Failure<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)>(
+					Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
 			}
 
-			return TryApplyFixedPrice(canApplyOnlineOrderFixedPrice.OnlineOrderItems, fixedPrices);
+			return TryApplyFixedPrice(uow, canApplyOnlineOrderFixedPrice.OnlineOrderItems, fixedPrices);
 		}
 
 		private Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> TryApplyFixedPrice(
@@ -156,45 +128,62 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return true;
 		}
 		
-		private Result<IEnumerable<IOrderedCartItem>> TryApplyFixedPrice(
+		private Result<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)> TryApplyFixedPrice(
+			IUnitOfWork uow,
 			IEnumerable<IOrderedCartItem> cartItems,
 			IEnumerable<NomenclatureFixedPrice> fixedPrices)
 		{
+			var cartItemsWithDiscountDetails = new List<IOrderedCartItemWithDiscountDetails>();
+			var fixedPriceAppliedToAllItems = true;
+			
 			foreach(var cartItem in cartItems)
 			{
+				var cartItemWithDiscountDetails = OnlineOrderItemWithDiscountDetailsDto.Create(cartItem);
+				var applied = false;
+				
 				foreach(var fixedPrice in fixedPrices)
 				{
-					if(!CanApplyFixedPriceV7(cartItem, fixedPrice))
+					if(!CanApplyFixedPriceV7(uow, cartItemWithDiscountDetails, fixedPrice, out var discountReasons))
 					{
+						_discountHandler.CalculateDiscount(cartItemWithDiscountDetails, discountReasons);
 						continue;
 					}
 
-					cartItem.AddFixedPrice(fixedPrice.Price);
+					ApplyFixedPrice(cartItemWithDiscountDetails, discountReasons, fixedPrice.Price);
+					applied = true;
 					break;
 				}
+
+				fixedPriceAppliedToAllItems &= applied;
+				cartItemsWithDiscountDetails.Add(cartItemWithDiscountDetails);
 			}
 			
-			return Result.Success(cartItems);
+			return Result.Success((fixedPriceAppliedToAllItems, cartItemsWithDiscountDetails.AsEnumerable()));
 		}
-		
-		private bool CanApplyFixedPriceV7(IOrderedCartItem cartItem, NomenclatureFixedPrice fixedPrice)
+
+		private void ApplyFixedPrice(
+			IOrderedCartItemWithDiscountDetails cartItemWithDiscountDetails,
+			IEnumerable<DiscountReasonBase> discountReasons,
+			decimal fixedPrice
+			)
 		{
-			if(cartItem.ItemType is SaleItemType.PromoSet or SaleItemType.RentPackage)
-			{
-				return false;
-			}
+			cartItemWithDiscountDetails.AddFixedPrice(fixedPrice);
+			_discountHandler.CalculateDiscount(cartItemWithDiscountDetails, discountReasons);
+		}
 
-			if(cartItem.ErpId != fixedPrice.Nomenclature.Id)
-			{
-				return false;
-			}
-
-			if(cartItem.Count < fixedPrice.MinCount)
-			{
-				return false;
-			}
-
-			if(fixedPrice.Price >= cartItem.CurrentPrice)
+		private bool CanApplyFixedPriceV7(
+			IUnitOfWork uow,
+			IOrderedCartItemWithDiscountDetails cartItem,
+			NomenclatureFixedPrice fixedPrice,
+			out IEnumerable<DiscountReasonBase> discountReasons)
+		{
+			discountReasons = _discountReasonRepository.GetDiscountReasons(
+				uow,
+				cartItem.Discounts
+					.Select(x => x.Id)
+					.ToArray());
+			
+			if(!IsApplicable(cartItem, discountReasons, fixedPrice).IsSuccess)
 			{
 				return false;
 			}

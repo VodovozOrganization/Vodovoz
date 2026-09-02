@@ -15,15 +15,16 @@ namespace VodovozBusiness.Controllers
 		/// <returns>При успешном выполнении Result.Success, иначе Result.Failure с указанием проблемы</returns>
 		Result IsApplicableDiscount(
 			DiscountReasonBase addingDiscount,
-			IApplicableDiscount saleItem
+			IApplicablePromotion saleItem
 		);
 		
 		/// <summary>
-		/// Расчет детализации скидки в деньгах по основаниям скидки, исключая персональную скидку
+		/// Расчет детализации скидки в деньгах по основаниям скидки, включая персональную скидку
+		/// Подходит для случаев, когда надо раскрыть информацию по скидкам из заказа или онлайн заказа
 		/// </summary>
 		/// <param name="saleItem">Продаваемая позиция</param>
 		/// <returns>Скидка в деньгах</returns>
-		(decimal TotalDiscount, IEnumerable<IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+		(decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
 			ICalculatingTotalMoneyDiscount saleItem
 		);
 	}

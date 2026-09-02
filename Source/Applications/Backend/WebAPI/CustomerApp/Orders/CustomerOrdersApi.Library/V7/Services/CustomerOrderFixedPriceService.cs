@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice;
+using CustomerOrdersApi.Library.V7.Factories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Interfaces.Sale;
-using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
 using VodovozBusiness.Nodes;
 using VodovozInfrastructure.Cryptography;
@@ -21,6 +21,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderFixedPriceHandler _onlineOrderFixedPriceHandler;
+		private readonly IInfoMessageFactory _infoMessageFactory;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrderFixedPriceService(
@@ -28,13 +29,15 @@ namespace CustomerOrdersApi.Library.V7.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
-			IOnlineOrderFixedPriceHandler onlineOrderFixedPriceHandler)
+			IOnlineOrderFixedPriceHandler onlineOrderFixedPriceHandler,
+			IInfoMessageFactory infoMessageFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
 			_onlineOrderFixedPriceHandler =
 				onlineOrderFixedPriceHandler ?? throw new ArgumentNullException(nameof(onlineOrderFixedPriceHandler));
+			_infoMessageFactory = infoMessageFactory ?? throw new ArgumentNullException(nameof(infoMessageFactory));
 			_signatureOptions = (signatureOptions ?? throw new ArgumentNullException(nameof(signatureOptions))).Value;
 		}
 		
@@ -72,7 +75,11 @@ namespace CustomerOrdersApi.Library.V7.Services
 			
 			return result.IsFailure
 				? AppliedFixedPriceDto.CreateError(result.Errors.First())
-				: AppliedFixedPriceDto.Create(result.Value);
+				: AppliedFixedPriceDto.Create(
+					result.Value.SaleItems,
+					result.Value.AppliedToAllItems
+						? null
+						: _infoMessageFactory.CreateFixedPriceAppliedToNotAllItemsWarning());
 		}
 	}
 }

@@ -29,6 +29,10 @@ namespace Vodovoz.Core.Domain.Interfaces.Sale
 		/// Скидки
 		/// </summary>
 		IList<IDiscountAmount> Discounts { get; }
+		/// <summary>
+		/// Добавление фиксы
+		/// </summary>
+		/// <param name="fixedPrice">Фикса</param>
 		void AddFixedPrice(decimal fixedPrice);
 	}
 }

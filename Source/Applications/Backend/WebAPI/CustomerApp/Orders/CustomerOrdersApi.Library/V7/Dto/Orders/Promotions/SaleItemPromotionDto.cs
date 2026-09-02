@@ -26,7 +26,7 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions
 		public bool Ok { get; set; }
 		/// <inheritdoc/>
 		public string Message { get; set; }
-
+		/// <inheritdoc/>
 		public IInfoMessage Warning { get; set; }
 
 		/// <inheritdoc/>
