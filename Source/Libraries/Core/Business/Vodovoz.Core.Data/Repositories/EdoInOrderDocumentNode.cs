@@ -15,6 +15,11 @@ namespace Vodovoz.Core.Data.Repositories
 		public EdoTaskType TaskType { get; set; }
 
 		/// <summary>
+		/// Тип формализованного документа ЭДО.
+		/// </summary>
+		public EdoDocumentType? FormalDocumentType { get; set; }
+
+		/// <summary>
 		/// Количество кодов, которые привязаны к заявке ЭДО.
 		/// </summary>
 		public int? CodesInRequest { get; set; }

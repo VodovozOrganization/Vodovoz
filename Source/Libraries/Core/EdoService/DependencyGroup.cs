@@ -31,6 +31,8 @@ namespace EdoService.Library
 				.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>()
 				;
 
+			services.TryAddScoped<IOrderEdoTaskCreatedEventPublisher, OrderEdoTaskCreatedEventPublisher>();
+
 			return services;
 		}
 	}
