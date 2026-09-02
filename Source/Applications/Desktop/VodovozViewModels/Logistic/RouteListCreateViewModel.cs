@@ -970,7 +970,12 @@ namespace Vodovoz.ViewModels.Logistic
 				   (!address.WasTransfered || address.AddressTransferType != AddressTransferType.FromHandToHand))
 				{
 					_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
-						unitOfWork, address, DeliveryFreeBalanceType.Decrease, isFullRecreation: true, needRouteListUpdate: true);
+						unitOfWork, 
+						address, 
+						DeliveryFreeBalanceType.Decrease, 
+						isFullRecreation: true, 
+						needRouteListUpdate: true
+					);
 				}
 				else
 				{
