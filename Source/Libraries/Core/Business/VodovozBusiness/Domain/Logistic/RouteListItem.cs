@@ -52,7 +52,9 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IRouteListItemRepository>();
 		private IOrderService _orderService => ScopeProvider.Scope
 			.Resolve<IOrderService>();
-	
+		private IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController => ScopeProvider.Scope
+			.Resolve<IRouteListAddressKeepingDocumentController>();
+
 
 		private Order _order;
 		private RouteList _routeList;
@@ -641,7 +643,8 @@ namespace Vodovoz.Domain.Logistic
 			IUnitOfWork uow,
 			RouteListItemStatus status,
 			ICallTaskWorker callTaskWorker,
-			bool isEditAtCashier = false)
+			bool isEditAtCashier = false
+		)
 		{
 			if(Status == status)
 			{
@@ -650,7 +653,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(!isEditAtCashier)
 			{
-				CreateDeliveryFreeBalanceOperation(uow, Status, status);
+				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, Status, status);
 			}
 
 			switch(status)
@@ -845,24 +848,23 @@ namespace Vodovoz.Domain.Logistic
 				.Sum(i => i.ActualCount ?? 0);
 		}
 
-		public virtual void ChangeOrderStatus(OrderStatus orderStatus) => Order.OrderStatus = orderStatus;
+		public virtual void ChangeOrderStatus(OrderStatus orderStatus)
+		{
+			Order.OrderStatus = orderStatus;
+		}
 
-		public virtual void SetStatusWithoutOrderChange(IUnitOfWork uow, RouteListItemStatus status, bool needCreateDeliveryFreeBalanceOperation = true)
+		public virtual void SetStatusWithoutOrderChange(
+			IUnitOfWork uow, 
+			RouteListItemStatus status,
+			bool needCreateDeliveryFreeBalanceOperation = true
+		)
 		{
 			if(needCreateDeliveryFreeBalanceOperation)
 			{
-				CreateDeliveryFreeBalanceOperation(uow, Status, status);
+				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, Status, status);
 			}
 
-			Status = status;			
-		}
-
-		public virtual void CreateDeliveryFreeBalanceOperation(IUnitOfWork uow, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
-		{
-			RouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController =
-				new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureRepository);
-
-			routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, oldStatus, newStatus);
+			Status = status;
 		}
 
 		public virtual string GetTransferText(bool isShort = false)

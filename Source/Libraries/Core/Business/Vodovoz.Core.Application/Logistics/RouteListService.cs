@@ -56,6 +56,7 @@ namespace Vodovoz.Core.Application.Logistics
 		private readonly IOsrmSettings _osrmSettings;
 		private readonly IOsrmClient _osrmClient;
 		private readonly IMangoSettings _mangoSettings;
+		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
 		public RouteListService(
 			ILogger<RouteListService> logger,
@@ -74,7 +75,9 @@ namespace Vodovoz.Core.Application.Logistics
 			IOrderService orderService,
 			IOsrmSettings osrmSettings,
 			IOsrmClient osrmClient,
-			IMangoSettings mangoSettings)
+			IMangoSettings mangoSettings,
+			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController
+		)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -95,6 +98,7 @@ namespace Vodovoz.Core.Application.Logistics
 			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
 			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
+			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 		}
 
 		private void SendCustomerNotification(IUnitOfWork unitOfWork, Order order)
@@ -944,8 +948,14 @@ namespace Vodovoz.Core.Application.Logistics
 			UpdateStatus(unitOfWork, routeList);
 		}
 
-		public void ChangeAddressStatusAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid,
-			RouteListItemStatus newAddressStatus, ICallTaskWorker callTaskWorker, bool isEditAtCashier = false)
+		public void ChangeAddressStatusAndCreateTask(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			int routeListAddressid,
+			RouteListItemStatus newAddressStatus,
+			ICallTaskWorker callTaskWorker,
+			bool isEditAtCashier = false
+		)
 		{
 			var address = routeList.Addresses.First(a => a.Id == routeListAddressid);
 			address.UpdateStatusAndCreateTask(unitOfWork, newAddressStatus, callTaskWorker, isEditAtCashier);
@@ -1016,7 +1026,7 @@ namespace Vodovoz.Core.Application.Logistics
 
 			uow.Save(address.Order);
 
-			address.CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
+			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, address, oldStatus, status);
 
 			address.UpdateRouteListDebt();
 		}

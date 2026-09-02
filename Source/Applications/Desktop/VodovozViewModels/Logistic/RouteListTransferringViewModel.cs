@@ -479,9 +479,8 @@ namespace Vodovoz.ViewModels.Logistic
 				return;
 			}
 
-			SourceRouteListDeliveryFreeBalanceViewModel
-				.ObservableDeliveryFreeBalanceOperations =
-					SourceRouteList.ObservableDeliveryFreeBalanceOperations;
+			SourceRouteListDeliveryFreeBalanceViewModel.ObservableDeliveryFreeBalanceOperations =
+				SourceRouteList.ObservableDeliveryFreeBalanceOperations;
 		}
 
 		private void RefreshTargetFreeBalanceOperations()
@@ -495,8 +494,7 @@ namespace Vodovoz.ViewModels.Logistic
 				return;
 			}
 
-			TargetRouteListDeliveryFreeBalanceViewModel
-				.ObservableDeliveryFreeBalanceOperations =
+			TargetRouteListDeliveryFreeBalanceViewModel.ObservableDeliveryFreeBalanceOperations =
 					TargetRouteList.ObservableDeliveryFreeBalanceOperations;
 		}
 
