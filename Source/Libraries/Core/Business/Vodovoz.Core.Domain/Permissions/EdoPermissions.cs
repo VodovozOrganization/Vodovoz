@@ -29,11 +29,11 @@ namespace Vodovoz.Core.Domain.Permissions
 		public static string CanResendEdoDocumentWithCodesFromPool => nameof(CanResendEdoDocumentWithCodesFromPool);
 
 		/// <summary>
-		/// Пользователь может переотправлять незавершённый УПД на другой аккаунт ЭДО клиента.
+		/// Пользователь может переотправлять действующий УПД с аннулированием текущего документооборота.
 		/// </summary>
 		[Display(
-			Name = "Переотправка незавершённого УПД на другой аккаунт ЭДО",
-			Description = "Пользователь может отправить незавершённый УПД на аннулирование и сразу переотправить его на другой аккаунт ЭДО клиента")]
-		public static string CanResendEdoDocumentToChangedAccount => nameof(CanResendEdoDocumentToChangedAccount);
+			Name = "Переотправка действующего УПД с аннулированием",
+			Description = "Пользователь может переотправить УПД в статусе «В процессе» или «Отправлен» с аннулированием текущего документооборота")]
+		public static string CanResendEdoDocumentWithCancellation => nameof(CanResendEdoDocumentWithCancellation);
 	}
 }

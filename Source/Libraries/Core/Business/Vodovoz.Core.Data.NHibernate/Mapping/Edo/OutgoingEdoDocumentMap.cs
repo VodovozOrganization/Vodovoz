@@ -39,9 +39,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			Map(x => x.AcceptTime)
 				.Column("accept_time");
-
-			Map(x => x.RecipientEdoAccountId)
-				.Column("recipient_edo_account_id");
 		}
 	}
 }

@@ -63,10 +63,13 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document,
 			Action onActionCompleted)
 		{
-			actions.Add(new BusyCommand(
-				"Переотправить",
-				() => ResendUpd(document, onActionCompleted)
-			));
+			if(document.EdoDocumentStatus != EdoDocumentStatus.Succeed)
+			{
+				actions.Add(new BusyCommand(
+					"Переотправить",
+					() => ResendUpd(document, onActionCompleted)
+				));
+			}
 
 			if(IsDocumentCompletedWithClarification(document)
 				&& _currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentWithCodesFromPool))
@@ -80,16 +83,9 @@ namespace Vodovoz.ViewModels.Edo
 
 		private void ResendUpd(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
-			var accountChangedResult = _edoService.IsRecipientEdoAccountChanged(document.TaskId);
-			if(accountChangedResult.IsFailure)
+			if(IsDocumentInProgressOrSent(document))
 			{
-				ShowErrorMessage(accountChangedResult.Errors);
-				return;
-			}
-
-			if(accountChangedResult.Value)
-			{
-				ResendUpdToChangedAccount(document, onActionCompleted);
+				ResendUpdWithCancellation(document, onActionCompleted);
 				return;
 			}
 
@@ -139,48 +135,31 @@ namespace Vodovoz.ViewModels.Edo
 			}
 		}
 
-		private void ResendUpdToChangedAccount(EdoInOrderDocumentNode document, Action onActionCompleted)
+		private void ResendUpdWithCancellation(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
-			if(document.EdoDocumentStatus == EdoDocumentStatus.Succeed)
-			{
-				ShowResult(_edoService.ResendEdoDocumentToChangedAccount(document.TaskId));
-				return;
-			}
-
-			if(RequiresPermissionToResendToChangedAccount(document)
-				&& !_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentToChangedAccount))
+			if(!_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentWithCancellation))
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
-					"Для переотправки незавершённого УПД на другой аккаунт ЭДО недостаточно прав.");
+					"Для переотправки УПД в статусе «В процессе» или «Отправлен» недостаточно прав.");
 				return;
 			}
 
 			if(!_interactiveService.Question(
-				"У клиента изменился основной аккаунт ЭДО.\n" +
-				"Документ будет переотправлен на новый аккаунт.\n" +
-				"Старый документооборот при необходимости будет автоматически отправлен на аннулирование. Продолжить?"))
+				"Текущий документооборот будет отправлен на аннулирование.\n" +
+				"Клиенту будет отправлено предложение об аннулировании.\n" +
+				"УПД будет переотправлен. Продолжить?"))
 			{
 				return;
 			}
 
-			var result = _edoService.ResendEdoDocumentToChangedAccount(document.TaskId);
+			var result = _edoService.ResendEdoDocumentWithCancellation(document.TaskId);
 			ShowResult(result);
 
 			if(result.IsSuccess)
 			{
 				onActionCompleted?.Invoke();
 			}
-		}
-
-		private static bool RequiresPermissionToResendToChangedAccount(EdoInOrderDocumentNode document)
-		{
-			return document.EdoDocumentStatus.HasValue
-				&& document.EdoDocumentStatus is EdoDocumentStatus.Succeed
-				&& document.EdoDocumentStatus != EdoDocumentStatus.Warning
-				&& document.EdoDocumentStatus != EdoDocumentStatus.CompletedWithDivergences
-				&& document.EdoDocumentStatus != EdoDocumentStatus.Cancelled
-				&& document.EdoDocumentStatus != EdoDocumentStatus.Error;
 		}
 
 		private void ResendUpdWithCodesFromPool(EdoInOrderDocumentNode document, Action onActionCompleted)
@@ -199,6 +178,12 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			return document.EdoDocumentStatus == EdoDocumentStatus.Warning
 				|| document.EdoDocumentStatus == EdoDocumentStatus.CompletedWithDivergences;
+		}
+
+		private static bool IsDocumentInProgressOrSent(EdoInOrderDocumentNode document)
+		{
+			return document.EdoDocumentStatus == EdoDocumentStatus.InProgress
+				|| document.EdoDocumentStatus == EdoDocumentStatus.Sent;
 		}
 
 		private void CreateReceiptActions(

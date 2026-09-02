@@ -121,19 +121,11 @@ namespace EdoService.Library
 		Result<string> ResendEdoDocumentForOrder(int taskId);
 
 		/// <summary>
-		/// Проверяет, отличается ли текущий основной аккаунт ЭДО клиента от аккаунта,
-		/// использованного при отправке документа.
-		/// </summary>
-		/// <param name="taskId">Идентификатор задачи документа.</param>
-		/// <returns>Результат проверки с признаком изменения аккаунта.</returns>
-		Result<bool> IsRecipientEdoAccountChanged(int taskId);
-
-		/// <summary>
-		/// Переотправляет УПД на изменившийся основной аккаунт ЭДО клиента.
+		/// Переотправляет УПД с аннулированием текущего документооборота.
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи документа.</param>
 		/// <returns>Результат запуска переотправки.</returns>
-		Result<string> ResendEdoDocumentToChangedAccount(int taskId);
+		Result<string> ResendEdoDocumentWithCancellation(int taskId);
 
 		/// <summary>
 		/// Ставит документ в очередь на переотправку после отмены вывода кодов из оборота в ЧЗ.

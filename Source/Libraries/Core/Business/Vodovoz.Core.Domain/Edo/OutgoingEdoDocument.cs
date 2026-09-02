@@ -14,7 +14,6 @@ namespace Vodovoz.Core.Domain.Edo
 		private EdoDocumentStatus _status;
 		private DateTime? _sendTime;
 		private DateTime? _acceptTime;
-		private string _recipientEdoAccountId;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -70,16 +69,6 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _acceptTime;
 			set => SetField(ref _acceptTime, value);
-		}
-
-		/// <summary>
-		/// Идентификатор аккаунта ЭДО получателя, использованный при отправке документа.
-		/// </summary>
-		[Display(Name = "Аккаунт ЭДО получателя")]
-		public virtual string RecipientEdoAccountId
-		{
-			get => _recipientEdoAccountId;
-			set => SetField(ref _recipientEdoAccountId, value);
 		}
 	}
 }
