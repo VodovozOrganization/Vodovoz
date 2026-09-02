@@ -38,6 +38,17 @@ namespace Vodovoz.ViewModels.Edo
 			}
 
 			var actions = new List<BusyCommand>();
+			var documentNode = document.Document;
+
+			if(documentNode.TaskStatus == EdoTaskStatus.New)
+			{
+				if(CanResendNewTask(documentNode))
+				{
+					CreateResendNewTaskAction(actions, documentNode, onActionCompleted);
+				}
+
+				return actions;
+			}
 
 			switch(document.DocumentType)
 			{
@@ -56,6 +67,31 @@ namespace Vodovoz.ViewModels.Edo
 			}
 
 			return actions;
+		}
+
+		private static bool CanResendNewTask(EdoInOrderDocumentNode document) =>
+			document.TaskType == EdoTaskType.Document && document.FormalDocumentType == EdoDocumentType.UPD
+			|| document.TaskType == EdoTaskType.Receipt
+			|| document.TaskType == EdoTaskType.Tender
+			|| document.TaskType == EdoTaskType.SaveCode;
+
+		private void CreateResendNewTaskAction(
+			List<BusyCommand> actions,
+			EdoInOrderDocumentNode document,
+			Action onActionCompleted)
+		{
+			actions.Add(new BusyCommand(
+				"Переотправить",
+				() =>
+				{
+					var result = _edoService.ResendNewEdoTask(document.TaskId);
+					ShowResult(result);
+
+					if(result.IsSuccess)
+					{
+						onActionCompleted?.Invoke();
+					}
+				}));
 		}
 
 		private void CreateUpdActions(

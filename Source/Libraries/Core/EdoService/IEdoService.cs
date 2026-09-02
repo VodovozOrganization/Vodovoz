@@ -128,6 +128,13 @@ namespace EdoService.Library
 		Result<string> ResendEdoDocumentWithCancellation(int taskId);
 
 		/// <summary>
+		/// Повторно запускает существующую новую задачу ЭДО
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи ЭДО</param>
+		/// <returns>Результат повторного запуска задачи</returns>
+		Result<string> ResendNewEdoTask(int taskId);
+
+		/// <summary>
 		/// Ставит документ в очередь на переотправку после отмены вывода кодов из оборота в ЧЗ.
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи</param>
