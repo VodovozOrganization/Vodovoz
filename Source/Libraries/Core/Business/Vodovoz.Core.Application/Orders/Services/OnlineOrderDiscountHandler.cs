@@ -373,11 +373,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 				var onlinePrice = onlineParameters?.GetOnlinePrice(receivedCartItem.Count);
 
-				/*if(onlineParameters?.NomenclatureOnlineDiscount != null
+				if(onlineParameters?.NomenclatureOnlineDiscount != null
 					|| onlinePrice?.PriceWithoutDiscount != null)
 				{
 					return false;
-				}*/
+				}
 			}
 			
 			return true;

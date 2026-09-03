@@ -9,6 +9,7 @@ using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
@@ -34,8 +35,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly ICommonServices _commonServices;
 		private IEnumerable<object> _selectedNomenclatures = Array.Empty<object>();
 		private IEnumerable<object> _selectedProductGroups = Array.Empty<object>();
+		private IObservableList<PromotionalSet> _promotionalSets;
 		private IPermissionResult _permissionResult;
-		private ValidationContext _validationContext;
 
 		private int _currentPage;
 		private bool _hasOrderMinSum;
@@ -72,11 +73,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			AddOrRemovePromoSetsViewModel = addOrRemovePromoSetsViewModel ?? throw new ArgumentNullException(nameof(addOrRemovePromoSetsViewModel));
 			AddOrRemovePromoSetsViewModel.Configure(
 				typeof(PromotionalSet),
-				CanEditDiscountReason,
+				CanEditPromotionalSets,
 				"Промонаборы:",
 				UoW,
 				(DialogViewModelBase)this,
-				Entity.PromoSets);
+				_promotionalSets);
 		}
 
 		public DiscountReasonBase Entity { get; private set; }
@@ -85,6 +86,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool AskSaveOnClose => CanEditDiscountReason;
 		public bool CanArchive => CanEditDiscountReason && !IsArchive;
 		public bool CanEditDiscountReason => IsNewEntity && _permissionResult.CanCreate;
+		public bool CanEditPromotionalSets => CanEditDiscountReason && Entity.DiscountReasonType != DiscountReasonType.Discount;
 		public bool CanRemoveNomenclatures => IsNomenclaturesSelected && CanEditDiscountReason;
 		public bool IsNomenclaturesSelected => SelectedNomenclatures != null && SelectedNomenclatures.Any();
 		public bool CanRemoveProductGroup => IsProductGroupsSelected && CanEditDiscountReason;
@@ -158,19 +160,25 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 						"Нельзя менять тип основания скидки у сохраненной сущности. Изменение доступно только для новых!");
 				}
 
+				//у обычной скидки не может быть промонаборов
+				if(value == DiscountReasonType.Discount)
+				{
+					Entity.PromoSetsClear();
+				}
+
 				switch(value)
 				{
 					case DiscountReasonType.Discount:
-						Entity = DiscountReason.Create(Entity);
+						Entity = DiscountReason.Create(Entity, _promotionalSets);
 						break;
 					case DiscountReasonType.FirstOnlineOrderDiscount:
-						Entity = FirstOnlineOrderDiscount.Create(Entity);
+						Entity = FirstOnlineOrderDiscount.Create(Entity, _promotionalSets);
 						break;
 					case DiscountReasonType.PromoCode:
-						Entity = PromoCodeDiscount.Create(Entity);
+						Entity = PromoCodeDiscount.Create(Entity, _promotionalSets);
 						break;
 					case DiscountReasonType.AutoOrder:
-						Entity = AutoOrderDiscount.Create(Entity);
+						Entity = AutoOrderDiscount.Create(Entity, _promotionalSets);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException(nameof(value), value, "Неизвестное значение типа скидки");
@@ -180,6 +188,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				OnPropertyChanged();
 				OnPropertyChanged(nameof(IsPromoCode));
 				OnPropertyChanged(nameof(CanShowApplicabilitiesByTypes));
+				AddOrRemovePromoSetsViewModel.SetCanEdit(CanEditPromotionalSets);
 			}
 		}
 
@@ -412,9 +421,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			{
 				Entity = (DiscountReasonBase)UoW.GetById(viewModelContext.EntityType, viewModelContext.EntityId.Value);
 			}
-			
+
+			_promotionalSets = Entity.PromoSets;
 			TabName = IsNewEntity ? "Новое основание для скидки" : $"Основание для скидки \"{Entity.Name}\"";
-			_validationContext =  new ValidationContext(Entity);
 		}
 		
 		private void SetPermissions()
@@ -597,7 +606,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				return false;
 			}
 
-			return _commonServices.ValidationService.Validate(Entity, _validationContext);
+			return _commonServices.ValidationService.Validate(Entity, new ValidationContext(Entity));
 		}
 
 		private IEnumerable<ValidationResult> ValidateDiscountTypeUses()

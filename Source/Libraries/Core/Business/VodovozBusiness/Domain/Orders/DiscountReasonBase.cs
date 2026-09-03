@@ -170,6 +170,11 @@ namespace Vodovoz.Domain.Orders
 				RemoveNomenclatureCategory(selectedCategory);
 			}
 		}
+		
+		public virtual void PromoSetsClear()
+		{
+			PromoSets.Clear();
+		}
 
 		public virtual void UpdateDiscountApplicabilities(IDictionary<DiscountType, UseDiscountType?> discountTypeUses)
 		{
@@ -199,7 +204,9 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		protected virtual void Copy(DiscountReasonBase copyingDiscount)
+		protected virtual void Copy(
+			DiscountReasonBase copyingDiscount,
+			IObservableList<PromotionalSet> promoSets = null)
 		{
 			Id = copyingDiscount.Id;
 			_name = copyingDiscount.Name;
@@ -211,7 +218,7 @@ namespace Vodovoz.Domain.Orders
 			_nomenclatureCategories = new ObservableList<DiscountReasonNomenclatureCategory>(copyingDiscount.NomenclatureCategories);
 			_nomenclatures = new ObservableList<Nomenclature>(copyingDiscount.Nomenclatures);
 			_productGroups = new ObservableList<ProductGroup>(copyingDiscount.ProductGroups);
-			_promoSets = new ObservableList<PromotionalSet>(copyingDiscount.PromoSets);
+			_promoSets = promoSets ?? new ObservableList<PromotionalSet>(copyingDiscount.PromoSets);
 			_discountApplicabilities = new ObservableList<DiscountApplicability>();
 		}
 

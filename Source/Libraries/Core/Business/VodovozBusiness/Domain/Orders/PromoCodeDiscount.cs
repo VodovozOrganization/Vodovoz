@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 
@@ -165,10 +166,12 @@ namespace VodovozBusiness.Domain.Orders
 				: $"Промокод {Name}";
 		}
 
-		public static PromoCodeDiscount Create(DiscountReasonBase copyingDiscount)
+		public static PromoCodeDiscount Create(
+			DiscountReasonBase copyingDiscount,
+			IObservableList<PromotionalSet> promoSets = null)
 		{
 			var newDiscount = new PromoCodeDiscount();
-			newDiscount.Copy(copyingDiscount);
+			newDiscount.Copy(copyingDiscount, promoSets);
 			
 			return newDiscount;
 		}

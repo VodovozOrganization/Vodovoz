@@ -213,17 +213,25 @@ namespace Vodovoz.Core.Application.Sale
 				return Result.Failure(DiscountErrors.ZeroSaleItemSum);
 			}
 
-			if(saleItem.Nomenclature is null)
+			if(addingDiscount.DiscountReasonType != DiscountReasonType.Discount)
 			{
-				//TODO проверить работу с полноценными сущностями
-				return CanApplyToPromoSet(saleItem.PromoSet.Id, addingDiscount.PromoSets.Select(x => x.Id).ToArray())
-					.ToResult(DiscountErrors.DiscountNotAllowed);
+				if(saleItem.PromoSet != null)
+				{
+					return CanApplyToPromoSet(saleItem.PromoSet.Id, addingDiscount.PromoSets.Select(x => x.Id).ToArray())
+						.ToResult(DiscountErrors.DiscountNotAllowed);
+				}
+			
+				if(saleItem.Nomenclature is null)
+				{
+					throw new InvalidOperationException(
+						"Что-то пошло не так! При применении скидки должна быть заполнена номенклатура, если это не промонабор");
+				}
 			}
-
+			
 			return (
-				CanApplyToNomenclature(saleItem.Nomenclature.Id, addingDiscount.Nomenclatures)
-				|| CanApplyToNomenclatureCategory(saleItem.Nomenclature.Category, addingDiscount.NomenclatureCategories)
-				|| CanApplyToProductGroup(saleItem.Nomenclature.ProductGroup, addingDiscount.ProductGroups))
+					CanApplyToNomenclature(saleItem.Nomenclature.Id, addingDiscount.Nomenclatures)
+					|| CanApplyToNomenclatureCategory(saleItem.Nomenclature.Category, addingDiscount.NomenclatureCategories)
+					|| CanApplyToProductGroup(saleItem.Nomenclature.ProductGroup, addingDiscount.ProductGroups))
 				.ToResult(DiscountErrors.DiscountNotAllowed);
 		}
 
