@@ -168,11 +168,7 @@ namespace Vodovoz.Controllers
 				uow.Session.Save(fastDeliveryAddress);
 
 				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
-					uow, 
-					fastDeliveryAddress, 
-					DeliveryFreeBalanceType.Decrease, 
-					employee: employee
-				);
+					uow, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease, employee: employee);
 			}
 			
 			return Result.Success(fastDeliveryAddress != null);

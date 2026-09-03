@@ -27,12 +27,14 @@ namespace Vodovoz.Controllers
 
 		private DeliveryFreeBalanceType GetDeliveryFreeBalanceType(RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
 		{
-			if((IsNegative(oldStatus) || IsNeutral(oldStatus)) && IsPositive(newStatus))
+			if((IsNegative(oldStatus) || IsNeutral(oldStatus))
+			   && IsPositive(newStatus))
 			{
 				return DeliveryFreeBalanceType.Increase;
 			}
 
-			if(IsPositive(oldStatus) && (IsNegative(newStatus) || IsNeutral(newStatus)))
+			if(IsPositive(oldStatus)
+			   && (IsNegative(newStatus) || IsNeutral(newStatus)))
 			{
 				return DeliveryFreeBalanceType.Decrease;
 			}
@@ -50,14 +52,9 @@ namespace Vodovoz.Controllers
 			throw new ArgumentOutOfRangeException(nameof(oldStatus));
 		}
 
-		private void CreateOperationsForReturns(
-			IUnitOfWork uow, 
-			RouteListItem routeListItem,
-			RouteListAddressKeepingDocument routeListKeepingDocument, 
-			RouteListItemStatus? oldStatus, 
-			RouteListItemStatus? newStatus,
-			bool needRouteListUpdate = true
-		)
+		private void CreateOperationsForReturns(IUnitOfWork uow, RouteListItem routeListItem,
+			RouteListAddressKeepingDocument routeListKeepingDocument, RouteListItemStatus? oldStatus, RouteListItemStatus? newStatus,
+			bool needRouteListUpdate = true)
 		{
 			var routeList = routeListItem.RouteList;
 
@@ -166,27 +163,11 @@ namespace Vodovoz.Controllers
 			return newItems;
 		}
 
-		private bool IsPositive(RouteListItemStatus status)
-		{
-			return new[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue }.Contains(status);
-		}
+		private bool IsPositive(RouteListItemStatus status) => new[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue }.Contains(status);
+		private bool IsNegative(RouteListItemStatus status) => new[] { RouteListItemStatus.EnRoute }.Contains(status);
+		private bool IsNeutral(RouteListItemStatus status) => new[] { RouteListItemStatus.Completed }.Contains(status);
 
-		private bool IsNegative(RouteListItemStatus status)
-		{
-			return new[] { RouteListItemStatus.EnRoute }.Contains(status);
-		}
-
-		private bool IsNeutral(RouteListItemStatus status)
-		{
-			return new[] { RouteListItemStatus.Completed }.Contains(status);
-		}
-
-		public void CreateOrUpdateRouteListKeepingDocument(
-			IUnitOfWork uow, 
-			RouteListItem routeListItem, 
-			RouteListItemStatus oldStatus, 
-			RouteListItemStatus newStatus
-		)
+		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
 		{
 			if(newStatus == RouteListItemStatus.Transfered || oldStatus == RouteListItemStatus.Transfered)
 			{
@@ -198,16 +179,7 @@ namespace Vodovoz.Controllers
 			// При переходе в недовоз изменяем баланс по актуальному кол-ву
 			var useActualCount = balanceType == DeliveryFreeBalanceType.Increase;
 
-			CreateOrUpdateRouteListKeepingDocument(
-				uow, 
-				routeListItem, 
-				balanceType,
-				isFullRecreation: true, 
-				useActualCount, 
-				oldStatus, 
-				newStatus,
-				needRouteListUpdate: true
-			);
+			CreateOrUpdateRouteListKeepingDocument(uow, routeListItem, balanceType, false, useActualCount, oldStatus, newStatus, true);
 		}
 
 		public void CreateOrUpdateRouteListKeepingDocument(
@@ -219,11 +191,11 @@ namespace Vodovoz.Controllers
 			RouteListItemStatus? oldStatus = null,
 			RouteListItemStatus? newStatus = null,
 			bool needRouteListUpdate = false,
-			Employee employee = null
-		)
+			Employee employee = null)
 		{
-			var routeListKeepingDocument = uow.GetAll<RouteListAddressKeepingDocument>()
-				.SingleOrDefault(x => x.RouteListItem.Id == routeListItem.Id)
+			var routeListKeepingDocument =
+				uow.GetAll<RouteListAddressKeepingDocument>()
+					.SingleOrDefault(x => x.RouteListItem.Id == routeListItem.Id)
 				?? new RouteListAddressKeepingDocument();
 
 			var currentEmployee = employee ?? _employeeRepository.GetEmployeeForCurrentUser(uow);
@@ -271,13 +243,14 @@ namespace Vodovoz.Controllers
 
 			foreach(var item in routeListItem.Order.GetAllGoodsToDeliver(isActualCount))
 			{
-				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
-				{
-					RouteListAddressKeepingDocument = routeListKeepingDocument,
-					Nomenclature = item.Nomenclature,
-					Amount = item.Amount * amountSign
-				};
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
+
+				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
+				routeListKeepingDocumentItem.Nomenclature = item.Nomenclature;
+				routeListKeepingDocumentItem.Amount = item.Amount * amountSign;
+
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
+
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
 
 				if(needRouteListUpdate)
@@ -290,14 +263,8 @@ namespace Vodovoz.Controllers
 		}
 
 		public HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
-			IUnitOfWork uow, 
-			IUnitOfWorkFactory unitOfWorkFactory, 
-			RouteListItem changedRouteListItem,
-			HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null,
-			bool isBottlesDiscrepancy = false,
-			bool forceUsePlanCount = false, 
-			bool isFromRouteListClosingNewUndelivery = false
-		)
+			IUnitOfWork uow, IUnitOfWorkFactory unitOfWorkFactory, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null,
+			bool isBottlesDiscrepancy = false, bool forceUsePlanCount = false, bool isFromRouteListClosingNewUndelivery = false)
 		{
 			if(!changedRouteListItem.RouteList.ClosingFilled && itemsCacheList != null)
 			{
@@ -500,8 +467,9 @@ namespace Vodovoz.Controllers
 
 		public void RemoveRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem, bool needRouteListUpdate = false)
 		{
-			var routeListKeepingDocument = uow.GetAll<RouteListAddressKeepingDocument>()
-				.SingleOrDefault(x => x.RouteListItem.Id == routeListItem.Id);
+			var routeListKeepingDocument =
+				uow.GetAll<RouteListAddressKeepingDocument>()
+					.SingleOrDefault(x => x.RouteListItem.Id == routeListItem.Id);
 
 			if(routeListKeepingDocument == null)
 			{
