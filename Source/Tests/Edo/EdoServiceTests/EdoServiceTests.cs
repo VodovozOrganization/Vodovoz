@@ -1,4 +1,5 @@
 ﻿using Edo.Admin;
+using Edo.Common.Services;
 using Edo.Problems;
 using Edo.Problems.Custom;
 using Edo.Problems.Exception;
@@ -100,6 +101,7 @@ namespace EdoServices.Tests
 				_uow,
 				Substitute.For<IEdoCancellationValidator>(),
 				_problemRegistrar,
+				Substitute.For<ITrueMarkWaterCodeService>(),
 				Substitute.For<IPublishEndpoint>()
 				);
 			_userService = Substitute.For<IUserService>();
