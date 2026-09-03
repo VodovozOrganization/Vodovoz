@@ -6,6 +6,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
+using VodovozBusiness.Domain.Sale.RequestsForCall;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 {

@@ -1,5 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Sale.RequestsForCall;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {

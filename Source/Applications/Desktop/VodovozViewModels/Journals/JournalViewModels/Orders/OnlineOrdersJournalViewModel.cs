@@ -35,6 +35,7 @@ using Vodovoz.ViewModels.ViewModels.Common;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports.Orders;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale.RequestsForCall;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders

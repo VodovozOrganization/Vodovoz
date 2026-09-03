@@ -20,6 +20,7 @@ using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using VodovozBusiness.Domain.Sale.RequestsForCall;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {

@@ -8,8 +8,9 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Domain.Orders
+namespace VodovozBusiness.Domain.Sale.RequestsForCall
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Заявки на звонок",
