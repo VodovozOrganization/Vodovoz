@@ -23,7 +23,7 @@ namespace CustomerOrdersApi.Library.V7.Factories
 		{
 			return new OnlineOrderItemWithDiscountDetailsDto
 			{
-				ErpId = saleItem.Id,
+				ErpId = saleItem.Nomenclature.Id,
 				Count = saleItem.Count,
 				Price = saleItem.Price,
 				CurrentPrice = Math.Round(saleItem.ActualSum / saleItem.Count, 2),

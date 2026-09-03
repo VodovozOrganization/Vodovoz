@@ -1,4 +1,5 @@
-﻿using Vodovoz.Core.Domain.Interfaces.Sale;
+﻿using System;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 
 namespace Vodovoz.Core.Domain.Sale
 {
@@ -13,7 +14,7 @@ namespace Vodovoz.Core.Domain.Sale
 		{
 			Id = id;
 			Name = name;
-			Amount = amount;
+			Amount = Math.Round(amount, 2);
 		}
 		
 		public int Id { get; }

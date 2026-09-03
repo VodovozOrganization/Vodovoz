@@ -117,35 +117,45 @@ namespace Vodovoz.Domain.Orders
 
 		public abstract DiscountReasonType DiscountReasonType { get; }
 		
-		public virtual void AddProductGroup(ProductGroup productGroup)
+		public virtual void AddProductGroups(IEnumerable<INamedDomainObject> productGroups)
 		{
-			if(!ProductGroups.Contains(productGroup))
+			foreach(var productGroup in productGroups)
 			{
-				ProductGroups.Add(productGroup);
+				AddProductGroup(
+					new ProductGroup
+					{
+						Id = productGroup.Id,
+						Name = productGroup.Name
+					});
 			}
 		}
 
-		public virtual void RemoveProductGroup(ProductGroup productGroup)
+		public virtual void RemoveProductGroups(IEnumerable<object> productGroups)
 		{
-			if(ProductGroups.Contains(productGroup))
+			foreach(var productGroup in productGroups)
 			{
-				ProductGroups.Remove(productGroup);
+				RemoveProductGroup(productGroup as ProductGroup);
 			}
 		}
 		
-		public virtual void AddNomenclature(Nomenclature nomenclature)
+		public virtual void AddNomenclatures(IEnumerable<INamedDomainObject> nomenclatures)
 		{
-			if(!Nomenclatures.Contains(nomenclature))
+			foreach(var nomenclature in nomenclatures)
 			{
-				Nomenclatures.Add(nomenclature);
+				AddNomenclature(
+					new Nomenclature
+					{
+						Id = nomenclature.Id,
+						Name = nomenclature.Name
+					});
 			}
 		}
-
-		public virtual void RemoveNomenclature(Nomenclature nomenclature)
+		
+		public virtual void RemoveNomenclatures(IEnumerable<object> nomenclatures)
 		{
-			if(Nomenclatures.Contains(nomenclature))
+			foreach(var nomenclature in nomenclatures)
 			{
-				Nomenclatures.Remove(nomenclature);
+				RemoveNomenclature(nomenclature as Nomenclature);
 			}
 		}
 		
@@ -257,6 +267,40 @@ namespace Vodovoz.Domain.Orders
 			return string.IsNullOrWhiteSpace(Name)
 				? "Новое основание скидки"
 				: Name;
+		}
+		
+		private void AddNomenclature(Nomenclature nomenclature)
+		{
+			var foundNomenclature = Nomenclatures.SingleOrDefault(x => x.Id == nomenclature.Id);
+			if(foundNomenclature is null)
+			{
+				Nomenclatures.Add(nomenclature);
+			}
+		}
+		
+		private void RemoveNomenclature(Nomenclature nomenclature)
+		{
+			if(Nomenclatures.Contains(nomenclature))
+			{
+				Nomenclatures.Remove(nomenclature);
+			}
+		}
+		
+		private void AddProductGroup(ProductGroup productGroup)
+		{
+			var foundProductGroup = ProductGroups.SingleOrDefault(x => x.Id == productGroup.Id);
+			if(foundProductGroup is null)
+			{
+				ProductGroups.Add(productGroup);
+			}
+		}
+
+		private void RemoveProductGroup(ProductGroup productGroup)
+		{
+			if(ProductGroups.Contains(productGroup))
+			{
+				ProductGroups.Remove(productGroup);
+			}
 		}
 
 		private void AddNomenclatureCategory(SelectableNomenclatureCategoryNode selectedCategory)

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
@@ -6,7 +7,7 @@ using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
 {
-	public class NomenclatureJournalNode : JournalEntityNodeBase<Nomenclature>
+	public class NomenclatureJournalNode : JournalEntityNodeBase<Nomenclature>, INamedDomainObject
 	{
 		public override string Title => Name;
 		public string Name { get; set; }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -172,8 +172,8 @@ namespace Vodovoz.Views.Orders
 					? "Нет"
 					: x.Value.Value.GetEnumTitle());
 			
-			comboDiscountTypeUses.DefaultFirst = true;
 			comboDiscountTypeUses.ItemsList = GenerateDiscountTypeUsesList(discountTypeUses.Key);
+			comboDiscountTypeUses.SelectedItem = discountTypeUses;
 			comboDiscountTypeUses.ItemSelected += OnDiscountTypeUseSelected;
 			
 			tableApplicabilities.Attach(
@@ -250,17 +250,17 @@ namespace Vodovoz.Views.Orders
 		private void ConfigureDiscountNomenclaturesWidgets()
 		{
 			treeViewNomenclatures.CreateFluentColumnsConfig<Nomenclature>()
-				.AddColumn("")
+				.AddColumn("Код")
 					.AddNumericRenderer(x => x.Id)
-				.AddColumn("")
+				.AddColumn("Наименование")
 					.AddTextRenderer(x => x.Name)
 				.AddColumn("")
 				.Finish();
 			
-			treeViewNomenclatures.HeadersVisible = false;
+			treeViewNomenclatures.Selection.Mode = SelectionMode.Multiple;
 			treeViewNomenclatures.ItemsDataSource = ViewModel.Entity.Nomenclatures;
 			treeViewNomenclatures.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedNomenclature, w => w.SelectedRow)
+				.AddBinding(ViewModel, vm => vm.SelectedNomenclatures, w => w.SelectedRows)
 				.InitializeFromSource();
 			
 			btnAddNomenclature.BindCommand(ViewModel.AddNomenclatureCommand);
@@ -271,7 +271,7 @@ namespace Vodovoz.Views.Orders
 				.InitializeFromSource();
 			
 			btnRemoveNomenclature.Binding
-				.AddBinding(ViewModel, vm => vm.CanRemoveNomenclature, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanRemoveNomenclatures, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 
@@ -281,15 +281,18 @@ namespace Vodovoz.Views.Orders
 				.AddColumn("№")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => ViewModel.Entity.ProductGroups.IndexOf(node) + 1)
+				.AddColumn("Код")
+					.AddNumericRenderer(node => node.Id)
 				.AddColumn("Группа товаров")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.Name)
 				.AddColumn("")
 				.Finish();
 
+			treeViewProductGroups.Selection.Mode = SelectionMode.Multiple;
 			treeViewProductGroups.ItemsDataSource = ViewModel.Entity.ProductGroups;
 			treeViewProductGroups.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedProductGroup, w => w.SelectedRow)
+				.AddBinding(ViewModel, vm => vm.SelectedProductGroups, w => w.SelectedRows)
 				.InitializeFromSource();
 			
 			btnAddProductGroup.BindCommand(ViewModel.AddProductGroupCommand);
@@ -316,6 +319,7 @@ namespace Vodovoz.Views.Orders
 
 		private void ConfigurePromoCodeTab()
 		{
+			lblPromoCode.Visible = false;
 			entryPromoCodeName.Visible = false;
 			
 			datePromoCodeDuration.Binding

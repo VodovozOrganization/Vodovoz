@@ -45,7 +45,7 @@ namespace Vodovoz.Handlers
 		/// <param name="canApplyOnlineOrderFixedPrice">Данные, необходимые для проверки фиксы и товары
 		/// <see cref="CanApplyOnlineOrderFixedPrice"/></param>
 		/// <returns></returns>
-		Result<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)> TryApplyFixedPriceV7(
+		Result<(bool? AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)> TryApplyFixedPriceV7(
 			IUnitOfWork uow, CanApplyOnlineOrderFixedPriceV7 canApplyOnlineOrderFixedPrice);
 	}
 }

@@ -10,6 +10,7 @@ using Vodovoz.Core.Application.Clients.Services;
 using Vodovoz.Core.Application.Complaints;
 using Vodovoz.Core.Application.Contacts;
 using Vodovoz.Core.Application.Employees;
+using Vodovoz.Core.Application.Factories;
 using Vodovoz.Core.Application.FastPayment;
 using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Application.Goods;
@@ -142,6 +143,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
 				.AddScoped<ICustomerOrderTransferService, CustomerOrderTransferService>()
 				.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
+				.AddScoped<IApplicablePromotionFactory, ApplicablePromotionFactory>()
 				.AddSaleHandlers()
 				.AddDiscountControllers()
 				;

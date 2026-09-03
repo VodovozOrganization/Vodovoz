@@ -48,7 +48,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return TryApplyFixedPrice(canApplyOnlineOrderFixedPrice, fixedPrices);
 		}
 		
-		public Result<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)> TryApplyFixedPriceV7(
+		public Result<(bool? AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)> TryApplyFixedPriceV7(
 			IUnitOfWork uow,
 			CanApplyOnlineOrderFixedPriceV7 canApplyOnlineOrderFixedPrice)
 		{
@@ -59,7 +59,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				canApplyOnlineOrderFixedPrice.IsSelfDelivery,
 				out var fixedPrices))
 			{
-				return Result.Failure<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)>(
+				return Result.Failure<(bool? AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)>(
 					Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
 			}
 
@@ -128,13 +128,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return true;
 		}
 		
-		private Result<(bool AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)> TryApplyFixedPrice(
+		private Result<(bool? AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)> TryApplyFixedPrice(
 			IUnitOfWork uow,
 			IEnumerable<IOrderedCartItem> cartItems,
 			IEnumerable<NomenclatureFixedPrice> fixedPrices)
 		{
 			var cartItemsWithDiscountDetails = new List<IOrderedCartItemWithDiscountDetails>();
-			var fixedPriceAppliedToAllItems = true;
+			bool? fixedPriceAppliedToAllItems = null;
 			
 			foreach(var cartItem in cartItems)
 			{
@@ -154,7 +154,17 @@ namespace Vodovoz.Core.Application.Orders.Services
 					break;
 				}
 
-				fixedPriceAppliedToAllItems &= applied;
+				if(fixedPriceAppliedToAllItems is null)
+				{
+					fixedPriceAppliedToAllItems = applied
+						? true
+						: null;
+				}
+				else
+				{
+					fixedPriceAppliedToAllItems &= applied;
+				}
+				
 				cartItemsWithDiscountDetails.Add(cartItemWithDiscountDetails);
 			}
 			

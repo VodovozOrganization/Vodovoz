@@ -8,21 +8,19 @@ using System.Windows.Input;
 using Autofac;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Sale;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Goods.ProductGroups;
-using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Widgets;
 using VodovozBusiness.Domain.Orders;
@@ -34,9 +32,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private ILifetimeScope _lifetimeScope;
 		private readonly ICommonServices _commonServices;
-		private Nomenclature _selectedNomenclature;
-		private ProductGroup _selectedProductGroup;
-		private ProductGroupsJournalViewModel _selectProductGroupJournalViewModel;
+		private IEnumerable<object> _selectedNomenclatures = Array.Empty<object>();
+		private IEnumerable<object> _selectedProductGroups = Array.Empty<object>();
 		private IPermissionResult _permissionResult;
 		private ValidationContext _validationContext;
 
@@ -88,10 +85,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool AskSaveOnClose => CanEditDiscountReason;
 		public bool CanArchive => CanEditDiscountReason && !IsArchive;
 		public bool CanEditDiscountReason => IsNewEntity && _permissionResult.CanCreate;
-		public bool CanRemoveNomenclature => IsNomenclatureSelected && CanEditDiscountReason;
-		public bool IsNomenclatureSelected => SelectedNomenclature != null;
-		public bool CanRemoveProductGroup => IsProductGroupSelected && CanEditDiscountReason;
-		public bool IsProductGroupSelected => SelectedProductGroup != null;
+		public bool CanRemoveNomenclatures => IsNomenclaturesSelected && CanEditDiscountReason;
+		public bool IsNomenclaturesSelected => SelectedNomenclatures != null && SelectedNomenclatures.Any();
+		public bool CanRemoveProductGroup => IsProductGroupsSelected && CanEditDiscountReason;
+		public bool IsProductGroupsSelected => SelectedProductGroups != null && SelectedProductGroups.Any();
 		public bool CanChangeDiscountReasonName => CanEditDiscountReason;
 		public IDictionary<DiscountType, UseDiscountType?> DiscountTypeUses { get; private set; }
 
@@ -286,26 +283,28 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 		}
 
-		public Nomenclature SelectedNomenclature
+		public IEnumerable<object> SelectedNomenclatures
 		{
-			get => _selectedNomenclature;
+			get => _selectedNomenclatures;
 			set
 			{
-				if(SetField(ref _selectedNomenclature, value))
+				if(SetField(ref _selectedNomenclatures, value))
 				{
-					OnPropertyChanged(nameof(IsNomenclatureSelected));
+					OnPropertyChanged(nameof(IsNomenclaturesSelected));
+					OnPropertyChanged(nameof(CanRemoveNomenclatures));
 				}
 			} 
 		}
 		
-		public ProductGroup SelectedProductGroup
+		public IEnumerable<object> SelectedProductGroups
 		{
-			get => _selectedProductGroup;
+			get => _selectedProductGroups;
 			set
 			{
-				if(SetField(ref _selectedProductGroup, value))
+				if(SetField(ref _selectedProductGroups, value))
 				{
-					OnPropertyChanged(nameof(IsProductGroupSelected));
+					OnPropertyChanged(nameof(IsProductGroupsSelected));
+					OnPropertyChanged(nameof(CanRemoveProductGroup));
 				}
 			} 
 		}
@@ -433,7 +432,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			AddProductGroupCommand = new DelegateCommand(AddProductGroup);
 			RemoveProductGroupCommand = new DelegateCommand(RemoveProductGroup);
 			AddNomenclatureCommand = new DelegateCommand(AddNomenclature);
-			RemoveNomenclatureCommand = new DelegateCommand(RemoveNomenclature);
+			RemoveNomenclatureCommand = new DelegateCommand(RemoveNomenclatures);
 		}
 		
 		private void UpdateSelectedCategories(bool value)
@@ -451,28 +450,35 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				OpenPageOptions.AsSlave,
 				vm =>
 				{
-					vm.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
-					vm.OnSelectResult += (s, ea) =>
-					{
-						var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
-						if(selectedNode == null)
-						{
-							return;
-						}
-
-						Entity.AddNomenclature(UoW.GetById<Nomenclature>(selectedNode.Id));
-					};
+					vm.SelectionMode = JournalSelectionMode.Multiple;
+					vm.OnSelectResult += OnNomenclaturesSelected;
 				});
 		}
 
-		private void RemoveNomenclature()
+		private void OnNomenclaturesSelected(object sender, JournalSelectedEventArgs ea)
 		{
-			Entity.RemoveNomenclature(_selectedNomenclature);
+			(sender as NomenclaturesJournalViewModel).OnSelectResult -= OnNomenclaturesSelected;
+			
+			var selectedNodes = ea.SelectedObjects
+				.Cast<INamedDomainObject>()
+				.ToList();
+
+			if(!selectedNodes.Any())
+			{
+				return;
+			}
+
+			Entity.AddNomenclatures(selectedNodes);
+		}
+
+		private void RemoveNomenclatures()
+		{
+			Entity.RemoveNomenclatures(_selectedNomenclatures);
 		}
 
 		private void AddProductGroup()
 		{
-			var selectGroupPage = NavigationManager.OpenViewModel<ProductGroupsJournalViewModel, Action<ProductGroupsJournalFilterViewModel>>(
+			NavigationManager.OpenViewModel<ProductGroupsJournalViewModel, Action<ProductGroupsJournalFilterViewModel>>(
 				this,
 				filter =>
 				{
@@ -481,33 +487,30 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				OpenPageOptions.AsSlave,
 				vm =>
 				{
-					vm.SelectionMode = JournalSelectionMode.Single;
+					vm.SelectionMode = JournalSelectionMode.Multiple;
+					vm.OnSelectResult += OnProductGroupsSelected;
 				});
-					
-			if(_selectProductGroupJournalViewModel != null)
-			{
-				_selectProductGroupJournalViewModel.OnSelectResult -= OnProductGroupSelected;
-			}
-
-			_selectProductGroupJournalViewModel = selectGroupPage.ViewModel;
-			_selectProductGroupJournalViewModel.OnSelectResult += OnProductGroupSelected;
 		}
 
 		private void RemoveProductGroup()
 		{
-			Entity.RemoveProductGroup(_selectedProductGroup);
+			Entity.RemoveProductGroups(_selectedProductGroups);
 		}
 
-		private void OnProductGroupSelected(object sender, JournalSelectedEventArgs e)
+		private void OnProductGroupsSelected(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedNode = e.SelectedObjects.FirstOrDefault();
+			(sender as ProductGroupsJournalViewModel).OnSelectResult -= OnProductGroupsSelected;
+			
+			var selectedGroups = e.SelectedObjects
+				.Cast<INamedDomainObject>()
+				.ToList();
 
-			if(!(selectedNode is ProductGroupsJournalNode selectedProductNode))
+			if(!selectedGroups.Any())
 			{
 				return;
 			}
 
-			Entity.AddProductGroup(UoW.GetById<ProductGroup>(selectedProductNode.Id));
+			Entity.AddProductGroups(selectedGroups);
 		}
 		
 		private void InitializeNomenclatureCategoriesList()
@@ -609,12 +612,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 			else
 			{
-				if(Entity.DiscountApplicabilities.Count != DiscountTypeUses.Count)
-				{
-					throw new InvalidOperationException(
-						"Что-то пошло не так. Количество применимости по типам не должно отличаться от установленного значения!");
-				}
-
 				foreach(var keyPairValue in DiscountTypeUses)
 				{
 					if(!keyPairValue.Value.HasValue)
@@ -628,12 +625,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public override void Dispose()
 		{
 			_lifetimeScope = null;
-
-			if(_selectProductGroupJournalViewModel != null)
-			{
-				_selectProductGroupJournalViewModel.OnSelectResult -= OnProductGroupSelected;
-			}
-
 			base.Dispose();
 		}
 	}

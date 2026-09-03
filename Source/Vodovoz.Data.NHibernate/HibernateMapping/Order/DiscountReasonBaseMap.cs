@@ -43,7 +43,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			
 			HasMany(x => x.DiscountApplicabilities)
 				.Cascade.AllDeleteOrphan()
-				//.Inverse()
+				.Inverse()
 				.LazyLoad()
 				.KeyColumn("discount_reason_id");
 		}

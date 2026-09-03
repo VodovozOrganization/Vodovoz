@@ -72,14 +72,15 @@ namespace CustomerOrdersApi.Library.V7.Services
 			};
 			
 			var result = _onlineOrderFixedPriceHandler.TryApplyFixedPriceV7(uow, node);
+			var fixedPriceAppliedToAllOrder = result.Value.AppliedToAllItems;
 			
 			return result.IsFailure
 				? AppliedFixedPriceDto.CreateError(result.Errors.First())
 				: AppliedFixedPriceDto.Create(
 					result.Value.SaleItems,
-					result.Value.AppliedToAllItems
-						? null
-						: _infoMessageFactory.CreateFixedPriceAppliedToNotAllItemsWarning());
+					fixedPriceAppliedToAllOrder.HasValue && !fixedPriceAppliedToAllOrder.Value
+						? _infoMessageFactory.CreateFixedPriceAppliedToNotAllItemsWarning()
+						: null);
 		}
 	}
 }

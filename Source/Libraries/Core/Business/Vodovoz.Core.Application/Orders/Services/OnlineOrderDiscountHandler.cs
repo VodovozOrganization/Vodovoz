@@ -373,11 +373,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 				var onlinePrice = onlineParameters?.GetOnlinePrice(receivedCartItem.Count);
 
-				if(onlineParameters?.NomenclatureOnlineDiscount != null
+				/*if(onlineParameters?.NomenclatureOnlineDiscount != null
 					|| onlinePrice?.PriceWithoutDiscount != null)
 				{
 					return false;
-				}
+				}*/
 			}
 			
 			return true;
@@ -432,7 +432,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 				if(totalDiscountDetails.DiscountDetails.TryGetValue(discountAmount.Id, out var calculated))
 				{
 					discountAmount.Update(calculated.Name, calculated.Amount);
+					totalDiscountDetails.DiscountDetails.Remove(discountAmount.Id);
 				}
+			}
+
+			//т.к. добавляемый промокод отсутствует в изначальном списке скидок, то пробегаемся по оставшимся и добавляем
+			foreach(var keyPairValue in totalDiscountDetails.DiscountDetails)
+			{
+				receivedCartItem.Discounts.Add(keyPairValue.Value);
 			}
 		}
 
