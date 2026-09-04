@@ -1646,10 +1646,11 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(GeographicGroups) });
 			}
 
-			var ignoreRouteListItemStatuses = new List<RouteListItemStatus> { RouteListItemStatus.Canceled, RouteListItemStatus.Transfered };
+			var ignoreRouteListItemStatuses = RouteListItem.GetNotDeliveredStatuses();
 
 			var onlineOrders = Addresses
-				.Where(x => !ignoreRouteListItemStatuses.Contains(x.Status) && x.Order.PaymentType != PaymentType.Terminal)
+				.Where(x => !ignoreRouteListItemStatuses.Contains(x.Status)
+					&& x.Order.PaymentType != PaymentType.Terminal)
 				.GroupBy(x => x.Order.OnlinePaymentNumber)
 				.Where(g => g.Key != null && g.Count() > 1)
 				.Select(o => o.Key);

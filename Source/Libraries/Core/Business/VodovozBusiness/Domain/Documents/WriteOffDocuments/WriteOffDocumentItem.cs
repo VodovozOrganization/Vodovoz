@@ -73,8 +73,8 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 		[Display(Name = "Сумма ущерба")]
 		public virtual decimal SumOfDamage =>
 			Document?.WriteOffType == WriteOffType.Car
-			? Nomenclature.GetPurchasePriceOnDate(Document.TimeStamp).PurchasePrice * Amount
-			: Nomenclature.SumOfDamage * Amount;
+				? Nomenclature.GetPurchasePriceOnDate(Document.TimeStamp)?.PurchasePrice * Amount ?? Nomenclature.SumOfDamage * Amount
+				: Nomenclature.SumOfDamage * Amount;
 
 		[Display(Name = "Штраф")]
 		public virtual Fine Fine

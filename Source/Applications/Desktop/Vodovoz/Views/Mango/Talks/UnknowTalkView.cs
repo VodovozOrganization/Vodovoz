@@ -1,4 +1,5 @@
 ﻿using QS.Views.Dialog;
+using ReactiveUI;
 using System;
 using Vodovoz.ViewModels.Dialogs.Mango.Talks;
 
@@ -15,6 +16,8 @@ namespace Vodovoz.Views.Mango.Talks
 		private void Configure()
 		{
 			CallNumberLabel.Binding.AddBinding(ViewModel, v => v.PhoneText, w => w.LabelProp).InitializeFromSource();
+
+			ybuttonDriverForwarding.BindCommand(ViewModel.ForwardCallToDriverCommand);
 		}
 		#region Events
 		protected void Clicked_NewClientButton(object sender, EventArgs e)

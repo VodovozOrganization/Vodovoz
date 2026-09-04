@@ -1,7 +1,6 @@
-﻿using Edo.Problems;
-using Edo.Admin;
+﻿using Edo.Admin;
+using Edo.Problems;
 using Edo.Problems.Custom;
-using Edo.Problems.Custom.Sources;
 using Edo.Problems.Exception;
 using Edo.Transport;
 using EdoService.Library.Converters;
@@ -31,6 +30,8 @@ namespace EdoService.Library
 				.AddScoped<MessageService>()
 				.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>()
 				;
+
+			services.TryAddScoped<IOrderEdoTaskCreatedEventPublisher, OrderEdoTaskCreatedEventPublisher>();
 
 			return services;
 		}

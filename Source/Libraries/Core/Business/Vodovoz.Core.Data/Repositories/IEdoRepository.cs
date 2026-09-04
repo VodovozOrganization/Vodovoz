@@ -1,9 +1,10 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
@@ -37,6 +38,20 @@ namespace Vodovoz.Core.Data.Repositories
 		Task<OrderEdoTask> GetOrderEdoTaskById(
 			IUnitOfWork uow,
 			int taskId,
+			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получает просроченные новые задачи ЭДО, которые можно повторно запустить
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="maxCreationTime">Максимальное время создания задачи</param>
+		/// <param name="batchSize">Максимальное количество задач</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список задач для повторного запуска</returns>
+		Task<IList<OrderEdoTask>> GetStaleNewEdoTasks(
+			IUnitOfWork uow,
+			DateTime maxCreationTime,
+			int batchSize,
 			CancellationToken cancellationToken = default);
 
 		/// <summary>
@@ -267,5 +282,33 @@ namespace Vodovoz.Core.Data.Repositories
 			int? batchSize,
 			TimeSpan[] retryDelays,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить документ ЭДО по идентификатору задачи
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Документ ЭДО</returns>
+		OrderEdoDocument GetOrderEdoDocumentByTaskId(IUnitOfWork uow, int taskId);
+
+		/// <summary>
+		/// Получить список статусов ЭДО, которые считаются полученными
+		/// </summary>
+		/// <returns>Массив статусов ЭДО</returns>
+		EdoDocFlowStatus[] GetRecievedEdoDocFlowStatuses();
+
+		// <summary>
+		/// Получить список статусов ЭДО документов, которые считаются полученными
+		/// </summary>
+		/// <returns>Массив статусов ЭДО документов</returns>
+		EdoDocumentStatus[] GetInProgressOrCompletedStatuses();
+
+		/// <summary>
+		/// Получить ДО Такском по идентификатору ДО
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="docflowId">Идентификатор ДО</param>
+		/// <returns>ДО Такском</returns>
+		TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId);
 	}
 }

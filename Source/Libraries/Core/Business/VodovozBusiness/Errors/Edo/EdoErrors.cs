@@ -88,6 +88,22 @@ namespace VodovozBusiness.Errors.Edo
 				"Нет отмененной ЭДО задачи для переотправки");
 
 		/// <summary>
+		/// Ошибка: нет задачи ЭДО
+		/// </summary>
+		public static Error NoEdoTask =>
+			new Error(typeof(EdoErrors),
+				nameof(NoEdoTask),
+				"Нет ЭДО задачи");
+
+		/// <summary>
+		/// Ошибка: нет документооборота Taxcom
+		/// </summary>
+		public static Error NoTaxcomDocflow =>
+			new Error(typeof(EdoErrors),
+				nameof(NoTaxcomDocflow),
+				"Нет документооборота Taxcom");
+
+		/// <summary>
 		/// Ошибка: произошла ошибка во время переотправки документа
 		/// </summary>
 		public static Error HasProblem =>
@@ -102,6 +118,15 @@ namespace VodovozBusiness.Errors.Edo
 			new Error(typeof(EdoErrors),
 				nameof(IsUndeliveredOrder),
 				"Невозможно переотправить документ у отмененного заказа");
+
+		/// <summary>
+		/// Ошибка: для исходной задачи уже создан процесс переотправки после отмены вывода кодов из оборота в ЧЗ
+		/// </summary>
+		public static Error TrueMarkCancellationResendAlreadyExists =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(TrueMarkCancellationResendAlreadyExists),
+				"Для документа уже создан процесс переотправки после отмены вывода кодов из оборота в ЧЗ");
 
 		/// <summary>
 		/// Создает ошибку о том, что документ уже успешно отправлен

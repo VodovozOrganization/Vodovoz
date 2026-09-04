@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Extensions;
@@ -219,6 +220,26 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return edoDocuments.ToList();
 		}
 
+		public OrderEdoDocument GetOrderEdoDocumentByTaskId(IUnitOfWork uow, int taskId)
+		{
+			var orderDocument = uow.Session.QueryOver<OrderEdoDocument>()
+				.Where(x => x.DocumentTaskId == taskId)
+				.SingleOrDefault();
+
+			return orderDocument;
+		}
+
+		public TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId)
+		{
+			TaxcomDocflow taxcomDocflowAlias = null;
+
+			var taxcomDocflow = uow.Session.QueryOver(() => taxcomDocflowAlias)
+				.Where(() => taxcomDocflowAlias.DocflowId == docflowId)
+				.SingleOrDefault();
+
+			return taxcomDocflow;
+		}
+
 		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
 			IUnitOfWork uow,
 			int timeoutDays,
@@ -269,9 +290,10 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				where
 					task.Status == EdoTaskStatus.InProgress
 					&& orderEdoDocument.CreationTime < thresholdDate
-					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
+					&& (orderEdoDocument.Status == EdoDocumentStatus.Sent
+						|| orderEdoDocument.Status == EdoDocumentStatus.InProgress
+						&& taxcomDocflow.IsReceived)
 					&& orderEdoDocument.AcceptTime == null
-					&& taxcomDocflow.IsReceived
 					&& order.PaymentType == PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
@@ -346,9 +368,10 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				where
 					task.Status == EdoTaskStatus.InProgress
 					&& taxcomDocflow.CreationTime < thresholdDate && taxcomDocflow.CreationTime >= thresholdDate.AddDays(-1)
-					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
+					&& (orderEdoDocument.Status == EdoDocumentStatus.Sent
+						|| orderEdoDocument.Status == EdoDocumentStatus.InProgress
+						&& taxcomDocflow.IsReceived)
 					&& orderEdoDocument.AcceptTime == null
-					&& taxcomDocflow.IsReceived
 					&& order.PaymentType == PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
@@ -688,6 +711,7 @@ select
 	null as :order_document_type,
 	et.id as :task_id,
 	et.`type` as :task_type,
+	et.document_type as :formal_document_type,
 	et.status as :task_status,
 	document_task_stage as :task_upd_stage,
 	receipt_status as :task_receipt_stage,
@@ -712,6 +736,7 @@ select
 	eir.order_document_type as :order_document_type,
 	et.id as :task_id,
 	et.`type` as :task_type,
+	et.document_type as :formal_document_type,
 	et.status as :task_status,
 	null as :task_upd_stage,
 	null as :task_receipt_stage,
@@ -737,6 +762,7 @@ where eir.order_id = :order_id
 				.Map("order_document_type", x => x.InformalOrderDocumentType, new EnumStringType<OrderDocumentType>())
 				.Map("task_id", x => x.TaskId, NHibernateUtil.Int32)
 				.Map("task_type", x => x.TaskType, new EnumStringType<EdoTaskType>())
+				.Map("formal_document_type", x => x.FormalDocumentType, new EnumStringType<EdoDocumentType>())
 				.Map("task_status", x => x.TaskStatus, new EnumStringType<EdoTaskStatus>())
 				.Map("task_upd_stage", x => x.TaskUpdStage, new EnumStringType<DocumentEdoTaskStage>())
 				.Map("task_receipt_stage", x => x.TaskReceiptStage, new EnumStringType<EdoReceiptStatus>())
@@ -1254,6 +1280,91 @@ where ecr.order_id = :order_id
 				.FirstOrDefaultAsync(t => t.Id == taskId, cancellationToken);
 
 			return task;
+		}
+
+		public EdoDocFlowStatus[] GetRecievedEdoDocFlowStatuses()
+		{
+			return new EdoDocFlowStatus[]
+				{
+					EdoDocFlowStatus.Sent,
+					EdoDocFlowStatus.Succeed,
+					EdoDocFlowStatus.Warning,
+					EdoDocFlowStatus.Cancelled,
+					EdoDocFlowStatus.WaitingForCancellation,
+					EdoDocFlowStatus.CompletedWithDivergences,
+					EdoDocFlowStatus.NotAccepted
+				};
+		}
+
+		public EdoDocumentStatus[] GetInProgressOrCompletedStatuses()
+		{
+			return new EdoDocumentStatus[]
+				{
+					EdoDocumentStatus.InProgress,
+					EdoDocumentStatus.Sent,
+					EdoDocumentStatus.Succeed,
+					EdoDocumentStatus.CompletedWithDivergences
+				};
+		}
+
+		public async Task<IList<OrderEdoTask>> GetStaleNewEdoTasks(
+			IUnitOfWork uow,
+			DateTime maxCreationTime,
+			int batchSize,
+			CancellationToken cancellationToken = default)
+		{
+			var documentTasks = await GetStaleNewEdoTasks<DocumentEdoTask>(
+				uow,
+				x => x.Stage == DocumentEdoTaskStage.New && x.DocumentType == EdoDocumentType.UPD,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			var receiptTasks = await GetStaleNewEdoTasks<ReceiptEdoTask>(
+				uow,
+				x => x.ReceiptStatus == EdoReceiptStatus.New,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			var tenderTasks = await GetStaleNewEdoTasks<TenderEdoTask>(
+				uow,
+				x => x.Stage == TenderEdoTaskStage.New,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			var saveCodesTasks = await GetStaleNewEdoTasks<SaveCodesEdoTask>(
+				uow,
+				x => true,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			return documentTasks
+				.Cast<OrderEdoTask>()
+				.Concat(receiptTasks)
+				.Concat(tenderTasks)
+				.Concat(saveCodesTasks)
+				.OrderBy(x => x.CreationTime)
+				.Take(batchSize)
+				.ToList();
+		}
+
+		private static Task<List<TTask>> GetStaleNewEdoTasks<TTask>(
+			IUnitOfWork uow,
+			Expression<Func<TTask, bool>> initialStagePredicate,
+			DateTime maxCreationTime,
+			int batchSize,
+			CancellationToken cancellationToken)
+			where TTask : OrderEdoTask
+		{
+			return uow.Session.Query<TTask>()
+				.Where(x => x.Status == EdoTaskStatus.New && x.CreationTime <= maxCreationTime)
+				.Where(initialStagePredicate)
+				.OrderBy(x => x.CreationTime)
+				.Take(batchSize)
+				.ToListAsync(cancellationToken);
 		}
 	}
 }
