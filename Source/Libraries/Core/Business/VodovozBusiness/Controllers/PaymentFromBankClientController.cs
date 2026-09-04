@@ -106,6 +106,7 @@ namespace Vodovoz.Controllers
 				&& order.PaymentType != PaymentType.Cashless)
 			{
 				ReturnAllocatedSumToClientBalance(uow, order, RefundPaymentReason.ChangeOrderPaymentType);
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.None, order.PaymentType);
 			}
 		}
 		
