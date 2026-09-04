@@ -1,4 +1,5 @@
-﻿using Vodovoz.Core.Domain.Clients;
+﻿using CustomerOrdersApi.Library.V7.Dto.Orders.RequestsForCall;
+using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders
 {
@@ -33,5 +34,10 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		/// Id контрагента в ERP
 		/// </summary>
 		public int? CounterpartyErpId { get; set; }
+		
+		/// <summary>
+		/// Тип заявки на звонок
+		/// </summary>
+		public RequestForCallType Type { get; set; }
 	}
 }

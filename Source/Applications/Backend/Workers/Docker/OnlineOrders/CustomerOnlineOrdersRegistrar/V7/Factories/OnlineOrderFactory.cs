@@ -139,6 +139,11 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 					"Нельзя создавать объекты промонабора или пакета аренды в методе для номенклатур!" +
 					" Используйте методы CreateAndAddPromoSetItem или CreateAndAddRentPackageItem");
 			}
+
+			if(onlineOrderItemDto.ItemType is SaleItemType.Service)
+			{
+				onlineOrder.HasService = true;
+			}
 			
 			var nomenclature = _nomenclatureRepository
 				.GetFirstOrDefault(uow, x => x.Id == onlineOrderItemDto.ErpId);

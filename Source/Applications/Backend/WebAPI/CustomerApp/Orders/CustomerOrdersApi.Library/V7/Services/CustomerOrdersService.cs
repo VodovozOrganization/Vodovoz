@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
+using CustomerOrdersApi.Library.V7.Extensions;
 using CustomerOrdersApi.Library.V7.Factories;
 using CustomerOrdersApi.Library.V7.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -481,13 +482,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 				counterparty = uow.GetById<Counterparty>(creatingInfoDto.CounterpartyErpId.Value);
 			}
 
-			var requestForCall = RequestForCall.Create(
-				creatingInfoDto.Source,
-				creatingInfoDto.ContactName,
-				creatingInfoDto.PhoneNumber,
-				nomenclature,
-				counterparty
-				);
+			var requestForCall = creatingInfoDto.ToRequestForCall(nomenclature, counterparty);
 
 			uow.Save(requestForCall);
 			uow.Commit();

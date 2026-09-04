@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -126,6 +127,11 @@ namespace CustomerOnlineOrdersRegistrar.V4.Factories
 				if(onlineOrderItemDto.PromoSetId.HasValue)
 				{
 					promoSet = uow.GetById<PromotionalSet>(onlineOrderItemDto.PromoSetId.Value);
+				}
+
+				if(nomenclature is { Category: NomenclatureCategory.master })
+				{
+					onlineOrder.HasService = true;
 				}
 				
 				var onlineOrderItem = OnlineOrderItem.Create(

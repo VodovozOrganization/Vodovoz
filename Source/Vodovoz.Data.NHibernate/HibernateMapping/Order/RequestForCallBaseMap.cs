@@ -1,14 +1,14 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Sale.RequestsForCall;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
-	public class RequestForCallMap : ClassMap<RequestForCall>
+	public class RequestForCallBaseMap : ClassMap<RequestForCallBase>
 	{
-		public RequestForCallMap()
+		public RequestForCallBaseMap()
 		{
 			Table("requests_for_call");
+			DiscriminateSubClassesOnColumn(RequestForCallBase.TypeColumn);
 
 			Id(x => x.Id).GeneratedBy.Native();
 
@@ -17,6 +17,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.Created).Column("created");
 			Map(x => x.Phone).Column("phone");
 			Map(x => x.RequestForCallStatus).Column("request_for_call_status");
+			Map(x => x.Type)
+				.Column(RequestForCallBase.TypeColumn)
+				.Not.Insert()
+				.Not.Update()
+				.Access.ReadOnly();
 
 			References(x => x.Order).Column("order_id");
 			References(x => x.EmployeeWorkWith).Column("employee_work_with_id");

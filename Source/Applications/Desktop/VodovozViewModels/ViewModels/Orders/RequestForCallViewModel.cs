@@ -4,14 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using Autofac;
 using QS.Commands;
 using QS.Dialog;
-using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Domain;
 using QS.Services;
 using QS.Validation;
+using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
@@ -24,25 +23,27 @@ using VodovozBusiness.Domain.Sale.RequestsForCall;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
-	public class RequestForCallViewModel : EntityDialogViewModelBase<RequestForCall>, IAskSaveOnCloseViewModel
+	public class RequestForCallViewModel : DialogTabViewModelBase, IAskSaveOnCloseViewModel
 	{
 		private readonly IInteractiveService _interactiveService;
+		private readonly IValidator _validator;
 		private readonly Employee _currentEmployee;
 		private readonly ValidationContext _validationContext;
 		private readonly IPermissionResult _permissionResult;
 		private ILifetimeScope _lifetimeScope;
 
 		public RequestForCallViewModel(
-			IEntityUoWBuilder entityUoWBuilder,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IEntityViewModelContext viewModelContext,
 			IInteractiveService interactiveService,
 			ICurrentPermissionService currentPermissionService,
 			IEmployeeService employeeService,
 			INavigationManager navigation,
 			IValidator validator,
 			IValidationContextFactory validationContextFactory,
-			ILifetimeScope lifetimeScope) : base(entityUoWBuilder, unitOfWorkFactory, navigation, validator)
+			ILifetimeScope lifetimeScope) : base(viewModelContext.UowFactory, interactiveService, navigation)
 		{
+			InitializeEntityAndUow(viewModelContext);
+			
 			if(currentPermissionService == null)
 			{
 				throw new ArgumentNullException(nameof(currentPermissionService));
@@ -61,9 +62,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
-			_permissionResult = currentPermissionService.ValidateEntityPermission(typeof(RequestForCall));
+			_permissionResult = currentPermissionService.ValidateEntityPermission(typeof(RequestForCallBase));
 
 			Title = Entity.ToString();
 			
@@ -72,6 +74,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
+		public RequestForCallBase Entity { get; protected set; }
 		public DelegateCommand GetToWorkCommand { get; private set; }
 		public DelegateCommand CloseRequestCommand { get; private set; }
 		public DelegateCommand CancelCommand { get; private set; }
@@ -121,7 +124,16 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			Entity.AttachOrder(order);
 		}
 
-		protected override bool Validate() => validator.Validate(Entity, _validationContext);
+		protected bool Validate() => _validator.Validate(Entity, _validationContext);
+		
+		protected virtual void InitializeEntityAndUow(IEntityViewModelContext viewModelContext)
+		{
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+
+			Entity = !viewModelContext.EntityId.HasValue
+				? (RequestForCallBase)Activator.CreateInstance(viewModelContext.EntityType)
+				: (RequestForCallBase)UoW.GetById(viewModelContext.EntityType, viewModelContext.EntityId.Value);
+		}
 		
 		private void CreateCommands()
 		{
@@ -182,6 +194,19 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			CancelCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 		}
 		
+		private new bool Save()
+		{
+			if(!Validate())
+			{
+				return false;
+			}
+			
+			UoW.Save(Entity);
+			UoW.Commit();
+
+			return true;
+		}
+		
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(Entity.EmployeeWorkWith))
@@ -207,7 +232,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		
 		private void ConfigureEntryViewModels()
 		{
-			var builder = new CommonEEVMBuilderFactory<RequestForCall>(this, Entity, UoW, NavigationManager, _lifetimeScope);
+			var builder = new CommonEEVMBuilderFactory<RequestForCallBase>(this, Entity, UoW, NavigationManager, _lifetimeScope);
 
 			NomenclatureEntryViewModel = builder.ForProperty(x => x.Nomenclature)
 				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()

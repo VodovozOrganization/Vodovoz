@@ -7,6 +7,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using VodovozInfrastructure.Extensions;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -26,9 +27,9 @@ namespace Vodovoz.JournalColumnsConfigs
 							: _emptyImg)
 				.AddColumn("Тип").AddTextRenderer(node => node.EntityTypeString)
 				.AddColumn("Дата создания").AddTextRenderer(node => node.CreationDate.ToString("G"))
-				.AddColumn("Дата доставки").AddTextRenderer(node =>
+				.AddColumn("Дата\nдоставки").AddTextRenderer(node =>
 						node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty)
-				.AddColumn("Время доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
+				.AddColumn("Время\nдоставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
 				.AddColumn("Оформленный\nзаказ(ы)").AddTextRenderer(node => node.OrdersIds)
 				.AddColumn("Статус").AddTextRenderer(node => node.Status)
 				.AddColumn("Клиент")
@@ -44,11 +45,12 @@ namespace Vodovoz.JournalColumnsConfigs
 							? CurrencyWorks.GetShortCurrencyString(node.OnlineOrderSum.Value)
 							: string.Empty)
 				.AddColumn("Источник").AddTextRenderer(node => node.Source.GetEnumDisplayName(false))
-				.AddColumn("Статус оплаты").AddTextRenderer(node =>
+				.AddColumn("Услуги\nСЦ").AddTextRenderer(node => node.HasService.ConvertToYesOrEmpty())
+				.AddColumn("Статус\nоплаты").AddTextRenderer(node =>
 						node.OnlineOrderPaymentStatus.HasValue
 							? node.OnlineOrderPaymentStatus.Value.GetEnumDisplayName(false)
 							: string.Empty)
-				.AddColumn("Номер оплаты").AddTextRenderer(node => node.OnlinePayment.ToString())
+				.AddColumn("Номер\nоплаты").AddTextRenderer(node => node.OnlinePayment.ToString())
 				.AddColumn("Дата след. звонка").AddTextRenderer(node => node.NextCallDate.HasValue ? node.NextCallDate.Value.ToShortDateString() : string.Empty)
 				.AddColumn("Причина отмены").AddTextRenderer(node => string.IsNullOrEmpty(node.CancelReason) ? "" : node.CancelReason)
 				.AddColumn("В работе").AddTextRenderer(node => node.ManagerWorkWith)

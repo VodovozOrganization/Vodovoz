@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 					return OnlineOrderStatus.Value.GetEnumDisplayName();
 				}
 
-				if(EntityType == typeof(RequestForCall))
+				if(EntityType == typeof(RequestForCallBase))
 				{
 					return RequestForCallStatus.Value.GetEnumDisplayName();
 				}
@@ -53,5 +53,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public string OrdersIds { get; set; }
 		public string CancelReason { get; set; }
 		public DateTime? NextCallDate { get; set; }
+		/// <summary>
+		/// Онлойн заказ - есть сервисные услуги, заявка на звонок - по сервисным услугам
+		/// </summary>
+		public bool HasService { get; set; }
 	}
 }

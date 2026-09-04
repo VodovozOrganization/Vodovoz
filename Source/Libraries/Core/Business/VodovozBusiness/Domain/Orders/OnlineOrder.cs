@@ -67,6 +67,7 @@ namespace Vodovoz.Domain.Orders
 		private DateTime? _nextCallDate;
 		private IList<OnlineOrderOperatorComments> _operatorComments = new List<OnlineOrderOperatorComments>();
 		private DateTime? _nextCallDateChanged;
+		private bool _hasService;
 
 		public virtual int Id { get; set; }
 		
@@ -349,7 +350,17 @@ namespace Vodovoz.Domain.Orders
 			get => _operatorComments;
 			set => SetField(ref _operatorComments, value);
 		}
-		
+
+		/// <summary>
+		/// Есть услуги СЦ
+		/// </summary>
+		[Display(Name = "Есть услуги СЦ")]
+		public virtual bool HasService
+		{
+			get => _hasService;
+			set => SetField(ref _hasService, value);
+		}
+
 		/// <summary>
 		/// Версия онлайн заказа
 		/// </summary>
@@ -527,7 +538,7 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		/// <summary>
-		/// Необходимо чтобы Nhibernate мог привести  Proxy базового класса (OrderEdoTask)
+		/// Необходимо чтобы Nhibernate мог привести Proxy базового класса (OnlineOrder)
 		/// к конкретному классу наследнику
 		/// </summary>
 		public virtual T As<T>() where T : OnlineOrder
