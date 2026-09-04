@@ -99,10 +99,13 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document,
 			Action onActionCompleted)
 		{
-			actions.Add(new BusyCommand(
-				"Переотправить",
-				() => ResendUpd(document, onActionCompleted)
-			));
+			if(document.EdoDocumentStatus != EdoDocumentStatus.Succeed)
+			{
+				actions.Add(new BusyCommand(
+					"Переотправить",
+					() => ResendUpd(document, onActionCompleted)
+				));
+			}
 
 			if(IsDocumentCompletedWithClarification(document)
 				&& _currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentWithCodesFromPool))
@@ -116,6 +119,12 @@ namespace Vodovoz.ViewModels.Edo
 
 		private void ResendUpd(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
+			if(IsDocumentInProgressOrSent(document))
+			{
+				ResendUpdWithCancellation(document, onActionCompleted);
+				return;
+			}
+
 			if(IsDocumentCompletedWithClarification(document))
 			{
 				ShowResult(_edoService.ScheduleResendEdoDocumentAfterTrueMarkCancellation(document.TaskId));
@@ -162,6 +171,33 @@ namespace Vodovoz.ViewModels.Edo
 			}
 		}
 
+		private void ResendUpdWithCancellation(EdoInOrderDocumentNode document, Action onActionCompleted)
+		{
+			if(!_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentWithCancellation))
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Для переотправки УПД в статусе «В процессе» или «Отправлен» недостаточно прав.");
+				return;
+			}
+
+			if(!_interactiveService.Question(
+				"Текущий документооборот будет отправлен на аннулирование.\n" +
+				"Клиенту будет отправлено предложение об аннулировании.\n" +
+				"УПД будет переотправлен. Продолжить?"))
+			{
+				return;
+			}
+
+			var result = _edoService.ResendEdoDocumentWithCancellation(document.TaskId);
+			ShowResult(result);
+
+			if(result.IsSuccess)
+			{
+				onActionCompleted?.Invoke();
+			}
+		}
+
 		private void ResendUpdWithCodesFromPool(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
 			if(!_interactiveService.Question(
@@ -178,6 +214,12 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			return document.EdoDocumentStatus == EdoDocumentStatus.Warning
 				|| document.EdoDocumentStatus == EdoDocumentStatus.CompletedWithDivergences;
+		}
+
+		private static bool IsDocumentInProgressOrSent(EdoInOrderDocumentNode document)
+		{
+			return document.EdoDocumentStatus == EdoDocumentStatus.InProgress
+				|| document.EdoDocumentStatus == EdoDocumentStatus.Sent;
 		}
 
 		private void CreateReceiptActions(

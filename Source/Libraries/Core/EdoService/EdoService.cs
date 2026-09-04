@@ -70,6 +70,12 @@ namespace EdoService.Library
 			EdoDocumentStatus.Error
 		};
 
+		private static EdoDocumentStatus[] _resendableWithCancellationEdoDocumentStatuses => new[]
+		{
+			EdoDocumentStatus.InProgress,
+			EdoDocumentStatus.Sent
+		};
+
 		public EdoService(
 			IUnitOfWorkFactory uowFactory,
 			IOrderRepository orderRepository,
@@ -124,6 +130,67 @@ namespace EdoService.Library
 			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
 			{
 				return ResendEdoDocument(uow, taskId);
+			}
+		}
+
+		public Result<string> ResendEdoDocumentWithCancellation(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Переотправляем действующий УПД с аннулированием документооборота"))
+			{
+				var edoTask = GetEdoTaskWithPessimisticLock(uow, taskId);
+				if(!(edoTask is DocumentEdoTask documentTask))
+				{
+					return Result.Failure<string>(EdoErrors.NoEdoTask);
+				}
+
+				var order = documentTask.FormalEdoRequest?.Order;
+				var orderValidationResult = ValidateOrderForResend(order);
+				if(orderValidationResult.IsFailure)
+				{
+					return Result.Failure<string>(orderValidationResult.Errors);
+				}
+
+				var document = _edoRepository.GetOrderEdoDocumentByTaskId(uow, taskId);
+				if(document is null || document.DocumentType != EdoDocumentType.UPD)
+				{
+					return Result.Failure<string>(EdoErrors.InvalidOutgoingDocumentType);
+				}
+
+				if(!_resendableWithCancellationEdoDocumentStatuses.Contains(document.Status))
+				{
+					return Result.Failure<string>(EdoErrors.CreateResendableEdoDocumentStatuses(
+						order.Id,
+						_resendableWithCancellationEdoDocumentStatuses));
+				}
+
+				var checkOtherRequestsResult = CheckOtherRequests(
+					uow,
+					documentTask.FormalEdoRequest,
+					taskId);
+				if(checkOtherRequestsResult.IsFailure)
+				{
+					return Result.Failure<string>(checkOtherRequestsResult.Errors);
+				}
+
+				var checkOtherTasksResult = CheckOtherTasks(uow, documentTask, taskId);
+				if(checkOtherTasksResult.IsFailure)
+				{
+					return Result.Failure<string>(checkOtherTasksResult.Errors);
+				}
+
+				if(!documentTask.Status.IsIn(EdoTaskStatus.InCancellation, EdoTaskStatus.Cancelled))
+				{
+					CancelEdoTaskWithReason(uow, documentTask);
+				}
+
+				if(!documentTask.Status.IsIn(EdoTaskStatus.InCancellation, EdoTaskStatus.Cancelled))
+				{
+					return Result.Failure<string>(EdoErrors.HasProblem);
+				}
+
+				ResendDocumentForCancelledEdoTask(uow, order, documentTask);
+
+				return Result.Success("Старый документооборот отправлен на аннулирование. УПД отправлен на переотправку.");
 			}
 		}
 
