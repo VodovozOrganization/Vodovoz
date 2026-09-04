@@ -11,6 +11,8 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Permissions;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
@@ -18,12 +20,15 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Contacts;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace VodovozBusinessTests.Domain.Orders
@@ -32,11 +37,18 @@ namespace VodovozBusinessTests.Domain.Orders
 	public class OrderTests
 	{
 		private static IOrderContractUpdater _contractUpdater;
+		private static IOrderSaleHandler _saleHandler;
+		private static IOrderDiscountsController _discountsController;
+		private static IGoodsPriceCalculator _priceCalculator;
+		
 		
 		[SetUp]
 		public void Init()
 		{
 			_contractUpdater = Substitute.For<IOrderContractUpdater>();
+			_saleHandler = Substitute.For<IOrderSaleHandler>();
+			_discountsController = Substitute.For<IOrderDiscountsController>();
+			_priceCalculator = Substitute.For<IGoodsPriceCalculator>();
 		}
 		
 		#region OrderItemsPacks
@@ -58,9 +70,29 @@ namespace VodovozBusinessTests.Domain.Orders
 			waterNomenclature.Category.Returns(NomenclatureCategory.water);
 			waterNomenclature.IsDisposableTare.Returns(false);
 
-			order.AddNomenclature(order.UoW, _contractUpdater, forfeitNomenclature, forfeitCount);
-			order.AddNomenclature(order.UoW, _contractUpdater, emptyBottleNomenclature, emptyBottlesCount);
-			order.AddNomenclature(order.UoW, _contractUpdater, waterNomenclature, waterCount);
+			order.AddNomenclature(
+				order.UoW,
+				_contractUpdater,
+				_saleHandler,
+				_priceCalculator,
+				NewOrderSaleItem.Create(forfeitNomenclature, forfeitCount)
+				);
+			
+			order.AddNomenclature(
+				order.UoW,
+				_contractUpdater,
+				_saleHandler,
+				_priceCalculator,
+				NewOrderSaleItem.Create(emptyBottleNomenclature, emptyBottlesCount)
+				);
+			
+			order.AddNomenclature(
+				order.UoW,
+				_contractUpdater,
+				_saleHandler,
+				_priceCalculator,
+				NewOrderSaleItem.Create(waterNomenclature, waterCount)
+				);
 
 			return order;
 		}
@@ -72,10 +104,10 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			foreach(var i in countAndPrice)
 			{
-				order.AddNomenclature(order.UoW, _contractUpdater, nomenclature);
+				order.AddNomenclature(order.UoW, _contractUpdater, _saleHandler, _priceCalculator, NewOrderSaleItem.Create(nomenclature, 0));
 				var item = order.OrderItems.LastOrDefault();
-				item.SetPrice(i.Price);
-				item.SetActualCount(i.ActualCount);
+				_saleHandler.SetPrice(item, (SaleItemPriceType.General, i.Price));
+				_saleHandler.SetActualCount(item, i.ActualCount);
 			}
 
 			return order;
@@ -98,12 +130,12 @@ namespace VodovozBusinessTests.Domain.Orders
 			//	Price = 150m,
 			//};
 
-			testOrder.AddNomenclature(testOrder.UoW, _contractUpdater, depositNomenclature, 3);
+			testOrder.AddNomenclature(testOrder.UoW, _contractUpdater, _saleHandler, _priceCalculator, NewOrderSaleItem.Create(depositNomenclature, 3));
 
 			var item = testOrder.OrderItems.LastOrDefault();
 
-			item.SetActualCount(2);
-			item.SetPrice(150m);
+			_saleHandler.SetActualCount(item, 2);
+			_saleHandler.SetPrice(item, (SaleItemPriceType.General, 150m));
 
 			//testOrder.OrderItems.Add(recivedDepositOrderItem);
 
@@ -122,7 +154,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			var testOrder = CreateTestOrder();
 
-			Nomenclature depositNomenclature = Substitute.For<Nomenclature>();
+			var depositNomenclature = Substitute.For<Nomenclature>();
 			depositNomenclature.TypeOfDepositCategory.Returns(TypeOfDepositCategory.BottleDeposit);
 
 			//OrderItem recivedDepositOrderItem = new OrderItem {
@@ -132,10 +164,10 @@ namespace VodovozBusinessTests.Domain.Orders
 			//	Price = 322,
 			//};
 
-			testOrder.AddNomenclature(testOrder.UoW, _contractUpdater, depositNomenclature, 3);
+			testOrder.AddNomenclature(testOrder.UoW, _contractUpdater, _saleHandler, _priceCalculator, NewOrderSaleItem.Create(depositNomenclature, 3));
 			var item = testOrder.OrderItems.LastOrDefault();
-			item.SetPrice(322);
-			item.SetActualCount(2);
+			_saleHandler.SetPrice(item, (SaleItemPriceType.General, 322m));
+			_saleHandler.SetActualCount(item, 2);
 
 			//testOrder.OrderItems.Add(recivedDepositOrderItem);
 
@@ -192,8 +224,8 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void ClearPromotionSetsList_WhenNoAnyOrderItemsFromPromotionalSet_RemovesThisPromotionalSetFromList()
 		{
 			// arrange
-			PromotionalSet promotionalSetMockNotExisting = Substitute.For<PromotionalSet>();
-			PromotionalSet promotionalSetMockExisting = Substitute.For<PromotionalSet>();
+			var promotionalSetMockNotExisting = Substitute.For<PromotionalSet>();
+			var promotionalSetMockExisting = Substitute.For<PromotionalSet>();
 
 			OrderItem orderItemMock0 = Substitute.For<OrderItem>();
 			orderItemMock0.Discount.Returns(0);
@@ -244,7 +276,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void TryToRemovePromotionalSet_WhenPassOneOfThreeOrderItemsWithSamePromotionalSet_DoesNotRemoveAnyPromoSetsFromPromoSetsListAndFromOrderItemsIfFound()
 		{
 			// arrange
-			PromotionalSet promotionalSetMockExisting = Substitute.For<PromotionalSet>();
+			var promotionalSetMockExisting = Substitute.For<PromotionalSet>();
 
 			OrderItem orderItemMock0 = Substitute.For<OrderItem>();
 			orderItemMock0.Discount.Returns(0);
@@ -283,7 +315,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void TryToRemovePromotionalSet_WhenPassOrderItemWithNoReferenceToPromotionalSet_DoesNotRemoveAnyPromoSetsFromPromoSetsListIfFound()
 		{
 			// arrange
-			PromotionalSet promotionalSetMockExisting = Substitute.For<PromotionalSet>();
+			var promotionalSetMockExisting = Substitute.For<PromotionalSet>();
 
 			OrderItem orderItemMock0 = Substitute.For<OrderItem>();
 			orderItemMock0.Discount.Returns(0);
@@ -322,7 +354,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void TryToRemovePromotionalSet_WhenPassOneOfTwoOrderItemsAndBothHaveSamePromotionalSetButPassingOrderItemHasNoDiscount_DoesNotRemoveAnyPromoSetsFromPromoSetsListIfFound()
 		{
 			// arrange
-			PromotionalSet promotionalSetMockExisting = Substitute.For<PromotionalSet>();
+			var promotionalSetMockExisting = Substitute.For<PromotionalSet>();
 
 			OrderItem orderItemMock0 = Substitute.For<OrderItem>();
 			orderItemMock0.Discount.Returns(0);
@@ -356,7 +388,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void TryToRemovePromotionalSet_WhenPassOneOfTwoOrderItemsAndBothHaveSamePromotionalSetButPassingOrderItemDoesNotHaveAnyDiscount_DoesNotClearReferenceToPromoSetInExistingOrderItemIfFound()
 		{
 			// arrange
-			PromotionalSet promotionalSetMockExisting = Substitute.For<PromotionalSet>();
+			var promotionalSetMockExisting = Substitute.For<PromotionalSet>();
 
 			OrderItem orderItemMock0 = Substitute.For<OrderItem>();
 			orderItemMock0.Discount.Returns(0);
@@ -601,7 +633,12 @@ namespace VodovozBusinessTests.Domain.Orders
 			standartNom.ForfeitId.Returns(33);
 
 			// act
-			testOrder.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNom, routeListItemRepository, cashRepository);
+			testOrder.UpdateBottlesMovementOperationWithoutDelivery(
+				uow,
+				_saleHandler,
+				standartNom,
+				routeListItemRepository,
+				cashRepository);
 
 			// assert
 			Assert.AreEqual(returned, testOrder.BottlesMovementOperation.Returned);
@@ -661,10 +698,10 @@ namespace VodovozBusinessTests.Domain.Orders
 			//};
 			//testOrder.OrderItems.Add(recivedDepositOrderItem);
 
-			testOrder.AddNomenclature(testOrder.UoW, _contractUpdater, depositNomenclature, 3);
+			testOrder.AddNomenclature(testOrder.UoW, _contractUpdater, _saleHandler, _priceCalculator, NewOrderSaleItem.Create(depositNomenclature, 3));
 
 			var item = testOrder.OrderItems.LastOrDefault();
-			item.SetPrice(322);
+			_saleHandler.SetPrice(item, (SaleItemPriceType.General, 322m));
 
 			// act
 			var operations = testOrder.UpdateDepositOperations(testOrder.UoW);
@@ -696,12 +733,13 @@ namespace VodovozBusinessTests.Domain.Orders
 			testOrder.ObservableOrderItems.ListContentChanged -= testOrder.ObservableOrderItems_ListContentChanged;
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
 			var discountController = Substitute.For<IOrderDiscountsController>();
+			var uow = Substitute.For<IUnitOfWork>();
 
 			// act
-			discountController.SetCustomDiscountForOrderItems(
+			discountController.SetCustomDiscountForOrder(
+				uow,
 				discountReason,
-				discountInMoney,
-				DiscountUnits.money,
+				DiscountValue.Create(true, discountInMoney, discountInMoney),
 				testOrder.ObservableOrderItems.Cast<IApplyDiscountReasonItem>().ToList());
 
 			// assert
@@ -730,13 +768,15 @@ namespace VodovozBusinessTests.Domain.Orders
 			testOrder.ObservableOrderItems.ListContentChanged -= testOrder.ObservableOrderItems_ListContentChanged;
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
 			var discountController = Substitute.For<IOrderDiscountsController>();
+			var uow = Substitute.For<IUnitOfWork>();
 
 			// act
-			discountController.SetCustomDiscountForOrderItems(
+			discountController.SetCustomDiscountForOrder(
+				uow,
 				discountReason,
-				discountInPercent,
-				DiscountUnits.percent,
-				testOrder.ObservableOrderItems.Cast<IApplyDiscountReasonItem>().ToList());
+				DiscountValue.Create(false, discountInPercent, discountInPercent),
+				testOrder.ObservableOrderItems.Cast<IApplyDiscountReasonItem>().ToList()
+				);
 
 			// assert
 			for(int i = 0; i < testOrder.OrderItems.Count; i++)
@@ -834,7 +874,12 @@ namespace VodovozBusinessTests.Domain.Orders
 			cashRepository.GetExpenseReturnSumForOrder(uow, orderUnderTest.Id).Returns(112m);
 
 			// act
-			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNomenclatures, routeListItemRepository, cashRepository);
+			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(
+				uow,
+				_saleHandler,
+				standartNomenclatures,
+				routeListItemRepository,
+				cashRepository);
 
 			// assert
 			Assert.That(orderUnderTest.BottlesMovementOperation.Order, Is.EqualTo(orderUnderTest));
@@ -866,7 +911,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			};
 			orderUnderTest.UoW = uow;
 			orderUnderTest.UpdateDeliveryDate(new DateTime(2000, 01, 02), _contractUpdater, out var message);
-			orderUnderTest.AddNomenclature(uow, _contractUpdater, nomenclatureMock01, 15);
+			orderUnderTest.AddNomenclature(uow, _contractUpdater, _saleHandler, _priceCalculator, NewOrderSaleItem.Create(nomenclatureMock01, 15));
 
 			SelfDeliveryDocument selfDeliveryDocumentMock = Substitute.For<SelfDeliveryDocument>();
 			
@@ -879,7 +924,12 @@ namespace VodovozBusinessTests.Domain.Orders
 			cashRepository.GetExpenseReturnSumForOrder(uow, orderUnderTest.Id).Returns(1m);
 
 			// act
-			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNomenclatures, routeListItemRepository, cashRepository);
+			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(
+				uow,
+				_saleHandler,
+				standartNomenclatures,
+				routeListItemRepository,
+				cashRepository);
 
 			// assert
 			Assert.That(orderUnderTest.BottlesMovementOperation.Order, Is.EqualTo(orderUnderTest));
@@ -923,10 +973,11 @@ namespace VodovozBusinessTests.Domain.Orders
 				//OrderItems = new List<OrderItem> { orderItem01, orderItem02 },
 				ReturnedTare = 3
 			};
+			
 			orderUnderTest.UoW = uow;
 			orderUnderTest.UpdateDeliveryDate(new DateTime(1999, 05, 12), _contractUpdater, out var message);
-			orderUnderTest.AddNomenclature(uow, _contractUpdater, nomenclatureMock01, 7);
-			orderUnderTest.AddNomenclature(uow, _contractUpdater, nomenclatureMock03, 41);
+			orderUnderTest.AddNomenclature(uow, _contractUpdater, _saleHandler, _priceCalculator, NewOrderSaleItem.Create(nomenclatureMock01, 7));
+			orderUnderTest.AddNomenclature(uow, _contractUpdater, _saleHandler, _priceCalculator, NewOrderSaleItem.Create(nomenclatureMock03, 41));
 
 			SelfDeliveryDocument selfDeliveryDocumentMock = Substitute.For<SelfDeliveryDocument>();
 
@@ -939,7 +990,12 @@ namespace VodovozBusinessTests.Domain.Orders
 			cashRepository.GetExpenseReturnSumForOrder(uow, 1).Returns(22);
 
 			// act
-			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNomenclatures, routeListItemRepository, cashRepository);
+			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(
+				uow,
+				_saleHandler,
+				standartNomenclatures,
+				routeListItemRepository,
+				cashRepository);
 
 			// assert
 			Assert.That(orderUnderTest.BottlesMovementOperation.Order, Is.Null);
@@ -965,25 +1021,27 @@ namespace VodovozBusinessTests.Domain.Orders
 
 			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
 			nomenclatureMockOrderEquipment.Volume.Returns(.40m);
+			var uow = Substitute.For<IUnitOfWork>();
 
 			//OrderItem orderItem = new OrderItem {
 			//	Nomenclature = nomenclatureMockOrderItem,
 			//	Count = 2
 			//};
 
-			OrderEquipment orderEquipment = new OrderEquipment {
-				Nomenclature = nomenclatureMockOrderEquipment,
-				Count = 3,
-				Direction = Direction.Deliver
-			};
+			var orderUnderTest = new Order();
 			
-			var uow = Substitute.For<IUnitOfWork>();
-			Order orderUnderTest = new Order {
-				//OrderItems = new List<OrderItem> { orderItem },
-				OrderEquipments = new List<OrderEquipment> { orderEquipment },
-			};
+			var orderEquipment = OrderEquipment.CreateNewEquipmentNomenclature(
+				orderUnderTest,
+				nomenclatureMockOrderEquipment,
+				3,
+				Direction.Deliver,
+				OwnTypes.None,
+				DirectionReason.None,
+				Reason.Unknown
+				);
 
-			orderUnderTest.AddNomenclature(uow, _contractUpdater, nomenclatureMockOrderItem, 2);
+			orderUnderTest.OrderEquipments.Add(orderEquipment);
+			orderUnderTest.AddNomenclature(uow, _contractUpdater, _saleHandler, _priceCalculator, NewOrderSaleItem.Create(nomenclatureMockOrderItem, 2));
 
 			// act
 			var vol = orderUnderTest.FullVolume(countOrderItems, countOrderEquipment);
@@ -1008,19 +1066,20 @@ namespace VodovozBusinessTests.Domain.Orders
 			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
 			nomenclatureMockOrderEquipment.Volume.Returns(.40m);
 			nomenclatureMockOrderEquipment.Category = NomenclatureCategory.equipment;
-
-			OrderEquipment orderEquipment = new OrderEquipment
+			
+			var orderUnderTest = new Order
 			{
-				Nomenclature = nomenclatureMockOrderEquipment,
-				Count = 3,
-				Direction = Direction.PickUp
+				BottlesReturn = 5
 			};
 
-			Order orderUnderTest = new Order
-			{
-				BottlesReturn = 5,
-				OrderEquipments = new List<OrderEquipment> { orderEquipment },
-			};
+			var orderEquipment = OrderEquipment.CreateNewEquipmentNomenclature(
+				orderUnderTest,
+				nomenclatureMockOrderEquipment,
+				3,
+				Direction.PickUp,
+				OwnTypes.None,
+				DirectionReason.None,
+				Reason.Unknown);
 
 			// act
 			var vol = orderUnderTest.FullReverseVolume(countBottlesReturn, countOrderEquipment,bottlesVolume);
@@ -1051,20 +1110,21 @@ namespace VodovozBusinessTests.Domain.Orders
 			//	Nomenclature = nomenclatureMockOrderItem,
 			//	Count = 8
 			//};
-
-			OrderEquipment orderEquipment = new OrderEquipment {
-				Nomenclature = nomenclatureMockOrderEquipment,
-				Count = 1,
-				Direction = Direction.Deliver
-			};
-
 			var uow = Substitute.For<IUnitOfWork>();
-			Order orderUnderTest = new Order {
-				//OrderItems = new List<OrderItem> { orderItem },
-				OrderEquipments = new List<OrderEquipment> { orderEquipment },
-			};
+			var orderUnderTest = new Order();
 
-			orderUnderTest.AddNomenclature(uow, _contractUpdater, nomenclatureMockOrderItem, 8);
+			OrderEquipment orderEquipment = OrderEquipment.CreateNewEquipmentNomenclature(
+				orderUnderTest,
+				nomenclatureMockOrderEquipment,
+				1,
+				Direction.Deliver,
+				OwnTypes.None,
+				DirectionReason.None,
+				Reason.Unknown
+				);
+
+			orderUnderTest.OrderEquipments.Add(orderEquipment);
+			orderUnderTest.AddNomenclature(uow, _contractUpdater, _saleHandler, _priceCalculator, NewOrderSaleItem.Create(nomenclatureMockOrderItem, 8));
 
 			// act
 			var weight = orderUnderTest.FullWeight(countOrderItems, countOrderEquipment);
