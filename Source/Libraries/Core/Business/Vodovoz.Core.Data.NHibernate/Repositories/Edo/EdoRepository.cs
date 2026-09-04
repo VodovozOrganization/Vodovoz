@@ -533,6 +533,93 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			}).ToList();
 		}
 
+		public async Task<IList<TaxcomSendProblemNode>> GetTaxcomSendProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int? batchSize,
+			TimeSpan[] retryDelays,
+			CancellationToken cancellationToken)
+		{
+			if(retryDelays == null || retryDelays.Length == 0)
+			{
+				throw new ArgumentException("Не заданы задержки между попытками", nameof(retryDelays));
+			}
+
+			var now = DateTime.UtcNow;
+
+			var query = from problem in uow.Session.Query<ExceptionEdoTaskProblem>()
+						join orderTask in uow.Session.Query<OrderEdoTask>()
+							on problem.EdoTask.Id equals orderTask.Id
+						join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
+							on problem.Id equals routineState.Problem.Id into routineStates
+						from routineState in routineStates.DefaultIfEmpty()
+						where problem.SourceName == problemSourceName
+							&& problem.State == TaskProblemState.Active
+							&& (routineState == null || routineState.RetryCount < retryDelays.Length)
+						orderby routineState == null ? 0 : routineState.RetryCount, problem.CreationTime
+						select new
+						{
+							Problem = problem,
+							OrderTask = orderTask,
+							RoutineState = routineState
+						};
+
+			if(batchSize.HasValue && batchSize.Value > 0)
+			{
+				query = query.Take(batchSize.Value);
+			}
+
+			var rawResult = await query.ToListAsync(cancellationToken);
+
+			var result = new List<TaxcomSendProblemNode>();
+			foreach(var item in rawResult)
+			{
+				var routineState = item.RoutineState;
+
+				if(routineState == null)
+				{
+					result.Add(new TaxcomSendProblemNode
+					{
+						Problem = item.Problem,
+						EdoTask = item.OrderTask,
+						RoutineState = null
+					});
+					continue;
+				}
+
+				if(!routineState.LastRetryTime.HasValue)
+				{
+					result.Add(new TaxcomSendProblemNode
+					{
+						Problem = item.Problem,
+						EdoTask = item.OrderTask,
+						RoutineState = routineState
+					});
+					continue;
+				}
+
+				var retryIndex = Math.Min(routineState.RetryCount, retryDelays.Length - 1);
+				var nextRetryTime = routineState.LastRetryTime.Value.Add(retryDelays[retryIndex]);
+
+				if(nextRetryTime <= now)
+				{
+					result.Add(new TaxcomSendProblemNode
+					{
+						Problem = item.Problem,
+						EdoTask = item.OrderTask,
+						RoutineState = routineState
+					});
+				}
+			}
+
+			if(batchSize.HasValue && batchSize.Value > 0 && result.Count > batchSize.Value)
+			{
+				result = result.Take(batchSize.Value).ToList();
+			}
+
+			return result;
+		}
+
 		public async Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(
 			IUnitOfWork uow,
 			DateTime minFiscalDocumentCreationTime,

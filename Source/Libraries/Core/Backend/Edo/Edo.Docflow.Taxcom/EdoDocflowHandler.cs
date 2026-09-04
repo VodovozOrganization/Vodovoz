@@ -7,9 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Client;
-using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Docflow.Taxcom
 {

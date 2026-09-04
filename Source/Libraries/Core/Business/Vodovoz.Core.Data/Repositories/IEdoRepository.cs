@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -266,6 +266,22 @@ namespace Vodovoz.Core.Data.Repositories
 			DateTime minCreationTime,
 			ReasonForLeaving? reasonForLeaving = null,
 			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получить список узлов проблем с отправкой в Такском для указанного источника проблемы
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="batchSize">Размер партии</param>
+		/// <param name="retryDelays">Массив задержек между попытками</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список узлов проблем с отправкой в Такском</returns>
+		Task<IList<TaxcomSendProblemNode>> GetTaxcomSendProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int? batchSize,
+			TimeSpan[] retryDelays,
+			CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Получить документ ЭДО по идентификатору задачи

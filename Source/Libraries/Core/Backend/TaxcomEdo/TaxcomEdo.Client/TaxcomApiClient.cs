@@ -41,7 +41,24 @@ namespace TaxcomEdo.Client
 		
 		public async Task<bool> SendDataForCreateUpdByEdo(UniversalTransferDocumentInfo data, CancellationToken cancellationToken = default)
 		{
-			return await SendDocument(_taxcomApiOptions.SendIndividualAccountingUpdEndpoint, data);
+			// Хорошо подумать над реализацией!!!
+			/// Как будто лучше всего сделать проброс ошибок в методе SendDocument
+			try
+			{
+				return await SendDocument(_taxcomApiOptions.SendIndividualAccountingUpdEndpoint, data);
+			}
+			catch(HttpRequestException ex)
+			{
+				throw new TaxcomSendDocumentException($"HTTP ошибка при отправке в Такском: {ex.Message}", ex);
+			}
+			catch(TaskCanceledException ex)
+			{
+				throw new TaxcomSendDocumentException($"Таймаут при отправке в Такском: {ex.Message}", ex);
+			}
+			catch(Exception ex) when(!(ex is TaxcomSendDocumentException))
+			{
+				throw new TaxcomSendDocumentException($"Неизвестная ошибка при отправке в Такском: {ex.Message}", ex);
+			}
 		}
 		
 		public async Task SendDataForCreateBillByEdo(InfoForCreatingEdoBill data, CancellationToken cancellationToken = default)
