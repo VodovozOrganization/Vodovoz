@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Infrastructure;
@@ -189,7 +189,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			var archivedNomenclatures = new Dictionary<int, bool>();
 			ValidatePromoSet(uow, archivedNomenclatures);
-			ValidateDiscounts();
 			ValidateOtherItemsWithoutDeliveries(archivedNomenclatures);
 			ValidatePaidDelivery();
 			ValidateFastDelivery();

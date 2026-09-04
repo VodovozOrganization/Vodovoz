@@ -1,4 +1,4 @@
-using CustomerOrdersApi.Library.Config;
+﻿using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem;
 using Microsoft.Extensions.Logging;
@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Handlers;
 using Vodovoz.Nodes;
 using VodovozBusiness.Domain.Orders;
@@ -36,8 +35,6 @@ namespace CustomerOrdersApi.Library.V5.Services
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
 			_onlineOrderDiscountHandler = onlineOrderDiscountHandler ?? throw new ArgumentNullException(nameof(onlineOrderDiscountHandler));
-			_customerOnlineOrderRepository = customerOnlineOrderRepository ?? throw new ArgumentNullException(nameof(customerOnlineOrderRepository));
-			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_signatureOptions =
 				(signatureOptions ?? throw new ArgumentNullException(nameof(signatureOptions)))
 				.Value;
@@ -92,52 +89,6 @@ namespace CustomerOrdersApi.Library.V5.Services
 			};
 			
 			return _onlineOrderDiscountHandler.TryApplyPromoCode(uow, dto);
-		}
-
-		public async Task<FirstOrderDiscountConditionsDto> GetFirstOrderDiscountConditions(
-			ExternalSource source,
-			Guid externalCounterpartyId,
-			int? counterpartyErpId,
-			CancellationToken cancellationToken)
-		{
-			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Проверка доступности использования скидки на первый заказ для клиента");
-
-			if(counterpartyErpId is null)
-			{
-				return CreateFirstOrderDiscountConditionsDto(uow, false);
-			}
-
-			var isClientHasNotCancelledOnlineOrdersFromSource =
-				await _customerOnlineOrderRepository.IsClientHasNotCancelledOnlineOrdersFromSource(
-					uow,
-					externalCounterpartyId,
-					counterpartyErpId.Value,
-					source.ToSource(),
-					cancellationToken);
-
-			return CreateFirstOrderDiscountConditionsDto(uow, !isClientHasNotCancelledOnlineOrdersFromSource);
-		}
-
-		private FirstOrderDiscountConditionsDto CreateFirstOrderDiscountConditionsDto(IUnitOfWork uow, bool isDiscountAvailable)
-		{
-			return new FirstOrderDiscountConditionsDto
-			{
-				DiscountIsAvailable = isDiscountAvailable,
-				Discount = GetFirstOrderDiscountData(uow)
-			};
-		}
-
-		private DiscountDto GetFirstOrderDiscountData(IUnitOfWork uow)
-		{
-			var discountReason =
-				uow.GetById<DiscountReason>(_orderSettings.FirstOnlineOrderDiscountReasonId);
-
-			return new DiscountDto
-			{
-				IsDiscountInMoney = discountReason.ValueType == DiscountUnits.money,
-				Discount = discountReason.Value,
-				DiscountReasonId = discountReason.Id
-			};
 		}
 
 		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDto> orderItems)

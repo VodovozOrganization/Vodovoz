@@ -1,4 +1,9 @@
-﻿using CustomerOrdersApi.Library.V7.Dto.Orders;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using CustomerOrdersApi.Library.V7.Dto.Orders;
+using CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
 
@@ -33,5 +38,18 @@ namespace CustomerOrdersApi.Library.V7.Services
 		/// <param name="applyPromoCodeDto">Данные запроса</param>
 		/// <returns>Список товаров</returns>
 		ISaleItemPromotion ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto);
+		/// <summary>
+		/// Возвращает данные по доступности использования скидки на первый заказ для клиента
+		/// </summary>
+		/// <param name="source">Источник заказа</param>
+		/// <param name="externalCounterpartyId">Внешний Id пользователя</param>
+		/// <param name="counterpartyErpId">Id пользователя в ДВ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные с результатом проверки</returns>
+		Task<FirstOrderDiscountConditionsDto> GetFirstOrderDiscountConditions(
+			Source source,
+			Guid externalCounterpartyId,
+			int? counterpartyErpId,
+			CancellationToken cancellationToken);
 	}
 }

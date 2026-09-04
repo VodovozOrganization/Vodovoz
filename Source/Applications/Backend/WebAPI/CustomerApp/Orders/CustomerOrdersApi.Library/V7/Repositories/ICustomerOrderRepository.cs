@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V7.Repositories
@@ -52,5 +55,21 @@ namespace CustomerOrdersApi.Library.V7.Repositories
 			int counterpartyId,
 			DateTime ratingAvailableFrom,
 			IEnumerable<ExternalOrderStatus> orderStatuses = null);
+		
+		/// <summary>
+		/// Проверят, что у клиента есть не отмененный онлайн-заказ, созданный из указанного источника
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="externalCounterpartyId">Внешний Id пользователя</param>
+		/// <param name="counterpartyErpId">Id пользователя в ДВ</param>
+		/// <param name="source">Источник онлайн заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<bool> IsClientHasNotCancelledOnlineOrdersFromSource(
+			IUnitOfWork uow,
+			Guid externalCounterpartyId,
+			int counterpartyErpId,
+			Source source,
+			CancellationToken cancellationToken = default);
 	}
 }

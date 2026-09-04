@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
+using CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts;
 using CustomerOrdersApi.Library.V7.Factories;
+using CustomerOrdersApi.Library.V7.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Interfaces.Sale;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Handlers;
 using Vodovoz.Nodes;
+using Vodovoz.Settings.Orders;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V7.Services
@@ -21,6 +27,8 @@ namespace CustomerOrdersApi.Library.V7.Services
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderDiscountHandler _onlineOrderDiscountHandler;
 		private readonly IInfoMessageFactory _infoMessageFactory;
+		private readonly ICustomerOrderRepository _customerOrderRepository;
+		private readonly IDiscountReasonSettings _discountReasonSettings;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrdersDiscountService(
@@ -29,13 +37,18 @@ namespace CustomerOrdersApi.Library.V7.Services
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
 			IOnlineOrderDiscountHandler onlineOrderDiscountHandler,
-			IInfoMessageFactory infoMessageFactory)
+			IInfoMessageFactory infoMessageFactory,
+			ICustomerOrderRepository customerOrderRepository,
+			IDiscountReasonSettings discountReasonSettings
+			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
 			_onlineOrderDiscountHandler = onlineOrderDiscountHandler ?? throw new ArgumentNullException(nameof(onlineOrderDiscountHandler));
 			_infoMessageFactory = infoMessageFactory ?? throw new ArgumentNullException(nameof(infoMessageFactory));
+			_customerOrderRepository = customerOrderRepository ?? throw new ArgumentNullException(nameof(customerOrderRepository));
+			_discountReasonSettings = discountReasonSettings ?? throw new ArgumentNullException(nameof(discountReasonSettings));
 			_signatureOptions =
 				(signatureOptions ?? throw new ArgumentNullException(nameof(signatureOptions)))
 				.Value;
@@ -98,6 +111,53 @@ namespace CustomerOrdersApi.Library.V7.Services
 					result.Value.AppliedToAllItems
 						? null
 						: _infoMessageFactory.CreatePromoCodeAppliedToNotAllItemsWarning());
+		}
+		
+		public async Task<FirstOrderDiscountConditionsDto> GetFirstOrderDiscountConditions(
+			Source source,
+			Guid externalCounterpartyId,
+			int? counterpartyErpId,
+			CancellationToken cancellationToken
+			)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Проверка доступности использования скидки на первый заказ для клиента");
+
+			if(counterpartyErpId is null)
+			{
+				return CreateFirstOrderDiscountConditionsDto(uow, false);
+			}
+
+			var isClientHasNotCancelledOnlineOrdersFromSource =
+				await _customerOrderRepository.IsClientHasNotCancelledOnlineOrdersFromSource(
+					uow,
+					externalCounterpartyId,
+					counterpartyErpId.Value,
+					source,
+					cancellationToken);
+
+			return CreateFirstOrderDiscountConditionsDto(uow, !isClientHasNotCancelledOnlineOrdersFromSource);
+		}
+
+		private FirstOrderDiscountConditionsDto CreateFirstOrderDiscountConditionsDto(
+			IUnitOfWork uow,
+			bool isDiscountAvailable)
+		{
+			var discountReason =
+				uow.GetById<DiscountReason>(_discountReasonSettings.FirstOnlineOrderDiscountReasonId);
+
+			if(discountReason is null)
+			{
+				throw new InvalidOperationException("Не заведено основание скидки для первого заказа!");
+			}
+
+			return new FirstOrderDiscountConditionsDto
+			{
+				DiscountIsAvailable = isDiscountAvailable,
+				Discount = DiscountDto.Create(
+					discountReason.Id,
+					discountReason.ValueType == DiscountUnits.money,
+					discountReason.Value)
+			};
 		}
 	}
 }

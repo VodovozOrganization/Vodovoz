@@ -1,6 +1,7 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Clients;
 
-namespace CustomerOrders.Contracts.V5.Orders.PromoCodes
+namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts
 {
 	/// <summary>
 	/// Информация для проверки доступности скидки на первый заказ для клиента
@@ -10,7 +11,7 @@ namespace CustomerOrders.Contracts.V5.Orders.PromoCodes
 		/// <summary>
 		/// Источник заказа
 		/// </summary>
-		public ExternalSource Source { get; set; }
+		public Source Source { get; set; }
 
 		/// <summary>
 		/// Внешний Id пользователя
@@ -20,6 +21,6 @@ namespace CustomerOrders.Contracts.V5.Orders.PromoCodes
 		/// <summary>
 		/// Id пользователя в ДВ
 		/// </summary>
-		public int? СounterpartyErpId { get; set; }
+		public int? ErpCounterpartyId { get; set; }
 	}
 }
