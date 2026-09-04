@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		{
 			get
 			{
-				if(EntityType == typeof(OnlineOrder))
+				if(EntityType.BaseType == typeof(OnlineOrder))
 				{
 					return OnlineOrderStatus.Value.GetEnumDisplayName();
 				}

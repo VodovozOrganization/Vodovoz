@@ -59,7 +59,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
-			IGtkTabsOpener gtkTabsOpener, IFileDialogService fileDialogService, Action<OnlineOrdersJournalFilterViewModel> filterParams = null)
+			IGtkTabsOpener gtkTabsOpener,
+			IFileDialogService fileDialogService,
+			Action<OnlineOrdersJournalFilterViewModel> filterParams = null
+			)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
 			_filterViewModel = journalFilterViewModel ?? throw new ArgumentNullException(nameof(journalFilterViewModel));
@@ -444,7 +447,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				|| _filterViewModel.RestrictFastDelivery.HasValue
 				|| _filterViewModel.OnlineOrderId.HasValue
 				|| _filterViewModel.GeographicGroup != null
-				|| _filterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate
 				|| _filterViewModel.WithoutDeliverySchedule)
 			{
 				query.Where(r => r.Id == null);
@@ -484,8 +486,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			var startDate = _filterViewModel.StartDate;
 			var endDate = _filterViewModel.EndDate;
 
+			//т.к. у заявок на звонок нет даты доставки как у онлайн заказа, а они должны отображаться вместе, то поиск ведем всегда по созданию
 			switch(_filterViewModel.FilterDateType)
 			{
+				case OrdersDateFilterType.DeliveryDate:
 				case OrdersDateFilterType.CreationDate:
 					if(startDate.HasValue)
 					{
@@ -493,7 +497,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					}
 					
 					if(endDate.HasValue)
-					{ 
+					{
 						query.Where(r => r.Created <= endDate.Value.LatestDayTime()); 
 					}
 					break;
