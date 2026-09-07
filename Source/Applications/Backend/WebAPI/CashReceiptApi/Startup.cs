@@ -54,7 +54,6 @@ namespace CashReceiptApi
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
-				.AddDatabaseSettings()
 				.AddInfrastructure()
 				;
 

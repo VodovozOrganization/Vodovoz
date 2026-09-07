@@ -1,7 +1,5 @@
 ﻿using Edo.Admin;
-using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
-using Edo.Problem.Routine.Services.NewEdoTasksResend;
 using Edo.Problems;
 using Edo.Problems.Custom;
 using Edo.Problems.Exception;
@@ -47,11 +45,12 @@ namespace EdoServices.Tests
 		private readonly IGenericRepository<FormalEdoRequest> _edoRequestRepository;
 		private readonly IGenericRepository<OrderEdoTask> _edoTaskRepository;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
-		private readonly IOrderEdoTaskCreatedEventPublisher _orderEdoTaskCreatedEventPublisher;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IBus _bus;
 		private readonly MessageService _messageService;
 		private readonly EdoCancellationService _edoCancellationService;
+		private readonly IEdoCancellationValidator _edoCancellationValidator;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly IUserService _userService;
 		private readonly ITaxcomApiFactory _taxcomApiFactory;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
@@ -74,9 +73,6 @@ namespace EdoServices.Tests
 
 			_edoRequestCreatedEventPublisher = Substitute.For<IEdoRequestCreatedEventPublisher>();
 			_bus = Substitute.For<IBus>();
-			_orderEdoTaskCreatedEventPublisher = new OrderEdoTaskCreatedEventPublisher(
-				Substitute.For<ILogger<OrderEdoTaskCreatedEventPublisher>>(),
-				_bus);
 			_requestFactories = Enumerable.Empty<IInformalEdoRequestFactory>();
 			_manualEdoRequestFactory = Substitute.For<IManualEdoRequestFactory>();
 
@@ -102,13 +98,14 @@ namespace EdoServices.Tests
 				_bus
 			);
 
+			_edoCancellationValidator = Substitute.For<IEdoCancellationValidator>();
+			_publishEndpoint = Substitute.For<IPublishEndpoint>();
 			_edoCancellationService = new EdoCancellationService(
 				Substitute.For<ILogger<EdoCancellationService>>(),
 				_uow,
-				Substitute.For<IEdoCancellationValidator>(),
+				_edoCancellationValidator,
 				_problemRegistrar,
-				Substitute.For<ITrueMarkWaterCodeService>(),
-				Substitute.For<IPublishEndpoint>()
+				_publishEndpoint
 				);
 			_userService = Substitute.For<IUserService>();
 
@@ -129,7 +126,6 @@ namespace EdoServices.Tests
 				_edoTaskRepository,
 				_counterpartyEdoAccountEntityController,
 				_edoRequestCreatedEventPublisher,
-				_orderEdoTaskCreatedEventPublisher,
 				_requestFactories,
 				_manualEdoRequestFactory,
 				_bus
@@ -526,24 +522,36 @@ namespace EdoServices.Tests
 			var order = new OrderEntity { Id = 1, OrderStatus = OrderStatus.Canceled };
 			var edoTask = CreateDocumentEdoTask(taskId, order);
 
-			SetupUowFactoryForDocumentEdoTask(
-				edoTask,
-				Array.Empty<EdoResendAfterTrueMarkCancellationRequest>());
+			SetupUowFactoryForDocumentEdoTask(edoTask);
 
 			var result = useCodesFromPool
 				? _edoService.ResendEdoDocumentForOrderWithCodesFromPool(taskId)
-				: _edoService.ScheduleResendEdoDocumentAfterTrueMarkCancellation(taskId);
+				: _edoService.ResendEdoDocumentWithOriginalCodes(taskId);
 
 			Assert.True(result.IsFailure);
 			Assert.Contains(result.Errors, e => e == EdoErrors.IsUndeliveredOrder);
 		}
 
 		[Fact]
-		public void ScheduleCancellationResend_WhenPoolRequestAlreadyExists_ReturnsFailure()
+		public void ResendWithOriginalCodes_WhenPoolRequestAlreadyExists_ReturnsFailure()
 		{
 			var taskId = 123;
 			var order = new OrderEntity { Id = 1, OrderStatus = OrderStatus.NewOrder };
 			var edoTask = CreateDocumentEdoTask(taskId, order);
+			var withdrawalTask = new WithdrawalEdoTask { Id = 321 };
+			var withdrawalRequest = new WithdrawalEdoRequest
+			{
+				BaseDocumentEdoTask = edoTask,
+				Task = withdrawalTask
+			};
+			var withdrawalDocument = new TrueMarkDocument
+			{
+				Order = order,
+				Guid = Guid.NewGuid(),
+				IsSuccess = true,
+				Type = TrueMarkDocument.TrueMarkDocumentType.Withdrawal,
+				WithdrawalEdoTask = withdrawalTask
+			};
 			var poolRequest = new ManualEdoRequest
 			{
 				Order = order,
@@ -552,7 +560,10 @@ namespace EdoServices.Tests
 
 			SetupUowFactoryForDocumentEdoTask(
 				edoTask,
-				Array.Empty<EdoResendAfterTrueMarkCancellationRequest>());
+				withdrawalRequests: new[] { withdrawalRequest },
+				trueMarkDocuments: new[] { withdrawalDocument });
+			_edoRepository.GetOrderEdoDocumentByTaskId(Arg.Any<IUnitOfWork>(), taskId)
+				.Returns(new OrderEdoDocument { DocumentTaskId = taskId, Status = EdoDocumentStatus.Warning });
 			_edoRequestRepository.GetCount(
 				Arg.Any<IUnitOfWork>(),
 				Arg.Any<Expression<Func<FormalEdoRequest, bool>>>())
@@ -562,13 +573,54 @@ namespace EdoServices.Tests
 					return predicate(poolRequest) ? 1 : 0;
 				});
 
-			var result = _edoService.ScheduleResendEdoDocumentAfterTrueMarkCancellation(taskId);
+			var result = _edoService.ResendEdoDocumentWithOriginalCodes(taskId);
 
 			Assert.True(result.IsFailure);
+			Assert.Contains(result.Errors, error => error.Code == "DocumentHasOtherRequests");
 		}
 
 		[Fact]
-		public void ScheduleCancellationResend_WhenWithdrawalDocumentExists_CreatesLinkedRequestWithOriginalCodes()
+		public void ResendWithOriginalCodes_WhenWithdrawalRequestDoesNotExist_ReturnsFailure()
+		{
+			var taskId = 123;
+			var order = new OrderEntity { Id = 1, OrderStatus = OrderStatus.NewOrder };
+			var edoTask = CreateDocumentEdoTask(taskId, order);
+			var orderDocument = new OrderEdoDocument
+			{
+				DocumentTaskId = taskId,
+				Status = EdoDocumentStatus.Warning
+			};
+			var uow = Substitute.For<IUnitOfWork>();
+			var transactionOpened = false;
+			uow.When(x => x.OpenTransaction()).Do(_ => transactionOpened = true);
+			uow.Session.Get<OrderEdoTask>(taskId, LockMode.Upgrade).Returns(_ =>
+			{
+				Assert.True(transactionOpened);
+				return edoTask;
+			});
+			uow.Session.Get<DocumentEdoTask>(taskId).Returns(edoTask);
+			uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
+				.Returns(Array.Empty<EdoResendAfterTrueMarkCancellationRequest>().AsQueryable());
+			uow.GetAll<WithdrawalEdoRequest>().Returns(Array.Empty<WithdrawalEdoRequest>().AsQueryable());
+			uow.GetAll<TrueMarkDocument>().Returns(Array.Empty<TrueMarkDocument>().AsQueryable());
+			_uowFactory.CreateWithoutRoot(Arg.Any<string>()).ReturnsForAnyArgs(uow);
+			_edoRepository.GetOrderEdoDocumentByTaskId(uow, taskId).Returns(orderDocument);
+
+			var result = _edoService.ResendEdoDocumentWithOriginalCodes(taskId);
+
+			Assert.True(result.IsFailure);
+			Assert.Contains(result.Errors, error => error == EdoErrors.SuccessfulWithdrawalForResendNotFound);
+			uow.DidNotReceive().Save(Arg.Any<EdoResendAfterTrueMarkCancellationRequest>());
+			uow.DidNotReceive().Commit();
+			_publishEndpoint.DidNotReceiveWithAnyArgs().Publish(default(RequestDocflowCancellationEvent), default);
+			_edoRequestCreatedEventPublisher.DidNotReceiveWithAnyArgs().Publish(default, default, default);
+		}
+
+		[Theory]
+		[InlineData(EdoDocumentStatus.Warning)]
+		[InlineData(EdoDocumentStatus.CompletedWithDivergences)]
+		public void ResendWithOriginalCodes_WhenWithdrawalDocumentExists_CreatesCancellationRequestWithoutPublishingResend(
+			EdoDocumentStatus status)
 		{
 			var taskId = 123;
 			var order = new OrderEntity { Id = 1, OrderStatus = OrderStatus.NewOrder };
@@ -595,6 +647,11 @@ namespace EdoServices.Tests
 			};
 			var resendRequest = new ManualEdoRequest { Id = 456, Order = order };
 			TrueMarkProductCode[] createdCodes = null;
+			var orderDocument = new OrderEdoDocument
+			{
+				DocumentTaskId = taskId,
+				Status = status
+			};
 			var uow = Substitute.For<IUnitOfWork>();
 			var transactionOpened = false;
 			uow.When(x => x.OpenTransaction()).Do(_ => transactionOpened = true);
@@ -605,12 +662,18 @@ namespace EdoServices.Tests
 			});
 			uow.Session.Get<DocumentEdoTask>(taskId).Returns(edoTask);
 			uow.Session.GetAsync<EdoTask>(taskId, Arg.Any<CancellationToken>()).Returns(edoTask);
+			uow.Session.QueryOver<OrderEdoDocument>()
+				.Where(Arg.Any<Expression<Func<OrderEdoDocument, bool>>>())
+				.SingleOrDefaultAsync(Arg.Any<CancellationToken>())
+				.Returns(orderDocument);
 			uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
 				.Returns(Array.Empty<EdoResendAfterTrueMarkCancellationRequest>().AsQueryable());
 			uow.GetAll<WithdrawalEdoRequest>().Returns(new[] { withdrawalRequest }.AsQueryable());
 			uow.GetAll<TrueMarkDocument>().Returns(new[] { withdrawalDocument }.AsQueryable());
 			_uowFactory.CreateWithoutRoot(Arg.Any<string>()).ReturnsForAnyArgs(uow);
+			_edoRepository.GetOrderEdoDocumentByTaskId(uow, taskId).Returns(orderDocument);
 			_userService.GetCurrentUser().Returns(new UserBase { Name = "Тестовый пользователь" });
+			_edoCancellationValidator.CanCancelEdoTask(edoTask).Returns(true);
 			_manualEdoRequestFactory.Create(
 				uow,
 				order,
@@ -621,12 +684,13 @@ namespace EdoServices.Tests
 					return resendRequest;
 				});
 
-			var result = _edoService.ScheduleResendEdoDocumentAfterTrueMarkCancellation(taskId);
+			var result = _edoService.ResendEdoDocumentWithOriginalCodes(taskId);
 
 			Assert.True(result.IsSuccess);
 			var createdCode = Assert.IsType<AutoTrueMarkProductCode>(Assert.Single(createdCodes));
 			Assert.Same(sourceCode, createdCode.SourceCode);
 			Assert.Equal(SourceProductCodeStatus.New, createdCode.SourceCodeStatus);
+			Assert.Equal(EdoTaskStatus.InCancellation, edoTask.Status);
 			uow.Received().Save(resendRequest);
 			uow.Received().Save(Arg.Is<EdoResendAfterTrueMarkCancellationRequest>(request =>
 				request.Order == order
@@ -634,7 +698,74 @@ namespace EdoServices.Tests
 				&& request.ResendEdoRequest == resendRequest
 				&& request.WithdrawalDocument == withdrawalDocument
 				&& request.Status == EdoResendAfterTrueMarkCancellationStatus.WaitingForCancellation));
+			uow.DidNotReceive().CommitAsync(Arg.Any<CancellationToken>());
 			uow.Received().Commit();
+			_publishEndpoint.Received(1).Publish(
+				Arg.Is<RequestDocflowCancellationEvent>(x =>
+					x.TaskId == taskId
+					&& x.Reason.Contains("Тестовый пользователь")),
+				Arg.Any<CancellationToken>());
+			_edoRequestCreatedEventPublisher.DidNotReceiveWithAnyArgs().Publish(default, default, default);
+		}
+
+		[Fact]
+		public void ResendWithOriginalCodes_WhenWithdrawalRequestExistsWithoutSuccessfulDocument_ReturnsFailure()
+		{
+			var taskId = 123;
+			var order = new OrderEntity { Id = 1, OrderStatus = OrderStatus.NewOrder };
+			var edoTask = CreateDocumentEdoTask(taskId, order);
+			var withdrawalRequest = new WithdrawalEdoRequest
+			{
+				BaseDocumentEdoTask = edoTask,
+				Task = new WithdrawalEdoTask { Id = 321 }
+			};
+
+			SetupUowFactoryForDocumentEdoTask(
+				edoTask,
+				withdrawalRequests: new[] { withdrawalRequest },
+				trueMarkDocuments: Array.Empty<TrueMarkDocument>());
+			_edoRepository.GetOrderEdoDocumentByTaskId(Arg.Any<IUnitOfWork>(), taskId)
+				.Returns(new OrderEdoDocument { DocumentTaskId = taskId, Status = EdoDocumentStatus.Warning });
+
+			var result = _edoService.ResendEdoDocumentWithOriginalCodes(taskId);
+
+			Assert.True(result.IsFailure);
+			Assert.Contains(result.Errors, error => error == EdoErrors.SuccessfulWithdrawalForResendNotFound);
+			_edoRequestCreatedEventPublisher.DidNotReceiveWithAnyArgs().Publish(default, default, default);
+		}
+
+		[Fact]
+		public void ResendWithOriginalCodes_WhenWithdrawalDocumentExistsWithoutRequiredStatus_ReturnsFailure()
+		{
+			var taskId = 123;
+			var order = new OrderEntity { Id = 1, OrderStatus = OrderStatus.NewOrder };
+			var edoTask = CreateDocumentEdoTask(taskId, order);
+			var withdrawalTask = new WithdrawalEdoTask { Id = 321 };
+			var withdrawalRequest = new WithdrawalEdoRequest
+			{
+				BaseDocumentEdoTask = edoTask,
+				Task = withdrawalTask
+			};
+			var withdrawalDocument = new TrueMarkDocument
+			{
+				Order = order,
+				Guid = Guid.NewGuid(),
+				IsSuccess = true,
+				Type = TrueMarkDocument.TrueMarkDocumentType.Withdrawal,
+				WithdrawalEdoTask = withdrawalTask
+			};
+
+			SetupUowFactoryForDocumentEdoTask(
+				edoTask,
+				withdrawalRequests: new[] { withdrawalRequest },
+				trueMarkDocuments: new[] { withdrawalDocument });
+			_edoRepository.GetOrderEdoDocumentByTaskId(Arg.Any<IUnitOfWork>(), taskId)
+				.Returns(new OrderEdoDocument { DocumentTaskId = taskId, Status = EdoDocumentStatus.Error });
+
+			var result = _edoService.ResendEdoDocumentWithOriginalCodes(taskId);
+
+			Assert.True(result.IsFailure);
+			Assert.Contains(result.Errors, error => error == EdoErrors.ResendWithOriginalCodesStatusNotSupported);
 			_edoRequestCreatedEventPublisher.DidNotReceiveWithAnyArgs().Publish(default, default, default);
 		}
 
@@ -652,8 +783,15 @@ namespace EdoServices.Tests
 
 		private void SetupUowFactoryForDocumentEdoTask(
 			DocumentEdoTask edoTask,
-			IEnumerable<EdoResendAfterTrueMarkCancellationRequest> cancellationRequests)
+			IEnumerable<EdoResendAfterTrueMarkCancellationRequest> cancellationRequests = null,
+			IEnumerable<WithdrawalEdoRequest> withdrawalRequests = null,
+			IEnumerable<TrueMarkDocument> trueMarkDocuments = null)
 		{
+			var existingCancellationRequests = cancellationRequests
+				?? Array.Empty<EdoResendAfterTrueMarkCancellationRequest>();
+			var existingWithdrawalRequests = withdrawalRequests ?? Array.Empty<WithdrawalEdoRequest>();
+			var existingTrueMarkDocuments = trueMarkDocuments ?? Array.Empty<TrueMarkDocument>();
+
 			_uowFactory.CreateWithoutRoot(Arg.Any<string>())
 				.ReturnsForAnyArgs(_ =>
 				{
@@ -668,210 +806,11 @@ namespace EdoServices.Tests
 					uow.Session.Get<OrderEdoTask>(edoTask.Id).Returns(edoTask);
 					uow.Session.Get<DocumentEdoTask>(edoTask.Id).Returns(edoTask);
 					uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
-						.Returns(cancellationRequests.AsQueryable());
+						.Returns(existingCancellationRequests.AsQueryable());
 					uow.GetAll<WithdrawalEdoRequest>()
-						.Returns(Array.Empty<WithdrawalEdoRequest>().AsQueryable());
-					return uow;
-				});
-		}
-
-		[Fact]
-		public async Task ResendNewEdoTask_WhenDocumentTaskIsNew_PublishesDocumentCreatedEvent()
-		{
-			var task = new DocumentEdoTask
-			{
-				Id = 123,
-				Status = EdoTaskStatus.New,
-				Stage = DocumentEdoTaskStage.New,
-				DocumentType = EdoDocumentType.UPD
-			};
-			SetupUowFactoryForOrderEdoTask(task);
-
-			var result = _edoService.ResendNewEdoTask(task.Id);
-
-			Assert.True(result.IsSuccess);
-			await _bus.Received(1).Publish(
-				Arg.Is<DocumentTaskCreatedEvent>(x => x.Id == task.Id),
-				Arg.Any<CancellationToken>());
-		}
-
-		[Fact]
-		public async Task ResendNewEdoTask_WhenDocumentIsBill_ReturnsFailureWithoutPublishing()
-		{
-			var task = new DocumentEdoTask
-			{
-				Id = 124,
-				Status = EdoTaskStatus.New,
-				Stage = DocumentEdoTaskStage.New,
-				DocumentType = EdoDocumentType.Bill
-			};
-			SetupUowFactoryForOrderEdoTask(task);
-
-			var result = _edoService.ResendNewEdoTask(task.Id);
-
-			Assert.True(result.IsFailure);
-			Assert.Contains(result.Errors, x => x.Code == "EdoTaskResendIsNotSupported");
-			await _bus.DidNotReceive().Publish(
-				Arg.Any<DocumentTaskCreatedEvent>(),
-				Arg.Any<CancellationToken>());
-		}
-
-		[Fact]
-		public async Task ResendNewEdoTask_WhenSaveCodesTaskIsNew_PublishesSaveCodesCreatedEvent()
-		{
-			var task = new SaveCodesEdoTask
-			{
-				Id = 124,
-				Status = EdoTaskStatus.New
-			};
-			SetupUowFactoryForOrderEdoTask(task);
-
-			var result = _edoService.ResendNewEdoTask(task.Id);
-
-			Assert.True(result.IsSuccess);
-			await _bus.Received(1).Publish(
-				Arg.Is<SaveCodesTaskCreatedEvent>(x => x.EdoTaskId == task.Id),
-				Arg.Any<CancellationToken>());
-		}
-
-		[Fact]
-		public void ResendNewEdoTask_WhenTaskIsNotNew_ReturnsFailure()
-		{
-			var task = new DocumentEdoTask
-			{
-				Id = 125,
-				Status = EdoTaskStatus.InProgress,
-				Stage = DocumentEdoTaskStage.New
-			};
-			SetupUowFactoryForOrderEdoTask(task);
-
-			var result = _edoService.ResendNewEdoTask(task.Id);
-
-			Assert.True(result.IsFailure);
-			Assert.Contains(result.Errors, x => x.Code == "EdoTaskIsNotNew");
-		}
-
-		[Fact]
-		public void ResendNewEdoTask_WhenReceiptStageIsNotNew_ReturnsFailure()
-		{
-			var task = new ReceiptEdoTask
-			{
-				Id = 126,
-				Status = EdoTaskStatus.New,
-				ReceiptStatus = EdoReceiptStatus.Sending
-			};
-			SetupUowFactoryForOrderEdoTask(task);
-
-			var result = _edoService.ResendNewEdoTask(task.Id);
-
-			Assert.True(result.IsFailure);
-			Assert.Contains(result.Errors, x => x.Code == "EdoTaskResendIsNotSupported");
-		}
-
-		[Fact]
-		public async Task ResendNewEdoTask_WhenTaskTypeIsNotSupported_ReturnsFailureWithoutPublishing()
-		{
-			var task = new WithdrawalEdoTask
-			{
-				Id = 127,
-				Status = EdoTaskStatus.New
-			};
-			SetupUowFactoryForOrderEdoTask(task);
-
-			var result = _edoService.ResendNewEdoTask(task.Id);
-
-			Assert.True(result.IsFailure);
-			Assert.Contains(result.Errors, x => x.Code == "EdoTaskResendIsNotSupported");
-			await _bus.DidNotReceive().Publish(
-				Arg.Any<WithdrawalTaskCreatedEvent>(),
-				Arg.Any<CancellationToken>());
-		}
-
-		[Fact]
-		public async Task ResendStaleNewTasks_WhenRepositoryReturnsTasks_PublishesEventsForBatch()
-		{
-			var maxCreationTime = DateTime.Now.AddMinutes(-10);
-			var tasks = new List<OrderEdoTask>
-			{
-				new ReceiptEdoTask
-				{
-					Id = 127,
-					Status = EdoTaskStatus.New,
-					ReceiptStatus = EdoReceiptStatus.New
-				},
-				new TenderEdoTask
-				{
-					Id = 128,
-					Status = EdoTaskStatus.New,
-					Stage = TenderEdoTaskStage.New
-				}
-			};
-
-			_uowFactory.CreateWithoutRoot(Arg.Any<string>()).ReturnsForAnyArgs(_uow);
-			_edoRepository.GetStaleNewEdoTasks(
-				Arg.Any<IUnitOfWork>(),
-				Arg.Any<DateTime>(),
-				Arg.Any<int>(),
-				Arg.Any<CancellationToken>())
-				.Returns(Task.FromResult<IList<OrderEdoTask>>(tasks));
-
-			var service = new NewEdoTasksResendService(
-				Substitute.For<ILogger<NewEdoTasksResendService>>(),
-				_uowFactory,
-				_edoRepository,
-				_orderEdoTaskCreatedEventPublisher);
-
-			var count = await service.ResendStaleNewTasks(maxCreationTime, 100);
-
-			Assert.Equal(tasks.Count, count);
-			await _bus.Received(1).Publish(
-				Arg.Is<ReceiptTaskCreatedEvent>(x => x.ReceiptEdoTaskId == 127),
-				Arg.Any<CancellationToken>());
-			await _bus.Received(1).Publish(
-				Arg.Is<TenderTaskCreatedEvent>(x => x.TenderEdoTaskId == 128),
-				Arg.Any<CancellationToken>());
-		}
-
-		[Fact]
-		public async Task ResendStaleNewTasks_WhenRepositoryReturnsBill_SkipsIt()
-		{
-			var maxCreationTime = DateTime.Now.AddMinutes(-10);
-			var billTask = new DocumentEdoTask
-			{
-				Id = 129,
-				Status = EdoTaskStatus.New,
-				Stage = DocumentEdoTaskStage.New,
-				DocumentType = EdoDocumentType.Bill
-			};
-
-			_uowFactory.CreateWithoutRoot(Arg.Any<string>()).ReturnsForAnyArgs(_uow);
-			_edoRepository.GetStaleNewEdoTasks(
-				Arg.Any<IUnitOfWork>(),
-				Arg.Any<DateTime>(),
-				Arg.Any<int>(),
-				Arg.Any<CancellationToken>())
-				.Returns(Task.FromResult<IList<OrderEdoTask>>(new[] { billTask }));
-
-			var service = new NewEdoTasksResendService(
-				Substitute.For<ILogger<NewEdoTasksResendService>>(),
-				_uowFactory,
-				_edoRepository,
-				_orderEdoTaskCreatedEventPublisher);
-
-			var count = await service.ResendStaleNewTasks(maxCreationTime, 100);
-
-			Assert.Equal(0, count);
-			await _bus.DidNotReceive().Publish(
-				Arg.Any<DocumentTaskCreatedEvent>(),
-				Arg.Any<CancellationToken>());
-		}
-
-		private void SetupUowFactoryForOrderEdoTask(OrderEdoTask edoTask)
-		{
-			_uowFactory.CreateWithoutRoot(Arg.Any<string>())
-				.ReturnsForAnyArgs(x => {
-					var uow = Substitute.For<IUnitOfWork>();
-					uow.Session.Get<OrderEdoTask>(edoTask.Id).Returns(edoTask);
+						.Returns(existingWithdrawalRequests.AsQueryable());
+					uow.GetAll<TrueMarkDocument>()
+						.Returns(existingTrueMarkDocuments.AsQueryable());
 					return uow;
 				});
 		}
