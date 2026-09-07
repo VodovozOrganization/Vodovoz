@@ -45,39 +45,39 @@ namespace Vodovoz.Views.Logistic
 
 			yentryVIN.Binding
 				.AddBinding(ViewModel.Entity, e => e.VIN, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.IsEditable)
 				.InitializeFromSource();
 			yentryManufactureYear.Binding
 				.AddBinding(ViewModel.Entity, e => e.ManufactureYear, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.IsEditable)
 				.InitializeFromSource();
 			yentryMotorNumber.Binding
 				.AddBinding(ViewModel.Entity, e => e.MotorNumber, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.IsEditable)
 				.InitializeFromSource();
 			yentryChassisNumber.Binding
 				.AddBinding(ViewModel.Entity, e => e.ChassisNumber, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.IsEditable)
 				.InitializeFromSource();
 			yentryCarcaseNumber.Binding
 				.AddBinding(ViewModel.Entity, e => e.Carcase, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.IsEditable)
 				.InitializeFromSource();
 			yentryColor.Binding
 				.AddBinding(ViewModel.Entity, e => e.Color, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.IsEditable)
 				.InitializeFromSource();
 			yentryDocSeries.Binding
 				.AddBinding(ViewModel.Entity, e => e.DocSeries, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.IsEditable)
 				.InitializeFromSource();
 			yentryDocNumber.Binding
 				.AddBinding(ViewModel.Entity, e => e.DocNumber, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.IsEditable)
 				.InitializeFromSource();
 			yentryDocIssuedOrg.Binding
 				.AddBinding(ViewModel.Entity, e => e.DocIssuedOrg, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.IsEditable)
 				.InitializeFromSource();
 			ydatepickerDocIssuedDate.Binding
 				.AddBinding(ViewModel.Entity, e => e.DocIssuedDate, w => w.DateOrNull)
@@ -97,11 +97,11 @@ namespace Vodovoz.Views.Logistic
 
 			yentryPTSNum.Binding
 				.AddBinding(ViewModel.Entity, e => e.DocPTSNumber, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.IsEditable)
 				.InitializeFromSource();
 			yentryPTSSeries.Binding
 				.AddBinding(ViewModel.Entity, e => e.DocPTSSeries, w => w.Text)
-				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.IsEditable)
 				.InitializeFromSource();
 
 			entryDriver.ViewModel = ViewModel.DriverViewModel;
