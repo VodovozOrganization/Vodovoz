@@ -58,29 +58,27 @@ namespace Edo.DeviationMonitoring
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
-				// каждая страница читается и фиксируется в своем UnitOfWork:
-				// проход идет по всему журналу отклонений и не должен держать одну сессию
 				using(var uow = _uowFactory.CreateWithoutRoot(_uowTitle))
 				{
-					var deviations = await _edoDeviationRepository.GetActiveDeviationsPageAsync(
+					var deviationNodes = await _edoDeviationRepository.GetActiveDeviationsPageAsync(
 						uow,
 						afterDeviationId,
 						_options.BatchSize,
 						cancellationToken);
 
-					if(!deviations.Any())
+					if(!deviationNodes.Any())
 					{
 						break;
 					}
 
-					result.CheckedDeviationsCount += deviations.Count;
+					result.CheckedDeviationsCount += deviationNodes.Count;
 
 					await ResolveIrrelevantAsync(
-						uow, deviations.ToList(), validators, checkTime, result, cancellationToken);
+						uow, deviationNodes.ToList(), validators, checkTime, result, cancellationToken);
 
 					await uow.CommitAsync(cancellationToken);
 
-					afterDeviationId = deviations.Max(x => x.Id);
+					afterDeviationId = deviationNodes.Max(x => x.Deviation.Id);
 				}
 			}
 
@@ -92,9 +90,6 @@ namespace Edo.DeviationMonitoring
 			return result;
 		}
 
-		/// <summary>
-		/// Читает справочник описаний отклонений: он один на весь проход
-		/// </summary>
 		private async Task<EdoDeviationValidators> GetValidatorsAsync(CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot(_uowTitle))
@@ -105,27 +100,24 @@ namespace Edo.DeviationMonitoring
 
 		private async Task ResolveIrrelevantAsync(
 			IUnitOfWork uow,
-			IReadOnlyCollection<EdoTaskDeviation> deviations,
+			IReadOnlyCollection<EdoTaskDeviationNode> deviationNodes,
 			EdoDeviationValidators validators,
 			DateTime checkTime,
 			EdoDeviationResolvingResult result,
 			CancellationToken cancellationToken)
 		{
-			var taskIds = deviations
-				.Where(x => x.EdoTask != null)
-				.Select(x => x.EdoTask.Id)
+			var taskIds = deviationNodes
+				.Where(x => x.EdoTaskId.HasValue)
+				.Select(x => x.EdoTaskId.Value)
 				.Distinct()
 				.ToArray();
 
-			var requestIds = deviations
-				.Where(x => x.EdoTask == null && x.EdoRequest != null)
-				.Select(x => x.EdoRequest.Id)
+			var requestIds = deviationNodes
+				.Where(x => !x.EdoTaskId.HasValue && x.EdoRequestId.HasValue)
+				.Select(x => x.EdoRequestId.Value)
 				.Distinct()
 				.ToArray();
 
-			// коды задач читаются обеими выборками: задачи заказов и трансферов лежат
-			// в одной таблице, и к какому семейству относится отклонение,
-			// показывает то, в какой выборке нашлась задача
 			var taskNodes = (await _edoDeviationRepository.GetTaskNodesAsync(uow, taskIds, cancellationToken))
 				.GroupBy(x => x.EdoTaskId)
 				.ToDictionary(x => x.Key, x => x.First());
@@ -139,15 +131,17 @@ namespace Edo.DeviationMonitoring
 				.GroupBy(x => x.RequestId)
 				.ToDictionary(x => x.Key, x => x.First());
 
-			foreach(var deviation in deviations)
+			foreach(var deviationNode in deviationNodes)
 			{
 				var resolveReason = GetResolveReason(
-					deviation, validators, taskNodes, transferNodes, requestNodes, checkTime);
+					deviationNode, validators, taskNodes, transferNodes, requestNodes, checkTime);
 
 				if(resolveReason is null)
 				{
 					continue;
 				}
+
+				var deviation = deviationNode.Deviation;
 
 				deviation.Resolve(checkTime, resolveReason.Value);
 
@@ -156,61 +150,54 @@ namespace Edo.DeviationMonitoring
 			}
 		}
 
-		/// <summary>
-		/// Определяет причину, по которой отклонение нужно снять.
-		/// Возвращает <c>null</c>, если отклонение еще актуально
-		/// </summary>
 		private EdoDeviationResolveReason? GetResolveReason(
-			EdoTaskDeviation deviation,
+			EdoTaskDeviationNode deviationNode,
 			EdoDeviationValidators validators,
 			IReadOnlyDictionary<int, EdoTaskMonitoringNode> taskNodes,
 			IReadOnlyDictionary<int, EdoTransferTaskMonitoringNode> transferNodes,
 			IReadOnlyDictionary<int, EdoRequestMonitoringNode> requestNodes,
 			DateTime checkTime)
 		{
-			if(deviation.EdoTask != null)
+			if(deviationNode.EdoTaskId.HasValue)
 			{
-				if(taskNodes.TryGetValue(deviation.EdoTask.Id, out var task))
+				if(taskNodes.TryGetValue(deviationNode.EdoTaskId.Value, out var task))
 				{
-					return GetTaskDeviationResolveReason(deviation, validators, task, checkTime);
+					return GetTaskDeviationResolveReason(deviationNode, validators, task, checkTime);
 				}
 
-				if(transferNodes.TryGetValue(deviation.EdoTask.Id, out var transferTask))
+				if(transferNodes.TryGetValue(deviationNode.EdoTaskId.Value, out var transferTask))
 				{
-					return GetTransferDeviationResolveReason(deviation, validators, transferTask, checkTime);
+					return GetTransferDeviationResolveReason(deviationNode, validators, transferTask, checkTime);
 				}
 
 				_logger.LogWarning(
 					"Задача {EdoTaskId} по отклонению {DeviationId} не найдена, отклонение будет снято",
-					deviation.EdoTask.Id,
-					deviation.Id);
+					deviationNode.EdoTaskId.Value,
+					deviationNode.Deviation.Id);
 
 				return EdoDeviationResolveReason.EntityNotFound;
 			}
 
-			if(deviation.EdoRequest != null)
+			if(deviationNode.EdoRequestId.HasValue)
 			{
-				return GetRequestDeviationResolveReason(deviation, validators, requestNodes, checkTime);
+				return GetRequestDeviationResolveReason(deviationNode, validators, requestNodes, checkTime);
 			}
 
 			_logger.LogWarning(
 				"Отклонение {DeviationId} не связано ни с задачей, ни с заявкой и будет снято",
-				deviation.Id);
+				deviationNode.Deviation.Id);
 
 			return EdoDeviationResolveReason.EntityNotFound;
 		}
 
 		private EdoDeviationResolveReason? GetTaskDeviationResolveReason(
-			EdoTaskDeviation deviation,
+			EdoTaskDeviationNode deviationNode,
 			EdoDeviationValidators validators,
 			EdoTaskMonitoringNode task,
 			DateTime checkTime)
 		{
-			var validation = FindValidation(validators.TaskValidators, deviation);
+			var validation = FindValidation(validators.TaskValidators, deviationNode);
 
-			// завершение задачи снимает отклонение, кроме проверок,
-			// которые как раз и выполняются по завершенным задачам: результат ГИС МТ
-			// приходит после того, как документооборот уже завершил задачу
 			if(task.IsFinished && !(validation?.Validator.IsAppliesToFinishedTask ?? false))
 			{
 				return EdoDeviationResolveReason.TaskFinished;
@@ -229,34 +216,27 @@ namespace Edo.DeviationMonitoring
 			var hasApplicableSpecificValidator =
 				EdoDeviationFallbackPolicy.HasApplicableSpecificValidator(_logger, task, validators.TaskValidators, task.EdoTaskId);
 
-			// резервное отклонение уступает место частному, как только стадия задачи определилась:
-			// иначе оно висело бы до завершения задачи и не давало бы завести точное условие
 			if(validation.Validator.IsFallback
 				&& hasApplicableSpecificValidator)
 			{
 				return EdoDeviationResolveReason.ConditionGone;
 			}
 
-			var stillFires = StillFires(
-				deviation,
+			var isStillActive = IsStillActive(
+				deviationNode,
 				validation.Validator.DeviationType,
 				() => validation.Validator.Validate(task, validation.Source, checkTime));
 
-			return stillFires ? (EdoDeviationResolveReason?)null : EdoDeviationResolveReason.ConditionGone;
+			return isStillActive ? (EdoDeviationResolveReason?)null : EdoDeviationResolveReason.ConditionGone;
 		}
 
-		/// <summary>
-		/// Отклонения по задаче трансфера снимаются по тем же правилам, что и по задачам заказов,
-		/// но проблема ожидания перемещения кодов причиной снятия не считается:
-		/// ровно ее длительность и меряет отклонение
-		/// </summary>
 		private EdoDeviationResolveReason? GetTransferDeviationResolveReason(
-			EdoTaskDeviation deviation,
+			EdoTaskDeviationNode deviationNode,
 			EdoDeviationValidators validators,
 			EdoTransferTaskMonitoringNode transferTask,
 			DateTime checkTime)
 		{
-			var validation = FindValidation(validators.TransferValidators, deviation);
+			var validation = FindValidation(validators.TransferValidators, deviationNode);
 
 			if(transferTask.IsFinished && !(validation?.Validator.IsAppliesToFinishedTask ?? false))
 			{
@@ -276,33 +256,32 @@ namespace Edo.DeviationMonitoring
 			var hasApplicableSpecificValidator =
 				EdoDeviationFallbackPolicy.HasApplicableSpecificValidator(_logger, transferTask, validators.TransferValidators, transferTask.EdoTaskId);
 
-			// резервное отклонение уступает место частному, как только стадия трансфера определилась
 			if(validation.Validator.IsFallback
 				&& hasApplicableSpecificValidator)
 			{
 				return EdoDeviationResolveReason.ConditionGone;
 			}
 
-			var stillFires = StillFires(
-				deviation,
+			var isStillActive = IsStillActive(
+				deviationNode,
 				validation.Validator.DeviationType,
 				() => validation.Validator.Validate(transferTask, validation.Source, checkTime));
 
-			return stillFires ? (EdoDeviationResolveReason?)null : EdoDeviationResolveReason.ConditionGone;
+			return isStillActive ? (EdoDeviationResolveReason?)null : EdoDeviationResolveReason.ConditionGone;
 		}
 
 		private EdoDeviationResolveReason? GetRequestDeviationResolveReason(
-			EdoTaskDeviation deviation,
+			EdoTaskDeviationNode deviationNode,
 			EdoDeviationValidators validators,
 			IReadOnlyDictionary<int, EdoRequestMonitoringNode> requestNodes,
 			DateTime checkTime)
 		{
-			if(!requestNodes.TryGetValue(deviation.EdoRequest.Id, out var request))
+			if(!requestNodes.TryGetValue(deviationNode.EdoRequestId.Value, out var request))
 			{
 				_logger.LogWarning(
 					"Заявка {EdoRequestId} по отклонению {DeviationId} не найдена, отклонение будет снято",
-					deviation.EdoRequest.Id,
-					deviation.Id);
+					deviationNode.EdoRequestId.Value,
+					deviationNode.Deviation.Id);
 
 				return EdoDeviationResolveReason.EntityNotFound;
 			}
@@ -312,35 +291,29 @@ namespace Edo.DeviationMonitoring
 				return EdoDeviationResolveReason.TaskCreated;
 			}
 
-			var validation = FindValidation(validators.RequestValidators, deviation);
+			var validation = FindValidation(validators.RequestValidators, deviationNode);
 
 			if(validation is null)
 			{
 				return EdoDeviationResolveReason.ValidatorDisabled;
 			}
 
-			var stillFires = StillFires(
-				deviation,
+			var isStillActive = IsStillActive(
+				deviationNode,
 				validation.Validator.DeviationType,
 				() => validation.Validator.Validate(request, validation.Source, checkTime));
 
-			return stillFires ? (EdoDeviationResolveReason?)null : EdoDeviationResolveReason.ConditionGone;
+			return isStillActive ? (EdoDeviationResolveReason?)null : EdoDeviationResolveReason.ConditionGone;
 		}
 
-		/// <summary>
-		/// Ищет валидатор, которым отклонение было зарегистрировано.
-		/// Сопоставление идет по коду записи справочника, а не по типу отклонения:
-		/// чтение кода не поднимает саму запись из базы.
-		/// Отсутствие означает, что запись выключили или удалили из справочника
-		/// </summary>
 		private static EdoDeviationValidation<TValidator> FindValidation<TValidator>(
 			IReadOnlyList<EdoDeviationValidation<TValidator>> validations,
-			EdoTaskDeviation deviation)
+			EdoTaskDeviationNode deviationNode)
 			where TValidator : class, IEdoDeviationValidator =>
-			validations.FirstOrDefault(x => x.Source.Id == deviation.DeviationSource?.Id);
+			validations.FirstOrDefault(x => x.Source.Id == deviationNode.DeviationSourceId);
 
-		private bool StillFires(
-			EdoTaskDeviation deviation,
+		private bool IsStillActive(
+			EdoTaskDeviationNode deviationNode,
 			EdoDeviationType deviationType,
 			Func<Result> validate)
 		{
@@ -352,7 +325,7 @@ namespace Edo.DeviationMonitoring
 			{
 				_logger.LogError(ex,
 					"Ошибка проверки актуальности отклонения {DeviationId} типа {DeviationType}",
-					deviation.Id,
+					deviationNode.Deviation.Id,
 					deviationType);
 
 				return true;

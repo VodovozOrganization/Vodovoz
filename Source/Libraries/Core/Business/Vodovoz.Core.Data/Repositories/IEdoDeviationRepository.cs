@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Data.Repositories
 {
@@ -16,16 +15,14 @@ namespace Vodovoz.Core.Data.Repositories
 	{
 		/// <summary>
 		/// Возвращает заявки ЭДО на отправку документов заказа, по которым не создана задача
-		/// и нет незакрытого отклонения.
-		/// Выборка страничная: чтобы обойти все заявки, метод вызывается
-		/// в цикле с кодом последней обработанной заявки, пока не вернется пустая страница
+		/// и нет незакрытого отклонения
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="createdBefore">Верхняя граница времени создания заявки</param>
-		/// <param name="afterRequestId">Код заявки, после которого продолжать выборку. Ноль — с начала</param>
+		/// <param name="afterRequestId">Идентификатор заявки, после которого продолжать выборку. Ноль — с начала</param>
 		/// <param name="limit">Размер страницы</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Страница заявок без задач, упорядоченная по коду заявки</returns>
+		/// <returns>Страница заявок без задач, упорядоченная по идентификатору заявки</returns>
 		Task<IList<EdoRequestMonitoringNode>> GetRequestsWithoutTaskAsync(
 			IUnitOfWork uow,
 			DateTime createdBefore,
@@ -35,17 +32,13 @@ namespace Vodovoz.Core.Data.Repositories
 
 		/// <summary>
 		/// Возвращает состояние незавершенных задач отправки документов и чеков,
-		/// по которым нет ни активных зарегистрированных проблем, ни незакрытых отклонений.
-		/// Задача с незакрытым отклонением в регистрацию не попадает: новое отклонение
-		/// по ней можно будет завести только после того, как прежнее будет снято.
-		/// Выборка страничная: чтобы обойти все задачи, метод вызывается
-		/// в цикле с кодом последней обработанной задачи, пока не вернется пустая страница
+		/// по которым нет ни активных зарегистрированных проблем, ни незакрытых отклонений
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="afterTaskId">Код задачи, после которого продолжать выборку. Ноль — с начала</param>
+		/// <param name="afterTaskId">Идентификатор задачи, после которого продолжать выборку. Ноль — с начала</param>
 		/// <param name="limit">Размер страницы</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Страница состояний задач, упорядоченная по коду задачи</returns>
+		/// <returns>Страница состояний задач, упорядоченная по идентификатору задачи</returns>
 		Task<IList<EdoTaskMonitoringNode>> GetMonitoredTasksAsync(
 			IUnitOfWork uow,
 			int afterTaskId,
@@ -53,27 +46,19 @@ namespace Vodovoz.Core.Data.Repositories
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Возвращает коды задач, документооборот которых завершился действием
+		/// Возвращает идентификаторы задач, документооборот которых завершился действием
 		/// <see cref="EdoDocFlowStatus.Succeed"/>, а результата обработки кодов в ГИС МТ
-		/// по нему либо нет, либо он отказной.
-		/// <para>
-		/// Отдельная выборка нужна правилам по результату ГИС МТ: завершение документооборота
-		/// переводит задачу в <see cref="EdoTaskStatus.Completed"/>, поэтому в основную выборку
-		/// незавершенных задач такие задачи не попадают, а результат прослеживаемости
-		/// приходит уже после этого, отдельной транзакцией документооборота.
-		/// Задачи с активными проблемами и незакрытыми отклонениями исключаются так же,
-		/// как в основной выборке
-		/// </para>
+		/// по нему либо нет, либо он отказной
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="gisMtTrackedFrom">
 		/// Дата, с которой отслеживается результат обработки кодов в ГИС МТ:
 		/// задачи заказов, доставленных раньше нее, в выборку не попадают
 		/// </param>
-		/// <param name="afterTaskId">Код задачи, после которого продолжать выборку. Ноль — с начала</param>
+		/// <param name="afterTaskId">Идентификатор задачи, после которого продолжать выборку. Ноль — с начала</param>
 		/// <param name="limit">Размер страницы</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Страница кодов задач, упорядоченная по коду задачи</returns>
+		/// <returns>Страница идентификаторов задач, упорядоченная по идентификатору задачи</returns>
 		Task<IList<int>> GetTaskIdsWithFinishedDocflowAsync(
 			IUnitOfWork uow,
 			DateTime gisMtTrackedFrom,
@@ -84,14 +69,13 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <summary>
 		/// Возвращает состояние незавершенных задач трансфера, по которым нет незакрытых отклонений
 		/// и нет активных проблем, кроме ожидания перемещения кодов в ГИС МТ:
-		/// это ожидание мониторинг меряет сам.
-		/// Выборка страничная, как и по задачам заказов
+		/// это ожидание мониторинг меряет сам
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="afterTaskId">Код задачи, после которого продолжать выборку. Ноль — с начала</param>
+		/// <param name="afterTaskId">Идентификатор задачи, после которого продолжать выборку. Ноль — с начала</param>
 		/// <param name="limit">Размер страницы</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Страница состояний задач трансфера, упорядоченная по коду задачи</returns>
+		/// <returns>Страница состояний задач трансфера, упорядоченная по идентификатору задачи</returns>
 		Task<IList<EdoTransferTaskMonitoringNode>> GetMonitoredTransferTasksAsync(
 			IUnitOfWork uow,
 			int afterTaskId,
@@ -99,7 +83,7 @@ namespace Vodovoz.Core.Data.Repositories
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Возвращает коды задач трансфера, документооборот которых завершился действием
+		/// Возвращает идентификаторы задач трансфера, документооборот которых завершился действием
 		/// <see cref="EdoDocFlowStatus.Succeed"/>, а результата обработки кодов в ГИС МТ
 		/// по нему либо нет, либо он отказной.
 		/// Нужна тем же правилам по результату ГИС МТ, что и по задачам заказов:
@@ -111,10 +95,10 @@ namespace Vodovoz.Core.Data.Repositories
 		/// У задачи трансфера своей даты доставки нет, поэтому она сравнивается
 		/// с временем создания задачи
 		/// </param>
-		/// <param name="afterTaskId">Код задачи, после которого продолжать выборку. Ноль — с начала</param>
+		/// <param name="afterTaskId">Идентификатор задачи, после которого продолжать выборку. Ноль — с начала</param>
 		/// <param name="limit">Размер страницы</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Страница кодов задач трансфера, упорядоченная по коду задачи</returns>
+		/// <returns>Страница идентификаторов задач трансфера, упорядоченная по идентификатору задачи</returns>
 		Task<IList<int>> GetTransferTaskIdsWithFinishedDocflowAsync(
 			IUnitOfWork uow,
 			DateTime gisMtTrackedFrom,
@@ -128,7 +112,7 @@ namespace Vodovoz.Core.Data.Repositories
 		/// Решение об актуальности отклонения принимает вызывающий сервис
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="edoTaskIds">Коды задач трансфера</param>
+		/// <param name="edoTaskIds">Идентификаторы задач трансфера</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Состояние задач трансфера</returns>
 		Task<IList<EdoTransferTaskMonitoringNode>> GetTransferTaskNodesAsync(
@@ -137,25 +121,22 @@ namespace Vodovoz.Core.Data.Repositories
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Возвращает страницу незакрытых отклонений независимо от задач и заявок.
-		/// Точка входа сервиса снятия отклонений: он идет от отклонений,
-		/// а не от задач, поэтому проверяет ровно те записи, которые висят в журнале
+		/// Возвращает страницу незакрытых отклонений независимо от задач и заявок
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="afterDeviationId">Код отклонения, после которого продолжать выборку. Ноль — с начала</param>
+		/// <param name="afterDeviationId">Идентификатор отклонения, после которого продолжать выборку. Ноль — с начала</param>
 		/// <param name="limit">Размер страницы</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Страница незакрытых отклонений, упорядоченная по коду отклонения</returns>
-		Task<IList<EdoTaskDeviation>> GetActiveDeviationsPageAsync(
+		Task<IList<EdoTaskDeviationNode>> GetActiveDeviationsPageAsync(
 			IUnitOfWork uow,
 			int afterDeviationId,
 			int limit,
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Возвращает состояние задач по их кодам,
-		/// без исключения задач с активными проблемами и завершенных.
-		/// Решение об актуальности отклонения принимает вызывающий сервис
+		/// Возвращает состояние задач по их идентификаторам,
+		/// без исключения задач с активными проблемами и завершенных
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="edoTaskIds">Коды задач ЭДО</param>
@@ -167,7 +148,7 @@ namespace Vodovoz.Core.Data.Repositories
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Возвращает состояние заявок по их кодам, в том числе тех,
+		/// Возвращает состояние заявок по их идентификаторам, в том числе тех,
 		/// по которым уже создана задача
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>

@@ -294,7 +294,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		}
 
 		/// <inheritdoc/>
-		public async Task<IList<EdoTaskDeviation>> GetActiveDeviationsPageAsync(
+		public async Task<IList<EdoTaskDeviationNode>> GetActiveDeviationsPageAsync(
 			IUnitOfWork uow,
 			int afterDeviationId,
 			int limit,
@@ -305,13 +305,18 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 				throw new ArgumentNullException(nameof(uow));
 			}
 
-			// курсорная страница с явной сортировкой по коду: IGenericRepository
-			// упорядочивать выборку не умеет, поэтому здесь свой метод
 			return await uow.Session.Query<EdoTaskDeviation>()
 				.Where(x => x.State == TaskProblemState.Active)
 				.Where(x => x.Id > afterDeviationId)
 				.OrderBy(x => x.Id)
 				.Take(limit)
+				.Select(x => new EdoTaskDeviationNode
+				{
+					Deviation = x,
+					EdoTaskId = (int?)x.EdoTask.Id,
+					EdoRequestId = (int?)x.EdoRequest.Id,
+					DeviationSourceId = (int?)x.DeviationSource.Id
+				})
 				.ToListAsync(cancellationToken);
 		}
 
