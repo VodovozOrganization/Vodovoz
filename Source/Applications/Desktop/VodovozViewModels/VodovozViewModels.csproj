@@ -35,6 +35,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
@@ -121,6 +122,7 @@
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\BankAccountsMovementsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\ProfitCategoriesJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Receipts\ReceiptCorrectionExplanatoryNoteJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\WageCalculation\CallCenterMotivationCoefficientJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Banks\BanksJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
@@ -130,12 +132,15 @@
     <Compile Include="Journals\JournalNodes\Payments\BankAccountsMovementsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\NotAllocatedCounterpartiesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\ProfitCategoriesJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Receipts\ReceiptCorrectionExplanatoryNoteJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OnlineOrderNotificationSettingJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\WageCalculation\CallCenterMotivationCoefficientJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Banks\BanksJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\VatRateJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Receipts\ReceiptCorrectionExplanatoryNoteExportHelper.cs" />
+    <Compile Include="Journals\JournalViewModels\Receipts\ReceiptCorrectionExplanatoryNoteJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoNotificationSettingJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OnlineOrderNotificationSettingJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FineCategoryJournalViewModel.cs" />
@@ -675,6 +680,8 @@
     <Compile Include="Infrastructure\Print\IEntityDocumentsPrinter.cs" />
     <Compile Include="Infrastructure\Print\IEntityDocumentsPrinterFactory.cs" />
     <Compile Include="Dialogs\Orders\DocumentsPrinterViewModel.cs" />
+    <Compile Include="Print\Receipts\ExplanatoryNotePrintableDocument.cs" />
+    <Compile Include="Print\Receipts\ExplanatoryNotesPrinterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\FinancialDistrictsSetsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DeliveryScheduleFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\FastDeliveryAvailabilityFilterViewModel.cs" />
