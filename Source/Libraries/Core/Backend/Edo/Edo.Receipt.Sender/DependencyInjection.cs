@@ -21,6 +21,7 @@ namespace Edo.Receipt.Sender
 			services.AddModulKassa();
 
 			services.TryAddScoped<FiscalDocumentFactory>();
+			services.TryAddScoped<ReceiptCorrectionSender>();
 			services.TryAddScoped<ReceiptSendingFailedNotificationService>();
 			services.TryAddScoped<ReceiptSender>();
 

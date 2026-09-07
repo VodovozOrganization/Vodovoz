@@ -39,6 +39,7 @@ namespace Vodovoz.Views.Organization
 				.AddColumn("Окончание действия").AddTextRenderer(x => x.EndDate.HasValue ? x.EndDate.Value.ToString("g") : "").XAlign(0.5f)
 				.AddColumn("Руководитель").AddTextRenderer(x => x.LeaderShortName).XAlign(0.5f)
 				.AddColumn("Бухгалтер").AddTextRenderer(x => x.AccountantShortName).XAlign(0.5f)
+				.AddColumn("Кассир").AddTextRenderer(x => x.CashierShortName).XAlign(0.5f)
 				.AddColumn("Адрес").AddTextRenderer(x => x.Address).WrapMode(WrapMode.WordChar).WrapWidth(200).XAlign(0.5f)
 				.AddColumn("Юр. адрес").AddTextRenderer(x => x.JurAddress).WrapMode(WrapMode.WordChar).WrapWidth(200).XAlign(0.5f)
 				.AddColumn("")
@@ -54,6 +55,9 @@ namespace Vodovoz.Views.Organization
 			evmeAccountant.SetEntityAutocompleteSelectorFactory(ViewModel.AccountantSelectorFactory);
 			evmeAccountant.Binding.AddBinding(ViewModel, vm => vm.Accountant, w => w.Subject).InitializeFromSource();
 
+			evmeCashier.SetEntityAutocompleteSelectorFactory(ViewModel.CashierSelectorFactory);
+			evmeCashier.Binding.AddBinding(ViewModel, vm => vm.Cashier, w => w.Subject).InitializeFromSource();
+
 			yCmbCurrentSignatureLeader.ItemsList = ViewModel.AllSignatures;
 			yCmbCurrentSignatureLeader.Binding.AddBinding(ViewModel, s => s.SignatureLeader, w => w.SelectedItem).InitializeFromSource();
 			yCmbCurrentSignatureLeader.SetSizeRequest(250, 30);
@@ -61,6 +65,10 @@ namespace Vodovoz.Views.Organization
 			yCmbCurrentSignatureAccountant.ItemsList = ViewModel.AllSignatures;
 			yCmbCurrentSignatureAccountant.Binding.AddBinding(ViewModel, s => s.SignatureAccountant, w => w.SelectedItem).InitializeFromSource();
 			yCmbCurrentSignatureAccountant.SetSizeRequest(250, 30);
+
+			yCmbCurrentSignatureCashier.ItemsList = ViewModel.AllSignatures;
+			yCmbCurrentSignatureCashier.Binding.AddBinding(ViewModel, s => s.SignatureCashier, w => w.SelectedItem).InitializeFromSource();
+			yCmbCurrentSignatureCashier.SetSizeRequest(250, 30);
 
 			datatextviewAddress.Binding.AddBinding(ViewModel, vm => vm.Address, w => w.Buffer.Text).InitializeFromSource();
 			datatextviewJurAddress.Binding.AddBinding(ViewModel, vm => vm.JurAddress, w => w.Buffer.Text).InitializeFromSource();

@@ -126,23 +126,13 @@ namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 			// Есть ли уже отправленный чек
 			if(edoTask.TaskType == EdoTaskType.Receipt)
 			{
-				var receiptTask = edoTask.As<ReceiptEdoTask>();
-				if(receiptTask.ReceiptStatus != EdoReceiptStatus.Transfering)
-				{
-					CantCancelReceiptDocflowMessage();
-
-					// запрещено отменять заказ так как уже есть в работе задача на отправку чека
-					permit.Type = OrderCancellationPermitType.Deny;
-					return permit;
-				}
-
 				if(!permit.DocflowCancellationOfferConfirmation && !ConfirmOrderCancellationQuestion())
 				{
 					permit.Type = OrderCancellationPermitType.Deny;
 					return permit;
 				}
-				permit.DocflowCancellationOfferConfirmation = true;
 
+				permit.DocflowCancellationOfferConfirmation = true;
 				permit.Type = OrderCancellationPermitType.AllowCancelOrder;
 				permit.EdoTaskToCancellationId = edoTask.Id;
 				return permit;
@@ -204,6 +194,34 @@ namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 			CancelDocflow(reason, edoTaskId);
 
 			DocflowCancellationStartedMessage();
+		}
+
+		/// <summary>
+		/// Отменяет ЭДО-задачу чека в текущей UoW до отклонения кодов маркировки.
+		/// Для УПД оставляет асинхронную отмену документооборота.
+		/// </summary>
+		public virtual void PrepareReceiptEdoTaskCancellation(IUnitOfWork uow, OrderCancellationPermit permit, string reason)
+		{
+			if(permit?.EdoTaskToCancellationId == null)
+			{
+				return;
+			}
+
+			var edoTask = uow.GetById<EdoTask>(permit.EdoTaskToCancellationId.Value);
+			if(edoTask == null || edoTask.TaskType != EdoTaskType.Receipt)
+			{
+				return;
+			}
+
+			if(edoTask.Status.IsIn(EdoTaskStatus.Cancelled, EdoTaskStatus.InCancellation))
+			{
+				return;
+			}
+
+			edoTask.Status = EdoTaskStatus.Cancelled;
+			edoTask.EndTime = DateTime.Now;
+			edoTask.CancellationReason = reason;
+			uow.Save(edoTask);
 		}
 
 		/// <summary>

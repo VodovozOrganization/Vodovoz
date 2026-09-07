@@ -35,6 +35,12 @@ namespace ModulKassa.DTO
 		[JsonProperty("responseURL")]
 		public string ResponseURL { get; set; }
 
+		/// <summary>
+		/// Обязателен для SALE_CORRECTION / SALE_RETURN_CORRECTION / BUY_*_CORRECTION.
+		/// </summary>
+		[JsonProperty("correctionInfo")]
+		public CorrectionInfo CorrectionInfo { get; set; }
+
 		[JsonProperty("inventPositions", Required = Required.Always)]
 		public List<InventPosition> InventPositions { get; set; } = new List<InventPosition>();
 
