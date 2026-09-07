@@ -1,0 +1,42 @@
+﻿using System;
+using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Edo;
+
+namespace Edo.DeviationMonitoring.Validation.Sources.Transfer
+{
+	/// <summary>
+	/// Перенос кодов запущен, но не завершается.
+	/// Ожидание перемещения кодов в ГИС МТ сюда не относится: документооборот
+	/// в этом случае уже принят, а ждем мы смены владельца кодов —
+	/// это отдельное условие с собственной точкой отсчета
+	/// </summary>
+	public class TransferTooLongValidator : EdoTransferDeviationValidatorBase
+	{
+		/// <inheritdoc/>
+		public override EdoDeviationType DeviationType => EdoDeviationType.TransferTooLong;
+
+		/// <inheritdoc/>
+		protected override DateTime? GetStageStartTime(EdoTransferTaskMonitoringNode transferTask)
+		{
+			if(transferTask.TransferStage != EdoTransferTaskStage.InProgress)
+			{
+				return null;
+			}
+
+			// пока по задаче висит незакрытая проблема ожидания перемещения кодов,
+			// длительность меряет TransferCodesNotMoved
+			return transferTask.CodesNotMovedProblemTime != null
+				? null
+				: transferTask.TransferStartTime;
+		}
+
+		/// <inheritdoc/>
+		protected override string BuildDetails(
+			EdoTransferTaskMonitoringNode transferTask,
+			TimeSpan timeout,
+			TimeSpan elapsed) =>
+			$"Перенос кодов запущен "
+			+ $"{EdoDeviationTextFormatter.FormatTime(transferTask.TransferStartTime.Value)} "
+			+ $"и не завершен за {EdoDeviationTextFormatter.FormatElapsed(elapsed, timeout)}";
+	}
+}
