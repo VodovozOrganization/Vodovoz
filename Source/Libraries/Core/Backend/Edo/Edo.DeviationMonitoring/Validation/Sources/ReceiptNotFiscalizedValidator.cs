@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Infrastructure;
+using System;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
@@ -52,7 +53,7 @@ namespace Edo.DeviationMonitoring.Validation.Sources
 			}
 
 			return $"Фискальный документ находится в статусе "
-				+ $"\"{EdoDeviationTextFormatter.GetEnumDisplayName(task.FiscalDocumentStatus)}\" "
+				+ $"\"{task.FiscalDocumentStatus.Value.GetEnumDisplayName()}\" "
 				+ $"с {EdoDeviationTextFormatter.FormatTime(task.FiscalDocumentTime.Value)}, "
 				+ $"это {EdoDeviationTextFormatter.FormatElapsed(elapsed, timeout)}";
 		}

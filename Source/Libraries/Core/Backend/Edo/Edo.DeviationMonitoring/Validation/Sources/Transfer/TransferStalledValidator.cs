@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Infrastructure;
+using System;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
@@ -35,7 +36,7 @@ namespace Edo.DeviationMonitoring.Validation.Sources.Transfer
 			$"Задача трансфера создана "
 			+ $"{EdoDeviationTextFormatter.FormatTime(transferTask.TaskCreationTime)} "
 			+ $"и не завершена {EdoDeviationTextFormatter.FormatElapsed(elapsed, timeout)}. "
-			+ $"Текущая стадия \"{EdoDeviationTextFormatter.GetEnumDisplayName(transferTask.TransferStage)}\", "
+			+ $"Текущая стадия \"{transferTask.TransferStage.GetEnumDisplayName()}\", "
 			+ "причина задержки не определена";
 	}
 }

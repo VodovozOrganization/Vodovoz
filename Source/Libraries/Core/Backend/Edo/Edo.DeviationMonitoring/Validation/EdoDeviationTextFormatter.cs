@@ -1,7 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using Core.Infrastructure;
+using System;
 using System.Globalization;
-using System.Reflection;
 using Vodovoz.Core.Data.Repositories;
 
 namespace Edo.DeviationMonitoring.Validation
@@ -60,15 +59,15 @@ namespace Edo.DeviationMonitoring.Validation
 
 			if(task.DocumentStage != null)
 			{
-				return GetEnumDisplayName(task.DocumentStage.Value);
+				return task.DocumentStage.Value.GetEnumDisplayName();
 			}
 
 			if(task.ReceiptStatus != null)
 			{
-				return GetEnumDisplayName(task.ReceiptStatus.Value);
+				return task.ReceiptStatus.Value.GetEnumDisplayName();
 			}
 
-			return GetEnumDisplayName(task.TaskStatus);
+			return task.TaskStatus.GetEnumDisplayName();
 		}
 
 		/// <summary>
@@ -82,25 +81,7 @@ namespace Edo.DeviationMonitoring.Validation
 				throw new ArgumentNullException(nameof(transferTask));
 			}
 
-			return $"Трансфер: {GetEnumDisplayName(transferTask.TransferStage)}";
-		}
-
-		/// <summary>
-		/// Возвращает значение атрибута Display для значения перечисления
-		/// </summary>
-		/// <param name="value">Значение перечисления</param>
-		public static string GetEnumDisplayName(Enum value)
-		{
-			if(value is null)
-			{
-				return string.Empty;
-			}
-
-			var displayAttribute = value.GetType()
-				.GetField(value.ToString())
-				?.GetCustomAttribute<DisplayAttribute>();
-
-			return displayAttribute?.Name ?? value.ToString();
+			return $"Трансфер: {transferTask.TransferStage.GetEnumDisplayName()}";
 		}
 	}
 }

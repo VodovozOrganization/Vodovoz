@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Infrastructure;
+using System;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
@@ -35,7 +36,7 @@ namespace Edo.DeviationMonitoring.Validation.Sources.Transfer
 			TimeSpan timeout,
 			TimeSpan elapsed) =>
 			$"Задача трансфера находится на стадии "
-			+ $"\"{EdoDeviationTextFormatter.GetEnumDisplayName(transferTask.TransferStage)}\" "
+			+ $"\"{transferTask.TransferStage.GetEnumDisplayName()}\" "
 			+ $"{EdoDeviationTextFormatter.FormatElapsed(elapsed, timeout)}, "
 			+ "документ на перенос кодов не создан";
 	}

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Infrastructure;
+using System;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
@@ -119,7 +120,7 @@ namespace Edo.DeviationMonitoring.Validation.Docflow
 			TimeSpan timeout,
 			TimeSpan elapsed) =>
 			$"Документ создан {EdoDeviationTextFormatter.FormatTime(node.OutgoingDocumentCreationTime.Value)} "
-			+ $"в статусе \"{EdoDeviationTextFormatter.GetEnumDisplayName(node.OutgoingDocumentStatus)}\", "
+			+ $"в статусе \"{node.OutgoingDocumentStatus.Value.GetEnumDisplayName()}\", "
 			+ $"но не передан провайдеру ЭДО за "
 			+ $"{EdoDeviationTextFormatter.FormatElapsed(elapsed, timeout)}";
 
@@ -149,7 +150,7 @@ namespace Edo.DeviationMonitoring.Validation.Docflow
 		/// Описание отклонения "коды не приняты в ГИС МТ"
 		/// </summary>
 		public static string BuildGisMtRejectedDetails(IEdoDocflowMonitoringNode node) =>
-			$"ГИС МТ вернула статус \"{EdoDeviationTextFormatter.GetEnumDisplayName(node.TraceabilityStatus)}\" "
+			$"ГИС МТ вернула статус \"{node.TraceabilityStatus.Value.GetEnumDisplayName()}\" "
 			+ $"{EdoDeviationTextFormatter.FormatTime(node.TraceabilityActionTime.Value)}. "
 			+ "Коды по документообороту не приняты";
 	}

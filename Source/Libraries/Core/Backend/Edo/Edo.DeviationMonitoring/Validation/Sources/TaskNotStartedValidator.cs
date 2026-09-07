@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Infrastructure;
+using System;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
@@ -32,7 +33,7 @@ namespace Edo.DeviationMonitoring.Validation.Sources
 		/// <inheritdoc/>
 		protected override string BuildDetails(EdoTaskMonitoringNode task, TimeSpan timeout, TimeSpan elapsed) =>
 			$"Задача создана {EdoDeviationTextFormatter.FormatTime(task.TaskCreationTime)} "
-			+ $"и остается в статусе \"{EdoDeviationTextFormatter.GetEnumDisplayName(task.TaskStatus)}\" "
+			+ $"и остается в статусе \"{task.TaskStatus.GetEnumDisplayName()}\" "
 			+ $"{EdoDeviationTextFormatter.FormatElapsed(elapsed, timeout)}. "
 			+ "Обработчик не приступал к обработке задачи";
 	}
