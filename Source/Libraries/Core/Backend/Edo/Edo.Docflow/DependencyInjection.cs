@@ -1,5 +1,7 @@
 ﻿using Edo.Docflow.Factories;
 using Edo.Docflow.Handlers;
+using Edo.Common;
+using Edo.Common.Services;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +17,9 @@ namespace Edo.Docflow
 	{
 		public static IServiceCollection AddEdoDocflowServices(this IServiceCollection services)
 		{
+			services.AddEdo();
 			services.TryAddScoped(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+			services.TryAddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>();
 
 			services.TryAddScoped<DocflowHandler>();
 			services.TryAddScoped<OrderUpdInfoFactory>();
