@@ -166,7 +166,8 @@ namespace EdoService.Library
 				var checkOtherRequestsResult = CheckOtherRequests(
 					uow,
 					documentTask.FormalEdoRequest,
-					taskId);
+					taskId,
+					includeRequestsWithoutTask: true);
 				if(checkOtherRequestsResult.IsFailure)
 				{
 					return Result.Failure<string>(checkOtherRequestsResult.Errors);
@@ -181,6 +182,21 @@ namespace EdoService.Library
 				if(!documentTask.Status.IsIn(EdoTaskStatus.InCancellation, EdoTaskStatus.Cancelled))
 				{
 					CancelEdoTaskWithReason(uow, documentTask);
+
+					uow.OpenTransaction();
+					uow.Session.Refresh(documentTask, LockMode.Upgrade);
+					checkOtherRequestsResult = CheckOtherRequests(
+						uow, documentTask.FormalEdoRequest, taskId, includeRequestsWithoutTask: true);
+					if(checkOtherRequestsResult.IsFailure)
+					{
+						return Result.Failure<string>(checkOtherRequestsResult.Errors);
+					}
+
+					checkOtherTasksResult = CheckOtherTasks(uow, documentTask, taskId);
+					if(checkOtherTasksResult.IsFailure)
+					{
+						return Result.Failure<string>(checkOtherTasksResult.Errors);
+					}
 				}
 
 				if(!documentTask.Status.IsIn(EdoTaskStatus.InCancellation, EdoTaskStatus.Cancelled))
@@ -188,7 +204,7 @@ namespace EdoService.Library
 					return Result.Failure<string>(EdoErrors.HasProblem);
 				}
 
-				ResendDocumentForCancelledEdoTask(uow, order, documentTask);
+				ResendDocumentForCancelledEdoTask(uow, order, documentTask, transferCodeReservations: true);
 
 				return Result.Success("Старый документооборот отправлен на аннулирование. УПД отправлен на переотправку.");
 			}
@@ -595,10 +611,44 @@ namespace EdoService.Library
 			return false;
 		}
 
-		private void ResendDocumentForCancelledEdoTask(IUnitOfWork uow, OrderEntity order, OrderEdoTask edoTask)
+		private void ResendDocumentForCancelledEdoTask(
+			IUnitOfWork uow, OrderEntity order, OrderEdoTask edoTask, bool transferCodeReservations = false)
 		{
 			var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(edoTask);
 			var request = _manualEdoRequestFactory.Create(uow, order, productCodes);
+
+			if(transferCodeReservations)
+			{
+				var releasedCodes = false;
+				foreach(var oldCode in edoTask.Items.Select(x => x.ProductCode))
+				{
+					if(oldCode.ResultCode == null)
+					{
+						continue;
+					}
+
+					// Only move reservations held by this task and actually copied to the request.
+					// Do not release substituted result codes or reservations belonging to other orders.
+					var newCode = productCodes.FirstOrDefault(x => x.SourceCode != null
+						&& x.SourceCode.Id == oldCode.ResultCode.Id);
+					if(newCode == null)
+					{
+						continue;
+					}
+
+					newCode.ResultCode = oldCode.ResultCode;
+					oldCode.ResultCode = null;
+					uow.Save(oldCode);
+					releasedCodes = true;
+				}
+
+				if(releasedCodes)
+				{
+					// NHibernate inserts before updates. Flush releases before cascading INSERTs
+					// to satisfy unique(result_code_id), without committing an unreserved gap.
+					uow.Session.Flush();
+				}
+			}
 
 			uow.Save(request);
 			uow.Commit();
