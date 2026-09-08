@@ -5,14 +5,12 @@ using Vodovoz.Core.Domain.Edo;
 namespace Vodovoz.Core.Data.Repositories
 {
 	/// <summary>
-	/// Состояние документооборота у провайдера ЭДО, общее для задач отправки документов
-	/// и задач трансфера: УПД трансфера уходит тем же трактом, что и УПД заказа,
-	/// поэтому и условия отклонений по документообороту у них одинаковые
+	/// Состояние документооборота у провайдера ЭДО
 	/// </summary>
 	public interface IEdoDocflowMonitoringNode
 	{
 		/// <summary>
-		/// Код задачи ЭДО
+		/// Идентификатор задачи ЭДО
 		/// </summary>
 		int EdoTaskId { get; }
 

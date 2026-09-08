@@ -11,7 +11,7 @@ namespace Vodovoz.Core.Data.Repositories
 	public class EdoTaskMonitoringNode : IEdoDocflowMonitoringNode
 	{
 		/// <summary>
-		/// Код задачи ЭДО
+		/// Идентификатор задачи ЭДО
 		/// </summary>
 		public int EdoTaskId { get; set; }
 
@@ -31,8 +31,7 @@ namespace Vodovoz.Core.Data.Repositories
 		public DateTime TaskCreationTime { get; set; }
 
 		/// <summary>
-		/// Время начала обработки задачи ЭДО.
-		/// У задачи отправки чека проставляется при переходе к отправке в кассу
+		/// Время начала обработки задачи ЭДО
 		/// </summary>
 		public DateTime? TaskStartTime { get; set; }
 
@@ -53,7 +52,6 @@ namespace Vodovoz.Core.Data.Repositories
 
 		/// <summary>
 		/// Дата доставки заказа, по которому создана задача
-		/// Пустая, если у заказа не проставлена дата доставки
 		/// </summary>
 		public DateTime? OrderDeliveryDate { get; set; }
 
@@ -68,14 +66,12 @@ namespace Vodovoz.Core.Data.Repositories
 		public EdoReceiptStatus? ReceiptStatus { get; set; }
 
 		/// <summary>
-		/// Время создания самой ранней незавершенной итерации трансфера,
-		/// по которой перенос кодов еще не запущен
+		/// Время создания самой ранней незавершенной итерации трансфера
 		/// </summary>
 		public DateTime? PendingTransferIterationTime { get; set; }
 
 		/// <summary>
-		/// Признак наличия незавершенной итерации трансфера,
-		/// по которой перенос кодов еще не запущен
+		/// Признак наличия незавершенной итерации трансфера
 		/// </summary>
 		public bool HasNotStartedTransfer { get; set; }
 

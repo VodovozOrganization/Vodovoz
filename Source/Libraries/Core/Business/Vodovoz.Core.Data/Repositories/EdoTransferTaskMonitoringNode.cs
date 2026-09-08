@@ -11,7 +11,7 @@ namespace Vodovoz.Core.Data.Repositories
 	public class EdoTransferTaskMonitoringNode : IEdoDocflowMonitoringNode
 	{
 		/// <summary>
-		/// Код задачи трансфера
+		/// Идентификатор задачи трансфера
 		/// </summary>
 		public int EdoTaskId { get; set; }
 
@@ -31,8 +31,7 @@ namespace Vodovoz.Core.Data.Repositories
 		public DateTime TaskCreationTime { get; set; }
 
 		/// <summary>
-		/// Время начала обработки задачи трансфера.
-		/// От него воркер трансферов отсчитывает ожидание заявок
+		/// Время начала обработки задачи трансфера
 		/// </summary>
 		public DateTime? TaskStartTime { get; set; }
 
@@ -42,20 +41,17 @@ namespace Vodovoz.Core.Data.Repositories
 		public DateTime? TransferStartTime { get; set; }
 
 		/// <summary>
-		/// Признак того, что задача завершена или отменена.
-		/// Аннулирование задачи сюда не входит: это еще идущий процесс,
-		/// который может зависнуть, и мониторинг должен его видеть
+		/// Признак того, что задача завершена или отменена
 		/// </summary>
 		public bool IsFinished { get; set; }
 
 		/// <summary>
-		/// Признак наличия активной зарегистрированной проблемы по задаче,
-		/// кроме ожидания перемещения кодов: его мониторинг меряет сам
+		/// Признак наличия активной зарегистрированной проблемы по задаче
 		/// </summary>
 		public bool HasActiveProblem { get; set; }
 
 		/// <summary>
-		/// Время регистрации незакрытой проблемы ожидания перемещения кодов в ГИС МТ.
+		/// Время регистрации незакрытой проблемы ожидания перемещения кодов в ГИС МТ
 		/// Пустое, если такой проблемы нет
 		/// </summary>
 		public DateTime? CodesNotMovedProblemTime { get; set; }

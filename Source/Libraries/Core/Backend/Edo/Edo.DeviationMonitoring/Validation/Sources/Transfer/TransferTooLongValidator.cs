@@ -5,7 +5,7 @@ using Vodovoz.Core.Domain.Edo;
 namespace Edo.DeviationMonitoring.Validation.Sources.Transfer
 {
 	/// <summary>
-	/// Перенос кодов запущен, но не завершается.
+	/// Трансфер запущен, но не завершается.
 	/// Ожидание перемещения кодов в ГИС МТ сюда не относится, для него есть отдельный валидатор
 	/// </summary>
 	public class TransferTooLongValidator : EdoTransferDeviationValidatorBase

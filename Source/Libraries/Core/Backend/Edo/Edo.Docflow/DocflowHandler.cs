@@ -252,8 +252,6 @@ namespace Edo.Docflow
 
 			var docflowStatus = updatedEvent.DocFlowStatus.TryParseAsEnum<EdoDocFlowStatus>();
 
-			LogTrueMarkTraceabilityStatus(updatedEvent);
-
 			object message = null;
 
 			switch(docflowStatus)
@@ -383,41 +381,6 @@ namespace Edo.Docflow
 			{
 				await _publishEndpoint.Publish(message, cancellationToken);
 			}
-		}
-
-		/// <summary>
-		/// Фиксирует в логе результат обработки кодов в ГИС МТ.
-		/// Провайдер ЭДО присылает его отдельной транзакцией документооборота,
-		/// статус документа при этом не меняется.
-		/// Отклонения по этому результату регистрирует сервис мониторинга ЭДО
-		/// </summary>
-		private void LogTrueMarkTraceabilityStatus(EdoDocflowUpdatedEvent updatedEvent)
-		{
-			var traceabilityStatus = updatedEvent.TrueMarkTraceabilityStatus
-				.TryParseAsEnum<TrueMarkTraceabilityStatus>();
-
-			if(traceabilityStatus is null)
-			{
-				return;
-			}
-
-			if(traceabilityStatus == TrueMarkTraceabilityStatus.Rejected
-				|| traceabilityStatus == TrueMarkTraceabilityStatus.CancellationRejected)
-			{
-				_logger.LogWarning(
-					"ГИС МТ не приняла коды по документу {EdoDocumentId} документооборота {DocFlowId}. Статус {TraceabilityStatus}",
-					updatedEvent.EdoDocumentId,
-					updatedEvent.DocFlowId,
-					traceabilityStatus);
-
-				return;
-			}
-
-			_logger.LogInformation(
-				"Получен результат обработки кодов в ГИС МТ по документу {EdoDocumentId} документооборота {DocFlowId}. Статус {TraceabilityStatus}",
-				updatedEvent.EdoDocumentId,
-				updatedEvent.DocFlowId,
-				traceabilityStatus);
 		}
 
 		public async Task HandleDocflowCancellation(int taskId, string reason, CancellationToken cancellationToken)

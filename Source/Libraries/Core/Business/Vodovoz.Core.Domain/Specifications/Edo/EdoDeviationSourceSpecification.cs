@@ -15,7 +15,7 @@ namespace Vodovoz.Core.Domain.Specifications.Edo
 		}
 
 		/// <summary>
-		/// Описания отклонений, по которым выполняется валидация
+		/// Создает спецификацию для отбора активных описаний отклонений документооборота ЭДО
 		/// </summary>
 		public static EdoDeviationSourceSpecification CreateActive()
 			=> new EdoDeviationSourceSpecification(x => x.IsActive);
