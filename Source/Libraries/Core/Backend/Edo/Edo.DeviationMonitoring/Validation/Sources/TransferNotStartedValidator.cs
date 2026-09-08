@@ -13,11 +13,7 @@ namespace Edo.DeviationMonitoring.Validation.Sources
 		public override EdoDeviationType DeviationType => EdoDeviationType.TransferNotStarted;
 
 		/// <summary>
-		/// Стадия трансфера считается опознанной на всем ее протяжении, а не только
-		/// пока перенос не запущен: длительность запущенного переноса меряют отклонения
-		/// по самой задаче трансфера, и резервному валидатору здесь делать нечего.
-		/// Иначе одна медленная задача трансфера дала бы в журнале
-		/// по строке "задача зависла" на каждую задачу-инициатора
+		/// Проверяет, применим ли валидатор к состоянию задачи
 		/// </summary>
 		/// <param name="task">Состояние задачи ЭДО</param>
 		public override bool IsApplicable(EdoTaskMonitoringNode task)
@@ -47,9 +43,6 @@ namespace Edo.DeviationMonitoring.Validation.Sources
 			+ $"перенос кодов не запущен "
 			+ $"{EdoDeviationTextFormatter.FormatElapsed(elapsed, timeout)}";
 
-		/// <summary>
-		/// Задача ждет переноса кодов
-		/// </summary>
 		private static bool IsTransfering(EdoTaskMonitoringNode task) =>
 			task.DocumentStage == DocumentEdoTaskStage.Transfering
 			|| task.ReceiptStatus == EdoReceiptStatus.Transfering;

@@ -6,7 +6,7 @@ using Vodovoz.Core.Domain.Edo;
 namespace Edo.DeviationMonitoring.Validation.Sources
 {
 	/// <summary>
-	/// Документооборот заведен у провайдера ЭДО, но ни одного ответа по нему не получено
+	/// Документ отправлен провайдеру ЭДО, но ни одного ответа по нему не получено
 	/// </summary>
 	public class ProviderNoResponseValidator : EdoTaskDeviationValidatorBase
 	{

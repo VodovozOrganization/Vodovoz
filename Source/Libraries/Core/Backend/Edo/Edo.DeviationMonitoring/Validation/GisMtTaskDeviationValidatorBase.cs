@@ -7,10 +7,7 @@ using Vodovoz.Core.Data.Repositories;
 namespace Edo.DeviationMonitoring.Validation
 {
 	/// <summary>
-	/// Базовый валидатор отклонения по результату обработки кодов в ГИС МТ.
-	/// Такие отклонения отслеживаются не по всем задачам: по документообороту заказа,
-	/// доставленного до начала отслеживания, результат ГИС МТ уже не придет,
-	/// и отклонение по нему было бы вечным
+	/// Базовый валидатор отклонения по результату обработки кодов в ГИС МТ
 	/// </summary>
 	public abstract class GisMtTaskDeviationValidatorBase : EdoTaskDeviationValidatorBase
 	{
@@ -32,9 +29,7 @@ namespace Edo.DeviationMonitoring.Validation
 		public override bool IsAppliesToFinishedTask => true;
 
 		/// <summary>
-		/// Проверяет, отслеживается ли результат ГИС МТ по задаче.
-		/// Отсчет идет от даты доставки заказа, а если она не проставлена —
-		/// от времени создания задачи
+		/// Проверяет, отслеживается ли результат ГИС МТ по задаче
 		/// </summary>
 		/// <param name="task">Состояние задачи ЭДО</param>
 		protected bool IsGisMtTracked(EdoTaskMonitoringNode task) =>

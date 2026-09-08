@@ -9,13 +9,7 @@ namespace Edo.DeviationMonitoring.Validation
 	public interface IEdoTaskDeviationValidator : IEdoDeviationValidator<EdoTaskMonitoringNode>
 	{
 		/// <summary>
-		/// Признак того, что проверка имеет смысл и для завершенной задачи.
-		/// <para>
-		/// Обычное отклонение — это застрявшая обработка, поэтому завершение задачи
-		/// его снимает. Исключение — результат обработки кодов в ГИС МТ:
-		/// он приходит уже после того, как завершение документооборота
-		/// перевело задачу в <see cref="EdoTaskStatus.Completed"/>
-		/// </para>
+		/// Признак того, что проверка имеет смысл и для завершенной задачи
 		/// </summary>
 		bool IsAppliesToFinishedTask { get; }
 	}

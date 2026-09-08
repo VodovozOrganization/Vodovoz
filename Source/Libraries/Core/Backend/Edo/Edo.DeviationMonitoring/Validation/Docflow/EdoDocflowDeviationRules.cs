@@ -67,17 +67,13 @@ namespace Edo.DeviationMonitoring.Validation.Docflow
 			entityDate.Date >= trackingStartDate.Date;
 
 		/// <summary>
-		/// Документооборот аннулирован. Аннулирование конечно: дальше по такому
-		/// документообороту не придет ни результат ГИС МТ, ни смена статуса,
-		/// поэтому отклонения по результату ГИС МТ на нем перестают быть актуальными
+		/// Документооборот аннулирован
 		/// </summary>
 		public static bool IsDocflowCancelled(IEdoDocflowMonitoringNode node) =>
 			node.CancelledActionTime != null;
 
 		/// <summary>
-		/// Документооборот завершен, но результат обработки кодов в ГИС МТ не получен.
-		/// По аннулированному документообороту результата уже не будет,
-		/// поэтому отклонение по нему не заводится и снимается
+		/// Документооборот завершен, но результат обработки кодов в ГИС МТ не получен
 		/// </summary>
 		public static DateTime? GetGisMtResultMissingTime(IEdoDocflowMonitoringNode node)
 		{
@@ -90,10 +86,7 @@ namespace Edo.DeviationMonitoring.Validation.Docflow
 		}
 
 		/// <summary>
-		/// ГИС МТ не приняла коды по документообороту.
-		/// Условие не про время: отказ — это исторический факт, который сам собой
-		/// не отменится. Единственное, что снимает такое отклонение, —
-		/// аннулирование документооборота
+		/// ГИС МТ не приняла коды по документообороту
 		/// </summary>
 		public static DateTime? GetGisMtRejectedTime(IEdoDocflowMonitoringNode node)
 		{

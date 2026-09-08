@@ -8,8 +8,7 @@ using Vodovoz.Core.Domain.Edo;
 namespace Edo.DeviationMonitoring.Validation.Sources
 {
 	/// <summary>
-	/// Документооборот завершен, но результат обработки кодов в ГИС МТ не получен.
-	/// Провайдер ЭДО передает результат отдельной транзакцией документооборота
+	/// Документооборот завершен, но результат обработки кодов в ГИС МТ не получен
 	/// </summary>
 	public class GisMtResultMissingValidator : GisMtTaskDeviationValidatorBase
 	{

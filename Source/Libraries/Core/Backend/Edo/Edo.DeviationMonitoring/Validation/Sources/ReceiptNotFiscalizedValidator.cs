@@ -6,10 +6,7 @@ using Vodovoz.Core.Domain.Edo;
 namespace Edo.DeviationMonitoring.Validation.Sources
 {
 	/// <summary>
-	/// Чек отправлен в кассу, но не фискализирован.
-	/// Сюда же относится случай, когда фискального документа по чеку еще нет.
-	/// Ожидание уведомления о фискализации от кассы отклонением не считается:
-	/// работа по чеку на этой стадии уже сделана, дело за ответом кассы
+	/// Чек отправлен в кассу, но не фискализирован
 	/// </summary>
 	public class ReceiptNotFiscalizedValidator : EdoTaskDeviationValidatorBase
 	{

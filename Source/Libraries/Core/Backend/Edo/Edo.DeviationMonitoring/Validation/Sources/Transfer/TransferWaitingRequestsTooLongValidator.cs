@@ -5,10 +5,7 @@ using Vodovoz.Core.Domain.Edo;
 namespace Edo.DeviationMonitoring.Validation.Sources.Transfer
 {
 	/// <summary>
-	/// Задача трансфера собирает заявки дольше допустимого.
-	/// Досылку залежавшихся задач делает воркер трансферов, поэтому срабатывание
-	/// означает, что не работает он сам: очередь, воркер или его настройка ожидания.
-	/// Таймаут в справочнике должен быть заметно больше настройки ожидания заявок
+	/// Задача трансфера собирает заявки дольше допустимого
 	/// </summary>
 	public class TransferWaitingRequestsTooLongValidator : EdoTransferDeviationValidatorBase
 	{

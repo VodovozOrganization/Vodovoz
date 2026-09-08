@@ -6,10 +6,7 @@ using Vodovoz.Core.Domain.Results;
 namespace Edo.DeviationMonitoring.Validation
 {
 	/// <summary>
-	/// Базовый валидатор отклонения по превышению таймаута стадии.
-	/// Наследнику достаточно указать точку отсчета, текст описания
-	/// и то, к какой записи привязывается отклонение;
-	/// таймаут приходит из справочника описаний отклонений
+	/// Базовый валидатор отклонения по превышению таймаута стадии
 	/// </summary>
 	/// <typeparam name="TNode">Состояние проверяемой записи</typeparam>
 	public abstract class EdoDeviationValidatorBase<TNode>
@@ -29,9 +26,7 @@ namespace Edo.DeviationMonitoring.Validation
 		public virtual bool IsFallback => false;
 
 		/// <summary>
-		/// Условие валидатора относится к записи, если у него есть точка отсчета:
-		/// именно ее отсутствие и означает, что запись не в том состоянии,
-		/// длительность которого меряет валидатор
+		/// Проверяет, применим ли валидатор к состоянию записи
 		/// </summary>
 		/// <param name="node">Состояние проверяемой записи</param>
 		public virtual bool IsApplicable(TNode node)

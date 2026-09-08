@@ -81,9 +81,6 @@ namespace Edo.DeviationMonitoring
 			return context.Result;
 		}
 
-		/// <summary>
-		/// Читает справочник описаний отклонений: он один на весь проход
-		/// </summary>
 		private async Task<EdoDeviationValidators> GetValidatorsAsync(CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot(_uowTitle))
@@ -92,9 +89,6 @@ namespace Edo.DeviationMonitoring
 			}
 		}
 
-		/// <summary>
-		/// Обходит заявки без задач и без незакрытых отклонений
-		/// </summary>
 		private async Task RegisterByRequestsAsync(DeviationRegistrationContext context, CancellationToken cancellationToken)
 		{
 			if(!context.Validators.RequestValidators.Any())
@@ -114,9 +108,6 @@ namespace Edo.DeviationMonitoring
 				cancellationToken);
 		}
 
-		/// <summary>
-		/// Обходит незавершенные задачи без незакрытых отклонений
-		/// </summary>
 		private async Task RegisterByTasksAsync(DeviationRegistrationContext context, CancellationToken cancellationToken)
 		{
 			await RegisterPagesAsync(
@@ -129,11 +120,6 @@ namespace Edo.DeviationMonitoring
 				cancellationToken);
 		}
 
-		/// <summary>
-		/// Обходит незавершенные задачи трансфера без незакрытых отклонений.
-		/// Трансфер проверяется отдельно от задач заказов: у него свои стадии,
-		/// а его УПД идет тем же трактом, что и УПД заказа
-		/// </summary>
 		private async Task RegisterByTransferTasksAsync(DeviationRegistrationContext context, CancellationToken cancellationToken)
 		{
 			await RegisterPagesAsync(
@@ -146,12 +132,6 @@ namespace Edo.DeviationMonitoring
 				cancellationToken);
 		}
 
-		/// <summary>
-		/// Обходит задачи с завершенным документооборотом.
-		/// Отдельный проход нужен правилам по результату ГИС МТ: он приходит после того,
-		/// как завершение документооборота уже перевело задачу в завершенный статус,
-		/// поэтому в основную выборку такие задачи не попадают
-		/// </summary>
 		private async Task RegisterByFinishedDocflowsAsync(DeviationRegistrationContext context, CancellationToken cancellationToken)
 		{
 			var gisMtTrackedFrom = _options.GisMtTrackingStartDate;
@@ -271,11 +251,9 @@ namespace Edo.DeviationMonitoring
 
 		/// <summary>
 		/// Прогоняет валидаторы по записи и возвращает первое сработавшее отклонение.
-		/// Валидаторы упорядочены по ходу документооборота, поэтому первое сработавшее —
-		/// это самая ранняя непройденная стадия. Сбой самого валидатора не должен ронять проход,
-		/// поэтому проверка продолжается следующим валидатором
-		/// Резервный валидатор пропускается, пока к записи применим хотя бы один частный:
-		/// иначе он перехватывал бы частные условия с таймаутом больше своего
+		/// Валидаторы упорядочены по ходу документооборота, поэтому первое сработавшее
+		/// это самая ранняя непройденная стадия
+		/// Резервный валидатор пропускается, пока к записи применим хотя бы один частный
 		/// </summary>
 		/// <returns>
 		/// Успешный результат, если ни один валидатор не сработал;
@@ -320,9 +298,6 @@ namespace Edo.DeviationMonitoring
 			return Result.Success();
 		}
 
-		/// <summary>
-		/// Заводит новое отклонение
-		/// </summary>
 		private async Task RegisterDeviationAsync(
 			IUnitOfWork uow,
 			EdoDeviationValidationResult validationResult,

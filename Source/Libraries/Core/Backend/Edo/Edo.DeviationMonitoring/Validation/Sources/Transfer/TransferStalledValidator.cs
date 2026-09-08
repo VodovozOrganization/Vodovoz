@@ -7,11 +7,7 @@ namespace Edo.DeviationMonitoring.Validation.Sources.Transfer
 {
 	/// <summary>
 	/// Резервный валидатор трансфера: задача не завершена дольше допустимого,
-	/// при этом ни одно частное условие не сработало.
-	/// <para>
-	/// Резервным его делает положение в перечислении: <see cref="EdoDeviationType.TransferStalled"/>
-	/// объявлен последним в трансферном блоке, а сервис фиксирует первое сработавшее отклонение
-	/// </para>
+	/// при этом ни одно частное условие не сработало
 	/// </summary>
 	public class TransferStalledValidator : EdoTransferDeviationValidatorBase
 	{

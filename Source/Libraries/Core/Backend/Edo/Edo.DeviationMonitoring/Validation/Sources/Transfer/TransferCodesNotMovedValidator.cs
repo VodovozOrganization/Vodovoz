@@ -5,9 +5,9 @@ using Vodovoz.Core.Domain.Edo;
 namespace Edo.DeviationMonitoring.Validation.Sources.Transfer
 {
 	/// <summary>
-	/// Документооборот трансфера завершен, но коды так и не сменили владельца в ГИС МТ.
+	/// Документооборот трансфера завершен, но коды так и не сменили владельца в ГИС МТ
 	/// Такие задачи переспрашивает воркер трансферов, а по задаче висит незакрытая
-	/// проблема ожидания перемещения: отклонение фиксирует, что ожидание затянулось
+	/// проблема ожидания перемещения, отклонение фиксирует, что ожидание затянулось
 	/// </summary>
 	public class TransferCodesNotMovedValidator : EdoTransferDeviationValidatorBase
 	{

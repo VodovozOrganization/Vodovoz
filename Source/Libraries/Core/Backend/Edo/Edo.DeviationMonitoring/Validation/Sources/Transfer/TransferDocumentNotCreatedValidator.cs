@@ -6,9 +6,7 @@ using Vodovoz.Core.Domain.Edo;
 namespace Edo.DeviationMonitoring.Validation.Sources.Transfer
 {
 	/// <summary>
-	/// Задача трансфера собрана к отправке, но документ на перенос кодов так и не создан.
-	/// Собственной метки у стадий подготовки нет, поэтому отсчет идет
-	/// от начала обработки задачи трансфера
+	/// Задача трансфера готова к отправке, но документ на перенос кодов так и не создан
 	/// </summary>
 	public class TransferDocumentNotCreatedValidator : EdoTransferDeviationValidatorBase
 	{

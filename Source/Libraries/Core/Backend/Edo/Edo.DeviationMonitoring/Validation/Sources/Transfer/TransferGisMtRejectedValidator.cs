@@ -8,9 +8,7 @@ using Vodovoz.Core.Domain.Edo;
 namespace Edo.DeviationMonitoring.Validation.Sources.Transfer
 {
 	/// <summary>
-	/// ГИС МТ не приняла коды по документообороту трансфера.
-	/// Условие не про время, поэтому в справочнике этому типу
-	/// задается нулевой таймаут: отклонение фиксируется сразу
+	/// ГИС МТ не приняла коды по документообороту трансфера
 	/// </summary>
 	public class TransferGisMtRejectedValidator : GisMtTransferDeviationValidatorBase
 	{

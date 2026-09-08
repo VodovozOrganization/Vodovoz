@@ -8,9 +8,7 @@ namespace Edo.DeviationMonitoring.Validation
 	public class EdoDeviationValidationResult
 	{
 		/// <summary>
-		/// Код описания отклонения в справочнике.
-		/// Отклонение ссылается на запись справочника, а не на тип:
-		/// текст и таймаут читаются из нее же
+		/// Код описания отклонения в справочнике
 		/// </summary>
 		public int DeviationSourceId { get; set; }
 
@@ -40,8 +38,7 @@ namespace Edo.DeviationMonitoring.Validation
 		public TimeSpan Threshold { get; set; }
 
 		/// <summary>
-		/// Конкретика по отклонению: в какие условия не уложился
-		/// документооборот, с фактическими значениями
+		/// Детализация по отклонению
 		/// </summary>
 		public string Details { get; set; }
 	}

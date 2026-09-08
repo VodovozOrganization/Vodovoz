@@ -6,9 +6,7 @@ namespace Edo.DeviationMonitoring.Validation.Sources.Transfer
 {
 	/// <summary>
 	/// Перенос кодов запущен, но не завершается.
-	/// Ожидание перемещения кодов в ГИС МТ сюда не относится: документооборот
-	/// в этом случае уже принят, а ждем мы смены владельца кодов —
-	/// это отдельное условие с собственной точкой отсчета
+	/// Ожидание перемещения кодов в ГИС МТ сюда не относится, для него есть отдельный валидатор
 	/// </summary>
 	public class TransferTooLongValidator : EdoTransferDeviationValidatorBase
 	{

@@ -8,8 +8,7 @@ namespace Edo.DeviationMonitoring.Validation
 {
 	/// <summary>
 	/// Базовый валидатор отклонения по результату обработки кодов в ГИС МТ
-	/// для задач трансфера. Отличается от валидатора по задачам заказов только тем,
-	/// от чего считает дату отсечки: своей даты доставки у трансфера нет
+	/// для задач трансфера
 	/// </summary>
 	public abstract class GisMtTransferDeviationValidatorBase : EdoTransferDeviationValidatorBase
 	{
@@ -31,8 +30,7 @@ namespace Edo.DeviationMonitoring.Validation
 		public override bool IsAppliesToFinishedTask => true;
 
 		/// <summary>
-		/// Проверяет, отслеживается ли результат ГИС МТ по задаче трансфера.
-		/// Отсчет идет от времени создания задачи
+		/// Проверяет, отслеживается ли результат ГИС МТ по задаче трансфера
 		/// </summary>
 		/// <param name="transferTask">Состояние задачи трансфера</param>
 		protected bool IsGisMtTracked(EdoTransferTaskMonitoringNode transferTask) =>

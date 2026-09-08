@@ -6,13 +6,8 @@ namespace Edo.DeviationMonitoring.Validation.Sources
 {
 	/// <summary>
 	/// Резервный валидатор: задача не завершена дольше допустимого,
-	/// при этом ни одно частное условие не сработало.
-	/// Нужно, чтобы за границы мониторинга не уходили неизвестные проблемы отправки.
-	/// <para>
-	/// Резервным его делает положение в перечислении: <see cref="EdoDeviationType.TaskStalled"/>
-	/// объявлен последним, а сервис фиксирует первое сработавшее отклонение,
-	/// поэтому до этого валидатора очередь доходит, только если не сработали остальные
-	/// </para>
+	/// при этом ни одно частное условие не сработало
+	/// Нужно, чтобы за границы мониторинга не уходили неизвестные проблемы отправки
 	/// </summary>
 	public class TaskStalledValidator : EdoTaskDeviationValidatorBase
 	{
@@ -20,7 +15,7 @@ namespace Edo.DeviationMonitoring.Validation.Sources
 		public override EdoDeviationType DeviationType => EdoDeviationType.TaskStalled;
 
 		/// <summary>
-		/// Резервный валидатор: работает, только когда к задаче
+		/// Резервный валидатор. Работает, только когда к задаче
 		/// неприменим ни один частный валидатор
 		/// </summary>
 		public override bool IsFallback => true;

@@ -6,9 +6,7 @@ using Vodovoz.Core.Domain.Edo;
 namespace Edo.DeviationMonitoring.Validation.Sources
 {
 	/// <summary>
-	/// Документ получен оператором, но клиент не завершает документооборот.
-	/// К этому же случаю относится статус "В процессе": им провайдер ЭДО сообщает,
-	/// что документ у контрагента и ждет подписи
+	/// Документ получен оператором, но клиент не завершает документооборот
 	/// </summary>
 	public class ClientNotAcceptedDocflowValidator : EdoTaskDeviationValidatorBase
 	{

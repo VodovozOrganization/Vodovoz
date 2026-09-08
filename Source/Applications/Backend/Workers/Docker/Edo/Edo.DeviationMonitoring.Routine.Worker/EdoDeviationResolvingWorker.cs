@@ -12,57 +12,27 @@ using Vodovoz.Zabbix.Sender;
 namespace Edo.DeviationMonitoring.Routine.Worker
 {
 	/// <summary>
-	/// Воркер снятия отклонений документооборота ЭДО.
+	/// Воркер снятия отклонений документооборота ЭДО
 	/// Работает только с задачами и заявками, по которым есть незакрытое отклонение,
 	/// и закрывает те отклонения, которые потеряли актуальность
 	/// </summary>
 	public class EdoDeviationResolvingWorker : TimerBackgroundServiceBase
 	{
 		private readonly ILogger<EdoDeviationResolvingWorker> _logger;
+		private readonly IOptionsMonitor<EdoDeviationMonitoringOptions> _options;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
-
-		private TimeSpan _interval;
 
 		public EdoDeviationResolvingWorker(
 			ILogger<EdoDeviationResolvingWorker> logger,
+			IOptionsMonitor<EdoDeviationMonitoringOptions> options,
 			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 		}
 
-		/// <summary>
-		/// Интервал перечитывается перед каждым ожиданием: настройка правится в базе,
-		/// и менять ее не должно требовать перезапуска сервиса
-		/// </summary>
-		protected override TimeSpan Interval => GetInterval();
-
-		/// <summary>
-		/// Читает интервал из настроек. Если прочитать не удалось, а прежнее значение
-		/// уже известно, воркер продолжает работать с ним: разовый сбой чтения настройки
-		/// не должен останавливать цикл
-		/// </summary>
-		private TimeSpan GetInterval()
-		{
-			try
-			{
-				using(var scope = _serviceScopeFactory.CreateScope())
-				{
-					_interval = scope.ServiceProvider
-						.GetRequiredService<IOptionsSnapshot<EdoDeviationMonitoringOptions>>()
-						.Value.ResolvingWorkerInterval;
-				}
-			}
-			catch(Exception ex) when(_interval != default)
-			{
-				_logger.LogError(ex,
-					"Не удалось прочитать интервал работы воркера снятия отклонений ЭДО, "
-					+ "продолжаем с прежним значением {Interval}",
-					_interval);
-			}
-
-			return _interval;
-		}
+		protected override TimeSpan Interval => _options.CurrentValue.ResolvingWorkerInterval;
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
