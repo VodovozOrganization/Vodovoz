@@ -75,6 +75,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddVersion6()
 						.AddVersion7()
 						.AddCoreApplicationOrderServices()
+						.AddCoreDataRepositories()
 						.AddOsrm()
 
 						.AddScoped<IRouteListService, RouteListService>()
