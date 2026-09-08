@@ -50,6 +50,12 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
+			if(edoTask.ReceiptStatus != EdoReceiptStatus.New)
+			{
+				_logger.LogInformation("Задача Id {ReceiptEdoTaskId} уже в работе", receiptEdoTaskId);
+				return;
+			}
+
 			try
 			{
 				if(edoTask.FormalEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)

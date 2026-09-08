@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo.Withdrawal.Routine\Edo.Withdrawal.Routine.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj" />
     <ProjectReference Include="..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj" />
   </ItemGroup>
 

@@ -91,5 +91,20 @@ namespace Vodovoz.Settings.Edo
 		/// Интервал между попытками обработки проблемной задачи отсутствия кода в пуле в часах
 		/// </summary>
 		int CodePoolMissingProblemWorkerRetryIntervalHours { get; }
+
+		/// <summary>
+		/// Интервал работы воркера повторного запуска новых задач ЭДО
+		/// </summary>
+		TimeSpan NewTasksResendWorkerInterval { get; }
+
+		/// <summary>
+		/// Время, после которого новая задача ЭДО считается просроченной
+		/// </summary>
+		TimeSpan NewTasksResendTimeout { get; }
+
+		/// <summary>
+		/// Размер партии новых задач ЭДО для повторного запуска
+		/// </summary>
+		int NewTasksResendBatchSize { get; }
 	}
 }

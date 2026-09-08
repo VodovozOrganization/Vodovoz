@@ -53,6 +53,7 @@ namespace EdoService.Library
 		private readonly IGenericRepository<OrderEdoTask> _edoTaskRepository;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
+		private readonly IOrderEdoTaskCreatedEventPublisher _orderEdoTaskCreatedEventPublisher;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 		private readonly IManualEdoRequestFactory _manualEdoRequestFactory;
 		private readonly IBus _bus;
@@ -82,6 +83,7 @@ namespace EdoService.Library
 			IGenericRepository<OrderEdoTask> edoTaskRepository,
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
+			IOrderEdoTaskCreatedEventPublisher orderEdoTaskCreatedEventPublisher,
 			IEnumerable<IInformalEdoRequestFactory> requestFactories,
 			IManualEdoRequestFactory manualEdoRequestFactory,
 			IBus bus
@@ -101,6 +103,8 @@ namespace EdoService.Library
 				counterpartyEdoAccountEntityController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountEntityController));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
+			_orderEdoTaskCreatedEventPublisher = orderEdoTaskCreatedEventPublisher
+				?? throw new ArgumentNullException(nameof(orderEdoTaskCreatedEventPublisher));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
 			_manualEdoRequestFactory = manualEdoRequestFactory ?? throw new ArgumentNullException(nameof(manualEdoRequestFactory));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
@@ -271,6 +275,66 @@ namespace EdoService.Library
 
 				return Result.Success("Документ отправлен на переотправку с подбором кодов ЧЗ из пула");
 			}
+		}
+
+		public Result<string> ResendNewEdoTask(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Повторный запуск новой задачи ЭДО"))
+			{
+				var edoTask = uow.Session.Get<OrderEdoTask>(taskId);
+				if(edoTask is null)
+				{
+					return Result.Failure<string>(new Error(
+						"EdoTaskNotFound",
+						$"ЭДО задача №{taskId} не найдена"));
+				}
+
+				if(edoTask.Status != EdoTaskStatus.New)
+				{
+					return Result.Failure<string>(new Error(
+						"EdoTaskIsNotNew",
+						$"Повторный запуск ЭДО задачи №{taskId} доступен только в статусе Новая"));
+				}
+
+				var validationResult = ValidateNewEdoTaskStage(edoTask);
+				if(validationResult.IsFailure)
+				{
+					return Result.Failure<string>(validationResult.Errors);
+				}
+
+				_orderEdoTaskCreatedEventPublisher.Publish(edoTask)
+					.GetAwaiter()
+					.GetResult();
+
+				return Result.Success("Задача успешно отправлена на повторную обработку");
+			}
+		}
+
+		private static Result ValidateNewEdoTaskStage(OrderEdoTask edoTask)
+		{
+			bool canResume;
+			switch (edoTask)
+			{
+				case DocumentEdoTask documentTask:
+					canResume = documentTask.Stage == DocumentEdoTaskStage.New
+					            && documentTask.DocumentType == EdoDocumentType.UPD;
+					break;
+				case ReceiptEdoTask receiptTask:
+					canResume = receiptTask.ReceiptStatus == EdoReceiptStatus.New;
+					break;
+				case TenderEdoTask tenderTask:
+					canResume = tenderTask.Stage == TenderEdoTaskStage.New;
+					break;
+				default:
+					canResume = edoTask is SaveCodesEdoTask;
+					break;
+			}
+
+			return canResume
+				? Result.Success()
+				: Result.Failure(new Error(
+					"EdoTaskResendIsNotSupported",
+					$"ЭДО задача №{edoTask.Id} типа {edoTask.TaskType} не может быть повторно запущена в текущем состоянии"));
 		}
 
 		private Result<string> ResendEdoDocument(IUnitOfWork uow, int taskId)
