@@ -48,7 +48,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return TryApplyFixedPrice(canApplyOnlineOrderFixedPrice, fixedPrices);
 		}
 		
-		public Result<(bool? AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)> TryApplyFixedPriceV7(
+		public (bool? AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems) TryApplyFixedPriceV7(
 			IUnitOfWork uow,
 			CanApplyOnlineOrderFixedPriceV7 canApplyOnlineOrderFixedPrice)
 		{
@@ -59,8 +59,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 				canApplyOnlineOrderFixedPrice.IsSelfDelivery,
 				out var fixedPrices))
 			{
-				return Result.Failure<(bool? AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)>(
-					Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
+				var withoutFixedPriceResult = (
+					(bool?)null,
+					canApplyOnlineOrderFixedPrice.OnlineOrderItems
+						.Select(OnlineOrderItemWithDiscountDetailsDto.Create)
+						.ToArray());
+				
+				return withoutFixedPriceResult;
 			}
 
 			return TryApplyFixedPrice(uow, canApplyOnlineOrderFixedPrice.OnlineOrderItems, fixedPrices);
@@ -128,7 +133,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return true;
 		}
 		
-		private Result<(bool? AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems)> TryApplyFixedPrice(
+		private (bool? AppliedToAllItems, IEnumerable<IOrderedCartItemWithDiscountDetails> SaleItems) TryApplyFixedPrice(
 			IUnitOfWork uow,
 			IEnumerable<IOrderedCartItem> cartItems,
 			IEnumerable<NomenclatureFixedPrice> fixedPrices)
@@ -168,7 +173,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				cartItemsWithDiscountDetails.Add(cartItemWithDiscountDetails);
 			}
 			
-			return Result.Success((fixedPriceAppliedToAllItems, cartItemsWithDiscountDetails.AsEnumerable()));
+			return (fixedPriceAppliedToAllItems, cartItemsWithDiscountDetails);
 		}
 
 		private void ApplyFixedPrice(
