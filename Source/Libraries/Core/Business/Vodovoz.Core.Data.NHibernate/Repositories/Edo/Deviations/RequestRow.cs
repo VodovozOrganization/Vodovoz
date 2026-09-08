@@ -2,18 +2,17 @@
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 {
 	/// <summary>
-	/// Строка заявки ЭДО, породившей задачу.
-	/// Заказ читается отдельным запросом, поэтому здесь лежит только его код
+	/// Строка заявки ЭДО, породившей задачу
 	/// </summary>
 	internal class RequestRow
 	{
 		/// <summary>
-		/// Код задачи ЭДО, созданной по заявке
+		/// Идентификатор задачи ЭДО, созданной по заявке
 		/// </summary>
 		public int TaskId { get; set; }
 
 		/// <summary>
-		/// Код заявки ЭДО
+		/// Идентификатор заявки ЭДO
 		/// </summary>
 		public int RequestId { get; set; }
 

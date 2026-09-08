@@ -8,12 +8,12 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 	internal class DocflowRow
 	{
 		/// <summary>
-		/// Код документооборота
+		/// Идентификатор документооборота
 		/// </summary>
 		public int DocflowId { get; set; }
 
 		/// <summary>
-		/// Код исходящего документа, по которому заведен документооборот
+		/// Идентификатор исходящего документа, по которому заведен документооборот
 		/// </summary>
 		public int DocumentId { get; set; }
 

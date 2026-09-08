@@ -23,8 +23,8 @@ namespace Edo.DeviationMonitoring.Validation.Sources
 
 			if(task.FiscalDocumentStatus is null)
 			{
-				// задача переведена в отправку, но фискального документа еще нет:
-				// стадия отсчитывается от времени начала обработки задачи
+				// задача переведена в отправку, но фискального документа еще нет
+				// отсчитываем стадию от времени начала обработки задачи
 				return task.ReceiptStatus == EdoReceiptStatus.Sending ? task.TaskStartTime : null;
 			}
 

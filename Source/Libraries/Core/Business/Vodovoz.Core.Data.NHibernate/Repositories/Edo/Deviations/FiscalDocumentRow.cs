@@ -9,12 +9,12 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 	internal class FiscalDocumentRow
 	{
 		/// <summary>
-		/// Код фискального документа
+		/// Идентификатор фискального документа
 		/// </summary>
 		public int FiscalDocumentId { get; set; }
 
 		/// <summary>
-		/// Код задачи отправки чека, по которой создан документ
+		/// Идентификатор задачи отправки чека, по которой создан документ
 		/// </summary>
 		public int TaskId { get; set; }
 

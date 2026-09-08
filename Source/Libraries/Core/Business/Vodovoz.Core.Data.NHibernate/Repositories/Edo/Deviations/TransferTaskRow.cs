@@ -4,13 +4,12 @@ using Vodovoz.Core.Domain.Edo;
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 {
 	/// <summary>
-	/// Строка задачи переноса кодов по заявке на трансфер.
-	/// Строки есть только по заявкам с подобранной трансферной задачей
+	/// Строка задачи переноса кодов по заявке на трансфер
 	/// </summary>
 	internal class TransferTaskRow
 	{
 		/// <summary>
-		/// Код заявки на трансфер, по которой подобрана задача
+		/// Идентификатор заявки на трансфер, по которой подобрана задача
 		/// </summary>
 		public int RequestId { get; set; }
 

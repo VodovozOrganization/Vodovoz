@@ -21,8 +21,6 @@ namespace Edo.DeviationMonitoring.Validation.Sources.Transfer
 				return null;
 			}
 
-			// пока по задаче висит незакрытая проблема ожидания перемещения кодов,
-			// длительность меряет TransferCodesNotMoved
 			return transferTask.CodesNotMovedProblemTime != null
 				? null
 				: transferTask.TransferStartTime;

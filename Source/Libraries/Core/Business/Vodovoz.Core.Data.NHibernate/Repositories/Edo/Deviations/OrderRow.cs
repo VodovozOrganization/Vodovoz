@@ -3,14 +3,12 @@
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 {
 	/// <summary>
-	/// Строка заказа, по которому создана задача ЭДО.
-	/// Дата доставки читается отдельно от заявки: заявка без заказа
-	/// выпала бы из выборки вместе со своей задачей
+	/// Строка заказа, по которому создана задача ЭДО
 	/// </summary>
 	internal class OrderRow
 	{
 		/// <summary>
-		/// Код заказа
+		/// Идентификатор заказа
 		/// </summary>
 		public int OrderId { get; set; }
 

@@ -23,16 +23,10 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		private const int _idsBatchSize = 500;
 
 		/// <summary>
-		/// Имя источника проблемы ожидания перемещения кодов в ГИС МТ.
-		/// Проблему заводит валидатор Edo.Problems.Validation.Sources.CodeTransferedEdoValidator,
-		/// а мониторинг меряет, сколько она висит, поэтому из общего отсева проблем она исключается
+		/// Имя источника проблемы ожидания перемещения кодов в ГИС МТ
 		/// </summary>
 		private const string _codesNotMovedProblemSourceName = "Transfer.CodesTransfered";
 
-		/// <summary>
-		/// Проекция задачи отправки документа в состояние для мониторинга.
-		/// Вынесена в поле, чтобы одинаково читаться и постраничной выборкой, и выборкой по кодам
-		/// </summary>
 		private static readonly Expression<Func<DocumentEdoTask, EdoTaskMonitoringNode>> _documentTaskProjection =
 			x => new EdoTaskMonitoringNode
 			{
@@ -44,9 +38,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 				DocumentStage = x.Stage
 			};
 
-		/// <summary>
-		/// Проекция задачи отправки чека в состояние для мониторинга
-		/// </summary>
 		private static readonly Expression<Func<ReceiptEdoTask, EdoTaskMonitoringNode>> _receiptTaskProjection =
 			x => new EdoTaskMonitoringNode
 			{
@@ -58,9 +49,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 				ReceiptStatus = x.ReceiptStatus
 			};
 
-		/// <summary>
-		/// Проекция задачи трансфера в состояние для мониторинга
-		/// </summary>
 		private static readonly Expression<Func<TransferEdoTask, EdoTransferTaskMonitoringNode>>
 			_transferTaskProjection =
 				x => new EdoTransferTaskMonitoringNode
@@ -409,10 +397,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			return nodes;
 		}
 
-		/// <summary>
-		/// Дочитывает состояние задач: заявки, трансферы, документооборот и фискальные документы.
-		/// Запросы отдают плоские строки, трактовкой занимается <see cref="EdoTaskMonitoringNodeBuilder"/>
-		/// </summary>
 		private async Task FillNodesAsync(
 			IUnitOfWork uow,
 			IReadOnlyCollection<EdoTaskMonitoringNode> nodes,
@@ -460,9 +444,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		}
 
 		/// <summary>
-		/// Коды задач с незакрытым отклонением. Такие задачи в регистрацию не попадают:
-		/// пока отклонение не снято, новое по этой задаче не заводится
-		/// </summary>
+		/// Коды задач с незакрытым отклонением
 		private static IQueryable<int> GetTaskIdsWithActiveDeviations(IUnitOfWork uow) =>
 			uow.Session.Query<EdoTaskDeviation>()
 				.Where(x => x.State == TaskProblemState.Active)
@@ -485,7 +467,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			GetTaskIdsWithActiveProblems(uow, null);
 
 		/// <summary>
-		/// Коды задач, по которым есть проблема, кроме проблемы указанного источника.
+		/// Коды задач, по которым есть проблема, кроме проблемы указанного источника
 		/// <para>
 		/// Проблемой считается и активная запись <see cref="EdoTaskProblem"/>,
 		/// и сам статус <see cref="EdoTaskStatus.Problem"/> у задачи: обработчик может
@@ -511,7 +493,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		}
 
 		/// <summary>
-		/// Коды задач с проблемой среди указанных, кроме проблемы указанного источника.
+		/// Коды задач с проблемой среди указанных, кроме проблемы указанного источника
 		/// Проблема определяется так же, как в <see cref="GetTaskIdsWithActiveProblems(IUnitOfWork, string)"/>:
 		/// по активной записи проблемы и по проблемному статусу самой задачи
 		/// </summary>
@@ -576,10 +558,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			return rows;
 		}
 
-		/// <summary>
-		/// Даты доставки заказов. Читаются отдельным запросом, а не соединением с заявкой:
-		/// заявка без заказа выпала бы из выборки вместе со своей задачей
-		/// </summary>
 		private static async Task<IReadOnlyDictionary<int, DateTime?>> GetOrderDeliveryDatesAsync(
 			IUnitOfWork uow,
 			IReadOnlyCollection<int> orderIds,
@@ -607,11 +585,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			return deliveryDates;
 		}
 
-		/// <summary>
-		/// Заявки на трансфер незавершенных итераций. Трансферная задача здесь не читается:
-		/// на момент создания заявки ее еще нет, а соединение с ней выкинуло бы из выборки
-		/// как раз те заявки, по которым трансфер так и не запустился
-		/// </summary>
 		private static async Task<IReadOnlyCollection<TransferRequestRow>> GetTransferRequestRowsAsync(
 			IUnitOfWork uow,
 			IReadOnlyCollection<int> taskIds,
@@ -638,9 +611,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			return rows;
 		}
 
-		/// <summary>
-		/// Задачи переноса кодов по заявкам на трансфер, у которых задача уже подобрана
-		/// </summary>
 		private static async Task<IReadOnlyCollection<TransferTaskRow>> GetTransferTaskRowsAsync(
 			IUnitOfWork uow,
 			IReadOnlyCollection<int> transferRequestIds,
@@ -667,9 +637,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			return rows;
 		}
 
-		/// <summary>
-		/// Исходящие документы заказов по задачам отправки документов
-		/// </summary>
 		private static async Task<IReadOnlyCollection<DocumentRow>> GetDocumentRowsAsync(
 			IUnitOfWork uow,
 			IReadOnlyCollection<int> taskIds,
@@ -696,10 +663,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			return rows;
 		}
 
-		/// <summary>
-		/// Документообороты, заведенные у провайдера ЭДО по исходящим документам.
-		/// Общий метод для документов заказов и трансферов: документооборот у них один и тот же
-		/// </summary>
 		private static async Task<IReadOnlyCollection<DocflowRow>> GetDocflowRowsAsync(
 			IUnitOfWork uow,
 			IReadOnlyCollection<int> documentIds,
@@ -725,10 +688,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			return rows;
 		}
 
-		/// <summary>
-		/// Действия документооборотов у провайдера ЭДО.
-		/// Какое из них считать последним, решает <see cref="EdoTaskMonitoringNodeBuilder"/>
-		/// </summary>
 		private static async Task<IReadOnlyCollection<ActionRow>> GetActionRowsAsync(
 			IUnitOfWork uow,
 			IReadOnlyCollection<int> docflowIds,
@@ -756,9 +715,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			return rows;
 		}
 
-		/// <summary>
-		/// Фискальные документы задач отправки чеков
-		/// </summary>
 		private static async Task<IReadOnlyCollection<FiscalDocumentRow>> GetFiscalDocumentRowsAsync(
 			IUnitOfWork uow,
 			IReadOnlyCollection<int> taskIds,
@@ -788,10 +744,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			return rows;
 		}
 
-		/// <summary>
-		/// Коды исходящих документов, документооборот которых завершился действием Succeed.
-		/// Общий подзапрос для документов заказов и трансферов
-		/// </summary>
 		private static IQueryable<int> GetDocumentIdsWithFinishedDocflow(IUnitOfWork uow)
 		{
 			var finishedDocflowIds = uow.Session.Query<TaxcomDocflowAction>()
@@ -804,16 +756,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 				.Select(x => x.EdoDocumentId);
 		}
 
-		/// <summary>
-		/// Коды исходящих документов, по которым ГИС МТ приняла коды и ни одного отказа
-		/// по документообороту не приходило. Проверять по ним больше нечего: ни отсутствие
-		/// результата, ни отказ ГИС МТ уже не наступят, поэтому они исключаются из выборки —
-		/// иначе она росла бы с каждым завершенным документооборотом.
-		/// <para>
-		/// Документооборот, по которому был хотя бы один отказ, из выборки не убирается:
-		/// после принятых кодов может прийти отказ в аннулировании, и его нужно увидеть
-		/// </para>
-		/// </summary>
 		private static IQueryable<int> GetDocumentIdsWithAcceptedTraceability(IUnitOfWork uow)
 		{
 			var rejectedDocflowIds = uow.Session.Query<TaxcomDocflowAction>()
@@ -834,22 +776,12 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 				.Select(x => x.EdoDocumentId);
 		}
 
-		/// <summary>
-		/// Коды задач по заказам, доставленным раньше указанной даты.
-		/// Задачи заказов без даты доставки в подзапрос не попадают: их отсекает
-		/// валидатор по времени создания задачи
-		/// </summary>
 		private static IQueryable<int> GetTaskIdsDeliveredBefore(IUnitOfWork uow, DateTime deliveredFrom) =>
 			uow.Session.Query<FormalEdoRequest>()
 				.Where(x => x.Task != null)
 				.Where(x => x.Order.DeliveryDate != null && x.Order.DeliveryDate < deliveredFrom)
 				.Select(x => x.Task.Id);
 
-		/// <summary>
-		/// Дочитывает состояние задач трансфера: проблемы и документооборот.
-		/// Документооборот у трансфера тот же, что и у документов заказа,
-		/// поэтому строки собираются теми же методами
-		/// </summary>
 		private async Task FillTransferNodesAsync(
 			IUnitOfWork uow,
 			IReadOnlyCollection<EdoTransferTaskMonitoringNode> nodes,
@@ -879,9 +811,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 				await GetActionRowsAsync(uow, docflowIds, cancellationToken));
 		}
 
-		/// <summary>
-		/// Время регистрации незакрытых проблем ожидания перемещения кодов в ГИС МТ
-		/// </summary>
 		private static async Task<IReadOnlyDictionary<int, DateTime>> GetCodesNotMovedProblemTimesAsync(
 			IUnitOfWork uow,
 			IReadOnlyCollection<int> taskIds,
@@ -914,11 +843,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			return problemTimes;
 		}
 
-		/// <summary>
-		/// Исходящие документы трансфера по задачам трансфера.
-		/// Строки складываются в тот же тип, что и документы заказов:
-		/// дальше документооборот у них общий
-		/// </summary>
 		private static async Task<IReadOnlyCollection<DocumentRow>> GetTransferDocumentRowsAsync(
 			IUnitOfWork uow,
 			IReadOnlyCollection<int> taskIds,
@@ -945,10 +869,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			return rows;
 		}
 
-		/// <summary>
-		/// Разбивает список идентификаторов на пачки,
-		/// чтобы не упереться в ограничение количества параметров запроса
-		/// </summary>
 		private static IEnumerable<int[]> SplitToBatches(IReadOnlyCollection<int> ids)
 		{
 			for(var skipped = 0; skipped < ids.Count; skipped += _idsBatchSize)

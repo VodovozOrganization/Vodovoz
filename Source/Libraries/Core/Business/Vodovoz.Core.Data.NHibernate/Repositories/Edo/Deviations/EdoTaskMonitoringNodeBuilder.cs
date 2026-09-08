@@ -8,14 +8,12 @@ using Vodovoz.Core.Domain.Edo;
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 {
 	/// <summary>
-	/// Собирает состояние задачи ЭДО для мониторинга отклонений из строк, прочитанных репозиторием.
-	/// Здесь, а не в запросах, живут правила трактовки: какая запись считается актуальной,
-	/// какое действие документооборота последним и что означает отсутствие метки времени
+	/// Собирает состояние задачи ЭДО для мониторинга отклонений из строк, прочитанных репозиторием
 	/// </summary>
 	internal static class EdoTaskMonitoringNodeBuilder
 	{
 		/// <summary>
-		/// Состояния действия, означающие, что документ получен оператором ЭДО
+		/// Состояния, в которых документ отправлен оператору и дальнейший ход документооборота зависит от провайдера и контрагента
 		/// </summary>
 		private static readonly EdoDocFlowStatus[] _sentDocflowStates =
 		{
@@ -24,8 +22,9 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		};
 
 		/// <summary>
-		/// Проставляет признак завершенности задачи
+		/// Проставляет признак завершенности задачи ЭДО
 		/// </summary>
+		/// <param name="nodes">Строки мониторинга задач ЭДО</param>
 		public static void FillFinished(IReadOnlyCollection<EdoTaskMonitoringNode> nodes)
 		{
 			foreach(var node in nodes)
@@ -35,8 +34,10 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		}
 
 		/// <summary>
-		/// Проставляет признак наличия активной зарегистрированной проблемы
+		/// Проставляет признак наличия активной проблемы по задаче
 		/// </summary>
+		/// <param name="nodes">Строки мониторинга задач ЭДО</param>
+		/// <param name="taskIdsWithActiveProblems">Идентификаторы задач с активными проблемами</param>
 		public static void FillActiveProblems(
 			IReadOnlyCollection<EdoTaskMonitoringNode> nodes,
 			ICollection<int> taskIdsWithActiveProblems)
@@ -50,6 +51,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		/// <summary>
 		/// Проставляет признак завершенности задачи трансфера
 		/// </summary>
+		/// <param name="nodes">Строки мониторинга задач трансфера</param>
 		public static void FillTransferFinished(IReadOnlyCollection<EdoTransferTaskMonitoringNode> nodes)
 		{
 			foreach(var node in nodes)
@@ -59,9 +61,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		}
 
 		/// <summary>
-		/// Раскладывает проблемы задачи трансфера: ожидание перемещения кодов мониторинг
-		/// меряет сам, поэтому оно отделено от остальных проблем
+		/// Заполняет информацию о проблемах по задачам трансфера
 		/// </summary>
+		/// <param name="nodes">Строки мониторинга задач трансфера</param>
+		/// <param name="codesNotMovedProblemTimes">Словарь времени проблем с не перемещенными кодами</param>
+		/// <param name="taskIdsWithOtherProblems">Идентификаторы задач с другими проблемами</param>
 		public static void FillTransferProblems(
 			IReadOnlyCollection<EdoTransferTaskMonitoringNode> nodes,
 			IReadOnlyDictionary<int, DateTime> codesNotMovedProblemTimes,
@@ -79,8 +83,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		}
 
 		/// <summary>
-		/// Связывает задачу с породившей ее заявкой и заказом
+		/// Заполняет данные запросов по ЭДО
 		/// </summary>
+		/// <param name="nodes">Строки мониторинга задач ЭДО</param>
+		/// <param name="requests">Запросы</param>
+		/// <param name="orderDeliveryDates">Даты доставки заказов</param>
 		public static void FillRequests(
 			IReadOnlyCollection<EdoTaskMonitoringNode> nodes,
 			IReadOnlyCollection<RequestRow> requests,
@@ -108,17 +115,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		}
 
 		/// <summary>
-		/// Считает состояние трансферов задачи заказа.
-		/// <para>
-		/// Заявка на трансфер создается без трансферной задачи: задачу подбирает диспетчер трансферов.
-		/// Поэтому "перенос кодов не запущен" — это и заявка без трансферной задачи,
-		/// и заявка с задачей, у которой не проставлено время начала переноса
-		/// </para>
-		/// <para>
-		/// Дальше стадий трансфера со стороны задачи заказа мониторинг не идет:
-		/// сам трансфер проверяется отдельным семейством валидаторов по своей задаче
-		/// </para>
+		/// Заполняет состояние трансферов у провайдера ЭДО
 		/// </summary>
+		/// <param name="nodes">Строки мониторинга задач ЭДО</param>
+		/// <param name="transferRequests">Запросы на трансфер</param>
+		/// <param name="transferTasks">Задачи трансфера</param>
 		public static void FillTransfers(
 			IReadOnlyCollection<EdoTaskMonitoringNode> nodes,
 			IReadOnlyCollection<TransferRequestRow> transferRequests,
@@ -146,18 +147,18 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 
 				if(notStarted.Any())
 				{
-					// таймаут отсчитывается от итерации, по которой перенос так и не начался,
-					// а не от самой ранней незавершенной: при нескольких трансферах это разные итерации
 					node.PendingTransferIterationTime = notStarted.Min(x => x.IterationTime);
 				}
 			}
 		}
 
 		/// <summary>
-		/// Считает состояние документооборота у провайдера ЭДО.
-		/// Актуальными считаются последний созданный документ задачи
-		/// и последний заведенный по нему документооборот
+		/// Заполняет состояние документооборотов и действий по ним у провайдера ЭДО
 		/// </summary>
+		/// <param name="nodes">Строки мониторинга задач ЭДО</param>
+		/// <param name="documents">Документы</param>
+		/// <param name="docflows">Документообороты</param>
+		/// <param name="actions">Действия</param>
 		public static void FillDocflows(
 			IReadOnlyCollection<IEdoDocflowMonitoringNode> nodes,
 			IReadOnlyCollection<DocumentRow> documents,
@@ -201,8 +202,10 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		}
 
 		/// <summary>
-		/// Считает состояние последнего фискального документа задачи отправки чека
+		/// Заполняет состояние фискальных документов у провайдера ЭДО.
 		/// </summary>
+		/// <param name="nodes">Строки мониторинга задач ЭДО</param>
+		/// <param name="fiscalDocuments">Фискальные документы</param>
 		public static void FillFiscalDocuments(
 			IReadOnlyCollection<EdoTaskMonitoringNode> nodes,
 			IReadOnlyCollection<FiscalDocumentRow> fiscalDocuments)
@@ -225,14 +228,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			}
 		}
 
-		/// <summary>
-		/// Считает состояние документооборота по его действиям.
-		/// <para>
-		/// Последнее действие определяется порядком записи, а не временем: время действия провайдера —
-		/// это метка Такскома, а время действия <see cref="EdoDocFlowStatus.NotStarted"/> — наше,
-		/// сравнивать их между собой нельзя
-		/// </para>
-		/// </summary>
 		private static void FillActions(IEdoDocflowMonitoringNode node, IReadOnlyCollection<ActionRow> actions)
 		{
 			var lastAction = actions
@@ -288,10 +283,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			}
 		}
 
-		/// <summary>
-		/// Заявка на трансфер без подобранной трансферной задачи незавершенной не считается:
-		/// строки задач читаются только для заявок, у которых задача уже есть
-		/// </summary>
 		private static bool IsTransferFinished(
 			TransferRequestRow transferRequest,
 			IReadOnlyDictionary<int, TransferTaskRow> transferTasksByRequest)
@@ -300,10 +291,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 				&& EdoTaskStatuses.Finished.Contains(transferTask.Status);
 		}
 
-		/// <summary>
-		/// Возвращает время начала переноса кодов по заявке на трансфер
-		/// или <c>null</c>, если трансферная задача не подобрана или перенос еще не запущен
-		/// </summary>
 		private static DateTime? GetTransferStartTime(
 			TransferRequestRow transferRequest,
 			IReadOnlyDictionary<int, TransferTaskRow> transferTasksByRequest)
