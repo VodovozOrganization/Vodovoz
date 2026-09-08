@@ -91,13 +91,16 @@ namespace CustomerOrdersApi.Library.V7.Services
 			
 			var result = _onlineOrderDiscountHandler.TryApplyPromoCodeV7(uow, dto);
 
-			return result.IsFailure
-				? AppliedPromoCodeDto.CreateError(result.Errors.First())
-				: AppliedPromoCodeDto.Create(
-					result.Value.CartItems,
-					result.Value.AppliedToAllItems
-						? null
-						: _infoMessageFactory.CreatePromoCodeAppliedToNotAllItemsWarning());
+			if(result.IsFailure)
+			{
+				return AppliedPromoCodeDto.CreateError(result.Errors.First());
+			}
+			
+			return AppliedPromoCodeDto.Create(
+				result.Value.CartItems,
+				result.Value.AppliedToAllItems
+					? null
+					: _infoMessageFactory.CreatePromoCodeAppliedToNotAllItemsWarning());
 		}
 	}
 }
