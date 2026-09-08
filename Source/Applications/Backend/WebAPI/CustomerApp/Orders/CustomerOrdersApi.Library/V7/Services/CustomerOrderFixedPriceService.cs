@@ -70,18 +70,11 @@ namespace CustomerOrdersApi.Library.V7.Services
 				CounterpartyId = applyFixedPriceDto.ErpCounterpartyId,
 				OnlineOrderItems = applyFixedPriceDto.OnlineOrderItems
 			};
-			
-			var result = _onlineOrderFixedPriceHandler.TryApplyFixedPriceV7(uow, node);
 
-			if(result.IsFailure)
-			{
-				return AppliedFixedPriceDto.CreateError(result.Errors.First());
-			}
-			
-			var fixedPriceAppliedToAllOrder = result.Value.AppliedToAllItems;
-			
+			var (fixedPriceAppliedToAllOrder, saleItems) = _onlineOrderFixedPriceHandler.TryApplyFixedPriceV7(uow, node);
+
 			return AppliedFixedPriceDto.Create(
-				result.Value.SaleItems,
+				saleItems,
 				fixedPriceAppliedToAllOrder.HasValue && !fixedPriceAppliedToAllOrder.Value
 					? _infoMessageFactory.CreateFixedPriceAppliedToNotAllItemsWarning()
 					: null);
