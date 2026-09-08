@@ -1,13 +1,10 @@
 ﻿using Core.Infrastructure;
 using Edo.Contracts.Messages.Dto;
-using Edo.Common;
-using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
 using Edo.Docflow.Factories;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
-using NHibernate;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -16,9 +13,6 @@ using System.Threading.Tasks;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
@@ -35,11 +29,6 @@ namespace Edo.Docflow
 		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly IUnitOfWork _uow;
 		private readonly IInformalOrderDocumentHandlerFactory _documentHandlerFactory;
-		private readonly ITrueMarkCodesValidator _validator;
-		private readonly EdoTaskItemTrueMarkStatusProviderFactory _statusProviderFactory;
-		private readonly ITrueMarkWaterCodeService _waterCodeService;
-		private readonly IGenericRepository<FormalEdoRequest> _requestRepository;
-		private readonly IGenericRepository<TaxcomDocflow> _docflowRepository;
 
 		public DocflowHandler(
 			ILogger<DocflowHandler> logger,
@@ -49,12 +38,7 @@ namespace Edo.Docflow
 			IPaymentRepository paymentRepository,
 			IEdoRepository edoRepository,
 			IInformalOrderDocumentHandlerFactory informalOrderDocumentHandlerFactory,
-			IPublishEndpoint publishEndpoint,
-			ITrueMarkCodesValidator validator,
-			EdoTaskItemTrueMarkStatusProviderFactory statusProviderFactory,
-			ITrueMarkWaterCodeService waterCodeService,
-			IGenericRepository<FormalEdoRequest> requestRepository,
-			IGenericRepository<TaxcomDocflow> docflowRepository
+			IPublishEndpoint publishEndpoint
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -65,11 +49,6 @@ namespace Edo.Docflow
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_documentHandlerFactory = informalOrderDocumentHandlerFactory ?? throw new ArgumentNullException(nameof(informalOrderDocumentHandlerFactory));
-			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
-			_statusProviderFactory = statusProviderFactory ?? throw new ArgumentNullException(nameof(statusProviderFactory));
-			_waterCodeService = waterCodeService ?? throw new ArgumentNullException(nameof(waterCodeService));
-			_requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
-			_docflowRepository = docflowRepository ?? throw new ArgumentNullException(nameof(docflowRepository));
 		}
 
 		public async Task HandleTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
@@ -133,11 +112,6 @@ namespace Edo.Docflow
 				return;
 			}
 
-			if(!await PrepareOrderDocumentForSendingAsync(document, documentTask, cancellationToken))
-			{
-				return;
-			}
-
 			UniversalTransferDocumentInfo updInfo;
 			OrganizationEntity sender;
 
@@ -169,136 +143,6 @@ namespace Edo.Docflow
 				UpdInfo = updInfo
 			};
 			await _publishEndpoint.Publish(message);
-		}
-
-
-		/// <summary>
-		/// Возвращает true, если УПД можно отправить, и false, если отправка остановлена или запущено переформирование.
-		/// </summary>
-		private async Task<bool> PrepareOrderDocumentForSendingAsync(OrderEdoDocument document, DocumentEdoTask task, CancellationToken cancellationToken)
-		{
-			if(document == null)
-			{
-				throw new ArgumentNullException(nameof(document));
-			}
-			if(task == null)
-			{
-				throw new ArgumentNullException(nameof(task));
-			}
-			if(task.DocumentType != EdoDocumentType.UPD)
-			{
-				return true;
-			}
-
-			_uow.OpenTransaction();
-			// Блокируем и перечитываем состояние: параллельное событие могло уже создать переотправку.
-			await _uow.Session.RefreshAsync(task, LockMode.Upgrade, cancellationToken);
-			await _uow.Session.RefreshAsync(document, LockMode.Upgrade, cancellationToken);
-
-			if(task.Status == EdoTaskStatus.Completed || task.Status == EdoTaskStatus.Cancelled
-				|| task.Status == EdoTaskStatus.InCancellation || task.Stage != DocumentEdoTaskStage.Sending
-				|| document.Status == EdoDocumentStatus.Cancelled || document.Status == EdoDocumentStatus.WaitingForCancellation
-				|| document.Status == EdoDocumentStatus.Sent || document.Status == EdoDocumentStatus.InProgress
-				|| document.Status == EdoDocumentStatus.Succeed || document.Status == EdoDocumentStatus.CompletedWithDivergences)
-			{
-				await _uow.CommitAsync(cancellationToken);
-				return false;
-			}
-
-			if(task.Items.Count == 0)
-			{
-				await _uow.CommitAsync(cancellationToken);
-				return true;
-			}
-
-			var result = await _validator.ValidateAsync(task, _statusProviderFactory.Create(task), cancellationToken);
-			if(result.IsAllValid)
-			{
-				await _uow.CommitAsync(cancellationToken);
-				return true;
-			}
-
-			var order = task.FormalEdoRequest.Order;
-			if(order.Client.ReasonForLeaving == ReasonForLeaving.Resale
-				|| order.Client.ReasonForLeaving == ReasonForLeaving.Tender)
-			{
-				throw new InvalidOperationException($"УПД задачи №{task.Id} содержит невалидные коды. "
-					+ "Автоматическая замена отсканированных кодов перепродажи или тендера кодами из пула не поддерживается.");
-			}
-
-			if(order.IsUndeliveredStatus)
-			{
-				throw new InvalidOperationException($"Переотправка УПД задачи №{task.Id} недоступна для недоставленного заказа.");
-			}
-
-			if(document.Status != EdoDocumentStatus.NotStarted
-				|| _docflowRepository.GetCount(_uow, x => x.EdoDocumentId == document.Id) > 0)
-			{
-				throw new InvalidOperationException($"УПД №{document.Id} уже передавался оператору. "
-					+ "Перед переформированием требуется завершить его документооборот.");
-			}
-
-			if(_requestRepository.GetCount(_uow, x => x.Order.Id == order.Id
-				&& x.Id != task.FormalEdoRequest.Id
-				&& x.DocumentType == EdoDocumentType.UPD
-				&& !(x is WithdrawalEdoRequest)
-				&& (x.Task == null || (x.Task.Status != EdoTaskStatus.Cancelled && !(x.Task is SaveCodesEdoTask)))) > 0)
-			{
-				throw new InvalidOperationException($"По заказу №{order.Id} уже существует другая активная отправка УПД.");
-			}
-
-			// Штатный сценарий переформирования: заявка без старых КМ, подбор выполняет обработчик УПД.
-			var request = new ManualEdoRequest
-			{
-				Type = CustomerEdoRequestType.Order,
-				Time = DateTime.Now,
-				Source = EdoRequestSource.Manual,
-				DocumentType = EdoDocumentType.UPD,
-				Order = order
-			};
-			// Сохраняем сразу новую задачу УПД. Её запуск поддерживает штатный воркер повторной обработки новых задач.
-			var resendTask = new DocumentEdoTask
-			{
-				FormalEdoRequest = request,
-				DocumentType = EdoDocumentType.UPD,
-				FromOrganization = task.FromOrganization,
-				ToCustomer = task.ToCustomer,
-				Status = EdoTaskStatus.New,
-				Stage = DocumentEdoTaskStage.New
-			};
-			request.Task = resendTask;
-
-			foreach(var item in task.Items)
-			{
-				await _waterCodeService.DeleteRelatedGroupAndTransportCodesAsync(
-					_uow, item.ProductCode.SourceCode, cancellationToken);
-				item.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Rejected;
-				item.ProductCode.ResultCode = null;
-			}
-
-			await _uow.SaveAsync(request, cancellationToken: cancellationToken);
-			await _uow.SaveAsync(resendTask, cancellationToken: cancellationToken);
-			document.Status = EdoDocumentStatus.Cancelled;
-			task.Status = EdoTaskStatus.Cancelled;
-			task.EndTime = DateTime.Now;
-			task.CancellationReason = "Автоматическое переформирование УПД: невалидные коды ЧЗ перед отправкой";
-			await _uow.SaveAsync(task, cancellationToken: cancellationToken);
-			await _uow.SaveAsync(document, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
-
-			_logger.LogWarning("УПД {DocumentId} отменен до отправки. Создана задача переформирования {TaskId}",
-				document.Id, resendTask.Id);
-			try
-			{
-				await _publishEndpoint.Publish(new DocumentTaskCreatedEvent { Id = resendTask.Id }, cancellationToken);
-			}
-			catch(Exception ex)
-			{
-				// Задача уже сохранена: её повторно запустит NewEdoTasksResendWorker.
-				_logger.LogError(ex, "Не удалось опубликовать запуск задачи УПД {TaskId}. "
-					+ "Задача сохранена в статусе Новая для штатного повторного запуска", resendTask.Id);
-			}
-			return false;
 		}
 
 		/// <summary>

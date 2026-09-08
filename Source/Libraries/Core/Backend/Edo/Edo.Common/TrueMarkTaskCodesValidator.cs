@@ -8,6 +8,7 @@ using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Data.Repositories.Goods;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Common
@@ -114,7 +115,24 @@ namespace Edo.Common
 				codeResults.Add(codeResult);
 			}
 
-			return new TrueMarkTaskValidationResult(codeResults);
+			var result = new TrueMarkTaskValidationResult(codeResults);
+			if(result.IsAllValid
+			   || !(edoTask is DocumentEdoTask documentTask)
+			   || documentTask.DocumentType != EdoDocumentType.UPD
+			   || documentTask.Stage != DocumentEdoTaskStage.Transfering
+			   || documentTask.Status == EdoTaskStatus.Completed
+			   || documentTask.Status == EdoTaskStatus.Cancelled
+			   || documentTask.Status == EdoTaskStatus.InCancellation
+			   || documentTask.FormalEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
+			   || documentTask.FormalEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Tender)
+			{
+				return result;
+			}
+
+			// Возвращаем ту же задачу на штатный этап подбора кодов. Сохранение и повторный запуск выполняет обработчик.
+			documentTask.Stage = DocumentEdoTaskStage.New;
+			documentTask.Status = EdoTaskStatus.New;
+			return result;
 		}
 
 		public async Task<IEnumerable<TrueMarkCodeValidationResult>> ValidateAsync(
