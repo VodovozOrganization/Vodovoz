@@ -627,8 +627,6 @@ namespace EdoService.Library
 						continue;
 					}
 
-					// Only move reservations held by this task and actually copied to the request.
-					// Do not release substituted result codes or reservations belonging to other orders.
 					var newCode = productCodes.FirstOrDefault(x => x.SourceCode != null
 						&& x.SourceCode.Id == oldCode.ResultCode.Id);
 					if(newCode == null)
@@ -644,8 +642,6 @@ namespace EdoService.Library
 
 				if(releasedCodes)
 				{
-					// NHibernate inserts before updates. Flush releases before cascading INSERTs
-					// to satisfy unique(result_code_id), without committing an unreserved gap.
 					uow.Session.Flush();
 				}
 			}
