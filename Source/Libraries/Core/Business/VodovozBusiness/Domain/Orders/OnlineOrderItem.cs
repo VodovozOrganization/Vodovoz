@@ -344,7 +344,8 @@ namespace Vodovoz.Domain.Orders
 			decimal currentSum,
 			IEnumerable<DiscountReasonBase> discountReasons,
 			Nomenclature nomenclature,
-			OnlineOrder onlineOrder
+			OnlineOrder onlineOrder,
+			bool giftItem = false
 		)
 		{
 			var onlineOrderItem = new OnlineOrderItem
@@ -355,6 +356,7 @@ namespace Vodovoz.Domain.Orders
 				Price = price,
 				Nomenclature = nomenclature,
 				OnlineOrder = onlineOrder,
+				GiftItem = giftItem
 			};
 			
 			if(discountReasons != null)
@@ -368,11 +370,17 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
+			var currentPrice = onlineOrderItem.CurrentRawPrice;
+			var discountMoney = currentPrice - currentSum;
 			onlineOrderItem.IsDiscountInMoney = onlineOrderItem.DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
-			var discount = onlineOrderItem.CurrentRawPrice - currentSum;
+
+			var discount = currentPrice == 0
+				? 0m
+				: !onlineOrderItem.IsDiscountInMoney
+					? 100 * discountMoney / currentPrice
+					: discountMoney;
 
 			onlineOrderItem.CalculateDiscount(isFixedPrice, discount);
-
 			return onlineOrderItem;
 		}
 

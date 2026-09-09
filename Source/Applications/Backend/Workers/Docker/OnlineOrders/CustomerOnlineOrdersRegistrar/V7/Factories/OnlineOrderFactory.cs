@@ -160,7 +160,8 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 				onlineOrderItemDto.CurrentSum,
 				discounts,
 				nomenclature,
-				onlineOrder
+				onlineOrder,
+				onlineOrderItemDto.GiftItem
 				);
 
 			onlineOrder.OnlineOrderItems.Add(onlineOrderItem);
