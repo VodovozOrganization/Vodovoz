@@ -168,6 +168,13 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
+			// Для уже подготовленного чека повторяем подбор кодов, не меняя принятое решение об отправке на сохранение в пул.
+			if(receiptEdoTask.FiscalDocuments.Any())
+			{
+				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
+				return;
+			}
+
 			// принудительная отправка чека
 			var hasManualSend = receiptEdoTask.FormalEdoRequest.Source == EdoRequestSource.Manual;
 			if(hasManualSend)
@@ -205,6 +212,16 @@ namespace Edo.Receipt.Dispatcher
 
 		public async Task HandleTransferComplete(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
+			// Повторный подбор допустим только до отправки любого из фискальных документов.
+			if(receiptEdoTask.ReceiptStatus != EdoReceiptStatus.Transfering
+				|| receiptEdoTask.Status == EdoTaskStatus.Completed
+				|| receiptEdoTask.Status == EdoTaskStatus.Cancelled
+				|| receiptEdoTask.Status == EdoTaskStatus.InCancellation
+				|| receiptEdoTask.FiscalDocuments.Any(x => x.Stage != FiscalDocumentStage.Preparing))
+			{
+				return;
+			}
+
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
@@ -289,6 +306,23 @@ namespace Edo.Receipt.Dispatcher
 					cancellationToken
 				);
 
+			if(!taskValidationResult.IsAllValid && receiptEdoTask.ReceiptStatus == EdoReceiptStatus.New)
+			{
+				await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
+				await _uow.CommitAsync(cancellationToken);
+				try
+				{
+					await _messageBus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = receiptEdoTask.Id }, cancellationToken);
+				}
+				catch(Exception ex)
+				{
+					// Сохраненную новую задачу подхватит штатный NewEdoTasksResendWorker.
+					_logger.LogError(ex, "Не удалось повторно запустить задачу чека {TaskId} после проверки кодов. "
+						+ "Задача сохранена на стадии распределения для штатного повторного запуска", receiptEdoTask.Id);
+				}
+				return;
+			}
+
 			if(!taskValidationResult.ReadyToSell)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
@@ -335,6 +369,8 @@ namespace Edo.Receipt.Dispatcher
 			EdoTaskItemTrueMarkStatusProvider trueMarkCodesChecker,
 			CancellationToken cancellationToken)
 		{
+			// Внутренние попытки подбора выполняются на стадии распределения, а не проверки после трансфера.
+			receiptEdoTask.ReceiptStatus = EdoReceiptStatus.New;
 			await PrepareFiscalDocuments(receiptEdoTask, cancellationToken);
 
 			TrueMarkTaskValidationResult taskValidationResult;

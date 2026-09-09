@@ -98,7 +98,7 @@ namespace Vodovoz.ViewModels.Edo
 				{
 					if(IsDocumentCompletedWithClarification(document))
 					{
-						ShowResult(_edoService.ScheduleResendEdoDocumentAfterTrueMarkCancellation(document.TaskId));
+						ShowResult(_edoService.ResendEdoDocumentWithOriginalCodes(document.TaskId));
 						EdoInOrderRefreshCommand?.Execute(null);
 						return;
 					}
