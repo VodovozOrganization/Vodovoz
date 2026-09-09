@@ -35,7 +35,7 @@ namespace Mango.Employees.Library.Services
 		private readonly IDriverMangoExtensionNumberRepository _extensionNumberRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IMangoVpbxEmployeesService _mangoVpbxEmployeesService;
-		private readonly IOptions<DriverMangoEmployeeRegistrationOptions> _options;
+		private readonly IOptionsSnapshot<DriverMangoEmployeeRegistrationOptions> _options;
 
 		public DriverMangoEmployeeRegistrationService(
 			ILogger<DriverMangoEmployeeRegistrationService> logger,
@@ -44,7 +44,7 @@ namespace Mango.Employees.Library.Services
 			IDriverMangoExtensionNumberRepository extensionNumberRepository,
 			IEmployeeRepository employeeRepository,
 			IMangoVpbxEmployeesService mangoVpbxEmployeesService,
-			IOptions<DriverMangoEmployeeRegistrationOptions> options)
+			IOptionsSnapshot<DriverMangoEmployeeRegistrationOptions> options)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
