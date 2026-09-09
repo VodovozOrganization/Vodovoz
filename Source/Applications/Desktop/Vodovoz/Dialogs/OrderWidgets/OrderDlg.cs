@@ -237,6 +237,8 @@ namespace Vodovoz
 
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
+		private IOrderOrganizationManager _orderOrganizationManager;
+
 		private readonly IRouteListSettings _routeListSettings = ScopeProvider.Scope.Resolve<IRouteListSettings>();
 		private readonly IDocumentPrinter _documentPrinter = ScopeProvider.Scope.Resolve<IDocumentPrinter>();
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = ScopeProvider.Scope.Resolve<IEntityDocumentsPrinterFactory>();
@@ -720,6 +722,7 @@ namespace Vodovoz
 			_exportsOrderTo1cReporitory = _lifetimeScope.Resolve<IGenericRepository<OrderTo1cExport>>();
 			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
 			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
+			_orderOrganizationManager = _lifetimeScope.Resolve<IOrderOrganizationManager>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -2017,7 +2020,13 @@ namespace Vodovoz
 
 			RemoveFlyers();
 
-			if(Entity.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId)
+			var isOrderContainsKulerServiceGoods =
+				_orderOrganizationManager.IsOrderContainsKulerServiceGoods(UoW, Entity.OrderItems);
+
+			// в сервисный заказ листовки не добавляем, при этом организация заказа может быть и не КС,
+			// например, если заказ уже оплачен онлайн
+			if(Entity.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId
+				|| isOrderContainsKulerServiceGoods)
 			{
 				return;
 			}
