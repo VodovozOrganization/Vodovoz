@@ -121,6 +121,20 @@ namespace EdoService.Library
 		Result<string> ResendEdoDocumentForOrder(int taskId);
 
 		/// <summary>
+		/// Переотправляет УПД с аннулированием текущего документооборота.
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи документа.</param>
+		/// <returns>Результат запуска переотправки.</returns>
+		Result<string> ResendEdoDocumentWithCancellation(int taskId);
+
+		/// <summary>
+		/// Повторно запускает существующую новую задачу ЭДО
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи ЭДО</param>
+		/// <returns>Результат повторного запуска задачи</returns>
+		Result<string> ResendNewEdoTask(int taskId);
+
+		/// <summary>
 		/// Переотправляет документ ЭДО с исходными кодами маркировки.
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи</param>
