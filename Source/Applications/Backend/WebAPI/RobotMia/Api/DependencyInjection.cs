@@ -36,7 +36,6 @@ namespace Vodovoz.RobotMia.Api
 				.AddCoreApplication()
 				.AddTrackedUoW()
 				.AddOrderTrackerFor1c()
-				.AddDatabaseSettings()
 				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				.AddScoped<INomenclatureService, NomenclatureService>()
 				.AddScoped<IIncomingCallCallService, IncomingCallCallService>()
