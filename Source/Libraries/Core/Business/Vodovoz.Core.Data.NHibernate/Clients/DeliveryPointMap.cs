@@ -43,6 +43,7 @@ namespace Vodovoz.Core.Data.NHibernate.Clients
 			Map(x => x.Address1c).Column("address_1c");
 			Map(x => x.Code1c).Column("code1c");
 			Map(x => x.BottleReserv).Column("bottle_reserv");
+			Map(x => x.OrderFrequencyDays).Column("order_frequency_days").ReadOnly();
 			Map(x => x.DistanceFromBaseMeters).Column("distance_from_center_meters");
 			Map(x => x.HaveResidue).Column("have_residue");
 			Map(x => x.AlwaysFreeDelivery).Column("always_free_delivery");

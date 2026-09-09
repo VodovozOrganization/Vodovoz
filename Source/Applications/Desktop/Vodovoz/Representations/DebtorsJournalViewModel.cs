@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -52,6 +53,8 @@ namespace Vodovoz.Representations
 {
 	public class DebtorsJournalViewModel : EntityJournalViewModelBase<Order, CallTaskViewModel, DebtorJournalNode>
 	{
+		private static readonly NLog.Logger _journalLogger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly Stopwatch _openingStopwatch = Stopwatch.StartNew();
 		private readonly OrderStatus[] _notDeliveredStatuses = { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
 
 		private readonly IDebtorsSettings _debtorsParameters;
@@ -161,6 +164,13 @@ namespace Vodovoz.Representations
 
 		private void UpdateFooterInfo(object sender, EventArgs e)
 		{
+			if(_openingStopwatch.IsRunning)
+			{
+				_openingStopwatch.Stop();
+				_journalLogger.Info("Журнал задолженности: первая порция данных загружена за {0} мс",
+					_openingStopwatch.ElapsedMilliseconds);
+			}
+
 			if(_newTask?.Status == TaskStatus.Running)
 			{
 				_cts.Cancel();
@@ -236,6 +246,7 @@ namespace Vodovoz.Representations
 
 		protected Func<IUnitOfWork, int> CountQueryFunction => (uow) =>
 		{
+			var stopwatch = Stopwatch.StartNew();
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
 			BottlesMovementOperation bottlesMovementAlias = null;
@@ -583,6 +594,7 @@ namespace Vodovoz.Representations
 				.SetTimeout(300)
 				.UniqueResult<int>();
 
+			_journalLogger.Info("Журнал задолженности: расчёт общей суммы долга занял {0} мс", stopwatch.ElapsedMilliseconds);
 			return queryResult;
 		};
 
@@ -806,7 +818,10 @@ namespace Vodovoz.Representations
 
 		public void ExportToExcel()
 		{
+			var stopwatch = Stopwatch.StartNew();
 			var rows = ItemsQuery(UoW).List<DebtorJournalNode>();
+			_journalLogger.Info("Журнал задолженности: выборка {0} строк для Excel заняла {1} мс",
+				rows.Count, stopwatch.ElapsedMilliseconds);
 			var report = new DebtorsJournalReport(rows, _fileDialogService);
 			report.Export();
 		}
@@ -1244,6 +1259,7 @@ namespace Vodovoz.Representations
 					.Select(() => counterpartyAlias.PersonType).WithAlias(() => resultAlias.OPF)
 					.Select(() => bottleMovementOperationAlias.Delivered).WithAlias(() => resultAlias.LastOrderBottles)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.LastOrderDate)
+					.Select(() => deliveryPointAlias.OrderFrequencyDays).WithAlias(() => resultAlias.OrderFrequencyDays)
 					.SelectSubQuery(residueQuery).WithAlias(() => resultAlias.IsResidueExist)
 					.SelectSubQuery(bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
 					.SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
