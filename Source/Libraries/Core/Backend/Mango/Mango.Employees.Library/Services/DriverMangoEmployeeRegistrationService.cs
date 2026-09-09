@@ -251,13 +251,19 @@ namespace Mango.Employees.Library.Services
 				Extension = extension.ToString(),
 				AccessRoleId = _options.Value.AccessRoleId,
 				LineId = _options.Value.LineId,
-				Numbers = new[]
-				{
+				Numbers =
+				[
 					new VpbxMemberNumber
 					{
-						Number = mobileNumber
+						Number = mobileNumber,
+						WaitSec = _options.Value.PhoneNumberWaitSeconds
+					},
+					new VpbxMemberNumber
+					{
+						Number = _options.Value.CallForwardingPhoneNumber,
+						WaitSec = _options.Value.CallForwardingPhoneNumberWaitSeconds
 					}
-				}
+				]
 			};
 
 			return await _mangoVpbxEmployeesService.CreateMemberAsync(createRequest, cancellationToken);
