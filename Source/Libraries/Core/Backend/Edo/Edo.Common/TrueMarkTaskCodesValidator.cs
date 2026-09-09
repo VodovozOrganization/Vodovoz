@@ -117,21 +117,35 @@ namespace Edo.Common
 
 			var result = new TrueMarkTaskValidationResult(codeResults);
 			if(result.IsAllValid
-			   || !(edoTask is DocumentEdoTask documentTask)
-			   || documentTask.DocumentType != EdoDocumentType.UPD
-			   || documentTask.Stage != DocumentEdoTaskStage.Transfering
-			   || documentTask.Status == EdoTaskStatus.Completed
-			   || documentTask.Status == EdoTaskStatus.Cancelled
-			   || documentTask.Status == EdoTaskStatus.InCancellation
-			   || documentTask.FormalEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
-			   || documentTask.FormalEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Tender)
+			   || !(edoTask is DocumentEdoTask || edoTask is ReceiptEdoTask || edoTask is TenderEdoTask)
+			   || edoTask.Status == EdoTaskStatus.Completed
+			   || edoTask.Status == EdoTaskStatus.Cancelled
+			   || edoTask.Status == EdoTaskStatus.InCancellation)
 			{
 				return result;
 			}
 
-			// Возвращаем ту же задачу на штатный этап подбора кодов. Сохранение и повторный запуск выполняет обработчик.
-			documentTask.Stage = DocumentEdoTaskStage.New;
-			documentTask.Status = EdoTaskStatus.New;
+			var reasonForLeaving = edoTask.FormalEdoRequest.Order.Client.ReasonForLeaving;
+			var canReplaceCodes = reasonForLeaving != ReasonForLeaving.Resale && reasonForLeaving != ReasonForLeaving.Tender;
+
+			// Возвращаем ту же задачу на штатный этап обработки кодов. Сохранение и повторный запуск выполняет обработчик.
+			switch(edoTask)
+			{
+				case DocumentEdoTask documentTask when canReplaceCodes && documentTask.DocumentType == EdoDocumentType.UPD
+					&& documentTask.Stage == DocumentEdoTaskStage.Transfering:
+					documentTask.Stage = DocumentEdoTaskStage.New;
+					documentTask.Status = EdoTaskStatus.New;
+					break;
+				case ReceiptEdoTask receiptTask when canReplaceCodes && receiptTask.ReceiptStatus == EdoReceiptStatus.Transfering
+					&& receiptTask.FiscalDocuments.All(x => x.Stage == FiscalDocumentStage.Preparing):
+					receiptTask.ReceiptStatus = EdoReceiptStatus.New;
+					receiptTask.Status = EdoTaskStatus.New;
+					break;
+				case TenderEdoTask tenderTask when tenderTask.Stage == TenderEdoTaskStage.Transfering:
+					tenderTask.Stage = TenderEdoTaskStage.New;
+					tenderTask.Status = EdoTaskStatus.New;
+					break;
+			}
 			return result;
 		}
 
