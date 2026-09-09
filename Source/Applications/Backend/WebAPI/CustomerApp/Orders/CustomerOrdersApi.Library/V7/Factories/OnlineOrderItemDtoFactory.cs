@@ -30,6 +30,7 @@ namespace CustomerOrdersApi.Library.V7.Factories
 				PriceWithoutDiscount = null,
 				CurrentSum = saleItem.ActualSum,
 				IsFixedPrice = saleItem.IsFixedPrice,
+				GiftItem = saleItem.GiftItem,
 				ItemType = saleItem.Nomenclature.Category.ToSaleItemType(),
 				Discounts = new List<IDiscountAmount>(_discountController
 					.CalculateTotalDiscountDetails(saleItem as ICalculatingTotalMoneyDiscount)

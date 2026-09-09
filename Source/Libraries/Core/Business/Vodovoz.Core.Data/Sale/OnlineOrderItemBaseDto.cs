@@ -40,5 +40,9 @@ namespace Vodovoz.Core.Data.Sale
 		/// Фикса
 		/// </summary>
 		public bool IsFixedPrice { get; set; }
+		/// <summary>
+		/// Подарок
+		/// </summary>
+		public bool GiftItem { get; set; }
 	}
 }
