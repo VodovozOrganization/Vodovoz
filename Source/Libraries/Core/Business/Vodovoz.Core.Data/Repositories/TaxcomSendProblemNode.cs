@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <summary>
 		/// Проблема
 		/// </summary>
-		public virtual ExceptionEdoTaskProblem Problem { get; set; }
+		public virtual CustomEdoTaskProblem Problem { get; set; }
 
 		/// <summary>
 		/// ЭДО задача
@@ -18,5 +18,10 @@ namespace Vodovoz.Core.Data.Repositories
 		/// Состояние повторной обработки проблемы
 		/// </summary>
 		public virtual EdoTaskProblemRoutineState RoutineState { get; set; }
+
+		/// <summary>
+		/// Документ заказа для ЭДО
+		/// </summary>
+		public virtual OrderEdoDocument OrderEdoDocument { get; set; }
 	}
 }

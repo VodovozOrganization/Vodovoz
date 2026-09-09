@@ -6,14 +6,14 @@ namespace Edo.Docflow.Taxcom
 {
 	public interface IEdoDocflowHandler
 	{
-		Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event);
+		Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Создание и отправка неформализованного документа в документооборот Такском
 		/// </summary>
 		/// <param name="event"></param>
 		/// <returns></returns>
-		Task CreateTaxcomDocflowInformalDocument(TaxcomDocflowInformalDocumentSendEvent @event);
+		Task CreateTaxcomDocflowInformalDocument(TaxcomDocflowInformalDocumentSendEvent @event, CancellationToken cancellationToken);
 
 		Task<EdoDocflowUpdatedEvent> UpdateOutgoingTaxcomDocFlow(
 			OutgoingTaxcomDocflowUpdatedEvent @event, 

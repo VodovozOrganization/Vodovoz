@@ -9,10 +9,10 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 		/// <summary>
 		/// Попытка возобновить задачу ЭДО
 		/// </summary>
-		/// <param name="edoTask">Задача ЭДО</param>
+		/// <param name="orderDocumentId">Идентификатор документа заказа для ЭДО</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>ЭДО задача</returns>
-		Task TryResumeTaskAsync(OrderEdoTask edoTask, CancellationToken cancellationToken);
+		Task TryResumeOrderDocumentSendAsync(int orderDocumentId, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Обработка задач ЭДО с проблемой отправки в Такском

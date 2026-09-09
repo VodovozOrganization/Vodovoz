@@ -1,8 +1,11 @@
-﻿using Edo.Problem.Routine.Options;
+﻿using Edo.Contracts.Messages.Events;
+using Edo.Problem.Routine.Options;
+using Edo.Problems.Custom.Sources;
 using Edo.Problems.Exception.Sources;
 using Edo.Transport;
 using EdoNotifications.Application.Factories;
 using EdoNotifications.Contracts;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Notifications.Infrastructure;
@@ -26,7 +29,7 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEdoRepository _edoRepository;
-		private readonly MessageService _messageService;
+		private readonly IBus _bus;
 		private readonly TaxcomSendProblemWorkerOptions _options;
 
 		public TaxcomSendProblemService(
@@ -35,23 +38,23 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 			IEdoNotificationMessageFactory notificationMessageFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEdoRepository edoRepository,
-			MessageService messageService,
-			IOptions<TaxcomSendProblemWorkerOptions> options)
+			IOptions<TaxcomSendProblemWorkerOptions> options,
+			IBus bus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_notificationPublisher = notificationPublisher ?? throw new ArgumentNullException(nameof(notificationPublisher));
 			_notificationMessageFactory = notificationMessageFactory ?? throw new ArgumentNullException(nameof(notificationMessageFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
-			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 			_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 
-			_problemSourceName = nameof(TaxcomSendDocumentProblemSource);
+			_problemSourceName = "Custom.TaxcomDocumentSendingFail";
 		}
 
-		public async Task TryResumeTaskAsync(OrderEdoTask edoTask, CancellationToken cancellationToken)
-		{
-			await _messageService.PublishTaskCreatedEvent(edoTask, cancellationToken);
+		public async Task TryResumeOrderDocumentSendAsync(int orderDocumentId, CancellationToken cancellationToken)
+		{			
+			await _bus.Publish(new OrderDocumentSendEvent { OrderDocumentId = orderDocumentId });
 		}
 
 		public async Task ProcessProblemTasks(CancellationToken cancellationToken)
@@ -120,10 +123,7 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 						await SendGroupNotificationsAsync(uow, notificationsToSend, cancellationToken);
 					}
 
-					if(uow.HasChanges)
-					{
-						await uow.CommitAsync(cancellationToken);
-					}
+					await uow.CommitAsync(cancellationToken);
 
 					_logger.LogInformation(
 						"Обработка проблем ЭДО с ошибкой отправки завершена: " +
@@ -153,6 +153,7 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 		{
 			var problem = problemNode.Problem;
 			var edoTask = problemNode.EdoTask;
+			var orderDocumentId = problemNode.OrderEdoDocument.Id;
 			var state = problemNode.RoutineState ?? new EdoTaskProblemRoutineState { Problem = problem };
 			var now = DateTime.Now;
 
@@ -174,7 +175,7 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 
 			try
 			{
-				await TryResumeTaskAsync(edoTask, cancellationToken);
+				await TryResumeOrderDocumentSendAsync(orderDocumentId, cancellationToken);
 
 				if(TaxcomSendProblemProcessingPolicy.ShouldRequestNotification(state, _options.MaxAttempts))
 				{
@@ -197,7 +198,7 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 
 		private async Task<TaxcomSendProblemProcessResult> PrepareNotificationData(
 			IUnitOfWork uow,
-			ExceptionEdoTaskProblem problem,
+			CustomEdoTaskProblem problem,
 			OrderEdoTask edoTask,
 			int retryCount,
 			CancellationToken cancellationToken)
@@ -210,7 +211,7 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 
 			var orderId = edoTask?.FormalEdoRequest?.Order?.Id ?? 0;
 			var mainDocumentId = edoTask?.FormalEdoRequest?.Order?.Id.ToString() ?? "Неизвестный заказ";
-			var errorMessage = problem.ExceptionMessage ?? "Неизвестная ошибка отправки в Такском";
+			var errorMessage = problem.CustomMessage ?? "Неизвестная ошибка отправки в Такском";
 
 			var notificationData = new TaxcomSendProblemNotificationData(
 				orderId: orderId,

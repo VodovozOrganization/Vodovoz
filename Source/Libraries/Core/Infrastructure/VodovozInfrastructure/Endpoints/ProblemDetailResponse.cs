@@ -8,6 +8,11 @@ namespace VodovozInfrastructure.Endpoints
 	public class ProblemDetailResponse
 	{
 		/// <summary>
+		/// Тип проблемы
+		/// </summary>
+		public string Type { get; set; }
+		
+		/// <summary>
 		/// Краткое название проблемы	
 		/// </summary>
 		[JsonPropertyName("title")]

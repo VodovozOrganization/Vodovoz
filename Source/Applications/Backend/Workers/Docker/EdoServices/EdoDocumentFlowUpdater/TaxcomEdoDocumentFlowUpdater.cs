@@ -1,5 +1,7 @@
 ﻿using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using EdoDocumentFlowUpdater.Configs;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using QS.Services;
+using Renci.SshNet.Messages;
 using System;
 using System.IO;
 using System.Linq;
@@ -49,6 +52,7 @@ namespace EdoDocumentFlowUpdater
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ITaxcomEdoDocflowLastProcessTimeRepository _edoDocflowLastProcessTimeRepository;
 		private readonly IEdoRepository _edoRepository;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly string _serviceName;
 		private readonly IEdoContainerFileStorageService _edoContainerFileStorageService;
 		private readonly IPublishEndpoint _publishEndpoint;
@@ -68,7 +72,8 @@ namespace EdoDocumentFlowUpdater
 			IZabbixSender zabbixSender,
 			IEdoContainerFileStorageService edoContainerFileStorageService,
 			IPublishEndpoint publishEndpoint,
-			IEdoRepository edoRepository)
+			IEdoRepository edoRepository,
+			EdoProblemRegistrar edoProblemRegistrar)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
@@ -87,6 +92,7 @@ namespace EdoDocumentFlowUpdater
 
 			_serviceName = $"{nameof(TaxcomEdoDocumentFlowUpdater)}_{_documentFlowUpdaterOptions.EdoAccount}";
 			_edoRepository = edoRepository;
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -466,8 +472,19 @@ namespace EdoDocumentFlowUpdater
 
 			if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 			{
-				var containerRawData =
-					await taxcomApiClient.GetDocFlowRawData(docflow.Id.Value.ToString(), cancellationToken);
+				var docFlowRawDataResult = await taxcomApiClient.GetDocFlowRawData(docflow.Id.Value.ToString(), cancellationToken);
+
+				if(docFlowRawDataResult.IsFailure && container.EdoTaskId != null)
+				{
+					var error = docFlowRawDataResult.Errors.First();
+
+					var customMessage = $"{error.Code}: {error.Message}";
+					await _edoProblemRegistrar.RegisterCustomProblem<TaxcomDocumentSendingFail>(container.EdoTaskId.Value, cancellationToken, customMessage);
+
+					return;
+				}
+
+				var containerRawData = docFlowRawDataResult.Value;
 
 				using var ms = new MemoryStream(containerRawData.ToArray());
 

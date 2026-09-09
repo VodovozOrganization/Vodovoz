@@ -546,22 +546,26 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			}
 
 			var now = DateTime.UtcNow;
+			var retryCount = retryDelays.Length;
 
-			var query = from problem in uow.Session.Query<ExceptionEdoTaskProblem>()
+			var query = from problem in uow.Session.Query<CustomEdoTaskProblem>()
 						join orderTask in uow.Session.Query<OrderEdoTask>()
 							on problem.EdoTask.Id equals orderTask.Id
+						join orderEdoDocument in uow.Session.Query<OrderEdoDocument>()
+							on orderTask.Id equals orderEdoDocument.DocumentTaskId
 						join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
 							on problem.Id equals routineState.Problem.Id into routineStates
 						from routineState in routineStates.DefaultIfEmpty()
 						where problem.SourceName == problemSourceName
 							&& problem.State == TaskProblemState.Active
-							&& (routineState == null || routineState.RetryCount < retryDelays.Length)
+							&& (routineState == null || routineState.RetryCount < retryCount)
 						orderby routineState == null ? 0 : routineState.RetryCount, problem.CreationTime
 						select new
 						{
 							Problem = problem,
 							OrderTask = orderTask,
-							RoutineState = routineState
+							RoutineState = routineState,
+							OrderEdoDocument = orderEdoDocument
 						};
 
 			if(batchSize.HasValue && batchSize.Value > 0)
@@ -582,7 +586,8 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 					{
 						Problem = item.Problem,
 						EdoTask = item.OrderTask,
-						RoutineState = null
+						RoutineState = null,
+						OrderEdoDocument = item.OrderEdoDocument
 					});
 					continue;
 				}
@@ -593,7 +598,8 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 					{
 						Problem = item.Problem,
 						EdoTask = item.OrderTask,
-						RoutineState = routineState
+						RoutineState = routineState,
+						OrderEdoDocument = item.OrderEdoDocument
 					});
 					continue;
 				}
@@ -607,7 +613,8 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 					{
 						Problem = item.Problem,
 						EdoTask = item.OrderTask,
-						RoutineState = routineState
+						RoutineState = routineState,
+						OrderEdoDocument = item.OrderEdoDocument
 					});
 				}
 			}

@@ -207,7 +207,7 @@ namespace Edo.Documents
 				var notReadyTaskItems = taskValidationResult.CodeResults.Where(x => !x.ReadyToSell)
 					.Select(x => x.EdoTaskItem);
 				await _edoProblemRegistrar.RegisterCustomProblem<HasNotTransferedCodesOnTransferComplete>(
-					documentEdoTask,
+					documentEdoTask.Id,
 					notReadyTaskItems,
 					cancellationToken
 				);

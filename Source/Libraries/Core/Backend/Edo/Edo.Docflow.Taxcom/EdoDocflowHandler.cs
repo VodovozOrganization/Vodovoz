@@ -1,5 +1,7 @@
 ﻿using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -16,18 +18,21 @@ namespace Edo.Docflow.Taxcom
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<EdoDocflowHandler> _logger;
 		private readonly ITaxcomApiClient _taxcomApiClient;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 
 		public EdoDocflowHandler(
 			IUnitOfWork uow,
 			ILogger<EdoDocflowHandler> logger,
-			ITaxcomApiClient taxcomApiClient)
+			ITaxcomApiClient taxcomApiClient,
+			EdoProblemRegistrar edoProblemRegistrar)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApiClient = taxcomApiClient ?? throw new ArgumentNullException(nameof(taxcomApiClient));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 		}
 
-		public async Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event)
+		public async Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event, CancellationToken cancellationToken)
 		{
 			var now = DateTime.Now;
 			
@@ -45,27 +50,32 @@ namespace Edo.Docflow.Taxcom
 				Time = now
 			});
 			
-			await _uow.SaveAsync(taxcomDocflow);
-			await _uow.CommitAsync();
+			await _uow.SaveAsync(taxcomDocflow, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 
 			var result = await _taxcomApiClient.SendDataForCreateUpdByEdo(@event.UpdInfo);
 
-			if(!result)
+			if(!result.IsSuccess)
 			{
+				var error = result.Errors.First();
+				var customErrorMessage = $"{error.Code}: {error.Message}";
+
 				var newAction = new TaxcomDocflowAction
 				{
 					DocFlowState = EdoDocFlowStatus.Error,
 					Time = DateTime.Now,
 					TaxcomDocflowId = taxcomDocflow.Id,
-					ErrorMessage = "Не удалось отправить УПД на сервер Такском"
+					ErrorMessage = $"Не удалось отправить УПД на сервер Такском: {customErrorMessage}"
 				};
 				
-				await _uow.SaveAsync(newAction);
-				await _uow.CommitAsync();
+				await _uow.SaveAsync(newAction, cancellationToken: cancellationToken);
+				await _uow.CommitAsync(cancellationToken);				
+
+				await _edoProblemRegistrar.RegisterCustomProblem<TaxcomDocumentSendingFail>(@event.EdoTaskId, cancellationToken, customErrorMessage);
 			}
 		}
 
-		public async Task CreateTaxcomDocflowInformalDocument(TaxcomDocflowInformalDocumentSendEvent @event)
+		public async Task CreateTaxcomDocflowInformalDocument(TaxcomDocflowInformalDocumentSendEvent @event, CancellationToken cancellationToken)
 		{
 			var now = DateTime.Now;
 			
@@ -83,23 +93,28 @@ namespace Edo.Docflow.Taxcom
 				Time = now
 			});
 			
-			await _uow.SaveAsync(taxcomDocflow);
-			await _uow.CommitAsync();
+			await _uow.SaveAsync(taxcomDocflow, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 
 			var result = await _taxcomApiClient.SendDataForCreateInformalOrderDocumentByEdo(@event.DocumentInfo);
 
-			if(!result)
+			if(!result.IsSuccess)
 			{
+				var error = result.Errors.First();
+				var customErrorMessage = $"{error.Code}: {error.Message}";
+
 				var newAction = new TaxcomDocflowAction
 				{
 					DocFlowState = EdoDocFlowStatus.Error,
 					Time = DateTime.Now,
 					TaxcomDocflowId = taxcomDocflow.Id,
-					ErrorMessage = "Не удалось отправить неформализованный документ заказа на сервер Такском"
+					ErrorMessage = $"Не удалось отправить неформализованный документ заказа на сервер Такском: {customErrorMessage}"
 				};
 
-				await _uow.SaveAsync(newAction);
-				await _uow.CommitAsync();
+				await _uow.SaveAsync(newAction, cancellationToken: cancellationToken);
+				await _uow.CommitAsync(cancellationToken);
+
+				await _edoProblemRegistrar.RegisterCustomProblem<TaxcomDocumentSendingFail>(@event.EdoTaskId, cancellationToken, customErrorMessage);
 			}
 		}
 
