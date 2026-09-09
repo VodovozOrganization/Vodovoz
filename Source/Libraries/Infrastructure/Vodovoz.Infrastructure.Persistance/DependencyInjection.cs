@@ -1,7 +1,6 @@
+using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using QS.DomainModel.Tracking;
-using QS.Project.Core;
 using QS.Utilities.Extensions;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance.Counterparties;
@@ -23,13 +22,7 @@ namespace Vodovoz.Infrastructure.Persistance
 			this IServiceCollection services,
 			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
 		{
-			services.TryAddSingleton<DeliveryPointOrderFrequencyTrackerFactory>();
-			services.AddSingleton<OnDatabaseInitialization>(provider =>
-			{
-				SingleUowEventsTracker.RegisterSingleUowListnerFactory(
-					provider.GetRequiredService<DeliveryPointOrderFrequencyTrackerFactory>());
-				return new OnDatabaseInitialization();
-			});
+			services.TryAddEnumerable(ServiceDescriptor.Singleton<IStartable, DeliveryPointOrderFrequencyTrackerFactory>());
 
 			return services.AddServicesEndsWith(typeof(DependencyInjection).Assembly, "Repository", serviceLifetime);
 		}
