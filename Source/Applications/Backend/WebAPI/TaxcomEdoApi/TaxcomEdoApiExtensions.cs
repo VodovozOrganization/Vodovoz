@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -41,6 +41,7 @@ namespace TaxcomEdoApi
 
 					return certificate;
 				})
+				.AddScoped<ITaxcomApiErrorHandler, TaxcomApiErrorHandler>()
 				.AddScoped(provider =>
 				new Lazy<TaxcomApi>(() =>
 				{
