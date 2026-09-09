@@ -1146,6 +1146,7 @@
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">Информация</property>
+                        <property name="Active">True</property>
                         <property name="DrawIndicator">False</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -11989,7 +11990,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -17894,7 +17894,6 @@
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Информация</property>
-                    <property name="Active">True</property>
                     <property name="DrawIndicator">False</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -70198,8 +70197,9 @@ not tooltip</property>
                 <property name="LeftAttach">5</property>
                 <property name="RightAttach">6</property>
                 <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -125722,6 +125722,7 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -125806,7 +125807,7 @@ not tooltip</property>
                         <child>
                           <widget class="Gtk.Table" id="tableCarData">
                             <property name="MemberName" />
-                            <property name="NRows">14</property>
+                            <property name="NRows">15</property>
                             <property name="NColumns">8</property>
                             <property name="RowSpacing">6</property>
                             <property name="ColumnSpacing">6</property>
@@ -125829,13 +125830,34 @@ not tooltip</property>
                               <placeholder />
                             </child>
                             <child>
+                              <widget class="Vodovoz.Views.Logistic.AdditionalFuelTypeManagementView" id="additionalfueltypemanagementview1">
+                                <property name="MemberName" />
+                                <property name="Events">ButtonPressMask</property>
+                              </widget>
+                              <packing>
+                                <property name="TopAttach">2</property>
+                                <property name="BottomAttach">3</property>
+                                <property name="LeftAttach">1</property>
+                                <property name="RightAttach">7</property>
+                                <property name="AutoSize">True</property>
+                                <property name="XOptions">Fill</property>
+                                <property name="YOptions">Fill</property>
+                                <property name="XExpand">False</property>
+                                <property name="XFill">True</property>
+                                <property name="XShrink">False</property>
+                                <property name="YExpand">False</property>
+                                <property name="YFill">True</property>
+                                <property name="YShrink">False</property>
+                              </packing>
+                            </child>
+                            <child>
                               <widget class="Vodovoz.Views.Logistic.CarVersionEditingView" id="carversioneditingview">
                                 <property name="MemberName" />
                                 <property name="Events">ButtonPressMask</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">12</property>
-                                <property name="BottomAttach">13</property>
+                                <property name="TopAttach">13</property>
+                                <property name="BottomAttach">14</property>
                                 <property name="LeftAttach">7</property>
                                 <property name="RightAttach">8</property>
                                 <property name="AutoSize">True</property>
@@ -125856,8 +125878,8 @@ not tooltip</property>
                                 <property name="Events">ButtonPressMask</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">12</property>
-                                <property name="BottomAttach">13</property>
+                                <property name="TopAttach">13</property>
+                                <property name="BottomAttach">14</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">7</property>
                                 <property name="AutoSize">True</property>
@@ -125885,8 +125907,8 @@ not tooltip</property>
                                 <property name="HideButtonClearDate">False</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">3</property>
-                                <property name="BottomAttach">4</property>
+                                <property name="TopAttach">4</property>
+                                <property name="BottomAttach">5</property>
                                 <property name="LeftAttach">6</property>
                                 <property name="RightAttach">7</property>
                                 <property name="AutoSize">True</property>
@@ -125925,8 +125947,8 @@ not tooltip</property>
                                 <property name="Events">ButtonPressMask</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">3</property>
-                                <property name="BottomAttach">4</property>
+                                <property name="TopAttach">4</property>
+                                <property name="BottomAttach">5</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">3</property>
                                 <property name="AutoSize">True</property>
@@ -125968,8 +125990,8 @@ not tooltip</property>
                                 <property name="Events">ButtonPressMask</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">13</property>
-                                <property name="BottomAttach">14</property>
+                                <property name="TopAttach">14</property>
+                                <property name="BottomAttach">15</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">7</property>
                                 <property name="AutoSize">True</property>
@@ -126019,8 +126041,8 @@ not tooltip</property>
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">5</property>
-                                <property name="BottomAttach">6</property>
+                                <property name="TopAttach">6</property>
+                                <property name="BottomAttach">7</property>
                                 <property name="LeftAttach">7</property>
                                 <property name="RightAttach">8</property>
                                 <property name="AutoSize">True</property>
@@ -126090,8 +126112,8 @@ not tooltip</property>
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">2</property>
-                                <property name="BottomAttach">3</property>
+                                <property name="TopAttach">3</property>
+                                <property name="BottomAttach">4</property>
                                 <property name="LeftAttach">4</property>
                                 <property name="RightAttach">5</property>
                                 <property name="AutoSize">False</property>
@@ -126157,8 +126179,8 @@ not tooltip</property>
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">2</property>
-                                <property name="BottomAttach">3</property>
+                                <property name="TopAttach">3</property>
+                                <property name="BottomAttach">4</property>
                                 <property name="LeftAttach">2</property>
                                 <property name="RightAttach">3</property>
                                 <property name="AutoSize">True</property>
@@ -126179,8 +126201,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Бутылей с адреса от:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">2</property>
-                                <property name="BottomAttach">3</property>
+                                <property name="TopAttach">3</property>
+                                <property name="BottomAttach">4</property>
                                 <property name="LeftAttach">3</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -126201,8 +126223,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">VIN:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">4</property>
-                                <property name="BottomAttach">5</property>
+                                <property name="TopAttach">5</property>
+                                <property name="BottomAttach">6</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -126221,8 +126243,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Номер дигателя:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">5</property>
-                                <property name="BottomAttach">6</property>
+                                <property name="TopAttach">6</property>
+                                <property name="BottomAttach">7</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -126241,8 +126263,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Номер кузова:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">5</property>
-                                <property name="BottomAttach">6</property>
+                                <property name="TopAttach">6</property>
+                                <property name="BottomAttach">7</property>
                                 <property name="LeftAttach">3</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -126264,8 +126286,8 @@ not tooltip</property>
                                 <property name="Justify">Right</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">6</property>
-                                <property name="BottomAttach">8</property>
+                                <property name="TopAttach">7</property>
+                                <property name="BottomAttach">9</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -126284,8 +126306,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Год выпуска:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">4</property>
-                                <property name="BottomAttach">5</property>
+                                <property name="TopAttach">5</property>
+                                <property name="BottomAttach">6</property>
                                 <property name="LeftAttach">3</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -126306,8 +126328,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Номер шасси (рамы):</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">4</property>
-                                <property name="BottomAttach">5</property>
+                                <property name="TopAttach">5</property>
+                                <property name="BottomAttach">6</property>
                                 <property name="LeftAttach">5</property>
                                 <property name="RightAttach">6</property>
                                 <property name="AutoSize">True</property>
@@ -126328,8 +126350,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Цвет:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">5</property>
-                                <property name="BottomAttach">6</property>
+                                <property name="TopAttach">6</property>
+                                <property name="BottomAttach">7</property>
                                 <property name="LeftAttach">5</property>
                                 <property name="RightAttach">6</property>
                                 <property name="AutoSize">True</property>
@@ -126350,8 +126372,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Номер:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">6</property>
-                                <property name="BottomAttach">7</property>
+                                <property name="TopAttach">7</property>
+                                <property name="BottomAttach">8</property>
                                 <property name="LeftAttach">3</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -126372,8 +126394,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Серия:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">6</property>
-                                <property name="BottomAttach">7</property>
+                                <property name="TopAttach">7</property>
+                                <property name="BottomAttach">8</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">True</property>
@@ -126394,8 +126416,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Дата выдачи:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">6</property>
-                                <property name="BottomAttach">7</property>
+                                <property name="TopAttach">7</property>
+                                <property name="BottomAttach">8</property>
                                 <property name="LeftAttach">5</property>
                                 <property name="RightAttach">6</property>
                                 <property name="AutoSize">True</property>
@@ -126416,8 +126438,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Выдано:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">7</property>
-                                <property name="BottomAttach">8</property>
+                                <property name="TopAttach">8</property>
+                                <property name="BottomAttach">9</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">True</property>
@@ -126439,8 +126461,8 @@ not tooltip</property>
                                 <property name="Justify">Right</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -126459,8 +126481,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Серия:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">True</property>
@@ -126481,8 +126503,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Номер:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="LeftAttach">3</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -126541,8 +126563,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Водитель:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">3</property>
-                                <property name="BottomAttach">4</property>
+                                <property name="TopAttach">4</property>
+                                <property name="BottomAttach">5</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -126563,8 +126585,8 @@ not tooltip</property>
                                 <property name="Justify">Right</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">9</property>
-                                <property name="BottomAttach">10</property>
+                                <property name="TopAttach">10</property>
+                                <property name="BottomAttach">11</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -126583,8 +126605,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Архив:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">3</property>
-                                <property name="BottomAttach">4</property>
+                                <property name="TopAttach">4</property>
+                                <property name="BottomAttach">5</property>
                                 <property name="LeftAttach">3</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
@@ -126625,8 +126647,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Канал поступления:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">2</property>
-                                <property name="BottomAttach">3</property>
+                                <property name="TopAttach">3</property>
+                                <property name="BottomAttach">4</property>
                                 <property name="LeftAttach">5</property>
                                 <property name="RightAttach">6</property>
                                 <property name="AutoSize">True</property>
@@ -126647,8 +126669,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">бутылей от</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">2</property>
-                                <property name="BottomAttach">3</property>
+                                <property name="TopAttach">3</property>
+                                <property name="BottomAttach">4</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">True</property>
@@ -126669,8 +126691,8 @@ not tooltip</property>
                                 <property name="Events">ButtonPressMask</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">10</property>
-                                <property name="BottomAttach">11</property>
+                                <property name="TopAttach">11</property>
+                                <property name="BottomAttach">12</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">7</property>
                                 <property name="AutoSize">True</property>
@@ -126691,7 +126713,7 @@ not tooltip</property>
                                 <property name="CanPrint">False</property>
                               </widget>
                               <packing>
-                                <property name="BottomAttach">5</property>
+                                <property name="BottomAttach">6</property>
                                 <property name="LeftAttach">7</property>
                                 <property name="RightAttach">8</property>
                                 <property name="AutoSize">False</property>
@@ -126712,8 +126734,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Диапазоны:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">2</property>
-                                <property name="BottomAttach">3</property>
+                                <property name="TopAttach">3</property>
+                                <property name="BottomAttach">4</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -126736,8 +126758,8 @@ not tooltip</property>
                                 <property name="ShowSpecialStateNot">False</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">2</property>
-                                <property name="BottomAttach">3</property>
+                                <property name="TopAttach">3</property>
+                                <property name="BottomAttach">4</property>
                                 <property name="LeftAttach">6</property>
                                 <property name="RightAttach">7</property>
                                 <property name="AutoSize">True</property>
@@ -126757,8 +126779,8 @@ not tooltip</property>
                                 <property name="Xalign">0</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">9</property>
-                                <property name="BottomAttach">10</property>
+                                <property name="TopAttach">10</property>
+                                <property name="BottomAttach">11</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">7</property>
                                 <property name="AutoSize">True</property>
@@ -126877,8 +126899,8 @@ not tooltip</property>
                                 <property name="HideButtonClearDate">False</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">6</property>
-                                <property name="BottomAttach">7</property>
+                                <property name="TopAttach">7</property>
+                                <property name="BottomAttach">8</property>
                                 <property name="LeftAttach">6</property>
                                 <property name="RightAttach">7</property>
                                 <property name="AutoSize">True</property>
@@ -126900,8 +126922,8 @@ not tooltip</property>
                                 <property name="InvisibleChar">•</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">5</property>
-                                <property name="BottomAttach">6</property>
+                                <property name="TopAttach">6</property>
+                                <property name="BottomAttach">7</property>
                                 <property name="LeftAttach">4</property>
                                 <property name="RightAttach">5</property>
                                 <property name="AutoSize">True</property>
@@ -126923,8 +126945,8 @@ not tooltip</property>
                                 <property name="InvisibleChar">•</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">4</property>
-                                <property name="BottomAttach">5</property>
+                                <property name="TopAttach">5</property>
+                                <property name="BottomAttach">6</property>
                                 <property name="LeftAttach">6</property>
                                 <property name="RightAttach">7</property>
                                 <property name="AutoSize">True</property>
@@ -126946,8 +126968,8 @@ not tooltip</property>
                                 <property name="InvisibleChar">•</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">5</property>
-                                <property name="BottomAttach">6</property>
+                                <property name="TopAttach">6</property>
+                                <property name="BottomAttach">7</property>
                                 <property name="LeftAttach">6</property>
                                 <property name="RightAttach">7</property>
                                 <property name="AutoSize">True</property>
@@ -126969,8 +126991,8 @@ not tooltip</property>
                                 <property name="InvisibleChar">•</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">7</property>
-                                <property name="BottomAttach">8</property>
+                                <property name="TopAttach">8</property>
+                                <property name="BottomAttach">9</property>
                                 <property name="LeftAttach">2</property>
                                 <property name="RightAttach">7</property>
                                 <property name="AutoSize">True</property>
@@ -126992,8 +127014,8 @@ not tooltip</property>
                                 <property name="InvisibleChar">•</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">6</property>
-                                <property name="BottomAttach">7</property>
+                                <property name="TopAttach">7</property>
+                                <property name="BottomAttach">8</property>
                                 <property name="LeftAttach">4</property>
                                 <property name="RightAttach">5</property>
                                 <property name="AutoSize">True</property>
@@ -127015,8 +127037,8 @@ not tooltip</property>
                                 <property name="InvisibleChar">•</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">6</property>
-                                <property name="BottomAttach">7</property>
+                                <property name="TopAttach">7</property>
+                                <property name="BottomAttach">8</property>
                                 <property name="LeftAttach">2</property>
                                 <property name="RightAttach">3</property>
                                 <property name="AutoSize">True</property>
@@ -127038,8 +127060,8 @@ not tooltip</property>
                                 <property name="InvisibleChar">•</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">4</property>
-                                <property name="BottomAttach">5</property>
+                                <property name="TopAttach">5</property>
+                                <property name="BottomAttach">6</property>
                                 <property name="LeftAttach">4</property>
                                 <property name="RightAttach">5</property>
                                 <property name="AutoSize">True</property>
@@ -127061,8 +127083,8 @@ not tooltip</property>
                                 <property name="InvisibleChar">•</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">5</property>
-                                <property name="BottomAttach">6</property>
+                                <property name="TopAttach">6</property>
+                                <property name="BottomAttach">7</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">3</property>
                                 <property name="AutoSize">True</property>
@@ -127084,8 +127106,8 @@ not tooltip</property>
                                 <property name="InvisibleChar">•</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="LeftAttach">4</property>
                                 <property name="RightAttach">5</property>
                                 <property name="AutoSize">True</property>
@@ -127107,8 +127129,8 @@ not tooltip</property>
                                 <property name="InvisibleChar">•</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="LeftAttach">2</property>
                                 <property name="RightAttach">3</property>
                                 <property name="AutoSize">True</property>
@@ -127130,8 +127152,8 @@ not tooltip</property>
                                 <property name="InvisibleChar">•</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">4</property>
-                                <property name="BottomAttach">5</property>
+                                <property name="TopAttach">5</property>
+                                <property name="BottomAttach">6</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">3</property>
                                 <property name="AutoSize">True</property>
@@ -127198,8 +127220,8 @@ not tooltip</property>
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">3</property>
-                                <property name="BottomAttach">4</property>
+                                <property name="TopAttach">4</property>
+                                <property name="BottomAttach">5</property>
                                 <property name="LeftAttach">4</property>
                                 <property name="RightAttach">5</property>
                                 <property name="AutoSize">True</property>
@@ -127248,8 +127270,8 @@ not tooltip</property>
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="LeftAttach">7</property>
                                 <property name="RightAttach">8</property>
                                 <property name="AutoSize">True</property>
@@ -127284,8 +127306,8 @@ not tooltip</property>
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">11</property>
-                                <property name="BottomAttach">12</property>
+                                <property name="TopAttach">12</property>
+                                <property name="BottomAttach">13</property>
                                 <property name="LeftAttach">7</property>
                                 <property name="RightAttach">8</property>
                                 <property name="AutoSize">True</property>
@@ -127341,11 +127363,34 @@ not tooltip</property>
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">11</property>
-                                <property name="BottomAttach">12</property>
+                                <property name="TopAttach">12</property>
+                                <property name="BottomAttach">13</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">7</property>
                                 <property name="AutoSize">False</property>
+                                <property name="XOptions">Fill</property>
+                                <property name="YOptions">Fill</property>
+                                <property name="XExpand">False</property>
+                                <property name="XFill">True</property>
+                                <property name="XShrink">False</property>
+                                <property name="YExpand">False</property>
+                                <property name="YFill">True</property>
+                                <property name="YShrink">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gamma.GtkWidgets.yLabel" id="ylabelAdditionalFuelTypes">
+                                <property name="MemberName" />
+                                <property name="Xalign">1</property>
+                                <property name="Yalign">0</property>
+                                <property name="LabelProp" translatable="yes">Дополнительные
+виды топлива:</property>
+                                <property name="Justify">Right</property>
+                              </widget>
+                              <packing>
+                                <property name="TopAttach">2</property>
+                                <property name="BottomAttach">3</property>
+                                <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
                                 <property name="XExpand">False</property>
@@ -127364,8 +127409,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Дата архивации:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">3</property>
-                                <property name="BottomAttach">4</property>
+                                <property name="TopAttach">4</property>
+                                <property name="BottomAttach">5</property>
                                 <property name="LeftAttach">5</property>
                                 <property name="RightAttach">6</property>
                                 <property name="AutoSize">True</property>
@@ -127389,8 +127434,8 @@ not tooltip</property>
                                 <property name="Justify">Right</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">13</property>
-                                <property name="BottomAttach">14</property>
+                                <property name="TopAttach">14</property>
+                                <property name="BottomAttach">15</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -127410,8 +127455,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Одометр, км:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">10</property>
-                                <property name="BottomAttach">11</property>
+                                <property name="TopAttach">11</property>
+                                <property name="BottomAttach">12</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -127431,8 +127476,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Осаго:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">11</property>
-                                <property name="BottomAttach">12</property>
+                                <property name="TopAttach">12</property>
+                                <property name="BottomAttach">13</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -127474,8 +127519,8 @@ not tooltip</property>
                                 <property name="LabelProp" translatable="yes">Версии:</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">12</property>
-                                <property name="BottomAttach">13</property>
+                                <property name="TopAttach">13</property>
+                                <property name="BottomAttach">14</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -127735,8 +127780,8 @@ not tooltip</property>
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">10</property>
-                                <property name="BottomAttach">11</property>
+                                <property name="TopAttach">11</property>
+                                <property name="BottomAttach">12</property>
                                 <property name="LeftAttach">7</property>
                                 <property name="RightAttach">8</property>
                                 <property name="AutoSize">True</property>
@@ -127891,7 +127936,6 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Логистика</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -145265,6 +145309,18 @@ not tooltip</property>
                             <property name="RowSpacing">6</property>
                             <property name="ColumnSpacing">6</property>
                             <child>
+                              <placeholder />
+                            </child>
+                            <child>
+                              <placeholder />
+                            </child>
+                            <child>
+                              <placeholder />
+                            </child>
+                            <child>
+                              <placeholder />
+                            </child>
+                            <child>
                               <widget class="Gtk.HBox" id="hboxPeriodAndInfoButtonContainer">
                                 <property name="MemberName" />
                                 <property name="Spacing">6</property>
@@ -145336,52 +145392,6 @@ not tooltip</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gtk.Label" id="lblGrouping">
-                                <property name="MemberName" />
-                                <property name="Xalign">0</property>
-                                <property name="LabelProp" translatable="yes">Р“СЂСѓРїРїРёСЂРѕРІРєР°:</property>
-                              </widget>
-                              <packing>
-                                <property name="TopAttach">1</property>
-                                <property name="BottomAttach">2</property>
-                                <property name="AutoSize">True</property>
-                                <property name="XOptions">Fill</property>
-                                <property name="YOptions">Fill</property>
-                                <property name="XExpand">False</property>
-                                <property name="XFill">True</property>
-                                <property name="XShrink">False</property>
-                                <property name="YExpand">False</property>
-                                <property name="YFill">True</property>
-                                <property name="YShrink">False</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="Gamma.Widgets.yEnumComboBox" id="yenumGrouping">
-                                <property name="MemberName" />
-                                <property name="IsTextCombo">False</property>
-                                <property name="Items" translatable="yes" />
-                                <property name="ShowSpecialStateAll">False</property>
-                                <property name="ShowSpecialStateNot">False</property>
-                                <property name="UseShortTitle">False</property>
-                                <property name="DefaultFirst">False</property>
-                              </widget>
-                              <packing>
-                                <property name="TopAttach">1</property>
-                                <property name="BottomAttach">2</property>
-                                <property name="LeftAttach">1</property>
-                                <property name="RightAttach">2</property>
-                                <property name="AutoSize">True</property>
-                                <property name="XOptions">Fill</property>
-                                <property name="YOptions">Fill</property>
-                                <property name="XExpand">False</property>
-                                <property name="XFill">True</property>
-                                <property name="XShrink">False</property>
-                                <property name="YExpand">False</property>
-                                <property name="YFill">True</property>
-                                <property name="YShrink">False</property>
-                              </packing>
-                            </child>
-                            <child>
                               <widget class="Gtk.Label" id="lblDateType">
                                 <property name="MemberName" />
                                 <property name="Xalign">0</property>
@@ -145390,6 +145400,26 @@ not tooltip</property>
                               <packing>
                                 <property name="TopAttach">2</property>
                                 <property name="BottomAttach">3</property>
+                                <property name="AutoSize">True</property>
+                                <property name="XOptions">Fill</property>
+                                <property name="YOptions">Fill</property>
+                                <property name="XExpand">False</property>
+                                <property name="XFill">True</property>
+                                <property name="XShrink">False</property>
+                                <property name="YExpand">False</property>
+                                <property name="YFill">True</property>
+                                <property name="YShrink">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Label" id="lblGrouping">
+                                <property name="MemberName" />
+                                <property name="Xalign">0</property>
+                                <property name="LabelProp" translatable="yes">Р“СЂСѓРїРїРёСЂРѕРІРєР°:</property>
+                              </widget>
+                              <packing>
+                                <property name="TopAttach">1</property>
+                                <property name="BottomAttach">2</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -145414,6 +145444,32 @@ not tooltip</property>
                               <packing>
                                 <property name="TopAttach">2</property>
                                 <property name="BottomAttach">3</property>
+                                <property name="LeftAttach">1</property>
+                                <property name="RightAttach">2</property>
+                                <property name="AutoSize">True</property>
+                                <property name="XOptions">Fill</property>
+                                <property name="YOptions">Fill</property>
+                                <property name="XExpand">False</property>
+                                <property name="XFill">True</property>
+                                <property name="XShrink">False</property>
+                                <property name="YExpand">False</property>
+                                <property name="YFill">True</property>
+                                <property name="YShrink">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gamma.Widgets.yEnumComboBox" id="yenumGrouping">
+                                <property name="MemberName" />
+                                <property name="IsTextCombo">False</property>
+                                <property name="Items" translatable="yes" />
+                                <property name="ShowSpecialStateAll">False</property>
+                                <property name="ShowSpecialStateNot">False</property>
+                                <property name="UseShortTitle">False</property>
+                                <property name="DefaultFirst">False</property>
+                              </widget>
+                              <packing>
+                                <property name="TopAttach">1</property>
+                                <property name="BottomAttach">2</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">True</property>
@@ -163172,8 +163228,8 @@ not tooltip</property>
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
                 <property name="Editable">False</property>
-                <property name="WrapMode">Word</property>
                 <property name="Text" translatable="yes" />
+                <property name="WrapMode">Word</property>
               </widget>
             </child>
           </widget>
