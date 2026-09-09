@@ -115,7 +115,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CarInsuranceManagementViewModel insuranceManagementViewModel,
 			CarVersionsManagementViewModel carVersionsManagementViewModel,
 			IDocumentPrinter documentPrinter,
-			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			IAdditionalFuelTypeManagementViewModelFactory additionalFuelTypeManagementViewModelFactory)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -126,6 +127,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(insuranceManagementViewModel is null)
 			{
 				throw new ArgumentNullException(nameof(insuranceManagementViewModel));
+			}
+
+			if(additionalFuelTypeManagementViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(additionalFuelTypeManagementViewModelFactory));
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -144,6 +150,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
 			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
 			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
+			
 			TabName = "Автомобиль";
 
 			_carVersionsManagementViewModel.Initialize(Entity, this);
@@ -202,6 +209,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Entity.PropertyChanged += OnEntityPropertyChangedHandler;
 
 			Entity.ObservableCarVersions.ElementAdded += OnObservableCarVersionsElementAdded;
+
+			AdditionalFuelTypeManagementViewModel = additionalFuelTypeManagementViewModelFactory
+				.CreateAdditionalFuelTypeManagementViewModel(Entity, UoW, this);
 
 			OnDriverChanged();
 
@@ -333,6 +343,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public CarInsuranceVersionViewModel OsagoInsuranceVersionViewModel { get; }
 		public CarInsuranceVersionViewModel KaskoInsuranceVersionViewModel { get; }
 		public CarInsuranceVersionEditingViewModel CarInsuranceVersionEditingViewModel { get; }
+		public AdditionalFuelTypeManagementViewModel AdditionalFuelTypeManagementViewModel { get; }
 
 		public DelegateCommand AddGeoGroupCommand { get; }
 		public DelegateCommand CreateCarAcceptanceCertificateCommand { get; }

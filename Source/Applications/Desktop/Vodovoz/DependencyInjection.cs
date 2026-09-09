@@ -241,6 +241,7 @@ namespace Vodovoz
 				.AddCoreDataRepositories()
 				.AddScoped<IFuelApiService, FuelApiService>()
 				.AddScoped<IFuelCardVersionService, FuelCardVersionService>()
+				.AddScoped<AdditionalFuelTypeManagementService>()
 				.AddFuelControl()
 				.AddCodesPool()
 

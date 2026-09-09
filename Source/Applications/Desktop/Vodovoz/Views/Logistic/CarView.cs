@@ -182,6 +182,8 @@ namespace Vodovoz.Views.Logistic
 			carinsuranceversionviewKasko.ViewModel = ViewModel.KaskoInsuranceVersionViewModel;
 			carinsuranceversioneditingview.ViewModel = ViewModel.CarInsuranceVersionEditingViewModel;
 
+			additionalfueltypemanagementview1.ViewModel = ViewModel.AdditionalFuelTypeManagementViewModel;
+
 			radiobuttonMain.Toggled += OnRadiobuttonMainToggled;
 			radioBtnGeographicGroups.Toggled += OnRadioBtnGeographicGroupsToggled;
 			radiobuttonFiles.Toggled += OnRadiobuttonFilesToggled;

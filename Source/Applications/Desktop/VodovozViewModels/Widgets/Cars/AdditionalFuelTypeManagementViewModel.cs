@@ -1,6 +1,7 @@
 ﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -25,6 +26,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 		public AdditionalFuelTypeManagementViewModel(
 			Car entity,
+			IUnitOfWork uow,
 			DialogViewModelBase parentDialog,
 			ICommonServices commonServices,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
@@ -41,6 +43,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 				throw new ArgumentNullException(nameof(fuelTypeEEVMBuilder));
 			}
 
+			UoW = uow
+				?? throw new ArgumentNullException(nameof(uow));
 			_additionalFuelTypeManagementService = additionalFuelTypeManagementService
 				?? throw new ArgumentNullException(nameof(additionalFuelTypeManagementService));
 
