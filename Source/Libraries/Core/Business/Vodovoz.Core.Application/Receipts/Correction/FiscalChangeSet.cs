@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Vodovoz.Core.Application.Receipts.Correction
 {
@@ -54,24 +56,12 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				parts.Add($"{positionChange.NomenclatureId}:{positionChange.OldQuantity}->{positionChange.NewQuantity}:{positionChange.OldPrice}->{positionChange.NewPrice}");
 			}
 
-			return string.Join("|", parts);
+			var raw = string.Join("|", parts);
+			using(var sha = SHA256.Create())
+			{
+				var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(raw));
+				return BitConverter.ToString(hash).Replace("-", string.Empty);
+			}
 		}
-	}
-
-	public class FiscalPositionChange
-	{
-		public int? NomenclatureId { get; set; }
-
-		public string Name { get; set; }
-
-		public decimal OldQuantity { get; set; }
-
-		public decimal NewQuantity { get; set; }
-
-		public decimal OldPrice { get; set; }
-
-		public decimal NewPrice { get; set; }
-
-		public bool IsPieceItem { get; set; }
 	}
 }

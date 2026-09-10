@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Receipts;
 using VodovozBusiness.Services.Receipts;
@@ -16,26 +15,15 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				return null;
 			}
 
-			var builder = new StringBuilder();
-			builder.Append("По заказу");
+			var orderPart = orderId.HasValue ? $" №{orderId.Value}" : string.Empty;
 
-			if(orderId.HasValue)
-			{
-				builder.Append($" №{orderId.Value}");
-			}
-
-			builder.Append(" уже пробит кассовый чек.");
-			builder.AppendLine();
-			builder.Append("При сохранении изменений будет автоматически запущена корректировка чека:");
-			builder.AppendLine();
-			builder.AppendLine(GetScenarioDescription(preview.ScenarioType));
-			builder.Append("Будут сформированы документы: ");
-			builder.Append(GetDocumentTypesDescription(preview.PlannedDocumentTypes));
-			builder.AppendLine(".");
-			builder.AppendLine();
-			builder.Append("Продолжить сохранение?");
-
-			return builder.ToString();
+			return string.Join("\n",
+				$"По заказу{orderPart} уже пробит кассовый чек.",
+				"При сохранении изменений будет автоматически запущена корректировка чека:",
+				GetScenarioDescription(preview.ScenarioType),
+				$"Будут сформированы документы: {GetDocumentTypesDescription(preview.PlannedDocumentTypes)}.",
+				string.Empty,
+				"Продолжить сохранение?");
 		}
 
 		public static string BuildConfirmationMessageForOrders(IEnumerable<(int OrderId, ReceiptCorrectionPreview Preview)> previews)
@@ -54,25 +42,24 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				return BuildConfirmationMessage(items[0].Preview, items[0].OrderId);
 			}
 
-			var builder = new StringBuilder();
-			builder.AppendLine("По следующим заказам уже пробиты кассовые чеки.");
-			builder.AppendLine("При сохранении будут автоматически запущены корректировки:");
+			var lines = new List<string>
+			{
+				"По следующим заказам уже пробиты кассовые чеки.",
+				"При сохранении будут автоматически запущены корректировки:"
+			};
 
 			foreach(var item in items)
 			{
-				builder.AppendLine();
-				builder.Append($"Заказ №{item.OrderId}: ");
-				builder.Append(GetScenarioDescription(item.Preview.ScenarioType));
-				builder.Append(" — ");
-				builder.Append(GetDocumentTypesDescription(item.Preview.PlannedDocumentTypes));
-				builder.Append('.');
+				lines.Add(string.Empty);
+				lines.Add(
+					$"Заказ №{item.OrderId}: {GetScenarioDescription(item.Preview.ScenarioType)}"
+					+ $" — {GetDocumentTypesDescription(item.Preview.PlannedDocumentTypes)}.");
 			}
 
-			builder.AppendLine();
-			builder.AppendLine();
-			builder.Append("Продолжить сохранение?");
+			lines.Add(string.Empty);
+			lines.Add("Продолжить сохранение?");
 
-			return builder.ToString();
+			return string.Join("\n", lines);
 		}
 
 		private static string GetScenarioDescription(ReceiptCorrectionScenarioType scenarioType)

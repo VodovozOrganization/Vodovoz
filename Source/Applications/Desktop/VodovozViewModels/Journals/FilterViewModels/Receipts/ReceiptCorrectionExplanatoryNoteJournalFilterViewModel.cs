@@ -10,8 +10,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Receipts
 	{
 		private int? _orderId;
 		private Organization _organization;
-		private DateTime _dateFrom;
-		private DateTime _dateTo;
+		private DateTime? _dateFrom;
+		private DateTime? _dateTo;
 		private IEnumerable<Organization> _organizations;
 
 		public ReceiptCorrectionExplanatoryNoteJournalFilterViewModel()
@@ -45,13 +45,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Receipts
 			set => UpdateFilterField(ref _organization, value);
 		}
 
-		public virtual DateTime DateFrom
+		public virtual DateTime? DateFrom
 		{
 			get => _dateFrom;
 			set => UpdateFilterField(ref _dateFrom, value);
 		}
 
-		public virtual DateTime DateTo
+		public virtual DateTime? DateTo
 		{
 			get => _dateTo;
 			set => UpdateFilterField(ref _dateTo, value);

@@ -1,6 +1,6 @@
 using System;
+using Core.Infrastructure;
 using Vodovoz.Core.Domain.Receipts;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Receipts
 {

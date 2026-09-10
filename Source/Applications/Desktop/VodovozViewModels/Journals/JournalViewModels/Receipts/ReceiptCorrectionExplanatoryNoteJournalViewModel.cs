@@ -11,7 +11,6 @@ using System.Linq;
 using System.Threading;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Receipts;
 using Vodovoz.ViewModels.Journals.JournalNodes.Receipts;
@@ -62,7 +61,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
-			base.CreateNodeActions();
 
 			var printDialogAction = new JournalAction(
 				"Диалог печати...",
@@ -97,13 +95,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 		{
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				var notes = _receiptCorrectionRepository
+				var notesQuery = _receiptCorrectionRepository
 					.GetExplanatoryNotes(
 						uow,
 						_filterViewModel.OrderId,
-						_filterViewModel.Organization?.Id)
-					.Where(note => note.CreatedDate.Date >= _filterViewModel.DateFrom.Date
-						&& note.CreatedDate.Date <= _filterViewModel.DateTo.Date)
+						_filterViewModel.Organization?.Id);
+
+				if(_filterViewModel.DateFrom.HasValue)
+				{
+					var dateFrom = _filterViewModel.DateFrom.Value.Date;
+					notesQuery = notesQuery.Where(note => note.CreatedDate.Date >= dateFrom);
+				}
+
+				if(_filterViewModel.DateTo.HasValue)
+				{
+					var dateTo = _filterViewModel.DateTo.Value.Date;
+					notesQuery = notesQuery.Where(note => note.CreatedDate.Date <= dateTo);
+				}
+
+				var notes = notesQuery
 					.OrderBy(note => note.CreatedDate)
 					.ThenBy(note => note.Id)
 					.ToList();
@@ -170,49 +180,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 		private IList<ExplanatoryNotePrintableDocument> CreatePrintableDocuments(
 			IList<ReceiptCorrectionExplanatoryNoteJournalNode> nodes)
 		{
-			var signatures = LoadSignatures(nodes);
-
 			return nodes
-				.Select(node =>
-				{
-					byte[] signaturePng = null;
-					if(node.SignerSignatureId.HasValue
-						&& signatures.TryGetValue(node.SignerSignatureId.Value, out var bytes))
-					{
-						signaturePng = ReceiptCorrectionExplanatoryNoteExportHelper.TryPrepareSignaturePng(bytes);
-					}
-
-					return new ExplanatoryNotePrintableDocument(
-						_reportInfoFactory,
-						node.Id,
-						node.OrderId,
-						node.Content,
-						node.CreatedDate,
-						signaturePng);
-				})
+				.Select(node => new ExplanatoryNotePrintableDocument(
+					_reportInfoFactory,
+					node.Id,
+					node.OrderId,
+					node.Content,
+					node.CreatedDate,
+					node.SignerSignatureId))
 				.ToList();
-		}
-
-		private IDictionary<int, byte[]> LoadSignatures(IList<ReceiptCorrectionExplanatoryNoteJournalNode> nodes)
-		{
-			var ids = nodes
-				.Where(x => x.SignerSignatureId.HasValue)
-				.Select(x => x.SignerSignatureId.Value)
-				.Distinct()
-				.ToList();
-
-			if(ids.Count == 0)
-			{
-				return new Dictionary<int, byte[]>();
-			}
-
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				return uow.Session.Query<StoredResource>()
-					.Where(x => ids.Contains(x.Id))
-					.ToList()
-					.ToDictionary(x => x.Id, x => x.BinaryFile);
-			}
 		}
 
 		private void OpenPrintDialog(object[] selected)

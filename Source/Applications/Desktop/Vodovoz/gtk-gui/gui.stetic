@@ -202551,7 +202551,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelOrder">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">╨Ч╨░╨║╨░╨╖:</property>
+                <property name="LabelProp" translatable="yes">Заказ:</property>
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -202565,7 +202565,7 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
-                <property name="InvisibleChar">тАв</property>
+                <property name="InvisibleChar">•</property>
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -202576,7 +202576,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelOrganization">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">╨Ю╤А╨│╨░╨╜╨╕╨╖╨░╤Ж╨╕╤П:</property>
+                <property name="LabelProp" translatable="yes">Организация:</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
@@ -202604,7 +202604,7 @@ not tooltip</property>
             <child>
               <widget class="Gtk.Label" id="labelPeriod">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">╨Я╨╡╤А╨╕╨╛╨┤:</property>
+                <property name="LabelProp" translatable="yes">Период:</property>
               </widget>
               <packing>
                 <property name="Position">4</property>
@@ -202677,7 +202677,7 @@ not tooltip</property>
                     <property name="CanFocus">True</property>
                     <property name="Type">TextAndIcon</property>
                     <property name="Icon">stock:gtk-print Menu</property>
-                    <property name="Label" translatable="yes">╨Я╨╡╤З╨░╤В╨░╤В╤М ╨▓╤Л╨▒╤А╨░╨╜╨╜╤Л╨╡</property>
+                    <property name="Label" translatable="yes">Печатать выбранные</property>
                     <property name="UseUnderline">True</property>
                   </widget>
                   <packing>
@@ -202693,7 +202693,7 @@ not tooltip</property>
                     <property name="CanFocus">True</property>
                     <property name="Type">TextAndIcon</property>
                     <property name="Icon">stock:gtk-cancel Menu</property>
-                    <property name="Label" translatable="yes">╨Ю╤В╨╝╨╡╨╜╨░</property>
+                    <property name="Label" translatable="yes">Отмена</property>
                     <property name="UseUnderline">True</property>
                   </widget>
                   <packing>

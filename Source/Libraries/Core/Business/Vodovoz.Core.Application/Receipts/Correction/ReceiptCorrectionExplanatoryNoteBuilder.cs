@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using Vodovoz.Core.Domain.Receipts;
 
 namespace Vodovoz.Core.Application.Receipts.Correction
@@ -10,6 +10,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 	{
 		private const string SignerTitle = "Кассир";
 		private const string StubSignerName = "Ф.И.О. кассира";
+		private static readonly CultureInfo RuCulture = CultureInfo.GetCultureInfo("ru-RU");
 
 		public ReceiptCorrectionExplanatoryNote Build(
 			ReceiptCorrectionProcess process,
@@ -26,16 +27,16 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			}
 
 			var resolvedSignerName = string.IsNullOrWhiteSpace(signerName) ? StubSignerName : signerName.Trim();
-			var content = new StringBuilder();
+			var lines = new List<string>();
 
-			AppendHeader(content, context, resolvedSignerName);
-			content.AppendLine();
-			content.AppendLine("Объяснительная записка");
-			content.AppendLine();
-			AppendBody(content, templateType, process, changeSet, context);
-			content.AppendLine();
-			content.AppendLine(DateTime.Now.ToString("dd.MM.yyyy", CultureInfo.GetCultureInfo("ru-RU")));
-			content.AppendLine("(факсимиле подписанта)");
+			lines.AddRange(BuildHeaderLines(context, resolvedSignerName));
+			lines.Add(string.Empty);
+			lines.Add("Объяснительная записка");
+			lines.Add(string.Empty);
+			lines.AddRange(BuildBodyLines(templateType, process, changeSet, context));
+			lines.Add(string.Empty);
+			lines.Add(DateTime.Now.ToString("dd.MM.yyyy", RuCulture));
+			lines.Add("(факсимиле подписанта)");
 
 			return new ReceiptCorrectionExplanatoryNote
 			{
@@ -45,12 +46,12 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				SignerTitle = SignerTitle,
 				SignerName = resolvedSignerName,
 				SignerSignatureId = signerSignatureId,
-				Content = content.ToString(),
+				Content = string.Join("\n", lines),
 				CreatedDate = DateTime.Now
 			};
 		}
 
-		private static void AppendHeader(StringBuilder content, ExplanatoryNoteBuildContext context, string signerName)
+		private static IEnumerable<string> BuildHeaderLines(ExplanatoryNoteBuildContext context, string signerName)
 		{
 			var orgName = context?.OrganizationName?.Trim();
 			var leaderName = string.IsNullOrWhiteSpace(context?.LeaderFullName)
@@ -59,25 +60,24 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 			if(context?.IsIndividualEntrepreneur == true)
 			{
-				content.AppendLine("Индивидуальному предпринимателю");
-				content.AppendLine(leaderName);
+				yield return "Индивидуальному предпринимателю";
+				yield return leaderName;
 			}
 			else
 			{
-				content.AppendLine("Генеральному директору");
+				yield return "Генеральному директору";
 				if(!string.IsNullOrWhiteSpace(orgName))
 				{
-					content.AppendLine(orgName);
+					yield return orgName;
 				}
-				content.AppendLine(leaderName);
+				yield return leaderName;
 			}
 
-			content.AppendLine("от кассира");
-			content.AppendLine(signerName);
+			yield return "от кассира";
+			yield return signerName;
 		}
 
-		private static void AppendBody(
-			StringBuilder content,
+		private static IEnumerable<string> BuildBodyLines(
 			ReceiptCorrectionExplanatoryNoteTemplateType templateType,
 			ReceiptCorrectionProcess process,
 			FiscalChangeSet changeSet,
@@ -85,44 +85,53 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 		{
 			var fiscalNumber = process.BaselineFiscalDocumentNumber ?? "________";
 			var fiscalDate = process.BaselineFiscalDocumentDate?.ToString("dd.MM.yyyy") ?? "________";
-			var sum = process.BaselineSum.ToString("0.00", System.Globalization.CultureInfo.GetCultureInfo("ru-RU"));
+			var sum = process.BaselineSum.ToString("0.00", RuCulture);
 			var orderId = context?.OrderId > 0 ? context.OrderId.ToString() : process.OrderId.ToString();
 
 			switch(templateType)
 			{
 				case ReceiptCorrectionExplanatoryNoteTemplateType.FullCancellation:
-					content.AppendLine("После доставки товара покупателю была оформлена продажа и пробит чек до окончательного подтверждения покупателем покупки и оплаты данной поставки. Покупатель от товара отказался в полном объеме.");
-					content.AppendLine($"Прошу аннулировать чек № {fiscalNumber} от {fiscalDate} на сумму {sum}.");
-					break;
+					yield return "После доставки товара покупателю была оформлена продажа и пробит чек до окончательного подтверждения покупателем покупки и оплаты данной поставки. Покупатель от товара отказался в полном объеме.";
+					yield return $"Прошу аннулировать чек № {fiscalNumber} от {fiscalDate} на сумму {sum}.";
+					yield break;
 
 				case ReceiptCorrectionExplanatoryNoteTemplateType.NomenclatureReplacement:
-					content.AppendLine($"Я, {SignerTitle}, внес корректировки в чек № {fiscalNumber} на сумму {sum} в связи с тем, что после пробития чека покупатель захотел купить другой товар, имеющийся в наличии вместо пробитого в чеке.");
-					content.AppendLine("Была произведена замена товара:");
-					AppendPositionsTable(content, changeSet);
-					break;
+					yield return $"Я, {SignerTitle}, внес корректировки в чек № {fiscalNumber} на сумму {sum} в связи с тем, что после пробития чека покупатель захотел купить другой товар, имеющийся в наличии вместо пробитого в чеке.";
+					yield return "Была произведена замена товара:";
+					foreach(var line in BuildPositionsTableLines(changeSet))
+					{
+						yield return line;
+					}
+					yield break;
 
 				case ReceiptCorrectionExplanatoryNoteTemplateType.QuantityOrAmountIncrease:
-					content.AppendLine($"Я, {SignerTitle}, внес корректировки в чек № {fiscalNumber} на сумму {sum} в связи с тем, что после пробития чека покупатель захотел купить дополнительный товар имеющийся в наличии.");
-					content.AppendLine("Мною был пробит корректирующий чек с увеличением количества проданного товара и суммы покупки:");
-					AppendPositionsTable(content, changeSet);
-					break;
+					yield return $"Я, {SignerTitle}, внес корректировки в чек № {fiscalNumber} на сумму {sum} в связи с тем, что после пробития чека покупатель захотел купить дополнительный товар имеющийся в наличии.";
+					yield return "Мною был пробит корректирующий чек с увеличением количества проданного товара и суммы покупки:";
+					foreach(var line in BuildPositionsTableLines(changeSet))
+					{
+						yield return line;
+					}
+					yield break;
 
 				case ReceiptCorrectionExplanatoryNoteTemplateType.QuantityOrAmountDecrease:
-					content.AppendLine($"Я, {SignerTitle}, внес корректировки в чек № {fiscalNumber} на сумму {sum} в связи с частичным отказом покупателя от покупки.");
-					content.AppendLine("Мною был пробит корректирующий чек с уменьшением количества проданного товара и суммы покупки:");
-					AppendPositionsTable(content, changeSet);
-					break;
+					yield return $"Я, {SignerTitle}, внес корректировки в чек № {fiscalNumber} на сумму {sum} в связи с частичным отказом покупателя от покупки.";
+					yield return "Мною был пробит корректирующий чек с уменьшением количества проданного товара и суммы покупки:";
+					foreach(var line in BuildPositionsTableLines(changeSet))
+					{
+						yield return line;
+					}
+					yield break;
 
 				case ReceiptCorrectionExplanatoryNoteTemplateType.TechnicalFailure:
 				default:
-					content.AppendLine($"В процессе оплаты от покупателя ({DateTime.Now:dd.MM.yyyy HH:mm}) из-за технического сбоя при продаже не был оформлен чек по заказу № {orderId}. После обнаружения ошибки, чек на сумму {sum} был оформлен и оплата продажи принята к учету.");
-					break;
+					yield return $"В процессе оплаты от покупателя ({DateTime.Now:dd.MM.yyyy HH:mm}) из-за технического сбоя при продаже не был оформлен чек по заказу № {orderId}. После обнаружения ошибки, чек на сумму {sum} был оформлен и оплата продажи принята к учету.";
+					yield break;
 			}
 		}
 
-		private static void AppendPositionsTable(StringBuilder content, FiscalChangeSet changeSet)
+		private static IEnumerable<string> BuildPositionsTableLines(FiscalChangeSet changeSet)
 		{
-			content.AppendLine("№\tНаименование\tКоличество\tЦена\tСумма");
+			yield return "№\tНаименование\tКоличество\tЦена\tСумма";
 
 			var positions = changeSet?.PositionChanges?
 				.Where(x => x != null)
@@ -130,9 +139,9 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 			if(positions == null || positions.Count == 0)
 			{
-				content.AppendLine("-\t-\t-\t-\t-");
-				content.AppendLine("Итого\t\t\t\t-");
-				return;
+				yield return "-\t-\t-\t-\t-";
+				yield return "Итого\t\t\t\t-";
+				yield break;
 			}
 
 			var index = 1;
@@ -149,14 +158,14 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					? (position.NomenclatureId?.ToString() ?? "-")
 					: position.Name;
 
-				content.AppendLine($"{index}\t{name}\t{FormatDecimal(quantity)}\t{FormatDecimal(price)}\t{FormatDecimal(lineSum)}");
+				yield return $"{index}\t{name}\t{FormatDecimal(quantity)}\t{FormatDecimal(price)}\t{FormatDecimal(lineSum)}";
 				index++;
 			}
 
-			content.AppendLine($"Итого\t\t\t\t{FormatDecimal(total)}");
+			yield return $"Итого\t\t\t\t{FormatDecimal(total)}";
 		}
 
 		private static string FormatDecimal(decimal value) =>
-			value.ToString("0.##", CultureInfo.GetCultureInfo("ru-RU"));
+			value.ToString("0.##", RuCulture);
 	}
 }
