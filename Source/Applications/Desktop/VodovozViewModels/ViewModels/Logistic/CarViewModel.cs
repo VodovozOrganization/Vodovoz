@@ -212,7 +212,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Entity.ObservableCarVersions.ElementAdded += OnObservableCarVersionsElementAdded;
 
 			AdditionalFuelTypeManagementViewModel = additionalFuelTypeManagementViewModelFactory
-				.CreateAdditionalFuelTypeManagementViewModel(Entity, UoW, this);
+				.CreateAdditionalFuelTypeManagementViewModel(Entity, UoW);
 			Entity.AdditionalFuelTypes.CollectionChanged += OnAdditionalFuelTypesCollectionChanged;
 
 			OnDriverChanged();

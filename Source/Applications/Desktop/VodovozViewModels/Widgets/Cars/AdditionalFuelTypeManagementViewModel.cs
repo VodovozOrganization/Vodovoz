@@ -5,13 +5,14 @@ using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using QS.ViewModels.Dialog;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Application.Logistics.Fuel;
 using Vodovoz.Core.Domain.Permissions;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.ViewModels.Dialogs.Fuel;
 using VodovozBusiness.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.Widgets.Cars
@@ -19,6 +20,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 	public class AdditionalFuelTypeManagementViewModel : EntityWidgetViewModelBase<Car>
 	{
 		private readonly AdditionalFuelTypeManagementService _additionalFuelTypeManagementService;
+		private readonly IGenericRepository<FuelType> _fuelTypeRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
 
@@ -28,17 +30,12 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		public AdditionalFuelTypeManagementViewModel(
 			Car entity,
 			IUnitOfWork uow,
-			DialogViewModelBase parentDialog,
 			ICommonServices commonServices,
 			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
-			AdditionalFuelTypeManagementService additionalFuelTypeManagementService
+			AdditionalFuelTypeManagementService additionalFuelTypeManagementService,
+			IGenericRepository<FuelType> fuelTypeRepository
 			) : base(entity, commonServices)
 		{
-			if(parentDialog is null)
-			{
-				throw new ArgumentNullException(nameof(parentDialog));
-			}
-
 			if(fuelTypeEEVMBuilder is null)
 			{
 				throw new ArgumentNullException(nameof(fuelTypeEEVMBuilder));
@@ -48,17 +45,10 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 				?? throw new ArgumentNullException(nameof(uow));
 			_additionalFuelTypeManagementService = additionalFuelTypeManagementService
 				?? throw new ArgumentNullException(nameof(additionalFuelTypeManagementService));
+			_fuelTypeRepository = fuelTypeRepository ?? throw new ArgumentNullException(nameof(fuelTypeRepository));
 
 			_interactiveService = commonServices.InteractiveService;
 			_currentPermissionService = commonServices.CurrentPermissionService;
-
-			FuelTypeViewModel = fuelTypeEEVMBuilder
-				.SetUnitOfWork(UoW)
-				.SetViewModel(parentDialog)
-				.ForProperty(this, x => x.SelectedNewFuelType)
-				.UseViewModelJournalAndAutocompleter<FuelTypeJournalViewModel>()
-				.UseViewModelDialog<FuelTypeViewModel>()
-				.Finish(); ;
 
 			_additionalFuelTypeManagementService.Initialize(Entity);
 
@@ -67,12 +57,14 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 			RemoveFuelTypeCommand = new DelegateCommand(RemoveFuelType, () => CanRemoveFuelType);
 			RemoveFuelTypeCommand.CanExecuteChangedWith(this, x => x.CanRemoveFuelType);
-		}
 
-		public IEntityEntryViewModel FuelTypeViewModel { get; }
+			AllFuelTypes = GetAllFuelTypes();
+		}
 
 		public DelegateCommand AddFuelTypeCommand { get; }
 		public DelegateCommand RemoveFuelTypeCommand { get; }
+
+		public IList<FuelType> AllFuelTypes { get; }
 
 		public bool CanEditAdditionalFuelTypes =>
 			((Entity.Id == 0 && _currentPermissionService.ValidateEntityPermission(typeof(Car)).CanCreate)
@@ -140,5 +132,8 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			OnPropertyChanged(nameof(CanAddFuelType));
 			OnPropertyChanged(nameof(CanRemoveFuelType));
 		}
+
+		public IList<FuelType> GetAllFuelTypes() =>
+			_fuelTypeRepository.Get(UoW).ToList();
 	}
 }

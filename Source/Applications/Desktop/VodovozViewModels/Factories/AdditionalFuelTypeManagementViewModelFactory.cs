@@ -1,10 +1,7 @@
 ﻿using Autofac;
 using QS.DomainModel.UoW;
-using QS.ViewModels.Dialog;
 using System;
-using Vodovoz.Core.Application.Logistics.Fuel;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Services.Fuel;
 using Vodovoz.ViewModels.Widgets.Cars;
 
 namespace Vodovoz.ViewModels.Factories
@@ -18,12 +15,11 @@ namespace Vodovoz.ViewModels.Factories
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
-		public AdditionalFuelTypeManagementViewModel CreateAdditionalFuelTypeManagementViewModel(Car car, IUnitOfWork uow, DialogViewModelBase parentDialog)
+		public AdditionalFuelTypeManagementViewModel CreateAdditionalFuelTypeManagementViewModel(Car car, IUnitOfWork uow)
 		{
 			var additionalFuelTypeManagementViewModel = _lifetimeScope.Resolve<AdditionalFuelTypeManagementViewModel>(
 				 new TypedParameter(typeof(Car), car),
-				 new TypedParameter(typeof(IUnitOfWork), uow),
-				 new TypedParameter(typeof(DialogViewModelBase), parentDialog));
+				 new TypedParameter(typeof(IUnitOfWork), uow));
 
 			return additionalFuelTypeManagementViewModel;
 		}

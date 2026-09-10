@@ -18,6 +18,12 @@ namespace Vodovoz.Views.Logistic
 
 			yhboxMain.Sensitive = ViewModel.CanEditAdditionalFuelTypes;
 
+			speciallistcomboboxFuelTypes.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedNewFuelType, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			speciallistcomboboxFuelTypes.ItemsList = ViewModel.AllFuelTypes;
+
 			ytreeviewFuelTypes.ColumnsConfig = FluentColumnsConfig<AdditionalFuelType>.Create()
 				.AddColumn("Вид топлива")
 					.AddTextRenderer(x => x.FuelType.Name).XAlign(0.5f)
