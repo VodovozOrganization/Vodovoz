@@ -38,6 +38,17 @@ namespace Vodovoz.ViewModels.Edo
 			}
 
 			var actions = new List<BusyCommand>();
+			var documentNode = document.Document;
+
+			if(documentNode.TaskStatus == EdoTaskStatus.New)
+			{
+				if(CanResendNewTask(documentNode))
+				{
+					CreateResendNewTaskAction(actions, documentNode, onActionCompleted);
+				}
+
+				return actions;
+			}
 
 			switch(document.DocumentType)
 			{
@@ -58,15 +69,43 @@ namespace Vodovoz.ViewModels.Edo
 			return actions;
 		}
 
-		private void CreateUpdActions(
+		private static bool CanResendNewTask(EdoInOrderDocumentNode document) =>
+			document.TaskType == EdoTaskType.Document && document.FormalDocumentType == EdoDocumentType.UPD
+			|| document.TaskType == EdoTaskType.Receipt
+			|| document.TaskType == EdoTaskType.Tender
+			|| document.TaskType == EdoTaskType.SaveCode;
+
+		private void CreateResendNewTaskAction(
 			List<BusyCommand> actions,
 			EdoInOrderDocumentNode document,
 			Action onActionCompleted)
 		{
 			actions.Add(new BusyCommand(
 				"Переотправить",
-				() => ResendUpd(document, onActionCompleted)
-			));
+				() =>
+				{
+					var result = _edoService.ResendNewEdoTask(document.TaskId);
+					ShowResult(result);
+
+					if(result.IsSuccess)
+					{
+						onActionCompleted?.Invoke();
+					}
+				}));
+		}
+
+		private void CreateUpdActions(
+			List<BusyCommand> actions,
+			EdoInOrderDocumentNode document,
+			Action onActionCompleted)
+		{
+			if(document.EdoDocumentStatus != EdoDocumentStatus.Succeed)
+			{
+				actions.Add(new BusyCommand(
+					"Переотправить",
+					() => ResendUpd(document, onActionCompleted)
+				));
+			}
 
 			if(IsDocumentCompletedWithClarification(document)
 				&& _currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentWithCodesFromPool))
@@ -80,6 +119,12 @@ namespace Vodovoz.ViewModels.Edo
 
 		private void ResendUpd(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
+			if(IsDocumentInProgressOrSent(document))
+			{
+				ResendUpdWithCancellation(document, onActionCompleted);
+				return;
+			}
+
 			if(IsDocumentCompletedWithClarification(document))
 			{
 				ShowResult(_edoService.ResendEdoDocumentWithOriginalCodes(document.TaskId));
@@ -126,6 +171,33 @@ namespace Vodovoz.ViewModels.Edo
 			}
 		}
 
+		private void ResendUpdWithCancellation(EdoInOrderDocumentNode document, Action onActionCompleted)
+		{
+			if(!_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentWithCancellation))
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Для переотправки УПД в статусе «В процессе» или «Отправлен» недостаточно прав.");
+				return;
+			}
+
+			if(!_interactiveService.Question(
+				"Текущий документооборот будет отправлен на аннулирование.\n" +
+				"Клиенту будет отправлено предложение об аннулировании.\n" +
+				"УПД будет переотправлен. Продолжить?"))
+			{
+				return;
+			}
+
+			var result = _edoService.ResendEdoDocumentWithCancellation(document.TaskId);
+			ShowResult(result);
+
+			if(result.IsSuccess)
+			{
+				onActionCompleted?.Invoke();
+			}
+		}
+
 		private void ResendUpdWithCodesFromPool(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
 			if(!_interactiveService.Question(
@@ -142,6 +214,12 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			return document.EdoDocumentStatus == EdoDocumentStatus.Warning
 				|| document.EdoDocumentStatus == EdoDocumentStatus.CompletedWithDivergences;
+		}
+
+		private static bool IsDocumentInProgressOrSent(EdoInOrderDocumentNode document)
+		{
+			return document.EdoDocumentStatus == EdoDocumentStatus.InProgress
+				|| document.EdoDocumentStatus == EdoDocumentStatus.Sent;
 		}
 
 		private void CreateReceiptActions(

@@ -63,9 +63,12 @@ namespace Edo.Problem.Routine.Worker
 
 					services
 						.AddHostedService<CodeDuplicatedProblemWorker>();
-
+					
 					services
 						.AddHostedService<ReceiptContactProblemWorker>();
+					
+					services
+						.AddHostedService<NewEdoTasksResendWorker>();
 				});
 	}
 }

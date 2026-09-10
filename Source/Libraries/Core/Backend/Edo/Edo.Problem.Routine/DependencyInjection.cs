@@ -4,6 +4,7 @@ using Edo.Problem.Routine.Services;
 using Edo.Problem.Routine.Services.CodeDuplicatedProblem;
 using Edo.Problem.Routine.Services.CodePoolMissingProblem;
 using Edo.Problem.Routine.Services.Common;
+using Edo.Problem.Routine.Services.NewEdoTasksResend;
 using Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem;
 using Edo.Problem.Routine.Services.OrderStatusProblem;
 using Edo.Problem.Routine.Services.ReceiptContactProblem;
@@ -35,6 +36,8 @@ namespace Edo.Problem.Routine
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 			services.AddScoped<MessageService>();
+			services.AddScoped<IOrderEdoTaskCreatedEventPublisher, OrderEdoTaskCreatedEventPublisher>();
+			services.AddScoped<INewEdoTasksResendService, NewEdoTasksResendService>();
  			services.AddScoped<EdoProblemRoutineNotificationFactory>();
 			services.AddScoped<IEdoProblemRoutineNotificationService, EdoProblemRoutineNotificationService>();
 
