@@ -13,7 +13,6 @@ using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using VodovozBusiness.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.Widgets.Cars
 {
@@ -25,7 +24,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		private readonly ICurrentPermissionService _currentPermissionService;
 
 		private FuelType _selectedNewFuelType;
-		private AdditionalFuelType _selectedExistingFuelType;
+		private CarAdditionalFuelType _selectedExistingFuelType;
 
 		public AdditionalFuelTypeManagementViewModel(
 			Car entity,
@@ -49,8 +48,6 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 			_interactiveService = commonServices.InteractiveService;
 			_currentPermissionService = commonServices.CurrentPermissionService;
-
-			_additionalFuelTypeManagementService.Initialize(Entity);
 
 			AddFuelTypeCommand = new DelegateCommand(AddFuelType, () => CanAddFuelType);
 			AddFuelTypeCommand.CanExecuteChangedWith(this, x => x.CanAddFuelType);
@@ -79,7 +76,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		}
 
 		[PropertyChangedAlso(nameof(CanRemoveFuelType))]
-		public AdditionalFuelType SelectedExistingFuelType
+		public CarAdditionalFuelType SelectedExistingFuelType
 		{
 			get => _selectedExistingFuelType;
 			set => SetField(ref _selectedExistingFuelType, value);

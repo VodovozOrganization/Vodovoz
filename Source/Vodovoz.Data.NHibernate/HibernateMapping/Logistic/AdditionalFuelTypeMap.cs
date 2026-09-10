@@ -1,13 +1,13 @@
 ﻿using FluentNHibernate.Mapping;
-using VodovozBusiness.Domain.Logistic;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 {
-	public class AdditionalFuelTypeMap : ClassMap<AdditionalFuelType>
+	public class AdditionalFuelTypeMap : ClassMap<CarAdditionalFuelType>
 	{
 		public AdditionalFuelTypeMap()
 		{
-			Table("additional_fuel_types");
+			Table("car_additional_fuel_types");
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 

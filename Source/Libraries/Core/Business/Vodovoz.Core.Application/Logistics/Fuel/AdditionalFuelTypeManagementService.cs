@@ -3,7 +3,6 @@ using System.Linq;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using VodovozBusiness.Domain.Logistic;
 using VodovozBusiness.Errors.Fuel;
 
 namespace Vodovoz.Core.Application.Logistics.Fuel
@@ -13,27 +12,15 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 	/// </summary>
 	public class AdditionalFuelTypeManagementService
 	{
-		private Car _car;
-
-		private bool IsInitialized => _car != null;
+		private readonly Car _car;
 
 		/// <summary>
-		/// Инициализирует сервис с указанным автомобилем
+		/// Инициализирует новый экземпляр <see cref="AdditionalFuelTypeManagementService"/>
 		/// </summary>
 		/// <param name="car">Автомобиль</param>
-		public void Initialize(Car car)
+		public AdditionalFuelTypeManagementService(Car car)
 		{
-			if(car is null)
-			{
-				throw new ArgumentNullException(nameof(car));
-			}
-
-			if(_car != null && _car.Id != car.Id)
-			{
-				throw new InvalidOperationException("Невозможно инициализировать сервис с другим автомобилем.");
-			}
-
-			_car = car;
+			_car = car ?? throw new ArgumentNullException(nameof(car));
 		}
 
 		/// <summary>
@@ -47,8 +34,6 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 			{
 				throw new ArgumentNullException(nameof(fuelType));
 			}
-
-			ValidateInitialization();
 
 			if(IsMainFuelType(fuelType))
 			{
@@ -70,14 +55,12 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 		/// </summary>
 		/// <param name="additionalFuelType">Дополнительный вид топлива</param>
 		/// <returns>Результат операции</returns>
-		public Result RemoveFuelType(AdditionalFuelType additionalFuelType)
+		public Result RemoveFuelType(CarAdditionalFuelType additionalFuelType)
 		{
 			if(additionalFuelType is null)
 			{
 				throw new ArgumentNullException(nameof(additionalFuelType));
 			}
-
-			ValidateInitialization();
 
 			if(!IsAdditionalFuelTypeAlreadyAdded(additionalFuelType))
 			{
@@ -101,13 +84,11 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 				throw new ArgumentNullException(nameof(fuelType));
 			}
 
-			ValidateInitialization();
-
-			if(_car.FuelType.Id == fuelType.Id)
+			if(_car?.FuelType?.Id == fuelType.Id)
 			{
 				return false;
 			}
-			
+
 			return !IsFuelTypeAlreadyAdded(fuelType);
 		}
 
@@ -116,15 +97,13 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 		/// </summary>
 		/// <param name="additionalFuelType">Дополнительный вид топлива</param>
 		/// <returns>Результат операции</returns>
-		public bool CanRemoveFuelType(AdditionalFuelType additionalFuelType)
+		public bool CanRemoveFuelType(CarAdditionalFuelType additionalFuelType)
 		{
 			if(additionalFuelType is null)
 			{
 				throw new ArgumentNullException(nameof(additionalFuelType));
 			}
 
-			ValidateInitialization();
-			
 			return IsAdditionalFuelTypeAlreadyAdded(additionalFuelType);
 		}
 
@@ -133,7 +112,7 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 
 		private void AddAdditionalFuelType(FuelType fuelType)
 		{
-			var additionalFuelType = new AdditionalFuelType
+			var additionalFuelType = new CarAdditionalFuelType
 			{
 				Car = _car,
 				FuelType = fuelType
@@ -142,23 +121,14 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 			_car.AdditionalFuelTypes.Add(additionalFuelType);
 		}
 
-		private AdditionalFuelType GetAdditionalFuelType(FuelType fuelType) =>
+		private CarAdditionalFuelType GetAdditionalFuelType(FuelType fuelType) =>
 			_car.AdditionalFuelTypes
 			.FirstOrDefault(aft => aft.FuelType.Id == fuelType.Id);
 
 		private bool IsFuelTypeAlreadyAdded(FuelType fuelType) =>
 			GetAdditionalFuelType(fuelType) != null;
 
-		private bool IsAdditionalFuelTypeAlreadyAdded(AdditionalFuelType additionalFuelType) =>
+		private bool IsAdditionalFuelTypeAlreadyAdded(CarAdditionalFuelType additionalFuelType) =>
 			GetAdditionalFuelType(additionalFuelType.FuelType) != null;
-
-		private void ValidateInitialization()
-		{
-			if(!IsInitialized)
-			{
-				throw new InvalidOperationException(
-					"Сервис не инициализирован. Вызовите метод Initialize с автомобилем перед выполнением операции");
-			}
-		}
 	}
 }

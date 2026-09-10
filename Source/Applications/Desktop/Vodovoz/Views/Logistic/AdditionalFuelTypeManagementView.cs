@@ -1,7 +1,8 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Widgets.Cars;
-using VodovozBusiness.Domain.Logistic;
+
 namespace Vodovoz.Views.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
@@ -24,7 +25,7 @@ namespace Vodovoz.Views.Logistic
 
 			speciallistcomboboxFuelTypes.ItemsList = ViewModel.AllFuelTypes;
 
-			ytreeviewFuelTypes.ColumnsConfig = FluentColumnsConfig<AdditionalFuelType>.Create()
+			ytreeviewFuelTypes.ColumnsConfig = FluentColumnsConfig<CarAdditionalFuelType>.Create()
 				.AddColumn("Вид топлива")
 					.AddTextRenderer(x => x.FuelType.Name).XAlign(0.5f)
 				.AddColumn("")

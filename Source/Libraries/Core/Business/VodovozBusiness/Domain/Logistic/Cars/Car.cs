@@ -61,7 +61,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private bool _isKaskoInsuranceNotRelevant = true;
 		private int? _techInspectForKm;
 		private string _photoFileName;
-		private IObservableList<AdditionalFuelType> _additionalFuelTypes = new ObservableList<AdditionalFuelType>();
+		private IObservableList<CarAdditionalFuelType> _additionalFuelTypes = new ObservableList<CarAdditionalFuelType>();
 
 		[Display(Name = "Модель")]
 		public virtual CarModel CarModel
@@ -337,7 +337,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		/// Дополнительные виды топлива, которыми может заправляться автомобиль
 		/// </summary>
 		[Display(Name = "Дополнительные виды топлива")]
-		public virtual IObservableList<AdditionalFuelType> AdditionalFuelTypes
+		public virtual IObservableList<CarAdditionalFuelType> AdditionalFuelTypes
 		{
 			get => _additionalFuelTypes;
 			set => SetField(ref _additionalFuelTypes, value);

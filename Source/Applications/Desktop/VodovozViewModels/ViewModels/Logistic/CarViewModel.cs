@@ -53,7 +53,6 @@ using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using VodovozInfrastructure.StringHandlers;
 using Vodovoz.Core.Application.Errors;
 using Vodovoz.Core.Application.FileStorage;
-using VodovozBusiness.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -88,7 +87,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private FuelType _oldFuelType;
 		private FuelCardVersion _oldLastFuelCardVersion;
 		private EmployeeCategory? _oldDriverCategory;
-		private IList<AdditionalFuelType> _oldAdditionalFuelTypes;
+		private IList<CarAdditionalFuelType> _oldAdditionalFuelTypes;
 		private bool _isAdditionalFuelTypesChanged;
 		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
 
@@ -254,7 +253,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_oldFuelType = Entity.FuelType;
 			_oldLastFuelCardVersion = GetLastFuelCardVersion();
 			_oldDriverCategory = Entity.Driver?.Category;
-			_oldAdditionalFuelTypes = new List<AdditionalFuelType>(Entity.AdditionalFuelTypes);
+			_oldAdditionalFuelTypes = new List<CarAdditionalFuelType>(Entity.AdditionalFuelTypes);
 
 			SetIsCarUsedInDeliveryDefaultValueIfNeed();
 		}

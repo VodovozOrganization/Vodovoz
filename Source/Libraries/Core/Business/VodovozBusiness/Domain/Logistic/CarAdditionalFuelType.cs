@@ -2,10 +2,9 @@
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 
-namespace VodovozBusiness.Domain.Logistic
+namespace Vodovoz.Domain.Logistic
 {
 	/// <summary>
 	/// Дополнительный вид топлива для автомобиля
@@ -14,9 +13,8 @@ namespace VodovozBusiness.Domain.Logistic
 		NominativePlural = "дополнительные виды топлива",
 		Nominative = "дополнительный вид топлива",
 		GenitivePlural = "дополнительных видов топлива")]
-	[EntityPermission]
 	[HistoryTrace]
-	public class AdditionalFuelType : PropertyChangedBase, IDomainObject
+	public class CarAdditionalFuelType : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private Car _car;
