@@ -644,5 +644,14 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 
 			return productGroups;
 		}
+
+		public IEnumerable<GazpromFuelProductsGroup> GetGazpromFuelProductsGroupsByFuelTypeIds(IUnitOfWork uow, IEnumerable<int> fuelTypeIds)
+		{
+			var productGroups = uow.Session.Query<GazpromFuelProductsGroup>()
+				.Where(x => fuelTypeIds.Contains(x.FuelTypeId) && !x.IsArchived)
+				.ToList();
+
+			return productGroups;
+		}
 	}
 }

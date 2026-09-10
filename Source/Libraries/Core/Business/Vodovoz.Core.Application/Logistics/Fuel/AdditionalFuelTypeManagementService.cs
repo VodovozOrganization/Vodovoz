@@ -37,12 +37,17 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 		}
 
 		/// <summary>
-		/// Добавляет новый тип топлива
+		/// Добавляет новый дополнительный вид топлива
 		/// </summary>
-		/// <param name="fuelType">Тип топлива</param>
+		/// <param name="fuelType">Вид топлива</param>
 		/// <returns>Результат операции</returns>
 		public Result AddFuelType(FuelType fuelType)
 		{
+			if(fuelType is null)
+			{
+				throw new ArgumentNullException(nameof(fuelType));
+			}
+
 			ValidateInitialization();
 
 			if(IsMainFuelType(fuelType))
@@ -50,7 +55,7 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 				return Result.Failure(AdditionalFuelTypeErrors.AlreadyMainFuelType);
 			}
 
-			if(IsAdditionalFuelTypeAlreadyAdded(fuelType))
+			if(IsFuelTypeAlreadyAdded(fuelType))
 			{
 				return Result.Failure(AdditionalFuelTypeErrors.AdditionalFuelTypeAlreadyAdded);
 			}
@@ -61,25 +66,25 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 		}
 
 		/// <summary>
-		/// Удаляет тип топлива
+		/// Удаляет дополнительный вид топлива
 		/// </summary>
-		/// <param name="fuelType">Тип топлива</param>
+		/// <param name="additionalFuelType">Дополнительный вид топлива</param>
 		/// <returns>Результат операции</returns>
-		public Result RemoveFuelType(FuelType fuelType)
+		public Result RemoveFuelType(AdditionalFuelType additionalFuelType)
 		{
+			if(additionalFuelType is null)
+			{
+				throw new ArgumentNullException(nameof(additionalFuelType));
+			}
+
 			ValidateInitialization();
 
-			var additionalFuelType = GetAdditionalFuelType(fuelType);
-
-			if(additionalFuelType is null)
+			if(!IsAdditionalFuelTypeAlreadyAdded(additionalFuelType))
 			{
 				return Result.Failure(AdditionalFuelTypeErrors.AdditionalFuelTypeNotFound);
 			}
 
-			if(additionalFuelType != null)
-			{
-				_car.AdditionalFuelTypes.Remove(additionalFuelType);
-			}
+			_car.AdditionalFuelTypes.Remove(additionalFuelType);
 
 			return Result.Success();
 		}
@@ -91,21 +96,36 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 		/// <returns>Результат операции</returns>
 		public bool CanAddFuelType(FuelType fuelType)
 		{
+			if(fuelType is null)
+			{
+				throw new ArgumentNullException(nameof(fuelType));
+			}
+
 			ValidateInitialization();
+
+			if(_car.FuelType.Id == fuelType.Id)
+			{
+				return false;
+			}
 			
-			return !IsAdditionalFuelTypeAlreadyAdded(fuelType);
+			return !IsFuelTypeAlreadyAdded(fuelType);
 		}
 
 		/// <summary>
-		/// Проверяет возможность удаления типа топлива
+		/// Проверяет возможность удаления вида топлива
 		/// </summary>
-		/// <param name="fuelType">Тип топлива</param>
+		/// <param name="additionalFuelType">Дополнительный вид топлива</param>
 		/// <returns>Результат операции</returns>
-		public bool CanRemoveFuelType(FuelType fuelType)
+		public bool CanRemoveFuelType(AdditionalFuelType additionalFuelType)
 		{
-			ValidateInitialization();
+			if(additionalFuelType is null)
+			{
+				throw new ArgumentNullException(nameof(additionalFuelType));
+			}
 
-			return IsAdditionalFuelTypeAlreadyAdded(fuelType);
+			ValidateInitialization();
+			
+			return IsAdditionalFuelTypeAlreadyAdded(additionalFuelType);
 		}
 
 		private bool IsMainFuelType(FuelType fuelType) =>
@@ -126,8 +146,11 @@ namespace Vodovoz.Core.Application.Logistics.Fuel
 			_car.AdditionalFuelTypes
 			.FirstOrDefault(aft => aft.FuelType.Id == fuelType.Id);
 
-		private bool IsAdditionalFuelTypeAlreadyAdded(FuelType fuelType) =>
+		private bool IsFuelTypeAlreadyAdded(FuelType fuelType) =>
 			GetAdditionalFuelType(fuelType) != null;
+
+		private bool IsAdditionalFuelTypeAlreadyAdded(AdditionalFuelType additionalFuelType) =>
+			GetAdditionalFuelType(additionalFuelType.FuelType) != null;
 
 		private void ValidateInitialization()
 		{

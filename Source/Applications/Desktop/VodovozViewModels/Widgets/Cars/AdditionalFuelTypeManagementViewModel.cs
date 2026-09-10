@@ -12,6 +12,7 @@ using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using VodovozBusiness.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.Widgets.Cars
 {
@@ -22,7 +23,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		private readonly ICurrentPermissionService _currentPermissionService;
 
 		private FuelType _selectedNewFuelType;
-		private FuelType _selectedExistingFuelType;
+		private AdditionalFuelType _selectedExistingFuelType;
 
 		public AdditionalFuelTypeManagementViewModel(
 			Car entity,
@@ -86,7 +87,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		}
 
 		[PropertyChangedAlso(nameof(CanRemoveFuelType))]
-		public FuelType SelectedExistingFuelType
+		public AdditionalFuelType SelectedExistingFuelType
 		{
 			get => _selectedExistingFuelType;
 			set => SetField(ref _selectedExistingFuelType, value);
@@ -115,6 +116,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error, addFuelTypeResult.GetErrorsString());
 			}
+
+			OnPropertyChanged(nameof(CanAddFuelType));
+			OnPropertyChanged(nameof(CanRemoveFuelType));
 		}
 
 		public void RemoveFuelType()
@@ -132,6 +136,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error, removeFuelTypeResult.GetErrorsString());
 			}
+
+			OnPropertyChanged(nameof(CanAddFuelType));
+			OnPropertyChanged(nameof(CanRemoveFuelType));
 		}
 	}
 }

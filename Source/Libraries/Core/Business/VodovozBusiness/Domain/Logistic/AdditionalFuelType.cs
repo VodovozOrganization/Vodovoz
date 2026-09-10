@@ -7,6 +7,9 @@ using Vodovoz.Domain.Logistic.Cars;
 
 namespace VodovozBusiness.Domain.Logistic
 {
+	/// <summary>
+	/// Дополнительный вид топлива для автомобиля
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "дополнительные виды топлива",
 		Nominative = "дополнительный вид топлива",
@@ -48,5 +51,8 @@ namespace VodovozBusiness.Domain.Logistic
 			get => _fuelType;
 			set => SetField(ref _fuelType, value);
 		}
+
+		public virtual string Title => $"{Car?.Title} - {FuelType?.Name}";
+
 	}
 }

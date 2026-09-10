@@ -88,6 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private FuelCardVersion _oldLastFuelCardVersion;
 		private EmployeeCategory? _oldDriverCategory;
 		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
+		private bool _isAdditionalFuelTypesChanged;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
@@ -212,6 +213,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			AdditionalFuelTypeManagementViewModel = additionalFuelTypeManagementViewModelFactory
 				.CreateAdditionalFuelTypeManagementViewModel(Entity, UoW, this);
+			Entity.AdditionalFuelTypes.CollectionChanged += OnAdditionalFuelTypesCollectionChanged;
 
 			OnDriverChanged();
 
@@ -253,7 +255,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			SetIsCarUsedInDeliveryDefaultValueIfNeed();
 		}
-		
+
 		public bool CanEdit { get; private set; }
 		public bool CanEditCarCard { get; private set; }
 		
@@ -681,22 +683,32 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void SetFuelCardProductGroupRestrictionByCardId(string fuelCardId, CancellationToken cancellationToken)
 		{
-			var gazpromFuelProductsGroups = GazpromFuelProductsGroups.ToList();
-
 			_fuelApiService.SetProductRestrictionsAndRemoveExistingByCardId(
 				fuelCardId,
 				cancellationToken,
-				gazpromFuelProductsGroups)
+				GetGazpromFuelProductsGroups())
 				.GetAwaiter()
 				.GetResult();
 		}
 
-		private IEnumerable<string> GazpromFuelProductsGroups =>
-			Entity.FuelType is null
-			? Enumerable.Empty<string>()
-			: _fuelRepository
-				.GetGazpromFuelProductsGroupsByFuelTypeId(UoW, Entity.FuelType.Id)
-				.Select(x => x.GazpromFuelProductGroupId);
+		private IEnumerable<string> GetGazpromFuelProductsGroups()
+		{
+			if(Entity.FuelType is null)
+			{
+				return Enumerable.Empty<string>();
+			}
+
+			var fuelTypesIds = new List<int> { Entity.FuelType.Id };
+			fuelTypesIds.AddRange(Entity.AdditionalFuelTypes.Select(x => x.FuelType.Id));
+
+			var productGroups =
+				_fuelRepository
+				.GetGazpromFuelProductsGroupsByFuelTypeIds(UoW, fuelTypesIds)
+				.Select(x => x.GazpromFuelProductGroupId)
+				.Distinct();
+
+			return productGroups;
+		}
 
 		private FuelCardVersion GetLastFuelCardVersion() =>
 			Entity.FuelCardVersions
@@ -709,7 +721,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool IsNeedToUpdateFuelCardProductRestriction =>
 			(IsFuelCardChanged() && Entity.FuelType != null)
 			|| (IsFuelTypeChanged && IsFuelCardToChangeProductRestrictionAdded)
+			|| (_isAdditionalFuelTypesChanged && IsFuelCardToChangeProductRestrictionAdded)
 			|| (IsDriverCategoryChanged && IsFuelCardToChangeProductRestrictionAdded);
+
+		private void OnAdditionalFuelTypesCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			_isAdditionalFuelTypesChanged = true;
+		}
 
 		private bool IsFuelCardChanged()
 		{
