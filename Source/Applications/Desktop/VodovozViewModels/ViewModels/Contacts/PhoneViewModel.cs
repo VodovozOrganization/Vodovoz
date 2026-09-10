@@ -3,7 +3,7 @@ using QS.ViewModels;
 using System;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Application.Clients;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Settings.Contacts;
 using VodovozBusiness.Domain.Contacts;
@@ -16,6 +16,8 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		private readonly IUnitOfWork _uow;
 		private readonly Phone _phone;
 		private readonly bool _canArchivateNumber;
+		private readonly bool _supportsExternalCounterpartyArchiving;
+		private bool _wasInitiallyArchive;
 		private readonly IPhoneTypeSettings _phoneTypeSettings;
 		private readonly IExternalCounterpartyHandler _externalCounterpartyHandler;
 		private ICommonServices _commonServices;
@@ -41,10 +43,13 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			Phone phone,
 			ICommonServices commonServices,
 			IPhoneTypeSettings phoneTypeSettings,
-			IExternalCounterpartyHandler externalCounterpartyHandler)
+			IExternalCounterpartyHandler externalCounterpartyHandler,
+			bool supportsExternalCounterpartyArchiving = false)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_phone = phone;
+			_wasInitiallyArchive = phone.IsArchive;
+			_supportsExternalCounterpartyArchiving = supportsExternalCounterpartyArchiving;
 
 			_phoneTypeSettings = phoneTypeSettings ?? throw new ArgumentNullException(nameof(phoneTypeSettings));
 			_externalCounterpartyHandler = externalCounterpartyHandler ?? throw new ArgumentNullException(nameof(externalCounterpartyHandler));
@@ -52,35 +57,56 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			_canArchivateNumber = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Phone)).CanUpdate;
 		}
 
+		/// <summary>Телефон переведён в архив после загрузки или последнего сохранения.</summary>
+		public bool IsPendingArchiving => !_wasInitiallyArchive && PhoneIsArchive;
+
+		/// <summary>Запомнить состояние телефона после успешного сохранения карточки.</summary>
+		public void AcceptChanges()
+		{
+			_wasInitiallyArchive = PhoneIsArchive;
+		}
+
 		private void SetPhoneType(PhoneType phoneType)
 		{
+			if(phoneType == null || phoneType == _phone.PhoneType)
+			{
+				return;
+			}
+
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
-				if(CheckExternalCounterparties())
+				var hasExternalCounterparties = _externalCounterpartyHandler.HasExternalCounterparties(_uow, _phone);
+				if(hasExternalCounterparties
+					&& (!_supportsExternalCounterpartyArchiving || !_canArchivateNumber
+						|| !_commonServices.CurrentPermissionService.ValidatePresetPermission(
+							CounterpartyPermissions.CanArchivePhoneWithExternalCounterparties)))
 				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						"Для архивации телефона, привязанного к пользователям ИПЗ, требуется специальное право и право редактирования телефона.");
 					return;
 				}
-				
-				if(_canArchivateNumber && !_commonServices.InteractiveService.Question("Номер будет переведен в архив и пропадет в списке активных. Продолжить?"))
+
+				var confirmation = hasExternalCounterparties
+					? "Номер будет переведен в архив. При сохранении карточки будут удалены все привязанные пользователи ИПЗ, связанные заявки и уведомления о сопоставлении. Продолжить?"
+					: "Номер будет переведен в архив и пропадет в списке активных. Продолжить?";
+				if(_canArchivateNumber && !_commonServices.InteractiveService.Question(confirmation))
 				{
 					return;
 				}
 
 				PhoneIsArchive = true;
 			}
-			else
+			else if(PhoneIsArchive)
 			{
-				if(PhoneIsArchive)
+				// Возврат исходного типа до сохранения отменяет запланированную архивацию.
+				if(!IsPendingArchiving && CheckExternalCounterparties())
 				{
-					if(CheckExternalCounterparties())
-					{
-						return;
-					}
-
-					PhoneIsArchive = false;
+					return;
 				}
+
+				PhoneIsArchive = false;
 			}
-			
+
 			_phone.PhoneType = phoneType;
 		}
 
@@ -88,11 +114,8 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			if(_externalCounterpartyHandler.HasExternalCounterparties(_uow, _phone))
 			{
-				_commonServices.InteractiveService
-					.ShowMessage(
-						ImportanceLevel.Warning,
-						"По данному номеру привязан пользователь ИПЗ(МП, сайта и т.д.) архивация/деархивация невозможна. Обратитесь в отдель разработки");
-
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					"По данному номеру привязан пользователь ИПЗ. Деархивация невозможна. Обратитесь в отдел разработки.");
 				return true;
 			}
 

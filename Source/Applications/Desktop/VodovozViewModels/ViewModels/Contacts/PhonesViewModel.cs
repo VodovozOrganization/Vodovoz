@@ -27,6 +27,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		private IObservableList<Phone> _phonesList;
 		private readonly IContactSettings _contactsParameters;
 		private IPhoneRepository phoneRepository;
+		private readonly Dictionary<Phone, PhoneViewModel> _phoneViewModels = new Dictionary<Phone, PhoneViewModel>();
 
 		public PhonesViewModel(
 			IUnitOfWork uow,
@@ -114,14 +115,64 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		
 		public PhoneViewModel GetPhoneViewModel(Phone phone)
 		{
-			return new PhoneViewModel(
-				UoW,
-				phone,
-				_commonServices,
-				_phoneTypeSettings,
-				ExternalCounterpartyHandler);
+			if(_phoneViewModels.TryGetValue(phone, out var viewModel))
+			{
+				return viewModel;
+			}
+
+			viewModel = new PhoneViewModel(
+				UoW, phone, _commonServices, _phoneTypeSettings, ExternalCounterpartyHandler,
+				supportsExternalCounterpartyArchiving: Counterparty != null);
+			_phoneViewModels.Add(phone, viewModel);
+
+			return viewModel;
 		}
-		
+
+		/// <summary>Сохранение завершилось ошибкой, единица работы больше не может использоваться.</summary>
+		public bool HasSaveFailed { get; private set; }
+
+		/// <summary>
+		/// Сохранить карточку вместе с очисткой связей архивируемых телефонов.
+		/// При ошибке освободить единицу работы с откатом незавершённой транзакции.
+		/// </summary>
+		public void SaveWithPhoneArchiving()
+		{
+			if(HasSaveFailed)
+			{
+				throw new InvalidOperationException("После ошибки сохранения необходимо повторно открыть карточку.");
+			}
+
+			try
+			{
+				PrepareSave();
+				UoW.Save();
+			}
+			catch
+			{
+				HasSaveFailed = true;
+				UoW.Dispose();
+				throw;
+			}
+		}
+
+		/// <summary>Подготовить очистку связей архивируемых телефонов перед сохранением карточки.</summary>
+		private void PrepareSave()
+		{
+			foreach(var phone in PhonesList.Where(p => GetPhoneViewModel(p).IsPendingArchiving))
+			{
+				ExternalCounterpartyHandler.DeleteExternalCounterpartiesForArchivedPhone(UoW, phone);
+			}
+		}
+
+		/// <summary>Зафиксировать исходное состояние телефонов после успешного сохранения.</summary>
+		public void AcceptChanges()
+		{
+			foreach(var phone in PhonesList)
+			{
+				GetPhoneViewModel(phone).AcceptChanges();
+			}
+		}
+
 		public void Initialize(
 			ITdiTab parentTab,
 			bool readOnly,

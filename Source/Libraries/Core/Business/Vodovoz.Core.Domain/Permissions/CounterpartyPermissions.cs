@@ -5,6 +5,14 @@ namespace Vodovoz.Core.Domain.Permissions
 	public static class CounterpartyPermissions
 	{
 		/// <summary>
+		/// Архивация телефона с удалением привязанных пользователей ИПЗ и данных сопоставления.
+		/// </summary>
+		[Display(
+			Name = "Архивация телефона, привязанного к пользователю(ям) ИПЗ",
+			Description = "Разрешает архивацию телефона с удалением связанных пользователей ИПЗ, заявок и уведомлений о сопоставлении")]
+		public static string CanArchivePhoneWithExternalCounterparties => nameof(CanArchivePhoneWithExternalCounterparties);
+
+		/// <summary>
 		/// Пересчет классификации контрагентов
 		/// </summary>
 		public static string CanCalculateCounterpartyClassifications => "can_calculate_counterparty_classifications";
