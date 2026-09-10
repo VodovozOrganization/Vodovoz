@@ -2061,8 +2061,8 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			if(newOrderSaleItem.Discount > 0 &&
-				(newOrderSaleItem.DiscountReasons is null || !newOrderSaleItem.DiscountReasons.Any())
+			if(newOrderSaleItem.Discount > 0
+				&& (newOrderSaleItem.DiscountReasons is null || !newOrderSaleItem.DiscountReasons.Any())
 				&& newOrderSaleItem.PromoSet is null)
 			{
 				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");

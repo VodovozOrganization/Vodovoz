@@ -360,9 +360,22 @@ namespace Vodovoz.Views.Orders
 							cell.BackgroundGdk = GdkColors.PrimaryBase;
 						}
 					})
-				.AddColumn("Цена (ДВ)")
+				.AddColumn("Цена c учетом\nскидок(ДВ)")
 					.AddNumericRenderer(x => x.OurPrice)
 					.XAlign(0.5f)
+				.AddColumn("Основания скидки")
+					.AddTextRenderer(node => node.DiscountReasonNames)
+					.AddSetter((cell, node) =>
+					{
+						if(node.OnlineOrderErrorState.HasValue
+							&& node.OnlineOrderErrorState == OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable)
+						{
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
+						}
+
+						cell.CellBackgroundGdk = GdkColors.PrimaryBase;
+					})
 				.AddColumn("Сумма\n(онлайн заказ)")
 					.AddTextRenderer(x => x is OnlineOrderPromoSetItemNode ? "-" : x.ReceivedSum.ToString())
 					.XAlign(0.5f)
@@ -417,31 +430,11 @@ namespace Vodovoz.Views.Orders
 					.AddNumericRenderer(node => node.GetDiscount)
 					.AddSetter((cell, node) =>
 					{
-						if(node.DiscountReasons.Any())
+						if(node.OnlineOrderErrorState.HasValue
+							&& node.OnlineOrderErrorState == OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable)
 						{
-							foreach(var discountReason in node.DiscountReasons)
-							{
-								if(node.Nomenclature != null
-									&& !ViewModel.DiscountController.IsApplicableDiscount(discountReason, node).IsSuccess)
-								{
-									cell.CellBackgroundGdk = GdkColors.DangerBase;
-									return;
-								}
-							}						
-								
-							if(node.GetDiscount != node.GetDiscountFromDiscountReasons)
-							{
-								cell.CellBackgroundGdk = GdkColors.DangerBase;
-								return;
-							}
-						}
-						else
-						{
-							if(node.GetDiscount > 0)
-							{
-								cell.CellBackgroundGdk = GdkColors.DangerBase;
-								return;
-							}
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
 						}
 						
 						cell.CellBackgroundGdk = GdkColors.PrimaryBase;
@@ -471,20 +464,15 @@ namespace Vodovoz.Views.Orders
 				.AddColumn("Скидка в рублях?\n(основание скидки)")
 					.AddToggleRenderer(node => node.DiscountReasons.Any() && node.IsDiscountInMoneyFromDiscountReasons)
 					.Editing(false)
-				.AddColumn("Основание скидки")
+				.AddColumn("Основания скидки")
 					.AddTextRenderer(node => node.DiscountReasons.Any() ? node.DiscountReasonsNames : string.Empty)
 					.AddSetter((cell, node) =>
 					{
-						if(node.Nomenclature != null && node.DiscountReasons.Any())
+						if(node.OnlineOrderErrorState.HasValue
+							&& node.OnlineOrderErrorState == OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable)
 						{
-							foreach(var discountReason in node.DiscountReasons)
-							{
-								if(!ViewModel.DiscountController.IsApplicableDiscount(discountReason, node).IsSuccess)
-								{
-									cell.CellBackgroundGdk = GdkColors.DangerBase;
-									return;
-								}
-							}
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+							return;
 						}
 
 						cell.CellBackgroundGdk = GdkColors.PrimaryBase;

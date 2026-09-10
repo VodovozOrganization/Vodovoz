@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using CustomerOrdersApi.Library.V7.Dto.Orders.Promotions;
-using Vodovoz.Core.Data.InfoMessages;
 using Vodovoz.Core.Domain.Interfaces.Common;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
 
-namespace CustomerOrdersApi.Library.V7.Dto.Orders
+namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts
 {
 	/// <summary>
 	/// Данные по применению промокода

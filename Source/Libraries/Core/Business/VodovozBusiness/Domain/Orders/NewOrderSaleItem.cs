@@ -43,12 +43,22 @@ namespace VodovozBusiness.Domain.Orders
 		}
 
 		public (SaleItemPriceType PriceType, decimal Price) PriceData { get; set; }
-		public decimal Discount { get; }
-		public bool IsDiscountInMoney { get; }
+		public decimal Discount { get; private set; }
+		public bool IsDiscountInMoney { get; private set; }
 		public IEnumerable<DiscountReasonBase> DiscountReasons { get; set; }
 		public PromotionalSet PromoSet { get; }
 		public Equipment Equipment { get; }
 		public bool GiftItem { get; }
+
+		public void UpdateDiscount(
+			bool isDiscountInMoney,
+			decimal discount,
+			IEnumerable<DiscountReasonBase> discountReasons)
+		{
+			Discount = discount;
+			DiscountReasons = discountReasons;
+			IsDiscountInMoney = isDiscountInMoney;
+		}
 
 		public static NewOrderSaleItem Create(
 			Nomenclature nomenclature,

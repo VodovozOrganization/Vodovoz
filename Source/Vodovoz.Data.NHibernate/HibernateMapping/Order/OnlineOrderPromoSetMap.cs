@@ -31,8 +31,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			
 			HasManyToMany(x => x.DiscountReasons)
 				.Table("discount_reasons_online_orders_promo_sets")
-				.ParentKeyColumn("discount_reason_id")
-				.ChildKeyColumn("online_order_promo_set_id");
+				.ParentKeyColumn("online_order_promo_set_id")
+				.ChildKeyColumn("discount_reason_id");
 		}
 	}
 }

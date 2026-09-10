@@ -6,8 +6,10 @@ using Microsoft.Extensions.Logging;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
@@ -27,6 +29,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 	public class OnlineOrderV2ViewModel : OnlineOrderViewModel
 	{
 		private readonly IPromotionalSetRepository _promoSetRepository;
+		private readonly IOrderDiscountsController _discountsController;
+		private readonly IApplicablePromotionFactory _applicablePromotionFactory;
 
 		public OnlineOrderV2ViewModel(
 			ILogger<OnlineOrderV2ViewModel> logger,
@@ -43,7 +47,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IDiscountController discountController,
 			IOrderOrganizationManager orderOrganizationManager,
 			MangoManager mangoManager,
-			IPromotionalSetRepository promoSetRepository
+			IPromotionalSetRepository promoSetRepository,
+			IOrderDiscountsController discountsController,
+			IApplicablePromotionFactory applicablePromotionFactory
 		)
 			: base(
 				logger,
@@ -63,6 +69,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			)
 		{
 			_promoSetRepository = promoSetRepository ?? throw new ArgumentNullException(nameof(promoSetRepository));
+			_discountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
+			_applicablePromotionFactory = applicablePromotionFactory ?? throw new ArgumentNullException(nameof(applicablePromotionFactory));
+
 			Initialize();
 		}
 		
@@ -97,7 +106,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		private void GetPromoSetsData()
 		{
-			var promoSetsData = _promoSetRepository.GetOnlineOrderPromoSetsData(UoW, Entity.Id);
+			var onlinePromoSetsLookup = Entity.PromoSets
+				.ToLookup(x => x.Id);
+			
+			var promoSetsData = _promoSetRepository
+				.GetOnlineOrderPromoSetsData(UoW, Entity.Id);
+			
 			var promoSetsItemsData = _promoSetRepository
 				.GetOnlineOrderPromoSetItemsData(UoW, Entity.Id)
 				.ToLookup(x => x.OnlinePromoSetId);
@@ -105,17 +119,45 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			foreach(var promoSetNode in promoSetsData)
 			{
 				var items = promoSetsItemsData[promoSetNode.Id];
-				
+
 				if(!items.Any())
 				{
 					throw new InvalidOperationException("Произошла нестандартная ситуация. У промонабора не может быть пустой список товаров");
 				}
 
+				var onlinePromoSet = onlinePromoSetsLookup[promoSetNode.Id]
+					.FirstOrDefault()
+					?? throw new InvalidOperationException("Промонаборы в онлайн заказе не могут расходиться с промонаборами подобранными запросом!");
+
+				var promoSaleItem = _applicablePromotionFactory.CreateApplicablePromotion(onlinePromoSet);
+				var discountReasons = onlinePromoSet.DiscountReasons;
+
+				if(onlinePromoSet.OnlineOrderErrorState.HasValue
+					&& onlinePromoSet.OnlineOrderErrorState == OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable)
+				{
+					promoSetNode.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+				}
+
+				var totalPromoSetItemsDiscount = _discountsController.CalculatePromoSetItemsTotalDiscount(
+					UoW,
+					promoSaleItem,
+					discountReasons);
+				
 				foreach(var item in items)
 				{
+					if(totalPromoSetItemsDiscount.TryGetValue(item.Id, out var itemTotalDiscounts))
+					{
+						item.UpdateDiscounts(itemTotalDiscounts);
+					}
+					else
+					{
+						throw new InvalidOperationException(
+							"Для обновления скидок, в словаре должны быть те же позиции промонабора, что и подобраны запросом");
+					}
+					
 					promoSetNode.AddItem(item);
 				}
-				
+			
 				OnlineOrderPromoSets.Add(promoSetNode);
 			}
 		}

@@ -32,6 +32,12 @@
 		/// <param name="discountValue">Добавляемое значение скидки</param>
 		void AddDiscountValue(IDiscountValue discountValue);
 		/// <summary>
+		/// Добавление скидки к текущим значениям
+		/// </summary>
+		/// <param name="isDiscountMoney">Скидка в деньгах</param>
+		/// <param name="discount">Добавляемое значение скидки</param>
+		void AddDiscount(bool isDiscountMoney, decimal discount);
+		/// <summary>
 		/// Установка скидки
 		/// Если isDiscountMoney - false, то устанавливаем Discount, иначе DiscountMoney
 		/// </summary>

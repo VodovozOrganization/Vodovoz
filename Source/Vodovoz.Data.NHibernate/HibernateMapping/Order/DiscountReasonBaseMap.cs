@@ -41,6 +41,12 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 				.ChildKeyColumn("group_id")
 				.LazyLoad();
 			
+			HasManyToMany(x => x.PromoSets)
+				.Table("discount_reasons_promotional_sets")
+				.ParentKeyColumn("discount_reason_id")
+				.ChildKeyColumn("promotional_set_id")
+				.LazyLoad();
+			
 			HasMany(x => x.DiscountApplicabilities)
 				.Cascade.AllDeleteOrphan()
 				.Inverse()

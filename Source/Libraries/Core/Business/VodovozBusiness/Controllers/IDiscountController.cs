@@ -27,5 +27,16 @@ namespace VodovozBusiness.Controllers
 		(decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
 			ICalculatingTotalMoneyDiscount saleItem
 		);
+
+		/// <summary>
+		/// Подсчет Скидки в деньгах из основания скидки
+		/// </summary>
+		/// <param name="currentRawPrice">Стоимость товара/позиции</param>
+		/// <param name="discountReason">Основание скидки</param>
+		/// <returns></returns>
+		decimal CalculateMoneyDiscount(
+			decimal currentRawPrice,
+			DiscountReasonBase discountReason
+		);
 	}
 }

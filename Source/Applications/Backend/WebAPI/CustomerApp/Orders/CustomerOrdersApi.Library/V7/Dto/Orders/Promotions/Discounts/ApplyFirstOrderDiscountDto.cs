@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
 using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
 using Vodovoz.Core.Domain.Clients;
 
-namespace CustomerOrdersApi.Library.V7.Dto.Orders
+namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts
 {
 	/// <summary>
-	/// Информация для проверки применимости промокода
+	/// Информация для применения скидки на первый заказ
 	/// </summary>
-	public class ApplyPromoCodeDto
+	public class ApplyFirstOrderDiscountDto
 	{
 		/// <summary>
 		/// Источник заказа
@@ -25,27 +23,12 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		/// </summary>
 		public int? ErpCounterpartyId { get; set; }
 		/// <summary>
-		/// Контрольная сумма, для проверки валидности отправителя
-		/// </summary>
-		public string Signature { get; set; }
-		/// <summary>
 		/// Id клиента в ИПЗ
 		/// </summary>
 		public Guid? ExternalCounterpartyId { get; set; }
 		/// <summary>
-		/// Промокод
-		/// </summary>
-		public string PromoCode { get; set; }
-		/// <summary>
-		/// Сумма заказа
-		/// </summary>
-		[JsonIgnore]
-		public decimal OrderSum => OnlineOrderItems.Sum(x => x.CurrentSum);
-		/// <summary>
 		/// Список товаров
 		/// </summary>
 		public IEnumerable<OnlineOrderItemDto> OnlineOrderItems { get; set; }
-		[JsonIgnore]
-		public DateTime RequestTime { get; } = DateTime.UtcNow;
 	}
 }

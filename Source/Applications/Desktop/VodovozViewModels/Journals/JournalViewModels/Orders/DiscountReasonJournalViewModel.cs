@@ -4,6 +4,7 @@ using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
@@ -20,7 +21,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 	public class DiscountReasonJournalViewModel
 		 : EntityJournalViewModelBase<DiscountReasonBase, DiscountReasonViewModel, DiscountReasonJournalNode>
 	{
-
 		public DiscountReasonJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
@@ -56,6 +56,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				},
 				Projections.Select(() => typeof(DiscountReason)));
 
+			var nameProjection = Projections.Conditional(
+				Restrictions.Where(() => drAlias.DiscountReasonType == DiscountReasonType.PromoCode),
+				CustomProjections.Concat_WS(" ", Projections.Constant("Промокод"), Projections.Property(() => drAlias.Name)),
+				Projections.Property(() => drAlias.Name));
+
 			query.Where(GetSearchCriterion(
 				() => drAlias.Id,
 				() => drAlias.Name));
@@ -63,7 +68,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			return query.SelectList(list => list
 					.Select(dr => dr.Id).WithAlias(() => drNodeAlias.Id)
 					.Select(discountReasonTypeProjection).WithAlias(() => drNodeAlias.EntityType)
-					.Select(dr => dr.Name).WithAlias(() => drNodeAlias.Name)
+					.Select(nameProjection).WithAlias(() => drNodeAlias.Name)
 					.Select(dr => dr.IsArchive).WithAlias(() => drNodeAlias.IsArchive))
 				.OrderBy(dr => dr.IsArchive).Asc
 				.OrderBy(dr => dr.Name).Asc

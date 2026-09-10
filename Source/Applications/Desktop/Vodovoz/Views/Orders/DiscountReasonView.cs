@@ -319,7 +319,7 @@ namespace Vodovoz.Views.Orders
 
 		private void ConfigurePromoCodeTab()
 		{
-			lblPromoCode.Visible = false;
+			lblPromoCodeNameTitle.Visible = false;
 			entryPromoCodeName.Visible = false;
 			
 			datePromoCodeDuration.Binding

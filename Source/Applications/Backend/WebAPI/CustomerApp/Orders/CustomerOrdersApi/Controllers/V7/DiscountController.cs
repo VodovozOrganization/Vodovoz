@@ -60,6 +60,46 @@ namespace CustomerOrdersApi.Controllers.V7
 			}
 		}
 		
+		/// <summary>
+		/// Применение скидки на первый заказ
+		/// </summary>
+		/// <param name="applyFirstOrderDiscountDto">Данные для применения скидки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список товаров с детализацией скидок, если скидка недоступна - вернется пришедший список</returns>
+		[HttpGet]
+		[Authorize]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AppliedFirstOrderDiscountDto))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> ApplyFirstOrderDiscount(
+			[FromBody] ApplyFirstOrderDiscountDto applyFirstOrderDiscountDto,
+			CancellationToken cancellationToken)
+		{
+			var sourceName = applyFirstOrderDiscountDto.Source.GetEnumTitle();
+			
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос на применение скидки на первый заказ {@FirstOrderDiscountRequest}, проверяем...", applyFirstOrderDiscountDto);
+				
+				var result =
+					await _discountService.ApplyFirstOrderDiscount(applyFirstOrderDiscountDto, cancellationToken);
+
+				_logger.LogInformation("Отправляем ответ по скидке: {@FirstOrderDiscountResponse}", result);
+				return Ok(result);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при применении скидки на первый заказ {ExternalOrderId} пользователя {ExternalClientId} от {Source}",
+					applyFirstOrderDiscountDto.ExternalOrderId,
+					applyFirstOrderDiscountDto.ExternalCounterpartyId,
+					sourceName);
+
+				return Problem();
+			}
+		}
+		
 		[HttpGet]
 		public IActionResult GetPromoCodeWarningMessage([FromBody] PromoCodeWarningDto promoCodeWarningDto)
 		{
@@ -124,7 +164,7 @@ namespace CustomerOrdersApi.Controllers.V7
 					requestDto);
 
 				var result =
-					await _discountService.GetFirstOrderDiscountConditions(
+					await _discountService.CanApplyFirstOrderDiscount(
 						requestDto.Source,
 						requestDto.ExternalCounterpartyId,
 						requestDto.ErpCounterpartyId,

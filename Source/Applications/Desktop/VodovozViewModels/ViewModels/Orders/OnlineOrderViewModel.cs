@@ -281,6 +281,18 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			return AskQuestion(question, title);
 		}
 		
+		public override bool Save(bool needClose)
+		{
+			Save();
+
+			if(needClose)
+			{
+				Close(false, CloseSource.Save);
+			}
+
+			return true;
+		}
+		
 		protected void Initialize()
 		{
 			GetTimers();
@@ -289,9 +301,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 			
+			TryValidateOnlineOrder();
 			GetOnlineOrderItems();
 			ConfigureEntryViewModels();
-			TryValidateOnlineOrder();
 			InitializeOperatorComments();
 		}
 		
@@ -351,7 +363,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					if(Entity.EmployeeWorkWith is null)
 					{
 						Entity.EmployeeWorkWith = _currentEmployee;
-						Save(false);
+						Save();
 					}
 				});
 		}
@@ -638,6 +650,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 
 			OperatorsComments = sb.ToString();
+		}
+
+		private new bool Save()
+		{
+			UoW.Save(Entity);
+			UoW.Commit();
+			return true;
 		}
 
 		public override void Dispose()

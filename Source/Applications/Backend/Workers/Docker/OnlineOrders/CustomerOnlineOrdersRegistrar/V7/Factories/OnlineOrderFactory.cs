@@ -181,7 +181,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 			{
 				throw new InvalidOperationException(
 					"Нельзя создавать объекты не промонабора!" +
-					" Используйте методы CreateAndAddOnlineOrderItem или CreateAndAddRentPackageItem");
+					$" Используйте методы {nameof(CreateAndAddOnlineOrderItem)} или {nameof(CreateAndAddRentPackageItem)}");
 			}
 
 			var promoSet = _promotionalSetRepository

@@ -9,9 +9,11 @@
 		/// Указывает доступна ли скидка на первый заказ для клиента
 		/// </summary>
 		public bool DiscountIsAvailable { get; set; }
-		/// <summary>
-		/// Информация о скидке
-		/// </summary>
-		public DiscountDto Discount { get; set; }
+
+		public static FirstOrderDiscountConditionsDto Create(bool isDiscountAvailable) =>
+			new FirstOrderDiscountConditionsDto
+			{
+				DiscountIsAvailable = isDiscountAvailable
+			};
 	}
 }

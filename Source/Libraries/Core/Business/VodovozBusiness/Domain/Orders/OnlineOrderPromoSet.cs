@@ -85,6 +85,17 @@ namespace VodovozBusiness.Domain.Orders
 			get => _discountReasons;
 			set => SetField(ref _discountReasons, value);
 		}
+		
+		/// <summary>
+		/// Тип ошибки валидации онлайн товара
+		/// </summary>
+		[Display(Name = "Тип ошибки валидации онлайн товара")]
+		public virtual OnlineOrderErrorState? OnlineOrderErrorState { get; set; }
+		
+		/// <summary>
+		/// Название промонабора
+		/// </summary>
+		public virtual string PromoSetName => PromoSet?.Name;
 
 		public static OnlineOrderPromoSet Create(
 			int promoSetId,

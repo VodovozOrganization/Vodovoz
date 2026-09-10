@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Interfaces;
+using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
@@ -13,6 +14,7 @@ using Vodovoz.Errors.Orders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Core.Application.Sale
 {
@@ -196,6 +198,116 @@ namespace Vodovoz.Core.Application.Sale
 
 			return discountMoneyToAdd + alreadyAddedDiscount <= saleItem.CurrentRawPrice;
 		}
+		
+		public IDictionary<int, PromoSetItemTotalDiscount> CalculatePromoSetItemsTotalDiscount(
+			IUnitOfWork uow,
+			IApplicablePromotion onlinePromoSet,
+			IEnumerable<DiscountReasonBase> discountReasons,
+			bool canUseAlternativePrices = false
+			)
+		{
+			var promoSetItemsWithDiscounts = new Dictionary<int, PromoSetItemTotalDiscount>();
+			var applicableDiscountReasons = new Queue<DiscountReasonBase>(discountReasons);
+
+			for(var i = 0; i < applicableDiscountReasons.Count; i++)
+			{
+				if(IsApplicableDiscount(applicableDiscountReasons.Peek(), onlinePromoSet).IsFailure)
+				{
+					applicableDiscountReasons.Dequeue();
+				}
+			}
+
+			var promoSetPrice = onlinePromoSet.PromoSet.Sum();
+			
+			var wholeDiscount = applicableDiscountReasons
+				.Sum(applicableDiscountReason => CalculateMoneyDiscount(promoSetPrice, applicableDiscountReason)
+				);
+			
+			foreach(var promoSetItem in onlinePromoSet.PromoSet.PromotionalSetItems)
+			{
+				var itemPrice = promoSetItem.Sum();
+				var rawItemPrice = promoSetItem.SumWithoutDiscount();
+
+				var minDiscountFromApplicableReasons = 0m;
+
+				if(applicableDiscountReasons.Any()
+					&& itemPrice != 0m
+					&& wholeDiscount != 0m)
+				{
+					minDiscountFromApplicableReasons = applicableDiscountReasons
+						.Select(discountReason => CalculateMoneyDiscount(itemPrice, discountReason))
+						.Min();
+				}
+
+				//сначала считаем скидку, зашитую в позиции промонабора
+				var totalDiscountMoney = promoSetItem.IsDiscountInMoney
+					? promoSetItem.DiscountMoney
+					: rawItemPrice * promoSetItem.Discount / 100m;
+
+				var isDiscountInMoney =
+					promoSetItem.IsDiscountInMoney
+					|| applicableDiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
+
+				var applicableDiscountToItem = 0m;
+				IEnumerable<DiscountReasonBase> currentDiscountReasons = applicableDiscountReasons;
+				
+				//Если скидки нет или стоимость позиции ноль, то очищаем список оснований скидок, т.к. это внутренние скидки
+				if(wholeDiscount != 0m && itemPrice != 0m)
+				{
+					applicableDiscountToItem = wholeDiscount > itemPrice
+						? itemPrice
+						: wholeDiscount;
+				}
+				else
+				{
+					currentDiscountReasons = Array.Empty<DiscountReasonBase>();
+				}
+				
+				totalDiscountMoney += applicableDiscountToItem;
+
+				if(applicableDiscountToItem < minDiscountFromApplicableReasons)
+				{
+					var personalDiscountReason = DiscountReasonRepository.GetDiscountReason(uow, PersonalDiscountReasonId);
+
+					if(personalDiscountReason is null)
+					{
+						throw new InvalidOperationException(
+							"В базе не найдено основание скидки Персональная скидка! Она необходима для установки индивидуальной скидки");
+					}
+
+					var personalDiscount = PersonalDiscount.Create(personalDiscountReason, DiscountReasonSettings);
+					personalDiscount.SetDiscount(
+						CalculateDiscount(
+							promoSetItem.Sum(canUseAlternativePrices),
+							DiscountValue.Create(true, applicableDiscountToItem, applicableDiscountToItem))
+						);
+					
+					promoSetItemsWithDiscounts.Add(
+						promoSetItem.Id,
+						PromoSetItemTotalDiscount.Create(
+							totalDiscountMoney,
+							DiscountValue.Create(true, totalDiscountMoney * 100 / rawItemPrice, totalDiscountMoney),
+							new []{ personalDiscountReason },
+							personalDiscount));
+				}
+				else
+				{
+					promoSetItemsWithDiscounts.Add(
+						promoSetItem.Id,
+						PromoSetItemTotalDiscount.Create(
+							totalDiscountMoney,
+							DiscountValue.Create(isDiscountInMoney, totalDiscountMoney * 100 / rawItemPrice, totalDiscountMoney),
+							currentDiscountReasons));
+				}
+
+				if(wholeDiscount != 0)
+				{
+					wholeDiscount -= applicableDiscountToItem;
+				}
+			}
+			
+			return promoSetItemsWithDiscounts;
+		}
 
 		protected virtual void CalculateAndSetDiscount(IApplyDiscountReasonItem saleItem, IDiscountValue newDiscount)
 		{
@@ -312,7 +424,7 @@ namespace Vodovoz.Core.Application.Sale
 			return foundDiscount != null;
 		}
 		
-		private static IDiscountValue ProcessPersonalDiscount(
+		private IDiscountValue ProcessPersonalDiscount(
 			IUnitOfWork uow,
 			IApplyDiscountReasonItem saleItem,
 			IDiscountValue receivedDiscountValue,
@@ -347,7 +459,7 @@ namespace Vodovoz.Core.Application.Sale
 			return newDiscountValue;
 		}
 
-		private static IDiscountValue ProcessPersonalDiscount(
+		private IDiscountValue ProcessPersonalDiscount(
 			IUnitOfWork uow,
 			IApplyDiscountReasonItem saleItem,
 			IDiscountValue receivedDiscountValue,
@@ -386,26 +498,31 @@ namespace Vodovoz.Core.Application.Sale
 			return totalDiscountValueFromReasons;
 		}
 		
-		private static IDiscountValue CalculateDiscount(IApplyDiscountReasonItem saleItem, IDiscountValue newDiscount)
+		private IDiscountValue CalculateDiscount(ICurrentRawPrice saleItem, IDiscountValue newDiscount)
+		{
+			return CalculateDiscount(saleItem.CurrentRawPrice, newDiscount);
+		}
+
+		private IDiscountValue CalculateDiscount(decimal currentRawPrice, IDiscountValue newDiscount)
 		{
 			IDiscountValue discountValue = null;
 
-			if(saleItem.CurrentRawPrice == 0 || newDiscount.IsZeroDiscount)
+			if(currentRawPrice == 0 || newDiscount.IsZeroDiscount)
 			{
 				//TODO-5967 возможно стоит очищать все скидки при нуле ClearDiscounts
 				discountValue = DiscountValue.CreateZero(newDiscount.IsDiscountMoney);
 			}
 			else if(newDiscount.IsDiscountMoney)
 			{
-				var discountMoney = newDiscount.DiscountMoney > saleItem.CurrentRawPrice
-					? saleItem.CurrentRawPrice
+				var discountMoney = newDiscount.DiscountMoney > currentRawPrice
+					? currentRawPrice
 					: newDiscount.DiscountMoney < 0
 						? 0
 						: newDiscount.DiscountMoney;
 				
-				var discountPercent = 100 * discountMoney / saleItem.CurrentRawPrice;
+				var discountPercent = 100 * discountMoney / currentRawPrice;
 				
-				discountValue = DiscountValue.Create(saleItem.DiscountData.IsDiscountMoney, discountPercent, discountMoney);
+				discountValue = DiscountValue.Create(newDiscount.IsDiscountMoney, discountPercent, discountMoney);
 			}
 			else
 			{
@@ -415,14 +532,14 @@ namespace Vodovoz.Core.Application.Sale
 						? 0
 						: newDiscount.Discount;
 				
-				var discountMoney = saleItem.CurrentRawPrice * discountPercent / 100;
+				var discountMoney = currentRawPrice * discountPercent / 100;
 				
-				discountValue = DiscountValue.Create(saleItem.DiscountData.IsDiscountMoney, discountPercent, discountMoney);
+				discountValue = DiscountValue.Create(newDiscount.IsDiscountMoney, discountPercent, discountMoney);
 			}
 
 			return discountValue;
 		}
-		
+
 		private void RemoveDiscountReasons(IApplyDiscountReasonItem saleItem, IList<DiscountReasonBase> discountReasons)
 		{
 			foreach(var reason in discountReasons)

@@ -1,4 +1,6 @@
-﻿namespace VodovozBusiness.Nodes
+﻿using Vodovoz.Domain.Orders;
+
+namespace VodovozBusiness.Nodes
 {
 	/// <summary>
 	/// Информация о промонаборе онлайн заказа второй версии
@@ -29,5 +31,13 @@
 		/// Сумма в ДВ
 		/// </summary>
 		decimal OurSum { get; }
+		/// <summary>
+		/// Названия оснований скидок
+		/// </summary>
+		string DiscountReasonNames { get; }
+		/// <summary>
+		/// Тип ошибки заказа
+		/// </summary>
+		OnlineOrderErrorState? OnlineOrderErrorState { get; }
 	}
 }

@@ -28,5 +28,12 @@ namespace VodovozBusiness.Factories
 		IApplicablePromotion CreateApplicablePromotion(
 			IUnitOfWork uow,
 			IOnlineOrderedProduct orderedCartItem);
+		/// <summary>
+		/// Создание <see cref="ApplicablePromotion"/>
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="onlinePromoSet">Промонабор онлайн заказа</param>
+		/// <returns></returns>
+		IApplicablePromotion CreateApplicablePromotion(OnlineOrderPromoSet onlinePromoSet);
 	}
 }

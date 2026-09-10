@@ -41,7 +41,6 @@ namespace VodovozBusinessTests.Domain.Orders
 		private static IOrderDiscountsController _discountsController;
 		private static IGoodsPriceCalculator _priceCalculator;
 		
-		
 		[SetUp]
 		public void Init()
 		{

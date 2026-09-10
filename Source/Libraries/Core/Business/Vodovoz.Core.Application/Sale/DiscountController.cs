@@ -106,6 +106,19 @@ namespace Vodovoz.Core.Application.Sale
 
 			return (totalDiscountMoney, discountAmounts);
 		}
+		
+		public decimal CalculateMoneyDiscount(
+			decimal currentRawPrice,
+			DiscountReasonBase discountReason
+		)
+		{
+			if(discountReason.ValueType == DiscountUnits.money)
+			{
+				return discountReason.Value;
+			}
+
+			return currentRawPrice * discountReason.Value / 100m;
+		}
 
 		/// <summary>
 		/// Расчет итоговой скидки в деньгах по основаниям скидки, исключая персональную скидку
@@ -119,35 +132,7 @@ namespace Vodovoz.Core.Application.Sale
 			var currentPrice = saleItem.CurrentRawPrice;
 			var tempDiscountValue = CalculateDiscountFromDiscountReasonsWithoutPersonalDiscount(saleItem);
 
-			if(tempDiscountValue.Discount < 0)
-			{
-				tempDiscountValue.SetDiscount(0m, false);
-			}
-
-			var discountFromPercent = currentPrice * (tempDiscountValue.Discount / 100);
-			var totalDiscountMoney = discountFromPercent + tempDiscountValue.DiscountMoney;
-			var totalDiscountPercent =
-				currentPrice == 0m
-					? 0m
-					: 100 * totalDiscountMoney / currentPrice;
-
-			return DiscountValue.Create(
-				tempDiscountValue.IsDiscountMoney,
-				totalDiscountPercent > 100 ? 100 : totalDiscountPercent,
-				totalDiscountMoney > currentPrice ? currentPrice : totalDiscountMoney);
-		}
-
-		private decimal CalculateMoneyDiscount(
-			decimal currentRawPrice,
-			DiscountReasonBase discountReason
-			)
-		{
-			if(discountReason.ValueType == DiscountUnits.money)
-			{
-				return discountReason.Value;
-			}
-
-			return currentRawPrice * discountReason.Value / 100m;
+			return CalculateTotal(tempDiscountValue, currentPrice);
 		}
 
 		private IDiscountValue CalculateDiscountFromDiscountReasonsWithoutPersonalDiscount(
@@ -177,6 +162,58 @@ namespace Vodovoz.Core.Application.Sale
 			}
 
 			return DiscountValue.Create(isDiscountMoney, percentDiscount, moneyDiscount);
+		}
+		
+		private IDiscountValue CalculateDiscountFromDiscountReasonsWithPersonalDiscount(
+			ICalculatingTotalMoneyDiscount saleItem
+		)
+		{
+			var discountValue = DiscountValue.CreateZero();
+			
+			foreach(var reason in saleItem.DiscountReasons)
+			{
+				if(reason.Id == PersonalDiscountReasonId)
+				{
+					if(saleItem.PersonalDiscount is null)
+					{
+						throw new InvalidOperationException(
+							"При наличии основания скидки Персональная скидка, сущность Персональной скидки не может быть пустой!");
+					}
+
+					var personalDiscountValue = saleItem.PersonalDiscount.DiscountValue;
+					
+					discountValue.AddDiscount(
+						personalDiscountValue.IsDiscountMoney,
+						personalDiscountValue.IsDiscountMoney ? personalDiscountValue.DiscountMoney : personalDiscountValue.Discount);
+					continue;
+				}
+				
+				discountValue.AddDiscount(reason.ValueType == DiscountUnits.money, reason.Value);
+			}
+
+			return discountValue;
+		}
+		
+		private IDiscountValue CalculateTotal(
+			IDiscountValue tempDiscountValue,
+			decimal currentPrice)
+		{
+			if(tempDiscountValue.Discount < 0)
+			{
+				tempDiscountValue.SetDiscount(0m, false);
+			}
+
+			var discountFromPercent = currentPrice * (tempDiscountValue.Discount / 100);
+			var totalDiscountMoney = discountFromPercent + tempDiscountValue.DiscountMoney;
+			var totalDiscountPercent =
+				currentPrice == 0m
+					? 0m
+					: 100 * totalDiscountMoney / currentPrice;
+
+			return DiscountValue.Create(
+				tempDiscountValue.IsDiscountMoney,
+				totalDiscountPercent > 100 ? 100 : totalDiscountPercent,
+				totalDiscountMoney > currentPrice ? currentPrice : totalDiscountMoney);
 		}
 
 		private bool CanApplyByType(DiscountReasonBase addingDiscount, IApplicablePromotion saleItem)
@@ -220,14 +257,15 @@ namespace Vodovoz.Core.Application.Sale
 					return CanApplyToPromoSet(saleItem.PromoSet.Id, addingDiscount.PromoSets.Select(x => x.Id).ToArray())
 						.ToResult(DiscountErrors.DiscountNotAllowed);
 				}
-			
-				if(saleItem.Nomenclature is null)
-				{
-					throw new InvalidOperationException(
-						"Что-то пошло не так! При применении скидки должна быть заполнена номенклатура, если это не промонабор");
-				}
 			}
-			
+
+			if(saleItem.Nomenclature is null)
+			{
+				throw new InvalidOperationException(
+					"Что-то пошло не так или в онлайн заказе на промонабор прилетела обычная скидка!" +
+					" При применении скидки должна быть заполнена номенклатура, если это не промонабор");
+			}
+
 			return (
 					CanApplyToNomenclature(saleItem.Nomenclature.Id, addingDiscount.Nomenclatures)
 					|| CanApplyToNomenclatureCategory(saleItem.Nomenclature.Category, addingDiscount.NomenclatureCategories)

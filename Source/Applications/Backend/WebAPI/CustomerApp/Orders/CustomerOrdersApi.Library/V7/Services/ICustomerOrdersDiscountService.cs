@@ -43,13 +43,23 @@ namespace CustomerOrdersApi.Library.V7.Services
 		/// </summary>
 		/// <param name="source">Источник заказа</param>
 		/// <param name="externalCounterpartyId">Внешний Id пользователя</param>
-		/// <param name="counterpartyErpId">Id пользователя в ДВ</param>
+		/// <param name="erpCounterpartyId">Id пользователя в ДВ</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные с результатом проверки</returns>
-		Task<FirstOrderDiscountConditionsDto> GetFirstOrderDiscountConditions(
+		Task<FirstOrderDiscountConditionsDto> CanApplyFirstOrderDiscount(
 			Source source,
-			Guid externalCounterpartyId,
-			int? counterpartyErpId,
+			Guid? externalCounterpartyId,
+			int? erpCounterpartyId,
+			CancellationToken cancellationToken);
+		/// <summary>
+		/// Применение скидки на первый заказ
+		/// Если скидка недоступна возвращается пришедший список товаров, с детализацией по скидкам, если они были в списке
+		/// </summary>
+		/// <param name="applyFirstOrderDiscountDto">Данные для применения скидки <see cref="ApplyFirstOrderDiscountDto"/></param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<AppliedFirstOrderDiscountDto> ApplyFirstOrderDiscount(
+			ApplyFirstOrderDiscountDto applyFirstOrderDiscountDto,
 			CancellationToken cancellationToken);
 	}
 }

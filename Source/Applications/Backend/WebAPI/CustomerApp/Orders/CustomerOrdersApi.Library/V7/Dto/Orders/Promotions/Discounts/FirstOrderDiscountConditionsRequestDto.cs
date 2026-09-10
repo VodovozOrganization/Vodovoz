@@ -16,7 +16,7 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts
 		/// <summary>
 		/// Внешний Id пользователя
 		/// </summary>
-		public Guid ExternalCounterpartyId { get; set; }
+		public Guid? ExternalCounterpartyId { get; set; }
 
 		/// <summary>
 		/// Id пользователя в ДВ

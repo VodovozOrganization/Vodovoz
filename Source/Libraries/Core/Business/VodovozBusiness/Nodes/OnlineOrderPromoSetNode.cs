@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Domain.Orders;
 
 namespace VodovozBusiness.Nodes
 {
@@ -12,6 +13,8 @@ namespace VodovozBusiness.Nodes
 		public decimal? ReceivedSum => ReceivedPrice.HasValue ? Math.Round(Count * ReceivedPrice.Value, 2) : (decimal?)null;
 		public decimal OurPrice { get; set; }
 		public decimal OurSum => Math.Round(Count * OurPrice, 2);
+		public string DiscountReasonNames { get; set; }
+		public OnlineOrderErrorState? OnlineOrderErrorState { get; set; }
 		public List<OnlineOrderPromoSetItemNode> Items { get; set; } = new List<OnlineOrderPromoSetItemNode>();
 
 		public void AddItem(OnlineOrderPromoSetItemNode item)

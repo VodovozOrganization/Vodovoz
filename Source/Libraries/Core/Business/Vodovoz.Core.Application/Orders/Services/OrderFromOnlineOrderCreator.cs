@@ -15,6 +15,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -29,6 +30,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly IOrderSaleHandler _saleHandler;
 		private readonly IGoodsPriceCalculator _goodsPriceCalculator;
+		private readonly INewOrderSaleItemsFromPromoSetCreator _saleItemsFromPromoSetCreator;
 
 		public OrderFromOnlineOrderCreator(
 			ILogger<OrderFromOnlineOrderCreator> logger,
@@ -38,7 +40,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IPhoneRepository phoneRepository,
 			IOrderContractUpdater contractUpdater,
 			IOrderSaleHandler saleHandler,
-			IGoodsPriceCalculator goodsPriceCalculator
+			IGoodsPriceCalculator goodsPriceCalculator,
+			INewOrderSaleItemsFromPromoSetCreator saleItemsFromPromoSetCreator
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -49,6 +52,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			_goodsPriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
+			_saleItemsFromPromoSetCreator = saleItemsFromPromoSetCreator ?? throw new ArgumentNullException(nameof(saleItemsFromPromoSetCreator));
 		}
 
 		public Order CreateOrderFromOnlineOrder(IUnitOfWork uow, Employee orderCreator, OnlineOrder onlineOrder)
@@ -350,22 +354,17 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 				for(var i = 0; i < onlineOrderPromoSet.Count; i++)
 				{
-					foreach(var proSetItem in promoSet.PromotionalSetItems)
+					var newOrderItems =
+						_saleItemsFromPromoSetCreator.Create(uow, onlineOrderPromoSet, order.HasPermissionsForAlternativePrice);
+
+					foreach(var newOrderItem in newOrderItems)
 					{
 						order.AddNomenclature(
 							uow,
 							_contractUpdater,
 							_saleHandler,
 							_goodsPriceCalculator,
-							NewOrderSaleItem.Create(
-								proSetItem.Nomenclature,
-								proSetItem.Count,
-								default,
-								proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
-								proSetItem.IsDiscountInMoney,
-								null,
-								proSetItem.PromoSet
-								)
+							newOrderItem
 						);
 					}
 					

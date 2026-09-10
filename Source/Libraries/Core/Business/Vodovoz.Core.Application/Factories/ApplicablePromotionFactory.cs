@@ -30,6 +30,7 @@ namespace Vodovoz.Core.Application.Factories
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 		}
 
+		/// <inheritdoc/>
 		public IApplicablePromotion CreateApplicablePromotion(
 			IUnitOfWork uow,
 			IOrderedCartItemWithDiscountDetails orderedCartItem)
@@ -66,6 +67,7 @@ namespace Vodovoz.Core.Application.Factories
 			};
 		}
 		
+		/// <inheritdoc/>
 		public IApplicablePromotion CreateApplicablePromotion(
 			IUnitOfWork uow,
 			IOnlineOrderedProduct orderedCartItem)
@@ -82,6 +84,20 @@ namespace Vodovoz.Core.Application.Factories
 				Nomenclature = nomenclature,
 				PromoSet = null,
 				DiscountReasons = Enumerable.Empty<DiscountReasonBase>()
+			};
+		}
+
+		/// <inheritdoc/>
+		public IApplicablePromotion CreateApplicablePromotion(OnlineOrderPromoSet onlinePromoSet)
+		{
+			return new ApplicablePromotion
+			{
+				Price = onlinePromoSet.Price,
+				Count = onlinePromoSet.Count,
+				IsFixedPrice = false,
+				Nomenclature = null,
+				PromoSet = onlinePromoSet.PromoSet,
+				DiscountReasons = onlinePromoSet.DiscountReasons
 			};
 		}
 	}

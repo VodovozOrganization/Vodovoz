@@ -191,6 +191,12 @@ namespace Vodovoz.Errors.Orders
 				$"Номенклатура {nomenclature} пришла с неправильно установленной скидкой" +
 				$"\nДолжно быть {discount}, а передано {onlineOrderItemDiscount}");
 		
+		public static Error NotApplicableDiscountsToPromoSet(string promoSet, string notApplicableDiscounts) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(NotApplicableDiscountsToPromoSet),
+				$"Промонабор {promoSet} пришел со скидками, которые не применимы к нему: {notApplicableDiscounts}");
+		
 		public static Error IncorrectCountNomenclatureInOnlineOrder(string nomenclature, decimal count) =>
 			new Error(
 				typeof(OnlineOrderErrors),

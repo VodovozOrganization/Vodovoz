@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -29,7 +30,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			ISaleItem currentSaleItem,
 			bool hasPermissionsForAlternativePrice)
 		{
-			//TODO-5967 действительно ли для фиксы мы считаем воду из промонаборов?
 			var fixedPrice = GetFixedPriceOrNull(
 				deliveryPoint,
 				counterparty,
@@ -70,9 +70,18 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return fixedPrice.Value;
 			}
 
-			var count = newSaleItem.PromoSet is null
-				? _goodsCountCalculator.GetTotalWater19LCount(saleItemsWithoutNew, true, true)
-				: newSaleItem.Count;
+			decimal count;
+
+			if(newSaleItem.Nomenclature.Category == NomenclatureCategory.water)
+			{
+				count = newSaleItem.PromoSet is null
+					? _goodsCountCalculator.GetTotalWater19LCount(saleItemsWithoutNew, true, true)
+					: newSaleItem.Count;
+			}
+			else
+			{
+				count = 1m;
+			}
 
 			var canApplyAlternativePrice =
 				hasPermissionsForAlternativePrice

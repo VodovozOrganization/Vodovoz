@@ -41,6 +41,19 @@ namespace VodovozBusiness.Domain.Orders
 			DiscountMoney += discountValue.DiscountMoney;
 		}
 		
+		public virtual void AddDiscount(bool isDiscountMoney, decimal discount)
+		{
+			if(isDiscountMoney)
+			{
+				IsDiscountMoney = true;
+				DiscountMoney += discount;
+			}
+			else
+			{
+				Discount += discount;
+			}
+		}
+		
 		public virtual void SetDiscount(decimal discount, bool isDiscountMoney)
 		{
 			if(isDiscountMoney)

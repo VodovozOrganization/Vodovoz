@@ -128,6 +128,11 @@ namespace Vodovoz.Domain.Orders
 		);
 		
 		/// <summary>
+		/// Получение скидки в зависимости от флага <see cref="IsDiscountInMoney"/>
+		/// </summary>
+		public virtual decimal GetDiscount => IsDiscountInMoney ? DiscountMoney : Discount;
+		
+		/// <summary>
 		/// Цена позиции промонабора
 		/// </summary>
 		/// <param name="useAlternativePrice">Брать альтернативную цену</param>

@@ -174,6 +174,49 @@ namespace Vodovoz.Core.Application.Orders.Services
 			CalculateDiscount(calculatingTotalMoneyDiscountDto, receivedCartItem);
 		}
 
+		public IEnumerable<IOrderedCartItemWithDiscountDetails> TryApplyFirstOrderDiscount(
+			IUnitOfWork uow,
+			CanApplyFirstOrderDiscountRequest receivedData)
+		{
+			var firstOrderDiscount = _discountReasonRepository.GetDiscountReason(uow, _discountReasonSettings.FirstOnlineOrderDiscountReasonId);
+
+			if(firstOrderDiscount is null)
+			{
+				throw new InvalidOperationException("В базе нет скидки на первый заказ или не настроен его идентификатор!");
+			}
+			
+			var cartItemsWithDiscountDetails = new List<IOrderedCartItemWithDiscountDetails>();
+			
+			foreach(var cartItem in receivedData.CartItems)
+			{
+				var cartItemWithDiscountDetails = OnlineOrderItemWithDiscountDetailsDto.Create(cartItem);
+				
+				TryApplyFirstOrderDiscount(uow, firstOrderDiscount, cartItemWithDiscountDetails);
+				cartItemsWithDiscountDetails.Add(cartItemWithDiscountDetails);
+			}
+			
+			return cartItemsWithDiscountDetails;
+		}
+
+		public IEnumerable<IOrderedCartItemWithDiscountDetails> CalculateDiscounts(
+			IUnitOfWork uow,
+			IEnumerable<IOrderedCartItem> cartItems
+			)
+		{
+			var cartItemsWithDiscountDetails = new List<IOrderedCartItemWithDiscountDetails>();
+			
+			foreach(var cartItem in cartItems)
+			{
+				var cartItemWithDiscountDetails = OnlineOrderItemWithDiscountDetailsDto.Create(cartItem);
+				var applicableDiscountItem = _applicablePromotionFactory.CreateApplicablePromotion(uow, cartItemWithDiscountDetails);
+				
+				CalculateDiscount(cartItemWithDiscountDetails, applicableDiscountItem.DiscountReasons);
+				cartItemsWithDiscountDetails.Add(cartItemWithDiscountDetails);
+			}
+			
+			return cartItemsWithDiscountDetails;
+		}
+
 		private Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(
 			IUnitOfWork uow,
 			Source source,
@@ -207,6 +250,22 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 
 			ApplyPromoCode(discountPromoCode, product);
+
+			return true;
+		}
+		
+		private bool TryApplyFirstOrderDiscount(
+			IUnitOfWork uow,
+			DiscountReasonBase discountReason,
+			IOrderedCartItemWithDiscountDetails receivedCartItem)
+		{
+			if(!CanApplicableDiscount(uow, discountReason, receivedCartItem, out var applicableDiscountItem))
+			{
+				CalculateDiscount(receivedCartItem, applicableDiscountItem.DiscountReasons);
+				return false;
+			}
+
+			ApplyDiscount(uow, discountReason, receivedCartItem);
 
 			return true;
 		}
@@ -324,68 +383,44 @@ namespace Vodovoz.Core.Application.Orders.Services
 			PromoCodeDiscount discountPromoCode,
 			IOrderedCartItemWithDiscountDetails receivedCartItem)
 		{
-			if(!CanApplicableDiscount(uow, source, discountPromoCode, receivedCartItem, out var applicableDiscountItem))
+			if(!CanApplicableDiscount(uow, discountPromoCode, receivedCartItem, out var applicableDiscountItem))
 			{
 				CalculateDiscount(receivedCartItem, applicableDiscountItem.DiscountReasons);
 				return false;
 			}
 
-			ApplyPromoCode(uow, discountPromoCode, receivedCartItem);
+			ApplyDiscount(uow, discountPromoCode, receivedCartItem);
 
 			return true;
 		}
 
 		/// <summary>
 		/// Применима ли скидка к позиции онлайн заказа
-		/// 1. Если это промонабор или пакет аренды - <c>false</c>
-		/// 2. Если номенклатура не известна - <c>false</c>
-		/// 3. Если есть фикса - <c>false</c>
-		/// 4. Если у товара уже есть скидка - <c>false</c>
-		/// 5. Если скидка не применима к данной позиции - <c>false</c>
-		/// 6. Если товар имеет скидку для продажи онлайн - <c>false</c>
-		/// 7. Если цена или количество товара 0 - <c>false</c>
-		/// Иначе - <c>true</c>
 		/// </summary>
-		/// <param name="source">источник</param>
-		/// <param name="discountPromoCode">Промокод</param>
+		/// <param name="discountReason">Промокод</param>
 		/// <param name="uow">unit of work</param>
 		/// <param name="receivedCartItem">Данные позиции корзины</param>
 		/// <param name="applicableDiscountItem">Данные позиции корзины преобразованные для проверки применимости промокода</param>
 		/// <returns></returns>
 		private bool CanApplicableDiscount(
 			IUnitOfWork uow,
-			Source source,
-			PromoCodeDiscount discountPromoCode,
+			DiscountReasonBase discountReason,
 			IOrderedCartItemWithDiscountDetails receivedCartItem,
 			out IApplicablePromotion applicableDiscountItem)
 		{
 			applicableDiscountItem = _applicablePromotionFactory.CreateApplicablePromotion(uow, receivedCartItem);
 			
-			if(!IsApplicableDiscount(discountPromoCode, applicableDiscountItem).IsSuccess)
+			if(!IsApplicableDiscount(discountReason, applicableDiscountItem).IsSuccess)
 			{
 				return false;
-			}
-
-			if(applicableDiscountItem.Nomenclature != null)
-			{
-				var onlineParameters = applicableDiscountItem.Nomenclature.NomenclatureOnlineParameters
-					.FirstOrDefault(x => x.Type == source.ToGoodsOnlineParameterType());
-
-				var onlinePrice = onlineParameters?.GetOnlinePrice(receivedCartItem.Count);
-
-				if(onlineParameters?.NomenclatureOnlineDiscount != null
-					|| onlinePrice?.PriceWithoutDiscount != null)
-				{
-					return false;
-				}
 			}
 			
 			return true;
 		}
 
-		private void ApplyPromoCode(
+		private void ApplyDiscount(
 			IUnitOfWork uow,
-			PromoCodeDiscount discountPromoCode,
+			DiscountReasonBase discountReason,
 			IOrderedCartItemWithDiscountDetails receivedCartItem
 			)
 		{
@@ -394,7 +429,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				.ToArray()
 			)
 			{
-				discountPromoCode.Id
+				discountReason.Id
 			};
 
 			CalculateDiscount(uow, receivedCartItem, discountIds);

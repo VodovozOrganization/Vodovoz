@@ -1,28 +1,36 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
 	public class NewOnlineOrderValidator : OrderFromOnlineOrderValidator
 	{
+		private readonly ISaleDiscountController _discountController;
+		private readonly IApplicablePromotionFactory _applicablePromotionFactory;
+
 		public NewOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
 			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings,
 			IClientDeliveryPointsChecker clientDeliveryPointsChecker,
-			IDiscountController discountController,
+			ISaleDiscountController discountController,
 			IFreeLoaderChecker freeLoaderChecker,
 			IOrderOrganizationManager orderOrganizationManager,
 			IOrderSettings orderSettings,
-			IOrderRepository orderRepository
+			IOrderRepository orderRepository,
+			IApplicablePromotionFactory applicablePromotionFactory
 			)
 			: base(
 				goodsPriceCalculator,
@@ -35,6 +43,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				orderSettings,
 				orderRepository)
 		{
+			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
+			_applicablePromotionFactory = applicablePromotionFactory ?? throw new ArgumentNullException(nameof(applicablePromotionFactory));
 		}
 		
 		private new OnlineOrderV2 OnlineOrder => base.OnlineOrder as OnlineOrderV2;
@@ -43,23 +53,24 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			CheckFreeLoader(uow);
 			
-			foreach(var set in OnlineOrder.PromoSets)
+			foreach(var onlinePromoSet in OnlineOrder.PromoSets)
 			{
-				var promoSet = set.PromoSet;
+				var promoSet = onlinePromoSet.PromoSet;
 				
 				if(promoSet.IsArchive)
 				{
 					ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsArchivedOnlineOrderPromoSet(promoSet.Title));
 				}
 
-				var checkOnlineOrderSum = CheckOnlineOrderSum.Create(set.Count, set.Price, 0);
+				var checkOnlineOrderSum = CheckOnlineOrderSum.Create(onlinePromoSet.Count, onlinePromoSet.Price, 0);
 				
-				CheckPromoSetForNewClientsCount(1, (int)set.Count, promoSet);
-				ValidatePrice(set);
+				CheckPromoSetForNewClientsCount(1, (int)onlinePromoSet.Count, promoSet);
+				ValidatePrice(onlinePromoSet);
+				ValidateDiscounts(onlinePromoSet);
 				CalculatedOrderItemPrices.Add(checkOnlineOrderSum);
 			}
 		}
-		
+
 		protected override void CheckFreeLoader(IUnitOfWork uow)
 		{
 			var hasPromoSetForNewClients = OnlineOrder
@@ -96,14 +107,53 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 		}
 
-		private void ValidatePrice(OnlineOrderPromoSet set)
+		private void ValidateDiscounts(OnlineOrderPromoSet onlinePromoSet)
 		{
-			var price = set.PromoSet.Sum();
+			var applicablePromotion = _applicablePromotionFactory.CreateApplicablePromotion(onlinePromoSet);
+			var notApplicableDiscountReasonsBuilder = new StringBuilder();
 
-			if(price != set.Price)
+			foreach(var discountReason in onlinePromoSet.DiscountReasons)
+			{
+				if(DiscountController.IsApplicableDiscount(discountReason, applicablePromotion).IsFailure)
+				{
+					notApplicableDiscountReasonsBuilder
+						.Append(discountReason)
+						.Append(',')
+						.Append(' ');
+				}
+			}
+
+			if(notApplicableDiscountReasonsBuilder.Length > 0)
+			{
+				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.NotApplicableDiscountsToPromoSet(
+					onlinePromoSet.PromoSetName,
+					notApplicableDiscountReasonsBuilder
+						.ToString()
+						.TrimEnd(',', ' '))
+				);
+				onlinePromoSet.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
+			}
+		}
+
+		private void ValidatePrice(OnlineOrderPromoSet onlinePromoSet)
+		{
+			var price = onlinePromoSet.PromoSet.Sum();
+			
+			var applicablePromotion = _applicablePromotionFactory.CreateApplicablePromotion(onlinePromoSet);
+			var applicableDiscountReasons = onlinePromoSet.DiscountReasons
+				.Where(x => _discountController.IsApplicableDiscount(x, applicablePromotion).IsSuccess)
+				.ToList();
+
+			var discounts = applicableDiscountReasons
+				.Select(discountReason => _discountController.CalculateMoneyDiscount(price, discountReason))
+				.Sum();
+			
+			price -= discounts;
+
+			if(price != onlinePromoSet.Price)
 			{
 				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectPricePromoSetInOnlineOrder(
-					set.PromoSet.Title, price, set.Price));
+					onlinePromoSet.PromoSet.Title, price, onlinePromoSet.Price));
 			}
 		}
 	}

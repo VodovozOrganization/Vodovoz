@@ -283,7 +283,7 @@ namespace CustomerOrdersApi.Library.V7.Repositories
 		/// <inheritdoc/>
 		public async Task<bool> IsClientHasNotCancelledOnlineOrdersFromSource(
 			IUnitOfWork uow,
-			Guid externalCounterpartyId,
+			Guid? externalCounterpartyId,
 			int counterpartyErpId,
 			Source source,
 			CancellationToken cancellationToken = default)

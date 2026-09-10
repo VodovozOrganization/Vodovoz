@@ -1,8 +1,10 @@
-﻿using QS.DomainModel.UoW;
+﻿using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Nodes;
 
 namespace VodovozBusiness.Controllers
 {
@@ -54,5 +56,20 @@ namespace VodovozBusiness.Controllers
 		/// <param name="saleItem">Позиция на которую применяется скидка</param>
 		/// <returns>Результат проверки</returns>
 		bool IsDiscountValueCanBeAdded(IDiscountValue discountValue, IApplyDiscountReasonItem saleItem);
+
+		/// <summary>
+		/// Подсчет итоговой скидки для позиций промонабора
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="onlinePromoSet">Онлайн промонабор</param>
+		/// <param name="discountReasons">Примененные основания скидки</param>
+		/// <param name="canUseAlternativePrices">Можно ли использовать альтернативные цены</param>
+		/// <returns></returns>
+		IDictionary<int, PromoSetItemTotalDiscount> CalculatePromoSetItemsTotalDiscount(
+			IUnitOfWork uow,
+			IApplicablePromotion onlinePromoSet,
+			IEnumerable<DiscountReasonBase> discountReasons,
+			bool canUseAlternativePrices = false
+		);
 	}
 }

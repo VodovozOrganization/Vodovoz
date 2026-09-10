@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
@@ -6,6 +7,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Nodes;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Handlers
 {
@@ -39,6 +41,25 @@ namespace Vodovoz.Handlers
 		void CalculateDiscount(
 			IOrderedCartItemWithDiscountDetails receivedCartItem,
 			IEnumerable<DiscountReasonBase> discountReasons
+		);
+		/// <summary>
+		/// Применение скидки на первый заказ к онлайн заказу
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="receivedData">Данные, необходимые для проверки промокода и товары <see cref="CanApplyFirstOrderDiscountRequest"/></param>
+		/// <returns></returns>
+		IEnumerable<IOrderedCartItemWithDiscountDetails> TryApplyFirstOrderDiscount(
+			IUnitOfWork uow,
+			CanApplyFirstOrderDiscountRequest receivedData);
+		/// <summary>
+		/// Возврат списка товаров с рассчитанными скидками, если они есть
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="cartItems">Список товаров</param>
+		/// <returns></returns>
+		IEnumerable<IOrderedCartItemWithDiscountDetails> CalculateDiscounts(
+			IUnitOfWork uow,
+			IEnumerable<IOrderedCartItem> cartItems
 		);
 	}
 }

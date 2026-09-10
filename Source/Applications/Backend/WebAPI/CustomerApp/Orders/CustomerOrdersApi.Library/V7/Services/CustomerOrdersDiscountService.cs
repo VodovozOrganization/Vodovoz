@@ -12,10 +12,10 @@ using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Interfaces.Sale;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Handlers;
 using Vodovoz.Nodes;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Nodes;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V7.Services
@@ -116,51 +116,59 @@ namespace CustomerOrdersApi.Library.V7.Services
 					: _infoMessageFactory.CreatePromoCodeAppliedToNotAllItemsWarning());
 		}
 		
-		public async Task<FirstOrderDiscountConditionsDto> GetFirstOrderDiscountConditions(
+		public async Task<FirstOrderDiscountConditionsDto> CanApplyFirstOrderDiscount(
 			Source source,
-			Guid externalCounterpartyId,
-			int? counterpartyErpId,
+			Guid? externalCounterpartyId,
+			int? erpCounterpartyId,
 			CancellationToken cancellationToken
 			)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Проверка доступности использования скидки на первый заказ для клиента");
 
-			if(counterpartyErpId is null)
+			if(erpCounterpartyId is null)
 			{
-				return CreateFirstOrderDiscountConditionsDto(uow, false);
+				return FirstOrderDiscountConditionsDto.Create(false);
 			}
 
 			var isClientHasNotCancelledOnlineOrdersFromSource =
 				await _customerOrderRepository.IsClientHasNotCancelledOnlineOrdersFromSource(
 					uow,
 					externalCounterpartyId,
-					counterpartyErpId.Value,
+					erpCounterpartyId.Value,
 					source,
 					cancellationToken);
 
-			return CreateFirstOrderDiscountConditionsDto(uow, !isClientHasNotCancelledOnlineOrdersFromSource);
+			return FirstOrderDiscountConditionsDto.Create(!isClientHasNotCancelledOnlineOrdersFromSource);
 		}
 
-		private FirstOrderDiscountConditionsDto CreateFirstOrderDiscountConditionsDto(
-			IUnitOfWork uow,
-			bool isDiscountAvailable)
+		public async Task<AppliedFirstOrderDiscountDto> ApplyFirstOrderDiscount(
+			ApplyFirstOrderDiscountDto applyFirstOrderDiscountDto,
+			CancellationToken cancellationToken)
 		{
-			var discountReason =
-				uow.GetById<DiscountReason>(_discountReasonSettings.FirstOnlineOrderDiscountReasonId);
+			var canApply = await CanApplyFirstOrderDiscount(
+				applyFirstOrderDiscountDto.Source,
+				applyFirstOrderDiscountDto.ExternalCounterpartyId,
+				applyFirstOrderDiscountDto.ErpCounterpartyId,
+				cancellationToken);
 
-			if(discountReason is null)
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Применение скидки на первый заказ");
+			
+			if(!canApply.DiscountIsAvailable)
 			{
-				throw new InvalidOperationException("Не заведено основание скидки для первого заказа!");
+				return AppliedFirstOrderDiscountDto.Create(
+					_onlineOrderDiscountHandler.CalculateDiscounts(uow, applyFirstOrderDiscountDto.OnlineOrderItems));
 			}
 
-			return new FirstOrderDiscountConditionsDto
-			{
-				DiscountIsAvailable = isDiscountAvailable,
-				Discount = DiscountDto.Create(
-					discountReason.Id,
-					discountReason.ValueType == DiscountUnits.money,
-					discountReason.Value)
-			};
+			var dto = CanApplyFirstOrderDiscountRequest.Create(
+				applyFirstOrderDiscountDto.Source,
+				applyFirstOrderDiscountDto.ErpCounterpartyId,
+				applyFirstOrderDiscountDto.ExternalCounterpartyId,
+				applyFirstOrderDiscountDto.OnlineOrderItems
+			);
+			
+			var result = _onlineOrderDiscountHandler.TryApplyFirstOrderDiscount(uow, dto);
+			
+			return AppliedFirstOrderDiscountDto.Create(result);
 		}
 	}
 }
