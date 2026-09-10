@@ -88,7 +88,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private FuelCardVersion _oldLastFuelCardVersion;
 		private EmployeeCategory? _oldDriverCategory;
 		private IList<CarAdditionalFuelType> _oldAdditionalFuelTypes;
-		private bool _isAdditionalFuelTypesChanged;
 		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
 
 		public CarViewModel(
