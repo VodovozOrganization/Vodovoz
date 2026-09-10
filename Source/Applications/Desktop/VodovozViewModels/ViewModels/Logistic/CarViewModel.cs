@@ -12,14 +12,16 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using QS.ViewModels.Extension;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Errors;
+using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Permissions;
@@ -51,8 +53,6 @@ using Vodovoz.ViewModels.Widgets.Cars;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using VodovozInfrastructure.StringHandlers;
-using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Application.FileStorage;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -255,8 +255,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_oldAdditionalFuelTypes = new List<CarAdditionalFuelType>(Entity.AdditionalFuelTypes);
 
 			SetIsCarUsedInDeliveryDefaultValueIfNeed();
-
-			Entity.AdditionalFuelTypes.CollectionChanged += OnAdditionalFuelTypesCollectionChanged;
 		}
 
 		public bool CanEdit { get; private set; }
@@ -725,20 +723,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool IsNeedToUpdateFuelCardProductRestriction =>
 			(IsFuelCardChanged() && Entity.FuelType != null)
 			|| (IsFuelTypeChanged && IsFuelCardToChangeProductRestrictionAdded)
-			|| (_isAdditionalFuelTypesChanged && IsFuelCardToChangeProductRestrictionAdded)
+			|| (IsAdditionalFuelTypesChanged && IsFuelCardToChangeProductRestrictionAdded)
 			|| (IsDriverCategoryChanged && IsFuelCardToChangeProductRestrictionAdded);
-
-		private void OnAdditionalFuelTypesCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			_isAdditionalFuelTypesChanged = !_oldAdditionalFuelTypes
-				.Select(x => x.FuelType.Id)
-				.OrderBy(x => x)
-				.SequenceEqual(
-					Entity.AdditionalFuelTypes
-					.Select(x => x.FuelType.Id)
-					.OrderBy(x => x)
-					);
-		}
 
 		private bool IsFuelCardChanged()
 		{
@@ -759,6 +745,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool IsDriverCategoryChanged =>
 			!(_oldDriverCategory is null && Entity.Driver?.Category is null)
 			&& _oldDriverCategory != Entity.Driver?.Category;
+
+		private bool IsAdditionalFuelTypesChanged => !_oldAdditionalFuelTypes
+			.Select(x => x.FuelType.Id)
+			.OrderBy(x => x)
+			.SequenceEqual(
+				Entity.AdditionalFuelTypes
+				.Select(x => x.FuelType.Id)
+				.OrderBy(x => x)
+			);
 
 		private bool IsFuelCardToChangeProductRestrictionAdded =>
 			Entity.GetCurrentActiveFuelCardVersion() != null
