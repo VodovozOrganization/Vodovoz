@@ -12,6 +12,8 @@ using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
+using VodovozBusiness.Domain.Logistic;
+using QS.Extensions.Observable.Collections.List;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
@@ -59,6 +61,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		private bool _isKaskoInsuranceNotRelevant = true;
 		private int? _techInspectForKm;
 		private string _photoFileName;
+		private IObservableList<CarAdditionalFuelType> _additionalFuelTypes = new ObservableList<CarAdditionalFuelType>();
 
 		[Display(Name = "Модель")]
 		public virtual CarModel CarModel
@@ -328,6 +331,16 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			get => _isKaskoInsuranceNotRelevant;
 			set => SetField(ref _isKaskoInsuranceNotRelevant, value);
+		}
+
+		/// <summary>
+		/// Дополнительные виды топлива, которыми может заправляться автомобиль
+		/// </summary>
+		[Display(Name = "Дополнительные виды топлива")]
+		public virtual IObservableList<CarAdditionalFuelType> AdditionalFuelTypes
+		{
+			get => _additionalFuelTypes;
+			set => SetField(ref _additionalFuelTypes, value);
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.

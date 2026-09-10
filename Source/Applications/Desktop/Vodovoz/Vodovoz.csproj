@@ -2194,6 +2194,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Mango.MangoCallButtonView.cs" />
     <Compile Include="Views\Mango\Talks\DriverForwardingOrderSelectionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.DriverForwardingOrderSelectionView.cs" />
+    <Compile Include="Views\Logistic\AdditionalFuelTypeManagementView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AdditionalFuelTypeManagementView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
