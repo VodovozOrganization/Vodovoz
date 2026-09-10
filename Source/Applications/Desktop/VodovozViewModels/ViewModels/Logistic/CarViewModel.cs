@@ -214,7 +214,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			AdditionalFuelTypeManagementViewModel = additionalFuelTypeManagementViewModelFactory
 				.CreateAdditionalFuelTypeManagementViewModel(Entity, UoW);
-			Entity.AdditionalFuelTypes.CollectionChanged += OnAdditionalFuelTypesCollectionChanged;
 
 			OnDriverChanged();
 
@@ -256,6 +255,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_oldAdditionalFuelTypes = new List<CarAdditionalFuelType>(Entity.AdditionalFuelTypes);
 
 			SetIsCarUsedInDeliveryDefaultValueIfNeed();
+
+			Entity.AdditionalFuelTypes.CollectionChanged += OnAdditionalFuelTypesCollectionChanged;
 		}
 
 		public bool CanEdit { get; private set; }
@@ -629,6 +630,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_oldFuelType = Entity.FuelType;
 			_oldLastFuelCardVersion = GetLastFuelCardVersion();
 			_oldDriverCategory = Entity.Driver?.Category;
+			_oldAdditionalFuelTypes = new List<CarAdditionalFuelType>(Entity.AdditionalFuelTypes);
 
 			try
 			{

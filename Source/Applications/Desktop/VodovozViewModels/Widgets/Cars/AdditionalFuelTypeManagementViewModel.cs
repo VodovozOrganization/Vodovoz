@@ -30,21 +30,16 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			Car entity,
 			IUnitOfWork uow,
 			ICommonServices commonServices,
-			ViewModelEEVMBuilder<FuelType> fuelTypeEEVMBuilder,
 			AdditionalFuelTypeManagementService additionalFuelTypeManagementService,
 			IGenericRepository<FuelType> fuelTypeRepository
 			) : base(entity, commonServices)
 		{
-			if(fuelTypeEEVMBuilder is null)
-			{
-				throw new ArgumentNullException(nameof(fuelTypeEEVMBuilder));
-			}
-
 			UoW = uow
 				?? throw new ArgumentNullException(nameof(uow));
 			_additionalFuelTypeManagementService = additionalFuelTypeManagementService
 				?? throw new ArgumentNullException(nameof(additionalFuelTypeManagementService));
-			_fuelTypeRepository = fuelTypeRepository ?? throw new ArgumentNullException(nameof(fuelTypeRepository));
+			_fuelTypeRepository = fuelTypeRepository
+				?? throw new ArgumentNullException(nameof(fuelTypeRepository));
 
 			_interactiveService = commonServices.InteractiveService;
 			_currentPermissionService = commonServices.CurrentPermissionService;
