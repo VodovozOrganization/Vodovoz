@@ -4,17 +4,15 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class AdditionalFuelTypeManagementView
 	{
-		private global::Gamma.GtkWidgets.yVBox yvboxMain;
+		private global::Gamma.GtkWidgets.yHBox yhboxMain;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewFuelTypes;
 
-		private global::Gamma.GtkWidgets.yHBox yhboxControls;
+		private global::Gamma.GtkWidgets.yTable ytableControls;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelFuelType;
-
-		private global::QS.Views.Control.EntityEntry entityentryFuelType;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox speciallistcomboboxFuelTypes;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAdd;
 
@@ -27,10 +25,10 @@ namespace Vodovoz.Views.Logistic
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Logistic.AdditionalFuelTypeManagementView";
 			// Container child Vodovoz.Views.Logistic.AdditionalFuelTypeManagementView.Gtk.Container+ContainerChild
-			this.yvboxMain = new global::Gamma.GtkWidgets.yVBox();
-			this.yvboxMain.Name = "yvboxMain";
-			this.yvboxMain.Spacing = 6;
-			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yhboxMain = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxMain.Name = "yhboxMain";
+			this.yhboxMain.Spacing = 6;
+			// Container child yhboxMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -39,58 +37,60 @@ namespace Vodovoz.Views.Logistic
 			this.ytreeviewFuelTypes.CanFocus = true;
 			this.ytreeviewFuelTypes.Name = "ytreeviewFuelTypes";
 			this.GtkScrolledWindow.Add(this.ytreeviewFuelTypes);
-			this.yvboxMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.GtkScrolledWindow]));
+			this.yhboxMain.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhboxMain[this.GtkScrolledWindow]));
 			w2.Position = 0;
-			// Container child yvboxMain.Gtk.Box+BoxChild
-			this.yhboxControls = new global::Gamma.GtkWidgets.yHBox();
-			this.yhboxControls.Name = "yhboxControls";
-			this.yhboxControls.Spacing = 6;
-			// Container child yhboxControls.Gtk.Box+BoxChild
-			this.ylabelFuelType = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelFuelType.Name = "ylabelFuelType";
-			this.ylabelFuelType.Xalign = 1F;
-			this.ylabelFuelType.LabelProp = global::Mono.Unix.Catalog.GetString("Вид топлива:");
-			this.yhboxControls.Add(this.ylabelFuelType);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxControls[this.ylabelFuelType]));
-			w3.Position = 0;
-			w3.Expand = false;
-			w3.Fill = false;
-			// Container child yhboxControls.Gtk.Box+BoxChild
-			this.entityentryFuelType = new global::QS.Views.Control.EntityEntry();
-			this.entityentryFuelType.Events = ((global::Gdk.EventMask)(256));
-			this.entityentryFuelType.Name = "entityentryFuelType";
-			this.yhboxControls.Add(this.entityentryFuelType);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxControls[this.entityentryFuelType]));
-			w4.Position = 1;
-			// Container child yhboxControls.Gtk.Box+BoxChild
+			// Container child yhboxMain.Gtk.Box+BoxChild
+			this.ytableControls = new global::Gamma.GtkWidgets.yTable();
+			this.ytableControls.Name = "ytableControls";
+			this.ytableControls.NRows = ((uint)(2));
+			this.ytableControls.NColumns = ((uint)(2));
+			this.ytableControls.RowSpacing = ((uint)(6));
+			this.ytableControls.ColumnSpacing = ((uint)(6));
+			// Container child ytableControls.Gtk.Table+TableChild
+			this.speciallistcomboboxFuelTypes = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.speciallistcomboboxFuelTypes.Name = "speciallistcomboboxFuelTypes";
+			this.speciallistcomboboxFuelTypes.AddIfNotExist = false;
+			this.speciallistcomboboxFuelTypes.DefaultFirst = false;
+			this.speciallistcomboboxFuelTypes.ShowSpecialStateAll = false;
+			this.speciallistcomboboxFuelTypes.ShowSpecialStateNot = true;
+			this.speciallistcomboboxFuelTypes.NameForSpecialStateNot = "Не выбрано";
+			this.ytableControls.Add(this.speciallistcomboboxFuelTypes);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.speciallistcomboboxFuelTypes]));
+			w3.RightAttach = ((uint)(2));
+			w3.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child ytableControls.Gtk.Table+TableChild
 			this.ybuttonAdd = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonAdd.CanFocus = true;
 			this.ybuttonAdd.Name = "ybuttonAdd";
 			this.ybuttonAdd.UseUnderline = true;
 			this.ybuttonAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить");
-			this.yhboxControls.Add(this.ybuttonAdd);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhboxControls[this.ybuttonAdd]));
-			w5.Position = 2;
-			w5.Expand = false;
-			w5.Fill = false;
-			// Container child yhboxControls.Gtk.Box+BoxChild
+			this.ytableControls.Add(this.ybuttonAdd);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ybuttonAdd]));
+			w4.TopAttach = ((uint)(1));
+			w4.BottomAttach = ((uint)(2));
+			w4.XOptions = ((global::Gtk.AttachOptions)(1));
+			w4.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child ytableControls.Gtk.Table+TableChild
 			this.ybuttonRemove = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonRemove.CanFocus = true;
 			this.ybuttonRemove.Name = "ybuttonRemove";
 			this.ybuttonRemove.UseUnderline = true;
 			this.ybuttonRemove.Label = global::Mono.Unix.Catalog.GetString("Удалить");
-			this.yhboxControls.Add(this.ybuttonRemove);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxControls[this.ybuttonRemove]));
-			w6.Position = 3;
+			this.ytableControls.Add(this.ybuttonRemove);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytableControls[this.ybuttonRemove]));
+			w5.TopAttach = ((uint)(1));
+			w5.BottomAttach = ((uint)(2));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(1));
+			w5.YOptions = ((global::Gtk.AttachOptions)(0));
+			this.yhboxMain.Add(this.ytableControls);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxMain[this.ytableControls]));
+			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.yvboxMain.Add(this.yhboxControls);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxControls]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
-			this.Add(this.yvboxMain);
+			this.Add(this.yhboxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

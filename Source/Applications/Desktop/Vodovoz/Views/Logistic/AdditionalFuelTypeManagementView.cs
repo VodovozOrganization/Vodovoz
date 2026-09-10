@@ -16,9 +16,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			base.ConfigureWidget();
 
-			yvboxMain.Sensitive = ViewModel.CanEditAdditionalFuelTypes;
-
-			entityentryFuelType.ViewModel = ViewModel.FuelTypeViewModel;
+			yhboxMain.Sensitive = ViewModel.CanEditAdditionalFuelTypes;
 
 			ytreeviewFuelTypes.ColumnsConfig = FluentColumnsConfig<AdditionalFuelType>.Create()
 				.AddColumn("Вид топлива")
