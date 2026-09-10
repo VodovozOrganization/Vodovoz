@@ -53,6 +53,7 @@ using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using VodovozInfrastructure.StringHandlers;
 using Vodovoz.Core.Application.Errors;
 using Vodovoz.Core.Application.FileStorage;
+using VodovozBusiness.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -87,8 +88,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private FuelType _oldFuelType;
 		private FuelCardVersion _oldLastFuelCardVersion;
 		private EmployeeCategory? _oldDriverCategory;
-		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
+		private IList<AdditionalFuelType> _oldAdditionalFuelTypes;
 		private bool _isAdditionalFuelTypesChanged;
+		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
 
 		public CarViewModel(
 			ILogger<CarViewModel> logger,
@@ -252,6 +254,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_oldFuelType = Entity.FuelType;
 			_oldLastFuelCardVersion = GetLastFuelCardVersion();
 			_oldDriverCategory = Entity.Driver?.Category;
+			_oldAdditionalFuelTypes = new List<AdditionalFuelType>(Entity.AdditionalFuelTypes);
 
 			SetIsCarUsedInDeliveryDefaultValueIfNeed();
 		}
@@ -726,7 +729,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void OnAdditionalFuelTypesCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
-			_isAdditionalFuelTypesChanged = true;
+			_isAdditionalFuelTypesChanged = !_oldAdditionalFuelTypes
+				.Select(x => x.FuelType.Id)
+				.OrderBy(x => x)
+				.SequenceEqual(
+					Entity.AdditionalFuelTypes
+					.Select(x => x.FuelType.Id)
+					.OrderBy(x => x)
+					);
 		}
 
 		private bool IsFuelCardChanged()
