@@ -224,7 +224,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.VBox vboxGeographicGroups;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow5;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow6;
 
 		private global::Gamma.GtkWidgets.yTreeView yTreeGeographicGroups;
 
@@ -360,7 +360,7 @@ namespace Vodovoz.Views.Logistic
 			w11.TopAttach = ((uint)(2));
 			w11.BottomAttach = ((uint)(3));
 			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(7));
+			w11.RightAttach = ((uint)(4));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
@@ -1551,17 +1551,17 @@ namespace Vodovoz.Views.Logistic
 			this.vboxGeographicGroups.Name = "vboxGeographicGroups";
 			this.vboxGeographicGroups.Spacing = 6;
 			// Container child vboxGeographicGroups.Gtk.Box+BoxChild
-			this.GtkScrolledWindow5 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow5.Name = "GtkScrolledWindow5";
-			this.GtkScrolledWindow5.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow5.Gtk.Container+ContainerChild
+			this.GtkScrolledWindow6 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow6.Name = "GtkScrolledWindow6";
+			this.GtkScrolledWindow6.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow6.Gtk.Container+ContainerChild
 			this.yTreeGeographicGroups = new global::Gamma.GtkWidgets.yTreeView();
 			this.yTreeGeographicGroups.CanFocus = true;
 			this.yTreeGeographicGroups.Name = "yTreeGeographicGroups";
 			this.yTreeGeographicGroups.EnableSearch = false;
-			this.GtkScrolledWindow5.Add(this.yTreeGeographicGroups);
-			this.vboxGeographicGroups.Add(this.GtkScrolledWindow5);
-			global::Gtk.Box.BoxChild w112 = ((global::Gtk.Box.BoxChild)(this.vboxGeographicGroups[this.GtkScrolledWindow5]));
+			this.GtkScrolledWindow6.Add(this.yTreeGeographicGroups);
+			this.vboxGeographicGroups.Add(this.GtkScrolledWindow6);
+			global::Gtk.Box.BoxChild w112 = ((global::Gtk.Box.BoxChild)(this.vboxGeographicGroups[this.GtkScrolledWindow6]));
 			w112.Position = 0;
 			// Container child vboxGeographicGroups.Gtk.Box+BoxChild
 			this.hbuttonbox2 = new global::Gtk.HButtonBox();

@@ -125722,6 +125722,7 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -125829,6 +125830,15 @@ not tooltip</property>
                               <placeholder />
                             </child>
                             <child>
+                              <placeholder />
+                            </child>
+                            <child>
+                              <placeholder />
+                            </child>
+                            <child>
+                              <placeholder />
+                            </child>
+                            <child>
                               <widget class="Vodovoz.Views.Logistic.AdditionalFuelTypeManagementView" id="additionalfueltypemanagementview1">
                                 <property name="MemberName" />
                                 <property name="Events">ButtonPressMask</property>
@@ -125837,7 +125847,7 @@ not tooltip</property>
                                 <property name="TopAttach">2</property>
                                 <property name="BottomAttach">3</property>
                                 <property name="LeftAttach">1</property>
-                                <property name="RightAttach">7</property>
+                                <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -127822,7 +127832,7 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow5">
+                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow6">
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
                     <child>
