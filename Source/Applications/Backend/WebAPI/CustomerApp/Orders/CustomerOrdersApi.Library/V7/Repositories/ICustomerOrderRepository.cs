@@ -61,14 +61,14 @@ namespace CustomerOrdersApi.Library.V7.Repositories
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="externalCounterpartyId">Внешний Id пользователя</param>
-		/// <param name="counterpartyErpId">Id пользователя в ДВ</param>
+		/// <param name="counterpartyId">Id пользователя в ДВ</param>
 		/// <param name="source">Источник онлайн заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<bool> IsClientHasNotCancelledOnlineOrdersFromSource(
 			IUnitOfWork uow,
 			Guid? externalCounterpartyId,
-			int counterpartyErpId,
+			int counterpartyId,
 			Source source,
 			CancellationToken cancellationToken = default);
 	}

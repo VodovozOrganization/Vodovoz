@@ -284,30 +284,64 @@ namespace CustomerOrdersApi.Library.V7.Repositories
 		public async Task<bool> IsClientHasNotCancelledOnlineOrdersFromSource(
 			IUnitOfWork uow,
 			Guid? externalCounterpartyId,
-			int counterpartyErpId,
+			int counterpartyId,
 			Source source,
 			CancellationToken cancellationToken = default)
 		{
 			var orderNotDeliveredStatuses = new[] { OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered };
 
+			//сначала проверяем не отмененные заказы на основе онлайнов от искомого клиента
+			var onlineWithNotCancelledOrderByClientQuery =
+				from order in uow.Session.Query<Order>()
+				join onlineOrder in uow.Session.Query<OnlineOrder>()
+					on order.OnlineOrder.Id equals onlineOrder.Id
+				where
+					onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled
+					&& !orderNotDeliveredStatuses.Contains(order.OrderStatus)
+					&& onlineOrder.Source == source
+					&& order.Client.Id == counterpartyId
+
+				select onlineOrder.Id;
+			
+			if(await onlineWithNotCancelledOrderByClientQuery.AnyAsync(cancellationToken))
+			{
+				return false;
+			}
+			
+			//сначала проверяем не отмененные заказы на основе онлайнов от искомого пользователя
+			var onlineWithNotCancelledOrderByExternalCounterpartyQuery =
+				from order in uow.Session.Query<Order>()
+				join onlineOrder in uow.Session.Query<OnlineOrder>()
+					on order.OnlineOrder.Id equals onlineOrder.Id
+				where
+					onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled
+					&& !orderNotDeliveredStatuses.Contains(order.OrderStatus)
+					&& onlineOrder.Source == source
+					&& onlineOrder.ExternalCounterpartyId != null
+					&& onlineOrder.ExternalCounterpartyId == externalCounterpartyId
+
+				select onlineOrder.Id;
+			
+			if(await onlineWithNotCancelledOrderByExternalCounterpartyQuery.AnyAsync(cancellationToken))
+			{
+				return false;
+			}
+			
+			//Если не нашли значит их нет или они все отменены. Проверяем только онлайны
 			var query =
 				from onlineOrder in uow.Session.Query<OnlineOrder>()
-				join o in uow.Session.Query<Order>() on onlineOrder.Id equals o.OnlineOrder.Id into orders
-				from order in orders.DefaultIfEmpty()
 
 				where
 					onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled
-					&& (order.Id == null || !orderNotDeliveredStatuses.Contains(order.OrderStatus))
 					&& onlineOrder.Source == source
-					&& (onlineOrder.ExternalCounterpartyId == externalCounterpartyId
-						|| onlineOrder.CounterpartyId == counterpartyErpId
-						|| order.Client.Id == counterpartyErpId)
+					&& (
+						(onlineOrder.ExternalCounterpartyId != null
+							&& onlineOrder.ExternalCounterpartyId == externalCounterpartyId)
+						|| onlineOrder.CounterpartyId == counterpartyId)
 
-				select onlineOrder;
-
-			var firstNotCancelledOnlineOrder = await query.FirstOrDefaultAsync(cancellationToken);
-
-			return firstNotCancelledOnlineOrder != null;
+				select onlineOrder.Id;
+			
+			return await query.AnyAsync(cancellationToken);
 		}
 	}
 }
