@@ -54,6 +54,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Application.Receipts.Correction;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Controllers;
@@ -168,6 +169,7 @@ using VodovozBusiness.Nodes;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Receipts;
 using VodovozInfrastructure.Utils;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
@@ -327,6 +329,7 @@ namespace Vodovoz
 		private IBottlesRepository _bottlesRepository;
 		private IDeliveryPointRepository _deliveryPointRepository;
 		private IOrderContractUpdater _orderContractUpdater;
+		private IOrderReceiptCorrectionHandler _orderReceiptCorrectionHandler;
 		private ICounterpartyEdoAccountController _counterpartyEdoAccountController;
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -712,6 +715,7 @@ namespace Vodovoz
 			_bottlesRepository = _lifetimeScope.Resolve<IBottlesRepository>();
 			_deliveryPointRepository = _lifetimeScope.Resolve<IDeliveryPointRepository>();
 			_orderContractUpdater = _lifetimeScope.Resolve<IOrderContractUpdater>();
+			_orderReceiptCorrectionHandler = _lifetimeScope.Resolve<IOrderReceiptCorrectionHandler>();
 
 			_edoContainerRepository = _lifetimeScope.Resolve<IGenericRepository<EdoContainer>>();
 			_freeLoaderChecker = _lifetimeScope.Resolve<IFreeLoaderChecker>();
@@ -2762,6 +2766,22 @@ namespace Vodovoz
 
 				_logger.Info("Сохраняем заказ...");
 
+				var receiptCorrectionPreview = _orderReceiptCorrectionHandler.TryGetCorrectionPreview(UoW, Entity);
+				if(receiptCorrectionPreview.WillStartProcess)
+				{
+					var receiptCorrectionMessage = ReceiptCorrectionUserMessages.BuildConfirmationMessage(
+						receiptCorrectionPreview,
+						Entity.Id);
+
+					if(!MessageDialogHelper.RunQuestionDialog(receiptCorrectionMessage))
+					{
+						_lastSaveResult = Result.Failure(OrderErrors.Save);
+						return false;
+					}
+				}
+
+				_orderReceiptCorrectionHandler.TryStartCorrectionProcess(UoW, Entity);
+
 				Entity.SaveEntity(UoW, _orderContractUpdater, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
 
 				if(Entity.WaitUntilTime != _lastWaitUntilTime)
@@ -2785,6 +2805,10 @@ namespace Vodovoz
 				_lastSaveResult = Result.Failure(OrderErrors.Save);
 
 				_logger.Log(LogLevel.Error, e);
+
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					$"Не удалось сохранить заказ: {e.Message}");
 
 				return false;
 			}
@@ -4711,6 +4735,11 @@ namespace Vodovoz
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
+			_orderCancellationService.PrepareReceiptEdoTaskCancellation(
+				UoW,
+				e.CancellationPermit,
+				$"Отмена заказа №{Entity.Id}");
+
 			Entity.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, CallTaskWorker, 
 				needCreateDeliveryFreeBalanceOperation: true);
 
@@ -4731,13 +4760,22 @@ namespace Vodovoz
 
 				if(!result.IsSuccess)
 				{
-					ServicesConfig.InteractiveService.ShowMessage(
-						ImportanceLevel.Error,
-						string.Join(", ",
-						result.Errors
+					var transferTypeErrors = result.Errors
 						.Where(x => x.Code == RouteListErrors.RouteListItem.TransferTypeNotSet)
-						.Select(x => x.Message))
-						);
+						.Select(x => x.Message)
+						.Where(x => !string.IsNullOrWhiteSpace(x))
+						.ToList();
+
+					var message = transferTypeErrors.Any()
+						? string.Join(", ", transferTypeErrors)
+						: string.Join(", ", result.Errors.Select(x => x.Message).Where(x => !string.IsNullOrWhiteSpace(x)));
+
+					if(string.IsNullOrWhiteSpace(message))
+					{
+						message = "Не удалось отправить уведомление об изменении маршрутного листа.";
+					}
+
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
 				}
 			}
 			else
@@ -4745,9 +4783,16 @@ namespace Vodovoz
 				Entity.SetActualCountsToZeroOnCanceled();
 			}
 
+			var saved = Save();
+
 			UpdateUIState();
 
-			var saved = Save();
+			if(!saved)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Не удалось сохранить отмену заказа. Исправьте ошибки и нажмите «Сохранить».");
+			}
 
 			var allowCancellation = e.CancellationPermit.Type == OrderCancellationPermitType.AllowCancelOrder;
 			var hasEdoTaskToCancellationId = e.CancellationPermit.EdoTaskToCancellationId != null;
