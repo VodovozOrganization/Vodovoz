@@ -8669,16 +8669,12 @@ WITH fuel_operations_data as
 	fuel_documents.driver_id as driver_id,
     fuel_documents.date AS date,
     fuel_documents.gived_fuel_limits_amount AS liters_limits,
-    #Расход относится к автомобилю МЛ, поэтому показываем его только в строке документа выдачи,
-    #оформленного на это же авто, и только один раз на МЛ. Если такого документа нет,
-    #расход попадёт в отдельную строку из route_lists_outlay_without_own_document
     IF(fuel_documents.id = (
             SELECT MIN(fd2.id)
             FROM fuel_documents fd2
             WHERE fd2.route_list_id = fuel_documents.route_list_id
               AND fd2.car_id = route_lists.car_id
-              AND fd2.date &gt;= @start_date
-              AND fd2.date &lt; @end_date),
+              AND fd2.driver_id = route_lists.driver_id),
        IFNULL(fuel_operations.liters_outlayed, 0), 0) AS liters_outlayed,
     route_lists.id AS route_list_id,
     route_lists.date AS route_list_date,
@@ -8784,15 +8780,14 @@ LEFT JOIN transactions_data_numered td
 		AND fod.is_fuel_issued_first_time_by_rl = 1
 ),
 
-#Если по МЛ выдавалось топливо, но ни один документ выдачи не оформлен на авто самого МЛ
-#(авто и водителя поменяли уже после выдачи), расход по такому МЛ показываем отдельной строкой
-#на авто и водителя МЛ. В сопоставлении с транзакциями такая строка не участвует
+# Если по МЛ выдавалось топливо, но ни один документ выдачи не оформлен на авто и водителя МЛ,
+# например, их поменяли уже после выдачи, расход по такому МЛ показываем отдельной строкой на авто
 route_lists_outlay_without_own_document AS
 (
 SELECT
     rl.car_id                AS car_id,
     rl.driver_id             AS driver_id,
-    rl.date                  AS date,
+    first_document.date      AS date,
     0                        AS liters_limits,
     outlay.liters_outlayed   AS liters_outlayed,
     rl.id                    AS route_list_id,
@@ -8810,18 +8805,19 @@ SELECT
     ''                       AS gazprom_product_name
 FROM route_lists rl
 JOIN fuel_operations outlay ON outlay.id = rl.fuel_outlayed_operation_id
+JOIN fuel_documents first_document ON first_document.id =
+    (SELECT MIN(fd.id) FROM fuel_documents fd WHERE fd.route_list_id = rl.id)
 LEFT JOIN fuel_card_versions fcv ON fcv.car_id = rl.car_id
     AND fcv.start_date &lt;= rl.date
     AND (fcv.end_date IS NULL OR fcv.end_date &gt;= rl.date)
 LEFT JOIN fuel_cards fc ON fc.id = fcv.fuel_card_id
 WHERE outlay.liters_outlayed &gt; 0
-  AND EXISTS (SELECT 1 FROM fuel_documents fd
-                WHERE fd.route_list_id = rl.id
-                  AND fd.date &gt;= @start_date AND fd.date &lt; @end_date)
+  AND first_document.date &gt;= @start_date
+  AND first_document.date &lt; @end_date
   AND NOT EXISTS (SELECT 1 FROM fuel_documents fd
                 WHERE fd.route_list_id = rl.id
-                  AND fd.date &gt;= @start_date AND fd.date &lt; @end_date
-                  AND fd.car_id = rl.car_id)
+                  AND fd.car_id = rl.car_id
+                  AND fd.driver_id = rl.driver_id)
 ),
 
 #Оставшиеся не добавленными после LEFT JOIN транзакции добавляем в выборку
