@@ -8669,7 +8669,17 @@ WITH fuel_operations_data as
 	fuel_documents.driver_id as driver_id,
     fuel_documents.date AS date,
     fuel_documents.gived_fuel_limits_amount AS liters_limits,
-    IFNULL(fuel_operations.liters_outlayed, 0) AS liters_outlayed,
+    #Расход относится к автомобилю МЛ, поэтому показываем его только в строке документа выдачи,
+    #оформленного на это же авто, и только один раз на МЛ. Если такого документа нет,
+    #расход попадёт в отдельную строку из route_lists_outlay_without_own_document
+    IF(fuel_documents.id = (
+            SELECT MIN(fd2.id)
+            FROM fuel_documents fd2
+            WHERE fd2.route_list_id = fuel_documents.route_list_id
+              AND fd2.car_id = route_lists.car_id
+              AND fd2.date &gt;= @start_date
+              AND fd2.date &lt; @end_date),
+       IFNULL(fuel_operations.liters_outlayed, 0), 0) AS liters_outlayed,
     route_lists.id AS route_list_id,
     route_lists.date AS route_list_date,
     fuel_documents.fuel_type_id AS fuel_type,
@@ -8774,6 +8784,46 @@ LEFT JOIN transactions_data_numered td
 		AND fod.is_fuel_issued_first_time_by_rl = 1
 ),
 
+#Если по МЛ выдавалось топливо, но ни один документ выдачи не оформлен на авто самого МЛ
+#(авто и водителя поменяли уже после выдачи), расход по такому МЛ показываем отдельной строкой
+#на авто и водителя МЛ. В сопоставлении с транзакциями такая строка не участвует
+route_lists_outlay_without_own_document AS
+(
+SELECT
+    rl.car_id                AS car_id,
+    rl.driver_id             AS driver_id,
+    rl.date                  AS date,
+    0                        AS liters_limits,
+    outlay.liters_outlayed   AS liters_outlayed,
+    rl.id                    AS route_list_id,
+    rl.date                  AS route_list_date,
+    ''                       AS fuel_type,
+    0                        AS author_id,
+    0                        AS last_editor_id,
+    ''                       AS last_edit_date,
+    fc.card_number           AS fuel_card_number,
+    0                        AS payed_for_fuel,
+    0                        AS cashless_payed_for_fuel,
+    0                        AS liters_payed,
+    0                        AS fuel_transactions_quantity,
+    0                        AS fuel_transactions_total_sum,
+    ''                       AS gazprom_product_name
+FROM route_lists rl
+JOIN fuel_operations outlay ON outlay.id = rl.fuel_outlayed_operation_id
+LEFT JOIN fuel_card_versions fcv ON fcv.car_id = rl.car_id
+    AND fcv.start_date &lt;= rl.date
+    AND (fcv.end_date IS NULL OR fcv.end_date &gt;= rl.date)
+LEFT JOIN fuel_cards fc ON fc.id = fcv.fuel_card_id
+WHERE outlay.liters_outlayed &gt; 0
+  AND EXISTS (SELECT 1 FROM fuel_documents fd
+                WHERE fd.route_list_id = rl.id
+                  AND fd.date &gt;= @start_date AND fd.date &lt; @end_date)
+  AND NOT EXISTS (SELECT 1 FROM fuel_documents fd
+                WHERE fd.route_list_id = rl.id
+                  AND fd.date &gt;= @start_date AND fd.date &lt; @end_date
+                  AND fd.car_id = rl.car_id)
+),
+
 #Оставшиеся не добавленными после LEFT JOIN транзакции добавляем в выборку
 #Транзакция по возможности прикрепляется к последнему МЛ автомобиля, по которому была выдача топлива за день,
 #но при этом значения выданного и истраченного топлива устанавливаем 0
@@ -8825,7 +8875,28 @@ SELECT
 	td.gazprom_product_name
 FROM
 transactions_data_numered td
-WHERE NOT td.transaction_id IN (SELECT transaction_id FROM fuel_operations_part_of_transactions WHERE NOT transaction_id IS NULL)) t
+WHERE NOT td.transaction_id IN (SELECT transaction_id FROM fuel_operations_part_of_transactions WHERE NOT transaction_id IS NULL)
+UNION ALL
+SELECT
+    rlo.car_id,
+    rlo.driver_id,
+    rlo.date,
+    rlo.liters_limits,
+    rlo.liters_outlayed,
+    rlo.route_list_id,
+    rlo.route_list_date,
+    rlo.fuel_type,
+    rlo.author_id,
+    rlo.last_editor_id,
+    rlo.last_edit_date,
+    rlo.fuel_card_number,
+    rlo.payed_for_fuel,
+    rlo.cashless_payed_for_fuel,
+    rlo.liters_payed,
+    rlo.fuel_transactions_quantity,
+    rlo.fuel_transactions_total_sum,
+    rlo.gazprom_product_name
+FROM route_lists_outlay_without_own_document rlo) t
 ),
 
 #Получаем все необходимые данные и выполняем фильтрацию
