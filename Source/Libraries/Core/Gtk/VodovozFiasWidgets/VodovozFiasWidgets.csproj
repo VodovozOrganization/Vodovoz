@@ -52,7 +52,7 @@
       <Version>4.0.5</Version>
     </PackageReference>
     <PackageReference Include="NHibernate">
-      <Version>5.4.1</Version>
+      <Version>5.4.9</Version>
     </PackageReference>
     <PackageReference Include="Npgsql">
       <Version>5.0.10</Version>
