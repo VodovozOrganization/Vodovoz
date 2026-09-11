@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
@@ -14,6 +15,16 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.Where(n => n.HttpCode == null || (n.HttpCode != 204 && n.HttpCode != 405))
 				.And(n => n.CreationDate >= DateTime.Today.AddDays(-days))
 				.List();
+		}
+
+		/// <inheritdoc/>
+		public IList<ExternalCounterpartyAssignNotification> GetByExternalCounterpartyIds(
+			IUnitOfWork uow, IEnumerable<int> externalCounterpartyIds)
+		{
+			var ids = externalCounterpartyIds.ToArray();
+			return uow.Session.Query<ExternalCounterpartyAssignNotification>()
+				.Where(n => ids.Contains(n.ExternalCounterparty.Id))
+				.ToList();
 		}
 	}
 }

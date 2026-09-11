@@ -21,7 +21,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			References(x => x.AssignedExternalCounterparty)
 				.Column("assigned_external_counterparty_id")
-				.Cascade.AllDeleteOrphan();
+				.Cascade.SaveUpdate();
 		}
 	}
 }

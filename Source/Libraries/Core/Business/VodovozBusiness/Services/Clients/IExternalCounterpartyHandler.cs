@@ -15,5 +15,13 @@ namespace VodovozBusiness.Services.Clients
 		/// <param name="phone">Телефон</param>
 		/// <returns></returns>
 		bool HasExternalCounterparties(IUnitOfWork uow, Phone phone);
+
+		/// <summary>
+		/// Удалить пользователей ИПЗ и связанные данные архивируемого телефона в текущей транзакции.
+		/// Сохранение и завершение транзакции выполняет вызывающая сторона.
+		/// </summary>
+		/// <param name="uow">Текущая единица работы.</param>
+		/// <param name="phone">Архивируемый телефон.</param>
+		void DeleteExternalCounterpartiesForArchivedPhone(IUnitOfWork uow, Phone phone);
 	}
 }
