@@ -21,6 +21,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.JurAddress)
 				.Column("jur_address");
 
+			Map(x => x.FiasId)
+				.Column("fias_id");
+
 			Map(x => x.StartDate)
 				.Column("start_date");
 
