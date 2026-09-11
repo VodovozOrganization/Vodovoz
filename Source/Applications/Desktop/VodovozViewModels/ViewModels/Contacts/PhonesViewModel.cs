@@ -128,35 +128,11 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			return viewModel;
 		}
 
-		/// <summary>Сохранение завершилось ошибкой, единица работы больше не может использоваться.</summary>
-		public bool HasSaveFailed { get; private set; }
-
 		/// <summary>
-		/// Сохранить карточку вместе с очисткой связей архивируемых телефонов.
-		/// При ошибке освободить единицу работы с откатом незавершённой транзакции.
+		/// Подготовить очистку связей архивируемых телефонов без сохранения карточки.
+		/// Сохранением и откатом при ошибке управляет родительская карточка.
 		/// </summary>
-		public void SaveWithPhoneArchiving()
-		{
-			if(HasSaveFailed)
-			{
-				throw new InvalidOperationException("После ошибки сохранения необходимо повторно открыть карточку.");
-			}
-
-			try
-			{
-				PrepareSave();
-				UoW.Save();
-			}
-			catch
-			{
-				HasSaveFailed = true;
-				UoW.Dispose();
-				throw;
-			}
-		}
-
-		/// <summary>Подготовить очистку связей архивируемых телефонов перед сохранением карточки.</summary>
-		private void PrepareSave()
+		public void PrepareSave()
 		{
 			foreach(var phone in PhonesList.Where(p => GetPhoneViewModel(p).IsPendingArchiving))
 			{

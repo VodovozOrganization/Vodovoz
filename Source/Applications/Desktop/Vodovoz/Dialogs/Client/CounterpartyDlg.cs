@@ -247,7 +247,7 @@ namespace Vodovoz
 		{
 			get
 			{
-				if(_phonesViewModel?.HasSaveFailed == true)
+				if(_hasSaveFailed)
 				{
 					return false;
 				}
@@ -261,7 +261,7 @@ namespace Vodovoz
 
 		#region IAskSaveOnCloseViewModel
 
-		public bool AskSaveOnClose => _phonesViewModel?.HasSaveFailed != true && CanEdit;
+		public bool AskSaveOnClose => !_hasSaveFailed && CanEdit;
 
 		#endregion
 
@@ -1670,6 +1670,7 @@ namespace Vodovoz
 		}
 
 		private bool _canClose = true;
+		private bool _hasSaveFailed;
 
 		public bool CanClose()
 		{
@@ -1690,7 +1691,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			if(_phonesViewModel.HasSaveFailed)
+			if(_hasSaveFailed)
 			{
 				return false;
 			}
@@ -1725,7 +1726,7 @@ namespace Vodovoz
 				_logger.Info("Сохраняем контрагента...");
 				try
 				{
-					_phonesViewModel.SaveWithPhoneArchiving();
+					SaveWithPhoneArchiving();
 				}
 				catch(Exception ex)
 				{
@@ -1748,10 +1749,25 @@ namespace Vodovoz
 			finally
 			{
 				SetSensetivity(true);
-				if(_phonesViewModel.HasSaveFailed)
+				if(_hasSaveFailed)
 				{
 					OnCloseTab(false, CloseSource.Cancel);
 				}
+			}
+		}
+
+		private void SaveWithPhoneArchiving()
+		{
+			try
+			{
+				_phonesViewModel.PrepareSave();
+				UoW.Save();
+			}
+			catch
+			{
+				_hasSaveFailed = true;
+				UoW.Dispose();
+				throw;
 			}
 		}
 
