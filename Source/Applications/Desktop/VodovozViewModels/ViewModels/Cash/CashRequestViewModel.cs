@@ -24,7 +24,6 @@ using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.NotificationSenders;
 using Vodovoz.Tools;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -208,7 +207,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			RemoveSumCommand = new DelegateCommand(RemoveSum, () => true);
 
-			AfterSaveCommand = new DelegateCommand(AfterSaveHandler, () => true);
+			AfterSaveCommand = new DelegateCommand<bool>(AfterSaveHandler, close => true);
 
 			GiveSumCommand = new DelegateCommand(GiveSum, () => CanExecuteGive);
 			GiveSumCommand.CanExecuteChangedWith(this, x => x.CanExecuteGive);
@@ -224,7 +223,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			Close(AskSaveOnClose, CloseSource.Cancel);
 		}
 
-		private void AfterSaveHandler()
+		private void AfterSaveHandler(bool close = true)
 		{
 			if(Entity.ExpenseCategoryId == null)
 			{
@@ -236,7 +235,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			var entityId = Entity.Id;
 			var entityStatusIsGivenForTake = Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
 
-			SaveAndClose();
+			Save();
 
 			if(entityStatusIsGivenForTake)
 			{
@@ -248,6 +247,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			{
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
 					$"Cоздан следующие аванс:\n{messageText}");
+			}
+
+			if(close)
+			{
+				Close(false, CloseSource.Save);
 			}
 		}
 
@@ -409,7 +413,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public DelegateCommand RemoveSumCommand { get; }
 
-		public DelegateCommand AfterSaveCommand { get; }
+		public DelegateCommand<bool> AfterSaveCommand { get; }
 
 		public DelegateCommand GiveSumCommand { get; }
 
@@ -465,8 +469,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		private void AcceptCommandHandler()
 		{
-			ChangeStateAndSave(PayoutRequestState.Submited);
+			if(!ChangeStateAndSave(PayoutRequestState.Submited, false))
+			{
+				return;
+			}
+			
 			ShowInfoMessage($"Ваша заявка передана на согласование {AuthorsSubdivisionChiefName}");
+			Close(false, CloseSource.Self);
 		}
 
 		private void SubdivisionChiefApproveCommandHandler()
@@ -792,7 +801,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			return builder.ToString();
 		}
 
-		private void ChangeStateAndSave(PayoutRequestState newState)
+		private bool ChangeStateAndSave(PayoutRequestState newState, bool close = true)
 		{
 			var validationResult = Entity.RaiseValidationAndGetResult();
 
@@ -802,12 +811,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					ImportanceLevel.Warning,
 					$"{validationResult}");
 
-				return;
+				return false;
 			}
 
 			Entity.ChangeState(newState);
 
-			AfterSaveCommand.Execute();
+			AfterSaveCommand.Execute(close);
+			return true;
 		}
 
 		private bool AfterSave(out string messageText)

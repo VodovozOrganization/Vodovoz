@@ -77,7 +77,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ICarRepository _carRepository;
 		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
-		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly IWageSettings _wageSettings;
 		private readonly IOrganizationRepository _organizationRepository;
@@ -146,7 +145,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IRouteListRepository routeListRepository,
 			ICarRepository carRepository,
 			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
-			UserSettings userSettings,
 			IUserRepository userRepository,
 			IWageSettings wageSettings,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
@@ -178,7 +176,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
-			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			UoWGeneric = entityUoWBuilder.CreateUoW<Employee>(unitOfWorkFactory, TabName);
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -374,7 +371,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public TerminalManagementViewModel TerminalManagementViewModel =>
 			_terminalManagementViewModel ?? (_terminalManagementViewModel =
 				new TerminalManagementViewModel(
-					_userSettings.DefaultWarehouse,
+					_userRepository.GetCurrentUserSettings(UoW).DefaultWarehouse,
 					Entity,
 					this as ITdiTab,
 					_employeeRepository,

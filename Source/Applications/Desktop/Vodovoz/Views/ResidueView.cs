@@ -69,7 +69,7 @@ namespace Vodovoz.Views
 					.XAlign(0.5f)
 				.AddColumn("Форма оплаты")
 					.AddComboRenderer(x => x.PaymentType)
-					.SetDisplayFunc(x => x.GetEnumTitle())
+					.SetDisplayFunc((node, item) => item.GetEnumTitle())
 					.FillItems(((PaymentType[])Enum.GetValues(typeof(PaymentType))).ToList())
 					.AddSetter((c, n) => c.Editable = ViewModel.CanEdit)
 				.Finish();

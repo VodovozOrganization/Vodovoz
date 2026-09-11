@@ -55,7 +55,7 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Отдел ВВ")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(n => n.GuiltyDepartment)
-					.SetDisplayFunc(x => x.Name)
+					.SetDisplayFunc((node, item) => item.Name)
 					.FillItems(allDepartments)
 					.AddSetter(
 						(c, n) =>

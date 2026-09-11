@@ -181,7 +181,8 @@ namespace Vodovoz.Views.Logistic
 					.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
 					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.Car != null && x.CarVersion.IsCompanyCar ? _vodovozCarIcon : null)
 						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
-					.AddColumn("База").AddComboRenderer(x => x.GeographicGroup).SetDisplayFunc(x => x.Name)
+					.AddColumn("База").AddComboRenderer(x => x.GeographicGroup)
+						.SetDisplayFunc((node, item) => item.Name)
 						.FillItems(ViewModel.GeographicGroupsExceptEast)
 						.AddSetter(
 							(c, n) =>

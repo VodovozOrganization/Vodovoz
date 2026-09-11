@@ -39,7 +39,7 @@ namespace Vodovoz.Views.Logistic
                     .AddTextRenderer(x => x.WeekDay.GetEnumTitle())
                 .AddColumn("Ходки")
                 .AddComboRenderer(x => x.DaySchedule)
-                    .SetDisplayFunc(x => x.Name)
+                    .SetDisplayFunc((node, item) => item.Name)
                     .FillItems(ViewModel.DeliveryDaySchedules)
                     .Editing()
                 .Finish();

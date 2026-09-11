@@ -118,56 +118,46 @@ namespace Vodovoz.ViewWidgets
 						c.BackgroundGdk = colorLightRed;
 					}
 				})
-				.AddColumn("Причина").AddEnumRenderer(
+				.AddColumn("Причина").AddComboRenderer(
 					node => node.DirectionReason
 					, true
 				)
-				.HideCondition(HideItemFromDirectionReasonComboInEquipment)
-				.AddSetter((c, n) => {
-					if(n.Direction == Core.Domain.Orders.Direction.Deliver) {
-						switch(n.DirectionReason) {
-							case DirectionReason.Rent:
-								c.Text = "В аренду";
-								break;
-							case DirectionReason.Repair:
-								c.Text = "Из ремонта";
-								break;
-							case DirectionReason.Cleaning:
-								c.Text = "После санобработки";
-								break;
-							case DirectionReason.RepairAndCleaning:
-								c.Text = "Из ремонта и санобработки";
-								break;
-							default:
-								break;
+				.DynamicFillListFunc(node => node.Direction == Core.Domain.Orders.Direction.Deliver
+					? OrderEquipmentEntity.DeliverDirectionReason
+					: OrderEquipmentEntity.PickUpDirectionReason)
+				.SetDisplayFunc((node, item) =>
+					{
+						if(node.Direction == Core.Domain.Orders.Direction.Deliver) {
+							switch(item) {
+								case DirectionReason.Rent:
+									return "В аренду";
+								case DirectionReason.Repair:
+									return "Из ремонта";
+								case DirectionReason.Cleaning:
+									return "После санобработки";
+								case DirectionReason.RepairAndCleaning:
+									return "Из ремонта и санобработки";
+							}
+						} else {
+							switch(item) {
+								case DirectionReason.Rent:
+									return "Закрытие аренды";
+								case DirectionReason.Repair:
+									return "В ремонт";
+								case DirectionReason.Cleaning:
+									return "На санобработку";
+								case DirectionReason.RepairAndCleaning:
+									return "В ремонт и санобработку";
+								case DirectionReason.TradeIn:
+									return "По акции \"Трейд-Ин\"";
+								case DirectionReason.ClientGift:
+									return "Подарок от клиента";
+							}
 						}
-					} else {
-						switch(n.DirectionReason) {
-							case DirectionReason.Rent:
-								c.Text = "Закрытие аренды";
-								break;
-							case DirectionReason.Repair:
-								c.Text = "В ремонт";
-								break;
-							case DirectionReason.Cleaning:
-								c.Text = "На санобработку";
-								break;
-							case DirectionReason.RepairAndCleaning:
-								c.Text = "В ремонт и санобработку";
-								break;
-							case DirectionReason.TradeIn:
-								c.Text = "По акции \"Трейд-Ин\"";
-								break;
-							case DirectionReason.ClientGift:
-								c.Text = "Подарок от клиента";
-								break;
-							default:
-								break;
-						}
-					}
 
-					c.UpdateComboList(n);
-				})
+						return null;
+					}
+				)
 				.AddSetter((c, n) => {
 					c.Editable = false;
 					c.Editable =
@@ -229,92 +219,64 @@ namespace Vodovoz.ViewWidgets
 						c.BackgroundGdk = colorLightRed;
 					}
 				})
-				.AddColumn("Причина").AddEnumRenderer(
+				.AddColumn("Причина").AddComboRenderer(
 					node => node.DirectionReason,
 					true
 				)
-				.HideCondition(HideItemFromDirectionReasonComboInEquipment)
-				.AddSetter((c, n) => {
-					if(n.Direction == Core.Domain.Orders.Direction.Deliver) {
-						switch(n.DirectionReason) {
-							case DirectionReason.Rent:
-								c.Text = "В аренду";
-								break;
-							case DirectionReason.Repair:
-								c.Text = "Из ремонта";
-								break;
-							case DirectionReason.Cleaning:
-								c.Text = "После санобработки";
-								break;
-							case DirectionReason.RepairAndCleaning:
-								c.Text = "Из ремонта и санобработки";
-								break;
-							default:
-								break;
+				.DynamicFillListFunc(node => node.Direction == Core.Domain.Orders.Direction.Deliver
+					? OrderEquipmentEntity.DeliverDirectionReason
+					: OrderEquipmentEntity.PickUpDirectionReason)
+				.SetDisplayFunc((node, item) =>
+					{
+						if(node.Direction == Core.Domain.Orders.Direction.Deliver) {
+							switch(item) {
+								case DirectionReason.Rent:
+									return "В аренду";
+								case DirectionReason.Repair:
+									return "Из ремонта";
+								case DirectionReason.Cleaning:
+									return "После санобработки";
+								case DirectionReason.RepairAndCleaning:
+									return "Из ремонта и санобработки";
+							}
+						} else {
+							switch(item) {
+								case DirectionReason.Rent:
+									return "Закрытие аренды";
+								case DirectionReason.Repair:
+									return "В ремонт";
+								case DirectionReason.Cleaning:
+									return "На санобработку";
+								case DirectionReason.RepairAndCleaning:
+									return "В ремонт и санобработку";
+								case DirectionReason.TradeIn:
+									return "По акции \"Трейд-Ин\"";
+								case DirectionReason.ClientGift:
+									return "Подарок от клиента";
+							}
 						}
-					} else {
-						switch(n.DirectionReason) {
-							case DirectionReason.Rent:
-								c.Text = "Закрытие аренды";
-								break;
-							case DirectionReason.Repair:
-								c.Text = "В ремонт";
-								break;
-							case DirectionReason.Cleaning:
-								c.Text = "На санобработку";
-								break;
-							case DirectionReason.RepairAndCleaning:
-								c.Text = "В ремонт и санобработку";
-								break;
-							case DirectionReason.TradeIn:
-								c.Text = "По акции \"Трейд-Ин\"";
-								break;
-							case DirectionReason.ClientGift:
-								c.Text = "Подарок от клиента";
-								break;
-							default:
-								break;
-						}
-					}
 
-					c.UpdateComboList(n);
-				})
+						return null;
+					}
+				)
 				.AddSetter((c, n) => {
 					c.Editable = false;
 					c.Editable =
 						n.Nomenclature?.Category == NomenclatureCategory.equipment
-					     && n.Reason != Reason.Rent
-					     && n.OwnType != OwnTypes.Duty
-					     && n.Nomenclature?.SaleCategory != SaleCategory.forSale;
+						&& n.Reason != Reason.Rent
+						&& n.OwnType != OwnTypes.Duty
+						&& n.Nomenclature?.SaleCategory != SaleCategory.forSale;
 				})
 				.AddSetter((c, n) => {
 					c.BackgroundGdk = (n.Nomenclature?.Category == NomenclatureCategory.equipment
-									   && n.DirectionReason == DirectionReason.None
-				                       && n.OwnType != OwnTypes.Duty
-				                       && n.Nomenclature?.SaleCategory != SaleCategory.forSale)
+						&& n.DirectionReason == DirectionReason.None
+						&& n.OwnType != OwnTypes.Duty
+						&& n.Nomenclature?.SaleCategory != SaleCategory.forSale)
 						? colorLightRed
 						: colorWhite;
 				})
 				.AddColumn("")
 				.Finish();
-		}
-
-		public virtual bool HideItemFromDirectionReasonComboInEquipment(OrderEquipment node, DirectionReason item)
-		{
-			switch(item) {
-				case DirectionReason.None:
-					return true;
-				case DirectionReason.Rent:
-				case DirectionReason.Repair:
-				case DirectionReason.Cleaning:
-				case DirectionReason.RepairAndCleaning:
-					return false;
-				case DirectionReason.TradeIn:
-				case DirectionReason.ClientGift:
-					return node.Direction == Core.Domain.Orders.Direction.Deliver;
-				default:
-					return false;
-			}
 		}
 
 		void TreeEquipment_Selection_Changed(object sender, EventArgs e)
@@ -441,7 +403,7 @@ namespace Vodovoz.ViewWidgets
 
 		void AddNomenclatureFromClient(Nomenclature nomenclature)
 		{
-			Order.AddEquipmentNomenclatureFromClient(nomenclature, UoW);
+			Order.AddEquipmentNomenclatureFromClient(nomenclature);
 		}
 
 		protected override void OnDestroyed()

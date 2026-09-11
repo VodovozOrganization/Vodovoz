@@ -59,7 +59,7 @@ namespace Vodovoz.Store
 				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : string.Empty)
 				.AddColumn("Тип брака")
 					.AddComboRenderer(x => x.TypeOfDefect)
-					.SetDisplayFunc(x => x.Name)
+					.SetDisplayFunc((node, item) => item.Name)
 					.FillItems(ViewModel.DefectTypesCache)
 					.AddSetter(
 						(c, n) =>
@@ -98,7 +98,7 @@ namespace Vodovoz.Store
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
 				.AddColumn("Причина пересортицы")
 					.AddComboRenderer(x => x.RegradingOfGoodsReason)
-					.SetDisplayFunc(x => x.Name)
+					.SetDisplayFunc((node, item) => item.Name)
 					.FillItems(ViewModel.RegradingReasonsCache)
 					.Editing()
 				.Finish();

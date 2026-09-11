@@ -127,7 +127,7 @@ namespace Vodovoz.Views.Logistic
 					.XAlign(0.5f)
 				.AddColumn("Причина")
 					.AddComboRenderer(n => n.LateArrivalReason)
-					.SetDisplayFunc(x => x.Name)
+					.SetDisplayFunc((node, item) => item.Name)
 					.FillItems(ViewModel.UoW.GetAll<LateArrivalReason>().ToList())
 					.Editing()
 				.AddColumn("Автор причины")

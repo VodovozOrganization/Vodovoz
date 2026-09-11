@@ -26,7 +26,6 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Fuel;
@@ -38,6 +37,7 @@ using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using VodovozBusiness.Attributes;
 using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.ViewModels.FuelDocuments
@@ -83,8 +83,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		#region ctor
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с коммитом изменений в родительском UoW
-		/// Создание нового документа из диалого закрытия МЛ
+		/// Создание нового документа из диалога закрытия МЛ
+		/// Для правильного резолва вью модели передаваемые типы должны полностью совпадать с указанными в атрибуте
+		/// <see cref="FuelDocumentViewModelConstructorSelector"/>
 		/// </summary>
+		[ResolveHelper(typeof(IUnitOfWork), typeof(RouteList))]
 		public FuelDocumentViewModel
 		(
 			IUnitOfWork uow,
@@ -143,7 +146,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		/// <summary>
 		/// Открытие существующего документа из диалога закрытия МЛ
+		/// Для правильного резолва вью модели передаваемые типы должны полностью совпадать с указанными в атрибуте
+		/// <see cref="FuelDocumentViewModelConstructorSelector"/>
 		/// </summary>
+		[ResolveHelper(typeof(IUnitOfWork), typeof(FuelDocument))]
 		public FuelDocumentViewModel
 		(
 			IUnitOfWork uow,
@@ -204,7 +210,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
 		/// Создание нового документа из журнала "Работа кассы с МЛ"
+		/// Для правильного резолва вью модели передаваемые типы должны полностью совпадать с указанными в атрибуте
+		/// <see cref="FuelDocumentViewModelConstructorSelector"/>
 		/// </summary>
+		[ResolveHelper(typeof(RouteList))]
 		public FuelDocumentViewModel
 		(
 			RouteList rl,
@@ -265,7 +274,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с автоматическим коммитом всех изменений
 		/// Создание нового документа из журнала "Журнал МЛ"
+		/// Для правильного резолва вью модели передаваемые типы должны полностью совпадать с указанными в атрибуте
+		/// <see cref="FuelDocumentViewModelConstructorSelector"/>
 		/// </summary>
+		[ResolveHelper(typeof(IEntityUoWBuilder))]
 		public FuelDocumentViewModel
 		(
 			IUnitOfWorkFactory unitOfWorkFactory,

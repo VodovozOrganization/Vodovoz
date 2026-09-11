@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModel
 {
 	public class ReadyForShipmentVM : QSOrmProject.RepresentationModel.RepresentationModelWithoutEntityBase<ReadyForShipmentVMNode>
 	{
-		public ReadyForShipmentVM() : this(ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot()) { }
+		public ReadyForShipmentVM() { }
 
 		public ReadyForShipmentVM(IUnitOfWork uow) : base(
 			typeof(RouteList),

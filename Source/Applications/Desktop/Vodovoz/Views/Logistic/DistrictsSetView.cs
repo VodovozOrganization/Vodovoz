@@ -452,7 +452,7 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Тарифная зона")
 					.HeaderAlignment(0.5f)
 				.AddComboRenderer(x => x.TariffZone)
-					.SetDisplayFunc(x => x.Name)
+					.SetDisplayFunc((node, item) => item.Name)
 					.FillItems(ViewModel.UoW.GetAll<TariffZone>().ToList(), "Нет")
 					.Editing(ViewModel.CanEditDistrict)
 				.AddColumn("Мин. бутылей для бесплатной доставки")

@@ -641,6 +641,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 
 		public override void Dispose()
 		{
+			if(IsDisposed) return;
+			
 			IsDisposed = true;
 			_cancellationTokenSource.Cancel();
 			Entity.PropertyChanged -= OnEntityPropertyChanged;

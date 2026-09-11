@@ -37,7 +37,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			Map(x => x.DefaultCounterpartyId).Column("default_counterparty_id");
 
 			References(x => x.User).Column("user_id");
-			References(x => x.DefaultWarehouse).Column("default_warehouse_id");
+			References(x => x.DefaultWarehouse)
+				.Column("default_warehouse_id")
+				.Not.LazyLoad();
 
 			HasMany(x => x.CashSubdivisionSortingSettings).KeyColumn("user_settings_id")
 				.Cascade.AllDeleteOrphan().Inverse().OrderBy("sorting_index");

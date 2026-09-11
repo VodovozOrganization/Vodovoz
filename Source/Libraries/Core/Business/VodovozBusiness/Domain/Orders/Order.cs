@@ -2047,7 +2047,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddEquipmentNomenclatureFromClient(
 			Nomenclature nomenclature,
-			IUnitOfWork UoW,
 			int count = 0,
 			Direction direction = Direction.PickUp,
 			DirectionReason directionReason = DirectionReason.None,

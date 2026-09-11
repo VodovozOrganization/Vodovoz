@@ -107,7 +107,7 @@ namespace Vodovoz.Views.Users
 				.AddColumn("Название")
 					.AddComboRenderer(n => n.PrivilegeName)
 					.Editing()
-					.SetDisplayFunc(n => n.Name)
+					.SetDisplayFunc((node, item) => item.Name)
 					.DynamicFillListFunc(n =>
 						ViewModel.PrivilegesNames.Where(x => n.PrivilegeType == x.PrivilegeType).ToList())
 				.AddColumn("База данных")

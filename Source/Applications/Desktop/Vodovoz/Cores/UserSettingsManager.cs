@@ -9,6 +9,11 @@ using VodovozBusiness.Services.Users;
 
 namespace Vodovoz.Cores
 {
+	/// <summary>
+	/// Класс для работы с настройками пользователей
+	/// Важно!!! Если у <see cref="UserSettings"/> есть ссылки на классы то их нужно загружать полностью, т.е. без lazy load
+	/// или менять концепцию работы с настройками через внешний uow 
+	/// </summary>
 	public class UserSettingsManager : IUserSettingsManager
 	{
 		private readonly ILogger<UserSettingsManager> _logger;

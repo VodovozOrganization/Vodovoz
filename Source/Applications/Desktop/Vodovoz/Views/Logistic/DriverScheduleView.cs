@@ -328,7 +328,7 @@ namespace Vodovoz.Views.Logistic
 				columnsConfig.AddColumn(dayColumnTitle)
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(CreatePropertyExpression<DriverScheduleRow, CarEventType>($"{dayName}CarEventType"))
-					.SetDisplayFunc(x => x == null ? "Нет" : x.ShortName)
+					.SetDisplayFunc((node, item) => item == null ? "Нет" : item.ShortName)
 					.FillItems(ViewModel.AvailableCarEventTypes)
 					.Editing()
 					.EditedEvent(OnDayComboEdited)

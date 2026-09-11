@@ -98,7 +98,7 @@ namespace Vodovoz.Views
 					.WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Категория дохода/расхода")
 					.AddComboRenderer(x => x.ProfitCategory)
-					.SetDisplayFunc(x => x.Name)
+					.SetDisplayFunc((node, item) => item.Name)
 					.FillItems(ViewModel.ProfitCategories)
 					.Editing()
 				.AddColumn("")

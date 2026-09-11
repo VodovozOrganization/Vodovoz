@@ -165,7 +165,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(node => node.Name)
 					.AddColumn("Тип коэффициента")
 						.AddComboRenderer(x => x.MotivationUnitType)
-						.SetDisplayFunc(x => x.GetEnumTitle())
+						.SetDisplayFunc((node, item) => item.GetEnumTitle())
 						.FillItems(ViewModel.MotivationUnitTypeList, "✗ Очистить")
 						.XAlign(0.5f)
 						.Editing()

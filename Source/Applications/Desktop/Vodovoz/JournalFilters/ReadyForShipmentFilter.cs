@@ -95,9 +95,9 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
-			var navigatiuonManager = _lifetimeScope.Resolve<INavigationManager>();
+			var navigationManager = _lifetimeScope.Resolve<INavigationManager>();
 
-			var builderFactory = new LegacyEEVMBuilderFactory<ReadyForShipmentFilter>(ParentTab, this, UoW, navigatiuonManager, _lifetimeScope);
+			var builderFactory = new LegacyEEVMBuilderFactory<ReadyForShipmentFilter>(ParentTab, this, UoW, navigationManager, _lifetimeScope);
 
 			WarehouseViewModel = builderFactory.ForProperty(x => x.Warehouse)
 				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(filter =>

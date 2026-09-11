@@ -32,7 +32,7 @@ namespace Vodovoz.Views.Logistic
 					.AddSetter((c, n) => c.BackgroundGdk = n.Id == 0 ? _greenColor : _primaryBaseColor)
 				.AddColumn("Принадлежность")
 					.AddComboRenderer(x => x.CarOwnType)
-					.SetDisplayFunc(x => x.GetEnumTitle())
+					.SetDisplayFunc((node, item) => item.GetEnumTitle())
 					.XAlign(0.5f)
 				.AddColumn("Начало действия").AddTextRenderer(x => x.StartDate.ToString("g")).XAlign(0.5f)
 				.AddColumn("Окончание действия").AddTextRenderer(x => x.EndDate.HasValue ? x.EndDate.Value.ToString("g") : "").XAlign(0.5f)

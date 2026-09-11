@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using System.Collections.Generic;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
@@ -176,5 +177,23 @@ namespace Vodovoz.Core.Domain.Orders
 		public virtual string ReasonString => Reason.GetEnumTitle();
 
 		#endregion
+		
+		public static IReadOnlyList<DirectionReason> DeliverDirectionReason => new List<DirectionReason>
+		{
+			DirectionReason.Rent,
+			DirectionReason.Repair,
+			DirectionReason.Cleaning,
+			DirectionReason.RepairAndCleaning
+		};
+		
+		public static IReadOnlyList<DirectionReason> PickUpDirectionReason => new List<DirectionReason>
+		{
+			DirectionReason.Rent,
+			DirectionReason.Repair,
+			DirectionReason.Cleaning,
+			DirectionReason.RepairAndCleaning,
+			DirectionReason.TradeIn,
+			DirectionReason.ClientGift
+		};
 	}
 }

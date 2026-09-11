@@ -118,6 +118,8 @@ using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
 using Vodovoz.Application.TrueMark;
 using Vodovoz.Cores;
+using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.FuelDocuments;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services.Users;
 
@@ -219,8 +221,12 @@ namespace Vodovoz
 							Assembly.GetExecutingAssembly(),
 							Assembly.GetAssembly(typeof(ComplaintViewModel)),
 							Assembly.GetAssembly(typeof(PacsPanelViewModel)))
-						.Where(t => t.IsAssignableTo<ViewModelBase>() && t.Name.EndsWith("ViewModel"))
+						.Where(t => t.IsAssignableTo<ViewModelBase>()
+							&& t.Name != nameof(FuelDocumentViewModel)
+							&& t.Name.EndsWith("ViewModel"))
 						.AsSelf();
+					builder.RegisterType<FuelDocumentViewModel>()
+						.UsingConstructor(new FuelDocumentViewModelConstructorSelector());
 					builder.RegisterType<PrepareDeletionViewModel>().As<IOnCloseActionViewModel>().AsSelf();
 					builder.RegisterType<DeletionProcessViewModel>().As<IOnCloseActionViewModel>().AsSelf();
 					builder.RegisterType<DeletionViewModel>().AsSelf();

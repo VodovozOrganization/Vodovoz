@@ -53,7 +53,7 @@ namespace Vodovoz.ViewWidgets.Store
 				.Editing(true)
 				.AddColumn("Тип брака")
 					.AddComboRenderer(x => x.TypeOfDefect)
-					.SetDisplayFunc(x => x.Name)
+					.SetDisplayFunc((node, item) => item.Name)
 					.FillItems(types)
 					.AddSetter(
 						(c, n) =>

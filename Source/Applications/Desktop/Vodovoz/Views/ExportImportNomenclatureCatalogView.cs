@@ -75,7 +75,7 @@ namespace Vodovoz.Views
 				.AddColumn("Действие")
 					.MinWidth(120)
 					.AddComboRenderer(x => x.ConflictSolveAction)
-					.SetDisplayFunc(x => x.GetEnumTitle())
+					.SetDisplayFunc((node, item) => item.GetEnumTitle())
 					.FillItems(((ConflictSolveAction[])Enum.GetValues(typeof(ConflictSolveAction))).ToList())
 					.AddSetter((c, n) => {
 						c.Editable = n.Source == Source.File && n.Status == NodeStatus.Conflict && n.DuplicateOf != null && ViewModel.CurrentState == LoadAction.LoadNew;

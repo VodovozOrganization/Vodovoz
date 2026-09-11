@@ -300,7 +300,7 @@ namespace Vodovoz.Logistic
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Форма оплаты")
 					.AddComboRenderer(node => node.PaymentType)
-					.SetDisplayFunc(x => x.GetEnumDisplayName())
+					.SetDisplayFunc((node, item) => item.GetEnumDisplayName())
 					.DynamicFillListFunc(node =>
 					{
 						if(node.PaymentType == PaymentType.Cash)

@@ -10,6 +10,7 @@ using System.Linq;
 using QS.Extensions.Observable.Collections.List;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.Control;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
@@ -199,17 +200,37 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.PackStart(labelName, false, false, 0);
 
 			var entityEntryName = new EntityEntry();
-			var builder =
-				new LegacyEEVMBuilderFactory<Phone>(ViewModel.ParentTab, newPhone, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope);
+			EntityEntryViewModel<RoboAtsCounterpartyName> phoneViewModel = null;
+			
+			if(ViewModel.ParentTab != null)
+			{
+				var builder =
+					new LegacyEEVMBuilderFactory<Phone>(ViewModel.ParentTab, newPhone, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope);
 
-			var viewModel = builder.ForProperty(x => x.RoboAtsCounterpartyName)
-				.UseViewModelJournalAndAutocompleter<RoboAtsCounterpartyNameJournalViewModel>()
-				.UseViewModelDialog<RoboAtsCounterpartyNameViewModel>()
-				.Finish();
+				phoneViewModel = builder.ForProperty(x => x.RoboAtsCounterpartyName)
+					.UseViewModelJournalAndAutocompleter<RoboAtsCounterpartyNameJournalViewModel>()
+					.UseViewModelDialog<RoboAtsCounterpartyNameViewModel>()
+					.Finish();
+			}
+			else
+			{
+				var builder =
+					new CommonEEVMBuilderFactory<Phone>(
+						ViewModel.ParentViewModel,
+						newPhone,
+						ViewModel.UoW,
+						ViewModel.NavigationManager,
+						ViewModel.Scope);
+				
+				phoneViewModel = builder.ForProperty(x => x.RoboAtsCounterpartyName)
+					.UseViewModelJournalAndAutocompleter<RoboAtsCounterpartyNameJournalViewModel>()
+					.UseViewModelDialog<RoboAtsCounterpartyNameViewModel>()
+					.Finish();
+			}
 
-			viewModel.IsEditable = !ViewModel.ReadOnly && ViewModel.CanReadCounterpartyName;
-			viewModel.CanViewEntity = ViewModel.CanEditCounterpartyName;
-			entityEntryName.ViewModel = viewModel;
+			phoneViewModel.IsEditable = !ViewModel.ReadOnly && ViewModel.CanReadCounterpartyName;
+			phoneViewModel.CanViewEntity = ViewModel.CanEditCounterpartyName;
+			entityEntryName.ViewModel = phoneViewModel;
 			
 			entityEntryName.WidthRequest = 170;
 			hBox.PackStart(entityEntryName, true, true, 0);
@@ -221,17 +242,37 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.PackStart(labelPatronymic, false, false, 0);
 
 			var entityEntryPatronymic = new EntityEntry();
-			var builder =
-				new LegacyEEVMBuilderFactory<Phone>(ViewModel.ParentTab, newPhone, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope);
+			EntityEntryViewModel<RoboAtsCounterpartyPatronymic> phoneViewModel = null;
 
-			var viewModel = builder.ForProperty(x => x.RoboAtsCounterpartyPatronymic)
-				.UseViewModelJournalAndAutocompleter<RoboAtsCounterpartyPatronymicJournalViewModel>()
-				.UseViewModelDialog<RoboAtsCounterpartyPatronymicViewModel>()
-				.Finish();
+			if(ViewModel.ParentTab != null)
+			{
+				var builder =
+					new LegacyEEVMBuilderFactory<Phone>(ViewModel.ParentTab, newPhone, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope);
+				
+				phoneViewModel = builder.ForProperty(x => x.RoboAtsCounterpartyPatronymic)
+					.UseViewModelJournalAndAutocompleter<RoboAtsCounterpartyPatronymicJournalViewModel>()
+					.UseViewModelDialog<RoboAtsCounterpartyPatronymicViewModel>()
+					.Finish();
+			}
+			else
+			{
+				var builder =
+					new CommonEEVMBuilderFactory<Phone>(
+						ViewModel.ParentViewModel,
+						newPhone,
+						ViewModel.UoW,
+						ViewModel.NavigationManager,
+						ViewModel.Scope);
+				
+				phoneViewModel = builder.ForProperty(x => x.RoboAtsCounterpartyPatronymic)
+					.UseViewModelJournalAndAutocompleter<RoboAtsCounterpartyPatronymicJournalViewModel>()
+					.UseViewModelDialog<RoboAtsCounterpartyPatronymicViewModel>()
+					.Finish();
+			}
 			
-			viewModel.IsEditable = !ViewModel.ReadOnly && ViewModel.CanReadCounterpartyPatronymic;
-			viewModel.CanViewEntity = ViewModel.CanEditCounterpartyPatronymic;
-			entityEntryPatronymic.ViewModel = viewModel;
+			phoneViewModel.IsEditable = !ViewModel.ReadOnly && ViewModel.CanReadCounterpartyPatronymic;
+			phoneViewModel.CanViewEntity = ViewModel.CanEditCounterpartyPatronymic;
+			entityEntryPatronymic.ViewModel = phoneViewModel;
 			
 			entityEntryPatronymic.WidthRequest = 170;
 			hBox.PackStart(entityEntryPatronymic, true, true, 0);

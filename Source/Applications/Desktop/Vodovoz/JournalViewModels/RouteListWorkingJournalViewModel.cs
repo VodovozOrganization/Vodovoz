@@ -453,8 +453,7 @@ namespace Vodovoz.JournalViewModels
 						var routeList = UoW.GetById<RouteList>(selectedNode.Id);
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => _lifetimeScope.Resolve<FuelDocumentViewModel>(new TypedParameter(typeof(RouteList), routeList)
-							)
+							() => _lifetimeScope.Resolve<FuelDocumentViewModel>(new TypedParameter(typeof(RouteList), routeList))
 						);
 					}
 				}

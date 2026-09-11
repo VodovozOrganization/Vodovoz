@@ -5996,7 +5996,6 @@ namespace Vodovoz
 			{
 				result.Root.AddEquipmentNomenclatureFromClient(
 					equipmentItem.Nomenclature,
-					result,
 					equipmentItem.Count,
 					Core.Domain.Orders.Direction.PickUp,
 					DirectionReason.Rent,

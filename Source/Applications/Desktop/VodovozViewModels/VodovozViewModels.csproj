@@ -117,6 +117,7 @@
     <Compile Include="Employees\FineCategoryViewModel.cs" />
     <Compile Include="Factories\IVatRateVersionViewModelFactory.cs" />
     <Compile Include="Factories\VatRateVersionViewModelFactory.cs" />
+    <Compile Include="FuelDocumentViewModelConstructorSelector.cs" />
     <Compile Include="Journals\FilterViewModels\Banks\BanksJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProblemFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />

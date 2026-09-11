@@ -115,7 +115,7 @@ namespace Vodovoz.Views.Warehouse
 					.AddTextRenderer(i => i.Nomenclature.Unit.Name, false)
 				.AddColumn("Причина выбраковки")
 					.AddComboRenderer(i => i.CullingCategory)
-					.SetDisplayFunc(DomainHelper.GetTitle)
+					.SetDisplayFunc((node, item) => item.GetTitle())
 					.Editing()
 					.FillItems(ViewModel.CullingCategories)
 				.AddColumn("Сумма ущерба")
