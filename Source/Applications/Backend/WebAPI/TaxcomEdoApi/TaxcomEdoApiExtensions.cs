@@ -1,12 +1,13 @@
-using System;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Taxcom.Client.Api;
 using Taxcom.Client.Api.Entity;
+using TaxcomEdoApi.ErrorHandlers;
 using TaxcomEdoApi.Library;
 using TaxcomEdoApi.Library.Config;
 
@@ -29,6 +30,7 @@ namespace TaxcomEdoApi
 				{
 					var apiOptions = provider.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;
 					var certificateThumbprint = apiOptions.CertificateThumbprint.ToUpper();
+					var certs = CertificateLogic.GetAvailableCertificates();
 					var certificate =
 						CertificateLogic.GetAvailableCertificates().SingleOrDefault(x => x.Thumbprint == certificateThumbprint);
 
@@ -39,11 +41,14 @@ namespace TaxcomEdoApi
 
 					return certificate;
 				})
+				.AddScoped<ITaxcomApiErrorHandler, TaxcomApiErrorHandler>()
 				.AddScoped(provider =>
+				new Lazy<TaxcomApi>(() =>
 				{
 					var apiOptions = provider.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;
 					var certificate = provider.GetRequiredService<X509Certificate2>();
 					var apiCryptographicMode = apiOptions.CryptographicMode.TryParseAsEnum<CryptographicMode>();
+					var taxcomApiErrorHandler = provider.GetRequiredService<ITaxcomApiErrorHandler>();
 
 					if(apiCryptographicMode is null)
 					{
@@ -52,7 +57,8 @@ namespace TaxcomEdoApi
 							true,
 							apiOptions.IntegratorId,
 							certificate.RawData,
-							apiOptions.EdxClientId);
+							apiOptions.EdxClientId,
+							taxcomApiErrorHandler);
 					}
 					
 					return new Factory().CreateApi(
@@ -61,11 +67,12 @@ namespace TaxcomEdoApi
 						apiOptions.IntegratorId,
 						certificate.RawData,
 						apiOptions.EdxClientId,
+						taxcomApiErrorHandler,
 						new TaxcomApiUserSettings
 						{
 							CryptographicMode = apiCryptographicMode.Value
 						});
-				})
+				}))
 				.AddTaxcomEdoApiLibrary();
 
 			return services;

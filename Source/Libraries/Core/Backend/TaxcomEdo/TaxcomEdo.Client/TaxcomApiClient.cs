@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -14,6 +15,8 @@ using TaxcomEdo.Client.Configs;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
+using Vodovoz.Core.Domain.Results;
+using VodovozInfrastructure.Endpoints;
 
 namespace TaxcomEdo.Client
 {
@@ -33,47 +36,49 @@ namespace TaxcomEdo.Client
 			_taxcomApiOptions = taxcomApiOptions ?? throw new ArgumentNullException(nameof(taxcomApiOptions));
 			_jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
 		}
-		
-		public async Task SendDataForCreateUpdByEdo(InfoForCreatingEdoUpd data, CancellationToken cancellationToken = default)
+
+		public async Task<Result> SendDataForCreateUpdByEdo(InfoForCreatingEdoUpd data, CancellationToken cancellationToken = default)
 		{
-			await SendDocument(_taxcomApiOptions.SendBulkAccountingUpdEndpoint, data);
+			_taxcomApiOptions.SendBulkAccountingUpdEndpoint = "/api/CreateAndSendBulkAccountingUpd";
+			return await SendDocument(_taxcomApiOptions.SendBulkAccountingUpdEndpoint, data, cancellationToken: cancellationToken);
 		}
-		
-		public async Task<bool> SendDataForCreateUpdByEdo(UniversalTransferDocumentInfo data, CancellationToken cancellationToken = default)
+
+		public Task<Result> SendDataForCreateUpdByEdo(UniversalTransferDocumentInfo data, CancellationToken cancellationToken = default)
 		{
-			return await SendDocument(_taxcomApiOptions.SendIndividualAccountingUpdEndpoint, data);
+			return SendDocument(_taxcomApiOptions.SendIndividualAccountingUpdEndpoint, data, cancellationToken: cancellationToken);
 		}
-		
-		public async Task SendDataForCreateBillByEdo(InfoForCreatingEdoBill data, CancellationToken cancellationToken = default)
+
+		public async Task<Result> SendDataForCreateBillByEdo(InfoForCreatingEdoBill data, CancellationToken cancellationToken = default)
 		{
 			var ourEdxId = data.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId;
-			await SendDocument(_taxcomApiOptions.SendBillEndpoint, data, ourEdxId);
+			return await SendDocument(_taxcomApiOptions.SendBillEndpoint, data, ourEdxId, cancellationToken);
 		}
 
-		public async Task<bool> SendDataForCreateInformalOrderDocumentByEdo(InfoForCreatingEdoInformalOrderDocument data, CancellationToken cancellationToken = default)
+		public async Task<Result> SendDataForCreateInformalOrderDocumentByEdo(InfoForCreatingEdoInformalOrderDocument data,
+			CancellationToken cancellationToken = default)
 		{
-			return await SendDocument(_taxcomApiOptions.SendInformalOrderDocumentEndpoint, data);
+			return await SendDocument(_taxcomApiOptions.SendInformalOrderDocumentEndpoint, data, cancellationToken: cancellationToken);
 		}
 
-		public async Task SendDataForCreateBillWithoutShipmentForDebtByEdo(
-			InfoForCreatingBillWithoutShipmentForDebtEdo data, CancellationToken cancellationToken = default)
+		public async Task<Result> SendDataForCreateBillWithoutShipmentForDebtByEdo(InfoForCreatingBillWithoutShipmentForDebtEdo data,
+			CancellationToken cancellationToken = default)
 		{
 			var ourEdxId = data.OrderWithoutShipmentForDebtInfo.OrganizationInfoForEdo.TaxcomEdoAccountId;
-			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForDebtEndpoint, data, ourEdxId);
+			return await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForDebtEndpoint, data, ourEdxId, cancellationToken);
 		}
-		
-		public async Task SendDataForCreateBillWithoutShipmentForPaymentByEdo(
-			InfoForCreatingBillWithoutShipmentForPaymentEdo data, CancellationToken cancellationToken = default)
+
+		public async Task<Result> SendDataForCreateBillWithoutShipmentForPaymentByEdo(InfoForCreatingBillWithoutShipmentForPaymentEdo data,
+			CancellationToken cancellationToken = default)
 		{
 			var ourEdxId = data.OrderWithoutShipmentForPaymentInfo.OrganizationInfoForEdo.TaxcomEdoAccountId;
-			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForPaymentEndpoint, data, ourEdxId);
+			return await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForPaymentEndpoint, data, ourEdxId, cancellationToken);
 		}
-		
-		public async Task SendDataForCreateBillWithoutShipmentForAdvancePaymentByEdo(
+
+		public async Task<Result> SendDataForCreateBillWithoutShipmentForAdvancePaymentByEdo(
 			InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo data, CancellationToken cancellationToken = default)
 		{
 			var ourEdxId = data.OrderWithoutShipmentForAdvancePaymentInfo.OrganizationInfoForEdo.TaxcomEdoAccountId;
-			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForAdvancePaymentEndpoint, data, ourEdxId);
+			return await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForAdvancePaymentEndpoint, data, ourEdxId, cancellationToken);
 		}
 
 		public async Task<EdoContactList> GetContactListUpdates(
@@ -99,17 +104,29 @@ namespace TaxcomEdo.Client
 			return result.IsSuccessStatusCode;
 		}
 
-		public async Task<IEnumerable<byte>> GetDocFlowRawData(string docFlowId, CancellationToken cancellationToken = default)
+		public async Task<Result<byte[]>> GetDocFlowRawData(string docFlowId, CancellationToken cancellationToken = default)
 		{
 			var query = HttpQueryBuilder
 				.Create()
 				.AddParameter(docFlowId, nameof(docFlowId))
 				.ToString();
 
-			var response = await CreateClient()
-				.GetByteArrayAsync(_taxcomApiOptions.GetDocFlowRawDataEndPoint + query);
+			_taxcomApiOptions.GetDocFlowRawDataEndPoint = "/api/GetDocFlowRawData";
 
-			return response;
+			var response = await CreateClient()
+				.GetAsync(_taxcomApiOptions.GetDocFlowRawDataEndPoint + query, cancellationToken);
+
+			if(response.IsSuccessStatusCode)
+			{
+				var documents = await response.Content
+					.ReadFromJsonAsync<byte[]>(_jsonSerializerOptions, cancellationToken);
+
+				return Result.Success(documents ?? Array.Empty<byte>());
+			}
+
+			var error = await response.ToTaxcomError(_jsonSerializerOptions, cancellationToken);
+
+			return Result.Failure<byte[]>(error);
 		}
 
 		public async Task<EdoDocFlowUpdates> GetDocFlowsUpdates(
@@ -148,7 +165,7 @@ namespace TaxcomEdo.Client
 				.AddParameter(docFlowId, nameof(docFlowId))
 				.AddParameter(reason, nameof(reason))
 				.ToString();
-			
+
 			await CreateClient()
 				.GetAsync(_taxcomApiOptions.OfferCancellationEndpoint + query, cancellationToken);
 		}
@@ -159,19 +176,19 @@ namespace TaxcomEdo.Client
 			{
 				return false;
 			}
-			
+
 			var query = HttpQueryBuilder
 				.Create()
 				.AddParameter(docflowId, nameof(docflowId))
 				.AddParameter(organization, nameof(organization))
 				.ToString();
-			
+
 			var result = await CreateClient()
 				.GetAsync(_taxcomApiOptions.AcceptIngoingDocflowEndpoint + query, cancellationToken);
-			
+
 			return result.IsSuccessStatusCode;
 		}
-		
+
 		public async Task<ContainerDescription> GetDocflowStatus(string docflowId, string ourEdoAccountId = null)
 		{
 			var query = HttpQueryBuilder
@@ -185,10 +202,26 @@ namespace TaxcomEdo.Client
 			return response.DeserializeXmlString<ContainerDescription>();
 		}
 
-		private async Task<bool> SendDocument<T>(string endPoint, T data, string ourEdxId = null)
+		private async Task<Result> SendDocument<T>(
+			string endPoint, T data, string ourEdxId = null, CancellationToken cancellationToken = default)
 		{
-			var result = await CreateClient(ourEdxId).PostAsJsonAsync(endPoint, data);
-			return result.IsSuccessStatusCode;
+			try
+			{
+				var response = await CreateClient(ourEdxId).PostAsJsonAsync(endPoint, data, cancellationToken);
+
+				if(response.IsSuccessStatusCode)
+				{
+					return Result.Success();
+				}
+
+				var error = await response.ToTaxcomError(_jsonSerializerOptions, cancellationToken);
+
+				return Result.Failure(error);
+			}
+			catch(Exception ex)
+			{
+				return Result.Failure(new Error("TaxcomUnexpectedError", ex.Message));
+			}
 		}
 
 		private HttpClient CreateClient(string ourEdoAccountId = null)
@@ -231,15 +264,24 @@ namespace TaxcomEdo.Client
 				.GetAsync("/api/SendOfferCancellation" + query, cancellationToken);
 		}
 
-		public async Task AcceptOfferCancellation(string docFlowId, CancellationToken cancellationToken = default)
+		public async Task<Result> AcceptOfferCancellation(string docFlowId, CancellationToken cancellationToken = default)
 		{
 			var query = HttpQueryBuilder
 				.Create()
 				.AddParameter(docFlowId, nameof(docFlowId))
 				.ToString();
 
-			await CreateClient()
+			var response = await CreateClient()
 				.GetAsync("/api/AcceptOfferCancellation" + query, cancellationToken);
+
+			if(response.IsSuccessStatusCode)
+			{
+				return Result.Success();
+			}
+
+			var error = await response.ToTaxcomError(_jsonSerializerOptions, cancellationToken);
+
+			return Result.Failure(error);
 		}
 
 		public async Task RejectOfferCancellation(string docFlowId, string comment, CancellationToken cancellationToken = default)

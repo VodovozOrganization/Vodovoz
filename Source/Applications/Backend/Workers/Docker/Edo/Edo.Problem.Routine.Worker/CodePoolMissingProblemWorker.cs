@@ -51,12 +51,6 @@ namespace Edo.Problem.Routine.Worker
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при обработке задач ЭДО с ошибкой нехватки кодов в пуле");
-
-				await _zabbixSender.SendProblemMessageAsync(
-					nameof(CodePoolMissingProblemWorker),
-					ZabixSenderMessageType.Problem,
-					$"Ошибка при обработке задач ЭДО с ошибкой нехватки кодов в пуле: {ex.Message}",
-					stoppingToken);
 			}
 		}
 	}

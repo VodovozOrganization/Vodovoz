@@ -71,5 +71,8 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public int NewTasksResendBatchSize => _settingsController
 			.GetValue<int>("edo.problem.routine.new-tasks-resend-batch-size");
+
+		public TimeSpan TaxcomSendProblemWorkerInterval => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.taxcom-send-problem-worker-interval");
 	}
 }

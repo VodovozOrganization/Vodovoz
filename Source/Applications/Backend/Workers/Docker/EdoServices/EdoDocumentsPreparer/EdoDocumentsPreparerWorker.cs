@@ -1,4 +1,4 @@
-﻿using EdoDocumentsPreparer.Factories;
+using EdoDocumentsPreparer.Factories;
 using EdoService.Library.Services;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
@@ -325,7 +325,8 @@ namespace EdoDocumentsPreparer
 
 			var updInfo = InfoForCreatingEdoUpd.Create(
 				_orderConverter.ConvertOrderToOrderInfoForEdo(order, DocumentContainerType.Upd),
-				_paymentConverter.ConvertPaymentToPaymentInfoForEdo(orderPayments));
+				_paymentConverter.ConvertPaymentToPaymentInfoForEdo(orderPayments),
+				task.Id);
 
 			var edoContainer = EdoContainerBuilder
 				.Create()

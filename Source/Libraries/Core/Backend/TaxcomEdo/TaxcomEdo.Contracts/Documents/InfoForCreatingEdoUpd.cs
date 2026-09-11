@@ -17,11 +17,12 @@ namespace TaxcomEdo.Contracts.Documents
 		/// </summary>
 		public InfoForCreatingEdoUpd() { }
 
-		protected InfoForCreatingEdoUpd(OrderInfoForEdo orderInfoForEdo, IEnumerable<PaymentInfoForEdo> paymentsInfoForEdo)
+		protected InfoForCreatingEdoUpd(OrderInfoForEdo orderInfoForEdo, IEnumerable<PaymentInfoForEdo> paymentsInfoForEdo, int edoTaskId)
 		{
 			OrderInfoForEdo = orderInfoForEdo;
 			PaymentsInfoForEdo = paymentsInfoForEdo;
 			MainDocumentId = Guid.NewGuid();
+			EdoTaskId = edoTaskId;
 		}
 		
 		/// <summary>
@@ -33,7 +34,12 @@ namespace TaxcomEdo.Contracts.Documents
 		/// </summary>
 		public IEnumerable<PaymentInfoForEdo> PaymentsInfoForEdo { get; set; }
 
-		public static InfoForCreatingEdoUpd Create(OrderInfoForEdo orderInfoForEdo, IEnumerable<PaymentInfoForEdo> paymentsInfoForEdo) =>
-			new InfoForCreatingEdoUpd(orderInfoForEdo, paymentsInfoForEdo);
+		public static InfoForCreatingEdoUpd Create(OrderInfoForEdo orderInfoForEdo, IEnumerable<PaymentInfoForEdo> paymentsInfoForEdo, int edoTaskId) =>
+			new InfoForCreatingEdoUpd(orderInfoForEdo, paymentsInfoForEdo, edoTaskId);
+		
+		/// <summary>
+		/// Id задачи по ЭДО, которая инициировала отправку документа
+		/// </summary>
+		public int EdoTaskId { get; set; }
 	}
 }

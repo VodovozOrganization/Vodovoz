@@ -31,26 +31,24 @@ namespace Edo.Problem.Routine.Worker
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			using(var scope = _serviceScopeFactory.CreateScope())
+			using var scope = _serviceScopeFactory.CreateScope();
+			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
+			var orderSelfDeliveryPaidProblemService = scope.ServiceProvider.GetRequiredService<OrderSelfDeliveryPaidProblemService>();
+
+			_logger.LogInformation("Запуск обработки задач ЭДО с активной проблемой оплаты самовывоза");
+
+			try
 			{
-				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
-				var orderSelfDeliveryPaidProblemService = scope.ServiceProvider.GetRequiredService<OrderSelfDeliveryPaidProblemService>();
+				await orderSelfDeliveryPaidProblemService.ProcessProblemTasks(stoppingToken);
 
-				_logger.LogInformation("Запуск обработки задач ЭДО с активной проблемой оплаты самовывоза");
-
-				try
-				{
-					await orderSelfDeliveryPaidProblemService.ProcessProblemTasks(stoppingToken);
-
-					_logger.LogInformation("Обработка задач ЭДО с активной проблемой оплаты самовывоза успешно завершена");
-				}
-				catch(Exception ex)
-				{
-					_logger.LogError(ex, "Ошибка при обработке задач ЭДО с активной проблемой оплаты самовывоза");
-				}
-
-				await zabbixSender.SendIsHealthyAsync(nameof(OrderSelfDeliveryPaidProblemWorker), stoppingToken);
+				_logger.LogInformation("Обработка задач ЭДО с активной проблемой оплаты самовывоза успешно завершена");
 			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при обработке задач ЭДО с активной проблемой оплаты самовывоза");
+			}
+
+			await zabbixSender.SendIsHealthyAsync(nameof(OrderSelfDeliveryPaidProblemWorker), stoppingToken);
 		}
 	}
 }

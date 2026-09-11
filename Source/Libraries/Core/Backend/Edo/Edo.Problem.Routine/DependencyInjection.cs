@@ -8,6 +8,7 @@ using Edo.Problem.Routine.Services.NewEdoTasksResend;
 using Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem;
 using Edo.Problem.Routine.Services.OrderStatusProblem;
 using Edo.Problem.Routine.Services.ReceiptContactProblem;
+using Edo.Problem.Routine.Services.TaxcomSendProblem;
 using Edo.Problems;
 using Edo.Transport;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +49,7 @@ namespace Edo.Problem.Routine
 				.AddOrderStatusProblem()
 				.AddCodeDuplicatedProblem()
 				.AddReceiptContactProblem()
+				.AddTaxcomSendProblem()
 				;
 
 			return services;
@@ -120,6 +122,15 @@ namespace Edo.Problem.Routine
 				.ConfigureOptions<ConfigureCodePoolMissingProblemWorkerOptions>()
 				.AddScoped<ICodePoolMissingProblemService, CodePoolMissingProblemService>()
 				.AddEdoProblemRegistration();;
+
+			return services;
+		}
+
+		public static IServiceCollection AddTaxcomSendProblem(this IServiceCollection services)
+		{
+			services
+				.ConfigureOptions<ConfigureTaxcomSendProblemWorkerOptions>()
+				.AddScoped<ITaxcomSendProblemService, TaxcomSendProblemService>();
 
 			return services;
 		}

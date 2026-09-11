@@ -104,7 +104,7 @@ namespace Edo.Withdrawal
 				if(client.PersonType != PersonType.legal)
 				{
 					await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalCanBeCreatedOnlyForLegalPersons>(
-						withdrawalEdoTask,
+						withdrawalEdoTask.Id,
 						Enumerable.Empty<EdoTaskItem>(),
 						cancellationToken);
 					return;
@@ -113,7 +113,7 @@ namespace Edo.Withdrawal
 				if(order.PaymentType != Vodovoz.Domain.Client.PaymentType.Cashless)
 				{
 					await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalCanBeCreatedOnlyForCashlessOrders>(
-						withdrawalEdoTask,
+						withdrawalEdoTask.Id,
 						Enumerable.Empty<EdoTaskItem>(),
 						cancellationToken);
 					return;
@@ -122,7 +122,7 @@ namespace Edo.Withdrawal
 				if(client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds)
 				{
 					await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalCanBeCreatedOnlyForOwnNeedsOrders>(
-						withdrawalEdoTask,
+						withdrawalEdoTask.Id,
 						Enumerable.Empty<EdoTaskItem>(),
 						cancellationToken);
 					return;
@@ -147,7 +147,7 @@ namespace Edo.Withdrawal
 				if(isTrueMarkDocumentExists)
 				{
 					await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalDocumentForOrderExists>(
-						withdrawalEdoTask,
+						withdrawalEdoTask.Id,
 						Enumerable.Empty<EdoTaskItem>(),
 						cancellationToken);
 					return;
@@ -168,7 +168,7 @@ namespace Edo.Withdrawal
 							.Select(x => x.EdoTaskItem);
 
 						await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalTaskHasInvalidCodes>(
-							withdrawalEdoTask,
+							withdrawalEdoTask.Id,
 							invalidTaskItems,
 							cancellationToken);
 
@@ -213,7 +213,7 @@ namespace Edo.Withdrawal
 					withdrawalEdoRequest.BaseDocumentEdoTask.Id);
 
 				await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalOrderEdoDocumentNotFound>(
-					withdrawalEdoTask,
+					withdrawalEdoTask.Id,
 					Enumerable.Empty<EdoTaskItem>(),
 					cancellationToken);
 
@@ -230,7 +230,7 @@ namespace Edo.Withdrawal
 					_edoSettings.WithdrawalDocflowTimeoutDays);
 
 				await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalTimeoutIsNotExpired>(
-					withdrawalEdoTask,
+					withdrawalEdoTask.Id,
 					Enumerable.Empty<EdoTaskItem>(),
 					cancellationToken);
 
@@ -247,7 +247,7 @@ namespace Edo.Withdrawal
 					EdoDocumentStatus.InProgress);
 
 				await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalOrderEdoDocumentHasInvalidStatus>(
-					withdrawalEdoTask,
+					withdrawalEdoTask.Id,
 					Enumerable.Empty<EdoTaskItem>(),
 					cancellationToken);
 
