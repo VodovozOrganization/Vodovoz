@@ -109,44 +109,36 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		}
 
 		public int? GetOrderFrequency(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders)
-			=> GetOrderFrequency(uow, deliveryPoint.Id, countLastOrders, false);
+			=> GetOrderFrequency(uow, deliveryPoint.Id, countLastOrders);
+
+		/// <inheritdoc />
+		public IList<int> GetDeliveryPointIdsBatch(IUnitOfWork uow, int afterId, int batchSize)
+		{
+			return uow.Session.CreateSQLQuery(
+				"SELECT id FROM delivery_points WHERE id > :afterId ORDER BY id LIMIT :batchSize")
+				.AddScalar("id", NHibernateUtil.Int32)
+				.SetInt32("afterId", afterId)
+				.SetInt32("batchSize", batchSize)
+				.List<int>();
+		}
 
 		/// <inheritdoc />
 		public void UpdateOrderFrequency(IUnitOfWork uow, int deliveryPointId)
 		{
-			var flushMode = uow.Session.FlushMode;
-			try
-			{
-				// Обработчик вызывается после flush: повторный flush внутри него не нужен.
-				uow.Session.FlushMode = FlushMode.Manual;
-				var existingId = uow.Session.CreateSQLQuery(
-					"SELECT id FROM delivery_points WHERE id = :id FOR UPDATE")
-					.AddScalar("id", NHibernateUtil.Int32)
-					.SetInt32("id", deliveryPointId)
-					.UniqueResult<int?>();
-				if(!existingId.HasValue)
-				{
-					return;
-				}
-
-				var frequency = GetOrderFrequency(uow, deliveryPointId, 5, true);
-				uow.Session.CreateSQLQuery(
-					"UPDATE delivery_points SET order_frequency_days = :frequency WHERE id = :id")
-					.SetParameter("frequency", frequency, NHibernateUtil.Int32)
-					.SetInt32("id", deliveryPointId)
-					.ExecuteUpdate();
-			}
-			finally
-			{
-				uow.Session.FlushMode = flushMode;
-			}
+			var frequency = GetOrderFrequency(uow, deliveryPointId, 5);
+			uow.Session.CreateSQLQuery(
+				"UPDATE delivery_points SET order_frequency_days = :frequency "
+				+ "WHERE id = :id AND NOT (order_frequency_days <=> :frequency)")
+				.SetParameter("frequency", frequency, NHibernateUtil.Int32)
+				.SetInt32("id", deliveryPointId)
+				.ExecuteUpdate();
 		}
 
-		private int? GetOrderFrequency(IUnitOfWork uow, int deliveryPointId, int? countLastOrders, bool forUpdate)
+		private int? GetOrderFrequency(IUnitOfWork uow, int deliveryPointId, int? countLastOrders)
 		{
 			var deliveryDates = (uow.Session.SessionFactory.GetClassMetadata(typeof(Order)) != null
-				? GetOrderDates<Order, RouteListItem>(uow, deliveryPointId, countLastOrders, forUpdate)
-				: GetOrderDates<OrderEntity, RouteListItemEntity>(uow, deliveryPointId, countLastOrders, forUpdate))
+				? GetOrderDates<Order, RouteListItem>(uow, deliveryPointId, countLastOrders)
+				: GetOrderDates<OrderEntity, RouteListItemEntity>(uow, deliveryPointId, countLastOrders))
 				.OrderBy(deliveryDate => deliveryDate)
 				.ToList();
 
@@ -165,7 +157,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		}
 
 		private IList<DateTime> GetOrderDates<TOrder, TRouteListItem>(
-			IUnitOfWork uow, int deliveryPointId, int? countLastOrders, bool forUpdate)
+			IUnitOfWork uow, int deliveryPointId, int? countLastOrders)
 			where TOrder : OrderEntity
 			where TRouteListItem : RouteListItemEntity
 		{
@@ -195,12 +187,6 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			if(countLastOrders.HasValue)
 			{
 				query.Take(countLastOrders.Value);
-			}
-
-			if(forUpdate)
-			{
-				// Текущее чтение необходимо и при уже открытом снимке REPEATABLE READ.
-				query.UnderlyingCriteria.SetLockMode(query.UnderlyingCriteria.Alias, LockMode.Upgrade);
 			}
 
 			return query

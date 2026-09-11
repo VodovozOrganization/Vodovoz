@@ -53,7 +53,7 @@ namespace Vodovoz.Representations
 {
 	public class DebtorsJournalViewModel : EntityJournalViewModelBase<Order, CallTaskViewModel, DebtorJournalNode>
 	{
-		private static readonly NLog.Logger _journalLogger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly ILogger<DebtorsJournalViewModel> _journalLogger;
 		private readonly Stopwatch _openingStopwatch = Stopwatch.StartNew();
 		private readonly OrderStatus[] _notDeliveredStatuses = { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
 
@@ -79,6 +79,7 @@ namespace Vodovoz.Representations
 		private readonly int _waterSemiozerieId;
 
 		public DebtorsJournalViewModel(
+			ILogger<DebtorsJournalViewModel> journalLogger,
 			ILogger<BulkEmailViewModel> loggerBulkEmailViewModel,
 			ILogger<RabbitMQConnectionFactory> rabbitConnectionFactoryLogger,
 			DebtorsJournalFilterViewModel filterViewModel,
@@ -116,6 +117,7 @@ namespace Vodovoz.Representations
 				throw new ArgumentNullException(nameof(nomenclatureRepository));
 			}
 
+			_journalLogger = journalLogger ?? throw new ArgumentNullException(nameof(journalLogger));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
@@ -167,7 +169,7 @@ namespace Vodovoz.Representations
 			if(_openingStopwatch.IsRunning)
 			{
 				_openingStopwatch.Stop();
-				_journalLogger.Info("Журнал задолженности: первая порция данных загружена за {0} мс",
+				_journalLogger.LogInformation("Журнал задолженности: первая порция данных загружена за {ElapsedMilliseconds} мс",
 					_openingStopwatch.ElapsedMilliseconds);
 			}
 
@@ -594,7 +596,8 @@ namespace Vodovoz.Representations
 				.SetTimeout(300)
 				.UniqueResult<int>();
 
-			_journalLogger.Info("Журнал задолженности: расчёт общей суммы долга занял {0} мс", stopwatch.ElapsedMilliseconds);
+			stopwatch.Stop();
+			_journalLogger.LogInformation("Журнал задолженности: расчёт общей суммы долга занял {ElapsedMilliseconds} мс", stopwatch.ElapsedMilliseconds);
 			return queryResult;
 		};
 
@@ -820,7 +823,8 @@ namespace Vodovoz.Representations
 		{
 			var stopwatch = Stopwatch.StartNew();
 			var rows = ItemsQuery(UoW).List<DebtorJournalNode>();
-			_journalLogger.Info("Журнал задолженности: выборка {0} строк для Excel заняла {1} мс",
+			stopwatch.Stop();
+			_journalLogger.LogInformation("Журнал задолженности: выборка {RowCount} строк для Excel заняла {ElapsedMilliseconds} мс",
 				rows.Count, stopwatch.ElapsedMilliseconds);
 			var report = new DebtorsJournalReport(rows, _fileDialogService);
 			report.Export();

@@ -61,6 +61,7 @@ namespace DatabaseServiceWorker
 						.AddCore()
 						.AddInfrastructure()
 						.AddTrackedUoW()
+						.AddDeliveryPointOrderFrequencyWorker(hostContext)
 
 						.ConfigureZabbixSenderFromDataBase()
 
