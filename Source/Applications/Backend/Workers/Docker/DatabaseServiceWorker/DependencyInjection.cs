@@ -13,6 +13,16 @@ namespace DatabaseServiceWorker
 {
 	public static class DependencyInjection
 	{
+		/// <summary>
+		/// Подключает фоновый пересчёт частоты заказов точек доставки.
+		/// </summary>
+		/// <param name="services">Коллекция зависимостей.</param>
+		/// <param name="context">Контекст хоста с настройками.</param>
+		/// <returns>Коллекция зависимостей.</returns>
+		public static IServiceCollection AddDeliveryPointOrderFrequencyWorker(this IServiceCollection services, HostBuilderContext context) => services
+			.Configure<DeliveryPointOrderFrequencyOptions>(context.Configuration.GetSection(nameof(DeliveryPointOrderFrequencyOptions)))
+			.AddHostedService<DeliveryPointOrderFrequencyWorker>();
+
 		public static IServiceCollection ConfigureClearFastDeliveryAvailabilityHistoryWorker(this IServiceCollection services, HostBuilderContext context) => services
 			.Configure<ClearFastDeliveryAvailabilityHistoryOptions>(context.Configuration.GetSection(nameof(ClearFastDeliveryAvailabilityHistoryOptions)));
 

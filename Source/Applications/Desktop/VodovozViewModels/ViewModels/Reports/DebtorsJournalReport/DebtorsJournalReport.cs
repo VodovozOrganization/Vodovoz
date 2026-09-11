@@ -45,8 +45,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport
 				worksheet.Column(5).Width = 15;
 				worksheet.Column(6).Width = 30;
 				worksheet.Column(7).Width = 15;
-				worksheet.Column(8).Width = 10;
-				worksheet.Column(9).Width = 12;
+				worksheet.Column(8).Width = 15;
+				worksheet.Column(9).Width = 20;
+				worksheet.Column(10).Width = 10;
+				worksheet.Column(11).Width = 12;
+				worksheet.Column(7).Style.DateFormat.Format = "dd.MM.yyyy";
+				worksheet.Column(9).Style.DateFormat.Format = "dd.MM.yyyy";
 	
 				worksheet.Cell(1, 1).Value = "№";
 				worksheet.Cell(1, 2).Value = "Код контрагента";
@@ -55,8 +59,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport
 				worksheet.Cell(1, 5).Value = "Номер телефона";
 				worksheet.Cell(1, 6).Value = "Email";
 				worksheet.Cell(1, 7).Value = "Дата последнего заказа";
-				worksheet.Cell(1, 8).Value = "Долг по таре\n(по адресу) бутылей";
-				worksheet.Cell(1, 9).Value = "Кол-во отгруженных\nв последнюю реализацию\nбутылей";
+				worksheet.Cell(1, 8).Value = "Частота заказа";
+				worksheet.Cell(1, 9).Value = "Дата планируемого заказа";
+				worksheet.Cell(1, 10).Value = "Долг по таре\n(по адресу) бутылей";
+				worksheet.Cell(1, 11).Value = "Кол-во отгруженных\nв последнюю реализацию\nбутылей";
 
 				var rows = _report.Rows;
 
@@ -69,18 +75,20 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport
 					worksheet.Cell(i + 2, 5).Value = rows[i].Phones;
 					worksheet.Cell(i + 2, 6).Value = rows[i].Emails;
 					worksheet.Cell(i + 2, 7).Value = rows[i].LastOrderDate;
-					worksheet.Cell(i + 2, 8).Value = rows[i].DebtByAddress;
-					worksheet.Cell(i + 2, 9).Value = rows[i].LastOrderBottles;
+					worksheet.Cell(i + 2, 8).Value = rows[i].OrderFrequencyDays;
+					worksheet.Cell(i + 2, 9).Value = rows[i].PlannedOrderDate;
+					worksheet.Cell(i + 2, 10).Value = rows[i].DebtByAddress;
+					worksheet.Cell(i + 2, 11).Value = rows[i].LastOrderBottles;
 				}
 
 				worksheet.Column(4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
-				worksheet.Cell(rows.Count + 2, 5).Value = "Итого:";
-				worksheet.Cell(rows.Count + 2, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-				worksheet.Cell(rows.Count + 2, 6).Value = rows.Sum(x => x.DebtByAddress);
-				worksheet.Cell(rows.Count + 2, 7).Value = rows.Sum(x => x.LastOrderBottles);
+				worksheet.Cell(rows.Count + 2, 9).Value = "Итого:";
+				worksheet.Cell(rows.Count + 2, 9).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+				worksheet.Cell(rows.Count + 2, 10).Value = rows.Sum(x => x.DebtByAddress);
+				worksheet.Cell(rows.Count + 2, 11).Value = rows.Sum(x => x.LastOrderBottles);
 
-				for(int c = 1; c <= 7; c++)
+				for(int c = 1; c <= 11; c++)
 				{
 					for(int r = 1; r <= rows.Count + 1; r++)
 					{
