@@ -20,6 +20,12 @@ namespace Vodovoz.Core.Data.NHibernate.Receipts
 			Map(x => x.SignerSignatureId).Column("signer_signature_id");
 			Map(x => x.Content).Column("content").CustomSqlType("TEXT");
 			Map(x => x.CreatedDate).Column("created_date");
+
+			HasMany(x => x.Items)
+				.KeyColumn("explanatory_note_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.OrderBy("line_number");
 		}
 	}
 }

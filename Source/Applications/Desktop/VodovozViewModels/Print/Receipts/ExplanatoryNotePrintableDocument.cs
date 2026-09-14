@@ -3,6 +3,8 @@ using QS.Report;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Application.Receipts.Correction;
+using Vodovoz.Core.Domain.Receipts;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Receipts;
 
 namespace Vodovoz.ViewModels.Print.Receipts
@@ -15,6 +17,7 @@ namespace Vodovoz.ViewModels.Print.Receipts
 		private readonly string _content;
 		private readonly DateTime _createdDate;
 		private readonly int? _signatureId;
+		private readonly ReceiptCorrectionExplanatoryNoteTemplateType _templateType;
 
 		public ExplanatoryNotePrintableDocument(
 			IReportInfoFactory reportInfoFactory,
@@ -22,11 +25,13 @@ namespace Vodovoz.ViewModels.Print.Receipts
 			int orderId,
 			string content,
 			DateTime createdDate,
+			ReceiptCorrectionExplanatoryNoteTemplateType templateType,
 			int? signatureId = null)
 		{
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_content = content ?? string.Empty;
 			_createdDate = createdDate;
+			_templateType = templateType;
 			_signatureId = signatureId;
 			NoteId = noteId;
 			OrderId = orderId;
@@ -52,28 +57,38 @@ namespace Vodovoz.ViewModels.Print.Receipts
 		{
 			var layout = ReceiptCorrectionExplanatoryNoteExportHelper.ParseNoteLayout(_content, _createdDate);
 			var hasSignature = _signatureId.HasValue && _signatureId.Value > 0;
+			var hasPositions = ReceiptCorrectionExplanatoryNoteBuilder.TemplateHasPositions(_templateType)
+				|| layout.HasPositions;
 
 			var reportInfo = _reportInfoFactory.Create();
 			reportInfo.Title = Name;
 			reportInfo.Identifier = ReportIdentifier;
 			reportInfo.Parameters = new Dictionary<string, object>
 			{
+				{ "note_id", NoteId },
 				{ "header", string.Join("\n", layout.HeaderLines) },
 				{ "title", ReceiptCorrectionExplanatoryNoteExportHelper.DocumentTitle },
-				{ "body", string.Join("\n\n", layout.BodyLines.Select(FormatBodyParagraph)) },
+				{ "body", BuildBodyParameter(layout) },
 				{ "date_text", layout.DateText },
+				{ "total_text", layout.TotalText ?? string.Empty },
 				{ "facsimile", ReceiptCorrectionExplanatoryNoteExportHelper.SignaturePlaceholder },
 				{ "signature_id", hasSignature ? _signatureId.Value : 0 },
 				{ "hide_signature", !hasSignature },
-				{ "hide_facsimile", hasSignature }
+				{ "hide_facsimile", hasSignature },
+				{ "hide_positions", !hasPositions },
+				{ "hide_standalone_footer", hasPositions }
 			};
 
 			return reportInfo;
 		}
 
+		private static string BuildBodyParameter(ReceiptCorrectionExplanatoryNoteExportHelper.NoteLayout layout)
+		{
+			return string.Join("\n\n", layout.BodyLines.Select(FormatBodyParagraph));
+		}
+
 		/// <summary>
 		/// Абзацный отступ первой строки (как в Word-шаблонах).
-		/// Строки таблицы позиций не сдвигаем.
 		/// </summary>
 		private static string FormatBodyParagraph(string line)
 		{
@@ -82,31 +97,7 @@ namespace Vodovoz.ViewModels.Print.Receipts
 				return line ?? string.Empty;
 			}
 
-			var trimmed = line.TrimStart();
-			if(IsPositionsTableLine(trimmed))
-			{
-				return trimmed;
-			}
-
-			return "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0" + trimmed;
-		}
-
-		private static bool IsPositionsTableLine(string line)
-		{
-			if(string.IsNullOrEmpty(line))
-			{
-				return false;
-			}
-
-			if(line.IndexOf('\t') >= 0)
-			{
-				return true;
-			}
-
-			return line.StartsWith("№", StringComparison.Ordinal)
-				|| line.StartsWith("Итого", StringComparison.OrdinalIgnoreCase)
-				|| line == "-"
-				|| line.StartsWith("-\t", StringComparison.Ordinal);
+			return "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0" + line.TrimStart();
 		}
 	}
 }

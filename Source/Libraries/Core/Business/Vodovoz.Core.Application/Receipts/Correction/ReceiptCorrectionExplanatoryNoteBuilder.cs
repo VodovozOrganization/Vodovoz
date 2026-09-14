@@ -38,7 +38,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			lines.Add(DateTime.Now.ToString("dd.MM.yyyy", RuCulture));
 			lines.Add("(факсимиле подписанта)");
 
-			return new ReceiptCorrectionExplanatoryNote
+			var note = new ReceiptCorrectionExplanatoryNote
 			{
 				Process = process,
 				TemplateType = templateType,
@@ -49,6 +49,14 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				Content = string.Join("\n", lines),
 				CreatedDate = DateTime.Now
 			};
+
+			foreach(var item in BuildItems(templateType, changeSet))
+			{
+				item.ExplanatoryNote = note;
+				note.Items.Add(item);
+			}
+
+			return note;
 		}
 
 		private static IEnumerable<string> BuildHeaderLines(ExplanatoryNoteBuildContext context, string signerName)
@@ -98,28 +106,16 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				case ReceiptCorrectionExplanatoryNoteTemplateType.NomenclatureReplacement:
 					yield return $"Я, {SignerTitle}, внес корректировки в чек № {fiscalNumber} на сумму {sum} в связи с тем, что после пробития чека покупатель захотел купить другой товар, имеющийся в наличии вместо пробитого в чеке.";
 					yield return "Была произведена замена товара:";
-					foreach(var line in BuildPositionsTableLines(changeSet))
-					{
-						yield return line;
-					}
 					yield break;
 
 				case ReceiptCorrectionExplanatoryNoteTemplateType.QuantityOrAmountIncrease:
 					yield return $"Я, {SignerTitle}, внес корректировки в чек № {fiscalNumber} на сумму {sum} в связи с тем, что после пробития чека покупатель захотел купить дополнительный товар имеющийся в наличии.";
 					yield return "Мною был пробит корректирующий чек с увеличением количества проданного товара и суммы покупки:";
-					foreach(var line in BuildPositionsTableLines(changeSet))
-					{
-						yield return line;
-					}
 					yield break;
 
 				case ReceiptCorrectionExplanatoryNoteTemplateType.QuantityOrAmountDecrease:
 					yield return $"Я, {SignerTitle}, внес корректировки в чек № {fiscalNumber} на сумму {sum} в связи с частичным отказом покупателя от покупки.";
 					yield return "Мною был пробит корректирующий чек с уменьшением количества проданного товара и суммы покупки:";
-					foreach(var line in BuildPositionsTableLines(changeSet))
-					{
-						yield return line;
-					}
 					yield break;
 
 				case ReceiptCorrectionExplanatoryNoteTemplateType.TechnicalFailure:
@@ -129,9 +125,14 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			}
 		}
 
-		private static IEnumerable<string> BuildPositionsTableLines(FiscalChangeSet changeSet)
+		private static IEnumerable<ReceiptCorrectionExplanatoryNoteItem> BuildItems(
+			ReceiptCorrectionExplanatoryNoteTemplateType templateType,
+			FiscalChangeSet changeSet)
 		{
-			yield return "№\tНаименование\tКоличество\tЦена\tСумма";
+			if(!TemplateHasPositions(templateType))
+			{
+				yield break;
+			}
 
 			var positions = changeSet?.PositionChanges?
 				.Where(x => x != null)
@@ -139,33 +140,44 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 			if(positions == null || positions.Count == 0)
 			{
-				yield return "-\t-\t-\t-\t-";
-				yield return "Итого\t\t\t\t-";
 				yield break;
 			}
 
 			var index = 1;
-			decimal total = 0m;
-
 			foreach(var position in positions)
 			{
-				var quantity = position.NewQuantity != 0 ? position.NewQuantity : position.OldQuantity;
-				var price = position.NewPrice != 0 ? position.NewPrice : position.OldPrice;
-				var lineSum = Math.Round(Math.Abs(quantity) * price, 2, MidpointRounding.AwayFromZero);
-				total += lineSum;
+				// Удалённая позиция — старые значения; иначе актуальные (новые).
+				var useNew = !(position.NewQuantity == 0 && position.OldQuantity != 0);
+				var quantity = useNew ? position.NewQuantity : position.OldQuantity;
+				var price = useNew ? position.NewPrice : position.OldPrice;
+				var discount = useNew ? position.NewDiscountSum : position.OldDiscountSum;
+				var lineSum = Math.Round(Math.Abs(quantity) * price - discount, 2, MidpointRounding.AwayFromZero);
+				if(lineSum < 0)
+				{
+					lineSum = 0;
+				}
 
 				var name = string.IsNullOrWhiteSpace(position.Name)
 					? (position.NomenclatureId?.ToString() ?? "-")
 					: position.Name;
 
-				yield return $"{index}\t{name}\t{FormatDecimal(quantity)}\t{FormatDecimal(price)}\t{FormatDecimal(lineSum)}";
+				yield return new ReceiptCorrectionExplanatoryNoteItem
+				{
+					LineNumber = index,
+					NomenclatureId = position.NomenclatureId,
+					Name = name,
+					Quantity = quantity,
+					Price = price,
+					DiscountSum = discount,
+					Sum = lineSum
+				};
 				index++;
 			}
-
-			yield return $"Итого\t\t\t\t{FormatDecimal(total)}";
 		}
 
-		private static string FormatDecimal(decimal value) =>
-			value.ToString("0.##", RuCulture);
+		public static bool TemplateHasPositions(ReceiptCorrectionExplanatoryNoteTemplateType templateType) =>
+			templateType == ReceiptCorrectionExplanatoryNoteTemplateType.NomenclatureReplacement
+			|| templateType == ReceiptCorrectionExplanatoryNoteTemplateType.QuantityOrAmountIncrease
+			|| templateType == ReceiptCorrectionExplanatoryNoteTemplateType.QuantityOrAmountDecrease;
 	}
 }

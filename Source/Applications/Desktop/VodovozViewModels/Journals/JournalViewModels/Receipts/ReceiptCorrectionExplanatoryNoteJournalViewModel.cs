@@ -187,6 +187,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 					node.OrderId,
 					node.Content,
 					node.CreatedDate,
+					node.TemplateType,
 					node.SignerSignatureId))
 				.ToList();
 		}

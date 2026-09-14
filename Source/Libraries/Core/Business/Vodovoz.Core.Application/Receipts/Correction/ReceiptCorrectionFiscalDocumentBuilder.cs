@@ -196,8 +196,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					hasReturn = true;
 					foreach(var sourcePosition in sourceGroup.Value)
 					{
-						fiscalDocument.InventPositions.Add(CloneInventPosition(sourcePosition));
-						returnedSum += sourcePosition.Price * sourcePosition.Quantity - sourcePosition.DiscountSum;
+						returnedSum += AddReturnInventPosition(fiscalDocument, sourcePosition, sourcePosition.Quantity);
 					}
 
 					continue;
@@ -209,8 +208,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					hasReturn = true;
 					foreach(var sourcePosition in sourceGroup.Value)
 					{
-						fiscalDocument.InventPositions.Add(CloneInventPosition(sourcePosition));
-						returnedSum += sourcePosition.Price * sourcePosition.Quantity - sourcePosition.DiscountSum;
+						returnedSum += AddReturnInventPosition(fiscalDocument, sourcePosition, sourcePosition.Quantity);
 					}
 
 					continue;
@@ -347,18 +345,14 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				// Индивидуальный код обычно qty=1; берём целую позицию, чтобы сохранить productMark.
 				if(sourcePosition.Quantity <= remainingDelta)
 				{
-					fiscalDocument.InventPositions.Add(CloneInventPosition(sourcePosition));
-					returnedSum += sourcePosition.Price * sourcePosition.Quantity - sourcePosition.DiscountSum;
+					returnedSum += AddReturnInventPosition(fiscalDocument, sourcePosition, sourcePosition.Quantity);
 					remainingDelta -= sourcePosition.Quantity;
 					continue;
 				}
 
 				// Групповой код с qty > дельты: уменьшаем количество, марка та же (как в исходной позиции).
 				var take = remainingDelta;
-				var ratio = sourcePosition.Quantity == 0 ? 0 : take / sourcePosition.Quantity;
-				var discount = Math.Round(sourcePosition.DiscountSum * ratio, 2);
-				fiscalDocument.InventPositions.Add(CloneInventPosition(sourcePosition, take, discount));
-				returnedSum += sourcePosition.Price * take - discount;
+				returnedSum += AddReturnInventPosition(fiscalDocument, sourcePosition, take);
 				remainingDelta = 0;
 			}
 
@@ -388,11 +382,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				}
 
 				var take = Math.Min(sourcePosition.Quantity, remainingDelta);
-				var ratio = sourcePosition.Quantity == 0 ? 0 : take / sourcePosition.Quantity;
-				var discount = Math.Round(sourcePosition.DiscountSum * ratio, 2);
-
-				fiscalDocument.InventPositions.Add(CloneInventPosition(sourcePosition, take, discount));
-				returnedSum += sourcePosition.Price * take - discount;
+				returnedSum += AddReturnInventPosition(fiscalDocument, sourcePosition, take);
 				remainingDelta -= take;
 			}
 		}
@@ -434,7 +424,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			{
 				var vat = ResolveVat(sourceDocument, orderItem);
 				var quantity = orderItem.CurrentCount;
-				var discount = orderItem.DiscountMoney;
+				var discount = ResolveOrderItemDiscount(orderItem);
 				sum += orderItem.Price * quantity - discount;
 
 				fiscalDocument.InventPositions.Add(new FiscalInventPosition
@@ -470,19 +460,18 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 		private static void CloneAllPositions(EdoFiscalDocument fiscalDocument, EdoFiscalDocument sourceDocument)
 		{
+			decimal sum = 0;
 			foreach(var sourcePosition in sourceDocument.InventPositions)
 			{
-				fiscalDocument.InventPositions.Add(CloneInventPosition(sourcePosition));
+				sum += AddReturnInventPosition(fiscalDocument, sourcePosition, sourcePosition.Quantity);
 			}
 
-			foreach(var sourceMoneyPosition in sourceDocument.MoneyPositions)
-			{
-				fiscalDocument.MoneyPositions.Add(new FiscalMoneyPosition
-				{
-					PaymentType = sourceMoneyPosition.PaymentType,
-					Sum = sourceMoneyPosition.Sum
-				});
-			}
+			var paymentType = sourceDocument.MoneyPositions.FirstOrDefault()?.PaymentType
+				?? FiscalPaymentType.Cash;
+
+			// Money всегда из invent (со скидками), а не слепое копирование — иначе при обнулении
+			// DiscountSum в сессии уйдёт расхождение invent/money.
+			AddMoneyPosition(fiscalDocument, paymentType, sum);
 		}
 
 		private static void AddMoneyPosition(
@@ -571,14 +560,109 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 		private static string GetClientInn(EdoFiscalDocument sourceDocument, ReceiptCorrectionProcessDocument processDocument)
 		{
+			string inn;
 			if(processDocument.PlannedDocumentType != FiscalDocumentType.Sale
 				&& processDocument.PlannedDocumentType != FiscalDocumentType.SaleCorrection)
 			{
-				return sourceDocument.ClientInn;
+				inn = sourceDocument.ClientInn;
+			}
+			else
+			{
+				inn = sourceDocument.ReceiptEdoTask?.FormalEdoRequest?.Order?.Client?.INN
+					?? sourceDocument.ClientInn;
 			}
 
-			return sourceDocument.ReceiptEdoTask?.FormalEdoRequest?.Order?.Client?.INN
-				?? sourceDocument.ClientInn;
+			return string.IsNullOrWhiteSpace(inn) ? null : inn.Trim();
+		}
+
+		/// <summary>
+		/// Добавляет позицию RETURN со скидкой из исходного чека либо из заказа (OriginalDiscount*),
+		/// т.к. после закрытия МЛ DiscountMoney на снятой позиции часто обнуляется.
+		/// </summary>
+		private static decimal AddReturnInventPosition(
+			EdoFiscalDocument fiscalDocument,
+			FiscalInventPosition source,
+			decimal quantity)
+		{
+			var discount = ResolveReturnDiscount(source, quantity);
+			fiscalDocument.InventPositions.Add(CloneInventPosition(source, quantity, discount));
+			return source.Price * quantity - discount;
+		}
+
+		/// <summary>
+		/// Скидка для RETURN: сначала из invent исходного чека, иначе из OriginalDiscountMoney/Discount заказа.
+		/// </summary>
+		private static decimal ResolveReturnDiscount(FiscalInventPosition source, decimal quantity)
+		{
+			if(source == null || quantity <= 0)
+			{
+				return 0;
+			}
+
+			if(source.DiscountSum != 0 && source.Quantity != 0)
+			{
+				return Math.Round(source.DiscountSum * (quantity / source.Quantity), 2);
+			}
+
+			var orderItem = source.OrderItems?.FirstOrDefault();
+			if(orderItem == null)
+			{
+				return 0;
+			}
+
+			var orderDiscount = orderItem.OriginalDiscountMoney
+				?? (orderItem.DiscountMoney > 0 ? orderItem.DiscountMoney : (decimal?)null)
+				?? 0;
+
+			var baseQty = orderItem.Count > 0
+				? orderItem.Count
+				: (orderItem.CurrentCount > 0 ? orderItem.CurrentCount : source.Quantity);
+
+			if(orderDiscount > 0 && baseQty > 0)
+			{
+				return Math.Round(orderDiscount * (quantity / baseQty), 2);
+			}
+
+			var percent = orderItem.OriginalDiscount ?? (orderItem.Discount > 0 ? orderItem.Discount : (decimal?)null);
+			if(percent.HasValue && percent.Value > 0)
+			{
+				return Math.Round(source.Price * quantity * percent.Value / 100m, 2);
+			}
+
+			return 0;
+		}
+
+		/// <summary>
+		/// Скидка для нового SALE из текущего заказа / закрытия МЛ (CurrentCount + DiscountMoney / Original*).
+		/// </summary>
+		private static decimal ResolveOrderItemDiscount(OrderItemEntity orderItem)
+		{
+			if(orderItem == null || orderItem.CurrentCount <= 0)
+			{
+				return 0;
+			}
+
+			if(orderItem.DiscountMoney > 0)
+			{
+				return orderItem.DiscountMoney;
+			}
+
+			if(orderItem.Discount > 0)
+			{
+				return Math.Round(orderItem.Price * orderItem.CurrentCount * orderItem.Discount / 100m, 2);
+			}
+
+			if(orderItem.OriginalDiscountMoney.HasValue && orderItem.Count > 0)
+			{
+				return Math.Round(orderItem.OriginalDiscountMoney.Value * (orderItem.CurrentCount / orderItem.Count), 2);
+			}
+
+			if(orderItem.OriginalDiscount.HasValue && orderItem.OriginalDiscount.Value > 0)
+			{
+				return Math.Round(orderItem.Price * orderItem.CurrentCount * orderItem.OriginalDiscount.Value / 100m, 2);
+			}
+
+			return 0;
 		}
 
 		private static FiscalInventPosition CloneInventPosition(

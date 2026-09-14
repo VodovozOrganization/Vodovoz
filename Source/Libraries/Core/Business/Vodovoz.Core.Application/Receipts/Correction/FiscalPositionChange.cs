@@ -14,6 +14,10 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 		public decimal NewPrice { get; set; }
 
+		public decimal OldDiscountSum { get; set; }
+
+		public decimal NewDiscountSum { get; set; }
+
 		public bool IsPieceItem { get; set; }
 	}
 }

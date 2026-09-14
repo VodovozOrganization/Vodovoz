@@ -32,7 +32,7 @@ namespace Edo.Receipt.Sender
 				DocType = GetDocType(edoFiscalDocument.DocumentType),
 				CheckoutDateTime = edoFiscalDocument.CheckoutTime.ToString("O"),
 				Email = edoFiscalDocument.Contact,
-				ClientINN = edoFiscalDocument.ClientInn,
+				ClientINN = NormalizeClientInn(edoFiscalDocument.ClientInn),
 				CashierName = edoFiscalDocument.CashierName,
 				PrintReceipt = edoFiscalDocument.PrintReceipt,
 				ResponseURL = GetResponseUrl(edoFiscalDocument),
@@ -94,6 +94,16 @@ namespace Edo.Receipt.Sender
 			}
 
 			return value.Substring(0, maxLength);
+		}
+
+		private static string NormalizeClientInn(string clientInn)
+		{
+			if(string.IsNullOrWhiteSpace(clientInn))
+			{
+				return null;
+			}
+
+			return clientInn.Trim();
 		}
 
 		private string GetDocType(FiscalDocumentType fiscalDocumentType)

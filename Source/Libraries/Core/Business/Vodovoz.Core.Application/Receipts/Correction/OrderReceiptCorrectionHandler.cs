@@ -246,6 +246,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 		private static bool IsEligibleOrderStatus(Order order)
 		{
 			return order.OrderStatus == OrderStatus.Shipped
+				|| order.OrderStatus == OrderStatus.UnloadingOnStock
 				|| order.OrderStatus == OrderStatus.Closed
 				|| order.OrderStatus == OrderStatus.Canceled
 				|| order.OrderStatus == OrderStatus.DeliveryCanceled;

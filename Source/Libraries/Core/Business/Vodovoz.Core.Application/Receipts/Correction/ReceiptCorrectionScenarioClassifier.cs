@@ -46,10 +46,24 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			{
 				var hasItemsToReturn = changeSet.HasPieceItemPriceChange
 					|| changeSet.PositionChanges.Any(x => x.NewQuantity < x.OldQuantity);
+				// Новый товар / увеличение qty — нужен новый приход.
+				// Если только убрали позицию или уменьшили qty — достаточно RETURN (как QuantityOrAmountDecrease).
+				var hasItemsToResale = changeSet.HasPieceItemPriceChange
+					|| changeSet.PositionChanges.Any(x => x.NewQuantity > x.OldQuantity);
+
+				if(hasItemsToReturn && hasItemsToResale)
+				{
+					return ReceiptCorrectionScenarioType.NomenclatureChange;
+				}
 
 				if(hasItemsToReturn)
 				{
-					return ReceiptCorrectionScenarioType.NomenclatureChange;
+					return ReceiptCorrectionScenarioType.QuantityOrAmountDecrease;
+				}
+
+				if(hasItemsToResale)
+				{
+					return ReceiptCorrectionScenarioType.QuantityOrAmountIncrease;
 				}
 			}
 

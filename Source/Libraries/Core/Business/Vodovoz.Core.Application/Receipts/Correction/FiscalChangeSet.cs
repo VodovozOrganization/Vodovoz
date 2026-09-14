@@ -53,7 +53,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 			foreach(var positionChange in PositionChanges.OrderBy(x => x.NomenclatureId ?? 0).ThenBy(x => x.Name))
 			{
-				parts.Add($"{positionChange.NomenclatureId}:{positionChange.OldQuantity}->{positionChange.NewQuantity}:{positionChange.OldPrice}->{positionChange.NewPrice}");
+				parts.Add($"{positionChange.NomenclatureId}:{positionChange.OldQuantity}->{positionChange.NewQuantity}:{positionChange.OldPrice}->{positionChange.NewPrice}:{positionChange.OldDiscountSum}->{positionChange.NewDiscountSum}");
 			}
 
 			var raw = string.Join("|", parts);

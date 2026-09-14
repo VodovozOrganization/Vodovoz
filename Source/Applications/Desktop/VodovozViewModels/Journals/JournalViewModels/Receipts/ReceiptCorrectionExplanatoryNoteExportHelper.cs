@@ -21,9 +21,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 		private const string TitleLine = "Объяснительная записка";
 		private const string FacsimilePlaceholder = "(факсимиле подписанта)";
 		private static readonly Regex DateLineRegex = new Regex(@"^\d{2}\.\d{2}\.\d{4}$", RegexOptions.Compiled);
+		private static readonly CultureInfo RuCulture = CultureInfo.GetCultureInfo("ru-RU");
 
 		public const string DocumentTitle = TitleLine;
 		public const string SignaturePlaceholder = FacsimilePlaceholder;
+		public const string PositionsHeaderMarker = "№\tНаименование\t";
 
 		public static NoteLayout ParseNoteLayout(string content, DateTime createdDate)
 		{
@@ -32,8 +34,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 			{
 				HeaderLines = parsed.HeaderLines,
 				BodyLines = parsed.BodyLines,
+				PositionRows = parsed.PositionRows,
+				TotalText = parsed.TotalText,
 				DateText = string.IsNullOrWhiteSpace(parsed.DateText)
-					? createdDate.ToString("dd.MM.yyyy", CultureInfo.GetCultureInfo("ru-RU"))
+					? createdDate.ToString("dd.MM.yyyy", RuCulture)
 					: parsed.DateText
 			};
 		}
@@ -71,7 +75,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 		{
 			public List<string> HeaderLines { get; set; } = new List<string>();
 			public List<string> BodyLines { get; set; } = new List<string>();
+			public List<PositionRow> PositionRows { get; set; } = new List<PositionRow>();
+			public string TotalText { get; set; }
 			public string DateText { get; set; }
+
+			public bool HasPositions => PositionRows != null && PositionRows.Count > 0;
+		}
+
+		public sealed class PositionRow
+		{
+			public string Number { get; set; }
+			public string Name { get; set; }
+			public string Quantity { get; set; }
+			public string Price { get; set; }
+			public string Discount { get; set; }
+			public string Sum { get; set; }
 		}
 
 		public static void ExportRegistryToExcel(IList<ReceiptCorrectionExplanatoryNoteJournalNode> nodes, string path)
@@ -151,7 +169,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 		public static void ExportNotesToPdf(
 			IList<ReceiptCorrectionExplanatoryNoteJournalNode> nodes,
 			IDictionary<int, byte[]> signaturesById,
-			string path)
+			string path,
+			IDictionary<int, IList<PositionRow>> positionsByNoteId = null)
 		{
 			using(var stream = new FileStream(path, FileMode.Create, FileAccess.Write))
 			using(var document = new Document(PageSize.A4, 50, 50, 50, 50))
@@ -161,6 +180,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 
 				var font = CreateFont(12, Font.NORMAL);
 				var titleFont = CreateFont(14, Font.BOLD);
+				var tableFont = CreateFont(10, Font.NORMAL);
+				var tableHeaderFont = CreateFont(10, Font.BOLD);
 				var first = true;
 
 				foreach(var node in nodes)
@@ -171,7 +192,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 					}
 
 					first = false;
-					RenderNote(document, node, signaturesById, font, titleFont);
+					IList<PositionRow> positions = null;
+					if(positionsByNoteId != null)
+					{
+						positionsByNoteId.TryGetValue(node.Id, out positions);
+					}
+
+					RenderNote(document, node, signaturesById, positions, font, titleFont, tableFont, tableHeaderFont);
 				}
 
 				document.Close();
@@ -182,12 +209,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 			Document document,
 			ReceiptCorrectionExplanatoryNoteJournalNode node,
 			IDictionary<int, byte[]> signaturesById,
+			IList<PositionRow> positionsFromDb,
 			Font font,
-			Font titleFont)
+			Font titleFont,
+			Font tableFont,
+			Font tableHeaderFont)
 		{
-			var parsed = ParseNoteContent(node.Content);
+			var layout = ParseNoteLayout(node.Content, node.CreatedDate);
+			var positionRows = positionsFromDb != null && positionsFromDb.Count > 0
+				? positionsFromDb
+				: layout.PositionRows;
+			var totalText = positionsFromDb != null && positionsFromDb.Count > 0
+				? FormatPositionsTotal(positionsFromDb)
+				: layout.TotalText;
 
-			foreach(var line in parsed.HeaderLines)
+			foreach(var line in layout.HeaderLines)
 			{
 				document.Add(new Paragraph(line, font)
 				{
@@ -203,7 +239,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 				SpacingAfter = 14f
 			});
 
-			foreach(var line in parsed.BodyLines)
+			foreach(var line in layout.BodyLines)
 			{
 				var paragraph = new Paragraph(line.Length == 0 ? " " : line, font)
 				{
@@ -214,7 +250,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 				document.Add(paragraph);
 			}
 
-			document.Add(new Paragraph(" ", font) { SpacingBefore = 18f });
+			if(positionRows != null && positionRows.Count > 0)
+			{
+				document.Add(BuildPositionsPdfTable(positionRows, totalText, tableFont, tableHeaderFont));
+			}
+
+			document.Add(new Paragraph(" ", font) { SpacingBefore = 28f });
 
 			Image signature = null;
 			if(node.SignerSignatureId.HasValue
@@ -227,7 +268,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 				{
 					var cropped = CropSignatureToInk(bytes) ?? bytes;
 					signature = Image.GetInstance(cropped);
-					signature.ScaleToFit(280f, 120f);
+					signature.ScaleToFit(80.53f, 60.21f);
 				}
 				catch
 				{
@@ -238,15 +279,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 			var footer = new PdfPTable(2)
 			{
 				WidthPercentage = 100,
-				SpacingBefore = 8f
+				SpacingBefore = 36f,
+				KeepTogether = true
 			};
 			footer.SetWidths(new float[] { 1f, 1f });
 
-			var dateText = string.IsNullOrWhiteSpace(parsed.DateText)
-				? node.CreatedDate.ToString("dd.MM.yyyy", CultureInfo.GetCultureInfo("ru-RU"))
-				: parsed.DateText;
-
-			footer.AddCell(new PdfPCell(new Phrase(dateText, font))
+			footer.AddCell(new PdfPCell(new Phrase(layout.DateText ?? string.Empty, font))
 			{
 				Border = Rectangle.NO_BORDER,
 				HorizontalAlignment = Element.ALIGN_LEFT,
@@ -279,6 +317,79 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 			document.Add(footer);
 		}
 
+		public static PositionRow ToPositionRow(int lineNumber, string name, decimal quantity, decimal price, decimal discount, decimal sum) =>
+			new PositionRow
+			{
+				Number = lineNumber.ToString(RuCulture),
+				Name = name ?? string.Empty,
+				Quantity = FormatDecimal(quantity),
+				Price = FormatDecimal(price),
+				Discount = FormatDecimal(discount),
+				Sum = FormatDecimal(sum)
+			};
+
+		private static string FormatPositionsTotal(IList<PositionRow> rows)
+		{
+			decimal total = 0m;
+			foreach(var row in rows)
+			{
+				if(decimal.TryParse(row.Sum, NumberStyles.Number, RuCulture, out var value))
+				{
+					total += value;
+				}
+			}
+
+			return FormatDecimal(total);
+		}
+
+		private static string FormatDecimal(decimal value) =>
+			value.ToString("0.##", RuCulture);
+
+		private static PdfPTable BuildPositionsPdfTable(
+			IList<PositionRow> rows,
+			string totalText,
+			Font tableFont,
+			Font tableHeaderFont)
+		{
+			var table = new PdfPTable(6)
+			{
+				WidthPercentage = 100,
+				SpacingBefore = 10f,
+				SpacingAfter = 8f,
+				HeaderRows = 1
+			};
+			table.SetWidths(new float[] { 8f, 42f, 12f, 12f, 12f, 14f });
+
+			AddHeaderCell(table, "№", tableHeaderFont);
+			AddHeaderCell(table, "Наименование", tableHeaderFont);
+			AddHeaderCell(table, "Количество", tableHeaderFont);
+			AddHeaderCell(table, "Цена", tableHeaderFont);
+			AddHeaderCell(table, "Скидка", tableHeaderFont);
+			AddHeaderCell(table, "Сумма", tableHeaderFont);
+
+			foreach(var row in rows)
+			{
+				AddCell(table, row.Number, tableFont, Element.ALIGN_CENTER);
+				AddCell(table, row.Name, tableFont, Element.ALIGN_LEFT);
+				AddCell(table, row.Quantity, tableFont, Element.ALIGN_RIGHT);
+				AddCell(table, row.Price, tableFont, Element.ALIGN_RIGHT);
+				AddCell(table, row.Discount, tableFont, Element.ALIGN_RIGHT);
+				AddCell(table, row.Sum, tableFont, Element.ALIGN_RIGHT);
+			}
+
+			var totalLabel = new PdfPCell(new Phrase("Итого", tableHeaderFont))
+			{
+				Colspan = 5,
+				HorizontalAlignment = Element.ALIGN_RIGHT,
+				Padding = 4f,
+				BorderWidth = 1f
+			};
+			table.AddCell(totalLabel);
+			AddCell(table, totalText ?? string.Empty, tableHeaderFont, Element.ALIGN_RIGHT);
+
+			return table;
+		}
+
 		private static NoteContentParts ParseNoteContent(string content)
 		{
 			var result = new NoteContentParts();
@@ -293,7 +404,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 
 			if(titleIndex < 0)
 			{
-				result.BodyLines.AddRange(lines.Where(x => !IsFooterLine(x)));
+				SplitBodyAndPositions(lines.Where(x => !IsFooterLine(x)).ToList(), result);
 				result.DateText = lines.LastOrDefault(IsDateLine)?.Trim();
 				return result;
 			}
@@ -305,15 +416,131 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 
 			var afterTitle = lines.Skip(titleIndex + 1).ToList();
 			var footerStart = afterTitle.FindIndex(IsFooterLine);
-			if(footerStart < 0)
+			var bodyRaw = footerStart < 0
+				? afterTitle
+				: afterTitle.Take(footerStart).ToList();
+
+			SplitBodyAndPositions(TrimBody(bodyRaw).ToList(), result);
+
+			if(footerStart >= 0)
 			{
-				result.BodyLines.AddRange(TrimBody(afterTitle));
-				return result;
+				result.DateText = afterTitle.Skip(footerStart).FirstOrDefault(IsDateLine)?.Trim();
 			}
 
-			result.BodyLines.AddRange(TrimBody(afterTitle.Take(footerStart)));
-			result.DateText = afterTitle.Skip(footerStart).FirstOrDefault(IsDateLine)?.Trim();
 			return result;
+		}
+
+		private static void SplitBodyAndPositions(IList<string> bodyLines, NoteContentParts result)
+		{
+			var tableStart = -1;
+			for(var i = 0; i < bodyLines.Count; i++)
+			{
+				if(IsPositionsHeaderLine(bodyLines[i]))
+				{
+					tableStart = i;
+					break;
+				}
+			}
+
+			if(tableStart < 0)
+			{
+				result.BodyLines.AddRange(bodyLines);
+				return;
+			}
+
+			result.BodyLines.AddRange(TrimBody(bodyLines.Take(tableStart)));
+
+			for(var i = tableStart + 1; i < bodyLines.Count; i++)
+			{
+				var line = bodyLines[i]?.TrimEnd() ?? string.Empty;
+				if(string.IsNullOrWhiteSpace(line))
+				{
+					continue;
+				}
+
+				if(IsTotalLine(line))
+				{
+					result.TotalText = ExtractTotalValue(line);
+					continue;
+				}
+
+				var row = TryParsePositionRow(line);
+				if(row != null)
+				{
+					result.PositionRows.Add(row);
+				}
+			}
+		}
+
+		private static bool IsPositionsHeaderLine(string line)
+		{
+			if(string.IsNullOrWhiteSpace(line))
+			{
+				return false;
+			}
+
+			var trimmed = line.TrimStart();
+			return trimmed.StartsWith(PositionsHeaderMarker, StringComparison.Ordinal)
+				|| trimmed.StartsWith("№\tНаименование\tКоличество\tЦена\tСумма", StringComparison.Ordinal);
+		}
+
+		private static bool IsTotalLine(string line)
+		{
+			var trimmed = line.TrimStart();
+			return trimmed.StartsWith("Итого", StringComparison.OrdinalIgnoreCase);
+		}
+
+		private static string ExtractTotalValue(string line)
+		{
+			var parts = line.Split('\t');
+			for(var i = parts.Length - 1; i >= 0; i--)
+			{
+				if(!string.IsNullOrWhiteSpace(parts[i]))
+				{
+					var value = parts[i].Trim();
+					if(value.StartsWith("Итого", StringComparison.OrdinalIgnoreCase))
+					{
+						var after = value.Substring("Итого".Length).Trim(' ', ':', '\t');
+						return string.IsNullOrEmpty(after) ? string.Empty : after;
+					}
+
+					return value;
+				}
+			}
+
+			return string.Empty;
+		}
+
+		private static PositionRow TryParsePositionRow(string line)
+		{
+			var parts = line.Split('\t');
+			if(parts.Length < 5)
+			{
+				return null;
+			}
+
+			if(parts.Length >= 6)
+			{
+				return new PositionRow
+				{
+					Number = parts[0].Trim(),
+					Name = parts[1].Trim(),
+					Quantity = parts[2].Trim(),
+					Price = parts[3].Trim(),
+					Discount = parts[4].Trim(),
+					Sum = parts[5].Trim()
+				};
+			}
+
+			return new PositionRow
+			{
+				Number = parts[0].Trim(),
+				Name = parts[1].Trim(),
+				Quantity = parts[2].Trim(),
+				Price = parts[3].Trim(),
+				Discount = "0",
+				Sum = parts[4].Trim()
+			};
 		}
 
 		private static IEnumerable<string> TrimBody(IEnumerable<string> lines)
@@ -417,7 +644,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 				return false;
 			}
 
-			// Синяя/тёмная подпись на белом фоне; отсекаем шум скана.
 			var average = (color.R + color.G + color.B) / 3;
 			return average < 170;
 		}
@@ -439,11 +665,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 			});
 		}
 
-		private static void AddCell(PdfPTable table, string text, Font font)
+		private static void AddCell(PdfPTable table, string text, Font font, int align = Element.ALIGN_LEFT)
 		{
 			table.AddCell(new PdfPCell(new Phrase(text ?? string.Empty, font))
 			{
-				Padding = 3f
+				Padding = 3f,
+				HorizontalAlignment = align
 			});
 		}
 
@@ -451,6 +678,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 		{
 			public List<string> HeaderLines { get; } = new List<string>();
 			public List<string> BodyLines { get; } = new List<string>();
+			public List<PositionRow> PositionRows { get; } = new List<PositionRow>();
+			public string TotalText { get; set; }
 			public string DateText { get; set; }
 		}
 	}

@@ -6,11 +6,19 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Core.Application.Receipts.Correction
 {
 	public class ReceiptCorrectionEdoTaskFactory
 	{
+		private readonly IEmployeeRepository _employeeRepository;
+
+		public ReceiptCorrectionEdoTaskFactory(IEmployeeRepository employeeRepository)
+		{
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+		}
+
 		public ReceiptEdoTask Create(IUnitOfWork uow, Order order, ReceiptEdoTask sourceTask)
 		{
 			if(uow == null)
@@ -42,6 +50,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				Source = EdoRequestSource.Manual,
 				DocumentType = sourceRequest?.DocumentType ?? EdoDocumentType.UPD,
 				Order = orderEntity,
+				Author = _employeeRepository.GetEmployeeForCurrentUser(uow),
 				ProductCodes = new ObservableList<TrueMarkProductCode>(
 					sourceRequest?.ProductCodes ?? Enumerable.Empty<TrueMarkProductCode>())
 			};

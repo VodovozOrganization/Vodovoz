@@ -58,6 +58,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					{
 						Quantity = x.Sum(p => p.Quantity),
 						Price = x.First().Price,
+						DiscountSum = x.Sum(p => p.DiscountSum),
 						Name = x.First().Name,
 						NomenclatureId = x.First().NomenclatureId
 					});
@@ -70,6 +71,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					{
 						Quantity = x.Sum(p => p.Quantity),
 						Price = x.First().Price,
+						DiscountSum = x.Sum(p => p.DiscountSum),
 						Name = x.First().Name,
 						NomenclatureId = x.First().NomenclatureId
 					});
@@ -85,6 +87,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				var newQuantity = currentItem?.Quantity ?? 0;
 				var oldPrice = previousItem?.Price ?? 0;
 				var newPrice = currentItem?.Price ?? 0;
+				var oldDiscountSum = previousItem?.DiscountSum ?? 0;
+				var newDiscountSum = currentItem?.DiscountSum ?? 0;
 
 				if(previousItem == null || currentItem == null)
 				{
@@ -106,7 +110,11 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					changeSet.HasPieceItemPriceChange = true;
 				}
 
-				if(oldQuantity != newQuantity || oldPrice != newPrice || previousItem == null || currentItem == null)
+				if(oldQuantity != newQuantity
+					|| oldPrice != newPrice
+					|| oldDiscountSum != newDiscountSum
+					|| previousItem == null
+					|| currentItem == null)
 				{
 					changeSet.PositionChanges.Add(new FiscalPositionChange
 					{
@@ -116,6 +124,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 						NewQuantity = newQuantity,
 						OldPrice = oldPrice,
 						NewPrice = newPrice,
+						OldDiscountSum = oldDiscountSum,
+						NewDiscountSum = newDiscountSum,
 						IsPieceItem = oldPrice != newPrice
 					});
 				}

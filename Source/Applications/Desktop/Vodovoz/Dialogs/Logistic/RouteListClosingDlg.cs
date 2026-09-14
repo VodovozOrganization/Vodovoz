@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using CustomerNotifications.Contracts;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -1153,16 +1153,8 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(Entity.Status == RouteListStatus.Delivered)
-			{
-				_routeListService.ChangeStatusAndCreateTask(UoW, Entity,
-					Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
-						? RouteListStatus.MileageCheck
-						: RouteListStatus.OnClosing,
-					CallTaskWorker
-				);
-			}
-
+			// Корректировку чека запускаем до перевода МЛ/заказов в OnClosing / UnloadingOnStock,
+			// иначе обработчик не срабатывает (через закрытие МЛ заказ всегда уходит на выгрузку).
 			var receiptCorrectionPreviews = Entity.Addresses
 				.Where(address => !_ignoreReceiptsForOrderIds.Contains(address.Order.Id))
 				.Select(address => (OrderId: address.Order.Id, Preview: _orderReceiptCorrectionHandler.TryGetCorrectionPreview(UoW, address.Order)))
@@ -1191,6 +1183,16 @@ namespace Vodovoz
 				_paymentFromBankClientController.UpdateAllocatedSum(UoW, address.Order);
 				_paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, address.Order);
 				_orderReceiptCorrectionHandler.TryStartCorrectionProcess(UoW, address.Order);
+			}
+
+			if(Entity.Status == RouteListStatus.Delivered)
+			{
+				_routeListService.ChangeStatusAndCreateTask(UoW, Entity,
+					Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck
+						? RouteListStatus.MileageCheck
+						: RouteListStatus.OnClosing,
+					CallTaskWorker
+				);
 			}
 
 			UoW.Save();

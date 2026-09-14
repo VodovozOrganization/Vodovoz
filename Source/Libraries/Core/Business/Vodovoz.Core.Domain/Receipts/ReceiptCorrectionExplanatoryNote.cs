@@ -1,5 +1,6 @@
 using QS.DomainModel.Entity;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Receipts
@@ -21,6 +22,7 @@ namespace Vodovoz.Core.Domain.Receipts
 		private int? _signerSignatureId;
 		private string _content;
 		private DateTime _createdDate;
+		private IList<ReceiptCorrectionExplanatoryNoteItem> _items = new List<ReceiptCorrectionExplanatoryNoteItem>();
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -83,6 +85,13 @@ namespace Vodovoz.Core.Domain.Receipts
 		{
 			get => _createdDate;
 			set => SetField(ref _createdDate, value);
+		}
+
+		[Display(Name = "Позиции")]
+		public virtual IList<ReceiptCorrectionExplanatoryNoteItem> Items
+		{
+			get => _items;
+			set => SetField(ref _items, value);
 		}
 	}
 }
