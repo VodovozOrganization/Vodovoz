@@ -161,8 +161,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			if(AreDeviationsRequested())
 			{
-				disjunction.Add(Subqueries.WhereExists(GetOrderTaskDeviationIdsSubquery(orderAlias)));
-				disjunction.Add(Subqueries.WhereExists(GetTransferDeviationIdsSubquery(orderAlias)));
+				if(AreOrderTaskRowsRequested())
+				{
+					disjunction.Add(Subqueries.WhereExists(GetOrderTaskDeviationIdsSubquery(orderAlias)));
+				}
+
+				if(AreTransferRowsRequested())
+				{
+					disjunction.Add(Subqueries.WhereExists(GetTransferDeviationIdsSubquery(orderAlias)));
+				}
 
 				if(AreRequestDeviationsRequested())
 				{
@@ -172,8 +179,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			if(AreProblemsRequested())
 			{
-				disjunction.Add(Subqueries.WhereExists(GetOrderTaskProblemIdsSubquery(orderAlias)));
-				disjunction.Add(Subqueries.WhereExists(GetTransferProblemIdsSubquery(orderAlias)));
+				if(AreOrderTaskRowsRequested())
+				{
+					disjunction.Add(Subqueries.WhereExists(GetOrderTaskProblemIdsSubquery(orderAlias)));
+				}
+
+				if(AreTransferRowsRequested())
+				{
+					disjunction.Add(Subqueries.WhereExists(GetTransferProblemIdsSubquery(orderAlias)));
+				}
 			}
 
 			return disjunction;
@@ -188,7 +202,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			&& !_filterViewModel.DeviationType.HasValue;
 
 		private bool AreRequestDeviationsRequested() =>
-			!_filterViewModel.TaskId.HasValue && !_filterViewModel.EdoTaskStatus.HasValue;
+			!_filterViewModel.TaskId.HasValue
+			&& !_filterViewModel.EdoTaskStatus.HasValue
+			&& !_filterViewModel.EdoTaskType.HasValue;
+
+		private bool AreOrderTaskRowsRequested() =>
+			!_filterViewModel.EdoTaskType.HasValue
+			|| _filterViewModel.EdoTaskType == EdoTaskType.Document
+			|| _filterViewModel.EdoTaskType == EdoTaskType.Receipt;
+
+		private bool AreTransferRowsRequested() =>
+			!_filterViewModel.EdoTaskType.HasValue
+			|| _filterViewModel.EdoTaskType == EdoTaskType.Transfer;
 
 		#endregion Первый уровень — заказы
 
@@ -209,6 +234,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			ApplyDeviationRestrictions(subquery, deviationAlias, sourceAlias);
 			ApplyTaskRestrictions(subquery, taskAlias);
+			ApplyOrderTaskTypeRestriction(subquery, taskAlias);
 
 			return subquery.Select(Projections.Property(() => deviationAlias.Id));
 		}
@@ -268,6 +294,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			ApplyProblemRestrictions(subquery, problemAlias);
 			ApplyTaskRestrictions(subquery, taskAlias);
+			ApplyOrderTaskTypeRestriction(subquery, taskAlias);
 
 			return subquery.Select(Projections.Property(() => problemAlias.Id));
 		}
@@ -346,6 +373,46 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			}
 		}
 
+		/// <summary>
+		/// Отбирает задачи заказа по типу. Тип задачи в базе отдельным полем не хранится,
+		/// поэтому отбор делается соединением с конкретной задачей: соединение с наследником
+		/// добавляет условие по колонке-дискриминатору
+		/// </summary>
+		private void ApplyOrderTaskTypeRestriction<TRoot>(IQueryOver<TRoot, TRoot> query, EdoTask taskAlias)
+		{
+			if(_filterViewModel.EdoTaskType == EdoTaskType.Document)
+			{
+				DocumentEdoTask documentTaskAlias = null;
+
+				query.JoinEntityAlias(() => documentTaskAlias, () => documentTaskAlias.Id == taskAlias.Id);
+			}
+			else if(_filterViewModel.EdoTaskType == EdoTaskType.Receipt)
+			{
+				ReceiptEdoTask receiptTaskAlias = null;
+
+				query.JoinEntityAlias(() => receiptTaskAlias, () => receiptTaskAlias.Id == taskAlias.Id);
+			}
+		}
+
+		/// <summary>
+		/// Отбирает задачи заказа по типу в запросах, где конкретные задачи уже соединены
+		/// левым соединением ради определения типа: хватает проверки, какое из них подошло
+		/// </summary>
+		private void ApplyJoinedOrderTaskTypeRestriction<TRoot>(
+			IQueryOver<TRoot, TRoot> query,
+			DocumentEdoTask documentTaskAlias,
+			ReceiptEdoTask receiptTaskAlias)
+		{
+			if(_filterViewModel.EdoTaskType == EdoTaskType.Document)
+			{
+				query.Where(Restrictions.IsNotNull(Projections.Property(() => documentTaskAlias.Id)));
+			}
+			else if(_filterViewModel.EdoTaskType == EdoTaskType.Receipt)
+			{
+				query.Where(Restrictions.IsNotNull(Projections.Property(() => receiptTaskAlias.Id)));
+			}
+		}
+
 		#endregion Общие условия фильтра
 
 		#region Второй уровень — отклонения и проблемы
@@ -363,8 +430,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			{
 				var nodes = new List<EdoDeviationJournalNode>();
 
-				nodes.AddRange(GetOrderTaskDeviations(uow, orderIds));
-				nodes.AddRange(GetTransferDeviations(uow, orderIds));
+				if(AreOrderTaskRowsRequested())
+				{
+					nodes.AddRange(GetOrderTaskDeviations(uow, orderIds));
+				}
+
+				if(AreTransferRowsRequested())
+				{
+					nodes.AddRange(GetTransferDeviations(uow, orderIds));
+				}
 
 				if(AreRequestDeviationsRequested())
 				{
@@ -392,8 +466,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			{
 				var nodes = new List<EdoDeviationJournalNode>();
 
-				nodes.AddRange(GetOrderTaskProblems(uow, orderIds));
-				nodes.AddRange(GetTransferProblems(uow, orderIds));
+				if(AreOrderTaskRowsRequested())
+				{
+					nodes.AddRange(GetOrderTaskProblems(uow, orderIds));
+				}
+
+				if(AreTransferRowsRequested())
+				{
+					nodes.AddRange(GetTransferProblems(uow, orderIds));
+				}
 
 				var distinctNodes = DistinctByRow(nodes);
 
@@ -425,6 +506,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			ApplyDeviationRestrictions(query, deviationAlias, sourceAlias);
 			ApplyTaskRestrictions(query, taskAlias);
+			ApplyJoinedOrderTaskTypeRestriction(query, documentTaskAlias, receiptTaskAlias);
 
 			var nodes = query.SelectList(list => list
 					.Select(() => deviationAlias.Id).WithAlias(() => resultAlias.Id)
@@ -558,6 +640,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			ApplyProblemRestrictions(query, problemAlias);
 			ApplyTaskRestrictions(query, taskAlias);
+			ApplyJoinedOrderTaskTypeRestriction(query, documentTaskAlias, receiptTaskAlias);
 
 			var nodes = query.SelectList(list => list
 					.Select(() => problemAlias.Id).WithAlias(() => resultAlias.Id)

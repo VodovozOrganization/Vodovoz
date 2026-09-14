@@ -1,4 +1,4 @@
-using Gtk;
+﻿using Gtk;
 using QS.Views.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Core.Domain.Edo;
@@ -42,11 +42,23 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.DeliveryDateTo, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			yenumEdoTaskType.ItemsEnum = typeof(EdoDeviationJournalNodeType);
-			yenumEdoTaskType.AddEnumToHideList(EdoDeviationJournalNodeType.Order);
+			yenumEdoRowType.ItemsEnum = typeof(EdoDeviationJournalNodeType);
+			yenumEdoRowType.AddEnumToHideList(EdoDeviationJournalNodeType.Order);
+			yenumEdoRowType.ShowSpecialStateAll = true;
+			yenumEdoRowType.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.RowType, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			yenumEdoTaskType.ItemsEnum = typeof(EdoTaskType);
+			yenumEdoTaskType.AddEnumToHideList(
+				EdoTaskType.InformalOrderDocument,
+				EdoTaskType.SaveCode,
+				EdoTaskType.BulkAccounting,
+				EdoTaskType.Withdrawal,
+				EdoTaskType.Tender);
 			yenumEdoTaskType.ShowSpecialStateAll = true;
 			yenumEdoTaskType.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.RowType, w => w.SelectedItemOrNull)
+				.AddBinding(vm => vm.EdoTaskType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			yenumDeviationType.ItemsEnum = typeof(EdoDeviationType);

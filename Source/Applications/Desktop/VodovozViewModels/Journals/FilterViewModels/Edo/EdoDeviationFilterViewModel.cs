@@ -21,6 +21,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 		private DateTime? _deliveryDateTo;
 		private EdoDeviationJournalNodeType? _rowType;
 		private EdoDeviationType? _deviationType;
+		private EdoTaskType? _edoTaskType;
 		private EdoTaskStatus? _edoTaskStatus;
 		private TaskProblemState? _state;
 		private string _problemSourceName;
@@ -93,6 +94,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 		{
 			get => _deviationType;
 			set => UpdateFilterField(ref _deviationType, value);
+		}
+
+		/// <summary>
+		/// Тип задачи ЭДО
+		/// </summary>
+		public virtual EdoTaskType? EdoTaskType
+		{
+			get => _edoTaskType;
+			set => UpdateFilterField(ref _edoTaskType, value);
 		}
 
 		/// <summary>
