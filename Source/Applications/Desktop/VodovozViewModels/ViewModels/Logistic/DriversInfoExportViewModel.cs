@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using DynamicData;
+using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -71,10 +72,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
+			var excludedCarTypesOfUse = carRepository.CarTypeOfUseForExclude();
 			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_restrictedCarTypesOfUse.Remove(CarTypeOfUse.Truck);
-			_restrictedCarTypesOfUse.Remove(CarTypeOfUse.Loader);
+			_restrictedCarTypesOfUse.Remove(excludedCarTypesOfUse);
 
 			TabName = "Выгрузка по водителям";
 			Items = new GenericObservableList<DriverInfoNode>();

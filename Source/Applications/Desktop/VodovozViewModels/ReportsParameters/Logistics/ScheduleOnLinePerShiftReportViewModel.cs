@@ -10,6 +10,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Presentation.Reports;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Logistics
@@ -26,9 +27,15 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 			RdlViewerViewModel rdlViewerViewModel,
 			IReportInfoFactory reportInfoFactory,
 			IUnitOfWorkFactory uowFactory,
-			IValidator validator
-		) : base(rdlViewerViewModel, reportInfoFactory, validator)
+			IValidator validator,
+			ICarRepository carRepository
+			) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
+			if(carRepository is null)
+			{
+				throw new ArgumentNullException(nameof(carRepository));
+			}
+
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
 			_geoGroups = new GenericObservableList<GeoGroup>();
@@ -44,6 +51,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 			}
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
+			HiddenCarTypeOfUse = carRepository.CarTypeOfUseForExcludeAsEnum();
 		}
 
 		public DelegateCommand GenerateReportCommand;
@@ -69,7 +77,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 
 		public Type CarTypeOfUseType => typeof(CarTypeOfUse);
 
-		public Enum[] HiddenCarTypeOfUse => new Enum[] { CarTypeOfUse.Loader };
+		public Enum[] HiddenCarTypeOfUse { get; }
 
 		public virtual IEnumerable<Enum> CarTypeOfUseList
 		{
