@@ -22,5 +22,27 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.And(ecm => ecm.PhoneNumber == phoneNumber)
 				.List();
 		}
+
+		/// <inheritdoc/>
+		public IList<ExternalCounterpartyMatching> GetForExternalCounterparties(
+			IUnitOfWork uow, IEnumerable<int> externalCounterpartyIds)
+		{
+			var ids = externalCounterpartyIds.ToArray();
+			if(ids.Length == 0)
+			{
+				return new List<ExternalCounterpartyMatching>();
+			}
+
+			var externalCounterparties = uow.Session.Query<ExternalCounterparty>()
+				.Where(ec => ids.Contains(ec.Id));
+
+			return uow.Session.Query<ExternalCounterpartyMatching>()
+				.Where(m => (m.AssignedExternalCounterparty != null
+						&& ids.Contains(m.AssignedExternalCounterparty.Id))
+					|| (m.AssignedExternalCounterparty == null
+						&& externalCounterparties.Any(ec => ec.ExternalCounterpartyId == m.ExternalCounterpartyGuid
+							&& ec.CounterpartyFrom == m.CounterpartyFrom)))
+				.ToList();
+		}
 	}
 }
