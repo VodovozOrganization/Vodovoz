@@ -87,6 +87,13 @@ namespace Edo.Problems.Validation.Sources
 					}
 					break;
 				case PaymentType.Cashless:
+					if(edoTask is DocumentEdoTask
+						&& orderEdoRequest.Order.PayAfterShipment
+						&& orderEdoRequest.Order.OrderStatus == OrderStatus.Closed
+						&& !orderEdoRequest.Order.IsOrderForResale)
+					{
+						return Task.FromResult(EdoValidationResult.Valid(this));
+					}
 					if(orderEdoRequest.Order.OrderPaymentStatus != OrderPaymentStatus.Paid)
 					{
 						return Task.FromResult(EdoValidationResult.Invalid(this));
