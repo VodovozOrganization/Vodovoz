@@ -12,14 +12,16 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using QS.ViewModels.Extension;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Errors;
+using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Permissions;
@@ -51,8 +53,6 @@ using Vodovoz.ViewModels.Widgets.Cars;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using VodovozInfrastructure.StringHandlers;
-using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Application.FileStorage;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -87,6 +87,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private FuelType _oldFuelType;
 		private FuelCardVersion _oldLastFuelCardVersion;
 		private EmployeeCategory? _oldDriverCategory;
+		private IList<CarAdditionalFuelType> _oldAdditionalFuelTypes;
 		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
 
 		public CarViewModel(
@@ -115,7 +116,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CarInsuranceManagementViewModel insuranceManagementViewModel,
 			CarVersionsManagementViewModel carVersionsManagementViewModel,
 			IDocumentPrinter documentPrinter,
-			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
+			IAdditionalFuelTypeManagementViewModelFactory additionalFuelTypeManagementViewModelFactory)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -126,6 +128,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(insuranceManagementViewModel is null)
 			{
 				throw new ArgumentNullException(nameof(insuranceManagementViewModel));
+			}
+
+			if(additionalFuelTypeManagementViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(additionalFuelTypeManagementViewModelFactory));
 			}
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -144,6 +151,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
 			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
 			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
+			
 			TabName = "Автомобиль";
 
 			_carVersionsManagementViewModel.Initialize(Entity, this);
@@ -203,6 +211,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			Entity.ObservableCarVersions.ElementAdded += OnObservableCarVersionsElementAdded;
 
+			AdditionalFuelTypeManagementViewModel = additionalFuelTypeManagementViewModelFactory
+				.CreateAdditionalFuelTypeManagementViewModel(Entity, UoW);
+
 			OnDriverChanged();
 
 			ConfigureTechInspectInfo();
@@ -240,10 +251,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_oldFuelType = Entity.FuelType;
 			_oldLastFuelCardVersion = GetLastFuelCardVersion();
 			_oldDriverCategory = Entity.Driver?.Category;
+			_oldAdditionalFuelTypes = new List<CarAdditionalFuelType>(Entity.AdditionalFuelTypes);
 
 			SetIsCarUsedInDeliveryDefaultValueIfNeed();
 		}
-		
+
 		public bool CanEdit { get; private set; }
 		public bool CanEditCarCard { get; private set; }
 		
@@ -333,6 +345,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public CarInsuranceVersionViewModel OsagoInsuranceVersionViewModel { get; }
 		public CarInsuranceVersionViewModel KaskoInsuranceVersionViewModel { get; }
 		public CarInsuranceVersionEditingViewModel CarInsuranceVersionEditingViewModel { get; }
+		public AdditionalFuelTypeManagementViewModel AdditionalFuelTypeManagementViewModel { get; }
 
 		public DelegateCommand AddGeoGroupCommand { get; }
 		public DelegateCommand CreateCarAcceptanceCertificateCommand { get; }
@@ -614,6 +627,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_oldFuelType = Entity.FuelType;
 			_oldLastFuelCardVersion = GetLastFuelCardVersion();
 			_oldDriverCategory = Entity.Driver?.Category;
+			_oldAdditionalFuelTypes = new List<CarAdditionalFuelType>(Entity.AdditionalFuelTypes);
 
 			try
 			{
@@ -670,22 +684,32 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void SetFuelCardProductGroupRestrictionByCardId(string fuelCardId, CancellationToken cancellationToken)
 		{
-			var gazpromFuelProductsGroups = GazpromFuelProductsGroups.ToList();
-
 			_fuelApiService.SetProductRestrictionsAndRemoveExistingByCardId(
 				fuelCardId,
 				cancellationToken,
-				gazpromFuelProductsGroups)
+				GetGazpromFuelProductsGroups())
 				.GetAwaiter()
 				.GetResult();
 		}
 
-		private IEnumerable<string> GazpromFuelProductsGroups =>
-			Entity.FuelType is null
-			? Enumerable.Empty<string>()
-			: _fuelRepository
-				.GetGazpromFuelProductsGroupsByFuelTypeId(UoW, Entity.FuelType.Id)
-				.Select(x => x.GazpromFuelProductGroupId);
+		private IEnumerable<string> GetGazpromFuelProductsGroups()
+		{
+			if(Entity.FuelType is null)
+			{
+				return Enumerable.Empty<string>();
+			}
+
+			var fuelTypesIds = new List<int> { Entity.FuelType.Id };
+			fuelTypesIds.AddRange(Entity.AdditionalFuelTypes.Select(x => x.FuelType.Id));
+
+			var productGroups =
+				_fuelRepository
+				.GetGazpromFuelProductsGroupsByFuelTypeIds(UoW, fuelTypesIds)
+				.Select(x => x.GazpromFuelProductGroupId)
+				.Distinct();
+
+			return productGroups;
+		}
 
 		private FuelCardVersion GetLastFuelCardVersion() =>
 			Entity.FuelCardVersions
@@ -698,6 +722,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool IsNeedToUpdateFuelCardProductRestriction =>
 			(IsFuelCardChanged() && Entity.FuelType != null)
 			|| (IsFuelTypeChanged && IsFuelCardToChangeProductRestrictionAdded)
+			|| (IsAdditionalFuelTypesChanged && IsFuelCardToChangeProductRestrictionAdded)
 			|| (IsDriverCategoryChanged && IsFuelCardToChangeProductRestrictionAdded);
 
 		private bool IsFuelCardChanged()
@@ -719,6 +744,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool IsDriverCategoryChanged =>
 			!(_oldDriverCategory is null && Entity.Driver?.Category is null)
 			&& _oldDriverCategory != Entity.Driver?.Category;
+
+		private bool IsAdditionalFuelTypesChanged => !_oldAdditionalFuelTypes
+			.Select(x => x.FuelType.Id)
+			.OrderBy(x => x)
+			.SequenceEqual(
+				Entity.AdditionalFuelTypes
+				.Select(x => x.FuelType.Id)
+				.OrderBy(x => x)
+			);
 
 		private bool IsFuelCardToChangeProductRestrictionAdded =>
 			Entity.GetCurrentActiveFuelCardVersion() != null
