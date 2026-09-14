@@ -790,8 +790,8 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		/// <summary>
-		/// Признак того, что операция расхода топлива по МЛ относится к другому автомобилю или водителю,
-		/// чем указаны в МЛ сейчас
+		/// Признак того, что операция расхода топлива по МЛ отнесена не на тот автомобиль или того водителя,
+		/// на которых она будет перенесена при следующем <see cref="UpdateFuelOperation"/>
 		/// </summary>
 		/// <returns><c>true</c>, если отличаются</returns>
 		public virtual bool FuelOperationHaveDiscrepancy()
@@ -801,8 +801,13 @@ namespace Vodovoz.Domain.Logistic
 				return false;
 			}
 
-			var carDiff = FuelOutlayedOperation.Car != null && FuelOutlayedOperation.Car.Id != Car.Id;
-			var driverDiff = FuelOutlayedOperation.Driver != null && FuelOutlayedOperation.Driver.Id != Driver.Id;
+			//Расход относится либо на авто компании, либо на водителя, см. UpdateFuelOperation
+			var isCompanyCar = GetCarVersion?.CarOwnType == CarOwnType.Company;
+			var expectedCar = isCompanyCar ? Car : null;
+			var expectedDriver = isCompanyCar ? null : Driver;
+
+			var carDiff = FuelOutlayedOperation.Car?.Id != expectedCar?.Id;
+			var driverDiff = FuelOutlayedOperation.Driver?.Id != expectedDriver?.Id;
 
 			return carDiff || driverDiff;
 		}

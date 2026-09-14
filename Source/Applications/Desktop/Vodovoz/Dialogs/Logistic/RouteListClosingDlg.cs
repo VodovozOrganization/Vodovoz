@@ -1515,12 +1515,6 @@ namespace Vodovoz
 				text.Add("Не указан вид топлива");
 			}
 
-			if(Entity.FuelDocuments.Select(x => x.FuelOperation).Any()) {
-				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp));
-			}
-
-			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)", spentFuel, (decimal)Entity.Car.FuelConsumption));
-
 			var ownFuelDocuments = Entity.FuelDocuments
 				.Where(IsFuelDocumentRelatedToCurrentRouteListCarAndDriver)
 				.ToList();
@@ -1531,13 +1525,27 @@ namespace Vodovoz
 
 			var ownLitersGived = ownFuelDocuments.Sum(x => x.FuelOperation?.LitersGived ?? 0);
 
-			if(ownFuelDocuments.Any()) {
+			if(ownFuelDocuments.Any())
+			{
+				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp - ownLitersGived));
+			}
+
+			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)", spentFuel, (decimal)Entity.Car.FuelConsumption));
+
+			if(ownFuelDocuments.Any())
+			{
 				text.Add(string.Format("Выдано {0:F2} литров", ownLitersGived));
 			}
 
-			foreach(var fuelDocument in otherFuelDocuments) {
+			foreach(var fuelDocument in otherFuelDocuments)
+			{
+				var reason = fuelDocument.Car?.Id != Entity.Car.Id
+					? "на другое авто"
+					: "другому водителю";
+
 				text.Add(string.Format(
-					"Выдано на другое авто: {0:F2} л. — {1}, {2}, водитель {3}",
+					"Выдано {0}: {1:F2} л. - {2}, {3}, водитель {4}",
+					reason,
 					fuelDocument.FuelOperation?.LitersGived ?? 0,
 					fuelDocument.Car?.RegistrationNumber ?? "авто не указано",
 					GetFuelDocumentIssuingDescription(fuelDocument),
@@ -1548,7 +1556,7 @@ namespace Vodovoz
 				text.Add(
 					string.Format(
 						"Текущий остаток топлива {0:F2} л.",
-						balanceBeforeOp + ownLitersGived - spentFuel
+						balanceBeforeOp
 					)
 				);
 			}
