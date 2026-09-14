@@ -105,7 +105,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 					.Where(() => routeListAlias.Id == null
 						|| (carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck
-							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Loader))
+							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Loader
+							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Semitrailer))
 					.And(() => routeListItemAlias.Id == null || routeListItemAlias.Status != RouteListItemStatus.Transfered);
 			}
 

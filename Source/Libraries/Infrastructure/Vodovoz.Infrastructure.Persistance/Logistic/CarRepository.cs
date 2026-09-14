@@ -91,6 +91,8 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		public IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType, IEnumerable<int> excludeCarIds)
 		{
+			var excludedCarTypesOfUse = CarTypeOfUseForExclude();
+
 			var carInsurances =
 				from car in unitOfWork.Session.Query<Car>()
 				join carVersion in unitOfWork.Session.Query<CarVersion>() on car.Id equals carVersion.Car.Id
@@ -98,7 +100,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				where
 					!car.IsArchive
 					&& !excludeCarIds.Contains(car.Id)
-					&& carModel.CarTypeOfUse != CarTypeOfUse.Loader
+					&& !excludedCarTypesOfUse.Contains(carModel.CarTypeOfUse)
 					&& carVersion.StartDate <= DateTime.Now
 					&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
 					&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
@@ -125,6 +127,8 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		public IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId, IEnumerable<int> excludeCarIds)
 		{
+			var excludedCarTypesOfUse = CarTypeOfUseForExclude();
+
 			var carTechInspects =
 				from car in unitOfWork.Session.Query<Car>()
 				join carVersion in unitOfWork.Session.Query<CarVersion>() on car.Id equals carVersion.Car.Id
@@ -132,7 +136,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				where
 					!car.IsArchive
 					&& !excludeCarIds.Contains(car.Id)
-					&& carModel.CarTypeOfUse != CarTypeOfUse.Loader
+					&& !excludedCarTypesOfUse.Contains(carModel.CarTypeOfUse)
 					&& carVersion.StartDate <= DateTime.Now
 					&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
 					&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
@@ -165,6 +169,8 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		public IQueryable<CarTechnicalCheckupNode> GetCarsTechnicalCheckupData(IUnitOfWork unitOfWork, int carTechnicalCheckupEventTypeId, IEnumerable<int> excludeCarIds)
 		{
+			var excludedCarTypesOfUse = CarTypeOfUseForExclude();
+
 			var data =
 				from car in unitOfWork.Session.Query<Car>()
 				join carVersion in unitOfWork.Session.Query<CarVersion>() on car.Id equals carVersion.Car.Id
@@ -172,7 +178,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				where
 					!car.IsArchive
 					&& !excludeCarIds.Contains(car.Id)
-					&& carModel.CarTypeOfUse != CarTypeOfUse.Loader
+					&& !excludedCarTypesOfUse.Contains(carModel.CarTypeOfUse)
 					&& carVersion.StartDate <= DateTime.Now
 					&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
 					&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
@@ -450,5 +456,23 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			unitOfWork.Session.Query<Car>()
 			.Where(c => carsIds.Contains(c.Id))
 			.Distinct();
+
+		public Enum[] CarTypeOfUseForExcludeAsEnum()
+		{
+			return new Enum[]
+			{
+				CarTypeOfUse.Loader,
+				CarTypeOfUse.Semitrailer
+			};
+		}
+
+		public CarTypeOfUse[] CarTypeOfUseForExclude()
+		{
+			return new CarTypeOfUse[]
+			{
+				CarTypeOfUse.Loader,
+				CarTypeOfUse.Semitrailer
+			};
+		}
 	}
 }

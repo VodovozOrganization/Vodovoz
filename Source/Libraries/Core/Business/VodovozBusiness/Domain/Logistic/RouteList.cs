@@ -1626,6 +1626,12 @@ namespace Vodovoz.Domain.Logistic
 					yield return new ValidationResult("Нельзя использовать погрузчик как автомобиль МЛ",
 						new[] { nameof(Car) });
 				}
+
+				if(Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Semitrailer)
+				{
+					yield return new ValidationResult("Нельзя использовать полуприцеп как автомобиль МЛ",
+						new[] { nameof(Car) });
+				}
 			}
 
 			if(MileageComment?.Length > 500)
