@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.6.11716.218
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -8861,6 +8861,7 @@ Global
 		{358B4A01-CC83-429C-B695-F8BB69A2682E}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
 		{358B4A01-CC83-429C-B695-F8BB69A2682E}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{358B4A01-CC83-429C-B695-F8BB69A2682E}.WinDesktop|x86.Build.0 = Debug|Any CPU
+		{358B4A01-CC83-429C-B695-F8BB69A2682E}.LinuxDesktop|Any CPU.Build.0 = Release|Any CPU
 		{9643917A-3BA4-43D6-81AD-332A2948ADB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9643917A-3BA4-43D6-81AD-332A2948ADB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9643917A-3BA4-43D6-81AD-332A2948ADB9}.Debug|x86.ActiveCfg = Debug|Any CPU
