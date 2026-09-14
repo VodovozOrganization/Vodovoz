@@ -905,7 +905,10 @@
                             <BorderWidth />
                             <TextAlign>Right</TextAlign>
                             <VerticalAlign>Top</VerticalAlign>
+                            <PaddingBottom >=Len({expense_advance_desc}) / 6 + "pt"</PaddingBottom>
+                            <PaddingTop >=Len({expense_advance_desc}) / 6 + "pt"</PaddingTop>
                           </Style>
+                          <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                       <ColSpan>5</ColSpan>

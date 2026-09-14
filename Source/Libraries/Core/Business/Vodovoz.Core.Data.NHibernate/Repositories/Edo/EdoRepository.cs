@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Extensions;
@@ -623,6 +624,7 @@ select
 	null as :order_document_type,
 	et.id as :task_id,
 	et.`type` as :task_type,
+	et.document_type as :formal_document_type,
 	et.status as :task_status,
 	document_task_stage as :task_upd_stage,
 	receipt_status as :task_receipt_stage,
@@ -647,6 +649,7 @@ select
 	eir.order_document_type as :order_document_type,
 	et.id as :task_id,
 	et.`type` as :task_type,
+	et.document_type as :formal_document_type,
 	et.status as :task_status,
 	null as :task_upd_stage,
 	null as :task_receipt_stage,
@@ -672,6 +675,7 @@ where eir.order_id = :order_id
 				.Map("order_document_type", x => x.InformalOrderDocumentType, new EnumStringType<OrderDocumentType>())
 				.Map("task_id", x => x.TaskId, NHibernateUtil.Int32)
 				.Map("task_type", x => x.TaskType, new EnumStringType<EdoTaskType>())
+				.Map("formal_document_type", x => x.FormalDocumentType, new EnumStringType<EdoDocumentType>())
 				.Map("task_status", x => x.TaskStatus, new EnumStringType<EdoTaskStatus>())
 				.Map("task_upd_stage", x => x.TaskUpdStage, new EnumStringType<DocumentEdoTaskStage>())
 				.Map("task_receipt_stage", x => x.TaskReceiptStage, new EnumStringType<EdoReceiptStatus>())
@@ -1214,6 +1218,66 @@ where ecr.order_id = :order_id
 					EdoDocumentStatus.Succeed,
 					EdoDocumentStatus.CompletedWithDivergences
 				};
+		}
+
+		public async Task<IList<OrderEdoTask>> GetStaleNewEdoTasks(
+			IUnitOfWork uow,
+			DateTime maxCreationTime,
+			int batchSize,
+			CancellationToken cancellationToken = default)
+		{
+			var documentTasks = await GetStaleNewEdoTasks<DocumentEdoTask>(
+				uow,
+				x => x.Stage == DocumentEdoTaskStage.New && x.DocumentType == EdoDocumentType.UPD,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			var receiptTasks = await GetStaleNewEdoTasks<ReceiptEdoTask>(
+				uow,
+				x => x.ReceiptStatus == EdoReceiptStatus.New,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			var tenderTasks = await GetStaleNewEdoTasks<TenderEdoTask>(
+				uow,
+				x => x.Stage == TenderEdoTaskStage.New,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			var saveCodesTasks = await GetStaleNewEdoTasks<SaveCodesEdoTask>(
+				uow,
+				x => true,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			return documentTasks
+				.Cast<OrderEdoTask>()
+				.Concat(receiptTasks)
+				.Concat(tenderTasks)
+				.Concat(saveCodesTasks)
+				.OrderBy(x => x.CreationTime)
+				.Take(batchSize)
+				.ToList();
+		}
+
+		private static Task<List<TTask>> GetStaleNewEdoTasks<TTask>(
+			IUnitOfWork uow,
+			Expression<Func<TTask, bool>> initialStagePredicate,
+			DateTime maxCreationTime,
+			int batchSize,
+			CancellationToken cancellationToken)
+			where TTask : OrderEdoTask
+		{
+			return uow.Session.Query<TTask>()
+				.Where(x => x.Status == EdoTaskStatus.New && x.CreationTime <= maxCreationTime)
+				.Where(initialStagePredicate)
+				.OrderBy(x => x.CreationTime)
+				.Take(batchSize)
+				.ToListAsync(cancellationToken);
 		}
 	}
 }

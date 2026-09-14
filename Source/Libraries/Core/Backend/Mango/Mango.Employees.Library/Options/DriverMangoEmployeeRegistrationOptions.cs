@@ -36,5 +36,21 @@ namespace Mango.Employees.Library.Options
 		/// Максимальный добавочный номер пула
 		/// </summary>
 		public int ExtensionNumberPoolEnd { get; set; }
+
+		/// <summary>
+		/// Номер, на который переадресуется звонок, если водитель не ответил
+		/// Добавляется вторым средством дозвона в карточку сотрудника ВАТС
+		/// </summary>
+		public string CallForwardingPhoneNumber { get; set; }
+
+		/// <summary>
+		/// Время ожидания ответа на номере водителя в секундах
+		/// </summary>
+		public int PhoneNumberWaitSeconds { get; set; }
+
+		/// <summary>
+		/// Время ожидания ответа на номере переадресации в секундах
+		/// </summary>
+		public int CallForwardingPhoneNumberWaitSeconds { get; set; }
 	}
 }

@@ -87,7 +87,6 @@ namespace DriverAPI.Library
 				.AddDriverApiNotificationsSenders()
 				.AddCoreApplication()
 				.AddInfrastructure()
-				.AddDatabaseSettings()
 				.AddDriverEventsDependencies()
 				.AddFirebaseCloudMessaging(configuration);
 

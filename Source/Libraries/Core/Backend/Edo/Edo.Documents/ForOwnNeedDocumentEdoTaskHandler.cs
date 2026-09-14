@@ -198,6 +198,23 @@ namespace Edo.Documents
 
 			if(!taskValidationResult.IsAllValid)
 			{
+				if(documentEdoTask.Stage == DocumentEdoTaskStage.New)
+				{
+					await _uow.SaveAsync(documentEdoTask, cancellationToken: cancellationToken);
+					await _uow.CommitAsync(cancellationToken);
+					try
+					{
+						await _messageBus.Publish(new DocumentTaskCreatedEvent { Id = documentEdoTask.Id }, cancellationToken);
+					}
+					catch(Exception ex)
+					{
+						// Эту же задачу в статусе Новая подхватит штатный NewEdoTasksResendWorker.
+						_logger.LogError(ex, "Не удалось повторно запустить задачу УПД {TaskId} после проверки кодов. "
+							+ "Задача сохранена на стадии распределения для штатного повторного запуска", documentEdoTask.Id);
+					}
+					return;
+				}
+
 				await _updDocumentBuilder.BuildUpdDocumentAsync(documentEdoTask, cancellationToken);
 				return;
 			}

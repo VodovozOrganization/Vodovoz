@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
@@ -28,5 +29,13 @@ namespace VodovozBusiness.Domain.Orders
 		/// <param name="nomenclatureIds">Список Id номенклатур, находящихся в заказе</param>
 		/// <returns><c>true</c> если заказ содержит товары от нескольких организаций <c>false</c> если от одной</returns>
 		bool OrderHasGoodsFromSeveralOrganizations(IList<int> nomenclatureIds);
+
+		/// <summary>
+		/// Проверка наличия в заказе товаров, продающихся от Кулер Сервис
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="orderItems">Строки заказа</param>
+		/// <returns><c>true</c> если заказ содержит товары сервисной организации, иначе <c>false</c></returns>
+		bool IsOrderContainsKulerServiceGoods(IUnitOfWork uow, IEnumerable<OrderItem> orderItems);
 	}
 }

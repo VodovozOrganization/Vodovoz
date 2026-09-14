@@ -256,11 +256,16 @@ namespace Edo.Docflow
 
 			switch(docflowStatus)
 			{
-				case EdoDocFlowStatus.InProgress:
-					document.Status = EdoDocumentStatus.InProgress;
-					break;
 				case EdoDocFlowStatus.Sent:
 					document.Status = EdoDocumentStatus.Sent;
+
+					if(updatedEvent.DocFlowId.HasValue)
+					{
+						message = OrderDocumentSentEvent.Create(document.Id);
+					}
+					break;
+				case EdoDocFlowStatus.InProgress:
+					document.Status = EdoDocumentStatus.InProgress;
 
 					if(updatedEvent.DocFlowId.HasValue && updatedEvent.IsReceived)
 					{
