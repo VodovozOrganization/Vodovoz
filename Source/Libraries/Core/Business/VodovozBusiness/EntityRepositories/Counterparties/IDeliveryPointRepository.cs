@@ -56,7 +56,16 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// </summary>
 		/// <param name="uow">Единица работы с активной транзакцией.</param>
 		/// <param name="deliveryPointId">Идентификатор точки доставки.</param>
-		void UpdateOrderFrequency(IUnitOfWork uow, int deliveryPointId);
+		/// <returns>Сохранённая частота заказов либо null, если заказов недостаточно.</returns>
+		int? UpdateOrderFrequency(IUnitOfWork uow, int deliveryPointId);
+
+		/// <summary>
+		/// Возвращает количество и последнюю версию заказов с теми же фильтрами, что и расчёт частоты.
+		/// </summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="deliveryPointId">Идентификатор точки доставки.</param>
+		/// <returns>Признаки изменения подходящих заказов.</returns>
+		OrderFrequencyState GetOrderFrequencyState(IUnitOfWork uow, int deliveryPointId);
 
 		/// <summary>
 		/// Адреса точек доставки по их Id

@@ -8,6 +8,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Settings.Database.Fuel;
 using Vodovoz.Settings.Fuel;
 using FuelControl.Library;
+using ResourceLocker.Library;
 
 namespace DatabaseServiceWorker
 {
@@ -21,6 +22,7 @@ namespace DatabaseServiceWorker
 		/// <returns>Коллекция зависимостей.</returns>
 		public static IServiceCollection AddDeliveryPointOrderFrequencyWorker(this IServiceCollection services, HostBuilderContext context) => services
 			.Configure<DeliveryPointOrderFrequencyOptions>(context.Configuration.GetSection(nameof(DeliveryPointOrderFrequencyOptions)))
+			.AddVodovozDesktopGarnetRedisConnection()
 			.AddHostedService<DeliveryPointOrderFrequencyWorker>();
 
 		public static IServiceCollection ConfigureClearFastDeliveryAvailabilityHistoryWorker(this IServiceCollection services, HostBuilderContext context) => services

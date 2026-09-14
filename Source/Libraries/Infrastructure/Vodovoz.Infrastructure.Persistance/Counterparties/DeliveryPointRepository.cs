@@ -123,7 +123,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		}
 
 		/// <inheritdoc />
-		public void UpdateOrderFrequency(IUnitOfWork uow, int deliveryPointId)
+		public int? UpdateOrderFrequency(IUnitOfWork uow, int deliveryPointId)
 		{
 			var frequency = GetOrderFrequency(uow, deliveryPointId, 5);
 			uow.Session.CreateSQLQuery(
@@ -132,6 +132,26 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.SetParameter("frequency", frequency, NHibernateUtil.Int32)
 				.SetInt32("id", deliveryPointId)
 				.ExecuteUpdate();
+			return frequency;
+		}
+
+		/// <inheritdoc />
+		public OrderFrequencyState GetOrderFrequencyState(IUnitOfWork uow, int deliveryPointId)
+			=> uow.Session.SessionFactory.GetClassMetadata(typeof(Order)) != null
+				? GetOrderFrequencyState<Order, RouteListItem>(uow, deliveryPointId)
+				: GetOrderFrequencyState<OrderEntity, RouteListItemEntity>(uow, deliveryPointId);
+
+		private OrderFrequencyState GetOrderFrequencyState<TOrder, TRouteListItem>(IUnitOfWork uow, int deliveryPointId)
+			where TOrder : OrderEntity
+			where TRouteListItem : RouteListItemEntity
+		{
+			OrderFrequencyState stateAlias = null;
+			return GetOrdersForFrequency<TOrder, TRouteListItem>(uow, deliveryPointId)
+				.SelectList(list => list
+					.Select(Projections.RowCountInt64()).WithAlias(() => stateAlias.OrderCount)
+					.SelectMax(order => order.Version).WithAlias(() => stateAlias.LastOrderVersion))
+				.TransformUsing(Transformers.AliasToBean<OrderFrequencyState>())
+				.SingleOrDefault<OrderFrequencyState>();
 		}
 
 		private int? GetOrderFrequency(IUnitOfWork uow, int deliveryPointId, int? countLastOrders)
@@ -161,13 +181,27 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			where TOrder : OrderEntity
 			where TRouteListItem : RouteListItemEntity
 		{
+			var query = GetOrdersForFrequency<TOrder, TRouteListItem>(uow, deliveryPointId)
+				.OrderBy(order => order.DeliveryDate).Desc;
+			if(countLastOrders.HasValue)
+			{
+				query.Take(countLastOrders.Value);
+			}
+
+			return query.Select(order => order.DeliveryDate).List<DateTime>();
+		}
+
+		private IQueryOver<TOrder, TOrder> GetOrdersForFrequency<TOrder, TRouteListItem>(IUnitOfWork uow, int deliveryPointId)
+			where TOrder : OrderEntity
+			where TRouteListItem : RouteListItemEntity
+		{
 			TOrder orderAlias = null;
 
 			var closingDocumentDeliveryScheduleId = _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
 			var validStatuses = OrderEntity.GetOnClosingOrderStatuses;
 
-			var query = uow.Session.QueryOver(() => orderAlias)
+			return uow.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointId)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(validStatuses)
 				.Where(() => orderAlias.DeliveryDate != null)
@@ -181,17 +215,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 								.SetProjection(Projections.Id())
 						)
 					)
-				)
-				.OrderBy(() => orderAlias.DeliveryDate).Desc;
-
-			if(countLastOrders.HasValue)
-			{
-				query.Take(countLastOrders.Value);
-			}
-
-			return query
-				.Select(Projections.Property(() => orderAlias.DeliveryDate))
-				.List<DateTime>();
+				);
 		}
 
 		public IOrderedEnumerable<DeliveryPointCategory> GetActiveDeliveryPointCategories(IUnitOfWork uow)

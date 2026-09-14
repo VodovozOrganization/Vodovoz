@@ -21,5 +21,11 @@ namespace DatabaseServiceWorker.Options
 		/// Пауза между порциями для ограничения нагрузки на базу данных.
 		/// </summary>
 		public TimeSpan BatchDelay { get; set; } = TimeSpan.FromSeconds(1);
+
+		/// <summary>
+		/// Предельный срок хранения результата без пересчёта. Попадания в кэш его не продлевают.
+		/// Обеспечивает перепроверку изменений, не обнаруженных по количеству и последней версии заказов.
+		/// </summary>
+		public TimeSpan CacheLifetime { get; set; } = TimeSpan.FromMinutes(30);
 	}
 }
