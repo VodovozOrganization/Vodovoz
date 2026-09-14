@@ -18,6 +18,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 
 			References(x => x.Order).Column("order_id");
 			References(x => x.Organization).Column("organization_id");
+			References(x => x.WithdrawalEdoTask).Column("withdrawal_edo_task_id").Nullable();
 		}
 	}
 }

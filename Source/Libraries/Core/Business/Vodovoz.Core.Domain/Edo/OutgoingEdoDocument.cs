@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class OutgoingEdoDocument : PropertyChangedBase
+	public class OutgoingEdoDocument : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private DateTime _creationTime;

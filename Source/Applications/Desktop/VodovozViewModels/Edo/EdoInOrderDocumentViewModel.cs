@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using EdoService.Library;
+using Microsoft.Extensions.DependencyInjection;
+using QS.Dialog;
 using QS.ViewModels;
 using QS.ViewModels.Widgets.Pipeline;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
@@ -17,6 +20,8 @@ namespace Vodovoz.ViewModels.Edo
 		private readonly IEnumerable<EdoInOrderTransferNode> _allTransfers;
 		private readonly IEnumerable<EdoInOrderReceiptNode> _allReceipts;
 		private readonly IEnumerable<EdoInOrderTaxcomDocflowNode> _allDocflows;
+		private readonly IEdoService _edoService;
+		private readonly IInteractiveService _interactiveService;
 		private WidgetViewModelBase _stageViewModel;
 
 		public EdoInOrderDocumentViewModel(
@@ -24,16 +29,22 @@ namespace Vodovoz.ViewModels.Edo
 			PipelineViewModel pipelineViewModel,
 			IEnumerable<EdoInOrderTransferNode> allTransfers,
 			IEnumerable<EdoInOrderReceiptNode> allReceipts,
-			IEnumerable<EdoInOrderTaxcomDocflowNode> allDocflows
-			)
+			IEnumerable<EdoInOrderTaxcomDocflowNode> allDocflows,
+			IEdoService edoService,
+			IInteractiveService interactiveService)
 		{
 			_documentViewModel = documentRowViewModel ?? throw new ArgumentNullException(nameof(documentRowViewModel));
 			_pipelineViewModel = pipelineViewModel ?? throw new ArgumentNullException(nameof(pipelineViewModel));
 			_allTransfers = allTransfers ?? throw new ArgumentNullException(nameof(allTransfers));
 			_allReceipts = allReceipts ?? throw new ArgumentNullException(nameof(allReceipts));
 			_allDocflows = allDocflows ?? throw new ArgumentNullException(nameof(allDocflows));
+			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+
 			_pipelineViewModel.PropertyChanged += PipelineOnPropertyChanged;
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
+
+		public ICommand EdoInOrderRefreshCommand { get; set; }
 
 		public virtual WidgetViewModelBase StageViewModel
 		{
@@ -65,11 +76,13 @@ namespace Vodovoz.ViewModels.Edo
 			var isAnyTransfer = transferStages.Any(x => x.Equals(enumStage.Content));
 			if(isAnyTransfer)
 			{
-				var transferStageViewModel = new EdoInOrderTransferStageViewModel(_allDocflows);
-				transferStageViewModel.Transfers = _allTransfers
-					.Where(x => x.OrderTaskId == _documentViewModel.Document.TaskId)
-					.Select(x => new EdoInOrderTransferRowViewModel(x))
-					.ToList();
+				var transferStageViewModel = new EdoInOrderTransferStageViewModel(_allDocflows, _edoService, _interactiveService)
+				{
+					Transfers = _allTransfers
+						.Where(x => x.OrderTaskId == _documentViewModel.Document.TaskId)
+						.Select(x => new EdoInOrderTransferRowViewModel(x))
+						.ToList()
+				};
 				StageViewModel = transferStageViewModel;
 				return;
 			}
@@ -98,7 +111,15 @@ namespace Vodovoz.ViewModels.Edo
 				var docflowsByTask = _allDocflows
 					.Where(x => x.TaskId == _documentViewModel.Document.TaskId)
 					.ToList();
-				var docflowsStageViewModel = new EdoInOrderDocflowsStageViewModel(docflowsByTask);
+
+				var docflowsStageViewModel = new EdoInOrderDocflowsStageViewModel(
+					docflowsByTask,
+					_edoService,
+					_interactiveService)
+				{
+					EdoInOrderRefreshCommand = EdoInOrderRefreshCommand
+				};
+
 				StageViewModel = docflowsStageViewModel;
 				return;
 			}

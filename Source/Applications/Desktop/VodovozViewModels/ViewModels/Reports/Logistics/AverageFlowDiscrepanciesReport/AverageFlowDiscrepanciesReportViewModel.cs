@@ -282,6 +282,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				}
 			).ToList();
 
+			FillCarInfo(events);
+			FillOdometerReadings(events, odometerReadings);
+
 			var eventsGrouped = events.GroupBy(e => e.Car);
 
 			var eventsDict = eventsGrouped.ToDictionary(eg => eg.Key, gdc => gdc.ToList());
@@ -317,9 +320,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 			}
 
 			var resultRows = eventsDict.SelectMany(ed => ed.Value).ToList();
-			FillCarInfo(resultRows);
-
-			FillOdometerReadings(resultRows, odometerReadings);
 
 			return resultRows;
 		}

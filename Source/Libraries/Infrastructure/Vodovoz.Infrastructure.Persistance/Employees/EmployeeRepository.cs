@@ -414,5 +414,27 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 
 			return !hasActiveExtensionNumber.Value && !hasNewRegistrationRequest.Value;
 		}
+
+		public async Task<Employee> GetDriverByOrderId(
+			IUnitOfWork uow,
+			int orderId,
+			CancellationToken cancellationToken)
+		{
+			var routeListItemStatuses =
+				new[] { RouteListItemStatus.EnRoute, RouteListItemStatus.Completed };
+
+			var query =
+				from driver in uow.Session.Query<Employee>()
+				join routeList in uow.Session.Query<RouteList>()
+					on driver.Id equals routeList.Driver.Id
+				join routeListItem in uow.Session.Query<RouteListItem>()
+					on routeList.Id equals routeListItem.RouteList.Id
+				where
+					routeListItem.Order.Id == orderId
+					&& routeListItemStatuses.Contains(routeListItem.Status)
+				select driver;
+
+			return await query.FirstOrDefaultAsync(cancellationToken);
+		}
 	}
 }

@@ -105,6 +105,18 @@
       <Project>{67f08744-55fb-4169-809e-82f7424775f4}</Project>
       <Name>Vodovoz.Core.Domain</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj">
+      <Project>{5D521F22-C232-438D-B547-5D6486754737}</Project>
+      <Name>Vodovoz.Core.Application</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Notifications\CustomerNotifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
+      <Project>{C98A3F81-C25F-F282-46A3-FB51DA0D98E2}</Project>
+      <Name>CustomerNotifications.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj">
+      <Project>{F002AF1D-1958-EF09-F21A-0221E7874DE1}</Project>
+      <Name>Notifications.Infrastructure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj">
       <Project>{E79B382D-7E61-42D7-B14D-CD1247E586C2}</Project>
       <Name>Vodovoz.Settings.Database</Name>

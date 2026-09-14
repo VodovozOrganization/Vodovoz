@@ -17,7 +17,7 @@ namespace TrueMark.Codes.Pool
 			return new TrueMarkCodesPool(_uowFactory.CreateWithoutRoot());
 		}
 
-		public TrueMarkCodesPool Create(IUnitOfWork uow)
+		public virtual ITrueMarkCodesPool Create(IUnitOfWork uow)
 		{
 			return new TrueMarkCodesPool(uow);
 		}

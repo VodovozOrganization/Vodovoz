@@ -44,7 +44,7 @@ namespace Edo.InformalOrderDocuments
 				},
 				configureBus: cfg =>
 				{
-					cfg.AddConsumers(Assembly.GetExecutingAssembly());
+					cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
 				}
 			);
 

@@ -288,7 +288,7 @@ and o.delivery_date >= :delivery_date_from and o.delivery_date <= :delivery_date
 group by o.id, ecr.id
 {havingSql}
 order by o.delivery_date desc
-limit 100
+limit 200
 ";
 
 				var query = uow.Session.CreateSQLQuery(sql)

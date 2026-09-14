@@ -21,7 +21,7 @@ using System.Threading;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Application.FileStorage;
 using QS.Dialog;
-using Vodovoz.Extensions;
+using Core.Infrastructure;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparties
 {

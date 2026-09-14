@@ -1,4 +1,7 @@
-﻿using QS.Commands;
+﻿using EdoService.Library;
+using NLog;
+using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.ViewModels;
 using QS.ViewModels.Widgets.Pipeline;
@@ -8,7 +11,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
-using NLog;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.ViewModels.TrueMark;
@@ -19,6 +21,8 @@ namespace Vodovoz.ViewModels.Edo
 	{
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IEdoRepository _edoRepository;
+		private readonly IEdoService _edoService;
+		private readonly IInteractiveService _interactiveService;
 		private int _orderId;
 		private IUnitOfWork _uow;
 		private bool _loaded;
@@ -37,6 +41,7 @@ namespace Vodovoz.ViewModels.Edo
 		private IEnumerable<EdoInOrderReceiptNode> _allReceipts;
 		private IEnumerable<EdoInOrderTaxcomDocflowNode> _allDocflows;
 		private bool _hasActiveProblems;
+		private string _problemMessage;
 		private string _problemDescription;
 		private string _problemRecommendation;
 		private IList<string> _problemItems;
@@ -44,17 +49,21 @@ namespace Vodovoz.ViewModels.Edo
 		public EdoInOrderViewModel(
 			IEdoRepository edoRepository,
 			EdoInOrderDocumentActionsViewModel edoInOrderDocumentActionsViewModel,
-			OrderCodesViewModel orderCodesViewModel
-			)
+			OrderCodesViewModel orderCodesViewModel,
+			IEdoService edoService,
+			IInteractiveService interactiveService)
 		{
 			_documents = new List<EdoInOrderDocumentHistoryRowViewModel>();
 			_edoRepository = edoRepository ?? throw new System.ArgumentNullException(nameof(edoRepository));
 			EdoInOrderDocumentActionsViewModel = edoInOrderDocumentActionsViewModel ?? throw new ArgumentNullException(nameof(edoInOrderDocumentActionsViewModel));
 			OrderCodesViewModel = orderCodesViewModel ?? throw new ArgumentNullException(nameof(orderCodesViewModel));
 			_allProblems = new List<EdoInOrderProblemNode>();
+			_problems = new List<EdoInOrderProblemViewModel>();
 
 			RefreshCommnand = new DelegateCommand(Refresh);
 			EdoInOrderDocumentActionsViewModel.EdoInOrderRefreshCommand = RefreshCommnand;
+			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 
 		public ICommand RefreshCommnand { get; }
@@ -138,6 +147,12 @@ namespace Vodovoz.ViewModels.Edo
 			set => SetField(ref _hasActiveProblems, value);
 		}
 
+		public virtual string ProblemMessage
+		{
+			get => _problemMessage;
+			set => SetField(ref _problemMessage, value);
+		}
+
 		public virtual string ProblemDescription
 		{
 			get => _problemDescription;
@@ -155,7 +170,6 @@ namespace Vodovoz.ViewModels.Edo
 			get => _problemItems;
 			set => SetField(ref _problemItems, value);
 		}
-
 
 		public virtual void Setup(IUnitOfWork uow, int orderId)
 		{
@@ -300,8 +314,13 @@ namespace Vodovoz.ViewModels.Edo
 				PipelineViewModel,
 				_allTransfers,
 				_allReceipts,
-				_allDocflows
-			);
+				_allDocflows,
+				_edoService,
+				_interactiveService
+			)
+			{
+				EdoInOrderRefreshCommand = RefreshCommnand
+			};
 		}
 
 		private PipelineViewModel CreateStages(EdoInOrderDocumentHistoryRowViewModel historyRow)
@@ -530,6 +549,8 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				HasActiveProblems = false;
 				Problems = new List<EdoInOrderProblemViewModel>();
+				SelectedProblem = null;
+				ShowProblemDetails();
 				return;
 			}
 
@@ -539,6 +560,7 @@ namespace Vodovoz.ViewModels.Edo
 				;
 
 			Problems = new List<EdoInOrderProblemViewModel>(viewModels);
+			SelectedProblem = Problems.FirstOrDefault();
 			if(viewModels.Any(x => x.ProblemNode?.State == TaskProblemState.Active))
 			{
 				HasActiveProblems = true;
@@ -549,12 +571,14 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			if(SelectedProblem == null)
 			{
-				ProblemDescription = null;
-				ProblemRecommendation = null;
+				ProblemMessage = "";
+				ProblemDescription = "";
+				ProblemRecommendation = "";
 				ProblemItems = new List<string>();
 			}
 			else
 			{
+				ProblemMessage = SelectedProblem.Message;
 				ProblemDescription = SelectedProblem.Description;
 				ProblemRecommendation = SelectedProblem.Recomendation;
 				ProblemItems = SelectedProblem.ProblemItems;

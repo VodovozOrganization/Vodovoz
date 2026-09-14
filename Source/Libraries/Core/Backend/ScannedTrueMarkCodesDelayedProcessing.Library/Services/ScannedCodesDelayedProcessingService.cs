@@ -34,6 +34,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly IGenericRepository<RouteListItemEntity> _routeListItemRepository;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
+		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
 
 		public ScannedCodesDelayedProcessingService(
 			ILogger<ScannedCodesDelayedProcessingService> logger,
@@ -44,7 +45,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			IOrderRepository orderRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			IGenericRepository<RouteListItemEntity> routeListItemRepository,
-			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher)
+			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
+			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
 		{
 			_logger =
 				logger ?? throw new System.ArgumentNullException(nameof(logger));
@@ -64,6 +66,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
+			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
+				?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCleanupService));
 		}
 
 		public async Task ProcessScannedCodesAsync(CancellationToken cancellationToken)
@@ -496,6 +500,13 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 						trueMarkAnyCode,
 						productCodeStatus,
 						productCodeProblem);
+
+					if(!isCodeHasDuplicate)
+					{
+						await _trueMarkCodesPoolCleanupService.RemoveTrueMarkAnyCodeFromPoolIfPresentAsync(
+							trueMarkAnyCode,
+							cancellationToken);
+					}
 
 					driversScannedCode.DriversScannedTrueMarkCodeStatus = driversScannedCodeStatus;
 					driversScannedCode.DriversScannedTrueMarkCodeError = driversScannedCodeError;

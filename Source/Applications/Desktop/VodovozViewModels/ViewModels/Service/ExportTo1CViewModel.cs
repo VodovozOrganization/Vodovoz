@@ -1,3 +1,4 @@
+﻿using Core.Infrastructure;
 using ExportTo1c.Library;
 using ExportTo1c.Library.ExportNodes;
 using ExportTo1c.Library.Factories;
@@ -21,7 +22,6 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales.RetailSalesReportFor1c;

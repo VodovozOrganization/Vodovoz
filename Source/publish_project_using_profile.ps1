@@ -206,8 +206,17 @@ $buildOptionNumber = $profiles.Count + 1
 Write-Host "$($buildOptionNumber): Тест сборки в docker контейнере"
 
 do {
-    $selection = Read-Host "Выберите пункт (1-$buildOptionNumber)"
-} while (-not ($selection -as [int]) -or $selection -lt 1 -or $selection -gt $buildOptionNumber)
+    Write-Host "Выберите пункт (1-$buildOptionNumber): " -NoNewline
+    $selection = Read-Host
+    $selectionInt = 0
+    
+    if ([int]::TryParse($selection, [ref]$selectionInt)) {
+        if ($selectionInt -ge 1 -and $selectionInt -le $buildOptionNumber) {
+            break
+        }
+    }
+    Write-Host "Ошибка: Введите число от 1 до $buildOptionNumber" -ForegroundColor Red
+} while ($true)
 
 $selectionInt = [int]$selection
 

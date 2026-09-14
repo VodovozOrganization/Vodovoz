@@ -949,13 +949,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			if(order.PaymentType != PaymentType.Cashless)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.None;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.None, order.PaymentType);
 				return;
 			}
 
 			if(order.Id == 0)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.UnPaid, order.PaymentType);
 				return;
 			}
 
@@ -967,13 +967,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			if(order.PaymentType != PaymentType.Cashless)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.None;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.None, order.PaymentType);
 				return;
 			}
 
 			if(order.Id == 0)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.UnPaid, order.PaymentType);
 				return;
 			}
 
@@ -997,15 +997,15 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			if(isUnpaid)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.UnPaid, order.PaymentType);
 			}
 			else if(isPaid)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
 			}
 			else
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.PartiallyPaid, order.PaymentType);
 			}
 		}
 

@@ -447,6 +447,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.Id == -1);
 			}
 
+			if(FilterViewModel.ExceptIds != null && FilterViewModel.ExceptIds.Any())
+			{
+				query.WhereRestrictionOn(o => o.Id).Not.IsIn(FilterViewModel.ExceptIds);
+			}
+
 			if(FilterViewModel.RestrictStatus != null) {
 				query.Where(o => o.OrderStatus == FilterViewModel.RestrictStatus);
 			}

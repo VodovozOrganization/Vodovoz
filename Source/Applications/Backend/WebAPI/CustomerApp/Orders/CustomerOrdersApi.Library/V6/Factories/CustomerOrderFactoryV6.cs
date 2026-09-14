@@ -17,7 +17,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Settings.Mango;
+using VodovozBusiness.Services.Logistics;
 using DetailedOrderInfoDto = CustomerOrdersApi.Library.V6.Dto.Orders.DetailedOrderInfoDto;
 
 namespace CustomerOrdersApi.Library.V6.Factories
@@ -29,7 +29,7 @@ namespace CustomerOrdersApi.Library.V6.Factories
 		private readonly IOrderRepository _orderRepository;
 		private readonly ICustomerOrderCancellationService _orderCancellationLogicService;
 		private readonly ICustomerOrderTransferService _orderTransferService;
-		private readonly IMangoSettings _mangoSettings;
+		private readonly IDriverContactNumberService _driverContactNumberService;
 		private readonly IOptionsMonitor<CourierCoordinatesOptions> _courierCoordinatesOptions;
 
 		public CustomerOrderFactoryV6(
@@ -38,7 +38,7 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			IOrderRepository orderRepository,
 			ICustomerOrderCancellationService orderCancellationLogicService,
 			ICustomerOrderTransferService orderTransferService,
-			IMangoSettings mangoSettings,
+			IDriverContactNumberService driverContactNumberService,
 			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions
 			)
 		{
@@ -48,7 +48,7 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderCancellationLogicService = orderCancellationLogicService ?? throw new ArgumentNullException(nameof(orderCancellationLogicService));
 			_orderTransferService = orderTransferService ?? throw new ArgumentNullException(nameof(orderTransferService));
-			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
+			_driverContactNumberService = driverContactNumberService ?? throw new ArgumentNullException(nameof(driverContactNumberService));
 			_courierCoordinatesOptions = courierCoordinatesOptions ?? throw new ArgumentNullException(nameof(courierCoordinatesOptions));
 		}
 
@@ -59,7 +59,6 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			OnlineOrderTimers timers,
 			OnlineOrder onlineOrder,
 			DateTime ratingAvailableFrom,
-			DriverMangoExtensionNumber driversMangoExtensionNumber,
 			bool establishedRoute,
 			bool isOrderWasSelectedAsNext,
 			DateTime? driversCoordinatesLastUpdateTime,
@@ -74,11 +73,10 @@ namespace CustomerOrdersApi.Library.V6.Factories
 
 			await UpdateAvailableOperations(uow, orderInfo, order, onlineOrder, cancellationToken);
 
-			if(driversMangoExtensionNumber != null
-				&& driversMangoExtensionNumber.Status == DriverMangoExtensionNumberStatus.Active)
+			if(orderInfo.OrderStatus == ExternalOrderStatus.OrderDelivering)
 			{
 				orderInfo.DriversMangoNumber =
-					_mangoSettings.DriversCallsLineNumber + ",," + driversMangoExtensionNumber.ExtensionNumber;
+					await _driverContactNumberService.GetDriverContactNumberForCustomersApiAsync(uow, order.Id, cancellationToken);
 			}
 
 			return orderInfo;

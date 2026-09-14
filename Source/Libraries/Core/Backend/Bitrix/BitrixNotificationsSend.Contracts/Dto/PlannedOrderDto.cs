@@ -24,7 +24,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// Стадия сделки в битриксе
 		/// </summary>
 		[JsonPropertyName("STAGE_ID")]
-		public string StageId => "NEW";
+		public string StageId { get; set; }
 
 		/// <summary>
 		/// Id сохранённой в базе данных записи о планируемом заказе
@@ -49,7 +49,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// содержит id сохранённых данных о планируемом заказе
 		/// </summary>
 		[JsonIgnore]
-		public string DealCommandKey => $"deal_{PlannedOrderId}";
+		public string DealCommandKey => $"{PlannedOrderDealCommandKeys.CreateCommandKeyPrefix}{PlannedOrderId}";
 
 		/// <summary>
 		/// Наименование контрагента
@@ -110,6 +110,18 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		[JsonPropertyName("UF_CRM_5E006F67E6DAC")]
 		public string LastOrderDeliveryDateString =>
 			LastOrderDeliveryDate.ToString("yyyy-MM-dd");
+
+		/// <summary>
+		/// Номер последнего выполненного заказа
+		/// </summary>
+		[JsonPropertyName("UF_CRM_1580980679082")]
+		public int? LastOrderId { get; set; }
+
+		/// <summary>
+		/// ФИО закрепленного за клиентом менеджера по продажам
+		/// </summary>
+		[JsonPropertyName("UF_CRM_1662373348")]
+		public string SalesManagerName { get; set; }
 
 		/// <summary>
 		/// Дата планируемого заказа

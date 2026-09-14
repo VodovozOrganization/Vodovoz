@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -20,7 +21,6 @@ using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Extensions;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Services;
 using Vodovoz.Services.Fuel;

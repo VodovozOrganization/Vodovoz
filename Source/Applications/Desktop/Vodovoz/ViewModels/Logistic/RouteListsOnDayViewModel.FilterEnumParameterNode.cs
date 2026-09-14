@@ -1,6 +1,6 @@
-﻿using QS.DomainModel.Entity;
+﻿using Core.Infrastructure;
+using QS.DomainModel.Entity;
 using System;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Logistic
 {

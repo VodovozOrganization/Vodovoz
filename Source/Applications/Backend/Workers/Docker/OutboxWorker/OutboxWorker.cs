@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -110,7 +110,8 @@ namespace OutboxWorker
 					if(!messages.Any())
 					{
 						await tx.CommitAsync(token);
-						await Task.Delay(TimeSpan.FromSeconds(_delayBeetweenMessagesInSeconds), token);
+						await _zabbixSender.SendIsHealthyAsync(nameof(OutboxWorker), token);
+						await Task.Delay(TimeSpan.FromSeconds(_delayBeetweenMessagesInSeconds), token);						
 						continue;
 					}
 

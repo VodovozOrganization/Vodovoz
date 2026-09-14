@@ -183,6 +183,53 @@ namespace TrueMark.Codes.Pool
 			return UoW.Session.CreateSQLQuery(sql);
 		}
 
+		public virtual void RemoveCode(int codeId)
+		{
+			GetRemoveCodeQuery(codeId).ExecuteUpdate();
+		}
+
+		public virtual async Task RemoveCodeAsync(int codeId, CancellationToken cancellationToken)
+		{
+			await GetRemoveCodeQuery(codeId).ExecuteUpdateAsync(cancellationToken);
+		}
+
+		public virtual async Task RemoveCodeByGtinAndSerialAsync(string gtin, string serialNumber, CancellationToken cancellationToken)
+		{
+			if(string.IsNullOrWhiteSpace(gtin) || string.IsNullOrWhiteSpace(serialNumber))
+			{
+				return;
+			}
+
+			await GetRemoveCodeByGtinAndSerialQuery(gtin, serialNumber).ExecuteUpdateAsync(cancellationToken);
+		}
+
+		private IQuery GetRemoveCodeQuery(int codeId)
+		{
+			var sql = $@"
+				DELETE FROM {_poolTableName}
+				WHERE code_id = :code_id";
+
+			return UoW.Session.CreateSQLQuery(sql)
+				.SetParameter("code_id", codeId);
+		}
+
+		private IQuery GetRemoveCodeByGtinAndSerialQuery(string gtin, string serialNumber)
+		{
+			var sql = $@"
+				DELETE FROM {_poolTableName}
+				WHERE code_id IN (
+					SELECT tmic.id
+					FROM true_mark_identification_code tmic
+					WHERE tmic.gtin = :gtin
+						AND tmic.serial_number = :serial_number
+						AND tmic.is_invalid = 0
+				)";
+
+			return UoW.Session.CreateSQLQuery(sql)
+				.SetParameter("gtin", gtin)
+				.SetParameter("serial_number", serialNumber);
+		}
+
 		private void SetSessionTimeout(IUnitOfWork uow)
 		{
 			uow.Session.CreateSQLQuery("SET SESSION wait_timeout = 30;").ExecuteUpdate();

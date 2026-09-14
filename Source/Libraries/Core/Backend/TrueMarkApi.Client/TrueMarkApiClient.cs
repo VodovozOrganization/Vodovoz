@@ -103,6 +103,34 @@ namespace TrueMarkApi.Client
 			return documentId;
 		}
 
+		public async Task<string> SendIndividualAccountingWithdrawalCancellationDocument(
+			Guid withdrawalDocumentId,
+			string inn,
+			CancellationToken cancellationToken)
+		{
+			var document = new IndividualAccountingWithdrawalCancellationDocumentDto
+			{
+				Inn = inn,
+				LkReceiptId = withdrawalDocumentId.ToString()
+			};
+
+			var sendDocumentRequest = new
+			{
+				Document = JsonSerializer.Serialize(document),
+				Inn = inn
+			};
+
+			var content = JsonSerializer.Serialize(sendDocumentRequest);
+			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+
+			var response = await _httpClient.PostAsync("api/SendIndividualAccountingWithdrawalCancellationDocument", httpContent, cancellationToken);
+			response.EnsureSuccessStatusCode();
+
+			var documentId = await response.Content.ReadAsStringAsync();
+
+			return documentId;
+		}
+
 		public async Task<TrueMarkDocumentInfo> GetDocumentInfo(Guid documentId, string inn, CancellationToken cancellationToken)
 		{
 			var urlWithParams = $"api/GetDocumentInfo?documentId={documentId}&inn={inn}";
@@ -123,7 +151,7 @@ namespace TrueMarkApi.Client
 				return new TrueMarkDocumentInfo
 				{
 					DocumentId = documentId,
-					Status = TrueMarkDocumentStatus.Error,
+					Status = TrueMarkDocumentStatus.Pending,
 					ErrorMessage = $"Error retrieving document info. Message: {response.ReasonPhrase} Status code: {response.StatusCode}"
 				};
 			}
@@ -136,21 +164,29 @@ namespace TrueMarkApi.Client
 				return new TrueMarkDocumentInfo
 				{
 					DocumentId = documentId,
-					Status = TrueMarkDocumentStatus.Error,
+					Status = TrueMarkDocumentStatus.Pending,
 					ErrorMessage = "Error deserializing document info response"
 				};
 			}
-			
+
+			var trueMarkStatus = createdDocumentInfo.Status?.ToUpperInvariant();
+			var hasProcessingError = createdDocumentInfo.HasErrors
+				|| trueMarkStatus == "CHECKED_NOT_OK"
+				|| trueMarkStatus == "PROCESSING_ERROR"
+				|| trueMarkStatus == "PARSE_ERROR";
+
 			return new TrueMarkDocumentInfo
 			{
 				DocumentId = documentId,
-				Status =
-					createdDocumentInfo.HasErrors
+				Status = hasProcessingError
 					? TrueMarkDocumentStatus.Error
-					: TrueMarkDocumentStatus.Ok,
-				ErrorMessage =
-					createdDocumentInfo.HasErrors
-					? string.Join("; ", createdDocumentInfo.Errors)
+					: trueMarkStatus == "CHECKED_OK"
+						? TrueMarkDocumentStatus.Ok
+						: TrueMarkDocumentStatus.Pending,
+				ErrorMessage = hasProcessingError
+					? createdDocumentInfo.HasErrors
+						? string.Join("; ", createdDocumentInfo.Errors)
+						: $"Document processing completed with status {createdDocumentInfo.Status}"
 					: null
 			};
 		}

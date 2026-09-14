@@ -1,7 +1,10 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
+using Taxcom.Docflow.Utility;
 using TaxcomEdo.Client.Configs;
+using Vodovoz.Settings.Database.Edo;
+using Vodovoz.Settings.Edo;
 
 namespace TaxcomEdo.Client
 {
@@ -23,6 +26,18 @@ namespace TaxcomEdo.Client
 				{
 					PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 				});
+		}
+
+		public static IServiceCollection AddTaxcomApiClientFactory(this IServiceCollection services)
+		{
+			services.AddScoped<IEdoSettings, EdoSettings>();
+			services.AddScoped<ITaxcomApiFactory, TaxcomApiFactory>();
+			services.AddScoped(sp => new JsonSerializerOptions
+			{
+				PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+			});
+
+			return services;
 		}
 	}
 }

@@ -61,12 +61,14 @@ namespace Edo.Problem.Routine.Worker
 					services
 						.AddHostedService<CodePoolMissingProblemWorker>();
 
-					/*services
-						.AddHostedService<CodeDuplicatedProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(CodeDuplicatedProblemWorker));*/
-
+					services
+						.AddHostedService<CodeDuplicatedProblemWorker>();
+					
 					services
 						.AddHostedService<ReceiptContactProblemWorker>();
+					
+					services
+						.AddHostedService<NewEdoTasksResendWorker>();
 				});
 	}
 }

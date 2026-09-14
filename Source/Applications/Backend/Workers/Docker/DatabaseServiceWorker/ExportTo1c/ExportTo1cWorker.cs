@@ -1,4 +1,5 @@
-﻿using DatabaseServiceWorker.Options;
+﻿using Core.Infrastructure;
+using DatabaseServiceWorker.Options;
 using ExportTo1c.Library.Factories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,7 +15,6 @@ using System.Xml;
 using System.Xml.Linq;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Zabbix.Sender;

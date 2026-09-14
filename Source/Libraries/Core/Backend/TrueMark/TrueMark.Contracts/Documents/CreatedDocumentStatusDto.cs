@@ -15,7 +15,13 @@ namespace TrueMark.Contracts.Documents
 		public string Number {  get; set; }
 
 		/// <summary>
-		/// Ошибки при создании документа. Если список пустой, значит документ был успешно создан
+		/// Статус обработки документа в Честном знаке
+		/// </summary>
+		[JsonPropertyName("status")]
+		public string Status { get; set; }
+
+		/// <summary>
+		/// Ошибки обработки документа. Финальный результат определяется по <see cref="Status"/>.
 		/// </summary>
 		[JsonPropertyName("errors")]
 		public IList<string> Errors { get; set; }

@@ -1,7 +1,7 @@
 ﻿using ClosedXML.Excel;
+using Core.Infrastructure;
 using System.Collections.Generic;
 using System.Drawing;
-using Vodovoz.Extensions;
 using VodovozBusiness.EntityRepositories.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Cars

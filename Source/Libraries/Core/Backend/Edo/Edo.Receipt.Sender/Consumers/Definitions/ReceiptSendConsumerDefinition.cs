@@ -19,8 +19,8 @@ namespace Edo.Receipt.Sender.Consumers.Definitions
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
-
 				rmq.Bind<ReceiptReadyToSendEvent>();
+				rmq.DiscardFaultedMessages();
 			}
 		}
 	}

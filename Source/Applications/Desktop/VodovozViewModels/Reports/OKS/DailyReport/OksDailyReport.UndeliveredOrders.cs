@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Core.Infrastructure;
 using DateTimeHelpers;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,6 @@ using System.Drawing;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Reports.OKS.DailyReport
 {

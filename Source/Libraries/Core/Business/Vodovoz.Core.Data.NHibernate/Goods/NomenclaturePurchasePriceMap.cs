@@ -9,12 +9,22 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 		{
 			Table("nomenclature_purchase_prices");
 
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			Map(x => x.StartDate).Column("start_date");
-			Map(x => x.EndDate).Column("end_date");
-			Map(x => x.PurchasePrice).Column("purchase_price");
+			Id(x => x.Id)
+				.Column("id")
+				.GeneratedBy.Native();
 
-			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
+			Map(x => x.StartDate)
+				.Column("start_date");
+
+			Map(x => x.EndDate)
+				.Column("end_date");
+
+			Map(x => x.PurchasePrice)
+				.Column("purchase_price");
+
+			References(x => x.Nomenclature)
+				.Column("nomenclature_id")
+				.Not.Nullable();
 		}
 	}
 }

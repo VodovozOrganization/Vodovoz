@@ -33,5 +33,25 @@ namespace BitrixNotificationsSend.Library.Services.Batches
 			Func<IReadOnlyList<TItem>, CancellationToken, Task<Result<BitrixBatchResult>>> sendBatch,
 			Func<IReadOnlyList<TItem>, CancellationToken, Task> onBatchItemsSucceeded,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Отправка элементов пакетами с передачей идентификаторов сущностей, созданных успешными командами.
+		/// </summary>
+		/// <typeparam name="TItem">Тип элемента, отправляемого командой пакета</typeparam>
+		/// <param name="items">Элементы для отправки</param>
+		/// <param name="commandKeySelector">Селектор ключа команды пакетного запроса для элемента</param>
+		/// <param name="sendBatch">Отправка одного пакета элементов через клиент пакетных запросов</param>
+		/// <param name="onBatchItemsSucceeded">
+		/// Обработка элементов пакета, команды по которым выполнены успешно,
+		/// с идентификаторами созданных в Битрикс24 сущностей.
+		/// </param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат отправки серии пакетов</returns>
+		Task<BatchesSendResult<TItem>> SendAll<TItem>(
+			IReadOnlyList<TItem> items,
+			Func<TItem, string> commandKeySelector,
+			Func<IReadOnlyList<TItem>, CancellationToken, Task<Result<BitrixBatchResult>>> sendBatch,
+			Func<IReadOnlyList<TItem>, IDictionary<string, long>, CancellationToken, Task> onBatchItemsSucceeded,
+			CancellationToken cancellationToken);
 	}
 }

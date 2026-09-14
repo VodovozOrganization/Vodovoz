@@ -1,4 +1,5 @@
-﻿using QS.Dialog;
+﻿using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -18,6 +19,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IInteractiveQuestion _interactive;
+		private readonly IInteractiveMessage _interactiveMessage;
 		private readonly IUnitOfWork _uow;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 		
@@ -25,13 +27,19 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			ITdiCompatibilityNavigation navigation, 
 			IInteractiveQuestion interactive,
+			IInteractiveMessage interactiveMessage,
 			MangoManager manager) : base(navigation, manager)
 		{
 			_tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
+			_interactiveMessage = interactiveMessage ?? throw new ArgumentNullException(nameof(interactiveMessage));
 			_uow = (unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory)))
 				.CreateWithoutRoot();
+
+			ForwardCallToDriverCommand = new DelegateCommand(ForwardCallToDriver, () => false);
 		}
+
+		public DelegateCommand ForwardCallToDriverCommand { get; }
 
 		#region Действия View
 
@@ -93,6 +101,15 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		public void CostAndDeliveryIntervalCommand()
 		{
 			_tdiNavigation.OpenTdiTab<DeliveryPriceDlg>(null);
+		}
+
+		/// <summary>
+		/// Перевод звонка на водителя. Номер не привязан к контрагенту,
+		/// поэтому заказ для перевода определить невозможно
+		/// </summary>
+		public void ForwardCallToDriver()
+		{
+			_interactiveMessage.ShowMessage(ImportanceLevel.Warning, DriverCallForwardingMessages.CounterpartyNotFound);
 		}
 
 		public void Dispose()

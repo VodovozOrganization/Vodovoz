@@ -15,8 +15,12 @@ namespace Vodovoz.Infrastructure.Persistance.Mango
 	{
 		public async Task<IReadOnlyCollection<int>> GetUsedExtensionNumbersAsync(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
+			var currentYearStartDate = new DateTime(DateTime.Now.Year, 1, 1);
+
 			var numbers = await uow.Session.Query<DriverMangoExtensionNumber>()
-				.Where(x => x.ExtensionNumber != null && x.Status == DriverMangoExtensionNumberStatus.Active)
+				.Where(x =>
+					x.ExtensionNumber != null
+					&& (x.Status == DriverMangoExtensionNumberStatus.Active || x.ActivatedAt >= currentYearStartDate))
 				.Select(x => x.ExtensionNumber)
 				.ToListAsync(cancellationToken);
 

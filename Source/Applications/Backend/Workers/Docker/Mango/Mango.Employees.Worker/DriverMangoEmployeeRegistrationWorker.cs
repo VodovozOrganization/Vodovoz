@@ -51,9 +51,11 @@ namespace Mango.Employees.Worker
 			{
 				var mangoSettings = scope.ServiceProvider.GetRequiredService<IMangoSettings>();
 
-				if(!mangoSettings.DriverMangoEmployeeRegistrationWorkerEnabled)
+				if(!mangoSettings.IsDriverMangoEmployeeRegistrationActive)
 				{
-					_logger.LogInformation("Работа воркера регистрации сотрудников Манго отключена в настройках");
+					_logger.LogInformation(
+						"Сервис создания карточек сотрудников Манго отключён "
+						+ "либо ещё не наступили следующие сутки после его включения");
 
 					await _zabbixSender.SendIsHealthyAsync(nameof(DriverMangoEmployeeRegistrationWorker), stoppingToken);
 

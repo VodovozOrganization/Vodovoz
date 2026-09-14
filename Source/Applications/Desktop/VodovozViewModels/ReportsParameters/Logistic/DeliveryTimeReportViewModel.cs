@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using Core.Infrastructure;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -7,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Logistic
 {

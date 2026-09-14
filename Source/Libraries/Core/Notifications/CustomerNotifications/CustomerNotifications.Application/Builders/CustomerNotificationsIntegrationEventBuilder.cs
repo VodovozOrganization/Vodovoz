@@ -1,4 +1,5 @@
-﻿using CustomerNotifications.Application.Providers;
+﻿using Core.Infrastructure;
+using CustomerNotifications.Application.Providers;
 using CustomerNotifications.Application.Templates;
 using CustomerNotifications.Contracts;
 using QS.DomainModel.UoW;
@@ -13,7 +14,6 @@ using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Extensions;
 using VodovozBusiness.Extensions;
 
 namespace CustomerNotifications.Application.Builders

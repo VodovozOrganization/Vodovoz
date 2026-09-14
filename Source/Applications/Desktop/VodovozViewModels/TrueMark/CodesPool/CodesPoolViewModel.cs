@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 		private readonly TrueMarkCodePoolLoader _codePoolLoader;
 		private readonly ITrueMarkCodesPoolManager _trueMarkCodesPoolManager;
 		private readonly IEdoRepository _edoRepository;
-		private readonly CodePoolMissingProblemService _codePoolMissingProblemService;
+		private readonly ICodePoolMissingProblemService _codePoolMissingProblemService;
 
 		private IEnumerable<CodesPoolDataNode> _codesPoolData = new List<CodesPoolDataNode>();
 		private bool _isDataRefreshInProgress;
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			TrueMarkCodePoolLoader codePoolLoader,
 			ITrueMarkCodesPoolManager trueMarkCodesPoolManager,
 			IEdoRepository edoRepository,
-			CodePoolMissingProblemService codePoolMissingProblemService
+			ICodePoolMissingProblemService codePoolMissingProblemService
 			)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{

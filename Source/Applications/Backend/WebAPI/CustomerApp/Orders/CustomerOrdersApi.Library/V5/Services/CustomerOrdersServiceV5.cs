@@ -194,9 +194,6 @@ namespace CustomerOrdersApi.Library.V5.Services
 						uow,
 						x => x.Order.Id == order.Id)
 					.FirstOrDefault();
-
-				var driversMangoExtensionNumber =
-					await _orderRepository.GetDriversMangoExtensionNumberByOrderId(uow, order.Id, cancellationToken);
 			
 				return await _customerOrderFactory.CreateDetailedOrderInfo(
 					uow,
@@ -205,7 +202,6 @@ namespace CustomerOrdersApi.Library.V5.Services
 					timers,
 					onlineOrder,
 					ratingAvailableFrom,
-					driversMangoExtensionNumber,
 					cancellationToken
 				);
 			}

@@ -30,6 +30,15 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.BottlesDebtByCounterparty).Column("bottles_debt_by_counterparty");
 			Map(x => x.DelayDaysForCounterparty).Column("delay_days_for_counterparty");
 			Map(x => x.DebtorDebt).Column("debtor_debt");
+			Map(x => x.LastOrderId).Column("last_order_id");
+			Map(x => x.SalesManagerId).Column("sales_manager_id");
+			Map(x => x.SalesManagerName).Column("sales_manager_name");
+			Map(x => x.BitrixDealId).Column("bitrix_deal_id");
+			Map(x => x.CreatedOrderId).Column("created_order_id");
+			Map(x => x.CreatedOrderDeliveryDate).Column("created_order_delivery_date");
+			Map(x => x.LastUpdateDate).Column("last_update_date");
+			Map(x => x.LastSynchronizedDate).Column("last_synchronized_date");
+			Map(x => x.LastError).Column("last_error");
 		}
 	}
 }

@@ -19,5 +19,21 @@ namespace Vodovoz.Core.Domain.Permissions
 			Name = "Работа со справочником настроек ЭДО-уведомлений",
 			Description = "Пользователь имеет доступ к справочнику настроек ЭДО-уведомлений")]
 		public static string CanChangeEdoNotificationSettings => "CanChangeEdoNotificationSettings";
+
+		/// <summary>
+		/// Пользователь может переотправлять документы ЭДО с подбором новых кодов ЧЗ из пула.
+		/// </summary>
+		[Display(
+			Name = "Переотправка документов ЭДО с кодами ЧЗ из пула",
+			Description = "Пользователь может переотправлять документы ЭДО с подбором новых кодов ЧЗ из пула")]
+		public static string CanResendEdoDocumentWithCodesFromPool => nameof(CanResendEdoDocumentWithCodesFromPool);
+
+		/// <summary>
+		/// Пользователь может переотправлять действующий УПД с аннулированием текущего документооборота.
+		/// </summary>
+		[Display(
+			Name = "Переотправка действующего УПД с аннулированием",
+			Description = "Пользователь может переотправить УПД в статусе «В процессе» или «Отправлен» с аннулированием текущего документооборота")]
+		public static string CanResendEdoDocumentWithCancellation => nameof(CanResendEdoDocumentWithCancellation);
 	}
 }

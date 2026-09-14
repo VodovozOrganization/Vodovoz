@@ -75,6 +75,7 @@ namespace TrueMarkCodePoolCheckWorker
 
 						.AddHostedService<CodePoolCheckWorker>()
 						.AddHostedService<ExpiredCodesCleanerWorker>()
+						.AddHostedService<UsedCodesCleanerWorker>()
 						.AddTrueMarkApiClient()
 						;
 

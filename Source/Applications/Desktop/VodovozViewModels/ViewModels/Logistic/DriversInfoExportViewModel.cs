@@ -379,70 +379,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				#region Bottles & Equipments Calculation
 
-				var vol19LActualCount = firstNode.RouteListStatus == RouteListStatus.Closed
-					? (int)groupNode.Where(x =>
-							x.RouteListItemStatus == RouteListItemStatus.Completed
-							&& x.NomenclatureCategory == NomenclatureCategory.water
-							&& x.NomecnaltureTareVolume == TareVolume.Vol19L)
-						.Sum(x => x.OrderItemsActualCount ?? 0)
-					: 0;
-				node.Vol19LBottlesActualCount = vol19LActualCount == 0 ? "" : vol19LActualCount.ToString();
+				node.Vol19LBottlesActualCount = GetWaterActualCountString(groupNode, TareVolume.Vol19L);
+				node.Vol19LBottlesCount = GetWaterPlannedCountString(groupNode, TareVolume.Vol19L);
 
-				var vol19LCount = (int)groupNode.Where(x =>
-						x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol19L)
-					.Sum(x => x.OrderItemsCount);
-				node.Vol19LBottlesCount = vol19LCount == 0 ? "" : vol19LCount.ToString();
+				node.Vol6LBottlesActualCount = GetWaterActualCountString(groupNode, TareVolume.Vol6L);
+				node.Vol6LBottlesCount = GetWaterPlannedCountString(groupNode, TareVolume.Vol6L);
 
-				var vol6LActualCount = firstNode.RouteListStatus == RouteListStatus.Closed
-					? (int)groupNode.Where(x =>
-							x.RouteListItemStatus == RouteListItemStatus.Completed
-							&& x.NomenclatureCategory == NomenclatureCategory.water
-							&& x.NomecnaltureTareVolume == TareVolume.Vol6L)
-						.Sum(x => x.OrderItemsActualCount ?? 0)
-					: 0;
-				node.Vol6LBottlesActualCount = vol6LActualCount == 0 ? "" : vol6LActualCount.ToString();
+				node.Vol1500MlBottlesActualCount = GetWaterActualCountString(groupNode, TareVolume.Vol1500ml);
+				node.Vol1500MlBottlesCount = GetWaterPlannedCountString(groupNode, TareVolume.Vol1500ml);
 
-				var vol6LCount = (int)groupNode
-					.Where(x =>
-						x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol6L)
-					.Sum(x => x.OrderItemsCount);
-				node.Vol6LBottlesCount = vol6LCount == 0 ? "" : vol6LCount.ToString();
+				node.Vol600MlBottlesActualCount = GetWaterActualCountString(groupNode, TareVolume.Vol600ml);
+				node.Vol600MlBottlesCount = GetWaterPlannedCountString(groupNode, TareVolume.Vol600ml);
 
-				var vol1500MlActualCount = firstNode.RouteListStatus == RouteListStatus.Closed
-					? (int)groupNode
-						.Where(x =>
-							x.RouteListItemStatus == RouteListItemStatus.Completed
-							&& x.NomenclatureCategory == NomenclatureCategory.water
-							&& x.NomecnaltureTareVolume == TareVolume.Vol1500ml)
-						.Sum(x => x.OrderItemsActualCount ?? 0)
-					: 0;
-				node.Vol1500MlBottlesActualCount = vol1500MlActualCount == 0 ? "" : vol1500MlActualCount.ToString();
-
-				var vol1500MlCount = (int)groupNode
-					.Where(x =>
-						x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol1500ml)
-					.Sum(x => x.OrderItemsCount);
-				node.Vol1500MlBottlesCount = vol1500MlCount == 0 ? "" : vol1500MlCount.ToString();
-
-				var vol600MlActualCount = firstNode.RouteListStatus == RouteListStatus.Closed
-					? (int)groupNode
-						.Where(x =>
-							x.RouteListItemStatus == RouteListItemStatus.Completed
-							&& x.NomenclatureCategory == NomenclatureCategory.water
-							&& x.NomecnaltureTareVolume == TareVolume.Vol600ml)
-						.Sum(x => x.OrderItemsActualCount ?? 0)
-					: 0;
-				node.Vol600MlBottlesActualCount = vol600MlActualCount == 0 ? "" : vol600MlActualCount.ToString();
-
-				var vol600MlCount = (int)groupNode
-					.Where(x =>
-						x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol600ml)
-					.Sum(x => x.OrderItemsCount);
-				node.Vol600MlBottlesCount = vol600MlCount == 0 ? "" : vol600MlCount.ToString();
+				node.Vol500MlBottlesActualCount = GetWaterActualCountString(groupNode, TareVolume.Vol500ml);
+				node.Vol500MlBottlesCount = GetWaterPlannedCountString(groupNode, TareVolume.Vol500ml);
 
 				var equipmentActualCount = firstNode.RouteListStatus == RouteListStatus.Closed
 					? (int)groupNode.Where(x =>
@@ -635,69 +585,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				#region Bottles & Equipments Calculation
 
-				var vol19LActualCount = (int)groupNode
-					.Where(x => 
-						x.RouteListStatus == RouteListStatus.Closed
-						&& x.RouteListItemStatus == RouteListItemStatus.Completed
-						&& x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol19L)
-					.Sum(x => x.OrderItemsActualCount ?? 0);
-				node.Vol19LBottlesActualCount = vol19LActualCount == 0 ? "" : vol19LActualCount.ToString();
+				node.Vol19LBottlesActualCount = GetWaterActualCountString(groupNode, TareVolume.Vol19L);
+				node.Vol19LBottlesCount = GetWaterPlannedCountString(groupNode, TareVolume.Vol19L);
 
-				var vol19LCount = (int)groupNode
-					.Where(x =>
-						x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol19L)
-					.Sum(x => x.OrderItemsCount);
-				node.Vol19LBottlesCount = vol19LCount == 0 ? "" : vol19LCount.ToString();
+				node.Vol6LBottlesActualCount = GetWaterActualCountString(groupNode, TareVolume.Vol6L);
+				node.Vol6LBottlesCount = GetWaterPlannedCountString(groupNode, TareVolume.Vol6L);
 
-				var vol6LActualCount = (int)groupNode
-					.Where(x =>
-						x.RouteListStatus == RouteListStatus.Closed
-						&& x.RouteListItemStatus == RouteListItemStatus.Completed
-						&& x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol6L)
-					.Sum(x => x.OrderItemsActualCount ?? 0);
-				node.Vol6LBottlesActualCount = vol6LActualCount == 0 ? "" : vol6LActualCount.ToString();
+				node.Vol1500MlBottlesActualCount = GetWaterActualCountString(groupNode, TareVolume.Vol1500ml);
+				node.Vol1500MlBottlesCount = GetWaterPlannedCountString(groupNode, TareVolume.Vol1500ml);
 
-				var vol6LCount = (int)groupNode
-					.Where(x =>
-						x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol6L)
-					.Sum(x => x.OrderItemsCount);
-				node.Vol6LBottlesCount = vol6LCount == 0 ? "" : vol6LCount.ToString();
+				node.Vol600MlBottlesActualCount = GetWaterActualCountString(groupNode, TareVolume.Vol600ml);
+				node.Vol600MlBottlesCount = GetWaterPlannedCountString(groupNode, TareVolume.Vol600ml);
 
-				var vol1500MlActualCount = (int)groupNode
-					.Where(x =>
-						x.RouteListStatus == RouteListStatus.Closed
-						&& x.RouteListItemStatus == RouteListItemStatus.Completed
-						&& x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol1500ml)
-					.Sum(x => x.OrderItemsActualCount ?? 0);
-				node.Vol1500MlBottlesActualCount = vol1500MlActualCount == 0 ? "" : vol1500MlActualCount.ToString();
-
-				var vol1500MlCount = (int)groupNode
-					.Where(x =>
-						x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol1500ml)
-					.Sum(x => x.OrderItemsCount);
-				node.Vol1500MlBottlesCount = vol1500MlCount == 0 ? "" : vol1500MlCount.ToString();
-
-				var vol600MlActualCount = (int)groupNode
-					.Where(x =>
-						x.RouteListStatus == RouteListStatus.Closed
-						&& x.RouteListItemStatus == RouteListItemStatus.Completed
-						&& x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol600ml)
-					.Sum(x => x.OrderItemsActualCount ?? 0);
-				node.Vol600MlBottlesActualCount = vol600MlActualCount == 0 ? "" : vol600MlActualCount.ToString();
-
-				var vol600MlCount = (int)groupNode
-					.Where(x =>
-						x.NomenclatureCategory == NomenclatureCategory.water
-						&& x.NomecnaltureTareVolume == TareVolume.Vol600ml)
-					.Sum(x => x.OrderItemsCount);
-				node.Vol600MlBottlesCount = vol600MlCount == 0 ? "" : vol600MlCount.ToString();
+				node.Vol500MlBottlesActualCount = GetWaterActualCountString(groupNode, TareVolume.Vol500ml);
+				node.Vol500MlBottlesCount = GetWaterPlannedCountString(groupNode, TareVolume.Vol500ml);
 
 				var equipmentActualCount = (int)groupNode
 					.Where(x =>
@@ -852,6 +753,43 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return driverInfoNodes.OrderBy(x => x.DriverId).ThenBy(x => x.RouteListDate).ToList();
 		}
 
+		/// <summary>
+		/// Фактическое кол-во бутылей указанного объёма тары.
+		/// Считается только по доставленным адресам закрытых МЛ
+		/// </summary>
+		/// <param name="nodes">Данные о водителях</param>
+		/// <param name="tareVolume">Объём тары</param>
+		/// <returns>Строка с фактическим количеством бутылей</returns>
+		private static string GetWaterActualCountString(IEnumerable<DriverInfoNode> nodes, TareVolume tareVolume)
+		{
+			var actualCount = (int)nodes
+				.Where(x =>
+					x.RouteListStatus == RouteListStatus.Closed
+					&& x.RouteListItemStatus == RouteListItemStatus.Completed
+					&& x.NomenclatureCategory == NomenclatureCategory.water
+					&& x.NomecnaltureTareVolume == tareVolume)
+				.Sum(x => x.OrderItemsActualCount ?? 0);
+
+			return actualCount == 0 ? "" : actualCount.ToString();
+		}
+
+		/// <summary>
+		/// Планируемое кол-во бутылей указанного объёма тары
+		/// </summary>
+		/// <param name="nodes">Данные о водителях</param>
+		/// <param name="tareVolume">Объём тары</param>
+		/// <returns>Строка с планируемым количеством бутылей</returns>
+		private static string GetWaterPlannedCountString(IEnumerable<DriverInfoNode> nodes, TareVolume tareVolume)
+		{
+			var plannedCount = (int)nodes
+				.Where(x =>
+					x.NomenclatureCategory == NomenclatureCategory.water
+					&& x.NomecnaltureTareVolume == tareVolume)
+				.Sum(x => x.OrderItemsCount);
+
+			return plannedCount == 0 ? "" : plannedCount.ToString();
+		}
+
 		private void SubscribeOnItemsListChanges()
 		{
 			Items.ElementAdded += (list, idx) => { OnPropertyChanged(nameof(CanExport)); };
@@ -922,6 +860,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(isFact)
 			{
 				sb.Append("0.6л факт;");
+			}
+
+			if(isPlan)
+			{
+				sb.Append("0.5л план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("0.5л факт;");
 			}
 
 			if(isPlan)
@@ -1001,6 +949,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				if(isFact)
 				{
 					lines.Add(item.Vol600MlBottlesActualCount);
+				}
+
+				if(isPlan)
+				{
+					lines.Add(item.Vol500MlBottlesCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.Vol500MlBottlesActualCount);
 				}
 
 				if(isPlan)
@@ -1089,6 +1047,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(isPlan)
 			{
+				sb.Append("0.5л план;");
+			}
+
+			if(isFact)
+			{
+				sb.Append("0.5л факт;");
+			}
+
+			if(isPlan)
+			{
 				sb.Append("обор. план;");
 			}
 
@@ -1162,6 +1130,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				if(isFact)
 				{
 					lines.Add(item.Vol600MlBottlesActualCount);
+				}
+
+				if(isPlan)
+				{
+					lines.Add(item.Vol500MlBottlesCount);
+				}
+
+				if(isFact)
+				{
+					lines.Add(item.Vol500MlBottlesActualCount);
 				}
 
 				if(isPlan)
@@ -1306,6 +1284,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public string Vol600MlBottlesCount { get; set; }
 		public string Vol600MlBottlesActualCount { get; set; }
+
+		public string Vol500MlBottlesCount { get; set; }
+		public string Vol500MlBottlesActualCount { get; set; }
 
 		public string EquipmentCount { get; set; }
 		public string EquipmentActualCount { get; set; }

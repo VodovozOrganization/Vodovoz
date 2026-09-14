@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -13,8 +13,8 @@ namespace Vodovoz.EntityRepositories.Mango
 	public interface IDriverMangoExtensionNumberRepository
 	{
 		/// <summary>
-		/// Возвращает все занятые добавочные номера (любого статуса).
-		/// Деактивированные номера не переиспользуются, поэтому учитываются тоже
+		/// Возвращает недоступные добавочные номера
+		/// Номера считаются недоступными, если они активны у водителей, либо уже были использованы в текущем году
 		/// </summary>
 		Task<IReadOnlyCollection<int>> GetUsedExtensionNumbersAsync(IUnitOfWork uow, CancellationToken cancellationToken);
 

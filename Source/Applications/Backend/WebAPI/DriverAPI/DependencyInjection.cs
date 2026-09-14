@@ -155,9 +155,7 @@ namespace DriverAPI
 
 			// Уведомления клиентов
 
-			services.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
-					.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-					.AddCustomerNotificationsSettingsProvider();
+			services.AddCustomerNotificationsWithSmsFallback();
 
 			// Регистрация контроллеров
 

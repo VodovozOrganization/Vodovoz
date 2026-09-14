@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class TransferEdoRequestIteration : PropertyChangedBase
+	public class TransferEdoRequestIteration : PropertyChangedBase, IDomainObject
     {
         private int _id;
         private DateTime _time;

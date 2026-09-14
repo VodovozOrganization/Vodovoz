@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,6 +45,11 @@ namespace EdoService.Library
 		/// <returns></returns>
 		Result ResendEdoDocumentForOrder(OrderEntity order);
 
+		/// <summary>
+		/// Проверяет возможность отправки документов ЭДО для контейнеров
+		/// </summary>
+		/// <param name="edoContainers">Список контейнеров ЭДО</param>
+		/// <returns>Результат проверки</returns>
 		Result ValidateEdoContainers(IList<EdoContainer> edoContainers);
 
 		/// <summary>
@@ -51,19 +57,30 @@ namespace EdoService.Library
 		/// </summary>
 		/// <param name="uow"></param>
 		/// <param name="orderDocument"></param>
-		/// <returns></returns>
+		/// <returns>Результат проверки</returns>
 		Result ValidateEdoOrderDocument(IUnitOfWork uow, OrderEdoDocument orderDocument);
 
+		/// <summary>
+		/// Проверяет возможность отправки документа ЭДО заказа определенного типа
+		/// </summary>
+		/// <param name="order">Заказ</param>
+		/// <param name="type">Тип документа</param>
+		/// <returns>Результат проверки</returns>
 		Result ValidateOrderForDocument(OrderEntity order, DocumentContainerType type);
 
 		/// <summary>
 		/// Проверяет возможность отправки документа ЭДО заказа определенного типа
 		/// </summary>
-		/// <param name="order"></param>
-		/// <param name="type"></param>
-		/// <returns></returns>
+		/// <param name="order">Заказ</param>
+		/// <param name="type">Тип документа</param>
+		/// <returns>Результат проверки</returns>
 		Result ValidateOrderForDocumentType(OrderEntity order, EdoDocumentType type);
 
+		/// <summary>
+		/// Проверяет возможность отправки документа ЭДО заказа по статусу документооборота
+		/// </summary>
+		/// <param name="status">Статус документооборота</param>
+		/// <returns>Результат проверки</returns>
 		Result ValidateOrderForOrderDocument(EdoDocFlowStatus status);
 
 		/// <summary>
@@ -82,6 +99,14 @@ namespace EdoService.Library
 		Result SendDocumentTaskCreatedEvent(EdoTask edoTask);
 
 		/// <summary>
+		/// Запускает переобработку задачи на отправку чека, 
+		/// которая попала в проблему в статусе New
+		/// </summary>
+		/// <param name="receiptEdoTaskId">Идентификатор задачи чека</param>
+		/// <returns>Результат переобработки</returns>
+		Result RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
+
+		/// <summary>
 		/// Можно ли переотправить документ
 		/// </summary>
 		/// <param name="status">Статус документа</param>
@@ -93,7 +118,35 @@ namespace EdoService.Library
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи</param>
 		/// <returns>Результат переотправки документа</returns>
-		Result ResendEdoDocumentForOrder(int taskId);
+		Result<string> ResendEdoDocumentForOrder(int taskId);
+
+		/// <summary>
+		/// Переотправляет УПД с аннулированием текущего документооборота.
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи документа.</param>
+		/// <returns>Результат запуска переотправки.</returns>
+		Result<string> ResendEdoDocumentWithCancellation(int taskId);
+
+		/// <summary>
+		/// Повторно запускает существующую новую задачу ЭДО
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи ЭДО</param>
+		/// <returns>Результат повторного запуска задачи</returns>
+		Result<string> ResendNewEdoTask(int taskId);
+
+		/// <summary>
+		/// Переотправляет документ ЭДО с исходными кодами маркировки.
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Результат переотправки документа</returns>
+		Result<string> ResendEdoDocumentWithOriginalCodes(int taskId);
+
+		/// <summary>
+		/// Переотправляет документ ЭДО с подбором новых кодов ЧЗ из пула.
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Результат переотправки документа</returns>
+		Result<string> ResendEdoDocumentForOrderWithCodesFromPool(int taskId);
 
 		/// <summary>
 		/// Переотправка чека по ЭДО по идентификатору задачи
@@ -104,9 +157,63 @@ namespace EdoService.Library
 		Task<Result> ResendReceiptDocument(
 			int receiptEdoTaskId,
 			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Переотправка документа по ЭДО по идентификатору задачи
+		/// </summary>
+		/// <param name="orderEdoTaskId">Идентификатор задачи документа</param>
+		/// <returns>Результат переотправки документа</returns>
 		Result<string> TryResendUpdDocument(int orderEdoTaskId);
+
+		/// <summary>
+		/// Переотправка чека по ЭДО по идентификатору задачи
+		/// </summary>
+		/// <param name="orderEdoTaskId">Идентификатор задачи чека</param>
+		/// <returns>Результат переотправки чека</returns>
 		Result<string> TryResendReceiptDocument(int orderEdoTaskId);
-		Result RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
+
+		/// <summary>
+		/// Проверяет наличие отмененного документооборота по задаче ЭДО
+		/// </summary>
+		/// <param name="edoTaskId">Идентификатор задачи ЭДО</param>
+		/// <returns>True - если отмененный документооборот есть, False - если нет</returns>
+		bool HasCancelledDocflow(int edoTaskId);
+
+		/// <summary>
+		/// Отменяет документооборот по задаче ЭДО
+		/// </summary>
+		/// <param name="edoTaskId">Идентификатор задачи ЭДО</param>
+		/// <returns>Результат отмены документооборота с сообщением</returns>
+		Result<string> CancelDocflow(int edoTaskId);
+
+		/// <summary>
+		/// Проверяет наличие документооборота по задаче ЭДО
+		/// </summary>
+		/// <param name="edoTaskId">Идентификатор задачи ЭДО</param>
+		/// <returns>True - если документооборот есть, False - если нет</returns>
+		bool HasDocflow(int edoTaskId);
 		Result RehandleNewUpdDocumentWithProblem(int updEdoTaskId);
+
+		/// <summary>
+		/// Обновить статус документооборота Такском по ЭДО задаче
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи ЭДО</param>
+		/// <param name="docflowId">Идентификатор документооборота</param>
+		/// <returns>Результат обновления статуса</returns>
+		Result<string> UpdateDocflowStatus(int taskId, Guid? docflowId);
+
+		/// <summary>
+		/// Обновляет статус документооборота из Taxcom по ID документооборота
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="docflowId">ID документооборота в Taxcom</param>
+		/// <param name="organizationId">ID организации, отправившей документ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат с информацией о статусе</returns>
+		Task<Result<string>> UpdateDocflowStatusAsync(
+			IUnitOfWork uow,
+			Guid? docflowId,
+			int organizationId,
+			CancellationToken cancellationToken = default);
 	}
 }

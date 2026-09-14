@@ -116,14 +116,14 @@ namespace Vodovoz.Core.Application.Payments
 								unallocatedSum -= sumToAllocate;
 								balance -= sumToAllocate;
 								orderNodes.RemoveAt(0);
-								order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+								order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
 							}
 							else
 							{
 								payment.AddPaymentItem(order, unallocatedSum);
 								orderNodes[0].AllocatedSum += unallocatedSum;
 								balance -= unallocatedSum;
-								order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+								order.UpdateOrderPaymentStatus(OrderPaymentStatus.PartiallyPaid, order.PaymentType);
 								break;
 							}
 
@@ -139,13 +139,13 @@ namespace Vodovoz.Core.Application.Payments
 								payment.AddPaymentItem(order, sumToAllocate);
 								balance -= sumToAllocate;
 								orderNodes.RemoveAt(0);
-								order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+								order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
 							}
 							else
 							{
 								payment.AddPaymentItem(order, balance);
 								balance = 0;
-								order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+								order.UpdateOrderPaymentStatus(OrderPaymentStatus.PartiallyPaid, order.PaymentType);
 							}
 
 							if(balance == 0)
@@ -407,15 +407,15 @@ namespace Vodovoz.Core.Application.Payments
 
 			if(isUnpaid)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.UnPaid, order.PaymentType);
 			}
 			else if(isPaid)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
 			}
 			else
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.PartiallyPaid, order.PaymentType);
 			}
 		}
 	}

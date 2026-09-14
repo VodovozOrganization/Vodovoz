@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents.IncomingInvoices;
@@ -267,6 +268,11 @@ namespace Vodovoz.ViewModels.Warehouses
 					}
 					
 					var nomenclature = NomenclatureRepository.GetNomenclature(UoW, selectedNode.Id);
+
+					if(!CanAddNomenclature(nomenclature))
+					{
+						return;
+					}
 
 					Entity.AddItem(nomenclature, 0, selectedNode.StockAmount);
 					FireItemsChanged();
@@ -535,10 +541,32 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			var inventoryInstance = NomenclatureInstanceRepository.GetInventoryNomenclatureInstance(UoW, selectedItem.Id);
 
+			if(!CanAddNomenclature(inventoryInstance.Nomenclature))
+			{
+				return;
+			}
+
 			Entity.AddItem(inventoryInstance, 1, selectedItem.Balance);
 			FireItemsChanged();
 		}
-		
+
+		private bool CanAddNomenclature(NomenclatureEntity nomenclature)
+		{
+			if(Entity.WriteOffType == WriteOffType.Car
+				&& nomenclature.GetPurchasePriceOnDate(Entity.TimeStamp) is null)
+			{
+				var message =
+					$"У номенклатуры \"{nomenclature.Name}\" отсутствует актуальная цена закупки на {Entity.TimeStamp:dd.MM.yyyy}.\n" +
+					"Номенклатура не может быть добавлена в акт списания с автомобиля.";
+
+				_interactiveService.ShowMessage(ImportanceLevel.Error, message);
+
+				return false;
+			}
+
+			return true;
+		}
+
 		private Action<NomenclatureStockFilterViewModel> GetNomenclatureStockBalanceFilterByStorage()
 		{
 			Action<NomenclatureStockFilterViewModel> filterParams = null;

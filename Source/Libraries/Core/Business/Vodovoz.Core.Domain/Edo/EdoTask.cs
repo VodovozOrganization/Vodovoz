@@ -74,5 +74,16 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _cancellationReason;
 			set => SetField(ref _cancellationReason, value);
 		}
+
+		/// <summary>
+		/// Обновление статуса таски по типу проблемы
+		/// </summary>
+		/// <param name="problemImportance">Тип проблемы</param>
+		public virtual void UpdateStatusByEdoProblemImportance(EdoProblemImportance problemImportance)
+		{
+			Status = problemImportance == EdoProblemImportance.Problem
+				? EdoTaskStatus.Problem
+				: EdoTaskStatus.Waiting;
+		}
 	}
 }

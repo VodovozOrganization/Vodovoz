@@ -309,6 +309,20 @@ namespace Vodovoz.Views.Logistic
 
 			if(isPlan)
 			{
+				columnsConfig.AddColumn("0.5л\nплан")
+					.AddNumericRenderer(x => x.Vol500MlBottlesCount.ToString())
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("0.5л\nфакт")
+					.AddTextRenderer(x => x.Vol500MlBottlesActualCount)
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
 				columnsConfig.AddColumn("обор.\nплан")
 					.AddNumericRenderer(x => x.EquipmentCount.ToString())
 					.XAlign(0.5f);
@@ -443,6 +457,20 @@ namespace Vodovoz.Views.Logistic
 			{
 				columnsConfig.AddColumn("0.6л\nфакт")
 					.AddTextRenderer(x => x.Vol600MlBottlesActualCount)
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn("0.5л\nплан")
+					.AddNumericRenderer(x => x.Vol500MlBottlesCount.ToString())
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("0.5л\nфакт")
+					.AddTextRenderer(x => x.Vol500MlBottlesActualCount)
 					.XAlign(0.5f);
 			}
 

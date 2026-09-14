@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 using System.Reflection;
+using Edo.Transport.Factories;
 using Vodovoz.Core.Domain.Controllers;
 
 namespace Edo.Docflow
@@ -24,6 +25,7 @@ namespace Edo.Docflow
 			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 			services.TryAddScoped<IInformalOrderDocumentHandlerFactory, InformalOrderDocumentHandlerFactory>();
 			services.TryAddScoped<IInformalOrderDocumentHandler, EquipmentTransferDocumentHandler>();
+			services.AddFaultServices();
 			
 			return services;
 		}
@@ -34,9 +36,18 @@ namespace Edo.Docflow
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumers(Assembly.GetExecutingAssembly());
+				cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
 			});
 
+			return services;
+		}
+
+		public static IServiceCollection AddFaultServices(this IServiceCollection services)
+		{
+			services.TryAddScoped<FaultOrderDocumentSendExceptionHandler>();
+			services.TryAddScoped<FaultTransferDocumentSendExceptionHandler>();
+			services.TryAddScoped<IMassTransitExceptionInfoFactory, MassTransitExceptionInfoFactory>();
+			
 			return services;
 		}
 	}

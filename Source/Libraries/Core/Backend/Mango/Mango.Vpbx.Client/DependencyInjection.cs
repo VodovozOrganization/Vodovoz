@@ -19,20 +19,15 @@ namespace Mango.Vpbx.Client
 			services.TryAddSingleton<ISignGenerator, SignGenerator>();
 
 			services
-				.AddHttpClient<IMangoWebhookCallsService, MangoWebhookCallsService>((sp, client) =>
-				{
-					var mangoSettings = sp.GetRequiredService<IMangoSettings>();
-					client.BaseAddress = new Uri(mangoSettings.WebhookCallsUrl);
-					client.DefaultRequestHeaders.Accept.Clear();
-				});
-
-			services
-				.AddHttpClient<IMangoVpbxEmployeesService, MangoVpbxEmployeesService>((sp, client) =>
+				.AddHttpClient<IMangoVpbxApiClient, MangoVpbxApiClient>((sp, client) =>
 				{
 					var mangoSettings = sp.GetRequiredService<IMangoSettings>();
 					client.BaseAddress = new Uri(mangoSettings.VpbxApiUrl);
 					client.DefaultRequestHeaders.Accept.Clear();
 				});
+
+			services.AddTransient<IMangoVpbxEmployeesService, MangoVpbxEmployeesService>();
+			services.AddTransient<IMangoVpbxCallsService, MangoVpbxCallsService>();
 
 			return services;
 		}

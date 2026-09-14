@@ -109,5 +109,11 @@ namespace Vodovoz.Core.Domain.Mango
 			get => _request;
 			set => SetField(ref _request, value);
 		}
+
+		/// <summary>
+		/// Признак того, что добавочный номер активен
+		/// </summary>
+		[Display(Name = "Активен")]
+		public virtual bool IsActive => Status == DriverMangoExtensionNumberStatus.Active;
 	}
 }

@@ -12,5 +12,13 @@
 			get => _exceptionMessage;
 			set => SetField(ref _exceptionMessage, value);
 		}
+
+		public static ExceptionEdoTaskProblem Create(string sourceName, EdoTask task, string message) =>
+			new ExceptionEdoTaskProblem
+			{
+				SourceName = sourceName,
+				EdoTask = task,
+				ExceptionMessage = message
+			};
 	}
 }

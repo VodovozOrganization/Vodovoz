@@ -21,11 +21,20 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <returns></returns>
 		bool HasExternalCounterparties(IUnitOfWork uow, int phoneId);
 		/// <summary>
-		/// Получения информации о внешних пользователях 
+		/// Получения информации о внешних пользователях
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="counterpartyId">Идентификатор клиента</param>
 		/// <returns></returns>
 		IList<PersonalCounterpartyExternalUserInfo> GetPersonalCounterpartyExternalUsersInfo(IUnitOfWork uow, int counterpartyId);
+
+		/// <summary>
+		/// Есть ли у клиента действующий пользователь мобильного приложения.
+		/// Сопоставление выполняется по неархивным телефонам клиента
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyId">Идентификатор клиента</param>
+		/// <returns><c>true</c>, если найден хотя бы один неархивный пользователь мобильного приложения</returns>
+		bool HasActiveMobileAppUser(IUnitOfWork uow, int counterpartyId);
 	}
 }
