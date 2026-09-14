@@ -8785,24 +8785,24 @@ LEFT JOIN transactions_data_numered td
 route_lists_outlay_without_own_document AS
 (
 SELECT
-    rl.car_id                AS car_id,
-    rl.driver_id             AS driver_id,
-    first_document.date      AS date,
-    0                        AS liters_limits,
-    outlay.liters_outlayed   AS liters_outlayed,
-    rl.id                    AS route_list_id,
-    rl.date                  AS route_list_date,
-    ''                       AS fuel_type,
-    0                        AS author_id,
-    0                        AS last_editor_id,
-    ''                       AS last_edit_date,
-    fc.card_number           AS fuel_card_number,
-    0                        AS payed_for_fuel,
-    0                        AS cashless_payed_for_fuel,
-    0                        AS liters_payed,
-    0                        AS fuel_transactions_quantity,
-    0                        AS fuel_transactions_total_sum,
-    ''                       AS gazprom_product_name
+    rl.car_id AS car_id,
+    rl.driver_id AS driver_id,
+    first_document.date AS date,
+    0 AS liters_limits,
+    outlay.liters_outlayed AS liters_outlayed,
+    rl.id AS route_list_id,
+    rl.date AS route_list_date,
+    '' AS fuel_type,
+    0 AS author_id,
+    0 AS last_editor_id,
+    '' AS last_edit_date,
+    fc.card_number AS fuel_card_number,
+    0 AS payed_for_fuel,
+    0 AS cashless_payed_for_fuel,
+    0 AS liters_payed,
+    0 AS fuel_transactions_quantity,
+    0 AS fuel_transactions_total_sum,
+    '' AS gazprom_product_name
 FROM route_lists rl
 JOIN fuel_operations outlay ON outlay.id = rl.fuel_outlayed_operation_id
 JOIN fuel_documents first_document ON first_document.id =
