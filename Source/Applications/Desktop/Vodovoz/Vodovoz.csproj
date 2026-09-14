@@ -2196,6 +2196,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.DriverForwardingOrderSelectionView.cs" />
     <Compile Include="Views\Edo\EdoDiscrepancyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoDiscrepancyView.cs" />
+    <Compile Include="Views\Edo\EdoDiscrepancyDialogView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoDiscrepancyDialogView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
