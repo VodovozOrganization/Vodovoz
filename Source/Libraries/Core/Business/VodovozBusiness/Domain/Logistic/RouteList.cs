@@ -31,7 +31,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
@@ -58,7 +57,6 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
-using VodovozBusiness.EntityRepositories.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Domain.Logistic
