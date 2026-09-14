@@ -288,7 +288,8 @@ namespace VodovozBusinessTests.Domain.Orders
 				Substitute.For<ICashRepository>(),
 				Substitute.For<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>(),
 				Substitute.For<IFastPaymentRepository>(),
-				_contractUpdater);
+				_contractUpdater,
+				_saleHandler);
 			var fastPayment = new FastPayment
 			{
 				Order = order,

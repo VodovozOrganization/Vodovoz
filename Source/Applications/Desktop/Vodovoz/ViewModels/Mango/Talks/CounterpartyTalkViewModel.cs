@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Mango.Client;
 using CustomerNotifications.Contracts;
 using Notifications.Infrastructure;
@@ -14,6 +14,7 @@ using System.Linq;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Reports;
@@ -29,6 +30,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IOrderRepository _orderRepository;
 		private readonly IUnitOfWork _uow;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 		private ILifetimeScope _scope;
@@ -44,6 +46,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			ITdiCompatibilityNavigation tdinavigation,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
+			IOrderRepository orderRepository,
 			MangoManager manager
 			)
 			: base(tdinavigation, manager)
@@ -52,6 +55,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 
 			if(ActiveCall.CounterpartyIds.Any())

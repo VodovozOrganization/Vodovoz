@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings;
@@ -248,7 +248,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string OnlineOrderPaymentStatus => Entity.OnlineOrderPaymentStatus.GetEnumDisplayName();
 		public string OnlinePaymentSource =>
 			Entity.OnlinePaymentSource.HasValue
-				? Entity.OnlinePaymentSource.GetEnumTitle()
+				? Entity.OnlinePaymentSource.Value.GetEnumDisplayName()
 				: string.Empty;
 		public string ValidationErrors { get; private set; }
 

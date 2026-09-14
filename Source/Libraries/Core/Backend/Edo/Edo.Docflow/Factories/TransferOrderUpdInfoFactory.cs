@@ -1,4 +1,4 @@
-using Edo.Contracts.Messages.Dto;
+﻿using Edo.Contracts.Messages.Dto;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
@@ -226,7 +226,7 @@ namespace Edo.Docflow.Factories
 
 				if(newestPrice == null || newestPrice == 0m)
 				{
-					price = nomenclature.GetPrice(quantity);
+					price = nomenclature.GetPrice(quantity).Price;
 					price *= 1 - ((decimal)additionalPercent) / 100;
 				}
 				else
