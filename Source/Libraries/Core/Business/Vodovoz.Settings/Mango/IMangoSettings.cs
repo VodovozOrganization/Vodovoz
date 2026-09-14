@@ -57,6 +57,21 @@ namespace Vodovoz.Settings.Mango
 		int DriversCallTimeOut { get; }
 
 		/// <summary>
+		/// Номер телефона, на который переадресуется звонок, если водитель не ответил
+		/// </summary>
+		string DriverCallForwardingPhoneNumber { get; }
+
+		/// <summary>
+		/// Время ожидания ответа на номере водителя в секундах
+		/// </summary>
+		int DriverPhoneNumberWaitSeconds { get; }
+
+		/// <summary>
+		/// Время ожидания ответа на номере переадресации в секундах
+		/// </summary>
+		int DriverCallForwardingPhoneNumberWaitSeconds { get; }
+
+		/// <summary>
 		/// Включена ли работа воркера деактивации сотрудников Манго
 		/// </summary>
 		bool DriverMangoEmployeeDeactivationWorkerEnabled { get; }

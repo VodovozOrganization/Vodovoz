@@ -42,7 +42,7 @@ namespace Edo.Receipt.Sender
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
+				cfg.AddConsumers(Assembly.GetExecutingAssembly());
 			});
 
 			return services;

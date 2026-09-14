@@ -21,6 +21,9 @@ namespace Mango.Employees.Library.Options
 			options.DriversGroupId = _mangoSettings.DriversGroupId;
 			options.ExtensionNumberPoolStart = _mangoSettings.DriverMangoExtensionNumberPoolStart;
 			options.ExtensionNumberPoolEnd = _mangoSettings.DriverMangoExtensionNumberPoolEnd;
+			options.CallForwardingPhoneNumber = _mangoSettings.DriverCallForwardingPhoneNumber;
+			options.PhoneNumberWaitSeconds = _mangoSettings.DriverPhoneNumberWaitSeconds;
+			options.CallForwardingPhoneNumberWaitSeconds = _mangoSettings.DriverCallForwardingPhoneNumberWaitSeconds;
 		}
 	}
 }

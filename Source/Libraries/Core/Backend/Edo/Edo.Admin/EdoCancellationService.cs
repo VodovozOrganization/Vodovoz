@@ -48,7 +48,8 @@ namespace Edo.Admin
 			string reason,
 			bool needPublish,
 			CancellationToken cancellationToken = default,
-			IUnitOfWork uow = null
+			IUnitOfWork uow = null,
+			bool needCommit = true
 		)
 		{
 			var unitOfWork = uow ?? _uow;
@@ -75,7 +76,10 @@ namespace Edo.Admin
 				await CancelOrderTask(unitOfWork, (OrderEdoTask)edoTask, reason, needPublish, cancellationToken);
 			}
 
-			await unitOfWork.CommitAsync(cancellationToken);
+			if(needCommit)
+			{
+				await unitOfWork.CommitAsync(cancellationToken);
+			}
 		}
 
 		/// <summary>
