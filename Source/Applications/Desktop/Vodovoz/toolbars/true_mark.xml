@@ -2,6 +2,7 @@
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionEdoProcessJournal' action='ActionEdoProcessJournal'/>
 		<toolitem name='ActionEdoProblemJournal' action='ActionEdoProblemJournal'/>
+		<toolitem name='ActionEdoDeviationJournal' action='ActionEdoDeviationJournal'/>
 		<toolitem name='ActionCodesPool' action='ActionCodesPool'/>
 	</toolbar>
 </ui>
