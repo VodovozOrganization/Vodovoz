@@ -1,4 +1,4 @@
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Problems.Custom;
 using Edo.Problems.Exception;
 using Edo.Problems.Validation;
@@ -38,7 +38,23 @@ namespace Edo.Problems
 			where TCustomSource : EdoTaskProblemCustomSource
 		{
 			await RegisterCustomProblem<TCustomSource>(
-				edoTask,
+				edoTask.Id,
+				new List<EdoTaskItem>(),
+				cancellationToken,
+				customMessage,
+				disposeTaskUow);
+		}
+
+		public async Task RegisterCustomProblem<TCustomSource>(
+			int edoTaskId,
+			CancellationToken cancellationToken,
+			string customMessage = null,
+			bool disposeTaskUow = true
+			)
+			where TCustomSource : EdoTaskProblemCustomSource
+		{
+			await RegisterCustomProblem<TCustomSource>(
+				edoTaskId,
 				new List<EdoTaskItem>(),
 				cancellationToken,
 				customMessage,
@@ -46,7 +62,7 @@ namespace Edo.Problems
 		}
 
 		public virtual async Task RegisterCustomProblem<TCustomSource>(
-			EdoTask edoTask,
+			int edoTaskId,
 			IEnumerable<EdoTaskItem> affectedTaskItems,
 			CancellationToken cancellationToken,
 			string customMessage = null,
@@ -59,7 +75,7 @@ namespace Edo.Problems
 			// а UoW задачи обязательно закрывается с откатом транзакции
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var task = uow.GetById<EdoTask>(edoTask.Id);
+				var task = uow.GetById<EdoTask>(edoTaskId);
 				var source = CustomSourcesPersister.GetCustomSource<TCustomSource>();
 				var problem = task.Problems.FirstOrDefault(x => x.SourceName == source.Name)
 					?? CustomEdoTaskProblem.Create(source.Name, task, customMessage);

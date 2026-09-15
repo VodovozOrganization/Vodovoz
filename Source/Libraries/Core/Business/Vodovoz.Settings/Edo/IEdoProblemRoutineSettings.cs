@@ -106,5 +106,10 @@ namespace Vodovoz.Settings.Edo
 		/// Размер партии новых задач ЭДО для повторного запуска
 		/// </summary>
 		int NewTasksResendBatchSize { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки ошибок отправки документа в Такском
+		/// </summary>
+		TimeSpan TaxcomSendProblemWorkerInterval { get; }
 	}
 }
