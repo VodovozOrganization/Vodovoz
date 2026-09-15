@@ -374,9 +374,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		}
 
 		/// <summary>
-		/// Отбирает задачи заказа по типу. Тип задачи в базе отдельным полем не хранится,
-		/// поэтому отбор делается соединением с конкретной задачей: соединение с наследником
-		/// добавляет условие по колонке-дискриминатору
+		/// Отбирает задачи заказа по типу
 		/// </summary>
 		private void ApplyOrderTaskTypeRestriction<TRoot>(IQueryOver<TRoot, TRoot> query, EdoTask taskAlias)
 		{
