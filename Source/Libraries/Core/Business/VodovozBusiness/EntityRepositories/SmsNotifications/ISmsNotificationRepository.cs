@@ -6,6 +6,14 @@ namespace Vodovoz.EntityRepositories.SmsNotifications
 {
 	public interface ISmsNotificationRepository
 	{
+		/// <summary>
+		/// Читает уведомления контрагента независимо от статуса.
+		/// </summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="counterpartyId">Идентификатор контрагента.</param>
+		/// <returns>Уведомления контрагента.</returns>
+		IEnumerable<NewClientSmsNotification> GetNewClientSmsNotifications(IUnitOfWork uow, int counterpartyId);
+
 		IEnumerable<NewClientSmsNotification> GetUnsendedNewClientSmsNotifications(IUnitOfWork uow);
 		IEnumerable<UndeliveryNotApprovedSmsNotification> GetUnsendedUndeliveryNotApprovedSmsNotifications(IUnitOfWork uow);
 		IEnumerable<CourierOnTheWaySmsNotification> GetUnsendedCourierOnTheWaySmsNotifications(IUnitOfWork uow);
