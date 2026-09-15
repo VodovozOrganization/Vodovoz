@@ -30,7 +30,6 @@ namespace TaxcomEdoApi
 				{
 					var apiOptions = provider.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;
 					var certificateThumbprint = apiOptions.CertificateThumbprint.ToUpper();
-					var certs = CertificateLogic.GetAvailableCertificates();
 					var certificate =
 						CertificateLogic.GetAvailableCertificates().SingleOrDefault(x => x.Thumbprint == certificateThumbprint);
 

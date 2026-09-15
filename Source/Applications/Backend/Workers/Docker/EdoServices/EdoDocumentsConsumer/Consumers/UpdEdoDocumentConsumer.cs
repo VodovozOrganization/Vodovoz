@@ -1,15 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
+﻿using Edo.Problems;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using Edo.Problems;
-using Edo.Problems.Custom.Sources;
 using QS.DomainModel.UoW;
+using System;
+using System.Linq;
 using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
-using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Results;
 using Task = System.Threading.Tasks.Task;
 
 namespace EdoDocumentsConsumer.Consumers
@@ -52,8 +48,6 @@ namespace EdoDocumentsConsumer.Consumers
 					_logger.LogError(
 						"Ошибка при отправке информации по УПД {OrderId} в TaxcomApi: {ErrorCode} - {ErrorMessage}",
 						message.OrderInfoForEdo.Id, error.Code, error.Message);
-
-					await RegisterTaxcomProblem(message.EdoTaskId, error, context.CancellationToken);
 				}
 			}
 			catch(Exception e)
@@ -61,18 +55,7 @@ namespace EdoDocumentsConsumer.Consumers
 				_logger.LogError(e,
 					"Непредвиденная ошибка при обработке отправки УПД {OrderId} в TaxcomApi",
 					message.OrderInfoForEdo.Id);
-
-				await RegisterTaxcomProblem(
-					message.EdoTaskId,
-					new Error("UpdConsumerUnexpectedError", e.Message),
-					context.CancellationToken);
 			}
-		}
-
-		private async Task RegisterTaxcomProblem(int edoTaskId, Error error, CancellationToken cancellationToken)
-		{			
-			var customMessage = $"{error.Code}: {error.Message}";				
-			await _edoProblemRegistrar.RegisterCustomProblem<TaxcomDocumentSendingFail>(edoTaskId, cancellationToken, customMessage);
 		}
 	}
 }

@@ -473,17 +473,6 @@ namespace EdoDocumentFlowUpdater
 			if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 			{
 				var docFlowRawDataResult = await taxcomApiClient.GetDocFlowRawData(docflow.Id.Value.ToString(), cancellationToken);
-
-				if(docFlowRawDataResult.IsFailure && container.EdoTaskId != null)
-				{
-					var error = docFlowRawDataResult.Errors.First();
-
-					var customMessage = $"{error.Code}: {error.Message}";
-					await _edoProblemRegistrar.RegisterCustomProblem<TaxcomDocumentSendingFail>(container.EdoTaskId.Value, cancellationToken, customMessage);
-
-					return;
-				}
-
 				var containerRawData = docFlowRawDataResult.Value;
 
 				using var ms = new MemoryStream(containerRawData.ToArray());

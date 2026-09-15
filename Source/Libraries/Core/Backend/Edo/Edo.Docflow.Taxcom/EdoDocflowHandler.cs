@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Client;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Docflow.Taxcom
 {
@@ -72,7 +73,14 @@ namespace Edo.Docflow.Taxcom
 				await _uow.CommitAsync(cancellationToken);				
 
 				await _edoProblemRegistrar.RegisterCustomProblem<TaxcomDocumentSendingFail>(@event.EdoTaskId, cancellationToken, customErrorMessage);
+
+				return;
 			}
+
+			var edoTask = _uow.GetById<EdoTask>(@event.EdoTaskId);
+			_edoProblemRegistrar.SolveCustomProblem<TaxcomDocumentSendingFail>(edoTask);
+			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		public async Task CreateTaxcomDocflowInformalDocument(TaxcomDocflowInformalDocumentSendEvent @event, CancellationToken cancellationToken)
