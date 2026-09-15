@@ -8,6 +8,7 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,10 +40,9 @@ namespace DatabaseServiceWorker
 			_scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = (options ?? throw new ArgumentNullException(nameof(options))).Value;
-			if(_options.Interval <= TimeSpan.Zero || _options.BatchSize <= 0 || _options.BatchDelay < TimeSpan.Zero
-				|| _options.CacheLifetime <= TimeSpan.Zero)
+			if(_options.Interval <= TimeSpan.Zero || _options.BatchSize <= 0 || _options.BatchDelay < TimeSpan.Zero)
 			{
-				throw new ArgumentException("Интервал, срок хранения кэша и размер порции должны быть положительными, пауза между порциями — неотрицательной.", nameof(options));
+				throw new ArgumentException("Интервал и размер порции должны быть положительными, пауза между порциями — неотрицательной.", nameof(options));
 			}
 		}
 
@@ -68,7 +68,7 @@ namespace DatabaseServiceWorker
 					{
 						var databaseName = scope.ServiceProvider.GetRequiredService<IDatabaseConnectionSettings>().DatabaseName;
 						cache = scope.ServiceProvider.GetRequiredService<IConnectionMultiplexer>().GetDatabase();
-						cacheKeyPrefix = $"order-frequency:v1:{databaseName}:";
+						cacheKeyPrefix = $"order-frequency:v2:{databaseName}:";
 					}
 					catch(Exception exception)
 					{
@@ -115,8 +115,8 @@ namespace DatabaseServiceWorker
 								{
 									var state = cache == null ? null : repository.GetOrderFrequencyState(uow, id);
 									if(cached?.State != null && state != null
-										&& cached.State.OrderCount == state.OrderCount
-										&& cached.State.LastOrderVersion == state.LastOrderVersion)
+										&& cached.State.Select(order => (order.OrderId, order.DeliveryDate))
+											.SequenceEqual(state.Select(order => (order.OrderId, order.DeliveryDate))))
 									{
 										skipped++;
 										afterId = id;
@@ -132,12 +132,12 @@ namespace DatabaseServiceWorker
 									transaction.Commit();
 								}
 								processed++;
-								// Запись в кэш только после успешного commit. Попадание в кэш не продлевает срок хранения.
+								// Запись в кэш только после успешного commit; хранение без срока истечения.
 								if(cache != null)
 								{
 									try
 									{
-										await cache.StringSetAsync(cacheKeyPrefix + id, JsonSerializer.Serialize(entry), _options.CacheLifetime);
+										await cache.StringSetAsync(cacheKeyPrefix + id, JsonSerializer.Serialize(entry));
 									}
 									catch(Exception exception)
 									{

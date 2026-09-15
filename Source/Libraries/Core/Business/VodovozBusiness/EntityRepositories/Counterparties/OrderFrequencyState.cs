@@ -3,18 +3,19 @@ using System;
 namespace Vodovoz.EntityRepositories.Counterparties
 {
 	/// <summary>
-	/// Признаки изменения заказов, участвующих в расчёте частоты точки доставки.
+	/// Состояние выполненного заказа, участвующего в расчёте частоты точки доставки.
+	/// Переходы между выполненными статусами не изменяют состояние для расчёта.
 	/// </summary>
 	public class OrderFrequencyState
 	{
 		/// <summary>
-		/// Количество заказов, соответствующих условиям расчёта.
+		/// Идентификатор заказа.
 		/// </summary>
-		public long OrderCount { get; set; }
+		public int OrderId { get; set; }
 
 		/// <summary>
-		/// Последняя версия изменения подходящих заказов; отсутствует для пустой выборки.
+		/// Дата доставки, используемая для отбора заказов и расчёта интервалов.
 		/// </summary>
-		public DateTime? LastOrderVersion { get; set; }
+		public DateTime DeliveryDate { get; set; }
 	}
 }

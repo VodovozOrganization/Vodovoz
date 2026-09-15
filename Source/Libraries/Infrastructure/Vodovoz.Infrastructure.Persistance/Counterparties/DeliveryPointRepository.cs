@@ -136,22 +136,25 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		}
 
 		/// <inheritdoc />
-		public OrderFrequencyState GetOrderFrequencyState(IUnitOfWork uow, int deliveryPointId)
+		public IList<OrderFrequencyState> GetOrderFrequencyState(IUnitOfWork uow, int deliveryPointId)
 			=> uow.Session.SessionFactory.GetClassMetadata(typeof(Order)) != null
 				? GetOrderFrequencyState<Order, RouteListItem>(uow, deliveryPointId)
 				: GetOrderFrequencyState<OrderEntity, RouteListItemEntity>(uow, deliveryPointId);
 
-		private OrderFrequencyState GetOrderFrequencyState<TOrder, TRouteListItem>(IUnitOfWork uow, int deliveryPointId)
+		private IList<OrderFrequencyState> GetOrderFrequencyState<TOrder, TRouteListItem>(IUnitOfWork uow, int deliveryPointId)
 			where TOrder : OrderEntity
 			where TRouteListItem : RouteListItemEntity
 		{
 			OrderFrequencyState stateAlias = null;
 			return GetOrdersForFrequency<TOrder, TRouteListItem>(uow, deliveryPointId)
+				.OrderBy(order => order.DeliveryDate).Desc
+				.ThenBy(order => order.Id).Desc
 				.SelectList(list => list
-					.Select(Projections.RowCountInt64()).WithAlias(() => stateAlias.OrderCount)
-					.SelectMax(order => order.Version).WithAlias(() => stateAlias.LastOrderVersion))
+					.Select(order => order.Id).WithAlias(() => stateAlias.OrderId)
+					.Select(order => order.DeliveryDate).WithAlias(() => stateAlias.DeliveryDate))
 				.TransformUsing(Transformers.AliasToBean<OrderFrequencyState>())
-				.SingleOrDefault<OrderFrequencyState>();
+				.Take(5)
+				.List<OrderFrequencyState>();
 		}
 
 		private int? GetOrderFrequency(IUnitOfWork uow, int deliveryPointId, int? countLastOrders)

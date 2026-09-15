@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Vodovoz.EntityRepositories.Counterparties;
 
 namespace DatabaseServiceWorker
@@ -8,9 +9,9 @@ namespace DatabaseServiceWorker
 	internal sealed class DeliveryPointOrderFrequencyCacheEntry
 	{
 		/// <summary>
-		/// Признаки заказов на момент расчёта.
+		/// Последние пять выполненных заказов на момент расчёта по убыванию даты доставки и идентификатора.
 		/// </summary>
-		public OrderFrequencyState State { get; set; }
+		public IList<OrderFrequencyState> State { get; set; }
 
 		/// <summary>
 		/// Сохранённая частота заказов; null означает недостаточное количество заказов.
