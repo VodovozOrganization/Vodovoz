@@ -202728,16 +202728,19 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Filters.GtkViews.EdoDeviationFilterView" design-size="1206 68">
+  <widget class="Gtk.Bin" id="Vodovoz.Filters.GtkViews.EdoDeviationFilterView" design-size="1295 68">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
       <widget class="Gtk.Table" id="table1">
         <property name="MemberName" />
         <property name="NRows">2</property>
-        <property name="NColumns">10</property>
+        <property name="NColumns">11</property>
         <property name="RowSpacing">6</property>
         <property name="ColumnSpacing">6</property>
+        <child>
+          <placeholder />
+        </child>
         <child>
           <placeholder />
         </child>
@@ -202948,6 +202951,29 @@ not tooltip</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
             <property name="YFill">False</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gamma.GtkWidgets.yButton" id="ybuttonHelp">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextAndIcon</property>
+            <property name="Icon">stock:gtk-help Menu</property>
+            <property name="Label" translatable="yes" />
+            <property name="UseUnderline">True</property>
+          </widget>
+          <packing>
+            <property name="LeftAttach">10</property>
+            <property name="RightAttach">11</property>
+            <property name="AutoSize">False</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
             <property name="YShrink">False</property>
           </packing>
         </child>
