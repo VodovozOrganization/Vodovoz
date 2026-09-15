@@ -97,7 +97,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		public string Description { get; set; }
 
 		/// <summary>
-		/// Сообщение источника отклонения либо рекомендация источника проблемы
+		/// Описание источника отклонения либо рекомендация источника проблемы
 		/// </summary>
 		public string Recommendation { get; set; }
 
