@@ -114,11 +114,11 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		/// <inheritdoc />
 		public IList<int> GetDeliveryPointIdsBatch(IUnitOfWork uow, int afterId, int batchSize)
 		{
-			return uow.Session.CreateSQLQuery(
-				"SELECT id FROM delivery_points WHERE id > :afterId ORDER BY id LIMIT :batchSize")
-				.AddScalar("id", NHibernateUtil.Int32)
-				.SetInt32("afterId", afterId)
-				.SetInt32("batchSize", batchSize)
+			return uow.Session.QueryOver<DeliveryPoint>()
+				.Where(deliveryPoint => deliveryPoint.Id > afterId)
+				.OrderBy(deliveryPoint => deliveryPoint.Id).Asc
+				.Select(deliveryPoint => deliveryPoint.Id)
+				.Take(batchSize)
 				.List<int>();
 		}
 
