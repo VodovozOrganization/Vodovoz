@@ -25,9 +25,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 		/// </summary>
 		private const string _helpTitle = "Критерии отклонений документооборота ЭДО";
 
-		private readonly IInteractiveMessage _interactiveMessage;
-
-		private DelegateCommand _helpCommand;
 		private int? _orderId;
 		private int? _taskId;
 		private DateTime? _deliveryDateFrom;
@@ -39,6 +36,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 		private TaskProblemState? _state;
 		private string _problemSourceName;
 
+		private readonly IInteractiveMessage _interactiveMessage;
+
 		public EdoDeviationFilterViewModel(IInteractiveMessage interactiveMessage)
 		{
 			_interactiveMessage = interactiveMessage ?? throw new ArgumentNullException(nameof(interactiveMessage));
@@ -46,13 +45,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 			_deliveryDateFrom = DateTime.Today.AddDays(-_defaultDeliveryDatePeriodInDays);
 			_deliveryDateTo = DateTime.Today;
 			_state = TaskProblemState.Active;
+
+			HelpCommand = new DelegateCommand(ShowHelp);
 		}
 
 		/// <summary>
-		/// Показать справку по критериям, при которых заводится отклонение каждого типа
+		/// Отображение диалога справки по журналу
 		/// </summary>
-		public DelegateCommand HelpCommand => _helpCommand ?? (_helpCommand = new DelegateCommand(
-			() => _interactiveMessage.ShowMessage(ImportanceLevel.Info, BuildHelpMessage(), _helpTitle)));
+		public DelegateCommand HelpCommand { get; }
 
 		/// <summary>
 		/// Номер заказа
@@ -142,6 +142,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 		{
 			get => _state;
 			set => UpdateFilterField(ref _state, value);
+		}
+
+		private void ShowHelp()
+		{
+			_interactiveMessage.ShowMessage(ImportanceLevel.Info, BuildHelpMessage(), _helpTitle);
 		}
 
 		private static string BuildHelpMessage()

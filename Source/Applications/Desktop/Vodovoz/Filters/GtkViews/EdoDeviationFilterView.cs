@@ -78,6 +78,8 @@ namespace Vodovoz.Filters.GtkViews
 			yenumTaskProblemState.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.State, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
+
+			ybuttonHelp.BindCommand(ViewModel.HelpCommand);
 		}
 
 		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)
