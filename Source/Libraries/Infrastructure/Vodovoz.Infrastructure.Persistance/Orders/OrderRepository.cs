@@ -396,6 +396,19 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return query.List().FirstOrDefault();
 		}
 
+		/// <inheritdoc/>
+		public bool HasOtherWater19LOrder(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
+			IEnumerable<OrderStatus> orderStatuses)
+		{
+			return uow.Session.Query<OrderItem>()
+				.Any(item => item.Order.Client.Id == counterpartyId
+					&& item.Order.Id != excludedOrderId
+					&& orderStatuses.Contains(item.Order.OrderStatus)
+					&& item.Count > 0
+					&& item.Nomenclature.Category == NomenclatureCategory.water
+					&& item.Nomenclature.TareVolume == TareVolume.Vol19L);
+		}
+
 		public bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty)
 		{
 			if(counterparty is null)

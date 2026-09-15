@@ -1,27 +1,41 @@
-﻿using System;
+using System;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.SmsNotifications;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Sms
 {
+	/// <summary>
+	/// Формирует СМС-уведомления по заказам и недовозам.
+	/// </summary>
 	public class SmsNotifier : ISmsNotifier
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ISmsNotifierSettings _smsNotifierSettings;
+		private readonly IOrderRepository _orderRepository;
+		private readonly ISmsNotificationRepository _smsNotificationRepository;
 
-		public SmsNotifier(IUnitOfWorkFactory uowFactory, ISmsNotifierSettings smsNotifierSettings)
+		/// <summary>
+		/// Создаёт сервис формирования СМС-уведомлений.
+		/// </summary>
+		/// <param name="uowFactory">Фабрика единиц работы для проверки и сохранения уведомлений.</param>
+		/// <param name="smsNotifierSettings">Настройки СМС-уведомлений.</param>
+		/// <param name="orderRepository">Репозиторий истории заказов.</param>
+		/// <param name="smsNotificationRepository">Репозиторий СМС-уведомлений.</param>
+		public SmsNotifier(IUnitOfWorkFactory uowFactory, ISmsNotifierSettings smsNotifierSettings,
+			IOrderRepository orderRepository, ISmsNotificationRepository smsNotificationRepository)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			this._smsNotifierSettings = smsNotifierSettings ?? throw new ArgumentNullException(nameof(smsNotifierSettings));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_smsNotificationRepository = smsNotificationRepository ?? throw new ArgumentNullException(nameof(smsNotificationRepository));
 		}
 
-		/// <summary>
-		/// Создает новое смс уведомление для заказа, если этот заказ является первым заказом у контрагента
-		/// и если не было создано других смс уведомлений по этому заказу
-		/// </summary>
+		/// <inheritdoc/>
 		public void NotifyIfNewClient(Order order)
 		{
 			if(!_smsNotifierSettings.IsSmsNotificationsEnabled) {
@@ -31,7 +45,8 @@ namespace Vodovoz.Domain.Sms
 			if(order == null || order.Id == 0 || order.OrderStatus == OrderStatus.NewOrder || !order.DeliveryDate.HasValue) {
 				return;
 			}
-			if(order.Client.FirstOrder == null || order.Client.FirstOrder.Id != order.Id) {
+			if(!order.OrderItems.Any(item => item.Count > 0 && item.Nomenclature.IsWater19L)
+				|| order.OrderItems.Any(item => item.Nomenclature.Id == _smsNotifierSettings.FullDisposable19LNomenclatureId)) {
 				return;
 			}
 			//проверка даты без времени
@@ -39,12 +54,14 @@ namespace Vodovoz.Domain.Sms
 				return;
 			}
 
-			//проверка уже существующих ранее уведомлений
 			using(var uow = _uowFactory.CreateWithoutRoot()) {
-				var existsNotifications = uow.Session.QueryOver<NewClientSmsNotification>()
-					.Where(x => x.Counterparty.Id == order.Client.Id)
-					.List();
-				if(existsNotifications.Any()) {
+				var notifications = _smsNotificationRepository.GetNewClientSmsNotifications(uow, order.Client.Id);
+				if(notifications.Any(notification => notification.Order?.Id == order.Id)) {
+					return;
+				}
+
+				var orderStatuses = _orderRepository.GetValidStatusesToUseActionBottle();
+				if(_orderRepository.HasOtherWater19LOrder(uow, order.Client.Id, order.Id, orderStatuses)) {
 					return;
 				}
 			}
