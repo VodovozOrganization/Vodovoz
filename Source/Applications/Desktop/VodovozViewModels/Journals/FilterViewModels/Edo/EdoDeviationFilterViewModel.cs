@@ -1,5 +1,10 @@
-﻿using QS.Project.Filter;
+﻿using Core.Infrastructure;
+using QS.Commands;
+using QS.Dialog;
+using QS.Project.Filter;
 using System;
+using System.Collections.Generic;
+using System.Text;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
 
@@ -15,6 +20,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 		/// </summary>
 		private const int _defaultDeliveryDatePeriodInDays = 30;
 
+		/// <summary>
+		/// Заголовок окна справки по критериям отклонений
+		/// </summary>
+		private const string _helpTitle = "Критерии отклонений документооборота ЭДО";
+
+		private readonly IInteractiveMessage _interactiveMessage;
+
+		private DelegateCommand _helpCommand;
 		private int? _orderId;
 		private int? _taskId;
 		private DateTime? _deliveryDateFrom;
@@ -26,12 +39,20 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 		private TaskProblemState? _state;
 		private string _problemSourceName;
 
-		public EdoDeviationFilterViewModel()
+		public EdoDeviationFilterViewModel(IInteractiveMessage interactiveMessage)
 		{
+			_interactiveMessage = interactiveMessage ?? throw new ArgumentNullException(nameof(interactiveMessage));
+
 			_deliveryDateFrom = DateTime.Today.AddDays(-_defaultDeliveryDatePeriodInDays);
 			_deliveryDateTo = DateTime.Today;
 			_state = TaskProblemState.Active;
 		}
+
+		/// <summary>
+		/// Показать справку по критериям, при которых заводится отклонение каждого типа
+		/// </summary>
+		public DelegateCommand HelpCommand => _helpCommand ?? (_helpCommand = new DelegateCommand(
+			() => _interactiveMessage.ShowMessage(ImportanceLevel.Info, BuildHelpMessage(), _helpTitle)));
 
 		/// <summary>
 		/// Номер заказа
@@ -122,5 +143,135 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 			get => _state;
 			set => UpdateFilterField(ref _state, value);
 		}
+
+		private static string BuildHelpMessage()
+		{
+			var message = new StringBuilder();
+
+			message
+				.AppendLine("Отклонение заводится, когда заявка или задача ЭДО задерживается на своей стадии дольше")
+				.AppendLine("таймаута, заданного для этого типа отклонения в справочнике источников отклонений.")
+				.AppendLine()
+				.AppendLine("Общие условия, без которых отклонение по задаче не заводится:")
+				.AppendLine("  - задача не завершена и не отменена (проверки результата ГИС МТ работают и по завершенным);")
+				.AppendLine("  - по задаче нет активной проблемы и сама она не в статусе \"Проблема\";")
+				.AppendLine("  - по задаче нет другого активного отклонения;")
+				.AppendLine("  - не сработал ни один тип отклонения, идущий раньше по ходу документооборота.")
+				.AppendLine()
+				.AppendLine("Критерии по типам отклонений:");
+
+			foreach(EdoDeviationType deviationType in Enum.GetValues(typeof(EdoDeviationType)))
+			{
+				if(!_deviationCriteria.TryGetValue(deviationType, out var criteria))
+				{
+					continue;
+				}
+
+				message
+					.AppendLine()
+					.AppendLine($"• {deviationType.GetEnumDisplayName()}:")
+					.AppendLine($"   {criteria}");
+			}
+
+			return message.ToString();
+		}
+
+		/// <summary>
+		/// Условие, при котором мониторинг заводит отклонение каждого типа
+		/// </summary>
+		private static readonly IDictionary<EdoDeviationType, string> _deviationCriteria =
+			new Dictionary<EdoDeviationType, string>
+			{
+				{
+					EdoDeviationType.TaskNotCreated,
+					"заявка создана, задача ЭДО по ней так и не создана"
+				},
+				{
+					EdoDeviationType.TaskNotStarted,
+					"задача создана и остается в статусе \"Новая\": обработчик к ней не приступал"
+				},
+				{
+					EdoDeviationType.TransferNotStarted,
+					"задача на стадии трансфера, но по заявкам на перенос кодов перенос не запущен"
+				},
+				{
+					EdoDeviationType.DocumentNotSentToProvider,
+					"исходящий документ создан, а документооборот у провайдера ЭДО не заведен"
+				},
+				{
+					EdoDeviationType.ProviderNoResponse,
+					"документооборот заведен, но провайдер ЭДО не прислал по нему ни одного действия"
+				},
+				{
+					EdoDeviationType.ClientNotAcceptedDocflow,
+					"последнее действие документооборота — \"Получено оператором\" или \"В процессе\":"
+					+ " документ у клиента, и клиент его не завершает"
+				},
+				{
+					EdoDeviationType.CancellationNotCompleted,
+					"последнее действие документооборота — \"Ожидает аннулирования\""
+				},
+				{
+					EdoDeviationType.GisMtResultMissing,
+					"документооборот завершен и не аннулирован, но результат обработки кодов в ГИС МТ не пришел."
+					+ " Проверяется и по завершенным задачам"
+				},
+				{
+					EdoDeviationType.GisMtRejected,
+					"последний статус ГИС МТ по документообороту — отказной: коды не приняты."
+					+ " Проверяется и по завершенным задачам"
+				},
+				{
+					EdoDeviationType.ReceiptNotFiscalized,
+					"чек передан в отправку, но фискальный документ не создан либо не фискализирован."
+					+ " Ожидание ответа кассы отклонением не считается"
+				},
+				{
+					EdoDeviationType.TaskStalled,
+					"задача не завершена, при этом ни один частный тип отклонения к ней не подходит:"
+					+ " причина задержки не определена"
+				},
+				{
+					EdoDeviationType.TransferWaitingRequestsTooLong,
+					"задача трансфера остается на стадии \"Ожидает запросов\":"
+					+ " досылка залежавшихся трансферов не сработала"
+				},
+				{
+					EdoDeviationType.TransferDocumentNotCreated,
+					"задача трансфера на стадии подготовки или отправки, документ на перенос кодов не создан"
+				},
+				{
+					EdoDeviationType.TransferDocumentNotSentToProvider,
+					"документ трансфера создан, а документооборот у провайдера ЭДО не заведен"
+				},
+				{
+					EdoDeviationType.TransferProviderNoResponse,
+					"документооборот трансфера заведен, ответа провайдера ЭДО по нему нет"
+				},
+				{
+					EdoDeviationType.TransferGisMtResultMissing,
+					"документооборот трансфера завершен, но результат обработки кодов в ГИС МТ не пришел."
+					+ " Проверяется и по завершенным задачам"
+				},
+				{
+					EdoDeviationType.TransferGisMtRejected,
+					"ГИС МТ вернула отказной статус по документообороту трансфера."
+					+ " Проверяется и по завершенным задачам"
+				},
+				{
+					EdoDeviationType.TransferCodesNotMoved,
+					"документооборот трансфера завершен, но коды не сменили владельца в ГИС МТ:"
+					+ " по задаче висит незакрытая проблема ожидания перемещения"
+				},
+				{
+					EdoDeviationType.TransferTooLong,
+					"перенос кодов запущен и не завершается."
+					+ " Ожидание перемещения кодов в ГИС МТ сюда не относится"
+				},
+				{
+					EdoDeviationType.TransferStalled,
+					"задача трансфера не завершена, при этом ни один частный тип отклонения к ней не подходит"
+				}
+			};
 	}
 }
