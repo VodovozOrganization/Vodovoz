@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Sale

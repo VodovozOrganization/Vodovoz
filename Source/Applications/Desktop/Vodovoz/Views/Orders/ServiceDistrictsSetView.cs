@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Orders;

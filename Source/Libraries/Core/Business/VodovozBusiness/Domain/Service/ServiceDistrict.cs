@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Extensions;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Extensions;

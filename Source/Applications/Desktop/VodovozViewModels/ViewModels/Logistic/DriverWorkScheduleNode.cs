@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 

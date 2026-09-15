@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Sale;
 
 namespace Vodovoz.Domain.Sale
 {

@@ -1,7 +1,7 @@
 ﻿using System;
-using Vodovoz.Domain.Sale;
+using Vodovoz.Core.Domain.Sale;
 
-namespace VodovozBusiness.Extensions
+namespace Vodovoz.Core.Domain.Extensions
 {
 	public static class WeekDayNameExtensions
 	{
