@@ -277,6 +277,14 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<EdoProblemJournalViewModel>(null);
 	}
 
+	/// <summary>
+	/// Журнал отклонений документооборота ЭДО
+	/// </summary>
+	protected void OnActionEdoDeviationJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoDeviationJournalViewModel>(null);
+	}
+
 	#endregion Честный знак
 
 	#region Заказы

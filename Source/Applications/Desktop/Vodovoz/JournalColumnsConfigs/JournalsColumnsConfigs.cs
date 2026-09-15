@@ -13,7 +13,9 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Goods.ProductGroups;
+using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation;
@@ -155,6 +157,29 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 			
+			TreeViewColumnsConfigFactory.Register<EdoDeviationJournalViewModel>(
+				(vm) => FluentColumnsConfig<EdoDeviationJournalNode>.Create()
+					.SetTreeModel(() => new RecursiveTreeModel<EdoDeviationJournalNode>(vm.Items.Cast<EdoDeviationJournalNode>(), vm.RecuresiveConfig))
+					.AddColumn("Заказ").HeaderAlignment(0.5f).AddTextRenderer(node => node.OrderTitle)
+					.AddColumn("Дата доставки").HeaderAlignment(0.5f).AddTextRenderer(node => node.DeliveryDateText)
+					.AddColumn("Контрагент").HeaderAlignment(0.5f).AddTextRenderer(node => node.CounterpartyText)
+						.WrapMode(Pango.WrapMode.Word).WrapWidth(200)
+					.AddColumn("Задача").HeaderAlignment(0.5f).AddTextRenderer(node => node.EdoTaskIdText)
+					.AddColumn("Тип задачи").HeaderAlignment(0.5f).AddTextRenderer(node => node.TaskTypeText)
+					.AddColumn("Статус задачи").HeaderAlignment(0.5f).AddTextRenderer(node => node.TaskStatusText)
+					.AddColumn("Результат").HeaderAlignment(0.5f).AddTextRenderer(node => node.Result)
+						.WrapMode(Pango.WrapMode.Word).WrapWidth(250)
+					.AddColumn("Описание").HeaderAlignment(0.5f).AddTextRenderer(node => node.Description)
+						.WrapMode(Pango.WrapMode.Word).WrapWidth(300)
+					.AddColumn("Рекомендация").HeaderAlignment(0.5f).AddTextRenderer(node => node.Recommendation)
+						.WrapMode(Pango.WrapMode.Word).WrapWidth(300)
+					.AddColumn("Обнаружено").HeaderAlignment(0.5f).AddTextRenderer(node => node.DetectedTimeText)
+					.AddColumn("Состояние").HeaderAlignment(0.5f).AddTextRenderer(node => node.StateText)
+					.AddColumn("Причина снятия").HeaderAlignment(0.5f).AddTextRenderer(node => node.ResolveReasonText)
+					.AddColumn("")
+					.Finish()
+			);
+
 			 TreeViewColumnsConfigFactory.Register<CallCenterMotivationCoefficientJournalViewModel>(ViewModel =>
 				FluentColumnsConfig<CallCenterMotivationCoefficientJournalNode>.Create()
 					.SetTreeModel(ViewModel.CreateAndSaveTreeModel)
