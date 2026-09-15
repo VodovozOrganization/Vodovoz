@@ -3,7 +3,7 @@
 namespace TrueMark.Contracts.Documents
 {
 	/// <summary>
-	/// Номенклатура дял списания
+	/// Номенклатура для списания
 	/// </summary>
 	public class ProductDto
 	{
