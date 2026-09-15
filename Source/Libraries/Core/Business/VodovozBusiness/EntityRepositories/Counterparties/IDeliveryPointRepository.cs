@@ -42,6 +42,32 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		int? GetOrderFrequency(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders);
 
 		/// <summary>
+		/// Возвращает порцию идентификаторов точек доставки в порядке возрастания.
+		/// </summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="afterId">Последний обработанный идентификатор, не включается в результат.</param>
+		/// <param name="batchSize">Максимальное количество точек.</param>
+		/// <returns>Идентификаторы следующей порции точек доставки.</returns>
+		IList<int> GetDeliveryPointIdsBatch(IUnitOfWork uow, int afterId, int batchSize);
+
+		/// <summary>
+		/// Пересчитывает и сохраняет частоту последних пяти заказов точки доставки.
+		/// Вызывается фоновым обработчиком в отдельной транзакции без блокировки чтения заказов.
+		/// </summary>
+		/// <param name="uow">Единица работы с активной транзакцией.</param>
+		/// <param name="deliveryPointId">Идентификатор точки доставки.</param>
+		/// <returns>Сохранённая частота заказов либо null, если заказов недостаточно.</returns>
+		int? UpdateOrderFrequency(IUnitOfWork uow, int deliveryPointId);
+
+		/// <summary>
+		/// Возвращает идентификаторы и даты последних пяти выполненных заказов с теми же фильтрами, что и расчёт частоты.
+		/// </summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="deliveryPointId">Идентификатор точки доставки.</param>
+		/// <returns>Состояния заказов по убыванию даты доставки и идентификатора; пустой список, если заказов нет.</returns>
+		IList<OrderFrequencyState> GetOrderFrequencyState(IUnitOfWork uow, int deliveryPointId);
+
+		/// <summary>
 		/// Адреса точек доставки по их Id
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
