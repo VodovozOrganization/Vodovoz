@@ -154,14 +154,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 			var message = new StringBuilder();
 
 			message
-				.AppendLine("Отклонение заводится, когда заявка или задача ЭДО задерживается на своей стадии дольше")
-				.AppendLine("таймаута, заданного для этого типа отклонения в справочнике источников отклонений.")
+				.AppendLine("Отклонение заводится, когда заявка или задача ЭДО задерживается на своей стадии дольше таймаута,"
+					+ " заданного для этого типа отклонения в справочнике источников отклонений.")
 				.AppendLine()
 				.AppendLine("Общие условия, без которых отклонение по задаче не заводится:")
-				.AppendLine("  - задача не завершена и не отменена (проверки результата ГИС МТ работают и по завершенным);")
-				.AppendLine("  - по задаче нет активной проблемы и сама она не в статусе \"Проблема\";")
-				.AppendLine("  - по задаче нет другого активного отклонения;")
-				.AppendLine("  - не сработал ни один тип отклонения, идущий раньше по ходу документооборота.")
+				.AppendLine("• задача не завершена и не отменена (только проверки результата ГИС МТ работают и по завершенным);")
+				.AppendLine("• по задаче нет активной проблемыи сама она не в статусе \"Проблема\";")
+				.AppendLine("• по задаче нет другого активного отклонения;")
+				.AppendLine("• не сработал ни один тип отклонения, идущий раньше по ходу документооборота.")
 				.AppendLine()
 				.AppendLine("Критерии по типам отклонений:");
 
@@ -172,10 +172,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 					continue;
 				}
 
-				message
-					.AppendLine()
-					.AppendLine($"• {deviationType.GetEnumDisplayName()}:")
-					.AppendLine($"   {criteria}");
+				message.AppendLine($"• {deviationType.GetEnumDisplayName()} - {criteria}");
 			}
 
 			return message.ToString();
@@ -209,12 +206,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 				},
 				{
 					EdoDeviationType.ClientNotAcceptedDocflow,
-					"последнее действие документооборота — \"Получено оператором\" или \"В процессе\":"
+					"последнее действие документооборота - \"Получено оператором\" или \"В процессе\":"
 					+ " документ у клиента, и клиент его не завершает"
 				},
 				{
 					EdoDeviationType.CancellationNotCompleted,
-					"последнее действие документооборота — \"Ожидает аннулирования\""
+					"последнее действие документооборота - \"Ожидает аннулирования\""
 				},
 				{
 					EdoDeviationType.GisMtResultMissing,
@@ -223,7 +220,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 				},
 				{
 					EdoDeviationType.GisMtRejected,
-					"последний статус ГИС МТ по документообороту — отказной: коды не приняты."
+					"последний статус ГИС МТ по документообороту - отказной: коды не приняты."
 					+ " Проверяется и по завершенным задачам"
 				},
 				{

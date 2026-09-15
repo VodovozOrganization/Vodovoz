@@ -86,7 +86,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			Refresh();
 		}
 
-		#region Первый уровень — заказы
+		#region Первый уровень - заказы
 
 		private IQueryOver<Order> GetOrdersQuery(IUnitOfWork uow)
 		{
@@ -159,32 +159,32 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		{
 			var disjunction = Restrictions.Disjunction();
 
-			if(AreDeviationsRequested())
+			if(IsDeviationsRequested())
 			{
-				if(AreOrderTaskRowsRequested())
+				if(IsOrderTaskRowsRequested())
 				{
 					disjunction.Add(Subqueries.WhereExists(GetOrderTaskDeviationIdsSubquery(orderAlias)));
 				}
 
-				if(AreTransferRowsRequested())
+				if(IsTransferRowsRequested())
 				{
 					disjunction.Add(Subqueries.WhereExists(GetTransferDeviationIdsSubquery(orderAlias)));
 				}
 
-				if(AreRequestDeviationsRequested())
+				if(IsRequestDeviationsRequested())
 				{
 					disjunction.Add(Subqueries.WhereExists(GetRequestDeviationIdsSubquery(orderAlias)));
 				}
 			}
 
-			if(AreProblemsRequested())
+			if(IsProblemsRequested())
 			{
-				if(AreOrderTaskRowsRequested())
+				if(IsOrderTaskRowsRequested())
 				{
 					disjunction.Add(Subqueries.WhereExists(GetOrderTaskProblemIdsSubquery(orderAlias)));
 				}
 
-				if(AreTransferRowsRequested())
+				if(IsTransferRowsRequested())
 				{
 					disjunction.Add(Subqueries.WhereExists(GetTransferProblemIdsSubquery(orderAlias)));
 				}
@@ -193,29 +193,29 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			return disjunction;
 		}
 
-		private bool AreDeviationsRequested() =>
+		private bool IsDeviationsRequested() =>
 			_filterViewModel.RowType != EdoDeviationJournalNodeType.Problem
 			&& string.IsNullOrWhiteSpace(_filterViewModel.ProblemSourceName);
 
-		private bool AreProblemsRequested() =>
+		private bool IsProblemsRequested() =>
 			_filterViewModel.RowType != EdoDeviationJournalNodeType.Deviation
 			&& !_filterViewModel.DeviationType.HasValue;
 
-		private bool AreRequestDeviationsRequested() =>
+		private bool IsRequestDeviationsRequested() =>
 			!_filterViewModel.TaskId.HasValue
 			&& !_filterViewModel.EdoTaskStatus.HasValue
 			&& !_filterViewModel.EdoTaskType.HasValue;
 
-		private bool AreOrderTaskRowsRequested() =>
+		private bool IsOrderTaskRowsRequested() =>
 			!_filterViewModel.EdoTaskType.HasValue
 			|| _filterViewModel.EdoTaskType == EdoTaskType.Document
 			|| _filterViewModel.EdoTaskType == EdoTaskType.Receipt;
 
-		private bool AreTransferRowsRequested() =>
+		private bool IsTransferRowsRequested() =>
 			!_filterViewModel.EdoTaskType.HasValue
 			|| _filterViewModel.EdoTaskType == EdoTaskType.Transfer;
 
-		#endregion Первый уровень — заказы
+		#endregion Первый уровень - заказы
 
 		#region Подзапросы отбора заказов
 
@@ -421,7 +421,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		{
 			var orderIds = parentNodes.Select(x => x.Id).ToArray();
 
-			if(!orderIds.Any() || !AreDeviationsRequested())
+			if(!orderIds.Any() || !IsDeviationsRequested())
 			{
 				return new List<EdoDeviationJournalNode>();
 			}
@@ -430,17 +430,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			{
 				var nodes = new List<EdoDeviationJournalNode>();
 
-				if(AreOrderTaskRowsRequested())
+				if(IsOrderTaskRowsRequested())
 				{
 					nodes.AddRange(GetOrderTaskDeviations(uow, orderIds));
 				}
 
-				if(AreTransferRowsRequested())
+				if(IsTransferRowsRequested())
 				{
 					nodes.AddRange(GetTransferDeviations(uow, orderIds));
 				}
 
-				if(AreRequestDeviationsRequested())
+				if(IsRequestDeviationsRequested())
 				{
 					nodes.AddRange(GetRequestDeviations(uow, orderIds));
 				}
@@ -457,7 +457,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		{
 			var orderIds = parentNodes.Select(x => x.Id).ToArray();
 
-			if(!orderIds.Any() || !AreProblemsRequested())
+			if(!orderIds.Any() || !IsProblemsRequested())
 			{
 				return new List<EdoDeviationJournalNode>();
 			}
@@ -466,12 +466,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			{
 				var nodes = new List<EdoDeviationJournalNode>();
 
-				if(AreOrderTaskRowsRequested())
+				if(IsOrderTaskRowsRequested())
 				{
 					nodes.AddRange(GetOrderTaskProblems(uow, orderIds));
 				}
 
-				if(AreTransferRowsRequested())
+				if(IsTransferRowsRequested())
 				{
 					nodes.AddRange(GetTransferProblems(uow, orderIds));
 				}
