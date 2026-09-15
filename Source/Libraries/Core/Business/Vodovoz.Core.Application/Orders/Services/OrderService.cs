@@ -966,7 +966,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			if(requestWithCodes.Task == null || requestWithCodes.Task.Status != EdoTaskStatus.Cancelled)
 			{
-				throw new InvalidOperationException("Отклонить коды можно только у отмененной ЭДО задачи");
+				return;
 			}
 
 			foreach(var productCode in requestWithCodes.ProductCodes)

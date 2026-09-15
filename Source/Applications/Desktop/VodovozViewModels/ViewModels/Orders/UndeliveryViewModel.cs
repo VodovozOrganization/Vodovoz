@@ -294,6 +294,11 @@ namespace Vodovoz.ViewModels.Orders
 					return false;
 				}
 
+				_orderCancellationService.PrepareReceiptEdoTaskCancellation(
+					UoW,
+					_orderCancellationPermit,
+					$"Отмена заказа №{Entity.OldOrder.Id}");
+
 				Entity.OldOrder.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker, needCreateDeliveryFreeBalanceOperation: !_isFromRouteListClosing);
 			}
 
