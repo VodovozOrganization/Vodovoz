@@ -24,6 +24,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
@@ -39,7 +40,7 @@ namespace Vodovoz.ReportsParameters
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
-
+		private readonly ICarRepository _carRepository;
 		private readonly IInteractiveService _interactiveService;
 		private Func<ReportInfo> _selectedReport;
 		private IList<NamedDomainObjectNode> _availableSubdivisionsForOneDayGroupReport;
@@ -55,6 +56,7 @@ namespace Vodovoz.ReportsParameters
 			IEmployeeJournalFactory employeeJournalFactory,
 			IInteractiveService interactiveService,
 			ISubdivisionRepository subdivisionRepository,
+			ICarRepository carRepository,
 			INavigationManager navigationManager)
 		{
 			if(navigationManager is null)
@@ -67,7 +69,7 @@ namespace Vodovoz.ReportsParameters
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-
+			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -187,8 +189,9 @@ namespace Vodovoz.ReportsParameters
 			datepickerOneDayGroupReport.DateChanged += OnDatepickerOneDayGroupReportDateChanged;
 
 			// Тип автомобиля
+			var carTypeOfUseForExclude = _carRepository.CarTypeOfUseForExcludeAsEnum();
 			enumcheckCarTypeOfUseOneDayGroupReport.EnumType = typeof(CarTypeOfUse);
-			enumcheckCarTypeOfUseOneDayGroupReport.AddEnumToHideList(CarTypeOfUse.Loader);
+			enumcheckCarTypeOfUseOneDayGroupReport.AddEnumToHideList(carTypeOfUseForExclude);
 			SetChekBoxesInActive(new string[]{ CarTypeOfUse.Largus.ToString(), CarTypeOfUse.Minivan.ToString() }, ref enumcheckCarTypeOfUseOneDayGroupReport);
 
 			// Принадлежность автомобиля

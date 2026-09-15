@@ -228,10 +228,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					DateTime.Today.AddDays(_generalSettings.CarTechnicalCheckupEndingNotificationDaysBefore)));
 			#endregion
 
+			var excludedCarTypesOfUse = _carRepository.CarTypeOfUseForExclude();
+
 			var isShowBackgroundColorNotificationProjection = Projections.Conditional(
 				Restrictions.Conjunction()
-					.Add(Restrictions.Not(Restrictions.Eq(Projections.Property(() => carModelAlias.CarTypeOfUse), CarTypeOfUse.Loader)))
-					.Add(Restrictions.Not(Restrictions.In(Projections.Property(() => carAlias.Id), _carEventSettings.CarsExcludedFromReportsIds)))
+					.Add(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => carModelAlias.CarTypeOfUse),
+						excludedCarTypesOfUse)))
+					.Add(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => carAlias.Id),
+						_carEventSettings.CarsExcludedFromReportsIds)))
 					.Add(Restrictions.Disjunction()
 						.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
 						.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)

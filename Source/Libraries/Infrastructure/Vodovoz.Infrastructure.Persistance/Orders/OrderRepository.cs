@@ -36,7 +36,6 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.NHibernateProjections.Orders;
@@ -46,7 +45,6 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Operations;
-using VodovozBusiness.Domain.StoredEmails;
 using VodovozBusiness.EntityRepositories.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -105,7 +103,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 					.Where(() => routeListAlias.Id == null
 						|| (carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck
-							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Loader))
+							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Loader
+							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Semitrailer))
 					.And(() => routeListItemAlias.Id == null || routeListItemAlias.Status != RouteListItemStatus.Transfered);
 			}
 

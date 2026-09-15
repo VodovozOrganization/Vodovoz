@@ -82,5 +82,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<IDictionary<int, IEnumerable<CarVersion>>> GetCarOwnTypesForPeriodByCars(IUnitOfWork uow, IEnumerable<int> carsIds, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Типы моделей авто для исключения
+		/// </summary>
+		/// <returns>Коллекция типов моделей авто для исключения</returns>
+		Enum[] CarTypeOfUseForExcludeAsEnum();
+		CarTypeOfUse[] CarTypeOfUseForExclude();
 	}
 }
