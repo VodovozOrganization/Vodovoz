@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -310,5 +310,14 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="docflowId">Идентификатор ДО</param>
 		/// <returns>ДО Такском</returns>
 		TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId);
+
+		/// <summary>
+		/// Проверяет наличие активной проблемы с указанными источниками для задачи ЭДО
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="taskId">Id задачи ЭДО</param>
+		/// <param name="problemSourceNames">Массив имен источников проблем</param>
+		/// <returns></returns>
+		bool HasActiveProblemWithSource(IUnitOfWork uow, int taskId, IEnumerable<string> problemSourceNames);
 	}
 }

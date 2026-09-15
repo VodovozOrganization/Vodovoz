@@ -826,7 +826,7 @@ where eir.order_id = :order_id
 				)
 				.Where(() => edoRequestAlias.Order.Id == orderId)
 				.SelectList(list => list
-					.SelectGroup(() => edoTaskProblemAlias.Id)
+					.SelectGroup(() => edoTaskProblemAlias.Id).WithAlias(() => resultAlias.TaskProblemId)
 					.Select(() => orderEdoTaskAlias.Id).WithAlias(() => resultAlias.OrderTaskId)
 					.Select(() => edoTaskProblemAlias.CreationTime).WithAlias(() => resultAlias.Time)
 					.Select(() => edoTaskProblemAlias.State).WithAlias(() => resultAlias.State)
@@ -911,7 +911,7 @@ where eir.order_id = :order_id
 				)
 				.Where(() => edoRequestAlias.Order.Id == orderId)
 				.SelectList(list => list
-					.SelectGroup(() => edoTaskProblemAlias.Id)
+					.SelectGroup(() => edoTaskProblemAlias.Id).WithAlias(() => resultAlias.TaskProblemId)
 					.Select(() => transferEdoTaskAlias.Id).WithAlias(() => resultAlias.TransferTaskId)
 					.Select(() => edoTaskProblemAlias.CreationTime).WithAlias(() => resultAlias.Time)
 					.Select(() => edoTaskProblemAlias.State).WithAlias(() => resultAlias.State)
@@ -1372,6 +1372,15 @@ where ecr.order_id = :order_id
 				.OrderBy(x => x.CreationTime)
 				.Take(batchSize)
 				.ToListAsync(cancellationToken);
+		}
+
+		public bool HasActiveProblemWithSource(IUnitOfWork uow, int taskId, IEnumerable<string> sourceNames)
+		{
+			return uow.GetAll<EdoTaskProblem>()
+				.Any(x => 
+					x.EdoTask.Id == taskId
+					&& x.State == TaskProblemState.Active
+					&& sourceNames.Contains(x.SourceName));
 		}
 	}
 }

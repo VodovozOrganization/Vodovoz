@@ -137,7 +137,6 @@ namespace Edo.Docflow
 					throw new InvalidOperationException($"Неизвестный тип заявки {documentTask.FormalEdoRequest.Type}");
 			}
 
-			//Art8m
 			var message = new TaxcomDocflowSendEvent
 			{
 				EdoAccount = sender.TaxcomEdoSettings.EdoAccount,

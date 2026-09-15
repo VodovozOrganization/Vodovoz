@@ -23,7 +23,7 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 {
 	public class TaxcomSendProblemService : ITaxcomSendProblemService
 	{
-		private readonly string _problemSourceName;
+		private const string _problemSourceName = "Custom.TaxcomDocumentSendingFail";
 		private readonly ILogger<TaxcomSendProblemService> _logger;
 		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
@@ -48,8 +48,6 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 			_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-
-			_problemSourceName = "Custom.TaxcomDocumentSendingFail";
 		}
 
 		public async Task TryResumeOrderDocumentSendAsync(int orderDocumentId, CancellationToken cancellationToken)

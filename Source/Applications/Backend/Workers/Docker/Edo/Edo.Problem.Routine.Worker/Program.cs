@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,7 +66,10 @@ namespace Edo.Problem.Routine.Worker
 					
 					services
 						.AddHostedService<ReceiptContactProblemWorker>();
-					
+
+					services
+						.AddHostedService<NewEdoTasksResendWorker>();
+
 					services
 						.AddHostedService<TaxcomSendProblemWorker>();
 				});
