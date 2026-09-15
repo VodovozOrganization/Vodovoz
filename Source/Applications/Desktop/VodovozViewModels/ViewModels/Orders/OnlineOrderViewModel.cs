@@ -242,6 +242,16 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				? "Не нужен"
 				: $"{ Entity.CallBeforeArrivalMinutes }мин.";
 
+		/// <summary>
+		/// Автозаказ
+		/// </summary>
+		public bool IsTemplateOrder => Entity.TemplateId.HasValue;
+		
+		/// <summary>
+		/// Идентификатор шаблона автозаказа
+		/// </summary>
+		public string TemplateIdString => IsTemplateOrder ? Entity.TemplateId.ToString() : string.Empty;
+
 		public string OnlineOrderPaymentType => Entity.OnlineOrderPaymentType.GetEnumDisplayName();
 		public string OnlineOrderDeliveryDate => Entity.DeliveryDate.ToShortDateString();
 		public string OnlinePayment => Entity.OnlinePayment.ToString();

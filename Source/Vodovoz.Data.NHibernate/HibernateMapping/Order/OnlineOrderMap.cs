@@ -41,6 +41,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.NextCallDate).Column("next_call_date").Nullable();
 			Map(x => x.NextCallDateChanged).Column("next_call_date_changed").Nullable();
 			Map(x => x.HasService).Column("has_service");
+			Map(x => x.TemplateId).Column("template_id");
 			Map(x => x.OrderVersion)
 				.Column(OnlineOrder.OrderVersionColumn)
 				.Not.Update()

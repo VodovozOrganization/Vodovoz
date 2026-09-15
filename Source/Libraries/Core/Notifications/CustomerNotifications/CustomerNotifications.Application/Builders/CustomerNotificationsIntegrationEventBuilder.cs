@@ -110,11 +110,11 @@ namespace CustomerNotifications.Application.Builders
 				// Временный костыль для сайта
 				if(domainEvent.EventSource == Source.VodovozWebSite)
 				{
-					if(onlineOrder != null)
+					if(onlineOrder != null && onlineOrder.ExternalOrderId.HasValue)
 					{
 						var webSiteData = new WebSiteMessage
 						{
-							ExternalOrderId = onlineOrder.ExternalOrderId,
+							ExternalOrderId = onlineOrder.ExternalOrderId.Value,
 							OnlineOrderId = onlineOrder.Id,
 							DeliveryDate = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryDate : (DateTime?)null,
 							DeliveryScheduleId = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryScheduleId : null,

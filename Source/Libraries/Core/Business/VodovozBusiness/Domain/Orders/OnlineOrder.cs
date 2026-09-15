@@ -35,7 +35,7 @@ namespace Vodovoz.Domain.Orders
 		private Counterparty _counterparty;
 		private int? _deliveryPointId;
 		private DeliveryPoint _deliveryPoint;
-		private Guid _externalOrderId;
+		private Guid? _externalOrderId;
 		private Guid? _externalCounterpartyId;
 		private bool _isSelfDelivery;
 		private int? _selfDeliveryGeoGroupId;
@@ -68,6 +68,7 @@ namespace Vodovoz.Domain.Orders
 		private IList<OnlineOrderOperatorComments> _operatorComments = new List<OnlineOrderOperatorComments>();
 		private DateTime? _nextCallDateChanged;
 		private bool _hasService;
+		private int? _templateId;
 
 		public virtual int Id { get; set; }
 		
@@ -93,7 +94,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Номер заказа из ИПЗ")]
-		public virtual Guid ExternalOrderId
+		public virtual Guid? ExternalOrderId
 		{
 			get => _externalOrderId;
 			set => SetField(ref _externalOrderId, value);
@@ -359,6 +360,16 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _hasService;
 			set => SetField(ref _hasService, value);
+		}
+				
+		/// <summary>
+		/// Идентификатор шаблона
+		/// </summary>
+		[Display(Name = "Идентификатор шаблона")]
+		public virtual int? TemplateId
+		{
+			get => _templateId;
+			set => SetField(ref _templateId, value);
 		}
 
 		/// <summary>

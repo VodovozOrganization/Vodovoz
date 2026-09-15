@@ -1,7 +1,5 @@
 ﻿using Autofac;
 using Mango.Client;
-using CustomerNotifications.Contracts;
-using Notifications.Infrastructure;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -40,19 +38,18 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		public Counterparty currentCounterparty { get;private set; }
 		public event Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
-		//TODO-5967 проверить инициализацию окна звонка
 		public CounterpartyTalkViewModel(
 			ILifetimeScope scope,
-			ITdiCompatibilityNavigation tdinavigation,
+			ITdiCompatibilityNavigation tdiNavigation,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			IOrderRepository orderRepository,
 			MangoManager manager
 			)
-			: base(tdinavigation, manager)
+			: base(tdiNavigation, manager)
 		{
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));
+			_tdiNavigation = tdiNavigation ?? throw new ArgumentNullException(nameof(tdiNavigation));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
