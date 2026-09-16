@@ -29,5 +29,13 @@ namespace VodovozBusiness.Specifications.Orders
 		/// <returns></returns>
 		public static OrderSpecification CreateForDeliveryPointId(int deliveryPointId)
 			=> new OrderSpecification(o => o.DeliveryPoint.Id == deliveryPointId);
+		
+		/// <summary>
+		/// Создание спецификацию для идентификатора точки доставки
+		/// </summary>
+		/// <param name="deliveryPointId">идентификатор точки доставки</param>
+		/// <returns></returns>
+		public static OrderSpecification CreateForEdo(DateTime date)
+			=> new OrderSpecification(o => o.DeliveryDate > date);
 	}
 }
