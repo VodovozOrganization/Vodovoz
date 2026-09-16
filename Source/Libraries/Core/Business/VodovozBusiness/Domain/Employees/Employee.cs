@@ -46,6 +46,7 @@ namespace Vodovoz.Domain.Employees
 		private const int _commentLimit = 255;
 
 		private bool _hasAccessToWarehouseApp;
+		private DateTime? _driverManualStopListUntil;
 
 		private Counterparty _counterparty;
 		private Citizenship _citizenship;
@@ -809,6 +810,39 @@ namespace Vodovoz.Domain.Employees
 			{
 				ObservableDriverWorkScheduleSets.Add(activeDriverWorkScheduleSet);
 			}
+		}
+
+		/// <summary>
+		/// Окончание ручной блокировки водителя независимо от долгов (не включительно).
+		/// Действующее временное снятие приостанавливает эту блокировку.
+		/// </summary>
+		[Display(Name = "Ручной стоп-лист водителя")]
+		public virtual DateTime? DriverManualStopListUntil
+		{
+			get => _driverManualStopListUntil;
+			set => SetField(ref _driverManualStopListUntil, value);
+		}
+
+		/// <summary>
+		/// Добавляет водителя в стоп-лист до ближайшей полуночи, прекращая действующие временные снятия.
+		/// Изменения сохраняются в переданной единице работы без её фиксации.
+		/// </summary>
+		/// <param name="unitOfWork">Единица работы для сохранения изменений.</param>
+		public virtual void AddDriverToStopList(IUnitOfWork unitOfWork)
+		{
+			var now = DateTime.Now;
+			var activeRemovals = unitOfWork.GetAll<DriverStopListRemoval>()
+				.Where(r => r.Driver.Id == Id && r.DateFrom <= now && r.DateTo > now)
+				.ToList();
+
+			foreach(var removal in activeRemovals)
+			{
+				removal.DateTo = now;
+				unitOfWork.Save(removal);
+			}
+
+			DriverManualStopListUntil = now.Date.AddDays(1);
+			unitOfWork.Save(this);
 		}
 
 		public virtual bool IsDriverHasActiveStopListRemoval(IUnitOfWork unitOfWork)

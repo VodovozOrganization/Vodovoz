@@ -19,6 +19,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
@@ -36,6 +37,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		private CarTypeOfUse? _filterCarTypeOfUse;
 		private CarOwnType? _filterCarOwnType;
 		private Subdivision _filterSubdivision;
+		private string _filterDriverName;
 		private DriversSortOrder _currentDriversListSortOrder;
 		private bool _isExcludeVisitingMasters;
 		private DelegateCommand _closeFilterCommand;
@@ -77,6 +79,16 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		}
 
 		#region Свойства
+
+		/// <summary>
+		/// Поиск по ФИО водителя в текущем состоянии и истории снятия стоп-листов.
+		/// </summary>
+		[PropertyChangedAlso(nameof(CurrentDriversList), nameof(StopListsRemovalHistory))]
+		public string FilterDriverName
+		{
+			get => _filterDriverName;
+			set => SetField(ref _filterDriverName, value);
+		}
 
 		[PropertyChangedAlso(nameof(CurrentDriversList), nameof(StopListsRemovalHistory))]
 		public EmployeeStatus? FilterEmployeeStatus
@@ -126,7 +138,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			set => SetField(ref _filterVisibility, value);
 		}
 
-		[PropertyChangedAlso(nameof(CanCreateStopListRemoval))]
+		[PropertyChangedAlso(nameof(CanCreateStopListRemoval), nameof(CanAddToStopList))]
 		public DriverNode SelectedDriverNode
 		{
 			get => _selectedDriverNode;
@@ -137,6 +149,14 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			_currentUserRouteListRemovalPermissions.CanCreate
 			&& SelectedDriverNode != null
 			&& !SelectedDriverNode.IsStopListRemoved;
+
+		/// <summary>
+		/// Доступно ручное добавление выбранного водителя в стоп-лист.
+		/// </summary>
+		public bool CanAddToStopList =>
+			_currentUserRouteListRemovalPermissions.CanCreate
+			&& SelectedDriverNode != null
+			&& !SelectedDriverNode.IsDriverInStopList;
 
 		public bool DialogVisibility =>
 			_currentUserRouteListRemovalPermissions.CanRead
@@ -167,6 +187,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.Where(() => driverAlias.Category == EmployeeCategory.driver);
+
+			if(!string.IsNullOrWhiteSpace(FilterDriverName))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					EmployeeProjections.GetDriverFullNameProjection(), FilterDriverName.Trim(), MatchMode.Anywhere));
+			}
 
 			if(FilterEmployeeStatus != null)
 			{
@@ -221,6 +247,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			var drivers = query.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => driverNodeAlias.DriverId)
+					.Select(() => driverAlias.DriverManualStopListUntil).WithAlias(() => driverNodeAlias.DriverManualStopListUntil)
 					.Select(() => driverAlias.Name).WithAlias(() => driverNodeAlias.DriverName)
 					.Select(() => driverAlias.LastName).WithAlias(() => driverNodeAlias.DriverLastName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => driverNodeAlias.DriverPatronymic)
@@ -264,6 +291,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			var query = UoW.Session.QueryOver(() => driverStopListRemovalAlias)
 				.Left.JoinAlias(() => driverStopListRemovalAlias.Driver, () => driverAlias);
+
+			if(!string.IsNullOrWhiteSpace(FilterDriverName))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					EmployeeProjections.GetDriverFullNameProjection(), FilterDriverName.Trim(), MatchMode.Anywhere));
+			}
 
 			if(FilterEmployeeStatus != null)
 			{
@@ -315,6 +348,27 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		}
 
 		#region Команды
+
+		private DelegateCommand _addToStopListCommand;
+
+		/// <summary>
+		/// Добавить выбранного водителя в стоп-лист.
+		/// </summary>
+		public DelegateCommand AddToStopListCommand => _addToStopListCommand
+			?? (_addToStopListCommand = new DelegateCommand(AddToStopList, () => CanAddToStopList));
+
+		private void AddToStopList()
+		{
+			if(!CanAddToStopList)
+			{
+				return;
+			}
+
+			var driver = UoW.GetById<Employee>(SelectedDriverNode.DriverId);
+			driver.AddDriverToStopList(UoW);
+			UoW.Commit();
+			Update();
+		}
 
 		#region RemoveStopList
 		private DelegateCommand _removeStopListCommand;

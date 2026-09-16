@@ -1407,44 +1407,69 @@ namespace Vodovoz.Domain.Logistic
 			return _deliveryRulesSettings.MaxFastOrdersPerSpecificTime;
 		}
 
+		/// <summary>
+		/// Проверяет ручную блокировку и долги водителя с учётом действующего снятия.
+		/// </summary>
+		/// <param name="unclosedRouteListsHavingDebtsCount">Количество незакрытых МЛ с долгом.</param>
+		/// <param name="unclosedRouteListsDebtsSum">Сумма долгов по незакрытым МЛ.</param>
+		/// <returns>Водитель находится в стоп-листе.</returns>
+		public virtual bool IsDriverInStopList(out int unclosedRouteListsHavingDebtsCount, out decimal unclosedRouteListsDebtsSum)
+		{
+			unclosedRouteListsHavingDebtsCount = 0;
+			unclosedRouteListsDebtsSum = 0;
+
+			if(Driver == null || Driver.IsDriverHasActiveStopListRemoval(UoW))
+			{
+				return false;
+			}
+
+			unclosedRouteListsHavingDebtsCount =
+				_routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
+			unclosedRouteListsDebtsSum =
+				_routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
+
+			var maxCount = GetGeneralSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount;
+			var maxSum = GetGeneralSettingsSettings.DriversRouteListsMaxDebtSum;
+
+			return (Driver.DriverManualStopListUntil > DateTime.Now)
+				|| (maxCount > 0 && unclosedRouteListsHavingDebtsCount >= maxCount)
+				|| (maxSum > 0 && unclosedRouteListsDebtsSum >= maxSum);
+		}
+
 		public virtual bool IsDriversDebtInPermittedRangeVerification()
 		{
-			if(Driver != null)
+			if(Driver == null || Driver.IsDriverHasActiveStopListRemoval(UoW))
 			{
-				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount;
-				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsSettings.DriversRouteListsMaxDebtSum;
+				return true;
+			}
 
-				var isDriverHasActiveStopListRemoval = Driver.IsDriverHasActiveStopListRemoval(UoW);
+			var unclosedRouteListsHavingDebtsCount =
+				_routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
+			var unclosedRouteListsDebtsSum =
+				_routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
 
-				if(isDriverHasActiveStopListRemoval)
+			// В существующих сценариях МЛ проверяется превышение порога, включая нулевой.
+			if((Driver.DriverManualStopListUntil > DateTime.Now)
+				|| unclosedRouteListsHavingDebtsCount > GetGeneralSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount
+				|| unclosedRouteListsDebtsSum > GetGeneralSettingsSettings.DriversRouteListsMaxDebtSum)
+			{
+				var messageString =
+					(Driver.DriverManualStopListUntil > DateTime.Now)
+					? $"Водитель {Driver.FullName} добавлен в стоп-лист вручную."
+					: $"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
+					$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей.";
+
+				var canEditDriversStopListParameters =
+					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
+
+				if(canEditDriversStopListParameters)
 				{
-					return true;
+					messageString += "\n\nВсе равно продолжить?";
+					return ServicesConfig.InteractiveService.Question(messageString, "Требуется подтверждение");
 				}
 
-				var unclosedRouteListsHavingDebtsCount =
-					_routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
-				var unclosedRouteListsDebtsSum =
-					_routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
-
-				if(unclosedRouteListsHavingDebtsCount > maxDriversUnclosedRouteListsCountParameter 
-					|| unclosedRouteListsDebtsSum > maxDriversRouteListsDebtsSumParameter)
-				{
-					var messageString =
-						$"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
-						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей.";
-
-					var canEditDriversStopListParameters =
-						ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
-
-					if(canEditDriversStopListParameters)
-					{
-						messageString += "\n\nВсе равно продолжить?";
-						return ServicesConfig.InteractiveService.Question(messageString, "Требуется подтверждение");
-					}
-
-					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, messageString);
-					return false;
-				}
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, messageString);
+				return false;
 			}
 			return true;
 		}

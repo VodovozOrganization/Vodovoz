@@ -46,6 +46,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Services.RouteOptimization;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -527,6 +528,29 @@ namespace Vodovoz.ViewModels.Logistic
 					"Предупреждение");
 				return false;
 			}
+
+			if(!Entity.IsDriverInStopList(out _, out _))
+			{
+				return true;
+			}
+
+			Entity.Driver = null;
+			if(!_interactiveService.Question("Выбираемый сотрудник находится в стоп-листе. Вы хотите снять стоп-лист?"))
+			{
+				return false;
+			}
+
+			var page = NavigationManager.OpenViewModel<DriverStopListRemovalViewModel, int>(this, driver.Id);
+			page.PageClosed += (sender, args) =>
+			{
+				if(args.CloseSource != CloseSource.Save)
+				{
+					return;
+				}
+
+				Entity.Driver = driver;
+				_mangoCallButtonViewModelFactory.UpdateForRouteListDriver(DriverExtensionCallViewModel, UoW, Entity);
+			};
 
 			return true;
 		}

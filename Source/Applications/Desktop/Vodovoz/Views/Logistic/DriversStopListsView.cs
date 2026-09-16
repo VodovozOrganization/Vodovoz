@@ -30,6 +30,14 @@ namespace Vodovoz.Views.Logistic
 
 			entityentrySubdivision.ViewModel = ViewModel.FilterSubdivisionEntityEntryViewModel;
 
+			yentryDriverName.Binding
+				.AddBinding(ViewModel, vm => vm.FilterDriverName, w => w.Text)
+				.InitializeFromSource();
+
+			yhboxDriverFilter.Binding
+				.AddBinding(ViewModel, vm => vm.FilterVisibility, w => w.Visible)
+				.InitializeFromSource();
+
 			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
 			yenumcomboStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.FilterEmployeeStatus, w => w.SelectedItemOrNull)
@@ -92,6 +100,10 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ybuttonRemoveStopList.Clicked += (s, e) => ViewModel.RemoveStopListCommand?.Execute();
+			ybuttonAddToStopList.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddToStopList, v => v.Sensitive)
+				.InitializeFromSource();
+			ybuttonAddToStopList.Clicked += (s, e) => ViewModel.AddToStopListCommand.Execute();
 			ybuttonFilter.Clicked += (s, e) => ViewModel.CloseFilterCommand?.Execute();
 			ybuttonRefresh.Clicked += (s, e) => ViewModel.UpdateCommand?.Execute();
 		}
