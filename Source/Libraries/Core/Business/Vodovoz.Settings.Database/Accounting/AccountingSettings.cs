@@ -14,6 +14,7 @@ namespace Vodovoz.Settings.Database.Accounting
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 		
+		/// <inheritdoc/>
 		public IEnumerable<DateTime> GetAccountingPeriodClosingDates()
 		{
 			var stringDates = _settingsController
@@ -46,7 +47,6 @@ namespace Vodovoz.Settings.Database.Accounting
 			});
 
 			return dates;
-
 		}
 	}
 }
