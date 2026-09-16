@@ -520,7 +520,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.UseViewModelDialog<FuelTypeViewModel>()
 				.Finish();
 
-			viewModel.IsEditable = false;
+			viewModel.IsEditable = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Fuel.CanGiveFuelLimits);
 			viewModel.CanViewEntity = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelType)).CanUpdate;
 
 			return viewModel;
