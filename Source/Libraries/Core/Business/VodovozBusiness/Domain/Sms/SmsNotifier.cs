@@ -36,7 +36,7 @@ namespace Vodovoz.Domain.Sms
 		}
 
 		/// <inheritdoc/>
-		public void NotifyIfNewClient(Order order)
+		public void CreateNewClientSmsNotification(Order order)
 		{
 			if(!_smsNotifierSettings.IsSmsNotificationsEnabled) {
 				return;
@@ -45,8 +45,9 @@ namespace Vodovoz.Domain.Sms
 			if(order == null || order.Id == 0 || order.OrderStatus == OrderStatus.NewOrder || !order.DeliveryDate.HasValue) {
 				return;
 			}
-			if(!order.OrderItems.Any(item => item.Count > 0 && item.Nomenclature.IsWater19L)
-				|| order.OrderItems.Any(item => item.Nomenclature.Id == _smsNotifierSettings.FullDisposable19LNomenclatureId)) {
+			if(!order.OrderItems.Any(item => item.Count > 0
+				&& item.Nomenclature.IsWater19L
+				&& item.Nomenclature.Id != _smsNotifierSettings.FullDisposable19LNomenclatureId)) {
 				return;
 			}
 			//проверка даты без времени
@@ -61,7 +62,7 @@ namespace Vodovoz.Domain.Sms
 				}
 
 				var orderStatuses = _orderRepository.GetValidStatusesToUseActionBottle();
-				if(_orderRepository.HasOtherWater19LOrder(uow, order.Client.Id, order.Id, orderStatuses)) {
+				if(_orderRepository.HasAnotherOrderWithWater19L(uow, order.Client.Id, order.Id, orderStatuses)) {
 					return;
 				}
 			}

@@ -7,7 +7,7 @@ namespace Vodovoz.EntityRepositories.SmsNotifications
 	public interface ISmsNotificationRepository
 	{
 		/// <summary>
-		/// Читает уведомления контрагента независимо от статуса.
+		/// Получить уведомления клиенту независимо от статуса.
 		/// </summary>
 		/// <param name="uow">Единица работы.</param>
 		/// <param name="counterpartyId">Идентификатор контрагента.</param>

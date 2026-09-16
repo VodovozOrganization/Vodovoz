@@ -87,7 +87,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="excludedOrderId">Идентификатор исключаемого текущего заказа.</param>
 		/// <param name="orderStatuses">Учитываемые статусы заказов.</param>
 		/// <returns>Есть ли другой заказ с положительным количеством воды 19 л.</returns>
-		bool HasOtherWater19LOrder(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
+		bool HasAnotherOrderWithWater19L(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
 			IEnumerable<OrderStatus> orderStatuses);
 
 		OrderStatus[] GetGrantedStatusesToCreateSeveralOrders();

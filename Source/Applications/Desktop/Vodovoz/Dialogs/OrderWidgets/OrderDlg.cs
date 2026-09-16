@@ -3211,7 +3211,7 @@ namespace Vodovoz
 		private void ProcessSmsNotification()
 		{
 			var smsNotifier = _lifetimeScope.Resolve<ISmsNotifier>();
-			smsNotifier.NotifyIfNewClient(Entity);
+			smsNotifier.CreateNewClientSmsNotification(Entity);
 		}
 
 		private Result ValidateAndFormOrder()

@@ -9,7 +9,7 @@ namespace Vodovoz.Domain.Sms
 		/// Создаёт и сохраняет уведомление о первом заказе воды 19 л в отдельной единице работы.
 		/// </summary>
 		/// <param name="order">Подтверждаемый заказ.</param>
-		void NotifyIfNewClient(Order order);
+		void CreateNewClientSmsNotification(Order order);
 		void NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder undeliveredOrder, IUnitOfWork externalUow = null);
 	}
 }

@@ -397,7 +397,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		}
 
 		/// <inheritdoc/>
-		public bool HasOtherWater19LOrder(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
+		public bool HasAnotherOrderWithWater19L(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
 			IEnumerable<OrderStatus> orderStatuses)
 		{
 			return uow.Session.Query<OrderItem>()
