@@ -1,5 +1,6 @@
 ﻿using Core.Infrastructure;
 using System;
+using System.Collections.Generic;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Results;
 
@@ -115,11 +116,14 @@ namespace Vodovoz.Errors.Stores
 				nameof(NotAllTrueMarkCodesWasAddedIntoCarLoadDocument),
 				"Не для всех товаров документа погрузки были добавлены коды ЧЗ");
 
-		public static Error CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(int? id) =>
-			id is null ? NotAllTrueMarkCodesWasAddedIntoCarLoadDocument : new Error(
+		public static Error CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(int id, IEnumerable<int> orderIds)
+		{
+			var ordersList = string.Join(", ", orderIds);
+			return new Error(
 				typeof(CarLoadDocumentErrors),
 				nameof(NotAllTrueMarkCodesWasAddedIntoCarLoadDocument),
-				$"Не для всех товаров документа погрузки #{id} были добавлены коды ЧЗ");
+				$"Не для всех товаров документа погрузки #{id} были добавлены коды ЧЗ (заказы: {ordersList})");
+		}
 
 		public static Error OrderItemsExistInMultipleDocuments =>
 			new Error(
