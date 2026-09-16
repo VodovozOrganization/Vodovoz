@@ -54,8 +54,7 @@ namespace Vodovoz.Filters.GtkViews
 				EdoTaskType.InformalOrderDocument,
 				EdoTaskType.SaveCode,
 				EdoTaskType.BulkAccounting,
-				EdoTaskType.Withdrawal,
-				EdoTaskType.Tender);
+				EdoTaskType.Withdrawal);
 			yenumEdoTaskType.ShowSpecialStateAll = true;
 			yenumEdoTaskType.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.EdoTaskType, w => w.SelectedItemOrNull)

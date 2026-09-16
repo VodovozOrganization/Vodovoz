@@ -73,16 +73,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		public EdoTaskStatus? TaskStatus { get; set; }
 
 		/// <summary>
-		/// Номер задачи ЭДО, если она оказалась задачей отправки документа
-		/// </summary>
-		public int? DocumentTaskId { get; set; }
-
-		/// <summary>
-		/// Номер задачи ЭДО, если она оказалась задачей отправки чека
-		/// </summary>
-		public int? ReceiptTaskId { get; set; }
-
-		/// <summary>
 		/// Тип отклонения
 		/// </summary>
 		public EdoDeviationType? DeviationType { get; set; }

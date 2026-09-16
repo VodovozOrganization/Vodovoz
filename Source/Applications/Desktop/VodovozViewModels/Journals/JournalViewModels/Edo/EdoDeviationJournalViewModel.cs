@@ -29,19 +29,31 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 	/// Журнал отклонений и проблем документооборота ЭДО.
 	/// Первый уровень - заказ, второй - зарегистрированные по нему отклонения,
 	/// проблемы и задачи в проблемном статусе без записи проблемы, включая строки
-	/// задач трансфера, которые переносят коды этого заказа
+	/// задач трансфера, которые переносят коды этого заказа.
+	///
+	/// Строки второго уровня собираются из семи источников. По каждому источнику есть
+	/// метод Create*Query с соединениями и условиями отбора, а поверх него - подзапрос
+	/// отбора заказов для первого уровня и запрос самих строк для второго
 	/// </summary>
 	public class EdoDeviationJournalViewModel : JournalViewModelBase
 	{
 		/// <summary>
-		/// Описание строки задачи, оставшейся в проблемном статусе без записи проблемы
+		/// Описание строки задачи, оставшейся в проблемном статусе без единой записи проблемы
 		/// </summary>
 		private const string _unknownProblemDescription =
 			"Задача переведена в проблемный статус, но запись о проблеме по ней не заведена:"
 			+ " причина не зафиксирована";
 
 		/// <summary>
-		/// Рекомендация по строке задачи, оставшейся в проблемном статусе без записи проблемы
+		/// Описание строки задачи, оставшейся в проблемном статусе с решенными проблемами
+		/// </summary>
+		private const string _solvedProblemDescription =
+			"Все проблемы по задаче помечены решенными, но сама задача осталась"
+			+ " в проблемном статусе: статус задачи разошелся с состоянием ее проблем";
+
+		/// <summary>
+		/// Рекомендация по строке задачи, оставшейся в проблемном статусе без действующей
+		/// записи проблемы
 		/// </summary>
 		private const string _unknownProblemRecommendation =
 			"Обратитесь в отдел разработки";
@@ -72,9 +84,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				new HierarchicalQueryLoader<Order, EdoDeviationJournalNode>(uowFactory, GetOrdersCount);
 
 			levelQueryLoader.SetLevelingModel(GetOrdersQuery)
-				.AddNextLevelSource(GetDeviations)
-				.AddNextLevelSource(GetProblems)
-				.AddNextLevelSource(GetProblemStatuses);
+				.AddNextLevelSource(GetOrderRows);
 
 			RecuresiveConfig = levelQueryLoader.TreeConfig;
 
@@ -146,386 +156,72 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			Order orderAlias,
 			CounterpartyEntity counterpartyAlias)
 		{
-			if(_filterViewModel.DeliveryDateFrom.HasValue)
-			{
-				query.Where(() => orderAlias.DeliveryDate >= _filterViewModel.DeliveryDateFrom.Value);
-			}
-
-			if(_filterViewModel.DeliveryDateTo.HasValue)
-			{
-				query.Where(() => orderAlias.DeliveryDate <= _filterViewModel.DeliveryDateTo.Value);
-			}
-
-			if(_filterViewModel.OrderId.HasValue)
-			{
-				query.Where(() => orderAlias.Id == _filterViewModel.OrderId.Value);
-			}
-
-			query.Where(GetHasMatchingRowsRestriction(orderAlias));
-
-			query.Where(GetSearchCriterion(
-				() => orderAlias.Id,
-				() => counterpartyAlias.Name
-			));
+			ApplyDeliveryDateRestriction(query, orderAlias);
+			ApplyOrderIdRestriction(query, orderAlias);
+			ApplyMatchingRowsRestriction(query, orderAlias);
+			ApplySearchRestriction(query, orderAlias, counterpartyAlias);
 		}
 
-		private ICriterion GetHasMatchingRowsRestriction(Order orderAlias)
+		/// <summary>
+		/// Оставляет только заказы, по которым есть хотя бы одна строка второго уровня.
+		/// Источники, отсеченные фильтром целиком, в отбор не попадают, а если фильтр
+		/// исключает их все, дизъюнкция остается пустой и журнал пуст
+		/// </summary>
+		private void ApplyMatchingRowsRestriction(IQueryOver<Order, Order> query, Order orderAlias)
 		{
 			var disjunction = Restrictions.Disjunction();
 
-			if(IsDeviationsRequested())
+			if(IsOrderTaskDeviationRowsRequested())
 			{
-				if(IsOrderTaskRowsRequested())
-				{
-					disjunction.Add(Subqueries.WhereExists(GetOrderTaskDeviationIdsSubquery(orderAlias)));
-				}
-
-				if(IsTransferRowsRequested())
-				{
-					disjunction.Add(Subqueries.WhereExists(GetTransferDeviationIdsSubquery(orderAlias)));
-				}
-
-				if(IsRequestDeviationsRequested())
-				{
-					disjunction.Add(Subqueries.WhereExists(GetRequestDeviationIdsSubquery(orderAlias)));
-				}
+				disjunction.Add(Subqueries.WhereExists(GetOrderTaskDeviationIdsSubquery(orderAlias)));
 			}
 
-			if(IsProblemsRequested())
+			if(IsTransferDeviationRowsRequested())
 			{
-				if(IsOrderTaskRowsRequested())
-				{
-					disjunction.Add(Subqueries.WhereExists(GetOrderTaskProblemIdsSubquery(orderAlias)));
-				}
-
-				if(IsTransferRowsRequested())
-				{
-					disjunction.Add(Subqueries.WhereExists(GetTransferProblemIdsSubquery(orderAlias)));
-				}
+				disjunction.Add(Subqueries.WhereExists(GetTransferDeviationIdsSubquery(orderAlias)));
 			}
 
-			if(IsProblemStatusRowsRequested())
+			if(IsRequestDeviationRowsRequested())
 			{
-				if(IsOrderTaskRowsRequested())
-				{
-					disjunction.Add(Subqueries.WhereExists(GetOrderTaskProblemStatusIdsSubquery(orderAlias)));
-				}
-
-				if(IsTransferRowsRequested())
-				{
-					disjunction.Add(Subqueries.WhereExists(GetTransferProblemStatusIdsSubquery(orderAlias)));
-				}
+				disjunction.Add(Subqueries.WhereExists(GetRequestDeviationIdsSubquery(orderAlias)));
 			}
 
-			return disjunction;
+			if(IsOrderTaskProblemRowsRequested())
+			{
+				disjunction.Add(Subqueries.WhereExists(GetOrderTaskProblemIdsSubquery(orderAlias)));
+			}
+
+			if(IsTransferProblemRowsRequested())
+			{
+				disjunction.Add(Subqueries.WhereExists(GetTransferProblemIdsSubquery(orderAlias)));
+			}
+
+			if(IsOrderTaskUnknownProblemRowsRequested())
+			{
+				disjunction.Add(Subqueries.WhereExists(GetOrderTaskUnknownProblemIdsSubquery(orderAlias)));
+			}
+
+			if(IsTransferUnknownProblemRowsRequested())
+			{
+				disjunction.Add(Subqueries.WhereExists(GetTransferUnknownProblemIdsSubquery(orderAlias)));
+			}
+
+			query.Where(disjunction);
 		}
-
-		private bool IsDeviationsRequested() =>
-			_filterViewModel.RowType != EdoDeviationJournalNodeType.Problem
-			&& string.IsNullOrWhiteSpace(_filterViewModel.ProblemSourceName);
-
-		private bool IsProblemsRequested() =>
-			_filterViewModel.RowType != EdoDeviationJournalNodeType.Deviation
-			&& !_filterViewModel.DeviationType.HasValue;
-
-		private bool IsRequestDeviationsRequested() =>
-			!_filterViewModel.TaskId.HasValue
-			&& !_filterViewModel.EdoTaskStatus.HasValue
-			&& !_filterViewModel.EdoTaskType.HasValue;
-
-		/// <summary>
-		/// Строки задач в проблемном статусе без записи проблемы.
-		/// Своего состояния и источника у такой строки нет, поэтому отбор по типу отклонения,
-		/// источнику проблемы и решенному состоянию ее исключает, а по статусу задачи
-		/// она подходит только под сам проблемный статус
-		/// </summary>
-		private bool IsProblemStatusRowsRequested() =>
-			_filterViewModel.RowType != EdoDeviationJournalNodeType.Deviation
-			&& _filterViewModel.RowType != EdoDeviationJournalNodeType.Problem
-			&& !_filterViewModel.DeviationType.HasValue
-			&& string.IsNullOrWhiteSpace(_filterViewModel.ProblemSourceName)
-			&& (!_filterViewModel.State.HasValue || _filterViewModel.State == TaskProblemState.Active)
-			&& (!_filterViewModel.EdoTaskStatus.HasValue
-				|| _filterViewModel.EdoTaskStatus == EdoTaskStatus.Problem);
-
-		private bool IsOrderTaskRowsRequested() =>
-			!_filterViewModel.EdoTaskType.HasValue
-			|| _filterViewModel.EdoTaskType == EdoTaskType.Document
-			|| _filterViewModel.EdoTaskType == EdoTaskType.Receipt;
-
-		private bool IsTransferRowsRequested() =>
-			!_filterViewModel.EdoTaskType.HasValue
-			|| _filterViewModel.EdoTaskType == EdoTaskType.Transfer;
 
 		#endregion Первый уровень - заказы
 
-		#region Подзапросы отбора заказов
-
-		private QueryOver<EdoTaskDeviation> GetOrderTaskDeviationIdsSubquery(Order orderAlias)
-		{
-			EdoTaskDeviation deviationAlias = null;
-			EdoTask taskAlias = null;
-			EdoDeviationSource sourceAlias = null;
-			FormalEdoRequest requestAlias = null;
-
-			var subquery = QueryOver.Of(() => deviationAlias)
-				.JoinAlias(() => deviationAlias.EdoTask, () => taskAlias)
-				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias)
-				.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == taskAlias.Id)
-				.Where(() => requestAlias.Order.Id == orderAlias.Id);
-
-			ApplyDeviationRestrictions(subquery, deviationAlias, sourceAlias);
-			ApplyTaskRestrictions(subquery, taskAlias);
-			ApplyOrderTaskTypeRestriction(subquery, taskAlias);
-
-			return subquery.Select(Projections.Property(() => deviationAlias.Id));
-		}
-
-		private QueryOver<EdoTaskDeviation> GetRequestDeviationIdsSubquery(Order orderAlias)
-		{
-			EdoTaskDeviation deviationAlias = null;
-			EdoDeviationSource sourceAlias = null;
-			FormalEdoRequest requestAlias = null;
-
-			var subquery = QueryOver.Of(() => deviationAlias)
-				.JoinAlias(() => deviationAlias.EdoRequest, () => requestAlias)
-				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias)
-				.Where(() => deviationAlias.EdoTask == null)
-				.Where(() => requestAlias.Order.Id == orderAlias.Id);
-
-			ApplyDeviationRestrictions(subquery, deviationAlias, sourceAlias);
-
-			return subquery.Select(Projections.Property(() => deviationAlias.Id));
-		}
-
-		private QueryOver<EdoTaskDeviation> GetTransferDeviationIdsSubquery(Order orderAlias)
-		{
-			EdoTaskDeviation deviationAlias = null;
-			EdoTask taskAlias = null;
-			EdoDeviationSource sourceAlias = null;
-			TransferEdoRequest transferRequestAlias = null;
-			TransferEdoRequestIteration iterationAlias = null;
-			FormalEdoRequest requestAlias = null;
-
-			var subquery = QueryOver.Of(() => deviationAlias)
-				.JoinAlias(() => deviationAlias.EdoTask, () => taskAlias)
-				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias)
-				.JoinEntityAlias(() => transferRequestAlias,
-					() => transferRequestAlias.TransferEdoTask.Id == taskAlias.Id)
-				.JoinAlias(() => transferRequestAlias.Iteration, () => iterationAlias)
-				.JoinEntityAlias(() => requestAlias,
-					() => requestAlias.Task.Id == iterationAlias.OrderEdoTask.Id)
-				.Where(() => requestAlias.Order.Id == orderAlias.Id);
-
-			ApplyDeviationRestrictions(subquery, deviationAlias, sourceAlias);
-			ApplyTaskRestrictions(subquery, taskAlias);
-
-			return subquery.Select(Projections.Property(() => deviationAlias.Id));
-		}
-
-		private QueryOver<EdoTaskProblem> GetOrderTaskProblemIdsSubquery(Order orderAlias)
-		{
-			EdoTaskProblem problemAlias = null;
-			EdoTask taskAlias = null;
-			FormalEdoRequest requestAlias = null;
-
-			var subquery = QueryOver.Of(() => problemAlias)
-				.JoinAlias(() => problemAlias.EdoTask, () => taskAlias)
-				.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == taskAlias.Id)
-				.Where(() => requestAlias.Order.Id == orderAlias.Id);
-
-			ApplyProblemRestrictions(subquery, problemAlias);
-			ApplyTaskRestrictions(subquery, taskAlias);
-			ApplyOrderTaskTypeRestriction(subquery, taskAlias);
-
-			return subquery.Select(Projections.Property(() => problemAlias.Id));
-		}
-
-		private QueryOver<EdoTaskProblem> GetTransferProblemIdsSubquery(Order orderAlias)
-		{
-			EdoTaskProblem problemAlias = null;
-			EdoTask taskAlias = null;
-			TransferEdoRequest transferRequestAlias = null;
-			TransferEdoRequestIteration iterationAlias = null;
-			FormalEdoRequest requestAlias = null;
-
-			var subquery = QueryOver.Of(() => problemAlias)
-				.JoinAlias(() => problemAlias.EdoTask, () => taskAlias)
-				.JoinEntityAlias(() => transferRequestAlias,
-					() => transferRequestAlias.TransferEdoTask.Id == taskAlias.Id)
-				.JoinAlias(() => transferRequestAlias.Iteration, () => iterationAlias)
-				.JoinEntityAlias(() => requestAlias,
-					() => requestAlias.Task.Id == iterationAlias.OrderEdoTask.Id)
-				.Where(() => requestAlias.Order.Id == orderAlias.Id);
-
-			ApplyProblemRestrictions(subquery, problemAlias);
-			ApplyTaskRestrictions(subquery, taskAlias);
-
-			return subquery.Select(Projections.Property(() => problemAlias.Id));
-		}
-
-		private QueryOver<OrderEdoTask> GetOrderTaskProblemStatusIdsSubquery(Order orderAlias)
-		{
-			OrderEdoTask taskAlias = null;
-			FormalEdoRequest requestAlias = null;
-
-			var subquery = QueryOver.Of(() => taskAlias)
-				.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == taskAlias.Id)
-				.Where(() => taskAlias.Status == EdoTaskStatus.Problem)
-				.Where(() => requestAlias.Order.Id == orderAlias.Id)
-				.Where(GetNoActiveProblemAndDeviationRestriction(taskAlias));
-
-			ApplyTaskRestrictions(subquery, taskAlias);
-			ApplyOrderTaskTypeRestriction(subquery, taskAlias);
-
-			return subquery.Select(Projections.Property(() => taskAlias.Id));
-		}
-
-		private QueryOver<TransferEdoTask> GetTransferProblemStatusIdsSubquery(Order orderAlias)
-		{
-			TransferEdoTask taskAlias = null;
-			TransferEdoRequest transferRequestAlias = null;
-			TransferEdoRequestIteration iterationAlias = null;
-			FormalEdoRequest requestAlias = null;
-
-			var subquery = QueryOver.Of(() => taskAlias)
-				.JoinEntityAlias(() => transferRequestAlias,
-					() => transferRequestAlias.TransferEdoTask.Id == taskAlias.Id)
-				.JoinAlias(() => transferRequestAlias.Iteration, () => iterationAlias)
-				.JoinEntityAlias(() => requestAlias,
-					() => requestAlias.Task.Id == iterationAlias.OrderEdoTask.Id)
-				.Where(() => taskAlias.Status == EdoTaskStatus.Problem)
-				.Where(() => requestAlias.Order.Id == orderAlias.Id)
-				.Where(GetNoActiveProblemAndDeviationRestriction(taskAlias));
-
-			ApplyTaskRestrictions(subquery, taskAlias);
-
-			return subquery.Select(Projections.Property(() => taskAlias.Id));
-		}
-
-		#endregion Подзапросы отбора заказов
-
-		#region Общие условия фильтра
-
-		private void ApplyDeviationRestrictions<TRoot>(
-			IQueryOver<TRoot, TRoot> query,
-			EdoTaskDeviation deviationAlias,
-			EdoDeviationSource sourceAlias)
-		{
-			if(_filterViewModel.State.HasValue)
-			{
-				query.Where(() => deviationAlias.State == _filterViewModel.State.Value);
-			}
-
-			if(_filterViewModel.DeviationType.HasValue)
-			{
-				query.Where(() => sourceAlias.DeviationType == _filterViewModel.DeviationType.Value);
-			}
-		}
-
-		private void ApplyProblemRestrictions<TRoot>(
-			IQueryOver<TRoot, TRoot> query,
-			EdoTaskProblem problemAlias)
-		{
-			if(_filterViewModel.State.HasValue)
-			{
-				query.Where(() => problemAlias.State == _filterViewModel.State.Value);
-			}
-
-			if(!string.IsNullOrWhiteSpace(_filterViewModel.ProblemSourceName))
-			{
-				query.Where(Restrictions.Like(
-					Projections.Property(() => problemAlias.SourceName),
-					_filterViewModel.ProblemSourceName,
-					MatchMode.Anywhere));
-			}
-		}
-
-		/// <summary>
-		/// Отбирает задачи, по которым нет ни активной проблемы, ни активного отклонения.
-		/// Только такая задача в проблемном статусе не представлена в журнале
-		/// никакой другой строкой
-		/// </summary>
-		private static ICriterion GetNoActiveProblemAndDeviationRestriction(EdoTask taskAlias)
-		{
-			EdoTaskProblem problemAlias = null;
-			EdoTaskDeviation deviationAlias = null;
-
-			var activeProblems = QueryOver.Of(() => problemAlias)
-				.Where(() => problemAlias.EdoTask.Id == taskAlias.Id)
-				.Where(() => problemAlias.State == TaskProblemState.Active)
-				.Select(Projections.Property(() => problemAlias.Id));
-
-			var activeDeviations = QueryOver.Of(() => deviationAlias)
-				.Where(() => deviationAlias.EdoTask.Id == taskAlias.Id)
-				.Where(() => deviationAlias.State == TaskProblemState.Active)
-				.Select(Projections.Property(() => deviationAlias.Id));
-
-			return Restrictions.Conjunction()
-				.Add(Subqueries.WhereNotExists(activeProblems))
-				.Add(Subqueries.WhereNotExists(activeDeviations));
-		}
-
-		private void ApplyTaskRestrictions<TRoot>(IQueryOver<TRoot, TRoot> query, EdoTask taskAlias)
-		{
-			if(_filterViewModel.TaskId.HasValue)
-			{
-				query.Where(() => taskAlias.Id == _filterViewModel.TaskId.Value);
-			}
-
-			if(_filterViewModel.EdoTaskStatus.HasValue)
-			{
-				query.Where(() => taskAlias.Status == _filterViewModel.EdoTaskStatus.Value);
-			}
-		}
-
-		/// <summary>
-		/// Отбирает задачи заказа по типу
-		/// </summary>
-		private void ApplyOrderTaskTypeRestriction<TRoot>(IQueryOver<TRoot, TRoot> query, EdoTask taskAlias)
-		{
-			if(_filterViewModel.EdoTaskType == EdoTaskType.Document)
-			{
-				DocumentEdoTask documentTaskAlias = null;
-
-				query.JoinEntityAlias(() => documentTaskAlias, () => documentTaskAlias.Id == taskAlias.Id);
-			}
-			else if(_filterViewModel.EdoTaskType == EdoTaskType.Receipt)
-			{
-				ReceiptEdoTask receiptTaskAlias = null;
-
-				query.JoinEntityAlias(() => receiptTaskAlias, () => receiptTaskAlias.Id == taskAlias.Id);
-			}
-		}
-
-		/// <summary>
-		/// Отбирает задачи заказа по типу в запросах, где конкретные задачи уже соединены
-		/// левым соединением ради определения типа: хватает проверки, какое из них подошло
-		/// </summary>
-		private void ApplyJoinedOrderTaskTypeRestriction<TRoot>(
-			IQueryOver<TRoot, TRoot> query,
-			DocumentEdoTask documentTaskAlias,
-			ReceiptEdoTask receiptTaskAlias)
-		{
-			if(_filterViewModel.EdoTaskType == EdoTaskType.Document)
-			{
-				query.Where(Restrictions.IsNotNull(Projections.Property(() => documentTaskAlias.Id)));
-			}
-			else if(_filterViewModel.EdoTaskType == EdoTaskType.Receipt)
-			{
-				query.Where(Restrictions.IsNotNull(Projections.Property(() => receiptTaskAlias.Id)));
-			}
-		}
-
-		#endregion Общие условия фильтра
-
 		#region Второй уровень - отклонения и проблемы
 
-		private IList<EdoDeviationJournalNode> GetDeviations(IEnumerable<EdoDeviationJournalNode> parentNodes)
+		/// <summary>
+		/// Собирает строки второго уровня по всем источникам, не отсеченным фильтром.
+		/// Порядок обхода источников задает порядок строк под заказом
+		/// </summary>
+		private IList<EdoDeviationJournalNode> GetOrderRows(IEnumerable<EdoDeviationJournalNode> parentNodes)
 		{
 			var orderIds = parentNodes.Select(x => x.Id).ToArray();
 
-			if(!orderIds.Any() || !IsDeviationsRequested())
+			if(!orderIds.Any())
 			{
 				return new List<EdoDeviationJournalNode>();
 			}
@@ -534,468 +230,150 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			{
 				var nodes = new List<EdoDeviationJournalNode>();
 
-				if(IsOrderTaskRowsRequested())
+				if(IsOrderTaskDeviationRowsRequested())
 				{
 					nodes.AddRange(GetOrderTaskDeviations(uow, orderIds));
 				}
 
-				if(IsTransferRowsRequested())
+				if(IsTransferDeviationRowsRequested())
 				{
 					nodes.AddRange(GetTransferDeviations(uow, orderIds));
 				}
 
-				if(IsRequestDeviationsRequested())
+				if(IsRequestDeviationRowsRequested())
 				{
 					nodes.AddRange(GetRequestDeviations(uow, orderIds));
 				}
 
-				var distinctNodes = DistinctByRow(nodes);
-
-				UpdateParentCounters(parentNodes, distinctNodes);
-
-				return distinctNodes;
-			}
-		}
-
-		private IList<EdoDeviationJournalNode> GetProblems(IEnumerable<EdoDeviationJournalNode> parentNodes)
-		{
-			var orderIds = parentNodes.Select(x => x.Id).ToArray();
-
-			if(!orderIds.Any() || !IsProblemsRequested())
-			{
-				return new List<EdoDeviationJournalNode>();
-			}
-
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				var nodes = new List<EdoDeviationJournalNode>();
-
-				if(IsOrderTaskRowsRequested())
+				if(IsOrderTaskProblemRowsRequested())
 				{
 					nodes.AddRange(GetOrderTaskProblems(uow, orderIds));
 				}
 
-				if(IsTransferRowsRequested())
+				if(IsTransferProblemRowsRequested())
 				{
 					nodes.AddRange(GetTransferProblems(uow, orderIds));
 				}
 
+				if(IsOrderTaskUnknownProblemRowsRequested())
+				{
+					nodes.AddRange(GetOrderTaskUnknownProblems(uow, orderIds));
+				}
+
+				if(IsTransferUnknownProblemRowsRequested())
+				{
+					nodes.AddRange(GetTransferUnknownProblems(uow, orderIds));
+				}
+
 				var distinctNodes = DistinctByRow(nodes);
 
+				FillTaskTypes(uow, distinctNodes);
+				FillUnknownProblemTexts(uow, distinctNodes);
 				UpdateParentCounters(parentNodes, distinctNodes);
 
 				return distinctNodes;
 			}
 		}
 
-		private IList<EdoDeviationJournalNode> GetProblemStatuses(IEnumerable<EdoDeviationJournalNode> parentNodes)
-		{
-			var orderIds = parentNodes.Select(x => x.Id).ToArray();
-
-			if(!orderIds.Any() || !IsProblemStatusRowsRequested())
-			{
-				return new List<EdoDeviationJournalNode>();
-			}
-
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				var nodes = new List<EdoDeviationJournalNode>();
-
-				if(IsOrderTaskRowsRequested())
-				{
-					nodes.AddRange(GetOrderTaskProblemStatuses(uow, orderIds));
-				}
-
-				if(IsTransferRowsRequested())
-				{
-					nodes.AddRange(GetTransferProblemStatuses(uow, orderIds));
-				}
-
-				var distinctNodes = DistinctByRow(nodes);
-
-				UpdateParentCounters(parentNodes, distinctNodes);
-
-				return distinctNodes;
-			}
-		}
-
-		private IList<EdoDeviationJournalNode> GetOrderTaskDeviations(IUnitOfWork uow, int[] orderIds)
-		{
-			EdoTaskDeviation deviationAlias = null;
-			EdoTask taskAlias = null;
-			DocumentEdoTask documentTaskAlias = null;
-			ReceiptEdoTask receiptTaskAlias = null;
-			EdoDeviationSource sourceAlias = null;
-			FormalEdoRequest requestAlias = null;
-			EdoDeviationJournalNode resultAlias = null;
-
-			var query = uow.Session.QueryOver(() => deviationAlias)
-				.JoinAlias(() => deviationAlias.EdoTask, () => taskAlias)
-				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias)
-				.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == taskAlias.Id)
-				.JoinEntityAlias(() => documentTaskAlias,
-					() => documentTaskAlias.Id == taskAlias.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => receiptTaskAlias,
-					() => receiptTaskAlias.Id == taskAlias.Id, JoinType.LeftOuterJoin)
-				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds));
-
-			ApplyDeviationRestrictions(query, deviationAlias, sourceAlias);
-			ApplyTaskRestrictions(query, taskAlias);
-			ApplyJoinedOrderTaskTypeRestriction(query, documentTaskAlias, receiptTaskAlias);
-
-			var nodes = query.SelectList(list => list
-					.Select(() => deviationAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
-					.Select(Projections.Constant(EdoDeviationJournalNodeType.Deviation))
-						.WithAlias(() => resultAlias.NodeType)
-					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
-					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
-					.Select(() => documentTaskAlias.Id).WithAlias(() => resultAlias.DocumentTaskId)
-					.Select(() => receiptTaskAlias.Id).WithAlias(() => resultAlias.ReceiptTaskId)
-					.Select(() => sourceAlias.DeviationType).WithAlias(() => resultAlias.DeviationType)
-					.Select(() => sourceAlias.Description).WithAlias(() => resultAlias.Recommendation)
-					.Select(() => deviationAlias.Details).WithAlias(() => resultAlias.Description)
-					.Select(() => deviationAlias.DetectedTime).WithAlias(() => resultAlias.DetectedTime)
-					.Select(() => deviationAlias.State).WithAlias(() => resultAlias.State)
-					.Select(() => deviationAlias.ResolveReason).WithAlias(() => resultAlias.ResolveReason)
-				)
-				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
-				.List<EdoDeviationJournalNode>();
-
-			FillOrderTaskType(nodes);
-
-			return nodes;
-		}
-
-		private IList<EdoDeviationJournalNode> GetRequestDeviations(IUnitOfWork uow, int[] orderIds)
-		{
-			EdoTaskDeviation deviationAlias = null;
-			EdoDeviationSource sourceAlias = null;
-			FormalEdoRequest requestAlias = null;
-			EdoDeviationJournalNode resultAlias = null;
-
-			var query = uow.Session.QueryOver(() => deviationAlias)
-				.JoinAlias(() => deviationAlias.EdoRequest, () => requestAlias)
-				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias)
-				.Where(() => deviationAlias.EdoTask == null)
-				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds));
-
-			ApplyDeviationRestrictions(query, deviationAlias, sourceAlias);
-
-			return query.SelectList(list => list
-					.Select(() => deviationAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
-					.Select(Projections.Constant(EdoDeviationJournalNodeType.Deviation))
-						.WithAlias(() => resultAlias.NodeType)
-					.Select(() => sourceAlias.DeviationType).WithAlias(() => resultAlias.DeviationType)
-					.Select(() => sourceAlias.Description).WithAlias(() => resultAlias.Recommendation)
-					.Select(() => deviationAlias.Details).WithAlias(() => resultAlias.Description)
-					.Select(() => deviationAlias.DetectedTime).WithAlias(() => resultAlias.DetectedTime)
-					.Select(() => deviationAlias.State).WithAlias(() => resultAlias.State)
-					.Select(() => deviationAlias.ResolveReason).WithAlias(() => resultAlias.ResolveReason)
-				)
-				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
-				.List<EdoDeviationJournalNode>();
-		}
-
-		private IList<EdoDeviationJournalNode> GetTransferDeviations(IUnitOfWork uow, int[] orderIds)
-		{
-			EdoTaskDeviation deviationAlias = null;
-			EdoTask taskAlias = null;
-			EdoDeviationSource sourceAlias = null;
-			TransferEdoRequest transferRequestAlias = null;
-			TransferEdoRequestIteration iterationAlias = null;
-			FormalEdoRequest requestAlias = null;
-			EdoDeviationJournalNode resultAlias = null;
-
-			var query = uow.Session.QueryOver(() => deviationAlias)
-				.JoinAlias(() => deviationAlias.EdoTask, () => taskAlias)
-				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias)
-				.JoinEntityAlias(() => transferRequestAlias,
-					() => transferRequestAlias.TransferEdoTask.Id == taskAlias.Id)
-				.JoinAlias(() => transferRequestAlias.Iteration, () => iterationAlias)
-				.JoinEntityAlias(() => requestAlias,
-					() => requestAlias.Task.Id == iterationAlias.OrderEdoTask.Id)
-				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds));
-
-			ApplyDeviationRestrictions(query, deviationAlias, sourceAlias);
-			ApplyTaskRestrictions(query, taskAlias);
-
-			return query.SelectList(list => list
-					.Select(() => deviationAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
-					.Select(Projections.Constant(EdoDeviationJournalNodeType.Deviation))
-						.WithAlias(() => resultAlias.NodeType)
-					.Select(Projections.Constant(EdoTaskType.Transfer)).WithAlias(() => resultAlias.TaskType)
-					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
-					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
-					.Select(() => sourceAlias.DeviationType).WithAlias(() => resultAlias.DeviationType)
-					.Select(() => sourceAlias.Description).WithAlias(() => resultAlias.Recommendation)
-					.Select(() => deviationAlias.Details).WithAlias(() => resultAlias.Description)
-					.Select(() => deviationAlias.DetectedTime).WithAlias(() => resultAlias.DetectedTime)
-					.Select(() => deviationAlias.State).WithAlias(() => resultAlias.State)
-					.Select(() => deviationAlias.ResolveReason).WithAlias(() => resultAlias.ResolveReason)
-				)
-				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
-				.List<EdoDeviationJournalNode>();
-		}
-
-		private IList<EdoDeviationJournalNode> GetOrderTaskProblems(IUnitOfWork uow, int[] orderIds)
-		{
-			EdoTaskProblem problemAlias = null;
-			ExceptionEdoTaskProblem exceptionProblemAlias = null;
-			EdoTask taskAlias = null;
-			DocumentEdoTask documentTaskAlias = null;
-			ReceiptEdoTask receiptTaskAlias = null;
-			FormalEdoRequest requestAlias = null;
-			EdoTaskProblemDescriptionSourceEntity descriptionSourceAlias = null;
-			EdoTaskProblemCustomSourceEntity customSourceAlias = null;
-			EdoTaskProblemValidatorSourceEntity validatorSourceAlias = null;
-			EdoDeviationJournalNode resultAlias = null;
-
-			var query = uow.Session.QueryOver(() => problemAlias)
-				.JoinAlias(() => problemAlias.EdoTask, () => taskAlias)
-				.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == taskAlias.Id)
-				.JoinEntityAlias(() => documentTaskAlias,
-					() => documentTaskAlias.Id == taskAlias.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => receiptTaskAlias,
-					() => receiptTaskAlias.Id == taskAlias.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => exceptionProblemAlias,
-					() => exceptionProblemAlias.Id == problemAlias.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => descriptionSourceAlias,
-					() => descriptionSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => customSourceAlias,
-					() => customSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => validatorSourceAlias,
-					() => validatorSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
-				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds));
-
-			ApplyProblemRestrictions(query, problemAlias);
-			ApplyTaskRestrictions(query, taskAlias);
-			ApplyJoinedOrderTaskTypeRestriction(query, documentTaskAlias, receiptTaskAlias);
-
-			var nodes = query.SelectList(list => list
-					.Select(() => problemAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
-					.Select(Projections.Constant(EdoDeviationJournalNodeType.Problem))
-						.WithAlias(() => resultAlias.NodeType)
-					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
-					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
-					.Select(() => documentTaskAlias.Id).WithAlias(() => resultAlias.DocumentTaskId)
-					.Select(() => receiptTaskAlias.Id).WithAlias(() => resultAlias.ReceiptTaskId)
-					.Select(() => problemAlias.SourceName).WithAlias(() => resultAlias.ProblemSourceName)
-					.Select(() => descriptionSourceAlias.Description)
-						.WithAlias(() => resultAlias.ProblemSourceDescription)
-					.Select(() => descriptionSourceAlias.Recommendation)
-						.WithAlias(() => resultAlias.Recommendation)
-					.Select(CustomProjections.Coalesce(
-						NHibernateUtil.String,
-						Projections.Property(() => exceptionProblemAlias.ExceptionMessage),
-						Projections.Property(() => customSourceAlias.Message),
-						Projections.Property(() => validatorSourceAlias.Message)))
-						.WithAlias(() => resultAlias.Description)
-					.Select(() => problemAlias.CreationTime).WithAlias(() => resultAlias.DetectedTime)
-					.Select(() => problemAlias.State).WithAlias(() => resultAlias.State)
-				)
-				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
-				.List<EdoDeviationJournalNode>();
-
-			FillOrderTaskType(nodes);
-
-			return nodes;
-		}
-
-		private IList<EdoDeviationJournalNode> GetTransferProblems(IUnitOfWork uow, int[] orderIds)
-		{
-			EdoTaskProblem problemAlias = null;
-			ExceptionEdoTaskProblem exceptionProblemAlias = null;
-			EdoTask taskAlias = null;
-			TransferEdoRequest transferRequestAlias = null;
-			TransferEdoRequestIteration iterationAlias = null;
-			FormalEdoRequest requestAlias = null;
-			EdoTaskProblemDescriptionSourceEntity descriptionSourceAlias = null;
-			EdoTaskProblemCustomSourceEntity customSourceAlias = null;
-			EdoTaskProblemValidatorSourceEntity validatorSourceAlias = null;
-			EdoDeviationJournalNode resultAlias = null;
-
-			var query = uow.Session.QueryOver(() => problemAlias)
-				.JoinAlias(() => problemAlias.EdoTask, () => taskAlias)
-				.JoinEntityAlias(() => transferRequestAlias,
-					() => transferRequestAlias.TransferEdoTask.Id == taskAlias.Id)
-				.JoinAlias(() => transferRequestAlias.Iteration, () => iterationAlias)
-				.JoinEntityAlias(() => requestAlias,
-					() => requestAlias.Task.Id == iterationAlias.OrderEdoTask.Id)
-				.JoinEntityAlias(() => exceptionProblemAlias,
-					() => exceptionProblemAlias.Id == problemAlias.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => descriptionSourceAlias,
-					() => descriptionSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => customSourceAlias,
-					() => customSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => validatorSourceAlias,
-					() => validatorSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
-				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds));
-
-			ApplyProblemRestrictions(query, problemAlias);
-			ApplyTaskRestrictions(query, taskAlias);
-
-			return query.SelectList(list => list
-					.Select(() => problemAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
-					.Select(Projections.Constant(EdoDeviationJournalNodeType.Problem))
-						.WithAlias(() => resultAlias.NodeType)
-					.Select(Projections.Constant(EdoTaskType.Transfer)).WithAlias(() => resultAlias.TaskType)
-					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
-					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
-					.Select(() => problemAlias.SourceName).WithAlias(() => resultAlias.ProblemSourceName)
-					.Select(() => descriptionSourceAlias.Description)
-						.WithAlias(() => resultAlias.ProblemSourceDescription)
-					.Select(() => descriptionSourceAlias.Recommendation)
-						.WithAlias(() => resultAlias.Recommendation)
-					.Select(CustomProjections.Coalesce(
-						NHibernateUtil.String,
-						Projections.Property(() => exceptionProblemAlias.ExceptionMessage),
-						Projections.Property(() => customSourceAlias.Message),
-						Projections.Property(() => validatorSourceAlias.Message)))
-						.WithAlias(() => resultAlias.Description)
-					.Select(() => problemAlias.CreationTime).WithAlias(() => resultAlias.DetectedTime)
-					.Select(() => problemAlias.State).WithAlias(() => resultAlias.State)
-				)
-				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
-				.List<EdoDeviationJournalNode>();
-		}
-
 		/// <summary>
-		/// Задачи заказа, оставшиеся в проблемном статусе без записи проблемы.
-		/// Момента перехода в этот статус нигде не записано, поэтому в колонку обнаружения
-		/// идет время последнего изменения задачи: после перевода в проблемный статус
-		/// обработчики ее уже не трогают
+		/// Одна и та же запись попадает в выборку по разу на каждый путь до заказа:
+		/// у задачи трансфера таких путей столько, сколько заявок на перенос кодов
+		/// этого заказа она обслуживает
 		/// </summary>
-		private IList<EdoDeviationJournalNode> GetOrderTaskProblemStatuses(IUnitOfWork uow, int[] orderIds)
-		{
-			OrderEdoTask taskAlias = null;
-			DocumentEdoTask documentTaskAlias = null;
-			ReceiptEdoTask receiptTaskAlias = null;
-			FormalEdoRequest requestAlias = null;
-			EdoDeviationJournalNode resultAlias = null;
-
-			var query = uow.Session.QueryOver(() => taskAlias)
-				.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == taskAlias.Id)
-				.JoinEntityAlias(() => documentTaskAlias,
-					() => documentTaskAlias.Id == taskAlias.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => receiptTaskAlias,
-					() => receiptTaskAlias.Id == taskAlias.Id, JoinType.LeftOuterJoin)
-				.Where(() => taskAlias.Status == EdoTaskStatus.Problem)
-				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds))
-				.Where(GetNoActiveProblemAndDeviationRestriction(taskAlias));
-
-			ApplyTaskRestrictions(query, taskAlias);
-			ApplyJoinedOrderTaskTypeRestriction(query, documentTaskAlias, receiptTaskAlias);
-
-			var nodes = query.SelectList(list => list
-					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
-					.Select(Projections.Constant(EdoDeviationJournalNodeType.UnknownProblem))
-						.WithAlias(() => resultAlias.NodeType)
-					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
-					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
-					.Select(() => documentTaskAlias.Id).WithAlias(() => resultAlias.DocumentTaskId)
-					.Select(() => receiptTaskAlias.Id).WithAlias(() => resultAlias.ReceiptTaskId)
-					.Select(() => taskAlias.Version).WithAlias(() => resultAlias.DetectedTime)
-					.Select(Projections.Constant(TaskProblemState.Active)).WithAlias(() => resultAlias.State)
-				)
-				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
-				.List<EdoDeviationJournalNode>();
-
-			FillOrderTaskType(nodes);
-			FillProblemStatusTexts(nodes);
-
-			return nodes;
-		}
-
-		/// <summary>
-		/// Задачи трансфера, оставшиеся в проблемном статусе без записи проблемы.
-		/// Время обнаружения берется так же, как в <see cref="GetOrderTaskProblemStatuses"/>
-		/// </summary>
-		private IList<EdoDeviationJournalNode> GetTransferProblemStatuses(IUnitOfWork uow, int[] orderIds)
-		{
-			TransferEdoTask taskAlias = null;
-			TransferEdoRequest transferRequestAlias = null;
-			TransferEdoRequestIteration iterationAlias = null;
-			FormalEdoRequest requestAlias = null;
-			EdoDeviationJournalNode resultAlias = null;
-
-			var query = uow.Session.QueryOver(() => taskAlias)
-				.JoinEntityAlias(() => transferRequestAlias,
-					() => transferRequestAlias.TransferEdoTask.Id == taskAlias.Id)
-				.JoinAlias(() => transferRequestAlias.Iteration, () => iterationAlias)
-				.JoinEntityAlias(() => requestAlias,
-					() => requestAlias.Task.Id == iterationAlias.OrderEdoTask.Id)
-				.Where(() => taskAlias.Status == EdoTaskStatus.Problem)
-				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds))
-				.Where(GetNoActiveProblemAndDeviationRestriction(taskAlias));
-
-			ApplyTaskRestrictions(query, taskAlias);
-
-			var nodes = query.SelectList(list => list
-					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
-					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
-					.Select(Projections.Constant(EdoDeviationJournalNodeType.UnknownProblem))
-						.WithAlias(() => resultAlias.NodeType)
-					.Select(Projections.Constant(EdoTaskType.Transfer)).WithAlias(() => resultAlias.TaskType)
-					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
-					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
-					.Select(() => taskAlias.Version).WithAlias(() => resultAlias.DetectedTime)
-					.Select(Projections.Constant(TaskProblemState.Active)).WithAlias(() => resultAlias.State)
-				)
-				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
-				.List<EdoDeviationJournalNode>();
-
-			FillProblemStatusTexts(nodes);
-
-			return nodes;
-		}
-
-		/// <summary>
-		/// Проставляет строкам задач в проблемном статусе постоянные описание и рекомендацию:
-		/// своего источника, из которого их можно было бы взять, у такой строки нет
-		/// </summary>
-		private static void FillProblemStatusTexts(IEnumerable<EdoDeviationJournalNode> nodes)
-		{
-			foreach(var node in nodes)
-			{
-				node.Description = _unknownProblemDescription;
-				node.Recommendation = _unknownProblemRecommendation;
-			}
-		}
-
-		private static void FillOrderTaskType(IEnumerable<EdoDeviationJournalNode> nodes)
-		{
-			foreach(var node in nodes)
-			{
-				if(node.DocumentTaskId.HasValue)
-				{
-					node.TaskType = EdoTaskType.Document;
-				}
-				else if(node.ReceiptTaskId.HasValue)
-				{
-					node.TaskType = EdoTaskType.Receipt;
-				}
-			}
-		}
-
 		private static IList<EdoDeviationJournalNode> DistinctByRow(
 			IEnumerable<EdoDeviationJournalNode> nodes) =>
 			nodes
 				.GroupBy(x => new { x.NodeType, x.Id, x.ParentId })
 				.Select(x => x.First())
 				.ToList();
+
+		/// <summary>
+		/// Проставляет строкам тип задачи ЭДО. Вид задачи хранится дискриминатором
+		/// таблицы задач и в проекцию не выбирается, поэтому берется у загруженных задач:
+		/// так он верен для любого вида задачи
+		/// </summary>
+		private static void FillTaskTypes(IUnitOfWork uow, IList<EdoDeviationJournalNode> nodes)
+		{
+			var taskIds = nodes
+				.Where(x => x.EdoTaskId.HasValue)
+				.Select(x => x.EdoTaskId.Value)
+				.Distinct()
+				.ToArray();
+
+			if(!taskIds.Any())
+			{
+				return;
+			}
+
+			var taskTypes = uow.Session.QueryOver<EdoTask>()
+				.WhereRestrictionOn(x => x.Id).IsIn(taskIds)
+				.List<EdoTask>()
+				.ToDictionary(x => x.Id, x => x.TaskType);
+
+			foreach(var node in nodes)
+			{
+				if(node.EdoTaskId.HasValue && taskTypes.TryGetValue(node.EdoTaskId.Value, out var taskType))
+				{
+					node.TaskType = taskType;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Проставляет строкам задач в проблемном статусе описание и рекомендацию:
+		/// своего источника, из которого их можно было бы взять, у такой строки нет.
+		/// Описание зависит от того, заведена ли по задаче хоть какая-то запись проблемы
+		/// </summary>
+		private static void FillUnknownProblemTexts(IUnitOfWork uow, IEnumerable<EdoDeviationJournalNode> nodes)
+		{
+			var unknownProblemNodes = nodes
+				.Where(x => x.NodeType == EdoDeviationJournalNodeType.UnknownProblem)
+				.ToArray();
+
+			if(!unknownProblemNodes.Any())
+			{
+				return;
+			}
+
+			var taskIds = unknownProblemNodes
+				.Where(x => x.EdoTaskId.HasValue)
+				.Select(x => x.EdoTaskId.Value)
+				.Distinct()
+				.ToArray();
+
+			var taskIdsWithSolvedProblems = GetTaskIdsWithSolvedProblems(uow, taskIds);
+
+			foreach(var node in unknownProblemNodes)
+			{
+				node.Description =
+					node.EdoTaskId.HasValue && taskIdsWithSolvedProblems.Contains(node.EdoTaskId.Value)
+						? _solvedProblemDescription
+						: _unknownProblemDescription;
+
+				node.Recommendation = _unknownProblemRecommendation;
+			}
+		}
+
+		/// <summary>
+		/// Задачи, по которым запись проблемы заведена. Активных проблем у задач в этих
+		/// строках нет по условию отбора, поэтому найденные записи заведомо решены
+		/// </summary>
+		private static ISet<int> GetTaskIdsWithSolvedProblems(IUnitOfWork uow, int[] taskIds)
+		{
+			EdoTaskProblem problemAlias = null;
+
+			if(!taskIds.Any())
+			{
+				return new HashSet<int>();
+			}
+
+			var foundTaskIds = uow.Session.QueryOver(() => problemAlias)
+				.WhereRestrictionOn(() => problemAlias.EdoTask.Id).IsIn(taskIds)
+				.Select(Projections.Distinct(Projections.Property(() => problemAlias.EdoTask.Id)))
+				.List<int>();
+
+			return new HashSet<int>(foundTaskIds);
+		}
 
 		private static void UpdateParentCounters(
 			IEnumerable<EdoDeviationJournalNode> parentNodes,
@@ -1022,6 +400,807 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		}
 
 		#endregion Второй уровень - отклонения и проблемы
+
+		#region Источник строк - отклонения по задачам заказа
+
+		private QueryOver<EdoTaskDeviation, EdoTaskDeviation> CreateOrderTaskDeviationQuery(
+			EdoTaskDeviation deviationAlias,
+			EdoTask taskAlias,
+			EdoDeviationSource sourceAlias,
+			FormalEdoRequest requestAlias)
+		{
+			var query = QueryOver.Of(() => deviationAlias)
+				.JoinAlias(() => deviationAlias.EdoTask, () => taskAlias)
+				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias);
+
+			JoinOrderTaskRequest(query, taskAlias, requestAlias);
+
+			ApplyStateRestriction(query, Projections.Property(() => deviationAlias.State));
+			ApplyDeviationTypeRestriction(query, sourceAlias);
+			ApplyTaskIdRestriction(query, taskAlias);
+			ApplyTaskStatusRestriction(query, taskAlias);
+			ApplyOrderTaskTypeRestriction(query, taskAlias);
+
+			return query;
+		}
+
+		private QueryOver<EdoTaskDeviation> GetOrderTaskDeviationIdsSubquery(Order orderAlias)
+		{
+			EdoTaskDeviation deviationAlias = null;
+			EdoTask taskAlias = null;
+			EdoDeviationSource sourceAlias = null;
+			FormalEdoRequest requestAlias = null;
+
+			return CreateOrderTaskDeviationQuery(deviationAlias, taskAlias, sourceAlias, requestAlias)
+				.Where(() => requestAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Property(() => deviationAlias.Id));
+		}
+
+		private IList<EdoDeviationJournalNode> GetOrderTaskDeviations(IUnitOfWork uow, int[] orderIds)
+		{
+			EdoTaskDeviation deviationAlias = null;
+			EdoTask taskAlias = null;
+			EdoDeviationSource sourceAlias = null;
+			FormalEdoRequest requestAlias = null;
+			EdoDeviationJournalNode resultAlias = null;
+
+			return CreateOrderTaskDeviationQuery(deviationAlias, taskAlias, sourceAlias, requestAlias)
+				.GetExecutableQueryOver(uow.Session)
+				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds))
+				.SelectList(list => list
+					.Select(() => deviationAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(Projections.Constant(EdoDeviationJournalNodeType.Deviation))
+						.WithAlias(() => resultAlias.NodeType)
+					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
+					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
+					.Select(() => sourceAlias.DeviationType).WithAlias(() => resultAlias.DeviationType)
+					.Select(() => sourceAlias.Description).WithAlias(() => resultAlias.Recommendation)
+					.Select(() => deviationAlias.Details).WithAlias(() => resultAlias.Description)
+					.Select(() => deviationAlias.DetectedTime).WithAlias(() => resultAlias.DetectedTime)
+					.Select(() => deviationAlias.State).WithAlias(() => resultAlias.State)
+					.Select(() => deviationAlias.ResolveReason).WithAlias(() => resultAlias.ResolveReason)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
+				.List<EdoDeviationJournalNode>();
+		}
+
+		#endregion Источник строк - отклонения по задачам заказа
+
+		#region Источник строк - отклонения по задачам трансфера
+
+		private QueryOver<EdoTaskDeviation, EdoTaskDeviation> CreateTransferDeviationQuery(
+			EdoTaskDeviation deviationAlias,
+			EdoTask taskAlias,
+			EdoDeviationSource sourceAlias,
+			TransferEdoRequest transferRequestAlias,
+			TransferEdoRequestIteration iterationAlias,
+			FormalEdoRequest requestAlias)
+		{
+			var query = QueryOver.Of(() => deviationAlias)
+				.JoinAlias(() => deviationAlias.EdoTask, () => taskAlias)
+				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias);
+
+			JoinTransferTaskRequest(query, taskAlias, transferRequestAlias, iterationAlias, requestAlias);
+
+			ApplyStateRestriction(query, Projections.Property(() => deviationAlias.State));
+			ApplyDeviationTypeRestriction(query, sourceAlias);
+			ApplyTaskIdRestriction(query, taskAlias);
+			ApplyTaskStatusRestriction(query, taskAlias);
+
+			return query;
+		}
+
+		private QueryOver<EdoTaskDeviation> GetTransferDeviationIdsSubquery(Order orderAlias)
+		{
+			EdoTaskDeviation deviationAlias = null;
+			EdoTask taskAlias = null;
+			EdoDeviationSource sourceAlias = null;
+			TransferEdoRequest transferRequestAlias = null;
+			TransferEdoRequestIteration iterationAlias = null;
+			FormalEdoRequest requestAlias = null;
+
+			return CreateTransferDeviationQuery(
+					deviationAlias, taskAlias, sourceAlias, transferRequestAlias, iterationAlias, requestAlias)
+				.Where(() => requestAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Property(() => deviationAlias.Id));
+		}
+
+		private IList<EdoDeviationJournalNode> GetTransferDeviations(IUnitOfWork uow, int[] orderIds)
+		{
+			EdoTaskDeviation deviationAlias = null;
+			EdoTask taskAlias = null;
+			EdoDeviationSource sourceAlias = null;
+			TransferEdoRequest transferRequestAlias = null;
+			TransferEdoRequestIteration iterationAlias = null;
+			FormalEdoRequest requestAlias = null;
+			EdoDeviationJournalNode resultAlias = null;
+
+			return CreateTransferDeviationQuery(
+					deviationAlias, taskAlias, sourceAlias, transferRequestAlias, iterationAlias, requestAlias)
+				.GetExecutableQueryOver(uow.Session)
+				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds))
+				.SelectList(list => list
+					.Select(() => deviationAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(Projections.Constant(EdoDeviationJournalNodeType.Deviation))
+						.WithAlias(() => resultAlias.NodeType)
+					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
+					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
+					.Select(() => sourceAlias.DeviationType).WithAlias(() => resultAlias.DeviationType)
+					.Select(() => sourceAlias.Description).WithAlias(() => resultAlias.Recommendation)
+					.Select(() => deviationAlias.Details).WithAlias(() => resultAlias.Description)
+					.Select(() => deviationAlias.DetectedTime).WithAlias(() => resultAlias.DetectedTime)
+					.Select(() => deviationAlias.State).WithAlias(() => resultAlias.State)
+					.Select(() => deviationAlias.ResolveReason).WithAlias(() => resultAlias.ResolveReason)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
+				.List<EdoDeviationJournalNode>();
+		}
+
+		#endregion Источник строк - отклонения по задачам трансфера
+
+		#region Источник строк - отклонения по заявкам без задачи
+
+		private QueryOver<EdoTaskDeviation, EdoTaskDeviation> CreateRequestDeviationQuery(
+			EdoTaskDeviation deviationAlias,
+			EdoDeviationSource sourceAlias,
+			FormalEdoRequest requestAlias)
+		{
+			var query = QueryOver.Of(() => deviationAlias)
+				.JoinAlias(() => deviationAlias.EdoRequest, () => requestAlias)
+				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias)
+				.Where(() => deviationAlias.EdoTask == null);
+
+			ApplyStateRestriction(query, Projections.Property(() => deviationAlias.State));
+			ApplyDeviationTypeRestriction(query, sourceAlias);
+
+			return query;
+		}
+
+		private QueryOver<EdoTaskDeviation> GetRequestDeviationIdsSubquery(Order orderAlias)
+		{
+			EdoTaskDeviation deviationAlias = null;
+			EdoDeviationSource sourceAlias = null;
+			FormalEdoRequest requestAlias = null;
+
+			return CreateRequestDeviationQuery(deviationAlias, sourceAlias, requestAlias)
+				.Where(() => requestAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Property(() => deviationAlias.Id));
+		}
+
+		private IList<EdoDeviationJournalNode> GetRequestDeviations(IUnitOfWork uow, int[] orderIds)
+		{
+			EdoTaskDeviation deviationAlias = null;
+			EdoDeviationSource sourceAlias = null;
+			FormalEdoRequest requestAlias = null;
+			EdoDeviationJournalNode resultAlias = null;
+
+			return CreateRequestDeviationQuery(deviationAlias, sourceAlias, requestAlias)
+				.GetExecutableQueryOver(uow.Session)
+				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds))
+				.SelectList(list => list
+					.Select(() => deviationAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(Projections.Constant(EdoDeviationJournalNodeType.Deviation))
+						.WithAlias(() => resultAlias.NodeType)
+					.Select(() => sourceAlias.DeviationType).WithAlias(() => resultAlias.DeviationType)
+					.Select(() => sourceAlias.Description).WithAlias(() => resultAlias.Recommendation)
+					.Select(() => deviationAlias.Details).WithAlias(() => resultAlias.Description)
+					.Select(() => deviationAlias.DetectedTime).WithAlias(() => resultAlias.DetectedTime)
+					.Select(() => deviationAlias.State).WithAlias(() => resultAlias.State)
+					.Select(() => deviationAlias.ResolveReason).WithAlias(() => resultAlias.ResolveReason)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
+				.List<EdoDeviationJournalNode>();
+		}
+
+		#endregion Источник строк - отклонения по заявкам без задачи
+
+		#region Источник строк - проблемы по задачам заказа
+
+		private QueryOver<EdoTaskProblem, EdoTaskProblem> CreateOrderTaskProblemQuery(
+			EdoTaskProblem problemAlias,
+			EdoTask taskAlias,
+			FormalEdoRequest requestAlias)
+		{
+			var query = QueryOver.Of(() => problemAlias)
+				.JoinAlias(() => problemAlias.EdoTask, () => taskAlias);
+
+			JoinOrderTaskRequest(query, taskAlias, requestAlias);
+
+			ApplyStateRestriction(query, Projections.Property(() => problemAlias.State));
+			ApplyProblemSourceNameRestriction(query, problemAlias);
+			ApplyTaskIdRestriction(query, taskAlias);
+			ApplyTaskStatusRestriction(query, taskAlias);
+			ApplyOrderTaskTypeRestriction(query, taskAlias);
+
+			return query;
+		}
+
+		private QueryOver<EdoTaskProblem> GetOrderTaskProblemIdsSubquery(Order orderAlias)
+		{
+			EdoTaskProblem problemAlias = null;
+			EdoTask taskAlias = null;
+			FormalEdoRequest requestAlias = null;
+
+			return CreateOrderTaskProblemQuery(problemAlias, taskAlias, requestAlias)
+				.Where(() => requestAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Property(() => problemAlias.Id));
+		}
+
+		private IList<EdoDeviationJournalNode> GetOrderTaskProblems(IUnitOfWork uow, int[] orderIds)
+		{
+			EdoTaskProblem problemAlias = null;
+			EdoTask taskAlias = null;
+			FormalEdoRequest requestAlias = null;
+			ExceptionEdoTaskProblem exceptionProblemAlias = null;
+			EdoTaskProblemDescriptionSourceEntity descriptionSourceAlias = null;
+			EdoTaskProblemCustomSourceEntity customSourceAlias = null;
+			EdoTaskProblemValidatorSourceEntity validatorSourceAlias = null;
+			EdoDeviationJournalNode resultAlias = null;
+
+			var query = CreateOrderTaskProblemQuery(problemAlias, taskAlias, requestAlias)
+				.GetExecutableQueryOver(uow.Session)
+				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds));
+
+			JoinProblemDescriptionSources(
+				query,
+				problemAlias,
+				exceptionProblemAlias,
+				descriptionSourceAlias,
+				customSourceAlias,
+				validatorSourceAlias);
+
+			return query.SelectList(list => list
+					.Select(() => problemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(Projections.Constant(EdoDeviationJournalNodeType.Problem))
+						.WithAlias(() => resultAlias.NodeType)
+					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
+					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
+					.Select(() => problemAlias.SourceName).WithAlias(() => resultAlias.ProblemSourceName)
+					.Select(() => descriptionSourceAlias.Description)
+						.WithAlias(() => resultAlias.ProblemSourceDescription)
+					.Select(() => descriptionSourceAlias.Recommendation)
+						.WithAlias(() => resultAlias.Recommendation)
+					.Select(GetProblemDescriptionProjection(
+						exceptionProblemAlias, customSourceAlias, validatorSourceAlias))
+						.WithAlias(() => resultAlias.Description)
+					.Select(() => problemAlias.CreationTime).WithAlias(() => resultAlias.DetectedTime)
+					.Select(() => problemAlias.State).WithAlias(() => resultAlias.State)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
+				.List<EdoDeviationJournalNode>();
+		}
+
+		#endregion Источник строк - проблемы по задачам заказа
+
+		#region Источник строк - проблемы по задачам трансфера
+
+		private QueryOver<EdoTaskProblem, EdoTaskProblem> CreateTransferProblemQuery(
+			EdoTaskProblem problemAlias,
+			EdoTask taskAlias,
+			TransferEdoRequest transferRequestAlias,
+			TransferEdoRequestIteration iterationAlias,
+			FormalEdoRequest requestAlias)
+		{
+			var query = QueryOver.Of(() => problemAlias)
+				.JoinAlias(() => problemAlias.EdoTask, () => taskAlias);
+
+			JoinTransferTaskRequest(query, taskAlias, transferRequestAlias, iterationAlias, requestAlias);
+
+			ApplyStateRestriction(query, Projections.Property(() => problemAlias.State));
+			ApplyProblemSourceNameRestriction(query, problemAlias);
+			ApplyTaskIdRestriction(query, taskAlias);
+			ApplyTaskStatusRestriction(query, taskAlias);
+
+			return query;
+		}
+
+		private QueryOver<EdoTaskProblem> GetTransferProblemIdsSubquery(Order orderAlias)
+		{
+			EdoTaskProblem problemAlias = null;
+			EdoTask taskAlias = null;
+			TransferEdoRequest transferRequestAlias = null;
+			TransferEdoRequestIteration iterationAlias = null;
+			FormalEdoRequest requestAlias = null;
+
+			return CreateTransferProblemQuery(
+					problemAlias, taskAlias, transferRequestAlias, iterationAlias, requestAlias)
+				.Where(() => requestAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Property(() => problemAlias.Id));
+		}
+
+		private IList<EdoDeviationJournalNode> GetTransferProblems(IUnitOfWork uow, int[] orderIds)
+		{
+			EdoTaskProblem problemAlias = null;
+			EdoTask taskAlias = null;
+			TransferEdoRequest transferRequestAlias = null;
+			TransferEdoRequestIteration iterationAlias = null;
+			FormalEdoRequest requestAlias = null;
+			ExceptionEdoTaskProblem exceptionProblemAlias = null;
+			EdoTaskProblemDescriptionSourceEntity descriptionSourceAlias = null;
+			EdoTaskProblemCustomSourceEntity customSourceAlias = null;
+			EdoTaskProblemValidatorSourceEntity validatorSourceAlias = null;
+			EdoDeviationJournalNode resultAlias = null;
+
+			var query = CreateTransferProblemQuery(
+					problemAlias, taskAlias, transferRequestAlias, iterationAlias, requestAlias)
+				.GetExecutableQueryOver(uow.Session)
+				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds));
+
+			JoinProblemDescriptionSources(
+				query,
+				problemAlias,
+				exceptionProblemAlias,
+				descriptionSourceAlias,
+				customSourceAlias,
+				validatorSourceAlias);
+
+			return query.SelectList(list => list
+					.Select(() => problemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(Projections.Constant(EdoDeviationJournalNodeType.Problem))
+						.WithAlias(() => resultAlias.NodeType)
+					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
+					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
+					.Select(() => problemAlias.SourceName).WithAlias(() => resultAlias.ProblemSourceName)
+					.Select(() => descriptionSourceAlias.Description)
+						.WithAlias(() => resultAlias.ProblemSourceDescription)
+					.Select(() => descriptionSourceAlias.Recommendation)
+						.WithAlias(() => resultAlias.Recommendation)
+					.Select(GetProblemDescriptionProjection(
+						exceptionProblemAlias, customSourceAlias, validatorSourceAlias))
+						.WithAlias(() => resultAlias.Description)
+					.Select(() => problemAlias.CreationTime).WithAlias(() => resultAlias.DetectedTime)
+					.Select(() => problemAlias.State).WithAlias(() => resultAlias.State)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
+				.List<EdoDeviationJournalNode>();
+		}
+
+		#endregion Источник строк - проблемы по задачам трансфера
+
+		#region Источник строк - задачи заказа в проблемном статусе без записи проблемы
+
+		private QueryOver<OrderEdoTask, OrderEdoTask> CreateOrderTaskUnknownProblemQuery(
+			OrderEdoTask taskAlias,
+			FormalEdoRequest requestAlias)
+		{
+			var query = QueryOver.Of(() => taskAlias)
+				.Where(() => taskAlias.Status == EdoTaskStatus.Problem)
+				.Where(GetNoActiveProblemAndDeviationRestriction(taskAlias));
+
+			JoinOrderTaskRequest(query, taskAlias, requestAlias);
+
+			ApplyTaskIdRestriction(query, taskAlias);
+			ApplyTaskStatusRestriction(query, taskAlias);
+			ApplyOrderTaskTypeRestriction(query, taskAlias);
+
+			return query;
+		}
+
+		private QueryOver<OrderEdoTask> GetOrderTaskUnknownProblemIdsSubquery(Order orderAlias)
+		{
+			OrderEdoTask taskAlias = null;
+			FormalEdoRequest requestAlias = null;
+
+			return CreateOrderTaskUnknownProblemQuery(taskAlias, requestAlias)
+				.Where(() => requestAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Property(() => taskAlias.Id));
+		}
+
+		/// <summary>
+		/// Задачи заказа, оставшиеся в проблемном статусе без записи проблемы.
+		/// Момента перехода в этот статус нигде не записано, поэтому в колонку обнаружения
+		/// идет время последнего изменения задачи: после перевода в проблемный статус
+		/// обработчики ее уже не трогают
+		/// </summary>
+		private IList<EdoDeviationJournalNode> GetOrderTaskUnknownProblems(IUnitOfWork uow, int[] orderIds)
+		{
+			OrderEdoTask taskAlias = null;
+			FormalEdoRequest requestAlias = null;
+			EdoDeviationJournalNode resultAlias = null;
+
+			return CreateOrderTaskUnknownProblemQuery(taskAlias, requestAlias)
+				.GetExecutableQueryOver(uow.Session)
+				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds))
+				.SelectList(list => list
+					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(Projections.Constant(EdoDeviationJournalNodeType.UnknownProblem))
+						.WithAlias(() => resultAlias.NodeType)
+					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
+					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
+					.Select(() => taskAlias.Version).WithAlias(() => resultAlias.DetectedTime)
+					.Select(Projections.Constant(TaskProblemState.Active)).WithAlias(() => resultAlias.State)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
+				.List<EdoDeviationJournalNode>();
+		}
+
+		#endregion Источник строк - задачи заказа в проблемном статусе без записи проблемы
+
+		#region Источник строк - задачи трансфера в проблемном статусе без записи проблемы
+
+		private QueryOver<TransferEdoTask, TransferEdoTask> CreateTransferUnknownProblemQuery(
+			TransferEdoTask taskAlias,
+			TransferEdoRequest transferRequestAlias,
+			TransferEdoRequestIteration iterationAlias,
+			FormalEdoRequest requestAlias)
+		{
+			var query = QueryOver.Of(() => taskAlias)
+				.Where(() => taskAlias.Status == EdoTaskStatus.Problem)
+				.Where(GetNoActiveProblemAndDeviationRestriction(taskAlias));
+
+			JoinTransferTaskRequest(query, taskAlias, transferRequestAlias, iterationAlias, requestAlias);
+
+			ApplyTaskIdRestriction(query, taskAlias);
+			ApplyTaskStatusRestriction(query, taskAlias);
+
+			return query;
+		}
+
+		private QueryOver<TransferEdoTask> GetTransferUnknownProblemIdsSubquery(Order orderAlias)
+		{
+			TransferEdoTask taskAlias = null;
+			TransferEdoRequest transferRequestAlias = null;
+			TransferEdoRequestIteration iterationAlias = null;
+			FormalEdoRequest requestAlias = null;
+
+			return CreateTransferUnknownProblemQuery(
+					taskAlias, transferRequestAlias, iterationAlias, requestAlias)
+				.Where(() => requestAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Property(() => taskAlias.Id));
+		}
+
+		/// <summary>
+		/// Задачи трансфера, оставшиеся в проблемном статусе без записи проблемы.
+		/// Время обнаружения берется так же, как в <see cref="GetOrderTaskUnknownProblems"/>
+		/// </summary>
+		private IList<EdoDeviationJournalNode> GetTransferUnknownProblems(IUnitOfWork uow, int[] orderIds)
+		{
+			TransferEdoTask taskAlias = null;
+			TransferEdoRequest transferRequestAlias = null;
+			TransferEdoRequestIteration iterationAlias = null;
+			FormalEdoRequest requestAlias = null;
+			EdoDeviationJournalNode resultAlias = null;
+
+			return CreateTransferUnknownProblemQuery(
+					taskAlias, transferRequestAlias, iterationAlias, requestAlias)
+				.GetExecutableQueryOver(uow.Session)
+				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds))
+				.SelectList(list => list
+					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.ParentId)
+					.Select(() => requestAlias.Order.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(Projections.Constant(EdoDeviationJournalNodeType.UnknownProblem))
+						.WithAlias(() => resultAlias.NodeType)
+					.Select(() => taskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
+					.Select(() => taskAlias.Status).WithAlias(() => resultAlias.TaskStatus)
+					.Select(() => taskAlias.Version).WithAlias(() => resultAlias.DetectedTime)
+					.Select(Projections.Constant(TaskProblemState.Active)).WithAlias(() => resultAlias.State)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoDeviationJournalNode>())
+				.List<EdoDeviationJournalNode>();
+		}
+
+		#endregion Источник строк - задачи трансфера в проблемном статусе без записи проблемы
+
+		#region Общие части запросов источников
+
+		/// <summary>
+		/// Путь от задачи заказа к заказу: заявка ЭДО, по которой задача создана
+		/// </summary>
+		private static void JoinOrderTaskRequest<TRoot>(
+			IQueryOver<TRoot, TRoot> query,
+			EdoTask taskAlias,
+			FormalEdoRequest requestAlias)
+		{
+			query.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == taskAlias.Id);
+		}
+
+		/// <summary>
+		/// Путь от задачи трансфера к заказам, коды которых она переносит:
+		/// заявка на перенос кодов, ее итерация и заявка ЭДО задачи заказа
+		/// </summary>
+		private static void JoinTransferTaskRequest<TRoot>(
+			IQueryOver<TRoot, TRoot> query,
+			EdoTask taskAlias,
+			TransferEdoRequest transferRequestAlias,
+			TransferEdoRequestIteration iterationAlias,
+			FormalEdoRequest requestAlias)
+		{
+			query
+				.JoinEntityAlias(() => transferRequestAlias,
+					() => transferRequestAlias.TransferEdoTask.Id == taskAlias.Id)
+				.JoinAlias(() => transferRequestAlias.Iteration, () => iterationAlias)
+				.JoinEntityAlias(() => requestAlias,
+					() => requestAlias.Task.Id == iterationAlias.OrderEdoTask.Id);
+		}
+
+		/// <summary>
+		/// Присоединяет источники текстов проблемы: сообщение исключения и справочники
+		/// описаний источников. Нужны только для отображения строки, поэтому в отбор
+		/// заказов первого уровня не входят
+		/// </summary>
+		private static void JoinProblemDescriptionSources<TRoot>(
+			IQueryOver<TRoot, TRoot> query,
+			EdoTaskProblem problemAlias,
+			ExceptionEdoTaskProblem exceptionProblemAlias,
+			EdoTaskProblemDescriptionSourceEntity descriptionSourceAlias,
+			EdoTaskProblemCustomSourceEntity customSourceAlias,
+			EdoTaskProblemValidatorSourceEntity validatorSourceAlias)
+		{
+			query
+				.JoinEntityAlias(() => exceptionProblemAlias,
+					() => exceptionProblemAlias.Id == problemAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => descriptionSourceAlias,
+					() => descriptionSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => customSourceAlias,
+					() => customSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => validatorSourceAlias,
+					() => validatorSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin);
+		}
+
+		/// <summary>
+		/// Сообщение проблемы: у проблемы от исключения - его текст,
+		/// у остальных - сообщение из справочника ее источника
+		/// </summary>
+		private static IProjection GetProblemDescriptionProjection(
+			ExceptionEdoTaskProblem exceptionProblemAlias,
+			EdoTaskProblemCustomSourceEntity customSourceAlias,
+			EdoTaskProblemValidatorSourceEntity validatorSourceAlias) =>
+			CustomProjections.Coalesce(
+				NHibernateUtil.String,
+				Projections.Property(() => exceptionProblemAlias.ExceptionMessage),
+				Projections.Property(() => customSourceAlias.Message),
+				Projections.Property(() => validatorSourceAlias.Message));
+
+		/// <summary>
+		/// Отбирает задачи, по которым нет ни активной проблемы, ни активного отклонения.
+		/// Только такая задача в проблемном статусе не представлена в журнале
+		/// никакой другой строкой
+		/// </summary>
+		private static ICriterion GetNoActiveProblemAndDeviationRestriction(EdoTask taskAlias)
+		{
+			EdoTaskProblem problemAlias = null;
+			EdoTaskDeviation deviationAlias = null;
+
+			var activeProblems = QueryOver.Of(() => problemAlias)
+				.Where(() => problemAlias.EdoTask.Id == taskAlias.Id)
+				.Where(() => problemAlias.State == TaskProblemState.Active)
+				.Select(Projections.Property(() => problemAlias.Id));
+
+			var activeDeviations = QueryOver.Of(() => deviationAlias)
+				.Where(() => deviationAlias.EdoTask.Id == taskAlias.Id)
+				.Where(() => deviationAlias.State == TaskProblemState.Active)
+				.Select(Projections.Property(() => deviationAlias.Id));
+
+			return Restrictions.Conjunction()
+				.Add(Subqueries.WhereNotExists(activeProblems))
+				.Add(Subqueries.WhereNotExists(activeDeviations));
+		}
+
+		#endregion Общие части запросов источников
+
+		#region Условия фильтра
+
+		/// <summary>
+		/// Отбор по периоду даты доставки заказа
+		/// </summary>
+		private void ApplyDeliveryDateRestriction(IQueryOver<Order, Order> query, Order orderAlias)
+		{
+			if(_filterViewModel.DeliveryDateFrom.HasValue)
+			{
+				query.Where(() => orderAlias.DeliveryDate >= _filterViewModel.DeliveryDateFrom.Value);
+			}
+
+			if(_filterViewModel.DeliveryDateTo.HasValue)
+			{
+				query.Where(() => orderAlias.DeliveryDate <= _filterViewModel.DeliveryDateTo.Value);
+			}
+		}
+
+		/// <summary>
+		/// Отбор по номеру заказа
+		/// </summary>
+		private void ApplyOrderIdRestriction(IQueryOver<Order, Order> query, Order orderAlias)
+		{
+			if(_filterViewModel.OrderId.HasValue)
+			{
+				query.Where(() => orderAlias.Id == _filterViewModel.OrderId.Value);
+			}
+		}
+
+		/// <summary>
+		/// Отбор по строке поиска журнала
+		/// </summary>
+		private void ApplySearchRestriction(
+			IQueryOver<Order, Order> query,
+			Order orderAlias,
+			CounterpartyEntity counterpartyAlias)
+		{
+			query.Where(GetSearchCriterion(
+				() => orderAlias.Id,
+				() => counterpartyAlias.Name
+			));
+		}
+
+		/// <summary>
+		/// Отбор по состоянию отклонения или проблемы
+		/// </summary>
+		private void ApplyStateRestriction<TRoot>(IQueryOver<TRoot, TRoot> query, IProjection stateProjection)
+		{
+			if(_filterViewModel.State.HasValue)
+			{
+				query.Where(Restrictions.Eq(stateProjection, _filterViewModel.State.Value));
+			}
+		}
+
+		/// <summary>
+		/// Отбор по типу отклонения
+		/// </summary>
+		private void ApplyDeviationTypeRestriction<TRoot>(
+			IQueryOver<TRoot, TRoot> query,
+			EdoDeviationSource sourceAlias)
+		{
+			if(_filterViewModel.DeviationType.HasValue)
+			{
+				query.Where(() => sourceAlias.DeviationType == _filterViewModel.DeviationType.Value);
+			}
+		}
+
+		/// <summary>
+		/// Отбор по идентификатору источника проблемы
+		/// </summary>
+		private void ApplyProblemSourceNameRestriction<TRoot>(
+			IQueryOver<TRoot, TRoot> query,
+			EdoTaskProblem problemAlias)
+		{
+			if(!string.IsNullOrWhiteSpace(_filterViewModel.ProblemSourceName))
+			{
+				query.Where(Restrictions.Like(
+					Projections.Property(() => problemAlias.SourceName),
+					_filterViewModel.ProblemSourceName,
+					MatchMode.Anywhere));
+			}
+		}
+
+		/// <summary>
+		/// Отбор по номеру задачи ЭДО
+		/// </summary>
+		private void ApplyTaskIdRestriction<TRoot>(IQueryOver<TRoot, TRoot> query, EdoTask taskAlias)
+		{
+			if(_filterViewModel.TaskId.HasValue)
+			{
+				query.Where(() => taskAlias.Id == _filterViewModel.TaskId.Value);
+			}
+		}
+
+		/// <summary>
+		/// Отбор по статусу задачи ЭДО
+		/// </summary>
+		private void ApplyTaskStatusRestriction<TRoot>(IQueryOver<TRoot, TRoot> query, EdoTask taskAlias)
+		{
+			if(_filterViewModel.EdoTaskStatus.HasValue)
+			{
+				query.Where(() => taskAlias.Status == _filterViewModel.EdoTaskStatus.Value);
+			}
+		}
+
+		/// <summary>
+		/// Отбор задач заказа по типу. Вид задачи хранится дискриминатором таблицы задач,
+		/// поэтому отбор выполняется соединением с задачей нужного вида.
+		/// Источникам строк по задачам трансфера отбор не нужен: они и так только по ним
+		/// </summary>
+		private void ApplyOrderTaskTypeRestriction<TRoot>(IQueryOver<TRoot, TRoot> query, EdoTask taskAlias)
+		{
+			switch(_filterViewModel.EdoTaskType)
+			{
+				case EdoTaskType.Document:
+					DocumentEdoTask documentTaskAlias = null;
+
+					query.JoinEntityAlias(() => documentTaskAlias, () => documentTaskAlias.Id == taskAlias.Id);
+					break;
+
+				case EdoTaskType.Receipt:
+					ReceiptEdoTask receiptTaskAlias = null;
+
+					query.JoinEntityAlias(() => receiptTaskAlias, () => receiptTaskAlias.Id == taskAlias.Id);
+					break;
+
+				case EdoTaskType.Tender:
+					TenderEdoTask tenderTaskAlias = null;
+
+					query.JoinEntityAlias(() => tenderTaskAlias, () => tenderTaskAlias.Id == taskAlias.Id);
+					break;
+			}
+		}
+
+		#endregion Условия фильтра
+
+		#region Применимость источников строк
+
+		private bool IsOrderTaskDeviationRowsRequested() =>
+			IsDeviationsRequested() && IsOrderTaskRowsRequested();
+
+		private bool IsTransferDeviationRowsRequested() =>
+			IsDeviationsRequested() && IsTransferRowsRequested();
+
+		/// <summary>
+		/// Отклонения по заявкам, задача по которым так и не создана.
+		/// Задачи у такой строки нет, поэтому любой отбор по задаче ее исключает
+		/// </summary>
+		private bool IsRequestDeviationRowsRequested() =>
+			IsDeviationsRequested()
+			&& !_filterViewModel.TaskId.HasValue
+			&& !_filterViewModel.EdoTaskStatus.HasValue
+			&& !_filterViewModel.EdoTaskType.HasValue;
+
+		private bool IsOrderTaskProblemRowsRequested() =>
+			IsProblemsRequested() && IsOrderTaskRowsRequested();
+
+		private bool IsTransferProblemRowsRequested() =>
+			IsProblemsRequested() && IsTransferRowsRequested();
+
+		private bool IsOrderTaskUnknownProblemRowsRequested() =>
+			IsUnknownProblemsRequested() && IsOrderTaskRowsRequested();
+
+		private bool IsTransferUnknownProblemRowsRequested() =>
+			IsUnknownProblemsRequested() && IsTransferRowsRequested();
+
+		/// <summary>
+		/// Отклонения исключает отбор по строкам другого вида и по источнику проблемы:
+		/// своего источника проблемы у отклонения нет
+		/// </summary>
+		private bool IsDeviationsRequested() =>
+			(!_filterViewModel.RowType.HasValue
+				|| _filterViewModel.RowType == EdoDeviationJournalNodeType.Deviation)
+			&& string.IsNullOrWhiteSpace(_filterViewModel.ProblemSourceName);
+
+		/// <summary>
+		/// Проблемы исключает отбор по строкам другого вида и по типу отклонения:
+		/// своего типа отклонения у проблемы нет
+		/// </summary>
+		private bool IsProblemsRequested() =>
+			(!_filterViewModel.RowType.HasValue
+				|| _filterViewModel.RowType == EdoDeviationJournalNodeType.Problem)
+			&& !_filterViewModel.DeviationType.HasValue;
+
+		/// <summary>
+		/// Строки задач в проблемном статусе без записи проблемы.
+		/// Своего состояния и источника у такой строки нет, поэтому отбор по типу отклонения,
+		/// источнику проблемы и решенному состоянию ее исключает, а по статусу задачи
+		/// она подходит только под сам проблемный статус
+		/// </summary>
+		private bool IsUnknownProblemsRequested() =>
+			(!_filterViewModel.RowType.HasValue
+				|| _filterViewModel.RowType == EdoDeviationJournalNodeType.UnknownProblem)
+			&& !_filterViewModel.DeviationType.HasValue
+			&& string.IsNullOrWhiteSpace(_filterViewModel.ProblemSourceName)
+			&& (!_filterViewModel.State.HasValue || _filterViewModel.State == TaskProblemState.Active)
+			&& (!_filterViewModel.EdoTaskStatus.HasValue
+				|| _filterViewModel.EdoTaskStatus == EdoTaskStatus.Problem);
+
+		private bool IsOrderTaskRowsRequested() =>
+			!_filterViewModel.EdoTaskType.HasValue
+			|| _filterViewModel.EdoTaskType == EdoTaskType.Document
+			|| _filterViewModel.EdoTaskType == EdoTaskType.Receipt
+			|| _filterViewModel.EdoTaskType == EdoTaskType.Tender;
+
+		private bool IsTransferRowsRequested() =>
+			!_filterViewModel.EdoTaskType.HasValue
+			|| _filterViewModel.EdoTaskType == EdoTaskType.Transfer;
+
+		#endregion Применимость источников строк
 
 		#region Действия по правой кнопке
 
