@@ -8,8 +8,9 @@ using Vodovoz.Core.Domain.Edo;
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 {
 	/// <summary>
-	/// Строка журнала отклонений документооборота ЭДО.
-	/// Узел первого уровня описывает заказ, узлы второго уровня его отклонения и проблемы
+	/// Строка журнала отклонений документооборота ЭДО
+	/// Узел первого уровня описывает заказ, узлы второго уровня его отклонения,
+	/// проблемы и задачи
 	/// </summary>
 	public class EdoDeviationJournalNode : JournalNodeBase, IHierarchicalNode<EdoDeviationJournalNode>
 	{
@@ -33,7 +34,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		#region Данные для переходов
 
 		/// <summary>
-		/// Номер заказа. У строки-ребенка — номер заказа родителя
+		/// Номер заказа. У строки-ребенка - номер заказа родителя
 		/// </summary>
 		public int OrderId { get; set; }
 
@@ -102,7 +103,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		public string Recommendation { get; set; }
 
 		/// <summary>
-		/// Дата и время обнаружения отклонения либо проблемы
+		/// Дата и время обнаружения отклонения либо проблемы.
+		/// У строки задачи в проблемном статусе - время последнего изменения задачи:
+		/// момента перехода в проблемный статус нигде не записано
 		/// </summary>
 		public DateTime? DetectedTime { get; set; }
 
@@ -152,6 +155,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 						return DeviationType.HasValue ? DeviationType.Value.GetEnumTitle() : string.Empty;
 					case EdoDeviationJournalNodeType.Problem:
 						return ProblemSourceDescription;
+					case EdoDeviationJournalNodeType.UnknownProblem:
+						return NodeType.GetEnumTitle();
 					default:
 						return string.Empty;
 				}

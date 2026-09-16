@@ -23,6 +23,12 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		/// Проблема документооборота
 		/// </summary>
 		[Display(Name = "Проблемы")]
-		Problem
+		Problem,
+
+		/// <summary>
+		/// Задача в проблемном статусе, по которой не заведено записи проблемы
+		/// </summary>
+		[Display(Name = "Неизвестная проблема")]
+		UnknownProblem
 	}
 }
