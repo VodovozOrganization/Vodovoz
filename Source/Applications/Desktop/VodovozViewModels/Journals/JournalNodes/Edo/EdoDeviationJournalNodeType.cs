@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		Problem,
 
 		/// <summary>
-		/// Задача в проблемном статусе, по которой не заведено записи проблемы
+		/// Задача в проблемном статусе, по которой нет действующей записи проблемы
 		/// </summary>
 		[Display(Name = "Неизвестная проблема")]
 		UnknownProblem

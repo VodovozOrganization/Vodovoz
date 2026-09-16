@@ -78,7 +78,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		public EdoDeviationType? DeviationType { get; set; }
 
 		/// <summary>
-		/// Описание источника проблемы (только у строки проблемы)
+		/// Описание источника проблемы
 		/// </summary>
 		public string ProblemSourceDescription { get; set; }
 
@@ -149,9 +149,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 					case EdoDeviationJournalNodeType.Deviation:
 						return DeviationType.HasValue ? DeviationType.Value.GetEnumTitle() : string.Empty;
 					case EdoDeviationJournalNodeType.Problem:
-						return ProblemSourceDescription;
 					case EdoDeviationJournalNodeType.UnknownProblem:
-						return NodeType.GetEnumTitle();
+						return ProblemSourceDescription;
 					default:
 						return string.Empty;
 				}

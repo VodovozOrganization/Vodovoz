@@ -27,37 +27,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 {
 	/// <summary>
 	/// Журнал отклонений и проблем документооборота ЭДО.
-	/// Первый уровень - заказ, второй - зарегистрированные по нему отклонения,
-	/// проблемы и задачи в проблемном статусе без записи проблемы, включая строки
-	/// задач трансфера, которые переносят коды этого заказа.
-	///
-	/// Строки второго уровня собираются из семи источников. По каждому источнику есть
-	/// метод Create*Query с соединениями и условиями отбора, а поверх него - подзапрос
-	/// отбора заказов для первого уровня и запрос самих строк для второго
+	/// Первый уровень - заказ, второй - зарегистрированные по нему отклонения, проблемы
+	/// и задачи в проблемном статусе без записи проблемы, включая строки задач трансфера,
+	/// которые переносят коды этого заказа
 	/// </summary>
 	public class EdoDeviationJournalViewModel : JournalViewModelBase
 	{
-		/// <summary>
-		/// Описание строки задачи, оставшейся в проблемном статусе без единой записи проблемы
-		/// </summary>
-		private const string _unknownProblemDescription =
-			"Задача переведена в проблемный статус, но запись о проблеме по ней не заведена:"
-			+ " причина не зафиксирована";
-
-		/// <summary>
-		/// Описание строки задачи, оставшейся в проблемном статусе с решенными проблемами
-		/// </summary>
-		private const string _solvedProblemDescription =
-			"Все проблемы по задаче помечены решенными, но сама задача осталась"
-			+ " в проблемном статусе: статус задачи разошелся с состоянием ее проблем";
-
-		/// <summary>
-		/// Рекомендация по строке задачи, оставшейся в проблемном статусе без действующей
-		/// записи проблемы
-		/// </summary>
-		private const string _unknownProblemRecommendation =
-			"Обратитесь в отдел разработки";
-
 		private readonly EdoDeviationFilterViewModel _filterViewModel;
 		private readonly IClipboard _clipboard;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
@@ -76,6 +51,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
 			Title = "Журнал отклонений документооборота ЭДО";
+
+			JournalFilter = _filterViewModel;
 
 			_filterViewModel.IsShow = true;
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
@@ -98,12 +75,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		}
 
 		public IRecursiveConfig RecuresiveConfig { get; }
-
-		public override IJournalFilterViewModel JournalFilter
-		{
-			get => _filterViewModel;
-			protected set => throw new NotSupportedException("Установка фильтра выполняется через конструктор");
-		}
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
 		{
@@ -163,9 +134,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		}
 
 		/// <summary>
-		/// Оставляет только заказы, по которым есть хотя бы одна строка второго уровня.
-		/// Источники, отсеченные фильтром целиком, в отбор не попадают, а если фильтр
-		/// исключает их все, дизъюнкция остается пустой и журнал пуст
+		/// Оставляет только заказы, по которым есть хотя бы одна строка второго уровня
 		/// </summary>
 		private void ApplyMatchingRowsRestriction(IQueryOver<Order, Order> query, Order orderAlias)
 		{
@@ -214,7 +183,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		#region Второй уровень - отклонения и проблемы
 
 		/// <summary>
-		/// Собирает строки второго уровня по всем источникам, не отсеченным фильтром.
+		/// Собирает строки второго уровня по всем источникам, не отсеченным фильтром
 		/// Порядок обхода источников задает порядок строк под заказом
 		/// </summary>
 		private IList<EdoDeviationJournalNode> GetOrderRows(IEnumerable<EdoDeviationJournalNode> parentNodes)
@@ -276,9 +245,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		}
 
 		/// <summary>
-		/// Одна и та же запись попадает в выборку по разу на каждый путь до заказа:
-		/// у задачи трансфера таких путей столько, сколько заявок на перенос кодов
-		/// этого заказа она обслуживает
+		/// Удаление дубликатов строк второго уровня, которые могут появляться при объединении источников
 		/// </summary>
 		private static IList<EdoDeviationJournalNode> DistinctByRow(
 			IEnumerable<EdoDeviationJournalNode> nodes) =>
@@ -288,9 +255,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				.ToList();
 
 		/// <summary>
-		/// Проставляет строкам тип задачи ЭДО. Вид задачи хранится дискриминатором
-		/// таблицы задач и в проекцию не выбирается, поэтому берется у загруженных задач:
-		/// так он верен для любого вида задачи
+		/// Проставляет строкам тип задачи ЭДО
 		/// </summary>
 		private static void FillTaskTypes(IUnitOfWork uow, IList<EdoDeviationJournalNode> nodes)
 		{
@@ -320,22 +285,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		}
 
 		/// <summary>
-		/// Проставляет строкам задач в проблемном статусе описание и рекомендацию:
-		/// своего источника, из которого их можно было бы взять, у такой строки нет.
-		/// Описание зависит от того, заведена ли по задаче хоть какая-то запись проблемы
+		/// Заполняет строки задач, застрявших в проблемном статусе без зафиксированной причины
 		/// </summary>
-		private static void FillUnknownProblemTexts(IUnitOfWork uow, IEnumerable<EdoDeviationJournalNode> nodes)
+		private static void FillUnknownProblemTexts(
+			IUnitOfWork uow,
+			IEnumerable<EdoDeviationJournalNode> nodes)
 		{
-			var unknownProblemNodes = nodes
+			var nodesWithoutRecord = nodes
 				.Where(x => x.NodeType == EdoDeviationJournalNodeType.UnknownProblem)
 				.ToArray();
 
-			if(!unknownProblemNodes.Any())
+			if(!nodesWithoutRecord.Any())
 			{
 				return;
 			}
 
-			var taskIds = unknownProblemNodes
+			var taskIds = nodesWithoutRecord
 				.Where(x => x.EdoTaskId.HasValue)
 				.Select(x => x.EdoTaskId.Value)
 				.Distinct()
@@ -343,20 +308,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			var taskIdsWithSolvedProblems = GetTaskIdsWithSolvedProblems(uow, taskIds);
 
-			foreach(var node in unknownProblemNodes)
+			foreach(var node in nodesWithoutRecord)
 			{
-				node.Description =
-					node.EdoTaskId.HasValue && taskIdsWithSolvedProblems.Contains(node.EdoTaskId.Value)
-						? _solvedProblemDescription
-						: _unknownProblemDescription;
+				var hasSolvedProblems =
+					node.EdoTaskId.HasValue && taskIdsWithSolvedProblems.Contains(node.EdoTaskId.Value);
 
-				node.Recommendation = _unknownProblemRecommendation;
+				node.ProblemSourceDescription = hasSolvedProblems
+					? EdoDeviationJournalMessages.SolvedProblemResult
+					: EdoDeviationJournalMessages.UnknownProblemResult;
+
+				node.Description = hasSolvedProblems
+					? EdoDeviationJournalMessages.SolvedProblemDescription
+					: EdoDeviationJournalMessages.UnknownProblemDescription;
+
+				node.Recommendation = EdoDeviationJournalMessages.UnknownProblemRecommendation;
 			}
 		}
 
 		/// <summary>
-		/// Задачи, по которым запись проблемы заведена. Активных проблем у задач в этих
-		/// строках нет по условию отбора, поэтому найденные записи заведомо решены
+		/// Задачи, по которым запись проблемы заведена
 		/// </summary>
 		private static ISet<int> GetTaskIdsWithSolvedProblems(IUnitOfWork uow, int[] taskIds)
 		{
@@ -796,12 +766,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				.Select(Projections.Property(() => taskAlias.Id));
 		}
 
-		/// <summary>
-		/// Задачи заказа, оставшиеся в проблемном статусе без записи проблемы.
-		/// Момента перехода в этот статус нигде не записано, поэтому в колонку обнаружения
-		/// идет время последнего изменения задачи: после перевода в проблемный статус
-		/// обработчики ее уже не трогают
-		/// </summary>
 		private IList<EdoDeviationJournalNode> GetOrderTaskUnknownProblems(IUnitOfWork uow, int[] orderIds)
 		{
 			OrderEdoTask taskAlias = null;
@@ -861,10 +825,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				.Select(Projections.Property(() => taskAlias.Id));
 		}
 
-		/// <summary>
-		/// Задачи трансфера, оставшиеся в проблемном статусе без записи проблемы.
-		/// Время обнаружения берется так же, как в <see cref="GetOrderTaskUnknownProblems"/>
-		/// </summary>
 		private IList<EdoDeviationJournalNode> GetTransferUnknownProblems(IUnitOfWork uow, int[] orderIds)
 		{
 			TransferEdoTask taskAlias = null;
@@ -965,9 +925,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				Projections.Property(() => validatorSourceAlias.Message));
 
 		/// <summary>
-		/// Отбирает задачи, по которым нет ни активной проблемы, ни активного отклонения.
-		/// Только такая задача в проблемном статусе не представлена в журнале
-		/// никакой другой строкой
+		/// Отбирает задачи, по которым нет ни активной проблемы, ни активного отклонения
 		/// </summary>
 		private static ICriterion GetNoActiveProblemAndDeviationRestriction(EdoTask taskAlias)
 		{
@@ -1097,9 +1055,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		}
 
 		/// <summary>
-		/// Отбор задач заказа по типу. Вид задачи хранится дискриминатором таблицы задач,
-		/// поэтому отбор выполняется соединением с задачей нужного вида.
-		/// Источникам строк по задачам трансфера отбор не нужен: они и так только по ним
+		/// Отбор задач заказа по типу задачи
 		/// </summary>
 		private void ApplyOrderTaskTypeRestriction<TRoot>(IQueryOver<TRoot, TRoot> query, EdoTask taskAlias)
 		{
@@ -1129,15 +1085,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 		#region Применимость источников строк
 
+		/// <summary>
+		/// Допустимы ли фильтром отклонения, зафиксированные по задачам заказа
+		/// </summary>
 		private bool IsOrderTaskDeviationRowsRequested() =>
 			IsDeviationsRequested() && IsOrderTaskRowsRequested();
 
+		/// <summary>
+		/// Допустимы ли фильтром отклонения, зафиксированные по задачам трансфера
+		/// </summary>
 		private bool IsTransferDeviationRowsRequested() =>
 			IsDeviationsRequested() && IsTransferRowsRequested();
 
 		/// <summary>
-		/// Отклонения по заявкам, задача по которым так и не создана.
-		/// Задачи у такой строки нет, поэтому любой отбор по задаче ее исключает
+		///	Допустимы ли фильтром отклонения по заявкам, задача по которым так и не создана
 		/// </summary>
 		private bool IsRequestDeviationRowsRequested() =>
 			IsDeviationsRequested()
@@ -1145,21 +1106,32 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			&& !_filterViewModel.EdoTaskStatus.HasValue
 			&& !_filterViewModel.EdoTaskType.HasValue;
 
+		/// <summary>
+		/// Допустимы ли фильтром записи проблем, заведенные по задачам заказа
+		/// </summary>
 		private bool IsOrderTaskProblemRowsRequested() =>
 			IsProblemsRequested() && IsOrderTaskRowsRequested();
 
+		/// <summary>
+		/// Допустимы ли фильтром записи проблем, заведенные по задачам трансфера
+		/// </summary>
 		private bool IsTransferProblemRowsRequested() =>
 			IsProblemsRequested() && IsTransferRowsRequested();
 
+		/// <summary>
+		/// Допустимы ли фильтром задачи заказа, застрявшие в проблемном статусе без действующей записи проблемы
+		/// </summary>
 		private bool IsOrderTaskUnknownProblemRowsRequested() =>
 			IsUnknownProblemsRequested() && IsOrderTaskRowsRequested();
 
+		/// <summary>
+		/// Допустимы ли фильтром задачи трансфера, застрявшие в проблемном статусе без действующей записи проблемы
+		/// </summary>
 		private bool IsTransferUnknownProblemRowsRequested() =>
 			IsUnknownProblemsRequested() && IsTransferRowsRequested();
 
 		/// <summary>
-		/// Отклонения исключает отбор по строкам другого вида и по источнику проблемы:
-		/// своего источника проблемы у отклонения нет
+		/// Допустимы ли фильтром строки отклонений
 		/// </summary>
 		private bool IsDeviationsRequested() =>
 			(!_filterViewModel.RowType.HasValue
@@ -1167,8 +1139,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			&& string.IsNullOrWhiteSpace(_filterViewModel.ProblemSourceName);
 
 		/// <summary>
-		/// Проблемы исключает отбор по строкам другого вида и по типу отклонения:
-		/// своего типа отклонения у проблемы нет
+		/// Допустимы ли фильтром строки проблем
 		/// </summary>
 		private bool IsProblemsRequested() =>
 			(!_filterViewModel.RowType.HasValue
@@ -1176,10 +1147,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			&& !_filterViewModel.DeviationType.HasValue;
 
 		/// <summary>
-		/// Строки задач в проблемном статусе без записи проблемы.
-		/// Своего состояния и источника у такой строки нет, поэтому отбор по типу отклонения,
-		/// источнику проблемы и решенному состоянию ее исключает, а по статусу задачи
-		/// она подходит только под сам проблемный статус
+		/// Допустимы ли фильтром строки задач, застрявших в проблемном статусе без действующей записи проблемы
 		/// </summary>
 		private bool IsUnknownProblemsRequested() =>
 			(!_filterViewModel.RowType.HasValue
@@ -1190,12 +1158,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			&& (!_filterViewModel.EdoTaskStatus.HasValue
 				|| _filterViewModel.EdoTaskStatus == EdoTaskStatus.Problem);
 
+		/// <summary>
+		/// Допустимы ли фильтром задачи заказа
+		/// </summary>
 		private bool IsOrderTaskRowsRequested() =>
 			!_filterViewModel.EdoTaskType.HasValue
 			|| _filterViewModel.EdoTaskType == EdoTaskType.Document
 			|| _filterViewModel.EdoTaskType == EdoTaskType.Receipt
 			|| _filterViewModel.EdoTaskType == EdoTaskType.Tender;
 
+		/// <summary>
+		/// Допустимы ли фильтром задачи трансфера
+		/// </summary>
 		private bool IsTransferRowsRequested() =>
 			!_filterViewModel.EdoTaskType.HasValue
 			|| _filterViewModel.EdoTaskType == EdoTaskType.Transfer;
