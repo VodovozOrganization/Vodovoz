@@ -93,6 +93,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		public string ProblemSourceDescription { get; set; }
 
 		/// <summary>
+		/// Идентификатор источника проблемы (только у строки проблемы)
+		/// </summary>
+		public string ProblemSourceName { get; set; }
+
+		/// <summary>
 		/// Детали отклонения либо сообщение проблемы
 		/// </summary>
 		public string Description { get; set; }
@@ -193,6 +198,13 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		/// Статус задачи ЭДО в виде строки
 		/// </summary>
 		public string TaskStatusText => TaskStatus.HasValue ? TaskStatus.Value.GetEnumTitle() : string.Empty;
+
+		/// <summary>
+		/// Идентификатор источника проблемы в виде строки: у строк других видов
+		/// своего источника проблемы нет
+		/// </summary>
+		public string ProblemSourceNameText =>
+			NodeType == EdoDeviationJournalNodeType.Problem ? ProblemSourceName : string.Empty;
 
 		/// <summary>
 		/// Дата и время обнаружения отклонения либо проблемы
