@@ -1,21 +1,20 @@
-using System;
+ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
 	/// <summary>
-	/// Состояние выполненного заказа, участвующего в расчёте частоты точки доставки.
-	/// Переходы между выполненными статусами не изменяют состояние для расчёта.
+	/// Количество выполненных заказов точки доставки и статус её последнего заказа.
 	/// </summary>
 	public class OrderFrequencyState
 	{
 		/// <summary>
-		/// Идентификатор заказа.
+		/// Общее количество выполненных заказов, соответствующих условиям расчёта частоты.
 		/// </summary>
-		public int OrderId { get; set; }
+		public long OrderCount { get; set; }
 
 		/// <summary>
-		/// Дата доставки, используемая для отбора заказов и расчёта интервалов.
+		/// Статус последнего заказа по дате доставки и идентификатору; null, если заказов нет.
 		/// </summary>
-		public DateTime DeliveryDate { get; set; }
+		public OrderStatus? LastOrderStatus { get; set; }
 	}
 }
