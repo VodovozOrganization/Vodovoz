@@ -90,6 +90,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 			public string Price { get; set; }
 			public string Discount { get; set; }
 			public string Sum { get; set; }
+			public bool IncludeInTotal { get; set; } = true;
 		}
 
 		public static void ExportRegistryToExcel(IList<ReceiptCorrectionExplanatoryNoteJournalNode> nodes, string path)
@@ -322,10 +323,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 			{
 				Number = lineNumber.ToString(RuCulture),
 				Name = name ?? string.Empty,
-				Quantity = FormatDecimal(quantity),
+				Quantity = FormatDecimal(Math.Abs(quantity)),
 				Price = FormatDecimal(price),
 				Discount = FormatDecimal(discount),
-				Sum = FormatDecimal(sum)
+				Sum = FormatDecimal(sum),
+				IncludeInTotal = quantity >= 0
 			};
 
 		private static string FormatPositionsTotal(IList<PositionRow> rows)
@@ -333,6 +335,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Receipts
 			decimal total = 0m;
 			foreach(var row in rows)
 			{
+				if(!row.IncludeInTotal)
+				{
+					continue;
+				}
+
+				if(!string.IsNullOrEmpty(row.Name) && row.Name.IndexOf("(убрано)", StringComparison.OrdinalIgnoreCase) >= 0)
+				{
+					continue;
+				}
+
 				if(decimal.TryParse(row.Sum, NumberStyles.Number, RuCulture, out var value))
 				{
 					total += value;

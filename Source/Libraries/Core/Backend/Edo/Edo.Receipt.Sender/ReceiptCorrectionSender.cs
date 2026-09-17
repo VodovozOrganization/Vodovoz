@@ -253,7 +253,8 @@ namespace Edo.Receipt.Sender
 					sourceDocument,
 					correctionTask,
 					process,
-					processDocument);
+					processDocument,
+					currentOrder: correctionTask?.FormalEdoRequest?.Order);
 				await uow.SaveAsync(edoFiscalDocument, cancellationToken: cancellationToken);
 				processDocument.EdoFiscalDocumentId = edoFiscalDocument.Id;
 			}

@@ -162,7 +162,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					sourceDocument,
 					correctionTask,
 					process,
-					processDocument);
+					processDocument,
+					currentOrder: order);
 				uow.Save(edoFiscalDocument);
 				processDocument.EdoFiscalDocumentId = edoFiscalDocument.Id;
 				uow.Save(processDocument);

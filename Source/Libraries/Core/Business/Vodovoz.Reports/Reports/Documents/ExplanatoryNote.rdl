@@ -288,7 +288,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="tdQty">
-                      <Value>=Format(Fields!quantity.Value, "0.##")</Value>
+                      <Value>=Format(Iif(Fields!quantity.Value &lt; 0, 0 - Fields!quantity.Value, Fields!quantity.Value), "0.##")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <FontFamily>Arial</FontFamily>
@@ -398,7 +398,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="tfTotalValue">
-                      <Value>=Format(Sum(Fields!line_sum.Value), "0.##")</Value>
+                      <Value>=Format(Sum(Iif(Fields!quantity.Value &lt; 0, 0, Fields!line_sum.Value)), "0.##")</Value>
                       <Style>
                         <FontFamily>Arial</FontFamily>
                         <FontSize>10pt</FontSize>

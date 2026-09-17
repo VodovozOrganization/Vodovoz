@@ -146,33 +146,106 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			var index = 1;
 			foreach(var position in positions)
 			{
-				// Удалённая позиция — старые значения; иначе актуальные (новые).
-				var useNew = !(position.NewQuantity == 0 && position.OldQuantity != 0);
-				var quantity = useNew ? position.NewQuantity : position.OldQuantity;
-				var price = useNew ? position.NewPrice : position.OldPrice;
-				var discount = useNew ? position.NewDiscountSum : position.OldDiscountSum;
-				var lineSum = Math.Round(Math.Abs(quantity) * price - discount, 2, MidpointRounding.AwayFromZero);
-				if(lineSum < 0)
-				{
-					lineSum = 0;
-				}
-
-				var name = string.IsNullOrWhiteSpace(position.Name)
+				var baseName = string.IsNullOrWhiteSpace(position.Name)
 					? (position.NomenclatureId?.ToString() ?? "-")
 					: position.Name;
 
-				yield return new ReceiptCorrectionExplanatoryNoteItem
+				// Полностью убрано
+				if(position.OldQuantity > 0 && position.NewQuantity == 0)
 				{
-					LineNumber = index,
-					NomenclatureId = position.NomenclatureId,
-					Name = name,
-					Quantity = quantity,
-					Price = price,
-					DiscountSum = discount,
-					Sum = lineSum
-				};
-				index++;
+					yield return CreateItem(
+						index++,
+						position.NomenclatureId,
+						AppendRemovedSuffix(baseName),
+						-position.OldQuantity,
+						position.OldPrice,
+						position.OldDiscountSum);
+					continue;
+				}
+
+				// Только добавлено
+				if(position.OldQuantity == 0 && position.NewQuantity > 0)
+				{
+					yield return CreateItem(
+						index++,
+						position.NomenclatureId,
+						baseName,
+						position.NewQuantity,
+						position.NewPrice,
+						position.NewDiscountSum);
+					continue;
+				}
+
+				// Частичное уменьшение: остаток + убранное количество
+				if(position.OldQuantity > 0
+					&& position.NewQuantity > 0
+					&& position.NewQuantity < position.OldQuantity)
+				{
+					yield return CreateItem(
+						index++,
+						position.NomenclatureId,
+						baseName,
+						position.NewQuantity,
+						position.NewPrice,
+						position.NewDiscountSum);
+
+					var removedQty = position.OldQuantity - position.NewQuantity;
+					var removedDiscount = position.OldQuantity == 0
+						? 0
+						: Math.Round(position.OldDiscountSum * (removedQty / position.OldQuantity), 2, MidpointRounding.AwayFromZero);
+
+					yield return CreateItem(
+						index++,
+						position.NomenclatureId,
+						AppendRemovedSuffix(baseName),
+						-removedQty,
+						position.OldPrice,
+						removedDiscount);
+					continue;
+				}
+
+				// Увеличение / смена цены или скидки при qty > 0 — актуальные значения
+				if(position.NewQuantity > 0)
+				{
+					yield return CreateItem(
+						index++,
+						position.NomenclatureId,
+						baseName,
+						position.NewQuantity,
+						position.NewPrice,
+						position.NewDiscountSum);
+				}
 			}
+		}
+
+		private static string AppendRemovedSuffix(string name) =>
+			string.IsNullOrWhiteSpace(name) ? "(убрано)" : $"{name} (убрано)";
+
+		private static ReceiptCorrectionExplanatoryNoteItem CreateItem(
+			int lineNumber,
+			int? nomenclatureId,
+			string name,
+			decimal quantity,
+			decimal price,
+			decimal discount)
+		{
+			var absQuantity = Math.Abs(quantity);
+			var lineSum = Math.Round(absQuantity * price - discount, 2, MidpointRounding.AwayFromZero);
+			if(lineSum < 0)
+			{
+				lineSum = 0;
+			}
+
+			return new ReceiptCorrectionExplanatoryNoteItem
+			{
+				LineNumber = lineNumber,
+				NomenclatureId = nomenclatureId,
+				Name = name,
+				Quantity = quantity,
+				Price = price,
+				DiscountSum = discount,
+				Sum = lineSum
+			};
 		}
 
 		public static bool TemplateHasPositions(ReceiptCorrectionExplanatoryNoteTemplateType templateType) =>
