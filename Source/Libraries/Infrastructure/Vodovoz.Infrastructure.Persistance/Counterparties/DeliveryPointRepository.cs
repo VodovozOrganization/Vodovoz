@@ -149,20 +149,19 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.Select(Projections.RowCountInt64())
 				.SingleOrDefault<long>();
 
-			var lastOrderStatus = uow.Session.QueryOver<TOrder>()
-				.Where(order => order.DeliveryPoint.Id == deliveryPointId)
+			var lastCompletedOrderId = GetOrdersForFrequency<TOrder, TRouteListItem>(uow, deliveryPointId)
 				.OrderBy(order => order.DeliveryDate).Desc
 				.ThenBy(order => order.Id).Desc
-				.Select(order => order.OrderStatus)
+				.Select(order => order.Id)
 				.Take(1)
-				.List<OrderStatus>()
-				.Select(status => (OrderStatus?)status)
+				.List<int>()
+				.Select(id => (int?)id)
 				.SingleOrDefault();
 
 			return new OrderFrequencyState
 			{
 				OrderCount = orderCount,
-				LastOrderStatus = lastOrderStatus
+				LastCompletedOrderId = lastCompletedOrderId
 			};
 		}
 

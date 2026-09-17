@@ -8,7 +8,7 @@ namespace DatabaseServiceWorker
 	internal sealed class DeliveryPointOrderFrequencyCacheEntry
 	{
 		/// <summary>
-		/// Количество выполненных заказов и статус последнего заказа на момент расчёта.
+		/// Количество выполненных заказов и идентификатор последнего выполненного заказа на момент расчёта.
 		/// Отсутствие состояния означает промах кэша.
 		/// </summary>
 		public OrderFrequencyState OrderState { get; set; }

@@ -1,9 +1,7 @@
- using Vodovoz.Domain.Orders;
-
 namespace Vodovoz.EntityRepositories.Counterparties
 {
 	/// <summary>
-	/// Количество выполненных заказов точки доставки и статус её последнего заказа.
+	/// Количество выполненных заказов точки доставки и идентификатор последнего выполненного заказа.
 	/// </summary>
 	public class OrderFrequencyState
 	{
@@ -13,8 +11,8 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public long OrderCount { get; set; }
 
 		/// <summary>
-		/// Статус последнего заказа по дате доставки и идентификатору; null, если заказов нет.
+		/// Идентификатор последнего выполненного заказа по дате доставки и идентификатору; null, если таких заказов нет.
 		/// </summary>
-		public OrderStatus? LastOrderStatus { get; set; }
+		public int? LastCompletedOrderId { get; set; }
 	}
 }

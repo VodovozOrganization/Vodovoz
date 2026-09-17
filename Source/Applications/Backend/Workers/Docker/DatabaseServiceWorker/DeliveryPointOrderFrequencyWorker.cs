@@ -8,12 +8,9 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Infrastructure;
 
@@ -118,7 +115,7 @@ namespace DatabaseServiceWorker
 									var state = cache == null ? null : repository.GetOrderFrequencyState(uow, id);
 									if(cached?.OrderState != null && state != null
 										&& cached.OrderState.OrderCount == state.OrderCount
-										&& GetOrderStatusGroup(cached.OrderState.LastOrderStatus) == GetOrderStatusGroup(state.LastOrderStatus))
+										&& cached.OrderState.LastCompletedOrderId == state.LastCompletedOrderId)
 									{
 										skipped++;
 										afterId = id;
@@ -175,24 +172,6 @@ namespace DatabaseServiceWorker
 			catch(Exception exception)
 			{
 				_logger.LogError(exception, "Ошибка прохода пересчёта частоты заказов; следующий проход начнётся через {Interval}", Interval);
-			}
-		}
-
-		private static OrderStatus? GetOrderStatusGroup(OrderStatus? status)
-		{
-			if(status.HasValue && OrderEntity.GetOnClosingOrderStatuses.Contains(status.Value))
-			{
-				return OrderStatus.Shipped;
-			}
-
-			switch(status)
-			{
-				case OrderStatus.Canceled:
-				case OrderStatus.DeliveryCanceled:
-				case OrderStatus.NotDelivered:
-					return OrderStatus.Canceled;
-				default:
-					return status;
 			}
 		}
 	}

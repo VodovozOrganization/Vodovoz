@@ -60,11 +60,11 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		int? UpdateOrderFrequency(IUnitOfWork uow, int deliveryPointId);
 
 		/// <summary>
-		/// Возвращает общее количество выполненных заказов с фильтрами расчёта частоты и статус последнего заказа точки.
+		/// Возвращает общее количество выполненных заказов и идентификатор последнего из них с фильтрами расчёта частоты.
 		/// </summary>
 		/// <param name="uow">Единица работы.</param>
 		/// <param name="deliveryPointId">Идентификатор точки доставки.</param>
-		/// <returns>Количество выполненных заказов и статус последнего заказа по дате доставки и идентификатору.</returns>
+		/// <returns>Количество выполненных заказов и идентификатор последнего из них по дате доставки и идентификатору.</returns>
 		OrderFrequencyState GetOrderFrequencyState(IUnitOfWork uow, int deliveryPointId);
 
 		/// <summary>
