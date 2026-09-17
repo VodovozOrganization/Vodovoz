@@ -94,7 +94,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.labelEdoProblemStatus = new global::Gtk.Label();
 			this.labelEdoProblemStatus.Name = "labelEdoProblemStatus";
 			this.labelEdoProblemStatus.Xalign = 1F;
-			this.labelEdoProblemStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус проблемы/отклонения:");
+			this.labelEdoProblemStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус\nпроблемы/отклонения:");
+			this.labelEdoProblemStatus.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.labelEdoProblemStatus);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.labelEdoProblemStatus]));
 			w3.TopAttach = ((uint)(1));
@@ -164,7 +165,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.labelHasProblemItemGtins = new global::Gtk.Label();
 			this.labelHasProblemItemGtins.Name = "labelHasProblemItemGtins";
 			this.labelHasProblemItemGtins.Xalign = 1F;
-			this.labelHasProblemItemGtins.LabelProp = global::Mono.Unix.Catalog.GetString("Наличие связанных GTIN:");
+			this.labelHasProblemItemGtins.LabelProp = global::Mono.Unix.Catalog.GetString("Наличие связанных GTIN\n(только проблемы):");
+			this.labelHasProblemItemGtins.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.labelHasProblemItemGtins);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.labelHasProblemItemGtins]));
 			w9.TopAttach = ((uint)(1));
@@ -197,7 +199,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.labelSourceId = new global::Gtk.Label();
 			this.labelSourceId.Name = "labelSourceId";
 			this.labelSourceId.Xalign = 1F;
-			this.labelSourceId.LabelProp = global::Mono.Unix.Catalog.GetString("Идентификатор источника:");
+			this.labelSourceId.LabelProp = global::Mono.Unix.Catalog.GetString("Идентификатор\nисточника проблемы:");
+			this.labelSourceId.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.labelSourceId);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSourceId]));
 			w12.LeftAttach = ((uint)(4));

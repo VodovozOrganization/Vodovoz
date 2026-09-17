@@ -202728,7 +202728,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Filters.GtkViews.EdoDeviationFilterView" design-size="1519 68">
+  <widget class="Gtk.Bin" id="Vodovoz.Filters.GtkViews.EdoDeviationFilterView" design-size="1519 74">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -202796,7 +202796,9 @@ not tooltip</property>
           <widget class="Gtk.Label" id="labelEdoProblemStatus">
             <property name="MemberName" />
             <property name="Xalign">1</property>
-            <property name="LabelProp" translatable="yes">Статус проблемы/отклонения:</property>
+            <property name="LabelProp" translatable="yes">Статус
+проблемы/отклонения:</property>
+            <property name="Justify">Right</property>
           </widget>
           <packing>
             <property name="TopAttach">1</property>
@@ -202920,7 +202922,9 @@ not tooltip</property>
           <widget class="Gtk.Label" id="labelHasProblemItemGtins">
             <property name="MemberName" />
             <property name="Xalign">1</property>
-            <property name="LabelProp" translatable="yes">Наличие связанных GTIN:</property>
+            <property name="LabelProp" translatable="yes">Наличие связанных GTIN
+(только проблемы):</property>
+            <property name="Justify">Right</property>
           </widget>
           <packing>
             <property name="TopAttach">1</property>
@@ -202980,7 +202984,9 @@ not tooltip</property>
           <widget class="Gtk.Label" id="labelSourceId">
             <property name="MemberName" />
             <property name="Xalign">1</property>
-            <property name="LabelProp" translatable="yes">Идентификатор источника:</property>
+            <property name="LabelProp" translatable="yes">Идентификатор
+источника проблемы:</property>
+            <property name="Justify">Right</property>
           </widget>
           <packing>
             <property name="LeftAttach">4</property>
