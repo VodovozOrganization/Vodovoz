@@ -1,8 +1,8 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Edo.Transport;
 using MessageTransport;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using System;
@@ -16,42 +16,30 @@ namespace EdoManualEventSender
 	{
 		static void Main(string[] args)
 		{
+			var hostBuilder = new HostBuilder();
+
+			hostBuilder
+				.ConfigureLogging((context, loggingBuilder) =>
+				{
+					// configure Logging with NLog
+					loggingBuilder.ClearProviders();
+					loggingBuilder.SetMinimumLevel(LogLevel.Trace);
+					loggingBuilder.AddNLog(context.Configuration);
+				})
+				.ConfigureServices(services =>
+				{
+					services.AddMessageTransportSettings();
+					services.AddEdoMassTransit();
+					services.AddScoped<EdoEventsSender>();
+				})
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
+			var app = hostBuilder.Build();
+
 			Console.OutputEncoding = System.Text.Encoding.UTF8;
 			Console.InputEncoding = System.Text.Encoding.UTF8;
 
-			ServiceCollection services = new ServiceCollection();
-
-			var projectSettingsPath = Path.Combine(GetProjectDirectory(), "appsettings.Development.json");
-			var settingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.Development.json");
-
-			if(File.Exists(projectSettingsPath))
-			{
-				settingsPath = projectSettingsPath;
-			}
-
-			var builder = new ConfigurationBuilder();
-			builder.SetBasePath(GetProjectDirectory());
-			builder.AddJsonFile(settingsPath);
-			IConfiguration configuration = builder.Build();
-			services.AddScoped<IConfiguration>(_ => configuration);
-
-			services.AddLogging(loggingBuilder =>
-			{
-				// configure Logging with NLog
-				loggingBuilder.ClearProviders();
-				loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-				loggingBuilder.AddNLog(configuration);
-			});
-
-			services.AddMessageTransportSettings();
-			services.AddEdoMassTransit();
-			services.AddScoped<EdoEventsSender>();
-
-			var autofacFactory = new AutofacServiceProviderFactory();
-			var autofacBuilder = autofacFactory.CreateBuilder(services);
-			var serviceProvider = autofacFactory.CreateServiceProvider(autofacBuilder);
-
-			var eventsSender = serviceProvider.GetRequiredService<EdoEventsSender>();
+			var eventsSender = app.Services.GetRequiredService<EdoEventsSender>();
 
 			while(true)
 			{
