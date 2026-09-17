@@ -78,6 +78,14 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.State, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
+			ycheckHasProblemItems.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.HasProblemTaskItems, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckHasProblemItemGtins.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.HasProblemItemGtins, w => w.Active)
+				.InitializeFromSource();
+
 			ybuttonHelp.BindCommand(ViewModel.HelpCommand);
 		}
 

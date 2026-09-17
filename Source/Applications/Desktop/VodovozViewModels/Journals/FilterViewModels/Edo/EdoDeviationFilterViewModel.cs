@@ -35,6 +35,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 		private EdoTaskStatus? _edoTaskStatus;
 		private TaskProblemState? _state;
 		private string _problemSourceName;
+		private bool? _hasProblemTaskItems;
+		private bool? _hasProblemItemGtins;
 
 		private readonly IInteractiveMessage _interactiveMessage;
 
@@ -142,6 +144,24 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 		{
 			get => _state;
 			set => UpdateFilterField(ref _state, value);
+		}
+
+		/// <summary>
+		/// Наличие у задачи заказа связанных строк с кодами
+		/// </summary>
+		public virtual bool? HasProblemTaskItems
+		{
+			get => _hasProblemTaskItems;
+			set => UpdateFilterField(ref _hasProblemTaskItems, value);
+		}
+
+		/// <summary>
+		/// Наличие у проблемы связанных GTIN
+		/// </summary>
+		public virtual bool? HasProblemItemGtins
+		{
+			get => _hasProblemItemGtins;
+			set => UpdateFilterField(ref _hasProblemItemGtins, value);
 		}
 
 		private void ShowHelp()

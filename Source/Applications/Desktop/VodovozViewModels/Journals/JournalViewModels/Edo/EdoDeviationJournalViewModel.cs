@@ -16,12 +16,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Edo;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
 using Vodovoz.ViewModels.TrueMark;
+using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
 using Order = Vodovoz.Domain.Orders.Order;
+using OrderItem = Vodovoz.Domain.Orders.OrderItem;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 {
@@ -392,6 +395,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
 			ApplyOrderTaskTypeRestriction(query, taskAlias);
+			ApplyHasTaskItemsRestriction(query, taskAlias);
 
 			return query;
 		}
@@ -461,6 +465,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			ApplyDeviationTypeRestriction(query, sourceAlias);
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
+			ApplyHasTaskItemsRestriction(query, iterationAlias);
 
 			return query;
 		}
@@ -529,6 +534,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			ApplyStateRestriction(query, Projections.Property(() => deviationAlias.State));
 			ApplyDeviationTypeRestriction(query, sourceAlias);
+			ApplyHasOrderTrueMarkItemsRestriction(query, requestAlias);
 
 			return query;
 		}
@@ -589,6 +595,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
 			ApplyOrderTaskTypeRestriction(query, taskAlias);
+			ApplyHasTaskItemsRestriction(query, taskAlias);
+			ApplyHasProblemItemGtinsRestriction(query, problemAlias);
 
 			return query;
 		}
@@ -675,6 +683,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			ApplyProblemSourceNameRestriction(query, problemAlias);
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
+			ApplyHasTaskItemsRestriction(query, iterationAlias);
+			ApplyHasProblemItemGtinsRestriction(query, problemAlias);
 
 			return query;
 		}
@@ -761,6 +771,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
 			ApplyOrderTaskTypeRestriction(query, taskAlias);
+			ApplyHasTaskItemsRestriction(query, taskAlias);
 
 			return query;
 		}
@@ -822,6 +833,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
+			ApplyHasTaskItemsRestriction(query, iterationAlias);
 
 			return query;
 		}
@@ -1041,6 +1053,104 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			}
 		}
 
+		/// <summary>
+		/// Отбор по наличию у задачи заказа связанных строк с кодами
+		/// </summary>
+		private void ApplyHasTaskItemsRestriction<TRoot>(IQueryOver<TRoot, TRoot> query, EdoTask taskAlias)
+		{
+			EdoTaskItem taskItemAlias = null;
+
+			var taskItems = QueryOver.Of(() => taskItemAlias)
+				.Where(() => taskItemAlias.CustomerEdoTask.Id == taskAlias.Id)
+				.Select(Projections.Property(() => taskItemAlias.Id));
+
+			ApplyCodesExistenceRestriction(query, taskItems);
+		}
+
+		/// <summary>
+		/// Отбор строк трансфера по наличию связанных строк с кодами
+		/// у задачи заказа, коды которой переносит трансфер
+		/// </summary>
+		private void ApplyHasTaskItemsRestriction<TRoot>(
+			IQueryOver<TRoot, TRoot> query,
+			TransferEdoRequestIteration iterationAlias)
+		{
+			EdoTaskItem taskItemAlias = null;
+
+			var taskItems = QueryOver.Of(() => taskItemAlias)
+				.Where(() => taskItemAlias.CustomerEdoTask.Id == iterationAlias.OrderEdoTask.Id)
+				.Select(Projections.Property(() => taskItemAlias.Id));
+
+			ApplyCodesExistenceRestriction(query, taskItems);
+		}
+
+		/// <summary>
+		/// Отбор отклонений по заявкам, задача по которым не создана
+		/// Строк задачи еще нет, а кодов может не быть в самой заявке: их могли не отсканировать,
+		/// и при создании задачи они подтянутся из пула. Поэтому сверка идет по строкам заказа
+		/// с номенклатурой, подотчетной в ЧЗ
+		/// </summary>
+		private void ApplyHasOrderTrueMarkItemsRestriction<TRoot>(
+			IQueryOver<TRoot, TRoot> query,
+			FormalEdoRequest requestAlias)
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			GtinEntity gtinAlias = null;
+
+			var trueMarkOrderItems = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinAlias(() => nomenclatureAlias.Gtins, () => gtinAlias)
+				.Where(() => orderItemAlias.Order.Id == requestAlias.Order.Id)
+				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
+				.And(() => orderItemAlias.Count > 0)
+				.Select(Projections.Property(() => orderItemAlias.Id));
+
+			ApplyCodesExistenceRestriction(query, trueMarkOrderItems);
+		}
+
+		/// <summary>
+		/// Оставляет строки, у которых связанные коды есть либо отсутствуют.
+		/// Если отбор не задан, запрос не ограничивается
+		/// </summary>
+		private void ApplyCodesExistenceRestriction<TRoot, TCode>(
+			IQueryOver<TRoot, TRoot> query,
+			QueryOver<TCode> codes)
+			where TCode : class
+		{
+			if(!_filterViewModel.HasProblemTaskItems.HasValue)
+			{
+				return;
+			}
+
+			query.Where(_filterViewModel.HasProblemTaskItems.Value
+				? Subqueries.WhereExists(codes)
+				: Subqueries.WhereNotExists(codes));
+		}
+
+		/// <summary>
+		/// Отбор по наличию у проблемы связанных GTIN
+		/// </summary>
+		private void ApplyHasProblemItemGtinsRestriction<TRoot>(
+			IQueryOver<TRoot, TRoot> query,
+			EdoTaskProblem problemAlias)
+		{
+			if(!_filterViewModel.HasProblemItemGtins.HasValue)
+			{
+				return;
+			}
+
+			EdoProblemGtinItem gtinItemAlias = null;
+
+			var gtinItems = QueryOver.Of(() => gtinItemAlias)
+				.Where(() => gtinItemAlias.Problem.Id == problemAlias.Id)
+				.Select(Projections.Property(() => gtinItemAlias.Id));
+
+			query.Where(_filterViewModel.HasProblemItemGtins.Value
+				? Subqueries.WhereExists(gtinItems)
+				: Subqueries.WhereNotExists(gtinItems));
+		}
+
 		#endregion Условия фильтра
 
 		#region Применимость источников строк
@@ -1096,7 +1206,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		private bool IsDeviationsRequested() =>
 			(!_filterViewModel.RowType.HasValue
 				|| _filterViewModel.RowType == EdoDeviationJournalNodeType.Deviation)
-			&& string.IsNullOrWhiteSpace(_filterViewModel.ProblemSourceName);
+			&& string.IsNullOrWhiteSpace(_filterViewModel.ProblemSourceName)
+			&& _filterViewModel.HasProblemItemGtins != true;
 
 		/// <summary>
 		/// Допустимы ли фильтром строки проблем
@@ -1116,7 +1227,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			&& string.IsNullOrWhiteSpace(_filterViewModel.ProblemSourceName)
 			&& (!_filterViewModel.State.HasValue || _filterViewModel.State == TaskProblemState.Active)
 			&& (!_filterViewModel.EdoTaskStatus.HasValue
-				|| _filterViewModel.EdoTaskStatus == EdoTaskStatus.Problem);
+				|| _filterViewModel.EdoTaskStatus == EdoTaskStatus.Problem)
+			&& _filterViewModel.HasProblemItemGtins != true;
 
 		/// <summary>
 		/// Допустимы ли фильтром задачи заказа
