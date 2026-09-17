@@ -140,6 +140,7 @@ namespace Vodovoz.Errors.Orders
 				typeof(OrderErrors),
 				nameof(SplitOrderError),
 				"Произошла ошибка при разбиении заказа");
+		
 		public static Error CannotCancelOrder =>
 			new Error(
 				"400",
@@ -216,5 +217,11 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				"400",
 				$"Дата доставки {deliveryDate:dd.MM.yyyy} превышает максимальный срок переноса в {maxDays} дней. ");
+		
+		public static Error CantAddProductTo1COrder =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(CantAddProductTo1COrder),
+				"Нельзя добавлять товары в заказ с 1С");
 	}
 }

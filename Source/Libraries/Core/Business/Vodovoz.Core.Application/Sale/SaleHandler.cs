@@ -189,5 +189,11 @@ namespace Vodovoz.Core.Application.Sale
 					break;
 			}
 		}
+
+		#region Работа с товарами/услугами
+
+		
+
+		#endregion
 	}
 }
