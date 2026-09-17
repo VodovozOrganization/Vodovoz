@@ -55,6 +55,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			Title = "Журнал отклонений документооборота ЭДО";
 
+			ExpandAfterReloading = true;
+
 			JournalFilter = _filterViewModel;
 
 			_filterViewModel.IsShow = true;
