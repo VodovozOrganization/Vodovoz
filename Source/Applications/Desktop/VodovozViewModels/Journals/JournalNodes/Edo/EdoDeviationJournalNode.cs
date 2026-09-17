@@ -1,6 +1,7 @@
 ﻿using Gamma.Utilities;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader.Hierarchy;
+using QS.Utilities;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Edo;
@@ -14,14 +15,25 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 	/// </summary>
 	public class EdoDeviationJournalNode : JournalNodeBase, IHierarchicalNode<EdoDeviationJournalNode>
 	{
+		/// <summary>
+		/// Заголовок строки: у строки заказа - его номер со счетчиком вложенных строк,
+		/// у остальных - состояние, по которому строка попала в журнал
+		/// </summary>
 		public override string Title =>
 			NodeType == EdoDeviationJournalNodeType.Order ? OrderTitle : Result;
 
 		#region Поддержка иерархии
 
+		/// <inheritdoc/>
 		public int Id { get; set; }
+
+		/// <inheritdoc/>
 		public int? ParentId { get; set; }
+
+		/// <inheritdoc/>
 		public EdoDeviationJournalNode Parent { get; set; }
+
+		/// <inheritdoc/>
 		public IList<EdoDeviationJournalNode> Children { get; set; }
 
 		#endregion Поддержка иерархии
@@ -218,12 +230,14 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 
 			if(DeviationsCount > 0)
 			{
-				parts.Add($"{DeviationsCount} отклонений");
+				parts.Add($"{DeviationsCount} "
+					+ NumberToTextRus.Case(DeviationsCount, "отклонение", "отклонения", "отклонений"));
 			}
 
 			if(ProblemsCount > 0)
 			{
-				parts.Add($"{ProblemsCount} проблем");
+				parts.Add($"{ProblemsCount} "
+					+ NumberToTextRus.Case(ProblemsCount, "проблема", "проблемы", "проблем"));
 			}
 
 			return parts.Count > 0 ? string.Join(", ", parts) : "пусто";

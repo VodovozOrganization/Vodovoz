@@ -74,6 +74,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			CreatePopupActions();
 		}
 
+		/// <summary>
+		/// Настройка построения дерева журнала
+		/// </summary>
 		public IRecursiveConfig RecuresiveConfig { get; }
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
