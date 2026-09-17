@@ -10,16 +10,16 @@ namespace DatabaseServiceWorker.Options
 		/// <summary>
 		/// Пауза между полными проходами по точкам доставки.
 		/// </summary>
-		public TimeSpan Interval { get; set; } = TimeSpan.FromMinutes(5);
+		public TimeSpan Interval { get; set; }
 
 		/// <summary>
 		/// Количество идентификаторов точек, загружаемых за один запрос.
 		/// </summary>
-		public int BatchSize { get; set; } = 100;
+		public int BatchSize { get; set; }
 
 		/// <summary>
 		/// Пауза между порциями для ограничения нагрузки на базу данных.
 		/// </summary>
-		public TimeSpan BatchDelay { get; set; } = TimeSpan.FromSeconds(1);
+		public TimeSpan BatchDelay { get; set; }
 	}
 }
