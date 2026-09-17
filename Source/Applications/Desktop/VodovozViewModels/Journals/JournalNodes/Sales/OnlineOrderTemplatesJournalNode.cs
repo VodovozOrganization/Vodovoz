@@ -2,6 +2,7 @@
 using Core.Infrastructure;
 using QS.Project.Journal;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Sale;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Sales

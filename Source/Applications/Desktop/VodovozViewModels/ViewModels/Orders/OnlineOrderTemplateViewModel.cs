@@ -44,6 +44,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
@@ -242,7 +243,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		}
 
 		public IObservableList<OnlineOrderTemplateWeekday> Weekdays { get; }
-		public IObservableList<OnlineOrderTemplateProduct> Products { get; }
+		public IObservableList<OnlineOrderTemplateSaleItem> SaleItems { get; }
 		
 		private void Initialize()
 		{
@@ -359,15 +360,15 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		
 		public virtual void AddOrderItem(
 			IUnitOfWork uow,
-			OnlineOrderTemplateProduct product,
+			OnlineOrderTemplateSaleItem saleItem,
 			bool forceUseAlternativePrice = false)
 		{
-			if(Products.Contains(product))
+			if(SaleItems.Contains(saleItem))
 			{
 				return;
 			}
 			
-			Products.Add(product);
+			SaleItems.Add(saleItem);
 			Recalculate();
 		}
 		
