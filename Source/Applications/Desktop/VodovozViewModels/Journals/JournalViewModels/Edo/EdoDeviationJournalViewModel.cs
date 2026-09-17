@@ -384,9 +384,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		{
 			var query = QueryOver.Of(() => deviationAlias)
 				.JoinAlias(() => deviationAlias.EdoTask, () => taskAlias)
-				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias);
-
-			JoinOrderTaskRequest(query, taskAlias, requestAlias);
+				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias)
+				.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == taskAlias.Id);
 
 			ApplyStateRestriction(query, Projections.Property(() => deviationAlias.State));
 			ApplyDeviationTypeRestriction(query, sourceAlias);
@@ -453,9 +452,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		{
 			var query = QueryOver.Of(() => deviationAlias)
 				.JoinAlias(() => deviationAlias.EdoTask, () => taskAlias)
-				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias);
-
-			JoinTransferTaskRequest(query, taskAlias, transferRequestAlias, iterationAlias, requestAlias);
+				.JoinAlias(() => deviationAlias.DeviationSource, () => sourceAlias)
+				.JoinEntityAlias(() => transferRequestAlias, () => transferRequestAlias.TransferEdoTask.Id == taskAlias.Id)
+				.JoinAlias(() => transferRequestAlias.Iteration, () => iterationAlias)
+				.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == iterationAlias.OrderEdoTask.Id);
 
 			ApplyStateRestriction(query, Projections.Property(() => deviationAlias.State));
 			ApplyDeviationTypeRestriction(query, sourceAlias);
@@ -581,9 +581,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			FormalEdoRequest requestAlias)
 		{
 			var query = QueryOver.Of(() => problemAlias)
-				.JoinAlias(() => problemAlias.EdoTask, () => taskAlias);
-
-			JoinOrderTaskRequest(query, taskAlias, requestAlias);
+				.JoinAlias(() => problemAlias.EdoTask, () => taskAlias)
+				.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == taskAlias.Id);
 
 			ApplyStateRestriction(query, Projections.Property(() => problemAlias.State));
 			ApplyProblemSourceNameRestriction(query, problemAlias);
@@ -620,13 +619,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				.GetExecutableQueryOver(uow.Session)
 				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds));
 
-			JoinProblemDescriptionSources(
-				query,
-				problemAlias,
-				exceptionProblemAlias,
-				descriptionSourceAlias,
-				customSourceAlias,
-				validatorSourceAlias);
+			query
+				.JoinEntityAlias(() => exceptionProblemAlias,
+					() => exceptionProblemAlias.Id == problemAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => descriptionSourceAlias,
+					() => descriptionSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => customSourceAlias,
+					() => customSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => validatorSourceAlias,
+					() => validatorSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin);
 
 			return query.SelectList(list => list
 					.Select(() => problemAlias.Id).WithAlias(() => resultAlias.Id)
@@ -663,9 +664,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			FormalEdoRequest requestAlias)
 		{
 			var query = QueryOver.Of(() => problemAlias)
-				.JoinAlias(() => problemAlias.EdoTask, () => taskAlias);
-
-			JoinTransferTaskRequest(query, taskAlias, transferRequestAlias, iterationAlias, requestAlias);
+				.JoinAlias(() => problemAlias.EdoTask, () => taskAlias)
+				.JoinEntityAlias(() => transferRequestAlias,
+					() => transferRequestAlias.TransferEdoTask.Id == taskAlias.Id)
+				.JoinAlias(() => transferRequestAlias.Iteration, () => iterationAlias)
+				.JoinEntityAlias(() => requestAlias,
+					() => requestAlias.Task.Id == iterationAlias.OrderEdoTask.Id);
 
 			ApplyStateRestriction(query, Projections.Property(() => problemAlias.State));
 			ApplyProblemSourceNameRestriction(query, problemAlias);
@@ -707,13 +711,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				.GetExecutableQueryOver(uow.Session)
 				.Where(Restrictions.In(Projections.Property(() => requestAlias.Order.Id), orderIds));
 
-			JoinProblemDescriptionSources(
-				query,
-				problemAlias,
-				exceptionProblemAlias,
-				descriptionSourceAlias,
-				customSourceAlias,
-				validatorSourceAlias);
+			query
+				.JoinEntityAlias(() => exceptionProblemAlias,
+					() => exceptionProblemAlias.Id == problemAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => descriptionSourceAlias,
+					() => descriptionSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => customSourceAlias,
+					() => customSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => validatorSourceAlias,
+					() => validatorSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin);
 
 			return query.SelectList(list => list
 					.Select(() => problemAlias.Id).WithAlias(() => resultAlias.Id)
@@ -750,7 +756,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				.Where(() => taskAlias.Status == EdoTaskStatus.Problem)
 				.Where(GetNoActiveProblemAndDeviationRestriction(taskAlias));
 
-			JoinOrderTaskRequest(query, taskAlias, requestAlias);
+			query.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == taskAlias.Id);
 
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
@@ -807,7 +813,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				.Where(() => taskAlias.Status == EdoTaskStatus.Problem)
 				.Where(GetNoActiveProblemAndDeviationRestriction(taskAlias));
 
-			JoinTransferTaskRequest(query, taskAlias, transferRequestAlias, iterationAlias, requestAlias);
+			query
+				.JoinEntityAlias(() => transferRequestAlias,
+					() => transferRequestAlias.TransferEdoTask.Id == taskAlias.Id)
+				.JoinAlias(() => transferRequestAlias.Iteration, () => iterationAlias)
+				.JoinEntityAlias(() => requestAlias,
+					() => requestAlias.Task.Id == iterationAlias.OrderEdoTask.Id);
 
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
@@ -858,60 +869,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		#endregion Источник строк - задачи трансфера в проблемном статусе без записи проблемы
 
 		#region Общие части запросов источников
-
-		/// <summary>
-		/// Путь от задачи заказа к заказу: заявка ЭДО, по которой задача создана
-		/// </summary>
-		private static void JoinOrderTaskRequest<TRoot>(
-			IQueryOver<TRoot, TRoot> query,
-			EdoTask taskAlias,
-			FormalEdoRequest requestAlias)
-		{
-			query.JoinEntityAlias(() => requestAlias, () => requestAlias.Task.Id == taskAlias.Id);
-		}
-
-		/// <summary>
-		/// Путь от задачи трансфера к заказам, коды которых она переносит:
-		/// заявка на перенос кодов, ее итерация и заявка ЭДО задачи заказа
-		/// </summary>
-		private static void JoinTransferTaskRequest<TRoot>(
-			IQueryOver<TRoot, TRoot> query,
-			EdoTask taskAlias,
-			TransferEdoRequest transferRequestAlias,
-			TransferEdoRequestIteration iterationAlias,
-			FormalEdoRequest requestAlias)
-		{
-			query
-				.JoinEntityAlias(() => transferRequestAlias,
-					() => transferRequestAlias.TransferEdoTask.Id == taskAlias.Id)
-				.JoinAlias(() => transferRequestAlias.Iteration, () => iterationAlias)
-				.JoinEntityAlias(() => requestAlias,
-					() => requestAlias.Task.Id == iterationAlias.OrderEdoTask.Id);
-		}
-
-		/// <summary>
-		/// Присоединяет источники текстов проблемы: сообщение исключения и справочники
-		/// описаний источников. Нужны только для отображения строки, поэтому в отбор
-		/// заказов первого уровня не входят
-		/// </summary>
-		private static void JoinProblemDescriptionSources<TRoot>(
-			IQueryOver<TRoot, TRoot> query,
-			EdoTaskProblem problemAlias,
-			ExceptionEdoTaskProblem exceptionProblemAlias,
-			EdoTaskProblemDescriptionSourceEntity descriptionSourceAlias,
-			EdoTaskProblemCustomSourceEntity customSourceAlias,
-			EdoTaskProblemValidatorSourceEntity validatorSourceAlias)
-		{
-			query
-				.JoinEntityAlias(() => exceptionProblemAlias,
-					() => exceptionProblemAlias.Id == problemAlias.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => descriptionSourceAlias,
-					() => descriptionSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => customSourceAlias,
-					() => customSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => validatorSourceAlias,
-					() => validatorSourceAlias.Name == problemAlias.SourceName, JoinType.LeftOuterJoin);
-		}
 
 		/// <summary>
 		/// Сообщение проблемы: у проблемы от исключения - его текст,
