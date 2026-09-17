@@ -128,8 +128,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 
 			UoW = uow;
-			FuelDocument = new FuelDocument();
-			FuelDocument.UoW = UoW;
+			FuelDocument = new FuelDocument
+			{
+				UoW = UoW
+			};
+
 			_autoCommit = false;
 			RouteList = rl;
 
@@ -520,7 +523,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.UseViewModelDialog<FuelTypeViewModel>()
 				.Finish();
 
-			viewModel.IsEditable = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Fuel.CanGiveFuelLimits);
+			viewModel.IsEditable = _commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.Fuel.CanChangeFuelType);
 			viewModel.CanViewEntity = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelType)).CanUpdate;
 
 			return viewModel;
@@ -991,6 +994,20 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			if(e.PropertyName == nameof(FuelDocument.FuelLimitLitersAmount))
 			{
 				OnPropertyChanged(nameof(IsDocumentCanBeEdited));
+			}
+
+			if(e.PropertyName == nameof(FuelDocument.Fuel))
+			{
+				UpdateLiterCost();
+			}
+		}
+
+		private void UpdateLiterCost()
+		{
+			if(FuelDocument?.Fuel != null)
+			{
+				FuelDocument.LiterCost = FuelDocument.Fuel.Cost;
+				OnPropertyChanged(nameof(FuelInfo));
 			}
 		}
 
