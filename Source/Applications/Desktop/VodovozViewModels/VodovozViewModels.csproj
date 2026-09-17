@@ -858,6 +858,7 @@
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarViewModel.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderNotificationSettingViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OnlineOrderTemplateViewModel.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderV1ViewModel.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderV2ViewModel.cs" />
     <Compile Include="ViewModels\Orders\ServiceDistrictsSetActivationViewModel.cs" />
