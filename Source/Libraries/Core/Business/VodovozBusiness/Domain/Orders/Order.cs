@@ -3810,9 +3810,21 @@ namespace Vodovoz.Domain.Orders
 				IList<Certificate> newList = new List<Certificate>();
 				foreach(var item in _nomenclatureRepository.GetDictionaryWithCertificatesForNomenclatures(UoW, OrderItems.Select(i => i.Nomenclature).ToArray())) {
 					if(item.Value.All(c => c.IsArchive || c.ExpirationDate.HasValue && c.ExpirationDate.Value < DeliveryDate))
+					{
 						nomenclaturesNeedUpdate.Add(item.Key);
+					}
 					else
-						newList.Add(item.Value.FirstOrDefault(c => c.ExpirationDate == item.Value.Max(cert => cert.ExpirationDate)));
+					{
+						var certificate = item.Value
+							.Where(c => !c.IsArchive)
+							.OrderByDescending(c => c.ExpirationDate)
+							.FirstOrDefault();
+
+						if(certificate != null)
+						{
+							newList.Add(certificate);
+						}
+					}
 				}
 
 				newList = newList.Distinct().ToList();

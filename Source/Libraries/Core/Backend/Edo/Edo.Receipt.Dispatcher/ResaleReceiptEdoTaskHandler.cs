@@ -1055,7 +1055,7 @@ namespace Edo.Receipt.Dispatcher
 			else
 			{
 				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteHasInvalidCodes>(
-						receiptEdoTask,
+						receiptEdoTask.Id,
 						invalidTaskItems,
 						cancellationToken);
 			}
