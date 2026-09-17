@@ -48,6 +48,14 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	internal sealed class RouteListRepository : IRouteListRepository
 	{
+		/// <inheritdoc />
+		public IList<DriverStopListRemoval> GetActiveDriverStopListRemovals(IUnitOfWork uow, int driverId, DateTime at)
+		{
+			return uow.GetAll<DriverStopListRemoval>()
+				.Where(r => r.Driver.Id == driverId && r.DateFrom <= at && r.DateTo > at)
+				.ToList();
+		}
+
 		private readonly ISettingsController _settingsController;
 		private readonly IStockRepository _stockRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;

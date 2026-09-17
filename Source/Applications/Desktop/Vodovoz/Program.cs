@@ -357,7 +357,8 @@ namespace Vodovoz
 					builder.RegisterType<EmailService>().As<IEmailService>();
 					builder.RegisterType<MysqlChangePasswordModelExtended>().As<IChangePasswordModel>();
 					builder.RegisterType<ApplicationConfigurator>().As<IApplicationConfigurator>().SingleInstance();
-
+					builder.RegisterType<Services.Logistics.DriverStopListService>().As<Services.Logistics.IDriverStopListService>();
+					
 					#endregion
 
 					#region Models

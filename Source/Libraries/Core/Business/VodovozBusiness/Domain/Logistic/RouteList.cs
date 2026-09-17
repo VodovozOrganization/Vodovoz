@@ -1407,35 +1407,6 @@ namespace Vodovoz.Domain.Logistic
 			return _deliveryRulesSettings.MaxFastOrdersPerSpecificTime;
 		}
 
-		/// <summary>
-		/// Проверяет ручную блокировку и долги водителя с учётом действующего снятия.
-		/// </summary>
-		/// <param name="unclosedRouteListsHavingDebtsCount">Количество незакрытых МЛ с долгом.</param>
-		/// <param name="unclosedRouteListsDebtsSum">Сумма долгов по незакрытым МЛ.</param>
-		/// <returns>Водитель находится в стоп-листе.</returns>
-		public virtual bool IsDriverInStopList(out int unclosedRouteListsHavingDebtsCount, out decimal unclosedRouteListsDebtsSum)
-		{
-			unclosedRouteListsHavingDebtsCount = 0;
-			unclosedRouteListsDebtsSum = 0;
-
-			if(Driver == null || Driver.IsDriverHasActiveStopListRemoval(UoW))
-			{
-				return false;
-			}
-
-			unclosedRouteListsHavingDebtsCount =
-				_routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
-			unclosedRouteListsDebtsSum =
-				_routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
-
-			var maxCount = GetGeneralSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount;
-			var maxSum = GetGeneralSettingsSettings.DriversRouteListsMaxDebtSum;
-
-			return (Driver.DriverManualStopListUntil > DateTime.Now)
-				|| (maxCount > 0 && unclosedRouteListsHavingDebtsCount >= maxCount)
-				|| (maxSum > 0 && unclosedRouteListsDebtsSum >= maxSum);
-		}
-
 		public virtual bool IsDriversDebtInPermittedRangeVerification()
 		{
 			if(Driver == null || Driver.IsDriverHasActiveStopListRemoval(UoW))

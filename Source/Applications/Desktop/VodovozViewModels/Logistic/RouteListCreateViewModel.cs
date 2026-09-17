@@ -64,6 +64,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IDriverStopListService _driverStopListService;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly IRouteListSpecialConditionsService _routeListSpecialConditionsService;
@@ -98,6 +99,7 @@ namespace Vodovoz.ViewModels.Logistic
 			ICurrentPermissionService currentPermissionService,
 			IEmployeeRepository employeeRepository,
 			IRouteListRepository routeListRepository,
+			IDriverStopListService driverStopListService,
 			IRouteListItemRepository routeListItemRepository,
 			IRouteListService routeListService,
 			IRouteListSpecialConditionsService routeListSpecialConditionsService,
@@ -123,6 +125,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_driverStopListService = driverStopListService ?? throw new ArgumentNullException(nameof(driverStopListService));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
@@ -529,7 +532,7 @@ namespace Vodovoz.ViewModels.Logistic
 				return false;
 			}
 
-			if(!Entity.IsDriverInStopList(out _, out _))
+			if(!_driverStopListService.IsDriverInStopList(UoW, driver, Entity.Id))
 			{
 				return true;
 			}
@@ -540,9 +543,16 @@ namespace Vodovoz.ViewModels.Logistic
 				return false;
 			}
 
-			var page = NavigationManager.OpenViewModel<DriverStopListRemovalViewModel, int>(this, driver.Id);
-			page.PageClosed += (sender, args) =>
+			NavigationManager.OpenViewModel<DriverStopListRemovalViewModel, int>(this, driver.Id)
+				.PageClosed += OnStopListRemovalClosed;
+
+			void OnStopListRemovalClosed(object sender, PageClosedEventArgs args)
 			{
+				if(sender is IPage page)
+				{
+					page.PageClosed -= OnStopListRemovalClosed;
+				}
+
 				if(args.CloseSource != CloseSource.Save)
 				{
 					return;
@@ -550,7 +560,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 				Entity.Driver = driver;
 				_mangoCallButtonViewModelFactory.UpdateForRouteListDriver(DriverExtensionCallViewModel, UoW, Entity);
-			};
+			}
 
 			return true;
 		}

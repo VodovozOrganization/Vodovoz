@@ -823,28 +823,6 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _driverManualStopListUntil, value);
 		}
 
-		/// <summary>
-		/// Добавляет водителя в стоп-лист до ближайшей полуночи, прекращая действующие временные снятия.
-		/// Изменения сохраняются в переданной единице работы без её фиксации.
-		/// </summary>
-		/// <param name="unitOfWork">Единица работы для сохранения изменений.</param>
-		public virtual void AddDriverToStopList(IUnitOfWork unitOfWork)
-		{
-			var now = DateTime.Now;
-			var activeRemovals = unitOfWork.GetAll<DriverStopListRemoval>()
-				.Where(r => r.Driver.Id == Id && r.DateFrom <= now && r.DateTo > now)
-				.ToList();
-
-			foreach(var removal in activeRemovals)
-			{
-				removal.DateTo = now;
-				unitOfWork.Save(removal);
-			}
-
-			DriverManualStopListUntil = now.Date.AddDays(1);
-			unitOfWork.Save(this);
-		}
-
 		public virtual bool IsDriverHasActiveStopListRemoval(IUnitOfWork unitOfWork)
 		{
 			return unitOfWork.GetAll<DriverStopListRemoval>()

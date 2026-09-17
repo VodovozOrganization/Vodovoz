@@ -1,4 +1,5 @@
-﻿using Gamma.ColumnConfig;
+﻿using System.ComponentModel;
+using Gamma.ColumnConfig;
 using Pango;
 using QS.Views.GtkUI;
 using QSProjectsLib;
@@ -10,7 +11,7 @@ using static Vodovoz.ViewModels.Logistic.DriversStopLists.DriversStopListsViewMo
 
 namespace Vodovoz.Views.Logistic
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class DriversStopListsView : TabViewBase<DriversStopListsViewModel>
 	{
 		public DriversStopListsView(DriversStopListsViewModel viewModel) : base(viewModel)
@@ -100,10 +101,7 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ybuttonRemoveStopList.Clicked += (s, e) => ViewModel.RemoveStopListCommand?.Execute();
-			ybuttonAddToStopList.Binding
-				.AddBinding(ViewModel, vm => vm.CanAddToStopList, v => v.Sensitive)
-				.InitializeFromSource();
-			ybuttonAddToStopList.Clicked += (s, e) => ViewModel.AddToStopListCommand.Execute();
+			ybuttonAddToStopList.BindCommand(ViewModel.AddToStopListCommand);
 			ybuttonFilter.Clicked += (s, e) => ViewModel.CloseFilterCommand?.Execute();
 			ybuttonRefresh.Clicked += (s, e) => ViewModel.UpdateCommand?.Execute();
 		}

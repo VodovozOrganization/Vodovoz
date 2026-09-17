@@ -21,6 +21,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Settings.Common;
+using Vodovoz.Services.Logistics;
 using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Logistic.DriversStopLists
@@ -28,6 +29,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 	public partial class DriversStopListsViewModel : DialogTabViewModelBase
 	{
 		private readonly ICommonServices _commonServices;
+		private readonly IDriverStopListService _driverStopListService;
 		private readonly ViewModelEEVMBuilder<Subdivision> _subdivisionViewModelEEVMBuilder;
 		private readonly IPermissionResult _currentUserRouteListRemovalPermissions;
 		private readonly int _driversUnclosedRouteListsMaxCountParameter;
@@ -51,9 +53,13 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			INavigationManager navigation,
 			ICommonServices commonServices,
 			IGeneralSettings generalSettingsSettings,
+			IDriverStopListService driverStopListService,
 			ViewModelEEVMBuilder<Subdivision> subdivisionViewModelEEVMBuilder
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_driverStopListService = driverStopListService ?? throw new ArgumentNullException(nameof(driverStopListService));
+			AddToStopListCommand = new DelegateCommand(AddToStopList, () => CanAddToStopList);
+			AddToStopListCommand.CanExecuteChangedWith(this, x => x.CanAddToStopList);
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_subdivisionViewModelEEVMBuilder = subdivisionViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(subdivisionViewModelEEVMBuilder));
 
@@ -349,13 +355,10 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		#region Команды
 
-		private DelegateCommand _addToStopListCommand;
-
 		/// <summary>
 		/// Добавить выбранного водителя в стоп-лист.
 		/// </summary>
-		public DelegateCommand AddToStopListCommand => _addToStopListCommand
-			?? (_addToStopListCommand = new DelegateCommand(AddToStopList, () => CanAddToStopList));
+		public DelegateCommand AddToStopListCommand { get; }
 
 		private void AddToStopList()
 		{
@@ -365,7 +368,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			}
 
 			var driver = UoW.GetById<Employee>(SelectedDriverNode.DriverId);
-			driver.AddDriverToStopList(UoW);
+			_driverStopListService.AddDriverToStopList(UoW, driver);
 			UoW.Commit();
 			Update();
 		}
