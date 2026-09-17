@@ -431,6 +431,8 @@
     <Compile Include="Dialogs\OrderWidgets\IActivatableOrderTab.cs" />
     <Compile Include="Dialogs\OrderWidgets\CopyOrderDlgOpener.cs" />
     <Compile Include="Extensions\EntryExtension.cs" />
+    <Compile Include="Filters\GtkViews\OnlineOrderTemplatesJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OnlineOrderTemplatesJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalesReportDetailedView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
@@ -458,6 +460,7 @@
     <Compile Include="JournalColumnsConfigs\NonReturnReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NotAllocatedCounterpartiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoNotificationSettingJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\OnlineOrderTemplatesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ProfitCategoriesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ServiceDistrictsSetJournalRegistrar.cs" />
