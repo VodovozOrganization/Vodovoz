@@ -22,11 +22,19 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Label labelEdoTaskType3;
 
+		private global::Gtk.Label labelHasProblemItemGtins;
+
+		private global::Gtk.Label labelHasProblemItems;
+
 		private global::Gtk.Label labelOrder;
 
 		private global::Gtk.Label labelSourceId;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonHelp;
+
+		private global::QS.Widgets.NullableCheckButton ycheckHasProblemItemGtins;
+
+		private global::QS.Widgets.NullableCheckButton ycheckHasProblemItems;
 
 		private global::Gamma.Widgets.yValidatedEntry yentryEdoTask;
 
@@ -51,7 +59,7 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.EdoDeviationFilterView";
 			// Container child Vodovoz.Filters.GtkViews.EdoDeviationFilterView.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(11)), false);
+			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(13)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -124,8 +132,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.labelEdoTaskType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип задачи:");
 			this.table1.Add(this.labelEdoTaskType);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.labelEdoTaskType]));
-			w6.LeftAttach = ((uint)(8));
-			w6.RightAttach = ((uint)(9));
+			w6.LeftAttach = ((uint)(10));
+			w6.RightAttach = ((uint)(11));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -137,8 +145,8 @@ namespace Vodovoz.Filters.GtkViews
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.labelEdoTaskType1]));
 			w7.TopAttach = ((uint)(1));
 			w7.BottomAttach = ((uint)(2));
-			w7.LeftAttach = ((uint)(6));
-			w7.RightAttach = ((uint)(7));
+			w7.LeftAttach = ((uint)(8));
+			w7.RightAttach = ((uint)(9));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
@@ -148,44 +156,90 @@ namespace Vodovoz.Filters.GtkViews
 			this.labelEdoTaskType3.LabelProp = global::Mono.Unix.Catalog.GetString("Тип строки:");
 			this.table1.Add(this.labelEdoTaskType3);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.labelEdoTaskType3]));
-			w8.LeftAttach = ((uint)(6));
-			w8.RightAttach = ((uint)(7));
+			w8.LeftAttach = ((uint)(8));
+			w8.RightAttach = ((uint)(9));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelHasProblemItemGtins = new global::Gtk.Label();
+			this.labelHasProblemItemGtins.Name = "labelHasProblemItemGtins";
+			this.labelHasProblemItemGtins.Xalign = 1F;
+			this.labelHasProblemItemGtins.LabelProp = global::Mono.Unix.Catalog.GetString("Наличие связанных GTIN:");
+			this.table1.Add(this.labelHasProblemItemGtins);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.labelHasProblemItemGtins]));
+			w9.TopAttach = ((uint)(1));
+			w9.BottomAttach = ((uint)(2));
+			w9.LeftAttach = ((uint)(6));
+			w9.RightAttach = ((uint)(7));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelHasProblemItems = new global::Gtk.Label();
+			this.labelHasProblemItems.Name = "labelHasProblemItems";
+			this.labelHasProblemItems.Xalign = 1F;
+			this.labelHasProblemItems.LabelProp = global::Mono.Unix.Catalog.GetString("Наличие связанных строк с кодами:");
+			this.table1.Add(this.labelHasProblemItems);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.labelHasProblemItems]));
+			w10.LeftAttach = ((uint)(6));
+			w10.RightAttach = ((uint)(7));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelOrder = new global::Gtk.Label();
 			this.labelOrder.Name = "labelOrder";
 			this.labelOrder.Xalign = 1F;
 			this.labelOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Заказ:");
 			this.table1.Add(this.labelOrder);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.labelOrder]));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.labelOrder]));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelSourceId = new global::Gtk.Label();
 			this.labelSourceId.Name = "labelSourceId";
 			this.labelSourceId.Xalign = 1F;
 			this.labelSourceId.LabelProp = global::Mono.Unix.Catalog.GetString("Идентификатор источника:");
 			this.table1.Add(this.labelSourceId);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSourceId]));
-			w10.LeftAttach = ((uint)(4));
-			w10.RightAttach = ((uint)(5));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSourceId]));
+			w12.LeftAttach = ((uint)(4));
+			w12.RightAttach = ((uint)(5));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.ybuttonHelp = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonHelp.CanFocus = true;
 			this.ybuttonHelp.Name = "ybuttonHelp";
 			this.ybuttonHelp.UseUnderline = true;
-			global::Gtk.Image w11 = new global::Gtk.Image();
-			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
-			this.ybuttonHelp.Image = w11;
+			global::Gtk.Image w13 = new global::Gtk.Image();
+			w13.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.ybuttonHelp.Image = w13;
 			this.table1.Add(this.ybuttonHelp);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.ybuttonHelp]));
-			w12.LeftAttach = ((uint)(10));
-			w12.RightAttach = ((uint)(11));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.ybuttonHelp]));
+			w14.LeftAttach = ((uint)(12));
+			w14.RightAttach = ((uint)(13));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ycheckHasProblemItemGtins = new global::QS.Widgets.NullableCheckButton();
+			this.ycheckHasProblemItemGtins.CanFocus = true;
+			this.ycheckHasProblemItemGtins.Name = "ycheckHasProblemItemGtins";
+			this.table1.Add(this.ycheckHasProblemItemGtins);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckHasProblemItemGtins]));
+			w15.TopAttach = ((uint)(1));
+			w15.BottomAttach = ((uint)(2));
+			w15.LeftAttach = ((uint)(7));
+			w15.RightAttach = ((uint)(8));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ycheckHasProblemItems = new global::QS.Widgets.NullableCheckButton();
+			this.ycheckHasProblemItems.CanFocus = true;
+			this.ycheckHasProblemItems.Name = "ycheckHasProblemItems";
+			this.table1.Add(this.ycheckHasProblemItems);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckHasProblemItems]));
+			w16.LeftAttach = ((uint)(7));
+			w16.RightAttach = ((uint)(8));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryEdoTask = new global::Gamma.Widgets.yValidatedEntry();
 			this.yentryEdoTask.CanFocus = true;
@@ -193,13 +247,13 @@ namespace Vodovoz.Filters.GtkViews
 			this.yentryEdoTask.IsEditable = true;
 			this.yentryEdoTask.InvisibleChar = '•';
 			this.table1.Add(this.yentryEdoTask);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryEdoTask]));
-			w13.TopAttach = ((uint)(1));
-			w13.BottomAttach = ((uint)(2));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryEdoTask]));
+			w17.TopAttach = ((uint)(1));
+			w17.BottomAttach = ((uint)(2));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryOrder = new global::Gamma.Widgets.yValidatedEntry();
 			this.yentryOrder.CanFocus = true;
@@ -207,11 +261,11 @@ namespace Vodovoz.Filters.GtkViews
 			this.yentryOrder.IsEditable = true;
 			this.yentryOrder.InvisibleChar = '•';
 			this.table1.Add(this.yentryOrder);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryOrder]));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryOrder]));
+			w18.LeftAttach = ((uint)(1));
+			w18.RightAttach = ((uint)(2));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentrySourceId = new global::Gamma.Widgets.yValidatedEntry();
 			this.yentrySourceId.CanFocus = true;
@@ -219,11 +273,11 @@ namespace Vodovoz.Filters.GtkViews
 			this.yentrySourceId.IsEditable = true;
 			this.yentrySourceId.InvisibleChar = '•';
 			this.table1.Add(this.yentrySourceId);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.yentrySourceId]));
-			w15.LeftAttach = ((uint)(5));
-			w15.RightAttach = ((uint)(6));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.yentrySourceId]));
+			w19.LeftAttach = ((uint)(5));
+			w19.RightAttach = ((uint)(6));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.yenumDeviationType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumDeviationType.Name = "yenumDeviationType";
@@ -232,13 +286,13 @@ namespace Vodovoz.Filters.GtkViews
 			this.yenumDeviationType.UseShortTitle = false;
 			this.yenumDeviationType.DefaultFirst = false;
 			this.table1.Add(this.yenumDeviationType);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumDeviationType]));
-			w16.TopAttach = ((uint)(1));
-			w16.BottomAttach = ((uint)(2));
-			w16.LeftAttach = ((uint)(7));
-			w16.RightAttach = ((uint)(8));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumDeviationType]));
+			w20.TopAttach = ((uint)(1));
+			w20.BottomAttach = ((uint)(2));
+			w20.LeftAttach = ((uint)(9));
+			w20.RightAttach = ((uint)(10));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.yenumEdoRowType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumEdoRowType.Name = "yenumEdoRowType";
@@ -247,11 +301,11 @@ namespace Vodovoz.Filters.GtkViews
 			this.yenumEdoRowType.UseShortTitle = false;
 			this.yenumEdoRowType.DefaultFirst = false;
 			this.table1.Add(this.yenumEdoRowType);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumEdoRowType]));
-			w17.LeftAttach = ((uint)(7));
-			w17.RightAttach = ((uint)(8));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumEdoRowType]));
+			w21.LeftAttach = ((uint)(9));
+			w21.RightAttach = ((uint)(10));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.yenumEdoTaskStatus = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumEdoTaskStatus.Name = "yenumEdoTaskStatus";
@@ -260,11 +314,11 @@ namespace Vodovoz.Filters.GtkViews
 			this.yenumEdoTaskStatus.UseShortTitle = false;
 			this.yenumEdoTaskStatus.DefaultFirst = false;
 			this.table1.Add(this.yenumEdoTaskStatus);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumEdoTaskStatus]));
-			w18.LeftAttach = ((uint)(3));
-			w18.RightAttach = ((uint)(4));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumEdoTaskStatus]));
+			w22.LeftAttach = ((uint)(3));
+			w22.RightAttach = ((uint)(4));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.yenumEdoTaskType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumEdoTaskType.Name = "yenumEdoTaskType";
@@ -273,11 +327,11 @@ namespace Vodovoz.Filters.GtkViews
 			this.yenumEdoTaskType.UseShortTitle = false;
 			this.yenumEdoTaskType.DefaultFirst = false;
 			this.table1.Add(this.yenumEdoTaskType);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumEdoTaskType]));
-			w19.LeftAttach = ((uint)(9));
-			w19.RightAttach = ((uint)(10));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumEdoTaskType]));
+			w23.LeftAttach = ((uint)(11));
+			w23.RightAttach = ((uint)(12));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.yenumTaskProblemState = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumTaskProblemState.Name = "yenumTaskProblemState";
@@ -286,13 +340,13 @@ namespace Vodovoz.Filters.GtkViews
 			this.yenumTaskProblemState.UseShortTitle = false;
 			this.yenumTaskProblemState.DefaultFirst = false;
 			this.table1.Add(this.yenumTaskProblemState);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumTaskProblemState]));
-			w20.TopAttach = ((uint)(1));
-			w20.BottomAttach = ((uint)(2));
-			w20.LeftAttach = ((uint)(3));
-			w20.RightAttach = ((uint)(4));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumTaskProblemState]));
+			w24.TopAttach = ((uint)(1));
+			w24.BottomAttach = ((uint)(2));
+			w24.LeftAttach = ((uint)(3));
+			w24.RightAttach = ((uint)(4));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(0));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
