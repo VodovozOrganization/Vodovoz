@@ -135,6 +135,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		{
 			ApplyDeliveryDateRestriction(query, orderAlias);
 			ApplyOrderIdRestriction(query, orderAlias);
+			ApplyHasOrderTrueMarkItemsRestriction(query, orderAlias);
 			ApplyMatchingRowsRestriction(query, orderAlias);
 			ApplySearchRestriction(query, orderAlias, counterpartyAlias);
 		}
@@ -395,7 +396,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
 			ApplyOrderTaskTypeRestriction(query, taskAlias);
-			ApplyHasTaskItemsRestriction(query, taskAlias);
 
 			return query;
 		}
@@ -465,7 +465,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			ApplyDeviationTypeRestriction(query, sourceAlias);
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
-			ApplyHasTaskItemsRestriction(query, iterationAlias);
 
 			return query;
 		}
@@ -534,7 +533,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			ApplyStateRestriction(query, Projections.Property(() => deviationAlias.State));
 			ApplyDeviationTypeRestriction(query, sourceAlias);
-			ApplyHasOrderTrueMarkItemsRestriction(query, requestAlias);
 
 			return query;
 		}
@@ -595,7 +593,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
 			ApplyOrderTaskTypeRestriction(query, taskAlias);
-			ApplyHasTaskItemsRestriction(query, taskAlias);
 			ApplyHasProblemItemGtinsRestriction(query, problemAlias);
 
 			return query;
@@ -683,7 +680,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			ApplyProblemSourceNameRestriction(query, problemAlias);
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
-			ApplyHasTaskItemsRestriction(query, iterationAlias);
 			ApplyHasProblemItemGtinsRestriction(query, problemAlias);
 
 			return query;
@@ -771,7 +767,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
 			ApplyOrderTaskTypeRestriction(query, taskAlias);
-			ApplyHasTaskItemsRestriction(query, taskAlias);
 
 			return query;
 		}
@@ -833,7 +828,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			ApplyTaskIdRestriction(query, taskAlias);
 			ApplyTaskStatusRestriction(query, taskAlias);
-			ApplyHasTaskItemsRestriction(query, iterationAlias);
 
 			return query;
 		}
@@ -1054,78 +1048,32 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		}
 
 		/// <summary>
-		/// Отбор по наличию у задачи заказа связанных строк с кодами
+		/// Отбор заказов по наличию в них маркируемой продукции
 		/// </summary>
-		private void ApplyHasTaskItemsRestriction<TRoot>(IQueryOver<TRoot, TRoot> query, EdoTask taskAlias)
-		{
-			EdoTaskItem taskItemAlias = null;
-
-			var taskItems = QueryOver.Of(() => taskItemAlias)
-				.Where(() => taskItemAlias.CustomerEdoTask.Id == taskAlias.Id)
-				.Select(Projections.Property(() => taskItemAlias.Id));
-
-			ApplyCodesExistenceRestriction(query, taskItems);
-		}
-
-		/// <summary>
-		/// Отбор строк трансфера по наличию связанных строк с кодами
-		/// у задачи заказа, коды которой переносит трансфер
-		/// </summary>
-		private void ApplyHasTaskItemsRestriction<TRoot>(
-			IQueryOver<TRoot, TRoot> query,
-			TransferEdoRequestIteration iterationAlias)
-		{
-			EdoTaskItem taskItemAlias = null;
-
-			var taskItems = QueryOver.Of(() => taskItemAlias)
-				.Where(() => taskItemAlias.CustomerEdoTask.Id == iterationAlias.OrderEdoTask.Id)
-				.Select(Projections.Property(() => taskItemAlias.Id));
-
-			ApplyCodesExistenceRestriction(query, taskItems);
-		}
-
-		/// <summary>
-		/// Отбор отклонений по заявкам, задача по которым не создана
-		/// Строк задачи еще нет, а кодов может не быть в самой заявке: их могли не отсканировать,
-		/// и при создании задачи они подтянутся из пула. Поэтому сверка идет по строкам заказа
-		/// с номенклатурой, подотчетной в ЧЗ
-		/// </summary>
-		private void ApplyHasOrderTrueMarkItemsRestriction<TRoot>(
-			IQueryOver<TRoot, TRoot> query,
-			FormalEdoRequest requestAlias)
-		{
-			OrderItem orderItemAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			GtinEntity gtinAlias = null;
-
-			var trueMarkOrderItems = QueryOver.Of(() => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.JoinAlias(() => nomenclatureAlias.Gtins, () => gtinAlias)
-				.Where(() => orderItemAlias.Order.Id == requestAlias.Order.Id)
-				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
-				.And(() => orderItemAlias.Count > 0)
-				.Select(Projections.Property(() => orderItemAlias.Id));
-
-			ApplyCodesExistenceRestriction(query, trueMarkOrderItems);
-		}
-
-		/// <summary>
-		/// Оставляет строки, у которых связанные коды есть либо отсутствуют.
-		/// Если отбор не задан, запрос не ограничивается
-		/// </summary>
-		private void ApplyCodesExistenceRestriction<TRoot, TCode>(
-			IQueryOver<TRoot, TRoot> query,
-			QueryOver<TCode> codes)
-			where TCode : class
+		private void ApplyHasOrderTrueMarkItemsRestriction(
+			IQueryOver<Order, Order> query,
+			Order orderAlias)
 		{
 			if(!_filterViewModel.HasProblemTaskItems.HasValue)
 			{
 				return;
 			}
 
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			GtinEntity gtinAlias = null;
+
+			var trueMarkOrderItemsCount = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinAlias(() => nomenclatureAlias.Gtins, () => gtinAlias)
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
+				.And(() => orderItemAlias.Count > 0)
+				.Select(Projections.RowCount());
+
 			query.Where(_filterViewModel.HasProblemTaskItems.Value
-				? Subqueries.WhereExists(codes)
-				: Subqueries.WhereNotExists(codes));
+				? Restrictions.Gt(Projections.SubQuery(trueMarkOrderItemsCount), 0)
+				: Restrictions.Eq(Projections.SubQuery(trueMarkOrderItemsCount), 0));
 		}
 
 		/// <summary>
