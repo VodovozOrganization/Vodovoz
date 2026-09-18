@@ -64,6 +64,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly ICarRepository _carRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly IRouteListSpecialConditionsService _routeListSpecialConditionsService;
 		private readonly IGenericRepository<RouteListSpecialConditionType> _routeListSpecialConditionTypeRepository;
@@ -98,6 +99,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeRepository employeeRepository,
 			IRouteListRepository routeListRepository,
 			IRouteListItemRepository routeListItemRepository,
+			ICarRepository carRepository,
 			IRouteListService routeListService,
 			IRouteListSpecialConditionsService routeListSpecialConditionsService,
 			IGenericRepository<RouteListSpecialConditionType> routeListSpecialConditionTypeRepository,
@@ -124,6 +126,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_routeListSpecialConditionsService = routeListSpecialConditionsService ?? throw new ArgumentNullException(nameof(routeListSpecialConditionsService));
 			_routeListSpecialConditionTypeRepository = routeListSpecialConditionTypeRepository ?? throw new ArgumentNullException(nameof(routeListSpecialConditionTypeRepository));
@@ -324,11 +327,13 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public IEntityEntryViewModel CreateCarViewModel()
 		{
+			var excludedCarTypesOfUse = _carRepository.CarTypeOfUseForExclude();
+
 			return new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.Car)
 				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
 				{
-					filter.ExcludedCarTypesOfUse = new CarTypeOfUse[] { CarTypeOfUse.Loader };
+					filter.ExcludedCarTypesOfUse = excludedCarTypesOfUse;
 				})
 				.UseViewModelDialog<CarViewModel>()
 				.Finish();

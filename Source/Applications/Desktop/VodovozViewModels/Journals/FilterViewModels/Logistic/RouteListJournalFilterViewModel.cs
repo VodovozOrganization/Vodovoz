@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using DynamicData;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.Project.Filter;
@@ -11,6 +12,7 @@ using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using SaleGeoGroup = Vodovoz.Domain.Sale.GeoGroup;
 
@@ -35,6 +37,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
 		public RouteListJournalFilterViewModel(
 			IUserRepository userRepository,
+			ICarRepository carRepository,
 			IUserService userService,
 			ICurrentPermissionService currentPermissionService,
 			IInteractiveService interactiveService)
@@ -42,6 +45,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			if(userRepository is null)
 			{
 				throw new ArgumentNullException(nameof(userRepository));
+			}
+
+			if(carRepository is null)
+			{
+				throw new ArgumentNullException(nameof(carRepository));
 			}
 
 			if(userService is null)
@@ -81,8 +89,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				}
 			}
 
+			var carTypeOfUseForExclude = carRepository.CarTypeOfUseForExclude();
+			var carTypeOfUseForExcludeEnum = carRepository.CarTypeOfUseForExcludeAsEnum();
 			var restrictedCarTypeOfUse = EnumHelper.GetValuesList<CarTypeOfUse>().ToList();
-			restrictedCarTypeOfUse.Remove(CarTypeOfUse.Loader);
+			restrictedCarTypeOfUse.Remove(carTypeOfUseForExclude);
+			CarTypeOfUseForExclude = carTypeOfUseForExcludeEnum;
 
 			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			_restrictedCarTypesOfUse = restrictedCarTypeOfUse;
@@ -100,6 +111,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			get => _excludeIds;
 			set => UpdateFilterField(ref _excludeIds, value);
 		}
+
+		public Enum[] CarTypeOfUseForExclude { get; }
 
 		public IList<SaleGeoGroup> GeographicGroups => _geographicGroups ?? (_geographicGroups = UoW.GetAll<SaleGeoGroup>().ToList());
 

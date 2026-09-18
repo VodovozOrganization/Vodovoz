@@ -840,6 +840,7 @@
     <Compile Include="ViewModels\Goods\NomenclatureInnerDeliveryPriceViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryAvailabilityHistoryViewModel.cs" />
     <Compile Include="ViewModels\ImportPaymentsFromAvangardSbpViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\SemitrailerViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TariffZoneViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TrackPointViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarManufacturerViewModel.cs" />

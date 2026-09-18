@@ -18,6 +18,7 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.ViewModels.Organizations;
@@ -49,9 +50,15 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			INavigationManager navigation,
 			ICommonServices commonServices,
 			IGeneralSettings generalSettingsSettings,
+			ICarRepository carRepository,
 			ViewModelEEVMBuilder<Subdivision> subdivisionViewModelEEVMBuilder
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			if(carRepository is null)
+			{
+				throw new ArgumentNullException(nameof(carRepository));
+			}
+
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_subdivisionViewModelEEVMBuilder = subdivisionViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(subdivisionViewModelEEVMBuilder));
 
@@ -73,10 +80,14 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			_driversRouteListsDebtsMaxSumParameter =
 				generalSettingsSettings.DriversRouteListsMaxDebtSum;
 
+			CarTypeOfUseForExclude = carRepository.CarTypeOfUseForExclude();
+
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DriverStopListRemoval>((s) => UpdateCommand?.Execute());
 		}
 
 		#region Свойства
+
+		public CarTypeOfUse[] CarTypeOfUseForExclude { get; }
 
 		[PropertyChangedAlso(nameof(CurrentDriversList), nameof(StopListsRemovalHistory))]
 		public EmployeeStatus? FilterEmployeeStatus

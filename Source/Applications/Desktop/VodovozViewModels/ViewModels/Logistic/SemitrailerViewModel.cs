@@ -44,6 +44,7 @@ using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
@@ -56,11 +57,10 @@ using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class CarViewModel : EntityTabViewModelBase<Car>, IAskSaveOnCloseViewModel
+	public class SemitrailerViewModel : EntityTabViewModelBase<Car>, IAskSaveOnCloseViewModel
 	{
 		private readonly IRouteListsWageController _routeListsWageController;
-		private readonly IFileDialogService _fileDialogService;
-		private readonly ILogger<CarViewModel> _logger;
+		private readonly ILogger<SemitrailerViewModel> _logger;
 		private readonly ICarFileStorageService _carFileStorageService;
 		private readonly IFuelApiService _fuelApiService;
 		private bool _canChangeBottlesFromAddress;
@@ -90,8 +90,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private IList<CarAdditionalFuelType> _oldAdditionalFuelTypes;
 		private CancellationTokenSource _fuelCardUpdateCancellationTokenSource;
 
-		public CarViewModel(
-			ILogger<CarViewModel> logger,
+		public SemitrailerViewModel(
+			ILogger<SemitrailerViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -140,7 +140,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -151,8 +150,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
 			_documentPrinter = documentPrinter ?? throw new ArgumentNullException(nameof(documentPrinter));
 			_interactiveService = commonServices?.InteractiveService ?? throw new ArgumentNullException(nameof(commonServices.InteractiveService));
-
-			TabName = "Автомобиль";
+			
+			TabName = "Полуприцеп";
 
 			_carVersionsManagementViewModel.Initialize(Entity, this);
 			CarVersionsViewModel = _carVersionsManagementViewModel.CarVersionsViewModel;
@@ -179,7 +178,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(Entity, x => x.CarModel)
-				.UseViewModelJournalAndAutocompleter<CarModelJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarModelJournalViewModel, CarModelJournalFilterViewModel>(filter =>
+				{
+					filter.ExcludedCarTypesOfUse = Enum.GetValues(typeof(CarTypeOfUse))
+						.Cast<CarTypeOfUse>()
+						.Where(t => t != CarTypeOfUse.Semitrailer)
+						.ToArray();
+				})
 				.UseViewModelDialog<CarModelViewModel>()
 				.Finish();
 
@@ -254,24 +259,30 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_oldAdditionalFuelTypes = new List<CarAdditionalFuelType>(Entity.AdditionalFuelTypes);
 
 			SetIsCarUsedInDeliveryDefaultValueIfNeed();
+
+			SaveCommand = new DelegateCommand(SaveAndClose);
+			CloseCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 		}
 
 		public bool CanEdit { get; private set; }
 		public bool CanEditCarCard { get; private set; }
-
+		
 		public bool AskSaveOnClose { get; private set; }
 
+		public DelegateCommand SaveCommand { get; }
+		public DelegateCommand CloseCommand { get; }
+		
 		public bool IsArchive
 		{
 			get => Entity.IsArchive;
 			set
 			{
 				var oldValue = Entity.IsArchive;
-
+				
 				if(!CanChangeCompositionCompanyTransportPark)
 				{
 					const string message = "Невозможно изменить архивацию авто. У Вас нет права менять состав автопарка компании";
-
+					
 					if(oldValue != value)
 					{
 						var activeVersion = Entity.GetActiveCarVersionOnDate();
@@ -284,7 +295,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						}
 					}
 				}
-
+				
 				Entity.IsArchive = value;
 			}
 		}
@@ -350,7 +361,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand AddGeoGroupCommand { get; }
 		public DelegateCommand CreateCarAcceptanceCertificateCommand { get; }
 		public DelegateCommand CreateRentalContractCommand { get; }
-
+		
 		private bool CanChangeCompositionCompanyTransportPark { get; set; }
 
 		protected override bool BeforeSave()
@@ -579,7 +590,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			base.AfterSave();
 		}
-
+		
 		private void SetPermissions()
 		{
 			var canEditCarCardPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanEditCarCard);
@@ -587,10 +598,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				|| (Entity.Id != 0 && (PermissionResult.CanUpdate || canEditCarCardPermission));
 			CanEditCarCard = CanEdit && (Entity.Id == 0 || canEditCarCardPermission);
 			AskSaveOnClose = CanEdit;
-
+			
 			CanChangeBottlesFromAddress = CommonServices.PermissionService.ValidateUserPresetPermission(
 				LogisticPermissions.Car.CanChangeCarsBottlesFromAddress, CommonServices.UserService.CurrentUserId);
-
+			
 			CanChangeCarModel =
 				Entity.Id == 0
 				|| CanEditCarCard
@@ -600,7 +611,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				|| CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanChangeFuelCardNumber);
 			CanViewFuelCard =
 				CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelCard)).CanUpdate;
-
+			
 			CanChangeCompositionCompanyTransportPark =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(CarPermissions.CanChangeCompositionCompanyTransportPark);
 		}
@@ -680,7 +691,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				cancellationToken)
 				.GetAwaiter()
 				.GetResult();
-		}
+		}			
 
 		private void SetFuelCardProductGroupRestrictionByCardId(string fuelCardId, CancellationToken cancellationToken)
 		{

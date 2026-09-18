@@ -31,6 +31,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
@@ -215,6 +216,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			organizations = UoW.GetAll<Organization>().ToList();
 
+			CarTypeOfUseForExclude = _carRepository.CarTypeOfUseForExclude();
+
 			GetExternalUsers();
 
 			_employeePermissionSet = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Employee));
@@ -317,6 +320,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		public List<EmployeeCategory> HiddenCategories { get; } = new List<EmployeeCategory>();
 		
+		public CarTypeOfUse[] CarTypeOfUseForExclude { get; }
+
 		public EmployeeDocumentType[] HiddenForRussianDocument { get; } =
 		{
 			EmployeeDocumentType.RefugeeId,

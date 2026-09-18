@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DynamicData;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -13,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
 using Vodovoz.Settings.Logistics;
@@ -33,7 +35,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IDriverScheduleService _driverScheduleService;
 		private readonly ILogisticRepository _logisticRepository;
-
 		private ObservableList<SubdivisionNode> _subdivisions;
 		private IList<CarTypeOfUse> _selectedCarTypeOfUse;
 		private IList<CarOwnType> _selectedCarOwnTypes;
@@ -62,9 +63,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			IUserService userService,
 			IFileDialogService fileDialogService,
 			IDriverScheduleService driverScheduleService,
-			ILogisticRepository logisticRepository
+			ILogisticRepository logisticRepository,
+			ICarRepository carRepository
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			if(carRepository is null)
+			{
+				throw new ArgumentNullException(nameof(carRepository));
+			}
+
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -74,15 +81,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_driverScheduleService = driverScheduleService ?? throw new ArgumentNullException(nameof(driverScheduleService));
 			_logisticRepository = logisticRepository ?? throw new ArgumentNullException(nameof(logisticRepository));
-
 			InitializeWeekPicker(weekPickerViewModelFactory);
 
 			Title = "График водителей";
 
 			SetPermissions();
+
+			var carTypeOfUseForExclude = carRepository.CarTypeOfUseForExclude();
+			var carTypeOfUseForExcludeAsEnum = carRepository.CarTypeOfUseForExcludeAsEnum();
 			var typesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>().ToList();
-			typesOfUse.Remove(CarTypeOfUse.Loader);
+			typesOfUse.Remove(carTypeOfUseForExclude);
 			typesOfUse.Remove(CarTypeOfUse.Truck);
+			CarTypeOfUseForExclude = carTypeOfUseForExcludeAsEnum;
 
 			var carOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 
@@ -113,6 +123,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		public DatePickerViewModel WeekPickerViewModel { get; private set; }
 
 		public IInteractiveService InteractiveService => _interactiveService;
+
+		public Enum[] CarTypeOfUseForExclude { get; }
 
 		public IList<CarTypeOfUse> SelectedCarTypeOfUse
 		{
