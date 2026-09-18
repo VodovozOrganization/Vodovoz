@@ -10,6 +10,12 @@
 		bool IsSmsFallbackNotificationsEnabled { get; }
 
 		string NewClientSmsTextTemplate { get; }
+
+		/// <summary>
+		/// ID полной одноразовой бутыли 19 л, исключающей СМС о первой покупке воды.
+		/// </summary>
+		int FullDisposable19LNomenclatureId { get; }
+
 		decimal LowBalanceLevel { get; }
 		string LowBalanceNotifiedPhone { get; }
 		string LowBalanceNotifyText { get; }

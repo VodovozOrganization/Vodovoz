@@ -27,6 +27,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		private IObservableList<Phone> _phonesList;
 		private readonly IContactSettings _contactsParameters;
 		private IPhoneRepository phoneRepository;
+		private readonly Dictionary<Phone, PhoneViewModel> _phoneViewModels = new Dictionary<Phone, PhoneViewModel>();
 
 		public PhonesViewModel(
 			IUnitOfWork uow,
@@ -114,14 +115,40 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		
 		public PhoneViewModel GetPhoneViewModel(Phone phone)
 		{
-			return new PhoneViewModel(
-				UoW,
-				phone,
-				_commonServices,
-				_phoneTypeSettings,
-				ExternalCounterpartyHandler);
+			if(_phoneViewModels.TryGetValue(phone, out var viewModel))
+			{
+				return viewModel;
+			}
+
+			viewModel = new PhoneViewModel(
+				UoW, phone, _commonServices, _phoneTypeSettings, ExternalCounterpartyHandler,
+				supportsExternalCounterpartyArchiving: Counterparty != null);
+			_phoneViewModels.Add(phone, viewModel);
+
+			return viewModel;
 		}
-		
+
+		/// <summary>
+		/// Подготовить очистку связей архивируемых телефонов без сохранения карточки.
+		/// Сохранением и откатом при ошибке управляет родительская карточка.
+		/// </summary>
+		public void PrepareSave()
+		{
+			foreach(var phone in PhonesList.Where(p => GetPhoneViewModel(p).IsPendingArchiving))
+			{
+				ExternalCounterpartyHandler.DeleteExternalCounterpartiesForArchivedPhone(UoW, phone);
+			}
+		}
+
+		/// <summary>Зафиксировать исходное состояние телефонов после успешного сохранения.</summary>
+		public void AcceptChanges()
+		{
+			foreach(var phone in PhonesList)
+			{
+				GetPhoneViewModel(phone).AcceptChanges();
+			}
+		}
+
 		public void Initialize(
 			ITdiTab parentTab,
 			bool readOnly,

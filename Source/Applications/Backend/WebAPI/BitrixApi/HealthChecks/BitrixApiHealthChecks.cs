@@ -6,12 +6,12 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Extensions;
+using VodovozHealthCheck.Helpers;
 using VodovozHealthCheck.Providers;
 
 namespace BitrixApi.HealthChecks
@@ -19,7 +19,7 @@ namespace BitrixApi.HealthChecks
 	public class BitrixApiHealthChecks : VodovozHealthCheckBase
 	{
 		private readonly ILogger<VodovozHealthCheckBase> _logger;
-		private readonly HttpClient _httpClient;
+		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
 
 		public BitrixApiHealthChecks(
@@ -32,8 +32,7 @@ namespace BitrixApi.HealthChecks
 			: base(logger, serviceInfoProvider, httpContextAccessor, unitOfWorkFactory)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_httpClient = (httpClientFactory ?? throw new System.ArgumentNullException(nameof(httpClientFactory)))
-				.CreateClient();
+			_httpClientFactory = httpClientFactory ?? throw new System.ArgumentNullException(nameof(httpClientFactory));
 			_configuration = configuration;
 		}
 
@@ -54,9 +53,14 @@ namespace BitrixApi.HealthChecks
 				ReportType = ReportTypeDto.ReconciliationStatement
 			};
 
-			_httpClient.DefaultRequestHeaders.Clear();
-			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-			var responseMessage = await _httpClient.PostAsJsonAsync($"{baseAddress}/api/v1/SendDocumentByEmail", sendReportRequest);
+			var responseMessage = await HttpResponseHelper.SendRequestAsync<HttpResponseMessage>(
+				HttpMethod.Post,
+				$"{baseAddress}/api/v1/SendDocumentByEmail",
+				_httpClientFactory,
+				sendReportRequest.ToJsonContent(),
+				cancellationToken,
+				apiKey: "Authorization",
+				apiKeyValue: $"Bearer {apiKey}");
 
 			var healthResult = new VodovozHealthResultDto
 			{

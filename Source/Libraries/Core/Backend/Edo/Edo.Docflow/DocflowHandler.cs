@@ -84,7 +84,8 @@ namespace Edo.Docflow
 			{
 				EdoAccount = transferOrder.Seller.TaxcomEdoSettings.EdoAccount,
 				EdoOutgoingDocumentId = document.Id,
-				UpdInfo = updInfo
+				UpdInfo = updInfo,
+				EdoTaskId = transferTask.Id
 			};
 			await _publishEndpoint.Publish(message);
 		}
@@ -140,7 +141,8 @@ namespace Edo.Docflow
 			{
 				EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
 				EdoOutgoingDocumentId = document.Id,
-				UpdInfo = updInfo
+				UpdInfo = updInfo,
+				EdoTaskId = documentTask.Id
 			};
 			await _publishEndpoint.Publish(message);
 		}
@@ -222,7 +224,8 @@ namespace Edo.Docflow
 				{
 					EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
 					EdoOutgoingDocumentId = document.Id,
-					DocumentInfo = documentInfo
+					DocumentInfo = documentInfo,
+					EdoTaskId = informalEdoRequest.Task.Id
 				};
 
 				await _publishEndpoint.Publish(message, cancellationToken);

@@ -338,7 +338,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
-			SelectedOrder.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker);
+			SelectedOrder.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker, needCreateDeliveryFreeBalanceOperation: true);
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, SelectedOrder);
 			if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled)

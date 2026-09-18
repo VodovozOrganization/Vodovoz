@@ -5,7 +5,11 @@ namespace Vodovoz.Domain.Sms
 {
 	public interface ISmsNotifier
 	{
-		void NotifyIfNewClient(Order order);
+		/// <summary>
+		/// Создаёт и сохраняет уведомление о первом заказе воды 19 л в отдельной единице работы.
+		/// </summary>
+		/// <param name="order">Подтверждаемый заказ.</param>
+		void CreateNewClientSmsNotification(Order order);
 		void NotifyUndeliveryAutoTransferNotApproved(UndeliveredOrder undeliveredOrder, IUnitOfWork externalUow = null);
 	}
 }

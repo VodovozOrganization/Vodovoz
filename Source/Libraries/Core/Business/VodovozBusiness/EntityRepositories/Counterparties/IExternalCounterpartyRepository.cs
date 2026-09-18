@@ -36,5 +36,11 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="counterpartyId">Идентификатор клиента</param>
 		/// <returns><c>true</c>, если найден хотя бы один неархивный пользователь мобильного приложения</returns>
 		bool HasActiveMobileAppUser(IUnitOfWork uow, int counterpartyId);
+
+		/// <summary>Получить всех пользователей ИПЗ, включая архивных, привязанных к телефону.</summary>
+		/// <param name="uow">Текущая единица работы.</param>
+		/// <param name="phoneId">Идентификатор телефона.</param>
+		/// <returns>Связанные пользователи ИПЗ.</returns>
+		IList<ExternalCounterparty> GetByPhoneId(IUnitOfWork uow, int phoneId);
 	}
 }

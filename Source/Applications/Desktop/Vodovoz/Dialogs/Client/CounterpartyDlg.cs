@@ -158,6 +158,7 @@ namespace Vodovoz
 		private IDeleteEntityService _deleteEntityService;
 		private ICurrentPermissionService _currentPermissionService;
 		private IEdoService _edoService;
+		private IUnitOfWorkFactory _unitOfWorkFactory;
 		private IAttachedFileInformationsViewModelFactory _attachmentsViewModelFactory;
 		private ICounterpartyFileStorageService _counterpartyFileStorageService;
 		private IGeneralSettings _generalSettings;
@@ -246,6 +247,11 @@ namespace Vodovoz
 		{
 			get
 			{
+				if(_hasSaveFailed)
+				{
+					return false;
+				}
+
 				_phonesViewModel.RemoveEmpty();
 				emailsView.ViewModel.RemoveEmpty();
 				return base.HasChanges;
@@ -255,7 +261,7 @@ namespace Vodovoz
 
 		#region IAskSaveOnCloseViewModel
 
-		public bool AskSaveOnClose => CanEdit;
+		public bool AskSaveOnClose => !_hasSaveFailed && CanEdit;
 
 		#endregion
 
@@ -337,6 +343,7 @@ namespace Vodovoz
 			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
 			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
+			_unitOfWorkFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
 			_attachmentsViewModelFactory = _lifetimeScope.Resolve<IAttachedFileInformationsViewModelFactory>();
 			_counterpartyFileStorageService = _lifetimeScope.Resolve<ICounterpartyFileStorageService>();
 			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
@@ -1663,6 +1670,7 @@ namespace Vodovoz
 		}
 
 		private bool _canClose = true;
+		private bool _hasSaveFailed;
 
 		public bool CanClose()
 		{
@@ -1683,6 +1691,11 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			if(_hasSaveFailed)
+			{
+				return false;
+			}
+
 			try
 			{
 				SetSensetivity(false);
@@ -1711,7 +1724,20 @@ namespace Vodovoz
 				}
 
 				_logger.Info("Сохраняем контрагента...");
-				UoW.Save();
+				try
+				{
+					SaveWithPhoneArchiving();
+				}
+				catch(Exception ex)
+				{
+					_logger.Error(ex, "Ошибка сохранения карточки клиента с архивацией телефонов");
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+						"Не удалось завершить сохранение карточки клиента. Карточка будет закрыта. "
+						+ "Откройте её повторно и проверьте данные перед повторным внесением изменений.");
+					return false;
+				}
+				_phonesViewModel.AcceptChanges();
+				treeViewExternalCounterparties.SetItemsSource(_externalCounterpartyRepository.GetPersonalCounterpartyExternalUsersInfo(UoW, Entity.Id));
 				SaveEmailSubscriptions();
 				AddAttachedFilesIfNeeded();
 				UpdateAttachedFilesIfNeeded();
@@ -1723,6 +1749,25 @@ namespace Vodovoz
 			finally
 			{
 				SetSensetivity(true);
+				if(_hasSaveFailed)
+				{
+					OnCloseTab(false, CloseSource.Cancel);
+				}
+			}
+		}
+
+		private void SaveWithPhoneArchiving()
+		{
+			try
+			{
+				_phonesViewModel.PrepareSave();
+				UoW.Save();
+			}
+			catch
+			{
+				_hasSaveFailed = true;
+				UoW.Dispose();
+				throw;
 			}
 		}
 
@@ -2615,51 +2660,49 @@ namespace Vodovoz
 
 		private void OnYButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
 		{
-			var documentEdoTasks = _edoDocflowRepository.GetClientSavedToPoolDocumentTaskIdsForResend(UoW, Entity.Id).Cast<OrderEdoTask>();
-
-			var receiptEdoTasks = _edoDocflowRepository.GetClientSavedToPoolReceiptTaskIdsForResend(UoW, Entity.Id).Cast<OrderEdoTask>();
-
-			var edoTasks = documentEdoTasks.Concat(receiptEdoTasks).ToList();
-
 			var newRequests = new List<PrimaryEdoRequest>();
-
-			foreach(var task in edoTasks)
+			using(var resendUow = _unitOfWorkFactory.CreateWithoutRoot("Переотправка документов ЭДО клиента"))
 			{
-				var orderId = task.FormalEdoRequest.Order.Id;
+				var documentEdoTasks = _edoDocflowRepository.GetClientSavedToPoolDocumentTaskIdsForResend(resendUow, Entity.Id).Cast<OrderEdoTask>();
 
-				var newRequest = new PrimaryEdoRequest
+				var receiptEdoTasks = _edoDocflowRepository.GetClientSavedToPoolReceiptTaskIdsForResend(resendUow, Entity.Id).Cast<OrderEdoTask>();
+
+				var edoTasks = documentEdoTasks.Concat(receiptEdoTasks).ToList();
+
+				foreach (var newRequest in edoTasks.Select(task => task.FormalEdoRequest.Order.Id).Select(orderId => new PrimaryEdoRequest
+				         {
+					         Order = new OrderEntity
+					         {
+						         Id = orderId
+					         },
+					         Time = DateTime.Now,
+					         Source = EdoRequestSource.Manual,
+					         DocumentType = EdoDocumentType.UPD
+				         }))
 				{
-					Order = new OrderEntity
-					{
-						Id = orderId
-					},
-					Time = DateTime.Now,
-					Source = EdoRequestSource.Manual,
-					DocumentType = EdoDocumentType.UPD
-				};
+					resendUow.Save(newRequest);
+					newRequests.Add(newRequest);
+				}
 
-				UoW.Save(newRequest);
-				newRequests.Add(newRequest);
-			}
-
-			foreach(var orderId in _edoDocflowRepository.GetClientOrdersWithoutEdoRequestsForUpdResend(UoW, Entity.Id))
-			{
-				var newRequest = new PrimaryEdoRequest
+				foreach(var orderId in _edoDocflowRepository.GetClientOrdersWithoutEdoRequestsForUpdResend(resendUow, Entity.Id))
 				{
-					Order = new OrderEntity
+					var newRequest = new PrimaryEdoRequest
 					{
-						Id = orderId
-					},
-					Time = DateTime.Now,
-					Source = EdoRequestSource.Manual,
-					DocumentType = EdoDocumentType.UPD
-				};
+						Order = new OrderEntity
+						{
+							Id = orderId
+						},
+						Time = DateTime.Now,
+						Source = EdoRequestSource.Manual,
+						DocumentType = EdoDocumentType.UPD
+					};
 
-				UoW.Save(newRequest);
-				newRequests.Add(newRequest);
+					resendUow.Save(newRequest);
+					newRequests.Add(newRequest);
+				}
+
+				resendUow.Commit();
 			}
-
-			UoW.Commit();
 
 			foreach(var newRequest in newRequests)
 			{

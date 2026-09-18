@@ -268,6 +268,22 @@ namespace Vodovoz.Core.Data.Repositories
 			CancellationToken cancellationToken = default);
 
 		/// <summary>
+		/// Получить список узлов проблем с отправкой в Такском для указанного источника проблемы
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="batchSize">Размер партии</param>
+		/// <param name="retryDelays">Массив задержек между попытками</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список узлов проблем с отправкой в Такском</returns>
+		Task<IList<TaxcomSendProblemNode>> GetTaxcomSendProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int? batchSize,
+			TimeSpan[] retryDelays,
+			CancellationToken cancellationToken);
+
+		/// <summary>
 		/// Получить документ ЭДО по идентификатору задачи
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
@@ -294,5 +310,14 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="docflowId">Идентификатор ДО</param>
 		/// <returns>ДО Такском</returns>
 		TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId);
+
+		/// <summary>
+		/// Проверяет наличие активной проблемы с указанными источниками для задачи ЭДО
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="taskId">Id задачи ЭДО</param>
+		/// <param name="problemSourceNames">Массив имен источников проблем</param>
+		/// <returns></returns>
+		bool HasActiveProblemWithSource(IUnitOfWork uow, int taskId, IEnumerable<string> problemSourceNames);
 	}
 }
