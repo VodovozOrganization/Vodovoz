@@ -364,7 +364,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 						Projections.Property(() => driverAlias.Patronymic)))
 					.WithAlias(() => carJournalNodeAlias.DriverName)
 					.Select(() => osagoInsurerAlias.Name).WithAlias(() => carJournalNodeAlias.OsagoInsurer)
-					.Select(() => kaskoInsurerAlias.Name).WithAlias(() => carJournalNodeAlias.KaskoInsurer))
+					.Select(() => kaskoInsurerAlias.Name).WithAlias(() => carJournalNodeAlias.KaskoInsurer)
+					.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => carJournalNodeAlias.CarTypeOfUse))
 				.OrderByAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification).Desc
 				.OrderBy(() => carAlias.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
@@ -449,27 +450,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		private void OpenCarOrSemiTrailerDialog(CarJournalNode node)
 		{
-			var car = UoW.GetById<Car>(node.Id);
-
-			if(car is null)
-			{
-				return;
-			}
-
-
-			if(car.CarModel?.CarTypeOfUse is CarTypeOfUse.Semitrailer)
+			if(node.CarTypeOfUse is CarTypeOfUse.Semitrailer)
 			{
 				NavigationManager.OpenViewModel<SemitrailerViewModel, IEntityUoWBuilder>(
-					this,
-					EntityUoWBuilder.ForOpen(node.Id),
-					OpenPageOptions.AsSlave);
+					this, EntityUoWBuilder.ForOpen(node.Id), OpenPageOptions.AsSlave);
 			}
 			else
 			{
 				NavigationManager.OpenViewModel<CarViewModel, IEntityUoWBuilder>(
-					this,
-					EntityUoWBuilder.ForOpen(node.Id),
-					OpenPageOptions.AsSlave);
+					this, EntityUoWBuilder.ForOpen(node.Id), OpenPageOptions.AsSlave);
 			}
 		}
 

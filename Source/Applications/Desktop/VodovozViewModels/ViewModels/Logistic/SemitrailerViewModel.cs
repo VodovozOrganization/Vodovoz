@@ -60,7 +60,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class SemitrailerViewModel : EntityTabViewModelBase<Car>, IAskSaveOnCloseViewModel
 	{
 		private readonly IRouteListsWageController _routeListsWageController;
-		private readonly IFileDialogService _fileDialogService;
 		private readonly ILogger<SemitrailerViewModel> _logger;
 		private readonly ICarFileStorageService _carFileStorageService;
 		private readonly IFuelApiService _fuelApiService;
@@ -141,7 +140,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_routeListsWageController = routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -261,12 +259,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_oldAdditionalFuelTypes = new List<CarAdditionalFuelType>(Entity.AdditionalFuelTypes);
 
 			SetIsCarUsedInDeliveryDefaultValueIfNeed();
+
+			SaveCommand = new DelegateCommand(SaveAndClose);
+			CloseCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 		}
 
 		public bool CanEdit { get; private set; }
 		public bool CanEditCarCard { get; private set; }
 		
 		public bool AskSaveOnClose { get; private set; }
+
+		public DelegateCommand SaveCommand { get; }
+		public DelegateCommand CloseCommand { get; }
 		
 		public bool IsArchive
 		{
