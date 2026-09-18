@@ -312,8 +312,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 				routeListItem.StatusLastUpdate = DateTime.Now;
 				routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UoW.Save(routeListItem);
-
-				NotifyDriverOfRouteListChanged(order.Id);
 			}
 			else
 			{
@@ -337,6 +335,11 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			}
 
 			UoW.Commit();
+
+			if(routeListItem != null)
+			{
+				NotifyDriverOfRouteListChanged(order.Id);
+			}
 
 			var allowCancellation = e.CancellationPermit.Type == OrderCancellationPermitType.AllowCancelOrder;
 			var hasEdoTaskToCancellationId = e.CancellationPermit.EdoTaskToCancellationId != null;

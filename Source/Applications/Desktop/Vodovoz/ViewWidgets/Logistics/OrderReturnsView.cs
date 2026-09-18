@@ -653,7 +653,6 @@ namespace Vodovoz
 
 		private void OpenOrCreateUndelivery(RouteListItemStatus routeListItemStatusToChange)
 		{
-			// документооборот может отмениться сразу же, потому что не зависит от изменений заказа
 			var permit = _orderCancellationPermitService.GetPermit(UoW, _routeListItem.Order);
 
 			if(permit.Type != OrderCancellationPermitType.AllowCancelOrder)
