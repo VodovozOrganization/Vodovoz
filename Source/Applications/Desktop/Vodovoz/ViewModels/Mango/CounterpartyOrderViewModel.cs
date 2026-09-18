@@ -1,4 +1,4 @@
-﻿using CustomerNotifications.Contracts;
+using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Notifications.Infrastructure;
@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private List<DeliveryPoint> _deliveryPoints = new List<DeliveryPoint>();
 		private DeliveryPoint _deliveryPoint;
 		private Order _selectedOrder;
-		private UndeliveryViewModel _undeliveryViewModel;
+		private IPage<UndeliveryViewModel> _undeliveryPage;
 
 		public List<Order> LatestOrder { get; private set; }
 		public Order Order { get; set; }
@@ -281,6 +281,18 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		public void CancelOrder(Order order)
 		{
+			if(_undeliveryPage != null)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Уже открыто окно недовоза. Завершите работу с ним, прежде чем отменять другой заказ"
+				);
+
+				_tdiNavigation.SwitchOn(_undeliveryPage);
+
+				return;
+			}
+
 			var permit = _orderCancellationPermitService.GetPermitWithOrderChecks(UoW, order);
 
 			if(permit.Type != OrderCancellationPermitType.AllowCancelOrder)
@@ -288,15 +300,37 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 				return;
 			}
 
-			_undeliveryViewModel = _tdiNavigation.OpenViewModel<UndeliveryViewModel>(
+			var undeliveryPage = _tdiNavigation.OpenViewModel<UndeliveryViewModel>(
 				null,
-				OpenPageOptions.None,
-				vm =>
-				{
-					vm.Saved += OnUndeliveryViewModelSaved;
-					vm.Initialize(UoW, order.Id, cancellationPermit: permit);
-				}
-			).ViewModel;
+				OpenPageOptions.IgnoreHash,
+				vm => vm.Initialize(UoW, order.Id, cancellationPermit: permit)
+			);
+
+			if(undeliveryPage is null)
+			{
+				return;
+			}
+
+			_undeliveryPage = undeliveryPage;
+			_undeliveryPage.ViewModel.Saved += OnUndeliveryViewModelSaved;
+			_undeliveryPage.PageClosed += OnUndeliveryPageClosed;
+		}
+
+		private void OnUndeliveryPageClosed(object sender, PageClosedEventArgs e)
+		{
+			UnsubscribeFromUndeliveryPage();
+		}
+
+		private void UnsubscribeFromUndeliveryPage()
+		{
+			if(_undeliveryPage is null)
+			{
+				return;
+			}
+
+			_undeliveryPage.ViewModel.Saved -= OnUndeliveryViewModelSaved;
+			_undeliveryPage.PageClosed -= OnUndeliveryPageClosed;
+			_undeliveryPage = null;
 		}
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
@@ -403,10 +437,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		public void Dispose()
 		{
-			if(_undeliveryViewModel != null)
-			{
-				_undeliveryViewModel.Saved -= OnUndeliveryViewModelSaved;
-			}
+			UnsubscribeFromUndeliveryPage();
 
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			RefreshOrders = null;
