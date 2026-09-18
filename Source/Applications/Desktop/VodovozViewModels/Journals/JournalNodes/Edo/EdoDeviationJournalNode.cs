@@ -174,56 +174,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		/// </summary>
 		public string OrderTitle => IsOrderNode ? $"{OrderId} ({GetChildrenSummary()})" : string.Empty;
 
-		/// <summary>
-		/// Дата доставки заказа в формате dd.MM.yyyy
-		/// </summary>
-		public string DeliveryDateText =>
-			IsOrderNode && DeliveryDate.HasValue ? DeliveryDate.Value.ToString("dd.MM.yyyy") : string.Empty;
-
-		/// <summary>
-		/// Наименование контрагента по заказу
-		/// </summary>
-		public string CounterpartyText => IsOrderNode ? CounterpartyName : string.Empty;
-
-		/// <summary>
-		/// Номер задачи ЭДО в виде строки
-		/// </summary>
-		public string EdoTaskIdText => EdoTaskId.HasValue ? EdoTaskId.Value.ToString() : string.Empty;
-
-		/// <summary>
-		/// Тип задачи ЭДО в виде строки
-		/// </summary>
-		public string TaskTypeText => TaskType.HasValue ? TaskType.Value.GetEnumTitle() : string.Empty;
-
-		/// <summary>
-		/// Статус задачи ЭДО в виде строки
-		/// </summary>
-		public string TaskStatusText => TaskStatus.HasValue ? TaskStatus.Value.GetEnumTitle() : string.Empty;
-
-		/// <summary>
-		/// Идентификатор источника проблемы в виде строки: у строк других видов
-		/// своего источника проблемы нет
-		/// </summary>
-		public string ProblemSourceNameText =>
-			NodeType == EdoDeviationJournalNodeType.Problem ? ProblemSourceName : string.Empty;
-
-		/// <summary>
-		/// Дата и время обнаружения отклонения либо проблемы
-		/// </summary>
-		public string DetectedTimeText =>
-			DetectedTime.HasValue ? DetectedTime.Value.ToString("dd.MM.yyyy HH:mm") : string.Empty;
-
-		/// <summary>
-		/// Состояние задачи проблемы/отклонения в виде строки
-		/// </summary>
-		public string StateText => State.HasValue ? State.Value.GetEnumTitle() : string.Empty;
-
-		/// <summary>
-		/// Причина разрешения отклонения в виде строки
-		/// </summary>
-		public string ResolveReasonText =>
-			ResolveReason.HasValue ? ResolveReason.Value.GetEnumTitle() : string.Empty;
-
 		private string GetChildrenSummary()
 		{
 			var parts = new List<string>();
