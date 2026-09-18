@@ -38,7 +38,6 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Views.Logistic
 {
-
 	public partial class RouteListsOnDayView : TabViewBase<RouteListsOnDayViewModel>
 	{
 		#region Поля
@@ -238,7 +237,7 @@ namespace Vodovoz.Views.Logistic
 			buttonAddForwarder.BindCommand(ViewModel.AddForwarderCommand);
 
 			buttonRemoveForwarder.Binding.AddBinding(ViewModel, vm => vm.IsForwarderSelected, w => w.Sensitive).InitializeFromSource();
-			buttonRemoveForwarder.BindCommand(ViewModel.RemoveForwarderCommand, () => ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>());
+			buttonRemoveForwarder.BindCommand(ViewModel.RemoveForwarderCommand, ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>());
 
 			yspinMaxTime.Binding.AddBinding(ViewModel.Optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt).InitializeFromSource();
 
@@ -289,7 +288,7 @@ namespace Vodovoz.Views.Logistic
 				UpdateAddressesOnMap();
 			};
 			checkShowCompleted.Toggled += (sender, e) => FillDialogAtDay();
-			buttonOpen.BindCommand(ViewModel.OpenOrderOrRouteListCommand, () => ytreeRoutes.GetSelectedObject());
+			buttonOpen.BindCommand(ViewModel.OpenOrderOrRouteListCommand, ytreeRoutes.GetSelectedObject());
 			buttonMapHelp.Clicked += (sender, e) => new RouresAtDayInfoWnd().Show();
 			buttonRebuildRoute.Clicked += (sender, e) =>
 			{

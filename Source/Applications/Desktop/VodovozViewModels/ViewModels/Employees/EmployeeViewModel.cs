@@ -1498,7 +1498,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			var createWageParameterResult = _wageParameterService.TryCreateDefaultWageParameterForNewEmployee(UoW, Entity);
 
-			if(!createWageParameterResult.IsFailure)
+			if(createWageParameterResult.IsSuccess)
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
@@ -1643,9 +1643,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		{
 			if(_disposed) return;
 			
-			UoW?.Dispose();
 			LifetimeScope = null;
-			Entity.PropertyChanged -= OnEntityPropertyChanged;
+
+			if(Entity != null)
+			{
+				Entity.PropertyChanged -= OnEntityPropertyChanged;
+			}
 
 			if(DriverAppUser != null)
 			{
@@ -1657,6 +1660,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				WarehouseAppUser.PropertyChanged -= OnWarehouseAppUserPropertyChanged;
 			}
 			
+			UoW?.Dispose();
 			base.Dispose();
 			_disposed = true;
 		}

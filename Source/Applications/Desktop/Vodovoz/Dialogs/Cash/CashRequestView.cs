@@ -161,7 +161,7 @@ namespace Vodovoz.Dialogs.Cash
 				.InitializeFromSource();
 
 			ybtnEditSum.Visible = false;
-			buttonSave.BindCommand(ViewModel.AfterSaveCommand);
+			buttonSave.BindCommand(ViewModel.AfterSaveCommand, true);
 			buttonSave.Sensitive = !ViewModel.IsSecurityServiceRole;
 
 			buttonCancel.BindCommand(ViewModel.CloseCommand);

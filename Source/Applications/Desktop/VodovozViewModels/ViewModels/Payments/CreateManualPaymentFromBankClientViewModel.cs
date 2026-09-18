@@ -116,10 +116,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			
 			SaveAndOpenManualPaymentMatchingCommand = new DelegateCommand(() =>
 				{
-					if(Save(true))
+					if(Save(false))
 					{
 						NavigationManager.OpenViewModel<ManualPaymentMatchingViewModel, IEntityUoWBuilder>(
 							this, EntityUoWBuilder.ForOpen(Entity.Id));
+						
+						Close(true, CloseSource.Save);
 					}
 				}
 			);
