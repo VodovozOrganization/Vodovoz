@@ -323,14 +323,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo.Deviations
 					node.EdoTaskId.HasValue && taskIdsWithSolvedProblems.Contains(node.EdoTaskId.Value);
 
 				node.ProblemSourceDescription = hasSolvedProblems
-					? EdoDeviationJournalMessages.SolvedProblemResult
-					: EdoDeviationJournalMessages.UnknownProblemResult;
+					? EdoDeviationJournalMessages.EdoTaskStuckInProblemWithAllProblemsSolved
+					: EdoDeviationJournalMessages.EdoTaskStuckInProblemWithoutAnyProblemRecord;
 
 				node.Description = hasSolvedProblems
-					? EdoDeviationJournalMessages.SolvedProblemDescription
-					: EdoDeviationJournalMessages.UnknownProblemDescription;
+					? EdoDeviationJournalMessages.EdoTaskStuckInProblemWithAllProblemsSolvedDescription
+					: EdoDeviationJournalMessages.EdoTaskStuckInProblemWithoutAnyProblemRecordDescription;
 
-				node.Recommendation = EdoDeviationJournalMessages.UnknownProblemRecommendation;
+				node.Recommendation = EdoDeviationJournalMessages.EdoTaskStuckInProblemWithoutAnyProblemRecordRecommendation;
 			}
 		}
 

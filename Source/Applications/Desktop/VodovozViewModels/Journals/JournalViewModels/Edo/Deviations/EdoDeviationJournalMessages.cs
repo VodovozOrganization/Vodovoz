@@ -8,24 +8,24 @@
 		/// <summary>
 		/// Результат строки задачи, оставшейся в проблемном статусе без единой записи проблемы
 		/// </summary>
-		public const string UnknownProblemResult = "Проблема без зафиксированной причины";
+		public const string EdoTaskStuckInProblemWithoutAnyProblemRecord = "Проблема без зафиксированной причины";
 
 		/// <summary>
 		/// Результат строки задачи, оставшейся в проблемном статусе с решенными проблемами
 		/// </summary>
-		public const string SolvedProblemResult = "Расхождение статуса задачи и ее проблем";
+		public const string EdoTaskStuckInProblemWithAllProblemsSolved = "Расхождение статуса задачи и ее проблем";
 
 		/// <summary>
 		/// Описание строки задачи, оставшейся в проблемном статусе без единой записи проблемы
 		/// </summary>
-		public const string UnknownProblemDescription =
+		public const string EdoTaskStuckInProblemWithoutAnyProblemRecordDescription =
 			"Задача переведена в проблемный статус, но запись о проблеме по ней не заведена:"
 			+ " причина не зафиксирована";
 
 		/// <summary>
 		/// Описание строки задачи, оставшейся в проблемном статусе с решенными проблемами
 		/// </summary>
-		public const string SolvedProblemDescription =
+		public const string EdoTaskStuckInProblemWithAllProblemsSolvedDescription =
 			"Все проблемы по задаче помечены решенными, но сама задача осталась"
 			+ " в проблемном статусе: статус задачи разошелся с состоянием ее проблем";
 
@@ -33,6 +33,6 @@
 		/// Рекомендация по строке задачи, оставшейся в проблемном статусе без действующей
 		/// записи проблемы
 		/// </summary>
-		public const string UnknownProblemRecommendation = "Обратитесь в отдел разработки";
+		public const string EdoTaskStuckInProblemWithoutAnyProblemRecordRecommendation = "Обратитесь в отдел разработки";
 	}
 }
