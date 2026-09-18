@@ -1,4 +1,5 @@
-﻿using Gamma.ColumnConfig;
+﻿using System.ComponentModel;
+using Gamma.ColumnConfig;
 using Pango;
 using QS.Views.GtkUI;
 using QSProjectsLib;
@@ -10,7 +11,7 @@ using static Vodovoz.ViewModels.Logistic.DriversStopLists.DriversStopListsViewMo
 
 namespace Vodovoz.Views.Logistic
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class DriversStopListsView : TabViewBase<DriversStopListsViewModel>
 	{
 		public DriversStopListsView(DriversStopListsViewModel viewModel) : base(viewModel)
@@ -29,6 +30,14 @@ namespace Vodovoz.Views.Logistic
 			yvboxMain.Visible = ViewModel.DialogVisibility;
 
 			entityentrySubdivision.ViewModel = ViewModel.FilterSubdivisionEntityEntryViewModel;
+
+			yentryDriverName.Binding
+				.AddBinding(ViewModel, vm => vm.FilterDriverName, w => w.Text)
+				.InitializeFromSource();
+
+			yhboxDriverFilter.Binding
+				.AddBinding(ViewModel, vm => vm.FilterVisibility, w => w.Visible)
+				.InitializeFromSource();
 
 			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
 			yenumcomboStatus.Binding.AddSource(ViewModel)
@@ -92,6 +101,7 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ybuttonRemoveStopList.Clicked += (s, e) => ViewModel.RemoveStopListCommand?.Execute();
+			ybuttonAddToStopList.BindCommand(ViewModel.AddToStopListCommand);
 			ybuttonFilter.Clicked += (s, e) => ViewModel.CloseFilterCommand?.Execute();
 			ybuttonRefresh.Clicked += (s, e) => ViewModel.UpdateCommand?.Execute();
 		}
