@@ -1,6 +1,8 @@
-﻿using Autofac;
-using CustomerNotifications.Contracts;
+﻿using CustomerNotifications.Contracts;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using Notifications.Infrastructure;
+using QS.Dialog;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -10,7 +12,6 @@ using QS.Utilities.Extensions;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.ViewModels.Dialog;
 using Vodovoz.Core.Application.Orders;
@@ -20,22 +21,19 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Errors.Logistics;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
-using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
-using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.Services.Orders;
+using VodovozBusiness.NotificationSenders;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango
 {
@@ -46,20 +44,19 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
+		private readonly IInteractiveService _interactiveService;
 		private MangoManager MangoManager { get; set; }
-		private readonly IOrderSettings _orderSettings;
 
-		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IRouteListRepository _routedListRepository;
-		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly IRouteListService _routeListService;
+		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 
 		private readonly OrderCancellationService _orderCancellationService;
+		private readonly OrderCancellationPermitService _orderCancellationPermitService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private IUnitOfWork UoW;
 		
@@ -98,18 +95,17 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			IGtkTabsOpener gtkTabsOpener,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ITdiCompatibilityNavigation tdinavigation,
+			IInteractiveService interactiveService,
 			IRouteListRepository routedListRepository,
 			MangoManager mangoManager,
-			IOrderSettings orderSettings,
-			IDeliveryRulesSettings deliveryRulesSettings,
 			INomenclatureSettings nomenclatureSettings,
 			ICallTaskWorker callTaskWorker,
-			IEmployeeRepository employeeRepository,
 			IOrderRepository orderRepository,
 			IRouteListItemRepository routeListItemRepository,
-			ICallTaskRepository callTaskRepository,
 			IRouteListService routeListService,
+			IRouteListChangesNotificationSender routeListChangesNotificationSender,
 			OrderCancellationService orderCancellationService,
+			OrderCancellationPermitService orderCancellationPermitService,
 			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			int count = 5)
 		{
@@ -117,18 +113,19 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_tdiNavigation = tdinavigation;
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_routedListRepository = routedListRepository ?? throw new ArgumentNullException(nameof(routedListRepository));
 			MangoManager = mangoManager;
-			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_routeListChangesNotificationSender =
+				routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+			_orderCancellationPermitService =
+				orderCancellationPermitService ?? throw new ArgumentNullException(nameof(orderCancellationPermitService));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
@@ -272,91 +269,66 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			filter.RestrictOldOrderEndDate = order.DeliveryDate;
 		}
 
+		/// <summary>
+		/// Можно ли предлагать отмену заказа из окна звонка
+		/// </summary>
+		/// <param name="order">Заказ</param>
+		/// <returns>Признак возможности отмены заказа</returns>
+		public bool CanCancelOrder(Order order) =>
+			order != null
+			&& (_orderRepository.GetStatusesForOrderCancelation().Contains(order.OrderStatus)
+				|| (order.SelfDelivery && order.OrderStatus == OrderStatus.OnLoading));
+
 		public void CancelOrder(Order order)
 		{
-			var employeeSettings = ScopeProvider.Scope.Resolve<IEmployeeSettings>();
-			CallTaskWorker callTaskWorker = new CallTaskWorker(
-				_unitOfWorkFactory,
-				CallTaskSingletonFactory.GetInstance(),
-				_callTaskRepository,
-				_orderRepository,
-				_employeeRepository,
-				employeeSettings,
-				ServicesConfig.CommonServices.UserService,
-				ErrorReporter.Instance);
+			var permit = _orderCancellationPermitService.GetPermitWithOrderChecks(UoW, order);
 
-			if(order.OrderStatus == OrderStatus.InTravelList)
+			if(permit.Type != OrderCancellationPermitType.AllowCancelOrder)
 			{
-
-				var validationContext = new ValidationContext(order, null, new Dictionary<object, object> {
-					{ "NewStatus", OrderStatus.Canceled },
-				});
-				validationContext.ServiceContainer.AddService(_orderSettings);
-				validationContext.ServiceContainer.AddService(_deliveryRulesSettings);
-				if(!ServicesConfig.ValidationService.Validate(order, validationContext))
-				{
-					return;
-				}
-
-				var permit = _orderCancellationService.CanCancelOrder(UoW, order);
-				switch(permit.Type)
-				{
-					case OrderCancellationPermitType.AllowCancelDocflow:
-						if(permit.EdoTaskToCancellationId == null)
-						{
-							throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
-						}
-						_orderCancellationService.CancelDocflowByUser(
-							$"Отмена заказа №{order.Id}", 
-							permit.EdoTaskToCancellationId.Value
-						);
-						return;
-					case OrderCancellationPermitType.AllowCancelOrder:
-						break;
-					case OrderCancellationPermitType.Deny:
-					default:
-						return;
-				}
-
-				_undeliveryViewModel = _tdiNavigation.OpenViewModel<UndeliveryViewModel>(
-					null,
-					OpenPageOptions.None,
-					vm =>
-					{
-						vm.Saved += OnUndeliveryViewModelSaved;
-						vm.Initialize(UoW, order.Id, cancellationPermit: permit);
-					}
-				).ViewModel;
+				return;
 			}
-			else
-			{
-				order.ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
-				UoW.Save(order);
-				UoW.Commit();
-			}
+
+			_undeliveryViewModel = _tdiNavigation.OpenViewModel<UndeliveryViewModel>(
+				null,
+				OpenPageOptions.None,
+				vm =>
+				{
+					vm.Saved += OnUndeliveryViewModelSaved;
+					vm.Initialize(UoW, order.Id, cancellationPermit: permit);
+				}
+			).ViewModel;
 		}
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
-			SelectedOrder.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker, needCreateDeliveryFreeBalanceOperation: true);
+			var order = e.UndeliveredOrder.OldOrder;
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, SelectedOrder);
-			if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled)
+			order.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker,
+				needCreateDeliveryFreeBalanceOperation: true);
+
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order);
+			if(routeListItem != null)
 			{
-				_routeListService.SetAddressStatusWithoutOrderChange(UoW,  routeListItem.RouteList, routeListItem, RouteListItemStatus.Canceled);
 				routeListItem.StatusLastUpdate = DateTime.Now;
 				routeListItem.SetOrderActualCountsToZeroOnCanceled();
-				UoW.Save(routeListItem.RouteList);
 				UoW.Save(routeListItem);
+
+				NotifyDriverOfRouteListChanged(order.Id);
 			}
+			else
+			{
+				order.SetActualCountsToZeroOnCanceled();
+			}
+
+			UoW.Save(order);
 
 			if(e.UndeliveredOrder.NewOrder != null)
 			{
 				var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
-					CustomerNotificationEventType.OrderRescheduled, 
+					CustomerNotificationEventType.OrderRescheduled,
 					e.UndeliveredOrder.OldOrder.OnlineOrder?.Source,
-					e.UndeliveredOrder.OldOrder.OnlineOrder?.Id, 
-					e.UndeliveredOrder.OldOrder?.Id, 
+					e.UndeliveredOrder.OldOrder.OnlineOrder?.Id,
+					e.UndeliveredOrder.OldOrder?.Id,
 					e.UndeliveredOrder.NewOrder.Id,
 					e.UndeliveredOrder.UndeliveryDetalization?.Name // Пока будут заполнять //e.UndeliveredOrder.UndeliveryDetalization?.CustomerNotificationText
 					);
@@ -371,11 +343,37 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			if(allowCancellation && hasEdoTaskToCancellationId)
 			{
 				_orderCancellationService.AutomaticCancelDocflow(
-					UoW, 
-					$"Отмена заказа №{SelectedOrder.Id}", 
+					UoW,
+					$"Отмена заказа №{order.Id}",
 					e.CancellationPermit.EdoTaskToCancellationId.Value
 				);
 			}
+
+			_RefreshOrders();
+		}
+
+		private void NotifyDriverOfRouteListChanged(int orderId)
+		{
+			var notificationRequest = new NotificationRouteListChangesRequest
+			{
+				OrderId = orderId,
+				PushNotificationDataEventType = PushNotificationDataEventType.RouteListContentChanged
+			};
+
+			var result = _routeListChangesNotificationSender.NotifyOfRouteListChanged(notificationRequest).GetAwaiter().GetResult();
+
+			if(result.IsSuccess)
+			{
+				return;
+			}
+
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Error,
+				string.Join(", ",
+					result.Errors
+						.Where(x => x.Code == RouteListErrors.RouteListItem.TransferTypeNotSet)
+						.Select(x => x.Message))
+				);
 		}
 
 		public void CreateComplaint(Order order)
