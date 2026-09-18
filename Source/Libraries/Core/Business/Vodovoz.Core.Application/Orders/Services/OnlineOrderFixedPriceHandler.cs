@@ -52,21 +52,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IUnitOfWork uow,
 			CanApplyOnlineOrderFixedPriceV7 canApplyOnlineOrderFixedPrice)
 		{
-			if(!HasFixedPrices(
+			HasFixedPrices(
 				uow,
 				canApplyOnlineOrderFixedPrice.CounterpartyId,
 				canApplyOnlineOrderFixedPrice.DeliveryPointId,
 				canApplyOnlineOrderFixedPrice.IsSelfDelivery,
-				out var fixedPrices))
-			{
-				var withoutFixedPriceResult = (
-					(bool?)null,
-					canApplyOnlineOrderFixedPrice.OnlineOrderItems
-						.Select(OnlineOrderItemWithDiscountDetailsDto.Create)
-						.ToArray());
-				
-				return withoutFixedPriceResult;
-			}
+				out var fixedPrices);
 
 			return TryApplyFixedPrice(uow, canApplyOnlineOrderFixedPrice.OnlineOrderItems, fixedPrices);
 		}
@@ -146,17 +137,28 @@ namespace Vodovoz.Core.Application.Orders.Services
 				var cartItemWithDiscountDetails = OnlineOrderItemWithDiscountDetailsDto.Create(cartItem);
 				var applied = false;
 				
-				foreach(var fixedPrice in fixedPrices)
-				{
-					if(!CanApplyFixedPriceV7(uow, cartItemWithDiscountDetails, fixedPrice, out var discountReasons))
-					{
-						_discountHandler.CalculateDiscount(cartItemWithDiscountDetails, discountReasons);
-						continue;
-					}
+				var discountReasons = _discountReasonRepository.GetDiscountReasons(
+					uow,
+					cartItem.DiscountIds);
 
-					ApplyFixedPrice(cartItemWithDiscountDetails, discountReasons, fixedPrice.Price);
-					applied = true;
-					break;
+				if(!fixedPrices.Any())
+				{
+					_discountHandler.CalculateDiscount(cartItemWithDiscountDetails, discountReasons);
+				}
+				else
+				{
+					foreach(var fixedPrice in fixedPrices)
+					{
+						if(!CanApplyFixedPriceV7(cartItemWithDiscountDetails, fixedPrice, discountReasons))
+						{
+							_discountHandler.CalculateDiscount(cartItemWithDiscountDetails, discountReasons);
+							continue;
+						}
+
+						ApplyFixedPrice(cartItemWithDiscountDetails, discountReasons, fixedPrice.Price);
+						applied = true;
+						break;
+					}
 				}
 
 				if(fixedPriceAppliedToAllItems is null)
@@ -187,17 +189,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 
 		private bool CanApplyFixedPriceV7(
-			IUnitOfWork uow,
 			IOrderedCartItemWithDiscountDetails cartItem,
 			NomenclatureFixedPrice fixedPrice,
-			out IEnumerable<DiscountReasonBase> discountReasons)
+			IEnumerable<DiscountReasonBase> discountReasons)
 		{
-			discountReasons = _discountReasonRepository.GetDiscountReasons(
-				uow,
-				cartItem.Discounts
-					.Select(x => x.Id)
-					.ToArray());
-			
 			if(!IsApplicable(cartItem, discountReasons, fixedPrice).IsSuccess)
 			{
 				return false;
