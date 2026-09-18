@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -20,6 +20,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Edo;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Edo.Deviations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Logistic;

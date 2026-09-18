@@ -26,7 +26,7 @@ using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
 using Order = Vodovoz.Domain.Orders.Order;
 using OrderItem = Vodovoz.Domain.Orders.OrderItem;
 
-namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo.Deviations
 {
 	/// <summary>
 	/// Журнал отклонений и проблем документооборота ЭДО.

@@ -142,8 +142,9 @@
     <Compile Include="Journals\JournalNodes\WageCalculation\CallCenterMotivationCoefficientJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Banks\BanksJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\VatRateJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Edo\EdoDeviationJournalMessages.cs" />
-    <Compile Include="Journals\JournalViewModels\Edo\EdoDeviationJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationHelpTexts.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalMessages.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoNotificationSettingJournalViewModel.cs" />

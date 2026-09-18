@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
+﻿namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo.Deviations
 {
 	/// <summary>
 	/// Постоянные тексты для подстановки в журнал отклонений документооборота ЭДО
