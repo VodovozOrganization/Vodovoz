@@ -62,7 +62,8 @@ namespace Vodovoz.Domain.Sms
 				}
 
 				var orderStatuses = _orderRepository.GetValidStatusesToUseActionBottle();
-				if(_orderRepository.HasAnotherOrderWithWater19L(uow, order.Client.Id, order.Id, orderStatuses)) {
+				if(_orderRepository.HasAnotherOrderWithWater19L(uow, order.Client.Id, order.Id,
+					_smsNotifierSettings.FullDisposable19LNomenclatureId, orderStatuses)) {
 					return;
 				}
 			}

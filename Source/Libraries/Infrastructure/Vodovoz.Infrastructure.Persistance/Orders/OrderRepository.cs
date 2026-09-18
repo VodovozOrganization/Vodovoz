@@ -398,13 +398,14 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		/// <inheritdoc/>
 		public bool HasAnotherOrderWithWater19L(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
-			IEnumerable<OrderStatus> orderStatuses)
+			int excludedNomenclatureId, IEnumerable<OrderStatus> orderStatuses)
 		{
 			return uow.Session.Query<OrderItem>()
 				.Any(item => item.Order.Client.Id == counterpartyId
 					&& item.Order.Id != excludedOrderId
 					&& orderStatuses.Contains(item.Order.OrderStatus)
 					&& item.Count > 0
+					&& item.Nomenclature.Id != excludedNomenclatureId
 					&& item.Nomenclature.Category == NomenclatureCategory.water
 					&& item.Nomenclature.TareVolume == TareVolume.Vol19L);
 		}
