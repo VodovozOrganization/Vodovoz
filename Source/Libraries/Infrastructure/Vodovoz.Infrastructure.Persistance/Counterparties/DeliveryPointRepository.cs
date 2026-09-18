@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -107,43 +109,67 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		}
 
 		public int? GetOrderFrequency(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders)
+			=> GetOrderFrequency(uow, deliveryPoint.Id, countLastOrders);
+
+		/// <inheritdoc />
+		public IList<int> GetDeliveryPointIdsBatch(IUnitOfWork uow, int afterId, int batchSize)
 		{
-			Order orderAlias = null;
+			return uow.Session.QueryOver<DeliveryPoint>()
+				.Where(deliveryPoint => deliveryPoint.Id > afterId)
+				.OrderBy(deliveryPoint => deliveryPoint.Id).Asc
+				.Select(deliveryPoint => deliveryPoint.Id)
+				.Take(batchSize)
+				.List<int>();
+		}
 
-			var closingDocumentDeliveryScheduleId = _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
+		/// <inheritdoc />
+		public int? UpdateOrderFrequency(IUnitOfWork uow, int deliveryPointId)
+		{
+			var frequency = GetOrderFrequency(uow, deliveryPointId, 5);
+			uow.Session.CreateSQLQuery(
+				"UPDATE delivery_points SET order_frequency_days = :frequency "
+				+ "WHERE id = :id AND NOT (order_frequency_days <=> :frequency)")
+				.SetParameter("frequency", frequency, NHibernateUtil.Int32)
+				.SetInt32("id", deliveryPointId)
+				.ExecuteUpdate();
+			return frequency;
+		}
 
-			var validStatuses = new[]
+		/// <inheritdoc />
+		public OrderFrequencyState GetOrderFrequencyState(IUnitOfWork uow, int deliveryPointId)
+			=> uow.Session.SessionFactory.GetClassMetadata(typeof(Order)) != null
+				? GetOrderFrequencyState<Order, RouteListItem>(uow, deliveryPointId)
+				: GetOrderFrequencyState<OrderEntity, RouteListItemEntity>(uow, deliveryPointId);
+
+		private OrderFrequencyState GetOrderFrequencyState<TOrder, TRouteListItem>(IUnitOfWork uow, int deliveryPointId)
+			where TOrder : OrderEntity
+			where TRouteListItem : RouteListItemEntity
+		{
+			var orderCount = GetOrdersForFrequency<TOrder, TRouteListItem>(uow, deliveryPointId)
+				.Select(Projections.RowCountInt64())
+				.SingleOrDefault<long>();
+
+			var lastCompletedOrderId = GetOrdersForFrequency<TOrder, TRouteListItem>(uow, deliveryPointId)
+				.OrderBy(order => order.DeliveryDate).Desc
+				.ThenBy(order => order.Id).Desc
+				.Select(order => order.Id)
+				.Take(1)
+				.List<int>()
+				.Select(id => (int?)id)
+				.SingleOrDefault();
+
+			return new OrderFrequencyState
 			{
-				OrderStatus.UnloadingOnStock,
-				OrderStatus.Shipped,
-				OrderStatus.Closed
+				OrderCount = orderCount,
+				LastCompletedOrderId = lastCompletedOrderId
 			};
+		}
 
-			var query = uow.Session.QueryOver(() => orderAlias)
-				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
-				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(validStatuses)
-				.Where(() => orderAlias.DeliveryDate != null)
-				.Where(() => orderAlias.DeliverySchedule.Id != closingDocumentDeliveryScheduleId)
-				.Where(
-					Restrictions.Or(
-						Restrictions.Where(() => orderAlias.SelfDelivery),
-						Subqueries.Exists(
-							DetachedCriteria.For<RouteListItem>()
-								.Add(Restrictions.Where<RouteListItem>(rli => rli.Order.Id == orderAlias.Id))
-								.SetProjection(Projections.Id())
-						)
-					)
-				)
-				.OrderBy(() => orderAlias.DeliveryDate).Desc;
-
-			if(countLastOrders.HasValue)
-			{
-				query.Take(countLastOrders.Value);
-			}
-
-			var deliveryDates = query
-				.Select(Projections.Property(() => orderAlias.DeliveryDate))
-				.List<DateTime>()
+		private int? GetOrderFrequency(IUnitOfWork uow, int deliveryPointId, int? countLastOrders)
+		{
+			var deliveryDates = (uow.Session.SessionFactory.GetClassMetadata(typeof(Order)) != null
+				? GetOrderDates<Order, RouteListItem>(uow, deliveryPointId, countLastOrders)
+				: GetOrderDates<OrderEntity, RouteListItemEntity>(uow, deliveryPointId, countLastOrders))
 				.OrderBy(deliveryDate => deliveryDate)
 				.ToList();
 
@@ -153,15 +179,54 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			}
 
 			double totalDaysBetweenOrders = 0;
-
 			for(int i = 1; i < deliveryDates.Count; i++)
 			{
 				totalDaysBetweenOrders += (deliveryDates[i] - deliveryDates[i - 1]).TotalDays;
 			}
 
-			double averageDays = totalDaysBetweenOrders / (deliveryDates.Count - 1);
+			return (int)Math.Round(totalDaysBetweenOrders / (deliveryDates.Count - 1), MidpointRounding.AwayFromZero);
+		}
 
-			return (int)Math.Round(averageDays, MidpointRounding.AwayFromZero);
+		private IList<DateTime> GetOrderDates<TOrder, TRouteListItem>(
+			IUnitOfWork uow, int deliveryPointId, int? countLastOrders)
+			where TOrder : OrderEntity
+			where TRouteListItem : RouteListItemEntity
+		{
+			var query = GetOrdersForFrequency<TOrder, TRouteListItem>(uow, deliveryPointId)
+				.OrderBy(order => order.DeliveryDate).Desc;
+			if(countLastOrders.HasValue)
+			{
+				query.Take(countLastOrders.Value);
+			}
+
+			return query.Select(order => order.DeliveryDate).List<DateTime>();
+		}
+
+		private IQueryOver<TOrder, TOrder> GetOrdersForFrequency<TOrder, TRouteListItem>(IUnitOfWork uow, int deliveryPointId)
+			where TOrder : OrderEntity
+			where TRouteListItem : RouteListItemEntity
+		{
+			TOrder orderAlias = null;
+
+			var closingDocumentDeliveryScheduleId = _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
+
+			var validStatuses = OrderEntity.GetOnClosingOrderStatuses;
+
+			return uow.Session.QueryOver(() => orderAlias)
+				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointId)
+				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(validStatuses)
+				.Where(() => orderAlias.DeliveryDate != null)
+				.Where(() => orderAlias.DeliverySchedule.Id != closingDocumentDeliveryScheduleId)
+				.Where(
+					Restrictions.Or(
+						Restrictions.Where(() => orderAlias.SelfDelivery),
+						Subqueries.Exists(
+							DetachedCriteria.For<TRouteListItem>()
+								.Add(Restrictions.Where<TRouteListItem>(rli => rli.Order.Id == orderAlias.Id))
+								.SetProjection(Projections.Id())
+						)
+					)
+				);
 		}
 
 		public IOrderedEnumerable<DeliveryPointCategory> GetActiveDeliveryPointCategories(IUnitOfWork uow)
