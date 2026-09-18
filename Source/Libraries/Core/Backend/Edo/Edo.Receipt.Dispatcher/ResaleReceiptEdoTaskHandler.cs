@@ -889,7 +889,7 @@ namespace Edo.Receipt.Dispatcher
 					DocumentType = FiscalDocumentType.Sale,
 					CheckoutTime = order.TimeDelivered ?? DateTime.Now,
 					Contact = _edoOrderContactProvider.GetContact(order).StringValue,
-					ClientInn = order.Client.INN,
+					ClientInn = string.IsNullOrWhiteSpace(order.Client?.INN) ? null : order.Client.INN.Trim(),
 					CashierName = order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName,
 					//По умолчанию не печатаем чеки
 					PrintReceipt = false,

@@ -9,7 +9,9 @@
 		<PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
 	</ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
+		<ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
 		<ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
 		<ProjectReference Include="..\..\..\Notifications\EdoNotifications\EdoNotifications.Application\EdoNotifications.Application.csproj" />
 		<ProjectReference Include="..\..\ModulKassa\ModulKassa.csproj" />

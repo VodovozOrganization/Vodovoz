@@ -152,6 +152,15 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
+			if(HasPrebuiltCorrectionFiscalDocuments(receiptEdoTask))
+			{
+				_logger.LogInformation(
+					"Задача Id {EdoTaskId} уже содержит корректирующие/возвратные фискальные документы. " +
+					"Подготовка через ReceiptTaskCreated пропущена (отправка через ReceiptCorrectionSender).",
+					receiptEdoTask.Id);
+				return;
+			}
+
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
 			if(_edoCancellationService.IsEdoTaskMustBeCancelled(receiptEdoTask))
@@ -530,8 +539,25 @@ namespace Edo.Receipt.Dispatcher
 		/// <param name="receiptEdoTask"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
+		private static bool HasPrebuiltCorrectionFiscalDocuments(ReceiptEdoTask receiptEdoTask)
+		{
+			return receiptEdoTask.FiscalDocuments != null
+				&& receiptEdoTask.FiscalDocuments.Any(x =>
+					x.DocumentType == FiscalDocumentType.Return
+					|| x.DocumentType == FiscalDocumentType.SaleCorrection
+					|| x.DocumentType == FiscalDocumentType.SaleReturnCorrection);
+		}
+
 		private async Task PrepareFiscalDocuments(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
+			if(HasPrebuiltCorrectionFiscalDocuments(receiptEdoTask))
+			{
+				_logger.LogInformation(
+					"Пропуск пересборки фискальных документов для задачи Id {EdoTaskId}: уже есть корректирующие/возвратные документы.",
+					receiptEdoTask.Id);
+				return;
+			}
+
 			var order = receiptEdoTask.FormalEdoRequest.Order;
 
 			//получаем продуктовые коды, но только те, в которые не входят консолидированные идентификационные коды

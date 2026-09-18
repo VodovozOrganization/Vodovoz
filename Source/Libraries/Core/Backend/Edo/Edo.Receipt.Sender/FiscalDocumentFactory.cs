@@ -18,6 +18,13 @@ namespace Edo.Receipt.Sender
 
 		public FiscalDocument CreateFiscalDocument(EdoFiscalDocument edoFiscalDocument)
 		{
+			return CreateFiscalDocument(edoFiscalDocument, correctionBaselineDocument: null);
+		}
+
+		public FiscalDocument CreateFiscalDocument(
+			EdoFiscalDocument edoFiscalDocument,
+			EdoFiscalDocument correctionBaselineDocument)
+		{
 			var document = new FiscalDocument
 			{
 				Id = GetDocumentGuid(edoFiscalDocument),
@@ -25,7 +32,7 @@ namespace Edo.Receipt.Sender
 				DocType = GetDocType(edoFiscalDocument.DocumentType),
 				CheckoutDateTime = edoFiscalDocument.CheckoutTime.ToString("O"),
 				Email = edoFiscalDocument.Contact,
-				ClientINN = edoFiscalDocument.ClientInn,
+				ClientINN = NormalizeClientInn(edoFiscalDocument.ClientInn),
 				CashierName = edoFiscalDocument.CashierName,
 				PrintReceipt = edoFiscalDocument.PrintReceipt,
 				ResponseURL = GetResponseUrl(edoFiscalDocument),
@@ -34,6 +41,8 @@ namespace Edo.Receipt.Sender
 				TaxMode = null,
 			};
 
+			document.CorrectionInfo = CreateCorrectionInfo(edoFiscalDocument, correctionBaselineDocument);
+
 			var inventPositions = edoFiscalDocument.InventPositions.Select(CreateInventPosition);
 			document.InventPositions.AddRange(inventPositions);
 
@@ -41,6 +50,60 @@ namespace Edo.Receipt.Sender
 			document.MoneyPositions.AddRange(moneyPositions);
 
 			return document;
+		}
+
+		private static CorrectionInfo CreateCorrectionInfo(
+			EdoFiscalDocument edoFiscalDocument,
+			EdoFiscalDocument correctionBaselineDocument)
+		{
+			if(edoFiscalDocument.DocumentType != FiscalDocumentType.SaleCorrection
+				&& edoFiscalDocument.DocumentType != FiscalDocumentType.SaleReturnCorrection)
+			{
+				return null;
+			}
+
+			var baselineDocument = correctionBaselineDocument
+				?? edoFiscalDocument.ReceiptEdoTask?.FiscalDocuments?
+					.Where(x => x.DocumentType == FiscalDocumentType.Sale)
+					.OrderBy(x => x.Id)
+					.FirstOrDefault();
+
+			var documentDate = baselineDocument?.FiscalTime
+				?? baselineDocument?.CheckoutTime
+				?? edoFiscalDocument.CheckoutTime;
+
+			var documentNum = Truncate(
+				baselineDocument?.FiscalNumber
+				?? edoFiscalDocument.DocumentNumber,
+				32);
+
+			return new CorrectionInfo
+			{
+				Reason = "INDEPENDENT",
+				DocumentDate = documentDate.ToString("O"),
+				DocumentNum = documentNum,
+				FiscalSign = Truncate(baselineDocument?.FiscalMark, 16)
+			};
+		}
+
+		private static string Truncate(string value, int maxLength)
+		{
+			if(string.IsNullOrEmpty(value) || value.Length <= maxLength)
+			{
+				return value;
+			}
+
+			return value.Substring(0, maxLength);
+		}
+
+		private static string NormalizeClientInn(string clientInn)
+		{
+			if(string.IsNullOrWhiteSpace(clientInn))
+			{
+				return null;
+			}
+
+			return clientInn.Trim();
 		}
 
 		private string GetDocType(FiscalDocumentType fiscalDocumentType)

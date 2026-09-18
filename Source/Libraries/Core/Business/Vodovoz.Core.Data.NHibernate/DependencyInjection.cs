@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Cfg.Db;
+using FluentNHibernate.Cfg.Db;
 using FluentNHibernate.Conventions;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Extensions.Observable.Collections.List;
@@ -9,6 +9,8 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Vodovoz.Core.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Core.Data.NHibernate.Repositories;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Rules.Edo;
 using Vodovoz.Settings.Database;
 using MySqlConnectionStringBuilder = MySqlConnector.MySqlConnectionStringBuilder;
@@ -78,7 +80,8 @@ namespace Vodovoz.Core.Data.NHibernate
 			{
 				services.AddScoped(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
 			}
-			
+
+
 			return services;
 		}
 	}

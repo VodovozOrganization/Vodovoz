@@ -24,10 +24,12 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 		private readonly IOrganizationVersionsController _organizationVersionsController;
 		private Employee _leader;
 		private Employee _accountant;
+		private Employee _cashier;
 		private string _address;
 		private string _jurAddress;
 		private StoredResource _signatureLeader;
 		private StoredResource _signatureAccountant;
+		private StoredResource _signatureCashier;
 		private DelegateCommand _saveEditingVersionCommand;
 		private DelegateCommand _cancelEditingVersionCommand;
 		private DelegateCommand _editVersionCommand;
@@ -57,6 +59,9 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			AccountantSelectorFactory = (employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
 
+			CashierSelectorFactory = employeeJournalFactory
+				.CreateWorkingEmployeeAutocompleteSelectorFactory();
+
 			var _storedResourceRepository = storedResourceRepository ?? throw new ArgumentNullException(nameof(storedResourceRepository));
 			_allSignatures = _storedResourceRepository.GetAllSignatures();
 
@@ -65,6 +70,7 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 
 		public IEntityAutocompleteSelectorFactory LeaderSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory AccountantSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory CashierSelectorFactory { get; }
 		public bool IsEditAvailable => SelectedOrganizationVersion != null;
 		public bool IsNewOrganization => Entity.Id == 0;
 		public bool IsButtonsAvailable { get; }
@@ -80,6 +86,13 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			get => _accountant;
 			set => SetField(ref _accountant, value);
 		}
+
+		public Employee Cashier
+		{
+			get => _cashier;
+			set => SetField(ref _cashier, value);
+		}
+
 		public IList<StoredResource> AllSignatures
 		{
 			get => _allSignatures;
@@ -102,6 +115,12 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 		{
 			get => _signatureAccountant;
 			set => SetField(ref _signatureAccountant, value);
+		}
+
+		public virtual StoredResource SignatureCashier
+		{
+			get => _signatureCashier;
+			set => SetField(ref _signatureCashier, value);
 		}
 
 		public string JurAddress
@@ -159,9 +178,11 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 					var version = new OrganizationVersion
 					{
 						Accountant = Accountant,
+						Cashier = Cashier,
 						Leader = Leader,
 						SignatureLeader = SignatureLeader,
 						SignatureAccountant = SignatureAccountant,
+						SignatureCashier = SignatureCashier,
 						Address = Address,
 						JurAddress = JurAddress
 					};
@@ -173,9 +194,11 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 					}
 
 					SelectedOrganizationVersion.Accountant = Accountant;
+					SelectedOrganizationVersion.Cashier = Cashier;
 					SelectedOrganizationVersion.Leader = Leader;
 					SelectedOrganizationVersion.SignatureLeader = SignatureLeader;
 					SelectedOrganizationVersion.SignatureAccountant = SignatureAccountant;
+					SelectedOrganizationVersion.SignatureCashier = SignatureCashier;
 					SelectedOrganizationVersion.Address = Address;
 					SelectedOrganizationVersion.JurAddress = JurAddress;
 
@@ -198,8 +221,11 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 			_editVersionCommand ?? (_editVersionCommand = new DelegateCommand(() =>
 			{
 				Accountant = SelectedOrganizationVersion.Accountant;
+				Cashier = SelectedOrganizationVersion.Cashier ?? SelectedOrganizationVersion.Leader;
 				SignatureLeader = SelectedOrganizationVersion.SignatureLeader;
 				SignatureAccountant = SelectedOrganizationVersion.SignatureAccountant;
+				SignatureCashier = SelectedOrganizationVersion.SignatureCashier
+					?? SelectedOrganizationVersion.SignatureLeader;
 				Leader = SelectedOrganizationVersion.Leader;
 				Address = SelectedOrganizationVersion.Address;
 				JurAddress = SelectedOrganizationVersion.JurAddress;
@@ -248,8 +274,10 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 		{
 			Leader = null;
 			Accountant = null;
+			Cashier = null;
 			SignatureLeader = null;
 			SignatureAccountant = null;
+			SignatureCashier = null;
 			Address = string.Empty;
 			JurAddress = string.Empty;
 		}
