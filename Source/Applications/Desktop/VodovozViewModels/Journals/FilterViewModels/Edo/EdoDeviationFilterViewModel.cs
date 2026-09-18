@@ -5,6 +5,7 @@ using QS.Project.Filter;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
 
@@ -179,7 +180,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 				.AppendLine()
 				.AppendLine("Общие условия, без которых отклонение по задаче не заводится:")
 				.AppendLine("• задача не завершена и не отменена (только проверки результата ГИС МТ работают и по завершенным);")
-				.AppendLine("• по задаче нет активной проблемы и сама она не в статусе \"Проблема\";")
+				.AppendLine($"• по задаче нет активной проблемы и сама она не в статусе \"{Core.Domain.Edo.EdoTaskStatus.Problem.GetEnumDisplayName()}\";")
 				.AppendLine("• по задаче нет другого активного отклонения;")
 				.AppendLine("• не сработал ни один тип отклонения, идущий раньше по ходу документооборота.")
 				.AppendLine()
@@ -210,7 +211,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 				},
 				{
 					EdoDeviationType.TaskNotStarted,
-					"задача создана и остается в статусе \"Новая\": обработчик к ней не приступал"
+					$"задача создана и остается в статусе \"{Core.Domain.Edo.EdoTaskStatus.New.GetEnumDisplayName()}\": обработчик к ней не приступал"
 				},
 				{
 					EdoDeviationType.TransferNotStarted,
@@ -226,12 +227,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 				},
 				{
 					EdoDeviationType.ClientNotAcceptedDocflow,
-					"последнее действие документооборота - \"Получено оператором\" или \"В процессе\":"
+					$"последнее действие документооборота - \"{EdoDocFlowStatus.Sent.GetEnumDisplayName()}\" или \"{EdoDocFlowStatus.InProgress.GetEnumDisplayName()}\":"
 					+ " документ у клиента, и клиент его не завершает"
 				},
 				{
 					EdoDeviationType.CancellationNotCompleted,
-					"последнее действие документооборота - \"Ожидает аннулирования\""
+					$"последнее действие документооборота - \"{EdoDocFlowStatus.WaitingForCancellation.GetEnumDisplayName()}\""
 				},
 				{
 					EdoDeviationType.GisMtResultMissing,
@@ -255,7 +256,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 				},
 				{
 					EdoDeviationType.TransferWaitingRequestsTooLong,
-					"задача трансфера остается на стадии \"Ожидает запросов\":"
+					$"задача трансфера остается на стадии \"{EdoTransferTaskStage.WaitingRequests.GetEnumDisplayName()}\":"
 					+ " досылка залежавшихся трансферов не сработала"
 				},
 				{
