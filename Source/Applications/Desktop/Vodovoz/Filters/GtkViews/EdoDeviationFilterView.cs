@@ -96,14 +96,5 @@ namespace Vodovoz.Filters.GtkViews
 				ViewModel.Update();
 			}
 		}
-
-		public override void Dispose()
-		{
-			yentryOrder.KeyReleaseEvent -= OnKeyReleased;
-			yentryEdoTask.KeyReleaseEvent -= OnKeyReleased;
-			yentrySourceId.KeyReleaseEvent -= OnKeyReleased;
-
-			base.Dispose();
-		}
 	}
 }
