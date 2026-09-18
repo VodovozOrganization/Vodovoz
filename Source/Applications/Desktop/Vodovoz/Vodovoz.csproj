@@ -2196,6 +2196,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.DriverForwardingOrderSelectionView.cs" />
     <Compile Include="Views\Logistic\AdditionalFuelTypeManagementView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AdditionalFuelTypeManagementView.cs" />
+    <Compile Include="Filters\GtkViews\EdoDeviationFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoDeviationFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

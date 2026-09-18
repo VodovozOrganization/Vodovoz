@@ -122,12 +122,15 @@
     <Compile Include="Factories\IVatRateVersionViewModelFactory.cs" />
     <Compile Include="Factories\VatRateVersionViewModelFactory.cs" />
     <Compile Include="Journals\FilterViewModels\Banks\BanksJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Edo\EdoDeviationFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProblemFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\BankAccountsMovementsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\ProfitCategoriesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\WageCalculation\CallCenterMotivationCoefficientJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Banks\BanksJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoDeviationJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoDeviationJournalNodeType.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoNotificationSettingJournalNode.cs" />
@@ -139,6 +142,9 @@
     <Compile Include="Journals\JournalNodes\WageCalculation\CallCenterMotivationCoefficientJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Banks\BanksJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\VatRateJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationHelpTexts.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalMessages.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoNotificationSettingJournalViewModel.cs" />
