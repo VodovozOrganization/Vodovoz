@@ -4276,7 +4276,7 @@ namespace Vodovoz.Domain.Orders
 				FirstDeliveryDate = DeliveryDate;
 			}
 
-			if(!IsLoadedFrom1C && needUpdateContract)
+			if(!IsLoadedFrom1C && needUpdateContract && OrderStatus != OrderStatus.Closed)
 			{
 				contractUpdater.UpdateContract(uow, this);
 			}
