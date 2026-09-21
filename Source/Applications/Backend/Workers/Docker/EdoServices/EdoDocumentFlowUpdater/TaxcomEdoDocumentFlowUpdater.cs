@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Client;
+using TaxcomEdo.Contracts.DocflowDocuments;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Data.Repositories;
@@ -306,17 +307,17 @@ namespace EdoDocumentFlowUpdater
 						using var scope = _serviceScopeFactory.CreateScope();
 						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
 
-						docFlowUpdates =
-							await taxcomApiClient.GetDocFlowsUpdates(
-								new GetDocFlowsUpdatesParameters
-								{
-									DocFlowStatus = "WaitingForSignature", //смотрим только доки, ожидающих подписи
-									LastEventTimeStamp = _lastEventsProcessTime.LastProcessedEventIngoingDocuments.ToBinary(),
-									DocFlowDirection = "Ingoing",
-									DepartmentId = null,
-									IncludeTransportInfo = true
-								},
-								cancellationToken);
+						docFlowUpdates = await taxcomApiClient.GetDocFlowsUpdates(
+							new GetDocFlowsUpdatesParameters
+							{
+								DocFlowStatus = "WaitingForSignature", //смотрим только доки, ожидающих подписи
+								LastEventTimeStamp = _lastEventsProcessTime.LastProcessedEventIngoingDocuments.ToBinary(),
+								DocFlowDirection = "Ingoing",
+								DepartmentId = null,
+								IncludeTransportInfo = true
+							},
+							cancellationToken
+						);
 
 						if(docFlowUpdates.Updates is null)
 						{
@@ -325,10 +326,13 @@ namespace EdoDocumentFlowUpdater
 
 						_logger.LogInformation(
 							"Обрабатываем полученные входящие документообороты {DocFlowUpdatesCount}",
-							docFlowUpdates.Updates.Count());
+							docFlowUpdates.Updates.Count()
+						);
 						
 						var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(
-							uow, _documentFlowUpdaterOptions.EdoAccount);
+							uow, 
+							_documentFlowUpdaterOptions.EdoAccount
+						);
 
 						if(organization is null)
 						{
@@ -336,12 +340,17 @@ namespace EdoDocumentFlowUpdater
 								"Не найдена организация с таким кабинетом ЭДО " + _documentFlowUpdaterOptions.EdoAccount);
 						}
 
-						foreach(var item in docFlowUpdates.Updates)
+						foreach(var docflowUpdate in docFlowUpdates.Updates)
 						{
-							await SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(item, organization.Name, cancellationToken);
-							_lastEventsProcessTime.LastProcessedEventIngoingDocuments = item.StatusChangeDateTime;
+							await SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(docflowUpdate, organization.Name, cancellationToken);
+							_lastEventsProcessTime.LastProcessedEventIngoingDocuments = docflowUpdate.StatusChangeDateTime;
+
+							await UpdateDocflowServiceDocumentMessage(uow, docflowUpdate, taxcomApiClient, cancellationToken);
 						}
+
 					} while(!docFlowUpdates.IsLast);
+
+					await uow.CommitAsync(cancellationToken);
 				}
 			}
 			catch(Exception e)
@@ -354,6 +363,54 @@ namespace EdoDocumentFlowUpdater
 			finally
 			{
 				await SaveLastEventProcessTime(cancellationToken);
+			}
+		}
+
+		private async Task UpdateDocflowServiceDocumentMessage(
+			IUnitOfWork uow,
+			EdoDocFlow docflowUpdate,
+			ITaxcomApiClient taxcomApiClient,
+			CancellationToken cancellationToken
+		)
+		{
+			try
+			{
+				if(docflowUpdate.Id == null)
+				{
+					return;
+				}
+
+				var documentWithMessages = await taxcomApiClient.GetDocumentWithMessages(docflowUpdate.Id.Value.ToString(), cancellationToken);
+				if(!documentWithMessages.Any())
+				{
+					return;
+				}
+
+				var docflow = _edoRepository.GetTaxcomDocflowByDocflowId(uow, docflowUpdate.Id.Value);
+
+				foreach(var document in documentWithMessages)
+				{
+					switch(document.DocumentType)
+					{
+						case DocumentWithMessageType.CompletedWithDiscrepancy:
+							docflow.DiscrepancyMessage = document.Message;
+							break;
+						case DocumentWithMessageType.CorrectionNotice:
+							docflow.CorrectionNoticeMessage = document.Message;
+							break;
+						case DocumentWithMessageType.CancellationOffer:
+							docflow.CancellationOfferMessage = document.Message;
+							break;
+						default:
+							throw new NotSupportedException($"Не поддерживаемый тип документа {document.DocumentType}");
+					}
+				}
+
+				await uow.SaveAsync(docflow, true, cancellationToken: cancellationToken);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при обновлении сообщений из документов в документообороте {DocflowId}", docflowUpdate.Id);
 			}
 		}
 

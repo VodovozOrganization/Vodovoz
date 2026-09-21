@@ -5,18 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Client.Configs;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
+using TaxcomEdo.Contracts.DocflowDocuments;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Domain.Results;
-using VodovozInfrastructure.Endpoints;
 
 namespace TaxcomEdo.Client
 {
@@ -127,6 +127,38 @@ namespace TaxcomEdo.Client
 			var error = await response.ToTaxcomError(_jsonSerializerOptions, cancellationToken);
 
 			return Result.Failure<byte[]>(error);
+		}
+
+		public async Task<IEnumerable<DocumentWithMessage>> GetDocumentWithMessages(
+			string docFlowId, 
+			CancellationToken cancellationToken = default
+		)
+		{
+			var query = HttpQueryBuilder
+				.Create()
+				.AddParameter(docFlowId, nameof(docFlowId))
+				.ToString();
+
+			using(var response = await CreateClient().GetAsync("/api/GetDocumentWithMessages" + query, cancellationToken))
+			{
+				if(!response.IsSuccessStatusCode)
+				{
+					return new List<DocumentWithMessage>();
+				}
+
+				using(var responseStream = await response.Content.ReadAsStreamAsync())
+				{
+					var options = new JsonSerializerOptions(_jsonSerializerOptions);
+					options.Converters.Add(
+						new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+					);
+
+					var result = await JsonSerializer.DeserializeAsync<IEnumerable<DocumentWithMessage>>(
+						responseStream, options, cancellationToken);
+
+					return result;
+				}
+			}
 		}
 
 		public async Task<EdoDocFlowUpdates> GetDocFlowsUpdates(

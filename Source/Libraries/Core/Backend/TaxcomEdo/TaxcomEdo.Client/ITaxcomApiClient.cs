@@ -6,6 +6,7 @@ using Edo.Contracts.Messages.Dto;
 using Edo.Contracts.Xml;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
+using TaxcomEdo.Contracts.DocflowDocuments;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Domain.Results;
 
@@ -43,8 +44,10 @@ namespace TaxcomEdo.Client
 		/// <param name="data">Данные для формирования неформализованного документ заказа</param>
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
-		Task<Result> SendDataForCreateInformalOrderDocumentByEdo(InfoForCreatingEdoInformalOrderDocument data,
-			CancellationToken cancellationToken = default);
+		Task<Result> SendDataForCreateInformalOrderDocumentByEdo(
+			InfoForCreatingEdoInformalOrderDocument data,
+			CancellationToken cancellationToken = default
+		);
 
 		/// <summary>
 		/// Передача данных по Счету без отгрузки на долг в TaxcomApi для его формирования и отправки по ЭДО в Такском
@@ -70,8 +73,10 @@ namespace TaxcomEdo.Client
 		/// <param name="data">Данные для формирования Счета без отгрузки на предоплату по ЭДО</param>
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
-		Task<Result> SendDataForCreateBillWithoutShipmentForAdvancePaymentByEdo(InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo data,
-			CancellationToken cancellationToken = default);
+		Task<Result> SendDataForCreateBillWithoutShipmentForAdvancePaymentByEdo(
+			InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo data,
+			CancellationToken cancellationToken = default
+		);
 		/// <summary>
 		/// Запрос изменений списка контактов
 		/// </summary>
@@ -80,7 +85,11 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task<EdoContactList> GetContactListUpdates(
-			DateTime? lastCheckContactsUpdates, EdoContactStateCode? contactState, CancellationToken cancellationToken = default);
+			DateTime? lastCheckContactsUpdates, 
+			EdoContactStateCode? contactState, 
+			CancellationToken cancellationToken = default
+		);
+
 		/// <summary>
 		/// Принятие приглашения к обмену по ЭДО
 		/// </summary>
@@ -88,6 +97,7 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task<bool> AcceptContact(string edxClientId, CancellationToken cancellationToken = default);
+
 		/// <summary>
 		/// Получение архива со всеми документами из документооборота
 		/// </summary>
@@ -102,13 +112,17 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task<EdoDocFlowUpdates> GetDocFlowsUpdates(
-			GetDocFlowsUpdatesParameters docFlowsUpdatesParameters, CancellationToken cancellationToken = default);
+			GetDocFlowsUpdatesParameters docFlowsUpdatesParameters, 
+			CancellationToken cancellationToken = default
+		);
+
 		/// <summary>
 		/// Отправка запроса на запуск необходимых транзакций по ЭДО
 		/// </summary>
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task StartProcessAutoSendReceive(CancellationToken cancellationToken = default);
+
 		/// <summary>
 		/// Отправка запроса на аннулирование документооборота
 		/// </summary>
@@ -117,6 +131,7 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task SendOfferCancellation(string docFlowId, string reason, CancellationToken cancellationToken = default);
+
 		/// <summary>
 		/// Отправка запроса на подписание документооборота
 		/// </summary>
@@ -124,6 +139,7 @@ namespace TaxcomEdo.Client
 		/// <param name="organization">Название организации, от которой подписывается входящий документ</param>
 		/// <returns></returns>
 		Task<bool> AcceptIngoingDocflow(Guid? docflowId, string organization, CancellationToken cancellationToken = default);
+
 		/// <summary>
 		/// Отправка запроса на аннулирование документооборота
 		/// </summary>
@@ -132,6 +148,7 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task SendOfferCancellationRaw(string docFlowId, string comment, CancellationToken cancellationToken = default);
+
 		/// <summary>
 		/// Принятие запроса на аннулирование документооборота
 		/// </summary>
@@ -147,6 +164,7 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task RejectOfferCancellation(string docFlowId, string comment, CancellationToken cancellationToken = default);
+
 		/// <summary>
 		/// Получение текущего статуса ДО
 		/// </summary>
@@ -154,5 +172,13 @@ namespace TaxcomEdo.Client
 		/// <param name="ourEdoAccountId">Аккаунт ЭДО по которому проверяем(чаще всего это отправитель)</param>
 		/// <returns></returns>
 		Task<ContainerDescription> GetDocflowStatus(string docflowId, string ourEdoAccountId = null);
+
+		/// <summary>
+		/// Получение сообщений из документов по незавершенным документооборотам
+		/// </summary>
+		/// <param name="docflowId">Идентификатор ДО</param>
+		/// <param name="ourEdoAccountId">Аккаунт ЭДО по которому проверяем(чаще всего это отправитель)</param>
+		/// <returns></returns>
+		Task<IEnumerable<DocumentWithMessage>> GetDocumentWithMessages(string docFlowId, CancellationToken cancellationToken = default);
 	}
 }
