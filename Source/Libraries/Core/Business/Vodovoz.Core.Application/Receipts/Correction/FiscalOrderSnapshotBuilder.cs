@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Receipts;
 using Vodovoz.Domain.Orders;
 
@@ -156,9 +157,12 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 			foreach(var inventPosition in fiscalDocument.InventPositions)
 			{
+				var nomenclatureId = inventPosition.OrderItems.FirstOrDefault()?.Nomenclature?.Id
+					?? ResolveNomenclatureIdByName(order, inventPosition.Name);
+
 				snapshot.Items.Add(new FiscalOrderSnapshotItem
 				{
-					NomenclatureId = inventPosition.OrderItems.FirstOrDefault()?.Nomenclature?.Id,
+					NomenclatureId = nomenclatureId,
 					Name = Truncate(inventPosition.Name, 512) ?? string.Empty,
 					Quantity = inventPosition.Quantity,
 					Price = inventPosition.Price,
@@ -168,6 +172,41 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			}
 
 			return snapshot;
+		}
+
+		private static int? ResolveNomenclatureIdByName(OrderEntity order, string inventName)
+		{
+			if(order == null || string.IsNullOrWhiteSpace(inventName))
+			{
+				return null;
+			}
+
+			var invent = inventName.Trim();
+			foreach(var orderItem in order.OrderItems ?? Enumerable.Empty<OrderItemEntity>())
+			{
+				var nomenclature = orderItem?.Nomenclature;
+				if(nomenclature == null)
+				{
+					continue;
+				}
+
+				var candidates = new[]
+				{
+					Truncate(nomenclature.OfficialName ?? nomenclature.Name, 128),
+					Truncate(nomenclature.Name, 128),
+					nomenclature.OfficialName,
+					nomenclature.Name
+				};
+
+				if(candidates.Any(c =>
+					!string.IsNullOrWhiteSpace(c)
+					&& string.Equals(c.Trim(), invent, StringComparison.OrdinalIgnoreCase)))
+				{
+					return nomenclature.Id;
+				}
+			}
+
+			return null;
 		}
 
 		private static EdoFiscalDocument ResolveResultDocument(IUnitOfWork uow, ReceiptCorrectionProcess process)

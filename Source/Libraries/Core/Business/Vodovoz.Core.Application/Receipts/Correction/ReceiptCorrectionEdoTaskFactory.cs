@@ -1,7 +1,6 @@
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
-using System.Linq;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -51,8 +50,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				DocumentType = sourceRequest?.DocumentType ?? EdoDocumentType.UPD,
 				Order = orderEntity,
 				Author = _employeeRepository.GetEmployeeForCurrentUser(uow),
-				ProductCodes = new ObservableList<TrueMarkProductCode>(
-					sourceRequest?.ProductCodes ?? Enumerable.Empty<TrueMarkProductCode>())
+				ProductCodes = new ObservableList<TrueMarkProductCode>()
 			};
 
 			var task = new ReceiptEdoTask
@@ -63,18 +61,6 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				FormalEdoRequest = request
 			};
 			request.Task = task;
-
-			if(sourceTask.Items != null)
-			{
-				foreach(var sourceItem in sourceTask.Items.Where(x => x?.ProductCode != null))
-				{
-					task.Items.Add(new EdoTaskItem
-					{
-						ProductCode = sourceItem.ProductCode,
-						CustomerEdoTask = task
-					});
-				}
-			}
 
 			return task;
 		}

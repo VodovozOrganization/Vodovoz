@@ -164,7 +164,8 @@ namespace Edo.Receipt.Sender
 				inventPosition.ProductMark = fiscalInventPosition.GroupCode.FormatForCheck1260;
 			}
 
-			if(!inventPosition.ProductMark.IsNullOrWhiteSpace())
+			if(!inventPosition.ProductMark.IsNullOrWhiteSpace()
+				&& fiscalInventPosition.RegulatoryDocument != null)
 			{
 				inventPosition.IndustryRequisite = new IndustryRequisite
 				{

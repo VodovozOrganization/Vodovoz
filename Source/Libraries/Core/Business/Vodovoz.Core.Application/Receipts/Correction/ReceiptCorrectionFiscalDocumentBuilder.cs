@@ -26,7 +26,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			ReceiptEdoTask correctionTask,
 			ReceiptCorrectionProcess process,
 			ReceiptCorrectionProcessDocument processDocument,
-			OrderEntity currentOrder = null)
+			OrderEntity currentOrder = null,
+			FiscalOrderSnapshot currentSnapshot = null)
 		{
 			if(sourceDocument == null)
 			{
@@ -73,7 +74,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				Index = documentIndex
 			};
 
-			FillPositions(fiscalDocument, sourceDocument, process, processDocument, orderForFill);
+			FillPositions(fiscalDocument, sourceDocument, process, processDocument, orderForFill, currentSnapshot);
 
 			receiptEdoTask.FiscalDocuments.Add(fiscalDocument);
 
@@ -85,7 +86,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			EdoFiscalDocument sourceDocument,
 			ReceiptCorrectionProcess process,
 			ReceiptCorrectionProcessDocument processDocument,
-			OrderEntity currentOrder)
+			OrderEntity currentOrder,
+			FiscalOrderSnapshot currentSnapshot)
 		{
 			switch(processDocument.PlannedDocumentType)
 			{
@@ -97,6 +99,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 						fiscalDocument,
 						sourceDocument,
 						currentOrder,
+						currentSnapshot,
 						allowEmptyFallbackToSource: true,
 						useCurrentOrderPaymentType: true);
 					break;
@@ -105,6 +108,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 						fiscalDocument,
 						sourceDocument,
 						currentOrder,
+						currentSnapshot,
 						allowEmptyFallbackToSource: false,
 						useCurrentOrderPaymentType: true);
 					break;
@@ -137,6 +141,11 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			if(process.ScenarioType == ReceiptCorrectionScenarioType.NomenclatureChange)
 			{
 				if(TryFillNomenclatureChangeReturnPositions(fiscalDocument, sourceDocument, currentOrder))
+				{
+					return;
+				}
+
+				if(TryFillRemovedInventReturnFallback(fiscalDocument, sourceDocument, currentOrder))
 				{
 					return;
 				}
@@ -241,6 +250,62 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				{
 					AddUnmarkedReturnPositions(fiscalDocument, sourceDocument, sourceGroup.Value, delta, ref returnedSum);
 				}
+			}
+
+			if(!hasReturn || !fiscalDocument.InventPositions.Any())
+			{
+				fiscalDocument.InventPositions.Clear();
+				fiscalDocument.MoneyPositions.Clear();
+				return false;
+			}
+
+			AddMoneyPosition(fiscalDocument, sourceDocument, returnedSum);
+			return true;
+		}
+
+		private static bool TryFillRemovedInventReturnFallback(
+			EdoFiscalDocument fiscalDocument,
+			EdoFiscalDocument sourceDocument,
+			OrderEntity currentOrder)
+		{
+			var order = currentOrder ?? sourceDocument.ReceiptEdoTask?.FormalEdoRequest?.Order;
+			if(order == null || sourceDocument.InventPositions == null || !sourceDocument.InventPositions.Any())
+			{
+				return false;
+			}
+
+			var remainingNames = new HashSet<string>(
+				GetOrderItems(order)
+					.Where(x => x.CurrentCount > 0 && x.Nomenclature != null)
+					.SelectMany(x => new[]
+					{
+						Truncate(x.Nomenclature.OfficialName ?? x.Nomenclature.Name, 128),
+						Truncate(x.Nomenclature.Name, 128),
+						x.Nomenclature.OfficialName,
+						x.Nomenclature.Name
+					})
+					.Where(n => !string.IsNullOrWhiteSpace(n))
+					.Select(n => n.Trim()),
+				StringComparer.OrdinalIgnoreCase);
+
+			decimal returnedSum = 0;
+			var hasReturn = false;
+
+			foreach(var sourcePosition in sourceDocument.InventPositions)
+			{
+				if(string.IsNullOrWhiteSpace(sourcePosition.Name))
+				{
+					continue;
+				}
+
+				if(remainingNames.Contains(sourcePosition.Name.Trim()))
+				{
+					continue;
+				}
+
+				hasReturn = true;
+				returnedSum += AddReturnInventPosition(
+					fiscalDocument, sourceDocument, sourcePosition, sourcePosition.Quantity);
 			}
 
 			if(!hasReturn || !fiscalDocument.InventPositions.Any())
@@ -538,6 +603,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			EdoFiscalDocument fiscalDocument,
 			EdoFiscalDocument sourceDocument,
 			OrderEntity currentOrder,
+			FiscalOrderSnapshot currentSnapshot,
 			bool allowEmptyFallbackToSource,
 			bool useCurrentOrderPaymentType)
 		{
@@ -546,32 +612,86 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				.Where(x => x.CurrentCount > 0 && x.Nomenclature != null)
 				.ToList();
 
-			if(orderItems == null || !orderItems.Any())
+			if(orderItems.Any())
 			{
-				if(allowEmptyFallbackToSource)
+				decimal sum = 0;
+				foreach(var orderItem in orderItems)
 				{
-					CloneAllPositions(fiscalDocument, sourceDocument);
+					var vat = ResolveVat(sourceDocument, orderItem);
+					var quantity = orderItem.CurrentCount;
+					var discount = ResolveOrderItemDiscount(orderItem);
+					sum += orderItem.Price * quantity - discount;
+
+					fiscalDocument.InventPositions.Add(new FiscalInventPosition
+					{
+						Name = Truncate(orderItem.Nomenclature.OfficialName ?? orderItem.Nomenclature.Name, 128) ?? string.Empty,
+						Quantity = quantity,
+						Price = orderItem.Price,
+						DiscountSum = discount,
+						Vat = vat,
+						OrderItems = new ObservableList<OrderItemEntity> { orderItem }
+					});
 				}
 
+				var paymentType = useCurrentOrderPaymentType && order != null
+					? MapOrderPaymentType(order.PaymentType)
+					: sourceDocument.MoneyPositions.FirstOrDefault()?.PaymentType ?? FiscalPaymentType.Cash;
+
+				AddMoneyPosition(fiscalDocument, paymentType, sum);
 				return;
 			}
 
-			decimal sum = 0;
-			foreach(var orderItem in orderItems)
+			if(TryFillFromSnapshot(fiscalDocument, sourceDocument, order, currentSnapshot, useCurrentOrderPaymentType))
 			{
-				var vat = ResolveVat(sourceDocument, orderItem);
-				var quantity = orderItem.CurrentCount;
-				var discount = ResolveOrderItemDiscount(orderItem);
-				sum += orderItem.Price * quantity - discount;
+				return;
+			}
+
+			if(allowEmptyFallbackToSource)
+			{
+				CloneAllPositions(fiscalDocument, sourceDocument);
+			}
+		}
+
+		private static bool TryFillFromSnapshot(
+			EdoFiscalDocument fiscalDocument,
+			EdoFiscalDocument sourceDocument,
+			OrderEntity order,
+			FiscalOrderSnapshot currentSnapshot,
+			bool useCurrentOrderPaymentType)
+		{
+			var snapshotItems = currentSnapshot?.Items?
+				.Where(x => x != null && x.Quantity > 0)
+				.ToList();
+
+			if(snapshotItems == null || !snapshotItems.Any())
+			{
+				return false;
+			}
+
+			var orderItems = GetOrderItems(order).ToList();
+			decimal sum = 0;
+
+			foreach(var item in snapshotItems)
+			{
+				var orderItem = item.NomenclatureId.HasValue
+					? orderItems.FirstOrDefault(oi => oi.Nomenclature?.Id == item.NomenclatureId.Value)
+					: null;
+
+				var discount = item.DiscountSum;
+				sum += item.Price * item.Quantity - discount;
 
 				fiscalDocument.InventPositions.Add(new FiscalInventPosition
 				{
-					Name = Truncate(orderItem.Nomenclature.OfficialName ?? orderItem.Nomenclature.Name, 128) ?? string.Empty,
-					Quantity = quantity,
-					Price = orderItem.Price,
+					Name = Truncate(item.Name, 128) ?? string.Empty,
+					Quantity = item.Quantity,
+					Price = item.Price,
 					DiscountSum = discount,
-					Vat = vat,
-					OrderItems = new ObservableList<OrderItemEntity> { orderItem }
+					Vat = orderItem != null
+						? ResolveVat(sourceDocument, orderItem)
+						: sourceDocument.InventPositions.FirstOrDefault()?.Vat ?? FiscalVat.VatFree,
+					OrderItems = orderItem != null
+						? new ObservableList<OrderItemEntity> { orderItem }
+						: new ObservableList<OrderItemEntity>()
 				});
 			}
 
@@ -580,6 +700,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				: sourceDocument.MoneyPositions.FirstOrDefault()?.PaymentType ?? FiscalPaymentType.Cash;
 
 			AddMoneyPosition(fiscalDocument, paymentType, sum);
+			return true;
 		}
 
 		private static IEnumerable<OrderItemEntity> GetOrderItems(OrderEntity order)
@@ -589,12 +710,44 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				return Enumerable.Empty<OrderItemEntity>();
 			}
 
-			if(order is Order domainOrder)
+			var result = new List<OrderItemEntity>();
+			var seen = new HashSet<int>();
+
+			void AddItems(IEnumerable<OrderItemEntity> items)
 			{
-				return domainOrder.OrderItems ?? Enumerable.Empty<OrderItemEntity>();
+				if(items == null)
+				{
+					return;
+				}
+
+				foreach(var item in items)
+				{
+					if(item == null)
+					{
+						continue;
+					}
+
+					if(item.Id > 0)
+					{
+						if(!seen.Add(item.Id))
+						{
+							continue;
+						}
+					}
+
+					result.Add(item);
+				}
 			}
 
-			return order.OrderItems ?? Enumerable.Empty<OrderItemEntity>();
+			if(order is Order domainOrder)
+			{
+				AddItems(domainOrder.OrderItems);
+				AddItems(domainOrder.ObservableOrderItems);
+			}
+
+			AddItems(order.OrderItems);
+
+			return result;
 		}
 
 		private static FiscalVat ResolveVat(EdoFiscalDocument sourceDocument, OrderItemEntity orderItem)
@@ -754,7 +907,13 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				return Math.Round(source.DiscountSum * (quantity / source.Quantity), 2);
 			}
 
-			var orderItem = source.OrderItems?.FirstOrDefault();
+			var fromSiblings = ResolveReturnDiscountFromSiblingInvent(sourceDocument, source, quantity);
+			if(fromSiblings > 0)
+			{
+				return fromSiblings;
+			}
+
+			var orderItem = ResolveReturnOrderItem(sourceDocument, source);
 			if(orderItem != null)
 			{
 				var orderDiscount = orderItem.OriginalDiscountMoney
@@ -763,7 +922,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 				var baseQty = orderItem.Count > 0
 					? orderItem.Count
-					: (orderItem.CurrentCount > 0 ? orderItem.CurrentCount : source.Quantity);
+					: (source.Quantity > 0 ? source.Quantity : quantity);
 
 				if(orderDiscount > 0 && baseQty > 0)
 				{
@@ -780,12 +939,75 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			return ResolveReturnDiscountFromSourceMoney(sourceDocument, source, quantity);
 		}
 
+		private static decimal ResolveReturnDiscountFromSiblingInvent(
+			EdoFiscalDocument sourceDocument,
+			FiscalInventPosition source,
+			decimal quantity)
+		{
+			if(sourceDocument?.InventPositions == null || string.IsNullOrWhiteSpace(source.Name))
+			{
+				return 0;
+			}
+
+			var sibling = sourceDocument.InventPositions
+				.Where(p => p != null
+					&& p.DiscountSum != 0
+					&& p.Quantity != 0
+					&& p.Price == source.Price
+					&& string.Equals(p.Name?.Trim(), source.Name.Trim(), StringComparison.OrdinalIgnoreCase))
+				.FirstOrDefault();
+
+			if(sibling == null)
+			{
+				return 0;
+			}
+
+			return Math.Round(sibling.DiscountSum * (quantity / sibling.Quantity), 2);
+		}
+
+		private static OrderItemEntity ResolveReturnOrderItem(
+			EdoFiscalDocument sourceDocument,
+			FiscalInventPosition source)
+		{
+			var linked = source.OrderItems?.FirstOrDefault(x => x != null);
+			if(linked != null)
+			{
+				return linked;
+			}
+
+			var order = sourceDocument?.ReceiptEdoTask?.FormalEdoRequest?.Order;
+			if(order == null || string.IsNullOrWhiteSpace(source.Name))
+			{
+				return null;
+			}
+
+			var matches = GetOrderItems(order)
+				.Where(x => x?.Nomenclature != null && InventNameMatchesNomenclature(source.Name, x.Nomenclature))
+				.ToList();
+
+			if(!matches.Any())
+			{
+				return null;
+			}
+
+			return matches.FirstOrDefault(x => x.OriginalDiscountMoney > 0)
+				?? matches.FirstOrDefault(x => x.DiscountMoney > 0)
+				?? matches.FirstOrDefault(x => x.Count > 0)
+				?? matches.FirstOrDefault();
+		}
+
 		private static decimal ResolveReturnDiscountFromSourceMoney(
 			EdoFiscalDocument sourceDocument,
 			FiscalInventPosition source,
 			decimal quantity)
 		{
-			if(sourceDocument?.InventPositions == null || sourceDocument.MoneyPositions == null || source.Quantity == 0)
+			if(sourceDocument?.InventPositions == null || source.Quantity == 0)
+			{
+				return 0;
+			}
+
+			var moneyPositions = sourceDocument.MoneyPositions;
+			if(moneyPositions == null || !moneyPositions.Any())
 			{
 				return 0;
 			}
@@ -797,7 +1019,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			}
 
 			var inventDiscountTotal = sourceDocument.InventPositions.Sum(p => p.DiscountSum);
-			var moneySum = sourceDocument.MoneyPositions.Sum(m => m.Sum);
+			var moneySum = moneyPositions.Sum(m => m.Sum);
 			var missingDiscount = inventGross - inventDiscountTotal - moneySum;
 			if(missingDiscount <= 0.01m)
 			{

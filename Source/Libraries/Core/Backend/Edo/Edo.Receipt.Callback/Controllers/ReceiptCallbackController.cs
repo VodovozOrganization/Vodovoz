@@ -75,9 +75,14 @@ namespace Edo.Receipt.Callback.Controllers
 					return;
 				}
 
-				if(document.Status == FiscalDocumentStatus.Completed)
+				if(document.Status == FiscalDocumentStatus.Completed
+					|| document.Status == FiscalDocumentStatus.Printed)
 				{
 					_logger.LogWarning("Чек с GUID {receiptGuid} уже завершен.", receiptGuid);
+
+					TryCompleteCorrectionProcess(uow, document);
+					await uow.CommitAsync(cancellationToken);
+
 					HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
 					return;
 				}
@@ -136,9 +141,28 @@ namespace Edo.Receipt.Callback.Controllers
 
 		private bool TryCompleteCorrectionProcess(IUnitOfWork uow, EdoFiscalDocument document)
 		{
+			if(document == null)
+			{
+				return false;
+			}
+
+			if(document.Status != FiscalDocumentStatus.Completed
+				&& document.Status != FiscalDocumentStatus.Printed
+				&& document.Stage != FiscalDocumentStage.Completed)
+			{
+				return false;
+			}
+
 			var processDocument = uow.Session.QueryOver<ReceiptCorrectionProcessDocument>()
 				.Where(x => x.DocumentGuid == document.DocumentGuid)
 				.SingleOrDefault();
+
+			if(processDocument == null)
+			{
+				processDocument = uow.Session.QueryOver<ReceiptCorrectionProcessDocument>()
+					.Where(x => x.EdoFiscalDocumentId == document.Id)
+					.SingleOrDefault();
+			}
 
 			if(processDocument == null)
 			{

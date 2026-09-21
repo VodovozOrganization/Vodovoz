@@ -163,7 +163,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					correctionTask,
 					process,
 					processDocument,
-					currentOrder: order);
+					currentOrder: order,
+					currentSnapshot: evaluation.CurrentSnapshot);
 				uow.Save(edoFiscalDocument);
 				processDocument.EdoFiscalDocumentId = edoFiscalDocument.Id;
 				uow.Save(processDocument);
@@ -237,6 +238,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			return new CorrectionEvaluation
 			{
 				PreviousSnapshot = previousSnapshot,
+				CurrentSnapshot = currentSnapshot,
 				ChangeSet = changeSet,
 				ChangeFingerprint = fingerprint,
 				ScenarioType = scenarioType,
@@ -318,6 +320,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 		private sealed class CorrectionEvaluation
 		{
 			public FiscalOrderSnapshot PreviousSnapshot { get; set; }
+
+			public FiscalOrderSnapshot CurrentSnapshot { get; set; }
 
 			public FiscalChangeSet ChangeSet { get; set; }
 

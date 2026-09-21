@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Application.Receipts.Correction;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Receipts;
 using Vodovoz.Settings.Edo;
 using EdoFiscalDocumentStatus = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus;
@@ -25,6 +26,7 @@ namespace Edo.Receipt.Sender
 		private readonly FiscalDocumentFactory _fiscalDocumentFactory;
 		private readonly CashboxClientProvider _cashboxClientProvider;
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
+		private readonly ReceiptCorrectionSaleCodesAssigner _saleCodesAssigner;
 
 		public ReceiptCorrectionSender(
 			ILogger<ReceiptCorrectionSender> logger,
@@ -33,7 +35,8 @@ namespace Edo.Receipt.Sender
 			ReceiptCorrectionFiscalDocumentBuilder fiscalDocumentBuilder,
 			FiscalDocumentFactory fiscalDocumentFactory,
 			CashboxClientProvider cashboxClientProvider,
-			IEdoReceiptSettings edoReceiptSettings)
+			IEdoReceiptSettings edoReceiptSettings,
+			ReceiptCorrectionSaleCodesAssigner saleCodesAssigner)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -47,6 +50,8 @@ namespace Edo.Receipt.Sender
 				?? throw new ArgumentNullException(nameof(cashboxClientProvider));
 			_edoReceiptSettings = edoReceiptSettings
 				?? throw new ArgumentNullException(nameof(edoReceiptSettings));
+			_saleCodesAssigner = saleCodesAssigner
+				?? throw new ArgumentNullException(nameof(saleCodesAssigner));
 		}
 
 		public async Task ProcessActiveCorrections(CancellationToken cancellationToken)
@@ -123,6 +128,7 @@ namespace Edo.Receipt.Sender
 				await RefreshInProgressDocuments(uow, process, cancellationToken);
 				if(TryFinishProcess(process))
 				{
+					await ReconcileProcessOrderPoolCodesAsync(uow, process, cancellationToken);
 					await SaveProcess(uow, process, cancellationToken);
 					return;
 				}
@@ -139,6 +145,7 @@ namespace Edo.Receipt.Sender
 				if(nextDocument == null)
 				{
 					TryFinishProcess(process);
+					await ReconcileProcessOrderPoolCodesAsync(uow, process, cancellationToken);
 					await SaveProcess(uow, process, cancellationToken);
 					return;
 				}
@@ -166,17 +173,27 @@ namespace Edo.Receipt.Sender
 		{
 			foreach(var processDocument in process.Documents
 				.Where(x => x.Status == ReceiptCorrectionProcessStatus.InProgress
-					&& x.EdoFiscalDocumentId.HasValue))
+					|| x.Status == ReceiptCorrectionProcessStatus.Pending))
 			{
-				var edoDocument = uow.GetById<EdoFiscalDocument>(processDocument.EdoFiscalDocumentId.Value);
+				var edoDocument = ResolveProcessEdoDocument(uow, processDocument);
 				if(edoDocument == null)
 				{
 					continue;
 				}
 
+				if(!processDocument.EdoFiscalDocumentId.HasValue)
+				{
+					processDocument.EdoFiscalDocumentId = edoDocument.Id;
+				}
+
 				if(IsFiscalizationFinished(edoDocument))
 				{
 					CompleteProcessDocument(processDocument, edoDocument);
+					continue;
+				}
+
+				if(processDocument.Status != ReceiptCorrectionProcessStatus.InProgress)
+				{
 					continue;
 				}
 
@@ -212,6 +229,24 @@ namespace Edo.Receipt.Sender
 
 				await uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
 			}
+		}
+
+		private static EdoFiscalDocument ResolveProcessEdoDocument(
+			IUnitOfWork uow,
+			ReceiptCorrectionProcessDocument processDocument)
+		{
+			if(processDocument.EdoFiscalDocumentId.HasValue)
+			{
+				var byId = uow.GetById<EdoFiscalDocument>(processDocument.EdoFiscalDocumentId.Value);
+				if(byId != null)
+				{
+					return byId;
+				}
+			}
+
+			return uow.Session.QueryOver<EdoFiscalDocument>()
+				.Where(x => x.DocumentGuid == processDocument.DocumentGuid)
+				.SingleOrDefault();
 		}
 
 		private async Task SendDocument(
@@ -265,6 +300,9 @@ namespace Edo.Receipt.Sender
 				return;
 			}
 
+			await _saleCodesAssigner.AssignAsync(uow, edoFiscalDocument, sourceDocument, cancellationToken);
+			await uow.SaveAsync(edoFiscalDocument, cancellationToken: cancellationToken);
+
 			var cashboxClient = await _cashboxClientProvider.GetCashboxAsync(cashboxId.Value, cancellationToken);
 			var fiscalDocument = _fiscalDocumentFactory.CreateFiscalDocument(edoFiscalDocument, sourceDocument);
 
@@ -295,7 +333,10 @@ namespace Edo.Receipt.Sender
 			else if(IsFiscalizationFinished(edoFiscalDocument))
 			{
 				CompleteProcessDocument(processDocument, edoFiscalDocument);
-				TryFinishProcess(process);
+				if(TryFinishProcess(process))
+				{
+					await ReconcileProcessOrderPoolCodesAsync(uow, process, cancellationToken);
+				}
 			}
 
 			await uow.SaveAsync(edoFiscalDocument, cancellationToken: cancellationToken);
@@ -411,6 +452,20 @@ namespace Edo.Receipt.Sender
 			}
 
 			return false;
+		}
+
+		private async Task ReconcileProcessOrderPoolCodesAsync(
+			IUnitOfWork uow,
+			ReceiptCorrectionProcess process,
+			CancellationToken cancellationToken)
+		{
+			var order = uow.GetById<OrderEntity>(process.OrderId);
+			if(order == null)
+			{
+				return;
+			}
+
+			await _saleCodesAssigner.ReconcileOrderPoolCodesAsync(uow, order, cancellationToken);
 		}
 
 		private static async Task SaveProcess(
