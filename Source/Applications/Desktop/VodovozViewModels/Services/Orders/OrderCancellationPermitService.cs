@@ -1,4 +1,4 @@
-using QS.Dialog;
+﻿using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.Utilities.Extensions;
@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Orders;
