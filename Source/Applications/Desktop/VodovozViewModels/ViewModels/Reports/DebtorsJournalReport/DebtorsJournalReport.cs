@@ -81,10 +81,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport
 					worksheet.Cell(i + 2, 11).Value = rows[i].LastOrderBottles;
 				}
 
-				worksheet.Column(4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+				worksheet.Range(1, 1, rows.Count + 2, 11).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
 				worksheet.Cell(rows.Count + 2, 9).Value = "Итого:";
-				worksheet.Cell(rows.Count + 2, 9).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 				worksheet.Cell(rows.Count + 2, 10).Value = rows.Sum(x => x.DebtByAddress);
 				worksheet.Cell(rows.Count + 2, 11).Value = rows.Sum(x => x.LastOrderBottles);
 
