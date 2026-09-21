@@ -146,18 +146,13 @@ namespace TaxcomEdo.Client
 					return new List<DocumentWithMessage>();
 				}
 
-				using(var responseStream = await response.Content.ReadAsStreamAsync())
-				{
-					var options = new JsonSerializerOptions(_jsonSerializerOptions);
-					options.Converters.Add(
-						new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-					);
+				var options = new JsonSerializerOptions(_jsonSerializerOptions);
+				options.Converters.Add(
+					new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+				);
 
-					var result = await JsonSerializer.DeserializeAsync<IEnumerable<DocumentWithMessage>>(
-						responseStream, options, cancellationToken);
-
-					return result;
-				}
+				var result = await response.Content.ReadFromJsonAsync<IEnumerable<DocumentWithMessage>>(options, cancellationToken);
+				return result;
 			}
 		}
 
