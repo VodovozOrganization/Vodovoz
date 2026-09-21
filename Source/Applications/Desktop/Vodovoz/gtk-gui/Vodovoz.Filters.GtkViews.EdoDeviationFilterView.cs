@@ -6,6 +6,8 @@ namespace Vodovoz.Filters.GtkViews
 	{
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
+		private global::Gamma.GtkWidgets.yVBox yvboxMain;
+
 		private global::Gtk.Table table1;
 
 		private global::QS.Widgets.GtkUI.DateRangePicker datepickerDeliveryDate;
@@ -68,6 +70,10 @@ namespace Vodovoz.Filters.GtkViews
 			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
 			w1.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
+			this.yvboxMain = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxMain.Name = "yvboxMain";
+			this.yvboxMain.Spacing = 6;
+			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(13)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
@@ -359,7 +365,12 @@ namespace Vodovoz.Filters.GtkViews
 			w25.RightAttach = ((uint)(4));
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(0));
-			w1.Add(this.table1);
+			this.yvboxMain.Add(this.table1);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.table1]));
+			w26.Position = 0;
+			w26.Expand = false;
+			w26.Fill = false;
+			w1.Add(this.yvboxMain);
 			this.GtkScrolledWindow.Add(w1);
 			this.Add(this.GtkScrolledWindow);
 			if ((this.Child != null))
