@@ -37,6 +37,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.CancellationReason)
 				.Column("cancellation_reason");
 
+			Map(x => x.WaitingProcessingTaskCreatedEvent)
+				.Column("waiting_processing_task_created_event");
+
 			HasMany(x => x.Problems)
 				.KeyColumn("edo_task_id")
 				.Cascade.AllDeleteOrphan()

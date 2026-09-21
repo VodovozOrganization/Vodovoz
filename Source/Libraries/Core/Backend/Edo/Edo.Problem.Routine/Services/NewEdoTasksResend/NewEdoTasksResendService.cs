@@ -68,7 +68,32 @@ namespace Edo.Problem.Routine.Services.NewEdoTasksResend
 						continue;
 					}
 
-					await _taskCreatedEventPublisher.Publish(task, cancellationToken);
+					if(!CanRetry(task))
+					{
+						_logger.LogWarning(
+							"Задача ЭДО {EdoTaskId} ({TaskType}) не может быть переотправлена. т.к. находится в ожидании обработки другим сервисом",
+							task.Id,
+							task.TaskType);
+						continue;
+					}
+
+					try
+					{
+						await _taskCreatedEventPublisher.Publish(task, cancellationToken);
+						task.UpdateWaitingProcessingTaskCreatedEvent(true);
+					}
+					catch(Exception e)
+					{
+						_logger.LogError(
+							e,
+							"При переотправке задачи ЭДО {EdoTaskId} ({TaskType}) произошла ошибка",
+							task.Id,
+							task.TaskType);
+					}
+					
+					await uow.SaveAsync(task, cancellationToken: cancellationToken);
+					await uow.CommitAsync(cancellationToken);
+					
 					resentTasksCount++;
 				}
 
@@ -78,6 +103,16 @@ namespace Edo.Problem.Routine.Services.NewEdoTasksResend
 
 				return resentTasksCount;
 			}
+		}
+
+		private bool CanRetry(OrderEdoTask task)
+		{
+			if(task.WaitingProcessingTaskCreatedEvent)
+			{
+				return false;
+			}
+			
+			return true;
 		}
 
 		private static bool IsSupportedTask(OrderEdoTask task) =>

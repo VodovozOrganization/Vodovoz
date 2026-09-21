@@ -154,7 +154,7 @@ namespace Edo.Problem.Routine.Services.OrderStatusProblem
 				}
 
 				_logger.LogDebug(
-					"Задача ЭДО {EdoTaskId}: статус заказа №{OrderId} не подхходит, пропускаем",
+					"Задача ЭДО {EdoTaskId}: статус заказа №{OrderId} не подходит, пропускаем",
 					edoTask.Id,
 					edoTask.FormalEdoRequest.Order.Id);
 				return false;
