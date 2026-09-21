@@ -81,6 +81,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			UseSlider = true;
 			TabName = "Журнал автомобилей";
 
+			CanWorkWithSemitrailers = currentPermissionService.ValidatePresetPermission(LogisticPermissions.CanWorkWithSemitrailers);
+
 			UpdateOnChanges(
 				typeof(Car),
 				typeof(CarModel),
@@ -89,6 +91,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 		}
+
+		private bool CanWorkWithSemitrailers { get; }
 
 		public ILifetimeScope LifetimeScope { get; }
 
@@ -290,6 +294,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			if(_filterViewModel.ExcludedCarTypesOfUse != null && _filterViewModel.ExcludedCarTypesOfUse.Any())
 			{
 				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).Not.IsIn(_filterViewModel.ExcludedCarTypesOfUse.ToArray());
+			}
+
+			if(!CanWorkWithSemitrailers)
+			{
+				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse)
+					.Not.IsIn(new[] { CarTypeOfUse.Semitrailer });
 			}
 
 			if(_filterViewModel.RestrictedCarOwnTypes != null)
