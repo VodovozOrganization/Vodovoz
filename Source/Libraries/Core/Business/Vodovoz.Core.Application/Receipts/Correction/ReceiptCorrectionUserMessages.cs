@@ -79,7 +79,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				case ReceiptCorrectionScenarioType.QuantityOrAmountDecrease:
 					return "уменьшение количества (возврат прихода)";
 				case ReceiptCorrectionScenarioType.QuantityOrAmountIncrease:
-					return "увеличение количества или суммы";
+					return "увеличение количества или суммы (возврат + новый приход)";
 				case ReceiptCorrectionScenarioType.DeliveryDateChange:
 					return "изменение даты доставки";
 				default:

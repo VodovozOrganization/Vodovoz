@@ -117,13 +117,13 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				case ReceiptCorrectionScenarioType.OrganizationChange:
 				case ReceiptCorrectionScenarioType.ClientChange:
 				case ReceiptCorrectionScenarioType.NomenclatureChange:
+				case ReceiptCorrectionScenarioType.QuantityOrAmountIncrease:
 					return new List<FiscalDocumentType>
 					{
 						FiscalDocumentType.Return,
 						FiscalDocumentType.Sale
 					};
 				case ReceiptCorrectionScenarioType.PaymentTypeChange:
-				case ReceiptCorrectionScenarioType.QuantityOrAmountIncrease:
 				case ReceiptCorrectionScenarioType.DeliveryDateChange:
 					return new List<FiscalDocumentType> { FiscalDocumentType.SaleCorrection };
 				default:
