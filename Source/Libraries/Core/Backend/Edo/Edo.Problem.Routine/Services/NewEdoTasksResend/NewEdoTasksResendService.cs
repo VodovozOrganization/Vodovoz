@@ -89,6 +89,8 @@ namespace Edo.Problem.Routine.Services.NewEdoTasksResend
 							"При переотправке задачи ЭДО {EdoTaskId} ({TaskType}) произошла ошибка",
 							task.Id,
 							task.TaskType);
+						
+						task.UpdateWaitingProcessingTaskCreatedEvent(false);
 					}
 					
 					await uow.SaveAsync(task, cancellationToken: cancellationToken);
