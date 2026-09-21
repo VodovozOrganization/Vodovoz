@@ -23,6 +23,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public interface IRouteListRepository
 	{
+		/// <summary>Возвращает действующие снятия стоп-листа водителя на указанный момент.</summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="driverId">Идентификатор водителя.</param>
+		/// <param name="at">Момент проверки.</param>
+		/// <returns>Действующие снятия стоп-листа.</returns>
+		IList<DriverStopListRemoval> GetActiveDriverStopListRemovals(IUnitOfWork uow, int driverId, DateTime at);
+
 		IEnumerable<RouteList> GetDriverRouteLists(IUnitOfWork uow, int driverId, DateTime? date = null, RouteListStatus? status = null);
 		IList<RouteList> GetRoutesAtDay(IUnitOfWork uow, DateTime dateForRouting, bool showCompleted, int[] onlyInGeographicGroup, int[] onlyWithDeliveryShifts);
 		QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds, bool onlyNonPrinted);
