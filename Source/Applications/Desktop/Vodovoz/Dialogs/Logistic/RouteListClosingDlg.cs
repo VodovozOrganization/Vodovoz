@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using CustomerNotifications.Contracts;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -32,6 +32,7 @@ using System.Text;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Application.Receipts.Correction;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Cash;
@@ -85,6 +86,7 @@ using Vodovoz.ViewWidgets.Logistics;
 using VodovozBusiness.EntityRepositories.Nodes;
 using VodovozBusiness.Services.Cash;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Receipts;
 using EnumItemClickedEventArgs = QS.Widgets.EnumItemClickedEventArgs;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -127,6 +129,7 @@ namespace Vodovoz
 		private IFlyerRepository _flyerRepository;
 		private IOrderContractUpdater _contractUpdater;
 		private OrderCancellationService _orderCancellationService;
+		private IOrderReceiptCorrectionHandler _orderReceiptCorrectionHandler;
 		IRouteListCashProcessingService _routeListCashProcessingService;
 		private ICarEventSettings _carEventSettings;
 
@@ -243,6 +246,7 @@ namespace Vodovoz
 			
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
+			_orderReceiptCorrectionHandler = _lifetimeScope.Resolve<IOrderReceiptCorrectionHandler>();
 			_routeListCashProcessingService = _lifetimeScope.Resolve<IRouteListCashProcessingService>();
 
 			_carEventSettings = _lifetimeScope.Resolve<ICarEventSettings>();
@@ -1149,6 +1153,38 @@ namespace Vodovoz
 				return false;
 			}
 
+			// Корректировку чека запускаем до перевода МЛ/заказов в OnClosing / UnloadingOnStock,
+			// иначе обработчик не срабатывает (через закрытие МЛ заказ всегда уходит на выгрузку).
+			var receiptCorrectionPreviews = Entity.Addresses
+				.Where(address => !_ignoreReceiptsForOrderIds.Contains(address.Order.Id))
+				.Select(address => (OrderId: address.Order.Id, Preview: _orderReceiptCorrectionHandler.TryGetCorrectionPreview(UoW, address.Order)))
+				.Where(x => x.Preview.WillStartProcess)
+				.ToList();
+
+			if(receiptCorrectionPreviews.Any())
+			{
+				var receiptCorrectionMessage = ReceiptCorrectionUserMessages.BuildConfirmationMessageForOrders(receiptCorrectionPreviews);
+				if(!MessageDialogHelper.RunQuestionDialog(receiptCorrectionMessage))
+				{
+					return false;
+				}
+
+				foreach(var preview in receiptCorrectionPreviews)
+				{
+					if(!_ignoreReceiptsForOrderIds.Contains(preview.OrderId))
+					{
+						_ignoreReceiptsForOrderIds.Add(preview.OrderId);
+					}
+				}
+			}
+
+			foreach(var address in Entity.Addresses)
+			{
+				_paymentFromBankClientController.UpdateAllocatedSum(UoW, address.Order);
+				_paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, address.Order);
+				_orderReceiptCorrectionHandler.TryStartCorrectionProcess(UoW, address.Order);
+			}
+
 			if(Entity.Status == RouteListStatus.Delivered)
 			{
 				_routeListService.ChangeStatusAndCreateTask(UoW, Entity,
@@ -1157,12 +1193,6 @@ namespace Vodovoz
 						: RouteListStatus.OnClosing,
 					CallTaskWorker
 				);
-			}
-
-			foreach(var address in Entity.Addresses)
-			{
-				_paymentFromBankClientController.UpdateAllocatedSum(UoW, address.Order);
-				_paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, address.Order);
 			}
 
 			UoW.Save();

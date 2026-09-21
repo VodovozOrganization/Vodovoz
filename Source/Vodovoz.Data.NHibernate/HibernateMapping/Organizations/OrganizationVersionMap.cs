@@ -18,8 +18,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 
 			References(x => x.Leader).Column("leader_id");
 			References(x => x.Accountant).Column("accountant_id");
+			References(x => x.Cashier).Column("cashier_id");
 			References(x => x.SignatureLeader).Column("signature_leader_id");
 			References(x => x.SignatureAccountant).Column("signature_accountant_id");
+			References(x => x.SignatureCashier).Column("signature_cashier_id");
 			References(x => x.Organization).Column("organization_id");
 		}
 	}

@@ -1,4 +1,4 @@
-﻿using Edo.Contracts.Messages.Events;
+using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -11,6 +11,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Receipts;
 using FiscalDocumentStatus = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus;
 
 namespace Edo.Receipt.Callback.Controllers
@@ -74,9 +75,14 @@ namespace Edo.Receipt.Callback.Controllers
 					return;
 				}
 
-				if(document.Status == FiscalDocumentStatus.Completed)
+				if(document.Status == FiscalDocumentStatus.Completed
+					|| document.Status == FiscalDocumentStatus.Printed)
 				{
 					_logger.LogWarning("Чек с GUID {receiptGuid} уже завершен.", receiptGuid);
+
+					TryCompleteCorrectionProcess(uow, document);
+					await uow.CommitAsync(cancellationToken);
+
 					HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
 					return;
 				}
@@ -100,7 +106,16 @@ namespace Edo.Receipt.Callback.Controllers
 				}
 
 				await uow.SaveAsync(document, cancellationToken: cancellationToken);
+
+				var isCorrectionDocument = TryCompleteCorrectionProcess(uow, document);
+
 				await uow.CommitAsync(cancellationToken);
+
+				if(isCorrectionDocument)
+				{
+					HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+					return;
+				}
 
 				try
 				{
@@ -122,6 +137,59 @@ namespace Edo.Receipt.Callback.Controllers
 
 				HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
 			}
+		}
+
+		private bool TryCompleteCorrectionProcess(IUnitOfWork uow, EdoFiscalDocument document)
+		{
+			if(document == null)
+			{
+				return false;
+			}
+
+			if(document.Status != FiscalDocumentStatus.Completed
+				&& document.Status != FiscalDocumentStatus.Printed
+				&& document.Stage != FiscalDocumentStage.Completed)
+			{
+				return false;
+			}
+
+			var processDocument = uow.Session.QueryOver<ReceiptCorrectionProcessDocument>()
+				.Where(x => x.DocumentGuid == document.DocumentGuid)
+				.SingleOrDefault();
+
+			if(processDocument == null)
+			{
+				processDocument = uow.Session.QueryOver<ReceiptCorrectionProcessDocument>()
+					.Where(x => x.EdoFiscalDocumentId == document.Id)
+					.SingleOrDefault();
+			}
+
+			if(processDocument == null)
+			{
+				return false;
+			}
+
+			processDocument.Status = ReceiptCorrectionProcessStatus.Completed;
+			processDocument.EdoFiscalDocumentId = document.Id;
+			processDocument.ErrorDescription = null;
+
+			var process = processDocument.Process;
+			if(process.Documents.All(x => x.Status == ReceiptCorrectionProcessStatus.Completed))
+			{
+				process.Status = ReceiptCorrectionProcessStatus.Completed;
+				process.CompletedDate = DateTime.Now;
+				process.ErrorDescription = null;
+			}
+
+			uow.Save(processDocument);
+			uow.Save(process);
+
+			_logger.LogInformation(
+				"Процесс корректировки чека {ProcessId} обновил документ {DocumentGuid} по callback.",
+				process.Id,
+				document.DocumentGuid);
+
+			return true;
 		}
 
 		private async Task<bool> TryUpdateReceiptInfoFromCashbox(EdoFiscalDocument document, CancellationToken cancellationToken)

@@ -36,6 +36,8 @@ namespace Vodovoz.Views.Organization
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeAccountant;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeCashier;
+
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeLeader;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
@@ -58,7 +60,13 @@ namespace Vodovoz.Views.Organization
 
 		private global::Gtk.Label label6;
 
+		private global::Gtk.Label labelCashier;
+
+		private global::Gtk.Label labelSignatureCashier;
+
 		private global::Gamma.Widgets.ySpecComboBox yCmbCurrentSignatureAccountant;
+
+		private global::Gamma.Widgets.ySpecComboBox yCmbCurrentSignatureCashier;
 
 		private global::Gamma.Widgets.ySpecComboBox yCmbCurrentSignatureLeader;
 
@@ -187,7 +195,7 @@ namespace Vodovoz.Views.Organization
 			global::Gtk.Viewport w10 = new global::Gtk.Viewport();
 			w10.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.datatableMain = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
+			this.datatableMain = new global::Gtk.Table(((uint)(8)), ((uint)(2)), false);
 			this.datatableMain.Name = "datatableMain";
 			this.datatableMain.RowSpacing = ((uint)(6));
 			this.datatableMain.ColumnSpacing = ((uint)(6));
@@ -206,6 +214,47 @@ namespace Vodovoz.Views.Organization
 			w11.RightAttach = ((uint)(2));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.evmeCashier = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.evmeCashier.Events = ((global::Gdk.EventMask)(256));
+			this.evmeCashier.Name = "evmeCashier";
+			this.evmeCashier.CanEditReference = true;
+			this.evmeCashier.CanOpenWithoutTabParent = false;
+			this.datatableMain.Add(this.evmeCashier);
+			global::Gtk.Table.TableChild w11b = ((global::Gtk.Table.TableChild)(this.datatableMain[this.evmeCashier]));
+			w11b.TopAttach = ((uint)(3));
+			w11b.BottomAttach = ((uint)(4));
+			w11b.LeftAttach = ((uint)(1));
+			w11b.RightAttach = ((uint)(2));
+			w11b.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11b.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.labelSignatureCashier = new global::Gtk.Label();
+			this.labelSignatureCashier.Name = "labelSignatureCashier";
+			this.labelSignatureCashier.Xalign = 1F;
+			this.labelSignatureCashier.LabelProp = global::Mono.Unix.Catalog.GetString("Подпись кассира:");
+			this.datatableMain.Add(this.labelSignatureCashier);
+			global::Gtk.Table.TableChild wSigCashLbl = ((global::Gtk.Table.TableChild)(this.datatableMain[this.labelSignatureCashier]));
+			wSigCashLbl.TopAttach = ((uint)(4));
+			wSigCashLbl.BottomAttach = ((uint)(5));
+			wSigCashLbl.XOptions = ((global::Gtk.AttachOptions)(4));
+			wSigCashLbl.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.yCmbCurrentSignatureCashier = new global::Gamma.Widgets.ySpecComboBox();
+			this.yCmbCurrentSignatureCashier.Name = "yCmbCurrentSignatureCashier";
+			this.yCmbCurrentSignatureCashier.AddIfNotExist = false;
+			this.yCmbCurrentSignatureCashier.DefaultFirst = false;
+			this.yCmbCurrentSignatureCashier.ShowSpecialStateAll = false;
+			this.yCmbCurrentSignatureCashier.ShowSpecialStateNot = false;
+			this.yCmbCurrentSignatureCashier.NameForSpecialStateNot = "Выберите отдел";
+			this.datatableMain.Add(this.yCmbCurrentSignatureCashier);
+			global::Gtk.Table.TableChild wSigCashCmb = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yCmbCurrentSignatureCashier]));
+			wSigCashCmb.TopAttach = ((uint)(4));
+			wSigCashCmb.BottomAttach = ((uint)(5));
+			wSigCashCmb.LeftAttach = ((uint)(1));
+			wSigCashCmb.RightAttach = ((uint)(2));
+			wSigCashCmb.XOptions = ((global::Gtk.AttachOptions)(4));
+			wSigCashCmb.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.evmeLeader = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.evmeLeader.Events = ((global::Gdk.EventMask)(256));
@@ -231,8 +280,8 @@ namespace Vodovoz.Views.Organization
 			this.GtkScrolledWindow1.Add(this.datatextviewJurAddress);
 			this.datatableMain.Add(this.GtkScrolledWindow1);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.GtkScrolledWindow1]));
-			w14.TopAttach = ((uint)(5));
-			w14.BottomAttach = ((uint)(6));
+			w14.TopAttach = ((uint)(7));
+			w14.BottomAttach = ((uint)(8));
 			w14.LeftAttach = ((uint)(1));
 			w14.RightAttach = ((uint)(2));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -250,8 +299,8 @@ namespace Vodovoz.Views.Organization
 			this.GtkScrolledWindow2.Add(this.datatextviewAddress);
 			this.datatableMain.Add(this.GtkScrolledWindow2);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.GtkScrolledWindow2]));
-			w16.TopAttach = ((uint)(4));
-			w16.BottomAttach = ((uint)(5));
+			w16.TopAttach = ((uint)(6));
+			w16.BottomAttach = ((uint)(7));
 			w16.LeftAttach = ((uint)(1));
 			w16.RightAttach = ((uint)(2));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -277,14 +326,25 @@ namespace Vodovoz.Views.Organization
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
+			this.labelCashier = new global::Gtk.Label();
+			this.labelCashier.Name = "labelCashier";
+			this.labelCashier.Xalign = 1F;
+			this.labelCashier.LabelProp = global::Mono.Unix.Catalog.GetString("Кассир:");
+			this.datatableMain.Add(this.labelCashier);
+			global::Gtk.Table.TableChild w18b = ((global::Gtk.Table.TableChild)(this.datatableMain[this.labelCashier]));
+			w18b.TopAttach = ((uint)(3));
+			w18b.BottomAttach = ((uint)(4));
+			w18b.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18b.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.label15 = new global::Gtk.Label();
 			this.label15.Name = "label15";
 			this.label15.Xalign = 1F;
 			this.label15.LabelProp = global::Mono.Unix.Catalog.GetString("Подпись ГБ:");
 			this.datatableMain.Add(this.label15);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label15]));
-			w19.TopAttach = ((uint)(3));
-			w19.BottomAttach = ((uint)(4));
+			w19.TopAttach = ((uint)(5));
+			w19.BottomAttach = ((uint)(6));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
@@ -306,8 +366,8 @@ namespace Vodovoz.Views.Organization
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Адрес:");
 			this.datatableMain.Add(this.label5);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label5]));
-			w21.TopAttach = ((uint)(4));
-			w21.BottomAttach = ((uint)(5));
+			w21.TopAttach = ((uint)(6));
+			w21.BottomAttach = ((uint)(7));
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
@@ -318,8 +378,8 @@ namespace Vodovoz.Views.Organization
 			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Юр. адрес:");
 			this.datatableMain.Add(this.label6);
 			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label6]));
-			w22.TopAttach = ((uint)(5));
-			w22.BottomAttach = ((uint)(6));
+			w22.TopAttach = ((uint)(7));
+			w22.BottomAttach = ((uint)(8));
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
@@ -332,8 +392,8 @@ namespace Vodovoz.Views.Organization
 			this.yCmbCurrentSignatureAccountant.NameForSpecialStateNot = "Выберите отдел";
 			this.datatableMain.Add(this.yCmbCurrentSignatureAccountant);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yCmbCurrentSignatureAccountant]));
-			w23.TopAttach = ((uint)(3));
-			w23.BottomAttach = ((uint)(4));
+			w23.TopAttach = ((uint)(5));
+			w23.BottomAttach = ((uint)(6));
 			w23.LeftAttach = ((uint)(1));
 			w23.RightAttach = ((uint)(2));
 			w23.XOptions = ((global::Gtk.AttachOptions)(4));

@@ -152,6 +152,15 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
+			if(HasPrebuiltCorrectionFiscalDocuments(receiptEdoTask))
+			{
+				_logger.LogInformation(
+					"Задача Id {EdoTaskId} уже содержит корректирующие/возвратные фискальные документы. " +
+					"Подготовка через ReceiptTaskCreated пропущена (отправка через ReceiptCorrectionSender).",
+					receiptEdoTask.Id);
+				return;
+			}
+
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
 			if(_edoCancellationService.IsEdoTaskMustBeCancelled(receiptEdoTask))
@@ -530,8 +539,42 @@ namespace Edo.Receipt.Dispatcher
 		/// <param name="receiptEdoTask"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
+		private static bool HasPrebuiltCorrectionFiscalDocuments(ReceiptEdoTask receiptEdoTask)
+		{
+			return receiptEdoTask.FiscalDocuments != null
+				&& receiptEdoTask.FiscalDocuments.Any(IsPrebuiltCorrectionFiscalDocument);
+		}
+
+		private static bool IsPrebuiltCorrectionFiscalDocument(EdoFiscalDocument document)
+		{
+			if(document == null)
+			{
+				return false;
+			}
+
+			if(document.DocumentType == FiscalDocumentType.Return
+				|| document.DocumentType == FiscalDocumentType.SaleCorrection
+				|| document.DocumentType == FiscalDocumentType.SaleReturnCorrection)
+			{
+				return true;
+			}
+
+			var number = document.DocumentNumber ?? string.Empty;
+			return number.IndexOf("_c", StringComparison.OrdinalIgnoreCase) >= 0
+				&& (number.EndsWith("_ret", StringComparison.OrdinalIgnoreCase)
+					|| number.EndsWith("_sale", StringComparison.OrdinalIgnoreCase));
+		}
+
 		private async Task PrepareFiscalDocuments(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
+			if(HasPrebuiltCorrectionFiscalDocuments(receiptEdoTask))
+			{
+				_logger.LogInformation(
+					"Пропуск пересборки фискальных документов для задачи Id {EdoTaskId}: уже есть корректирующие/возвратные документы.",
+					receiptEdoTask.Id);
+				return;
+			}
+
 			var order = receiptEdoTask.FormalEdoRequest.Order;
 
 			//получаем продуктовые коды, но только те, в которые не входят консолидированные идентификационные коды
@@ -545,7 +588,7 @@ namespace Edo.Receipt.Dispatcher
 			await UpdateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, cancellationToken);
 
 			//создать или обновить сумму в чеках
-			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
+			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments.Where(x => !IsPrebuiltCorrectionFiscalDocument(x)))
 			{
 				UpdateReceiptMoneyPositions(fiscalDocument);
 			}
@@ -614,7 +657,7 @@ namespace Edo.Receipt.Dispatcher
 			var unmarkedOrderItems = pricedOrderItems
 				.Where(x => x.Nomenclature.IsAccountableInTrueMark == false);
 
-			var fiscalDocument = PrepareFiscalDocument(receiptEdoTask, 0);
+			var fiscalDocument = PreparePrimarySaleFiscalDocument(receiptEdoTask);
 
 			fiscalDocument.InventPositions.Clear();
 			fiscalDocument.MoneyPositions.Clear();
@@ -1409,10 +1452,31 @@ namespace Edo.Receipt.Dispatcher
 			return IndustryRequisitePrepareResult.NeedToChange;
 		}
 
+		private EdoFiscalDocument PreparePrimarySaleFiscalDocument(ReceiptEdoTask receiptEdoTask)
+		{
+			var primarySale = receiptEdoTask.FiscalDocuments
+				.Where(x => x.DocumentType == FiscalDocumentType.Sale && !IsPrebuiltCorrectionFiscalDocument(x))
+				.OrderBy(x => x.Index)
+				.ThenBy(x => x.Id)
+				.FirstOrDefault();
+
+			if(primarySale != null)
+			{
+				return primarySale;
+			}
+
+			return PrepareFiscalDocument(receiptEdoTask, 0);
+		}
+
 		private EdoFiscalDocument PrepareFiscalDocument(ReceiptEdoTask receiptEdoTask, int documentIndex)
 		{
 			var order = receiptEdoTask.FormalEdoRequest.Order;
 			var fiscalDocument = receiptEdoTask.FiscalDocuments.FirstOrDefault(x => x.Index == documentIndex);
+
+			if(fiscalDocument != null && IsPrebuiltCorrectionFiscalDocument(fiscalDocument))
+			{
+				fiscalDocument = null;
+			}
 
 			if(fiscalDocument == null)
 			{

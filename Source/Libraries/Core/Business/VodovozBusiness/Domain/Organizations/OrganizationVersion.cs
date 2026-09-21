@@ -16,6 +16,7 @@ namespace Vodovoz.Domain.Logistic.Organizations
 	{
 		private Employee _leader;
 		private Employee _accountant;
+		private Employee _cashier;
 		private Organization _organization;
 
 
@@ -40,9 +41,17 @@ namespace Vodovoz.Domain.Logistic.Organizations
 			set => SetField(ref _accountant, value);
 		}
 
+		[Display(Name = "Кассир")]
+		public virtual new Employee Cashier
+		{
+			get => _cashier;
+			set => SetField(ref _cashier, value);
+		}
+
 		public override string ToString() => $"Версия организации №{Id}";
 		public virtual string LeaderShortName => Leader?.ShortName;
 		public virtual string AccountantShortName => Accountant?.ShortName;
+		public virtual string CashierShortName => Cashier?.ShortName;
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
@@ -56,9 +65,19 @@ namespace Vodovoz.Domain.Logistic.Organizations
 				yield return new ValidationResult("Бухгалтер не выбран.", new[] { nameof(Accountant) });
 			}
 
+			if(Cashier == null)
+			{
+				yield return new ValidationResult("Кассир не выбран.", new[] { nameof(Cashier) });
+			}
+
 			if(SignatureAccountant == null)
 			{
 				yield return new ValidationResult("Подпись бухгалтера не выбрана.", new[] { nameof(SignatureAccountant) });
+			}
+
+			if(SignatureCashier == null)
+			{
+				yield return new ValidationResult("Подпись кассира не выбрана.", new[] { nameof(SignatureCashier) });
 			}
 
 			if(SignatureLeader == null)
