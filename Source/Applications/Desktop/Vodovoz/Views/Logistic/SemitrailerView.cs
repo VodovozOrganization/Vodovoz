@@ -23,10 +23,19 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.AskSaveOnClose, w => w.Sensitive)
 				.InitializeFromSource();
 
-			vehicleNumberEntry.Binding
-				.AddBinding(ViewModel.Entity, e => e.RegistrationNumber, w => w.Number)
+			ycheckbuttonIsArchive.Binding
+				.AddBinding(ViewModel, vm => vm.IsArchive, w => w.Active)
+				.InitializeFromSource();
+
+			validatedentryVehicleNumber.Binding
+				.AddBinding(ViewModel.Entity, e => e.RegistrationNumber, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
 				.InitializeFromSource();
+
+			validatedentryVehicleNumber.CustomRegex = @"^[АВЕКМНОРСТУХ]{2}\d{4}\s?\d{2,3}$";
+
+			carVersionsView.ViewModel = ViewModel.CarVersionsViewModel;
+			carversioneditingview.ViewModel = ViewModel.CarVersionEditingViewModel;
 
 			entryCarModel.ViewModel = ViewModel.CarModelViewModel;
 

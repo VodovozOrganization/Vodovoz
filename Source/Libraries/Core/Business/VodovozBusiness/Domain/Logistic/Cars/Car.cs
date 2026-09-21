@@ -1,19 +1,19 @@
-﻿using QS.Attachments.Domain;
+﻿using Microsoft.Extensions.DependencyInjection;
+using NHibernate.Criterion;
+using QS.Attachments.Domain;
+using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
+using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using QS.DomainModel.UoW;
-using QS.Services;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
-using VodovozBusiness.Domain.Logistic;
-using QS.Extensions.Observable.Collections.List;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
@@ -387,17 +387,17 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Гос. номер автомобиля должен быть заполнен", new[] { nameof(RegistrationNumber) });
 			}
 
-			if(FuelType is null)
-			{
-				yield return new ValidationResult("Тип топлива должен быть заполнен", new[] { nameof(FuelType) });
-			}
-
 			if(CarModel is null)
 			{
 				yield return new ValidationResult("Модель должна быть заполнена", new[] { nameof(CarModel) });
 			}
 
-			if(FuelConsumption <= 0)
+			if(FuelType is null && CarModel != null && CarModel.CarTypeOfUse != CarTypeOfUse.Semitrailer)
+			{
+				yield return new ValidationResult("Тип топлива должен быть заполнен", new[] { nameof(FuelType) });
+			}
+
+			if(FuelConsumption <= 0 && CarModel != null && CarModel.CarTypeOfUse != CarTypeOfUse.Semitrailer)
 			{
 				yield return new ValidationResult("Расход топлива должен быть больше 0", new[] { nameof(FuelConsumption) });
 			}
@@ -407,14 +407,48 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Должен быть указан канал поступления", new[] { nameof(IncomeChannel) });
 			}
 
-			var cars = UoW.Session.QueryOver<Car>()
-				.Where(c => c.RegistrationNumber == RegistrationNumber)
-				.WhereNot(c => c.Id == Id)
-				.List();
+			var duplicateConditions = Restrictions.Disjunction();
 
-			if(cars.Any())
+			duplicateConditions.Add(Restrictions.Eq(Projections.Property<Car>(c => c.RegistrationNumber), RegistrationNumber));
+
+			if(!string.IsNullOrWhiteSpace(VIN))
 			{
-				yield return new ValidationResult("Автомобиль уже существует", new[] { "Duplication" });
+				duplicateConditions.Add(Restrictions.Eq(Projections.Property<Car>(c => c.VIN), VIN));
+			}
+
+			if(!string.IsNullOrWhiteSpace(ChassisNumber))
+			{
+				duplicateConditions.Add(Restrictions.Eq(Projections.Property<Car>(c => c.ChassisNumber), ChassisNumber));
+			}
+
+			var duplicateCar = UoW.Session.QueryOver<Car>()
+				.Where(c => c.Id != Id)
+				.And(duplicateConditions)
+				.List()
+				.FirstOrDefault();
+
+			if(duplicateCar != null)
+			{
+				if(duplicateCar.RegistrationNumber == RegistrationNumber)
+				{
+					yield return new ValidationResult(
+						$"Автомобиль с гос. номером {RegistrationNumber} уже существует",
+						new[] { nameof(RegistrationNumber) });
+				}
+
+				if(!string.IsNullOrWhiteSpace(VIN) && duplicateCar.VIN == VIN)
+				{
+					yield return new ValidationResult(
+						$"Автомобиль с VIN {VIN} уже существует",
+						new[] { nameof(VIN) });
+				}
+
+				if(!string.IsNullOrWhiteSpace(ChassisNumber) && duplicateCar.ChassisNumber == ChassisNumber)
+				{
+					yield return new ValidationResult(
+						$"Автомобиль с номером шасси {ChassisNumber} уже существует",
+						new[] { nameof(ChassisNumber) });
+				}
 			}
 
 			if(!CarVersions.Any())

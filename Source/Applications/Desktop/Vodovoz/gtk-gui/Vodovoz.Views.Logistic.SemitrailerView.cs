@@ -96,7 +96,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yLabel ylabelvehicleNumberEntry;
 
-		private global::QS.Widgets.GtkUI.VehicleRegistrationNumberEntry vehicleNumberEntry;
+		private global::QS.Widgets.ValidatedEntry validatedentryVehicleNumber;
 
 		private global::Gamma.GtkWidgets.yHBox yhboxVIN;
 
@@ -110,7 +110,11 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yLabel ylabelVersions;
 
+		private global::Gamma.GtkWidgets.yHBox yhbox1;
+
 		private global::Vodovoz.Views.Logistic.CarVersionsView carVersionsView;
+
+		private global::Vodovoz.Views.Logistic.CarVersionEditingView carversioneditingview;
 
 		protected virtual void Build()
 		{
@@ -560,11 +564,13 @@ namespace Vodovoz.Views.Logistic
 			w44.Expand = false;
 			w44.Fill = false;
 			// Container child yhboxVehicleNumber.Gtk.Box+BoxChild
-			this.vehicleNumberEntry = new global::QS.Widgets.GtkUI.VehicleRegistrationNumberEntry();
-			this.vehicleNumberEntry.Events = ((global::Gdk.EventMask)(256));
-			this.vehicleNumberEntry.Name = "vehicleNumberEntry";
-			this.yhboxVehicleNumber.Add(this.vehicleNumberEntry);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.yhboxVehicleNumber[this.vehicleNumberEntry]));
+			this.validatedentryVehicleNumber = new global::QS.Widgets.ValidatedEntry();
+			this.validatedentryVehicleNumber.CanFocus = true;
+			this.validatedentryVehicleNumber.Name = "validatedentryVehicleNumber";
+			this.validatedentryVehicleNumber.IsEditable = true;
+			this.validatedentryVehicleNumber.InvisibleChar = '•';
+			this.yhboxVehicleNumber.Add(this.validatedentryVehicleNumber);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.yhboxVehicleNumber[this.validatedentryVehicleNumber]));
 			w45.Position = 1;
 			this.tableCarData.Add(this.yhboxVehicleNumber);
 			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.yhboxVehicleNumber]));
@@ -630,25 +636,43 @@ namespace Vodovoz.Views.Logistic
 			w52.Expand = false;
 			w52.Fill = false;
 			// Container child yvboxVersions.Gtk.Box+BoxChild
+			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox1.Name = "yhbox1";
+			this.yhbox1.Spacing = 6;
+			// Container child yhbox1.Gtk.Box+BoxChild
 			this.carVersionsView = new global::Vodovoz.Views.Logistic.CarVersionsView();
 			this.carVersionsView.HeightRequest = 200;
 			this.carVersionsView.Events = ((global::Gdk.EventMask)(256));
 			this.carVersionsView.Name = "carVersionsView";
-			this.yvboxVersions.Add(this.carVersionsView);
-			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.yvboxVersions[this.carVersionsView]));
-			w53.Position = 1;
+			this.yhbox1.Add(this.carVersionsView);
+			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.carVersionsView]));
+			w53.Position = 0;
 			w53.Expand = false;
 			w53.Fill = false;
-			this.yhboxVersions.Add(this.yvboxVersions);
-			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.yhboxVersions[this.yvboxVersions]));
-			w54.Position = 0;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.carversioneditingview = new global::Vodovoz.Views.Logistic.CarVersionEditingView();
+			this.carversioneditingview.Events = ((global::Gdk.EventMask)(256));
+			this.carversioneditingview.Name = "carversioneditingview";
+			this.yhbox1.Add(this.carversioneditingview);
+			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.carversioneditingview]));
+			w54.Position = 1;
 			w54.Expand = false;
 			w54.Fill = false;
-			this.yvboxWrapper.Add(this.yhboxVersions);
-			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.yvboxWrapper[this.yhboxVersions]));
+			this.yvboxVersions.Add(this.yhbox1);
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.yvboxVersions[this.yhbox1]));
 			w55.Position = 1;
 			w55.Expand = false;
 			w55.Fill = false;
+			this.yhboxVersions.Add(this.yvboxVersions);
+			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.yhboxVersions[this.yvboxVersions]));
+			w56.Position = 0;
+			w56.Expand = false;
+			w56.Fill = false;
+			this.yvboxWrapper.Add(this.yhboxVersions);
+			global::Gtk.Box.BoxChild w57 = ((global::Gtk.Box.BoxChild)(this.yvboxWrapper[this.yhboxVersions]));
+			w57.Position = 1;
+			w57.Expand = false;
+			w57.Fill = false;
 			this.Add(this.yvboxWrapper);
 			if ((this.Child != null))
 			{
