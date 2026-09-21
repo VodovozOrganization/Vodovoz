@@ -178,21 +178,21 @@ namespace EdoDocumentFlowUpdater
 							"Обрабатываем полученные исходящие документообороты {DocFlowUpdatesCount}",
 							docFlowUpdates.Updates.Count());
 
-						foreach(var item in docFlowUpdates.Updates)
+						foreach(var docflowUpdate in docFlowUpdates.Updates)
 						{
 							EdoContainer container = null;
 							EdoDocFlowDocument mainDocument = null;
 
-							if(item.Documents.Any())
+							if(docflowUpdate.Documents.Any())
 							{
-								mainDocument = item.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.ExternalIdentifier));
+								mainDocument = docflowUpdate.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.ExternalIdentifier));
 
 								if(mainDocument is null)
 								{
 									_logger.LogWarning(
 										"Исходящий ДО {DocflowId} со статусом {DocflowStatus} пришел без главного документа или с неизвестным документом. Возможно ручная отправка...",
-										item.Id,
-										item.Status);
+										docflowUpdate.Id,
+										docflowUpdate.Status);
 									continue;
 								}
 
@@ -202,29 +202,33 @@ namespace EdoDocumentFlowUpdater
 							{
 								_logger.LogWarning(
 									"Исходящий ДО {DocflowId} со статусом {DocflowStatus} пришел без документов",
-									item.Id,
-									item.Status);
+									docflowUpdate.Id,
+									docflowUpdate.Status);
 								continue;
 							}
 
 							_logger.LogInformation(
 								"Обрабатываем полученные изменения исходящего ДО {DocflowId} со статусом {DocflowStatus} транзакция {Transaction}",
-								item.Id,
-								item.Status,
+								docflowUpdate.Id,
+								docflowUpdate.Status,
 								mainDocument.TransactionCode);
 
 							if(container != null)
 							{
-								await TryUpdateEdoContainer(cancellationToken, container, item, mainDocument, taxcomApiClient, uow);
+								await TryUpdateEdoContainer(cancellationToken, container, docflowUpdate, mainDocument, taxcomApiClient, uow);
 							}
 							else
 							{
-								await SendOutgoingTaxcomDocflowUpdatedEvent(item, mainDocument, cancellationToken);
+								await SendOutgoingTaxcomDocflowUpdatedEvent(docflowUpdate, mainDocument, cancellationToken);
 							}
 
-							_lastEventsProcessTime.LastProcessedEventOutgoingDocuments = item.StatusChangeDateTime;
+							await UpdateDocflowServiceDocumentMessage(uow, docflowUpdate, taxcomApiClient, cancellationToken);
+
+							_lastEventsProcessTime.LastProcessedEventOutgoingDocuments = docflowUpdate.StatusChangeDateTime;
 						}
 					} while(!docFlowUpdates.IsLast);
+
+					await uow.CommitAsync(cancellationToken);
 				}
 			}
 			catch(Exception e)
@@ -254,8 +258,8 @@ namespace EdoDocumentFlowUpdater
 			/*var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
 			var isReceived = recievedStatuses.Contains(docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);*/
 
-			var isReceived =
-				docflow.Documents.FirstOrDefault(x => x.TransactionCode == _postDateConfirmation) != null;
+			var isReceived = docflow.Documents
+				.FirstOrDefault(x => x.TransactionCode == _postDateConfirmation) != null;
 
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent
 			{
@@ -344,13 +348,9 @@ namespace EdoDocumentFlowUpdater
 						{
 							await SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(docflowUpdate, organization.Name, cancellationToken);
 							_lastEventsProcessTime.LastProcessedEventIngoingDocuments = docflowUpdate.StatusChangeDateTime;
-
-							await UpdateDocflowServiceDocumentMessage(uow, docflowUpdate, taxcomApiClient, cancellationToken);
 						}
 
 					} while(!docFlowUpdates.IsLast);
-
-					await uow.CommitAsync(cancellationToken);
 				}
 			}
 			catch(Exception e)
