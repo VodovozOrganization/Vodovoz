@@ -93,5 +93,13 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				}
 				).ToList();
 		}
+
+		/// <inheritdoc/>
+		public IList<ExternalCounterparty> GetByPhoneId(IUnitOfWork uow, int phoneId)
+		{
+			return uow.Session.Query<ExternalCounterparty>()
+				.Where(ec => ec.Phone.Id == phoneId)
+				.ToList();
+		}
 	}
 }

@@ -121,6 +121,13 @@ namespace EdoService.Library
 		Result<string> ResendEdoDocumentForOrder(int taskId);
 
 		/// <summary>
+		/// Переотправляет УПД с аннулированием текущего документооборота.
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи документа.</param>
+		/// <returns>Результат запуска переотправки.</returns>
+		Result<string> ResendEdoDocumentWithCancellation(int taskId);
+
+		/// <summary>
 		/// Повторно запускает существующую новую задачу ЭДО
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи ЭДО</param>
@@ -128,11 +135,11 @@ namespace EdoService.Library
 		Result<string> ResendNewEdoTask(int taskId);
 
 		/// <summary>
-		/// Ставит документ в очередь на переотправку после отмены вывода кодов из оборота в ЧЗ.
+		/// Переотправляет документ ЭДО с исходными кодами маркировки.
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи</param>
-		/// <returns>Результат постановки в очередь</returns>
-		Result<string> ScheduleResendEdoDocumentAfterTrueMarkCancellation(int taskId);
+		/// <returns>Результат переотправки документа</returns>
+		Result<string> ResendEdoDocumentWithOriginalCodes(int taskId);
 
 		/// <summary>
 		/// Переотправляет документ ЭДО с подбором новых кодов ЧЗ из пула.
@@ -208,5 +215,19 @@ namespace EdoService.Library
 			Guid? docflowId,
 			int organizationId,
 			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Проверяет возможность переотправки документа через событие OrderDocumentSendEvent
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>True - если возможность есть, False - если нет</returns>
+		bool CanResendViaEdoRequestCreatedEvent(int taskId);
+
+		/// <summary>
+		/// Переотправляет документ через событие OrderDocumentSendEvent
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Рещультат отправки</returns>
+		Task<Result<string>> TryResendViaOrderDocumentSendEventAsync(int taskId);
 	}
 }

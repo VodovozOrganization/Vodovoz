@@ -1,32 +1,33 @@
-﻿using System;
-using System.Linq;
 using Core.Infrastructure;
 using Edo.Contracts.Messages.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 using Taxcom.Client.Api;
 using Taxcom.Client.Api.Entity;
+using Taxcom.Client.Api.Exceptions;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdoApi.Library.Services;
 using TISystems.TTC.CRM.BE.Serialization;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.Presentation.WebApi.Common;
 
 namespace TaxcomEdoApi.Controllers
 {
 	[ApiController]
 	[Route("/api/[action]")]
-	public class TaxcomEdoController : ControllerBase
+	public class TaxcomEdoController : ApiControllerBase
 	{
-		private readonly ILogger<TaxcomEdoController> _logger;
-		private readonly TaxcomApi _taxcomApi;
+		private readonly Lazy<TaxcomApi> _taxcomApi;
 		private readonly ITaxcomEdoService _taxcomEdoService;
-		
+
 		public TaxcomEdoController(
-			ILogger<TaxcomEdoController> logger,
-			TaxcomApi taxcomApi,
-			ITaxcomEdoService taxcomEdoService)
+			ILogger<ApiControllerBase> logger,
+			Lazy<TaxcomApi> taxcomApi,
+			ITaxcomEdoService taxcomEdoService) : base(logger)
 		{
-			_logger = logger;
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
 			_taxcomEdoService = taxcomEdoService ?? throw new ArgumentNullException(nameof(taxcomEdoService));
 		}
@@ -38,22 +39,23 @@ namespace TaxcomEdoApi.Controllers
 			_logger.LogInformation(
 				"Поступил запрос отправки УПД по заказу {OrderId}",
 				orderId);
-			
+
 			try
 			{
 				var container = _taxcomEdoService.CreateContainerWithUpd(data);
 				
 				_logger.LogInformation("Отправляем контейнер с УПД по заказу №{OrderId}", orderId);
-				_taxcomApi.Send(container);
+				_taxcomApi.Value.Send(container);
 				return Ok();
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", orderId);
-				return Problem();
+
+				return MapException(e);
 			}
 		}
-		
+
 		[HttpPost]
 		public IActionResult CreateAndSendIndividualAccountingUpd(UniversalTransferDocumentInfo updInfo)
 		{
@@ -66,13 +68,11 @@ namespace TaxcomEdoApi.Controllers
 			try
 			{
 				var container = _taxcomEdoService.CreateContainerWithUpd(updInfo);
-				
 				_logger.LogInformation(
 					"Отправляем контейнер с УПД {UpdNumber} {DocumentId}",
 					updInfo.StringNumber,
 					documentId);
-				
-				_taxcomApi.Send(container);
+				_taxcomApi.Value.Send(container);
 				return Ok();
 			}
 			catch(Exception e)
@@ -82,7 +82,8 @@ namespace TaxcomEdoApi.Controllers
 					"Ошибка в процессе формирования УПД №{UpdNumber} {DocumentId} и ее отправки",
 					updInfo.StringNumber,
 					documentId);
-				return Problem();
+
+				return MapException(e);
 			}
 		}
 		
@@ -91,13 +92,12 @@ namespace TaxcomEdoApi.Controllers
 		{
 			var orderId = data.OrderInfoForEdo.Id;
 			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", orderId);
-			
+
 			try
 			{
 				var container = _taxcomEdoService.CreateContainerWithBill(data);
-				
 				_logger.LogInformation("Отправляем контейнер со счетом по заказу №{OrderId}", orderId);
-				_taxcomApi.Send(container);
+				_taxcomApi.Value.Send(container);
 				return Ok();
 			}
 			catch(Exception e)
@@ -106,7 +106,8 @@ namespace TaxcomEdoApi.Controllers
 					e,
 					"Ошибка в процессе формирования контейнера по заказу №{OrderId} для отправки счета",
 					orderId);
-				return Problem();
+
+				return MapException(e);
 			}
 		}
 		
@@ -137,9 +138,8 @@ namespace TaxcomEdoApi.Controllers
 			try
 			{
 				var container = _taxcomEdoService.CreateContainerWithInformalOrderDocument(data);
-
 				_logger.LogInformation("Отправляем контейнер с неформализованным документом по заказу №{OrderId}", orderId);
-				_taxcomApi.Send(container);
+				_taxcomApi.Value.Send(container);
 				return Ok();
 			}
 			catch(Exception e)
@@ -148,7 +148,8 @@ namespace TaxcomEdoApi.Controllers
 					e,
 					"Ошибка в процессе формирования контейнера по заказу №{OrderId} для отправки документа заказа",
 					orderId);
-				return Problem();
+
+				return MapException(e);
 			}
 		}
 
@@ -169,7 +170,7 @@ namespace TaxcomEdoApi.Controllers
 			
 			try
 			{
-				var response = _taxcomApi.GetContactListUpdates(lastCheckContactsUpdates, contactStatus);
+				var response = _taxcomApi.Value.GetContactListUpdates(lastCheckContactsUpdates, contactStatus);
 				var contactUpdates = ContactListSerializer.DeserializeContactList(response);
 				
 				return Ok(contactUpdates);
@@ -177,7 +178,7 @@ namespace TaxcomEdoApi.Controllers
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при получении обновлений для списка контактов");
-				return Problem();
+				return MapException(e);
 			}
 		}
 
@@ -189,7 +190,7 @@ namespace TaxcomEdoApi.Controllers
 			try
 			{
 				var docFlowUpdates =
-					_taxcomApi.GetDocflowsUpdates(
+					_taxcomApi.Value.GetDocflowsUpdates(
 						docFlowsUpdatesParams.DocFlowStatus.TryParseAsEnum<DocFlowStatus>(),
 						docFlowsUpdatesParams.LastEventTimeStamp,
 						docFlowsUpdatesParams.DocFlowDirection.TryParseAsEnum<DocFlowDirection>(),
@@ -201,7 +202,7 @@ namespace TaxcomEdoApi.Controllers
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при получении исходящих документов");
-				return Problem();
+				return MapException(e);
 			}
 		}
 
@@ -212,13 +213,13 @@ namespace TaxcomEdoApi.Controllers
 			
 			try
 			{
-				_taxcomApi.AcceptContact(edxClientId);
+				_taxcomApi.Value.AcceptContact(edxClientId);
 				return Ok();
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при связке контактной пары {EdxClientId}", edxClientId);
-				return Problem();
+				return MapException(e);
 			}
 		}
 
@@ -229,13 +230,13 @@ namespace TaxcomEdoApi.Controllers
 			
 			try
 			{
-				var documents = _taxcomApi.GetDocflowRawData(docFlowId);
-				return Ok(documents);
+				var documents = _taxcomApi.Value.GetDocflowRawData(docFlowId);
+				return MapResult<byte[]>(documents);
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при получении документов контейнера документооборота {DocFlowId}", docFlowId);
-				return Problem();
+				return MapException(e);
 			}
 		}
 
@@ -243,16 +244,18 @@ namespace TaxcomEdoApi.Controllers
 		public IActionResult StartAutoSendReceive()
 		{
 			_logger.LogInformation("Запуск необходимых транзакций по ЭДО");
-			
+
 			try
 			{
-				_taxcomApi.AutoSendReceive();
+				_taxcomApi.Value.AutoSendReceive();
+
 				return Ok();
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при запуске необходимых транзакций по ЭДО");
-				return Problem();
+
+				return MapException(e);
 			}
 		}
 
@@ -266,7 +269,7 @@ namespace TaxcomEdoApi.Controllers
 			
 			try
 			{
-				_taxcomApi.OfferCancellation(docFlowId, reason);
+				_taxcomApi.Value.OfferCancellation(docFlowId, reason);
 				return Ok();
 			}
 			catch(Exception e)
@@ -274,7 +277,7 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogError(e, "Ошибка при аннулировании документооборота {DocFlowId} с причиной {Reason}",
 					docFlowId,
 					reason);
-				return Problem();
+				return MapException(e);
 			}
 		}
 		
@@ -286,7 +289,7 @@ namespace TaxcomEdoApi.Controllers
 			
 			try
 			{
-				var taxcomContainer = _taxcomApi.GetMainDocumentContainerFromDocflow(docflowId);
+				var taxcomContainer = _taxcomApi.Value.GetMainDocumentContainerFromDocflow(docflowId);
 
 				if(taxcomContainer?.Documents == null || !taxcomContainer.Documents.Any())
 				{
@@ -311,13 +314,13 @@ namespace TaxcomEdoApi.Controllers
 					docflowId,
 					upd.Version);
 
-				_taxcomApi.SendCustomerInformationWithRawData(xmlString);
+				_taxcomApi.Value.SendCustomerInformationWithRawData(xmlString);
 				return Ok();
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при принятии входящего документооборота {DocFlowId}", docflowId);
-				return Problem();
+				return MapException(e);
 			}
 		}
 
@@ -336,14 +339,14 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogInformation("Сформировали файл действие для отправки предложения об " +
 					"аннулировании для документооборота {DocFlowId}", docflowId);
 
-				_taxcomApi.OfferCancellationWithRawData(document.ToXmlString());
+				_taxcomApi.Value.OfferCancellationWithRawData(document.ToXmlString());
 				return Ok();
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при отправке предложения об аннулировании документооборота " +
 					"{DocFlowId}", docflowId);
-				return Problem();
+				return MapException(e);
 			}
 		}
 
@@ -361,14 +364,14 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogInformation("Сформировали файл действие для отправки принятия предложения об " +
 					"аннулировании документооборота {DocFlowId}", docflowId);
 
-				_taxcomApi.AcceptCancellationOfferWithRawData(document.ToXmlString());
+				_taxcomApi.Value.AcceptCancellationOfferWithRawData(document.ToXmlString());
 				return Ok();
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при отправке принятия предложения об аннулировании документооборота " +
 					"{DocFlowId}", docflowId);
-				return Problem();
+				return MapException(e);
 			}
 		}
 
@@ -387,14 +390,14 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogInformation("Сформировали файл действие для отправки отказа в " +
 					"аннулировании документооборота {DocFlowId}", docflowId);
 
-				_taxcomApi.RejectCancellationOfferWithRawData(document.ToXmlString());
+				_taxcomApi.Value.RejectCancellationOfferWithRawData(document.ToXmlString());
 				return Ok();
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при отправке отказа в аннулировании документооборота " +
 					"{DocFlowId}", docflowId);
-				return Problem();
+				return MapException(e);
 			}
 		}
 
@@ -405,13 +408,13 @@ namespace TaxcomEdoApi.Controllers
 
 			try
 			{
-				var docflowDescription = _taxcomApi.GetStatus(docFlowId);
+				var docflowDescription = _taxcomApi.Value.GetStatus(docFlowId);
 				return Ok(docflowDescription);
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при получении текущего статуса документооборота {DocFlowId}", docFlowId);
-				return Problem();
+				return MapException(e);
 			}
 		}
 
@@ -425,21 +428,18 @@ namespace TaxcomEdoApi.Controllers
 		{
 			var documentType = data.GetBillWithoutShipmentInfoTitle();
 			var orderWithoutShipmentId = data.OrderWithoutShipmentInfo.Id;
-			
+
 			_logger.LogInformation("Создаем {OrderWithoutShipmentType} №{OrderWithoutShipmentForPaymentId}",
 				documentType,
-				orderWithoutShipmentId
-			);
-			
+				orderWithoutShipmentId);
+
 			try
 			{
 				var container = _taxcomEdoService.CreateContainerWithBillWithoutShipment(data);
-				
 				_logger.LogInformation("Отправляем контейнер по {OrderWithoutShipmentType} №{OrderWithoutShipmentId}",
 					documentType,
 					orderWithoutShipmentId);
-				
-				_taxcomApi.Send(container);
+				_taxcomApi.Value.Send(container);
 				return Ok();
 			}
 			catch(Exception e)
@@ -449,8 +449,40 @@ namespace TaxcomEdoApi.Controllers
 					"Ошибка в процессе формирования контейнера по {OrderWithoutShipmentType} №{OrderWithoutShipmentId} и его отправки",
 					documentType,
 					orderWithoutShipmentId);
-				return Problem();
+
+				return MapException(e);
 			}
+		}
+		
+		private IActionResult MapException(Exception e)
+		{
+			return e switch
+			{
+				TaxcomApiException apiEx => MapTaxcomApiException(apiEx),
+				TaxcomSdkException sdkEx => MapTaxcomSdkException(sdkEx),
+				_ => MapDefaultException(e),
+			};
+		}
+		
+		private IActionResult MapTaxcomApiException(TaxcomApiException e)
+		{
+			var message = $"ApiErrorCode: {e.ApiErrorCode}, HttpErrorCode: {e.HttpErrorCode}, Details: {e.Details}";
+			
+			return MapResult(
+				Result.Failure(new Error(nameof(TaxcomApiException), message)),
+				errorStatusCode: e.HttpErrorCode);
+		}
+
+		private IActionResult MapTaxcomSdkException(TaxcomSdkException e)
+		{
+			var message = e.Details;
+			
+			return MapResult(Result.Failure(new Error(nameof(TaxcomSdkException), message)));
+		}
+
+		private IActionResult MapDefaultException(Exception e)
+		{
+			return MapResult(Result.Failure(new Error(nameof(Exception), e.Message)));
 		}
 	}
 }

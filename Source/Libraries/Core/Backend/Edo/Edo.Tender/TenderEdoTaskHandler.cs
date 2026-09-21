@@ -280,10 +280,12 @@ namespace Edo.Tender
 				return;
 			}
 
-			if(edoTask.Status == EdoTaskStatus.Completed)
+			if(edoTask.Status == EdoTaskStatus.Completed
+				|| edoTask.Status == EdoTaskStatus.Cancelled
+				|| edoTask.Status == EdoTaskStatus.InCancellation)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
-				                       "так как задача Id {TenderEdoTaskId} уже завершена", edoTask.Id);
+				                       "так как задача Id {TenderEdoTaskId} находится в статусе {TaskStatus}", edoTask.Id, edoTask.Status);
 				return;
 			}
 
@@ -298,6 +300,28 @@ namespace Edo.Tender
 
 			try
 			{
+				// Проверяем коды после трансфера, пока они еще не доступны для выгрузки.
+				var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
+				var taskValidationResult = await _trueMarkTaskCodesValidator.ValidateAsync(
+					edoTask, trueMarkCodesChecker, cancellationToken);
+
+				if(!taskValidationResult.IsAllValid && edoTask.Stage == TenderEdoTaskStage.New)
+				{
+					await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+					await _uow.CommitAsync(cancellationToken);
+					try
+					{
+						await _messageBus.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
+					}
+					catch(Exception ex)
+					{
+						// Сохраненную новую задачу подхватит штатный NewEdoTasksResendWorker.
+						_logger.LogError(ex, "Не удалось повторно запустить тендерную задачу {TaskId} после проверки кодов. "
+							+ "Задача сохранена на стадии распределения для штатного повторного запуска", edoTask.Id);
+					}
+					return;
+				}
+
 				edoTask.Status = EdoTaskStatus.InProgress;
 				edoTask.Stage = TenderEdoTaskStage.Sending;
 

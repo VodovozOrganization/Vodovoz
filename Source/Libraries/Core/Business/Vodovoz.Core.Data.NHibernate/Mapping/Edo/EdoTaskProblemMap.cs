@@ -29,14 +29,20 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("type")
 				.ReadOnly();
 
-			References(x => x.EdoTask)
-				.Column("edo_task_id");
-
 			Map(x => x.SourceName)
 				.Column("source_name");
 
 			Map(x => x.State)
 				.Column("state");
+
+			References(x => x.EdoTask)
+				.Column("edo_task_id");
+
+			HasMany(x => x.RoutineStates)
+				.KeyColumn("edo_task_problem_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.Not.LazyLoad();
 
 			HasManyToMany(x => x.TaskItems)
 				.Table("edo_task_problem_items")

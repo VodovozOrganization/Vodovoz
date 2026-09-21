@@ -129,6 +129,37 @@ namespace VodovozBusiness.Errors.Edo
 				"Для документа уже создан процесс переотправки после отмены вывода кодов из оборота в ЧЗ");
 
 		/// <summary>
+		/// Ошибка: статус УПД не позволяет переотправить его с исходными кодами маркировки
+		/// </summary>
+		public static Error ResendWithOriginalCodesStatusNotSupported =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(ResendWithOriginalCodesStatusNotSupported),
+				$"Переотправка с исходными кодами доступна только для УПД со статусом " +
+				$"«{EdoDocumentStatus.Warning.GetEnumDisplayName()}» или " +
+				$"«{EdoDocumentStatus.CompletedWithDivergences.GetEnumDisplayName()}»");
+
+		/// <summary>
+		/// Ошибка: не найден успешный вывод кодов из оборота, который можно отменить перед переотправкой
+		/// </summary>
+		public static Error SuccessfulWithdrawalForResendNotFound =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(SuccessfulWithdrawalForResendNotFound),
+				"Переотправка с исходными кодами недоступна: не найден успешно завершенный вывод " +
+				"кодов из оборота, который можно отменить");
+
+		/// <summary>
+		/// Ошибка: найдено несколько успешных выводов кодов из оборота для переотправки
+		/// </summary>
+		public static Error MultipleSuccessfulWithdrawalsForResendFound =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(MultipleSuccessfulWithdrawalsForResendFound),
+				"Переотправка с исходными кодами недоступна: найдено несколько успешно завершенных " +
+				"выводов кодов из оборота");
+
+		/// <summary>
 		/// Создает ошибку о том, что документ уже успешно отправлен
 		/// </summary>
 		/// <param name="edoContainer">Контейнер ЭДО</param>

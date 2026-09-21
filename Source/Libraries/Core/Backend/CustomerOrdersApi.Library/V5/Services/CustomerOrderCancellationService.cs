@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.V5.Dto.Orders.CancelOrder;
+using CustomerOrdersApi.Library.V5.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.V5.Factories;
 using FastPaymentsApi.Contracts.Requests;
 using Gamma.Utilities;
@@ -484,7 +484,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 				_routeListService,
 				_nomenclatureSettings,
 				_callTaskWorker,
-				needCreateDeliveryFreeBalanceOperation: false);
+				needCreateDeliveryFreeBalanceOperation: true);
 
 			_logger.LogInformation("Установлен статус недовоза для заказа {OrderId}", order.Id);
 

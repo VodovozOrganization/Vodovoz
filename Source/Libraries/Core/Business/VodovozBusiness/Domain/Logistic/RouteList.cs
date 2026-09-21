@@ -122,7 +122,6 @@ namespace Vodovoz.Domain.Logistic
 			set {
 				Employee oldDriver = _driver;
 				if(SetField(ref _driver, value, () => Driver)) {
-					ChangeFuelDocumentsOnChangeDriver(oldDriver);
 					if(Id == 0 || oldDriver != _driver)
 						Forwarder = GetDefaultForwarder(_driver);
 				}
@@ -155,11 +154,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual Car Car {
 			get => _car;
 			set {
-				var oldCar = _car;
 				if(SetField(ref _car, value, () => Car))
 				{
-					ChangeFuelDocumentsChangeCar(oldCar);
-
 					if(value?.Driver != null && value.Driver.Status != EmployeeStatus.IsFired)
 					{
 						Driver = value.Driver;
@@ -793,38 +789,26 @@ namespace Vodovoz.Domain.Logistic
 			return null;
 		}
 
-		public virtual void ChangeFuelDocumentsChangeCar(Car oldCar)
-		{
-			if(oldCar == null || Car == oldCar || !FuelDocuments.Any()) {
-				return;
-			}
-
-			foreach(FuelDocument item in ObservableFuelDocuments) {
-				item.Car = Car;
-				item.FuelOperation.Car = Car;
-			}
-		}
-
-		public virtual void ChangeFuelDocumentsOnChangeDriver(Employee oldDriver)
-		{
-			if(Driver == null || oldDriver == null || Driver == oldDriver || !FuelDocuments.Any())
-				return;
-
-			foreach(FuelDocument item in ObservableFuelDocuments) {
-				item.Driver = Driver;
-				item.FuelOperation.Driver = Driver;
-			}
-		}
-
+		/// <summary>
+		/// Признак того, что операция расхода топлива по МЛ отнесена не на тот автомобиль или того водителя,
+		/// на которых она будет перенесена при следующем <see cref="UpdateFuelOperation"/>
+		/// </summary>
+		/// <returns><c>true</c>, если отличаются</returns>
 		public virtual bool FuelOperationHaveDiscrepancy()
 		{
-			if(FuelOutlayedOperation == null) {
+			if(FuelOutlayedOperation == null)
+			{
 				return false;
 			}
-			var carDiff = FuelDocuments.Select(x => x.FuelOperation).Any(x => x.Car != null && x.Car.Id != Car.Id)
-									   || (FuelOutlayedOperation.Car != null && FuelOutlayedOperation.Car.Id != Car.Id);
-			var driverDiff = FuelDocuments.Select(x => x.FuelOperation).Any(x => x.Driver != null && x.Driver.Id != Driver.Id)
-										  || (FuelOutlayedOperation.Driver != null && FuelOutlayedOperation.Driver.Id != Driver.Id);
+
+			//Расход относится либо на авто компании, либо на водителя, см. UpdateFuelOperation
+			var isCompanyCar = GetCarVersion?.CarOwnType == CarOwnType.Company;
+			var expectedCar = isCompanyCar ? Car : null;
+			var expectedDriver = isCompanyCar ? null : Driver;
+
+			var carDiff = FuelOutlayedOperation.Car?.Id != expectedCar?.Id;
+			var driverDiff = FuelOutlayedOperation.Driver?.Id != expectedDriver?.Id;
+
 			return carDiff || driverDiff;
 		}
 
