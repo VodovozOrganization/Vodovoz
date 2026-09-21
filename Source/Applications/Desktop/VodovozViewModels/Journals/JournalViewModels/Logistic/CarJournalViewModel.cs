@@ -391,7 +391,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var canCreate = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanCreate;
 			var canEdit = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanRead;
 			var canDelete = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanDelete;
-			var canCreateSemiTrailer = CurrentPermissionService == null || CurrentPermissionService.ValidatePresetPermission(CarPermissions.CanChangeCompositionCompanyTransportPark);
+			var canCreateSemiTrailer = CanWorkWithSemitrailers;
 			var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
 
 			addParentNodeAction.ChildActionsList.Add(
