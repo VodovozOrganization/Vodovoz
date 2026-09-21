@@ -20,6 +20,8 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void ConfigureDlg()
 		{
+			GtkScrolledWindow.VscrollbarPolicy = PolicyType.Never;
+
 			yentryOrder.KeyReleaseEvent += OnKeyReleased;
 			yentryOrder.ValidationMode = ValidationType.numeric;
 			yentryOrder.Binding.AddSource(ViewModel)
