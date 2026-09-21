@@ -13,7 +13,6 @@ namespace Vodovoz.Core.Domain.Edo
 		private IObservableList<TransferEdoRequestIteration> _transferIterations = 
 			new ObservableList<TransferEdoRequestIteration>();
 
-
 		[Display(Name = "Заявка ЭДО отправки клиенту")]
 		public virtual FormalEdoRequest FormalEdoRequest
 		{
@@ -38,6 +37,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// <summary>
 		/// Необходимо чтобы Nhibernate мог привести  Proxy базового класса (OrderEdoTask)
 		/// к конкретному классу наследнику
+		/// </summary>
 		public virtual T As<T>() where T : OrderEdoTask
 		{
 			return this as T;

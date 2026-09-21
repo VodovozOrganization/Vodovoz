@@ -13,6 +13,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private EdoTaskProblem _problem;
 		private int _retryCount;
 		private DateTime? _lastRetryTime;
+		private bool _waitingProcessingTaskCreatedEvent;
 
 		/// <summary>
 		/// Код.
@@ -52,6 +53,36 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _lastRetryTime;
 			set => SetField(ref _lastRetryTime, value);
+		}
+
+		/// <summary>
+		/// Ожидает обработки другим обработчиком
+		/// </summary>
+		[Display(Name = "Ожидает обработки другим сервисом")]
+		public virtual bool WaitingProcessingTaskCreatedEvent
+		{
+			get => _waitingProcessingTaskCreatedEvent;
+			protected set => SetField(ref _waitingProcessingTaskCreatedEvent, value);
+		}
+
+		/// <summary>
+		/// Добавление новой попытки
+		/// </summary>
+		/// <param name="attemptTime"></param>
+		public virtual void AddAttempt(DateTime attemptTime)
+		{
+			RetryCount++;
+			LastRetryTime = attemptTime;
+			WaitingProcessingTaskCreatedEvent = true;
+		}
+
+		/// <summary>
+		/// Обновление параметра ожидания обработки TaskCreatedEvent
+		/// </summary>
+		/// <param name="value">Новое значение</param>
+		public virtual void UpdateWaitingProcessingTaskCreatedEvent(bool value)
+		{
+			WaitingProcessingTaskCreatedEvent = value;
 		}
 	}
 }

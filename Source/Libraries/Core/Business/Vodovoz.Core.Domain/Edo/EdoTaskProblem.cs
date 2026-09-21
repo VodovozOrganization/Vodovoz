@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
@@ -19,6 +20,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private TaskProblemState _state;
 		private IObservableList<EdoTaskItem> _taskItems = new ObservableList<EdoTaskItem>();
 		private IObservableList<EdoProblemCustomItem> _customItems = new ObservableList<EdoProblemCustomItem>();
+		private IList<EdoTaskProblemRoutineState> _routineStates = new List<EdoTaskProblemRoutineState>();
 
 		/// <summary>
 		/// Уникальный идентификатор проблемы
@@ -108,6 +110,27 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _customItems;
 			set => SetField(ref _customItems, value);
+		}
+
+		/// <summary>
+		/// Состояния повторной обработки ЭДО-проблемы
+		/// </summary>
+		public virtual IList<EdoTaskProblemRoutineState> RoutineStates
+		{
+			get => _routineStates;
+			set => SetField(ref _routineStates, value);
+		}
+
+		/// <summary>
+		/// Обновление параметра ожидания обработки TaskCreatedEvent
+		/// </summary>
+		/// <param name="value">Новое значение</param>
+		public virtual void UpdateWaitingProcessingTaskCreatedEvent(bool value)
+		{
+			foreach(var routineState in RoutineStates)
+			{
+				routineState.UpdateWaitingProcessingTaskCreatedEvent(value);
+			}
 		}
 	}
 }
