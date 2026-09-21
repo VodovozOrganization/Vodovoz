@@ -74,6 +74,10 @@ namespace Edo.Documents
 				return;
 			}
 
+			edoTask.UpdateWaitingProcessingTaskCreatedEvent(false);
+			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+
 			if(edoTask.Stage != DocumentEdoTaskStage.New)
 			{
 				_logger.LogInformation("Задача Id {DocumentEdoTaskId} уже в работе", documentEdoTaskId);
@@ -130,11 +134,11 @@ namespace Edo.Documents
 				if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 				{
 					var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
-				
+
 					await _edoCancellationService.CancelTask(documentEdoTaskId, reason, false, cancellationToken);
 					return;
 				}
-				
+
 				var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 				var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 				if(!isValid)

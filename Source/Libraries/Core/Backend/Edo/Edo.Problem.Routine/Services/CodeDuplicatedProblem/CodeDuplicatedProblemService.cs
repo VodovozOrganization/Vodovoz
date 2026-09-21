@@ -96,9 +96,7 @@ namespace Edo.Problem.Routine.Services.CodeDuplicatedProblem
 			var state = problemNode.RoutineState ?? new EdoTaskProblemRoutineState { Problem = problem };
 			var now = DateTime.Now;
 
-			state.RetryCount++;
-			state.LastRetryTime = now;
-
+			state.AddAttempt(now);
 			await uow.SaveAsync(state, cancellationToken: cancellationToken);
 		}
 

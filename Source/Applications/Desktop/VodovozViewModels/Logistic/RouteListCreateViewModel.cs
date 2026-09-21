@@ -46,6 +46,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Services.RouteOptimization;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -63,6 +64,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IDriverStopListService _driverStopListService;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ICarRepository _carRepository;
 		private readonly IRouteListService _routeListService;
@@ -98,6 +100,7 @@ namespace Vodovoz.ViewModels.Logistic
 			ICurrentPermissionService currentPermissionService,
 			IEmployeeRepository employeeRepository,
 			IRouteListRepository routeListRepository,
+			IDriverStopListService driverStopListService,
 			IRouteListItemRepository routeListItemRepository,
 			ICarRepository carRepository,
 			IRouteListService routeListService,
@@ -124,6 +127,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_driverStopListService = driverStopListService ?? throw new ArgumentNullException(nameof(driverStopListService));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
@@ -552,6 +556,36 @@ namespace Vodovoz.ViewModels.Logistic
 					$"Нельзя добавить сотрудника в МЛ. У данного сотрудника есть отметка в графике водителей",
 					"Предупреждение");
 				return false;
+			}
+
+			if(!_driverStopListService.IsDriverInStopList(UoW, driver, Entity.Id))
+			{
+				return true;
+			}
+
+			Entity.Driver = null;
+			if(!_interactiveService.Question("Выбираемый сотрудник находится в стоп-листе. Вы хотите снять стоп-лист?"))
+			{
+				return false;
+			}
+
+			NavigationManager.OpenViewModel<DriverStopListRemovalViewModel, int>(this, driver.Id)
+				.PageClosed += OnStopListRemovalClosed;
+
+			void OnStopListRemovalClosed(object sender, PageClosedEventArgs args)
+			{
+				if(sender is IPage page)
+				{
+					page.PageClosed -= OnStopListRemovalClosed;
+				}
+
+				if(args.CloseSource != CloseSource.Save)
+				{
+					return;
+				}
+
+				Entity.Driver = driver;
+				_mangoCallButtonViewModelFactory.UpdateForRouteListDriver(DriverExtensionCallViewModel, UoW, Entity);
 			}
 
 			return true;

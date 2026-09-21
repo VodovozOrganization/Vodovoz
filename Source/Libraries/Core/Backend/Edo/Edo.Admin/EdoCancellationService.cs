@@ -120,19 +120,14 @@ namespace Edo.Admin
 
 			if(orderDocument == null || orderDocument.Status.IsIn(EdoDocumentStatus.Cancelled, EdoDocumentStatus.Error))
 			{
-				edoTask.Status = EdoTaskStatus.Cancelled;
-
 				await RejectProductCodesAsync(uow, edoTask, cancellationToken);
-
-				edoTask.CancellationReason = reason;
-
+				edoTask.ProcessTaskCancellation(EdoTaskStatus.Cancelled, reason);
+				
 				await uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 				return;
 			}
 
-			edoTask.Status = EdoTaskStatus.InCancellation;
-			edoTask.CancellationReason = reason;
-
+			edoTask.ProcessTaskCancellation(EdoTaskStatus.InCancellation, reason);
 			await uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 
 			if(needPublish)
