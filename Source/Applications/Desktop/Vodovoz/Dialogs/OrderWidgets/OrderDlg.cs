@@ -239,6 +239,7 @@ namespace Vodovoz
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
 		private IOrderOrganizationManager _orderOrganizationManager;
+		private OrderCancellationPermitService _orderCancellationPermitService;
 
 		private readonly IRouteListSettings _routeListSettings = ScopeProvider.Scope.Resolve<IRouteListSettings>();
 		private readonly IDocumentPrinter _documentPrinter = ScopeProvider.Scope.Resolve<IDocumentPrinter>();
@@ -264,8 +265,6 @@ namespace Vodovoz
 		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
 		private readonly OrderCancellationService _orderCancellationService = ScopeProvider.Scope.Resolve<OrderCancellationService>();
-		private readonly OrderCancellationPermitService _orderCancellationPermitService =
-			ScopeProvider.Scope.Resolve<OrderCancellationPermitService>();
 		
 		private IOrderService _orderService => ScopeProvider.Scope
 			.Resolve<IOrderService>();
@@ -725,6 +724,7 @@ namespace Vodovoz
 			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
 			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
 			_orderOrganizationManager = _lifetimeScope.Resolve<IOrderOrganizationManager>();
+			_orderCancellationPermitService = _lifetimeScope.Resolve<OrderCancellationPermitService>();
 
 			_justCreated = UoWGeneric.IsNew;
 
