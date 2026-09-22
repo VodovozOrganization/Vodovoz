@@ -150,7 +150,8 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 			
 			IList<DiscountReasonBase> discounts = null;
 
-			if(onlineOrderItemDto.DiscountIds.Any())
+			if(onlineOrderItemDto.DiscountIds != null
+				&& onlineOrderItemDto.DiscountIds.Any())
 			{
 				discounts = _discountReasonRepository
 					.Get(uow, x => onlineOrderItemDto.DiscountIds.Contains(x.Id))
@@ -190,7 +191,8 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 
 			IList<DiscountReasonBase> discounts = null;
 
-			if(onlineOrderItemDto.DiscountIds.Any())
+			if(onlineOrderItemDto.DiscountIds != null
+				&& onlineOrderItemDto.DiscountIds.Any())
 			{
 				discounts = _discountReasonRepository
 					.Get(uow, x => onlineOrderItemDto.DiscountIds.Contains(x.Id))
