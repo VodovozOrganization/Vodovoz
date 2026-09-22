@@ -14,6 +14,7 @@ using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
@@ -407,47 +408,32 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Должен быть указан канал поступления", new[] { nameof(IncomeChannel) });
 			}
 
-			var duplicateConditions = Restrictions.Disjunction();
+			validationContext.Items.TryGetValue(nameof(ICarRepository), out var carRepositoryObject);
 
-			duplicateConditions.Add(Restrictions.Eq(Projections.Property<Car>(c => c.RegistrationNumber), RegistrationNumber));
-
-			if(!string.IsNullOrWhiteSpace(VIN))
+			if(carRepositoryObject is ICarRepository carRepository)
 			{
-				duplicateConditions.Add(Restrictions.Eq(Projections.Property<Car>(c => c.VIN), VIN));
-			}
+				var duplicateFields = carRepository.GetDuplicateFields(UoW, Id, RegistrationNumber, VIN, ChassisNumber);
 
-			if(!string.IsNullOrWhiteSpace(ChassisNumber))
-			{
-				duplicateConditions.Add(Restrictions.Eq(Projections.Property<Car>(c => c.ChassisNumber), ChassisNumber));
-			}
-
-			var duplicateCar = UoW.Session.QueryOver<Car>()
-				.Where(c => c.Id != Id)
-				.And(duplicateConditions)
-				.List()
-				.FirstOrDefault();
-
-			if(duplicateCar != null)
-			{
-				if(duplicateCar.RegistrationNumber == RegistrationNumber)
+				foreach(var field in duplicateFields)
 				{
-					yield return new ValidationResult(
-						$"Автомобиль с гос. номером {RegistrationNumber} уже существует",
-						new[] { nameof(RegistrationNumber) });
-				}
-
-				if(!string.IsNullOrWhiteSpace(VIN) && duplicateCar.VIN == VIN)
-				{
-					yield return new ValidationResult(
-						$"Автомобиль с VIN {VIN} уже существует",
-						new[] { nameof(VIN) });
-				}
-
-				if(!string.IsNullOrWhiteSpace(ChassisNumber) && duplicateCar.ChassisNumber == ChassisNumber)
-				{
-					yield return new ValidationResult(
-						$"Автомобиль с номером шасси {ChassisNumber} уже существует",
-						new[] { nameof(ChassisNumber) });
+					switch(field)
+					{
+						case nameof(RegistrationNumber):
+							yield return new ValidationResult(
+								$"Автомобиль с гос. номером {RegistrationNumber} уже существует",
+								new[] { nameof(RegistrationNumber) });
+							break;
+						case nameof(VIN):
+							yield return new ValidationResult(
+								$"Автомобиль с VIN {VIN} уже существует",
+								new[] { nameof(VIN) });
+							break;
+						case nameof(ChassisNumber):
+							yield return new ValidationResult(
+								$"Автомобиль с номером шасси {ChassisNumber} уже существует",
+								new[] { nameof(ChassisNumber) });
+							break;
+					}
 				}
 			}
 

@@ -32,7 +32,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Logistic;
+using VodovozBusiness.Extensions;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -59,20 +59,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IWageParameterService wageParameterService,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
-			INavigationManager navigation,
-			ICarRepository carRepository
+			INavigationManager navigation
 			)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			if(carRepository is null)
-			{
-				throw new ArgumentNullException(nameof(carRepository));
-			}
-
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
-			var excludedCarTypesOfUse = carRepository.CarTypeOfUseForExclude();
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_restrictedCarTypesOfUse.Remove(CarTypeOfUse.Truck);
@@ -83,7 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			DataIsLoading = false;
 
-			CarTypeOfUseForExclude = carRepository.CarTypeOfUseForExcludeAsEnum();
+			CarTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 		}
 
 		public GenericObservableList<DriverInfoNode> Items

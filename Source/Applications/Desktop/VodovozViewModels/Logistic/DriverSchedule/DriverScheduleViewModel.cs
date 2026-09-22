@@ -14,12 +14,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Services.DriverSchedule;
 using VodovozBusiness.EntityRepositories.Logistic;
+using VodovozBusiness.Extensions;
 using VodovozBusiness.Nodes;
 using VodovozInfrastructure.StringHandlers;
 
@@ -63,15 +63,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			IUserService userService,
 			IFileDialogService fileDialogService,
 			IDriverScheduleService driverScheduleService,
-			ILogisticRepository logisticRepository,
-			ICarRepository carRepository
+			ILogisticRepository logisticRepository
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			if(carRepository is null)
-			{
-				throw new ArgumentNullException(nameof(carRepository));
-			}
-
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -87,8 +81,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			SetPermissions();
 
-			var carTypeOfUseForExclude = carRepository.CarTypeOfUseForExclude();
-			var carTypeOfUseForExcludeAsEnum = carRepository.CarTypeOfUseForExcludeAsEnum();
+			var carTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+			var carTypeOfUseForExcludeAsEnum = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 			var typesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>().ToList();
 			typesOfUse.Remove(carTypeOfUseForExclude);
 			typesOfUse.Remove(CarTypeOfUse.Truck);

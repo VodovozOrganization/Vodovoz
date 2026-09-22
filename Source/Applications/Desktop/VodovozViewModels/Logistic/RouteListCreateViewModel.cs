@@ -52,6 +52,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.Mango;
 using VodovozBusiness.EntityRepositories.Logistic;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -66,7 +67,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IDriverStopListService _driverStopListService;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly ICarRepository _carRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly IRouteListSpecialConditionsService _routeListSpecialConditionsService;
 		private readonly IGenericRepository<RouteListSpecialConditionType> _routeListSpecialConditionTypeRepository;
@@ -102,7 +102,6 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListRepository routeListRepository,
 			IDriverStopListService driverStopListService,
 			IRouteListItemRepository routeListItemRepository,
-			ICarRepository carRepository,
 			IRouteListService routeListService,
 			IRouteListSpecialConditionsService routeListSpecialConditionsService,
 			IGenericRepository<RouteListSpecialConditionType> routeListSpecialConditionTypeRepository,
@@ -130,7 +129,6 @@ namespace Vodovoz.ViewModels.Logistic
 			_driverStopListService = driverStopListService ?? throw new ArgumentNullException(nameof(driverStopListService));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_routeListSpecialConditionsService = routeListSpecialConditionsService ?? throw new ArgumentNullException(nameof(routeListSpecialConditionsService));
 			_routeListSpecialConditionTypeRepository = routeListSpecialConditionTypeRepository ?? throw new ArgumentNullException(nameof(routeListSpecialConditionTypeRepository));
@@ -338,7 +336,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public IEntityEntryViewModel CreateCarViewModel()
 		{
-			var excludedCarTypesOfUse = _carRepository.CarTypeOfUseForExclude();
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 
 			return new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.Car)
@@ -917,6 +915,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				{ "NewStatus", RouteListStatus.EnRoute },
 				{ nameof(IRouteListItemRepository), _routeListItemRepository },
+				{ nameof(IRouteListRepository), _routeListRepository },
 				{ Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
 			};
 

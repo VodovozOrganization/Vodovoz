@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
@@ -18,12 +18,12 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.NHibernateProjections.Employees;
-using Vodovoz.Settings.Common;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 {
@@ -55,17 +55,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			ICommonServices commonServices,
 			IGeneralSettings generalSettingsSettings,
 			IDriverStopListService driverStopListService,
-			ICarRepository carRepository,
 			ViewModelEEVMBuilder<Subdivision> subdivisionViewModelEEVMBuilder
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_driverStopListService = driverStopListService ?? throw new ArgumentNullException(nameof(driverStopListService));
 			AddToStopListCommand = new DelegateCommand(AddToStopList, () => CanAddToStopList);
 			AddToStopListCommand.CanExecuteChangedWith(this, x => x.CanAddToStopList);
-			if(carRepository is null)
-			{
-				throw new ArgumentNullException(nameof(carRepository));
-			}
 
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_subdivisionViewModelEEVMBuilder = subdivisionViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(subdivisionViewModelEEVMBuilder));
@@ -88,7 +83,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			_driversRouteListsDebtsMaxSumParameter =
 				generalSettingsSettings.DriversRouteListsMaxDebtSum;
 
-			CarTypeOfUseForExclude = carRepository.CarTypeOfUseForExclude();
+			CarTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DriverStopListRemoval>((s) => UpdateCommand?.Execute());
 		}

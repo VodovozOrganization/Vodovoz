@@ -14,11 +14,11 @@ using Vodovoz.CommonEnums;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Settings.Car;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Widgets.Cars.CarModelSelection;
 using Vodovoz.ViewWidgets.Reports;
+using VodovozBusiness.Extensions;
 using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.ReportsParameters.Logistic
@@ -26,18 +26,15 @@ namespace Vodovoz.ReportsParameters.Logistic
 	public partial class GeneralSalaryInfoReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
-		private readonly ICarRepository _carRepository;
 		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IInteractiveService _interactiveService;
 		private CarModelSelectionFilterViewModel _carModelSelectionFilterViewModel;
 
 		public GeneralSalaryInfoReport(
-			ICarRepository carRepository,
 			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IInteractiveService interactiveService)
 		{
-			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeSelectorFactory = employeeJournalFactory?.CreateEmployeeAutocompleteSelectorFactory()
@@ -57,7 +54,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			_carModelSelectionFilterViewModel = new CarModelSelectionFilterViewModel(UoW, Startup.AppDIContainer.Resolve<ICarSettings>());
 			_carModelSelectionFilterViewModel.CarModelNodes.ListContentChanged += (s, e) => OnDriverOfSelected();
-			_carModelSelectionFilterViewModel.ExcludedCarTypesOfUse = _carRepository.CarTypeOfUseForExclude();
+			_carModelSelectionFilterViewModel.ExcludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 			UpdateCarModelsList();
 		}
 
@@ -99,7 +96,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			comboDriverOfCarOwnType.ItemsEnum = typeof(CarOwnType);
 			comboDriverOfCarOwnType.ChangedByUser += (sender, args) => OnDriverOfSelected();
 
-			var carTypeOfUseForExclude = _carRepository.CarTypeOfUseForExclude();
+			var carTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Truck);
 			comboDriverOfCarTypeOfUse.AddEnumToHideList(carTypeOfUseForExclude);

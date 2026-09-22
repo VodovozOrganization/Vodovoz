@@ -59,6 +59,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using VodovozBusiness.Extensions;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
 using PhoneViewModel = Vodovoz.ViewModels.ViewModels.Counterparty.PhoneViewModel;
@@ -216,7 +217,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			organizations = UoW.GetAll<Organization>().ToList();
 
-			CarTypeOfUseForExclude = _carRepository.CarTypeOfUseForExclude();
+			CarTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 
 			GetExternalUsers();
 

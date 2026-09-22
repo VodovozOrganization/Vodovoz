@@ -12,8 +12,8 @@ using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.ViewModels.Logistic;
+using VodovozBusiness.Extensions;
 using SaleGeoGroup = Vodovoz.Domain.Sale.GeoGroup;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
@@ -37,7 +37,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 
 		public RouteListJournalFilterViewModel(
 			IUserRepository userRepository,
-			ICarRepository carRepository,
 			IUserService userService,
 			ICurrentPermissionService currentPermissionService,
 			IInteractiveService interactiveService)
@@ -45,11 +44,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			if(userRepository is null)
 			{
 				throw new ArgumentNullException(nameof(userRepository));
-			}
-
-			if(carRepository is null)
-			{
-				throw new ArgumentNullException(nameof(carRepository));
 			}
 
 			if(userService is null)
@@ -89,8 +83,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				}
 			}
 
-			var carTypeOfUseForExclude = carRepository.CarTypeOfUseForExclude();
-			var carTypeOfUseForExcludeEnum = carRepository.CarTypeOfUseForExcludeAsEnum();
+			var carTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+			var carTypeOfUseForExcludeEnum = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 			var restrictedCarTypeOfUse = EnumHelper.GetValuesList<CarTypeOfUse>().ToList();
 			restrictedCarTypeOfUse.Remove(carTypeOfUseForExclude);
 			CarTypeOfUseForExclude = carTypeOfUseForExcludeEnum;

@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -10,41 +9,40 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
-using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class SemitrailerViewModel : EntityTabViewModelBase<Car>, IAskSaveOnCloseViewModel
 	{
 		private readonly CarVersionsManagementViewModel _carVersionsManagementViewModel;
+		private readonly IServiceProvider _serviceProvider;
+		private readonly ICarRepository _carRepository;
 
 		public SemitrailerViewModel(
-			ILogger<SemitrailerViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ViewModelEEVMBuilder<CarModel> carModelEEVMBuilder,
-			CarInsuranceManagementViewModel insuranceManagementViewModel,
 			CarVersionsManagementViewModel carVersionsManagementViewModel,
-			IAdditionalFuelTypeManagementViewModelFactory additionalFuelTypeManagementViewModelFactory)
+			IAdditionalFuelTypeManagementViewModelFactory additionalFuelTypeManagementViewModelFactory,
+			IServiceProvider serviceProvider,
+			ICarRepository carRepository)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
-			}
-
-			if(insuranceManagementViewModel is null)
-			{
-				throw new ArgumentNullException(nameof(insuranceManagementViewModel));
 			}
 
 			if(additionalFuelTypeManagementViewModelFactory is null)
@@ -53,14 +51,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 
 			_carVersionsManagementViewModel = carVersionsManagementViewModel ?? throw new ArgumentNullException(nameof(carVersionsManagementViewModel));
-			
-			TabName = "Полуприцеп";
+
+			TabName = Entity.Id == 0 ? $"Новый полуприцеп" : $"Полуприцеп {Entity.VIN}";
 
 			_carVersionsManagementViewModel.Initialize(Entity, this);
 			CarVersionsViewModel = _carVersionsManagementViewModel.CarVersionsViewModel;
 			CarVersionEditingViewModel = _carVersionsManagementViewModel.CarVersionEditingViewModel;
-
-			insuranceManagementViewModel.Initialize(Entity, this);
 
 			SetPermissions();
 			_carVersionsManagementViewModel.CanEditCarCard = CanEditCarCard;
@@ -81,6 +77,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			SaveCommand = new DelegateCommand(SaveAndClose);
 			CloseCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
+			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 		}
 
 		public bool CanEdit { get; private set; }
@@ -127,6 +125,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public CarVersionEditingViewModel CarVersionEditingViewModel { get; }
 		
 		private bool CanChangeCompositionCompanyTransportPark { get; set; }
+
+		protected override bool BeforeValidation()
+		{
+			ValidationContext = new ValidationContext(Entity, _serviceProvider, new Dictionary<object, object>
+			{
+				{ nameof(ICarRepository), _carRepository }
+			});
+
+			return base.BeforeValidation();
+		}
 
 		protected override bool BeforeSave()
 		{

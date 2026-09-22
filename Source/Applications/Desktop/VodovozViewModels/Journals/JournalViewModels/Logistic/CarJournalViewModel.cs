@@ -31,6 +31,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports.Cars;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -234,7 +235,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					DateTime.Today.AddDays(_generalSettings.CarTechnicalCheckupEndingNotificationDaysBefore)));
 			#endregion
 
-			var excludedCarTypesOfUse = _carRepository.CarTypeOfUseForExclude();
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 
 			var isShowBackgroundColorNotificationProjection = Projections.Conditional(
 				Restrictions.Conjunction()
@@ -391,7 +392,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var canCreate = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanCreate;
 			var canEdit = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanRead;
 			var canDelete = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanDelete;
-			var canCreateSemiTrailer = CanWorkWithSemitrailers;
+			var canCreateSemiTrailer = CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.CanWorkWithSemitrailers);
 			var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
 
 			addParentNodeAction.ChildActionsList.Add(
@@ -407,8 +408,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				new JournalAction("Добавить полуприцеп",
 					(selected) => canCreateSemiTrailer,
 					(selected) => VisibleCreateAction,
-					(selected) => CreateSemiTrailerDialog(),
-					"InsertSemiTrailer"
+					(selected) => CreateSemiTrailerDialog()
 				)
 			);
 
@@ -453,9 +453,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		private void CreateSemiTrailerDialog()
 		{
 			NavigationManager.OpenViewModel<SemitrailerViewModel, IEntityUoWBuilder>(
-				this,
-				EntityUoWBuilder.ForCreate(),
-				OpenPageOptions.AsSlave);
+				this, EntityUoWBuilder.ForCreate());
 		}
 
 		private void OpenCarOrSemiTrailerDialog(CarJournalNode node)

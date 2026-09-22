@@ -26,6 +26,7 @@ using Vodovoz.Settings.Reports;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 {
@@ -40,7 +41,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private readonly bool _userIsSalesRepresentative;
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly ICarRepository _carRepository;
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
 		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly IInteractiveService _interactiveService;
@@ -58,7 +58,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			RdlViewerViewModel rdlViewerViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeRepository employeeRepository,
-			ICarRepository carRepository,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
 			ILeftRightListViewModelFactory leftRightListViewModelFactory,
 			IReportInfoFactory reportInfoFactory,
@@ -89,7 +88,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			}
 
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -168,7 +166,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				{ "Только заказы в МЛ", "only_orders_from_route_lists" }
 			};
 
-			var excludedCarTypesOfUse = _carRepository.CarTypeOfUseForExcludeAsEnum();
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
 			_filterViewModel.AddFilter<CarTypeOfUse>(filter =>

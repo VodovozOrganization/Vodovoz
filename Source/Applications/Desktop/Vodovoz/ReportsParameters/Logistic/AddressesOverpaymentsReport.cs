@@ -13,6 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.TempAdapters;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
@@ -53,7 +54,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			buttonRun.Sensitive = false;
 			datePicker.StartDateChanged += (sender, e) => { buttonRun.Sensitive = true; };
 
-			var carTypeOfUseForExclude = _carRepository.CarTypeOfUseForExclude();
+			var carTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboDriverOfCarTypeOfUse.AddEnumToHideList(carTypeOfUseForExclude);
 			comboDriverOfCarTypeOfUse.ChangedByUser += (sender, args) => OnDriverOfSelected();

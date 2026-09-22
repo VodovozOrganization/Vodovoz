@@ -12,6 +12,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Presentation.Reports;
+using VodovozBusiness.Extensions;
 namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 {
 	public class RouteListsOnClosingReportViewModel : ValidatableUoWReportViewModelBase
@@ -53,7 +54,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 			_endDate = DateTime.Now.FirstDayOfMonth();
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
-			HiddenCarTypeOfUse = carRepository.CarTypeOfUseForExcludeAsEnum();
+			HiddenCarTypeOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 		}
 
 		public DelegateCommand GenerateReportCommand;

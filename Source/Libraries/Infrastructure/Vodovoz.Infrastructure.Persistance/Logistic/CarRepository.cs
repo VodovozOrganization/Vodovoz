@@ -14,6 +14,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
 using VodovozBusiness.EntityRepositories.Logistic;
+using VodovozBusiness.Extensions;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
@@ -91,7 +92,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		public IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType, IEnumerable<int> excludeCarIds)
 		{
-			var excludedCarTypesOfUse = CarTypeOfUseForExclude();
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 
 			var carInsurances =
 				from car in unitOfWork.Session.Query<Car>()
@@ -127,7 +128,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		public IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId, IEnumerable<int> excludeCarIds)
 		{
-			var excludedCarTypesOfUse = CarTypeOfUseForExclude();
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 
 			var carTechInspects =
 				from car in unitOfWork.Session.Query<Car>()
@@ -169,7 +170,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		public IQueryable<CarTechnicalCheckupNode> GetCarsTechnicalCheckupData(IUnitOfWork unitOfWork, int carTechnicalCheckupEventTypeId, IEnumerable<int> excludeCarIds)
 		{
-			var excludedCarTypesOfUse = CarTypeOfUseForExclude();
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 
 			var data =
 				from car in unitOfWork.Session.Query<Car>()
@@ -457,22 +458,61 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			.Where(c => carsIds.Contains(c.Id))
 			.Distinct();
 
-		public Enum[] CarTypeOfUseForExcludeAsEnum()
+		public IEnumerable<string> GetDuplicateFields(
+			IUnitOfWork uow,
+			int carId,
+			string registrationNumber,
+			string vin,
+			string chassisNumber)
 		{
-			return new Enum[]
-			{
-				CarTypeOfUse.Loader,
-				CarTypeOfUse.Semitrailer
-			};
-		}
+			var duplicateConditions = Restrictions.Disjunction();
 
-		public CarTypeOfUse[] CarTypeOfUseForExclude()
-		{
-			return new CarTypeOfUse[]
+			if(!string.IsNullOrWhiteSpace(registrationNumber))
 			{
-				CarTypeOfUse.Loader,
-				CarTypeOfUse.Semitrailer
-			};
+				duplicateConditions.Add(Restrictions.Eq(
+					Projections.Property<Car>(c => c.RegistrationNumber), registrationNumber));
+			}
+
+			if(!string.IsNullOrWhiteSpace(vin))
+			{
+				duplicateConditions.Add(Restrictions.Eq(
+					Projections.Property<Car>(c => c.VIN), vin));
+			}
+
+			if(!string.IsNullOrWhiteSpace(chassisNumber))
+			{
+				duplicateConditions.Add(Restrictions.Eq(
+					Projections.Property<Car>(c => c.ChassisNumber), chassisNumber));
+			}
+
+			var duplicates = uow.Session.QueryOver<Car>()
+				.Where(c => c.Id != carId)
+				.And(duplicateConditions)
+				.List();
+
+			var fields = new HashSet<string>();
+
+			foreach(var duplicate in duplicates)
+			{
+				if(!string.IsNullOrWhiteSpace(registrationNumber)
+					&& duplicate.RegistrationNumber == registrationNumber)
+				{
+					fields.Add(nameof(Car.RegistrationNumber));
+				}
+
+				if(!string.IsNullOrWhiteSpace(vin) && duplicate.VIN == vin)
+				{
+					fields.Add(nameof(Car.VIN));
+				}
+
+				if(!string.IsNullOrWhiteSpace(chassisNumber)
+					&& duplicate.ChassisNumber == chassisNumber)
+				{
+					fields.Add(nameof(Car.ChassisNumber));
+				}
+			}
+
+			return fields;
 		}
 	}
 }

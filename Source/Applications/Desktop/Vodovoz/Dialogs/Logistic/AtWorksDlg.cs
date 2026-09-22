@@ -39,6 +39,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using VodovozBusiness.Extensions;
+
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -167,7 +169,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void Initialize()
 		{
-			var carTypeOfUseForExclude = _carRepository.CarTypeOfUseForExcludeAsEnum();
+			var carTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarTypeOfUse.AddEnumToHideList(carTypeOfUseForExclude);
 			enumcheckCarTypeOfUse.Binding

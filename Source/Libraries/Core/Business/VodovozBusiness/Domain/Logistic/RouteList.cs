@@ -1639,18 +1639,28 @@ namespace Vodovoz.Domain.Logistic
 						new[] { nameof(Semitrailer) });
 				}
 
-				var busyRouteList = UoW.Session.QueryOver<RouteList>()
-					.Where(rl => rl.Id != Id)
-					.And(rl => rl.Semitrailer.Id == Semitrailer.Id)
-					.And(rl => rl.Status == RouteListStatus.EnRoute)
-					.List()
-					.FirstOrDefault();
 
-				if(busyRouteList != null)
+				validationContext.Items.TryGetValue(nameof(IRouteListRepository), out var rlRepositoryObject);
+
+				if(!(rlRepositoryObject is IRouteListRepository routeListRepository))
 				{
-					yield return new ValidationResult(
-						$"Полуприцеп {Semitrailer.RegistrationNumber} уже используется в МЛ №{busyRouteList.Id} от {busyRouteList.Date:d}",
-						new[] { nameof(Semitrailer) });
+					routeListRepository = validationContext.GetService<IRouteListRepository>();
+				}
+
+				if(routeListRepository != null)
+				{
+					var busyRouteList = routeListRepository.GetRouteListByBusySemiTrailer(
+						UoW,
+						Semitrailer.Id,
+						Id,
+						new[] { RouteListStatus.EnRoute });
+
+					if(busyRouteList != null)
+					{
+						yield return new ValidationResult(
+							$"Полуприцеп {Semitrailer.RegistrationNumber} уже используется в МЛ №{busyRouteList.Id} от {busyRouteList.Date:d}",
+							new[] { nameof(Semitrailer) });
+					}
 				}
 			}
 

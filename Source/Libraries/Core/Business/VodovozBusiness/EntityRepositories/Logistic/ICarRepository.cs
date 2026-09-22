@@ -84,10 +84,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 		Task<IDictionary<int, IEnumerable<CarVersion>>> GetCarOwnTypesForPeriodByCars(IUnitOfWork uow, IEnumerable<int> carsIds, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Типы моделей авто для исключения
+		/// Получить 
 		/// </summary>
-		/// <returns>Коллекция типов моделей авто для исключения</returns>
-		Enum[] CarTypeOfUseForExcludeAsEnum();
-		CarTypeOfUse[] CarTypeOfUseForExclude();
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="id">Идентификатор авто</param>
+		/// <param name="registrationNumber">Гос номер</param>
+		/// <param name="vin">VIN</param>
+		/// <param name="chassisNumber">Номер шасси</param>
+		/// <returns></returns>
+		IEnumerable<string> GetDuplicateFields(IUnitOfWork uow, int id, string registrationNumber, string vin, string chassisNumber);
 	}
 }

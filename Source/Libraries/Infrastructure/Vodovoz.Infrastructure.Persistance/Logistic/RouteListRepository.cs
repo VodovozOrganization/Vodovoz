@@ -1961,5 +1961,23 @@ FROM
 
 			return await query.FirstOrDefaultAsync(cancellationToken);
 		}
+
+		public RouteList GetRouteListByBusySemiTrailer(
+			IUnitOfWork uow,
+			int semiTrailerId,
+			int excludeRouteListId,
+			IEnumerable<RouteListStatus> statuses)
+		{
+			RouteList routeListAlias = null;
+
+			return uow.Session.QueryOver(() => routeListAlias)
+				.Where(rl => rl.Id != excludeRouteListId)
+				.And(rl => rl.Semitrailer.Id == semiTrailerId)
+				.And(Restrictions.In(
+					Projections.Property(() => routeListAlias.Status),
+					statuses.ToArray()))
+				.List()
+				.FirstOrDefault();
+		}
 	}
 }

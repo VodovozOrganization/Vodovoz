@@ -34,6 +34,18 @@ namespace Vodovoz.Views.Logistic
 
 			validatedentryVehicleNumber.CustomRegex = @"^[АВЕКМНОРСТУХ]{2}\d{4}\s?\d{2,3}$";
 
+			validatedentryVehicleNumber.Changed += (sender, e) =>
+			{
+				var entry = (Gtk.Entry)sender;
+				var upper = entry.Text?.ToUpper();
+
+				if(entry.Text != upper)
+				{
+					entry.Text = upper;
+					entry.Position = -1;
+				}
+			};
+
 			carVersionsView.ViewModel = ViewModel.CarVersionsViewModel;
 			carversioneditingview.ViewModel = ViewModel.CarVersionEditingViewModel;
 
