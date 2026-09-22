@@ -189,6 +189,7 @@ public partial class MainWindow : Window
 	Action ActionCodesPool;
 	Action ActionEdoProcessJournal;
 	Action ActionEdoProblemJournal;
+	Action ActionEdoDeviationJournal;
 	
 
 	public void BuildToolbarActions()
@@ -311,6 +312,7 @@ public partial class MainWindow : Window
 		ActionCodesPool = new Action("ActionCodesPool", "Пул кодов маркировки", null, "table");
 		ActionEdoProcessJournal = new Action("ActionEdoProcessJournal", "Документооброт с клиентами", null, "table");
 		ActionEdoProblemJournal = new Action("ActionEdoProblemJournal", "Журнал проблем документооборота с клиентами", null, "table");
+		ActionEdoDeviationJournal = new Action("ActionEdoDeviationJournal", "Журнал отклонений документооборота ЭДО", null, "table");
 
 		#endregion
 		#region Inserting actions to the toolbar
@@ -435,6 +437,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionCodesPool, null);
 		w1.Add(ActionEdoProcessJournal, null);
 		w1.Add(ActionEdoProblemJournal, null);
+		w1.Add(ActionEdoDeviationJournal, null);
 
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
@@ -555,6 +558,7 @@ public partial class MainWindow : Window
 		ActionCodesPool.Activated += OnActionCodesPoolActivated;
 		ActionEdoProcessJournal.Activated += OnActionEdoProcessJournalActivated;
 		ActionEdoProblemJournal.Activated += OnActionEdoProblemJournalActivated;
+		ActionEdoDeviationJournal.Activated += OnActionEdoDeviationJournalActivated;
 		
 		#endregion
 	}
