@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.TempAdapters;
 using VodovozBusiness.Extensions;
 
@@ -24,15 +23,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IInteractiveService _interactiveService;
-		private readonly ICarRepository _carRepository;
 
 		public AddressesOverpaymentsReport(
-			ICarRepository carRepository,
 			IReportInfoFactory reportInfoFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IInteractiveService interactiveService)
 		{
-			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 				
