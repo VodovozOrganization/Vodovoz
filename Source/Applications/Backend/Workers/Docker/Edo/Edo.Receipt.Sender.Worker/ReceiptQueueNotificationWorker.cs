@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Vodovoz.Infrastructure;
+using Vodovoz.Zabbix.Sender;
 
 namespace Edo.Receipt.Sender.Worker
 {
@@ -39,11 +40,14 @@ namespace Edo.Receipt.Sender.Worker
 		/// <inheritdoc/>
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
+			using var scope = _scopeFactory.CreateScope();
+			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
+
 			try
 			{
-				using var scope = _scopeFactory.CreateScope();
 				var service = scope.ServiceProvider.GetRequiredService<IReceiptQueueNotificationService>();
 				await service.ProcessAsync(DateTime.Now, stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(ReceiptQueueNotificationWorker), stoppingToken);
 			}
 			catch(OperationCanceledException) when(stoppingToken.IsCancellationRequested)
 			{
@@ -52,6 +56,11 @@ namespace Edo.Receipt.Sender.Worker
 			catch(Exception exception)
 			{
 				_logger.LogError(exception, "Ошибка проверки очереди чеков для уведомлений");
+				await zabbixSender.SendProblemMessageAsync(
+					nameof(ReceiptQueueNotificationWorker),
+					ZabixSenderMessageType.Problem,
+					$"Ошибка проверки очереди чеков для уведомлений: {exception.Message}",
+					stoppingToken);
 			}
 		}
 	}

@@ -102,7 +102,6 @@ namespace Edo.Receipt.Sender
 							("OrderId", task.FormalEdoRequest?.Order?.Id.ToString(CultureInfo.InvariantCulture) ?? string.Empty),
 							("CashboxId", task.CashboxId?.ToString(CultureInfo.InvariantCulture) ?? string.Empty),
 							("QueuedSince", document.StatusChangeTime.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)),
-							// Предыдущее уведомление отличает очередной повтор от дубля той же попытки.
 							("PreviousNotificationTime", document.LastQueueNotificationTime?.ToString("O", CultureInfo.InvariantCulture) ?? string.Empty));
 
 						if(!await _publisher.TryPublishAsync(uow, message, cancellationToken))
