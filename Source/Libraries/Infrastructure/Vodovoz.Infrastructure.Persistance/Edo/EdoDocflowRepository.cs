@@ -354,12 +354,20 @@ order by eir.`time` desc
 
 		public IEnumerable<SaveCodesEdoTask> GetClientSavedToPoolDocumentTaskIdsForResend(IUnitOfWork uow, int counterpartyId)
 		{
+			var undeliveryOrderStatuses = new[]
+			{
+				OrderStatus.Canceled,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.NotDelivered
+			};
+
 			var tasks = uow.Session.Query<SaveCodesEdoTask>();
 
 			return tasks
 				.Where(task =>
 					task.Status == EdoTaskStatus.Completed
 					&& task.FormalEdoRequest.Order.Client.Id == counterpartyId
+					&& !undeliveryOrderStatuses.Contains(task.FormalEdoRequest.Order.OrderStatus)
 					&& !tasks.Any(otherTask =>
 						otherTask.FormalEdoRequest.Order.Id == task.FormalEdoRequest.Order.Id
 						&& otherTask.Id > task.Id))
@@ -370,6 +378,13 @@ order by eir.`time` desc
 			IUnitOfWork uow,
 			int counterpartyId)
 		{
+			var undeliveryOrderStatuses = new[]
+			{
+				OrderStatus.Canceled,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.NotDelivered
+			};
+
 			var tasks = uow.Session.Query<ReceiptEdoTask>();
 
 			return tasks
@@ -377,6 +392,7 @@ order by eir.`time` desc
 					task.ReceiptStatus == EdoReceiptStatus.SavedToPool
 					&& task.Status == EdoTaskStatus.Completed
 					&& task.FormalEdoRequest.Order.Client.Id == counterpartyId
+					&& !undeliveryOrderStatuses.Contains(task.FormalEdoRequest.Order.OrderStatus)
 					&& !tasks.Any(otherTask =>
 						otherTask.FormalEdoRequest.Order.Id ==
 							task.FormalEdoRequest.Order.Id

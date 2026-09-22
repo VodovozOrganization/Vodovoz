@@ -1693,7 +1693,15 @@ namespace Vodovoz
 				}
 			}
 
-			_edoService.ResendEdoOrderDocumentForOrder(Entity, SelectedEdoDocumentDataNode.OrderDocumentType.Value);
+			var resendResult = _edoService.ResendEdoOrderDocumentForOrder(Entity, SelectedEdoDocumentDataNode.OrderDocumentType.Value);
+
+			if(resendResult.IsFailure)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Не удалось переотправить документ.\nПричины:\n - "
+					+ string.Join("\n - ", resendResult.Errors.Select(x => x.Message)));
+			}
 		}
 
 		private void ResendUpd()
