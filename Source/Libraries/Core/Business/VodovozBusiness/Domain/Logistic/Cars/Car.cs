@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using NHibernate.Criterion;
 using QS.Attachments.Domain;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -408,32 +407,30 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Должен быть указан канал поступления", new[] { nameof(IncomeChannel) });
 			}
 
-			validationContext.Items.TryGetValue(nameof(ICarRepository), out var carRepositoryObject);
+			var carRepository = validationContext.GetService<ICarRepository>() ?? throw new InvalidOperationException(
+					$"Для валидации {nameof(Car)} должен быть доступен {nameof(ICarRepository)} через {nameof(ValidationContext)}");
 
-			if(carRepositoryObject is ICarRepository carRepository)
+			var duplicateFields = carRepository.GetDuplicateFields(UoW, Id, RegistrationNumber, VIN, ChassisNumber);
+
+			foreach(var field in duplicateFields)
 			{
-				var duplicateFields = carRepository.GetDuplicateFields(UoW, Id, RegistrationNumber, VIN, ChassisNumber);
-
-				foreach(var field in duplicateFields)
+				switch(field)
 				{
-					switch(field)
-					{
-						case nameof(RegistrationNumber):
-							yield return new ValidationResult(
-								$"Автомобиль с гос. номером {RegistrationNumber} уже существует",
-								new[] { nameof(RegistrationNumber) });
-							break;
-						case nameof(VIN):
-							yield return new ValidationResult(
-								$"Автомобиль с VIN {VIN} уже существует",
-								new[] { nameof(VIN) });
-							break;
-						case nameof(ChassisNumber):
-							yield return new ValidationResult(
-								$"Автомобиль с номером шасси {ChassisNumber} уже существует",
-								new[] { nameof(ChassisNumber) });
-							break;
-					}
+					case nameof(RegistrationNumber):
+						yield return new ValidationResult(
+							$"Автомобиль с гос. номером {RegistrationNumber} уже существует",
+							new[] { nameof(RegistrationNumber) });
+						break;
+					case nameof(VIN):
+						yield return new ValidationResult(
+							$"Автомобиль с VIN {VIN} уже существует",
+							new[] { nameof(VIN) });
+						break;
+					case nameof(ChassisNumber):
+						yield return new ValidationResult(
+							$"Автомобиль с номером шасси {ChassisNumber} уже существует",
+							new[] { nameof(ChassisNumber) });
+						break;
 				}
 			}
 

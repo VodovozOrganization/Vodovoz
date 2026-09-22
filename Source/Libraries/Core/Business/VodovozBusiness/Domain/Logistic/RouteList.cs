@@ -1640,27 +1640,20 @@ namespace Vodovoz.Domain.Logistic
 				}
 
 
-				validationContext.Items.TryGetValue(nameof(IRouteListRepository), out var rlRepositoryObject);
+				var routeListRepository = validationContext.GetService<IRouteListRepository>() ?? throw new InvalidOperationException(
+						$"Для валидации {nameof(RouteList)} должен быть доступен {nameof(IRouteListRepository)} через {nameof(ValidationContext)}");
 
-				if(!(rlRepositoryObject is IRouteListRepository routeListRepository))
+				var busyRouteList = routeListRepository.GetRouteListByBusySemiTrailer(
+					UoW,
+					Semitrailer.Id,
+					Id,
+					new[] { RouteListStatus.EnRoute });
+
+				if(busyRouteList != null)
 				{
-					routeListRepository = validationContext.GetService<IRouteListRepository>();
-				}
-
-				if(routeListRepository != null)
-				{
-					var busyRouteList = routeListRepository.GetRouteListByBusySemiTrailer(
-						UoW,
-						Semitrailer.Id,
-						Id,
-						new[] { RouteListStatus.EnRoute });
-
-					if(busyRouteList != null)
-					{
-						yield return new ValidationResult(
-							$"Полуприцеп {Semitrailer.RegistrationNumber} уже используется в МЛ №{busyRouteList.Id} от {busyRouteList.Date:d}",
-							new[] { nameof(Semitrailer) });
-					}
+					yield return new ValidationResult(
+						$"Полуприцеп {Semitrailer.RegistrationNumber} уже используется в МЛ №{busyRouteList.Id} от {busyRouteList.Date:d}",
+						new[] { nameof(Semitrailer) });
 				}
 			}
 
