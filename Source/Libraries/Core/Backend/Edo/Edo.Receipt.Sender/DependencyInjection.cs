@@ -22,6 +22,7 @@ namespace Edo.Receipt.Sender
 
 			services.TryAddScoped<FiscalDocumentFactory>();
 			services.TryAddScoped<ReceiptSendingFailedNotificationService>();
+			services.TryAddScoped<IReceiptQueueNotificationService, ReceiptQueueNotificationService>();
 			services.TryAddScoped<ReceiptSender>();
 
 			services
