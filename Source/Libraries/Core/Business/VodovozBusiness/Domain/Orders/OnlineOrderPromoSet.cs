@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Orders;
@@ -104,14 +105,23 @@ namespace VodovozBusiness.Domain.Orders
 			OnlineOrder onlineOrder,
 			PromotionalSet promoSet,
 			IList<DiscountReasonBase> discountReasons = null
-		) => new OnlineOrderPromoSet
+		)
 		{
-			ReceivedPromoSetId = promoSetId,
-			Count = count,
-			Price = price,
-			OnlineOrder = onlineOrder,
-			PromoSet = promoSet,
-			DiscountReasons = discountReasons
-		};
+			var onlinePromoSet = new OnlineOrderPromoSet
+			{
+				ReceivedPromoSetId = promoSetId,
+				Count = count,
+				Price = price,
+				OnlineOrder = onlineOrder,
+				PromoSet = promoSet
+			};
+
+			if(discountReasons != null && discountReasons.Any())
+			{
+				onlinePromoSet.DiscountReasons = discountReasons;
+			}
+
+			return onlinePromoSet;
+		}
 	}
 }
