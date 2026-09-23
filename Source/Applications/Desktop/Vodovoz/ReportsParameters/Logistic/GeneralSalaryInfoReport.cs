@@ -18,6 +18,7 @@ using Vodovoz.Settings.Car;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Widgets.Cars.CarModelSelection;
 using Vodovoz.ViewWidgets.Reports;
+using VodovozBusiness.Extensions;
 using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.ReportsParameters.Logistic
@@ -53,7 +54,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			_carModelSelectionFilterViewModel = new CarModelSelectionFilterViewModel(UoW, Startup.AppDIContainer.Resolve<ICarSettings>());
 			_carModelSelectionFilterViewModel.CarModelNodes.ListContentChanged += (s, e) => OnDriverOfSelected();
-			_carModelSelectionFilterViewModel.ExcludedCarTypesOfUse = new[] { CarTypeOfUse.Loader };
+			_carModelSelectionFilterViewModel.ExcludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 			UpdateCarModelsList();
 		}
 
@@ -95,9 +96,10 @@ namespace Vodovoz.ReportsParameters.Logistic
 			comboDriverOfCarOwnType.ItemsEnum = typeof(CarOwnType);
 			comboDriverOfCarOwnType.ChangedByUser += (sender, args) => OnDriverOfSelected();
 
+			var carTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Truck);
-			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
+			comboDriverOfCarTypeOfUse.AddEnumToHideList(carTypeOfUseForExclude);
 			comboDriverOfCarTypeOfUse.ChangedByUser += (sender, args) =>
 			{
 				OnDriverOfSelected();

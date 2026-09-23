@@ -67,6 +67,16 @@ namespace Vodovoz.Logistic
 				.AddBinding(ViewModel, vm => vm.LogisticanEditing, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ylabelSemitrailer.Binding
+				.AddBinding(ViewModel, vm => vm.IsSemiTrailerVisible, w => w.Visible)
+				.InitializeFromSource();
+
+			entrySemitrailer.ViewModel = ViewModel.SemitrailerViewModel;
+			entrySemitrailer.Binding
+				.AddBinding(ViewModel, vm => vm.IsSemiTrailerVisible, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanWorkWithSemitrailers, w => w.Sensitive)
+				.InitializeFromSource();
+
 			var deliveryfreebalanceview = new DeliveryFreeBalanceView(ViewModel.DeliveryFreeBalanceViewModel);
 
 			deliveryfreebalanceview.Binding

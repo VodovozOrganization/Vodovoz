@@ -7,6 +7,7 @@ using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.ViewModels.Edo;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Options;
+using Vodovoz.ViewModels.Services.Orders;
 using Vodovoz.ViewModels.Services.RouteOptimization;
 
 namespace Vodovoz.ViewModels
@@ -24,6 +25,7 @@ namespace Vodovoz.ViewModels
 				.ConfigureOptions<ConfigureGeoCoderApiOptions>()
 				.AddScoped<EdoInOrderDocumentActionsViewModel>()
 				.AddScoped<IEdoDocumentActionsFactory, EdoDocumentActionsFactory>()
+				.AddScoped<OrderCancellationPermitService>()
 			;
 	}
 }

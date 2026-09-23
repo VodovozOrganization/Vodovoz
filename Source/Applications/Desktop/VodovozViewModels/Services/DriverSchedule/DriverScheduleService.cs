@@ -454,7 +454,10 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			var startDate = GetWeekStart(date);
 			var endDate = startDate.AddDays(_daysInWeek - 1);
 			var selectedCarTypeOfUse = EnumHelper.GetValuesList<CarTypeOfUse>()
-				.Where(typeOfUse => typeOfUse != CarTypeOfUse.Loader && typeOfUse != CarTypeOfUse.Truck)
+				.Where(typeOfUse => 
+					typeOfUse != CarTypeOfUse.Loader 
+					&& typeOfUse != CarTypeOfUse.Truck 
+					&& typeOfUse != CarTypeOfUse.Semitrailer)
 				.ToArray();
 			var selectedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>().ToArray();
 			var selectedSubdivisionIds = _logisticRepository

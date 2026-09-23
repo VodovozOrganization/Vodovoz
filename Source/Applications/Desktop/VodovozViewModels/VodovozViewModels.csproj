@@ -122,12 +122,15 @@
     <Compile Include="Factories\IVatRateVersionViewModelFactory.cs" />
     <Compile Include="Factories\VatRateVersionViewModelFactory.cs" />
     <Compile Include="Journals\FilterViewModels\Banks\BanksJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Edo\EdoDeviationFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProblemFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\BankAccountsMovementsJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Payments\ProfitCategoriesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\WageCalculation\CallCenterMotivationCoefficientJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Banks\BanksJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoDeviationJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoDeviationJournalNodeType.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoNotificationSettingJournalNode.cs" />
@@ -139,6 +142,9 @@
     <Compile Include="Journals\JournalNodes\WageCalculation\CallCenterMotivationCoefficientJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Banks\BanksJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\VatRateJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationHelpTexts.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalMessages.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoNotificationSettingJournalViewModel.cs" />
@@ -160,6 +166,7 @@
     <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.CounterpartyCashlessDebtsReportType.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.ProducedProductionReportMeasurementUnit.cs" />
+    <Compile Include="Services\Orders\OrderCancellationPermitService.cs" />
     <Compile Include="Services\SalesReport\ISalesReportService.cs" />
     <Compile Include="Services\SalesReport\SalesReportService.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByNomenclatureRow.cs" />
@@ -840,6 +847,7 @@
     <Compile Include="ViewModels\Goods\NomenclatureInnerDeliveryPriceViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryAvailabilityHistoryViewModel.cs" />
     <Compile Include="ViewModels\ImportPaymentsFromAvangardSbpViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\SemitrailerViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TariffZoneViewModel.cs" />
     <Compile Include="ViewModels\Logistic\TrackPointViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarManufacturerViewModel.cs" />

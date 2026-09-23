@@ -53,6 +53,25 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			}
 		}
 
+		/// <inheritdoc/>
+		public Task<IList<int>> GetFiscalDocumentIdsForQueueNotification(
+			IUnitOfWork uow,
+			FiscalDocumentStatus status,
+			DateTime statusChangedBefore,
+			DateTime statusChangedNotBefore,
+			DateTime notifiedNotAfter,
+			CancellationToken cancellationToken)
+		{
+			return uow.Session.QueryOver<EdoFiscalDocument>()
+				.Where(x => x.Status == status)
+				.And(x => x.StatusChangeTime == null
+					|| (x.StatusChangeTime < statusChangedBefore
+						&& x.StatusChangeTime >= statusChangedNotBefore
+						&& (x.LastQueueNotificationTime == null || x.LastQueueNotificationTime <= notifiedNotAfter)))
+				.Select(x => x.Id)
+				.ListAsync<int>(cancellationToken);
+		}
+
 		public async Task<IEnumerable<GtinEntity>> GetGtinsAsync(CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
@@ -581,6 +600,100 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return await query.ListAsync<CodePoolMissingProblemNode>(cancellationToken);
 		}
 
+		public async Task<IList<TaxcomSendProblemNode>> GetTaxcomSendProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int? batchSize,
+			TimeSpan[] retryDelays,
+			CancellationToken cancellationToken)
+		{
+			if(retryDelays == null || retryDelays.Length == 0)
+			{
+				throw new ArgumentException("Не заданы задержки между попытками", nameof(retryDelays));
+			}
+
+			var now = DateTime.UtcNow;
+			var retryCount = retryDelays.Length;
+
+			var query = from problem in uow.Session.Query<CustomEdoTaskProblem>()
+						join orderTask in uow.Session.Query<OrderEdoTask>()
+							on problem.EdoTask.Id equals orderTask.Id
+						join orderEdoDocument in uow.Session.Query<OrderEdoDocument>()
+							on orderTask.Id equals orderEdoDocument.DocumentTaskId
+						join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
+							on problem.Id equals routineState.Problem.Id into routineStates
+						from routineState in routineStates.DefaultIfEmpty()
+						where problem.SourceName == problemSourceName
+							&& problem.State == TaskProblemState.Active
+							&& (routineState == null || routineState.RetryCount < retryCount)
+						orderby routineState == null ? 0 : routineState.RetryCount, problem.CreationTime
+						select new
+						{
+							Problem = problem,
+							OrderTask = orderTask,
+							RoutineState = routineState,
+							OrderEdoDocument = orderEdoDocument
+						};
+
+			if(batchSize.HasValue && batchSize.Value > 0)
+			{
+				query = query.Take(batchSize.Value);
+			}
+
+			var rawResult = await query.ToListAsync(cancellationToken);
+
+			var result = new List<TaxcomSendProblemNode>();
+			foreach(var item in rawResult)
+			{
+				var routineState = item.RoutineState;
+
+				if(routineState == null)
+				{
+					result.Add(new TaxcomSendProblemNode
+					{
+						Problem = item.Problem,
+						EdoTask = item.OrderTask,
+						RoutineState = null,
+						OrderEdoDocument = item.OrderEdoDocument
+					});
+					continue;
+				}
+
+				if(!routineState.LastRetryTime.HasValue)
+				{
+					result.Add(new TaxcomSendProblemNode
+					{
+						Problem = item.Problem,
+						EdoTask = item.OrderTask,
+						RoutineState = routineState,
+						OrderEdoDocument = item.OrderEdoDocument
+					});
+					continue;
+				}
+
+				var retryIndex = Math.Min(routineState.RetryCount, retryDelays.Length - 1);
+				var nextRetryTime = routineState.LastRetryTime.Value.Add(retryDelays[retryIndex]);
+
+				if(nextRetryTime <= now)
+				{
+					result.Add(new TaxcomSendProblemNode
+					{
+						Problem = item.Problem,
+						EdoTask = item.OrderTask,
+						RoutineState = routineState,
+						OrderEdoDocument = item.OrderEdoDocument
+					});
+				}
+			}
+
+			if(batchSize.HasValue && batchSize.Value > 0 && result.Count > batchSize.Value)
+			{
+				result = result.Take(batchSize.Value).ToList();
+			}
+
+			return result;
+		}
+
 		public async Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(
 			IUnitOfWork uow,
 			DateTime minFiscalDocumentCreationTime,
@@ -809,7 +922,7 @@ where eir.order_id = :order_id
 				)
 				.Where(() => edoRequestAlias.Order.Id == orderId)
 				.SelectList(list => list
-					.SelectGroup(() => edoTaskProblemAlias.Id)
+					.SelectGroup(() => edoTaskProblemAlias.Id).WithAlias(() => resultAlias.TaskProblemId)
 					.Select(() => orderEdoTaskAlias.Id).WithAlias(() => resultAlias.OrderTaskId)
 					.Select(() => edoTaskProblemAlias.CreationTime).WithAlias(() => resultAlias.Time)
 					.Select(() => edoTaskProblemAlias.State).WithAlias(() => resultAlias.State)
@@ -894,7 +1007,7 @@ where eir.order_id = :order_id
 				)
 				.Where(() => edoRequestAlias.Order.Id == orderId)
 				.SelectList(list => list
-					.SelectGroup(() => edoTaskProblemAlias.Id)
+					.SelectGroup(() => edoTaskProblemAlias.Id).WithAlias(() => resultAlias.TaskProblemId)
 					.Select(() => transferEdoTaskAlias.Id).WithAlias(() => resultAlias.TransferTaskId)
 					.Select(() => edoTaskProblemAlias.CreationTime).WithAlias(() => resultAlias.Time)
 					.Select(() => edoTaskProblemAlias.State).WithAlias(() => resultAlias.State)
@@ -1356,6 +1469,15 @@ where ecr.order_id = :order_id
 				.OrderBy(x => x.CreationTime)
 				.Take(batchSize)
 				.ToListAsync(cancellationToken);
+		}
+
+		public bool HasActiveProblemWithSource(IUnitOfWork uow, int taskId, IEnumerable<string> sourceNames)
+		{
+			return uow.GetAll<EdoTaskProblem>()
+				.Any(x => 
+					x.EdoTask.Id == taskId
+					&& x.State == TaskProblemState.Active
+					&& sourceNames.Contains(x.SourceName));
 		}
 	}
 }

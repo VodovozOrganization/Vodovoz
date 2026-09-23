@@ -20,5 +20,10 @@ namespace Edo.Contracts.Messages.Events
 		/// Информация для создания УПД по ЭДО
 		/// </summary>
 		public UniversalTransferDocumentInfo UpdInfo { get; set; }
+
+		/// <summary>
+		/// Id задачи по ЭДО, которая инициировала отправку документа
+		/// </summary>
+		public int EdoTaskId { get; set; }
 	}
 }

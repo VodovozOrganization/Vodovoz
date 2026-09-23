@@ -36,7 +36,6 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.NHibernateProjections.Orders;
@@ -46,7 +45,6 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Operations;
-using VodovozBusiness.Domain.StoredEmails;
 using VodovozBusiness.EntityRepositories.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -105,7 +103,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 					.Where(() => routeListAlias.Id == null
 						|| (carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck
-							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Loader))
+							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Loader
+							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Semitrailer))
 					.And(() => routeListItemAlias.Id == null || routeListItemAlias.Status != RouteListItemStatus.Transfered);
 			}
 
@@ -394,6 +393,20 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						   .Take(1)
 						   ;
 			return query.List().FirstOrDefault();
+		}
+
+		/// <inheritdoc/>
+		public bool HasAnotherOrderWithWater19L(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
+			int excludedNomenclatureId, IEnumerable<OrderStatus> orderStatuses)
+		{
+			return uow.Session.Query<OrderItem>()
+				.Any(item => item.Order.Client.Id == counterpartyId
+					&& item.Order.Id != excludedOrderId
+					&& orderStatuses.Contains(item.Order.OrderStatus)
+					&& item.Count > 0
+					&& item.Nomenclature.Id != excludedNomenclatureId
+					&& item.Nomenclature.Category == NomenclatureCategory.water
+					&& item.Nomenclature.TareVolume == TareVolume.Vol19L);
 		}
 
 		public bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty)

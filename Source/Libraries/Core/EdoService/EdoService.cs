@@ -82,6 +82,11 @@ namespace EdoService.Library
 			EdoDocumentStatus.CompletedWithDivergences
 		};
 
+		private static string[] _resendViaOrderDocumentSendEventProblemSources => new[]
+		{
+			"Custom.TaxcomDocumentSendingFail"
+		};
+
 		public EdoService(
 			IUnitOfWorkFactory uowFactory,
 			IOrderRepository orderRepository,
@@ -1012,8 +1017,14 @@ namespace EdoService.Library
 			return Result.Success();
 		}
 
-		public void ResendEdoOrderDocumentForOrder(Order order, OrderDocumentType type)
+		public Result ResendEdoOrderDocumentForOrder(Order order, OrderDocumentType type)
 		{
+			var orderValidationResult = ValidateOrderForResend(order);
+			if(orderValidationResult.IsFailure)
+			{
+				return orderValidationResult;
+			}
+
 			using(var uow = _uowFactory.CreateWithoutRoot("Публикация неформализованной заявки ЭДО"))
 			{
 				var informalRequest = uow.GetAll<InformalEdoRequest>()
@@ -1032,6 +1043,8 @@ namespace EdoService.Library
 
                 _messageService.PublishInformalEdoRequestCreatedEvent(informalRequest.Id)
                     .GetAwaiter().GetResult();
+
+				return Result.Success();
 			}
 		}
 
@@ -1180,6 +1193,12 @@ namespace EdoService.Library
 				var request = _edoRequestRepository
 					.GetFirstOrDefault(uow, x => x.Task.Id == orderEdoTaskId);
 
+				var orderValidationResult = ValidateOrderForResend(request.Order);
+				if(orderValidationResult.IsFailure)
+				{
+					return Result.Failure<string>(orderValidationResult.Errors);
+				}
+
 				if(request.Task.TaskType == EdoTaskType.SaveCode)
 				{
 					var checkOtherRequestsResult = CheckOtherRequests(uow, request, orderEdoTaskId);
@@ -1225,6 +1244,12 @@ namespace EdoService.Library
 			{
 				var request = _edoRequestRepository
 					.GetFirstOrDefault(uow, x => x.Task.Id == orderEdoTaskId);
+
+				var orderValidationResult = ValidateOrderForResend(request.Order);
+				if(orderValidationResult.IsFailure)
+				{
+					return Result.Failure<string>(orderValidationResult.Errors);
+				}
 
 				var receiptTask = request.Task.As<ReceiptEdoTask>();
 				if(receiptTask == null)
@@ -1409,6 +1434,43 @@ namespace EdoService.Library
 					"UpdateDocflowStatusException",
 					$"Ошибка при обновлении статуса: {ex.Message}"
 				));
+			}
+		}
+
+		public bool CanResendViaEdoRequestCreatedEvent(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Проверка возможности переотправки документа через событие OrderDocumentSendEvent"))
+			{
+				if(!_edoRepository.HasActiveProblemWithSource(uow, taskId, _resendViaOrderDocumentSendEventProblemSources))
+				{
+					return false;
+				}
+
+				return true;
+			}
+		}
+
+		public async Task<Result<string>> TryResendViaOrderDocumentSendEventAsync(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Переотправка документа через событие отправки заказа OrderDocumentSendEvent в Такском"))
+			{				
+				var orderEdoDocument = _edoRepository.GetOrderEdoDocumentByTaskId(uow, taskId);
+
+				if(orderEdoDocument is null)
+				{
+					return Result.Failure<string>(new Error(
+						"OrderEdoDocumentNotFound",
+						$"Не найден исходящий документ ЭДО для задачи №{taskId}"));
+				}
+
+				var message = new OrderDocumentSendEvent
+				{
+					OrderDocumentId = orderEdoDocument.Id
+				};
+
+				await _bus.Publish(message);
+
+				return Result.Success("Документ поставлен в очередь на переотправку");
 			}
 		}
 	}

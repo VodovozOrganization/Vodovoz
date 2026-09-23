@@ -8,6 +8,14 @@ namespace Vodovoz.Infrastructure.Persistance.SmsNotifications
 {
 	internal sealed class SmsNotificationRepository : ISmsNotificationRepository
 	{
+		/// <inheritdoc/>
+		public IEnumerable<NewClientSmsNotification> GetNewClientSmsNotifications(IUnitOfWork uow, int counterpartyId)
+		{
+			return uow.Session.QueryOver<NewClientSmsNotification>()
+				.Where(notification => notification.Counterparty.Id == counterpartyId)
+				.List<NewClientSmsNotification>();
+		}
+
 		public IEnumerable<NewClientSmsNotification> GetUnsendedNewClientSmsNotifications(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<NewClientSmsNotification>()

@@ -8,6 +8,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
@@ -15,6 +16,7 @@ using QS.Services;
 using System;
 using System.IO;
 using System.Linq;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -29,6 +31,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports.Cars;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 {
@@ -79,6 +82,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			UseSlider = true;
 			TabName = "Журнал автомобилей";
 
+			CanWorkWithSemitrailers = currentPermissionService.ValidatePresetPermission(LogisticPermissions.CanWorkWithSemitrailers);
+
 			UpdateOnChanges(
 				typeof(Car),
 				typeof(CarModel),
@@ -87,6 +92,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 		}
+
+		private bool CanWorkWithSemitrailers { get; }
 
 		public ILifetimeScope LifetimeScope { get; }
 
@@ -228,10 +235,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 					DateTime.Today.AddDays(_generalSettings.CarTechnicalCheckupEndingNotificationDaysBefore)));
 			#endregion
 
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+
 			var isShowBackgroundColorNotificationProjection = Projections.Conditional(
 				Restrictions.Conjunction()
-					.Add(Restrictions.Not(Restrictions.Eq(Projections.Property(() => carModelAlias.CarTypeOfUse), CarTypeOfUse.Loader)))
-					.Add(Restrictions.Not(Restrictions.In(Projections.Property(() => carAlias.Id), _carEventSettings.CarsExcludedFromReportsIds)))
+					.Add(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => carModelAlias.CarTypeOfUse),
+						excludedCarTypesOfUse)))
+					.Add(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => carAlias.Id),
+						_carEventSettings.CarsExcludedFromReportsIds)))
 					.Add(Restrictions.Disjunction()
 						.Add(isUpcomingOurCarTechInspectAndIsCompanyCarRestriction)
 						.Add(isUpcomingRaskatCarTechInspectAndIsRaskatCarRestriction)
@@ -282,6 +295,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			if(_filterViewModel.ExcludedCarTypesOfUse != null && _filterViewModel.ExcludedCarTypesOfUse.Any())
 			{
 				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).Not.IsIn(_filterViewModel.ExcludedCarTypesOfUse.ToArray());
+			}
+
+			if(!CanWorkWithSemitrailers)
+			{
+				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse)
+					.Not.IsIn(new[] { CarTypeOfUse.Semitrailer });
 			}
 
 			if(_filterViewModel.RestrictedCarOwnTypes != null)
@@ -356,7 +375,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 						Projections.Property(() => driverAlias.Patronymic)))
 					.WithAlias(() => carJournalNodeAlias.DriverName)
 					.Select(() => osagoInsurerAlias.Name).WithAlias(() => carJournalNodeAlias.OsagoInsurer)
-					.Select(() => kaskoInsurerAlias.Name).WithAlias(() => carJournalNodeAlias.KaskoInsurer))
+					.Select(() => kaskoInsurerAlias.Name).WithAlias(() => carJournalNodeAlias.KaskoInsurer)
+					.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => carJournalNodeAlias.CarTypeOfUse))
 				.OrderByAlias(() => carJournalNodeAlias.IsShowBackgroundColorNotification).Desc
 				.OrderBy(() => carAlias.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<CarJournalNode>());
@@ -372,19 +392,32 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			var canCreate = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanCreate;
 			var canEdit = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanRead;
 			var canDelete = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanDelete;
+			var canCreateSemiTrailer = CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.CanWorkWithSemitrailers);
+			var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
 
-			var addAction = new JournalAction("Добавить",
-				(selected) => canCreate,
-				(selected) => VisibleCreateAction,
-				(selected) => CreateEntityDialog(),
-				"Insert"
+			addParentNodeAction.ChildActionsList.Add(
+				new JournalAction("Добавить автомобиль",
+					(selected) => canCreate,
+					(selected) => VisibleCreateAction,
+					(selected) => CreateEntityDialog(),
+					"Insert"
+				)
 			);
-			NodeActionsList.Add(addAction);
+
+			addParentNodeAction.ChildActionsList.Add(
+				new JournalAction("Добавить полуприцеп",
+					(selected) => canCreateSemiTrailer,
+					(selected) => VisibleCreateAction,
+					(selected) => CreateSemiTrailerDialog()
+				)
+			);
+
+			NodeActionsList.Add(addParentNodeAction);
 
 			var editAction = new JournalAction("Изменить",
 				(selected) => canEdit && selected.Any(),
 				(selected) => VisibleEditAction,
-				(selected) => selected.Cast<CarJournalNode>().ToList().ForEach(EditEntityDialog)
+				(selected) => selected.Cast<CarJournalNode>().ToList().ForEach(OpenCarOrSemiTrailerDialog)
 			);
 			NodeActionsList.Add(editAction);
 
@@ -415,6 +448,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			);
 
 			NodeActionsList.Add(reportActions);			
+		}
+
+		private void CreateSemiTrailerDialog()
+		{
+			NavigationManager.OpenViewModel<SemitrailerViewModel, IEntityUoWBuilder>(
+				this, EntityUoWBuilder.ForCreate());
+		}
+
+		private void OpenCarOrSemiTrailerDialog(CarJournalNode node)
+		{
+			if(node.CarTypeOfUse is CarTypeOfUse.Semitrailer)
+			{
+				NavigationManager.OpenViewModel<SemitrailerViewModel, IEntityUoWBuilder>(
+					this, EntityUoWBuilder.ForOpen(node.Id), OpenPageOptions.AsSlave);
+			}
+			else
+			{
+				NavigationManager.OpenViewModel<CarViewModel, IEntityUoWBuilder>(
+					this, EntityUoWBuilder.ForOpen(node.Id), OpenPageOptions.AsSlave);
+			}
 		}
 
 		private JournalAction CreateCarInsurancesReportAction()

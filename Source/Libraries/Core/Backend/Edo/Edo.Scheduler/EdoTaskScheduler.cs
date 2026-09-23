@@ -60,6 +60,17 @@ namespace Edo.Scheduler.Service
 				_logger.LogWarning("Для клиентскаой ЭДО заявки Id {CustomerEdoRequestId} уже была создана задача.", requestId);
 				return;
 			}
+			
+			if(request.Order != null && request.Order.IsUndeliveredStatus)
+			{
+				_logger.LogWarning(
+					"Для клиентской ЭДО заявки Id {CustomerEdoRequestId} задача не создается, "
+					+ "так как заказ №{OrderId} находится в статусе {OrderStatus}.",
+					requestId,
+					request.Order.Id,
+					request.Order.OrderStatus);
+				return;
+			}
 
 			switch(request.Type)
 			{
@@ -140,6 +151,17 @@ namespace Edo.Scheduler.Service
 			if(edoTask != null)
 			{
 				_logger.LogWarning("Для ЭДО заявки Id {InformalEdoRequest} уже была создана задача.", requestId);
+				return;
+			}	
+			
+			if(request.Order != null && request.Order.IsUndeliveredStatus)
+			{
+				_logger.LogWarning(
+					"Для ЭДО заявки Id {InformalEdoRequest} задача не создается, "
+					+ "так как заказ №{OrderId} находится в статусе {OrderStatus}.",
+					requestId,
+					request.Order.Id,
+					request.Order.OrderStatus);
 				return;
 			}
 

@@ -51,8 +51,9 @@ namespace Vodovoz.JournalViewers
 				.AddBinding(vm => vm.ShowDriversWithTerminal, w => w.Active)
 				.InitializeFromSource();
 
+			var carTypeOfUseForExclude = ViewModel.CarTypeOfUseForExclude;
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
-			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
+			enumcheckCarTypeOfUse.AddEnumToHideList(carTypeOfUseForExclude);
 			enumcheckCarTypeOfUse.Binding.AddBinding(ViewModel, vm => vm.RestrictedCarTypesOfUse, w => w.SelectedValuesList,
 				new EnumsListConverter<CarTypeOfUse>()).InitializeFromSource();
 

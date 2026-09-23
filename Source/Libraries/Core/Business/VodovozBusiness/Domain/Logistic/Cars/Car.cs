@@ -1,19 +1,19 @@
-﻿using QS.Attachments.Domain;
+﻿using Microsoft.Extensions.DependencyInjection;
+using QS.Attachments.Domain;
+using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
+using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using QS.DomainModel.UoW;
-using QS.Services;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
-using VodovozBusiness.Domain.Logistic;
-using QS.Extensions.Observable.Collections.List;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
@@ -387,17 +387,17 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Гос. номер автомобиля должен быть заполнен", new[] { nameof(RegistrationNumber) });
 			}
 
-			if(FuelType is null)
-			{
-				yield return new ValidationResult("Тип топлива должен быть заполнен", new[] { nameof(FuelType) });
-			}
-
 			if(CarModel is null)
 			{
 				yield return new ValidationResult("Модель должна быть заполнена", new[] { nameof(CarModel) });
 			}
 
-			if(FuelConsumption <= 0)
+			if(FuelType is null && CarModel != null && CarModel.CarTypeOfUse != CarTypeOfUse.Semitrailer)
+			{
+				yield return new ValidationResult("Тип топлива должен быть заполнен", new[] { nameof(FuelType) });
+			}
+
+			if(FuelConsumption <= 0 && CarModel != null && CarModel.CarTypeOfUse != CarTypeOfUse.Semitrailer)
 			{
 				yield return new ValidationResult("Расход топлива должен быть больше 0", new[] { nameof(FuelConsumption) });
 			}
@@ -407,14 +407,34 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Должен быть указан канал поступления", new[] { nameof(IncomeChannel) });
 			}
 
-			var cars = UoW.Session.QueryOver<Car>()
-				.Where(c => c.RegistrationNumber == RegistrationNumber)
-				.WhereNot(c => c.Id == Id)
-				.List();
+			var carRepository = validationContext.GetService<ICarRepository>() ?? throw new InvalidOperationException(
+					$"Для валидации {nameof(Car)} должен быть доступен {nameof(ICarRepository)} через {nameof(ValidationContext)}");
 
-			if(cars.Any())
+			var routeListRepository = validationContext.GetService<IRouteListRepository>() ?? throw new InvalidOperationException(
+					$"Для валидации {nameof(Car)} должен быть доступен {nameof(IRouteListRepository)} через {nameof(ValidationContext)}");
+
+			var duplicateFields = carRepository.GetDuplicateFields(UoW, Id, RegistrationNumber, VIN, ChassisNumber);
+
+			foreach(var field in duplicateFields)
 			{
-				yield return new ValidationResult("Автомобиль уже существует", new[] { "Duplication" });
+				switch(field)
+				{
+					case nameof(RegistrationNumber):
+						yield return new ValidationResult(
+							$"Автомобиль с гос. номером {RegistrationNumber} уже существует",
+							new[] { nameof(RegistrationNumber) });
+						break;
+					case nameof(VIN):
+						yield return new ValidationResult(
+							$"Автомобиль с VIN {VIN} уже существует",
+							new[] { nameof(VIN) });
+						break;
+					case nameof(ChassisNumber):
+						yield return new ValidationResult(
+							$"Автомобиль с номером шасси {ChassisNumber} уже существует",
+							new[] { nameof(ChassisNumber) });
+						break;
+				}
 			}
 
 			if(!CarVersions.Any())
@@ -496,9 +516,21 @@ namespace Vodovoz.Domain.Logistic.Cars
 				}
 			}
 
-			if(IsArchive && ArchivingReason == null)
+			if(IsArchive && ArchivingReason is null && CarModel != null && CarModel.CarTypeOfUse != CarTypeOfUse.Semitrailer)
 			{
 				yield return new ValidationResult("Выберите причину архивирования", new[] { nameof(ArchivingReason) });
+			}
+
+			if(IsArchive && CarModel != null && CarModel.CarTypeOfUse is CarTypeOfUse.Semitrailer)
+			{
+				var busyRouteList = routeListRepository.GetRouteListByBusySemiTrailer(Id, new[] { RouteListStatus.EnRoute });
+
+				if(busyRouteList != null)
+				{
+					yield return new ValidationResult(
+						$"Полуприцеп {RegistrationNumber} уже используется в МЛ №{busyRouteList.Id} от {busyRouteList.Date:d}",
+						new[] { nameof(RegistrationNumber) });
+				}
 			}
 		}
 
