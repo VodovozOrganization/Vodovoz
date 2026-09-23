@@ -139,7 +139,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				
 				var discountReasons = _discountReasonRepository.GetDiscountReasons(
 					uow,
-					cartItem.DiscountIds);
+					cartItem.DiscountIds ?? new List<int>());
 
 				if(!fixedPrices.Any())
 				{
