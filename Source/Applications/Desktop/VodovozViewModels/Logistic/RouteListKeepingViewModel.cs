@@ -91,6 +91,7 @@ namespace Vodovoz
 		private Employee _previousForwarder = null;
 
 		private readonly ViewModelEEVMBuilder<Car> _carViewModelEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Car> _semitrailerViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _forwarderViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _logisticianViewModelEEVMBuilder;
@@ -132,6 +133,7 @@ namespace Vodovoz
 			ITrueMarkRepository trueMarkRepository,
 			DeliveryFreeBalanceViewModel deliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Car> semitrailerViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> forwarderViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> logisticianViewModelEEVMBuilder,
@@ -163,6 +165,7 @@ namespace Vodovoz
 
 			DeliveryFreeBalanceViewModel = deliveryFreeBalanceViewModel ?? throw new ArgumentNullException(nameof(deliveryFreeBalanceViewModel));
 			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
+			_semitrailerViewModelEEVMBuilder = semitrailerViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(semitrailerViewModelEEVMBuilder));
 			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
 			_forwarderViewModelEEVMBuilder = forwarderViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(forwarderViewModelEEVMBuilder));
 			_logisticianViewModelEEVMBuilder = logisticianViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(logisticianViewModelEEVMBuilder));
@@ -381,7 +384,7 @@ namespace Vodovoz
 
 		public IEntityEntryViewModel CreateSemitrailerViewModel()
 		{
-			var viewModel = _carViewModelEEVMBuilder
+			var viewModel = _semitrailerViewModelEEVMBuilder
 				.SetViewModel(this)
 				.SetUnitOfWork(UoW)
 				.ForProperty(Entity, x => x.Semitrailer)
