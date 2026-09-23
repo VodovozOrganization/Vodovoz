@@ -150,6 +150,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.Services.Orders;
 using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -238,6 +239,7 @@ namespace Vodovoz
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
 		private IOrderOrganizationManager _orderOrganizationManager;
+		private OrderCancellationPermitService _orderCancellationPermitService;
 
 		private readonly IRouteListSettings _routeListSettings = ScopeProvider.Scope.Resolve<IRouteListSettings>();
 		private readonly IDocumentPrinter _documentPrinter = ScopeProvider.Scope.Resolve<IDocumentPrinter>();
@@ -253,7 +255,6 @@ namespace Vodovoz
 		private readonly IDiscountReasonRepository _discountReasonRepository = ScopeProvider.Scope.Resolve<IDiscountReasonRepository>();
 		private readonly IRouteListItemRepository _routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
 		private readonly IEmailRepository _emailRepository = ScopeProvider.Scope.Resolve<IEmailRepository>();
-		private readonly ICashRepository _cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = ScopeProvider.Scope.Resolve<IPromotionalSetRepository>();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
@@ -723,6 +724,7 @@ namespace Vodovoz
 			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
 			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
 			_orderOrganizationManager = _lifetimeScope.Resolve<IOrderOrganizationManager>();
+			_orderCancellationPermitService = _lifetimeScope.Resolve<OrderCancellationPermitService>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -1691,7 +1693,15 @@ namespace Vodovoz
 				}
 			}
 
-			_edoService.ResendEdoOrderDocumentForOrder(Entity, SelectedEdoDocumentDataNode.OrderDocumentType.Value);
+			var resendResult = _edoService.ResendEdoOrderDocumentForOrder(Entity, SelectedEdoDocumentDataNode.OrderDocumentType.Value);
+
+			if(resendResult.IsFailure)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Не удалось переотправить документ.\nПричины:\n - "
+					+ string.Join("\n - ", resendResult.Errors.Select(x => x.Message)));
+			}
 		}
 
 		private void ResendUpd()
@@ -4642,52 +4652,11 @@ namespace Vodovoz
 
 		protected void OnButtonCancelOrderClicked(object sender, EventArgs e)
 		{
-			bool isShipped = !_orderRepository.IsSelfDeliveryOrderWithoutShipment(UoW, Entity.Id);
-			bool orderHasIncome = _cashRepository.OrderHasIncome(UoW, Entity.Id);
+			var permit = _orderCancellationPermitService.GetPermitWithOrderChecks(UoW, Entity);
 
-			if(Entity.SelfDelivery && (orderHasIncome || isShipped))
+			if(permit.Type == OrderCancellationPermitType.AllowCancelOrder)
 			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Error,
-					"Вы не можете отменить отгруженный или оплаченный самовывоз. " +
-						"Для продолжения необходимо удалить отгрузку."
-				);
-				return;
-			}
-
-			var validationContext = new ValidationContext(
-				Entity, 
-				null, 
-				new Dictionary<object, object> 
-				{
-					{ "NewStatus", OrderStatus.Canceled }
-				}
-			);
-
-			if(!Validate(validationContext))
-			{
-				return;
-			}
-
-			var permit = _orderCancellationService.CanCancelOrder(UoW, Entity);
-			switch(permit.Type)
-			{
-				case OrderCancellationPermitType.AllowCancelDocflow:
-					if(permit.EdoTaskToCancellationId == null)
-					{
-						throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
-					}
-					_orderCancellationService.CancelDocflowByUser(
-						$"Отмена заказа №{Entity.Id}", 
-						permit.EdoTaskToCancellationId.Value
-					);
-					return;
-				case OrderCancellationPermitType.AllowCancelOrder:
-					OpenUndelivery(permit);
-					break;
-				case OrderCancellationPermitType.Deny:
-				default:
-					return;
+				OpenUndelivery(permit);
 			}
 		}
 

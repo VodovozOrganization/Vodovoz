@@ -153,15 +153,15 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
-
+			
 			if(_edoCancellationService.IsEdoTaskMustBeCancelled(receiptEdoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
-				
+
 				await _edoCancellationService.CancelTask(receiptEdoTask.Id, reason, false, cancellationToken);
 				return;
 			}
-			
+
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
