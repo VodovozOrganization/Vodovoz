@@ -38,17 +38,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport
 			{
 				var worksheet = workbook.Worksheets.Add("Журнал задолженностей");
 
-				worksheet.Column(1).Width = 5;
-				worksheet.Column(2).Width = 15;
-				worksheet.Column(3).Width = 40;
-				worksheet.Column(4).Width = 75;
-				worksheet.Column(5).Width = 15;
-				worksheet.Column(6).Width = 30;
-				worksheet.Column(7).Width = 15;
-				worksheet.Column(8).Width = 15;
-				worksheet.Column(9).Width = 20;
-				worksheet.Column(10).Width = 10;
-				worksheet.Column(11).Width = 12;
 				worksheet.Column(7).Style.DateFormat.Format = "dd.MM.yyyy";
 				worksheet.Column(9).Style.DateFormat.Format = "dd.MM.yyyy";
 	
@@ -86,6 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport
 				worksheet.Cell(rows.Count + 2, 9).Value = "Итого:";
 				worksheet.Cell(rows.Count + 2, 10).Value = rows.Sum(x => x.DebtByAddress);
 				worksheet.Cell(rows.Count + 2, 11).Value = rows.Sum(x => x.LastOrderBottles);
+				worksheet.Columns(1, 11).AdjustToContents(1, rows.Count + 2);
 
 				for(int c = 1; c <= 11; c++)
 				{
