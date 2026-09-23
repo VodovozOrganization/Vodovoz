@@ -410,6 +410,9 @@ namespace Vodovoz.Domain.Logistic.Cars
 			var carRepository = validationContext.GetService<ICarRepository>() ?? throw new InvalidOperationException(
 					$"Для валидации {nameof(Car)} должен быть доступен {nameof(ICarRepository)} через {nameof(ValidationContext)}");
 
+			var routeListRepository = validationContext.GetService<IRouteListRepository>() ?? throw new InvalidOperationException(
+					$"Для валидации {nameof(Car)} должен быть доступен {nameof(IRouteListRepository)} через {nameof(ValidationContext)}");
+
 			var duplicateFields = carRepository.GetDuplicateFields(UoW, Id, RegistrationNumber, VIN, ChassisNumber);
 
 			foreach(var field in duplicateFields)
@@ -516,6 +519,18 @@ namespace Vodovoz.Domain.Logistic.Cars
 			if(IsArchive && ArchivingReason is null && CarModel != null && CarModel.CarTypeOfUse != CarTypeOfUse.Semitrailer)
 			{
 				yield return new ValidationResult("Выберите причину архивирования", new[] { nameof(ArchivingReason) });
+			}
+
+			if(IsArchive && CarModel != null && CarModel.CarTypeOfUse is CarTypeOfUse.Semitrailer)
+			{
+				var busyRouteList = routeListRepository.GetRouteListByBusySemiTrailer(Id, new[] { RouteListStatus.EnRoute });
+
+				if(busyRouteList != null)
+				{
+					yield return new ValidationResult(
+						$"Полуприцеп {RegistrationNumber} уже используется в МЛ №{busyRouteList.Id} от {busyRouteList.Date:d}",
+						new[] { nameof(RegistrationNumber) });
+				}
 			}
 		}
 

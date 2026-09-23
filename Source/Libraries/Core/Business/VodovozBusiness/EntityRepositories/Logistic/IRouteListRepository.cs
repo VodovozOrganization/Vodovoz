@@ -206,5 +206,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 			int semiTrailerId,
 			int excludeRouteListId,
 			IEnumerable<RouteListStatus> statuses);
+
+		/// <summary>
+		/// Возвращает маршрутный лист, в котором уже используется указанный полуприцеп
+		/// и который находится в одном из переданных статусов
+		/// </summary>
+		/// <param name="semiTrailerId">Идентификатор полуприцепа</param>
+		/// <param name="statuses">Статусы МЛ, которые учитываются</param>
+		RouteList GetRouteListByBusySemiTrailer(
+			int semiTrailerId,
+			IEnumerable<RouteListStatus> statuses);
 	}
 }

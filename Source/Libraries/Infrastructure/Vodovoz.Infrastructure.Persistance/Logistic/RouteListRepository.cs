@@ -1998,5 +1998,22 @@ FROM
 				.FirstOrDefault();
 		}
 
+		public RouteList GetRouteListByBusySemiTrailer(
+			int semiTrailerId,
+			IEnumerable<RouteListStatus> statuses)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				RouteList routeListAlias = null;
+
+				return uow.Session.QueryOver(() => routeListAlias)
+					.And(rl => rl.Semitrailer.Id == semiTrailerId)
+					.And(Restrictions.In(
+						Projections.Property(() => routeListAlias.Status),
+						statuses.ToArray()))
+					.List()
+					.FirstOrDefault();
+			}
+		}
 	}
 }
