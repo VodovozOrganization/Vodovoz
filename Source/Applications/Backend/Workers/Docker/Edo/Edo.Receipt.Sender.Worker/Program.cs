@@ -13,6 +13,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Zabbix.Sender;
 
 namespace Edo.Receipt.Sender.Worker
 {
@@ -51,11 +52,14 @@ namespace Edo.Receipt.Sender.Worker
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoReceiptSender()
+						.ConfigureZabbixSenderFromDataBase()
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();
+					services.ConfigureOptions<ConfigureReceiptQueueNotificationOptions>();
+					services.AddHostedService<ReceiptQueueNotificationWorker>();
 				});
 	}
 }

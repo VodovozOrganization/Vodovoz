@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Domain.Orders;
 using VodovozBusiness.Nodes;
 
 namespace VodovozBusiness.EntityRepositories.Edo
@@ -74,16 +75,18 @@ namespace VodovozBusiness.EntityRepositories.Edo
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		/// <param name="excludedOrderStatuses">Список статусов заказов для исключения</param>
 		/// <returns>Список идентификаторов задач</returns>
-		IEnumerable<SaveCodesEdoTask> GetClientSavedToPoolDocumentTaskIdsForResend(IUnitOfWork uow, int counterpartyId);
+		IEnumerable<SaveCodesEdoTask> GetClientSavedToPoolDocumentTaskIdsForResend(IUnitOfWork uow, int counterpartyId, IEnumerable<OrderStatus> excludedOrderStatuses);
 
 		/// <summary>
 		/// Возвращает список идентификаторов задач ЧЗ для чека с сохранёнными в пул кодами по идентификатору контрагента
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		/// <param name="excludedOrderStatuses">Список статусов заказов для исключения</param>
 		/// <returns>Список идентификаторов задач</returns>
-		IEnumerable<ReceiptEdoTask> GetClientSavedToPoolReceiptTaskIdsForResend(IUnitOfWork uow, int counterpartyId);
+		IEnumerable<ReceiptEdoTask> GetClientSavedToPoolReceiptTaskIdsForResend(IUnitOfWork uow, int counterpartyId, IEnumerable<OrderStatus> excludedOrderStatuses);
 
 		/// <summary>
 		/// Возвращает заказы контрагента, по которым нужно отправить УПД, но заявка ЭДО еще не создавалась.

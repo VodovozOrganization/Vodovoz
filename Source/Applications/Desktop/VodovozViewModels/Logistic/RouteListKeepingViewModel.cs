@@ -1,4 +1,4 @@
-﻿using CustomerNotifications.Contracts;
+using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
@@ -57,6 +57,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.Services.Orders;
 using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -103,6 +104,7 @@ namespace Vodovoz
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly OrderCancellationService _orderCancellationService;
+		private readonly OrderCancellationPermitService _orderCancellationPermitService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IMangoCallButtonViewModelFactory _mangoCallButtonViewModelFactory;
@@ -145,6 +147,7 @@ namespace Vodovoz
 			IRouteListService routeListService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			OrderCancellationService orderCancellationService,
+			OrderCancellationPermitService orderCancellationPermitService,
 			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IMangoCallButtonViewModelFactory mangoCallButtonViewModelFactory
 			)
@@ -178,6 +181,7 @@ namespace Vodovoz
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+			_orderCancellationPermitService = orderCancellationPermitService ?? throw new ArgumentNullException(nameof(orderCancellationPermitService));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
@@ -594,24 +598,11 @@ namespace Vodovoz
 					return;
 				}
 
-				var permit = _orderCancellationService.CanCancelOrder(UoW, rli.RouteListItem.Order);
-				switch(permit.Type)
+				var permit = _orderCancellationPermitService.GetPermit(UoW, rli.RouteListItem.Order);
+
+				if(permit.Type != OrderCancellationPermitType.AllowCancelOrder)
 				{
-					case OrderCancellationPermitType.AllowCancelDocflow:
-						if(permit.EdoTaskToCancellationId == null)
-						{
-							throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
-						}
-						_orderCancellationService.CancelDocflowByUser(
-							$"Отмена заказа №{rli.RouteListItem.Order.Id}",
-							permit.EdoTaskToCancellationId.Value
-						);
-						return;
-					case OrderCancellationPermitType.AllowCancelOrder:
-						break;
-					case OrderCancellationPermitType.Deny:
-					default:
-						return;
+					return;
 				}
 
 				_undeliveryViewModel = NavigationManager.OpenViewModel<UndeliveryViewModel>(

@@ -14,6 +14,24 @@ namespace Vodovoz.Core.Data.Repositories
 	public interface IEdoRepository
 	{
 		/// <summary>
+		/// Получает документы в указанном статусе с истёкшими сроками либо без времени смены статуса.
+		/// </summary>
+		/// <param name="uow">Единица работы</param>
+		/// <param name="status">Статус фискального документа</param>
+		/// <param name="statusChangedBefore">Исключительная верхняя граница времени смены статуса</param>
+		/// <param name="statusChangedNotBefore">Включительная нижняя граница времени смены статуса; документы без времени выбираются для логирования</param>
+		/// <param name="notifiedNotAfter">Включительная верхняя граница предыдущего уведомления</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Идентификаторы фискальных документов</returns>
+		Task<IList<int>> GetFiscalDocumentIdsForQueueNotification(
+			IUnitOfWork uow,
+			FiscalDocumentStatus status,
+			DateTime statusChangedBefore,
+			DateTime statusChangedNotBefore,
+			DateTime notifiedNotAfter,
+			CancellationToken cancellationToken);
+
+		/// <summary>
 		/// Получить список организаций
 		/// </summary>
 		/// <param name="cancellationToken">Токен отмены</param>
