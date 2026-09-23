@@ -226,6 +226,7 @@ namespace Vodovoz
 
 			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
 			var validator = ServicesConfig.ValidationService;
+
 			if(!validator.Validate(Entity))
 			{
 				return false;

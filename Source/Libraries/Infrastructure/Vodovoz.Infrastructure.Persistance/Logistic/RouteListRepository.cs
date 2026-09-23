@@ -58,17 +58,20 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		private readonly ISettingsController _settingsController;
 		private readonly IStockRepository _stockRepository;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IOrganizationSettings _organizationSettings;
 
 		public RouteListRepository(
 			ISettingsController settingsController,
 			IStockRepository stockRepository,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			INomenclatureSettings nomenclatureSettings,
 			IOrganizationSettings organizationSettings)
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
@@ -1963,6 +1966,21 @@ FROM
 		}
 
 		public RouteList GetRouteListByBusySemiTrailer(
+			int semiTrailerId,
+			int excludeRouteListId,
+			IEnumerable<RouteListStatus> statuses)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				return GetRouteListByBusySemiTrailer(
+					uow,
+					semiTrailerId,
+					excludeRouteListId,
+					statuses);
+			}
+		}
+
+		public RouteList GetRouteListByBusySemiTrailer(
 			IUnitOfWork uow,
 			int semiTrailerId,
 			int excludeRouteListId,
@@ -1979,5 +1997,6 @@ FROM
 				.List()
 				.FirstOrDefault();
 		}
+
 	}
 }

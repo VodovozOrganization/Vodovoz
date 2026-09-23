@@ -513,7 +513,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 				}
 			}
 
-			if(IsArchive && ArchivingReason == null)
+			if(IsArchive && ArchivingReason is null && CarModel != null && CarModel.CarTypeOfUse != CarTypeOfUse.Semitrailer)
 			{
 				yield return new ValidationResult("Выберите причину архивирования", new[] { nameof(ArchivingReason) });
 			}
