@@ -2,21 +2,16 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 using Vodovoz.Settings.Accounting;
 
 namespace Vodovoz.Settings.Database.Accounting
 {
 	public class AccountingSettings : IAccountingSettings
 	{
-		private readonly ILogger<AccountingSettings> _logger;
 		private readonly ISettingsController _settingsController;
 
-		public AccountingSettings(
-			ILogger<AccountingSettings> logger,
-			ISettingsController settingsController)
+		public AccountingSettings(ISettingsController settingsController)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 		
