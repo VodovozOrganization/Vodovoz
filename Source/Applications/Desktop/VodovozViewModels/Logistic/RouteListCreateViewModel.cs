@@ -52,6 +52,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.Mango;
 using VodovozBusiness.EntityRepositories.Logistic;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -161,13 +162,14 @@ namespace Vodovoz.ViewModels.Logistic
 				Entity.Date = DateTime.Now;
 			}
 
-			CanEditFixedPrice = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanChangeRouteListFixedPrice);
-			CanСreateRoutelistInPastPeriod = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListInPastPeriod);
-			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
-			IsLogistician = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician);
-			IsCashier = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
-			CanReadRouteListProfitability = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanReadRouteListProfitability);
+			CanEditFixedPrice = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.RouteList.CanChangeRouteListFixedPrice);
+			CanСreateRoutelistInPastPeriod = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListInPastPeriod);
+			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
+			IsLogistician = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.IsLogistician);
+			IsCashier = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
+			CanReadRouteListProfitability = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.RouteList.CanReadRouteListProfitability);
 			CanOpenOrder = _currentPermissionService.ValidateEntityPermission(typeof(Order)).CanRead;
+			CanWorkWithSemitrailers = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.CanWorkWithSemitrailers);
 
 			_previousSelectedDate = Entity.Date;
 
@@ -225,6 +227,7 @@ namespace Vodovoz.ViewModels.Logistic
 			ShowPrintTimeCommand = new DelegateCommand(ShowPrintTime);
 
 			CarViewModel = CreateCarViewModel();
+			SemitrailerViewModel = CreateSemitrailerViewModel();
 			DriverViewModel = CreateDriverViewModel();
 			ForwarderViewModel = CreateForwarderViewModel();
 			LogisticianViewModel = CreateLogisticianViewModel();
@@ -263,6 +266,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool IsCashier { get; }
 		public bool CanReadRouteListProfitability { get; }
 		public bool CanOpenOrder { get; }
+		public bool CanWorkWithSemitrailers { get; }
 
 		public bool HasAccessToDriverTerminal => IsLogistician || IsCashier;
 
@@ -293,6 +297,9 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool CanPrint => Entity.Status != RouteListStatus.New;
 
 		public bool CanCopyId => Entity.Id != 0;
+
+		public bool IsSemiTrailerVisible =>
+			Entity.Car?.CarModel?.CarTypeOfUse is CarTypeOfUse.Truck;
 
 		public bool CanRevertToNew => Entity.Status != RouteListStatus.New
 			&& RouteList.NotLoadedRouteListStatuses.Contains(Entity.Status)
@@ -325,16 +332,32 @@ namespace Vodovoz.ViewModels.Logistic
 		#region EEVM
 
 		public IEntityEntryViewModel CarViewModel { get; }
+		public IEntityEntryViewModel SemitrailerViewModel { get; }
 
 		public IEntityEntryViewModel CreateCarViewModel()
 		{
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+
 			return new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.Car)
 				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
 				{
-					filter.ExcludedCarTypesOfUse = new CarTypeOfUse[] { CarTypeOfUse.Loader };
+					filter.ExcludedCarTypesOfUse = excludedCarTypesOfUse;
 				})
 				.UseViewModelDialog<CarViewModel>()
+				.Finish();
+		}
+
+		public IEntityEntryViewModel CreateSemitrailerViewModel()
+		{
+			return new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Semitrailer)
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictedCarTypesOfUse = new[] { CarTypeOfUse.Semitrailer };
+					filter.Archive = false;
+				})
+				.UseViewModelDialog<SemitrailerViewModel>()
 				.Finish();
 		}
 
@@ -422,6 +445,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				OnPropertyChanged(nameof(CanChangeDriver));
 				OnPropertyChanged(nameof(CanChangeForwarder));
+				OnPropertyChanged(nameof(IsSemiTrailerVisible));
 			}
 
 			if(e.PropertyName == nameof(Entity.Status))
@@ -778,7 +802,7 @@ namespace Vodovoz.ViewModels.Logistic
 			if(beforeAcceptValidation.IsFailure)
 			{
 				if(!beforeAcceptValidation.Errors.All(error => overfillErrorsCodes.Contains(error.Code))
-					|| !_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanConfirmOverweighted)
+					|| !_currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.RouteList.CanConfirmOverweighted)
 					|| !_interactiveService.Question(
 						"Вы уверены что хотите подтвердить маршрутный лист?\n" +
 						string.Join("\n", overfillErrorsMessages),
@@ -891,6 +915,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				{ "NewStatus", RouteListStatus.EnRoute },
 				{ nameof(IRouteListItemRepository), _routeListItemRepository },
+				{ nameof(IRouteListRepository), _routeListRepository },
 				{ Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
 			};
 

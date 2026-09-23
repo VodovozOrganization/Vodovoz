@@ -20,9 +20,10 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.NHibernateProjections.Employees;
-using Vodovoz.Settings.Common;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 {
@@ -60,6 +61,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			_driverStopListService = driverStopListService ?? throw new ArgumentNullException(nameof(driverStopListService));
 			AddToStopListCommand = new DelegateCommand(AddToStopList, () => CanAddToStopList);
 			AddToStopListCommand.CanExecuteChangedWith(this, x => x.CanAddToStopList);
+
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_subdivisionViewModelEEVMBuilder = subdivisionViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(subdivisionViewModelEEVMBuilder));
 
@@ -81,10 +83,14 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			_driversRouteListsDebtsMaxSumParameter =
 				generalSettingsSettings.DriversRouteListsMaxDebtSum;
 
+			CarTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DriverStopListRemoval>((s) => UpdateCommand?.Execute());
 		}
 
 		#region Свойства
+
+		public CarTypeOfUse[] CarTypeOfUseForExclude { get; }
 
 		/// <summary>
 		/// Поиск по ФИО водителя в текущем состоянии и истории снятия стоп-листов.

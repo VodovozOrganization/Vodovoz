@@ -82,5 +82,16 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<IDictionary<int, IEnumerable<CarVersion>>> GetCarOwnTypesForPeriodByCars(IUnitOfWork uow, IEnumerable<int> carsIds, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить 
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="id">Идентификатор авто</param>
+		/// <param name="registrationNumber">Гос номер</param>
+		/// <param name="vin">VIN</param>
+		/// <param name="chassisNumber">Номер шасси</param>
+		/// <returns></returns>
+		IEnumerable<string> GetDuplicateFields(IUnitOfWork uow, int id, string registrationNumber, string vin, string chassisNumber);
 	}
 }

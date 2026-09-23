@@ -31,7 +31,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
@@ -42,9 +41,7 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Models;
@@ -58,7 +55,6 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
-using VodovozBusiness.EntityRepositories.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Domain.Logistic
@@ -94,8 +90,6 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IEmployeeRepository>();
 		private ICarLoadDocumentRepository _carLoadDocumentRepository => ScopeProvider.Scope
 			.Resolve<ICarLoadDocumentRepository>();
-		private IOrderRepository _orderRepository => ScopeProvider.Scope
-			.Resolve<IOrderRepository>();
 		private IOsrmSettings _osrmSettings => ScopeProvider.Scope
 			.Resolve<IOsrmSettings>();
 		private IOsrmClient _osrmClient => ScopeProvider.Scope
@@ -105,10 +99,8 @@ namespace Vodovoz.Domain.Logistic
 		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
 			.Resolve<INomenclatureRepository>();
 
-		private IPermissionRepository _permissionRepository => ScopeProvider.Scope.Resolve<IPermissionRepository>();
-
-		private CarVersion _carVersion;
 		private Car _car;
+		private Car _semitrailer;
 		private RouteListProfitability _routeListProfitability;
 		private GenericObservableList<DeliveryFreeBalanceOperation> _observableDeliveryFreeBalanceOperations;
 
@@ -179,6 +171,16 @@ namespace Vodovoz.Domain.Logistic
 					OnPropertyChanged(nameof(CanAddForwarder));
 				}
 			}
+		}
+		
+		/// <summary>
+		/// Полуприцеп
+		/// </summary>
+		[Display(Name = "Полуприцеп")]
+		public virtual Car Semitrailer
+		{
+			get => _semitrailer;
+			set => SetField(ref _semitrailer, value);
 		}
 
 		DeliveryShift shift;
@@ -1605,6 +1607,53 @@ namespace Vodovoz.Domain.Logistic
 				{
 					yield return new ValidationResult("Нельзя использовать погрузчик как автомобиль МЛ",
 						new[] { nameof(Car) });
+				}
+
+				if(Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Semitrailer)
+				{
+					yield return new ValidationResult("Нельзя использовать полуприцеп как автомобиль МЛ",
+						new[] { nameof(Car) });
+				}
+			}
+
+			if(Semitrailer != null)
+			{
+				if(Semitrailer.CarModel?.CarTypeOfUse != CarTypeOfUse.Semitrailer)
+				{
+					yield return new ValidationResult(
+						"Выбранный автомобиль не является полуприцепом",
+						new[] { nameof(Semitrailer) });
+				}
+
+				if(Semitrailer.IsArchive)
+				{
+					yield return new ValidationResult(
+						"Нельзя выбрать архивный полуприцеп",
+						new[] { nameof(Semitrailer) });
+				}
+
+				if(Car?.CarModel?.CarTypeOfUse != CarTypeOfUse.Truck)
+				{
+					yield return new ValidationResult(
+						"Полуприцеп можно привязать только к фуре",
+						new[] { nameof(Semitrailer) });
+				}
+
+
+				var routeListRepository = validationContext.GetService<IRouteListRepository>() ?? throw new InvalidOperationException(
+						$"Для валидации {nameof(RouteList)} должен быть доступен {nameof(IRouteListRepository)} через {nameof(ValidationContext)}");
+
+				var busyRouteList = routeListRepository.GetRouteListByBusySemiTrailer(
+					UoW,
+					Semitrailer.Id,
+					Id,
+					new[] { RouteListStatus.EnRoute });
+
+				if(busyRouteList != null)
+				{
+					yield return new ValidationResult(
+						$"Полуприцеп {Semitrailer.RegistrationNumber} уже используется в МЛ №{busyRouteList.Id} от {busyRouteList.Date:d}",
+						new[] { nameof(Semitrailer) });
 				}
 			}
 

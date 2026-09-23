@@ -45,7 +45,7 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			yenumcomboCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
-			yenumcomboCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
+			yenumcomboCarTypeOfUse.AddEnumToHideList(ViewModel.CarTypeOfUseForExclude);
 			yenumcomboCarTypeOfUse.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.FilterCarTypeOfUse, w => w.SelectedItemOrNull)
 				.InitializeFromSource();

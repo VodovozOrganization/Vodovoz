@@ -180,5 +180,41 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<bool> IsOrderEverWasSelectedAsNext(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает маршрутный лист, в котором уже используется указанный полуприцеп
+		/// и который находится в одном из переданных статусов
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="semiTrailerId">Идентификатор полуприцепа</param>
+		/// <param name="excludeRouteListId">Идентификатор МЛ, который нужно исключить из поиска (текущий)</param>
+		/// <param name="statuses">Статусы МЛ, которые учитываются</param>
+		RouteList GetRouteListByBusySemiTrailer(
+			IUnitOfWork uow,
+			int semiTrailerId,
+			int excludeRouteListId,
+			IEnumerable<RouteListStatus> statuses);
+
+		/// <summary>
+		/// Возвращает маршрутный лист, в котором уже используется указанный полуприцеп
+		/// и который находится в одном из переданных статусов
+		/// </summary>
+		/// <param name="semiTrailerId">Идентификатор полуприцепа</param>
+		/// <param name="excludeRouteListId">Идентификатор МЛ, который нужно исключить из поиска (текущий)</param>
+		/// <param name="statuses">Статусы МЛ, которые учитываются</param>
+		RouteList GetRouteListByBusySemiTrailer(
+			int semiTrailerId,
+			int excludeRouteListId,
+			IEnumerable<RouteListStatus> statuses);
+
+		/// <summary>
+		/// Возвращает маршрутный лист, в котором уже используется указанный полуприцеп
+		/// и который находится в одном из переданных статусов
+		/// </summary>
+		/// <param name="semiTrailerId">Идентификатор полуприцепа</param>
+		/// <param name="statuses">Статусы МЛ, которые учитываются</param>
+		RouteList GetRouteListByBusySemiTrailer(
+			int semiTrailerId,
+			IEnumerable<RouteListStatus> statuses);
 	}
 }
