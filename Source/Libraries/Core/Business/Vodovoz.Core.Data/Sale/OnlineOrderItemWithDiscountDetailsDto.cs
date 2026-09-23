@@ -27,9 +27,12 @@ namespace Vodovoz.Core.Data.Sale
 		{
 			var discounts = new List<IDiscountAmount>();
 
-			foreach(var discountId in onlineOrderedItem.DiscountIds)
+			if(onlineOrderedItem.DiscountIds != null)
 			{
-				discounts.Add(DiscountAmount.Create(discountId));
+				foreach(var discountId in onlineOrderedItem.DiscountIds)
+				{
+					discounts.Add(DiscountAmount.Create(discountId));
+				}
 			}
 			
 			return new OnlineOrderItemWithDiscountDetailsDto
