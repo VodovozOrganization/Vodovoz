@@ -283,11 +283,11 @@ namespace Vodovoz.RobotMia.Api.Services
 				Order order = unitOfWork.Root;
 				order.Author = _robotMiaEmployee;
 				order.UpdateClient(counterparty, _contractUpdater, out var updateClientMessage);
-				order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater);
+				order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater, _saleHandler);
 				order.UpdatePaymentType(VodovozPaymentType.Cash, _contractUpdater);
 
 				order.DeliverySchedule = deliverySchedule;
-				order.UpdateDeliveryDate(calculatePriceRequest.DeliveryDate, _contractUpdater, out var updateDeliveryDateMessage);
+				order.UpdateDeliveryDate(calculatePriceRequest.DeliveryDate, _contractUpdater, _saleHandler, out var updateDeliveryDateMessage);
 
 				var nomenclaturesToAddIds = calculatePriceRequest.OrderSaleItems.Select(x => x.NomenclatureId).ToArray();
 
@@ -302,25 +302,13 @@ namespace Vodovoz.RobotMia.Api.Services
 
 					if(nomenclature.Id == _nomenclatureSettings.ForfeitId)
 					{
-						order.AddNomenclature(
-							unitOfWork,
-							_contractUpdater,
-							_saleHandler,
-							_goodsPriceCalculator,
-							NewOrderSaleItem.Create(nomenclature, saleItem.Count)
-							);
+						_saleHandler.AddNomenclature(unitOfWork, NewOrderSaleItem.Create(nomenclature, saleItem.Count));
 						continue;
 					}
 
 					if(nomenclature.Category == NomenclatureCategory.water)
 					{
-						order.AddWaterForSale(
-							unitOfWork,
-							_contractUpdater,
-							_saleHandler,
-							_goodsPriceCalculator,
-							NewOrderSaleItem.Create(nomenclature, saleItem.Count)
-							);
+						_saleHandler.AddWaterForSale(unitOfWork, NewOrderSaleItem.Create(nomenclature, saleItem.Count));
 					}
 					else if(!nomenclaturesParameters.ContainsKey(nomenclature.Id)
 						|| nomenclaturesParameters[nomenclature.Id].GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale)
@@ -330,17 +318,11 @@ namespace Vodovoz.RobotMia.Api.Services
 					}
 					else
 					{
-						order.AddNomenclature(
-							unitOfWork,
-							_contractUpdater,
-							_saleHandler,
-							_goodsPriceCalculator,
-							NewOrderSaleItem.Create(nomenclature, saleItem.Count)
-							);
+						_saleHandler.AddNomenclature(unitOfWork, NewOrderSaleItem.Create(nomenclature, saleItem.Count));
 					}
 				}
 
-				var deliveryCostResult = _vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = _saleHandler.UpdateDeliveryCost(unitOfWork);
 
 				if(!deliveryCostResult.IsFailure)
 				{
@@ -417,7 +399,7 @@ namespace Vodovoz.RobotMia.Api.Services
 			Order order = unitOfWork.Root;
 			order.Author = author;
 			order.UpdateClient(counterparty, _contractUpdater, out var updateClientMessage);
-			order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater);			
+			order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater, _saleHandler);			
 
 			if(!string.IsNullOrWhiteSpace(createOrderRequest.DriverAppComment))
 			{
@@ -456,7 +438,7 @@ namespace Vodovoz.RobotMia.Api.Services
 
 			
 			order.DeliverySchedule = deliverySchedule;
-			order.UpdateDeliveryDate(createOrderRequest.DeliveryDate, _contractUpdater, out var updateDeliveryDateMessage);
+			order.UpdateDeliveryDate(createOrderRequest.DeliveryDate, _contractUpdater, _saleHandler, out var updateDeliveryDateMessage);
 
 			_contractUpdater.UpdateOrCreateContract(unitOfWork, order);
 
@@ -500,13 +482,7 @@ namespace Vodovoz.RobotMia.Api.Services
 
 				if(nomenclature.Id == _nomenclatureSettings.ForfeitId)
 				{
-					order.AddNomenclature(
-						unitOfWork,
-						_contractUpdater,
-						_saleHandler,
-						_goodsPriceCalculator,
-						NewOrderSaleItem.Create(nomenclature, saleItem.Count)
-						);
+					_saleHandler.AddNomenclature(unitOfWork, NewOrderSaleItem.Create(nomenclature, saleItem.Count));
 					continue;
 				}
 
@@ -518,28 +494,16 @@ namespace Vodovoz.RobotMia.Api.Services
 
 				if(nomenclature.Category == NomenclatureCategory.water)
 				{
-					order.AddWaterForSale(
-						unitOfWork,
-						_contractUpdater,
-						_saleHandler,
-						_goodsPriceCalculator,
-						NewOrderSaleItem.Create(nomenclature, saleItem.Count)
-						);
+					_saleHandler.AddWaterForSale(unitOfWork, NewOrderSaleItem.Create(nomenclature, saleItem.Count));
 				}
 				else
 				{
-					order.AddNomenclature(
-						unitOfWork,
-						_contractUpdater,
-						_saleHandler,
-						_goodsPriceCalculator,
-						NewOrderSaleItem.Create(nomenclature, saleItem.Count)
-						);
+					_saleHandler.AddNomenclature(unitOfWork, NewOrderSaleItem.Create(nomenclature, saleItem.Count));
 				}
 			}
 
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
-			var deliveryCostResult = _vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
+			var deliveryCostResult = _saleHandler.UpdateDeliveryCost(unitOfWork);
 
 			if(!deliveryCostResult.IsFailure)
 			{

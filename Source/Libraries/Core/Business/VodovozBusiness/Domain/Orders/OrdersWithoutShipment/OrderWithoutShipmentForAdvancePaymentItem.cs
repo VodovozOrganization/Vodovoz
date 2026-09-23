@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Sale;
@@ -192,6 +193,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		PromotionalSet IGetFixedPrice.PromoSet => null;
 		IEnumerable<DiscountReasonBase> IDiscountReasons.DiscountReasons => DiscountReasons;
+
+		public virtual bool IsMasterNomenclature => Nomenclature != null && Nomenclature.Category == NomenclatureCategory.master;
 		
 		#endregion
 		
@@ -213,6 +216,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		}
 
 		#endregion
+		
 
 		int RentEquipmentCount {
 			get {

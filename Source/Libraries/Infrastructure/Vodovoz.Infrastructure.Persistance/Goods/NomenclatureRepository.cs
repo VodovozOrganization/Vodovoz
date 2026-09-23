@@ -407,6 +407,11 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 			return uow.GetById<Nomenclature>(_nomenclatureSettings.MasterCallNomenclatureId);
 		}
 
+		public Nomenclature GetPaidDelivery(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(_nomenclatureSettings.PaidDeliveryNomenclatureId);
+		}
+
 		#endregion
 
 		public decimal GetWaterPriceIncrement => _nomenclatureSettings.GetWaterPriceIncrement;

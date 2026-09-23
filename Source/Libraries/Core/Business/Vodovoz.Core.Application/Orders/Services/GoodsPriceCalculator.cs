@@ -4,10 +4,10 @@ using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Service;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale;
+using VodovozBusiness.Domain.Service;
 using VodovozBusiness.Services.Sale;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -15,12 +15,15 @@ namespace Vodovoz.Core.Application.Orders.Services
 	public class GoodsPriceCalculator : IGoodsPriceCalculator
 	{
 		private readonly IGoodsCountCalculator _goodsCountCalculator;
+		private readonly IFixedPriceGetter _fixedPriceGetter;
 
 		public GoodsPriceCalculator(
-			IGoodsCountCalculator goodsCountCalculator
+			IGoodsCountCalculator goodsCountCalculator,
+			IFixedPriceGetter fixedPriceGetter
 			)
 		{
 			_goodsCountCalculator = goodsCountCalculator ?? throw new ArgumentNullException(nameof(goodsCountCalculator));
+			_fixedPriceGetter = fixedPriceGetter ?? throw new ArgumentNullException(nameof(fixedPriceGetter));
 		}
 		
 		public (SaleItemPriceType PriceType, decimal Price) CalculateItemPrice(
@@ -30,7 +33,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			ISaleItem currentSaleItem,
 			bool hasPermissionsForAlternativePrice)
 		{
-			var fixedPrice = GetFixedPriceOrNull(
+			var fixedPrice = _fixedPriceGetter.GetFixedPriceOrNull(
 				deliveryPoint,
 				counterparty,
 				currentSaleItem,
@@ -59,7 +62,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IGetFixedPrice newSaleItem,
 			bool hasPermissionsForAlternativePrice)
 		{
-			var fixedPrice = GetFixedPriceOrNull(
+			var fixedPrice = _fixedPriceGetter.GetFixedPriceOrNull(
 				deliveryPoint,
 				counterparty,
 				newSaleItem,
@@ -123,80 +126,29 @@ namespace Vodovoz.Core.Application.Orders.Services
 			
 			return (SaleItemPriceType.General, 0m);
 		}
-
-		private (SaleItemPriceType PriceType, decimal Price)? GetFixedPriceOrNull(
-			DeliveryPoint deliveryPoint,
-			Counterparty counterparty,
-			IEnumerable<ISaleItem> allSaleItems,
-			ISaleItem saleItem
-		)
+		
+		public decimal GetMasterServiceTypePrice(
+			ServiceDistrict serviceDistrict,
+			MasterServiceType masterServiceType,
+			DateTime? deliveryDate)
 		{
-			var bottlesCount = _goodsCountCalculator.TotalItemCount(saleItem, allSaleItems);
-			return GetFixedPriceOrNull(deliveryPoint, counterparty, saleItem, bottlesCount);
-		}
+			var serviceDistrictRuleByWeekDay = serviceDistrict.GetWeekDayServiceDistrictRuleByDeliveryDate(deliveryDate)
+				.Where(x => x.ServiceType == masterServiceType);
 
-		private (SaleItemPriceType PriceType, decimal Price)? GetFixedPriceOrNull(
-			DeliveryPoint deliveryPoint,
-			Counterparty counterparty,
-			IGetFixedPrice saleItem,
-			decimal bottlesCount
-			)
-		{
-			IList<NomenclatureFixedPrice> fixedPrices;
-
-			if(saleItem.PromoSet != null)
+			if(serviceDistrictRuleByWeekDay.Any())
 			{
-				return null;
+				return serviceDistrictRuleByWeekDay.Single().Price;
 			}
 
-			//TODO-5967 и проверка на скидку, ведь может прийти без фиксы, но и без скидки и мы должны взять фиксу в этом случае
-			/*if(!currentProduct.IsFixedPrice)
-			{
-				return null;
-			}*/
-			
-			if(deliveryPoint is null)
-			{
-				if(counterparty is null)
-				{
-					return null;
-				}
+			var commonServiceDistrictRule = serviceDistrict.GetCommonServiceDistrictRules()
+				.Where(x => x.ServiceType == masterServiceType);
 
-				fixedPrices = counterparty.NomenclatureFixedPrices;
-			}
-			else
+			if(commonServiceDistrictRule.Any())
 			{
-				fixedPrices = deliveryPoint.NomenclatureFixedPrices;
+				return commonServiceDistrictRule.Single().Price;
 			}
 
-			var influentialNomenclature = saleItem.Nomenclature.DependsOnNomenclature;
-			decimal? fixedPrice = null;
-
-			if(influentialNomenclature is null
-				&& fixedPrices.Any(x =>
-					x.Nomenclature.Id == saleItem.Nomenclature.Id
-					&& bottlesCount >= x.MinCount))
-			{
-				fixedPrice = fixedPrices
-					.OrderBy(x=> x.MinCount)
-					.Last(x => x.Nomenclature.Id == saleItem.Nomenclature.Id && bottlesCount >= x.MinCount)
-					.Price;
-			}
-
-			if(influentialNomenclature != null
-				&& fixedPrices.Any(x =>
-					x.Nomenclature.Id == influentialNomenclature.Id
-					&& bottlesCount >= x.MinCount))
-			{
-				fixedPrice = fixedPrices
-					.OrderBy(x => x.MinCount)
-					.Last(x => x.Nomenclature.Id == influentialNomenclature.Id && bottlesCount >= x.MinCount)
-					.Price;
-			}
-
-			return fixedPrice.HasValue
-				? (SaleItemPriceType.Fixed, fixedPrice.Value)
-				: null;
+			return 0;
 		}
 	}
 }

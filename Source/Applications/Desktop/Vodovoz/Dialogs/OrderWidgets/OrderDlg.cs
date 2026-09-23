@@ -452,7 +452,7 @@ namespace Vodovoz
 			get => Entity.DeliveryDate;
 			set
 			{
-				Entity.UpdateDeliveryDate(value, _orderContractUpdater, out var message);
+				Entity.UpdateDeliveryDate(value, _orderContractUpdater, _saleHandler, out var message);
 
 				if(!string.IsNullOrWhiteSpace(message))
 				{
@@ -481,7 +481,7 @@ namespace Vodovoz
 		public DeliveryPoint DeliveryPoint
 		{
 			get => Entity.DeliveryPoint;
-			set => Entity.UpdateDeliveryPoint(value, _orderContractUpdater);
+			set => Entity.UpdateDeliveryPoint(value, _orderContractUpdater, _saleHandler);
 		}
 
 		private bool? _isForRetail = null;
@@ -567,7 +567,7 @@ namespace Vodovoz
 
 				if(contactPhone.DeliveryPoint != null)
 				{
-					Entity.UpdateDeliveryPoint(UoW.GetById<DeliveryPoint>(contactPhone.DeliveryPoint.Id), _orderContractUpdater);
+					Entity.UpdateDeliveryPoint(UoW.GetById<DeliveryPoint>(contactPhone.DeliveryPoint.Id), _orderContractUpdater, _saleHandler);
 				}
 			}
 
@@ -604,7 +604,7 @@ namespace Vodovoz
 
 				if(copiedOrder.DeliveryPoint != null)
 				{
-					Entity.UpdateDeliveryPoint(UoW.GetById<DeliveryPoint>(copiedOrder.DeliveryPoint.Id), _orderContractUpdater);
+					Entity.UpdateDeliveryPoint(UoW.GetById<DeliveryPoint>(copiedOrder.DeliveryPoint.Id), _orderContractUpdater, _saleHandler);
 				}
 
 				Entity.UpdatePaymentType(Counterparty.PaymentMethod, _orderContractUpdater);
@@ -1046,7 +1046,7 @@ namespace Vodovoz
 					&& !MessageDialogHelper.RunQuestionDialog("Данный адрес деактивирован, вы уверены, что хотите выбрать его?")
 				)
 				{
-					Entity.UpdateDeliveryPoint(null, _orderContractUpdater);
+					Entity.UpdateDeliveryPoint(null, _orderContractUpdater, _saleHandler);
 				}
 				UpdateOrderItemsPrices();
 			};
@@ -1114,7 +1114,7 @@ namespace Vodovoz
 
 				if((DeliveryPoint != null || Entity.SelfDelivery) && Entity.OrderStatus == OrderStatus.NewOrder)
 				{
-					var updateDeliveryResult = UpdateDelivery(false);
+					var updateDeliveryResult = _saleHandler.UpdateDeliveryCost(UoW);
 
 					if(updateDeliveryResult.IsFailure)
 					{
@@ -1161,7 +1161,7 @@ namespace Vodovoz
 			if(DeliveryPoint == null && !string.IsNullOrWhiteSpace(Entity.Address1c))
 			{
 				var deliveryPoint = Counterparty.DeliveryPoints.FirstOrDefault(d => d.Address1c == Entity.Address1c);
-				Entity.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater);
+				Entity.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater, _saleHandler);
 			}
 
 			_orderItemEquipmentCountHasChanges = false;
@@ -1528,13 +1528,13 @@ namespace Vodovoz
 				case nameof(Entity.OrderAddressType):
 					UpdateOrderAddressTypeUI();
 					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderAddressType));
-					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater, _saleHandler);
+					_saleHandler.UpdateMasterCallNomenclatureIfNeeded(UoW);
 					break;
 				case nameof(Counterparty.IsChainStore):
 					UpdateOrderAddressTypeWithUI();
 					break;
 				case nameof(Order.SelfDelivery):
-					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater, _saleHandler);
+					_saleHandler.UpdateMasterCallNomenclatureIfNeeded(UoW);
 					UpdateCallBeforeArrival();
 					break;
 				case nameof(Order.IsFastDelivery):
@@ -1957,7 +1957,7 @@ namespace Vodovoz
 					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesSettings.FastDeliveryScheduleId);
 				}
 
-				Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater, _saleHandler);
+				_saleHandler.TryAddFastDelivery(UoW);
 				return;
 			}
 
@@ -1968,7 +1968,7 @@ namespace Vodovoz
 				Entity.DeliverySchedule = null;
 			}
 
-			Entity.RemoveFastDeliveryNomenclature(UoW, _orderContractUpdater);
+			_saleHandler.RemoveFastDelivery(UoW);
 
 			speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = null;
 		}
@@ -3276,23 +3276,8 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
 			}
 
-			var deliveryCostResult = UpdateDelivery(false); //ничего не делаем с результатом, т.к. выше в валидации и следующей проверке это отработает
+			_saleHandler.UpdateDeliveryCost(UoW); //ничего не делаем с результатом, т.к. выше в валидации и следующей проверке это отработает
 			return Result.Success();
-		}
-
-		/// <summary>
-		/// Действия обрабатываемые при формировании заказа
-		/// </summary>
-		private Result UpdateDelivery(bool showMessage = true)
-		{
-			var result = _orderService.UpdateDeliveryCost(UoW, Entity);
-
-			if(result.IsFailure && showMessage)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, result.Errors.First().Message);
-			}
-			
-			return result;
 		}
 
 		/// <summary>
@@ -3805,10 +3790,12 @@ namespace Vodovoz
 				return;
 			}
 
-			if(CanAddNomenclaturesToOrder() && Entity.CanAddPromotionalSet(proSet, _freeLoaderChecker, _promotionalSetRepository))
+			//TODO переделать на новый алгоритм
+			_saleHandler.TryAddPromoSet(UoW, proSet);
+			/*if(CanAddNomenclaturesToOrder() && Entity.CanAddPromotionalSet(proSet, _freeLoaderChecker, _promotionalSetRepository))
 			{
 				ActivatePromotionalSet(proSet);
-			}
+			}*/
 
 			if(!yCmbPromoSets.IsSelectedNot)
 			{
@@ -3869,7 +3856,7 @@ namespace Vodovoz
 					return;
 				}
 
-				TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+				_saleHandler.TryAddNomenclature(UoW, UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
 			};
 		}
 
@@ -3920,144 +3907,9 @@ namespace Vodovoz
 
 				foreach(var node in selectedNodes)
 				{
-					TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(node.Id));
+					_saleHandler.TryAddNomenclature(UoW, UoWGeneric.Session.Get<Nomenclature>(node.Id));
 				}
 			};
-		}
-
-		#region Промонаборы
-
-		private void ActivatePromotionalSet(PromotionalSet proSet)
-		{
-			//Добавление спец. действий промонабора
-			foreach(var action in proSet.PromotionalSetActions)
-			{
-				action.Activate(Entity);
-			}
-			//Добавление номенклатур из промонабора
-			TryAddNomenclatureFromPromoSet(proSet);
-
-			Entity.ObservablePromotionalSets.Add(proSet);
-		}
-
-		#endregion
-
-		private void NomenclatureSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			TryAddNomenclature(e.Subject as Nomenclature);
-		}
-
-		private void TryAddNomenclature(
-			Nomenclature nomenclature,
-			decimal count = 0,
-			decimal discount = 0,
-			IEnumerable<DiscountReasonBase> discountReasons = null)
-		{
-			if(Entity.IsLoadedFrom1C)
-			{
-				return;
-			}
-
-			if(PaymentType == PaymentType.Cashless)
-			{
-				if(nomenclature.Category == NomenclatureCategory.deposit
-					&& !Order.HasDepositItems()
-					&& Order.HasNonPaidDeliveryItems())
-				{
-					MessageDialogHelper.RunWarningDialog("Нельзя добавить залоговую позицию, если в заказе уже есть незалоговые позиции.");
-					return;
-				}
-
-				if(nomenclature.Category != NomenclatureCategory.deposit 
-					&& Order.HasDepositItems()
-					&& Order.HasNonPaidDeliveryItems())
-				{
-					MessageDialogHelper.RunWarningDialog("Нельзя добавить незалоговую позицию, если в заказе уже есть залоговые позиции.");
-					return;
-				}
-			}
-
-			if(Entity.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
-			   && nomenclature.Category == NomenclatureCategory.master)
-			{
-				MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
-				return;
-			}
-
-			if(Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
-			   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category))
-			{
-				MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
-				return;
-			}
-			if(nomenclature.OnlineStore != null && !_canAddOnlineStoreNomenclaturesToOrder)
-			{
-				MessageDialogHelper.RunWarningDialog("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
-				return;
-			}
-
-			Entity.AddNomenclature(
-				UoW,
-				_orderContractUpdater,
-				_saleHandler,
-				_goodsPriceCalculator,
-				NewOrderSaleItem.Create(
-					nomenclature,
-					count,
-					priceData: default,
-					discount,
-					false,
-					discountReasons: discountReasons
-					)
-				);
-		}
-
-		private void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
-		{
-			if(Entity.IsLoadedFrom1C)
-			{
-				return;
-			}
-
-			if(proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any())
-			{
-				foreach(var proSetItem in proSet.PromotionalSetItems)
-				{
-					var nomenclature = proSetItem.Nomenclature;
-					if(Entity.OrderItems.Any(x =>
-							!Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
-						&& nomenclature.Category == NomenclatureCategory.master)
-					{
-						MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
-						return;
-					}
-
-					if(Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
-						&& !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category))
-					{
-						MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
-						return;
-					}
-
-					Entity.AddNomenclature(
-						UoW,
-						_orderContractUpdater,
-						_saleHandler,
-						_goodsPriceCalculator,
-						NewOrderSaleItem.Create(
-							proSetItem.Nomenclature,
-							proSetItem.Count,
-							priceData: default,
-							proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
-							proSetItem.IsDiscountInMoney,
-							null,
-							proSetItem.PromoSet
-							)
-					);
-				}
-
-				UpdateDelivery();
-			}
 		}
 
 		public void FillOrderItems(Order order)
@@ -4069,22 +3921,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.ClearOrderItemsList();
-			foreach(OrderItem orderItem in order.OrderItems)
-			{
-				switch(orderItem.Nomenclature.Category)
-				{
-					case NomenclatureCategory.additional:
-						Entity.AddNomenclatureForSaleFromPreviousOrder(UoW, _orderContractUpdater, _saleHandler, orderItem);
-						continue;
-					case NomenclatureCategory.water:
-						TryAddNomenclature(orderItem.Nomenclature, orderItem.Count);
-						continue;
-					default:
-						//Entity.AddAnyGoodsNomenclatureForSaleFromPreviousOrder(orderItem);
-						continue;
-				}
-			}
+			_saleHandler.FillOrderItems(UoW, order);
 			//TODO-5967 проверить пересчет
 			//Entity.RecalculateItemsPrice();
 			UpdateOrderAddressTypeWithUI();
@@ -4093,43 +3930,16 @@ namespace Vodovoz
 
 		#region Удаление номенклатур
 
-		private void RemoveOrderItem(OrderItem item)
-		{
-			var orderEquipment = Entity.OrderEquipments.FirstOrDefault(x => x.OrderRentDepositItem == item || x.OrderRentServiceItem == item);
-
-			if(orderEquipment != null)
-			{
-				var existingRentDepositItem = orderEquipment.OrderRentDepositItem;
-				var existingNonFreeRentServiceItem = orderEquipment.OrderRentServiceItem;
-
-				if(existingRentDepositItem != null || existingNonFreeRentServiceItem != null)
-				{
-					MessageDialogHelper.RunWarningDialog(
-						$"Нельзя удалить строку заказа. Сначала удалите связанную с ней строку оборудования {orderEquipment.FullNameString}");
-					return;
-				}
-			}
-
-			var isMovedToNewOrder = _orderRepository.IsMovedToTheNewOrder(UoW, item);
-			if(isMovedToNewOrder)
-			{
-				MessageDialogHelper.RunWarningDialog(
-					$"Нельзя удалить строку заказа, т.к. данная позиция была перенесена в другой заказ.");
-				return;
-			}
-
-			Entity.RemoveItem(UoW, _orderContractUpdater, item);
-		}
-
+		//TODO проверить логику и по возможности расформировать
 		private void OrderEquipmentItemsView_OnDeleteEquipment(object sender, OrderEquipment e)
 		{
 			if(e.OrderItem != null)
 			{
-				RemoveOrderItem(e.OrderItem);
+				_saleHandler.TryRemoveSaleItem(UoW, e.OrderItem);
 			}
 			else
 			{
-				Entity.RemoveEquipment(UoW, _orderContractUpdater, _saleHandler, e);
+				_saleHandler.RemoveEquipment(UoW, e);
 			}
 		}
 
@@ -4139,7 +3949,7 @@ namespace Vodovoz
 
 			foreach(var orderItem in selectedRows)
 			{
-				RemoveOrderItem(orderItem);
+				_saleHandler.TryRemoveSaleItem(UoW, orderItem);
 				Entity.TryToRemovePromotionalSet(orderItem);
 				//при удалении номенклатуры выделение снимается и при последующем удалении exception
 				//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
@@ -4219,7 +4029,7 @@ namespace Vodovoz
 
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				UpdateDelivery();
+				_saleHandler.UpdateDeliveryCost(UoW);
 			}
 
 			if(DeliveryPoint != null
@@ -4351,7 +4161,7 @@ namespace Vodovoz
 
 			if(DeliveryDate.HasValue && DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				UpdateDelivery();
+				_saleHandler.UpdateDeliveryCost(UoW);
 			}
 
 			if(DeliveryPoint != null && DeliveryDate.HasValue)
@@ -4390,7 +4200,7 @@ namespace Vodovoz
 				&& DeliveryPoint != null
 				&& Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				UpdateDelivery();
+				_saleHandler.UpdateDeliveryCost(UoW);
 			}
 
 			AddCommentsFromDeliveryPoint();
@@ -4657,7 +4467,7 @@ namespace Vodovoz
 					CheckSameOrders();
 					return;
 				}
-				Entity.UpdateDeliveryPoint(null, _orderContractUpdater);
+				Entity.UpdateDeliveryPoint(null, _orderContractUpdater, _saleHandler);
 			}
 		}
 
@@ -4994,7 +4804,7 @@ namespace Vodovoz
 
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				UpdateDelivery();
+				_saleHandler.UpdateDeliveryCost(UoW);
 			}
 		}
 
@@ -5104,7 +4914,7 @@ namespace Vodovoz
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
 				Entity.CheckAndSetOrderIsService();
-				UpdateDelivery();
+				_saleHandler.UpdateDeliveryCost(UoW);
 			}
 			_treeItemsNomenclatureColumnWidth = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width;
 			treeItems.ExposeEvent += TreeItemsOnExposeEvent;
@@ -5135,11 +4945,11 @@ namespace Vodovoz
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
 				Entity.CheckAndSetOrderIsService();
-				UpdateDelivery();
+				_saleHandler.UpdateDeliveryCost(UoW);
 			}
 
-			Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater, _saleHandler);
-			Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater, _saleHandler);
+			_saleHandler.TryAddFastDelivery(UoW);
+			_saleHandler.UpdateMasterCallNomenclatureIfNeeded(UoW);
 
 			UpdateClientSecondOrderDiscount();
 			UpdateUIState();
@@ -5234,7 +5044,7 @@ namespace Vodovoz
 
 					if(oItem != null && oItem.Count > 0 && DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 					{
-						UpdateDelivery();
+						_saleHandler.UpdateDeliveryCost(UoW);
 					}
 
 					if(oItem == null)
@@ -5278,7 +5088,7 @@ namespace Vodovoz
 		{
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				UpdateDelivery();
+				_saleHandler.UpdateDeliveryCost(UoW);
 			}
 		}
 
@@ -5286,7 +5096,7 @@ namespace Vodovoz
 		{
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				UpdateDelivery();
+				_saleHandler.UpdateDeliveryCost(UoW);
 			}
 		}
 
@@ -5294,7 +5104,7 @@ namespace Vodovoz
 		{
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				UpdateDelivery();
+				_saleHandler.UpdateDeliveryCost(UoW);
 			}
 		}
 
@@ -5302,7 +5112,7 @@ namespace Vodovoz
 		{
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				UpdateDelivery();
+				_saleHandler.UpdateDeliveryCost(UoW);
 			}
 		}
 
@@ -6009,7 +5819,7 @@ namespace Vodovoz
 
 			result.Root.UpdateClient(sourceOrder.Client, _orderContractUpdater, out var updateClientMessage);
 			result.Root.Author = sourceOrder.Author;
-			result.Root.UpdateDeliveryPoint(sourceOrder.DeliveryPoint, _orderContractUpdater);
+			result.Root.UpdateDeliveryPoint(sourceOrder.DeliveryPoint, _orderContractUpdater, _saleHandler);
 			result.Root.UpdatePaymentType(sourceOrder.PaymentType, _orderContractUpdater);
 			result.Root.ContactPhone = sourceOrder.ContactPhone;
 			result.Root.SignatureType = sourceOrder.SignatureType;
@@ -6157,10 +5967,10 @@ namespace Vodovoz
 			switch(rentType)
 			{
 				case RentType.NonfreeRent:
-					Entity.AddNonFreeRent(UoW, _orderContractUpdater, _saleHandler, paidRentPackage, equipmentNomenclature);
+					Entity.AddNonFreeRent(UoW, _saleHandler, paidRentPackage, equipmentNomenclature);
 					break;
 				case RentType.DailyRent:
-					Entity.AddDailyRent(UoW, _orderContractUpdater, _saleHandler, paidRentPackage, equipmentNomenclature);
+					Entity.AddDailyRent(UoW, _saleHandler, paidRentPackage, equipmentNomenclature);
 					break;
 			}
 		}
@@ -6243,7 +6053,7 @@ namespace Vodovoz
 				}
 			}
 
-			Entity.AddFreeRent(UoW, _orderContractUpdater, _saleHandler, freeRentPackage, equipmentNomenclature);
+			Entity.AddFreeRent(UoW, _saleHandler, freeRentPackage, equipmentNomenclature);
 		}
 
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
@@ -6261,7 +6071,7 @@ namespace Vodovoz
 			{
 				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
 				_logger.Info($"Сотрудник {_currentEmployee.FullName} в заказе {Entity.Id} для клиента {Counterparty.Name} дата доставки {Entity.DeliveryDate} переключил тип адреса на Складcкая логистика");
-				Entity.UpdateDeliveryPoint(null, _orderContractUpdater);
+				Entity.UpdateDeliveryPoint(null, _orderContractUpdater, _saleHandler);
 				Entity.DeliverySchedule = null;
 			}
 		}
@@ -6280,7 +6090,7 @@ namespace Vodovoz
 			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				Entity.OrderAddressType = OrderAddressType.Delivery;
-				Entity.UpdateDeliveryDate(null, _orderContractUpdater, out var updateDeliveryDateMessage);
+				Entity.UpdateDeliveryDate(null, _orderContractUpdater, _saleHandler, out var updateDeliveryDateMessage);
 				Entity.DeliverySchedule = null;
 
 				if(!string.IsNullOrWhiteSpace(updateDeliveryDateMessage))
@@ -6293,7 +6103,7 @@ namespace Vodovoz
 		protected void OnYbuttonToServiceTypeClicked(object sender, EventArgs e)
 		{
 			Entity.OrderAddressType = OrderAddressType.Service;
-			Entity.UpdateDeliveryDate(null, _orderContractUpdater, out var updateDeliveryDateMessage);
+			Entity.UpdateDeliveryDate(null, _orderContractUpdater, _saleHandler, out var updateDeliveryDateMessage);
 			Entity.DeliverySchedule = null;
 
 			if(!string.IsNullOrWhiteSpace(updateDeliveryDateMessage))
@@ -6433,7 +6243,7 @@ namespace Vodovoz
 
 		private void ResetSelectedDeliveryDate()
 		{
-			Entity.UpdateDeliveryDate(null, _orderContractUpdater, out var message);
+			Entity.UpdateDeliveryDate(null, _orderContractUpdater, _saleHandler, out var message);
 
 			if(!string.IsNullOrWhiteSpace(message))
 			{

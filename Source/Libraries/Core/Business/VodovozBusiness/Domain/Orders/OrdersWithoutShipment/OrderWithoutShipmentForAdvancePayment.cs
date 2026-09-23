@@ -5,10 +5,11 @@ using QS.HistoryLog;
 using QS.Print;
 using QS.Report;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Goods;
@@ -43,26 +44,15 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		ISaleSource,
 		IValidatableObject
 	{
+		private ObservableList<OrderWithoutShipmentForAdvancePaymentItem> _advanceSaleItems =
+			new ObservableList<OrderWithoutShipmentForAdvancePaymentItem>();
+
 		public virtual int Id { get; set; }
-		
-		IList<OrderWithoutShipmentForAdvancePaymentItem> orderWithoutDeliveryForAdvancePaymentItems = new List<OrderWithoutShipmentForAdvancePaymentItem>();
+
 		[Display(Name = "Строки счета без отгрузки на предоплату")]
-		public virtual IList<OrderWithoutShipmentForAdvancePaymentItem> OrderWithoutDeliveryForAdvancePaymentItems {
-			get => orderWithoutDeliveryForAdvancePaymentItems;
-			set => SetField(ref orderWithoutDeliveryForAdvancePaymentItems, value);
-		}
-
-		GenericObservableList<OrderWithoutShipmentForAdvancePaymentItem> observableOrderWithoutDeliveryForAdvancePaymentItems;
-		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<OrderWithoutShipmentForAdvancePaymentItem> ObservableOrderWithoutDeliveryForAdvancePaymentItems {
-			get {
-				if(observableOrderWithoutDeliveryForAdvancePaymentItems == null) {
-					observableOrderWithoutDeliveryForAdvancePaymentItems =
-						new GenericObservableList<OrderWithoutShipmentForAdvancePaymentItem>(OrderWithoutDeliveryForAdvancePaymentItems);
-				}
-
-				return observableOrderWithoutDeliveryForAdvancePaymentItems;
-			}
+		public virtual ObservableList<OrderWithoutShipmentForAdvancePaymentItem> AdvanceSaleItems {
+			get => _advanceSaleItems;
+			set => SetField(ref _advanceSaleItems, value);
 		}
 
 		public virtual void AddNewNomenclatureWithoutDiscount(
@@ -97,13 +87,13 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 
 			saleItem.IsAlternativePrice = canApplyAlternativePrice;
-			ObservableOrderWithoutDeliveryForAdvancePaymentItems.Add(saleItem);
+			AdvanceSaleItems.Add(saleItem);
 			saleHandler.Recalculate();
 		}
 
 		public virtual void RemoveItem(OrderWithoutShipmentForAdvancePaymentItem item)
 		{
-			ObservableOrderWithoutDeliveryForAdvancePaymentItems.Remove(item);
+			AdvanceSaleItems.Remove(item);
 		}
 		
 		public virtual OrderDocumentType Type => OrderDocumentType.BillWSForAdvancePayment;
@@ -236,10 +226,10 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 					new[] {nameof(Client)}
 				);
 			
-			if(!OrderWithoutDeliveryForAdvancePaymentItems.Any())
+			if(!AdvanceSaleItems.Any())
 				yield return new ValidationResult(
 					"Необходимо добавить товары в счет.",
-					new[] {nameof(OrderWithoutDeliveryForAdvancePaymentItems)}
+					new[] {nameof(AdvanceSaleItems)}
 				);
 		}
 
@@ -254,10 +244,15 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		#region ISaleSource implementation
 
+		public virtual PaymentType? PaymentType => null;
+		public virtual bool IsLoadedFrom1C => false;
+		public virtual bool IsSelfDelivery => false;
+		public virtual bool HasDeposits => false;
+		public virtual bool HasNonPaidDeliveries => false;
 		public virtual DeliveryPoint DeliveryPoint => null;
 		public virtual Counterparty Counterparty => Client;
-
-		public virtual IEnumerable<ISaleItem> SaleItems => OrderWithoutDeliveryForAdvancePaymentItems;
+		public virtual IEnumerable<ISaleItem> SaleItems => AdvanceSaleItems;
+		public virtual IList SaleItemsList => AdvanceSaleItems;
 
 		#endregion
 	}

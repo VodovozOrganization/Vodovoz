@@ -29,17 +29,20 @@ namespace Vodovoz.Errors.Sale
 			nameof(CantAddSaleItemToDeliverySaleWithoutDeliveryPointError),
 			"Для добавления позиции на продажу должна быть выбрана точка доставки");
 		
-		//TODO-5967 возможно это условие будет верным только для заказа
-		public static Error CantAddNonServiceNomenclatureToServiceOrderError() => new Error(
+		public static Error CantAddSaleItemWithoutCounterpartyError() => new Error(
+			typeof(SaleErrors),
+			nameof(CantAddSaleItemWithoutCounterpartyError),
+			"Для добавления позиции на продажу должен быть выбран клиент");
+		
+		public static Error CantAddNonServiceNomenclatureToServiceOrderError(string source) => new Error(
 			typeof(SaleErrors),
 			nameof(CantAddNonServiceNomenclatureToServiceOrderError),
-			"В сервисный заказ нельзя добавить не сервисную услугу");
+			$"В сервисный {source} нельзя добавить не сервисную услугу");
 		
-		//TODO-5967 возможно это условие будет верным только для заказа
-		public static Error CantAddServiceNomenclatureToNonServiceOrderError() => new Error(
+		public static Error CantAddServiceNomenclatureToNonServiceOrderError(string source) => new Error(
 			typeof(SaleErrors),
 			nameof(CantAddServiceNomenclatureToNonServiceOrderError),
-			"В не сервисный заказ нельзя добавить сервисную услугу");
+			$"В не сервисный {source} нельзя добавить сервисную услугу");
 		
 		public static Error DontHavePermissionsToAddOnlineStoreProductError() => new Error(
 			typeof(SaleErrors),

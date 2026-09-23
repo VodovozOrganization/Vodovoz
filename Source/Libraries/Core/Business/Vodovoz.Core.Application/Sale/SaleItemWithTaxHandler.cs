@@ -19,14 +19,14 @@ namespace Vodovoz.Core.Application.Sale
 
 		protected ISaleItemTaxHandler TaxHandler { get; }
 		
-		internal virtual void SetPriceForNewSaleItem(IDataContext context, decimal price)
+		internal override void SetPriceForNewSaleItem(IDataContext context, decimal price)
 		{
 			var saleItem = context
 				.ContextDataToCommonRecalculateDiscount()
 				.SaleItem;
 			
 			SetPriceWithoutRecalculate(saleItem, price);
-			RecalculateDiscountAndSetTax(context);
+			RecalculateDiscountsForNewItem(context);
 		}
 
 		internal override void RecalculateDiscounts(IDataContext context)
@@ -38,20 +38,20 @@ namespace Vodovoz.Core.Application.Sale
 			base.RecalculateDiscounts(context);
 			RecalculateTaxSum(saleItem as IRecalculateTax);
 		}
-
-		internal void RecalculateTaxSum(IRecalculateTax saleItem)
-		{
-			TaxHandler.RecalculateTaxSum(saleItem);
-		}
 		
-		private void RecalculateDiscountAndSetTax(IDataContext context)
+		protected override void RecalculateDiscountsForNewItem(IDataContext context)
 		{
 			var saleItem = context
 				.ContextDataToCommonRecalculateDiscount()
 				.SaleItem;
-
+			
 			base.RecalculateDiscounts(context);
 			TaxHandler.CalculateTax(saleItem as IRecalculateTax);
+		}
+
+		internal void RecalculateTaxSum(IRecalculateTax saleItem)
+		{
+			TaxHandler.RecalculateTaxSum(saleItem);
 		}
 	}
 }

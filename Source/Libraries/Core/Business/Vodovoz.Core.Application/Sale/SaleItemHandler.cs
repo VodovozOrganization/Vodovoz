@@ -23,6 +23,11 @@ namespace Vodovoz.Core.Application.Sale
 			DiscountController.RecalculateDiscount(context);
 		}
 		
+		protected virtual void RecalculateDiscountsForNewItem(IDataContext context)
+		{
+			DiscountController.RecalculateDiscount(context);
+		}
+		
 		internal virtual bool SetCount(INomenclatureCount saleItem, decimal count)
 		{
 			if(saleItem.Nomenclature?.Unit?.Digits == 0 && count % 1 != 0)
@@ -52,6 +57,16 @@ namespace Vodovoz.Core.Application.Sale
 				
 			RecalculateDiscounts(context);
 			return true;
+		}
+		
+		internal virtual void SetPriceForNewSaleItem(IDataContext context, decimal price)
+		{
+			var saleItem = context
+				.ContextDataToCommonRecalculateDiscount()
+				.SaleItem;
+			
+			SetPriceWithoutRecalculate(saleItem, price);
+			RecalculateDiscountsForNewItem(context);
 		}
 		
 		protected virtual bool SetPriceWithoutRecalculate(IPrice saleItem, decimal price)

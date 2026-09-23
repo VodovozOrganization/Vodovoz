@@ -5,10 +5,6 @@ namespace Vodovoz.Domain.Orders
 	public interface IProduct : ISaleItem
 	{
 		/// <summary>
-		/// Id сущности
-		/// </summary>
-		int Id { get; }
-		/// <summary>
 		/// Скидка
 		/// </summary>
 		decimal GetDiscount { get; }

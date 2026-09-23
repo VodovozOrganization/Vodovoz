@@ -11,6 +11,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders.Delivery;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -22,7 +24,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public abstract class OnlineOrder : PropertyChangedBase, IDomainObject, IValidatableObject
+	public abstract class OnlineOrder : PropertyChangedBase, IDomainObject, IValidatableObject, IFreeDeliveryPrice
 	{
 		public const string OnlineOrderName = "Онлайн заказ";
 		public const string OrderVersionColumn = "order_version";
@@ -376,6 +378,8 @@ namespace Vodovoz.Domain.Orders
 		/// Версия онлайн заказа
 		/// </summary>
 		public abstract OnlineOrderVersion OrderVersion { get; }
+		
+		public IEnumerable<ISaleItem> SaleItems => OnlineOrderItems;
 
 		/// <summary>
 		/// Заказ не оплачен онлайн и время на оплату не истекло

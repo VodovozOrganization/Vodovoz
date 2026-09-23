@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale;
+using VodovozBusiness.Domain.Service;
 
 namespace Vodovoz.Domain.Service
 {
@@ -53,5 +56,17 @@ namespace Vodovoz.Domain.Service
 			bool hasPermissionsForAlternativePrice,
 			bool doNotCalculateWaterFromPromoSets = true,
 			bool doNotCalculatePresentsDiscount = true);
+
+		/// <summary>
+		/// Получение стоимости выезда мастера
+		/// </summary>
+		/// <param name="serviceDistrict">Сервисный район</param>
+		/// <param name="masterServiceType">Тип выезда мастера</param>
+		/// <param name="deliveryDate">Дата доставки</param>
+		/// <returns></returns>
+		decimal GetMasterServiceTypePrice(
+			ServiceDistrict serviceDistrict,
+			MasterServiceType masterServiceType,
+			DateTime? deliveryDate);
 	}
 }

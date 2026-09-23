@@ -221,6 +221,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					newDeliveryDate,
 					newDeliverySchedule,
 					_orderContractUpdater,
+					_saleHandler,
 					out _);
 
 				onlineOrder.UpdateOnlineOrderDeliveryData(
@@ -285,6 +286,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					newDeliveryDate,
 					newDeliverySchedule,
 					_orderContractUpdater,
+					_saleHandler,
 					out _);
 
 				onlineOrder.UpdateOnlineOrderDeliveryData(
@@ -434,6 +436,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				newDeliveryDate,
 				newDeliverySchedule,
 				_orderContractUpdater,
+				_saleHandler,
 				out _);
 			newOrder.OrderStatus = OrderStatus.Accepted;
 			newOrder.IsCopiedFromUndelivery = true;

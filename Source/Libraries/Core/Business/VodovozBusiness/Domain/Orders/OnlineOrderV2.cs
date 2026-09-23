@@ -2,10 +2,11 @@
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Orders.Delivery;
 
 namespace VodovozBusiness.Domain.Orders
 {
-	public class OnlineOrderV2 : OnlineOrder
+	public class OnlineOrderV2 : OnlineOrder, IOnlineOrderV2FreeDeliveryPrice
 	{
 		private IList<OnlineOrderPromoSet> _promoSets = new List<OnlineOrderPromoSet>();
 		
@@ -21,5 +22,7 @@ namespace VodovozBusiness.Domain.Orders
 
 		/// <inheritdoc/>>
 		public override OnlineOrderVersion OrderVersion => OnlineOrderVersion.V2;
+
+		public IEnumerable<OnlineOrderPromoSet> OnlinePromoSets => PromoSets;
 	}
 }

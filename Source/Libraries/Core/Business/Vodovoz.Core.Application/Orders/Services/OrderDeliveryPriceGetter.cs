@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Linq;
-using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Application.Orders.Delivery;
+using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Errors.Clients;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.Orders;
+using VodovozBusiness.Specifications.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
-	public class OrderDeliveryPriceGetter : IOrderDeliveryPriceGetter
+	public class OrderDeliveryPriceGetter : IDeliveryPriceGetter<OrderDeliveryPriceContext>
 	{
 		private readonly OrderStateKey _orderStateKey;
 		private readonly int _paidDeliveryId;
@@ -27,27 +26,17 @@ namespace Vodovoz.Core.Application.Orders.Services
 				.PaidDeliveryNomenclatureId;
 		}
 		
-		public Result<decimal> GetDeliveryPrice(IUnitOfWork unitOfWork, Order order)
+		public Result<decimal> GetDeliveryPrice(IDeliveryPriceGetterContext<OrderDeliveryPriceContext> context)
 		{
-			#region перенести всё это в OrderStateKey
-
-			var isDeliveryForFree =
-				order.SelfDelivery
-					|| order.OrderAddressType == OrderAddressType.Service
-					|| order.DeliveryPoint.AlwaysFreeDelivery
-					|| order.ObservableOrderItems
-						.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
-					|| !order.ObservableOrderItems.Any(n => n.Nomenclature.Id != _paidDeliveryId)
-					&& (order.BottlesReturn > 0
-						|| order.ObservableOrderEquipments.Any()
-						|| order.ObservableOrderDepositItems.Any());
+			var order = context.Data.Order;
+			var isDeliveryForFree = OrderFreeDeliverySpecification
+				.Create(_paidDeliveryId)
+				.IsSatisfiedBy(order);
 
 			if(isDeliveryForFree)
 			{
 				return Result.Success(0m);
 			}
-
-			#endregion
 
 			District district = null;
 			
@@ -58,7 +47,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					return Result.Failure<decimal>(DeliveryPointErrors.CouldNotCalculateDeliveryBecauseDistrictNotFound(order.DeliveryPoint.Id));
 				}
 
-				district = unitOfWork.GetById<District>(order.DeliveryPoint.District.Id);
+				district = context.Data.UnitOfWork.GetById<District>(order.DeliveryPoint.District.Id);
 			}
 
 			_orderStateKey.InitializeFields(order);

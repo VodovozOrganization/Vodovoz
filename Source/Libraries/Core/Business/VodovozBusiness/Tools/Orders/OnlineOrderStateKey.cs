@@ -40,6 +40,8 @@ namespace Vodovoz.Tools.Orders
 					continue;
 				}
 
+				
+				//TODO проверить нужно ли здесь разгонять скидки по позициям промонабора
 				products
 					.AddRange(promoSet.PromotionalSetItems
 						.Select(promoSetItem => OnlineOrderItem.Create(

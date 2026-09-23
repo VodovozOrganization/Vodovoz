@@ -1,13 +1,16 @@
 ﻿using System;
-using System.Linq;
-using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Application.Orders.Delivery;
+using Vodovoz.Core.Domain.Interfaces.Orders;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.Orders;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Specifications.Sale;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
-	public class OnlineOrderDeliveryPriceGetter : IOnlineOrderDeliveryPriceGetter
+	public class OnlineOrderDeliveryPriceGetter : IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext>
 	{
 		private readonly OnlineOrderStateKey _onlineOrderStateKey;
 		private readonly int _paidDeliveryId;
@@ -22,29 +25,48 @@ namespace Vodovoz.Core.Application.Orders.Services
 				.PaidDeliveryNomenclatureId;
 		}
 		
-		public decimal GetDeliveryPrice(OnlineOrder onlineOrder)
+		public Result<decimal> GetDeliveryPrice(IDeliveryPriceGetterContext<OnlineOrderDeliveryPriceContext> context)
 		{
-			var isDeliveryForFree =
-				onlineOrder.IsSelfDelivery
-				|| onlineOrder.OnlineOrderItems.Any(n => n.Nomenclature is { Category: NomenclatureCategory.master })
-				|| onlineOrder.DeliveryPoint != null && onlineOrder.DeliveryPoint.AlwaysFreeDelivery
-				|| !onlineOrder.OnlineOrderItems.Any(n => n.Nomenclature != null && n.Nomenclature.Id != _paidDeliveryId);
+			var onlineOrder = context.Data.OnlineOrder;
 			
+			var isDeliveryForFree = IsFreeDelivery(onlineOrder);
+
 			if(isDeliveryForFree)
 			{
-				return default;
+				return Result.Success(0m);
 			}
 			
 			var district = onlineOrder.DeliveryPoint?.District;
 
 			if(district is null)
 			{
-				return default;
+				return Result.Success(0m);
 			}
 			
 			_onlineOrderStateKey.InitializeFields(onlineOrder);
 			var price = district.GetDeliveryPrice(_onlineOrderStateKey, 0m);
-			return price;
+			return Result.Success(price);
+		}
+
+		private bool IsFreeDelivery(OnlineOrder onlineOrder)
+		{
+			var isDeliveryForFree = false;
+
+			switch(onlineOrder)
+			{
+				case OnlineOrderV1 onlineOrderV1:
+					isDeliveryForFree = FreeDeliverySpecification
+						.CreateForOnlineOrder(_paidDeliveryId)
+						.IsSatisfiedBy(onlineOrderV1);
+					break;
+				case OnlineOrderV2 onlineOrderV2:
+					isDeliveryForFree = OnlineOrderV2FreeDeliverySpecification
+						.CreateForOnlineOrder(_paidDeliveryId)
+						.IsSatisfiedBy(onlineOrderV2);
+					break;
+			}
+
+			return isDeliveryForFree;
 		}
 	}
 }

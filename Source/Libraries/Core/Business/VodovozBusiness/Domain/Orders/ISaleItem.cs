@@ -6,6 +6,10 @@ namespace VodovozBusiness.Domain.Orders
 	public interface ISaleItem : IGetFixedPrice, IPrice
 	{
 		/// <summary>
+		/// Id сущности
+		/// </summary>
+		int Id { get; }
+		/// <summary>
 		/// Фикса
 		/// </summary>
 		bool IsFixedPrice { get; set; }
@@ -17,5 +21,9 @@ namespace VodovozBusiness.Domain.Orders
 		/// Альтернативная цена
 		/// </summary>
 		bool IsAlternativePrice { get; set; }
+		/// <summary>
+		/// Выезд мастера
+		/// </summary>
+		bool IsMasterNomenclature { get; }
 	}
 }

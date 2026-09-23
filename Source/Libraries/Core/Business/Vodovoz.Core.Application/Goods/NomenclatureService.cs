@@ -2,18 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Domain.Service;
 using VodovozBusiness.Services;
 
 namespace Vodovoz.Core.Application.Goods
@@ -189,73 +185,6 @@ namespace Vodovoz.Core.Application.Goods
 			{
 				return Result.Failure(errors);
 			}
-		}
-
-		public void CalculateMasterCallNomenclaturePriceIfNeeded(IUnitOfWork unitOfWork, Order order)
-		{
-			_saleHandler.SetSource(order);
-			var masterCallOrderItem = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _masterCallNomenclatureId);
-
-			if(masterCallOrderItem is null)
-			{
-				return;
-			}
-
-			if(masterCallOrderItem.IsUserPrice)
-			{
-				return;
-			}
-
-			var deliveryPoint = order.DeliveryPoint;
-
-			if(deliveryPoint is null || order.DeliveryDate is null)
-			{
-				_saleHandler.SetPrice(masterCallOrderItem, masterCallOrderItem.Nomenclature.GetPrice(1));
-				return;
-			}
-
-			var serviceDistrict = _deliveryRepository.GetServiceDistrictByCoordinates(unitOfWork, deliveryPoint.Latitude.Value, deliveryPoint.Longitude.Value);
-
-			if(serviceDistrict is null)
-			{
-				_saleHandler.SetPrice(masterCallOrderItem, masterCallOrderItem.Nomenclature.GetPrice(1));
-
-				return;
-			}
-
-			decimal price = 0;
-
-			if(order.OrderItems.Any(x => x.Nomenclature.MasterServiceType ==  MasterServiceType.Cleaning))
-			{
-				price = GetMasterServiceTypePrice(serviceDistrict, MasterServiceType.Cleaning, order.DeliveryDate.Value);
-			}
-			else if(order.OrderItems.Any(x => x.Nomenclature.MasterServiceType == MasterServiceType.Repair))
-			{
-				price = GetMasterServiceTypePrice(serviceDistrict, MasterServiceType.Repair, order.DeliveryDate.Value);
-			}
-
-			_saleHandler.SetPrice(masterCallOrderItem, (SaleItemPriceType.General, price));
-		}
-
-		private decimal GetMasterServiceTypePrice(ServiceDistrict serviceDistrict, MasterServiceType masterServiceType, DateTime deliveryDate)
-		{
-			var serviceDistrictRuleByWeekDay = serviceDistrict.GetWeekDayServiceDistrictRuleByDeliveryDate(deliveryDate)
-				.Where(x => x.ServiceType == masterServiceType);
-
-			if(serviceDistrictRuleByWeekDay.Any())
-			{
-				return serviceDistrictRuleByWeekDay.Single().Price;
-			}
-
-			var commonServiceDistrictRule = serviceDistrict.GetCommonServiceDistrictRules()
-				.Where(x => x.ServiceType == masterServiceType);
-
-			if(commonServiceDistrictRule.Any())
-			{
-				return commonServiceDistrictRule.Single().Price;
-			}
-
-			return 0;
 		}
 	}
 }

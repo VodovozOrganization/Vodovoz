@@ -84,9 +84,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 			
 			order.UpdateClient(onlineOrder.Counterparty, _contractUpdater, out var updateClientMessage);
-			order.UpdateDeliveryPoint(onlineOrder.DeliveryPoint, _contractUpdater);
+			order.UpdateDeliveryPoint(onlineOrder.DeliveryPoint, _contractUpdater, _saleHandler);
 			order.SelfDelivery = onlineOrder.IsSelfDelivery;
-			order.UpdateDeliveryDate(onlineOrder.DeliveryDate, _contractUpdater, out var updateDeliveryDateMessage);
+			order.UpdateDeliveryDate(onlineOrder.DeliveryDate, _contractUpdater, _saleHandler, out var updateDeliveryDateMessage);
 			order.DeliverySchedule = onlineOrder.DeliverySchedule;
 			order.IsFastDelivery = onlineOrder.IsFastDelivery;
 			order.UpdatePaymentType(onlineOrder.OnlineOrderPaymentType.ToOrderPaymentType(), _contractUpdater);
@@ -312,11 +312,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				{
 					foreach(var proSetItem in promoSet.PromotionalSetItems)
 					{
-						order.AddNomenclature(
+						_saleHandler.AddNomenclature(
 							uow,
-							_contractUpdater,
-							_saleHandler,
-							_goodsPriceCalculator,
 							NewOrderSaleItem.Create(
 								proSetItem.Nomenclature,
 								proSetItem.Count,
@@ -359,13 +356,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 					foreach(var newOrderItem in newOrderItems)
 					{
-						order.AddNomenclature(
-							uow,
-							_contractUpdater,
-							_saleHandler,
-							_goodsPriceCalculator,
-							newOrderItem
-						);
+						_saleHandler.AddNomenclature(uow, newOrderItem);
 					}
 					
 					order.ObservablePromotionalSets.Add(promoSet);
@@ -398,11 +389,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 					&& onlineOrderItem.OnlineOrderErrorState.HasValue
 					&& onlineOrderItem.OnlineOrderErrorState == OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable)
 				{
-					order.AddNomenclature(
+					_saleHandler.AddNomenclature(
 						uow,
-						_contractUpdater,
-						_saleHandler,
-						_goodsPriceCalculator,
 						NewOrderSaleItem.Create(
 							product.Nomenclature,
 							product.Count,
@@ -411,11 +399,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				}
 				else
 				{
-					order.AddNomenclature(
+					_saleHandler.AddNomenclature(
 						uow,
-						_contractUpdater,
-						_saleHandler,
-						_goodsPriceCalculator,
 						NewOrderSaleItem.Create(
 							product.Nomenclature,
 							product.Count,
@@ -439,11 +424,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 					continue;
 				}
 				
-				order.AddNomenclature(
+				_saleHandler.AddNomenclature(
 					uow,
-					_contractUpdater,
-					_saleHandler,
-					_goodsPriceCalculator,
 					NewOrderSaleItem.Create(
 						onlineOrderItem.Nomenclature,
 						onlineOrderItem.Count,
@@ -479,7 +461,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					rentPackage.EquipmentKind,
 					existingItems);
 				
-				order.AddFreeRent(uow, _contractUpdater, _saleHandler, rentPackage, anyNomenclature);
+				order.AddFreeRent(uow, _saleHandler, rentPackage, anyNomenclature);
 			}
 		}
 		

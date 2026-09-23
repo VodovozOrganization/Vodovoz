@@ -5,7 +5,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 using VodovozBusiness.Errors.Sale.PromoSets;
 using VodovozBusiness.Services.Orders;
 
@@ -13,7 +13,7 @@ namespace Vodovoz.Core.Application.Orders.Validators.Rules
 {
 	public interface IAddPromoSetRule
 	{
-		Result<string> Validate(IUnitOfWork uow, IAddSaleItemSource source, PromotionalSet proSet);
+		Result<string> Apply(IUnitOfWork uow, ISaleSource source, PromotionalSet proSet);
 	}
 	
 	/// <summary>
@@ -21,9 +21,9 @@ namespace Vodovoz.Core.Application.Orders.Validators.Rules
 	/// </summary>
 	public class AddMoreOnePromoSetForNewClientsToOrderRule : IAddPromoSetRule
 	{
-		public Result<string> Validate(IUnitOfWork uow, IAddSaleItemSource saleItemSource, PromotionalSet proSet)
+		public Result<string> Apply(IUnitOfWork uow, ISaleSource source, PromotionalSet proSet)
 		{
-			var order = saleItemSource.Source as Order;
+			var order = source as Order;
 			
 			if(order.PromotionalSets.Any(x => x.PromotionalSetForNewClients && proSet.PromotionalSetForNewClients))
 			{
@@ -39,11 +39,11 @@ namespace Vodovoz.Core.Application.Orders.Validators.Rules
 	/// </summary>
 	public class AddMoreOnePromoSetForNewClientsRule : IAddPromoSetRule
 	{
-		public Result<string> Validate(IUnitOfWork uow, IAddSaleItemSource source, PromotionalSet proSet)
+		public Result<string> Apply(IUnitOfWork uow, ISaleSource source, PromotionalSet proSet)
 		{
-			if(source.Products.Any(x =>
-					x.PromoSet is { PromotionalSetForNewClients: true }
-					&& proSet.PromotionalSetForNewClients))
+			if(source.SaleItems.Any(x =>
+				x.PromoSet is { PromotionalSetForNewClients: true }
+				&& proSet.PromotionalSetForNewClients))
 			{
 				return Result.Failure<string>(PromoSetErrors.CantAddTwoPromoSetsForNewClients);
 			}
@@ -54,7 +54,7 @@ namespace Vodovoz.Core.Application.Orders.Validators.Rules
 	
 	public class AddPromoSetToSelfDeliveryRule : IAddPromoSetRule
 	{
-		public Result<string> Validate(IUnitOfWork uow, IAddSaleItemSource source, PromotionalSet proSet)
+		public Result<string> Apply(IUnitOfWork uow, ISaleSource source, PromotionalSet proSet)
 		{
 			if(source.IsSelfDelivery)
 			{
@@ -63,7 +63,6 @@ namespace Vodovoz.Core.Application.Orders.Validators.Rules
 
 			return null;
 		}
-	
 	}
 	
 	/// <summary>
@@ -78,7 +77,7 @@ namespace Vodovoz.Core.Application.Orders.Validators.Rules
 			_freeLoaderChecker = freeLoaderChecker ?? throw new ArgumentNullException(nameof(freeLoaderChecker));
 		}
 		
-		public Result<string> Validate(IUnitOfWork uow, IAddSaleItemSource source, PromotionalSet proSet)
+		public Result<string> Apply(IUnitOfWork uow, ISaleSource source, PromotionalSet proSet)
 		{
 			if(proSet.PromotionalSetForNewClients
 				&& _freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(
@@ -107,7 +106,7 @@ namespace Vodovoz.Core.Application.Orders.Validators.Rules
 			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
 		}
 		
-		public Result<string> Validate(IUnitOfWork uow, IAddSaleItemSource saleItemSource, PromotionalSet proSet)
+		public Result<string> Apply(IUnitOfWork uow, ISaleSource source, PromotionalSet proSet)
 		{
 			var questionMessage = string.Empty;
 			
@@ -116,7 +115,8 @@ namespace Vodovoz.Core.Application.Orders.Validators.Rules
 				return Result.Success(questionMessage);
 			}
 			
-			var proSetDict = _promotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(uow, saleItemSource);
+			var proSetDict =
+				_promotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(uow, source);
 
 			if(!proSetDict.Any())
 			{
@@ -125,10 +125,10 @@ namespace Vodovoz.Core.Application.Orders.Validators.Rules
 			
 			var address = string.Join(
 				", ",
-				saleItemSource.DeliveryPoint.City,
-				saleItemSource.DeliveryPoint.Street,
-				saleItemSource.DeliveryPoint.Building,
-				saleItemSource.DeliveryPoint.Room);
+				source.DeliveryPoint.City,
+				source.DeliveryPoint.Street,
+				source.DeliveryPoint.Building,
+				source.DeliveryPoint.Room);
 			
 			var sb = new StringBuilder(
 				$"Для адреса \"{address}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n");

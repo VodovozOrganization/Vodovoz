@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Goods;
 using VodovozBusiness.Domain.Orders;
@@ -238,7 +239,9 @@ namespace Vodovoz.Domain.Orders
 			get => false;
 			set => throw new InvalidOperationException("У позиции онлайн заказа нет пользовательской цены!");
 		}
-		
+
+		public virtual bool IsMasterNomenclature => Nomenclature != null && Nomenclature.Category == NomenclatureCategory.master;
+
 		#endregion
 
 		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;

@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
@@ -65,7 +64,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderDiscountsController _orderDiscountsController;
-		private readonly IOrderDeliveryPriceGetter _orderDeliveryPriceGetter;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IGenericRepository<RobotMiaParameters> _robotMiaParametersRepository;
@@ -94,7 +92,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
 			IOrderDiscountsController orderDiscountsController,
-			IOrderDeliveryPriceGetter orderDeliveryPriceGetter,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IGenericRepository<RobotMiaParameters> robotMiaParametersRepository,
@@ -127,7 +124,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderDiscountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
-			_orderDeliveryPriceGetter = orderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(orderDeliveryPriceGetter));
 			_undeliveredOrdersRepository = undeliveredOrdersRepository;
 			_subdivisionRepository = subdivisionRepository;
 			_robotMiaParametersRepository = robotMiaParametersRepository ?? throw new ArgumentNullException(nameof(robotMiaParametersRepository));
@@ -148,25 +144,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		public int PaidDeliveryNomenclatureId { get; }
 		public int ForfeitNomenclatureId { get; }
-
-		public Result UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
-		{
-			_saleHandler.SetSource(order);
-			var deliveryPriceResult = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
-
-			if(deliveryPriceResult.IsFailure)
-			{
-				return Result.Failure(deliveryPriceResult.Errors);
-			}
-			
-			order.UpdateDeliveryItem(
-				unitOfWork,
-				_orderContractUpdater,
-				_saleHandler,
-				unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPriceResult.Value);
-			
-			return Result.Success();
-		}
 
 		/// <summary>
 		/// Рассчитывает и возвращает цену заказа по имеющимся данным о заказе
@@ -190,21 +167,16 @@ namespace Vodovoz.Core.Application.Orders.Services
 				_saleHandler.SetSource(order);
 				order.Author = roboatsEmployee;
 				order.UpdateClient(counterparty, _orderContractUpdater, out var updateClientMessage);
-				order.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater);
+				order.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater, _saleHandler);
 				order.UpdatePaymentType(PaymentType.Cash, _orderContractUpdater);
 
 				foreach(var waterInfo in createOrderRequest.SaleItems)
 				{
 					var nomenclature = unitOfWork.GetById<Nomenclature>(waterInfo.NomenclatureId);
-					order.AddWaterForSale(
-						unitOfWork,
-						_orderContractUpdater,
-						_saleHandler,
-						_goodsPriceCalculator,
-						NewOrderSaleItem.Create(nomenclature, waterInfo.BottlesCount));
+					_saleHandler.AddWaterForSale(unitOfWork, NewOrderSaleItem.Create(nomenclature, waterInfo.BottlesCount));
 				}
 
-				var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = _saleHandler.UpdateDeliveryCost(unitOfWork);
 
 				if(!deliveryCostResult.IsFailure)
 				{
@@ -239,7 +211,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				_saleHandler.SetSource(order);
 				order.Author = robotMiaEmployee;
 				order.UpdateClient(counterparty, _orderContractUpdater, out var updateClientMessage);
-				order.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater);
+				order.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater, _saleHandler);
 				order.UpdatePaymentType(PaymentType.Cash, _orderContractUpdater);
 				order.Author = robotMiaEmployee;
 
@@ -250,12 +222,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 					if(nomenclature.Id == ForfeitNomenclatureId)
 					{
-						order.AddNomenclature(
-							unitOfWork,
-							_orderContractUpdater,
-							_saleHandler,
-							_goodsPriceCalculator,
-							NewOrderSaleItem.Create(nomenclature, saleItem.BottlesCount));
+						_saleHandler.AddNomenclature(unitOfWork, NewOrderSaleItem.Create(nomenclature, saleItem.BottlesCount));
 						continue;
 					}
 
@@ -265,12 +232,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 					if(nomenclature.Category == NomenclatureCategory.water)
 					{
-						order.AddWaterForSale(
-							unitOfWork,
-							_orderContractUpdater,
-							_saleHandler,
-							_goodsPriceCalculator,
-							NewOrderSaleItem.Create(nomenclature, saleItem.BottlesCount));
+						_saleHandler.AddWaterForSale(unitOfWork, NewOrderSaleItem.Create(nomenclature, saleItem.BottlesCount));
 					}
 					else if(nomenclatureParameters is null
 						|| nomenclatureParameters.GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale)
@@ -280,16 +242,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 					}
 					else
 					{
-						order.AddNomenclature(
-							unitOfWork,
-							_orderContractUpdater,
-							_saleHandler,
-							_goodsPriceCalculator,
-							NewOrderSaleItem.Create(nomenclature, saleItem.BottlesCount));
+						_saleHandler.AddNomenclature(unitOfWork, NewOrderSaleItem.Create(nomenclature, saleItem.BottlesCount));
 					}
 				}
 
-				var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = _saleHandler.UpdateDeliveryCost(unitOfWork);
 
 				if(!deliveryCostResult.IsFailure)
 				{
@@ -447,7 +404,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_saleHandler.SetSource(order);
 			order.Author = author;
 			order.UpdateClient(counterparty, _orderContractUpdater, out var updateClientMessage);
-			order.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater);
+			order.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater, _saleHandler);
 
 			order.UpdatePaymentType(createOrderRequest.PaymentType, _orderContractUpdater);
 
@@ -474,7 +431,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 
 			order.DeliverySchedule = deliverySchedule;
-			order.UpdateDeliveryDate(createOrderRequest.Date, _orderContractUpdater, out var updateDeliveryDateMessage);
+			order.UpdateDeliveryDate(createOrderRequest.Date, _orderContractUpdater, _saleHandler, out var updateDeliveryDateMessage);
 
 			_orderContractUpdater.UpdateOrCreateContract(unitOfWork, order);
 
@@ -484,12 +441,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 				if(nomenclature != null)
 				{
-					order.AddWaterForSale(
-						unitOfWork,
-						_orderContractUpdater,
-						_saleHandler,
-						_goodsPriceCalculator,
-						NewOrderSaleItem.Create(nomenclature, waterInfo.BottlesCount));
+					_saleHandler.AddWaterForSale(unitOfWork, NewOrderSaleItem.Create(nomenclature, waterInfo.BottlesCount));
 				}
 				else
 				{
@@ -498,7 +450,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			
-			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+			var deliveryCostResult = _saleHandler.UpdateDeliveryCost(unitOfWork);
 
 			if(deliveryCostResult.IsFailure)
 			{
@@ -566,7 +518,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_saleHandler.SetSource(order);
 			order.Author = author;
 			order.UpdateClient(counterparty, _orderContractUpdater, out var updateClientMessage);
-			order.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater);
+			order.UpdateDeliveryPoint(deliveryPoint, _orderContractUpdater, _saleHandler);
 			order.UpdatePaymentType(createOrderRequest.PaymentType, _orderContractUpdater);
 
 			switch(createOrderRequest.PaymentType)
@@ -599,7 +551,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 
 			order.DeliverySchedule = deliverySchedule;
-			order.UpdateDeliveryDate(createOrderRequest.Date, _orderContractUpdater, out var updateDeliveryDate);
+			order.UpdateDeliveryDate(createOrderRequest.Date, _orderContractUpdater, _saleHandler, out var updateDeliveryDate);
 
 			_orderContractUpdater.UpdateOrCreateContract(unitOfWork, order);
 
@@ -628,12 +580,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				}
 				else if(nomenclature.Category == NomenclatureCategory.water)
 				{
-					order.AddWaterForSale(
-						unitOfWork,
-						_orderContractUpdater,
-						_saleHandler,
-						_goodsPriceCalculator,
-						NewOrderSaleItem.Create(nomenclature, waterInfo.BottlesCount));
+					_saleHandler.AddWaterForSale(unitOfWork, NewOrderSaleItem.Create(nomenclature, waterInfo.BottlesCount));
 				}
 				else
 				{
@@ -648,18 +595,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 							$"Номенклатура [{nomenclature.Id}] {nomenclature.Name} не может быть добавлена. В заказ может быть добавлена либо номенклатура, одобренная для продажи, либо неустойка");
 					}
 
-					order.AddNomenclature(
-						unitOfWork,
-						_orderContractUpdater,
-						_saleHandler,
-						_goodsPriceCalculator,
-						NewOrderSaleItem.Create(nomenclature, waterInfo.BottlesCount));
+					_saleHandler.AddNomenclature(unitOfWork, NewOrderSaleItem.Create(nomenclature, waterInfo.BottlesCount));
 				}
 			}
 
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			
-			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+			var deliveryCostResult = _saleHandler.UpdateDeliveryCost(unitOfWork);
 
 			if(deliveryCostResult.IsFailure)
 			{
@@ -707,7 +649,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_saleHandler.SetSource(order);
 
 			// Необходимо сделать асинхронным
-			var deliveryCostResult = UpdateDeliveryCost(uow, order);
+			var deliveryCostResult = _saleHandler.UpdateDeliveryCost(uow);
 
 			if(deliveryCostResult.IsFailure)
 			{
@@ -721,7 +663,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			order.AddDeliveryPointCommentToOrder();
 
 			// Необходимо сделать асинхронным
-			order.AddFastDeliveryNomenclatureIfNeeded(uow, _orderContractUpdater, _saleHandler);
+			_saleHandler.TryAddFastDelivery(uow);
 
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 
@@ -781,14 +723,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			var referFriendDiscountReason = _discountReasonRepository.Get(uow, x => x.Id == _orderSettings.ReferFriendDiscountReasonId).First();
 
-			var beforeAddItemsCount = order.OrderItems.Count();
-			order.AddNomenclature(
-				uow,
-				_orderContractUpdater,
-				_saleHandler,
-				_goodsPriceCalculator,
-				NewOrderSaleItem.Create(nomenclature, bottlesToAdd));
-			var afterAddItemsCount = order.OrderItems.Count();
+			var beforeAddItemsCount = order.OrderItems.Count;
+			_saleHandler.AddNomenclature(uow, NewOrderSaleItem.Create(nomenclature, bottlesToAdd));
+			var afterAddItemsCount = order.OrderItems.Count;
 
 			if(afterAddItemsCount == beforeAddItemsCount)
 			{

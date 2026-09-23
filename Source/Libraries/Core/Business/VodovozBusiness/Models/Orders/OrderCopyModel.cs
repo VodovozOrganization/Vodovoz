@@ -4,6 +4,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Models.Orders
@@ -14,18 +15,21 @@ namespace Vodovoz.Models.Orders
 		private readonly IFlyerRepository _flyerRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly IOrderSaleHandler _saleHandler;
+		private readonly IOrderSaleItemFactory _saleItemFactory;
 
 		public OrderCopyModel(
 			INomenclatureSettings nomenclatureSettings,
 			IFlyerRepository flyerRepository,
 			IOrderContractUpdater contractUpdater,
-			IOrderSaleHandler saleHandler
+			IOrderSaleHandler saleHandler,
+			IOrderSaleItemFactory saleItemFactory
 			)
 		{
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_saleItemFactory = saleItemFactory ?? throw new ArgumentNullException(nameof(saleItemFactory));
 		}
 
 		public CopyingOrder StartCopyOrder(IUnitOfWork uow, int copiedOrderId, Order toOrder = null)
@@ -54,7 +58,8 @@ namespace Vodovoz.Models.Orders
 				_nomenclatureSettings,
 				_flyerRepository,
 				_contractUpdater,
-				_saleHandler
+				_saleHandler,
+				_saleItemFactory
 				);
 
 			return copyingOrder;

@@ -1250,10 +1250,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return subQueryBalance - subQueryReserved > 0;
 		}
 
-		public bool IsMovedToTheNewOrder(IUnitOfWork uow, OrderItem orderItem)
+		public bool IsMovedToTheNewOrder(IUnitOfWork uow, int orderItemId)
 		{
 			var movedOrderItems = uow.Session.QueryOver<OrderItem>()
-				.Where(o => o.CopiedFromUndelivery.Id == orderItem.Id && o.Id != orderItem.Id)
+				.Where(oi => oi.CopiedFromUndelivery.Id == orderItemId && oi.Id != orderItemId)
 				.List<OrderItem>();
 
 			return movedOrderItems.Count > 0;

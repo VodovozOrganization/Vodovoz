@@ -244,7 +244,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal PercentForMaster => (decimal)Nomenclature.PercentForMaster;
 
-		public virtual bool IsMasterNomenclature => Nomenclature.Category == NomenclatureCategory.master;
+		public virtual bool IsMasterNomenclature => Nomenclature != null && Nomenclature.Category == NomenclatureCategory.master;
 
 		#endregion IOrderItemWageCalculationSource implementation
 
@@ -382,7 +382,7 @@ namespace Vodovoz.Domain.Orders
 			IsDiscountInMoney = isDiscountInMoney;
 		}
 
-		internal static OrderItem CreateNewDailyRentServiceItem(IOrderSaleHandler saleHandler, Order order, PaidRentPackage paidRentPackage)
+		internal static OrderItem CreateNewDailyRentServiceItem(Order order, PaidRentPackage paidRentPackage)
 		{
 			var newItem = new OrderItem
 			{
@@ -395,12 +395,10 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.RentServiceDaily
 			};
 
-			newItem.UpdatePriceWithRecalculate((SaleItemPriceType.General, paidRentPackage.PriceDaily), saleHandler);
-
 			return newItem;
 		}
 
-		internal static OrderItem CreateNewDailyRentDepositItem(IOrderSaleHandler saleHandler, Order order, PaidRentPackage paidRentPackage)
+		internal static OrderItem CreateNewDailyRentDepositItem(Order order, PaidRentPackage paidRentPackage)
 		{
 			var newItem = new OrderItem
 			{
@@ -412,12 +410,10 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.DepositService
 			};
 
-			newItem.UpdatePriceWithRecalculate((SaleItemPriceType.General, paidRentPackage.Deposit), saleHandler);
-
 			return newItem;
 		}
 
-		internal static OrderItem CreateNewNonFreeRentServiceItem(IOrderSaleHandler saleHandler, Order order, PaidRentPackage paidRentPackage)
+		internal static OrderItem CreateNewNonFreeRentServiceItem(Order order, PaidRentPackage paidRentPackage)
 		{
 			var newItem = new OrderItem
 			{
@@ -430,12 +426,10 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.RentServiceMonthly
 			};
 
-			newItem.UpdatePriceWithRecalculate((SaleItemPriceType.General, paidRentPackage.PriceMonthly), saleHandler);
-
 			return newItem;
 		}
 
-		internal static OrderItem CreateNewNonFreeRentDepositItem(IOrderSaleHandler saleHandler, Order order, PaidRentPackage paidRentPackage)
+		internal static OrderItem CreateNewNonFreeRentDepositItem(Order order, PaidRentPackage paidRentPackage)
 		{
 			var newItem = new OrderItem
 			{
@@ -447,12 +441,10 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = paidRentPackage.DepositService
 			};
 
-			newItem.UpdatePriceWithRecalculate((SaleItemPriceType.General, paidRentPackage.Deposit), saleHandler);
-
 			return newItem;
 		}
 
-		internal static OrderItem CreateNewFreeRentDepositItem(IOrderSaleHandler saleHandler, Order order, FreeRentPackage freeRentPackage)
+		internal static OrderItem CreateNewFreeRentDepositItem(Order order, FreeRentPackage freeRentPackage)
 		{
 			var newItem = new OrderItem
 			{
@@ -464,13 +456,10 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = freeRentPackage.DepositService
 			};
 
-			newItem.UpdatePriceWithRecalculate((SaleItemPriceType.General, freeRentPackage.Deposit), saleHandler);
-
 			return newItem;
 		}
 
-		internal static OrderItem CreateForSale(
-			IOrderSaleHandler saleHandler,
+		/*internal static OrderItem CreateForSale(
 			Order order,
 			NewOrderSaleItem newOrderSaleItem)
 		{
@@ -486,10 +475,9 @@ namespace Vodovoz.Domain.Orders
 			newItem.UpdatePriceWithRecalculate(newOrderSaleItem.PriceData, saleHandler);
 
 			return newItem;
-		}
+		}*/
 
-		internal static OrderItem CreateForSaleWithDiscount(
-			IOrderSaleHandler saleHandler,
+		internal static OrderItem CreateForSale(
 			Order order,
 			NewOrderSaleItem newOrderSaleItem
 			)
@@ -498,7 +486,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				Order = order,
 				Count = newOrderSaleItem.Count,
-				Equipment = null,
+				Equipment = newOrderSaleItem.Equipment,
 				Nomenclature = newOrderSaleItem.Nomenclature,
 				IsDiscountInMoney = newOrderSaleItem.IsDiscountInMoney,
 				Discount = newOrderSaleItem.Discount,
@@ -524,26 +512,6 @@ namespace Vodovoz.Domain.Orders
 					newItem.DiscountReasons.Add(reason);
 				}
 			}
-
-			newItem.UpdatePriceWithRecalculate(newOrderSaleItem.PriceData, saleHandler);
-
-			return newItem;
-		}
-
-		internal static OrderItem CreateDeliveryOrderItem(
-			IOrderSaleHandler saleHandler,
-			Order order,
-			Nomenclature nomenclature,
-			decimal price)
-		{
-			var newItem = new OrderItem
-			{
-				Order = order,
-				Count = 1,
-				Nomenclature = nomenclature
-			};
-
-			newItem.UpdatePriceWithRecalculate((SaleItemPriceType.User, price), saleHandler);
 
 			return newItem;
 		}

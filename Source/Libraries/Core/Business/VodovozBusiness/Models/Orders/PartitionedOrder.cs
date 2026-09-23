@@ -8,6 +8,7 @@ using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Models.Orders
@@ -19,6 +20,7 @@ namespace Vodovoz.Models.Orders
 		private readonly Order _resultOrder;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly IOrderSaleHandler _saleHandler;
+		private readonly IOrderSaleItemFactory _saleItemFactory;
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
 		private bool _needCopyStockBottleDiscount;
@@ -30,7 +32,8 @@ namespace Vodovoz.Models.Orders
 			INomenclatureSettings nomenclatureSettings,
 			IFlyerRepository flyerRepository,
 			IOrderContractUpdater contractUpdater,
-			IOrderSaleHandler saleHandler
+			IOrderSaleHandler saleHandler,
+			IOrderSaleItemFactory saleItemFactory
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -38,6 +41,7 @@ namespace Vodovoz.Models.Orders
 			_resultOrder = resultOrder ?? throw new ArgumentNullException(nameof(resultOrder));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_saleItemFactory = saleItemFactory ?? throw new ArgumentNullException(nameof(saleItemFactory));
 			_saleHandler.SetSource(_resultOrder);
 
 			if(nomenclatureSettings is null)
@@ -61,9 +65,9 @@ namespace Vodovoz.Models.Orders
 		{
 			_resultOrder.UpdateClient(_copiedOrder.Client, _contractUpdater, out var updateClientMessage);
 			_resultOrder.SelfDelivery = _copiedOrder.SelfDelivery;
-			_resultOrder.UpdateDeliveryPoint(_copiedOrder.DeliveryPoint, _contractUpdater);
+			_resultOrder.UpdateDeliveryPoint(_copiedOrder.DeliveryPoint, _contractUpdater, _saleHandler);
 			_resultOrder.UpdatePaymentType(_copiedOrder.PaymentType, _contractUpdater);
-			_resultOrder.UpdateDeliveryDate(_copiedOrder.DeliveryDate, _contractUpdater, out var updateDeliveryDateMessage);
+			_resultOrder.UpdateDeliveryDate(_copiedOrder.DeliveryDate, _contractUpdater, _saleHandler, out var updateDeliveryDateMessage);
 			_resultOrder.UpdatePaymentByCardFrom(_copiedOrder.PaymentByCardFrom, _contractUpdater);
 			_resultOrder.OnlinePaymentNumber = _copiedOrder.OnlinePaymentNumber;
 			_resultOrder.DeliverySchedule = _copiedOrder.DeliverySchedule;
@@ -228,10 +232,10 @@ namespace Vodovoz.Models.Orders
 			bool withDiscounts = false)
 		{
 			//TODO-5967 нужно проверить алгоритм установки булевых
-			var newOrderItem = OrderItem.CreateForSale(
-				_saleHandler,
+			var priceData = (SaleItemPriceType.General, orderItem.Price);
+			var newOrderItem = _saleItemFactory.Create(
 				_resultOrder,
-				NewOrderSaleItem.Create(orderItem.Nomenclature, orderItem.Count, (SaleItemPriceType.General, orderItem.Price))
+				NewOrderSaleItem.Create(orderItem.Nomenclature, orderItem.Count, priceData)
 			);
 			
 			newOrderItem.PromoSet = orderItem.PromoSet;
@@ -243,7 +247,7 @@ namespace Vodovoz.Models.Orders
 				CopyingDiscounts(orderItem, newOrderItem, _needCopyStockBottleDiscount);
 			}
 
-			_resultOrder.AddOrderItem(_uow, _contractUpdater, _saleHandler, newOrderItem);
+			_saleHandler.AddSaleItem(_uow, newOrderItem, priceData);
 		}
 
 		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo, bool withStockBottleDiscount)

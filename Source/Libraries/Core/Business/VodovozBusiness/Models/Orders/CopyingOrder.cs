@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Models.Orders
@@ -25,6 +26,7 @@ namespace Vodovoz.Models.Orders
 		private readonly IFlyerRepository _flyerRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly IOrderSaleHandler _saleHandler;
+		private readonly IOrderSaleItemFactory _saleItemFactory;
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
 		private readonly int _fastDeliveryNomenclatureId;
@@ -38,7 +40,8 @@ namespace Vodovoz.Models.Orders
 			INomenclatureSettings nomenclatureSettings,
 			IFlyerRepository flyerRepository,
 			IOrderContractUpdater contractUpdater,
-			IOrderSaleHandler saleHandler
+			IOrderSaleHandler saleHandler,
+			IOrderSaleItemFactory saleItemFactory
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -55,6 +58,7 @@ namespace Vodovoz.Models.Orders
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_saleItemFactory = saleItemFactory ?? throw new ArgumentNullException(nameof(saleItemFactory));
 			_saleHandler.SetSource(_resultOrder);
 
 			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
@@ -87,7 +91,7 @@ namespace Vodovoz.Models.Orders
 				_resultOrder.OurOrganization = _copiedOrder.OurOrganization;
 				_resultOrder.UpdateClient(_copiedOrder.Client, _contractUpdater, out var message);
 				_resultOrder.SelfDelivery = _copiedOrder.SelfDelivery;
-				_resultOrder.UpdateDeliveryPoint(_copiedOrder.DeliveryPoint, _contractUpdater);
+				_resultOrder.UpdateDeliveryPoint(_copiedOrder.DeliveryPoint, _contractUpdater, _saleHandler);
 				_resultOrder.UpdatePaymentType(_copiedOrder.PaymentType, _contractUpdater);
 				_resultOrder.Author = _copiedOrder.Author;
 				_resultOrder.Comment = _copiedOrder.Comment;
@@ -159,10 +163,10 @@ namespace Vodovoz.Models.Orders
 					_resultOrder.UpdateClient(_copiedOrder.Client, _contractUpdater, out var message);
 					break;
 				case nameof(Order.DeliveryPoint):
-					_resultOrder.UpdateDeliveryPoint(_copiedOrder.DeliveryPoint, _contractUpdater);
+					_resultOrder.UpdateDeliveryPoint(_copiedOrder.DeliveryPoint, _contractUpdater, _saleHandler);
 					break;
 				case nameof(Order.DeliveryDate):
-					_resultOrder.UpdateDeliveryDate(_copiedOrder.DeliveryDate, _contractUpdater, out var updateDeliveryDateMessage);
+					_resultOrder.UpdateDeliveryDate(_copiedOrder.DeliveryDate, _contractUpdater, _saleHandler, out var updateDeliveryDateMessage);
 					break;
 				default:
 					var value = propertyInfo.GetValue(_copiedOrder);
@@ -408,10 +412,10 @@ namespace Vodovoz.Models.Orders
 			bool withPrices = false,
 			bool isCopiedFromUndelivery = false)
 		{
-			var newOrderItem = OrderItem.CreateForSale(
-				_saleHandler,
+			var priceData = (SaleItemPriceType.General, orderItem.Price);
+			var newOrderItem = _saleItemFactory.Create(
 				_resultOrder,
-				NewOrderSaleItem.Create(orderItem.Nomenclature, orderItem.Count, (SaleItemPriceType.General, orderItem.Price))
+				NewOrderSaleItem.Create(orderItem.Nomenclature, orderItem.Count, priceData)
 			);
 			
 			newOrderItem.PromoSet = orderItem.PromoSet;
@@ -429,7 +433,7 @@ namespace Vodovoz.Models.Orders
 				CopyingDiscounts(orderItem, newOrderItem, _needCopyStockBottleDiscount);
 			}
 
-			_resultOrder.AddOrderItem(_uow, _contractUpdater, _saleHandler, newOrderItem);
+			_saleHandler.AddSaleItem(_uow, newOrderItem, priceData);
 		}
 
 		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo, bool withStockBottleDiscount)

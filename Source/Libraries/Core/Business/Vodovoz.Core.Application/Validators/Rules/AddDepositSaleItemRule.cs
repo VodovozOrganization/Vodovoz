@@ -1,19 +1,24 @@
-﻿using Vodovoz.Core.Domain.Goods;
+﻿using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Errors.Sale;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale;
+using VodovozBusiness.Validation.Rules;
 
-namespace Vodovoz.Core.Application.Orders.Validators
+namespace Vodovoz.Core.Application.Validators.Rules
 {
-	public class AddDepositProductValidator
+	public class AddDepositSaleItemRule : IAddNomenclatureToSaleRule
 	{
-		public Result Validate(Nomenclature addingNomenclature, IAddSaleItemSource source)
+		public Result Apply(
+			Nomenclature addingNomenclature,
+			ISaleSource source
+			)
 		{
-			if(source.PaymentTypeSource == PaymentTypeSource.Cashless)
+			if(source.PaymentType is PaymentType.Cashless)
 			{
-				var sourceName = source.GetDisplayNAme.Nomitive;
+				var sourceName = source.GetSubjectNames()?.Nominative ?? "Источник продажи";
 				
 				if(addingNomenclature.Category == NomenclatureCategory.deposit
 					&& !source.HasDeposits

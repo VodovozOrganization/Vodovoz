@@ -72,7 +72,7 @@ namespace Vodovoz.Converters
 				CounterpartyInfoForEdo = counterpartyInfo,
 				OrganizationInfoForEdo = _organizationConverter.ConvertOrganizationToOrganizationInfoForEdo(
 					orderForAdvancePayment.Organization, dateTime),
-				Sum = orderForAdvancePayment.OrderWithoutDeliveryForAdvancePaymentItems.Sum(x => x.Sum)
+				Sum = orderForAdvancePayment.AdvanceSaleItems.Sum(x => x.Sum)
 			};
 		}
 	}

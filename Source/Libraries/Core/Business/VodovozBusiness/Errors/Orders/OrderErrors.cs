@@ -141,6 +141,27 @@ namespace Vodovoz.Errors.Orders
 				nameof(SplitOrderError),
 				"Произошла ошибка при разбиении заказа");
 		
+		/// <summary>
+		/// Удаление строки заказа со связанной строкой оборудования
+		/// </summary>
+		/// <param name="equipmentName">Наименование строки оборудования</param>
+		/// <returns></returns>
+		public static Error RemovingOrderItemWithLinkedEquipment(string equipmentName) =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(SplitOrderError),
+				$"Нельзя удалить строку заказа. Сначала удалите связанную с ней строку оборудования {equipmentName}");
+		
+		/// <summary>
+		/// Удаление строки заказа, перенесенной в другой заказ
+		/// </summary>
+		/// <returns></returns>
+		public static Error RemovingOrderItemTransferredToAnotherOrder =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(SplitOrderError),
+				"Нельзя удалить строку заказа, т.к. данная позиция была перенесена в другой заказ");
+		
 		public static Error CannotCancelOrder =>
 			new Error(
 				"400",
@@ -222,6 +243,6 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				typeof(OrderErrors),
 				nameof(CantAddProductTo1COrder),
-				"Нельзя добавлять товары в заказ с 1С");
+				"Нельзя добавлять товары в заказ из 1С");
 	}
 }

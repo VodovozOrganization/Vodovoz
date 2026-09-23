@@ -9,6 +9,5 @@ namespace VodovozBusiness.Services
 	{
 		Result Archive(IUnitOfWork unitOfWork, int nomenclatureId);
 		Result Archive(IUnitOfWork unitOfWork, Nomenclature nomenclature);
-		void CalculateMasterCallNomenclaturePriceIfNeeded(IUnitOfWork unitOfWork, Order order);
 	}
 }

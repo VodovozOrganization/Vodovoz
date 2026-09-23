@@ -441,7 +441,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		
 		private bool IsOnlineStoreOrderWithoutShipment(OrderWithoutShipmentForAdvancePayment order)
 		{
-			return order.OrderWithoutDeliveryForAdvancePaymentItems.Any(x =>
+			return order.AdvanceSaleItems.Any(x =>
 				x.Nomenclature.OnlineStore != null && x.Nomenclature.OnlineStore.Id != _orderSettings.OldInternalOnlineStoreId);
 		}
 

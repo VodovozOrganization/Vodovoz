@@ -1,15 +1,17 @@
 ﻿using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Errors.Orders;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
+using VodovozBusiness.Validation.Rules;
 
-namespace Vodovoz.Core.Application.Orders.Validators
+namespace Vodovoz.Core.Application.Validators.Rules
 {
-	public class AddProductTo1COrderValidator
+	public class AddSaleItemTo1COrderRule : IAddNomenclatureToSaleRule
 	{
-		public Result Validate(
+		public Result Apply(
 			Nomenclature addingNomenclature,
-			IAddSaleItemSource source)
+			ISaleSource source
+			)
 		{
 			if(source.IsLoadedFrom1C)
 			{

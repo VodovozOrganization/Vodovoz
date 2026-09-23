@@ -88,6 +88,11 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetFastDeliveryNomenclature(IUnitOfWork uow);
 		Nomenclature GetMasterCallNomenclature(IUnitOfWork uow);
 		/// <summary>
+		/// Получение номенклатуры платной доставки
+		/// </summary>
+		/// <returns></returns>
+		Nomenclature GetPaidDelivery(IUnitOfWork uow);
+		/// <summary>
 		/// Идентификатор для группы товаров, принадлежащей интернет-магазину
 		/// </summary>
 		int GetIdentifierOfOnlineShopGroup();

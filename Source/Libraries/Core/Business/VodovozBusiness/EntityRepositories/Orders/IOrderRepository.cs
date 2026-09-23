@@ -190,12 +190,12 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListSettings routeListSettings, int flyerId, int geographicGroup);
 
 		/// <summary>
-		/// Проверка на перенос данной позиция в другой заказ
+		/// Проверка на перенос данной позиции в другой заказ
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="orderItem">Позиция заказа</param>
+		/// <param name="orderItemId">Идентификатор позиции заказа</param>
 		/// <returns>true - если свойство CopiedFromUndelivery другого заказа содержит значения, равное Id данной позиции</returns>
-		bool IsMovedToTheNewOrder(IUnitOfWork uow, OrderItem orderItem);
+		bool IsMovedToTheNewOrder(IUnitOfWork uow, int orderItemId);
 
 		int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate);
 		DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId);
