@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Settings.Accounting;
 
 namespace Vodovoz.Settings.Database.Accounting
 {
 	public class AccountingSettings : IAccountingSettings
 	{
+		private readonly ILogger<AccountingSettings> _logger;
 		private readonly ISettingsController _settingsController;
 
-		public AccountingSettings(ISettingsController settingsController)
+		public AccountingSettings(
+			ILogger<AccountingSettings> logger,
+			ISettingsController settingsController)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 		
@@ -25,7 +31,7 @@ namespace Vodovoz.Settings.Database.Accounting
 
 			foreach(var stringDate in stringDates)
 			{
-				if(!DateTime.TryParse(stringDate, out var parsedDate))
+				if(!DateTime.TryParseExact(stringDate, "dd.MM", null, DateTimeStyles.None, out var parsedDate))
 				{
 					throw new InvalidOperationException(
 						"Не удалось распарсить даты закрытия бухгалтерского периода (accounting_period_closing_dates) проверьте правильность формата!");
