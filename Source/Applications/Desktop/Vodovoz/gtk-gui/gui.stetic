@@ -13409,10 +13409,16 @@
                     <child>
                       <widget class="Gtk.Table" id="tblRLInfo">
                         <property name="MemberName" />
-                        <property name="NRows">6</property>
+                        <property name="NRows">7</property>
                         <property name="NColumns">7</property>
                         <property name="RowSpacing">6</property>
                         <property name="ColumnSpacing">6</property>
+                        <child>
+                          <placeholder />
+                        </child>
+                        <child>
+                          <placeholder />
+                        </child>
                         <child>
                           <placeholder />
                         </child>
@@ -13461,6 +13467,27 @@
                           </packing>
                         </child>
                         <child>
+                          <widget class="QS.Views.Control.EntityEntry" id="entrySemitrailer">
+                            <property name="MemberName" />
+                            <property name="Events">ButtonPressMask</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">1</property>
+                            <property name="BottomAttach">2</property>
+                            <property name="LeftAttach">3</property>
+                            <property name="RightAttach">4</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="QS.Widgets.GtkUI.EntityViewModelEntry" id="evmeDriver">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
@@ -13469,8 +13496,8 @@
                             <property name="CanOpenWithoutTabParent">False</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">1</property>
-                            <property name="BottomAttach">2</property>
+                            <property name="TopAttach">2</property>
+                            <property name="BottomAttach">3</property>
                             <property name="LeftAttach">3</property>
                             <property name="RightAttach">4</property>
                             <property name="AutoSize">True</property>
@@ -13493,8 +13520,8 @@
                             <property name="CanOpenWithoutTabParent">False</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">2</property>
-                            <property name="BottomAttach">3</property>
+                            <property name="TopAttach">3</property>
+                            <property name="BottomAttach">4</property>
                             <property name="LeftAttach">3</property>
                             <property name="RightAttach">4</property>
                             <property name="AutoSize">True</property>
@@ -13517,8 +13544,8 @@
                             <property name="CanOpenWithoutTabParent">False</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">2</property>
-                            <property name="BottomAttach">3</property>
+                            <property name="TopAttach">3</property>
+                            <property name="BottomAttach">4</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
@@ -13546,8 +13573,8 @@
                             </child>
                           </widget>
                           <packing>
-                            <property name="TopAttach">3</property>
-                            <property name="BottomAttach">5</property>
+                            <property name="TopAttach">4</property>
+                            <property name="BottomAttach">6</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">4</property>
                             <property name="AutoSize">True</property>
@@ -13598,8 +13625,8 @@
                             </child>
                           </widget>
                           <packing>
-                            <property name="TopAttach">5</property>
-                            <property name="BottomAttach">6</property>
+                            <property name="TopAttach">6</property>
+                            <property name="BottomAttach">7</property>
                             <property name="LeftAttach">3</property>
                             <property name="RightAttach">4</property>
                             <property name="AutoSize">True</property>
@@ -13620,8 +13647,8 @@
                             <property name="LabelProp" translatable="yes">Смена:</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">1</property>
-                            <property name="BottomAttach">2</property>
+                            <property name="TopAttach">2</property>
+                            <property name="BottomAttach">3</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -13640,8 +13667,8 @@
                             <property name="LabelProp" translatable="yes">Логист:</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">2</property>
-                            <property name="BottomAttach">3</property>
+                            <property name="TopAttach">3</property>
+                            <property name="BottomAttach">4</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -13678,8 +13705,8 @@
                             <property name="LabelProp" translatable="yes">Водитель:</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">1</property>
-                            <property name="BottomAttach">2</property>
+                            <property name="TopAttach">2</property>
+                            <property name="BottomAttach">3</property>
                             <property name="LeftAttach">2</property>
                             <property name="RightAttach">3</property>
                             <property name="AutoSize">True</property>
@@ -13723,8 +13750,8 @@
                             <property name="UseMarkup">True</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">3</property>
-                            <property name="BottomAttach">5</property>
+                            <property name="TopAttach">4</property>
+                            <property name="BottomAttach">6</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -13743,8 +13770,8 @@
                             <property name="LabelProp" translatable="yes">Экспедитор:</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">2</property>
-                            <property name="BottomAttach">3</property>
+                            <property name="TopAttach">3</property>
+                            <property name="BottomAttach">4</property>
                             <property name="LeftAttach">2</property>
                             <property name="RightAttach">3</property>
                             <property name="AutoSize">True</property>
@@ -13765,7 +13792,7 @@
                             <property name="AddCommentInfo">False</property>
                           </widget>
                           <packing>
-                            <property name="BottomAttach">6</property>
+                            <property name="BottomAttach">7</property>
                             <property name="LeftAttach">5</property>
                             <property name="RightAttach">6</property>
                             <property name="AutoSize">True</property>
@@ -13790,8 +13817,8 @@
                             <property name="ShowSpecialStateNot">False</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">1</property>
-                            <property name="BottomAttach">2</property>
+                            <property name="TopAttach">2</property>
+                            <property name="BottomAttach">3</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
@@ -13895,7 +13922,7 @@
                             </child>
                           </widget>
                           <packing>
-                            <property name="BottomAttach">6</property>
+                            <property name="BottomAttach">7</property>
                             <property name="LeftAttach">4</property>
                             <property name="RightAttach">5</property>
                             <property name="AutoSize">False</property>
@@ -13920,10 +13947,31 @@
                             <signal name="Toggled" handler="OnYcheckHideCellsToggled" />
                           </widget>
                           <packing>
-                            <property name="TopAttach">5</property>
-                            <property name="BottomAttach">6</property>
+                            <property name="TopAttach">6</property>
+                            <property name="BottomAttach">7</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">False</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelSemitrailer">
+                            <property name="MemberName" />
+                            <property name="LabelProp" translatable="yes">Полуприцеп:</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">1</property>
+                            <property name="BottomAttach">2</property>
+                            <property name="LeftAttach">2</property>
+                            <property name="RightAttach">3</property>
+                            <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
                             <property name="XExpand">False</property>
@@ -13942,7 +13990,7 @@
                             <property name="Text" translatable="yes" />
                           </widget>
                           <packing>
-                            <property name="BottomAttach">6</property>
+                            <property name="BottomAttach">7</property>
                             <property name="LeftAttach">6</property>
                             <property name="RightAttach">7</property>
                             <property name="AutoSize">True</property>
@@ -13958,7 +14006,7 @@
                       </widget>
                     </child>
                     <child>
-                      <widget class="Gtk.Label" id="GtkLabel27">
+                      <widget class="Gtk.Label" id="GtkLabel30">
                         <property name="MemberName" />
                         <property name="LabelProp" translatable="yes">Информация о маршрутном листе</property>
                         <property name="UseUnderline">True</property>
@@ -13976,7 +14024,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox8">
+                  <widget class="Gtk.HBox" id="hbox9">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
@@ -14168,7 +14216,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.HBox" id="hbox10">
+                          <widget class="Gtk.HBox" id="hbox12">
                             <property name="MemberName" />
                             <property name="Spacing">6</property>
                             <child>
@@ -24428,10 +24476,19 @@
             <child>
               <widget class="Gtk.Table" id="table1">
                 <property name="MemberName" />
-                <property name="NRows">4</property>
+                <property name="NRows">5</property>
                 <property name="NColumns">5</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
                 <child>
                   <placeholder />
                 </child>
@@ -24492,8 +24549,8 @@
                     <property name="Events">ButtonPressMask</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">2</property>
-                    <property name="BottomAttach">3</property>
+                    <property name="TopAttach">3</property>
+                    <property name="BottomAttach">4</property>
                     <property name="LeftAttach">3</property>
                     <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
@@ -24512,8 +24569,8 @@
                     <property name="Events">ButtonPressMask</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">3</property>
-                    <property name="BottomAttach">4</property>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
                     <property name="LeftAttach">3</property>
                     <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
@@ -24532,6 +24589,26 @@
                     <property name="Events">ButtonPressMask</property>
                   </widget>
                   <packing>
+                    <property name="LeftAttach">3</property>
+                    <property name="RightAttach">4</property>
+                    <property name="AutoSize">True</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">True</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="QS.Views.Control.EntityEntry" id="entrySemitrailer">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">2</property>
+                    <property name="BottomAttach">3</property>
                     <property name="LeftAttach">3</property>
                     <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
@@ -24609,8 +24686,8 @@
                     <property name="LabelProp" translatable="yes">Водитель:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">2</property>
-                    <property name="BottomAttach">3</property>
+                    <property name="TopAttach">3</property>
+                    <property name="BottomAttach">4</property>
                     <property name="LeftAttach">2</property>
                     <property name="RightAttach">3</property>
                     <property name="AutoSize">True</property>
@@ -24652,8 +24729,8 @@
                     <property name="LabelProp" translatable="yes">Фактическое расстояние:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">3</property>
-                    <property name="BottomAttach">4</property>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -24672,8 +24749,8 @@
                     <property name="LabelProp" translatable="yes">Экспедитор:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">3</property>
-                    <property name="BottomAttach">4</property>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
                     <property name="LeftAttach">2</property>
                     <property name="RightAttach">3</property>
                     <property name="AutoSize">True</property>
@@ -24698,8 +24775,8 @@
                     <property name="LabelXAlign">0</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">2</property>
-                    <property name="BottomAttach">3</property>
+                    <property name="TopAttach">3</property>
+                    <property name="BottomAttach">4</property>
                     <property name="LeftAttach">4</property>
                     <property name="RightAttach">5</property>
                     <property name="AutoSize">True</property>
@@ -24724,8 +24801,8 @@
                     <property name="LabelXAlign">0</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">3</property>
-                    <property name="BottomAttach">4</property>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
                     <property name="LeftAttach">4</property>
                     <property name="RightAttach">5</property>
                     <property name="AutoSize">True</property>
@@ -24790,6 +24867,27 @@
                   </packing>
                 </child>
                 <child>
+                  <widget class="Gamma.GtkWidgets.yLabel" id="ylabelSemitrailer">
+                    <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes">Полуприцеп:</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">2</property>
+                    <property name="BottomAttach">3</property>
+                    <property name="LeftAttach">2</property>
+                    <property name="RightAttach">3</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinActualDistance">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
@@ -24802,8 +24900,8 @@
                     <property name="ValueAsInt">0</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">3</property>
-                    <property name="BottomAttach">4</property>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
@@ -90625,10 +90723,22 @@ not tooltip</property>
         <child>
           <widget class="Gtk.Table" id="table1">
             <property name="MemberName" />
-            <property name="NRows">4</property>
+            <property name="NRows">5</property>
             <property name="NColumns">7</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
             <child>
               <placeholder />
             </child>
@@ -90698,8 +90808,8 @@ not tooltip</property>
                 <property name="CanOpenWithoutTabParent">False</property>
               </widget>
               <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
@@ -90721,8 +90831,8 @@ not tooltip</property>
                 <property name="CanOpenWithoutTabParent">False</property>
               </widget>
               <packing>
-                <property name="TopAttach">3</property>
-                <property name="BottomAttach">4</property>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
@@ -90757,6 +90867,26 @@ not tooltip</property>
               </packing>
             </child>
             <child>
+              <widget class="QS.Views.Control.EntityEntry" id="entrySemitrailer">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
+                <property name="LeftAttach">3</property>
+                <property name="RightAttach">4</property>
+                <property name="AutoSize">True</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.HBox" id="hbox5">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
@@ -90768,8 +90898,8 @@ not tooltip</property>
                 </child>
               </widget>
               <packing>
-                <property name="TopAttach">3</property>
-                <property name="BottomAttach">4</property>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
                 <property name="LeftAttach">4</property>
                 <property name="RightAttach">5</property>
                 <property name="AutoSize">True</property>
@@ -90848,8 +90978,8 @@ not tooltip</property>
                 <property name="LabelProp" translatable="yes">Водитель:</property>
               </widget>
               <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
                 <property name="LeftAttach">2</property>
                 <property name="RightAttach">3</property>
                 <property name="AutoSize">True</property>
@@ -90891,8 +91021,8 @@ not tooltip</property>
                 <property name="LabelProp" translatable="yes">Фактическое расстояние:</property>
               </widget>
               <packing>
-                <property name="TopAttach">3</property>
-                <property name="BottomAttach">4</property>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -90911,8 +91041,8 @@ not tooltip</property>
                 <property name="LabelProp" translatable="yes">Экспедитор:</property>
               </widget>
               <packing>
-                <property name="TopAttach">3</property>
-                <property name="BottomAttach">4</property>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
                 <property name="LeftAttach">2</property>
                 <property name="RightAttach">3</property>
                 <property name="AutoSize">True</property>
@@ -90937,7 +91067,7 @@ not tooltip</property>
                 <property name="Selectable">True</property>
               </widget>
               <packing>
-                <property name="BottomAttach">3</property>
+                <property name="BottomAttach">4</property>
                 <property name="LeftAttach">6</property>
                 <property name="RightAttach">7</property>
                 <property name="AutoSize">False</property>
@@ -91027,13 +91157,34 @@ not tooltip</property>
                 </child>
               </widget>
               <packing>
-                <property name="TopAttach">3</property>
-                <property name="BottomAttach">4</property>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
                 <property name="LeftAttach">4</property>
                 <property name="RightAttach">7</property>
                 <property name="AutoSize">True</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.GtkWidgets.yLabel" id="ylabelSemitrailer">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Полуприцеп:</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
+                <property name="LeftAttach">2</property>
+                <property name="RightAttach">3</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -91054,8 +91205,8 @@ not tooltip</property>
                 <property name="ValueAsInt">0</property>
               </widget>
               <packing>
-                <property name="TopAttach">3</property>
-                <property name="BottomAttach">4</property>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
@@ -161554,19 +161705,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.GtkWidgets.yButton" id="ybuttonAddToStopList">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Type">TextOnly</property>
-                <property name="Label" translatable="yes">Добавить в стоп-лист</property>
-                <property name="UseUnderline">True</property>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
+              <placeholder />
             </child>
             <child>
               <widget class="Gamma.GtkWidgets.yButton" id="ybuttonFilter">
@@ -161778,42 +161917,6 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.GtkWidgets.yHBox" id="yhboxDriverFilter">
-            <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <child>
-              <widget class="Gamma.GtkWidgets.yLabel" id="ylabelDriverName">
-                <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">ФИО водителя:</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gamma.GtkWidgets.yEntry" id="yentryDriverName">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="IsEditable">True</property>
-                <property name="InvisibleChar">●</property>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="Position">2</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
-        </child>
-        <child>
           <widget class="Gamma.GtkWidgets.yTable" id="ytableContainers">
             <property name="MemberName" />
             <property name="NRows">2</property>
@@ -161919,7 +162022,7 @@ not tooltip</property>
             </child>
           </widget>
           <packing>
-            <property name="Position">3</property>
+            <property name="Position">2</property>
             <property name="AutoSize">False</property>
           </packing>
         </child>

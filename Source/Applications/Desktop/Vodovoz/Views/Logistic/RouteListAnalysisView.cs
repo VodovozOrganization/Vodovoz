@@ -37,6 +37,16 @@ namespace Vodovoz.Views.Logistic
 
 			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
 
+			ylabelSemitrailer.Binding
+				.AddBinding(ViewModel, vm => vm.IsSemiTrailerVisible, w => w.Visible)
+				.InitializeFromSource();
+
+			entrySemitrailer.ViewModel = ViewModel.SemitrailerViewModel;
+			entrySemitrailer.Binding
+				.AddBinding(ViewModel, vm => vm.IsSemiTrailerVisible, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanWorkWithSemitrailers, w => w.Sensitive)
+				.InitializeFromSource();
+
 			entityVMEntryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			entityVMEntryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 

@@ -299,7 +299,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool CanCopyId => Entity.Id != 0;
 
 		public bool IsSemiTrailerVisible =>
-			Entity.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Truck;
+			Entity.Car?.CarModel?.CarTypeOfUse is CarTypeOfUse.Truck;
 
 		public bool CanRevertToNew => Entity.Status != RouteListStatus.New
 			&& RouteList.NotLoadedRouteListStatuses.Contains(Entity.Status)
