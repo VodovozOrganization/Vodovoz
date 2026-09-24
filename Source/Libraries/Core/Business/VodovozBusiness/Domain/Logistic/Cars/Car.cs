@@ -423,17 +423,17 @@ namespace Vodovoz.Domain.Logistic.Cars
 					{
 						case nameof(RegistrationNumber):
 							yield return new ValidationResult(
-								$"Автомобиль с гос. номером {RegistrationNumber} уже существует",
+								$"Полуприцеп с гос. номером {RegistrationNumber} уже существует",
 								new[] { nameof(RegistrationNumber) });
 							break;
 						case nameof(VIN):
 							yield return new ValidationResult(
-								$"Автомобиль с VIN {VIN} уже существует",
+								$"Полуприцеп с VIN {VIN} уже существует",
 								new[] { nameof(VIN) });
 							break;
 						case nameof(ChassisNumber):
 							yield return new ValidationResult(
-								$"Автомобиль с номером шасси {ChassisNumber} уже существует",
+								$"Полуприцеп с номером шасси {ChassisNumber} уже существует",
 								new[] { nameof(ChassisNumber) });
 							break;
 					}
