@@ -57,7 +57,7 @@ namespace Edo.Receipt.Sender
 		public async Task ProcessAsync(DateTime now, CancellationToken cancellationToken)
 		{
 			var statusChangedBefore = now.AddDays(-1);
-			var statusChangedNotBefore = now.AddMonths(-_options.Value.LookbackMonths);
+			var statusChangedNotBefore = now.AddDays(-_options.Value.LookbackDays);
 			var notifiedNotAfter = now - _options.Value.RepeatInterval;
 			IList<int> documentIds;
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
