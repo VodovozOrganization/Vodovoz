@@ -82,5 +82,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<IDictionary<int, IEnumerable<CarVersion>>> GetCarOwnTypesForPeriodByCars(IUnitOfWork uow, IEnumerable<int> carsIds, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверяет, есть ли у автомобиля ненулевые остатки ТМЦ
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="carId">Идентификатор автомобиля</param>
+		/// <returns>True - за автомобилем числятся ненулевые остатки, иначе - False</returns>
+		bool HasNonZeroBalance(IUnitOfWork uow, int carId);
 	}
 }

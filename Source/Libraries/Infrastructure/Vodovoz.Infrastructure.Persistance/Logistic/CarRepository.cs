@@ -12,6 +12,7 @@ using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Logistic;
 using VodovozBusiness.EntityRepositories.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -450,5 +451,23 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			unitOfWork.Session.Query<Car>()
 			.Where(c => carsIds.Contains(c.Id))
 			.Distinct();
+
+		public bool HasNonZeroBalance(IUnitOfWork uow, int carId)
+		{
+			CarBulkGoodsAccountingOperation bulkAlias = null;
+			CarInstanceGoodsAccountingOperation instanceAlias = null;
+
+			var bulkSum = uow.Session.QueryOver(() => bulkAlias)
+				.Where(() => bulkAlias.Car.Id == carId)
+				.Select(Projections.Sum(() => bulkAlias.Amount))
+				.SingleOrDefault<decimal?>() ?? 0;
+
+			var instanceSum = uow.Session.QueryOver(() => instanceAlias)
+				.Where(() => instanceAlias.Car.Id == carId)
+				.Select(Projections.Sum(() => instanceAlias.Amount))
+				.SingleOrDefault<decimal?>() ?? 0;
+
+			return bulkSum != 0 || instanceSum != 0;
+		}
 	}
 }

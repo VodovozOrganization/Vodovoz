@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Organizations;
@@ -211,8 +212,36 @@ namespace Vodovoz
 				return false;
 			}
 
+			if(!ValidateBalanceBeforeArchive())
+			{
+				return false;
+			}
+
 			_logger.Info("Сохраняем склад...");
 			UoWGeneric.Save();
+			return true;
+		}
+
+		private bool ValidateBalanceBeforeArchive()
+		{
+			if(!Entity.IsArchive || Entity.Id == 0)
+			{
+				return true;
+			}
+
+			var warehouseRepository = _lifetimeScope.Resolve<IWarehouseRepository>() ?? throw new InvalidOperationException(
+					$"Для проверки остатков при архивации {nameof(Warehouse)} должен быть доступен {nameof(IWarehouseRepository)}");
+
+			if(warehouseRepository.HasNonZeroBalance(UoW, Entity.Id))
+			{
+				ServicesConfig.InteractiveService.ShowMessage(
+					QS.Dialog.ImportanceLevel.Error,
+					"Нельзя архивировать склад. За ним числятся ненулевые остатки. Переместите/спишите остатки.",
+					"Ошибка архивации");
+
+				return false;
+			}
+
 			return true;
 		}
 

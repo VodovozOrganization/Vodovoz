@@ -1,19 +1,19 @@
-﻿using QS.Attachments.Domain;
+﻿using Microsoft.Extensions.DependencyInjection;
+using QS.Attachments.Domain;
+using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
+using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using QS.DomainModel.UoW;
-using QS.Services;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
-using VodovozBusiness.Domain.Logistic;
-using QS.Extensions.Observable.Collections.List;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Logistic.Cars
 {
@@ -405,6 +405,19 @@ namespace Vodovoz.Domain.Logistic.Cars
 			if(IncomeChannel == IncomeChannel.None)
 			{
 				yield return new ValidationResult("Должен быть указан канал поступления", new[] { nameof(IncomeChannel) });
+			}
+
+			if(IsArchive)
+			{
+				var carRepository = validationContext.GetService<ICarRepository>() ?? throw new InvalidOperationException(
+						$"Для валидации {nameof(Car)} должен быть доступен {nameof(ICarRepository)} через {nameof(ValidationContext)}");
+
+				if(carRepository.HasNonZeroBalance(UoW, Id))
+				{
+					yield return new ValidationResult(
+						"Нельзя архивировать автомобиль. За ним числятся ненулевые остатки. Переместите/спишите остатки.",
+						new[] { nameof(IsArchive) });
+				}
 			}
 
 			var cars = UoW.Session.QueryOver<Car>()

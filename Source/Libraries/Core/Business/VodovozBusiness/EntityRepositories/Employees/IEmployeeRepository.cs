@@ -102,5 +102,13 @@ namespace Vodovoz.EntityRepositories.Employees
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Водитель</returns>
 		Task<Employee> GetDriverByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверяет, есть ли у сотрудника ненулевые остатки ТМЦ
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="employeeId">Идентификатор сотрудника</param>
+		/// <returns>True - за сотрудником числятся ненулевые остатки, иначе - False</returns>
+		bool HasNonZeroBalance(IUnitOfWork uow, int employeeId);
 	}
 }
