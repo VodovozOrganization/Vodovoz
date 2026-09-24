@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
@@ -137,7 +137,23 @@ namespace Vodovoz.Views.Suppliers
 			enumChkListStorages.Binding
 				.AddBinding(ViewModel, vm => vm.Sensitivity, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
+			yradiobuttonShowActive.Binding
+				.AddBinding(ViewModel, vm => vm.IsOnlyActiveSelected, w => w.Active)
+				.InitializeFromSource();
+
+			yradiobuttonShowArchive.Binding
+				.AddBinding(ViewModel, vm => vm.IsOnlyArchivedSelected, w => w.Active)
+				.InitializeFromSource();
+
+			yradiobuttonShowAll.Binding
+				.AddBinding(ViewModel, vm => vm.IsAllSelected, w => w.Active)
+				.InitializeFromSource();
+
+			yhboxArchive.Binding
+				.AddBinding(ViewModel, vm => vm.Sensitivity, w => w.Sensitive)
+				.InitializeFromSource();
+
 			chkGroupByActiveStorages.Binding
 				.AddBinding(ViewModel, vm => vm.GroupingActiveStorage, w => w.Active)
 				.InitializeFromSource();
