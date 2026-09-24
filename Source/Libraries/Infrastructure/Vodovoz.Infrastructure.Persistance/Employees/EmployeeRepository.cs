@@ -440,11 +440,6 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 
 		public bool HasNonZeroBalance(IUnitOfWork uow, int employeeId)
 		{
-			if(uow is null)
-			{
-				throw new ArgumentNullException(nameof(uow));
-			}
-
 			EmployeeBulkGoodsAccountingOperation bulkAlias = null;
 			EmployeeInstanceGoodsAccountingOperation instanceAlias = null;
 
