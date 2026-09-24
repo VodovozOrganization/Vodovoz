@@ -413,27 +413,30 @@ namespace Vodovoz.Domain.Logistic.Cars
 			var routeListRepository = validationContext.GetService<IRouteListRepository>() ?? throw new InvalidOperationException(
 					$"Для валидации {nameof(Car)} должен быть доступен {nameof(IRouteListRepository)} через {nameof(ValidationContext)}");
 
-			var duplicateFields = carRepository.GetDuplicateFields(UoW, Id, RegistrationNumber, VIN, ChassisNumber);
-
-			foreach(var field in duplicateFields)
+			if(CarModel != null && CarModel.CarTypeOfUse is CarTypeOfUse.Semitrailer)
 			{
-				switch(field)
+				var duplicateFields = carRepository.GetDuplicateFields(UoW, Id, RegistrationNumber, VIN, ChassisNumber);
+
+				foreach(var field in duplicateFields)
 				{
-					case nameof(RegistrationNumber):
-						yield return new ValidationResult(
-							$"Автомобиль с гос. номером {RegistrationNumber} уже существует",
-							new[] { nameof(RegistrationNumber) });
-						break;
-					case nameof(VIN):
-						yield return new ValidationResult(
-							$"Автомобиль с VIN {VIN} уже существует",
-							new[] { nameof(VIN) });
-						break;
-					case nameof(ChassisNumber):
-						yield return new ValidationResult(
-							$"Автомобиль с номером шасси {ChassisNumber} уже существует",
-							new[] { nameof(ChassisNumber) });
-						break;
+					switch(field)
+					{
+						case nameof(RegistrationNumber):
+							yield return new ValidationResult(
+								$"Автомобиль с гос. номером {RegistrationNumber} уже существует",
+								new[] { nameof(RegistrationNumber) });
+							break;
+						case nameof(VIN):
+							yield return new ValidationResult(
+								$"Автомобиль с VIN {VIN} уже существует",
+								new[] { nameof(VIN) });
+							break;
+						case nameof(ChassisNumber):
+							yield return new ValidationResult(
+								$"Автомобиль с номером шасси {ChassisNumber} уже существует",
+								new[] { nameof(ChassisNumber) });
+							break;
+					}
 				}
 			}
 
