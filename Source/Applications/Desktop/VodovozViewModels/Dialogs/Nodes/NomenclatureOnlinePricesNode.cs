@@ -21,6 +21,7 @@ namespace Vodovoz.ViewModels.Dialogs.Nodes
 		public NomenclatureOnlinePrice MobileAppNomenclatureOnlinePrice { get; set; }
 		public NomenclatureOnlinePrice VodovozWebSiteNomenclatureOnlinePrice { get; set; }
 		public NomenclatureOnlinePrice KulerSaleWebSiteNomenclatureOnlinePrice { get; set; }
+		public NomenclatureOnlinePrice AiBotNomenclatureOnlinePrice { get; set; }
 		public decimal? NomenclaturePrice => MobileAppNomenclatureOnlinePrice?.NomenclaturePrice.Price;
 		public decimal? KulerSalePrice => KulerSaleWebSiteNomenclatureOnlinePrice?.NomenclaturePrice.Price;
 
@@ -83,8 +84,30 @@ namespace Vodovoz.ViewModels.Dialogs.Nodes
 				KulerSaleWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = decimal.Parse(value);
 			}
 		}
+		
+		public string AiBotPriceWithoutDiscountString
+		{
+			get => AiBotNomenclatureOnlinePrice?.PriceWithoutDiscount.ToString();
+			set
+			{
+				if(AiBotNomenclatureOnlinePrice is null)
+				{
+					return;
+				}
+				
+				if(string.IsNullOrWhiteSpace(value))
+				{
+					AiBotNomenclatureOnlinePrice.PriceWithoutDiscount = null;
+					return;
+				}
+
+				AiBotNomenclatureOnlinePrice.PriceWithoutDiscount = decimal.Parse(value);
+			}
+		}
+		
 		public bool CanChangeMobileAppPriceWithoutDiscount => NomenclaturePrice.HasValue;
 		public bool CanChangeVodovozWebSitePriceWithoutDiscount => NomenclaturePrice.HasValue;
 		public bool CanChangeKulerSaleWebSitePriceWithoutDiscount => KulerSalePrice.HasValue;
+		public bool CanChangeAiBotPriceWithoutDiscount => NomenclaturePrice.HasValue;
 	}
 }
