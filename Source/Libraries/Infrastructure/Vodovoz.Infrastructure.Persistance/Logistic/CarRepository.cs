@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.Transform;
@@ -15,6 +15,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Logistic;
 using VodovozBusiness.EntityRepositories.Logistic;
+using VodovozBusiness.Extensions;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
@@ -92,6 +93,8 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		public IQueryable<CarInsuranceNode> GetActualCarInsurances(IUnitOfWork unitOfWork, CarInsuranceType insuranceType, IEnumerable<int> excludeCarIds)
 		{
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+
 			var carInsurances =
 				from car in unitOfWork.Session.Query<Car>()
 				join carVersion in unitOfWork.Session.Query<CarVersion>() on car.Id equals carVersion.Car.Id
@@ -99,7 +102,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				where
 					!car.IsArchive
 					&& !excludeCarIds.Contains(car.Id)
-					&& carModel.CarTypeOfUse != CarTypeOfUse.Loader
+					&& !excludedCarTypesOfUse.Contains(carModel.CarTypeOfUse)
 					&& carVersion.StartDate <= DateTime.Now
 					&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
 					&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
@@ -126,6 +129,8 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		public IQueryable<CarTechInspectNode> GetCarsTechInspectData(IUnitOfWork unitOfWork, int techInspectCarEventTypeId, IEnumerable<int> excludeCarIds)
 		{
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+
 			var carTechInspects =
 				from car in unitOfWork.Session.Query<Car>()
 				join carVersion in unitOfWork.Session.Query<CarVersion>() on car.Id equals carVersion.Car.Id
@@ -133,7 +138,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				where
 					!car.IsArchive
 					&& !excludeCarIds.Contains(car.Id)
-					&& carModel.CarTypeOfUse != CarTypeOfUse.Loader
+					&& !excludedCarTypesOfUse.Contains(carModel.CarTypeOfUse)
 					&& carVersion.StartDate <= DateTime.Now
 					&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
 					&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
@@ -166,6 +171,8 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		public IQueryable<CarTechnicalCheckupNode> GetCarsTechnicalCheckupData(IUnitOfWork unitOfWork, int carTechnicalCheckupEventTypeId, IEnumerable<int> excludeCarIds)
 		{
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+
 			var data =
 				from car in unitOfWork.Session.Query<Car>()
 				join carVersion in unitOfWork.Session.Query<CarVersion>() on car.Id equals carVersion.Car.Id
@@ -173,7 +180,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				where
 					!car.IsArchive
 					&& !excludeCarIds.Contains(car.Id)
-					&& carModel.CarTypeOfUse != CarTypeOfUse.Loader
+					&& !excludedCarTypesOfUse.Contains(carModel.CarTypeOfUse)
 					&& carVersion.StartDate <= DateTime.Now
 					&& (carVersion.EndDate >= DateTime.Now || carVersion.EndDate == null)
 					&& (carVersion.CarOwnType == CarOwnType.Company || carVersion.CarOwnType == CarOwnType.Raskat)
@@ -451,6 +458,63 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			unitOfWork.Session.Query<Car>()
 			.Where(c => carsIds.Contains(c.Id))
 			.Distinct();
+
+		public IEnumerable<string> GetDuplicateFields(
+			IUnitOfWork uow,
+			int carId,
+			string registrationNumber,
+			string vin,
+			string chassisNumber)
+		{
+			var duplicateConditions = Restrictions.Disjunction();
+
+			if(!string.IsNullOrWhiteSpace(registrationNumber))
+			{
+				duplicateConditions.Add(Restrictions.Eq(
+					Projections.Property<Car>(c => c.RegistrationNumber), registrationNumber));
+			}
+
+			if(!string.IsNullOrWhiteSpace(vin))
+			{
+				duplicateConditions.Add(Restrictions.Eq(
+					Projections.Property<Car>(c => c.VIN), vin));
+			}
+
+			if(!string.IsNullOrWhiteSpace(chassisNumber))
+			{
+				duplicateConditions.Add(Restrictions.Eq(
+					Projections.Property<Car>(c => c.ChassisNumber), chassisNumber));
+			}
+
+			var duplicates = uow.Session.QueryOver<Car>()
+				.Where(c => c.Id != carId)
+				.And(duplicateConditions)
+				.List();
+
+			var fields = new HashSet<string>();
+
+			foreach(var duplicate in duplicates)
+			{
+				if(!string.IsNullOrWhiteSpace(registrationNumber)
+					&& duplicate.RegistrationNumber == registrationNumber)
+				{
+					fields.Add(nameof(Car.RegistrationNumber));
+				}
+
+				if(!string.IsNullOrWhiteSpace(vin) && duplicate.VIN == vin)
+				{
+					fields.Add(nameof(Car.VIN));
+				}
+
+				if(!string.IsNullOrWhiteSpace(chassisNumber)
+					&& duplicate.ChassisNumber == chassisNumber)
+				{
+					fields.Add(nameof(Car.ChassisNumber));
+				}
+			}
+
+			return fields;
+		}
 
 		public bool HasNonZeroBalance(IUnitOfWork uow, int carId)
 		{

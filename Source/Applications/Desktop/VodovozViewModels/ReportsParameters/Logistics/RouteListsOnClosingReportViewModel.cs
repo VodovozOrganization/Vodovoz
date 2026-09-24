@@ -11,6 +11,7 @@ using System.Linq;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Presentation.Reports;
+using VodovozBusiness.Extensions;
 namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 {
 	public class RouteListsOnClosingReportViewModel : ValidatableUoWReportViewModelBase
@@ -31,7 +32,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 			IReportInfoFactory reportInfoFactory,
 			IUnitOfWorkFactory uowFactory,
 			IValidator validator
-		) : base(rdlViewerViewModel, reportInfoFactory, validator)
+			) : base(rdlViewerViewModel, reportInfoFactory, validator)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 
@@ -43,10 +44,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 			GeoGroups = UoW.GetAll<GeoGroup>().ToList();
 			_showTodayRouteLists = true;
 
-
 			_endDate = DateTime.Now.FirstDayOfMonth();
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
+			HiddenCarTypeOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 		}
 
 		public DelegateCommand GenerateReportCommand;
@@ -83,7 +84,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Logistics
 
 		public Type CarTypeOfUseType => typeof(CarTypeOfUse);
 
-		public Enum[] HiddenCarTypeOfUse => new Enum[] { CarTypeOfUse.Loader };
+		public Enum[] HiddenCarTypeOfUse { get; }
 
 		public virtual IEnumerable<Enum> CarTypeOfUseList
 		{

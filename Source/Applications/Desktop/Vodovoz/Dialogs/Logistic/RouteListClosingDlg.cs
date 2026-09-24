@@ -143,7 +143,12 @@ namespace Vodovoz
 		private Employee previousForwarder = null;
 		private bool _canEdit;
 		private bool? _canEditFuelCardNumber;
-		
+
+		private bool _isSemiTrailerVisible =>
+			Entity.Car?.CarModel?.CarTypeOfUse is CarTypeOfUse.Truck;
+
+		private bool _canWorkWithSemitrailers;
+
 
 		private bool _needToSelectTerminalCondition = false;
 		private bool _hasAccessToDriverTerminal = false;
@@ -288,7 +293,13 @@ namespace Vodovoz
 			              || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(RouteListPermissions.CanEditCarOnCloseRouteList));
 			entityentryCar.ViewModel = BuildCarEntryViewModel();
 			entityentryCar.Sensitive = _canEditCar;
+
+			entrySemitrailer.Visible = _isSemiTrailerVisible;
+			ylabelSemitrailer.Visible = _isSemiTrailerVisible;
 			
+			entrySemitrailer.ViewModel = CreateSemitrailerViewModel();
+			entrySemitrailer.Sensitive = _canWorkWithSemitrailers;
+
 			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			
 			_canEditDriver = _canEdit
@@ -482,6 +493,23 @@ namespace Vodovoz
 				.Finish();
 
 			viewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
+
+		public IEntityEntryViewModel CreateSemitrailerViewModel()
+		{
+			var viewModel = new LegacyEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Semitrailer)
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictedCarTypesOfUse = new[] { CarTypeOfUse.Semitrailer };
+					filter.Archive = false;
+				})
+				.UseViewModelDialog<SemitrailerViewModel>()
+				.Finish();
+
+			viewModel.CanViewEntity = _canWorkWithSemitrailers;
 
 			return viewModel;
 		}

@@ -107,6 +107,7 @@ using VodovozBusiness.Controllers;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
 using IOrganizationRepository = Vodovoz.EntityRepositories.Organizations.IOrganizationRepository;
+using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
 using Selection = Gdk.Selection;
 
 namespace Vodovoz
@@ -162,6 +163,7 @@ namespace Vodovoz
 		private IAttachedFileInformationsViewModelFactory _attachmentsViewModelFactory;
 		private ICounterpartyFileStorageService _counterpartyFileStorageService;
 		private IGeneralSettings _generalSettings;
+		private IOrderRepository _orderRepository;
 		private const int _edoDocumentsPageSize = 100;
 		private IObservableList<EdoDockflowData> _edoEdoDocumentDataNodes = new ObservableList<EdoDockflowData>();
 
@@ -348,6 +350,7 @@ namespace Vodovoz
 			_counterpartyFileStorageService = _lifetimeScope.Resolve<ICounterpartyFileStorageService>();
 			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 			_generalSettings = _lifetimeScope.Resolve<IGeneralSettings>();
+			_orderRepository = _lifetimeScope.Resolve<IOrderRepository>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -2663,9 +2666,13 @@ namespace Vodovoz
 			var newRequests = new List<PrimaryEdoRequest>();
 			using(var resendUow = _unitOfWorkFactory.CreateWithoutRoot("Переотправка документов ЭДО клиента"))
 			{
-				var documentEdoTasks = _edoDocflowRepository.GetClientSavedToPoolDocumentTaskIdsForResend(resendUow, Entity.Id).Cast<OrderEdoTask>();
+				var documentEdoTasks =
+					_edoDocflowRepository.GetClientSavedToPoolDocumentTaskIdsForResend(resendUow, Entity.Id, _orderRepository.GetUndeliveryStatuses())
+					.Cast<OrderEdoTask>();
 
-				var receiptEdoTasks = _edoDocflowRepository.GetClientSavedToPoolReceiptTaskIdsForResend(resendUow, Entity.Id).Cast<OrderEdoTask>();
+				var receiptEdoTasks =
+					_edoDocflowRepository.GetClientSavedToPoolReceiptTaskIdsForResend(resendUow, Entity.Id, _orderRepository.GetUndeliveryStatuses())
+					.Cast<OrderEdoTask>();
 
 				var edoTasks = documentEdoTasks.Concat(receiptEdoTasks).ToList();
 

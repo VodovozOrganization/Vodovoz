@@ -15,23 +15,21 @@ using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Reports;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
-using Vodovoz.Settings.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Services.Orders;
 using Vodovoz.Views.Mango;
 using VodovozBusiness.EntityRepositories.Nodes;
+using VodovozBusiness.NotificationSenders;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
@@ -42,17 +40,15 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly IRouteListRepository _routedListRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IInteractiveService _interactiveService;
-		private readonly IOrderSettings _orderSettings;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IOrderRepository _orderRepository;
-		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IUnitOfWork _uow;
 		private readonly ICallTaskWorker _callTaskWorker;
-		private readonly IEmployeeRepository _employeeRepository;
-		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly IRouteListService _routeListService;
+		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly OrderCancellationService _orderCancellationService;
+		private readonly OrderCancellationPermitService _orderCancellationPermitService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
@@ -67,18 +63,16 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			IRouteListRepository routedListRepository,
 			IRouteListItemRepository routeListItemRepository,
 			IInteractiveService interactiveService,
-			IOrderSettings orderSettings, 
 			MangoManager manager,
 			INomenclatureSettings nomenclatureSettings,
 			IOrderRepository orderRepository,
-			IDeliveryRulesSettings deliveryRulesSettings,
 			ICallTaskWorker callTaskWorker,
-			IEmployeeRepository employeeRepository,
-			ICallTaskRepository callTaskRepository,
 			IRouteListService routeListService,
+			IRouteListChangesNotificationSender routeListChangesNotificationSender,
 			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IGtkTabsOpener gtkTabsOpener,
-			OrderCancellationService orderCancellationService
+			OrderCancellationService orderCancellationService,
+			OrderCancellationPermitService orderCancellationPermitService
 			)
 			: base(tdinavigation, manager)
 		{
@@ -87,17 +81,17 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_routedListRepository = routedListRepository ?? throw new ArgumentNullException(nameof(routedListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_routeListChangesNotificationSender =
+				routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+			_orderCancellationPermitService =
+				orderCancellationPermitService ?? throw new ArgumentNullException(nameof(orderCancellationPermitService));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 
 			if(ActiveCall.CounterpartyIds.Any())
@@ -111,18 +105,17 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 						_gtkTabsOpener,
 						_unitOfWorkFactory,
 						tdinavigation,
+						_interactiveService,
 						routedListRepository,
 						MangoManager,
-						_orderSettings,
-						_deliveryRulesSettings,
 						_nomenclatureSettings,
 						_callTaskWorker,
-						_employeeRepository,
 						_orderRepository,
 						_routeListItemRepository,
-						_callTaskRepository,
 						_routeListService,
+						_routeListChangesNotificationSender,
 						_orderCancellationService,
+						_orderCancellationPermitService,
 						_customerNotificationPublisher
 						);
 
@@ -186,18 +179,17 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 						_gtkTabsOpener,
 						_unitOfWorkFactory,
 						_tdiNavigation,
+						_interactiveService,
 						_routedListRepository,
 						MangoManager,
-						_orderSettings,
-						_deliveryRulesSettings,
 						_nomenclatureSettings,
 						_callTaskWorker,
-						_employeeRepository,
 						_orderRepository,
 						_routeListItemRepository,
-						_callTaskRepository,
 						_routeListService,
+						_routeListChangesNotificationSender,
 						_orderCancellationService,
+						_orderCancellationPermitService,
 						_customerNotificationPublisher
 						);
 				
@@ -228,18 +220,17 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 						_gtkTabsOpener,
 						_unitOfWorkFactory,
 						_tdiNavigation,
+						_interactiveService,
 						_routedListRepository,
 						MangoManager,
-						_orderSettings,
-						_deliveryRulesSettings,
 						_nomenclatureSettings,
 						_callTaskWorker,
-						_employeeRepository,
 						_orderRepository,
 						_routeListItemRepository,
-						_callTaskRepository,
 						_routeListService,
+						_routeListChangesNotificationSender,
 						_orderCancellationService,
+						_orderCancellationPermitService,
 						_customerNotificationPublisher
 						);
 				

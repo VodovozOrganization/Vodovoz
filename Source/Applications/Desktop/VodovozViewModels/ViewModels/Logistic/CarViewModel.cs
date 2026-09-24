@@ -261,20 +261,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool CanEdit { get; private set; }
 		public bool CanEditCarCard { get; private set; }
-		
+
 		public bool AskSaveOnClose { get; private set; }
-		
+
 		public bool IsArchive
 		{
 			get => Entity.IsArchive;
 			set
 			{
 				var oldValue = Entity.IsArchive;
-				
+
 				if(!CanChangeCompositionCompanyTransportPark)
 				{
 					const string message = "Невозможно изменить архивацию авто. У Вас нет права менять состав автопарка компании";
-					
+
 					if(oldValue != value)
 					{
 						var activeVersion = Entity.GetActiveCarVersionOnDate();
@@ -287,7 +287,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						}
 					}
 				}
-				
+
 				Entity.IsArchive = value;
 			}
 		}
@@ -353,7 +353,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand AddGeoGroupCommand { get; }
 		public DelegateCommand CreateCarAcceptanceCertificateCommand { get; }
 		public DelegateCommand CreateRentalContractCommand { get; }
-		
+
 		private bool CanChangeCompositionCompanyTransportPark { get; set; }
 
 		protected override bool BeforeSave()
@@ -582,7 +582,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			base.AfterSave();
 		}
-		
+
 		private void SetPermissions()
 		{
 			var canEditCarCardPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanEditCarCard);
@@ -590,10 +590,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				|| (Entity.Id != 0 && (PermissionResult.CanUpdate || canEditCarCardPermission));
 			CanEditCarCard = CanEdit && (Entity.Id == 0 || canEditCarCardPermission);
 			AskSaveOnClose = CanEdit;
-			
+
 			CanChangeBottlesFromAddress = CommonServices.PermissionService.ValidateUserPresetPermission(
 				LogisticPermissions.Car.CanChangeCarsBottlesFromAddress, CommonServices.UserService.CurrentUserId);
-			
+
 			CanChangeCarModel =
 				Entity.Id == 0
 				|| CanEditCarCard
@@ -603,7 +603,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				|| CommonServices.CurrentPermissionService.ValidatePresetPermission(LogisticPermissions.Car.CanChangeFuelCardNumber);
 			CanViewFuelCard =
 				CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FuelCard)).CanUpdate;
-			
+
 			CanChangeCompositionCompanyTransportPark =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(CarPermissions.CanChangeCompositionCompanyTransportPark);
 		}
@@ -683,7 +683,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				cancellationToken)
 				.GetAwaiter()
 				.GetResult();
-		}			
+		}
 
 		private void SetFuelCardProductGroupRestrictionByCardId(string fuelCardId, CancellationToken cancellationToken)
 		{

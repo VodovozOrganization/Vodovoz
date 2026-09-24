@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
@@ -339,6 +340,24 @@ namespace Vodovoz.Domain.Documents
 			{
 				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
 					new[] { nameof(Comment) });
+			}
+
+			if(RouteList.Semitrailer != null)
+			{
+				var routeListRepository = validationContext.GetService<IRouteListRepository>() ?? throw new InvalidOperationException(
+						$"Для валидации {nameof(RouteList)} должен быть доступен {nameof(IRouteListRepository)} через {nameof(ValidationContext)}");
+
+				var busyRouteList = routeListRepository.GetRouteListByBusySemiTrailer(
+					RouteList.Semitrailer.Id,
+					Id,
+					new[] { RouteListStatus.EnRoute });
+
+				if(busyRouteList != null)
+				{
+					yield return new ValidationResult(
+						$"Полуприцеп {RouteList.Semitrailer.RegistrationNumber} уже используется в МЛ №{busyRouteList.Id} от {busyRouteList.Date:d}",
+						new[] { nameof(RouteList.Semitrailer) });
+				}
 			}
 
 			var uniqueNomenclaturesIds = Items.Select(x => x.Nomenclature.Id).Distinct();

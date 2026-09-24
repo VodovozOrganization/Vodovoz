@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using DynamicData;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -16,6 +17,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Reports.Editing;
@@ -24,6 +26,7 @@ using Vodovoz.Settings.Reports;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 {
@@ -163,11 +166,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				{ "Только заказы в МЛ", "only_orders_from_route_lists" }
 			};
 
-			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 
+			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
 			_filterViewModel.AddFilter<CarTypeOfUse>(filter =>
 			{
-				filter.HideElements.Add(CarTypeOfUse.Loader);
+				filter.HideElements.Add(excludedCarTypesOfUse);
+
 				filter.GetReportParametersFunc = (f, sb, withCounts) =>
 				{
 					var includedTypes = filter.GetIncluded().Select(x => x.ToString()).ToArray();
