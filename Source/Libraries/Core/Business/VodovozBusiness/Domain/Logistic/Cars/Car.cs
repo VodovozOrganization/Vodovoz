@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using QS.Attachments.Domain;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -431,12 +431,12 @@ namespace Vodovoz.Domain.Logistic.Cars
 				{
 					case nameof(RegistrationNumber):
 						yield return new ValidationResult(
-							$"Авто с гос. номером {RegistrationNumber} уже существует",
+							$"Автомобиль с гос. номером {RegistrationNumber} уже существует",
 							new[] { nameof(RegistrationNumber) });
 						break;
 					case nameof(VIN):
 						yield return new ValidationResult(
-							$"Авто с VIN {VIN} уже существует",
+							$"Автомобиль с VIN {VIN} уже существует",
 							new[] { nameof(VIN) });
 						break;
 					case nameof(ChassisNumber):
