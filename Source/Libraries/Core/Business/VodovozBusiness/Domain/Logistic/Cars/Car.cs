@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using QS.Attachments.Domain;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -409,11 +409,9 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 			var carRepository = validationContext.GetService<ICarRepository>() ?? throw new InvalidOperationException(
 					$"Для валидации {nameof(Car)} должен быть доступен {nameof(ICarRepository)} через {nameof(ValidationContext)}");
+
 			if(IsArchive)
 			{
-				var carRepository = validationContext.GetService<ICarRepository>() ?? throw new InvalidOperationException(
-						$"Для валидации {nameof(Car)} должен быть доступен {nameof(ICarRepository)} через {nameof(ValidationContext)}");
-
 				if(carRepository.HasNonZeroBalance(UoW, Id))
 				{
 					yield return new ValidationResult(
@@ -422,38 +420,33 @@ namespace Vodovoz.Domain.Logistic.Cars
 				}
 			}
 
-			var cars = UoW.Session.QueryOver<Car>()
-				.Where(c => c.RegistrationNumber == RegistrationNumber)
-				.WhereNot(c => c.Id == Id)
-				.List();
-
 			var routeListRepository = validationContext.GetService<IRouteListRepository>() ?? throw new InvalidOperationException(
 					$"Для валидации {nameof(Car)} должен быть доступен {nameof(IRouteListRepository)} через {nameof(ValidationContext)}");
 
-			if(CarModel != null && CarModel.CarTypeOfUse is CarTypeOfUse.Semitrailer)
-			{
-				var duplicateFields = carRepository.GetDuplicateFields(UoW, Id, RegistrationNumber, VIN, ChassisNumber);
+			var duplicateFields = carRepository.GetDuplicateFields(UoW, Id, RegistrationNumber, VIN, ChassisNumber);
 
-				foreach(var field in duplicateFields)
+			foreach(var field in duplicateFields)
+			{
+				switch(field)
 				{
-					switch(field)
-					{
-						case nameof(RegistrationNumber):
+					case nameof(RegistrationNumber):
+						yield return new ValidationResult(
+							$"Авто с гос. номером {RegistrationNumber} уже существует",
+							new[] { nameof(RegistrationNumber) });
+						break;
+					case nameof(VIN):
+						yield return new ValidationResult(
+							$"Авто с VIN {VIN} уже существует",
+							new[] { nameof(VIN) });
+						break;
+					case nameof(ChassisNumber):
+						if(CarModel != null && CarModel.CarTypeOfUse is CarTypeOfUse.Semitrailer)
+						{
 							yield return new ValidationResult(
-								$"Полуприцеп с гос. номером {RegistrationNumber} уже существует",
-								new[] { nameof(RegistrationNumber) });
-							break;
-						case nameof(VIN):
-							yield return new ValidationResult(
-								$"Полуприцеп с VIN {VIN} уже существует",
-								new[] { nameof(VIN) });
-							break;
-						case nameof(ChassisNumber):
-							yield return new ValidationResult(
-								$"Полуприцеп с номером шасси {ChassisNumber} уже существует",
+							$"Полуприцеп с номером шасси {ChassisNumber} уже существует",
 								new[] { nameof(ChassisNumber) });
-							break;
-					}
+						}
+						break;
 				}
 			}
 
