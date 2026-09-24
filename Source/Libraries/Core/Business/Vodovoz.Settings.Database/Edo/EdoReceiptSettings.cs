@@ -36,7 +36,7 @@ namespace Vodovoz.Settings.Database.Edo
 			.GetValue<TimeSpan>("edo.receipt.queue_notification_repeat_interval");
 
 		/// <inheritdoc/>
-		public int ReceiptQueueNotificationLookbackMonths => _settingsController
-			.GetIntValue("edo.receipt.queue_notification_lookback_months");
+		public int ReceiptQueueNotificationLookbackDays => _settingsController
+			.GetIntValue("edo.receipt.queue_notification_lookback_days");
 	}
 }

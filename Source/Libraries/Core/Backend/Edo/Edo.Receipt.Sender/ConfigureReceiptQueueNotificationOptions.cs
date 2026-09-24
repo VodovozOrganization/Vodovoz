@@ -25,7 +25,7 @@ namespace Edo.Receipt.Sender
 		{
 			options.WorkerInterval = _receiptSettings.ReceiptQueueNotificationWorkerInterval;
 			options.RepeatInterval = _receiptSettings.ReceiptQueueNotificationRepeatInterval;
-			options.LookbackMonths = _receiptSettings.ReceiptQueueNotificationLookbackMonths;
+			options.LookbackDays = _receiptSettings.ReceiptQueueNotificationLookbackDays;
 		}
 	}
 }
