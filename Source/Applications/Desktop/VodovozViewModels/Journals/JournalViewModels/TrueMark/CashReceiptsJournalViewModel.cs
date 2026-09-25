@@ -1,10 +1,10 @@
 ﻿using ClosedXML.Excel;
+using DateTimeHelpers;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
-using NPOI.SS.Formula.Functions;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -15,14 +15,12 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using Vodovoz.Application.TrueMark;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.TrueMark;
@@ -34,7 +32,6 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.ViewModels.Reports.TrueMark;
 using CashReceiptPermissions = Vodovoz.Core.Domain.Permissions.OrderPermissions.CashReceipt;
-using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
@@ -683,7 +680,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			var dialogSettings = new DialogSettings();
 			dialogSettings.Title = "Сохранить";
 			dialogSettings.FileName = typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative
-				+ $" с {Filter.StartDate:dd.MM.yyyy HH.mm} по {Filter.EndDate.Value.Date:dd.MM.yyyy HH.mm}";
+				+ $" с {Filter.StartDate:dd.MM.yyyy HH.mm} по {Filter.EndDate.Value:dd.MM.yyyy HH.mm}";
 			dialogSettings.DefaultFileExtention = ".xlsx";
 			dialogSettings.FileFilters.Clear();
 			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
