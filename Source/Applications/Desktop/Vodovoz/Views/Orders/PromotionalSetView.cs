@@ -194,14 +194,15 @@ namespace Vodovoz.Views.Orders
 			ConfigureParametersForMobileApp();
 			ConfigureParametersForVodovozWebSite();
 			ConfigureParametersForKulerSaleWebSite();
+			ConfigureParametersForAiBot();
 		}
-		
+
 		private void ConfigureParametersForMobileApp()
 		{
 			enumCmbOnlineAvailabilityMobileApp.ShowSpecialStateNot = true;
 			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityMobileApp.Binding
-				.AddBinding(ViewModel.MobileAppPromotionalSetOnlineParameters, p => p.PromotionalSetOnlineAvailability, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel.OnlineParametersForMobileApp, p => p.PromotionalSetOnlineAvailability, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, b => b.Sensitive)
 				.InitializeFromSource();
 		}
@@ -211,7 +212,7 @@ namespace Vodovoz.Views.Orders
 			enumCmbOnlineAvailabilityVodovozWebSite.ShowSpecialStateNot = true;
 			enumCmbOnlineAvailabilityVodovozWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityVodovozWebSite.Binding
-				.AddBinding(ViewModel.VodovozWebSitePromotionalSetOnlineParameters, p => p.PromotionalSetOnlineAvailability, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel.OnlineParametersForVodovozWebSite, p => p.PromotionalSetOnlineAvailability, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, b => b.Sensitive)
 				.InitializeFromSource();
 		}
@@ -221,7 +222,17 @@ namespace Vodovoz.Views.Orders
 			enumCmbOnlineAvailabilityKulerSaleWebSite.ShowSpecialStateNot = true;
 			enumCmbOnlineAvailabilityKulerSaleWebSite.ItemsEnum = typeof(GoodsOnlineAvailability);
 			enumCmbOnlineAvailabilityKulerSaleWebSite.Binding
-				.AddBinding(ViewModel.KulerSaleWebSitePromotionalSetOnlineParameters, p => p.PromotionalSetOnlineAvailability, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel.OnlineParametersForKulerSaleWebSite, p => p.PromotionalSetOnlineAvailability, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, b => b.Sensitive)
+				.InitializeFromSource();
+		}
+		
+		private void ConfigureParametersForAiBot()
+		{
+			enumCmbOnlineAvailabilityAiBot.ShowSpecialStateNot = true;
+			enumCmbOnlineAvailabilityAiBot.ItemsEnum = typeof(GoodsOnlineAvailability);
+			enumCmbOnlineAvailabilityAiBot.Binding
+				.AddBinding(ViewModel.OnlineParametersForAiBot, p => p.PromotionalSetOnlineAvailability, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, b => b.Sensitive)
 				.InitializeFromSource();
 		}
