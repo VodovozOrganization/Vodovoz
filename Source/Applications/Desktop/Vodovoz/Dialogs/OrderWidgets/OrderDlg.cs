@@ -344,6 +344,8 @@ namespace Vodovoz
 		public bool IsStatusForEditGoodsInRouteList => 
 			_orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
 
+		private bool _canSetContactlessDelivery;
+
 		private UndeliveryViewModel _undeliveryViewModel;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
@@ -1380,6 +1382,9 @@ namespace Vodovoz
 
 		private void SetPermissions()
 		{
+			_canSetContactlessDelivery = _currentPermissionService.ValidatePresetPermission(
+				OrderPermissions.Delivery.CanSetContactlessDelivery);
+
 			var currentPermissionService = ServicesConfig.CommonServices.CurrentPermissionService;
 
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService.ValidatePresetPermission(
@@ -5233,7 +5238,7 @@ namespace Vodovoz
 				buttonAddForSale.Sensitive = val;
 			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
 			dataSumDifferenceReason.Sensitive = val;
-			ycheckContactlessDelivery.Sensitive = val;
+			ycheckContactlessDelivery.Sensitive = val && _canSetContactlessDelivery;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 
