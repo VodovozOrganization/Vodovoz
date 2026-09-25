@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using Vodovoz.Zabbix.Sender;
 using Edo.Transport;
+using Microsoft.Extensions.Logging;
 
 namespace OutboxWorker
 {
@@ -21,7 +22,8 @@ namespace OutboxWorker
 			Host.CreateDefaultBuilder(args)
 				.ConfigureLogging((ctx, builder) =>
 				{
-					builder.AddNLog(ctx.Configuration.GetSection("NLog"));
+					builder.AddNLog();
+					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
 				})
 				.ConfigureServices((hostContext, services) =>
 				{

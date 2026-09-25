@@ -26,6 +26,7 @@ namespace OutboxWorker
 		private const int _messageBatchSize = 50;
 		private const int _delayBeetweenMessagesInSeconds = 1;
 		private const int _delayWhenErrorInSeconds = 5;
+		private DateTime _lastHealthySentAt = DateTime.MinValue;
 
 		public OutboxWorker(
 			ILogger<OutboxWorker> logger,
@@ -96,8 +97,8 @@ namespace OutboxWorker
 
 					if(!messages.Any())
 					{
-						await tx.CommitAsync(token);
-						await _zabbixSender.SendIsHealthyAsync(nameof(OutboxWorker), token);
+						await tx.CommitAsync(token);						
+						await SendIsHealthyThrottledAsync(token);
 						await Task.Delay(TimeSpan.FromSeconds(_delayBeetweenMessagesInSeconds), token);
 						continue;
 					}
@@ -139,7 +140,7 @@ namespace OutboxWorker
 
 					await outboxRepository.CleanupAsync(conn);
 
-					await _zabbixSender.SendIsHealthyAsync(nameof(OutboxWorker), token);
+					await SendIsHealthyThrottledAsync(token);
 
 					await Task.Delay(TimeSpan.FromSeconds(_delayBeetweenMessagesInSeconds), token);
 				}
@@ -150,6 +151,18 @@ namespace OutboxWorker
 					await Task.Delay(TimeSpan.FromSeconds(_delayWhenErrorInSeconds), token);
 				}
 			}
+		}
+
+		private async Task SendIsHealthyThrottledAsync(CancellationToken token)
+		{
+			if(DateTime.UtcNow - _lastHealthySentAt < TimeSpan.FromMinutes(1))
+			{
+				return;
+			}
+
+			await _zabbixSender.SendIsHealthyAsync(nameof(OutboxWorker), token);
+
+			_lastHealthySentAt = DateTime.UtcNow;
 		}
 	}
 }
