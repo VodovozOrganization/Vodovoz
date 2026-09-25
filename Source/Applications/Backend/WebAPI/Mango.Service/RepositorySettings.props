@@ -1,6 +1,7 @@
 ﻿<Project>
   <PropertyGroup>
     <ContainerRepository>mango.service</ContainerRepository>
+	<ContainerBaseImage>mcr.microsoft.com/dotnet/runtime-deps:3.1</ContainerBaseImage>
   </PropertyGroup>
 </Project>
 
