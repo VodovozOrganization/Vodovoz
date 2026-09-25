@@ -21,5 +21,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 		bool CurrentRouteListHasOrderDuplicate(IUnitOfWork uow, RouteListItem routeListItem, int[] actualRouteListItemIds);
 		RouteListItem GetRouteListItemById(IUnitOfWork uow, int routeListAddressId);
 		string GetUnscannedCodesReason(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Проверяет, были ли изменения в переданных адресах по сравнению с их состоянием в базе данных.
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="routeListItems">Список адресов для проверки</param>
+		/// <returns>Возвращает true, если были изменения, иначе false</returns>
+		bool RouteListItemWasChanged(IUnitOfWork uow, IEnumerable<RouteListItem> routeListItems);
 	}
 }

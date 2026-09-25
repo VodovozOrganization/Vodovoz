@@ -592,6 +592,19 @@ namespace Vodovoz.ViewModels.Logistic
 						.Cast<RouteListItemNode>()
 						.Where(x => x.Order != null);
 
+					var selectedRouteListAddresses = SelectedSourceRouteListAddresses
+						.Cast<RouteListItemNode>()
+						.Select(x => x.RouteListItem);
+
+					var isAddressChanged = _routeListItemRepository.RouteListItemWasChanged(unitOfWork, selectedRouteListAddresses);
+
+					if(isAddressChanged)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Warning, "Один из выбранных адресов был кем-то изменен. Переоткройте вкладку");
+
+						return;
+					}
+
 					var ordersIdsWithTransferTypesWithoutRouteList = ordersWithTransferTypesWithoutRouteList
 						.ToDictionary(
 							x => x.OrderId,
@@ -770,6 +783,18 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				try
 				{
+					var selectedRouteListAddresses = selectedTargetAddresses
+						.Select(x => x.RouteListItem);
+
+					var isAddressChanged = _routeListItemRepository.RouteListItemWasChanged(unitOfWork, selectedRouteListAddresses);
+
+					if(isAddressChanged)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Warning, "Один из выбранных адресов был кем-то изменен. Переоткройте вкладку");
+
+						return;
+					}
+
 					var result = _routeListTransferService.RevertTransferedAddressesFrom(unitOfWork, TargetRouteListId.Value, SourceRouteListId, 
 						addressesToRevertIds, _wageParameterService);
 

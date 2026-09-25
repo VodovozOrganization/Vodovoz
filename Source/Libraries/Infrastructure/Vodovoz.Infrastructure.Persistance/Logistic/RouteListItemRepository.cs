@@ -1,6 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -171,6 +172,26 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				select routeListAddress.UnscannedCodesReason
 				)
 				.FirstOrDefault();
+		}
+
+		public bool RouteListItemWasChanged(IUnitOfWork uow, IEnumerable<RouteListItem> routeListItems)
+		{
+			var disjunctions = Restrictions.Disjunction();
+
+			foreach(var item in routeListItems)
+			{
+				var id = item.Id;
+				var version = item.Version;
+
+				disjunctions.Add(Restrictions.Where<RouteListItem>(x => x.Id == id && x.Version != version));
+			}
+
+			var changedItem = uow.Session.QueryOver<RouteListItem>()
+				.Where(disjunctions)
+				.Take(1)
+				.SingleOrDefault();
+
+			return changedItem != null;
 		}
 	}
 }
