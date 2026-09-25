@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using Core.Infrastructure;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -141,7 +141,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 					.GroupBy(x => new { x.OrderId, x.MarkedProdictsInOrderCount })
 					.ToDictionary(g => g.Key, g => g.ToList());
 
-				var markedProductsInOrdersCount = codesByOrders.Select(x => x.Key.MarkedProdictsInOrderCount).Sum();
+				// Номера заказов с неотсканированными кодами
+				var ordersWithUnscannedCodes = codesByOrders
+					.Where(g =>
+					{
+						var scannedInOrder = g.Value.Count(x => x.ScannedCodeData != null);
+						return scannedInOrder < g.Key.MarkedProdictsInOrderCount;
+					})
+					.Select(g => g.Key.OrderId)
+					.OrderBy(id => id)
+					.ToList();
+
+				var markedProductsInOrdersCount = codesByOrders.Select(x => x.Key.MarkedProdictsInOrderCount).Sum();				
 
 				var scannedCodesCount = codes.Count;
 				var unscannedCodesCount = markedProductsInOrdersCount - scannedCodesCount;
@@ -172,6 +183,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 					.Count(x => x.Problem == ProductCodeProblem.Duplicate && x.DuplicatesCount > 1);
 
 				row.InvalidCodesCount = inValidCodes.Count();
+
+				row.OrdersWithUnscannedCodes = string.Join(", ", ordersWithUnscannedCodes);
 
 				rows.Add(row);
 				counter++;
@@ -221,7 +234,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			var firstColumnWidth = 5;
 			var columnsWidth = 18;
 
-			for(int i = 0; i < 13; i++)
+			for(int i = 0; i < 16; i++)
 			{
 				var column = worksheet.Column(i + 1);
 
@@ -242,8 +255,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Успешно отсканировано кодов, %");
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Не отсканировано кодов, шт.");
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Не отсканировано кодов, %");
-			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Дубликаты одноразовые (из пула), шт.");
-			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Дубликаты одноразовые (из пула), %");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Номера заказов с неотсканированными кодами");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Подгружено из пула, шт");
+			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Подгружено из пула, %");
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Дубликаты множественные, шт.");
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Дубликаты множественные, %");
 			RenderTableTitleCell(worksheet, rowNumber, colNumber++, "Недействительные коды, шт.");
@@ -263,6 +277,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			RenderNumericFloatingPointCell(worksheet, rowNumber, colNumber++, values.SuccessfullyScannedCodesPercent);
 			RenderNumericCell(worksheet, rowNumber, colNumber++, values.UnscannedCodesCount);
 			RenderNumericFloatingPointCell(worksheet, rowNumber, colNumber++, values.UnscannedCodesPercent);
+			RenderStringCell(worksheet, rowNumber, colNumber++, values.OrdersWithUnscannedCodes);
 			RenderNumericCell(worksheet, rowNumber, colNumber++, values.SingleDuplicatedCodesCount);
 			RenderNumericFloatingPointCell(worksheet, rowNumber, colNumber++, values.SingleDuplicatedCodesPercent);
 			RenderNumericCell(worksheet, rowNumber, colNumber++, values.MultiplyDuplicatedCodesCount);

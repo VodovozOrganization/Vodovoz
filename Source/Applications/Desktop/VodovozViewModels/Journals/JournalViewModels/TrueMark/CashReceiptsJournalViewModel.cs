@@ -4,6 +4,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using NPOI.SS.Formula.Functions;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -33,6 +34,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.ViewModels.Reports.TrueMark;
 using CashReceiptPermissions = Vodovoz.Core.Domain.Permissions.OrderPermissions.CashReceipt;
+using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
@@ -100,7 +102,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			if(!filter.EndDate.HasValue)
 			{
-				filter.EndDate = DateTime.Now.Date;
+				filter.EndDate = DateTime.Now.LatestDayTime();
 			}
 
 			Filter = filter;
@@ -681,7 +683,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			var dialogSettings = new DialogSettings();
 			dialogSettings.Title = "Сохранить";
 			dialogSettings.FileName = typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative
-				+ $" с {Filter.StartDate:dd.MM.yyyy} по {Filter.EndDate.Value.Date:dd.MM.yyyy}";
+				+ $" с {Filter.StartDate:dd.MM.yyyy HH.mm} по {Filter.EndDate.Value.Date:dd.MM.yyyy HH.mm}";
 			dialogSettings.DefaultFileExtention = ".xlsx";
 			dialogSettings.FileFilters.Clear();
 			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));
