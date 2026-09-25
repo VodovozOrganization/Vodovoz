@@ -56,6 +56,7 @@ namespace Vodovoz.Filters.Views
 			this.yhbox1.Add(this.datepickerFrom);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.datepickerFrom]));
 			w2.Position = 1;
+			w2.Expand = false;
 			// Container child yhbox1.Gtk.Box+BoxChild
 			this.label29 = new global::Gtk.Label();
 			this.label29.Name = "label29";
@@ -78,6 +79,7 @@ namespace Vodovoz.Filters.Views
 			this.yhbox1.Add(this.datepickerTo);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.datepickerTo]));
 			w4.Position = 3;
+			w4.Expand = false;
 			// Container child yhbox1.Gtk.Box+BoxChild
 			this.yenumcomboStatus = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboStatus.Name = "yenumcomboStatus";
