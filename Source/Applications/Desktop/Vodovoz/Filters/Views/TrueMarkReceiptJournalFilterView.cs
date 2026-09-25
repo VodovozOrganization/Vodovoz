@@ -18,10 +18,10 @@ namespace Vodovoz.Filters.Views
 
 		private void Configure()
 		{
-			dateRangeFilter.Binding.AddSource(ViewModel)
+			/*dateRangeFilter.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
 
 			ConfigureEnumComboStatus();
 
