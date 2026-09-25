@@ -79,7 +79,7 @@ namespace Edo.Problem.Routine.Services.NewEdoTasksResend
 
 					try
 					{
-						await _taskCreatedEventPublisher.Publish(task, cancellationToken);
+						await _taskCreatedEventPublisher.Publish(uow, task, cancellationToken);
 						task.UpdateWaitingProcessingTaskCreatedEvent(true);
 					}
 					catch(Exception e)

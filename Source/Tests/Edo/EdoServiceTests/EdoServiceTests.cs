@@ -77,8 +77,7 @@ namespace EdoServices.Tests
 			_edoRequestCreatedEventPublisher = Substitute.For<IEdoRequestCreatedEventPublisher>();
 			_bus = Substitute.For<IBus>();
 			_orderEdoTaskCreatedEventPublisher = new OrderEdoTaskCreatedEventPublisher(
-				Substitute.For<ILogger<OrderEdoTaskCreatedEventPublisher>>(),
-				_bus);
+				Substitute.For<ILogger<OrderEdoTaskCreatedEventPublisher>>());
 			_requestFactories = Enumerable.Empty<IInformalEdoRequestFactory>();
 			_manualEdoRequestFactory = Substitute.For<IManualEdoRequestFactory>();
 

@@ -22,7 +22,7 @@ namespace OutboxWorker
 		private readonly IServiceScopeFactory _scopeFactory;
 		private readonly IZabbixSender _zabbixSender;
 		private readonly ILogger<OutboxWorker> _logger;
-		private readonly IReadOnlyDictionary<string, Type> _knownTypes;
+		private readonly IReadOnlyDictionary<string, (Type ClrType, Type BusType)> _messageDescriptors;
 		private const int _messageBatchSize = 50;
 		private const int _delayBeetweenMessagesInSeconds = 1;
 		private const int _delayWhenErrorInSeconds = 5;
@@ -31,7 +31,7 @@ namespace OutboxWorker
 			ILogger<OutboxWorker> logger,
 			IConfiguration config,
 			IServiceScopeFactory scopeFactory,
-			IEnumerable<Assembly> outboxContractAssemblies,
+			IReadOnlyDictionary<Assembly, Type> assemblyToBus,
 			IZabbixSender zabbixSender)
 		{
 			if(config == null)
@@ -39,25 +39,25 @@ namespace OutboxWorker
 				throw new ArgumentNullException(nameof(config));
 			}
 
-			if(outboxContractAssemblies == null)
+			if(assemblyToBus == null || assemblyToBus.Count == 0)
 			{
-				throw new ArgumentNullException(nameof(outboxContractAssemblies));
+				throw new ArgumentException("Не передано ни одной сборки с контрактами событий/сообщений", nameof(assemblyToBus));
 			}
 
 			_connectionString = config.GetConnectionString("Default");
 			_scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_knownTypes = BuildKnownTypes(outboxContractAssemblies, _logger);
+			_messageDescriptors = BuildMessageDescriptors(assemblyToBus, _logger);
 		}
 
-		private static IReadOnlyDictionary<string, Type> BuildKnownTypes(
-			IEnumerable<Assembly> assemblies,
+		private static IReadOnlyDictionary<string, (Type ClrType, Type BusType)> BuildMessageDescriptors(
+			IReadOnlyDictionary<Assembly, Type> assemblyToBus,
 			ILogger logger)
 		{
-			var result = new Dictionary<string, Type>();
+			var result = new Dictionary<string, (Type, Type)>();
 
-			foreach(var assembly in assemblies.Distinct())
+			foreach(var (assembly, busType) in assemblyToBus)
 			{
 				foreach(var type in assembly.GetTypes().Where(t => t.FullName != null))
 				{
@@ -70,23 +70,11 @@ namespace OutboxWorker
 						continue;
 					}
 
-					result.Add(type.FullName, type);
+					result.Add(type.FullName, (type, busType));
 				}
 			}
 
 			return result;
-		}
-
-		private Type ResolveType(string typeName)
-		{
-			if(_knownTypes.TryGetValue(typeName, out var type))
-			{
-				return type;
-			}
-
-			_logger.LogWarning("Тип не найден: {TypeName}", typeName);
-
-			return null;
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken token)
@@ -101,7 +89,6 @@ namespace OutboxWorker
 					using var scope = _scopeFactory.CreateScope();
 
 					var outboxRepository = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
-					var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
 
 					await using var tx = await conn.BeginTransactionAsync(token);
 
@@ -111,7 +98,7 @@ namespace OutboxWorker
 					{
 						await tx.CommitAsync(token);
 						await _zabbixSender.SendIsHealthyAsync(nameof(OutboxWorker), token);
-						await Task.Delay(TimeSpan.FromSeconds(_delayBeetweenMessagesInSeconds), token);						
+						await Task.Delay(TimeSpan.FromSeconds(_delayBeetweenMessagesInSeconds), token);
 						continue;
 					}
 
@@ -119,14 +106,12 @@ namespace OutboxWorker
 					{
 						try
 						{
-							var type = ResolveType(msg.Type);
-
-							if(type == null)
+							if(!_messageDescriptors.TryGetValue(msg.Type, out var descriptor))
 							{
 								throw new Exception($"Type not found {msg.Type}");
 							}
 
-							var @event = msg.Payload?.DeserializeFromOutbox(type);
+							var @event = msg.Payload?.DeserializeFromOutbox(descriptor.ClrType);
 
 							if(@event == null)
 							{
@@ -137,7 +122,9 @@ namespace OutboxWorker
 								continue;
 							}
 
-							await publishEndpoint.Publish(@event, type, token);
+							var publishEndpoint = (IPublishEndpoint)scope.ServiceProvider.GetRequiredService(descriptor.BusType);
+
+							await publishEndpoint.Publish(@event, descriptor.ClrType, token);
 
 							await outboxRepository.MarkAsSentAsync(conn, msg.Guid, tx);
 						}

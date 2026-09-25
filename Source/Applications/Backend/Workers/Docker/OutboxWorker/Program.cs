@@ -1,7 +1,10 @@
 ﻿using CustomerNotifications.Contracts;
+using Edo.Contracts;
+using EdoNotifications.Contracts;
 using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using Vodovoz.Zabbix.Sender;
+using Edo.Transport;
 
 namespace OutboxWorker
 {
@@ -24,12 +27,26 @@ namespace OutboxWorker
 				{
 					services.AddOutboxWorker(
 						hostContext.Configuration,
-						contractAssemblies: new[]
-						{
-							typeof(CustomerNotificationIntegrationEvent).Assembly,
-							typeof(EdoNotifications.Contracts.AssemblyFinder).Assembly,
-						},
-						transportSectionName: "NotificationTransportSettings");
+						outBoxTransportBuilder => outBoxTransportBuilder
+							.Add<INotificationBus>
+							(
+								"NotificationTransportSettings",
+								new[]
+								{
+									typeof(CustomerNotificationIntegrationEvent).Assembly,
+									typeof(EdoNotificationAssemblyFinder).Assembly
+								}
+							)
+							.Add<IPacsBus>
+							(
+								"PacsTransportSettings",
+								new[]
+								{
+									typeof(EdoContractsAssemblyFinder).Assembly
+								},
+								configureTopology: (context, cfg) => cfg.AddEdoTopology(context)
+							)
+						);
 
 					services.ConfigureZabbixSenderFromAppSettings(hostContext);
 				});
