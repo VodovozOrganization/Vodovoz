@@ -16,10 +16,12 @@
 	<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
 	<PackageReference Include="MySqlConnector" Version="2.2.6" />
 	<PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
-	<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
+	<PackageReference Include="NLog.Targets.Seq" Version="4.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Contracts\Edo.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport.MassTransit\MessageTransport.MassTransit.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
