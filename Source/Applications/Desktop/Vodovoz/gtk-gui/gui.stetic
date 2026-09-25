@@ -200972,7 +200972,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Views.Edo.EdoInOrderView" design-size="974 605">
+  <widget class="Gtk.Bin" id="Vodovoz.Views.Edo.EdoInOrderView" design-size="1076 605">
     <property name="MemberName" />
     <property name="WidthRequest">0</property>
     <property name="HeightRequest">0</property>
@@ -201020,6 +201020,7 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Справка</property>
+                    <property name="Active">True</property>
                     <property name="DrawIndicator">False</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -201067,17 +201068,26 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.GtkWidgets.yRadioButton" id="radiobuttonDiscrepancy">
+                  <widget class="Gtk.VSeparator" id="vseparator2">
                     <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="Label" translatable="yes">Расхождения</property>
-                    <property name="DrawIndicator">False</property>
-                    <property name="HasLabel">True</property>
-                    <property name="UseUnderline">True</property>
-                    <property name="Group">edoTabs</property>
                   </widget>
                   <packing>
                     <property name="Position">3</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gamma.GtkWidgets.yButton" id="ybuttonDiscrepancy">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Расхождения</property>
+                    <property name="UseUnderline">True</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">4</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -201467,24 +201477,6 @@ not tooltip</property>
               <widget class="Gtk.Label" id="labelCodes">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Коды маркировки</property>
-              </widget>
-              <packing>
-                <property name="type">tab</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Vodovoz.Views.Edo.EdoDiscrepancyView" id="edodiscrepancyview2">
-                <property name="MemberName" />
-                <property name="Events">ButtonPressMask</property>
-              </widget>
-              <packing>
-                <property name="Position">3</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.Label" id="labelDiscrepancy">
-                <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">Расхождения</property>
               </widget>
               <packing>
                 <property name="type">tab</property>
