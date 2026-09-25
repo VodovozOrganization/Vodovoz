@@ -126,9 +126,10 @@ namespace Vodovoz.ViewModels.Orders
 			}
 		}
 		
-		public PromotionalSetOnlineParameters MobileAppPromotionalSetOnlineParameters { get; private set; }
-		public PromotionalSetOnlineParameters VodovozWebSitePromotionalSetOnlineParameters { get; private set; }
-		public PromotionalSetOnlineParameters KulerSaleWebSitePromotionalSetOnlineParameters { get; private set; }
+		public PromotionalSetOnlineParameters OnlineParametersForMobileApp { get; private set; }
+		public PromotionalSetOnlineParameters OnlineParametersForVodovozWebSite { get; private set; }
+		public PromotionalSetOnlineParameters OnlineParametersForKulerSaleWebSite { get; private set; }
+		public PromotionalSetOnlineParameters OnlineParametersForAiBot { get; private set; }
 		public IStringHandler StringHandler { get; }
 
 		#region Permissions
@@ -246,9 +247,10 @@ namespace Vodovoz.ViewModels.Orders
 		
 		private void ConfigureOnlineParameters()
 		{
-			MobileAppPromotionalSetOnlineParameters = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
-			VodovozWebSitePromotionalSetOnlineParameters = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
-			KulerSaleWebSitePromotionalSetOnlineParameters = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
+			OnlineParametersForMobileApp = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
+			OnlineParametersForVodovozWebSite = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
+			OnlineParametersForKulerSaleWebSite = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
+			OnlineParametersForAiBot = GetPromotionalSetOnlineParameters(GoodsOnlineParameterType.ForAiBot);
 		}
 		
 		private PromotionalSetOnlineParameters GetPromotionalSetOnlineParameters(GoodsOnlineParameterType type)
@@ -270,6 +272,9 @@ namespace Vodovoz.ViewModels.Orders
 					break;
 				case GoodsOnlineParameterType.ForKulerSaleWebSite:
 					parameters = new KulerSaleWebSitePromotionalSetOnlineParameters();
+					break;
+				case GoodsOnlineParameterType.ForAiBot:
+					parameters = new AiBotPromotionalSetOnlineParameters();
 					break;
 			}
 
