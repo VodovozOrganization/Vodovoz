@@ -2214,6 +2214,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTransferWaitingRequestsStageView.cs" />
     <Compile Include="Views\Edo\EdoInOrderTransferPreparingStageView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTransferPreparingStageView.cs" />
+    <Compile Include="Views\Edo\EdoDiscrepancyView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoDiscrepancyView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

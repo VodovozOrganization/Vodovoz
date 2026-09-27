@@ -447,10 +447,10 @@ namespace Vodovoz.Views.TrueMark
 
 		private void UpdateReuseCodesControlsVisibility()
 		{
-			if(yhboxReuseCodes != null)
-			{
-				yhboxReuseCodes.Visible = ViewModel.CanShowReuseRejectedCodesControls;
-			}
+			//if(yhboxReuseCodes != null)
+			//{
+			//	yhboxReuseCodes.Visible = ViewModel.CanShowReuseRejectedCodesControls;
+			//}
 		}
 
 		private void UpdateReuseRejectedCodesButtonSensitivity()
@@ -486,10 +486,10 @@ namespace Vodovoz.Views.TrueMark
 		{
 			ViewModel.ReuseTargetOrderViewModel.DisposeViewModel = false;
 			entityentryReuseTargetOrder.ViewModel = ViewModel.ReuseTargetOrderViewModel;
-			yhboxReuseCodes.NoShowAll = false;
+			//yhboxReuseCodes.NoShowAll = false;
 
 			ybuttonReuseRejectedCodes.BindCommand(ViewModel.ReuseRejectedCodesCommand);
-			yhboxReuseCodes.ShowAll();
+			//yhboxReuseCodes.ShowAll();
 			UpdateReuseCodesControlsVisibility();
 			UpdateReuseRejectedCodesButtonSensitivity();
 		}
