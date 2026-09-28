@@ -22,6 +22,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels;
@@ -190,6 +191,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			Subdivision guiltySubdivisionAlias = null;
 			Fine fineAlias = null;
 			Order orderAlias = null;
+			Order lastOrderAlias = null;
 			ComplaintDiscussion discussionAlias = null;
 			Subdivision subdivisionAlias = null;
 			ComplaintKind complaintKindAlias = null;
@@ -202,6 +204,22 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintArrangementComment resultOfComplaintArrangemenCommentAlias = null;
 			ComplaintResultComment resultOfComplaintResultCommentAlias = null;
 			Employee resultCommentAuthorAlias = null;
+
+			var undeliveryStatuses = new[]
+			{
+				OrderStatus.Canceled,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.NotDelivered
+			};
+
+			var lastOrderIdSubquery = QueryOver.Of<Order>(() => lastOrderAlias)
+				.Where(() => lastOrderAlias.Client.Id == complaintAlias.Counterparty.Id)
+				.And(() => lastOrderAlias.CreateDate > complaintAlias.CreationDate)
+				.And(Restrictions.Not(
+					Restrictions.In(
+						Projections.Property(() => lastOrderAlias.OrderStatus),
+						undeliveryStatuses)))
+				.Select(Projections.Max(() => lastOrderAlias.Id));
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -546,6 +564,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.SelectSubQuery(resultOfCounterpartySubquery).WithAlias(() => resultAlias.ResultOfCounterparty)
 				.SelectSubQuery(resultOfEmployeesSubquery).WithAlias(() => resultAlias.ResultOfEmployees)				
 				.Select(isNeedWorkProjection).WithAlias(() => resultAlias.IsNeedWork)
+				.SelectSubQuery(lastOrderIdSubquery).WithAlias(() => resultAlias.LastOrderId)
 			);
 
 			query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>())
