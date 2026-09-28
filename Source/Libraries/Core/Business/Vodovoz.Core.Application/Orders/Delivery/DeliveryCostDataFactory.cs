@@ -28,10 +28,7 @@ namespace Vodovoz.Core.Application.Orders.Delivery
 
 				if(total19L != 0)
 				{
-					var max19LBottles = districtRules[i].DeliveryPriceRule.Water19LCount;
-					bottlesStingBuilder.Append($"{max19LBottles - total19L}шт 19л");
-					
-					TryAddMaxVolumeTotalBottles(max19LBottles, total19L, ref totalBottles);
+					Add19LData(districtRules, i, bottlesStingBuilder, total19L, ref totalBottles);
 				}
 
 				if(waterCounts.DisposableWater6LCount != 0)
@@ -70,6 +67,12 @@ namespace Vodovoz.Core.Application.Orders.Delivery
 					TryAddMaxVolumeTotalBottles(max500mlBottles, waterCounts.DisposableWater500mlCount, ref totalBottles);
 				}
 
+				//если в заказе нет вообще воды
+				if(totalBottles is null)
+				{
+					Add19LData(districtRules, i, bottlesStingBuilder, total19L, ref totalBottles);
+				}
+
 				bottlesStingBuilder.Append(" бутылок");
 
 				string deliveryMessage = null;
@@ -106,6 +109,19 @@ namespace Vodovoz.Core.Application.Orders.Delivery
 				Message = null,
 				MaxVolumeTotalBottles = MaxVolumeTotalBottles.Create(1, 1)
 			};
+		}
+		
+		private void Add19LData(
+			IList<DistrictRuleItemBase> districtRules,
+			int index,
+			StringBuilder bottlesStingBuilder,
+			decimal total19L,
+			ref IMaxVolumeTotalBottles totalBottles)
+		{
+			var max19LBottles = districtRules[index].DeliveryPriceRule.Water19LCount;
+			bottlesStingBuilder.Append($"{max19LBottles - total19L}шт 19л");
+
+			TryAddMaxVolumeTotalBottles(max19LBottles, total19L, ref totalBottles);
 		}
 
 		private void TryAddMaxVolumeTotalBottles(decimal maxBottles, decimal currentBottles, ref IMaxVolumeTotalBottles totalBottles)
