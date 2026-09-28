@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using QS.Attachments.Domain;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -409,6 +409,16 @@ namespace Vodovoz.Domain.Logistic.Cars
 
 			var carRepository = validationContext.GetService<ICarRepository>() ?? throw new InvalidOperationException(
 					$"Для валидации {nameof(Car)} должен быть доступен {nameof(ICarRepository)} через {nameof(ValidationContext)}");
+
+			if(IsArchive)
+			{
+				if(carRepository.HasNonZeroBalance(UoW, Id))
+				{
+					yield return new ValidationResult(
+						"Нельзя архивировать автомобиль. За ним числятся ненулевые остатки. Переместите/спишите остатки.",
+						new[] { nameof(IsArchive) });
+				}
+			}
 
 			var routeListRepository = validationContext.GetService<IRouteListRepository>() ?? throw new InvalidOperationException(
 					$"Для валидации {nameof(Car)} должен быть доступен {nameof(IRouteListRepository)} через {nameof(ValidationContext)}");
