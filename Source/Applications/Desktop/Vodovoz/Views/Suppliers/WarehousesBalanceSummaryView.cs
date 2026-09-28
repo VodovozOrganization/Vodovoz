@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Gamma.ColumnConfig;
+using Gamma.Widgets;
+using Gtk;
+using QS.Views.GtkUI;
+using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Gamma.ColumnConfig;
-using Gamma.Widgets;
-using Gtk;
-using QS.Views.GtkUI;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
@@ -160,8 +160,8 @@ namespace Vodovoz.Views.Suppliers
 
 			eventboxArrow.ButtonPressEvent += (o, args) =>
 			{
-				vboxSections.Visible = !vboxSections.Visible;
-				arrowSlider.ArrowType = vboxSections.Visible ? ArrowType.Left : ArrowType.Right;
+				yvboxFilters.Visible = !yvboxFilters.Visible;
+				arrowSlider.ArrowType = yvboxFilters.Visible ? ArrowType.Left : ArrowType.Right;
 			};
 
 			treeData.EnableGridLines = TreeViewGridLines.Both;

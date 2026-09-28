@@ -120196,6 +120196,20 @@ not tooltip</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
+              <widget class="Gamma.GtkWidgets.yVBox" id="yvboxFilters">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+            <child>
+                  <widget class="Gtk.ScrolledWindow" id="scrolledwindow1">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="HscrollbarPolicy">Never</property>
+                    <property name="ShadowType">In</property>
+                    <child>
+                      <widget class="Gtk.Viewport" id="GtkViewport">
+                        <property name="MemberName" />
+                        <property name="ShadowType">None</property>
+                        <child>
               <widget class="Gamma.GtkWidgets.yVBox" id="vboxSections">
                 <property name="MemberName" />
                 <property name="WidthRequest">0</property>
@@ -120348,6 +120362,7 @@ not tooltip</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="Label" translatable="yes">Все выбранные ТМЦ</property>
+                                        <property name="Active">True</property>
                             <property name="DrawIndicator">True</property>
                             <property name="HasLabel">True</property>
                             <property name="UseUnderline">True</property>
@@ -120523,7 +120538,7 @@ not tooltip</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.GtkWidgets.yVBox" id="yvbox1">
+                                          <widget class="Gamma.GtkWidgets.yVBox" id="yvbox2">
                                 <property name="MemberName" />
                                 <property name="Spacing">6</property>
                                 <child>
@@ -120567,6 +120582,7 @@ not tooltip</property>
                                             <property name="MemberName" />
                                             <property name="CanFocus">True</property>
                                             <property name="Label" translatable="yes">Включить только их</property>
+                                                        <property name="Active">True</property>
                                             <property name="DrawIndicator">True</property>
                                             <property name="HasLabel">True</property>
                                             <property name="UseUnderline">True</property>
@@ -120664,7 +120680,6 @@ not tooltip</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="Label" translatable="yes">Все выбранные Склады</property>
-                            <property name="Active">True</property>
                             <property name="DrawIndicator">True</property>
                             <property name="HasLabel">True</property>
                             <property name="UseUnderline">True</property>
@@ -120784,7 +120799,21 @@ not tooltip</property>
                     <property name="Fill">False</property>
                   </packing>
                 </child>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                  </packing>
+                </child>
                 <child>
+                  <widget class="Gamma.GtkWidgets.yVBox" id="yvboxButtons">
+                    <property name="MemberName" />
+                    <property name="Spacing">6</property>
+                    <child>
                   <widget class="Gamma.GtkWidgets.yButton" id="buttonLoad">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
@@ -120793,7 +120822,7 @@ not tooltip</property>
                     <property name="UseUnderline">True</property>
                   </widget>
                   <packing>
-                    <property name="Position">4</property>
+                        <property name="Position">0</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -120808,7 +120837,7 @@ not tooltip</property>
                     <property name="UseUnderline">True</property>
                   </widget>
                   <packing>
-                    <property name="Position">5</property>
+                        <property name="Position">1</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -120823,7 +120852,15 @@ not tooltip</property>
                     <property name="UseUnderline">True</property>
                   </widget>
                   <packing>
-                    <property name="Position">6</property>
+                        <property name="Position">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
