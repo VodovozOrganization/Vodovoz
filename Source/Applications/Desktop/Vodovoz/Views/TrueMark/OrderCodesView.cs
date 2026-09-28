@@ -51,6 +51,10 @@ namespace Vodovoz.Views.TrueMark
 		protected override void ConfigureWidget()
 		{
 			base.ConfigureWidget();
+			ybuttonDeleteExcessCodes.BindCommand(ViewModel.DeleteExcessCodesCommand);
+			ynotebookCodes.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ActiveCodesPage, w => w.CurrentPage)
+				.InitializeFromSource();
 
 			ylabelTotalCodesValue.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CodesRequired, w => w.LabelProp, new TextToBoldTextConverter())
@@ -346,7 +350,7 @@ namespace Vodovoz.Views.TrueMark
 				.AddFuncBinding(
 					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedStagingCodes, selfdeliveryRecursiveConfig),
 					w => w.YTreeModel)
-				.AddBinding(vm => vm.ScannedByDriverCodesSelected, w => w.SelectedRows,
+				.AddBinding(vm => vm.ScannedStagingCodesSelected, w => w.SelectedRows,
 					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
 				.InitializeFromSource();
 			ytreeviewStaging.Selection.Mode = SelectionMode.Multiple;
