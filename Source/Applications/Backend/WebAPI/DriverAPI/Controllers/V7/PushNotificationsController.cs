@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V7.Requests;
+﻿using DriverApi.Contracts.V7.Requests;
 using DriverAPI.Library.V7.Services;
 using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +19,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 using ApiRouteListService = DriverAPI.Library.V7.Services.IRouteListService;
 using IRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
 
@@ -96,6 +97,7 @@ namespace DriverAPI.Controllers.V7
 		/// </summary>
 		/// <param name="enablePushNotificationsRequest"></param>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -118,6 +120,7 @@ namespace DriverAPI.Controllers.V7
 		/// Отписка от PUSH-уведомлений
 		/// </summary>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
