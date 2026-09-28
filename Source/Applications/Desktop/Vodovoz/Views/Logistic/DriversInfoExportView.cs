@@ -1,17 +1,15 @@
-﻿using System;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gamma.Widgets.Additions;
 using Gtk;
 using QS.Dialog.GtkUI;
-using QS.ErrorReporting;
 using QS.Utilities;
 using QS.Utilities.Debug;
 using QS.Views.GtkUI;
+using System;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using WrapMode = Pango.WrapMode;
@@ -34,7 +32,7 @@ namespace Vodovoz.Views.Logistic
 			enumcheckCarTypeOfUse.ExpandCheckButtons = false;
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Truck);
-			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
+			enumcheckCarTypeOfUse.AddEnumToHideList(ViewModel.CarTypeOfUseForExclude);
 			enumcheckCarTypeOfUse.Binding.AddBinding(ViewModel, vm => vm.RestrictedCarTypesOfUse, w => w.SelectedValuesList,
 				new EnumsListConverter<CarTypeOfUse>()).InitializeFromSource();
 

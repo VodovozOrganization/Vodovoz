@@ -48,5 +48,11 @@ namespace EdoNotifications.Contracts
 		/// </summary>
 		[Display(Name = "Ошибка отправки в Такском")]
 		TaxcomSendProblem = 6,
+
+		/// <summary>
+		/// Зависший чек в очереди.
+		/// </summary>
+		[Display(Name = "Зависший чек в очереди")]
+		ReceiptQueueStalled = 7,
 	}
 }

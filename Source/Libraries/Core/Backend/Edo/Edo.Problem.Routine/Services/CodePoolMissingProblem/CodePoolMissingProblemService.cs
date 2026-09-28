@@ -106,7 +106,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 								notificationsToSend.Add(result.NotificationData);
 							}
 						}
-						catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+						catch(OperationCanceledException) when (cancellationToken.IsCancellationRequested)
 						{
 							throw;
 						}
@@ -166,24 +166,51 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 				now,
 				_options.WorkerInterval))
 			{
-				_logger.LogDebug(
-					"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: повторная обработка уже запускалась {LastRetryTime}. Следующая попытка через {WorkerInterval}",
-					problem.Id,
-					edoTask?.Id ?? 0,
-					state.LastRetryTime,
-					_options.WorkerInterval);
+				if(state.WaitingProcessingTaskCreatedEvent)
+				{
+					_logger.LogDebug(
+						"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: повторная обработка уже запускалась {LastRetryTime}. Ожидаем обработки другим сервисом...",
+						problem.Id,
+						edoTask?.Id ?? 0,
+						state.LastRetryTime);
+				}
+				else
+				{
+					_logger.LogDebug(
+						"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: повторная обработка уже запускалась {LastRetryTime}. Следующая попытка через {WorkerInterval}",
+						problem.Id,
+						edoTask?.Id ?? 0,
+						state.LastRetryTime,
+						_options.WorkerInterval);
+				}
 
 				return CodePoolMissingProblemProcessResult.Empty;
 			}
 
-			state.RetryCount++;
-			state.LastRetryTime = now;
+			state.AddAttempt(now);
 			await uow.SaveAsync(state, cancellationToken: cancellationToken);
 
 			try
 			{
 				await TryResumeTaskAsync(edoTask, cancellationToken);
+			}
+			catch(Exception e)
+			{
+				_logger.LogWarning(
+					e,
+					"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: ошибка при отправке события, попытка #{RetryCount}",
+					problem.Id,
+					edoTask?.Id ?? 0,
+					state.RetryCount);
 
+				state.UpdateWaitingProcessingTaskCreatedEvent(false);
+				await uow.SaveAsync(state, cancellationToken: cancellationToken);
+				
+				return new CodePoolMissingProblemProcessResult(false, false, null);
+			}
+
+			try
+			{
 				if(CodePoolMissingProblemProcessingPolicy.ShouldRequestNotification(
 					state,
 					_options.MaxAttempts))

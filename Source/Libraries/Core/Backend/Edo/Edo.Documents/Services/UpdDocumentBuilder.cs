@@ -146,7 +146,7 @@ namespace Edo.Documents.Services
 					var i = 0;
 					while(i < context.UnprocessedCodes.Count)
 					{
-						if(context.UnprocessedCodes[i].ProductCode.SourceCode is null
+						if(context.UnprocessedCodes[i].ProductCode.SourceCode != null
 							&& context.UnprocessedCodes[i].ProductCode.ResultCode is null
 							&& orderItem.Nomenclature.Gtins.Any(x => x.GtinNumber == context.UnprocessedCodes[i].ProductCode.SourceCode?.Gtin))
 						{

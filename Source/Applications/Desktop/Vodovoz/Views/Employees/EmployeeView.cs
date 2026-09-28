@@ -1,28 +1,26 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gamma.Widgets;
+using Gtk;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using QSOrmProject;
+using QSWidgetLib;
 using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gtk;
-using QS.ViewModels.Control.EEVM;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Dialogs.Employees;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using Vodovoz.Core.Domain.Employees;
-using QSWidgetLib;
-using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Views.Employees
 {
@@ -102,7 +100,7 @@ namespace Vodovoz.Views.Employees
 
 			comboDriverOfCarTypeOfUse.ShowSpecialStateNot = true;
 			comboDriverOfCarTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
-			comboDriverOfCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
+			comboDriverOfCarTypeOfUse.AddEnumToHideList(ViewModel.CarTypeOfUseForExclude);
 			comboDriverOfCarTypeOfUse.Binding
 				.AddBinding(ViewModel.Entity, e => e.DriverOfCarTypeOfUse, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)

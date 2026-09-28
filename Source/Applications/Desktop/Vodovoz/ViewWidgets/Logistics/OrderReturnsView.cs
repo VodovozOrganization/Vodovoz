@@ -55,6 +55,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.Services.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Widgets.Orders;
 using VodovozBusiness.Services.Orders;
@@ -87,7 +88,7 @@ namespace Vodovoz
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
-		private readonly OrderCancellationService _orderCancellationService;
+		private readonly OrderCancellationPermitService _orderCancellationPermitService;
 		private readonly IOrderReceiptCorrectionHandler _orderReceiptCorrectionHandler;
 
 		private List<OrderItemReturnsNode> _itemsToClient;
@@ -232,7 +233,7 @@ namespace Vodovoz
 			_contractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
-			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
+			_orderCancellationPermitService = _lifetimeScope.Resolve<OrderCancellationPermitService>();
 			_orderReceiptCorrectionHandler = _lifetimeScope.Resolve<IOrderReceiptCorrectionHandler>();
 			SetOrderItemDiscountReasonsViewModel();
 			CancellationPermit = OrderCancellationPermit.Default();
@@ -656,25 +657,11 @@ namespace Vodovoz
 
 		private void OpenOrCreateUndelivery(RouteListItemStatus routeListItemStatusToChange)
 		{
-			var permit = _orderCancellationService.CanCancelOrder(UoW, _routeListItem.Order);
-			switch(permit.Type)
+			var permit = _orderCancellationPermitService.GetPermit(UoW, _routeListItem.Order);
+
+			if(permit.Type != OrderCancellationPermitType.AllowCancelOrder)
 			{
-				case OrderCancellationPermitType.AllowCancelDocflow:
-					if(permit.EdoTaskToCancellationId == null)
-					{
-						throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
-					}
-					// документооборот может отмениться сразу же, потому что не зависит от изменений заказа
-					_orderCancellationService.CancelDocflowByUser(
-						$"Отмена заказа №{_routeListItem.Order.Id}", 
-						permit.EdoTaskToCancellationId.Value
-					);
-					return;
-				case OrderCancellationPermitType.AllowCancelOrder:
-					break;
-				case OrderCancellationPermitType.Deny:
-				default:
-					return;
+				return;
 			}
 
 			_routeListItemStatusToChange = routeListItemStatusToChange;

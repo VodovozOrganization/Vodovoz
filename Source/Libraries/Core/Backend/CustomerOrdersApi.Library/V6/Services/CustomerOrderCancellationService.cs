@@ -483,7 +483,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 				_routeListService,
 				_nomenclatureSettings,
 				_callTaskWorker,
-				needCreateDeliveryFreeBalanceOperation: false);
+				needCreateDeliveryFreeBalanceOperation: true);
 
 			_logger.LogInformation("Установлен статус недовоза для заказа {OrderId}", order.Id);
 

@@ -1,15 +1,29 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Contracts.Messages.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 using Taxcom.Client.Api;
+using Taxcom.Client.Api.Converters;
+using Taxcom.Client.Api.Document.PRANNUL;
 using Taxcom.Client.Api.Entity;
+using Taxcom.Client.Api.Entity.UniversalMessage;
 using Taxcom.Client.Api.Exceptions;
+using Taxcom.TTC.Container;
+using Taxcom.TTC.Container.Interfaces;
 using TaxcomEdo.Contracts.Counterparties;
+using TaxcomEdo.Contracts.DocflowDocuments;
 using TaxcomEdo.Contracts.Documents;
+using TaxcomEdoApi.Library.Config;
 using TaxcomEdoApi.Library.Services;
+using TaxcomEdoApi.SerializeUtils;
 using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Presentation.WebApi.Common;
@@ -22,14 +36,18 @@ namespace TaxcomEdoApi.Controllers
 	{
 		private readonly Lazy<TaxcomApi> _taxcomApi;
 		private readonly ITaxcomEdoService _taxcomEdoService;
+		private readonly TaxcomEdoApiOptions _apiOptions;
 
 		public TaxcomEdoController(
 			ILogger<ApiControllerBase> logger,
 			Lazy<TaxcomApi> taxcomApi,
-			ITaxcomEdoService taxcomEdoService) : base(logger)
+			ITaxcomEdoService taxcomEdoService,
+			IOptionsSnapshot<TaxcomEdoApiOptions> apiOptions
+		) : base(logger)
 		{
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
 			_taxcomEdoService = taxcomEdoService ?? throw new ArgumentNullException(nameof(taxcomEdoService));
+			_apiOptions = (apiOptions ?? throw new ArgumentNullException(nameof(apiOptions))).Value;
 		}
 
 		[HttpPost]
@@ -240,7 +258,200 @@ namespace TaxcomEdoApi.Controllers
 			}
 		}
 
-		[HttpGet]
+        [HttpGet]
+        public IActionResult GetDocumentWithMessages(string docFlowId)
+        {
+            _logger.LogInformation("Получение документов контейнера документооборота {DocFlowId}", docFlowId);
+
+            try
+            {
+				var documents = new List<DocumentWithMessage>();
+				var containerBytes = _taxcomApi.Value.GetDocflowRawData(docFlowId);
+
+				var container = Container.Parse(containerBytes);
+				var docflow = container.Docflows.FirstOrDefault();
+				if(docflow == null)
+				{
+					return Ok(documents);
+				}
+
+				var customerInformation = FindCustomerInformation(docflow.Documents);
+				if(customerInformation != null)
+				{
+					documents.Add(customerInformation);
+				}
+
+				var correctionNotice = FindCorrectionNotice(docflow.Documents);
+				if(correctionNotice != null)
+				{
+					documents.Add(correctionNotice);
+				}
+
+				var cancellationOffer = FindCancellationOffer(docflow.Documents);
+				if(cancellationOffer != null)
+				{
+					documents.Add(cancellationOffer);
+				}
+
+				return MapResult<IEnumerable<DocumentWithMessage>>(documents);            }
+            catch(Exception e)
+            {
+                _logger.LogError(e, "Ошибка при получении документов контейнера документооборота {DocFlowId}", docFlowId);
+                return MapException(e);
+            }
+        }
+
+		private DocumentWithMessage FindCancellationOffer(IList<IContainerDocument> containerDocuments)
+		{
+			try
+			{
+				var cancellationOfferContainerDocuments = containerDocuments
+					.Where(x => x.TransactionCode == "CancellationOffer")
+					.ToList();
+
+				var cancellationOfferDocuments = cancellationOfferContainerDocuments
+					.Select(x => ImportCancellationOfferDocument(x.MainImage.Image));
+
+				var cancellationOfferDocument = cancellationOfferDocuments
+					.Where(x => x.Recipient.Identifier == _apiOptions.EdxClientId)
+					.LastOrDefault();
+
+				if(cancellationOfferDocument == null)
+				{
+					return null;
+				}
+
+				var message = cancellationOfferDocument?.Comment;
+				if(string.IsNullOrWhiteSpace(message))
+				{
+					return null;
+				}
+
+				return new DocumentWithMessage
+				{
+					DocumentType = DocumentWithMessageType.CancellationOffer,
+					Message = message
+				};
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при получении предложения об аннулировании из контейнера документооборота");
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// Поиск документа "уведомление об уточнении"
+		/// </summary>
+		private DocumentWithMessage FindCorrectionNotice(IList<IContainerDocument> containerDocuments)
+		{
+			try
+			{
+				var correctionNoticeTransactionCodes = UMTransactionCodes.GetByPrefix("UniversalMessageCorrectionNotice");
+				var correctionNoticeContainerDocuments = containerDocuments
+					.Where(x => correctionNoticeTransactionCodes.Contains(x.TransactionCode))
+					.ToList();
+
+				var correctionNoticeDocuments = correctionNoticeContainerDocuments
+					.Select(x => UniversalMessageDocument.ImportFromXmlBytes<UniversalMessageCorrectionNoticeDocument>(x.MainImage.Image));
+
+				var incomingCorrectionNoticeDocument = correctionNoticeDocuments
+					.Where(x => x.Recipient.Identifier == _apiOptions.EdxClientId)
+					.OrderByDescending(x => x.Date)
+					.LastOrDefault();
+
+				if(incomingCorrectionNoticeDocument == null)
+				{
+					return null;
+				}
+
+				var message = incomingCorrectionNoticeDocument.Events?.LastOrDefault()?.Text;
+				if(string.IsNullOrWhiteSpace(message))
+				{
+					return null;
+				}
+
+				return new DocumentWithMessage
+				{
+					DocumentType = DocumentWithMessageType.CorrectionNotice,
+					Message = message
+				};
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при получении уведомления об уточнении из контейнера документооборота");
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// Поиск документа "информация покупателя"
+		/// (не принят, принят с расхождениями)
+		/// </summary>
+		private DocumentWithMessage FindCustomerInformation(IEnumerable<IContainerDocument> containerDocuments)
+		{
+			try
+			{
+				var customerInformationContainerDocuments = containerDocuments
+				.Where(x => x.TransactionCode == "CustomerInformation")
+				.ToList();
+
+				var customerInformationDocuments = customerInformationContainerDocuments
+					.Select(x => UniversalInvoiceCustomerTitleDocument.ImportFromXmlBytes(x.MainImage.Image));
+
+				var incomingCustomerInformationDocument = customerInformationDocuments
+					.LastOrDefault();
+
+				if(incomingCustomerInformationDocument == null)
+				{
+					return null;
+				}
+
+				var acceptance = incomingCustomerInformationDocument.ContentOfEconomicLife4?.InformationAboutAcceptance;
+				if(acceptance == null)
+				{
+					return null;
+				}
+
+				var documentAcceptedWithDiscrepancy = acceptance.ContentOfOperationCode.ResultCode == "2";
+				if(!documentAcceptedWithDiscrepancy)
+				{
+					return null;
+				}
+
+				var message = acceptance?.ContentsOfOperation;
+				if(string.IsNullOrWhiteSpace(message))
+				{
+					return null;
+				}
+
+				var result = new DocumentWithMessage
+				{
+					DocumentType = DocumentWithMessageType.CompletedWithDiscrepancy,
+					Message = message
+				};
+
+				return result;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при получении информации покупателя из контейнера документооборота");
+				return null;
+			}
+		}
+
+		private CancellationOfferDocument ImportCancellationOfferDocument(byte[] documentImage)
+		{
+			using MemoryStream stream = new MemoryStream(documentImage);
+			using StreamReader input = new StreamReader(stream, Encoding.GetEncoding("windows-1251"));
+			using XmlTextReader xmlTextReader = new FajlVersFormFixReader(input);
+			xmlTextReader.Namespaces = false;
+			var fajl = (Fajl)new XmlSerializer(typeof(Fajl)).Deserialize(xmlTextReader);
+			var document = CancellationOfferConverter.Convert(fajl);
+			return document;
+		}
+
+        [HttpGet]
 		public IActionResult StartAutoSendReceive()
 		{
 			_logger.LogInformation("Запуск необходимых транзакций по ЭДО");

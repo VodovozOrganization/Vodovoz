@@ -79,6 +79,18 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty);
 		bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId);
 
+		/// <summary>
+		/// Проверяет наличие другого заказа воды 19 л у контрагента в указанных статусах, кроме исключаемой номенклатуры.
+		/// </summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="counterpartyId">Идентификатор контрагента.</param>
+		/// <param name="excludedOrderId">Идентификатор исключаемого текущего заказа.</param>
+		/// <param name="excludedNomenclatureId">Идентификатор номенклатуры, не учитываемой в истории заказов.</param>
+		/// <param name="orderStatuses">Учитываемые статусы заказов.</param>
+		/// <returns>Есть ли другой заказ с положительным количеством воды 19 л, кроме исключаемой номенклатуры.</returns>
+		bool HasAnotherOrderWithWater19L(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
+			int excludedNomenclatureId, IEnumerable<OrderStatus> orderStatuses);
+
 		OrderStatus[] GetGrantedStatusesToCreateSeveralOrders();
 
 		Order GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty);

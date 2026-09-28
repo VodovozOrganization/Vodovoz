@@ -53,6 +53,25 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			}
 		}
 
+		/// <inheritdoc/>
+		public Task<IList<int>> GetFiscalDocumentIdsForQueueNotification(
+			IUnitOfWork uow,
+			FiscalDocumentStatus status,
+			DateTime statusChangedBefore,
+			DateTime statusChangedNotBefore,
+			DateTime notifiedNotAfter,
+			CancellationToken cancellationToken)
+		{
+			return uow.Session.QueryOver<EdoFiscalDocument>()
+				.Where(x => x.Status == status)
+				.And(x => x.StatusChangeTime == null
+					|| (x.StatusChangeTime < statusChangedBefore
+						&& x.StatusChangeTime >= statusChangedNotBefore
+						&& (x.LastQueueNotificationTime == null || x.LastQueueNotificationTime <= notifiedNotAfter)))
+				.Select(x => x.Id)
+				.ListAsync<int>(cancellationToken);
+		}
+
 		public async Task<IEnumerable<GtinEntity>> GetGtinsAsync(CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())

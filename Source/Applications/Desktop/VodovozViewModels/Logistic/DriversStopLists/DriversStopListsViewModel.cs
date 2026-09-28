@@ -19,14 +19,18 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.NHibernateProjections.Employees;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 {
 	public partial class DriversStopListsViewModel : DialogTabViewModelBase
 	{
 		private readonly ICommonServices _commonServices;
+		private readonly IDriverStopListService _driverStopListService;
 		private readonly ViewModelEEVMBuilder<Subdivision> _subdivisionViewModelEEVMBuilder;
 		private readonly IPermissionResult _currentUserRouteListRemovalPermissions;
 		private readonly int _driversUnclosedRouteListsMaxCountParameter;
@@ -36,6 +40,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		private CarTypeOfUse? _filterCarTypeOfUse;
 		private CarOwnType? _filterCarOwnType;
 		private Subdivision _filterSubdivision;
+		private string _filterDriverName;
 		private DriversSortOrder _currentDriversListSortOrder;
 		private bool _isExcludeVisitingMasters;
 		private DelegateCommand _closeFilterCommand;
@@ -49,9 +54,14 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			INavigationManager navigation,
 			ICommonServices commonServices,
 			IGeneralSettings generalSettingsSettings,
+			IDriverStopListService driverStopListService,
 			ViewModelEEVMBuilder<Subdivision> subdivisionViewModelEEVMBuilder
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_driverStopListService = driverStopListService ?? throw new ArgumentNullException(nameof(driverStopListService));
+			AddToStopListCommand = new DelegateCommand(AddToStopList, () => CanAddToStopList);
+			AddToStopListCommand.CanExecuteChangedWith(this, x => x.CanAddToStopList);
+
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_subdivisionViewModelEEVMBuilder = subdivisionViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(subdivisionViewModelEEVMBuilder));
 
@@ -73,10 +83,24 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			_driversRouteListsDebtsMaxSumParameter =
 				generalSettingsSettings.DriversRouteListsMaxDebtSum;
 
+			CarTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DriverStopListRemoval>((s) => UpdateCommand?.Execute());
 		}
 
 		#region Свойства
+
+		public CarTypeOfUse[] CarTypeOfUseForExclude { get; }
+
+		/// <summary>
+		/// Поиск по ФИО водителя в текущем состоянии и истории снятия стоп-листов.
+		/// </summary>
+		[PropertyChangedAlso(nameof(CurrentDriversList), nameof(StopListsRemovalHistory))]
+		public string FilterDriverName
+		{
+			get => _filterDriverName;
+			set => SetField(ref _filterDriverName, value);
+		}
 
 		[PropertyChangedAlso(nameof(CurrentDriversList), nameof(StopListsRemovalHistory))]
 		public EmployeeStatus? FilterEmployeeStatus
@@ -126,7 +150,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			set => SetField(ref _filterVisibility, value);
 		}
 
-		[PropertyChangedAlso(nameof(CanCreateStopListRemoval))]
+		[PropertyChangedAlso(nameof(CanCreateStopListRemoval), nameof(CanAddToStopList))]
 		public DriverNode SelectedDriverNode
 		{
 			get => _selectedDriverNode;
@@ -137,6 +161,14 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			_currentUserRouteListRemovalPermissions.CanCreate
 			&& SelectedDriverNode != null
 			&& !SelectedDriverNode.IsStopListRemoved;
+
+		/// <summary>
+		/// Доступно ручное добавление выбранного водителя в стоп-лист.
+		/// </summary>
+		public bool CanAddToStopList =>
+			_currentUserRouteListRemovalPermissions.CanCreate
+			&& SelectedDriverNode != null
+			&& !SelectedDriverNode.IsDriverInStopList;
 
 		public bool DialogVisibility =>
 			_currentUserRouteListRemovalPermissions.CanRead
@@ -167,6 +199,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.Where(() => driverAlias.Category == EmployeeCategory.driver);
+
+			if(!string.IsNullOrWhiteSpace(FilterDriverName))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					EmployeeProjections.GetDriverFullNameProjection(), FilterDriverName.Trim(), MatchMode.Anywhere));
+			}
 
 			if(FilterEmployeeStatus != null)
 			{
@@ -221,6 +259,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			var drivers = query.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => driverNodeAlias.DriverId)
+					.Select(() => driverAlias.DriverManualStopListUntil).WithAlias(() => driverNodeAlias.DriverManualStopListUntil)
 					.Select(() => driverAlias.Name).WithAlias(() => driverNodeAlias.DriverName)
 					.Select(() => driverAlias.LastName).WithAlias(() => driverNodeAlias.DriverLastName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => driverNodeAlias.DriverPatronymic)
@@ -264,6 +303,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			var query = UoW.Session.QueryOver(() => driverStopListRemovalAlias)
 				.Left.JoinAlias(() => driverStopListRemovalAlias.Driver, () => driverAlias);
+
+			if(!string.IsNullOrWhiteSpace(FilterDriverName))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					EmployeeProjections.GetDriverFullNameProjection(), FilterDriverName.Trim(), MatchMode.Anywhere));
+			}
 
 			if(FilterEmployeeStatus != null)
 			{
@@ -315,6 +360,24 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		}
 
 		#region Команды
+
+		/// <summary>
+		/// Добавить выбранного водителя в стоп-лист.
+		/// </summary>
+		public DelegateCommand AddToStopListCommand { get; }
+
+		private void AddToStopList()
+		{
+			if(!CanAddToStopList)
+			{
+				return;
+			}
+
+			var driver = UoW.GetById<Employee>(SelectedDriverNode.DriverId);
+			_driverStopListService.AddDriverToStopList(UoW, driver);
+			UoW.Commit();
+			Update();
+		}
 
 		#region RemoveStopList
 		private DelegateCommand _removeStopListCommand;

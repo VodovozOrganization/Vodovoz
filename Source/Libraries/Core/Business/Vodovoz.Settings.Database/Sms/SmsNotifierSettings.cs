@@ -18,6 +18,9 @@ namespace Vodovoz.Settings.Database.Sms
 
 		public string NewClientSmsTextTemplate => _settingsController.GetStringValue("new_client_sms_text_template");
 
+		/// <inheritdoc/>
+		public int FullDisposable19LNomenclatureId => _settingsController.GetIntValue("full_disposable_19l_nomenclature_id");
+
 		public decimal LowBalanceLevel => _settingsController.GetDecimalValue("low_balance_level_for_sms_notifications");
 
 		public string LowBalanceNotifiedPhone => _settingsController.GetStringValue("low_balance_sms_notified_phone");

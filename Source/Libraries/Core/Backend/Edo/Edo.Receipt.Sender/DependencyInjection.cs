@@ -24,6 +24,7 @@ namespace Edo.Receipt.Sender
 			services.TryAddScoped<ReceiptCorrectionSaleCodesAssigner>();
 			services.TryAddScoped<ReceiptCorrectionSender>();
 			services.TryAddScoped<ReceiptSendingFailedNotificationService>();
+			services.TryAddScoped<IReceiptQueueNotificationService, ReceiptQueueNotificationService>();
 			services.TryAddScoped<ReceiptSender>();
 
 			services

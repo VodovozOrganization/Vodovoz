@@ -424,6 +424,12 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 		}
 
 		/// <summary>
+		/// Сохранённый средний интервал в днях между последними пятью подходящими заказами.
+		/// При недостаточном количестве заказов значение отсутствует.
+		/// </summary>
+		public virtual int? OrderFrequencyDays { get; set; }
+
+		/// <summary>
 		/// Всегда бесплатная доставка
 		/// </summary>
 		[Display(Name = "Всегда бесплатная доставка")]

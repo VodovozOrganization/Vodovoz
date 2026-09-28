@@ -41,12 +41,24 @@ namespace Edo.Problems.Validation.Sources
 			{
 				return Message;
 			}
+
+			if(orderEdoRequest.Order.IsUndeliveredStatus)
+			{
+				return $"Заказ №{orderEdoRequest.Order.Id} отменен, документы по нему клиенту не отправляются";
+			}
+
 			return $"Заказ №{orderEdoRequest.Order.Id} должен как минимум быть отправлен со склада в путь";
 		}
 
 		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
 			var orderEdoRequest = GetEdoRequest(edoTask);
+			
+			if(orderEdoRequest.Order.IsUndeliveredStatus)
+			{
+				return Task.FromResult(EdoValidationResult.Invalid(this));
+			}
+
 			var invalid = orderEdoRequest.Order.OrderStatus < OrderStatus.OnTheWay;
 
 			if(orderEdoRequest.Order.SelfDelivery && orderEdoRequest.Order.IsOrderForResale)

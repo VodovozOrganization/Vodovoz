@@ -1,4 +1,4 @@
-﻿using CustomerNotifications.Contracts;
+using CustomerNotifications.Contracts;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
@@ -963,6 +963,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 			{
 				return;
 			}
+						
+			if(IsCompletedCodesSaving(requestWithCodes.Task))
+			{
+				return;
+			}
 
 			if(requestWithCodes.Task == null || requestWithCodes.Task.Status != EdoTaskStatus.Cancelled)
 			{
@@ -975,6 +980,31 @@ namespace Vodovoz.Core.Application.Orders.Services
 				productCode.ResultCode = null;
 				uow.Save(productCode);
 			}
+		}
+
+		/// <summary>
+		/// Проверка, что задача является завершенной задачей сохранения кодов маркировки в пул
+		/// </summary>
+		/// <param name="edoTask">Задача ЭДО</param>
+		/// <returns>Является ли задача завершенным сохранением кодов в пул</returns>
+		private static bool IsCompletedCodesSaving(OrderEdoTask edoTask)
+		{
+			if(edoTask == null || edoTask.Status != EdoTaskStatus.Completed)
+			{
+				return false;
+			}
+
+			if(edoTask.TaskType == EdoTaskType.SaveCode)
+			{
+				return true;
+			}
+
+			if(edoTask.TaskType == EdoTaskType.Receipt)
+			{
+				return edoTask.As<ReceiptEdoTask>().ReceiptStatus == EdoReceiptStatus.SavedToPool;
+			}
+
+			return false;
 		}
 	}
 }

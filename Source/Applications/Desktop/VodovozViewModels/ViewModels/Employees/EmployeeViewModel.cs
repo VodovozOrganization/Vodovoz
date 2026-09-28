@@ -31,6 +31,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
@@ -58,6 +59,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using VodovozBusiness.Extensions;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
 using PhoneViewModel = Vodovoz.ViewModels.ViewModels.Counterparty.PhoneViewModel;
@@ -215,6 +217,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			organizations = UoW.GetAll<Organization>().ToList();
 
+			CarTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+
 			GetExternalUsers();
 
 			_employeePermissionSet = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Employee));
@@ -317,6 +321,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		public List<EmployeeCategory> HiddenCategories { get; } = new List<EmployeeCategory>();
 		
+		public CarTypeOfUse[] CarTypeOfUseForExclude { get; }
+
 		public EmployeeDocumentType[] HiddenForRussianDocument { get; } =
 		{
 			EmployeeDocumentType.RefugeeId,

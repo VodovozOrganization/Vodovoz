@@ -36,6 +36,14 @@ namespace Vodovoz.Core.Domain.Permissions
 		public static string CanWorkWithDriverSchedule => nameof(CanWorkWithDriverSchedule);
 
 		/// <summary>
+		/// Возможность работать с полуприцепами
+		/// </summary>
+		[Display(
+			Name = "Возможность работать с полуприцепами",
+			Description = "Пользователь может работать с полуприцепами")]
+		public static string CanWorkWithSemitrailers => nameof(CanWorkWithSemitrailers);
+
+		/// <summary>
 		/// Возможность изменять события и мощности после 13:00
 		/// </summary>
 		[Display(

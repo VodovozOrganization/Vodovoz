@@ -403,9 +403,8 @@ namespace EdoService.Library
 					return Result.Failure<string>(validationResult.Errors);
 				}
 
-				_orderEdoTaskCreatedEventPublisher.Publish(edoTask)
-					.GetAwaiter()
-					.GetResult();
+				_orderEdoTaskCreatedEventPublisher.Publish(uow, edoTask);
+				uow.Commit();
 
 				return Result.Success("Задача успешно отправлена на повторную обработку");
 			}
@@ -1017,8 +1016,14 @@ namespace EdoService.Library
 			return Result.Success();
 		}
 
-		public void ResendEdoOrderDocumentForOrder(Order order, OrderDocumentType type)
+		public Result ResendEdoOrderDocumentForOrder(Order order, OrderDocumentType type)
 		{
+			var orderValidationResult = ValidateOrderForResend(order);
+			if(orderValidationResult.IsFailure)
+			{
+				return orderValidationResult;
+			}
+
 			using(var uow = _uowFactory.CreateWithoutRoot("Публикация неформализованной заявки ЭДО"))
 			{
 				var informalRequest = uow.GetAll<InformalEdoRequest>()
@@ -1037,6 +1042,8 @@ namespace EdoService.Library
 
                 _messageService.PublishInformalEdoRequestCreatedEvent(informalRequest.Id)
                     .GetAwaiter().GetResult();
+
+				return Result.Success();
 			}
 		}
 
@@ -1185,6 +1192,12 @@ namespace EdoService.Library
 				var request = _edoRequestRepository
 					.GetFirstOrDefault(uow, x => x.Task.Id == orderEdoTaskId);
 
+				var orderValidationResult = ValidateOrderForResend(request.Order);
+				if(orderValidationResult.IsFailure)
+				{
+					return Result.Failure<string>(orderValidationResult.Errors);
+				}
+
 				if(request.Task.TaskType == EdoTaskType.SaveCode)
 				{
 					var checkOtherRequestsResult = CheckOtherRequests(uow, request, orderEdoTaskId);
@@ -1230,6 +1243,12 @@ namespace EdoService.Library
 			{
 				var request = _edoRequestRepository
 					.GetFirstOrDefault(uow, x => x.Task.Id == orderEdoTaskId);
+
+				var orderValidationResult = ValidateOrderForResend(request.Order);
+				if(orderValidationResult.IsFailure)
+				{
+					return Result.Failure<string>(orderValidationResult.Errors);
+				}
 
 				var receiptTask = request.Task.As<ReceiptEdoTask>();
 				if(receiptTask == null)

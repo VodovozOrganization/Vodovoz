@@ -36,7 +36,8 @@ namespace EdoService.Library
 		/// </summary>
 		/// <param name="order"></param>
 		/// <param name="type"></param>
-		void ResendEdoOrderDocumentForOrder(Order order, OrderDocumentType type);
+		/// <returns>Результат постановки документа на переотправку</returns>
+		Result ResendEdoOrderDocumentForOrder(Order order, OrderDocumentType type);
 
 		/// <summary>
 		/// Переотправка документа по ЭДО

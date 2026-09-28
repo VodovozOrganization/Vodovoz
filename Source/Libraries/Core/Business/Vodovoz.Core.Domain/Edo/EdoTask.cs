@@ -15,6 +15,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private DateTime? _endTime;
 		private IObservableList<EdoTaskProblem> _problems;
 		private string _cancellationReason;
+		private bool _waitingProcessingTaskCreatedEvent;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -73,6 +74,42 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _cancellationReason;
 			set => SetField(ref _cancellationReason, value);
+		}
+		
+		/// <summary>
+		/// Ожидает обработки события TaskCreatedEvent
+		/// </summary>
+		[Display(Name = "Ожидает обработки события TaskCreatedEvent")]
+		public virtual bool WaitingProcessingTaskCreatedEvent
+		{
+			get => _waitingProcessingTaskCreatedEvent;
+			protected set => SetField(ref _waitingProcessingTaskCreatedEvent, value);
+		}
+
+		/// <summary>
+		/// Обновление параметра ожидания обработки TaskCreatedEvent
+		/// </summary>
+		/// <param name="value">Новое значение</param>
+		public virtual void UpdateWaitingProcessingTaskCreatedEvent(bool value)
+		{
+			foreach(var problem in Problems)
+			{
+				problem.UpdateWaitingProcessingTaskCreatedEvent(value);
+			}
+			
+			WaitingProcessingTaskCreatedEvent = value;
+		}
+
+		/// <summary>
+		/// Отмена задачи
+		/// </summary>
+		/// <param name="status">Новый статус</param>
+		/// <param name="cancellationReason">Причина отмены</param>
+		public virtual void ProcessTaskCancellation(EdoTaskStatus status, string cancellationReason)
+		{
+			Status = status;
+			CancellationReason = cancellationReason;
+			WaitingProcessingTaskCreatedEvent = false;
 		}
 
 		/// <summary>

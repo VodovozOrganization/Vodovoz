@@ -41,6 +41,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.StatusChangeTime)
 				.Column("status_change_time");
 
+			Map(x => x.LastQueueNotificationTime)
+				.Column("last_queue_notification_time");
+
 			Map(x => x.FiscalTime)
 				.Column("fiscal_time");
 

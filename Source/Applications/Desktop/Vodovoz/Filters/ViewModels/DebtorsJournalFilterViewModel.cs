@@ -56,6 +56,8 @@ namespace Vodovoz.Filters.ViewModels
 		public DebtorsJournalFilterViewModel(ILifetimeScope lifetimeScope)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_endDate = DateTime.Today;
+			_startDate = _endDate.Value.AddMonths(-1);
 
 			UpdateWith(
 				x => x.Client,
