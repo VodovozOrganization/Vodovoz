@@ -125408,7 +125408,7 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="WidthRequest">100</property>
                     <property name="CanFocus">True</property>
-                    <property name="Upper">20000</property>
+                    <property name="Upper">25000</property>
                     <property name="PageIncrement">10</property>
                     <property name="StepIncrement">1</property>
                     <property name="ClimbRate">1</property>
