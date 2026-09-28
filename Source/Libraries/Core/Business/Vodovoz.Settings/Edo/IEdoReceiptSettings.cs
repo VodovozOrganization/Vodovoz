@@ -45,6 +45,6 @@ namespace Vodovoz.Settings.Edo
 		/// <summary>
 		/// Глубина выборки чеков по времени попадания в очередь, в календарных месяцах.
 		/// </summary>
-		int ReceiptQueueNotificationLookbackMonths { get; }
+		int ReceiptQueueNotificationLookbackDays { get; }
 	}
 }

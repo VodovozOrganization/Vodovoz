@@ -403,9 +403,8 @@ namespace EdoService.Library
 					return Result.Failure<string>(validationResult.Errors);
 				}
 
-				_orderEdoTaskCreatedEventPublisher.Publish(edoTask)
-					.GetAwaiter()
-					.GetResult();
+				_orderEdoTaskCreatedEventPublisher.Publish(uow, edoTask);
+				uow.Commit();
 
 				return Result.Success("Задача успешно отправлена на повторную обработку");
 			}

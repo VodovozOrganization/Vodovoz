@@ -20,6 +20,6 @@ namespace Edo.Receipt.Sender
 		/// <summary>
 		/// Глубина выборки по времени попадания чека в очередь, в календарных месяцах.
 		/// </summary>
-		public int LookbackMonths { get; set; }
+		public int LookbackDays { get; set; }
 	}
 }
