@@ -1,17 +1,25 @@
 ﻿using MassTransit.Internals;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using QS.Project.DB;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 using Vodovoz.Presentation.WebApi.Common;
+using Vodovoz.Presentation.WebApi.Idempotency;
 using Vodovoz.Presentation.WebApi.Options;
 using Vodovoz.Presentation.WebApi.Security;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
+using Vodovoz.Settings.WebApi;
 
 namespace Vodovoz.Presentation.WebApi
 {
@@ -101,6 +109,52 @@ namespace Vodovoz.Presentation.WebApi
 
 			return services;
 		}
+
+		/// <summary>
+		/// Регистрация идемпотентности запросов к методам, отмеченным <see cref="IdempotentAttribute"/>:
+		/// чтение заголовка времени действия (<see cref="IActionTimeUtcProvider"/>), построение ключа, кэш сроков из настроек,
+		/// описание заголовков в Swagger. Сам middleware подключается через <see cref="UseIdempotency"/>.<br/>
+		/// Требует зарегистрированных <see cref="IIdempotencyStore"/> (например, <c>AddGarnetIdempotencyStore</c>
+		/// вместе с <c>AddWebApiGarnetConnection</c>), <c>IFeatureManager</c>, <see cref="IDatabaseConnectionSettings"/>
+		/// и <see cref="IApiIdempotencySettings"/>
+		/// </summary>
+		/// <param name="services">Коллекция сервисов</param>
+		/// <param name="apiName">Имя API - часть ключа записи, разводит записи разных API в общем хранилище</param>
+		/// <param name="timingsSelector">Выбор сроков идемпотентности этого API из настроек</param>
+		/// <returns>Коллекция сервисов</returns>
+		public static IServiceCollection AddIdempotency(
+			this IServiceCollection services,
+			string apiName,
+			Func<IApiIdempotencySettings, IdempotencyTimings> timingsSelector)
+		{
+			if(timingsSelector is null)
+			{
+				throw new ArgumentNullException(nameof(timingsSelector));
+			}
+
+			services
+				.AddHttpContextAccessor()
+				.AddScoped<IActionTimeUtcProvider, ActionTimeUtcProvider>()
+				.AddSingleton(sp => new IdempotencyKeyBuilder(
+					sp.GetRequiredService<IDatabaseConnectionSettings>(),
+					apiName))
+				.AddSingleton(sp => new IdempotencyTimingsProvider(
+					sp.GetRequiredService<ILogger<IdempotencyTimingsProvider>>(),
+					() => timingsSelector(sp.GetRequiredService<IApiIdempotencySettings>())))
+				.Configure<SwaggerGenOptions>(options => options.OperationFilter<IdempotencyHeadersOperationFilter>());
+
+			return services;
+		}
+
+		/// <summary>
+		/// Подключение middleware идемпотентности. Вызывать после <c>UseAuthorization</c>:
+		/// middleware использует пользователя запроса и метаданные выбранного метода.
+		/// Требует регистрации через <see cref="AddIdempotency"/>
+		/// </summary>
+		/// <param name="app">Конвейер обработки запросов</param>
+		/// <returns>Конвейер обработки запросов</returns>
+		public static IApplicationBuilder UseIdempotency(this IApplicationBuilder app) =>
+			app.UseMiddleware<IdempotencyMiddleware>();
 
 		public static void ConfigureJsonSourcesAutoReload(this IConfigurationBuilder configurationBuilder)
 		{

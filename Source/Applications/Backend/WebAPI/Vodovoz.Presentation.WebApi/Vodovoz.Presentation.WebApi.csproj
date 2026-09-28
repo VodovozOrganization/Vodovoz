@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	<TargetFramework>net5</TargetFramework>
   </PropertyGroup>
@@ -12,5 +12,6 @@
 	<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Vodovoz.Presentation.WebApi.Authentication.Contracts\Vodovoz.Presentation.WebApi.Authentication.Contracts.csproj" />
 	<ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
 	<ProjectReference Include="..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
+	<ProjectReference Include="..\Vodovoz.Presentation.WebApi.Caching\Vodovoz.Presentation.WebApi.Caching.csproj" />
   </ItemGroup>
 </Project>
