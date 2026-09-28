@@ -1,32 +1,35 @@
 ﻿using Edo.Contracts.Messages.Events;
-using MassTransit;
 using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using TransactionalOutbox.Domain;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Transport
 {
 	/// <summary>
-	/// Публикует события запуска задач ЭДО заказа
+	/// Кладёт в аутбокс события запуска задач ЭДО заказа. Фактическая отправка в RabbitMQ
+	/// происходит асинхронно, силами OutboxWorker, после коммита транзакции с задачей.
 	/// </summary>
 	public class OrderEdoTaskCreatedEventPublisher : IOrderEdoTaskCreatedEventPublisher
 	{
 		private readonly ILogger<OrderEdoTaskCreatedEventPublisher> _logger;
-		private readonly IBus _bus;
 
-		public OrderEdoTaskCreatedEventPublisher(
-			ILogger<OrderEdoTaskCreatedEventPublisher> logger,
-			IBus bus)
+		public OrderEdoTaskCreatedEventPublisher(ILogger<OrderEdoTaskCreatedEventPublisher> logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 
 		/// <inheritdoc />
-		public async Task Publish(OrderEdoTask edoTask, CancellationToken cancellationToken = default)
+		public void Publish(IUnitOfWork uow, OrderEdoTask edoTask, CancellationToken cancellationToken = default)
 		{
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+
 			if(edoTask is null)
 			{
 				throw new ArgumentNullException(nameof(edoTask));
@@ -35,16 +38,16 @@ namespace Edo.Transport
 			switch(edoTask)
 			{
 				case DocumentEdoTask documentTask:
-					await PublishDocumentCreatedEvent(documentTask, cancellationToken);
+					PublishDocumentCreatedEvent(uow, documentTask);
 					break;
 				case TenderEdoTask tenderTask:
-					await PublishTenderCreatedEvent(tenderTask, cancellationToken);
+					PublishTenderCreatedEvent(uow, tenderTask);
 					break;
 				case ReceiptEdoTask receiptTask:
-					await PublishReceiptCreatedEvent(receiptTask, cancellationToken);
+					PublishReceiptCreatedEvent(uow, receiptTask);
 					break;
 				case SaveCodesEdoTask saveCodesTask:
-					await PublishSaveCodesCreatedEvent(saveCodesTask, cancellationToken);
+					PublishSaveCodesCreatedEvent(uow, saveCodesTask);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(
@@ -52,7 +55,7 @@ namespace Edo.Transport
 			}
 		}
 
-		private async Task PublishDocumentCreatedEvent(DocumentEdoTask edoTask, CancellationToken cancellationToken)
+		private void PublishDocumentCreatedEvent(IUnitOfWork uow, DocumentEdoTask edoTask)
 		{
 			if(edoTask.Stage != DocumentEdoTaskStage.New)
 			{
@@ -60,11 +63,11 @@ namespace Edo.Transport
 				return;
 			}
 
-			LogPublishing(edoTask, nameof(DocumentTaskCreatedEvent));
-			await _bus.Publish(new DocumentTaskCreatedEvent { Id = edoTask.Id }, cancellationToken);
+			var @event = new DocumentTaskCreatedEvent { Id = edoTask.Id };
+			SaveToOutbox(uow, edoTask, @event, nameof(DocumentTaskCreatedEvent));
 		}
 
-		private async Task PublishTenderCreatedEvent(TenderEdoTask edoTask, CancellationToken cancellationToken)
+		private void PublishTenderCreatedEvent(IUnitOfWork uow, TenderEdoTask edoTask)
 		{
 			if(edoTask.Stage != TenderEdoTaskStage.New)
 			{
@@ -72,11 +75,11 @@ namespace Edo.Transport
 				return;
 			}
 
-			LogPublishing(edoTask, nameof(TenderTaskCreatedEvent));
-			await _bus.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
+			var @event = new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id };
+			SaveToOutbox(uow, edoTask, @event, nameof(TenderTaskCreatedEvent));
 		}
 
-		private async Task PublishReceiptCreatedEvent(ReceiptEdoTask edoTask, CancellationToken cancellationToken)
+		private void PublishReceiptCreatedEvent(IUnitOfWork uow, ReceiptEdoTask edoTask)
 		{
 			if(edoTask.ReceiptStatus != EdoReceiptStatus.New)
 			{
@@ -84,11 +87,11 @@ namespace Edo.Transport
 				return;
 			}
 
-			LogPublishing(edoTask, nameof(ReceiptTaskCreatedEvent));
-			await _bus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id }, cancellationToken);
+			var @event = new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id };
+			SaveToOutbox(uow, edoTask, @event, nameof(ReceiptTaskCreatedEvent));
 		}
 
-		private async Task PublishSaveCodesCreatedEvent(SaveCodesEdoTask edoTask, CancellationToken cancellationToken)
+		private void PublishSaveCodesCreatedEvent(IUnitOfWork uow, SaveCodesEdoTask edoTask)
 		{
 			if(edoTask.Status != EdoTaskStatus.New)
 			{
@@ -96,8 +99,17 @@ namespace Edo.Transport
 				return;
 			}
 
-			LogPublishing(edoTask, nameof(SaveCodesTaskCreatedEvent));
-			await _bus.Publish(new SaveCodesTaskCreatedEvent { EdoTaskId = edoTask.Id }, cancellationToken);
+			var @event = new SaveCodesTaskCreatedEvent { EdoTaskId = edoTask.Id };
+			SaveToOutbox(uow, edoTask, @event, nameof(SaveCodesTaskCreatedEvent));
+		}
+
+		private void SaveToOutbox(IUnitOfWork uow, OrderEdoTask edoTask, object @event, string eventName)
+		{
+			var outboxMessage = new OutboxMessage(@event);
+
+			LogPublishing(edoTask, eventName);
+
+			uow.Save(outboxMessage);
 		}
 
 		private void LogInvalidState(OrderEdoTask edoTask, object state)
@@ -112,7 +124,7 @@ namespace Edo.Transport
 		private void LogPublishing(OrderEdoTask edoTask, string eventName)
 		{
 			_logger.LogInformation(
-				"Публикуем событие {EventName} для задачи ЭДО {EdoTaskId} ({TaskType})",
+				"Кладём в outbox событие {EventName} для задачи ЭДО {EdoTaskId} ({TaskType})",
 				eventName,
 				edoTask.Id,
 				edoTask.GetType().Name);

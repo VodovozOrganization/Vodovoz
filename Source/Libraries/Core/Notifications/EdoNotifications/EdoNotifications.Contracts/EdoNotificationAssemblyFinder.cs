@@ -1,6 +1,6 @@
 ﻿namespace EdoNotifications.Contracts
 {
-	public class AssemblyFinder
+	public class EdoNotificationAssemblyFinder
 	{
 	}
 }
