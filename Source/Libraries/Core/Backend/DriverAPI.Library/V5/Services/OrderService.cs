@@ -117,7 +117,10 @@ namespace DriverAPI.Library.V5.Services
 				vodovozOrder,
 				routeListItem.CreationDate,
 				_aPISmsPaymentModel.GetOrderSmsPaymentStatus(orderId),
-				_fastPaymentModel.GetOrderFastPaymentStatus(orderId, vodovozOrder.OnlinePaymentNumber));
+				_fastPaymentModel.GetOrderFastPaymentStatus(
+					orderId,
+					vodovozOrder.OnlinePaymentNumber),
+					useRoomTypeDisplayName: true);
 
 			var additionalInfo = GetAdditionalInfo(vodovozOrder);
 
