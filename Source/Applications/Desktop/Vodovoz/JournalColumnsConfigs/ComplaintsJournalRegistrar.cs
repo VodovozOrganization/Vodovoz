@@ -85,6 +85,9 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Результат по сотруднику").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.ResultOfEmployees)
 					.XAlign(0f)
+				.AddColumn("Последний заказ").HeaderAlignment(0.5f)
+					.AddNumericRenderer(node => node.LastOrderId)
+					.XAlign(0.5f)
 				.RowCells()
 				.AddSetter<CellRenderer>(
 					(cell, node) =>
