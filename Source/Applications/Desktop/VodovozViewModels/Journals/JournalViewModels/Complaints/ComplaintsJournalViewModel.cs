@@ -18,6 +18,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using Vodovoz.Core.Domain.Complaints;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -205,12 +206,6 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintResultComment resultOfComplaintResultCommentAlias = null;
 			Employee resultCommentAuthorAlias = null;
 
-			var undeliveryStatuses = new[]
-			{
-				OrderStatus.Canceled,
-				OrderStatus.DeliveryCanceled,
-				OrderStatus.NotDelivered
-			};
 
 			var lastOrderIdSubquery = QueryOver.Of<Order>(() => lastOrderAlias)
 				.Where(() => lastOrderAlias.Client.Id == complaintAlias.Counterparty.Id)
@@ -218,7 +213,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.And(Restrictions.Not(
 					Restrictions.In(
 						Projections.Property(() => lastOrderAlias.OrderStatus),
-						undeliveryStatuses)))
+						OrderEntity.GetUndeliveryStatuses())))
 				.Select(Projections.Max(() => lastOrderAlias.Id));
 
 			var authorProjection = Projections.SqlFunction(
