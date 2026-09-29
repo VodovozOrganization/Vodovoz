@@ -10,6 +10,8 @@ namespace Vodovoz.Core.Data.Repositories
 	{
 		EdoFiscalDocument GetLatestCompletedSaleDocumentForOrder(IUnitOfWork uow, int orderId);
 
+		IList<EdoFiscalDocument> GetCompletedReturnDocumentsForOrder(IUnitOfWork uow, int orderId);
+
 		ReceiptCorrectionProcess GetLatestCompletedProcessForOrder(IUnitOfWork uow, int orderId);
 
 		bool ProcessExistsByFingerprint(IUnitOfWork uow, int orderId, string changeFingerprint);

@@ -157,7 +157,12 @@ namespace Edo.Receipt.Sender
 
 			if(fiscalInventPosition.EdoTaskItem != null)
 			{
-				inventPosition.ProductMark = fiscalInventPosition.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260;
+				var productCode = fiscalInventPosition.EdoTaskItem.ProductCode;
+				var markCode = productCode?.ResultCode ?? productCode?.SourceCode;
+				if(markCode != null)
+				{
+					inventPosition.ProductMark = markCode.FormatForCheck1260;
+				}
 			}
 			else if(fiscalInventPosition.GroupCode != null)
 			{

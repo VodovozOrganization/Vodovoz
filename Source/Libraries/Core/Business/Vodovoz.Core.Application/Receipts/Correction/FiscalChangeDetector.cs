@@ -34,6 +34,25 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 			CompareItems(previous, current, changeSet);
 
+			if(current.Sum < previous.Sum)
+			{
+				changeSet.HasQuantityOrAmountDecrease = true;
+			}
+
+			if(current.Sum > previous.Sum)
+			{
+				changeSet.HasQuantityOrAmountIncrease = true;
+			}
+
+			changeSet.PreviousOrganizationId = previous.OrganizationId;
+			changeSet.NewOrganizationId = current.OrganizationId;
+			changeSet.PreviousCounterpartyId = previous.CounterpartyId;
+			changeSet.NewCounterpartyId = current.CounterpartyId;
+			changeSet.PreviousContractId = previous.ContractId;
+			changeSet.NewContractId = current.ContractId;
+			changeSet.PreviousPaymentType = previous.PaymentType?.ToString();
+			changeSet.NewPaymentType = current.PaymentType?.ToString();
+
 			changeSet.HasChanges = changeSet.IsFullCancellation
 				|| changeSet.HasOrganizationChange
 				|| changeSet.HasClientChange
@@ -110,24 +129,31 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					changeSet.HasPieceItemPriceChange = true;
 				}
 
+				var position = new FiscalPositionChange
+				{
+					NomenclatureId = previousItem?.NomenclatureId ?? currentItem?.NomenclatureId,
+					Name = previousItem?.Name ?? currentItem?.Name,
+					OldQuantity = oldQuantity,
+					NewQuantity = newQuantity,
+					OldPrice = oldPrice,
+					NewPrice = newPrice,
+					OldDiscountSum = oldDiscountSum,
+					NewDiscountSum = newDiscountSum,
+					IsPieceItem = oldPrice != newPrice
+				};
+
+				if(oldQuantity > 0 || newQuantity > 0)
+				{
+					changeSet.AllPositions.Add(position);
+				}
+
 				if(oldQuantity != newQuantity
 					|| oldPrice != newPrice
 					|| oldDiscountSum != newDiscountSum
 					|| previousItem == null
 					|| currentItem == null)
 				{
-					changeSet.PositionChanges.Add(new FiscalPositionChange
-					{
-						NomenclatureId = previousItem?.NomenclatureId ?? currentItem?.NomenclatureId,
-						Name = previousItem?.Name ?? currentItem?.Name,
-						OldQuantity = oldQuantity,
-						NewQuantity = newQuantity,
-						OldPrice = oldPrice,
-						NewPrice = newPrice,
-						OldDiscountSum = oldDiscountSum,
-						NewDiscountSum = newDiscountSum,
-						IsPieceItem = oldPrice != newPrice
-					});
+					changeSet.PositionChanges.Add(position);
 				}
 			}
 		}

@@ -108,34 +108,35 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 			return tasks
 				.SelectMany(task => task.FiscalDocuments)
 				.Where(document => document.DocumentType == FiscalDocumentType.Sale
-					&& document.Stage == FiscalDocumentStage.Completed
-					&& !IsCorrectionSaleDocumentNumber(document.DocumentNumber))
-				.OrderByDescending(document => document.FiscalTime)
-				.ThenByDescending(document => document.Id)
+					&& (document.Stage == FiscalDocumentStage.Completed
+						|| document.Status == FiscalDocumentStatus.Completed
+						|| document.Status == FiscalDocumentStatus.Printed))
+				.OrderByDescending(document => document.Id)
 				.FirstOrDefault();
 		}
 
-		private static bool IsCorrectionSaleDocumentNumber(string documentNumber)
+		public IList<EdoFiscalDocument> GetCompletedReturnDocumentsForOrder(IUnitOfWork uow, int orderId)
 		{
-			if(string.IsNullOrWhiteSpace(documentNumber))
-			{
-				return false;
-			}
+			var tasks = uow.Session.Query<ReceiptEdoTask>()
+				.Where(task => task.FormalEdoRequest.Order.Id == orderId)
+				.ToList();
 
-			var value = documentNumber.Trim();
-			var markerIndex = value.LastIndexOf("_c", StringComparison.OrdinalIgnoreCase);
-			if(markerIndex < 0 || markerIndex + 2 >= value.Length)
-			{
-				return false;
-			}
-
-			return value.EndsWith("_sale", StringComparison.OrdinalIgnoreCase);
+			return tasks
+				.SelectMany(task => task.FiscalDocuments)
+				.Where(document => document.DocumentType == FiscalDocumentType.Return
+					&& (document.Stage == FiscalDocumentStage.Completed
+						|| document.Status == FiscalDocumentStatus.Completed
+						|| document.Status == FiscalDocumentStatus.Printed))
+				.OrderBy(document => document.Id)
+				.ToList();
 		}
 
 		public bool ProcessExistsByFingerprint(IUnitOfWork uow, int orderId, string changeFingerprint)
 		{
 			return uow.Session.Query<ReceiptCorrectionProcess>()
-				.Any(x => x.OrderId == orderId && x.ChangeFingerprint == changeFingerprint);
+				.Any(x => x.OrderId == orderId
+					&& x.ChangeFingerprint == changeFingerprint
+					&& x.Status != ReceiptCorrectionProcessStatus.Failed);
 		}
 
 		public IList<int> GetActiveProcessIds(IUnitOfWork uow)

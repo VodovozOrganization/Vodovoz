@@ -134,7 +134,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				yield break;
 			}
 
-			var positions = changeSet?.PositionChanges?
+			var positions = (changeSet?.AllPositions ?? changeSet?.PositionChanges)?
 				.Where(x => x != null)
 				.ToList();
 

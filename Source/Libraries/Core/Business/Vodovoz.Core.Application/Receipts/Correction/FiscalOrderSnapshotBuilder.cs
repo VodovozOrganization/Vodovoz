@@ -1,5 +1,6 @@
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
@@ -28,12 +29,27 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				return null;
 			}
 
-			if(IsEmptyBaseline(latestCompletedProcess, baselineDocument))
+			if(latestCompletedProcess?.ScenarioType == ReceiptCorrectionScenarioType.FullCancellation)
 			{
 				return BuildEmptySnapshot(orderId, baselineDocument);
 			}
 
-			return BuildFromEdoFiscalDocument(baselineDocument, orderId);
+			if(IsReturnOnlyProcess(latestCompletedProcess, baselineDocument))
+			{
+				return BuildSnapshotAfterPartialReturns(uow, orderId, latestCompletedProcess, baselineDocument);
+			}
+
+			var snapshot = BuildFromEdoFiscalDocument(baselineDocument, orderId);
+			if(baselineDocument.DocumentType == FiscalDocumentType.Sale)
+			{
+				SubtractCompletedReturnsAfterSale(uow, orderId, snapshot, baselineDocument);
+				if(!snapshot.Items.Any(x => x.Quantity > 0) || snapshot.Sum <= 0)
+				{
+					return BuildEmptySnapshot(orderId, baselineDocument);
+				}
+			}
+
+			return snapshot;
 		}
 
 		public FiscalOrderSnapshot BuildFromOrder(Order order)
@@ -97,15 +113,129 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			return _receiptCorrectionRepository.GetLatestCompletedSaleDocumentForOrder(uow, orderId);
 		}
 
-		private static bool IsEmptyBaseline(ReceiptCorrectionProcess latestCompletedProcess, EdoFiscalDocument baselineDocument)
+		private static bool IsReturnOnlyProcess(ReceiptCorrectionProcess process, EdoFiscalDocument baselineDocument)
 		{
-			if(latestCompletedProcess?.ScenarioType == ReceiptCorrectionScenarioType.FullCancellation)
+			return baselineDocument.DocumentType == FiscalDocumentType.Return
+				&& process?.Documents != null
+				&& process.Documents.Any()
+				&& process.Documents.All(x => x.PlannedDocumentType == FiscalDocumentType.Return);
+		}
+
+		private FiscalOrderSnapshot BuildSnapshotAfterPartialReturns(
+			IUnitOfWork uow,
+			int orderId,
+			ReceiptCorrectionProcess returnProcess,
+			EdoFiscalDocument returnDocument)
+		{
+			var sale = ResolveStandingSale(uow, orderId, returnProcess);
+			if(sale == null)
 			{
-				return true;
+				return BuildFromEdoFiscalDocument(returnDocument, orderId);
 			}
 
-			return baselineDocument.DocumentType == FiscalDocumentType.Return
-				&& latestCompletedProcess?.Documents.All(x => x.PlannedDocumentType == FiscalDocumentType.Return) == true;
+			var snapshot = BuildFromEdoFiscalDocument(sale, orderId);
+			SubtractCompletedReturnsAfterSale(uow, orderId, snapshot, sale);
+
+			if(!snapshot.Items.Any(x => x.Quantity > 0) || snapshot.Sum <= 0)
+			{
+				return BuildEmptySnapshot(orderId, sale);
+			}
+
+			return snapshot;
+		}
+
+		private EdoFiscalDocument ResolveStandingSale(
+			IUnitOfWork uow,
+			int orderId,
+			ReceiptCorrectionProcess returnProcess)
+		{
+			if(returnProcess?.SourceEdoFiscalDocumentId != null)
+			{
+				var source = uow.GetById<EdoFiscalDocument>(returnProcess.SourceEdoFiscalDocumentId.Value);
+				if(source?.DocumentType == FiscalDocumentType.Sale)
+				{
+					return source;
+				}
+			}
+
+			return _receiptCorrectionRepository.GetLatestCompletedSaleDocumentForOrder(uow, orderId);
+		}
+
+		private void SubtractCompletedReturnsAfterSale(
+			IUnitOfWork uow,
+			int orderId,
+			FiscalOrderSnapshot snapshot,
+			EdoFiscalDocument sale)
+		{
+			if(sale == null || snapshot == null)
+			{
+				return;
+			}
+
+			var returns = _receiptCorrectionRepository
+				.GetCompletedReturnDocumentsForOrder(uow, orderId)
+				.Where(x => x.Id > sale.Id);
+
+			foreach(var completedReturn in returns)
+			{
+				SubtractReturn(snapshot, completedReturn);
+			}
+		}
+
+		private static void SubtractReturn(FiscalOrderSnapshot snapshot, EdoFiscalDocument returnDocument)
+		{
+			if(returnDocument?.InventPositions == null)
+			{
+				return;
+			}
+
+			foreach(var position in returnDocument.InventPositions.Where(x => x != null && x.Quantity > 0))
+			{
+				var left = position.Quantity;
+				var candidates = snapshot.Items
+					.Where(x => x.Quantity > 0 && NamesEqual(x.Name, position.Name))
+					.ToList();
+
+				if(!candidates.Any())
+				{
+					candidates = snapshot.Items
+						.Where(x => x.Quantity > 0 && x.Price == position.Price)
+						.ToList();
+				}
+
+				foreach(var item in candidates)
+				{
+					if(left <= 0)
+					{
+						break;
+					}
+
+					var take = Math.Min(item.Quantity, left);
+					var discount = item.Quantity == 0
+						? 0
+						: Math.Round(item.DiscountSum * take / item.Quantity, 2, MidpointRounding.AwayFromZero);
+
+					item.Quantity -= take;
+					item.DiscountSum = Math.Max(0, item.DiscountSum - discount);
+					item.Sum = Math.Round(item.Price * item.Quantity - item.DiscountSum, 2, MidpointRounding.AwayFromZero);
+					if(item.Sum < 0)
+					{
+						item.Sum = 0;
+					}
+
+					left -= take;
+				}
+			}
+
+			snapshot.Items = snapshot.Items.Where(x => x.Quantity > 0).ToList();
+			snapshot.Sum = snapshot.Items.Sum(x => x.Sum);
+		}
+
+		private static bool NamesEqual(string left, string right)
+		{
+			return !string.IsNullOrWhiteSpace(left)
+				&& !string.IsNullOrWhiteSpace(right)
+				&& string.Equals(left.Trim(), right.Trim(), StringComparison.OrdinalIgnoreCase);
 		}
 
 		private static FiscalOrderSnapshot BuildEmptySnapshot(int orderId, EdoFiscalDocument baselineDocument)
@@ -151,13 +281,15 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				Contact = Truncate(fiscalDocument.Contact, 255),
 				DeliveryDate = order?.DeliveryDate,
 				FiscalDocumentNumber = Truncate(fiscalDocument.FiscalNumber, 64),
-				FiscalDocumentDate = fiscalDocument.FiscalTime,
+				FiscalDocumentDate = fiscalDocument.FiscalTime
+					?? fiscalDocument.StatusChangeTime
+					?? fiscalDocument.CheckoutTime,
 				Sum = fiscalDocument.InventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum)
 			};
 
 			foreach(var inventPosition in fiscalDocument.InventPositions)
 			{
-				var nomenclatureId = inventPosition.OrderItems.FirstOrDefault()?.Nomenclature?.Id
+				var nomenclatureId = OrderItemNomenclatureAccess.Of(inventPosition.OrderItems.FirstOrDefault())?.Id
 					?? ResolveNomenclatureIdByName(order, inventPosition.Name);
 
 				snapshot.Items.Add(new FiscalOrderSnapshotItem
@@ -182,9 +314,9 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			}
 
 			var invent = inventName.Trim();
-			foreach(var orderItem in order.OrderItems ?? Enumerable.Empty<OrderItemEntity>())
+			foreach(var orderItem in EnumerateOrderItems(order))
 			{
-				var nomenclature = orderItem?.Nomenclature;
+				var nomenclature = OrderItemNomenclatureAccess.Of(orderItem);
 				if(nomenclature == null)
 				{
 					continue;
@@ -207,6 +339,16 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			}
 
 			return null;
+		}
+
+		private static IEnumerable<OrderItemEntity> EnumerateOrderItems(OrderEntity order)
+		{
+			if(order is Order domainOrder)
+			{
+				return domainOrder.OrderItems ?? Enumerable.Empty<OrderItemEntity>();
+			}
+
+			return order.OrderItems ?? Enumerable.Empty<OrderItemEntity>();
 		}
 
 		private static EdoFiscalDocument ResolveResultDocument(IUnitOfWork uow, ReceiptCorrectionProcess process)

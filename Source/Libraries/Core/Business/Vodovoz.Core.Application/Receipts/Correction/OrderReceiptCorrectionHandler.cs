@@ -76,6 +76,12 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			}
 
 			var sourceDocument = uow.GetById<EdoFiscalDocument>(evaluation.PreviousSnapshot.SourceEdoFiscalDocumentId.Value);
+			if(sourceDocument != null && (sourceDocument.InventPositions == null || sourceDocument.InventPositions.Count == 0))
+			{
+				uow.Session.Evict(sourceDocument);
+				sourceDocument = uow.GetById<EdoFiscalDocument>(evaluation.PreviousSnapshot.SourceEdoFiscalDocumentId.Value);
+			}
+
 			if(sourceDocument == null)
 			{
 				_logger.LogWarning(
@@ -164,7 +170,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					process,
 					processDocument,
 					currentOrder: order,
-					currentSnapshot: evaluation.CurrentSnapshot);
+					currentSnapshot: evaluation.CurrentSnapshot,
+					previousSnapshot: evaluation.PreviousSnapshot);
 				uow.Save(edoFiscalDocument);
 				processDocument.EdoFiscalDocumentId = edoFiscalDocument.Id;
 				uow.Save(processDocument);

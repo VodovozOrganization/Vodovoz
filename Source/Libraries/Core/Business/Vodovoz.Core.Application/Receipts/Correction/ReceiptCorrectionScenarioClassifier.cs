@@ -30,24 +30,11 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				return ReceiptCorrectionScenarioType.ClientChange;
 			}
 
-			// Смена формы оплаты в рамках той же организации — SALE_CORRECTION.
-			if(changeSet.HasPaymentTypeChange)
-			{
-				return ReceiptCorrectionScenarioType.PaymentTypeChange;
-			}
-
-			// Смена договора без смены орг — как правило тоже коррекция реквизитов чека.
-			if(changeSet.HasContractChange)
-			{
-				return ReceiptCorrectionScenarioType.PaymentTypeChange;
-			}
-
 			if(changeSet.HasNomenclatureChange || changeSet.HasPieceItemPriceChange)
 			{
 				var hasItemsToReturn = changeSet.HasPieceItemPriceChange
 					|| changeSet.PositionChanges.Any(x => x.NewQuantity < x.OldQuantity);
-				// Новый товар / увеличение qty — нужен новый приход.
-				// Если только убрали позицию или уменьшили qty — достаточно RETURN (как QuantityOrAmountDecrease).
+				// новый приход только при новом товаре или росте qty
 				var hasItemsToResale = changeSet.HasPieceItemPriceChange
 					|| changeSet.PositionChanges.Any(x => x.NewQuantity > x.OldQuantity);
 
@@ -75,6 +62,16 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			if(changeSet.HasQuantityOrAmountIncrease || changeSet.HasNomenclatureChange)
 			{
 				return ReceiptCorrectionScenarioType.QuantityOrAmountIncrease;
+			}
+
+			if(changeSet.HasPaymentTypeChange)
+			{
+				return ReceiptCorrectionScenarioType.PaymentTypeChange;
+			}
+
+			if(changeSet.HasContractChange)
+			{
+				return ReceiptCorrectionScenarioType.PaymentTypeChange;
 			}
 
 			if(changeSet.HasDeliveryDateChange)

@@ -35,6 +35,20 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 		public IList<FiscalPositionChange> PositionChanges { get; set; } = new List<FiscalPositionChange>();
 
+		public IList<FiscalPositionChange> AllPositions { get; set; } = new List<FiscalPositionChange>();
+
+		public int? PreviousOrganizationId { get; set; }
+		public int? NewOrganizationId { get; set; }
+
+		public int? PreviousCounterpartyId { get; set; }
+		public int? NewCounterpartyId { get; set; }
+
+		public int? PreviousContractId { get; set; }
+		public int? NewContractId { get; set; }
+
+		public string PreviousPaymentType { get; set; }
+		public string NewPaymentType { get; set; }
+
 		public string BuildFingerprint()
 		{
 			var parts = new List<string>
@@ -48,12 +62,19 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				HasQuantityOrAmountDecrease.ToString(),
 				HasQuantityOrAmountIncrease.ToString(),
 				HasPieceItemPriceChange.ToString(),
-				IsFullCancellation.ToString()
+				IsFullCancellation.ToString(),
+				$"{PreviousOrganizationId}->{NewOrganizationId}",
+				$"{PreviousCounterpartyId}->{NewCounterpartyId}",
+				$"{PreviousContractId}->{NewContractId}",
+				$"{PreviousPaymentType}->{NewPaymentType}"
 			};
 
-			foreach(var positionChange in PositionChanges.OrderBy(x => x.NomenclatureId ?? 0).ThenBy(x => x.Name))
+			foreach(var positionChange in PositionChanges
+				.OrderBy(x => x.NomenclatureId ?? 0)
+				.ThenBy(x => x.Name, StringComparer.Ordinal))
 			{
-				parts.Add($"{positionChange.NomenclatureId}:{positionChange.OldQuantity}->{positionChange.NewQuantity}:{positionChange.OldPrice}->{positionChange.NewPrice}:{positionChange.OldDiscountSum}->{positionChange.NewDiscountSum}");
+				parts.Add(FormattableString.Invariant(
+					$"{positionChange.NomenclatureId}:{positionChange.OldQuantity}->{positionChange.NewQuantity}:{positionChange.OldPrice}->{positionChange.NewPrice}:{positionChange.OldDiscountSum}->{positionChange.NewDiscountSum}"));
 			}
 
 			var raw = string.Join("|", parts);
