@@ -10,10 +10,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Errors;
+using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -65,7 +67,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderDiscountsController _orderDiscountsController;
-		private readonly IOrderDeliveryPriceGetter _orderDeliveryPriceGetter;
+		private readonly IDeliveryPriceGetter<OrderDeliveryPriceContext> _orderDeliveryPriceGetter;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IGenericRepository<RobotMiaParameters> _robotMiaParametersRepository;
@@ -94,7 +96,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
 			IOrderDiscountsController orderDiscountsController,
-			IOrderDeliveryPriceGetter orderDeliveryPriceGetter,
+			IDeliveryPriceGetter<OrderDeliveryPriceContext> orderDeliveryPriceGetter,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IGenericRepository<RobotMiaParameters> robotMiaParametersRepository,
@@ -152,7 +154,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 		public Result UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
 			_saleHandler.SetSource(order);
-			var deliveryPriceResult = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
+			var deliveryPriceResult = _orderDeliveryPriceGetter.GetDeliveryPrice(
+				DeliveryPriceGetterContext<OrderDeliveryPriceContext>.Create(
+					OrderDeliveryPriceContext.Create(unitOfWork, order))
+			);
 
 			if(deliveryPriceResult.IsFailure)
 			{

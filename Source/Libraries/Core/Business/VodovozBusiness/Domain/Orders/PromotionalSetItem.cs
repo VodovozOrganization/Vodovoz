@@ -6,6 +6,8 @@ using QS.Project.Repositories;
 using QS.Utilities.Text;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -13,7 +15,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки промонабора",
 		Nominative = "строка промонабора")]
 	[HistoryTrace]
-	public class PromotionalSetItem : PropertyChangedBase, IDomainObject
+	public class PromotionalSetItem : PropertyChangedBase, IDomainObject, INomenclatureCount
 	{
 		private PromotionalSet _promoSet;
 		private Nomenclature _nomenclature;
@@ -116,6 +118,16 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		#region INomenclature implementation
+
+		decimal ISetCount.Count
+		{
+			get => _count;
+			set => Count = (int)value;
+		}
+
+		#endregion
+		
 		#endregion
 
 		public virtual string Title => string.Format(

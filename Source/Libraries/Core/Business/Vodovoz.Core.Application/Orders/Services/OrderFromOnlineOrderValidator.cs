@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Infrastructure;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Results;
@@ -26,7 +28,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 	{
 		protected OrderFromOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
-			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
+			IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext> deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings,
 			IClientDeliveryPointsChecker clientDeliveryPointsChecker,
 			IDiscountController discountController,
@@ -48,7 +50,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 
 		protected IGoodsPriceCalculator PriceCalculator { get; }
-		protected IOnlineOrderDeliveryPriceGetter DeliveryPriceGetter { get; }
+		protected IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext> DeliveryPriceGetter { get; }
 		protected INomenclatureSettings NomenclatureSettings { get; }
 		protected IClientDeliveryPointsChecker ClientDeliveryPointsChecker { get; }
 		protected IDiscountController DiscountController { get; }
@@ -530,7 +532,21 @@ namespace Vodovoz.Core.Application.Orders.Services
 				OnlineOrder.OnlineOrderItems
 					.SingleOrDefault(x => x.PromoSet is null && x.NomenclatureId == NomenclatureSettings.PaidDeliveryNomenclatureId);
 
-			var deliveryPrice = DeliveryPriceGetter.GetDeliveryPrice(OnlineOrder);
+			var deliveryPriceResult = DeliveryPriceGetter.GetDeliveryPrice(
+				DeliveryPriceGetterContext<OnlineOrderDeliveryPriceContext>.Create(
+					OnlineOrderDeliveryPriceContext.Create(OnlineOrder)));
+
+			var deliveryPrice = 0m;
+			
+			if(deliveryPriceResult.IsFailure)
+			{
+				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.ErrorCalculatingPaidDelivery());
+			}
+			else
+			{
+				deliveryPrice = deliveryPriceResult.Value;
+			}
+			
 			var needPaidDelivery = deliveryPrice > 0;
 			var checkOnlineOrderSum = CheckOnlineOrderSum.Create(1, deliveryPrice, 0);
 

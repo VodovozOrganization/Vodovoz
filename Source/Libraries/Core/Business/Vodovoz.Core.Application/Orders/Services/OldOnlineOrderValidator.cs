@@ -1,4 +1,6 @@
-﻿using Vodovoz.Domain.Service;
+﻿using Vodovoz.Core.Application.Orders.Delivery;
+using Vodovoz.Core.Domain.Interfaces.Orders;
+using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
@@ -12,7 +14,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 	{
 		public OldOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
-			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
+			IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext> deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings,
 			IClientDeliveryPointsChecker clientDeliveryPointsChecker,
 			IDiscountController discountController,

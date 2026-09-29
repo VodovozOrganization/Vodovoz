@@ -15,6 +15,7 @@ using Vodovoz.Core.Application.FastPayment;
 using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Application.Goods;
 using Vodovoz.Core.Application.Logistics;
+using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Application.Payments;
@@ -26,6 +27,7 @@ using Vodovoz.Core.Application.Services.Subdivisions;
 using Vodovoz.Core.Application.TrueMark;
 using Vodovoz.Core.Application.Users;
 using Vodovoz.Core.Application.Warehouses;
+using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Warehouses;
@@ -36,6 +38,7 @@ using Vodovoz.Services.Logistics;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Payments;
+using VodovozBusiness.Domain.Orders.Delivery;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Employees;
 using VodovozBusiness.Factories;
@@ -92,6 +95,10 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
 				.AddScoped<IPaymentByCardOnlineBuilderFactory, PaymentByCardOnlineBuilderFactory>()
 				.AddScoped<PaymentsFromYookassaParser>()
+				.AddScoped<CustomerCartWaterCounts>()
+				.AddScoped<IOnlineCartDistrictRulesGetter, OnlineCartDistrictRulesGetter>()
+				.AddScoped<IDeliveryRulesHandler, DeliveryRulesHandler>()
+				.AddScoped<IDeliveryCostDataFactory, DeliveryCostDataFactory>()
 				.AddTrueMarkApiClient()
 				.AddCoreApplicationOrderServices()
 				;
@@ -112,7 +119,8 @@ namespace Vodovoz.Core.Application
 		private static IServiceCollection AddCoreOrderServicesDependencies(this IServiceCollection services)
 		{
 			services
-				.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
+				.AddScoped<IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext>, OnlineOrderDeliveryPriceGetter>()
+				.AddScoped<IDeliveryPriceGetter<OrderDeliveryPriceContext>, OrderDeliveryPriceGetter>()
 				.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
 				.AddScoped<IOnlineOrderValidatorCreator, OnlineOrderValidatorCreator>()
 				.AddScoped<INewOrderSaleItemsFromPromoSetCreator, NewOrderSaleItemsFromPromoSetCreator>()
@@ -120,7 +128,6 @@ namespace Vodovoz.Core.Application
 				.AddScoped<OldOnlineOrderValidator>()
 				.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
 				.AddScoped<IGoodsCountCalculator, GoodsCountCalculator>()
-				.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 				.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 				.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()

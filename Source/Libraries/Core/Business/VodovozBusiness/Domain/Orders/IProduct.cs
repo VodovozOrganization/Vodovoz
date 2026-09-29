@@ -1,4 +1,4 @@
-﻿using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
