@@ -87,11 +87,7 @@ namespace Edo.Problems.Validation.Sources
 					}
 					break;
 				case PaymentType.Cashless:
-					if(orderEdoRequest.Order.OrderPaymentStatus != OrderPaymentStatus.Paid)
-					{
-						return Task.FromResult(EdoValidationResult.Invalid(this));
-					}
-					break;
+					return Task.FromResult(EdoValidationResult.Valid(this));
 				default:
 					throw new ArgumentOutOfRangeException(nameof(orderEdoRequest.Order.PaymentType));
 			}
