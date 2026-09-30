@@ -1,4 +1,4 @@
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using Core.Infrastructure;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -90,7 +90,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 							.Sum() ?? 0
 
 					where
-						routeList.Date >= createDateFrom && routeList.Date < createDateTo.AddDays(1)
+						routeList.Date >= createDateFrom && routeList.Date <= createDateTo
 						&& routeListItem.Status == RouteListItemStatus.Completed
 						&& !(order.PaymentType == Domain.Client.PaymentType.Cashless
 							&& (edoAccountByOrder.ConsentForEdoStatus == ConsentForEdoStatus.Agree
