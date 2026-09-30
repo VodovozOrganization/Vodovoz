@@ -31,6 +31,7 @@ using CustomerNotifications.Contracts;
 using CustomerNotifications.Contracts.Extensions;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Notifications.Infrastructure;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Core.Application.Logistics
 {
@@ -56,6 +57,7 @@ namespace Vodovoz.Core.Application.Logistics
 		private readonly IOsrmSettings _osrmSettings;
 		private readonly IOsrmClient _osrmClient;
 		private readonly IMangoSettings _mangoSettings;
+		private readonly IOrderSaleHandler _saleHandler;
 
 		public RouteListService(
 			ILogger<RouteListService> logger,
@@ -74,7 +76,9 @@ namespace Vodovoz.Core.Application.Logistics
 			IOrderService orderService,
 			IOsrmSettings osrmSettings,
 			IOsrmClient osrmClient,
-			IMangoSettings mangoSettings)
+			IOrderSaleHandler saleHandler,
+			IMangoSettings mangoSettings
+			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -94,6 +98,7 @@ namespace Vodovoz.Core.Application.Logistics
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
 		}
 
@@ -296,7 +301,11 @@ namespace Vodovoz.Core.Application.Logistics
 			ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.EnRoute, callTaskWorker);
 		}
 
-		public Result TryChangeStatusToNew(IUnitOfWork unitOfWork, RouteList routeList, IWageParameterService wageParameterService, ICallTaskWorker callTaskWorker)
+		public Result TryChangeStatusToNew(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			IWageParameterService wageParameterService,
+			ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.InLoading
 			   && routeList.Status != RouteListStatus.Confirmed)
@@ -316,7 +325,11 @@ namespace Vodovoz.Core.Application.Logistics
 			return Result.Success();
 		}
 
-		public void CompleteRoute(IUnitOfWork unitOfWork, RouteList routeList, IWageParameterService wageParameterService, ICallTaskWorker callTaskWorker)
+		public void CompleteRoute(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			IWageParameterService wageParameterService,
+			ICallTaskWorker callTaskWorker)
 		{
 			ChangeStatus(unitOfWork, routeList, RouteListStatus.Delivered);
 
@@ -328,7 +341,7 @@ namespace Vodovoz.Core.Application.Logistics
 				unitOfWork.Save(track);
 			}
 
-			routeList.FirstFillClosing(wageParameterService);
+			routeList.FirstFillClosing(wageParameterService, _saleHandler);
 			unitOfWork.Save(routeList);
 		}
 
@@ -355,11 +368,14 @@ namespace Vodovoz.Core.Application.Logistics
 				unitOfWork.Save(track);
 			}
 
-			routeList.FirstFillClosing(wageParameterService);
+			routeList.FirstFillClosing(wageParameterService, _saleHandler);
 			unitOfWork.Save(routeList);
 		}
 
-		public Result AcceptCash(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
+		public Result AcceptCash(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.OnClosing)
 			{
@@ -374,7 +390,11 @@ namespace Vodovoz.Core.Application.Logistics
 			return ConfirmAndClose(unitOfWork, routeList, callTaskWorker);
 		}
 
-		public bool AcceptMileage(IUnitOfWork unitOfWork, RouteList routeList, IValidator validator, ICallTaskWorker callTaskWorker)
+		public bool AcceptMileage(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			IValidator validator,
+			ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.MileageCheck)
 			{
@@ -392,7 +412,10 @@ namespace Vodovoz.Core.Application.Logistics
 			return true;
 		}
 
-		public void ChangeStatus(IUnitOfWork unitOfWork, RouteList routeList, RouteListStatus newStatus)
+		public void ChangeStatus(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			RouteListStatus newStatus)
 		{
 			if(newStatus == routeList.Status)
 			{
@@ -411,7 +434,7 @@ namespace Vodovoz.Core.Application.Logistics
 						{
 							if(address.Order.OrderStatus == OrderStatus.OnLoading)
 							{
-								address.Order.ChangeStatus(OrderStatus.InTravelList);
+								address.Order.ChangeStatus(_saleHandler, OrderStatus.InTravelList);
 							}
 						}
 					}
@@ -429,7 +452,7 @@ namespace Vodovoz.Core.Application.Logistics
 						{
 							if(address.Order.OrderStatus < OrderStatus.OnLoading)
 							{
-								address.Order.ChangeStatus(OrderStatus.OnLoading);
+								address.Order.ChangeStatus(_saleHandler, OrderStatus.OnLoading);
 							}
 						}
 					}
@@ -447,7 +470,7 @@ namespace Vodovoz.Core.Application.Logistics
 						{
 							if(item.Order.OrderStatus != OrderStatus.OnLoading)
 							{
-								item.Order.ChangeStatus(OrderStatus.OnLoading);
+								item.Order.ChangeStatus(_saleHandler, OrderStatus.OnLoading);
 							}
 						}
 					}
@@ -518,7 +541,7 @@ namespace Vodovoz.Core.Application.Logistics
 						foreach(var item in routeList.Addresses.Where(x =>
 							        x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
 						{
-							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
+							item.Order.ChangeStatus(_saleHandler, OrderStatus.UnloadingOnStock);
 						}
 					}
 					else
@@ -534,7 +557,7 @@ namespace Vodovoz.Core.Application.Logistics
 						foreach(var item in routeList.Addresses.Where(x =>
 							        x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
 						{
-							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
+							item.Order.ChangeStatus(_saleHandler, OrderStatus.UnloadingOnStock);
 						}
 					}
 					else
@@ -570,7 +593,11 @@ namespace Vodovoz.Core.Application.Logistics
 			routeList.UpdateClosedInformation();
 		}
 
-		public void ChangeStatusAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, RouteListStatus newStatus, ICallTaskWorker callTaskWorker)
+		public void ChangeStatusAndCreateTask(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			RouteListStatus newStatus,
+			ICallTaskWorker callTaskWorker)
 		{
 			if(newStatus == routeList.Status)
 			{
@@ -589,7 +616,7 @@ namespace Vodovoz.Core.Application.Logistics
 						{
 							if(address.Order.OrderStatus == OrderStatus.OnLoading)
 							{
-								address.Order.ChangeStatusAndCreateTasks(OrderStatus.InTravelList, callTaskWorker);
+								address.Order.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.InTravelList, callTaskWorker);
 							}
 						}
 					}
@@ -607,7 +634,7 @@ namespace Vodovoz.Core.Application.Logistics
 						{
 							if(address.Order.OrderStatus < OrderStatus.OnLoading)
 							{
-								address.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
+								address.Order.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.OnLoading, callTaskWorker);
 							}
 						}
 					}
@@ -625,7 +652,7 @@ namespace Vodovoz.Core.Application.Logistics
 						{
 							if(item.Order.OrderStatus != OrderStatus.OnLoading)
 							{
-								item.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
+								item.Order.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.OnLoading, callTaskWorker);
 							}
 						}
 					}
@@ -696,7 +723,7 @@ namespace Vodovoz.Core.Application.Logistics
 						foreach(var item in routeList.Addresses.Where(x =>
 							        x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
 						{
-							item.Order.ChangeStatusAndCreateTasks(OrderStatus.UnloadingOnStock, callTaskWorker);
+							item.Order.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.UnloadingOnStock, callTaskWorker);
 						}
 					}
 					else
@@ -712,7 +739,7 @@ namespace Vodovoz.Core.Application.Logistics
 						foreach(var item in routeList.Addresses.Where(x =>
 							        x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
 						{
-							item.Order.ChangeStatusAndCreateTasks(OrderStatus.UnloadingOnStock, callTaskWorker);
+							item.Order.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.UnloadingOnStock, callTaskWorker);
 						}
 					}
 					else
@@ -759,7 +786,10 @@ namespace Vodovoz.Core.Application.Logistics
 			unitOfWork.Save(routeList.RouteListProfitability);
 		}
 
-		private Result ConfirmAndClose(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
+		private Result ConfirmAndClose(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.OnClosing && routeList.Status != RouteListStatus.MileageCheck)
 			{
@@ -792,7 +822,10 @@ namespace Vodovoz.Core.Application.Logistics
 			return Result.Success();
 		}
 
-		private void CloseFromOnMileageCheck(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
+		private void CloseFromOnMileageCheck(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.MileageCheck)
 			{
@@ -812,7 +845,10 @@ namespace Vodovoz.Core.Application.Logistics
 		/// <summary>
 		/// Закрывает МЛ, либо переводит в проверку км, при необходимых условиях, из статуса "Сдается" 
 		/// </summary>
-		private void CloseFromOnClosing(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
+		private void CloseFromOnClosing(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.OnClosing)
 			{
@@ -834,7 +870,10 @@ namespace Vodovoz.Core.Application.Logistics
 			}
 		}
 
-		public void UpdateStatus(IUnitOfWork unitOfWork, RouteList routeList, bool isIgnoreAdditionalLoadingDocument = false)
+		public void UpdateStatus(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			bool isIgnoreAdditionalLoadingDocument = false)
 		{
 			if(isIgnoreAdditionalLoadingDocument
 				   ? routeList.CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument
@@ -895,7 +934,6 @@ namespace Vodovoz.Core.Application.Logistics
 
 		#endregion Статусы МЛ
 
-
 		#region Адреса в МЛ
 
 		public RouteListItem AddAddressFromOrder(IUnitOfWork unitOfWork, RouteList routeList, Order order)
@@ -934,7 +972,11 @@ namespace Vodovoz.Core.Application.Logistics
 			return item;
 		}
 
-		public void ChangeAddressStatus(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid, RouteListItemStatus newAddressStatus, 
+		public void ChangeAddressStatus(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			int routeListAddressid,
+			RouteListItemStatus newAddressStatus, 
 			ICallTaskWorker callTaskWorker)
 		{
 			var address = routeList.Addresses.First(a => a.Id == routeListAddressid);
@@ -944,18 +986,28 @@ namespace Vodovoz.Core.Application.Logistics
 			UpdateStatus(unitOfWork, routeList);
 		}
 
-		public void ChangeAddressStatusAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid,
-			RouteListItemStatus newAddressStatus, ICallTaskWorker callTaskWorker, bool isEditAtCashier = false)
+		public void ChangeAddressStatusAndCreateTask(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			int routeListAddressid,
+			RouteListItemStatus newAddressStatus,
+			ICallTaskWorker callTaskWorker,
+			bool isEditAtCashier = false)
 		{
 			var address = routeList.Addresses.First(a => a.Id == routeListAddressid);
-			address.UpdateStatusAndCreateTask(unitOfWork, newAddressStatus, callTaskWorker, isEditAtCashier);
+			_saleHandler.SetSource(address.Order);
+			address.UpdateStatusAndCreateTask(unitOfWork, _saleHandler, newAddressStatus, callTaskWorker, isEditAtCashier);
 			SendCustomerNotification(unitOfWork, address.Order);
 
 			UpdateStatus(unitOfWork, routeList);
 		}
 
-		public void SetAddressStatusWithoutOrderChange(IUnitOfWork unitOfWork, RouteList routeList, RouteListItem routeListAddress,
-			RouteListItemStatus newAddressStatus, bool needCreateDeliveryFreeBalanceOperation = true)
+		public void SetAddressStatusWithoutOrderChange(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			RouteListItem routeListAddress,
+			RouteListItemStatus newAddressStatus,
+			bool needCreateDeliveryFreeBalanceOperation = true)
 		{
 			if(routeList is null || routeListAddress is null)
 			{
@@ -968,7 +1020,10 @@ namespace Vodovoz.Core.Application.Logistics
 		}
 
 
-		public void UpdateStatus(IUnitOfWork uow, RouteListItem address, RouteListItemStatus status)
+		public void UpdateStatus(
+			IUnitOfWork uow,
+			RouteListItem address,
+			RouteListItemStatus status)
 		{
 			if(address.Status == status)
 			{
@@ -978,22 +1033,23 @@ namespace Vodovoz.Core.Application.Logistics
 			var oldStatus = address.Status;
 			address.Status = status;
 			address.StatusLastUpdate = DateTime.Now;
+			_saleHandler.SetSource(address.Order);
 
 			switch(address.Status)
 			{
 				case RouteListItemStatus.Canceled:
-					address.Order.ChangeStatus(OrderStatus.DeliveryCanceled);
-					address.SetOrderActualCountsToZeroOnCanceled();
+					address.Order.ChangeStatus(_saleHandler, OrderStatus.DeliveryCanceled);
+					address.SetOrderActualCountsToZeroOnCanceled(_saleHandler);
 					break;
 				case RouteListItemStatus.Completed:
-					address.Order.ChangeStatus(OrderStatus.Shipped);
+					address.Order.ChangeStatus(_saleHandler, OrderStatus.Shipped);
 
 					if(address.Order.TimeDelivered == null)
 					{
 						address.Order.TimeDelivered = DateTime.Now;
 					}
 
-					address.RestoreOrder();
+					address.RestoreOrder(_saleHandler);
 					_orderService.AutoCancelAutoTransfer(uow, address.Order);
 
 					var customerDeliveryCompletedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.DeliveryCompleted, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
@@ -1001,16 +1057,16 @@ namespace Vodovoz.Core.Application.Logistics
 
 					break;
 				case RouteListItemStatus.EnRoute:
-					address.Order.ChangeStatus(OrderStatus.OnTheWay);
-					address.RestoreOrder();
+					address.Order.ChangeStatus(_saleHandler, OrderStatus.OnTheWay);
+					address.RestoreOrder(_saleHandler);
 
 					var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
 					_customerNotificationPublisher.TryPublish(uow, customerCourierAssignedEvent);
 
 					break;
 				case RouteListItemStatus.Overdue:
-					address.Order.ChangeStatus(OrderStatus.NotDelivered);
-					address.SetOrderActualCountsToZeroOnCanceled();
+					address.Order.ChangeStatus(_saleHandler, OrderStatus.NotDelivered);
+					address.SetOrderActualCountsToZeroOnCanceled(_saleHandler);
 					break;
 			}
 
@@ -1021,7 +1077,9 @@ namespace Vodovoz.Core.Application.Logistics
 			address.UpdateRouteListDebt();
 		}
 
-		public void CloseAddresses(IUnitOfWork unitOfWork, RouteList routeList)
+		public void CloseAddresses(
+			IUnitOfWork unitOfWork,
+			RouteList routeList)
 		{
 			if(routeList.Status != RouteListStatus.Closed)
 			{
@@ -1037,22 +1095,25 @@ namespace Vodovoz.Core.Application.Logistics
 						UpdateStatus(unitOfWork, address, RouteListItemStatus.Completed);
 					}
 
-					address.Order.ChangeStatus(OrderStatus.Closed);
+					address.Order.ChangeStatus(_saleHandler, OrderStatus.Closed);
 				}
 
 				if(address.Status == RouteListItemStatus.Canceled)
 				{
-					address.Order.ChangeStatus(OrderStatus.DeliveryCanceled);
+					address.Order.ChangeStatus(_saleHandler, OrderStatus.DeliveryCanceled);
 				}
 
 				if(address.Status == RouteListItemStatus.Overdue)
 				{
-					address.Order.ChangeStatus(OrderStatus.NotDelivered);
+					address.Order.ChangeStatus(_saleHandler, OrderStatus.NotDelivered);
 				}
 			}
 		}
 
-		public void CloseAddressesAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, ICallTaskWorker callTaskWorker)
+		public void CloseAddressesAndCreateTask(
+			IUnitOfWork unitOfWork,
+			RouteList routeList,
+			ICallTaskWorker callTaskWorker)
 		{
 			if(routeList.Status != RouteListStatus.Closed)
 			{
@@ -1065,7 +1126,8 @@ namespace Vodovoz.Core.Application.Logistics
 				{
 					if(address.Status == RouteListItemStatus.EnRoute)
 					{
-						address.UpdateStatusAndCreateTask(unitOfWork, RouteListItemStatus.Completed, callTaskWorker);
+						_saleHandler.SetSource(address.Order);
+						address.UpdateStatusAndCreateTask(unitOfWork, _saleHandler, RouteListItemStatus.Completed, callTaskWorker);
 
 						var customerDeliveryCompletedEvent = new CustomerNotificationDomainEvent(
 							CustomerNotificationEventType.DeliveryCompleted, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
@@ -1073,17 +1135,17 @@ namespace Vodovoz.Core.Application.Logistics
 						_customerNotificationPublisher.TryPublish(unitOfWork, customerDeliveryCompletedEvent);
 					}
 
-					address.Order.ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
+					address.Order.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.Closed, callTaskWorker);
 				}
 
 				if(address.Status == RouteListItemStatus.Canceled)
 				{
-					address.Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
+					address.Order.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.DeliveryCanceled, callTaskWorker);
 				}
 
 				if(address.Status == RouteListItemStatus.Overdue)
 				{
-					address.Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
+					address.Order.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.NotDelivered, callTaskWorker);
 				}
 			}
 		}

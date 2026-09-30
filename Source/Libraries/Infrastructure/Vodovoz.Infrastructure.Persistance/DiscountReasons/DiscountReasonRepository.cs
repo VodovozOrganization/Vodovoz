@@ -1,43 +1,46 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.Infrastructure.Persistance.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 {
 	internal sealed class DiscountReasonRepository : IDiscountReasonRepository
 	{
-		/// <summary>
-		/// Возврат отсортированного списка скидок
-		/// </summary>
-		/// <returns>Список скидок</returns>
-		/// <param name="UoW">UoW</param>
-		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию имени скидки</param>
-		public IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false)
+		/// <inheritdoc/>
+		public IList<DiscountReasonBase> GetDiscountReasons(IUnitOfWork uow, bool orderByDescending = false)
 		{
-			var query = UoW.Session.QueryOver<DiscountReason>()
+			var query = uow.Session.QueryOver<DiscountReasonBase>()
 				.OrderBy(i => i.Name);
 			return orderByDescending ? query.Desc().List() : query.Asc().List();
 		}
 
-		public IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow)
+		/// <inheritdoc/>
+		public IEnumerable<DiscountReasonBase> GetDiscountReasons(IUnitOfWork uow, IEnumerable<int> disсountReasonIds)
 		{
-			return uow.Session.QueryOver<DiscountReason>()
+			var query = uow.Session.Query<DiscountReasonBase>()
+				.Where(x => disсountReasonIds.Contains(x.Id));
+			
+			return query.ToList();
+		}
+
+		public IList<DiscountReasonBase> GetActiveDiscountReasons(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<DiscountReasonBase>()
 				.WhereNot(dr => dr.IsArchive)
 				.OrderBy(dr => dr.Name)
 				.Asc()
 				.List();
 		}
 
-		public IList<DiscountReason> GetActiveDiscountReasonsWithoutPremiums(IUnitOfWork uow)
+		public IList<DiscountReasonBase> GetActiveDiscountReasonsWithoutPremiums(IUnitOfWork uow)
 		{
-			return uow.Session.QueryOver<DiscountReason>()
+			return uow.Session.QueryOver<DiscountReasonBase>()
 				.Where(dr => !dr.IsArchive)
 				.And(dr => !dr.IsPremiumDiscount)
 				.OrderBy(dr => dr.Name)
@@ -45,22 +48,22 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 				.List();
 		}
 
-		public IList<DiscountReason> GetActiveDiscountReasonsFetchReferences(IUnitOfWork uow, bool canChoosePremiumDiscount)
+		public IList<DiscountReasonBase> GetActiveDiscountReasonsFetchReferences(IUnitOfWork uow, bool canChoosePremiumDiscount)
 		{
 			var mainQuery = CreateBaseActiveDiscountReasonsQuery(uow, canChoosePremiumDiscount)
-				.Future<DiscountReason>();
+				.Future<DiscountReasonBase>();
 
 			CreateBaseActiveDiscountReasonsQuery(uow, canChoosePremiumDiscount)
 				.Fetch(SelectMode.Fetch, dr => dr.Nomenclatures)
-				.Future<DiscountReason>();
+				.Future<DiscountReasonBase>();
 
 			CreateBaseActiveDiscountReasonsQuery(uow, canChoosePremiumDiscount)
 				.Fetch(SelectMode.Fetch, dr => dr.NomenclatureCategories)
-				.Future<DiscountReason>();
+				.Future<DiscountReasonBase>();
 
 			CreateBaseActiveDiscountReasonsQuery(uow, canChoosePremiumDiscount)
 				.Fetch(SelectMode.Fetch, dr => dr.ProductGroups)
-				.Future<DiscountReason>();
+				.Future<DiscountReasonBase>();
 
 			return mainQuery.ToList()
 				.Distinct()
@@ -68,10 +71,10 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 				.ToList();
 		}
 
-		private IQueryOver<DiscountReason, DiscountReason> CreateBaseActiveDiscountReasonsQuery(
+		private IQueryOver<DiscountReasonBase, DiscountReasonBase> CreateBaseActiveDiscountReasonsQuery(
 			IUnitOfWork uow, bool canChoosePremiumDiscount)
 		{
-			var query = uow.Session.QueryOver<DiscountReason>()
+			var query = uow.Session.QueryOver<DiscountReasonBase>()
 				.Where(dr => !dr.IsArchive);
 
 			if(!canChoosePremiumDiscount)
@@ -83,9 +86,9 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 		}
 
 		public bool ExistsActiveDiscountReasonWithName(
-			IUnitOfWork uow, int discountReasonId, string name, out DiscountReason discountReason)
+			IUnitOfWork uow, int discountReasonId, string name, out DiscountReasonBase discountReason)
 		{
-			discountReason = uow.Session.QueryOver<DiscountReason>()
+			discountReason = uow.Session.QueryOver<DiscountReasonBase>()
 				.Where(dr => !dr.IsArchive)
 				.And(dr => dr.Id != discountReasonId)
 				.And(dr => dr.Name == name)
@@ -94,25 +97,23 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 			return discountReason != null;
 		}
 
-		public DiscountReason GetActivePromoCode(IUnitOfWork uow, string promoCode)
+		public PromoCodeDiscount GetActivePromoCode(IUnitOfWork uow, string promoCode)
 		{
 			var discount = (
-				from discountReason in uow.Session.Query<DiscountReason>()
-				where discountReason.IsPromoCode
-					&& !discountReason.IsArchive
-					&& discountReason.PromoCodeName.ToLower() == promoCode.ToLower()
+				from discountReason in uow.Session.Query<PromoCodeDiscount>()
+				where !discountReason.IsArchive
+					&& discountReason.Name.ToLower() == promoCode.ToLower()
 				select discountReason)
 				.SingleOrDefault();
 			
 			return discount;
 		}
 		
-		public bool ExistsPromoCodeWithName(IUnitOfWork uow, int discountReasonId, string promoCode, out DiscountReason discountReason)
+		public bool ExistsPromoCodeWithName(IUnitOfWork uow, int discountReasonId, string promoCode, out PromoCodeDiscount discountReason)
 		{
 			discountReason = (
-				from discount in uow.Session.Query<DiscountReason>()
-				where discount.IsPromoCode
-					&& discount.PromoCodeName.ToLower() == promoCode.ToLower()
+				from discount in uow.Session.Query<PromoCodeDiscount>()
+				where discount.Name.ToLower() == promoCode.ToLower()
 					&& discount.Id != discountReasonId
 				select discount)
 				.SingleOrDefault();
@@ -120,8 +121,20 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 			return discountReason != null;
 		}
 
-		public bool HasBeenUsagePromoCode(IUnitOfWork uow, int counterpartyId, int discountReasonId)
+		public DiscountReasonBase GetDiscountReason(IUnitOfWork uow, int discountReasonId)
 		{
+			return uow.Query<DiscountReasonBase>()
+				.Where(dr => dr.Id == discountReasonId)
+				.SingleOrDefault();
+		}
+
+		public bool HasBeenUsagePromoCode(IUnitOfWork uow, int? counterpartyId, int discountReasonId)
+		{
+			if(!counterpartyId.HasValue)
+			{
+				return true;
+			}
+
 			var onlineOrderItems = 
 				from onlineOrderItem in uow.Session.Query<OnlineOrderItem>()
 				join onlineOrder in uow.Session.Query<OnlineOrder>()

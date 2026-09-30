@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -16,6 +17,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Logistic;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -111,19 +113,18 @@ namespace Vodovoz.Views.Logistic
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 					.AddSetter((c, n) => c.Editable = ViewModel.CanChangeDiscountValue)
 					.EditedEvent((o, args) => OnSpinPriceEdited(o, args, treeItems))
-					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) =>
+					.AddSetter((NodeCellRendererSpin<OrderItem> cell, OrderItem node) =>
 					{
 						if(ViewModel.Entity.OrderStatus == OrderStatus.NewOrder || (ViewModel.Entity.OrderStatus == OrderStatus.WaitForPayment && !ViewModel.Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
-							c.ForegroundGdk = colorPrimaryText;
-							var fixedPrice = new Order().GetFixedPriceOrNull(node.Nomenclature, node.TotalCountInOrder);
-							if(fixedPrice != null && node.PromoSet == null && node.CopiedFromUndelivery == null)
+							cell.ForegroundGdk = colorPrimaryText;
+							if(node.IsFixedPrice && node.PromoSet == null && node.CopiedFromUndelivery == null)
 							{
-								c.ForegroundGdk = colorGreen;
+								cell.ForegroundGdk = colorGreen;
 							}
 							else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
 							{
-								c.ForegroundGdk = colorBlue;
+								cell.ForegroundGdk = colorBlue;
 							}
 						}
 					})
@@ -141,7 +142,7 @@ namespace Vodovoz.Views.Logistic
 					)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.ManualChangingDiscount)
+					.AddNumericRenderer(node => node.GetDiscount, OnDiscountEdited)
 					.AddSetter((c, n) => c.Editable = ViewModel.CanChangeDiscountValue)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
@@ -195,10 +196,28 @@ namespace Vodovoz.Views.Logistic
 				return;
 			}
 
-			orderItem.SetPrice(newPrice);
+			ViewModel.SaleHandler.SetPrice(orderItem, (SaleItemPriceType.User, newPrice));
+		}
+		
+		private void OnDiscountEdited(object o, EditedArgs args)
+		{
+			var stringPrice = args.NewText.Replace(',', '.');
+			decimal.TryParse(stringPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var newDiscount);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+			
+			if(!(node is OrderItem orderItem))
+			{
+				return;
+			}
+			
+			ViewModel.DiscountsController.SetCustomDiscount(
+				ViewModel.UoW,
+				orderItem,
+				DiscountValue.Create(orderItem.IsDiscountInMoney, newDiscount, newDiscount)
+			);
 		}
 
-		private string GetDiscountReasonsString(IEnumerable<DiscountReason> discountReasons)
+		private string GetDiscountReasonsString(IEnumerable<DiscountReasonBase> discountReasons)
 		{
 			if(discountReasons is null || !discountReasons.Any())
 			{

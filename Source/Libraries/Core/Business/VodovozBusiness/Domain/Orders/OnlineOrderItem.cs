@@ -5,7 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -16,7 +19,11 @@ namespace Vodovoz.Domain.Orders
 		PrepositionalPlural = "Строках онлайн заказа"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct
+	public class OnlineOrderItem :
+		PropertyChangedBase,
+		IDomainObject,
+		IProduct,
+		IApplyDiscountReasonItem
 	{
 		private int? _nomenclatureId;
 		private decimal _price;
@@ -30,12 +37,12 @@ namespace Vodovoz.Domain.Orders
 		private decimal _count = -1;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
-		private IObservableList<DiscountReason> _discountReasons = new ObservableList<DiscountReason>();
+		private IObservableList<DiscountReasonBase> _discountReasons = new ObservableList<DiscountReasonBase>();
 		private decimal _discountPercentFromDiscountReasons;
 		private decimal _discountMoneyFromDiscountReasons;
 		private bool _isDiscountInMoneyFromDiscountReasons;
 
-		protected OnlineOrderItem() { } 
+		protected OnlineOrderItem() { }
 
 		public virtual int Id { get; set; }
 		
@@ -59,7 +66,7 @@ namespace Vodovoz.Domain.Orders
 			get => _price;
 			set => SetField(ref _price, value);
 		}
-		
+
 		[Display(Name = "Скидка в деньгах")]
 		public virtual bool IsDiscountInMoney
 		{
@@ -73,7 +80,7 @@ namespace Vodovoz.Domain.Orders
 			get => _isFixedPrice;
 			set => SetField(ref _isFixedPrice, value);
 		}
-		
+
 		[Display(Name = "Скидка в процентах")]
 		public virtual decimal PercentDiscount
 		{
@@ -120,7 +127,7 @@ namespace Vodovoz.Domain.Orders
 		/// Основания скидок на товар
 		/// </summary>
 		[Display(Name = "Основания скидки на товар")]
-		public virtual IObservableList<DiscountReason> DiscountReasons
+		public virtual IObservableList<DiscountReasonBase> DiscountReasons
 		{
 			get => _discountReasons;
 			set => SetField(ref _discountReasons, value);
@@ -178,6 +185,62 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _giftItem, value);
 		}
 
+		#region IApplyDiscountReasonItem implementation
+
+		public virtual IDiscountValue DiscountData => DiscountValue.Create(IsDiscountInMoney, PercentDiscount, MoneyDiscount);
+		
+		public virtual PersonalDiscount PersonalDiscount
+		{
+			get => null;
+			set => throw new NotImplementedException("Нельзя устанавливать персональную скидку в онлайн заказе");
+		}
+
+		IList<DiscountReasonBase> IApplyDiscountReasonItem.DiscountReasons => DiscountReasons;
+		
+		public virtual void SetDiscount(IDiscountValue discountValue)
+		{
+			throw new NotImplementedException("Нельзя устанавливать скидку в онлайн заказе");
+		}
+
+		#endregion
+		
+		#region ICount implementation
+
+		decimal ISetCount.Count
+		{
+			get => Count;
+			set
+			{
+				if(Count == value)
+				{
+					return;
+				}
+        		
+				Count = value;
+				OnPropertyChanged();
+			}
+		}
+		
+		#endregion
+
+		#region ISaleItem implementation
+		
+		IEnumerable<DiscountReasonBase> IDiscountReasons.DiscountReasons => DiscountReasons;
+
+		public virtual bool IsAlternativePrice
+		{
+			get => false;
+			set => throw new InvalidOperationException("У позиции онлайн заказа нет альтернативной цены!");
+		}
+		
+		public virtual bool IsUserPrice
+		{
+			get => false;
+			set => throw new InvalidOperationException("У позиции онлайн заказа нет пользовательской цены!");
+		}
+		
+		#endregion
+
 		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 
 		/// <summary>
@@ -189,6 +252,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Sum => Math.Round(Price * Count - MoneyDiscount, 2);
 		public virtual decimal ActualSum => Sum;
 		public virtual decimal CurrentCount => Count;
+		public virtual decimal CurrentRawPrice => Price * CurrentCount;
 
 		/// <summary>
 		/// Наименования оснований скидки через запятую
@@ -205,7 +269,7 @@ namespace Vodovoz.Domain.Orders
 			decimal discount,
 			decimal price,
 			int? promoSetId,
-			DiscountReason discountReason,
+			DiscountReasonBase discountReason,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
 			OnlineOrder onlineOrder,
@@ -220,7 +284,7 @@ namespace Vodovoz.Domain.Orders
 				discount,
 				price,
 				promoSetId,
-				new List<DiscountReason> { discountReason },
+				new List<DiscountReasonBase> { discountReason },
 				nomenclature,
 				promotionalSet,
 				onlineOrder,
@@ -235,7 +299,7 @@ namespace Vodovoz.Domain.Orders
 			decimal discount,
 			decimal price,
 			int? promoSetId,
-			IEnumerable<DiscountReason> discountReasons,
+			IEnumerable<DiscountReasonBase> discountReasons,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
 			OnlineOrder onlineOrder,
@@ -270,6 +334,66 @@ namespace Vodovoz.Domain.Orders
 			onlineOrderItem.CalculateDiscount(discount);
 
 			return onlineOrderItem;
+		}
+
+		public static OnlineOrderItem Create(
+			int? nomenclatureId,
+			decimal count,
+			bool isFixedPrice,
+			decimal price,
+			decimal currentSum,
+			IEnumerable<DiscountReasonBase> discountReasons,
+			Nomenclature nomenclature,
+			OnlineOrder onlineOrder,
+			bool giftItem = false
+		)
+		{
+			var onlineOrderItem = new OnlineOrderItem
+			{
+				NomenclatureId = nomenclatureId,
+				Count = count,
+				IsFixedPrice = isFixedPrice,
+				Price = price,
+				Nomenclature = nomenclature,
+				OnlineOrder = onlineOrder,
+				GiftItem = giftItem
+			};
+			
+			if(discountReasons != null)
+			{
+				foreach(var reason in discountReasons)
+				{
+					if(reason != null)
+					{
+						onlineOrderItem.DiscountReasons.Add(reason);
+					}
+				}
+			}
+
+			var currentPrice = onlineOrderItem.CurrentRawPrice;
+			var discountMoney = currentPrice - currentSum;
+			onlineOrderItem.IsDiscountInMoney = onlineOrderItem.DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
+
+			var discount = currentPrice == 0
+				? 0m
+				: !onlineOrderItem.IsDiscountInMoney
+					? 100 * discountMoney / currentPrice
+					: discountMoney;
+
+			onlineOrderItem.CalculateDiscount(isFixedPrice, discount);
+			return onlineOrderItem;
+		}
+
+		private void CalculateDiscount(bool isFixedPrice, decimal discount)
+		{
+			if(isFixedPrice || discount == 0m)
+			{
+				CalculateDiscount(0m);
+			}
+			else
+			{
+				CalculateDiscount(discount);
+			}
 		}
 
 		private void CalculateDiscount(decimal discount)
@@ -307,8 +431,6 @@ namespace Vodovoz.Domain.Orders
 
 			IsDiscountInMoneyFromDiscountReasons = DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
 		}
-
-		private decimal CurrentRawPrice => Price * CurrentCount;
 
 		private decimal CalculateTotalDiscountInMoneyFromAddedReasons()
 		{

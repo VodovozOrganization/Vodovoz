@@ -37,8 +37,8 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxOPF.ItemsEnum = typeof(PersonType);
 			yenumcomboboxHasTask.ItemsEnum = typeof(DebtorsTaskStatus);
 
-			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
-			ycomboboxReason.ItemsList = ViewModel.UoW?.Session.QueryOver<DiscountReason>().List();
+			ycomboboxReason.SetRenderTextFunc<DiscountReasonBase>(x => x.Name);
+			ycomboboxReason.ItemsList = ViewModel.UoW?.Session.QueryOver<DiscountReasonBase>().List();
 
 			entryreferenceClient.Binding
 				.AddBinding(ViewModel, x => x.Client, x => x.Subject)

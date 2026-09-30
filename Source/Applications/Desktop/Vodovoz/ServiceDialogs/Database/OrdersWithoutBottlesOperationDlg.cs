@@ -12,15 +12,21 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrdersWithoutBottlesOperationDlg : QS.Dialog.Gtk.TdiTabBase
 	{
-		IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+		private ILifetimeScope _scope = Startup.AppDIContainer.BeginLifetimeScope();
+		private IUnitOfWork _uow;
+		private INomenclatureSettings _nomenclatureSettings;
+		private ICashRepository _cashRepository;
+		private IRouteListItemRepository _routeListItemRepository;
+		private IOrderSaleHandler _saleHandler;
 
-		List<Order> orders;
+		private List<Order> _orders;
 
 		public OrdersWithoutBottlesOperationDlg()
 		{
@@ -30,7 +36,8 @@ namespace Vodovoz.ServiceDialogs.Database
 				return;
 			}
 
-			this.Build();
+			Build();
+			ResolveDependencies();
 
 			TabName = "Заказы без передвижения бутылей";
 
@@ -44,13 +51,22 @@ namespace Vodovoz.ServiceDialogs.Database
 				.Finish();
 		}
 
+		private void ResolveDependencies()
+		{
+			_nomenclatureSettings = _scope.Resolve<INomenclatureSettings>();
+			_cashRepository = _scope.Resolve<ICashRepository>();
+			_routeListItemRepository = _scope.Resolve<IRouteListItemRepository>();
+			_saleHandler = _scope.Resolve<IOrderSaleHandler>();
+			_uow = _scope.Resolve<IUnitOfWorkFactory>().CreateWithoutRoot();
+		}
+
 		protected void OnButtonFindOrdersClicked(object sender, EventArgs e)
 		{
-			var docList = uow.Session.QueryOver<SelfDeliveryDocument>()
+			var docList = _uow.Session.QueryOver<SelfDeliveryDocument>()
 			   .Where(x => x.Order != null)
 			   .List();
 
-			orders = new List<Order>(
+			_orders = new List<Order>(
 				docList.Select(x => x.Order)
 				.Where(x => x.BottlesMovementOperation == null
 					  && x.SelfDelivery
@@ -58,23 +74,37 @@ namespace Vodovoz.ServiceDialogs.Database
 				      && x.OrderItems.Any(oi => oi.Nomenclature?.Category == NomenclatureCategory.water && oi.Nomenclature?.TareVolume == TareVolume.Vol19L))
 			).Distinct().ToList();
 
-			ytreeviewOrders.SetItemsSource(orders);
-			labelOrdersCount.Text = String.Format("Найдено заказов: {0}", orders.Count);
+			ytreeviewOrders.SetItemsSource(_orders);
+			labelOrdersCount.Text = String.Format("Найдено заказов: {0}", _orders.Count);
 		}
 
 		protected void OnButtonCreateBottleOperationsClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
-			var cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
-			var routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
-
-			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , nomenclatureSettings, routeListItemRepository, cashRepository));
-			if(uow.HasChanges && MessageDialogHelper.RunQuestionDialog(
+			_orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(
+				_uow,
+				_saleHandler,
+				_nomenclatureSettings,
+				_routeListItemRepository,
+				_cashRepository)
+			);
+			if(_uow.HasChanges && MessageDialogHelper.RunQuestionDialog(
 				"Создано \"{0}\" недостающих операций передвижения бутылей, сохранить изменения?",
-				orders.Count(x => x.BottlesMovementOperation != null))){
-				uow.Commit();
+				_orders.Count(x => x.BottlesMovementOperation != null))){
+				_uow.Commit();
 			}
 			OnCloseTab(false);
+		}
+
+		protected override void OnDestroyed()
+		{
+			if(_scope != null)
+			{
+				_scope.Dispose();
+				_scope = null;
+			}
+			
+			_uow?.Dispose();
+			base.OnDestroyed();
 		}
 	}
 }

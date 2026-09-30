@@ -3,15 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Service;
 using VodovozBusiness.Services;
 
@@ -32,6 +33,7 @@ namespace Vodovoz.Core.Application.Goods
 
 		private readonly IGenericRepository<MovementDocument> _movementDocumentRepository;
 		private readonly IDeliveryRepository _deliveryRepository;
+		private readonly IOrderSaleHandler _saleHandler;
 		private readonly int _masterCallNomenclatureId;
 
 		public NomenclatureService(
@@ -44,7 +46,9 @@ namespace Vodovoz.Core.Application.Goods
 			IGenericRepository<CarInstanceGoodsAccountingOperation> carInstanceGoodsAccountingOperationRepository,
 			IGenericRepository<MovementDocument> movementDocumentRepository,
 			INomenclatureSettings nomenclatureSettings,
-			IDeliveryRepository deliveryRepository)
+			IDeliveryRepository deliveryRepository,
+			IOrderSaleHandler saleHandler
+			)
 		{
 			_nomenclatureRepository = nomenclatureRepository
 				?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -63,6 +67,7 @@ namespace Vodovoz.Core.Application.Goods
 			_movementDocumentRepository = movementDocumentRepository
 				?? throw new ArgumentNullException(nameof(movementDocumentRepository));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 
 			if(nomenclatureSettings is null)
 			{
@@ -188,14 +193,15 @@ namespace Vodovoz.Core.Application.Goods
 
 		public void CalculateMasterCallNomenclaturePriceIfNeeded(IUnitOfWork unitOfWork, Order order)
 		{
-			var masterCallOrerItem = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _masterCallNomenclatureId);
+			_saleHandler.SetSource(order);
+			var masterCallOrderItem = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _masterCallNomenclatureId);
 
-			if(masterCallOrerItem is null)
+			if(masterCallOrderItem is null)
 			{
 				return;
 			}
 
-			if(masterCallOrerItem.IsUserPrice)
+			if(masterCallOrderItem.IsUserPrice)
 			{
 				return;
 			}
@@ -204,8 +210,7 @@ namespace Vodovoz.Core.Application.Goods
 
 			if(deliveryPoint is null || order.DeliveryDate is null)
 			{
-				masterCallOrerItem.SetPrice(masterCallOrerItem.Nomenclature.GetPrice(1));
-				
+				_saleHandler.SetPrice(masterCallOrderItem, masterCallOrderItem.Nomenclature.GetPrice(1));
 				return;
 			}
 
@@ -213,7 +218,7 @@ namespace Vodovoz.Core.Application.Goods
 
 			if(serviceDistrict is null)
 			{
-				masterCallOrerItem.SetPrice(masterCallOrerItem.Nomenclature.GetPrice(1));
+				_saleHandler.SetPrice(masterCallOrderItem, masterCallOrderItem.Nomenclature.GetPrice(1));
 
 				return;
 			}
@@ -229,7 +234,7 @@ namespace Vodovoz.Core.Application.Goods
 				price = GetMasterServiceTypePrice(serviceDistrict, MasterServiceType.Repair, order.DeliveryDate.Value);
 			}
 
-			masterCallOrerItem.SetPrice(price);
+			_saleHandler.SetPrice(masterCallOrderItem, (SaleItemPriceType.General, price));
 		}
 
 		private decimal GetMasterServiceTypePrice(ServiceDistrict serviceDistrict, MasterServiceType masterServiceType, DateTime deliveryDate)

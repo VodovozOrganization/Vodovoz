@@ -50,6 +50,13 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel.Entity, e => e.Author, w => w.LabelProp)
 				.InitializeFromSource();
 			
+			chkIsService.Sensitive = false;
+			chkIsService.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.IsService, w => w.Active)
+				.AddBinding(e => e.IsService, w => w.Visible)
+				.InitializeFromSource();
+			
 			lblEmployeeWorkWith.Binding
 				.AddBinding(ViewModel, vm => vm.EmployeeWorkWith, w => w.LabelProp)
 				.InitializeFromSource();

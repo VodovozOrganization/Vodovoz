@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		Nominative = "организация")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class OrganizationEntity : AccountOwnerBase, INamedDomainObject, IValidatableObject
+	public class OrganizationEntity : AccountOwnerBase, INamedDomainObject, IValidatableObject, IUsnModeOrganization
 	{
 		private int _id;
 		private string _name;

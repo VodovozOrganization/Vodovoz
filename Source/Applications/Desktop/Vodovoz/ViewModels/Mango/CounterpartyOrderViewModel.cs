@@ -34,6 +34,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.Services.Orders;
 using VodovozBusiness.NotificationSenders;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango
 {
@@ -58,6 +59,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly OrderCancellationService _orderCancellationService;
 		private readonly OrderCancellationPermitService _orderCancellationPermitService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly IOrderSaleHandler _saleHandler;
 		private IUnitOfWork UoW;
 		
 		private List<DeliveryPoint> _deliveryPoints = new List<DeliveryPoint>();
@@ -107,6 +109,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			OrderCancellationService orderCancellationService,
 			OrderCancellationPermitService orderCancellationPermitService,
 			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			IOrderSaleHandler saleHandler,
 			int count = 5)
 		{
 			Client = client;
@@ -127,6 +130,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			_orderCancellationPermitService =
 				orderCancellationPermitService ?? throw new ArgumentNullException(nameof(orderCancellationPermitService));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
@@ -337,19 +341,24 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		{
 			var order = e.UndeliveredOrder.OldOrder;
 
-			order.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker,
+			order.SetUndeliveredStatus(
+				UoW,
+				_routeListService,
+				_saleHandler,
+				_nomenclatureSettings,
+				_callTaskWorker,
 				needCreateDeliveryFreeBalanceOperation: true);
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order);
 			if(routeListItem != null)
 			{
 				routeListItem.StatusLastUpdate = DateTime.Now;
-				routeListItem.SetOrderActualCountsToZeroOnCanceled();
+				routeListItem.SetOrderActualCountsToZeroOnCanceled(_saleHandler);
 				UoW.Save(routeListItem);
 			}
 			else
 			{
-				order.SetActualCountsToZeroOnCanceled();
+				order.SetActualCountsToZeroOnCanceled(_saleHandler);
 			}
 
 			UoW.Save(order);

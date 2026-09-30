@@ -19,6 +19,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IOrderSaleHandler _saleHandler;
 
 		public PaymentByCardViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -41,7 +43,9 @@ namespace Vodovoz.ViewModels.Cash
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IOrderContractUpdater contractUpdater,
 			IEmployeeService employeeService,
-			IInteractiveService interactiveService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			IInteractiveService interactiveService,
+			IOrderSaleHandler saleHandler
+			) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(orderSettings == null)
 			{
@@ -58,6 +62,7 @@ namespace Vodovoz.ViewModels.Cash
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
 				.GetEmployeeForCurrentUser(UoW);
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 
 			TabName = "Оплата по карте";
 
@@ -163,11 +168,11 @@ namespace Vodovoz.ViewModels.Cash
 
 		protected override bool BeforeValidation()
 		{
-			Entity.ChangePaymentTypeToByCardTerminal(_callTaskWorker);
+			Entity.ChangePaymentTypeToByCardTerminal(_saleHandler, _callTaskWorker);
 
 			if(!Entity.PayAfterShipment)
 			{
-				Entity.SelfDeliveryToLoading(_currentEmployee, CommonServices.CurrentPermissionService, _callTaskWorker);
+				Entity.SelfDeliveryToLoading(_currentEmployee, CommonServices.CurrentPermissionService, _callTaskWorker, _saleHandler);
 			}
 
 			if(Entity.SelfDelivery)

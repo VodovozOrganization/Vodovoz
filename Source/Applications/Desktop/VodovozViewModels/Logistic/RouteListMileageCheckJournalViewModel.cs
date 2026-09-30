@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using System;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -24,11 +25,14 @@ using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListMileageCheckJournalViewModel : RouteListJournalViewModel
 	{
+		private readonly IOrderSaleHandler _saleHandler;
+
 		public RouteListMileageCheckJournalViewModel(RouteListJournalFilterViewModel filterViewModel,
 			IRouteListRepository routeListRepository,
 			ISubdivisionRepository subdivisionRepository,
@@ -50,7 +54,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListService routeListService,
 			IEventsQrPlacer eventsQrPlacer,
 			ICustomPrintRdlDocumentsPrinter carLoadDocumentsPrinter,
-			IReportInfoFactory reportInfoFactory
+			IReportInfoFactory reportInfoFactory,
+			IOrderSaleHandler saleHandler
 			)
 			: base(
 				filterViewModel,
@@ -73,7 +78,9 @@ namespace Vodovoz.ViewModels.Logistic
 				routeListService,
 				eventsQrPlacer,
 				carLoadDocumentsPrinter,
-				reportInfoFactory)
+				reportInfoFactory,
+				saleHandler
+			)
 		{
 			TabName = "Контроль за километражем.";
 

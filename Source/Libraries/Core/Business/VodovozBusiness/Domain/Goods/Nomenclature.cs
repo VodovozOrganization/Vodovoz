@@ -12,6 +12,7 @@ using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -342,17 +343,27 @@ namespace Vodovoz.Domain.Goods
 			return false;
 		}
 		
-		public override decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
+		/// <summary>
+		/// Получение цены позиции промонабора
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns>Стоимость</returns>
+		public override (SaleItemPriceType PriceType, decimal Price) GetPromoSetItemPrice(bool useAlternativePrice = false)
+		{
+			return GetPrice(1, useAlternativePrice);
+		}
+		
+		public override (SaleItemPriceType PriceType, decimal Price) GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
 		{
 			if(itemsCount < 1)
 			{
 				itemsCount = 1;
 			}
 
-			decimal price = 0m;
+			(SaleItemPriceType PriceType, decimal Price) priceData;
 			if(DependsOnNomenclature != null)
 			{
-				price = DependsOnNomenclature.GetPrice(itemsCount, useAlternativePrice);
+				priceData = DependsOnNomenclature.GetPrice(itemsCount, useAlternativePrice);
 			}
 			else
 			{
@@ -361,9 +372,24 @@ namespace Vodovoz.Domain.Goods
 						: NomenclaturePrice.Cast<NomenclaturePriceGeneralBase>())
 					.OrderByDescending(p => p.MinCount)
 					.FirstOrDefault(p => p.MinCount <= itemsCount);
-				price = nomPrice?.Price ?? 0;
+				
+				if(nomPrice != null)
+				{
+					switch(nomPrice.Type)
+					{
+						case NomenclaturePriceGeneralBase.NomenclaturePriceType.General:
+							return (SaleItemPriceType.General, nomPrice.Price);
+						case NomenclaturePriceGeneralBase.NomenclaturePriceType.Alternative:
+							return (SaleItemPriceType.Alternative, nomPrice.Price);
+						default:
+							throw new ArgumentOutOfRangeException("Неизвестный тип цены номенклатуры. Невозможно рассчитать цену позиции");
+					}
+				}
+				
+				return (SaleItemPriceType.General, 0);
 			}
-			return price;
+
+			return priceData;
 		}
 		
 		/// <summary>

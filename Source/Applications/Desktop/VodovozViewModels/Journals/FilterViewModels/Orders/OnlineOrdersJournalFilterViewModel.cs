@@ -140,7 +140,20 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		public OnlineRequestsType? OnlineRequestsType
 		{
 			get => _onlineRequestsType;
-			set => UpdateFilterField(ref _onlineRequestsType, value);
+			set
+			{
+				if(!SetField(ref _onlineRequestsType, value))
+				{
+					return;
+				}
+
+				_filterDateType = _onlineRequestsType == Enums.OnlineRequestsType.RequestsForCall
+					? OrdersDateFilterType.CreationDate
+					: OrdersDateFilterType.DeliveryDate;
+				
+				OnPropertyChanged(nameof(FilterDateType));
+				Update();
+			}
 		}
 
 		public virtual OnlineOrderPaymentType? RestrictPaymentType

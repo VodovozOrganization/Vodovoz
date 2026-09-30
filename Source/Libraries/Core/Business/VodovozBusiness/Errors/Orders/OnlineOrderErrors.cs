@@ -110,6 +110,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectPricePaidDelivery),
 				$"Платная доставка с неверной ценой: пришла {onlineOrderItemPrice}, а должна быть {price}");
 		
+		public static Error ErrorCalculatingPaidDelivery() =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ErrorCalculatingPaidDelivery),
+				$"Не удалось рассчитать платную доставку");
+		
 		public static Error FastDeliveryNotAvailable =>
 			new Error(
 				typeof(OnlineOrderErrors),
@@ -168,6 +174,14 @@ namespace Vodovoz.Errors.Orders
 				$"Номенклатура {nomenclature} пришла с неправильно установленной ценой" +
 				$"\nДолжно быть {price}, а передано {onlineOrderItemPrice}");
 		
+		public static Error IncorrectPricePromoSetInOnlineOrder(
+			string promoSet, decimal price, decimal onlinePromoSetPrice) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncorrectPricePromoSetInOnlineOrder),
+				$"{promoSet} пришел с неправильно установленной ценой" +
+				$"\nДолжно быть {price}, а передано {onlinePromoSetPrice}");
+		
 		public static Error NotApplicableDiscountToNomenclatureOnlineOrder(string nomenclature) =>
 			new Error(
 				typeof(OnlineOrderErrors),
@@ -182,6 +196,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectDiscountNomenclatureInOnlineOrder),
 				$"Номенклатура {nomenclature} пришла с неправильно установленной скидкой" +
 				$"\nДолжно быть {discount}, а передано {onlineOrderItemDiscount}");
+		
+		public static Error NotApplicableDiscountsToPromoSet(string promoSet, string notApplicableDiscounts) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(NotApplicableDiscountsToPromoSet),
+				$"Промонабор {promoSet} пришел со скидками, которые не применимы к нему: {notApplicableDiscounts}");
 		
 		public static Error IncorrectCountNomenclatureInOnlineOrder(string nomenclature, decimal count) =>
 			new Error(
@@ -215,7 +235,30 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectDiscountInOnlineOrderPromoSet),
 				$"В переданном промонаборе {promoSetTitle} в позиции {position} {nomenclature}" +
 				$"\nнеправильно указана скидка: должно быть {discountItemFromPromoSet}, а передано {onlineOrderItemDiscount}");
-		
+
+		/// <summary>
+		/// В строке заказа содежратся несовместимые друг с другом скидки
+		/// </summary>
+		public static Error IncompatibleDiscountInOnlineOrderItem =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncompatibleDiscountInOnlineOrderItem),
+				"В строке заказа содежратся несовместимые друг с другом скидки");
+
+		/// <summary>
+		/// В строке заказа содежратся несовместимые друг с другом скидки
+		/// </summary>
+		/// <param name="discountReasonName">Наименование несовместимой скидки</param>
+		/// <param name="nomenclature">Номенклатура, в которую добавлена несовместимая скидка</param>
+		/// <returns></returns>
+		public static Error CreateIncompatibleDiscountInOnlineOrderItem(
+			string discountReasonName, string nomenclature) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncompatibleDiscountInOnlineOrderItem),
+				$"В строке заказа с номенклатурой {nomenclature} содержится несколько скидок, " +
+				$"при этом скидка \"{discountReasonName}\" несовместима с другими");
+
 		public static Error IncorrectRentPackageIdInOnlineOrder(int? rentPackageId) =>
 			new Error(
 				typeof(OnlineOrderErrors),

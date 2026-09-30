@@ -1,9 +1,13 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Project.Repositories;
 using QS.Utilities.Text;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -11,7 +15,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки промонабора",
 		Nominative = "строка промонабора")]
 	[HistoryTrace]
-	public class PromotionalSetItem : PropertyChangedBase, IDomainObject
+	public class PromotionalSetItem : PropertyChangedBase, IDomainObject, INomenclatureCount
 	{
 		private PromotionalSet _promoSet;
 		private Nomenclature _nomenclature;
@@ -114,6 +118,16 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		#region INomenclature implementation
+
+		decimal ISetCount.Count
+		{
+			get => _count;
+			set => Count = (int)value;
+		}
+
+		#endregion
+		
 		#endregion
 
 		public virtual string Title => string.Format(
@@ -124,5 +138,48 @@ namespace Vodovoz.Domain.Orders
 			Nomenclature.Name,
 			Discount
 		);
+		
+		/// <summary>
+		/// Получение скидки в зависимости от флага <see cref="IsDiscountInMoney"/>
+		/// </summary>
+		public virtual decimal GetDiscount => IsDiscountInMoney ? DiscountMoney : Discount;
+		
+		/// <summary>
+		/// Цена позиции промонабора
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns></returns>
+		public virtual (SaleItemPriceType PriceType, decimal Price) Price(bool useAlternativePrice = false) =>
+			Nomenclature.GetPromoSetItemPrice(useAlternativePrice);
+		
+		/// <summary>
+		/// Общая стоимость позиции промонабора без учета скидок
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns></returns>
+		public virtual decimal SumWithoutDiscount(bool useAlternativePrice = false) =>
+			Math.Round(Count * Nomenclature.GetPromoSetItemPrice(useAlternativePrice).Price, 2);
+
+		/// <summary>
+		/// Общая стоимость позиции промонабора
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns></returns>
+		public virtual decimal Sum(bool useAlternativePrice = false)
+		{
+			if(Nomenclature is null)
+			{
+				throw new ArgumentNullException(nameof(Nomenclature), "Нельзя рассчитывать стоимость при незаполненной номенклатуре");
+			}
+			
+			var sumWithoutDiscount = SumWithoutDiscount(useAlternativePrice);
+			
+			if(IsDiscountInMoney)
+			{
+				return Math.Round(sumWithoutDiscount - DiscountMoney, 2);
+			}
+
+			return Math.Round(sumWithoutDiscount - (sumWithoutDiscount * Discount / 100), 2);
+		}
 	}
 }

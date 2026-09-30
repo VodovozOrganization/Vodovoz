@@ -26,6 +26,8 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yLabel lblAuthorTitle;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkIsService;
+
 		private global::Gamma.GtkWidgets.yLabel lblClosedReasonTitle;
 
 		private global::Gamma.GtkWidgets.yLabel lblContactPhone;
@@ -136,8 +138,8 @@ namespace Vodovoz.Views.Orders
 			this.closedReasonEntry.Name = "closedReasonEntry";
 			this.tableInfo.Add(this.closedReasonEntry);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.closedReasonEntry]));
-			w7.TopAttach = ((uint)(5));
-			w7.BottomAttach = ((uint)(6));
+			w7.TopAttach = ((uint)(6));
+			w7.BottomAttach = ((uint)(7));
 			w7.LeftAttach = ((uint)(1));
 			w7.RightAttach = ((uint)(2));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -166,6 +168,21 @@ namespace Vodovoz.Views.Orders
 			w9.BottomAttach = ((uint)(4));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.chkIsService = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkIsService.CanFocus = true;
+			this.chkIsService.Name = "chkIsService";
+			this.chkIsService.Label = global::Mono.Unix.Catalog.GetString("Услуги СЦ");
+			this.chkIsService.DrawIndicator = true;
+			this.chkIsService.UseUnderline = true;
+			this.tableInfo.Add(this.chkIsService);
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.chkIsService]));
+			w24.TopAttach = ((uint)(4));
+			w24.BottomAttach = ((uint)(5));
+			w24.LeftAttach = ((uint)(1));
+			w24.RightAttach = ((uint)(2));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInfo.Gtk.Table+TableChild
 			this.lblClosedReasonTitle = new global::Gamma.GtkWidgets.yLabel();
 			this.lblClosedReasonTitle.Name = "lblClosedReasonTitle";
@@ -173,8 +190,8 @@ namespace Vodovoz.Views.Orders
 			this.lblClosedReasonTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Причина закрытия:");
 			this.tableInfo.Add(this.lblClosedReasonTitle);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.lblClosedReasonTitle]));
-			w10.TopAttach = ((uint)(5));
-			w10.BottomAttach = ((uint)(6));
+			w10.TopAttach = ((uint)(6));
+			w10.BottomAttach = ((uint)(7));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInfo.Gtk.Table+TableChild
@@ -208,8 +225,8 @@ namespace Vodovoz.Views.Orders
 			this.lblEmployeeWorkWith.LabelProp = global::Mono.Unix.Catalog.GetString("@EmployeeWorkWith@");
 			this.tableInfo.Add(this.lblEmployeeWorkWith);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.lblEmployeeWorkWith]));
-			w13.TopAttach = ((uint)(6));
-			w13.BottomAttach = ((uint)(7));
+			w13.TopAttach = ((uint)(7));
+			w13.BottomAttach = ((uint)(8));
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(2));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -221,8 +238,8 @@ namespace Vodovoz.Views.Orders
 			this.lblEmployeeWorkWithTitle.LabelProp = global::Mono.Unix.Catalog.GetString("В работе у:");
 			this.tableInfo.Add(this.lblEmployeeWorkWithTitle);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.lblEmployeeWorkWithTitle]));
-			w14.TopAttach = ((uint)(6));
-			w14.BottomAttach = ((uint)(7));
+			w14.TopAttach = ((uint)(7));
+			w14.BottomAttach = ((uint)(8));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInfo.Gtk.Table+TableChild
@@ -252,8 +269,8 @@ namespace Vodovoz.Views.Orders
 			this.lblNomenclatureTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Товар:");
 			this.tableInfo.Add(this.lblNomenclatureTitle);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.lblNomenclatureTitle]));
-			w17.TopAttach = ((uint)(4));
-			w17.BottomAttach = ((uint)(5));
+			w17.TopAttach = ((uint)(5));
+			w17.BottomAttach = ((uint)(6));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInfo.Gtk.Table+TableChild
@@ -263,8 +280,8 @@ namespace Vodovoz.Views.Orders
 			this.lblOrder.LabelProp = global::Mono.Unix.Catalog.GetString("@Order@");
 			this.tableInfo.Add(this.lblOrder);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.lblOrder]));
-			w18.TopAttach = ((uint)(7));
-			w18.BottomAttach = ((uint)(8));
+			w18.TopAttach = ((uint)(8));
+			w18.BottomAttach = ((uint)(9));
 			w18.LeftAttach = ((uint)(1));
 			w18.RightAttach = ((uint)(2));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -276,8 +293,8 @@ namespace Vodovoz.Views.Orders
 			this.lblOrderTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Оформленный заказ:");
 			this.tableInfo.Add(this.lblOrderTitle);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.lblOrderTitle]));
-			w19.TopAttach = ((uint)(7));
-			w19.BottomAttach = ((uint)(8));
+			w19.TopAttach = ((uint)(8));
+			w19.BottomAttach = ((uint)(9));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInfo.Gtk.Table+TableChild
@@ -310,8 +327,8 @@ namespace Vodovoz.Views.Orders
 			this.nomenclatureEntry.Name = "nomenclatureEntry";
 			this.tableInfo.Add(this.nomenclatureEntry);
 			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.nomenclatureEntry]));
-			w22.TopAttach = ((uint)(4));
-			w22.BottomAttach = ((uint)(5));
+			w22.TopAttach = ((uint)(5));
+			w22.BottomAttach = ((uint)(6));
 			w22.LeftAttach = ((uint)(1));
 			w22.RightAttach = ((uint)(2));
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));

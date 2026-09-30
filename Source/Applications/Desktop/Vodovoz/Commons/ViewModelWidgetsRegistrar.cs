@@ -15,9 +15,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Core;
-using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Documents;
-using Vodovoz.Presentation.Views.Common;
+using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.Views.Orders;
 
 namespace Vodovoz.Commons
 {
@@ -45,6 +45,8 @@ namespace Vodovoz.Commons
 
 			_viewModelWidgetResolver.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
 				.RegisterWidgetForTabViewModel(typeof(PrintableRdlDocumentViewModel<>), typeof(RdlViewerView))
+				.RegisterWidgetForTabViewModel<OnlineOrderV1ViewModel, OnlineOrderView>()
+				.RegisterWidgetForTabViewModel<OnlineOrderV2ViewModel, OnlineOrderView>()
 				.RegisterWidgetForWidgetViewModel<SearchViewModel, SearchView>();
 
 			foreach(var assembly in assemblies)

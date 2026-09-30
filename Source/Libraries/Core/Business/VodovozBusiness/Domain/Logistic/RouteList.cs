@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using NHibernate.Criterion;
 using QS.Dialog;
@@ -55,6 +55,8 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.EntityRepositories.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Domain.Logistic
@@ -1734,7 +1736,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
-		public virtual void FirstFillClosing(IWageParameterService wageParameterService)
+		public virtual void FirstFillClosing(IWageParameterService wageParameterService, IOrderSaleHandler saleHandler)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -1746,7 +1748,8 @@ namespace Vodovoz.Domain.Logistic
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 
 				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
-				routeListItem.FirstFillClosing(wageParameterService);
+				saleHandler.SetSource(routeListItem.Order);
+				routeListItem.FirstFillClosing(wageParameterService, saleHandler);
 				PerformanceHelper.EndPointsGroup();
 			}
 

@@ -1,4 +1,4 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -7,26 +7,28 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
-using Vodovoz.Controllers;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Widgets.Orders
 {
-	public class OrderItemDiscountReasonsViewModel : WidgetViewModelBase
+	public class OrderItemDiscountReasonsViewModel : WidgetViewModelBase, IDisposable
 	{
 		private bool _isEditEnabled;
-		private IDiscount _orderItem;
-		private DiscountReason _newDiscountReason;
-		private DiscountReason _selectedDiscountReason;
-		private IList<DiscountReason> _allDiscountReasons;
-		private IList<DiscountReason> _applicableDiscountReasons = new List<DiscountReason>();
-		private IObservableList<DiscountReason> _orderItemDiscountReasons = new ObservableList<DiscountReason>();
+		private IApplyDiscountReasonItem _saleItem;
+		private DiscountReasonBase _newDiscountReason;
+		private DiscountReasonBase _selectedDiscountReason;
+		private IList<DiscountReasonBase> _allDiscountReasons;
+		private IList<DiscountReasonBase> _applicableDiscountReasons = new List<DiscountReasonBase>();
+		private IObservableList<DiscountReasonBase> _saleItemDiscountReasons = new ObservableList<DiscountReasonBase>();
 
 		private IUnitOfWork _uow;
+		private ISaleDiscountController _saleDiscountController;
 
-		private readonly IOrderDiscountsController _orderDiscountController;
 		private readonly ICommonServices _commonServices;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IInteractiveService _interactiveService;
@@ -34,11 +36,9 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 		private readonly bool _isUserCanChoosePremiumDiscount;
 
 		public OrderItemDiscountReasonsViewModel(
-			IOrderDiscountsController orderDiscountController,
 			ICommonServices commonServices,
 			IDiscountReasonRepository discountReasonRepository)
 		{
-			_orderDiscountController = orderDiscountController ?? throw new ArgumentNullException(nameof(orderDiscountController));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 
@@ -60,15 +60,15 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 		public DelegateCommand DeleteDiscountReasonCommand { get; }
 
 		[PropertyChangedAlso(nameof(AvailableDiscountReasons))]
-		public IObservableList<DiscountReason> OrderItemDiscountReasons
+		public IObservableList<DiscountReasonBase> SaleItemDiscountReasons
 		{
-			get => _orderItemDiscountReasons;
-			private set => SetField(ref _orderItemDiscountReasons, value);
+			get => _saleItemDiscountReasons;
+			private set => SetField(ref _saleItemDiscountReasons, value);
 		}
 
-		public IList<DiscountReason> AvailableDiscountReasons =>
+		public IList<DiscountReasonBase> AvailableDiscountReasons =>
 			_applicableDiscountReasons
-			.Where(x => !OrderItemDiscountReasons.Contains(x))
+			.Where(x => !SaleItemDiscountReasons.Contains(x))
 			.ToList();
 
 		[PropertyChangedAlso(nameof(IsEditable))]
@@ -79,23 +79,23 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 		}
 
 		[PropertyChangedAlso(
-			nameof(OrderItemDiscountReasons),
+			nameof(SaleItemDiscountReasons),
 			nameof(IsEditable))]
-		public IDiscount OrderItem
+		public IApplyDiscountReasonItem SaleItem
 		{
-			get => _orderItem;
-			private set => SetField(ref _orderItem, value);
+			get => _saleItem;
+			private set => SetField(ref _saleItem, value);
 		}
 
 		[PropertyChangedAlso(nameof(CanAddDiscountReason))]
-		public DiscountReason NewDiscountReason
+		public DiscountReasonBase NewDiscountReason
 		{
 			get => _newDiscountReason;
 			set => SetField(ref _newDiscountReason, value);
 		}
 
 		[PropertyChangedAlso(nameof(CanDeleteDiscountReason))]
-		public DiscountReason SelectedDiscountReason
+		public DiscountReasonBase SelectedDiscountReason
 		{
 			get => _selectedDiscountReason;
 			set => SetField(ref _selectedDiscountReason, value);
@@ -105,11 +105,11 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 
 		public bool CanDeleteDiscountReason => SelectedDiscountReason != null;
 
-		public bool IsEditable => IsEditEnabled && OrderItem != null;
+		public bool IsEditable => IsEditEnabled && SaleItem != null;
 
 		public bool IsInitialized => _uow != null && _allDiscountReasons != null;
 
-		public void Initialize(IUnitOfWork uow)
+		public void Initialize(IUnitOfWork uow, ISaleDiscountController saleDiscountController)
 		{
 			if(IsInitialized)
 			{
@@ -117,57 +117,87 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			}
 
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_saleDiscountController = saleDiscountController ?? throw new ArgumentNullException(nameof(saleDiscountController));
 
 			SetAllDiscountReasons();
 		}
 
-		public void SetOrderItem(IDiscount orderItem)
+		public void SetSaleItem(IApplyDiscountReasonItem saleItem)
 		{
-			if(orderItem is null)
+			if(saleItem is null)
 			{
-				throw new ArgumentNullException(nameof(orderItem));
+				throw new ArgumentNullException(nameof(saleItem));
 			}
 
 			if(!IsInitialized)
 			{
-				throw new InvalidOperationException("ViewModel must be initialized before setting order item");
+				throw new InvalidOperationException("ViewModel must be initialized before setting sale item");
 			}
 
-			UpdateOrderItem(orderItem);
+			UpdateSaleItem(saleItem);
 		}
 
-		public void ResetOrderItem()
+		public void ResetSaleItem()
 		{
 			if(!IsInitialized)
 			{
-				throw new InvalidOperationException("ViewModel must be initialized before resetting order item");
+				throw new InvalidOperationException("ViewModel must be initialized before resetting sale item");
 			}
 
-			UpdateOrderItem();
+			UpdateSaleItem();
 		}
 
-		private void UpdateOrderItem(IDiscount orderItem = null)
+		private void UpdateSaleItem(IApplyDiscountReasonItem saleItem = null)
 		{
-			OrderItem = orderItem;
+			UnSubscribeOrderItemDiscountReasons();
+
+			SaleItem = saleItem;
+
+			SubscribeOrderItemDiscountReasons();
+
 			UpdateOrderItemDiscountReasons();
 			UpdateApplicableDiscountReasons();
+		}
+
+		private void SubscribeOrderItemDiscountReasons()
+		{
+			if(SaleItem?.DiscountReasons is INotifyCollectionChanged newObservable)
+			{
+				newObservable.CollectionChanged += OnDiscountReasonsCollectionChanged;
+			}
+		}
+
+		private void UnSubscribeOrderItemDiscountReasons()
+		{
+			if(_saleItem?.DiscountReasons is INotifyCollectionChanged oldObservable)
+			{
+				oldObservable.CollectionChanged -= OnDiscountReasonsCollectionChanged;
+			}
+		}
+
+		private void OnDiscountReasonsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			OnDiscountReasonsChanged();
 		}
 
 		private void UpdateApplicableDiscountReasons()
 		{
 			_applicableDiscountReasons.Clear();
 
-			if(OrderItem is null)
+			if(SaleItem is null)
 			{
 				return;
 			}
 
 			foreach(var discountReason in _allDiscountReasons)
 			{
-				if(!_orderDiscountController.IsApplicableDiscount(discountReason, OrderItem.Nomenclature))
+				var isApplicableResult = _saleDiscountController.IsApplicableDiscount(discountReason, SaleItem);
+				
+				if(isApplicableResult.IsFailure)
 				{
 					continue;
 				}
+				
 				_applicableDiscountReasons.Add(discountReason);
 			}
 
@@ -182,35 +212,32 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 
 		private void UpdateOrderItemDiscountReasons()
 		{
-			OrderItemDiscountReasons.Clear();
+			SaleItemDiscountReasons.Clear();
 
-			if(OrderItem?.DiscountReasons != null)
+			if(SaleItem?.DiscountReasons != null)
 			{
-				foreach(var dr in OrderItem.DiscountReasons)
+				foreach(var dr in SaleItem.DiscountReasons)
 				{
-					OrderItemDiscountReasons.Add(dr);
+					SaleItemDiscountReasons.Add(dr);
 				}
 			}
 
-			OnPropertyChanged(nameof(OrderItemDiscountReasons));
+			OnPropertyChanged(nameof(SaleItemDiscountReasons));
 		}
 
 		private void AddDiscountReason()
 		{
-			if(OrderItem is null || NewDiscountReason is null)
+			if(SaleItem is null || NewDiscountReason is null)
 			{
 				return;
 			}
 
-			if(OrderItem.IsDiscountReasonAdded(NewDiscountReason))
-			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					"Скидка с указанным основанием уже добавлена");
-				return;
-			}
+			var discountValue = DiscountValue.Create(
+				NewDiscountReason.ValueType == DiscountUnits.money,
+				NewDiscountReason.Value,
+				NewDiscountReason.Value);
 
-			if(!OrderItem.IsDiscountValueCanBeAdded(NewDiscountReason.ValueType == DiscountUnits.money, NewDiscountReason.Value))
+			if(!_saleDiscountController.IsDiscountValueCanBeAdded(discountValue, SaleItem))
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
@@ -218,18 +245,15 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			}
 
 			var addingDiscountResult =
-				_orderDiscountController.AddDiscountFromDiscountReasonForOrderItem(NewDiscountReason, OrderItem, _userCanSetDirectDiscountValue);
+				_saleDiscountController.AddDiscountFromDiscountReason(NewDiscountReason, SaleItem, _userCanSetDirectDiscountValue);
 
 			if(addingDiscountResult.IsFailure)
 			{
 				_interactiveService.ShowMessage(
-					ImportanceLevel.Error,
+					ImportanceLevel.Warning,
 					string.Join(Environment.NewLine, addingDiscountResult.Errors.Select(e => e.Message)),
 					"Не удалось добавить скидку с указанным основанием");
-				return;
 			}
-
-			OnDiscountReasonsChanged();
 		}
 
 		private void DeleteDiscountReason()
@@ -239,14 +263,17 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 				return;
 			}
 
-			_orderDiscountController.RemoveDiscountFromOrdersItem(SelectedDiscountReason, OrderItem);
-
-			OnDiscountReasonsChanged();
+			_saleDiscountController.RemoveDiscount(SelectedDiscountReason.Id, SaleItem);
 		}
 
 		protected virtual void OnDiscountReasonsChanged()
 		{
 			UpdateOrderItemDiscountReasons();
+		}
+
+		public void Dispose()
+		{
+			UnSubscribeOrderItemDiscountReasons();
 		}
 	}
 }

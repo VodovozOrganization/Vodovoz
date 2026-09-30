@@ -20,7 +20,9 @@ namespace Vodovoz.ViewModels.Widgets
 		
 		protected void InitializeCommands()
 		{
-			AddCommand = new DelegateCommand(AddEntity, () => CanEdit);
+			var addCommand = new DelegateCommand(AddEntity, () => CanEdit);
+			addCommand.CanExecuteChangedWith(this, x => x.CanEdit);
+			AddCommand = addCommand;
 
 			var removeCommand = new DelegateCommand(RemoveEntity, () => CanRemoveEntity);
 			removeCommand.CanExecuteChangedWith(this, x => x.CanRemoveEntity);

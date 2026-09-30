@@ -2,16 +2,31 @@
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
+using QS.DomainModel.UoW;
+using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 
 namespace VodovozBusinessTests.Domain.Orders
 {
 	[TestFixture()]
 	public class OrderItemTests
 	{
+		private static IOrderSaleHandler _saleHandler;
+		private static IOrderDiscountsController _discountsController;
+		
+		[SetUp]
+		private void Init()
+		{
+			_saleHandler = Substitute.For<IOrderSaleHandler>();
+			_discountsController = Substitute.For<IOrderDiscountsController>();
+		}
+		
 		private static IEnumerable DiscountByStockTestSource()
 		{
 			//	Скидка без учёта скидки по акции "Бутыль" расчитывается по формуле:
@@ -33,20 +48,23 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void SetDiscountByStockTest_Where_DiscountInMoney_is_true(decimal discountMoney, decimal discountPercent, decimal existingDiscountByStock, decimal discountForAdd, decimal result)
 		{
 			// arrange
-			DiscountReason discountReason = Substitute.For<DiscountReason>();
-			IEnumerable<DiscountReason> discountReasons = Substitute.For<IEnumerable<DiscountReason>>();
-			Nomenclature nomenclature = Substitute.For<Nomenclature>();
-			Order order = Substitute.For<Order>();
+			var discountReason = Substitute.For<DiscountReason>();
+			var discountReasons = Substitute.For<IEnumerable<DiscountReason>>();
+			var nomenclature = Substitute.For<Nomenclature>();
+			var order = Substitute.For<Order>();
 
-			OrderItem testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+			var testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+				_saleHandler,
 				order,
-				nomenclature,
-				20,
-				50,
-				true,
-				discountMoney,
-				discountReasons,
-				null);
+				NewOrderSaleItem.Create(
+					nomenclature,
+					20,
+					(SaleItemPriceType.General, 50),
+					discountMoney,
+					true,
+					discountReasons
+					)
+				);
 
 			// act
 			testedOrderItem.SetDiscountByStock(discountReason, discountForAdd);
@@ -60,20 +78,23 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void SetDiscountByStockTest_Where_DiscountInMoney_is_false(decimal discountMoney, decimal discountPercent, decimal existingDiscountByStock, decimal discountForAdd, decimal result)
 		{
 			// arrange
-			DiscountReason discountReason = Substitute.For<DiscountReason>();
-			IEnumerable<DiscountReason> discountReasons = Substitute.For<IEnumerable<DiscountReason>>();
-			Nomenclature nomenclature = Substitute.For<Nomenclature>();
-			Order order = Substitute.For<Order>();
+			var discountReason = Substitute.For<DiscountReason>();
+			var discountReasons = Substitute.For<IEnumerable<DiscountReason>>();
+			var nomenclature = Substitute.For<Nomenclature>();
+			var order = Substitute.For<Order>();
 
-			OrderItem testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+			var testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+				_saleHandler,
 				order,
-				nomenclature,
-				20,
-				50,
-				false,
-				discountPercent,
-				discountReasons,
-				null);
+				NewOrderSaleItem.Create(
+					nomenclature,
+					20,
+					(SaleItemPriceType.General, 50m),
+					discountPercent,
+					false,
+					discountReasons
+					)
+				);
 
 			// act
 			testedOrderItem.SetDiscountByStock(discountReason, discountForAdd);
@@ -104,19 +125,24 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void SetDiscountByStockTest_SetDiscount_and_DeleteDiscount_Where_DiscountInMoney_is_false(decimal discountMoney, decimal discountPercent, decimal existingDiscountByStock, decimal discountForAdd, decimal result)
 		{
 			// arrange
-			DiscountReason discountReason = new DiscountReason();
+			var discountReason = new DiscountReason();
 			var order = new Order();
 
 			discountReason.Value = discountPercent;
 			discountReason.ValueType = DiscountUnits.percent;
 
-			OrderItem testedOrderItem = OrderItem.CreateForSale(
+			var testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+				_saleHandler,
 				order,
-				new Nomenclature(),
-				20,
-				50);
-
-			testedOrderItem.SetDiscount(discountPercent);
+				NewOrderSaleItem.Create(
+					new Nomenclature(),
+					20,
+					(SaleItemPriceType.General, 50m),
+					discountPercent,
+					discountReason.ValueType == DiscountUnits.money,
+					new[] { discountReason }
+					)
+				);
 
 			testedOrderItem.SetDiscountByStock(discountReason, existingDiscountByStock);
 
@@ -133,20 +159,23 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void SetDiscountByStockTest_SetDiscount_and_DeleteDiscount_Where_DiscountInMoney_is_true(decimal discountMoney, decimal discountPercent, decimal existingDiscountByStock, decimal discountForAdd, decimal result)
 		{
 			// arrange
-			DiscountReason discountReason = new DiscountReason();
-			IEnumerable<DiscountReason> discountReasons = Substitute.For<IEnumerable<DiscountReason>>();
+			var discountReason = new DiscountReason();
+			var discountReasons = Substitute.For<IEnumerable<DiscountReason>>();
 			var order = new Order();
 
 
-			OrderItem testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+			var testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+				_saleHandler,
 				order,
-				new Nomenclature(),
-				20,
-				50,
-				true,
-				discountMoney,
-				discountReasons,
-				null);
+				NewOrderSaleItem.Create(
+					new Nomenclature(),
+					20,
+					(SaleItemPriceType.General, 50m),
+					discountMoney,
+					true,
+					discountReasons
+					)
+				);
 
 			testedOrderItem.SetDiscountByStock(discountReason, existingDiscountByStock);
 
@@ -203,18 +232,20 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void PropActualCount_WhenSetTo0_NdsAndCurrentSumAreAlso0(Order order, decimal? includeNdsExpected)
 		{
 			// arrange
-			Nomenclature nomenclature = Substitute.For<Nomenclature>();
+			var nomenclature = Substitute.For<Nomenclature>();
 
-			OrderItem testedOrderItem = OrderItem.CreateForSale(
+			var testedOrderItem = OrderItem.CreateForSaleWithDiscount(
+				_saleHandler,
 				order,
-				nomenclature,
-				1,
-				100);
-
-			testedOrderItem.SetManualChangingDiscount(10);
+				NewOrderSaleItem.Create(
+					nomenclature,
+					1,
+					(SaleItemPriceType.General, 100m),
+					10m)
+				);
 
 			// act
-			testedOrderItem.SetActualCount(0);
+			_saleHandler.SetActualCount(testedOrderItem, 0);
 
 			// assert
 			Assert.That(testedOrderItem.ActualSum, Is.EqualTo(0m));
@@ -233,19 +264,28 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void ManualChangingDiscount_WhenSetPercentDiscount_ResultDiscountInRange0And100(decimal discount, decimal result)
 		{
 			// arrange
-			Nomenclature nomenclature = Substitute.For<Nomenclature>();
-			Order order = Substitute.For<Order>();
+			var nomenclature = Substitute.For<Nomenclature>();
+			var order = Substitute.For<Order>();
+			var uow = Substitute.For<IUnitOfWork>();
 
-			OrderItem testedOrderItem = OrderItem.CreateForSale(
+			var testedOrderItem = OrderItem.CreateForSale(
+				_saleHandler,
 				order,
-				nomenclature,
-				1,
-				100);
+				NewOrderSaleItem.Create(
+					nomenclature,
+					1,
+					(SaleItemPriceType.General, 100m)
+					)
+				);
 
 			testedOrderItem.SetIsDiscountInMoney(false);
 
 			// act
-			testedOrderItem.SetManualChangingDiscount(discount);
+			_discountsController.SetCustomDiscount(
+				uow,
+				testedOrderItem,
+				DiscountValue.Create(testedOrderItem.IsDiscountInMoney, discount, discount)
+			);
 
 			// assert
 			Assert.That(testedOrderItem.Discount, Is.EqualTo(result));
@@ -263,19 +303,28 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void ManualChangingDiscount_WhenSetMoneyDiscount_ThenResultMoneyDiscountInRangeOf0AndMaxOrderSum(decimal discount, decimal result)
 		{
 			// arrange
-			Nomenclature nomenclature = Substitute.For<Nomenclature>();
-			Order order = Substitute.For<Order>();
+			var nomenclature = Substitute.For<Nomenclature>();
+			var order = Substitute.For<Order>();
+			var uow = Substitute.For<IUnitOfWork>();
 
-			OrderItem testedOrderItem = OrderItem.CreateForSale(
+			var testedOrderItem = OrderItem.CreateForSale(
+				_saleHandler,
 				order,
-				nomenclature,
-				2,
-				5000);
+				NewOrderSaleItem.Create(
+					nomenclature,
+					2,
+					(SaleItemPriceType.General, 5000m)
+					)
+				);
 
 			testedOrderItem.SetIsDiscountInMoney(true);
 
 			// act
-			testedOrderItem.SetManualChangingDiscount(discount);
+			_discountsController.SetCustomDiscount(
+				uow,
+				testedOrderItem,
+				DiscountValue.Create(testedOrderItem.IsDiscountInMoney, discount, discount)
+				);
 
 			// assert
 			Assert.That(testedOrderItem.DiscountMoney, Is.EqualTo(result));
@@ -288,19 +337,28 @@ namespace VodovozBusinessTests.Domain.Orders
 			// arrange
 			decimal discount = 200;
 
-			Nomenclature nomenclature = Substitute.For<Nomenclature>();
-			Order order = Substitute.For<Order>();
+			var nomenclature = Substitute.For<Nomenclature>();
+			var order = Substitute.For<Order>();
+			var uow = Substitute.For<IUnitOfWork>();
 
-			OrderItem testedOrderItem = OrderItem.CreateForSale(
+			var testedOrderItem = OrderItem.CreateForSale(
+				_saleHandler,
 				order,
-				nomenclature,
-				0,
-				5000);
+				NewOrderSaleItem.Create(
+					nomenclature,
+					0,
+					(SaleItemPriceType.General, 5000m)
+					)
+				);
 
 			testedOrderItem.SetIsDiscountInMoney(true);
 
 			// act
-			testedOrderItem.SetManualChangingDiscount(discount);
+			_discountsController.SetCustomDiscount(
+				uow,
+				testedOrderItem,
+				DiscountValue.Create(testedOrderItem.IsDiscountInMoney, discount, discount)
+				);
 
 			// assert
 			Assert.That(testedOrderItem.DiscountMoney, Is.EqualTo(0m));
@@ -312,17 +370,26 @@ namespace VodovozBusinessTests.Domain.Orders
 			// arrange
 			decimal discount = 200;
 
-			Nomenclature nomenclature = Substitute.For<Nomenclature>();
-			Order order = Substitute.For<Order>();
+			var nomenclature = Substitute.For<Nomenclature>();
+			var order = Substitute.For<Order>();
+			var uow = Substitute.For<IUnitOfWork>();
 
-			OrderItem testedOrderItem = OrderItem.CreateForSale(
+			var testedOrderItem = OrderItem.CreateForSale(
+				_saleHandler,
 				order,
-				nomenclature,
-				0,
-				5000);
+				NewOrderSaleItem.Create(
+					nomenclature,
+					0,
+					(SaleItemPriceType.General, 5000m)
+					)
+				);
 
 			// act
-			testedOrderItem.SetManualChangingDiscount(discount);
+			_discountsController.SetCustomDiscount(
+				uow,
+				testedOrderItem,
+				DiscountValue.Create(testedOrderItem.IsDiscountInMoney, discount, discount)
+				);
 
 			// assert
 			Assert.That(testedOrderItem.Discount, Is.EqualTo(0));
@@ -334,19 +401,28 @@ namespace VodovozBusinessTests.Domain.Orders
 			// arrange
 			decimal discount = 200;
 
-			Nomenclature nomenclature = Substitute.For<Nomenclature>();
-			Order order = Substitute.For<Order>();
+			var nomenclature = Substitute.For<Nomenclature>();
+			var order = Substitute.For<Order>();
+			var uow = Substitute.For<IUnitOfWork>();
 
-			OrderItem testedOrderItem = OrderItem.CreateForSale(
+			var testedOrderItem = OrderItem.CreateForSale(
+				_saleHandler,
 				order,
-				nomenclature,
-				30,
-				0);
+				NewOrderSaleItem.Create(
+					nomenclature,
+					30,
+					(SaleItemPriceType.General, 0)
+					)
+				);
 
 			testedOrderItem.SetIsDiscountInMoney(true);
 
 			// act
-			testedOrderItem.SetManualChangingDiscount(discount);
+			_discountsController.SetCustomDiscount(
+				uow,
+				testedOrderItem,
+				DiscountValue.Create(testedOrderItem.IsDiscountInMoney, discount, discount)
+			);
 
 			// assert
 			Assert.That(testedOrderItem.DiscountMoney, Is.EqualTo(0));
@@ -358,17 +434,26 @@ namespace VodovozBusinessTests.Domain.Orders
 			// arrange
 			decimal discount = 200;
 
-			Nomenclature nomenclature = Substitute.For<Nomenclature>();
-			Order order = Substitute.For<Order>();
+			var nomenclature = Substitute.For<Nomenclature>();
+			var order = Substitute.For<Order>();
+			var uow = Substitute.For<IUnitOfWork>();
 
-			OrderItem testedOrderItem = OrderItem.CreateForSale(
+			var testedOrderItem = OrderItem.CreateForSale(
+				_saleHandler,
 				order,
-				nomenclature,
-				30,
-				0);
+				NewOrderSaleItem.Create(
+					nomenclature,
+					30,
+					(SaleItemPriceType.General, 0m)
+					)
+				);
 
 			// act
-			testedOrderItem.SetManualChangingDiscount(discount);
+			_discountsController.SetCustomDiscount(
+				uow,
+				testedOrderItem,
+				DiscountValue.Create(testedOrderItem.IsDiscountInMoney, discount, discount)
+				);
 
 			// assert
 			Assert.That(testedOrderItem.Discount, Is.EqualTo(0));

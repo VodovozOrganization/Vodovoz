@@ -20,6 +20,7 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.Interactive.ConfirmationQuestion;
 using Vodovoz.ViewModels.Extensions;
+using VodovozBusiness.Controllers;
 using FastDeliveryOrderTransferMode = Vodovoz.ViewModels.ViewModels.Logistic.FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -35,6 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IConfirmationQuestionInteractive _confirmationQuestionInteractive;
 		private readonly IAddressTransferController _addressTransferController;
 		private readonly IRouteListTransferService _routeListTransferService;
+		private readonly IOrderSaleHandler _saleHandler;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IWageParameterService _wageParameterService;
@@ -60,6 +62,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IConfirmationQuestionInteractive confirmationQuestionInteractive,
 			IAddressTransferController addressTransferController,
 			IRouteListTransferService routeListTransferService,
+			IOrderSaleHandler saleHandler,
 			int routeListAddressId)
 			: base(navigationManager)
 		{
@@ -70,6 +73,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_confirmationQuestionInteractive = confirmationQuestionInteractive ?? throw new ArgumentNullException(nameof(confirmationQuestionInteractive));
 			_addressTransferController = addressTransferController ?? throw new ArgumentNullException(nameof(addressTransferController));
 			_routeListTransferService = routeListTransferService ?? throw new ArgumentNullException(nameof(routeListTransferService));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			FilterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
@@ -231,7 +235,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(routeListTo.ClosingFilled)
 			{
-				newItem.FirstFillClosing(_wageParameterService);
+				newItem.FirstFillClosing(_wageParameterService, _saleHandler);
 			}
 
 			_unitOfWork.Save(address);

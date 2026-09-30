@@ -5,6 +5,7 @@ using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Service;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -96,11 +97,7 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Количество")]
 		public virtual new int Count {
 			get => count;
-			set {
-				if(SetField(ref count, value)) {
-					Order?.UpdateRentsCount();
-				}
-			}
+			protected set => SetField(ref count, value);
 		}
 
 		OrderItem orderRentDepositItem;
@@ -130,6 +127,17 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Функции
+		
+		public virtual void SetCountWithoutRecalculate(int newCount)
+		{
+			Count = newCount;
+		}
+		
+		public virtual void SetCount(int newCount, IOrderSaleHandler saleHandler)
+		{
+			SetCountWithoutRecalculate(newCount);
+			saleHandler.UpdateRentsCount();
+		}
 
 		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation()
 		{
@@ -171,7 +179,7 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		public static OrderEquipment Clone(OrderEquipment orderEquipment)
+		internal static OrderEquipment Clone(OrderEquipment orderEquipment)
 		{
 			return new OrderEquipment
 			{
@@ -189,6 +197,75 @@ namespace Vodovoz.Domain.Orders
 				ActualCount = orderEquipment.ActualCount,
 				Count = orderEquipment.Count
 			};
+		}
+
+		internal static OrderEquipment CreateNewFromOther(Order order, OrderEquipment orderEquipment)
+		{
+			var newEquipment = new OrderEquipment
+			{
+				Order = order,
+				Direction = orderEquipment.Direction,
+				DirectionReason = orderEquipment.DirectionReason,
+				OrderItem = orderEquipment.OrderItem,
+				Equipment = orderEquipment.Equipment,
+				OwnType = orderEquipment.OwnType,
+				Nomenclature = orderEquipment.Nomenclature,
+				Reason = orderEquipment.Reason,
+				Confirmed = orderEquipment.Confirmed,
+				ConfirmedComment = orderEquipment.ConfirmedComment,
+				Count = orderEquipment.Count
+			};
+			
+			return newEquipment;
+		}
+
+		internal static OrderEquipment CreateRent(
+			Order order,
+			Nomenclature nomenclature,
+			OrderItem rentDepositItem,
+			OrderItem rentServiceItem
+			)
+		{
+			var newEquipment = new OrderEquipment
+			{
+				Order = order,
+				Count = 1,
+				Direction = Direction.Deliver,
+				Nomenclature = nomenclature,
+				Reason = Reason.Rent,
+				DirectionReason = DirectionReason.Rent,
+				OwnType = OwnTypes.Rent,
+				OrderRentDepositItem = rentDepositItem,
+				OrderRentServiceItem = rentServiceItem
+			};
+			
+			return newEquipment;
+		}
+		
+		internal static OrderEquipment CreateNewEquipmentNomenclature(
+			Order order,
+			Nomenclature nomenclature,
+			int count,
+			Direction direction,
+			OwnTypes ownType,
+			DirectionReason directionReason,
+			Reason reason
+			)
+		{
+			var newEquipment = new OrderEquipment {
+				Order = order,
+				Direction = direction,
+				Equipment = null,
+				OrderItem = null,
+				OwnType = ownType,
+				DirectionReason = directionReason,
+				Reason = reason,
+				Confirmed = true,
+				Nomenclature = nomenclature,
+				Count = count
+			};
+			
+			return newEquipment;
 		}
 	}
 }

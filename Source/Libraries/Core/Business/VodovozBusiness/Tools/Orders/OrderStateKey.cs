@@ -12,7 +12,7 @@ using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Tools.Orders
 {
-	public class OrderStateKey : ComparerDeliveryPrice
+	public class OrderStateKey : DeliveryDateComparerDeliveryPrice
 	{
 		private readonly IOrderSettings _orderSettings;
 
@@ -70,10 +70,9 @@ namespace Vodovoz.Tools.Orders
 		public IEnumerable<OrderEquipment> OnlyEquipments =>
 			Order.OrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment);
 
-		public override void InitializeFields(Order order, OrderStatus? requiredStatus = null)
+		public virtual void InitializeFields(Order order, OrderStatus? requiredStatus = null)
 		{
 			Order = order;
-			DeliveryDate = order.DeliveryDate;
 			OrderStatus = requiredStatus ?? Order.OrderStatus;
 
 			var nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
@@ -105,7 +104,7 @@ namespace Vodovoz.Tools.Orders
 			HasEShopOrder = Order.EShopOrder.HasValue;
 
 			//для проверки цены доставки
-			CalculateAllWaterCount(Order.OrderItems);
+			Initialize(Order.OrderItems, order.DeliveryDate);
 		}
 
 		private bool HasOrderEquipments(IUnitOfWork uow)
