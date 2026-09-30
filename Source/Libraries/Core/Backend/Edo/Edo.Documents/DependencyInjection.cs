@@ -1,6 +1,5 @@
 ﻿using Edo.Admin;
 using Edo.Common;
-using Edo.Common.Services;
 using Edo.Documents.Services;
 using Edo.Problems;
 using Edo.Transport;
@@ -9,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 using System.Reflection;
+using Edo.Documents.Consumers.Fault;
+using Edo.Transport.Factories;
 using TrueMark.Codes.Pool;
 
 namespace Edo.Documents
@@ -26,10 +27,11 @@ namespace Edo.Documents
 			services.TryAddScoped<ForResaleDocumentEdoTaskHandler>();
 			services.TryAddScoped<WithdrawalEdoRequestHandler>();
 
-			services.AddEdo();
-			services.AddCodesPool();
-			services.AddEdoProblemRegistration();
-			services.AddEdoAdminServices();
+			services.AddEdo()
+				.AddCodesPool()
+				.AddEdoProblemRegistration()
+				.AddEdoAdminServices()
+				.AddFaultServices();
 			
 			return services;
 		}
@@ -40,8 +42,23 @@ namespace Edo.Documents
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumers(Assembly.GetExecutingAssembly());
+				cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
+				cfg.AddConsumer<FaultDocumentTaskCreatedConsumer>();
 			});
+
+			return services;
+		}
+		
+		public static IServiceCollection AddFaultServices(this IServiceCollection services)
+		{
+			services
+				.AddScoped<FaultTransferCompleteExceptionHandler>()
+				.AddScoped<FaultDocumentTaskCreatedExceptionHandler>()
+				.AddScoped<FaultOrderDocumentSentExceptionHandler>()
+				.AddScoped<FaultOrderDocumentAcceptedExceptionHandler>()
+				;
+			
+			services.TryAddScoped<IMassTransitExceptionInfoFactory, MassTransitExceptionInfoFactory>();
 
 			return services;
 		}

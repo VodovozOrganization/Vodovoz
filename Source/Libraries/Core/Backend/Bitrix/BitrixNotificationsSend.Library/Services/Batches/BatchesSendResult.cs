@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using BitrixNotificationsSend.Contracts.Dto;
+using System.Collections.Generic;
 
 namespace BitrixNotificationsSend.Library.Services.Batches
 {
@@ -17,5 +18,10 @@ namespace BitrixNotificationsSend.Library.Services.Batches
 		/// Элементы, команды по которым не выполнены из-за операционного лимита Битрикс24
 		/// </summary>
 		public List<TItem> OperatingLimitFailedItems { get; } = new List<TItem>();
+
+		/// <summary>
+		/// Ошибки выполнения отдельных команд пакетов.
+		/// </summary>
+		public List<BitrixBatchItemError> Errors { get; } = new List<BitrixBatchItemError>();
 	}
 }

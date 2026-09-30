@@ -22,6 +22,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		private Car _car;
 		private DialogViewModelBase _parentDialog;
 		private CarVersion _editingCarVersion;
+		private bool _canEditCarCard;
 
 		public CarVersionsManagementViewModel(
 			ICommonServices commonServices,
@@ -49,12 +50,30 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 
 		public virtual bool CanRead =>
 			_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanRead;
+		public bool CanEditCarCard
+		{
+			get => _canEditCarCard;
+			set
+			{
+				if(SetField(ref _canEditCarCard, value))
+				{
+					CarVersionEditingViewModel.CanEditCarCard = value;
+					CarVersionsViewModel.UpdateAccessibilityProperties();
+				}
+			}
+		}
 		public virtual bool CanCreate =>
-			(_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanCreate
-			&& !(Car is null) && Car.Id == 0)
-			|| _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeCarVersion);
+			CanEditCarCard
+			|| (
+				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanCreate
+				&& !(Car is null) && Car.Id == 0
+			)
+			|| _commonServices.CurrentPermissionService.ValidatePresetPermission(
+				Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeCarVersion);
 		public virtual bool CanEdit =>
-			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeCarVersionDate);
+			CanEditCarCard
+			|| _commonServices.CurrentPermissionService.ValidatePresetPermission(
+				Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeCarVersionDate);
 		public bool IsInsuranceEditingInProgress => CarVersionEditingViewModel.IsWidgetVisible;
 
 		public Car Car

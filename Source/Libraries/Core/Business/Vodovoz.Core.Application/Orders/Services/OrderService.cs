@@ -1,4 +1,4 @@
-﻿using CustomerNotifications.Contracts;
+using CustomerNotifications.Contracts;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
@@ -954,13 +954,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			if(order.PaymentType != PaymentType.Cashless)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.None;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.None, order.PaymentType);
 				return;
 			}
 
 			if(order.Id == 0)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.UnPaid, order.PaymentType);
 				return;
 			}
 
@@ -972,13 +972,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			if(order.PaymentType != PaymentType.Cashless)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.None;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.None, order.PaymentType);
 				return;
 			}
 
 			if(order.Id == 0)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.UnPaid, order.PaymentType);
 				return;
 			}
 
@@ -1002,15 +1002,15 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			if(isUnpaid)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.UnPaid, order.PaymentType);
 			}
 			else if(isPaid)
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
 			}
 			else
 			{
-				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+				order.UpdateOrderPaymentStatus(OrderPaymentStatus.PartiallyPaid, order.PaymentType);
 			}
 		}
 
@@ -1022,6 +1022,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			var requestWithCodes = requests.Where(x => x.ProductCodes.Any()).FirstOrDefault();
 			if(requestWithCodes == null)
+			{
+				return;
+			}
+						
+			if(IsCompletedCodesSaving(requestWithCodes.Task))
 			{
 				return;
 			}
@@ -1037,6 +1042,31 @@ namespace Vodovoz.Core.Application.Orders.Services
 				productCode.ResultCode = null;
 				uow.Save(productCode);
 			}
+		}
+
+		/// <summary>
+		/// Проверка, что задача является завершенной задачей сохранения кодов маркировки в пул
+		/// </summary>
+		/// <param name="edoTask">Задача ЭДО</param>
+		/// <returns>Является ли задача завершенным сохранением кодов в пул</returns>
+		private static bool IsCompletedCodesSaving(OrderEdoTask edoTask)
+		{
+			if(edoTask == null || edoTask.Status != EdoTaskStatus.Completed)
+			{
+				return false;
+			}
+
+			if(edoTask.TaskType == EdoTaskType.SaveCode)
+			{
+				return true;
+			}
+
+			if(edoTask.TaskType == EdoTaskType.Receipt)
+			{
+				return edoTask.As<ReceiptEdoTask>().ReceiptStatus == EdoReceiptStatus.SavedToPool;
+			}
+
+			return false;
 		}
 	}
 }

@@ -1,10 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
@@ -27,6 +20,13 @@ using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
@@ -57,10 +57,12 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.Services.Orders;
 using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewModels.Widgets.Mango;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.Orders;
@@ -90,6 +92,7 @@ namespace Vodovoz
 		private Employee _previousForwarder = null;
 
 		private readonly ViewModelEEVMBuilder<Car> _carViewModelEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Car> _semitrailerViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _forwarderViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _logisticianViewModelEEVMBuilder;
@@ -101,9 +104,11 @@ namespace Vodovoz
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly OrderCancellationService _orderCancellationService;
+		private readonly OrderCancellationPermitService _orderCancellationPermitService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IOrderSaleHandler _saleHandler;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
+		private readonly IMangoCallButtonViewModelFactory _mangoCallButtonViewModelFactory;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
@@ -131,6 +136,7 @@ namespace Vodovoz
 			ITrueMarkRepository trueMarkRepository,
 			DeliveryFreeBalanceViewModel deliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<Car> carViewModelEEVMBuilder,
+			ViewModelEEVMBuilder<Car> semitrailerViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> driverViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> forwarderViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> logisticianViewModelEEVMBuilder,
@@ -142,7 +148,9 @@ namespace Vodovoz
 			IRouteListService routeListService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			OrderCancellationService orderCancellationService,
+			OrderCancellationPermitService orderCancellationPermitService,
 			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			IMangoCallButtonViewModelFactory mangoCallButtonViewModelFactory,
 			IOrderSaleHandler saleHandler
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
@@ -162,6 +170,7 @@ namespace Vodovoz
 
 			DeliveryFreeBalanceViewModel = deliveryFreeBalanceViewModel ?? throw new ArgumentNullException(nameof(deliveryFreeBalanceViewModel));
 			_carViewModelEEVMBuilder = carViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carViewModelEEVMBuilder));
+			_semitrailerViewModelEEVMBuilder = semitrailerViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(semitrailerViewModelEEVMBuilder));
 			_driverViewModelEEVMBuilder = driverViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(driverViewModelEEVMBuilder));
 			_forwarderViewModelEEVMBuilder = forwarderViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(forwarderViewModelEEVMBuilder));
 			_logisticianViewModelEEVMBuilder = logisticianViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(logisticianViewModelEEVMBuilder));
@@ -174,6 +183,7 @@ namespace Vodovoz
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+			_orderCancellationPermitService = orderCancellationPermitService ?? throw new ArgumentNullException(nameof(orderCancellationPermitService));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			TabName = $"Ведение МЛ №{Entity.Id}";
@@ -185,10 +195,17 @@ namespace Vodovoz
 			IsOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
 
 			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
-			
+			CanWorkWithSemitrailers = _currentPermissionService.ValidatePresetPermission(LogisticPermissions.CanWorkWithSemitrailers);
+
 			ActiveShifts = _deliveryShiftRepository.ActiveShifts(UoW);
 
+			_mangoCallButtonViewModelFactory =
+				mangoCallButtonViewModelFactory ?? throw new ArgumentNullException(nameof(mangoCallButtonViewModelFactory));
+
+			DriverExtensionCallViewModel = _mangoCallButtonViewModelFactory.CreateForRouteListDriver(UoW, Entity);
+
 			CarViewModel = BuildCarEntryViewModel();
+			SemitrailerViewModel = CreateSemitrailerViewModel();
 			DriverViewModel = BuildDriverEntryViewModel();
 			ForwarderViewModel = BuildForwarderEntryViewModel();
 			LogisticianViewModel = BuildLogisticianEntryViewModel();
@@ -269,9 +286,15 @@ namespace Vodovoz
         public string BottlesInfo { get; private set; }
 		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; } = new GenericObservableList<RouteListKeepingItemNode>();
 
+		/// <summary>
+		/// Вью-модель кнопки звонка на добавочный номер водителя маршрутного листа
+		/// </summary>
+		public MangoCallButtonViewModel DriverExtensionCallViewModel { get; }
+
 		#region EEVMs
 
 		public IEntityEntryViewModel CarViewModel { get; }
+		public IEntityEntryViewModel SemitrailerViewModel { get; }
 		public IEntityEntryViewModel DriverViewModel { get; }
 		public IEntityEntryViewModel ForwarderViewModel { get; }
 		public IEntityEntryViewModel LogisticianViewModel { get; }
@@ -290,6 +313,10 @@ namespace Vodovoz
 		public bool CanCancel => IsCanClose;
 		public bool CanCreateRouteListWithoutOrders { get; }
 		public bool CanComplete => AllEditing && SelectedRouteListAddresses.Any();
+
+		public bool CanWorkWithSemitrailers { get; }
+		public bool IsSemiTrailerVisible =>
+			Entity.Car?.CarModel?.CarTypeOfUse is CarTypeOfUse.Truck;
 
 		[PropertyChangedAlso(nameof(CanSave), nameof(CanCancel))]
 		public bool IsCanClose
@@ -362,6 +389,25 @@ namespace Vodovoz
 			return viewModel;
 		}
 
+		public IEntityEntryViewModel CreateSemitrailerViewModel()
+		{
+			var viewModel = _semitrailerViewModelEEVMBuilder
+				.SetViewModel(this)
+				.SetUnitOfWork(UoW)
+				.ForProperty(Entity, x => x.Semitrailer)
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictedCarTypesOfUse = new[] { CarTypeOfUse.Semitrailer };
+					filter.Archive = false;
+				})
+				.UseViewModelDialog<SemitrailerViewModel>()
+				.Finish();
+
+			viewModel.CanViewEntity = _currentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
+
 		private IEntityEntryViewModel BuildDriverEntryViewModel()
 		{
 			var viewModel = _driverViewModelEEVMBuilder
@@ -418,6 +464,8 @@ namespace Vodovoz
 					Entity.Driver = null;
 				}
 			}
+
+			_mangoCallButtonViewModelFactory.UpdateForRouteListDriver(DriverExtensionCallViewModel, UoW, Entity);
 		}
 
 		private IEntityEntryViewModel BuildLogisticianEntryViewModel()
@@ -553,24 +601,11 @@ namespace Vodovoz
 					return;
 				}
 
-				var permit = _orderCancellationService.CanCancelOrder(UoW, rli.RouteListItem.Order);
-				switch(permit.Type)
+				var permit = _orderCancellationPermitService.GetPermit(UoW, rli.RouteListItem.Order);
+
+				if(permit.Type != OrderCancellationPermitType.AllowCancelOrder)
 				{
-					case OrderCancellationPermitType.AllowCancelDocflow:
-						if(permit.EdoTaskToCancellationId == null)
-						{
-							throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
-						}
-						_orderCancellationService.CancelDocflowByUser(
-							$"Отмена заказа №{rli.RouteListItem.Order.Id}",
-							permit.EdoTaskToCancellationId.Value
-						);
-						return;
-					case OrderCancellationPermitType.AllowCancelOrder:
-						break;
-					case OrderCancellationPermitType.Deny:
-					default:
-						return;
+					return;
 				}
 
 				_undeliveryViewModel = NavigationManager.OpenViewModel<UndeliveryViewModel>(
@@ -630,7 +665,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var request = CreateOrderRequest(rli, rli.RouteListItem.TrueMarkCodes);
+			var request = CreateOrderRequest(UoW, rli, rli.RouteListItem.TrueMarkCodes);
 			UpdateCreatedEdoRequests(request, addressStatus);
 		}
 
@@ -1103,7 +1138,8 @@ namespace Vodovoz
 			}
 		}
 
-		private static PrimaryEdoRequest CreateOrderRequest(
+		private PrimaryEdoRequest CreateOrderRequest(
+			IUnitOfWork uow,
 			RouteListKeepingItemNode item,
 			IObservableList<RouteListItemTrueMarkProductCode> codes)
 		{
@@ -1114,7 +1150,8 @@ namespace Vodovoz
 				Time = DateTime.Now,
 				DocumentType = EdoDocumentType.UPD,
 				Type = CustomerEdoRequestType.Order,
-				ProductCodes = new ObservableList<TrueMarkProductCode>(codes)
+				ProductCodes = new ObservableList<TrueMarkProductCode>(codes),
+				Author = _employeeRepository.GetEmployeeForCurrentUser(uow)
 			};
 		}
 

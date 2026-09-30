@@ -25,6 +25,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -34,7 +35,6 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.NHibernateProjections.Orders;
@@ -44,7 +44,6 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Operations;
-using VodovozBusiness.Domain.StoredEmails;
 using VodovozBusiness.EntityRepositories.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -104,7 +103,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 					.Where(() => routeListAlias.Id == null
 						|| (carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck
-							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Loader))
+							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Loader
+							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Semitrailer))
 					.And(() => routeListItemAlias.Id == null || routeListItemAlias.Status != RouteListItemStatus.Transfered);
 			}
 
@@ -146,6 +146,51 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& orderAlias.OrderStatus != OrderStatus.DeliveryCanceled
 					&& orderAlias.OrderStatus != OrderStatus.NotDelivered)
 				.List();
+		}
+
+		public IList<DriverForwardingOrderNode> GetCounterpartyOrdersOnTheWay(IUnitOfWork uow, int counterpartyId)
+		{
+			DriverForwardingOrderNode resultAlias = null;
+			VodovozOrder orderAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			RouteListItem routeListItemAlias = null;
+			RouteList routeListAlias = null;
+			Employee driverAlias = null;
+			DriverMangoExtensionNumber driverMangoExtensionNumberAlias = null;
+
+			var driverExtensionNumberSubquery = QueryOver.Of(() => driverMangoExtensionNumberAlias)
+				.Where(() => driverMangoExtensionNumberAlias.DriverId == driverAlias.Id)
+				.And(() => driverMangoExtensionNumberAlias.Status == DriverMangoExtensionNumberStatus.Active)
+				.And(() => driverMangoExtensionNumberAlias.ExtensionNumber != null)
+				.Select(x => x.ExtensionNumber)
+				.OrderBy(x => x.ActivatedAt).Desc
+				.Take(1);
+
+			return uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.JoinEntityAlias(
+					() => routeListItemAlias,
+					() => routeListItemAlias.Order.Id == orderAlias.Id
+						&& routeListItemAlias.Status == RouteListItemStatus.EnRoute,
+					JoinType.InnerJoin)
+				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.And(() => orderAlias.OrderStatus == OrderStatus.OnTheWay)
+				.SelectList(list => list
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
+					.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
+					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
+					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
+					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverFirstName)
+					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+					.SelectSubQuery(driverExtensionNumberSubquery).WithAlias(() => resultAlias.DriverExtensionNumber))
+				.OrderBy(() => orderAlias.DeliveryDate).Asc
+				.ThenBy(() => orderAlias.Id).Asc
+				.TransformUsing(Transformers.AliasToBean<DriverForwardingOrderNode>())
+				.List<DriverForwardingOrderNode>();
 		}
 
 		public IList<VodovozOrder> GetCounterpartyOrders(IUnitOfWork UoW, Counterparty counterparty)
@@ -348,6 +393,20 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						   .Take(1)
 						   ;
 			return query.List().FirstOrDefault();
+		}
+
+		/// <inheritdoc/>
+		public bool HasAnotherOrderWithWater19L(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
+			int excludedNomenclatureId, IEnumerable<OrderStatus> orderStatuses)
+		{
+			return uow.Session.Query<OrderItem>()
+				.Any(item => item.Order.Client.Id == counterpartyId
+					&& item.Order.Id != excludedOrderId
+					&& orderStatuses.Contains(item.Order.OrderStatus)
+					&& item.Count > 0
+					&& item.Nomenclature.Id != excludedNomenclatureId
+					&& item.Nomenclature.Category == NomenclatureCategory.water
+					&& item.Nomenclature.TareVolume == TareVolume.Vol19L);
 		}
 
 		public bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty)
@@ -2806,7 +2865,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			CancellationToken cancellationToken)
 		{
 			var routeListItemStatuses =
-				new[] { RouteListItemStatus.EnRoute, RouteListItemStatus.Completed };
+				new[] { RouteListItemStatus.EnRoute };
 
 			var query =
 				from order in uow.Session.Query<Order>()
@@ -3226,6 +3285,33 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.ToDictionary(
 					x => x.Key,
 					x => x.Value - (paymentsSumsByCounterparties.TryGetValue(x.Key, out var paymentsSum) ? paymentsSum : 0));
+		}
+
+		public async Task<IList<PlannedOrderCreatedOrderNode>> GetOrdersCreatedFromDateAsync(
+			IUnitOfWork uow,
+			DateTime fromCreateDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var excludeStatuses = excludeOrderStatuses.ToArray();
+
+			var query =
+				from order in uow.Session.Query<VodovozOrder>()
+				where
+					!excludeStatuses.Contains(order.OrderStatus)
+					&& order.CreateDate != null
+					&& order.CreateDate >= fromCreateDate
+					&& order.DeliveryDate != null
+				select new PlannedOrderCreatedOrderNode
+				{
+					OrderId = order.Id,
+					DeliveryPointId = order.DeliveryPoint == null ? (int?)null : order.DeliveryPoint.Id,
+					CounterpartyId = order.Client.Id,
+					IsSelfDelivery = order.SelfDelivery,
+					DeliveryDate = order.DeliveryDate
+				};
+
+			return await query.ToListAsync(cancellationToken);
 		}
 	}
 }

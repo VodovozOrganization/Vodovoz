@@ -3,7 +3,7 @@ using FirebaseAdmin;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NLog.Web;
+using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
@@ -38,7 +38,7 @@ namespace PushNotificationsWorker
 				.ConfigureLogging((hostContext, loggingBuilder) =>
 				{
 					loggingBuilder.ClearProviders();
-					loggingBuilder.AddNLogWeb();
+					loggingBuilder.AddNLog();
 					loggingBuilder.AddConfiguration(hostContext.Configuration.GetSection(_nLogSectionName));
 				})
 				.ConfigureServices((hostContext, services) =>

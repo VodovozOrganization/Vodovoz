@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -528,6 +528,7 @@ CASE cm.car_type_of_use
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
 	WHEN 'Loader' THEN 'Погрузчик'
+    WHEN 'Semitrailer' THEN 'Полуприцеп'
 END as model_info,
 cm.name as car_model_name,
 c.reg_number as car_reg_number,
@@ -574,6 +575,7 @@ CASE cm2.car_type_of_use
 	WHEN 'GAZelle' THEN 'Грузовой'
 	WHEN 'Truck' THEN 'Фура'
 	WHEN 'Loader' THEN 'Погрузчик'
+	WHEN 'Semitrailer' THEN 'Полуприцеп'
 END as model_info,
 cm2.name as car_model_name,
 c2.reg_number as car_reg_number,

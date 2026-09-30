@@ -1,10 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Core.Infrastructure;
 using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Settings.Orders;
 
 namespace VodovozBusiness.Domain.Orders

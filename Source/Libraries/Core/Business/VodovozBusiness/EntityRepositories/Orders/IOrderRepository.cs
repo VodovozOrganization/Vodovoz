@@ -50,6 +50,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty);
 
 		/// <summary>
+		/// Возвращает заказы контрагента, находящиеся в пути,
+		/// вместе с водителем и его активным добавочным номером Манго
+		/// </summary>
+		/// <param name="uow">Единица работы</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		IList<DriverForwardingOrderNode> GetCounterpartyOrdersOnTheWay(IUnitOfWork uow, int counterpartyId);
+
+		/// <summary>
 		/// Оборудование заказа от клиента
 		/// </summary>
 		/// <returns>Список оборудования от клиенту</returns>
@@ -69,6 +77,18 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty);
 		bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId);
+
+		/// <summary>
+		/// Проверяет наличие другого заказа воды 19 л у контрагента в указанных статусах, кроме исключаемой номенклатуры.
+		/// </summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="counterpartyId">Идентификатор контрагента.</param>
+		/// <param name="excludedOrderId">Идентификатор исключаемого текущего заказа.</param>
+		/// <param name="excludedNomenclatureId">Идентификатор номенклатуры, не учитываемой в истории заказов.</param>
+		/// <param name="orderStatuses">Учитываемые статусы заказов.</param>
+		/// <returns>Есть ли другой заказ с положительным количеством воды 19 л, кроме исключаемой номенклатуры.</returns>
+		bool HasAnotherOrderWithWater19L(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
+			int excludedNomenclatureId, IEnumerable<OrderStatus> orderStatuses);
 
 		OrderStatus[] GetGrantedStatusesToCreateSeveralOrders();
 
@@ -598,6 +618,22 @@ namespace Vodovoz.EntityRepositories.Orders
 		Task<IDictionary<int, decimal>> GetCounterpartiesCashlessDebtsAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Данные заказов, созданных начиная с указанной даты и времени,
+		/// исключая заказы в указанных статусах.
+		/// Используется для поиска заказов, созданных клиентами после создания сделок по планируемым заказам
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="fromCreateDate">Дата и время создания заказа, начиная с которой ищутся заказы</param>
+		/// <param name="excludeOrderStatuses">Исключаемые статусы заказов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные созданных заказов</returns>
+		Task<IList<PlannedOrderCreatedOrderNode>> GetOrdersCreatedFromDateAsync(
+			IUnitOfWork uow,
+			DateTime fromCreateDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
 			CancellationToken cancellationToken);
 	}
 }

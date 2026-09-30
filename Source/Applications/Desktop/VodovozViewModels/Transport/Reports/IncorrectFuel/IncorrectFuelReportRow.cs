@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Core.Infrastructure;
+using System;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Transport.Reports.IncorrectFuel
 {

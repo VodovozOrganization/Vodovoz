@@ -145,7 +145,12 @@ namespace Vodovoz
 		private Employee previousForwarder = null;
 		private bool _canEdit;
 		private bool? _canEditFuelCardNumber;
-		
+
+		private bool _isSemiTrailerVisible =>
+			Entity.Car?.CarModel?.CarTypeOfUse is CarTypeOfUse.Truck;
+
+		private bool _canWorkWithSemitrailers;
+
 
 		private bool _needToSelectTerminalCondition = false;
 		private bool _hasAccessToDriverTerminal = false;
@@ -292,7 +297,13 @@ namespace Vodovoz
 			              || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(RouteListPermissions.CanEditCarOnCloseRouteList));
 			entityentryCar.ViewModel = BuildCarEntryViewModel();
 			entityentryCar.Sensitive = _canEditCar;
+
+			entrySemitrailer.Visible = _isSemiTrailerVisible;
+			ylabelSemitrailer.Visible = _isSemiTrailerVisible;
 			
+			entrySemitrailer.ViewModel = CreateSemitrailerViewModel();
+			entrySemitrailer.Sensitive = _canWorkWithSemitrailers;
+
 			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			
 			_canEditDriver = _canEdit
@@ -486,6 +497,23 @@ namespace Vodovoz
 				.Finish();
 
 			viewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
+
+		public IEntityEntryViewModel CreateSemitrailerViewModel()
+		{
+			var viewModel = new LegacyEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Semitrailer)
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictedCarTypesOfUse = new[] { CarTypeOfUse.Semitrailer };
+					filter.Archive = false;
+				})
+				.UseViewModelDialog<SemitrailerViewModel>()
+				.Finish();
+
+			viewModel.CanViewEntity = _canWorkWithSemitrailers;
 
 			return viewModel;
 		}
@@ -1183,6 +1211,9 @@ namespace Vodovoz
 			UoW.Save(Entity.RouteListProfitability);
 			UoW.Commit();
 
+			_addressKeepingDocumentItemsCacheList.Clear();
+			_addressKeepingDocumentBottlesCacheList.Clear();
+
 			if(_cancellationRequestActions.Any())
 			{
 				foreach(var cancellationAction in _cancellationRequestActions)
@@ -1527,22 +1558,48 @@ namespace Vodovoz
 				text.Add("Не указан вид топлива");
 			}
 
-			if(Entity.FuelDocuments.Select(x => x.FuelOperation).Any()) {
-				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp));
+			var ownFuelDocuments = Entity.FuelDocuments
+				.Where(IsFuelDocumentRelatedToCurrentRouteListCarAndDriver)
+				.ToList();
+
+			var otherFuelDocuments = Entity.FuelDocuments
+				.Where(x => !IsFuelDocumentRelatedToCurrentRouteListCarAndDriver(x))
+				.ToList();
+
+			var ownLitersGived = ownFuelDocuments.Sum(x => x.FuelOperation?.LitersGived ?? 0);
+
+			if(ownFuelDocuments.Any())
+			{
+				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp - ownLitersGived));
 			}
 
 			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)", spentFuel, (decimal)Entity.Car.FuelConsumption));
 
-			if(Entity.FuelDocuments.Select(x => x.FuelOperation).Any()) {
-				text.Add(string.Format("Выдано {0:F2} литров",
-					 Entity.FuelDocuments.Select(x => x.FuelOperation.LitersGived).Sum()));
+			if(ownFuelDocuments.Any())
+			{
+				text.Add(string.Format("Выдано {0:F2} литров", ownLitersGived));
+			}
+
+			foreach(var fuelDocument in otherFuelDocuments)
+			{
+				var reason = fuelDocument.Car?.Id != Entity.Car.Id
+					? "на другое авто"
+					: "другому водителю";
+
+				text.Add(string.Format(
+					"Выдано {0}: {1:F2} л. - {2}, {3}, водитель {4}",
+					reason,
+					fuelDocument.FuelOperation?.LitersGived ?? 0,
+					fuelDocument.Car?.RegistrationNumber ?? "авто не указано",
+					GetFuelDocumentIssuingDescription(fuelDocument),
+					fuelDocument.Driver?.ShortName ?? "не указан"));
 			}
 
 			if(Entity.Car.FuelType != null) {
 				text.Add(
 					string.Format(
 						"Текущий остаток топлива {0:F2} л.",
-						balanceBeforeOp + Entity.FuelDocuments.Select(x => x.FuelOperation.LitersGived).Sum() - spentFuel
+						balanceBeforeOp
 					)
 				);
 			}
@@ -1550,6 +1607,47 @@ namespace Vodovoz
 			text.Add($"Номер топливной карты: {Entity.Car.GetCurrentActiveFuelCardVersion()?.FuelCard?.CardNumber}");
 
 			ytextviewFuelInfo.Buffer.Text = string.Join("\n", text);
+		}
+
+		private bool IsFuelDocumentRelatedToCurrentRouteListCarAndDriver(FuelDocument fuelDocument)
+		{
+			if(Entity.Car.GetActiveCarVersionOnDate(Entity.Date)?.IsCompanyCar == true
+				|| Entity.Car.GetCurrentActiveFuelCardVersion() != null)
+			{
+				return fuelDocument.Car != null && fuelDocument.Car.Id == Entity.Car.Id;
+			}
+
+			return fuelDocument.Driver != null
+				&& Entity.Driver != null
+				&& fuelDocument.Driver.Id == Entity.Driver.Id;
+		}
+
+		private string GetFuelDocumentIssuingDescription(FuelDocument fuelDocument)
+		{
+			var parts = new List<string>();
+
+			if(fuelDocument.FuelLimitLitersAmount > 0)
+			{
+				parts.Add($"лимит на карту {fuelDocument.FuelCardNumber ?? "не указана"}");
+			}
+
+			if(fuelDocument.PayedForFuel > 0)
+			{
+				if(fuelDocument.FuelPaymentType == FuelPaymentType.Cash)
+				{
+					parts.Add("наличными");
+				}
+				else if(fuelDocument.FuelPaymentType == FuelPaymentType.Cashless)
+				{
+					parts.Add("безналом");
+				}
+				else
+				{
+					parts.Add("способ оплаты не указан");
+				}
+			}
+
+			return parts.Any() ? string.Join(", ", parts) : "способ выдачи не указан";
 		}
 
 		void LoadDataFromFine()

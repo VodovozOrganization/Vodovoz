@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -19,6 +20,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private OrderEdoTask _task;
 		private CustomerEdoRequestType _type;
 		private EdoDocumentType _documentType;
+		private EmployeeEntity _author;
 
 		/// <summary>
 		/// Код
@@ -74,6 +76,16 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _documentType;
 			set => SetField(ref _documentType, value);
+		}
+
+		/// <summary>
+		/// Автор ручной заявки
+		/// </summary>
+		[Display(Name = "Автор ручной заявки")]
+		public virtual EmployeeEntity Author
+		{
+			get => _author;
+			set => SetField(ref _author, value);
 		}
 	}
 }

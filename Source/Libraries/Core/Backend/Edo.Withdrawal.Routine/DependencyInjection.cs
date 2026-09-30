@@ -17,6 +17,7 @@ namespace Edo.Withdrawal.Routine
 			services
 				.AddEdo()
 				.AddScoped<TrueMarkTimedOutDocumentsWithdrawalService>()
+				.AddScoped<ITrueMarkWithdrawalCancellationService, TrueMarkWithdrawalCancellationService>()
 				.AddScoped<TrueMarkDocumentsStatusUpdateService>()
 				.AddEdoMassTransit();
 

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 using Autofac;
+using Core.Infrastructure;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;

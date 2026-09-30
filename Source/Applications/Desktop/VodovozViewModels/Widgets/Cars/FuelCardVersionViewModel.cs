@@ -22,6 +22,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		private FuelCard _selectedFuelCard;
 		private FuelCardVersion _selectedVersion;
 		private DialogViewModelBase _parentDialog;
+		private readonly bool _canCreate;
+		private readonly bool _canEdit;
+		private bool _canEditCar;
 
 		private readonly IFuelCardVersionService _fuelCardVersionController;
 		private readonly INavigationManager _navigationManager;
@@ -49,9 +52,9 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Версия топливной карты");
 
 			CanRead = PermissionResult.CanRead;
-			CanCreate = PermissionResult.CanCreate && Entity.Id == 0
+			_canCreate = PermissionResult.CanCreate && Entity.Id == 0
 				&& commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber);
-			CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber);
+			_canEdit = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber);
 
 			if(IsNewCar)
 			{
@@ -124,8 +127,27 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 		}
 
 		public virtual bool CanRead { get; }
-		public virtual bool CanCreate { get; }
-		public virtual bool CanEdit { get; }
+		public virtual bool CanCreate => _canCreate || CanEditCar;
+		public virtual bool CanEdit => _canEdit || CanEditCar;
+		public bool CanEditCar
+		{
+			get => _canEditCar;
+			set
+			{
+				if(SetField(ref _canEditCar, value))
+				{
+					if(FuelCardEntryViewModel != null)
+					{
+						FuelCardEntryViewModel.IsEditable = CanCreateOrUpdate;
+					}
+					OnPropertyChanged(nameof(CanCreate));
+					OnPropertyChanged(nameof(CanEdit));
+					OnPropertyChanged(nameof(CanCreateOrUpdate));
+					OnPropertyChanged(nameof(CanAddNewVersion));
+					OnPropertyChanged(nameof(CanChangeVersionStartDate));
+				}
+			}
+		}
 		public virtual bool CanCreateOrUpdate => CanCreate || CanEdit;
 
 		public bool CanAddNewVersion =>

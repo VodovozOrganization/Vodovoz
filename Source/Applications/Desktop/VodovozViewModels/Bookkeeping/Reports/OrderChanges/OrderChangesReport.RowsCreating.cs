@@ -1,4 +1,5 @@
-﻿using DateTimeHelpers;
+﻿using Core.Infrastructure;
+using DateTimeHelpers;
 using MassTransit.Initializers;
 using MoreLinq;
 using NHibernate.Linq;
@@ -18,7 +19,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.HistoryChanges;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 {

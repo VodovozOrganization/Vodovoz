@@ -43,6 +43,21 @@ namespace BitrixNotificationsSend.Library.Services.Batches
 			Func<IReadOnlyList<TItem>, CancellationToken, Task> onBatchItemsSucceeded,
 			CancellationToken cancellationToken)
 		{
+			return await SendAll(
+				items,
+				commandKeySelector,
+				sendBatch,
+				(succeededItems, _, batchCancellationToken) => onBatchItemsSucceeded(succeededItems, batchCancellationToken),
+				cancellationToken);
+		}
+
+		public async Task<BatchesSendResult<TItem>> SendAll<TItem>(
+			IReadOnlyList<TItem> items,
+			Func<TItem, string> commandKeySelector,
+			Func<IReadOnlyList<TItem>, CancellationToken, Task<Result<BitrixBatchResult>>> sendBatch,
+			Func<IReadOnlyList<TItem>, IDictionary<string, long>, CancellationToken, Task> onBatchItemsSucceeded,
+			CancellationToken cancellationToken)
+		{
 			if(items is null)
 			{
 				throw new ArgumentNullException(nameof(items));
@@ -85,6 +100,7 @@ namespace BitrixNotificationsSend.Library.Services.Batches
 				cancellationToken);
 
 			retrySendResult.SuccessfulCount += sendResult.SuccessfulCount;
+			retrySendResult.Errors.AddRange(sendResult.Errors);
 
 			if(retrySendResult.OperatingLimitFailedItems.Any())
 			{
@@ -101,7 +117,7 @@ namespace BitrixNotificationsSend.Library.Services.Batches
 			IReadOnlyList<TItem> items,
 			Func<TItem, string> commandKeySelector,
 			Func<IReadOnlyList<TItem>, CancellationToken, Task<Result<BitrixBatchResult>>> sendBatch,
-			Func<IReadOnlyList<TItem>, CancellationToken, Task> onBatchItemsSucceeded,
+			Func<IReadOnlyList<TItem>, IDictionary<string, long>, CancellationToken, Task> onBatchItemsSucceeded,
 			CancellationToken cancellationToken)
 		{
 			var seriesResult = new BatchesSeriesSendResult<TItem>();
@@ -172,7 +188,10 @@ namespace BitrixNotificationsSend.Library.Services.Batches
 
 					if(succeededItems.Any())
 					{
-						await onBatchItemsSucceeded(succeededItems, cancellationToken);
+						await onBatchItemsSucceeded(
+							succeededItems,
+							batchResult.Value.SuccessfulCommandEntityIds,
+							cancellationToken);
 					}
 
 					if(batchResult.Value.OperatingSeconds > seriesResult.OperatingSeconds)
@@ -198,6 +217,8 @@ namespace BitrixNotificationsSend.Library.Services.Batches
 							seriesResult.OperatingLimitFailedItems.Add(failedItem);
 							continue;
 						}
+
+						seriesResult.Errors.Add(itemError);
 
 						_logger.LogError(
 							"Ошибка выполнения команды {CommandKey} в Битрикс24: {ErrorMessage}",

@@ -24,6 +24,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Mango;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Accounting.Payments;
@@ -50,6 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly IDebtorsSettings _debtorsSettings;
 		private readonly IValidator _validator;
 		private readonly IClosingDeliveriesSettings _closingDeliveriesSettings;
+		private readonly IMangoSettings _mangoSettings;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEEVMBuilder;
 
@@ -101,6 +103,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private string _claimDocumentCreatedBy;
 		private string _claimDocumentCreatorPhone;
 
+		private bool _isDriverMangoEmployeeRegistrationEnabled;
+		private bool _savedIsDriverMangoEmployeeRegistrationEnabled;
+
 		public GeneralSettingsViewModel(
 			ILogger<GeneralSettingsViewModel> logger,
 			IGeneralSettings generalSettings,
@@ -119,7 +124,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			IOrganizationSettings organizationSettings,
 			IDebtorsSettings debtorsSettings,
 			IValidator validator,
-			IClosingDeliveriesSettings closingDeliveriesSettings) : base(commonServices?.InteractiveService, navigation)
+			IClosingDeliveriesSettings closingDeliveriesSettings,
+			IMangoSettings mangoSettings) : base(commonServices?.InteractiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -135,6 +141,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
+			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
 			_vatRateEEVMBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
@@ -247,6 +254,13 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			CanEditLettersOfClaimSettings =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
 			SaveLettersOfClaimSettingsCommand = new DelegateCommand(SaveLettersOfClaimSettings, () => CanEditLettersOfClaimSettings);
+
+			_savedIsDriverMangoEmployeeRegistrationEnabled = _mangoSettings.DriverMangoEmployeeRegistrationEnabled;
+			_isDriverMangoEmployeeRegistrationEnabled = _savedIsDriverMangoEmployeeRegistrationEnabled;
+			CanEditDriverMangoEmployeeRegistrationSettings =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.CanEditDriverMangoEmployeeRegistrationSettings);
+			SaveDriverMangoEmployeeRegistrationSettingsCommand = new DelegateCommand(SaveDriverMangoEmployeeRegistrationSettings, () => CanEditDriverMangoEmployeeRegistrationSettings);
+			SaveDriverMangoEmployeeRegistrationSettingsCommand.CanExecuteChangedWith(this, vm => vm.CanEditDriverMangoEmployeeRegistrationSettings);
 
 			InitializeAccountingSettingsViewModels();
 			ConfigureOrderOrganizationsSettings();
@@ -499,6 +513,86 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_debtorsSettings.SetClaimDocumentCreatorPhone(ClaimDocumentCreatorPhone);
 
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		#endregion
+
+		#region Сервис создания карточек сотрудников Манго
+
+		/// <summary>
+		/// Включён ли сервис создания карточек сотрудников Манго для водителей
+		/// </summary>
+		public bool IsDriverMangoEmployeeRegistrationEnabled
+		{
+			get => _isDriverMangoEmployeeRegistrationEnabled;
+			set => SetField(ref _isDriverMangoEmployeeRegistrationEnabled, value);
+		}
+
+		/// <summary>
+		/// Разрешение на управление работой сервиса создания карточек сотрудников Манго
+		/// </summary>
+		public bool CanEditDriverMangoEmployeeRegistrationSettings { get; }
+
+		/// <summary>
+		/// Команда сохранения настроек сервиса создания карточек сотрудников Манго
+		/// </summary>
+		public DelegateCommand SaveDriverMangoEmployeeRegistrationSettingsCommand { get; }
+
+		private void SaveDriverMangoEmployeeRegistrationSettings()
+		{
+			if(IsDriverMangoEmployeeRegistrationEnabled == _savedIsDriverMangoEmployeeRegistrationEnabled)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Настройка не изменена");
+				return;
+			}
+
+			var switchTimeout = _mangoSettings.DriverMangoEmployeeRegistrationSwitchTimeout;
+			var timeSinceLastChange = DateTime.Now - _mangoSettings.DriverMangoEmployeeRegistrationEnabledChangedAt;
+
+			if(timeSinceLastChange < switchTimeout)
+			{
+				var timeToWait = switchTimeout - timeSinceLastChange;
+
+				ShowWarningMessage(
+					"Слишком частое переключение сервиса по созданию карточек сотрудников в Манго.\n"
+					+ $"Повторное переключение будет доступно через {Math.Ceiling(timeToWait.TotalMinutes)} мин.");
+
+				IsDriverMangoEmployeeRegistrationEnabled = _savedIsDriverMangoEmployeeRegistrationEnabled;
+				return;
+			}
+
+			if(!_commonServices.InteractiveService.Question(
+				GetDriverMangoEmployeeRegistrationQuestion(IsDriverMangoEmployeeRegistrationEnabled, switchTimeout),
+				"Внимание!"))
+			{
+				IsDriverMangoEmployeeRegistrationEnabled = _savedIsDriverMangoEmployeeRegistrationEnabled;
+				return;
+			}
+
+			_mangoSettings.UpdateDriverMangoEmployeeRegistrationEnabled(IsDriverMangoEmployeeRegistrationEnabled, DateTime.Now);
+			_savedIsDriverMangoEmployeeRegistrationEnabled = IsDriverMangoEmployeeRegistrationEnabled;
+
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		private string GetDriverMangoEmployeeRegistrationQuestion(bool enabled, TimeSpan switchTimeout)
+		{
+			var repeatedSwitchInfo =
+				$"Повторное переключение будет доступно через {switchTimeout.TotalMinutes:F0} мин.";
+
+			if(enabled)
+			{
+				return "Сервис по созданию карточек сотрудников в Манго будет включён, "
+					+ "но начнёт работать только на следующие сутки - после удаления карточек из Манго в 02:00 по МСК.\n"
+					+ repeatedSwitchInfo + "\n"
+					+ "Продолжить?";
+			}
+
+			return "Сервис по созданию карточек сотрудников в Манго будет отключён. "
+				+ "Новые карточки создаваться не будут, уже созданные продолжат работать "
+				+ "до удаления в 02:00 по МСК.\n"
+				+ repeatedSwitchInfo + "\n"
+				+ "Продолжить?";
 		}
 
 		#endregion

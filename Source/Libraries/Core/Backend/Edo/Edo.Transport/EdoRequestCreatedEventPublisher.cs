@@ -54,6 +54,7 @@ namespace Edo.Transport
 					"Не удалось опубликовать событие создания ЭДО-заявки. RequestId: {RequestId}. Operation: {Operation}.",
 					requestId,
 					operation);
+				throw;
 			}
 		}
 	}

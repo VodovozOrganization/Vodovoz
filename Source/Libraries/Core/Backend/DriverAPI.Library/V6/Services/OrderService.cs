@@ -1,4 +1,5 @@
-﻿using DriverApi.Contracts.V6;
+﻿using Core.Infrastructure;
+using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
@@ -27,7 +28,6 @@ using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
-using Vodovoz.Extensions;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;

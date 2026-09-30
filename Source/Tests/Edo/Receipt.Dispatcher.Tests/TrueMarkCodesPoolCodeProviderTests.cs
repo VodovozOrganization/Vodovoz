@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Common;
@@ -25,6 +25,7 @@ namespace Receipt.Dispatcher.Tests
 		private readonly ITrueMarkCodesPool _codesPool;
 		private readonly TrueMarkCodesPoolCodeProvider _provider;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
+		private readonly IEdoRepository _edoRepository;
 
 		public TrueMarkCodesPoolCodeProviderTests()
 		{
@@ -34,6 +35,7 @@ namespace Receipt.Dispatcher.Tests
 			_edoSettings = Substitute.For<IEdoSettings>();
 			_codesPool = Substitute.For<ITrueMarkCodesPool>();
 			_trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
+			_edoRepository = Substitute.For<IEdoRepository>();
 			var logger = Substitute.For<ILogger<TrueMarkCodesPoolCodeProvider>>();
 			
 			uow.Session.Returns(_session);
@@ -44,7 +46,8 @@ namespace Receipt.Dispatcher.Tests
 				_trueMarkCodesValidator,
 				_edoSettings,
 				logger,
-				_trueMarkCodeRepository
+				_trueMarkCodeRepository,
+				_edoRepository
 				);
 		}
 

@@ -1,4 +1,4 @@
-﻿using Edo.Problems;
+using Edo.Problems;
 using Edo.Problems.Custom.Sources;
 using Edo.Problems.Validation;
 using Microsoft.Extensions.Logging;
@@ -6,6 +6,7 @@ using ModulKassa;
 using ModulKassa.DTO;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ namespace Edo.Receipt.Sender
 		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly EdoCancellationService _edoCancellationService;
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
+		private readonly ReceiptSendingFailedNotificationService _receiptSendingFailedNotificationService;
 
 		public ReceiptSender(
 			ILogger<ReceiptSender> logger,
@@ -35,7 +37,8 @@ namespace Edo.Receipt.Sender
 			FiscalDocumentFactory fiscalDocumentFactory,
 			EdoTaskValidator edoTaskValidator,
 			EdoCancellationService edoCancellationService,
-			IEdoReceiptSettings edoReceiptSettings
+			IEdoReceiptSettings edoReceiptSettings,
+			ReceiptSendingFailedNotificationService receiptSendingFailedNotificationService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -46,6 +49,8 @@ namespace Edo.Receipt.Sender
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 			_edoReceiptSettings = edoReceiptSettings ?? throw new ArgumentNullException(nameof(edoReceiptSettings));
+			_receiptSendingFailedNotificationService = receiptSendingFailedNotificationService
+				?? throw new ArgumentNullException(nameof(receiptSendingFailedNotificationService));
 		}
 
 		public async Task HandleReceiptSendEvent(int edoTaskId, CancellationToken cancellationToken)
@@ -169,35 +174,63 @@ namespace Edo.Receipt.Sender
 
 				var hasFailure = edoTask.FiscalDocuments.Any(x => x.Status == Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.Failed);
 				var hasSendErrors = edoTask.FiscalDocuments.Any(x => x.Status == Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.SendError);
-				if(hasFailure)
+				if(hasFailure || hasSendErrors)
 				{
-					_logger.LogWarning("Не удалось отправить некоторые чеки по задаче №{edoTaskId}.", edoTask.Id);
-					await _edoProblemRegistrar.RegisterCustomProblem<NotAllReceiptsWasSended>(
-						edoTask,
-						cancellationToken
-					);
+					var problemDocuments = edoTask.FiscalDocuments
+						.Where(x => x.Status == Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.Failed
+							|| x.Status == Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.SendError)
+						.ToList();
+
+					var problemSourceTypes = problemDocuments
+						.Select(x => ReceiptSendFailureClassifier.Classify(x.FailureMessage))
+						.Distinct()
+						.ToList();
+
+					var details = BuildReceiptSendingFailedDetails(problemDocuments);
+					var orderId = edoTask.FormalEdoRequest?.Order?.Id;
+					var cashboxId = edoTask.CashboxId;
+					var problemSourceNames = problemSourceTypes
+						.Select(ReceiptSendFailureClassifier.GetSourceName)
+						.ToList();
+
+					_logger.LogWarning(
+						"Не удалось отправить некоторые чеки по задаче №{edoTaskId}. Источники: {ProblemSources}. {Details}",
+						edoTask.Id,
+						string.Join(", ", problemSourceNames),
+						details);
+
+					if(hasSendErrors)
+					{
+						await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+						await _uow.CommitAsync(cancellationToken);
+					}
+
+					await RegisterReceiptSendProblems(edoTask, problemSourceTypes, cancellationToken);
+
+					try
+					{
+						await _receiptSendingFailedNotificationService.NotifyAsync(
+							edoTask.Id,
+							orderId,
+							cashboxId,
+							problemSourceNames,
+							details,
+							cancellationToken);
+					}
+					catch(Exception notificationException)
+					{
+						_logger.LogError(
+							notificationException,
+							"Не удалось отправить уведомление об ошибке отправки чека по задаче №{edoTaskId}",
+							edoTask.Id);
+					}
+
 					return;
 				}
-				else if(hasSendErrors)
-				{
-					_logger.LogWarning("При отправке чеков в Модуль Кассу по задаче №{edoTaskId} возникли ошибки", edoTask.Id);
 
-					await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-					await _uow.CommitAsync(cancellationToken);
+				SolveReceiptSendProblems(edoTask);
 
-					await _edoProblemRegistrar.RegisterCustomProblem<NotAllReceiptsWasSended>(
-						edoTask,
-						cancellationToken
-					);
-
-					return;
-				}
-				else
-				{
-					_edoProblemRegistrar.SolveCustomProblem<NotAllReceiptsWasSended>(edoTask);
-
-					edoTask.ReceiptStatus = EdoReceiptStatus.Sent;
-				}
+				edoTask.ReceiptStatus = EdoReceiptStatus.Sent;
 			}
 			catch(CashboxException ex)
 			{
@@ -209,6 +242,92 @@ namespace Edo.Receipt.Sender
 			await _uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation("Все чеки по задаче №{edoTaskId} отправлены успешно.", edoTask.Id);
+		}
+
+		private async Task RegisterReceiptSendProblems(
+			ReceiptEdoTask edoTask,
+			IReadOnlyCollection<Type> problemSourceTypes,
+			CancellationToken cancellationToken)
+		{
+			var sources = problemSourceTypes?.Count > 0
+				? problemSourceTypes.ToList()
+				: new List<Type> { typeof(ReceiptSendingFailed) };
+
+			for(var i = 0; i < sources.Count; i++)
+			{
+				var disposeTaskUow = i == sources.Count - 1;
+				await RegisterReceiptSendProblem(edoTask, sources[i], disposeTaskUow, cancellationToken);
+			}
+		}
+
+		private async Task RegisterReceiptSendProblem(
+			ReceiptEdoTask edoTask,
+			Type problemSourceType,
+			bool disposeTaskUow,
+			CancellationToken cancellationToken)
+		{
+			if(problemSourceType == typeof(ReceiptSendHttpBadRequest))
+			{
+				await _edoProblemRegistrar.RegisterCustomProblem<ReceiptSendHttpBadRequest>(
+					edoTask, cancellationToken, disposeTaskUow: disposeTaskUow);
+				return;
+			}
+
+			if(problemSourceType == typeof(ReceiptSendDocumentStatusNotFound))
+			{
+				await _edoProblemRegistrar.RegisterCustomProblem<ReceiptSendDocumentStatusNotFound>(
+					edoTask, cancellationToken, disposeTaskUow: disposeTaskUow);
+				return;
+			}
+
+			if(problemSourceType == typeof(ReceiptSendSslError))
+			{
+				await _edoProblemRegistrar.RegisterCustomProblem<ReceiptSendSslError>(
+					edoTask, cancellationToken, disposeTaskUow: disposeTaskUow);
+				return;
+			}
+
+			if(problemSourceType == typeof(ReceiptSendTransportError))
+			{
+				await _edoProblemRegistrar.RegisterCustomProblem<ReceiptSendTransportError>(
+					edoTask, cancellationToken, disposeTaskUow: disposeTaskUow);
+				return;
+			}
+
+			await _edoProblemRegistrar.RegisterCustomProblem<ReceiptSendingFailed>(
+				edoTask, cancellationToken, disposeTaskUow: disposeTaskUow);
+		}
+
+		private void SolveReceiptSendProblems(ReceiptEdoTask edoTask)
+		{
+			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendHttpBadRequest>(edoTask);
+			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendDocumentStatusNotFound>(edoTask);
+			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendSslError>(edoTask);
+			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendTransportError>(edoTask);
+			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendingFailed>(edoTask);
+			// Историческое имя проблемы до переименования
+			_edoProblemRegistrar.SolveCustomProblem(edoTask, "Custom.NotAllReceiptsWasSended");
+		}
+
+		private static string BuildReceiptSendingFailedDetails(
+			IReadOnlyCollection<EdoFiscalDocument> problemDocuments)
+		{
+			if(problemDocuments == null || problemDocuments.Count == 0)
+			{
+				return "Детали ошибки отправки недоступны";
+			}
+
+			var parts = new List<string>();
+			foreach(var document in problemDocuments)
+			{
+				var failureMessage = string.IsNullOrWhiteSpace(document.FailureMessage)
+					? "описание ошибки отсутствует"
+					: document.FailureMessage;
+
+				parts.Add($"Чек {document.DocumentNumber}: {failureMessage}");
+			}
+
+			return string.Join("; ", parts);
 		}
 
 		public void Dispose()

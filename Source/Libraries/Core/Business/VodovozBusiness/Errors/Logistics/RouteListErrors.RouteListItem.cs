@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Core.Infrastructure;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.Errors.Logistics
 {

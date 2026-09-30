@@ -93,5 +93,14 @@ namespace Vodovoz.EntityRepositories.Employees
 		/// <param name="driverId">Id водителя (сотрудника)</param>
 		/// <returns>Результат проверки</returns>
 		bool CanCreateDriverMangoRegistrationRequest(IUnitOfWork uow, int driverId);
+
+		/// <summary>
+		/// Возвращает водителя по номеру заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Водитель</returns>
+		Task<Employee> GetDriverByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CustomerNotifications.Contracts;
@@ -65,6 +65,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			foreach(var order in orders)
 			{
+				if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType) && order.SelfDelivery)
+				{
+					order.IsSelfDeliveryPaid = true;
+				}
+
 				if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
 					&& order.SelfDelivery
 					&& order.OrderStatus == OrderStatus.WaitForPayment
@@ -77,7 +82,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 						_routeListItemRepository,
 						_selfDeliveryRepository,
 						_cashRepository);
-					order.IsSelfDeliveryPaid = true;
 				}
 				
 				if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
@@ -86,7 +90,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 					&& !order.PayAfterShipment)
 				{
 					order.ChangeStatus(_saleHandler, OrderStatus.OnLoading);
-					order.IsSelfDeliveryPaid = true;
 					var customerNotificationEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, onlineOrderId: order.OnlineOrder?.Id, orderId: order.Id);
 					_customerNotificationPublisher.TryPublish(uow, customerNotificationEvent);
 				}
@@ -132,6 +135,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 			
 			var selfDeliveryOrderPaymentTypes = new[] { PaymentType.Cash, PaymentType.SmsQR };
 
+			if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType) && order.SelfDelivery)
+			{
+				order.IsSelfDeliveryPaid = true;
+			}
+
 			if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
 				&& order.SelfDelivery
 				&& order.OrderStatus == OrderStatus.WaitForPayment
@@ -144,7 +152,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 					_routeListItemRepository,
 					_selfDeliveryRepository,
 					_cashRepository);
-				order.IsSelfDeliveryPaid = true;
 			}
 			
 			if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
@@ -153,7 +160,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 				&& !order.PayAfterShipment)
 			{
 				order.ChangeStatus(_saleHandler, OrderStatus.OnLoading);
-				order.IsSelfDeliveryPaid = true;
 				var customerNotificationEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, onlineOrderId: order.OnlineOrder?.Id, orderId: order.Id);
 				_customerNotificationPublisher.TryPublish(uow, customerNotificationEvent);
 			}

@@ -226,6 +226,7 @@ namespace Vodovoz
 
 			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
 			var validator = ServicesConfig.ValidationService;
+
 			if(!validator.Validate(Entity))
 			{
 				return false;
@@ -330,15 +331,24 @@ namespace Vodovoz
 				return;
 			}
 
-			ytextviewRouteListInfo.Buffer.Text =
-				string.Format("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
-					Entity.RouteList.Id,
-					Entity.RouteList.Date,
-					Entity.RouteList.Driver.FullName,
-					Entity.RouteList.Car.CarModel.Name,
-					Entity.RouteList.Car.RegistrationNumber,
-					Entity.RouteList.Forwarder != null ? Entity.RouteList.Forwarder.FullName : "(Отсутствует)"
-				);
+			var routeListInfo = string.Format("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\n",
+				Entity.RouteList.Id,
+				Entity.RouteList.Date,
+				Entity.RouteList.Driver.FullName,
+				Entity.RouteList.Car.CarModel.Name,
+				Entity.RouteList.Car.RegistrationNumber);
+
+			if(Entity.RouteList.Semitrailer != null)
+			{
+				routeListInfo += string.Format("Полуприцеп: {0}({1})\n",
+					Entity.RouteList.Semitrailer.CarModel.Name,
+					Entity.RouteList.Semitrailer.RegistrationNumber);
+			}
+
+			routeListInfo += string.Format("Экспедитор: {0}",
+				Entity.RouteList.Forwarder != null ? Entity.RouteList.Forwarder.FullName : "(Отсутствует)");
+
+			ytextviewRouteListInfo.Buffer.Text = routeListInfo;
 		}
 
 		protected void OnYentryrefRouteListChangedByUser(object sender, EventArgs e)

@@ -1,4 +1,4 @@
-using Edo.Docflow.Taxcom;
+﻿using Edo.Docflow.Taxcom;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using System;
@@ -30,7 +30,7 @@ namespace TaxcomEdoConsumer.Consumers
 					"Создаем исходящий документооборот с документом {EdoDocument}",
 					message.UpdInfo.DocumentId);
 
-				await _edoDocflowHandler.CreateTaxcomDocFlowAndSendDocument(message);
+				await _edoDocflowHandler.CreateTaxcomDocFlowAndSendDocument(message, context.CancellationToken);
 			}
 			catch(Exception e)
 			{

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Net.Security;
-using System.Security.Authentication;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using MessageTransport;
+using System;
+using System.Net.Security;
+using System.Security.Authentication;
 
 namespace MessageTransport.MassTransit
 {
@@ -38,14 +37,17 @@ namespace MessageTransport.MassTransit
 
 		/// <summary>
 		/// Настраивает подключение bus'а к именованному RabbitMQ vhost'у по имени секции
-		/// конфигурации. Регистрирует и настройки, и сам bus для multi-bus сценария — когда в одном процессе несколько
+		/// конфигурации, для multi-bus сценария — когда в одном процессе несколько
 		/// независимых bus'ов, каждый со своим маркерным интерфейсом (TBus : IBus).
+		/// <paramref name="configureTopology"/> для настройки имён exchange'ей и их параметров на тип сообщения. Вызывается до
+		/// ConfigureEndpoints, чтобы кастомные имена применились раньше конвенции по умолчанию.
 		/// </summary>
 		public static IBusRegistrationConfigurator<TBus> ConfigureRabbitMq<TBus>(
 			this IBusRegistrationConfigurator<TBus> busConf,
 			IServiceCollection services,
 			IConfiguration configuration,
-			string sectionName)
+			string sectionName,
+			Action<IBusRegistrationContext, IRabbitMqBusFactoryConfigurator> configureTopology = null)
 			where TBus : class, IBus
 		{
 			services.AddOptions<ConfigTransportSettings>(sectionName)
@@ -56,6 +58,7 @@ namespace MessageTransport.MassTransit
 				var settings = context.GetRequiredService<IOptionsMonitor<ConfigTransportSettings>>().Get(sectionName);
 
 				ConfigureHost(configurator, settings);
+				configureTopology?.Invoke(context, configurator);
 				configurator.ConfigureEndpoints(context);
 			});
 

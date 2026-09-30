@@ -138,17 +138,28 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 				now,
 				_options.CurrentValue.WorkerInterval))
 			{
-				_logger.LogDebug(
-					"Повторная обработка задачи ЭДО {EdoTaskId} уже запускалась {LastRetryTime}. Следующая попытка возможна через {WorkerInterval}",
-					receiptTask.Id,
-					state.LastRetryTime,
-					_options.CurrentValue.WorkerInterval);
+				if(state.WaitingProcessingTaskCreatedEvent)
+				{
+					_logger.LogDebug(
+						"Повторная обработка задачи ЭДО {EdoTaskId} уже запускалась {LastRetryTime}. Ожидаем обработки другим сервисом...",
+						receiptTask.Id,
+						state.LastRetryTime);
+				}
+				else
+				{
+					_logger.LogDebug(
+						"Повторная обработка задачи ЭДО {EdoTaskId} уже запускалась {LastRetryTime}. Следующая попытка возможна через {WorkerInterval}",
+						receiptTask.Id,
+						state.LastRetryTime,
+						_options.CurrentValue.WorkerInterval);
+				}
 
 				return ReceiptContactProblemProcessResult.Empty;
 			}
 
 			if(!_resendService.CanResend(receiptTask, problemNode.HasCodesSavedToPool))
 			{
+				state.UpdateWaitingProcessingTaskCreatedEvent(false);
 				return ReceiptContactProblemProcessResult.Empty;
 			}
 
@@ -167,12 +178,27 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 					cancellationToken);
 			}
 
-			state.RetryCount++;
-			state.LastRetryTime = now;
+			state.AddAttempt(now);
 			await uow.SaveAsync(state, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
 
-			await _resendService.PublishResendEventAsync(receiptTask, cancellationToken);
+			try
+			{
+				await _resendService.PublishResendEventAsync(receiptTask, cancellationToken);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Не получилось опубликовать событие повторного запуска задачи ЭДО {EdoTaskId}. Попытка: {RetryCount}",
+					receiptTask.Id,
+					state.RetryCount);
+				
+				state.UpdateWaitingProcessingTaskCreatedEvent(false);
+				await uow.SaveAsync(state, cancellationToken: cancellationToken);
+				await uow.CommitAsync(cancellationToken);
+				return new ReceiptContactProblemProcessResult(false, notificationRequested);
+			}
 
 			_logger.LogInformation(
 				"Опубликовано событие повторного запуска задачи ЭДО {EdoTaskId}. Попытка: {RetryCount}",

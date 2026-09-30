@@ -1,9 +1,10 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
+using System;
+using System.ComponentModel;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.TempAdapters;
@@ -13,9 +14,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class CarModelViewModel : EntityTabViewModelBase<CarModel>, IAskSaveOnCloseViewModel
 	{
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly ICarFuelVersionsController _fuelVersionsController;
 		private DateTime? _selectedFuelDate;
 		private CarFuelVersion _selectedCarFuelVersion;
-		private ICarFuelVersionsController _fuelVersionsController;
 
 		public CarModelViewModel(IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -33,6 +34,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CanReadFuel = true;
 			CanCreateFuel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_fuel_version");
 			CanEditFuel = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_car_fuel_version_date");
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public double FuelConsumption { get; set; } 
@@ -78,6 +81,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			&& SelectedCarFuelVersion != null
 			&& _fuelVersionsController.IsValidDateForVersionStartDateChange(SelectedCarFuelVersion, SelectedFuelDate.Value);
 
+		public int MaxWeightUpperLimit =>
+			Entity.CarTypeOfUse is CarTypeOfUse.Semitrailer ? 25000 : 20000;
+
 		public void AddNewCarFuelVersion()
 		{
 			if(SelectedFuelDate == null)
@@ -113,6 +119,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			else
 			{
 				_routeListProfitabilityController.RecalculateRouteListProfitabilitiesBetweenDates(UoW, newStartDate, oldStartDate);
+			}
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName is nameof(CarModel.CarTypeOfUse))
+			{
+				if(Entity.MaxWeight > MaxWeightUpperLimit)
+				{
+					Entity.MaxWeight = MaxWeightUpperLimit;
+				}
+
+				OnPropertyChanged(nameof(MaxWeightUpperLimit));
 			}
 		}
 	}

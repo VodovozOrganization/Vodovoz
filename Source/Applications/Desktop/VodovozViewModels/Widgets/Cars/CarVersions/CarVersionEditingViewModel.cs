@@ -25,6 +25,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 		private DialogViewModelBase _parentDialog;
 		IList<CarOwnType> _availableCarOwnTypes;
 		private readonly ICommonServices _commonServices;
+		private bool _canEditCarCard;
 
 		public CarVersionEditingViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -116,7 +117,12 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 			SelectedCarOwnType.HasValue
 			&& SelectedCarOwnType != CarOwnType.Driver;
 
-		public bool CanSaveCarVersion => !CanSelectCarOwner || !(SelectedCarOwner is null);
+		public bool CanSaveCarVersion => CanEditCarCard && (!CanSelectCarOwner || !(SelectedCarOwner is null));
+		public bool CanEditCarCard
+		{
+			get => _canEditCarCard;
+			set => SetField(ref _canEditCarCard, value);
+		}
 
 		public bool IsVersionNewAndTypeWithOwnerOrganizationEqualsLastVersion =>
 			_carVersion.Id == 0
@@ -138,7 +144,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars.CarVersions
 				return;
 			}
 
-			if(!CanChangeCompositionCompanyTransportPark)
+			if(!CanEditCarCard && !CanChangeCompositionCompanyTransportPark)
 			{
 				const string message = "Невозможно изменить принадлежность авто. У Вас нет права менять состав автопарка компании";
 				

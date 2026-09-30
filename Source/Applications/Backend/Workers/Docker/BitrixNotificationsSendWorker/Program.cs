@@ -3,6 +3,7 @@ using BitrixNotificationsSend.Library;
 using BitrixNotificationsSendWorker.CashlessDebts;
 using BitrixNotificationsSendWorker.LastServiceOrders;
 using BitrixNotificationsSendWorker.PlannedOrders;
+using BitrixNotificationsSendWorker.UndeliveredOrders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -74,6 +75,7 @@ namespace BitrixNotificationsSendWorker
 					services.AddHostedService<CashlessDebtsNotificationsSendWorker>();
 					services.AddHostedService<PlannedOrdersDealsCreateWorker>();
 					services.AddHostedService<LastServiceOrdersDealsCreateWorker>();
+					services.AddHostedService<UndeliveredOrdersDealsCreateWorker>();
 				});
 	}
 }

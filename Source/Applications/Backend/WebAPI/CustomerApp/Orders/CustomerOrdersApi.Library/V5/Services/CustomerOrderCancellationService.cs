@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.V5.Dto.Orders.CancelOrder;
+using CustomerOrdersApi.Library.V5.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.V5.Factories;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
@@ -489,7 +489,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 				_saleHandler,
 				_nomenclatureSettings,
 				_callTaskWorker,
-				needCreateDeliveryFreeBalanceOperation: false);
+				needCreateDeliveryFreeBalanceOperation: true);
 
 			_logger.LogInformation("Установлен статус недовоза для заказа {OrderId}", order.Id);
 

@@ -26,7 +26,8 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 			}
 
 			return !state.LastRetryTime.HasValue
-				|| state.LastRetryTime.Value + workerInterval <= now;
+				|| (state.LastRetryTime.Value + workerInterval <= now
+					&& !state.WaitingProcessingTaskCreatedEvent);
 		}
 
 		/// <summary>

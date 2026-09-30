@@ -58,6 +58,8 @@ namespace Edo.Withdrawal.Routine.Worker
 
 						.AddHostedService<TrueMarkTimedOutDocumentsWithdrawalWorker>()
 
+						.AddHostedService<TrueMarkWithdrawalCancellationWorker>()
+
 						.AddHostedService<TrueMarkDocumentsStatusUpdateWorker>()
 						;
 				});

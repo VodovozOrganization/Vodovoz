@@ -44,5 +44,23 @@ namespace TrueMark.Codes.Pool
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		Task<IList<int>> TakeCodes(string gtin, int count, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Удалить код из пула по идентификатору кода ЧЗ (идемпотентно)
+		/// </summary>
+		/// <param name="codeId">Id кода из true_mark_identification_code</param>
+		void RemoveCode(int codeId);
+
+		/// <summary>
+		/// Асинхронно удалить код из пула по идентификатору кода ЧЗ (идемпотентно)
+		/// </summary>
+		/// <param name="codeId">Id кода из true_mark_identification_code</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		Task RemoveCodeAsync(int codeId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Удалить код из пула по GTIN и серийному номеру (идемпотентно)
+		/// </summary>
+		Task RemoveCodeByGtinAndSerialAsync(string gtin, string serialNumber, CancellationToken cancellationToken);
 	}
 }

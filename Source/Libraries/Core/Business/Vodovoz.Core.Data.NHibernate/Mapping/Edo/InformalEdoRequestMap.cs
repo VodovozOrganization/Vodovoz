@@ -41,6 +41,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			References(x => x.Order)
 				.Column("order_id")
 				.Cascade.All();
+
+			References(x => x.Author)
+				.Column("author_id")
+				.Cascade.All();
 		}
 	}
 }

@@ -211,9 +211,6 @@ namespace CustomerOrdersApi.Library.V6.Services
 				var isOrderWasSelectedAsNext =
 					driverPositionData.EstablishedRoute || await _routeListRepository.IsOrderEverWasSelectedAsNext(uow, order.Id, cancellationToken);
 
-				var driversMangoExtensionNumber =
-					await _orderRepository.GetDriversMangoExtensionNumberByOrderId(uow, order.Id, cancellationToken);
-
 				return await _customerOrderFactory.CreateDetailedOrderInfo(
 					uow,
 					order,
@@ -221,7 +218,6 @@ namespace CustomerOrdersApi.Library.V6.Services
 					timers,
 					onlineOrder,
 					ratingAvailableFrom,
-					driversMangoExtensionNumber,
 					driverPositionData.EstablishedRoute,
 					isOrderWasSelectedAsNext,
 					driverPositionData.CoordinatesLastUpdateTime,

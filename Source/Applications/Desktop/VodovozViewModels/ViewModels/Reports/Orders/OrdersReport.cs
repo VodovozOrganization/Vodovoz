@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml;
+﻿using Core.Infrastructure;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using QS.DomainModel.Entity;
@@ -6,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.JournalNodes;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Orders

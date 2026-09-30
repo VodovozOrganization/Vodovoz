@@ -88,6 +88,26 @@ namespace TrueMark.Codes.Pool
 			}
 		}
 
+		public async Task<int> DeleteUsedCodesAsync(CancellationToken cancellationToken)
+		{
+			using(var uow = CreateUow())
+			{
+				uow.OpenTransaction();
+
+				var sql = $@"
+					DELETE p FROM {_poolTableName} p
+					INNER JOIN true_mark_product_codes tmpc ON tmpc.result_code_id = p.code_id
+					WHERE tmpc.result_code_id IS NOT NULL
+					;";
+
+				var query = uow.Session.CreateSQLQuery(sql);
+				var deletedCount = await query.ExecuteUpdateAsync(cancellationToken);
+
+				await uow.CommitAsync(cancellationToken);
+				return deletedCount;
+			}
+		}
+
 		public void DeleteCodes(IEnumerable<int> codeIds)
 		{
 			using(var uow = CreateUow())

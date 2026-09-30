@@ -55,5 +55,6 @@
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdoApi.Library\TaxcomEdoApi.Library.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
+      <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
     </ItemGroup>
 </Project>

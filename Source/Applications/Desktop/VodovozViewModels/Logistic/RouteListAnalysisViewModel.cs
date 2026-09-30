@@ -17,6 +17,7 @@ using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
@@ -35,6 +36,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets.Mango;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -77,7 +79,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IFileDialogService fileDialogService,
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigationManager,
-			ICurrentPermissionService currentPermissionService)
+			ICurrentPermissionService currentPermissionService,
+			IMangoCallButtonViewModelFactory mangoCallButtonViewModelFactory)
 			: base (uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -119,7 +122,8 @@ namespace Vodovoz.ViewModels.Logistic
 			Entity.ObservableAddresses.PropertyOfElementChanged += ObservableAddressesOnPropertyOfElementChanged;
 			
 			CurrentEmployee = _employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
-			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
+			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
+			CanWorkWithSemitrailers = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.CanWorkWithSemitrailers);
 
 			if(CurrentEmployee == null) {
 				AbortOpening("Ваш пользователь не привязан к действующему сотруднику, вы не можете открыть " +
@@ -130,6 +134,11 @@ namespace Vodovoz.ViewModels.Logistic
 			DriverSelectorFactory = _employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 			ForwarderSelectorFactory = _employeeJournalFactory.CreateWorkingForwarderEmployeeAutocompleteSelectorFactory();
 			CarEntryViewModel = BuildCarEntryViewModel();
+			SemitrailerViewModel = CreateSemitrailerViewModel();
+
+			DriverExtensionCallViewModel =
+				(mangoCallButtonViewModelFactory ?? throw new ArgumentNullException(nameof(mangoCallButtonViewModelFactory)))
+				.CreateForRouteListDriver(UoW, Entity);
 
 			TabName = $"Диалог разбора {Entity.Title}";
 			
@@ -142,11 +151,17 @@ namespace Vodovoz.ViewModels.Logistic
 		
 		#region Properties
 
+		/// <summary>
+		/// Вью-модель кнопки звонка на добавочный номер водителя маршрутного листа
+		/// </summary>
+		public MangoCallButtonViewModel DriverExtensionCallViewModel { get; }
+
 		public IEntityAutocompleteSelectorFactory LogisticanSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DriverSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory ForwarderSelectorFactory { get; }
 		public IUndeliveredOrdersRepository UndeliveredOrdersRepository { get; }
 		public IEntityEntryViewModel CarEntryViewModel { get; }
+		public IEntityEntryViewModel SemitrailerViewModel { get; }
 
 		public readonly IList<DeliveryShift> DeliveryShifts;
 		
@@ -157,7 +172,12 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool CanEditRouteList => PermissionResult.CanUpdate;
 
 		public bool CanCreateRouteListWithoutOrders { get; }
-		
+
+		public bool CanWorkWithSemitrailers { get; }
+
+		public bool IsSemiTrailerVisible =>
+			Entity.Car?.CarModel?.CarTypeOfUse is CarTypeOfUse.Truck;
+
 		#endregion
 
 		public Action UpdateTreeAddresses;
@@ -178,6 +198,19 @@ namespace Vodovoz.ViewModels.Logistic
 			viewModel.CanViewEntity = false;
 
 			return viewModel;
+		}
+
+		public IEntityEntryViewModel CreateSemitrailerViewModel()
+		{
+			return new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Semitrailer)
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictedCarTypesOfUse = new[] { CarTypeOfUse.Semitrailer };
+					filter.Archive = false;
+				})
+				.UseViewModelDialog<SemitrailerViewModel>()
+				.Finish();
 		}
 
 		private void ObservableAddressesOnPropertyOfElementChanged(object sender, PropertyChangedEventArgs e)

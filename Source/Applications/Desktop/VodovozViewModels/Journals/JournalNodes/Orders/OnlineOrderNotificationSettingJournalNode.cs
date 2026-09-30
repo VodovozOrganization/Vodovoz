@@ -1,7 +1,7 @@
-﻿using QS.Project.Journal;
+﻿using Core.Infrastructure;
+using QS.Project.Journal;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 {

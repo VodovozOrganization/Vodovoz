@@ -416,6 +416,64 @@ public class TrueMarkApiController : ControllerBase
 		}
 	}
 
+	/// <summary>
+	/// Отправка документа отмены вывода из оборота
+	/// </summary>
+	/// <param name="documentData">Данные документа</param>
+	/// <param name="cancellationToken">Токен отмены</param>
+	/// <returns>GUID документа в ЧЗ</returns>
+	[HttpPost]
+	public async Task<IActionResult> SendIndividualAccountingWithdrawalCancellationDocument([FromBody] SendDocumentDataRequest documentData, CancellationToken cancellationToken)
+	{
+		var uri = $"v3/true-api/lk/documents/create?pg=water";
+
+		var document = documentData.Document;
+		var inn = documentData.Inn;
+
+		try
+		{
+			var certificateThumbPrint = GetCertificateThumbPrintByInn(inn);
+
+			var sign = await SignDocument(document, true, certificateThumbPrint, inn);
+
+			var documentToSend = new SendDocumentDto
+			{
+				DocumentFormat = "MANUAL",
+				Type = "LK_RECEIPT_CANCEL",
+				ProductDocument = Convert.ToBase64String(Encoding.UTF8.GetBytes(document)),
+				Signature = Convert.ToBase64String(sign)
+			};
+
+			var httpContent = new StringContent(JsonSerializer.Serialize(documentToSend), Encoding.UTF8, "application/json");
+
+			var token = await _authorizationService.Login(certificateThumbPrint, inn);
+			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+			var responseResult = await _httpClient.PostAsync(uri, httpContent, cancellationToken);
+			responseResult.EnsureSuccessStatusCode();
+
+			var documentId = await responseResult.Content.ReadAsStringAsync(cancellationToken);
+
+			return new ContentResult
+			{
+				Content = documentId,
+				ContentType = "text/plain",
+				StatusCode = StatusCodes.Status200OK
+			};
+		}
+		catch(Exception e)
+		{
+			_logger.LogError(e, "Ошибка при отправке документа отмены вывода из оборота");
+
+			return new ContentResult
+			{
+				Content = $"Не удалось выполнить отправку документа отмены вывода из оборота. Ошибка: {e.Message}",
+				ContentType = "text/plain",
+				StatusCode = StatusCodes.Status500InternalServerError
+			};
+		}
+	}
+
 	private async Task<byte[]> SignDocument(string data, bool isDeatchedSign, string certificateThumbPrint, string inn)
 	{
 		var currentCert = _options.Value.OrganizationCertificates.SingleOrDefault(c => c.CertificateThumbPrint == certificateThumbPrint && c.Inn == inn);

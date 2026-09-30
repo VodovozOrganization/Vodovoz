@@ -42,6 +42,12 @@ namespace Vodovoz.Domain.Logistic.Cars
 		/// Погрузчик
 		/// </summary>
 		[Display(Name = "Погрузчик", ShortName = "П")]
-		Loader
+		Loader,
+
+		/// <summary>
+		/// Полуприцеп
+		/// </summary>
+		[Display(Name = "Полуприцеп", ShortName = "ПП")]
+		Semitrailer
 	}
 }

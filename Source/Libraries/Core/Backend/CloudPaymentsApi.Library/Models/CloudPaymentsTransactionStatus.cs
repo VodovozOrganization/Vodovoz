@@ -42,5 +42,10 @@ namespace CloudPaymentsApi.Library.Models
 		/// Возможные действия: Нет
 		/// </summary>
 		Declined = 5,
+
+		/// <summary>
+		/// Транзакция в обработке
+		/// </summary>
+		Pending = 6
 	}
 }

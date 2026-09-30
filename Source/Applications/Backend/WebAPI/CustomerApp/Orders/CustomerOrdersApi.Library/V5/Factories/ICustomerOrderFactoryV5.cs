@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
@@ -19,7 +18,6 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			OnlineOrderTimers timers,
 			OnlineOrder onlineOrder,
 			DateTime ratingAvailableFrom,
-			DriverMangoExtensionNumber driversMangoExtensionNumber,
 			CancellationToken cancellationToken
 			);
 

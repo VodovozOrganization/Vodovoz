@@ -252,6 +252,15 @@ namespace Vodovoz.Core.Domain.Errors
 				"Коды ЧЗ сетевого заказа должны добавляться на складе");
 
 		/// <summary>
+		/// По заказу формируется чек, транспортный код использовать нельзя
+		/// </summary>
+		public static Error TransportCodeIsNotAllowedForOrderWithReceipt =>
+			new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(TransportCodeIsNotAllowedForOrderWithReceipt),
+				"По заказу требуется отправка чека, транспортный код использовать нельзя. Отсканируйте коды по отдельности");
+
+		/// <summary>
 		/// Код ЧЗ участвует в агрегации
 		/// </summary>
 		public static Error AggregatedCode =>

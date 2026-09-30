@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.FastPayments
 		NominativePlural = "быстрые платежи",
 		Nominative = "быстрый платеж")]
 	[HistoryTrace]
-	public class FastPayment : PropertyChangedBase, IDomainObject
+	public class FastPayment : FastPaymentEntity
 	{
 		private string _ticket;
 		private string _qrPngBase64;
@@ -28,21 +28,11 @@ namespace Vodovoz.Domain.FastPayments
 		private PaymentType _paymentType;
 		private DateTime _creationDate;
 		private DateTime? _paidDate;
-		private FastPaymentStatus _fastPaymentStatus;
 		private decimal _amount;
 		private int _externalId;
 		private int? _onlineOrderId;
 		private Guid _fastPaymnetGuid;
 		private FastPaymentPayType _fastPaymentPayType;
-
-		public virtual int Id { get; set; }
-		
-		[Display(Name = "Статус оплаты")]
-		public virtual FastPaymentStatus FastPaymentStatus
-		{
-			get => _fastPaymentStatus;
-			protected set => SetField(ref _fastPaymentStatus, value);
-		}
 
 		[Display(Name = "Сумма платежа")]
 		public virtual decimal Amount
@@ -52,7 +42,7 @@ namespace Vodovoz.Domain.FastPayments
 		}
 
 		[Display(Name = "Заказ")]
-		public virtual Order Order
+		public virtual new Order Order
 		{
 			get => _order;
 			set => SetField(ref _order, value);

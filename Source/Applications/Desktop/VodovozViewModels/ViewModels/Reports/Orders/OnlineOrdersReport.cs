@@ -1,10 +1,10 @@
-﻿using DocumentFormat.OpenXml;
+﻿using Core.Infrastructure;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Orders

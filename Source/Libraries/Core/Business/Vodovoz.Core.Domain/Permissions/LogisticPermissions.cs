@@ -36,11 +36,28 @@ namespace Vodovoz.Core.Domain.Permissions
 		public static string CanWorkWithDriverSchedule => nameof(CanWorkWithDriverSchedule);
 
 		/// <summary>
+		/// Возможность работать с полуприцепами
+		/// </summary>
+		[Display(
+			Name = "Возможность работать с полуприцепами",
+			Description = "Пользователь может работать с полуприцепами")]
+		public static string CanWorkWithSemitrailers => nameof(CanWorkWithSemitrailers);
+
+		/// <summary>
 		/// Возможность изменять события и мощности после 13:00
 		/// </summary>
 		[Display(
 			Name = "Возможность изменять события и мощности после 13:00",
 			Description = "Пользователь может изменять события и мощности после 13:00")]
 		public static string CanEditEventsAndCapacitiesAfter13 => nameof(CanEditEventsAndCapacitiesAfter13);
+
+		/// <summary>
+		/// Возможность управлять работой сервиса создания карточек сотрудников в Манго
+		/// </summary>
+		[Display(
+			Name = "Возможность управлять работой сервиса создания карточек сотрудников в Манго для водителей",
+			Description = "Пользователь может включать и отключать сервис создания карточек сотрудников в Манго для водителей")]
+		public static string CanEditDriverMangoEmployeeRegistrationSettings =>
+			nameof(CanEditDriverMangoEmployeeRegistrationSettings);
 	}
 }

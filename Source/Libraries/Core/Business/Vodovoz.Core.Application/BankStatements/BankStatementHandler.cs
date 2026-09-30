@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.Core.Application.BankStatements
 {

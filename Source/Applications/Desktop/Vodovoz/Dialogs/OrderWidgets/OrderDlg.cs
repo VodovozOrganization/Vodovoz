@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Core.Infrastructure;
 using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
@@ -151,11 +151,13 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.Services.Orders;
 using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using Vodovoz.ViewModels.Widgets.Mango;
 using Vodovoz.ViewModels.Widgets.Orders;
 using Vodovoz.Views.Edo;
 using VodovozBusiness.Controllers;
@@ -237,6 +239,9 @@ namespace Vodovoz
 
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 
+		private IOrderOrganizationManager _orderOrganizationManager;
+		private OrderCancellationPermitService _orderCancellationPermitService;
+
 		private readonly IRouteListSettings _routeListSettings = ScopeProvider.Scope.Resolve<IRouteListSettings>();
 		private readonly IDocumentPrinter _documentPrinter = ScopeProvider.Scope.Resolve<IDocumentPrinter>();
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory = ScopeProvider.Scope.Resolve<IEntityDocumentsPrinterFactory>();
@@ -251,7 +256,6 @@ namespace Vodovoz
 		private readonly IDiscountReasonRepository _discountReasonRepository = ScopeProvider.Scope.Resolve<IDiscountReasonRepository>();
 		private readonly IRouteListItemRepository _routeListItemRepository = ScopeProvider.Scope.Resolve<IRouteListItemRepository>();
 		private readonly IEmailRepository _emailRepository = ScopeProvider.Scope.Resolve<IEmailRepository>();
-		private readonly ICashRepository _cashRepository = ScopeProvider.Scope.Resolve<ICashRepository>();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = ScopeProvider.Scope.Resolve<IPromotionalSetRepository>();
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository = ScopeProvider.Scope.Resolve<IUndeliveredOrdersRepository>();
 		private readonly IEdoDocflowRepository _edoDocflowRepository = ScopeProvider.Scope.Resolve<IEdoDocflowRepository>();
@@ -341,6 +345,8 @@ namespace Vodovoz
 		private bool _isFastDeliveryAvailabilityChecked;
 		public bool IsStatusForEditGoodsInRouteList => 
 			_orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
+
+		private bool _canSetContactlessDelivery;
 
 		private UndeliveryViewModel _undeliveryViewModel;
 
@@ -734,6 +740,8 @@ namespace Vodovoz
 			_exportsOrderTo1cReporitory = _lifetimeScope.Resolve<IGenericRepository<OrderTo1cExport>>();
 			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
 			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
+			_orderOrganizationManager = _lifetimeScope.Resolve<IOrderOrganizationManager>();
+			_orderCancellationPermitService = _lifetimeScope.Resolve<OrderCancellationPermitService>();
 			_discountsController = _lifetimeScope.Resolve<IOrderDiscountsController>();
 			_saleHandler = _lifetimeScope.Resolve<IOrderSaleHandler>();
 			_saleHandler.SetSource(Entity);
@@ -1216,6 +1224,10 @@ namespace Vodovoz
 
 			SetOrderItemDiscountReasonsViewModel();
 
+			SetDriverExtensionCallViewModel();
+
+			SetDriverPhoneForCounterpartyCalls();
+
 			UpdateUIState();
 
 			yChkActionBottle.Toggled += (sender, e) =>
@@ -1285,6 +1297,23 @@ namespace Vodovoz
 			RefreshDebtorDebtNotifier();
 
 			UpdateDocumentsDescription();
+		}
+
+		private void SetDriverExtensionCallViewModel()
+		{
+			mangocallbuttonviewDriverExtensionPhone.ViewModel = _lifetimeScope
+				.Resolve<IMangoCallButtonViewModelFactory>()
+				.CreateForOrderDriver(UoW, Entity);
+		}
+
+		private void SetDriverPhoneForCounterpartyCalls()
+		{
+			yentryDriversPhone.IsEditable = false;
+
+			yentryDriversPhone.Text =
+				_routeListItemRepository.GetRouteListItemForOrder(UoW, Entity)
+					?.RouteList?.Driver?.PhoneForCounterpartyCalls?.ToString()
+				?? string.Empty;
 		}
 
 		private void SetOrderItemDiscountReasonsViewModel()
@@ -1375,6 +1404,9 @@ namespace Vodovoz
 
 		private void SetPermissions()
 		{
+			_canSetContactlessDelivery = _currentPermissionService.ValidatePresetPermission(
+				OrderPermissions.Delivery.CanSetContactlessDelivery);
+
 			var currentPermissionService = ServicesConfig.CommonServices.CurrentPermissionService;
 
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService.ValidatePresetPermission(
@@ -1688,7 +1720,15 @@ namespace Vodovoz
 				}
 			}
 
-			_edoService.ResendEdoOrderDocumentForOrder(Entity, SelectedEdoDocumentDataNode.OrderDocumentType.Value);
+			var resendResult = _edoService.ResendEdoOrderDocumentForOrder(Entity, SelectedEdoDocumentDataNode.OrderDocumentType.Value);
+
+			if(resendResult.IsFailure)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					"Не удалось переотправить документ.\nПричины:\n - "
+					+ string.Join("\n - ", resendResult.Errors.Select(x => x.Message)));
+			}
 		}
 
 		private void ResendUpd()
@@ -2017,7 +2057,13 @@ namespace Vodovoz
 
 			RemoveFlyers();
 
-			if(Entity.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId)
+			var isOrderContainsKulerServiceGoods =
+				_orderOrganizationManager.IsOrderContainsKulerServiceGoods(UoW, Entity.OrderItems);
+
+			// в сервисный заказ листовки не добавляем, при этом организация заказа может быть и не КС,
+			// например, если заказ уже оплачен онлайн
+			if(Entity.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId
+				|| isOrderContainsKulerServiceGoods)
 			{
 				return;
 			}
@@ -3218,10 +3264,8 @@ namespace Vodovoz
 
 		private void ProcessSmsNotification()
 		{
-			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
-			var smsNotifierSettings = _lifetimeScope.Resolve<ISmsNotifierSettings>();
-			var smsNotifier = new SmsNotifier(uowFactory, smsNotifierSettings);
-			smsNotifier.NotifyIfNewClient(Entity);
+			var smsNotifier = _lifetimeScope.Resolve<ISmsNotifier>();
+			smsNotifier.CreateNewClientSmsNotification(Entity);
 		}
 
 		private Result ValidateAndFormOrder()
@@ -3664,20 +3708,24 @@ namespace Vodovoz
 
 			var stopwatch = Stopwatch.StartNew();
 			_logger.Info("ЭДО заказа {OrderId}: начало конфигурации ViewModel", Entity.Id);
-			var edoInOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
-			edoInOrderViewModel.Setup(UoW, Entity.Id);
-			var transferTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
+			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
+			edoForOrderViewModel.Setup(UoW, Entity.Id);
+			var reuseTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
 					this,
-					edoInOrderViewModel.OrderCodesViewModel,
+					edoForOrderViewModel.OrderCodesViewModel,
 					UoW,
 					NavigationManager,
 					_lifetimeScope)
-				.ForProperty(viewModel => viewModel.TransferTargetOrder)
+				.ForProperty(viewModel => viewModel.ReuseTargetOrder)
 				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(
-					filter => filter.RestrictHideService = true)
+					filter =>
+					{
+						filter.RestrictHideService = true;
+						filter.ExceptIds = new[] { Entity.Id };
+					})
 				.Finish();
-			edoInOrderViewModel.OrderCodesViewModel.ConfigureTransferTargetOrderEntry(transferTargetOrderViewModel);
-			edoinorderview1.ViewModel = edoInOrderViewModel;
+			edoForOrderViewModel.OrderCodesViewModel.ConfigureReuseTargetOrderEntry(reuseTargetOrderViewModel);
+			edoinorderview1.ViewModel = edoForOrderViewModel;
 			_edoInOrderViewModelConfigured = true;
 			_logger.Info("ЭДО заказа {OrderId}: конфигурация ViewModel завершена за {Elapsed}", Entity.Id, stopwatch.Elapsed);
 		}
@@ -4677,52 +4725,11 @@ namespace Vodovoz
 
 		protected void OnButtonCancelOrderClicked(object sender, EventArgs e)
 		{
-			bool isShipped = !_orderRepository.IsSelfDeliveryOrderWithoutShipment(UoW, Entity.Id);
-			bool orderHasIncome = _cashRepository.OrderHasIncome(UoW, Entity.Id);
+			var permit = _orderCancellationPermitService.GetPermitWithOrderChecks(UoW, Entity);
 
-			if(Entity.SelfDelivery && (orderHasIncome || isShipped))
+			if(permit.Type == OrderCancellationPermitType.AllowCancelOrder)
 			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Error,
-					"Вы не можете отменить отгруженный или оплаченный самовывоз. " +
-						"Для продолжения необходимо удалить отгрузку."
-				);
-				return;
-			}
-
-			var validationContext = new ValidationContext(
-				Entity, 
-				null, 
-				new Dictionary<object, object> 
-				{
-					{ "NewStatus", OrderStatus.Canceled }
-				}
-			);
-
-			if(!Validate(validationContext))
-			{
-				return;
-			}
-
-			var permit = _orderCancellationService.CanCancelOrder(UoW, Entity);
-			switch(permit.Type)
-			{
-				case OrderCancellationPermitType.AllowCancelDocflow:
-					if(permit.EdoTaskToCancellationId == null)
-					{
-						throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
-					}
-					_orderCancellationService.CancelDocflowByUser(
-						$"Отмена заказа №{Entity.Id}", 
-						permit.EdoTaskToCancellationId.Value
-					);
-					return;
-				case OrderCancellationPermitType.AllowCancelOrder:
-					OpenUndelivery(permit);
-					break;
-				case OrderCancellationPermitType.Deny:
-				default:
-					return;
+				OpenUndelivery(permit);
 			}
 		}
 
@@ -5308,7 +5315,7 @@ namespace Vodovoz
 				buttonAddForSale.Sensitive = val;
 			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
 			dataSumDifferenceReason.Sensitive = val;
-			ycheckContactlessDelivery.Sensitive = val;
+			ycheckContactlessDelivery.Sensitive = val && _canSetContactlessDelivery;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 
@@ -5409,6 +5416,10 @@ namespace Vodovoz
 				if(widget.Name == yhbox4.Name)
 				{
 					widget.Sensitive = IsWaitUntilActive;
+				}
+				else if(widget.Name == yhboxDriversPhone.Name)
+				{
+					continue;
 				}
 				else
 				{

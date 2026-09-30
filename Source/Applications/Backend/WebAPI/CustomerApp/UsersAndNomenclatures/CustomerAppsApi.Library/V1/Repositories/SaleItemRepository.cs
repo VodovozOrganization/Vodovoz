@@ -84,6 +84,9 @@ namespace CustomerAppsApi.Library.V1.Repositories
 
 			switch(parameterType)
 			{
+				case GoodsOnlineParameterType.ForAiBot:
+					query.And(() => onlineParametersAlias.Type == GoodsOnlineParameterType.ForAiBot);
+					break;
 				case GoodsOnlineParameterType.ForMobileApp:
 					query.And(n => n.MobileAppNomenclatureOnlineCatalog != null)
 						.And(() => onlineParametersAlias.Type == GoodsOnlineParameterType.ForMobileApp);

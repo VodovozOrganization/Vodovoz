@@ -23,6 +23,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private FiscalDocumentStage _stage;
 		private FiscalDocumentStatus _status;
 		private DateTime? _statusChangeTime;
+		private DateTime? _lastQueueNotificationTime;
 		private DateTime? _fiscalTime;
 		private string _fiscalNumber;
 		private string _fiscalMark;
@@ -111,6 +112,16 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _statusChangeTime;
 			set => SetField(ref _statusChangeTime, value);
+		}
+
+		/// <summary>
+		/// Время последней регистрации уведомления о чеке, зависшем в очереди.
+		/// </summary>
+		[Display(Name = "Время уведомления о зависшем чеке")]
+		public virtual DateTime? LastQueueNotificationTime
+		{
+			get => _lastQueueNotificationTime;
+			set => SetField(ref _lastQueueNotificationTime, value);
 		}
 
 		/// <summary>

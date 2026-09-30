@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Report.Utils;
+using Core.Infrastructure;
 using DynamicData;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
@@ -14,7 +15,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Reports.Editing.Modifiers;
 using static Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters.IncludeExcludeBookkeepingReportsFilterFactory;

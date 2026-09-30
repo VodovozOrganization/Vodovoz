@@ -1,4 +1,6 @@
-﻿using QS.ViewModels;
+﻿using EdoService.Library;
+using QS.Dialog;
+using QS.ViewModels;
 using QS.ViewModels.Widgets.Pipeline;
 using System;
 using System.Collections.Generic;
@@ -7,24 +9,28 @@ using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.ViewModels.Counterparties;
 
 namespace Vodovoz.ViewModels.Edo
 {
 	public class EdoInOrderTransferStageViewModel : WidgetViewModelBase 
 	{
+		private readonly IEnumerable<EdoInOrderTaxcomDocflowNode> _allDocflows;
+		private readonly IEdoService _edoService;
+		private readonly IInteractiveService _interactiveService;
 		private IList<EdoInOrderTransferRowViewModel> _transfers;
 		private EdoInOrderTransferRowViewModel _selectedTransfer;
 		private PipelineViewModel _pipelineViewModel;
 		private IList<string> _transferedCodes;
 		private WidgetViewModelBase _transferStageViewModel;
-		private readonly IEnumerable<EdoInOrderTaxcomDocflowNode> _allDocflows;
 
 		public EdoInOrderTransferStageViewModel(
-			IEnumerable<EdoInOrderTaxcomDocflowNode> allDocflows
-			)
+			IEnumerable<EdoInOrderTaxcomDocflowNode> allDocflows, 
+			IEdoService edoService,
+			IInteractiveService interactiveService)
 		{
 			_allDocflows = allDocflows ?? throw new ArgumentNullException(nameof(allDocflows));
+			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 
 		public virtual IList<EdoInOrderTransferRowViewModel> Transfers
@@ -172,7 +178,12 @@ namespace Vodovoz.ViewModels.Edo
 				var docflowsByTask = _allDocflows
 					.Where(x => x.TaskId == SelectedTransfer.Node.TransferTaskId)
 					.ToList();
-				var docflowsStageViewModel = new EdoInOrderDocflowsStageViewModel(docflowsByTask);
+
+				var docflowsStageViewModel = new EdoInOrderDocflowsStageViewModel(
+					docflowsByTask,
+					_edoService,
+					_interactiveService);
+
 				TransferStageViewModel = docflowsStageViewModel;
 				return;
 			}

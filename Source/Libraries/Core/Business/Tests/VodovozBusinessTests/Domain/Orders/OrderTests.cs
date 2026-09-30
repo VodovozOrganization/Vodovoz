@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
@@ -16,15 +17,20 @@ using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
+using CustomerNotifications.Contracts;
+using Notifications.Infrastructure;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Contacts;
@@ -50,6 +56,38 @@ namespace VodovozBusinessTests.Domain.Orders
 			_priceCalculator = Substitute.For<IGoodsPriceCalculator>();
 		}
 		
+		[TestCase(OrderStatus.Closed, true, false, true, false)]
+		[TestCase(OrderStatus.Closed, false, false, true, false)]
+		[TestCase(OrderStatus.NewOrder, true, false, true, true)]
+		[TestCase(OrderStatus.Accepted, true, false, true, true)]
+		[TestCase(OrderStatus.Accepted, true, true, true, false)]
+		[TestCase(OrderStatus.Accepted, true, false, false, false)]
+		public void SaveEntity_UpdatesContractOnlyWhenNeeded(
+			OrderStatus status, bool hasContract, bool loadedFrom1C, bool needUpdateContract, bool expectUpdate)
+		{
+			var uow = Substitute.For<IUnitOfWork>();
+			var contract = hasContract ? new CounterpartyContract() : null;
+			var order = new Order
+			{
+				Id = 1,
+				UoW = uow,
+				OrderStatus = status,
+				Contract = contract,
+				Code1c = loadedFrom1C ? "1C-order" : null,
+				TareNonReturnReason = new NonReturnReason(),
+				Comment = "Updated comment"
+			};
+			var dailyNumberController = Substitute.For<Vodovoz.Domain.IOrderDailyNumberController>();
+			var paymentController = Substitute.For<IPaymentFromBankClientController>();
+
+			order.SaveEntity(uow, _contractUpdater, null, dailyNumberController, paymentController, needUpdateContract);
+
+			_contractUpdater.Received(expectUpdate ? 1 : 0).UpdateContract(uow, order);
+			Assert.That(order.Contract, Is.SameAs(contract));
+			Assert.That(order.Comment, Is.EqualTo("Updated comment"));
+			uow.Received(1).Save(order);
+		}
+
 		#region OrderItemsPacks
 
 		private static Order ForfeitWaterAndEmptyBottles(
@@ -212,6 +250,92 @@ namespace VodovozBusinessTests.Domain.Orders
 			testClient.DeliveryPoints.Add(testDeliveryPoint);
 
 			return testOrder;
+		}
+
+		#endregion
+
+		#region Cashless self-delivery payment
+
+		[Test(Description = "Полная оплата безналичного самовывоза отмечает самовывоз оплаченным")]
+		public void UpdateOrderPaymentStatus_WhenCashlessSelfDeliveryIsPaid_MarksSelfDeliveryAsPaid()
+		{
+			var order = new Order
+			{
+				SelfDelivery = true
+			};
+			order.UpdatePaymentType(PaymentType.Cashless, _contractUpdater, false);
+
+			order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
+
+			Assert.That(order.IsSelfDeliveryPaid, Is.True);
+		}
+
+		[Test(Description = "Частичная оплата безналичного самовывоза не отмечает его оплаченным")]
+		public void UpdateOrderPaymentStatus_WhenCashlessSelfDeliveryIsPartiallyPaid_DoesNotMarkSelfDeliveryAsPaid()
+		{
+			var order = new Order
+			{
+				SelfDelivery = true
+			};
+			order.UpdatePaymentType(PaymentType.Cashless, _contractUpdater, false);
+
+			order.UpdateOrderPaymentStatus(OrderPaymentStatus.PartiallyPaid, order.PaymentType);
+
+			Assert.That(order.IsSelfDeliveryPaid, Is.False);
+		}
+
+		[Test(Description = "Оплата безналичного заказа с доставкой не меняет признак оплаты самовывоза")]
+		public void UpdateOrderPaymentStatus_WhenCashlessDeliveryOrderIsPaid_DoesNotMarkSelfDeliveryAsPaid()
+		{
+			var order = new Order();
+			order.UpdatePaymentType(PaymentType.Cashless, _contractUpdater, false);
+
+			order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
+
+			Assert.That(order.IsSelfDeliveryPaid, Is.False);
+		}
+
+		#endregion
+
+		#region QR self-delivery payment
+
+		[Test(Description = "Оплата QR-самовывоза после смены статуса заказа отмечает самовывоз оплаченным")]
+		public void AcceptOnlinePayment_WhenSmsQrSelfDeliveryOrderIsNotWaitingForPayment_MarksSelfDeliveryAsPaid()
+		{
+			var uow = Substitute.For<IUnitOfWork>();
+			var order = new Order
+			{
+				Id = 1,
+				SelfDelivery = true,
+				OrderStatus = OrderStatus.Closed
+			};
+			order.UpdatePaymentType(PaymentType.SmsQR, _contractUpdater, false);
+
+			var routeListItemRepository = Substitute.For<IRouteListItemRepository>();
+			routeListItemRepository.GetRouteListItemsForOrder(uow, order.Id).Returns(new List<RouteListItem>());
+			var handler = new OrderOnlinePaymentAcceptanceHandler(
+				Substitute.For<INomenclatureSettings>(),
+				routeListItemRepository,
+				Substitute.For<ISelfDeliveryRepository>(),
+				Substitute.For<ICashRepository>(),
+				Substitute.For<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>(),
+				Substitute.For<IFastPaymentRepository>(),
+				_contractUpdater,
+				_saleHandler
+				);
+			var fastPayment = new FastPayment
+			{
+				Order = order,
+				ExternalId = 1,
+				PaymentType = PaymentType.SmsQR,
+				PaymentByCardFrom = new PaymentFrom(),
+				Organization = new Organization()
+			};
+
+			handler.AcceptOnlinePayment(uow, fastPayment);
+
+			Assert.That(order.IsSelfDeliveryPaid, Is.True);
+			Assert.That(order.OrderStatus, Is.EqualTo(OrderStatus.Closed));
 		}
 
 		#endregion

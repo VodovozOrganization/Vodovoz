@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Models.Orders;
@@ -111,5 +112,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return _organizationByOrderContentForOrderHandler.OrderHasGoodsFromSeveralOrganizations(uow, nomenclatureIds);
 			}
 		}
+
+		public bool IsOrderContainsKulerServiceGoods(IUnitOfWork uow, IEnumerable<OrderItem> orderItems) =>
+			_organizationByOrderContentForOrderHandler.IsOrderContainsKulerServiceGoods(uow, orderItems);
 	}
 }

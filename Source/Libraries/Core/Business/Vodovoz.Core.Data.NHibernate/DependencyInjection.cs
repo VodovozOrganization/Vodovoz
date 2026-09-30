@@ -7,7 +7,9 @@ using QS.Project.Core;
 using QS.Project.DB;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Vodovoz.Core.Data.NHibernate.NhibernateExtensions;
+using Vodovoz.Core.Domain.Rules.Edo;
 using Vodovoz.Settings.Database;
 using MySqlConnectionStringBuilder = MySqlConnector.MySqlConnectionStringBuilder;
 
@@ -18,7 +20,7 @@ namespace Vodovoz.Core.Data.NHibernate
 		public static IServiceCollection AddCoreDataNHibernate(this IServiceCollection services)
 		{
 			services.AddMappingAssemblies(Assembly.GetExecutingAssembly());
-
+			services.TryAddScoped<CanProcessOrSendEdoByClosingAccountingDate>();
 			return services;
 		}
 

@@ -34,6 +34,8 @@ namespace Vodovoz.Views.Mango.Talks
 
 		private global::Gamma.GtkWidgets.yButton ForwardingButton;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonDriverForwarding;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -127,7 +129,7 @@ namespace Vodovoz.Views.Mango.Talks
 			this.CostAndDeliveryIntervalButton.CanFocus = true;
 			this.CostAndDeliveryIntervalButton.Name = "CostAndDeliveryIntervalButton";
 			this.CostAndDeliveryIntervalButton.UseUnderline = true;
-			this.CostAndDeliveryIntervalButton.Label = global::Mono.Unix.Catalog.GetString("Стоимость и \n  интервалы\n   доставки");
+			this.CostAndDeliveryIntervalButton.Label = global::Mono.Unix.Catalog.GetString("Стоимость и\n  интервалы\n   доставки");
 			this.table5.Add(this.CostAndDeliveryIntervalButton);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table5[this.CostAndDeliveryIntervalButton]));
 			w8.LeftAttach = ((uint)(4));
@@ -150,7 +152,7 @@ namespace Vodovoz.Views.Mango.Talks
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child vbox6.Gtk.Box+BoxChild
-			this.table4 = new global::Gtk.Table(((uint)(1)), ((uint)(6)), false);
+			this.table4 = new global::Gtk.Table(((uint)(2)), ((uint)(6)), false);
 			this.table4.Name = "table4";
 			this.table4.RowSpacing = ((uint)(6));
 			this.table4.ColumnSpacing = ((uint)(6));
@@ -162,8 +164,10 @@ namespace Vodovoz.Views.Mango.Talks
 			this.FinishButton.Label = global::Mono.Unix.Catalog.GetString("Завершить");
 			this.table4.Add(this.FinishButton);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table4[this.FinishButton]));
-			w11.LeftAttach = ((uint)(5));
-			w11.RightAttach = ((uint)(6));
+			w11.TopAttach = ((uint)(1));
+			w11.BottomAttach = ((uint)(2));
+			w11.LeftAttach = ((uint)(2));
+			w11.RightAttach = ((uint)(4));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
@@ -176,16 +180,27 @@ namespace Vodovoz.Views.Mango.Talks
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table4[this.ForwardingButton]));
 			w12.RightAttach = ((uint)(3));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table4.Gtk.Table+TableChild
+			this.ybuttonDriverForwarding = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonDriverForwarding.CanFocus = true;
+			this.ybuttonDriverForwarding.Name = "ybuttonDriverForwarding";
+			this.ybuttonDriverForwarding.UseUnderline = true;
+			this.ybuttonDriverForwarding.Label = global::Mono.Unix.Catalog.GetString("Переадресация на водителя");
+			this.table4.Add(this.ybuttonDriverForwarding);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table4[this.ybuttonDriverForwarding]));
+			w13.LeftAttach = ((uint)(3));
+			w13.RightAttach = ((uint)(6));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox6.Add(this.table4);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.table4]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
-			this.MainVbox.Add(this.vbox6);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.MainVbox[this.vbox6]));
-			w14.Position = 2;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.table4]));
+			w14.Position = 1;
 			w14.Expand = false;
 			w14.Fill = false;
+			this.MainVbox.Add(this.vbox6);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.MainVbox[this.vbox6]));
+			w15.Position = 2;
+			w15.Expand = false;
+			w15.Fill = false;
 			this.Add(this.MainVbox);
 			if ((this.Child != null))
 			{

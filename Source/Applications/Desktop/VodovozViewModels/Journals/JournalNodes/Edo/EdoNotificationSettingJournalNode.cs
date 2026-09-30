@@ -1,7 +1,7 @@
-﻿using EdoNotifications.Contracts;
+﻿using Core.Infrastructure;
+using EdoNotifications.Contracts;
 using QS.Project.Journal;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 {

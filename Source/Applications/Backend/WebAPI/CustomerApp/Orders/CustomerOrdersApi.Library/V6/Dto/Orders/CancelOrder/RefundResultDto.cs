@@ -38,6 +38,8 @@ namespace CustomerOrdersApi.Library.V6.Dto.Orders.CancelOrder
 		/// <summary>
 		/// Создает результат для ошибки возврата
 		/// </summary>
+		/// <param name="errorMessage">Описание ошибки</param>
+		/// <returns>Результат операции возврата</returns>
 		public static RefundResultDto CreateError(string errorMessage) => new()
 		{
 			Success = false,

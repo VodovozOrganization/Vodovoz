@@ -154,7 +154,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			_unitOfWork.Save(_driverStopListRemoval);
 			_unitOfWork.Commit();
 
-			Close(false, CloseSource.Cancel);
+			Close(false, CloseSource.Save);
 		}
 
 		#endregion

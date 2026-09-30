@@ -62,5 +62,17 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public int CodePoolMissingProblemWorkerRetryIntervalHours => _settingsController
 			.GetValue<int>("edo.problem.routine.code-pool-missing-worker-retry-interval");
+
+		public TimeSpan NewTasksResendWorkerInterval => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.new-tasks-resend-worker-interval");
+
+		public TimeSpan NewTasksResendTimeout => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.new-tasks-resend-timeout");
+
+		public int NewTasksResendBatchSize => _settingsController
+			.GetValue<int>("edo.problem.routine.new-tasks-resend-batch-size");
+
+		public TimeSpan TaxcomSendProblemWorkerInterval => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.taxcom-send-problem-worker-interval");
 	}
 }

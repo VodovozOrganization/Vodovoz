@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.SmsNotifications;
@@ -7,6 +8,14 @@ namespace Vodovoz.Infrastructure.Persistance.SmsNotifications
 {
 	internal sealed class SmsNotificationRepository : ISmsNotificationRepository
 	{
+		/// <inheritdoc/>
+		public IEnumerable<NewClientSmsNotification> GetNewClientSmsNotifications(IUnitOfWork uow, int counterpartyId)
+		{
+			return uow.Session.QueryOver<NewClientSmsNotification>()
+				.Where(notification => notification.Counterparty.Id == counterpartyId)
+				.List<NewClientSmsNotification>();
+		}
+
 		public IEnumerable<NewClientSmsNotification> GetUnsendedNewClientSmsNotifications(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<NewClientSmsNotification>()
@@ -19,6 +28,21 @@ namespace Vodovoz.Infrastructure.Persistance.SmsNotifications
 			return uow.Session.QueryOver<UndeliveryNotApprovedSmsNotification>()
 				.Where(x => x.Status == SmsNotificationStatus.New)
 				.List();
+		}
+
+		/// <inheritdoc/>
+		public IEnumerable<CourierOnTheWaySmsNotification> GetUnsendedCourierOnTheWaySmsNotifications(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<CourierOnTheWaySmsNotification>()
+				.Where(x => x.Status == SmsNotificationStatus.New)
+				.List();
+		}
+
+		/// <inheritdoc/>
+		public bool HasCourierOnTheWaySmsNotification(IUnitOfWork uow, int orderId, int driverId)
+		{
+			return uow.Session.Query<CourierOnTheWaySmsNotification>()
+				.Any(x => x.Order.Id == orderId && x.Driver.Id == driverId);
 		}
 	}
 }

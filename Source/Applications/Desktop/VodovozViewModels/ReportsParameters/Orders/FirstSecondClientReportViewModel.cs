@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using Core.Infrastructure;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
@@ -11,7 +12,6 @@ using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.Extensions;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Orders

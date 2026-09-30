@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -52,6 +53,8 @@ namespace Vodovoz.Representations
 {
 	public class DebtorsJournalViewModel : EntityJournalViewModelBase<Order, CallTaskViewModel, DebtorJournalNode>
 	{
+		private readonly ILogger<DebtorsJournalViewModel> _journalLogger;
+		private readonly Stopwatch _openingStopwatch = Stopwatch.StartNew();
 		private readonly OrderStatus[] _notDeliveredStatuses = { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
 
 		private readonly IDebtorsSettings _debtorsParameters;
@@ -76,6 +79,7 @@ namespace Vodovoz.Representations
 		private readonly int _waterSemiozerieId;
 
 		public DebtorsJournalViewModel(
+			ILogger<DebtorsJournalViewModel> journalLogger,
 			ILogger<BulkEmailViewModel> loggerBulkEmailViewModel,
 			ILogger<RabbitMQConnectionFactory> rabbitConnectionFactoryLogger,
 			DebtorsJournalFilterViewModel filterViewModel,
@@ -113,6 +117,7 @@ namespace Vodovoz.Representations
 				throw new ArgumentNullException(nameof(nomenclatureRepository));
 			}
 
+			_journalLogger = journalLogger ?? throw new ArgumentNullException(nameof(journalLogger));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
@@ -161,6 +166,13 @@ namespace Vodovoz.Representations
 
 		private void UpdateFooterInfo(object sender, EventArgs e)
 		{
+			if(_openingStopwatch.IsRunning)
+			{
+				_openingStopwatch.Stop();
+				_journalLogger.LogInformation("Журнал задолженности: первая порция данных загружена за {ElapsedMilliseconds} мс",
+					_openingStopwatch.ElapsedMilliseconds);
+			}
+
 			if(_newTask?.Status == TaskStatus.Running)
 			{
 				_cts.Cancel();
@@ -224,8 +236,19 @@ namespace Vodovoz.Representations
 			return resultExpression;
 		}
 
+		private IQueryOver<Order, Order> ApplyLastOrderStatusFilter(IQueryOver<Order, Order> ordersQuery)
+		{
+			if(_filterViewModel == null || !_filterViewModel.ShowAllOrderStatuses)
+			{
+				return ordersQuery.And((x) => x.OrderStatus == OrderStatus.Closed);
+			}
+
+			return ordersQuery;
+		}
+
 		protected Func<IUnitOfWork, int> CountQueryFunction => (uow) =>
 		{
+			var stopwatch = Stopwatch.StartNew();
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
 			BottlesMovementOperation bottlesMovementAlias = null;
@@ -313,11 +336,12 @@ namespace Vodovoz.Representations
 
 			#region LastOrder
 
-			var lastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
+			var lastOrderQuery = QueryOver.Of(() => lastOrderAlias)
 				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
-					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
+					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id));
+
+			var lastOrderIdQuery = lastOrderQuery
 				.Select(Projections.Property<Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.Id).Desc
 				.Take(1);
@@ -389,6 +413,8 @@ namespace Vodovoz.Representations
 			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
 			}
+
+			ordersQuery = ApplyLastOrderStatusFilter(ordersQuery);
 
 			if(_filterViewModel != null && _filterViewModel.DebtorsTaskStatus != null)
 			{
@@ -570,6 +596,8 @@ namespace Vodovoz.Representations
 				.SetTimeout(300)
 				.UniqueResult<int>();
 
+			stopwatch.Stop();
+			_journalLogger.LogInformation("Журнал задолженности: расчёт общей суммы долга занял {ElapsedMilliseconds} мс", stopwatch.ElapsedMilliseconds);
 			return queryResult;
 		};
 
@@ -738,7 +766,6 @@ namespace Vodovoz.Representations
 				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
 					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.WithSubquery.WhereNotExists(olderLastOrderIdQueryWithDate)
 				.Select(Projections.Property<Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.Id).Desc;
@@ -767,7 +794,6 @@ namespace Vodovoz.Representations
 				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
 					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.Select(Projections.Property<Order>(p => p.Id));
 
 			if(_filterViewModel?.EndDate != null)
@@ -795,7 +821,11 @@ namespace Vodovoz.Representations
 
 		public void ExportToExcel()
 		{
+			var stopwatch = Stopwatch.StartNew();
 			var rows = ItemsQuery(UoW).List<DebtorJournalNode>();
+			stopwatch.Stop();
+			_journalLogger.LogInformation("Журнал задолженности: выборка {RowCount} строк для Excel заняла {ElapsedMilliseconds} мс",
+				rows.Count, stopwatch.ElapsedMilliseconds);
 			var report = new DebtorsJournalReport(rows, _fileDialogService);
 			report.Export();
 		}
@@ -975,10 +1005,11 @@ namespace Vodovoz.Representations
 
 			#region LastOrder
 
-			var lastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
+			var lastOrderQuery = QueryOver.Of(() => lastOrderAlias)
 				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
-				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
+				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id));
+
+			var lastOrderIdQuery = lastOrderQuery
 				.Select(Projections.Property<Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.Id).Desc
 				.Take(1);
@@ -1050,7 +1081,9 @@ namespace Vodovoz.Representations
 			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
 			}
-			
+
+			ordersQuery = ApplyLastOrderStatusFilter(ordersQuery);
+
 			#region Filter
 
 			if(_filterViewModel != null)
@@ -1230,6 +1263,7 @@ namespace Vodovoz.Representations
 					.Select(() => counterpartyAlias.PersonType).WithAlias(() => resultAlias.OPF)
 					.Select(() => bottleMovementOperationAlias.Delivered).WithAlias(() => resultAlias.LastOrderBottles)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.LastOrderDate)
+					.Select(() => deliveryPointAlias.OrderFrequencyDays).WithAlias(() => resultAlias.OrderFrequencyDays)
 					.SelectSubQuery(residueQuery).WithAlias(() => resultAlias.IsResidueExist)
 					.SelectSubQuery(bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
 					.SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)

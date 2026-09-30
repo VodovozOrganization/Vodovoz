@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using Core.Infrastructure;
+using QS.DomainModel.Entity;
 using QS.Print;
 using QS.Report;
 using System;
@@ -9,7 +10,6 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.PrintableDocuments;
 using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;

@@ -35,6 +35,24 @@ namespace EdoNotifications.Contracts
 		/// Ошибка наличия кода в пуле
 		/// </summary>
 		[Display(Name = "Ошибка наличия кода в пуле")]
-		CodePoolMissingProblem = 4
+		CodePoolMissingProblem = 4,
+
+		/// <summary>
+		/// Ошибка отправки чека в кассу
+		/// </summary>
+		[Display(Name = "Ошибка отправки чека в кассу")]
+		ReceiptSendingFailed = 5,
+
+		/// <summary>
+		/// Ошибка отправки в Такском
+		/// </summary>
+		[Display(Name = "Ошибка отправки в Такском")]
+		TaxcomSendProblem = 6,
+
+		/// <summary>
+		/// Зависший чек в очереди.
+		/// </summary>
+		[Display(Name = "Зависший чек в очереди")]
+		ReceiptQueueStalled = 7,
 	}
 }

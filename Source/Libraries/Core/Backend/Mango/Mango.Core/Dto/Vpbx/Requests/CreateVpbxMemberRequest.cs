@@ -35,10 +35,13 @@ namespace Mango.Core.Dto.Vpbx.Requests
 		public string LineId { get; set; }
 
 		/// <summary>
-		/// Алгоритм дозвона, допустимые значения 0..2
+		/// Алгоритм дозвона
+		/// 1 - только на основной номер
+		/// 2 - на все номера одновременно
+		/// 3 - на все номера по очереди
 		/// </summary>
 		[JsonPropertyName("dial_alg")]
-		public int DialAlg { get; set; } = 1;
+		public int DialAlg { get; set; } = 3;
 
 		/// <summary>
 		/// Адрес электронной почты

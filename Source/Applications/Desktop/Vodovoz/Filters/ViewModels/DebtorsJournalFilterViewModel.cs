@@ -26,6 +26,7 @@ namespace Vodovoz.Filters.ViewModels
 		private Employee _salesManager;
 		private PersonType? _opf;
 		private DateTime? _endDate;
+		private bool _showAllOrderStatuses;
 		private DateTime? _startDate;
 		private int? _debtBottlesTo;
 		private int? _debtBottlesFrom;
@@ -55,6 +56,8 @@ namespace Vodovoz.Filters.ViewModels
 		public DebtorsJournalFilterViewModel(ILifetimeScope lifetimeScope)
 		{
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_endDate = DateTime.Today;
+			_startDate = _endDate.Value.AddMonths(-1);
 
 			UpdateWith(
 				x => x.Client,
@@ -111,6 +114,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _endDate;
 			set => SetField(ref _endDate, value);
+		}
+
+		public bool ShowAllOrderStatuses
+		{
+			get => _showAllOrderStatuses;
+			set => SetField(ref _showAllOrderStatuses, value);
 		}
 
 		public bool ShowHideActiveCheck => EndDate != null;

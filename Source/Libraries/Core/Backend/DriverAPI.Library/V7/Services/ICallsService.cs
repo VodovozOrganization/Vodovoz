@@ -1,3 +1,4 @@
+using DriverApi.Contracts.V7.Responses;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,13 +13,13 @@ namespace DriverAPI.Library.V7.Services
 	public interface ICallsService
 	{
 		/// <summary>
-		/// Отправляет запрос на совершение звонка через вебхук
+		/// Отправляет запрос на совершение звонка через API ВАТС Манго
 		/// </summary>
 		/// <param name="routeListId">Номер МЛ</param>
 		/// <param name="driver">Водитель</param>
 		/// <param name="toNumber">Номер телефона, на который нужно позвонить</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns>Результат</returns>
-		Task<Result> MakeWebhookCall(int routeListId, Employee driver, string toNumber, CancellationToken cancellationToken);
+		/// <returns>Результат с информацией о запрошенном звонке <see cref="GetCallResponse"/></returns>
+		Task<Result<GetCallResponse>> MakeCall(int routeListId, Employee driver, string toNumber, CancellationToken cancellationToken);
 	}
 }

@@ -52,6 +52,14 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId);
 
 		/// <summary>
+		/// Получить контрагента по его идентификатору
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="clientId">IUnitOfWork</param>
+		/// <returns>Контрагент</returns>
+		Counterparty GetCounterpartyById(IUnitOfWork uow, int clientId);
+
+		/// <summary>
 		/// Получить контрагента по его идентификатору асинхронно
 		/// </summary>
 		/// <param name="uow">IUnitOfWork</param>

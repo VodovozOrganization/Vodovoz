@@ -35,6 +35,7 @@ namespace Vodovoz.SmsInformerWorker
 					services
 						.AddHostedService<UndeliveryNotApprovedSmsInformerWorker>()
 						.AddHostedService<NewClientSmsInformerWorker>()
+						.AddHostedService<CourierOnTheWaySmsInformerWorker>()
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,

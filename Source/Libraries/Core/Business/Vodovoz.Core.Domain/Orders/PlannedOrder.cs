@@ -17,7 +17,7 @@ namespace Vodovoz.Core.Domain.Orders
 	{
 		private int _id;
 		private DateTime _creationDate;
-		private BitrixDealCreationStage _stage;
+		private PlannedOrderBitrixDealStage _stage;
 		private int _counterpartyId;
 		private int? _deliveryPointId;
 		private bool _isSelfDelivery;
@@ -33,6 +33,15 @@ namespace Vodovoz.Core.Domain.Orders
 		private int _bottlesDebtByCounterparty;
 		private int _delayDaysForCounterparty;
 		private decimal _debtorDebt;
+		private int? _lastOrderId;
+		private int? _salesManagerId;
+		private string _salesManagerName;
+		private long? _bitrixDealId;
+		private int? _createdOrderId;
+		private DateTime? _createdOrderDeliveryDate;
+		private DateTime? _lastUpdateDate;
+		private DateTime? _lastSynchronizedDate;
+		private string _lastError;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -52,10 +61,10 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Стадия обработки планируемого заказа
+		/// Стадия работы со сделкой по планируемому заказу
 		/// </summary>
 		[Display(Name = "Стадия")]
-		public virtual BitrixDealCreationStage Stage
+		public virtual PlannedOrderBitrixDealStage Stage
 		{
 			get => _stage;
 			set => SetField(ref _stage, value);
@@ -142,6 +151,16 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
+		/// Номер последнего выполненного заказа, по которому рассчитана дата планируемого заказа
+		/// </summary>
+		[Display(Name = "Номер последнего заказа")]
+		public virtual int? LastOrderId
+		{
+			get => _lastOrderId;
+			set => SetField(ref _lastOrderId, value);
+		}
+
+		/// <summary>
 		/// Дата доставки последнего выполненного заказа
 		/// </summary>
 		[Display(Name = "Дата доставки последнего заказа")]
@@ -209,6 +228,86 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _debtorDebt;
 			set => SetField(ref _debtorDebt, value);
+		}
+
+		/// <summary>
+		/// Id закрепленного за контрагентом менеджера по продажам
+		/// </summary>
+		[Display(Name = "Код менеджера по продажам")]
+		public virtual int? SalesManagerId
+		{
+			get => _salesManagerId;
+			set => SetField(ref _salesManagerId, value);
+		}
+
+		/// <summary>
+		/// ФИО закрепленного за контрагентом менеджера по продажам
+		/// </summary>
+		[Display(Name = "Менеджер по продажам")]
+		public virtual string SalesManagerName
+		{
+			get => _salesManagerName;
+			set => SetField(ref _salesManagerName, value);
+		}
+
+		/// <summary>
+		/// Id созданной сделки в Битрикс24
+		/// </summary>
+		[Display(Name = "Код сделки Битрикс24")]
+		public virtual long? BitrixDealId
+		{
+			get => _bitrixDealId;
+			set => SetField(ref _bitrixDealId, value);
+		}
+
+		/// <summary>
+		/// Номер созданного клиентом заказа, найденного по планируемому заказу
+		/// </summary>
+		[Display(Name = "Номер созданного заказа")]
+		public virtual int? CreatedOrderId
+		{
+			get => _createdOrderId;
+			set => SetField(ref _createdOrderId, value);
+		}
+
+		/// <summary>
+		/// Дата доставки созданного клиентом заказа
+		/// </summary>
+		[Display(Name = "Дата доставки созданного заказа")]
+		public virtual DateTime? CreatedOrderDeliveryDate
+		{
+			get => _createdOrderDeliveryDate;
+			set => SetField(ref _createdOrderDeliveryDate, value);
+		}
+
+		/// <summary>
+		/// Дата последнего изменения записи
+		/// </summary>
+		[Display(Name = "Дата обновления")]
+		public virtual DateTime? LastUpdateDate
+		{
+			get => _lastUpdateDate;
+			set => SetField(ref _lastUpdateDate, value);
+		}
+
+		/// <summary>
+		/// Дата последней успешной синхронизации с Битрикс24
+		/// </summary>
+		[Display(Name = "Дата синхронизации")]
+		public virtual DateTime? LastSynchronizedDate
+		{
+			get => _lastSynchronizedDate;
+			set => SetField(ref _lastSynchronizedDate, value);
+		}
+
+		/// <summary>
+		/// Последняя ошибка синхронизации с Битрикс24
+		/// </summary>
+		[Display(Name = "Последняя ошибка")]
+		public virtual string LastError
+		{
+			get => _lastError;
+			set => SetField(ref _lastError, value);
 		}
 	}
 }

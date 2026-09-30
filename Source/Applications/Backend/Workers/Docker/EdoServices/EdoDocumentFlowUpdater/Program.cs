@@ -1,5 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Edo.Common;
 using Edo.Docflow.Taxcom;
+using Edo.Problems;
 using EdoDocumentFlowUpdater.Configs;
 using EdoDocumentFlowUpdater.Options;
 using MassTransit;
@@ -49,6 +51,7 @@ namespace EdoDocumentFlowUpdater
 						)
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddCoreDataRepositories()
 						.AddTrackedUoW()
 						.AddInfrastructure(ServiceLifetime.Singleton)
 						.ConfigureOptions<ConfigureS3Options>()
@@ -59,6 +62,8 @@ namespace EdoDocumentFlowUpdater
 							hostContext.Configuration.GetSection(TaxcomEdoDocumentFlowUpdaterOptions.Path))
 						.AddHttpClient()
 						.AddTaxcomClient()
+						.AddEdo()
+						.AddEdoProblemRegistration()
 						
 						.ConfigureZabbixSenderFromDataBase()
 						.AddHostedService<TaxcomEdoDocumentFlowUpdater>()

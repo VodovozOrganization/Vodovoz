@@ -62,6 +62,21 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		}
 
 		/// <inheritdoc/>
+		public bool HasActiveMobileAppUser(IUnitOfWork uow, int counterpartyId)
+		{
+			return (
+				from externalUser in uow.Session.Query<ExternalCounterparty>()
+				join phone in uow.Session.Query<Phone>()
+					on externalUser.Phone.Id equals phone.Id
+				where phone.Counterparty.Id == counterpartyId
+					&& !phone.IsArchive
+					&& !externalUser.IsArchive
+					&& externalUser.CounterpartyFrom == CounterpartyFrom.MobileApp
+				select externalUser.Id
+				).Any();
+		}
+
+		/// <inheritdoc/>
 		public IList<PersonalCounterpartyExternalUserInfo> GetPersonalCounterpartyExternalUsersInfo(IUnitOfWork uow, int counterpartyId)
 		{
 			return (
@@ -77,6 +92,14 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 					CounterpartyFrom = externalUser.CounterpartyFrom,
 				}
 				).ToList();
+		}
+
+		/// <inheritdoc/>
+		public IList<ExternalCounterparty> GetByPhoneId(IUnitOfWork uow, int phoneId)
+		{
+			return uow.Session.Query<ExternalCounterparty>()
+				.Where(ec => ec.Phone.Id == phoneId)
+				.ToList();
 		}
 	}
 }

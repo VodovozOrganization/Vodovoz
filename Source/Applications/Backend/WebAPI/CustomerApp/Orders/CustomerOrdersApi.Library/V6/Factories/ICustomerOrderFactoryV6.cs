@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.V6.Dto.Orders;
+using CustomerOrdersApi.Library.V6.Dto.Orders;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,6 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			OnlineOrderTimers timers,
 			OnlineOrder onlineOrder,
 			DateTime ratingAvailableFrom,
-			DriverMangoExtensionNumber driversMangoExtensionNumber,
 			bool establishedRoute,
 			bool isOrderWasSelectedAsNext,
 			DateTime? driversCoordinatesLastUpdateTime,

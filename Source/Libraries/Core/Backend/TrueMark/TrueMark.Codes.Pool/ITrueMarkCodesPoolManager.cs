@@ -29,6 +29,13 @@ namespace TrueMark.Codes.Pool
 		Task<int> DeleteExpiredCodesAsync(CancellationToken cancellationToken);
 
 		/// <summary>
+		/// Удаляет использованные коды
+		/// </summary>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Количество удаленных кодов</returns>
+		Task<int> DeleteUsedCodesAsync(CancellationToken cancellationToken);
+
+		/// <summary>
 		/// Получить общее количество кодов в пуле
 		/// </summary>
 		int GetTotalCount();

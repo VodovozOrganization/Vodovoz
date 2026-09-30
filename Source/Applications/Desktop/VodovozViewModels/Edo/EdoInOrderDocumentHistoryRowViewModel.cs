@@ -17,7 +17,9 @@ namespace Vodovoz.ViewModels.Edo
 			Time = documentNode.RequestTime;
 			TimeString = Time.ToString("dd.MM.yyyy HH:mm");
 			Source = documentNode.RequestSource;
-			SourceString = Source.GetEnumTitle();
+			SourceString = Source == EdoRequestSource.Manual
+				? documentNode.ManualRequestAuthor
+				: Source.GetEnumTitle();
 			Status = documentNode.TaskStatus;
 			StatusString = Status.GetEnumTitle();
 			EdoDocumentStatus = documentNode.EdoDocumentStatus;
@@ -27,6 +29,7 @@ namespace Vodovoz.ViewModels.Edo
 			DocumentGroupTypeString = DocumentGroupType.GetEnumTitle();
 			CodesQuantity = GetCodesQuantity();
 			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
+			CancellationReason = documentNode.CancellationReason;
 		}
 
 		public EdoInOrderDocumentNode Document { get; }
@@ -51,6 +54,8 @@ namespace Vodovoz.ViewModels.Edo
 
 		public virtual int? CodesQuantity { get; }
 		public virtual string CodesQuantityString { get; }
+
+		public virtual string CancellationReason { get; }
 
 		private int? GetCodesQuantity()
 		{
