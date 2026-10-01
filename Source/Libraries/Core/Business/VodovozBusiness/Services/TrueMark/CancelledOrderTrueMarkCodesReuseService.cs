@@ -263,7 +263,7 @@ namespace VodovozBusiness.Services.TrueMark
 			{
 				var codeForReuse = sourceProductCode.SourceCode;
 
-				productCodesForReuse.Add(new AutoTrueMarkProductCode
+				productCodesForReuse.Add(new ResentTrueMarkProductCode
 				{
 					CreationTime = now,
 					LastModified = now,

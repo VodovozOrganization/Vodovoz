@@ -84,6 +84,10 @@ namespace Vodovoz.ViewModels.TrueMark
 		private IList<OrderCodeItemViewModel> _addedFromPoolCodesOrigin;
 		private IList<OrderCodeItemViewModel> _addedFromPoolCodes;
 		private IEnumerable<OrderCodeItemViewModel> _addedFromPoolCodesSelected;
+		private int _totalResent;
+		private IList<OrderCodeItemViewModel> _resentCodesOrigin;
+		private IList<OrderCodeItemViewModel> _resentCodes;
+		private IEnumerable<OrderCodeItemViewModel> _resentCodesSelected;
 		private int _totalScannedStagingCodes;
 		private IList<OrderCodeItemViewModel> _scannedStagingCodesOrigin;
 		private IList<OrderCodeItemViewModel> _scannedStagingCodes;
@@ -137,6 +141,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			_scannedBySelfdeliveryCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 			_addedFromPoolCodes = new List<OrderCodeItemViewModel>();
 			_addedFromPoolCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
+			_resentCodes = new List<OrderCodeItemViewModel>();
+			_resentCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 			_scannedStagingCodes = new List<OrderCodeItemViewModel>();
 			_scannedStagingCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 
@@ -152,6 +158,8 @@ namespace Vodovoz.ViewModels.TrueMark
 		public ICommand CopySelfdeliverySourceCodesCommand { get; private set; }
 		public ICommand CopySelfdeliveryResultCodesCommand { get; private set; }
 		public ICommand CopyPoolCodesCommand { get; private set; }
+		public ICommand CopyResentSourceCodesCommand { get; private set; }
+		public ICommand CopyResentResultCodesCommand { get; private set; }
 		public ICommand CopyStagingCodesCommand { get; private set; }
 		public ICommand OpenRouteListCommand { get; private set; }
 		public ICommand OpenCarLoadDocumentCommand { get; private set; }
@@ -260,6 +268,33 @@ namespace Vodovoz.ViewModels.TrueMark
 		{
 			get => _addedFromPoolCodesSelected;
 			set => SetField(ref _addedFromPoolCodesSelected, value);
+		}
+
+		/// <summary>
+		/// Количество переотправленных кодов заказа.
+		/// </summary>
+		public virtual int TotalResent
+		{
+			get => _totalResent;
+			set => SetField(ref _totalResent, value);
+		}
+
+		/// <summary>
+		/// Переотправленные коды с учетом фильтра поиска.
+		/// </summary>
+		public virtual IList<OrderCodeItemViewModel> ResentCodes
+		{
+			get => _resentCodes;
+			set => SetField(ref _resentCodes, value);
+		}
+
+		/// <summary>
+		/// Выбранные переотправленные коды.
+		/// </summary>
+		public virtual IEnumerable<OrderCodeItemViewModel> ResentCodesSelected
+		{
+			get => _resentCodesSelected;
+			set => SetField(ref _resentCodesSelected, value);
 		}
 
 		public virtual int TotalScannedStagingCodes
@@ -459,6 +494,18 @@ namespace Vodovoz.ViewModels.TrueMark
 			copyPoolCodesCommand.CanExecuteChangedWith(this, x => x.AddedFromPoolCodesSelected);
 			CopyPoolCodesCommand = copyPoolCodesCommand;
 
+			var copyResentSourceCodesCommand = new DelegateCommand(
+				() => CopySourceCodesToClipboard(ResentCodesSelected),
+				() => ResentCodesSelected.Any());
+			copyResentSourceCodesCommand.CanExecuteChangedWith(this, x => x.ResentCodesSelected);
+			CopyResentSourceCodesCommand = copyResentSourceCodesCommand;
+
+			var copyResentResultCodesCommand = new DelegateCommand(
+				() => CopyResultCodesToClipboard(ResentCodesSelected),
+				() => ResentCodesSelected.Any());
+			copyResentResultCodesCommand.CanExecuteChangedWith(this, x => x.ResentCodesSelected);
+			CopyResentResultCodesCommand = copyResentResultCodesCommand;
+
 			//Copy staging codes
 			var copyStagingCodesCommand = new DelegateCommand(
 				() => CopyResultCodesToClipboard(ScannedStagingCodesSelected),
@@ -539,6 +586,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				ReloadCodesFromWarehouse(uow);
 				ReloadCodesFromSelfdelivery(uow);
 				ReloadCodesFromPool(uow);
+				ReloadResentCodes(uow);
 				ReloadScanndedStagingCodes(uow);
 
 				CodesRequired = _trueMarkRepository.GetCodesRequiredByOrder(uow, OrderId);
@@ -551,7 +599,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				FilterCodes();
 
 				OnPropertyChanged(nameof(SearchText));
-				CodesProvided = CodesProvidedFromScan + TotalAddedFromPool;
+				CodesProvided = CodesProvidedFromScan + TotalAddedFromPool + TotalResent;
 				OnPropertyChanged(nameof(CanReuseRejectedCodes));
 			}
 		}
@@ -845,6 +893,19 @@ namespace Vodovoz.ViewModels.TrueMark
 			.ToList();
 		}
 
+		private void ReloadResentCodes(IUnitOfWork uow)
+		{
+			_resentCodesOrigin = _trueMarkRepository.GetResentCodesByOrder(uow, OrderId)
+				.Select(x => new OrderCodeItemViewModel
+				{
+					SourceCode = x.SourceCode,
+					ResultCode = x.ResultCode,
+					Status = x.SourceCodeStatus,
+					Problem = x.Problem
+				}).ToList();
+			TotalResent = _resentCodesOrigin.Count;
+		}
+
 		private void ReloadCodesFromPool(IUnitOfWork uow)
 		{
 			var poolCodes = _trueMarkRepository.GetCodesFromPoolByOrder(uow, OrderId);
@@ -920,6 +981,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				_scannedByWarehouseCodes = _scannedByWarehouseCodesOrigin;
 				_scannedByDriverCodes = _scannedByDriverCodesOrigin;
 				_addedFromPoolCodes = _addedFromPoolCodesOrigin;
+				_resentCodes = _resentCodesOrigin;
 				_scannedStagingCodes = _scannedStagingCodesOrigin;
 			}
 			else if(_trueMarkWaterCodeParser.FuzzyParse(SearchText, out var parsedCode))
@@ -930,6 +992,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				FilterWarehouseCodes(parsedCode);
 				FilterSelfdeliveryCodes(parsedCode);
 				FilterPoolCodes(parsedCode);
+				_resentCodes = _resentCodesOrigin.Where(x => CodeMatched(x, parsedCode)).ToList();
 				FilterStagingCodes(parsedCode);
 			}
 			else if(_trueMarkWaterCodeParser.IsTransportCode(SearchText))
@@ -940,6 +1003,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				FilterWarehouseCodes(SearchText);
 				FilterSelfdeliveryCodes(SearchText);
 				FilterPoolCodes(SearchText);
+				_resentCodes = _resentCodesOrigin.Where(x => CodeMatched(x, SearchText)).ToList();
 			}
 			else
 			{
@@ -951,6 +1015,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				_scannedByWarehouseCodes = _scannedByWarehouseCodesOrigin;
 				_scannedByDriverCodes = _scannedByDriverCodesOrigin;
 				_addedFromPoolCodes = _addedFromPoolCodesOrigin;
+				_resentCodes = _resentCodesOrigin;
 				_scannedStagingCodes = _scannedStagingCodesOrigin;
 			}
 
@@ -962,6 +1027,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			OnPropertyChanged(nameof(ScannedBySelfdeliveryCodes));
 			OnPropertyChanged(nameof(TotalAddedFromPool));
 			OnPropertyChanged(nameof(AddedFromPoolCodes));
+			OnPropertyChanged(nameof(ResentCodes));
 			OnPropertyChanged(nameof(ScannedStagingCodes));
 		}
 
@@ -1082,6 +1148,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			_scannedByWarehouseCodes = _scannedByWarehouseCodesOrigin;
 			_scannedBySelfdeliveryCodes = _scannedBySelfdeliveryCodesOrigin;
 			_addedFromPoolCodes = _addedFromPoolCodesOrigin;
+			_resentCodes = _resentCodesOrigin;
 			_scannedStagingCodes = _scannedStagingCodesOrigin;
 		}
 
