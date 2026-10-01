@@ -19,6 +19,7 @@ using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories;
@@ -33,6 +34,7 @@ using Vodovoz.PrintableDocuments;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -40,9 +42,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 using VodovozBusiness.CachingRepositories.Employees;
 
 namespace Vodovoz.ViewModels.Warehouses
@@ -173,7 +177,24 @@ namespace Vodovoz.ViewModels.Warehouses
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 
+			BuildTtnEntryViewModels();
+
+			EnterTtnDataCommand = new DelegateCommand(EnterTtnData, () => CanEnterTtnData);
+			EnterTtnDataCommand.CanExecuteChangedWith(this, x => x.CanEnterTtnData);
+
 			Entity.PropertyChanged += OnMovementDocumentPropertyChanged;
+			NeedPrintTtn = Entity.NeedPrintTtn;
+		}
+
+		private void BuildTtnEntryViewModels()
+		{
+			var page = NavigationManager.OpenViewModel<TtnDataViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.Configure(Entity);
+				});
 		}
 
 		private void OnMovementDocumentPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -206,6 +227,13 @@ namespace Vodovoz.ViewModels.Warehouses
 				}
 			}
 		}
+
+		public IEntityEntryViewModel TtnCargoSenderViewModel { get; private set; }
+		public IEntityEntryViewModel TtnCargoReceiverViewModel { get; private set; }
+		public IEntityEntryViewModel TtnPayerViewModel { get; private set; }
+		public IEntityEntryViewModel TtnCarViewModel { get; private set; }
+		public IEntityEntryViewModel TtnSemitrailerViewModel { get; private set; }
+		public IEntityEntryViewModel TtnDriverViewModel { get; private set; }
 
 		public ILifetimeScope Scope => _scope;
 
@@ -308,6 +336,25 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 		}
 
+		private bool _needPrintTtn;
+		public bool NeedPrintTtn
+		{
+			get => _needPrintTtn;
+			set
+			{
+				if(SetField(ref _needPrintTtn, value))
+				{
+					Entity.NeedPrintTtn = value;
+					OnPropertyChanged(nameof(CanEnterTtnData));
+				}
+			}
+		}
+
+		//public bool CanEnterTtnData => NeedPrintTtn;
+		public bool CanEnterTtnData => true;
+
+		public DelegateCommand EnterTtnDataCommand { get; }
+
 		public bool CanShowWarehouseFrom => Entity.StorageFrom == StorageType.Warehouse;
 		public bool CanShowEmployeeFrom => Entity.StorageFrom == StorageType.Employee;
 		public bool CanShowCarFrom => Entity.StorageFrom == StorageType.Car;
@@ -315,6 +362,22 @@ namespace Vodovoz.ViewModels.Warehouses
 		public bool CanShowWarehouseTo => Entity.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToWarehouse;
 		public bool CanShowEmployeeTo => Entity.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToEmployee;
 		public bool CanShowCarTo => Entity.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToCar;
+
+		private void EnterTtnData()
+		{
+			var page = NavigationManager.OpenViewModel<TtnDataViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.CargoSenderViewModel = TtnCargoSenderViewModel;
+					vm.CargoReceiverViewModel = TtnCargoReceiverViewModel;
+					vm.PayerViewModel = TtnPayerViewModel;
+					vm.CarViewModel = TtnCarViewModel;
+					vm.TrailerViewModel = TtnSemitrailerViewModel;
+					vm.DriverViewModel = TtnDriverViewModel;
+				});
+		}
 
 		private void ConfigureEntityChangingRelations()
 		{

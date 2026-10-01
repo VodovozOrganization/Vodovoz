@@ -52,6 +52,18 @@ namespace Vodovoz.Views.Warehouse
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Editable).InitializeFromSource();
 
+			// Чекбокс "Требуется печатная ТТН"
+			checkNeedPrintTtn.Binding
+				.AddBinding(ViewModel, vm => vm.NeedPrintTtn, w => w.Active)
+				.InitializeFromSource();
+
+			// Кнопка "Внести данные по ТТН" — видна только при активном чекбоксе
+			buttonEnterTtnData.Binding
+				.AddBinding(ViewModel, vm => vm.CanEnterTtnData, w => w.Visible)
+				.InitializeFromSource();
+
+			buttonEnterTtnData.BindCommand(ViewModel.EnterTtnDataCommand);
+
 			#region Данные перевозчика
 
 			ytableTransporter.Binding.AddBinding(ViewModel, vm => vm.CanEditStoreMovementDocumentTransporterData, w => w.Sensitive).InitializeFromSource();
@@ -152,11 +164,11 @@ namespace Vodovoz.Views.Warehouse
 					.AddSetter((c, i) => c.Editable = ViewModel.CanEditReceivedAmount)
 					.WidthChars(10)
 					.AddSetter((c, i) =>
-						{
-							c.Adjustment = i.CanEditAmount
-								? new Gtk.Adjustment(0, 0, 99999999, 1, 100, 0)
-								: new Gtk.Adjustment(0, 0, 1, 1, 1, 0);
-						})
+					{
+						c.Adjustment = i.CanEditAmount
+							? new Gtk.Adjustment(0, 0, 99999999, 1, 100, 0)
+							: new Gtk.Adjustment(0, 0, 1, 1, 1, 0);
+					})
 					.AddSetter((c, i) => c.Digits = (uint)(i.Nomenclature?.Unit?.Digits ?? 0))
 					.AddTextRenderer(i => i.Nomenclature.Unit.Name, false)
 				.AddColumn("")
@@ -169,14 +181,14 @@ namespace Vodovoz.Views.Warehouse
 			ybuttonAddItem.Sensitive = ViewModel.AddItemCommand.CanExecute();
 
 			ybuttonFillFromOrders.Clicked += (sender, e) => ViewModel.FillFromOrdersCommand.Execute();
-			ViewModel.FillFromOrdersCommand.CanExecuteChanged += (sender, e) => ybuttonFillFromOrders.Sensitive = ViewModel.FillFromOrdersCommand.CanExecute(); 
+			ViewModel.FillFromOrdersCommand.CanExecuteChanged += (sender, e) => ybuttonFillFromOrders.Sensitive = ViewModel.FillFromOrdersCommand.CanExecute();
 			ybuttonFillFromOrders.Sensitive = ViewModel.FillFromOrdersCommand.CanExecute();
 
 			ybuttonDeleteItem.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute(GetSelectedItem());
 			ViewModel.DeleteItemCommand.CanExecuteChanged += (sender, e) => ybuttonDeleteItem.Sensitive = ViewModel.DeleteItemCommand.CanExecute(GetSelectedItem());
 			ytreeviewItems.Selection.Changed += (sender, e) => ViewModel.DeleteItemCommand.RaiseCanExecuteChanged();
 			ybuttonDeleteItem.Sensitive = ViewModel.DeleteItemCommand.CanExecute(GetSelectedItem());
-			
+
 			btnAddNomenclatureInstance.Clicked += OnAddNomenclatureInstanceClicked;
 			btnAddNomenclatureInstance.Binding
 				.AddBinding(ViewModel, vm => vm.CanAddItem, w => w.Sensitive)
@@ -195,7 +207,7 @@ namespace Vodovoz.Views.Warehouse
 			buttonAcceptDiscrepancy.Sensitive = ViewModel.AcceptDiscrepancyCommand.CanExecute();
 
 			buttonPrint.Clicked += (sender, e) => ViewModel.PrintCommand.Execute();
-			ViewModel.PrintCommand.CanExecuteChanged += (sender, e) =>  buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
+			ViewModel.PrintCommand.CanExecuteChanged += (sender, e) => buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
 			buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
