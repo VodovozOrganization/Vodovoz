@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Config;
-using CustomerOrdersApi.Library.V7.Dto.Orders;
+using CustomerOrdersApi.Library.V8.Dto.Orders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -13,8 +13,9 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors.Orders;
+using static CustomerOrdersApi.Library.V8.Services.ICourierTrackingService;
 
-namespace CustomerOrdersApi.Library.V7.Services
+namespace CustomerOrdersApi.Library.V8.Services
 {
 	public class CourierTrackingService : ICourierTrackingService
 	{
@@ -208,7 +209,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 			return Result.Success(courierCoordinatesDto);
 		}
 
-		public async Task<ICourierTrackingService.DriverPositionData> GetDriverPositionData(
+		public async Task<DriverPositionData> GetDriverPositionData(
 			IUnitOfWork uow,
 			Order order,
 			CancellationToken cancellationToken = default)
@@ -217,7 +218,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 
 			if(!establishedRoute)
 			{
-				return new ICourierTrackingService.DriverPositionData
+				return new DriverPositionData
 				{
 					EstablishedRoute = false,
 					CourierCoordinate = null,
@@ -228,7 +229,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 			(CoordinatesDto courierCoordinate, DateTime? coordinatesLastUpdateTime) =
 				await GetDriverLastCoordinate(uow, routeListId, selectedAt, cancellationToken);
 
-			return new ICourierTrackingService.DriverPositionData
+			return new DriverPositionData
 			{
 				EstablishedRoute = true,
 				CourierCoordinate = courierCoordinate,
@@ -236,7 +237,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 			};
 		}
 
-		public async Task<ICourierTrackingService.DriverPositionData> GetDriverPositionData(
+		public async Task<DriverPositionData> GetDriverPositionData(
 			IUnitOfWork uow,
 			OrderDto order,
 			CancellationToken cancellationToken = default)
@@ -245,7 +246,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 
 			if(!establishedRoute)
 			{
-				return new ICourierTrackingService.DriverPositionData
+				return new DriverPositionData
 				{
 					EstablishedRoute = false,
 					CourierCoordinate = null,
@@ -256,7 +257,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 			(CoordinatesDto courierCoordinate, DateTime? coordinatesLastUpdateTime) =
 				await GetDriverLastCoordinate(uow, routeListId, selectedAt, cancellationToken);
 
-			return new ICourierTrackingService.DriverPositionData
+			return new DriverPositionData
 			{
 				EstablishedRoute = true,
 				CourierCoordinate = courierCoordinate,

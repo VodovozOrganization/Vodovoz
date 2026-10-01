@@ -1,6 +1,6 @@
 ﻿using Vodovoz.Core.Domain.Clients;
 
-namespace CustomerOrdersApi.Library.V7.Dto.Orders.RequestsForCall
+namespace CustomerOrdersApi.Library.V8.Dto.Orders.RequestsForCall
 {
 	public class CreatingRequestForCallDto
 	{

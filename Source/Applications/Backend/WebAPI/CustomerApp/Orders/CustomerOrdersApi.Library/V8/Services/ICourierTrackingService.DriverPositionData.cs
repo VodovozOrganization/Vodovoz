@@ -1,9 +1,9 @@
 ﻿using System;
-using CustomerOrdersApi.Library.V7.Dto.Orders;
+using CustomerOrdersApi.Library.V8.Dto.Orders;
 
-namespace CustomerOrdersApi.Library.V7.Services
+namespace CustomerOrdersApi.Library.V8.Services
 {
-	public partial interface ICourierTrackingService
+public partial interface ICourierTrackingService
 	{
 		public class DriverPositionData
 		{

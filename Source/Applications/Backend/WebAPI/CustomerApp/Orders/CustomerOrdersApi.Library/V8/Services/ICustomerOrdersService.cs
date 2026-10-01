@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerOrdersApi.Library.V7.Dto.Orders;
-using CustomerOrdersApi.Library.V7.Dto.Orders.RequestsForCall;
+using CustomerOrdersApi.Library.V8.Dto.Orders;
+using CustomerOrdersApi.Library.V8.Dto.Orders.RequestsForCall;
 using Vodovoz.Core.Domain.Results;
 
-namespace CustomerOrdersApi.Library.V7.Services
+namespace CustomerOrdersApi.Library.V8.Services
 {
 	/// <summary>
 	/// Сервис для работы с заказами клиента

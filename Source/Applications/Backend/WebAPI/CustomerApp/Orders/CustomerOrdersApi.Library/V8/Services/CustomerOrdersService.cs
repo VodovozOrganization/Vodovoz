@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Config;
-using CustomerOrdersApi.Library.V7.Dto.Orders;
-using CustomerOrdersApi.Library.V7.Dto.Orders.RequestsForCall;
-using CustomerOrdersApi.Library.V7.Extensions;
-using CustomerOrdersApi.Library.V7.Factories;
-using CustomerOrdersApi.Library.V7.Repositories;
+using CustomerOrdersApi.Library.V8.Dto.Orders;
+using CustomerOrdersApi.Library.V8.Dto.Orders.RequestsForCall;
+using CustomerOrdersApi.Library.V8.Extensions;
+using CustomerOrdersApi.Library.V8.Factories;
+using CustomerOrdersApi.Library.V8.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,11 +23,10 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
-using VodovozBusiness.Domain.Sale.RequestsForCall;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
-namespace CustomerOrdersApi.Library.V7.Services
+namespace CustomerOrdersApi.Library.V8.Services
 {
 	public class CustomerOrdersService : ICustomerOrdersService
 	{

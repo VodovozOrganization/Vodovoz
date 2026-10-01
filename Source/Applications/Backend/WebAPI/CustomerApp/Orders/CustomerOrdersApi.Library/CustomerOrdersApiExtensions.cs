@@ -317,6 +317,26 @@ namespace CustomerOrdersApi.Library
 				TransactionId = source.TransactionId
 			};
 		}
+		
+		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this V8.Dto.Orders.ChangingOrderDto source)
+		{
+			return new UpdateOnlineOrderFromChangeRequest
+			{
+				OnlineOrderId = source.OnlineOrderId,
+				OnlinePayment = source.OnlinePayment,
+				IsFastDelivery = source.IsFastDelivery,
+				Source = source.Source,
+				PaymentStatus = source.PaymentStatus,
+				OnlinePaymentSource = source.OnlinePaymentSource,
+				ErpCounterpartyId = source.ErpCounterpartyId,
+				ExternalCounterpartyId = source.ExternalCounterpartyId,
+				OnlineOrderPaymentType = source.OnlineOrderPaymentType,
+				UnPaidReason = source.UnPaidReason,
+				DeliveryDate = source.DeliveryDate,
+				DeliveryScheduleId = source.DeliveryScheduleId,
+				TransactionId = source.TransactionId
+			};
+		}
 
 		public static IServiceCollection AddPaymentRefundServices(
 			this IServiceCollection services)

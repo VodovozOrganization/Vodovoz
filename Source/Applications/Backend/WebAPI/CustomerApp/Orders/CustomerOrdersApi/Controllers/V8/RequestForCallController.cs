@@ -1,14 +1,14 @@
 ﻿using System;
-using CustomerOrdersApi.Library.V7.Dto.Orders;
-using CustomerOrdersApi.Library.V7.Dto.Orders.RequestsForCall;
-using CustomerOrdersApi.Library.V7.Services;
+using CustomerOrdersApi.Library.V8.Dto.Orders;
+using CustomerOrdersApi.Library.V8.Dto.Orders.RequestsForCall;
+using CustomerOrdersApi.Library.V8.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace CustomerOrdersApi.Controllers.V7
+namespace CustomerOrdersApi.Controllers.V8
 {
-	[ApiVersion("7.0")]
+	[ApiVersion("8.0")]
 	public class RequestForCallController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
