@@ -26,6 +26,7 @@ using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Application.Services.Subdivisions;
 using Vodovoz.Core.Application.TrueMark;
 using Vodovoz.Core.Application.Users;
+using Vodovoz.Core.Application.Validators;
 using Vodovoz.Core.Application.Warehouses;
 using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Interfaces.Sale;
@@ -152,6 +153,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IApplicablePromotionFactory, ApplicablePromotionFactory>()
 				.AddSaleHandlers()
 				.AddDiscountControllers()
+				.AddScoped<IAddPromoSetValidatorFactory, AddPromoSetValidatorFactory>()
 				;
 
 			return services;

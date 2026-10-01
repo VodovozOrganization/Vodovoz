@@ -14,12 +14,22 @@ namespace Vodovoz.Errors.Clients
 				"Точка доставки не найдена");
 		
 		/// <summary>
-		/// Точка доставки не найдена
+		/// Точка доставки или район не найден
 		/// </summary>
-		public static Error CouldNotCalculateDeliveryBecauseDistrictNotFound(int deliveryPointId) =>
-			new Error(
+		public static Error CouldNotCalculateDeliveryBecauseDistrictNotFound(int? deliveryPointId)
+		{
+			if(deliveryPointId.HasValue)
+			{
+				return new Error(
+					typeof(DeliveryPointErrors),
+					nameof(CouldNotCalculateDeliveryBecauseDistrictNotFound),
+					$"Невозможно рассчитать доставку, т.к. не найден логистический район в точке доставки {deliveryPointId}");
+			}
+			
+			return new Error(
 				typeof(DeliveryPointErrors),
 				nameof(CouldNotCalculateDeliveryBecauseDistrictNotFound),
-				$"Невозможно рассчитать доставку, т.к. не найден логистический район в точке доставки {deliveryPointId}");
+				"Невозможно рассчитать доставку, т.к. точка доставки неизвестна");
+		}
 	}
 }

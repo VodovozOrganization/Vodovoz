@@ -15,7 +15,12 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
-			
+			/*buttonSelectPaymentType.Clicked += OnSelectPaymentTypeClicked;
+			buttonSelectPaymentType.Sensitive = true;
+
+			yentryPaymentType.Binding
+				.AddFuncBinding(Entity, e => e.PaymentType.GetEnumTitle(), w => w.Text)
+				.InitializeFromSource();*/
 		}
 	}
 }

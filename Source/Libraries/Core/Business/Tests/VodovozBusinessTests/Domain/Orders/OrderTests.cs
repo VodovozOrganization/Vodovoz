@@ -31,6 +31,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
 using CustomerNotifications.Contracts;
 using Notifications.Infrastructure;
+using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Contacts;
@@ -192,7 +193,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			var uow = Substitute.For<IUnitOfWork>();
 			
 			var testOrder = new Order {
-				OrderItems = new List<OrderItem>(),
+				OrderItems = new ObservableList<OrderItem>(),
 				OrderDepositItems = new List<OrderDepositItem>(),
 				DepositOperations = new List<DepositOperation>(),
 				UoW = uow
@@ -337,7 +338,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				UoW = Substitute.For<IUnitOfWork>(),
 				
 
-				OrderItems = new List<OrderItem> {
+				OrderItems = new ObservableList<OrderItem> {
 					orderItemMock0,
 					orderItemMock1,
 					orderItemMock2,
@@ -385,7 +386,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			orderItemMock3.PromoSet.Returns(promotionalSetMockExisting);
 
 			Order orderUnderTest = new Order {
-				OrderItems = new List<OrderItem> {
+				OrderItems = new ObservableList<OrderItem> {
 					orderItemMock0,
 					orderItemMock2,
 					orderItemMock3
@@ -424,7 +425,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			orderItemMock3.PromoSet.Returns(promotionalSetMockExisting);
 
 			Order orderUnderTest = new Order {
-				OrderItems = new List<OrderItem> {
+				OrderItems = new ObservableList<OrderItem> {
 					orderItemMock1,
 					orderItemMock2,
 					orderItemMock3
@@ -459,7 +460,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			orderItemMock3.PromoSet.Returns(promotionalSetMockExisting);
 
 			Order orderUnderTest = new Order {
-				OrderItems = new List<OrderItem> {
+				OrderItems = new ObservableList<OrderItem> {
 					orderItemMock0,
 					orderItemMock2
 				},
@@ -493,7 +494,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			orderItemMock3.PromoSet.Returns(promotionalSetMockExisting);
 
 			Order orderUnderTest = new Order {
-				OrderItems = new List<OrderItem> { orderItemMock0, orderItemMock2 },
+				OrderItems = new ObservableList<OrderItem> { orderItemMock0, orderItemMock2 },
 				PromotionalSets = new List<PromotionalSet> { promotionalSetMockExisting }
 			};
 
@@ -820,7 +821,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 
-			testOrder.ObservableOrderItems.ListContentChanged -= testOrder.ObservableOrderItems_ListContentChanged;
+			testOrder.OrderItems.ListContentChanged -= testOrder.OrderItems_ListContentChanged;
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
 			var discountController = Substitute.For<IOrderDiscountsController>();
 			var uow = Substitute.For<IUnitOfWork>();
@@ -830,7 +831,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				uow,
 				discountReason,
 				DiscountValue.Create(true, discountInMoney, discountInMoney),
-				testOrder.ObservableOrderItems.Cast<IApplyDiscountReasonItem>().ToList());
+				testOrder.OrderItems.Cast<IApplyDiscountReasonItem>().ToList());
 
 			// assert
 			for(int i = 0; i < testOrder.OrderItems.Count; i++)
@@ -855,7 +856,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 
-			testOrder.ObservableOrderItems.ListContentChanged -= testOrder.ObservableOrderItems_ListContentChanged;
+			testOrder.OrderItems.ListContentChanged -= testOrder.OrderItems_ListContentChanged;
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
 			var discountController = Substitute.For<IOrderDiscountsController>();
 			var uow = Substitute.For<IUnitOfWork>();
@@ -865,7 +866,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				uow,
 				discountReason,
 				DiscountValue.Create(false, discountInPercent, discountInPercent),
-				testOrder.ObservableOrderItems.Cast<IApplyDiscountReasonItem>().ToList()
+				testOrder.OrderItems.Cast<IApplyDiscountReasonItem>().ToList()
 				);
 
 			// assert
@@ -917,7 +918,7 @@ namespace VodovozBusinessTests.Domain.Orders
 
 			Order orderUnderTest = new Order {
 				SelfDelivery = true,
-				OrderItems = new List<OrderItem> { orderItemMock01, orderItemMock02, orderItemMock03 },
+				OrderItems = new ObservableList<OrderItem> { orderItemMock01, orderItemMock02, orderItemMock03 },
 				OrderEquipments = new List<OrderEquipment> { orderEquipmentMock01, orderEquipmentMock02 }
 			};
 

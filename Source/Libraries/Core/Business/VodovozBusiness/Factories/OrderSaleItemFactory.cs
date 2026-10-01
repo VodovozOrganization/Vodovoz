@@ -61,5 +61,10 @@ namespace VodovozBusiness.Factories
 
 			return order;
 		}
+
+		ISaleItem ISaleItemFactory.Create(object source, NewOrderSaleItem newSaleItem)
+		{
+			return Create(source, newSaleItem);
+		}
 	}
 }

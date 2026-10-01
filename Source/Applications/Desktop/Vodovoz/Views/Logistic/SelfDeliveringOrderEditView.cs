@@ -87,7 +87,7 @@ namespace Vodovoz.Views.Logistic
 			yentryPaymentNumber.Sensitive = false;
 
 			ConfigureTrees();
-			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderItems;
+			treeItems.ItemsDataSource = ViewModel.Entity.OrderItems;
 		}
 		private void ConfigureTrees()
 		{

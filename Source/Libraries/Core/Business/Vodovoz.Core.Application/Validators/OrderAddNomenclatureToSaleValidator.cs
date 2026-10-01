@@ -23,7 +23,7 @@ namespace Vodovoz.Core.Application.Orders.Validators
 				addNomenclatureToDeliverySaleWithoutDeliveryPointRule
 			)
 		{
-			AddNomenclatureToSaleRules.Insert(0, addSaleItemTo1COrderRule);
+			AddSaleItemRules.Insert(0, addSaleItemTo1COrderRule);
 		}
 	}
 }

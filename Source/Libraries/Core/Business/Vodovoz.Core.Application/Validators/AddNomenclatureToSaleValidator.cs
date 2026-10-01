@@ -34,7 +34,6 @@ namespace Vodovoz.Core.Application.Validators
 		public Result CanAddNomenclature(
 			Nomenclature nomenclature,
 			ISaleSource source
-			
 			)
 		{
 			foreach(var rule in AddNomenclatureToSaleRules)

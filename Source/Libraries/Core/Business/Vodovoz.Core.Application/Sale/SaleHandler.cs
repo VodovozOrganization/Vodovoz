@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Goods;
@@ -36,7 +37,7 @@ namespace Vodovoz.Core.Application.Sale
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
 			IAddNomenclatureToSaleValidator addNomenclatureToSaleValidator,
-			IAddPromoSetValidator addPromoSetValidator,
+			IAddPromoSetValidatorFactory addPromoSetValidatorFactory,
 			ISaleItemFactory saleItemFactory
 			)
 		{
@@ -47,7 +48,7 @@ namespace Vodovoz.Core.Application.Sale
 			NomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			AddNomenclatureToSaleValidator = addNomenclatureToSaleValidator ?? throw new ArgumentNullException(nameof(addNomenclatureToSaleValidator));
-			AddPromoSetValidator = addPromoSetValidator ?? throw new ArgumentNullException(nameof(addPromoSetValidator));
+			AddPromoSetValidatorFactory = addPromoSetValidatorFactory ?? throw new ArgumentNullException(nameof(addPromoSetValidatorFactory));
 			SaleItemFactory = saleItemFactory ?? throw new ArgumentNullException(nameof(saleItemFactory));
 			SaleItemHandler = saleItemHandler ?? throw new ArgumentNullException(nameof(saleItemHandler));
 		}
@@ -61,7 +62,7 @@ namespace Vodovoz.Core.Application.Sale
 		protected INomenclatureSettings NomenclatureSettings { get; }
 		protected INomenclatureRepository NomenclatureRepository { get; }
 		protected IAddNomenclatureToSaleValidator AddNomenclatureToSaleValidator { get; }
-		protected IAddPromoSetValidator AddPromoSetValidator { get; }
+		protected IAddPromoSetValidatorFactory AddPromoSetValidatorFactory { get; }
 		protected ISaleItemFactory SaleItemFactory { get; }
 
 		public void SetSource(ISaleSource source)
@@ -279,43 +280,41 @@ namespace Vodovoz.Core.Application.Sale
 			return Result.Success();
 		}
 
-		public virtual Result TryAddPromoSet(IUnitOfWork uow, PromotionalSet proSet)
+		public virtual Result TryAddPromoSet(
+			IUnitOfWork uow,
+			IInteractiveService interactiveService,
+			PromotionalSet proSet)
 		{
-			var addPromoValidationResult = AddPromoSetValidator.CanAddPromotionalSet(uow, Source, proSet);
-			
-			if(addPromoValidationResult.IsFailure)
+			var addPromoValidationResult = GetAddPromoSetValidator()
+				.CanAddPromotionalSet(uow, Source, proSet);
+
+			if(addPromoValidationResult.IsSuccess && !string.IsNullOrWhiteSpace(addPromoValidationResult.Value))
+			{
+				if(!interactiveService.Question(addPromoValidationResult.Value))
+				{
+					return Result.Success();
+				}
+			}
+			else if(addPromoValidationResult.IsFailure)
 			{
 				return addPromoValidationResult;
 			}
 
-			return TryAddNomenclatureFromPromoSet(uow, proSet);
+			return ActivatePromotionalSet(uow, proSet);
+		}
+
+		protected virtual IAddPromoSetValidator GetAddPromoSetValidator()
+		{
+			return AddPromoSetValidatorFactory
+				.Create();
 		}
 		
-		public virtual Result TryAddNomenclatureFromPromoSet(IUnitOfWork uow, PromotionalSet proSet)
+		public virtual Result AddNomenclatureFromPromoSet(IUnitOfWork uow, PromotionalSet proSet)
 		{
 			if(proSet is { IsArchive: false } && proSet.PromotionalSetItems.Any())
 			{
 				foreach(var proSetItem in proSet.PromotionalSetItems)
 				{
-					
-					//TODO нужно перенести проверки выше, перед добавлением всего промонабора иначе может быть ситуация с добавлением части промика
-					
-					/*var nomenclature = proSetItem.Nomenclature;
-					if(Source.OrderItems.Any(x =>
-							!Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
-						&& nomenclature.Category == NomenclatureCategory.master)
-					{
-						MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
-						return;
-					}
-
-					if(Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
-						&& !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category))
-					{
-						MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
-						return;
-					}*/
-
 					AddNomenclature(
 						uow,
 						NewOrderSaleItem.Create(
@@ -334,6 +333,11 @@ namespace Vodovoz.Core.Application.Sale
 			}
 			
 			return Result.Success();
+		}
+		
+		protected virtual Result ActivatePromotionalSet(IUnitOfWork uow, PromotionalSet proSet)
+		{
+			return AddNomenclatureFromPromoSet(uow, proSet);
 		}
 		
 		public virtual void AddNomenclature(IUnitOfWork uow, NewOrderSaleItem newOrderSaleItem)
@@ -411,10 +415,9 @@ namespace Vodovoz.Core.Application.Sale
 		/// <summary>
 		/// Добавление в заказ номенклатуры типа "Сервисное обслуживание"
 		/// </summary>
-		/// <param name="nomenclature">Номенклатура типа "Сервисное обслуживание"</param>
+		/// <param name="newOrderSaleItem">Номенклатура типа "Сервисное обслуживание"</param>
 		/// <param name="uow">unit of work</param>
-		/// <param name="count">Количество</param>
-		/// <param name="quantityOfFollowingNomenclatures">Колличество номенклатуры, указанной в параметрах БД,
+		/// <param name="quantityOfFollowingNomenclatures">Количество номенклатуры, указанной в параметрах БД,
 		/// которые будут добавлены в заказ вместе с мастером</param>
 		public virtual void AddMasterNomenclature(
 			IUnitOfWork uow,

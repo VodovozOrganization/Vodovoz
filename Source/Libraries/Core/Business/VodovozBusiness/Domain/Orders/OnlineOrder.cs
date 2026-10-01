@@ -379,7 +379,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public abstract OnlineOrderVersion OrderVersion { get; }
 		
-		public IEnumerable<ISaleItem> SaleItems => OnlineOrderItems;
+		public virtual IEnumerable<ISaleItem> SaleItems => OnlineOrderItems;
 
 		/// <summary>
 		/// Заказ не оплачен онлайн и время на оплату не истекло

@@ -130,6 +130,13 @@ namespace VodovozBusiness.Controllers
 		#region Удаление
 
 		/// <summary>
+		/// Удаление позиции из заказа в закрытии МЛ
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="saleItem">Позиция на продажу</param>
+		void RemoveItemFromClosingOrder(IUnitOfWork uow, ISaleItem saleItem);
+
+		/// <summary>
 		/// Удаление оборудования из заказа
 		/// </summary>
 		/// <param name="uow">unit of work</param>

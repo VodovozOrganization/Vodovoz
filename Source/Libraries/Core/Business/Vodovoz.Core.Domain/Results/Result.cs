@@ -46,14 +46,26 @@ namespace Vodovoz.Core.Domain.Results
 			}
 		}
 
-		public string GetErrorsString()
+		public string GetNumberingErrorsString()
 		{
 			var sb = new StringBuilder();
 			var i = 1;
 
 			foreach(var error in Errors)
 			{
-				sb.AppendLine($"{i++}. " + error.Message);
+				sb.AppendLine($"{i++}. {error.Message}");
+			}
+
+			return sb.ToString();
+		}
+		
+		public string GetErrorsString()
+		{
+			var sb = new StringBuilder();
+
+			foreach(var error in Errors)
+			{
+				sb.AppendLine($"{error.Message}");
 			}
 
 			return sb.ToString();

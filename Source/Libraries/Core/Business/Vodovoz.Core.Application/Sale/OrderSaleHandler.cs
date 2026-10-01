@@ -30,6 +30,7 @@ namespace Vodovoz.Core.Application.Sale
 	public class OrderSaleHandler : SaleWithTaxHandler, IOrderSaleHandler
 	{
 		private readonly OrderSaleItemHandler _saleItemHandler;
+		private readonly IOrderSaleItemFactory _saleItemFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private Nomenclature _fastDeliveryNomenclature;
@@ -45,8 +46,8 @@ namespace Vodovoz.Core.Application.Sale
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
 			IAddNomenclatureToSaleValidator addNomenclatureToSaleValidator,
-			IAddPromoSetValidator addPromoSetValidator,
-			ISaleItemFactory saleItemFactory
+			IAddPromoSetValidatorFactory addPromoSetValidatorFactory,
+			IOrderSaleItemFactory saleItemFactory
 			) : base(
 				saleItemHandler,
 				goodsPriceCalculator,
@@ -56,12 +57,13 @@ namespace Vodovoz.Core.Application.Sale
 				nomenclatureSettings,
 				nomenclatureRepository,
 				addNomenclatureToSaleValidator,
-				addPromoSetValidator,
+				addPromoSetValidatorFactory,
 				saleItemFactory
 			)
 		{
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
-			_saleItemHandler = saleItemHandler;
+			_saleItemHandler = saleItemHandler ?? throw new ArgumentNullException(nameof(saleItemHandler));
+			_saleItemFactory = saleItemFactory;
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 		
@@ -356,31 +358,23 @@ namespace Vodovoz.Core.Application.Sale
 			}
 		}
 		
-		public override Result TryAddNomenclatureFromPromoSet(IUnitOfWork uow, PromotionalSet proSet)
+		protected override IAddPromoSetValidator GetAddPromoSetValidator()
 		{
-			if(Order.IsLoadedFrom1C)
-			{
-				return Result.Failure(OrderErrors.CantAddProductTo1COrder);
-			}
-			
-			var result = base.TryAddNomenclatureFromPromoSet(uow, proSet);
-
-			return result.IsFailure ? result : Result.Success();
+			return AddPromoSetValidatorFactory
+				.CreateForOrder();
 		}
 		
-		public void ActivatePromotionalSet(IUnitOfWork uow, PromotionalSet proSet)
+		protected override Result ActivatePromotionalSet(IUnitOfWork uow, PromotionalSet proSet)
 		{
-			//TODO надо поменять алгоритм, сначала полная проверка возможности добавления промика, затем активация и добавление номенклатур из него
-			//Добавление спец. действий промонабора
 			foreach(var action in proSet.PromotionalSetActions)
 			{
 				action.Activate(Order);
 			}
 			
-			//Добавление номенклатур из промонабора
-			TryAddNomenclatureFromPromoSet(uow, proSet);
-
+			var addPromoItemsResult = base.AddNomenclatureFromPromoSet(uow, proSet);
 			Order.ObservablePromotionalSets.Add(proSet);
+			
+			return addPromoItemsResult;
 		}
 		
 		/// <summary>
@@ -425,7 +419,7 @@ namespace Vodovoz.Core.Application.Sale
 				throw new ArgumentNullException(nameof(freeRentPackage), "Бесплатная аренда не может быть null");
 			}
 			
-			var saleItem = SaleItemFactory.CreateNewFreeRentDepositItem(uow, freeRentPackage);
+			var saleItem = _saleItemFactory.CreateNewFreeRentDepositItem(uow, freeRentPackage);
 			AddSaleItem(uow, saleItem, (SaleItemPriceType.General, freeRentPackage.Deposit));
 		}
 
@@ -436,7 +430,7 @@ namespace Vodovoz.Core.Application.Sale
 				throw new ArgumentNullException(nameof(paidRentPackage), "Платная аренда не может быть null");
 			}
 			
-			var saleItem = SaleItemFactory.CreateNewDailyRentDepositItem(uow, paidRentPackage);
+			var saleItem = _saleItemFactory.CreateNewDailyRentDepositItem(uow, paidRentPackage);
 			AddSaleItem(uow, saleItem, (SaleItemPriceType.General, paidRentPackage.Deposit));
 		}
 
@@ -447,7 +441,7 @@ namespace Vodovoz.Core.Application.Sale
 				throw new ArgumentNullException(nameof(paidRentPackage), "Платная аренда не может быть null");
 			}
 			
-			var saleItem = SaleItemFactory.CreateNewDailyRentServiceItem(uow, paidRentPackage);
+			var saleItem = _saleItemFactory.CreateNewDailyRentServiceItem(uow, paidRentPackage);
 			AddSaleItem(uow, saleItem, (SaleItemPriceType.General, paidRentPackage.PriceDaily));
 		}
 
@@ -458,7 +452,7 @@ namespace Vodovoz.Core.Application.Sale
 				throw new ArgumentNullException(nameof(paidRentPackage), "Платная аренда не может быть null");
 			}
 			
-			var saleItem = SaleItemFactory.CreateNewNonFreeRentDepositItem(uow, paidRentPackage);
+			var saleItem = _saleItemFactory.CreateNewNonFreeRentDepositItem(uow, paidRentPackage);
 			AddSaleItem(uow, saleItem, (SaleItemPriceType.General, paidRentPackage.Deposit));
 		}
 
@@ -469,14 +463,14 @@ namespace Vodovoz.Core.Application.Sale
 				throw new ArgumentNullException(nameof(paidRentPackage), "Платная аренда не может быть null");
 			}
 			
-			var saleItem = SaleItemFactory.CreateNewNonFreeRentServiceItem(uow, paidRentPackage);
+			var saleItem = _saleItemFactory.CreateNewNonFreeRentServiceItem(uow, paidRentPackage);
 			AddSaleItem(uow, saleItem, (SaleItemPriceType.General, paidRentPackage.PriceMonthly));
 		}
 
 		private void RemoveMasterCallItem(IUnitOfWork uow, Nomenclature masterCallNomenclature)
 		{
 			var masterCallItemToRemove =
-				Order.ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == masterCallNomenclature.Id);
+				Order.OrderItems.SingleOrDefault(x => x.Nomenclature.Id == masterCallNomenclature.Id);
 
 			RemoveSaleItem(uow, masterCallItemToRemove);
 		}

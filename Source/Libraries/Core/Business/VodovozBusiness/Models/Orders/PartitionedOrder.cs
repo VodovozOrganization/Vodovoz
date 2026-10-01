@@ -131,7 +131,7 @@ namespace Vodovoz.Models.Orders
 		public PartitionedOrder ClearGoodsAndEquipmentsAndDeposits()
 		{
 			_resultOrder.ObservablePromotionalSets.Clear();
-			_resultOrder.ObservableOrderItems.Clear();
+			_resultOrder.OrderItems.Clear();
 			_resultOrder.ObservableOrderEquipments.Clear();
 			_resultOrder.ObservableOrderDepositItems.Clear();
 			

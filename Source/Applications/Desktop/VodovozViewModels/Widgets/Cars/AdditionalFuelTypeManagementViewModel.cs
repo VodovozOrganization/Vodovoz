@@ -97,7 +97,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 			if(addFuelTypeResult.IsFailure)
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, addFuelTypeResult.GetErrorsString());
+				_interactiveService.ShowMessage(ImportanceLevel.Error, addFuelTypeResult.GetNumberingErrorsString());
 			}
 
 			OnPropertyChanged(nameof(CanAddFuelType));
@@ -117,7 +117,7 @@ namespace Vodovoz.ViewModels.Widgets.Cars
 
 			if(removeFuelTypeResult.IsFailure)
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, removeFuelTypeResult.GetErrorsString());
+				_interactiveService.ShowMessage(ImportanceLevel.Error, removeFuelTypeResult.GetNumberingErrorsString());
 			}
 
 			OnPropertyChanged(nameof(CanAddFuelType));

@@ -83,8 +83,8 @@ namespace Vodovoz.Tools.Orders
 
 			HasOrderEquipment = HasOrderEquipments(Order.UoW);
 
-			if(!Order.ObservableOrderItems.Any() ||
-				(Order.ObservableOrderItems.Count == 1 && Order.ObservableOrderItems.Any(x =>
+			if(!Order.OrderItems.Any() ||
+				(Order.OrderItems.Count == 1 && Order.OrderItems.Any(x =>
 					x.Nomenclature.Id == nomenclatureSettings.PaidDeliveryNomenclatureId)))
 			{
 				HasOrderItems = false;
@@ -94,7 +94,7 @@ namespace Vodovoz.Tools.Orders
 				HasOrderItems = true;
 			}
 
-			IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.ActualSum) <= 0m;
+			IsPriceOfAllOrderItemsZero = Order.OrderItems.Sum(i => i.ActualSum) <= 0m;
 			NeedToReturnBottles = Order.BottlesReturn > 0;
 			NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();
 			PaymentType = Order.PaymentType;

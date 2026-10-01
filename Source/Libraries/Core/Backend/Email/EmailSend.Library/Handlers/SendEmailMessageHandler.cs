@@ -43,7 +43,7 @@ namespace EmailSend.Library.Handlers
 			{
 				_logger.LogError(
 					"Failed to create email messages. Errors: {Errors}",
-					emailsCreateResult.GetErrorsString());
+					emailsCreateResult.GetNumberingErrorsString());
 				return;
 			}
 
@@ -78,13 +78,13 @@ namespace EmailSend.Library.Handlers
 				}
 				else
 				{
-					var errors = sendMessageResult.GetErrorsString();
+					var errors = sendMessageResult.GetNumberingErrorsString();
 
 					_logger.LogError(
 						"Failed to send email to {Email}. MessagePayloadId: {MessagePayloadId}. Errors: {Errors}",
 						email.To,
 						message.Payload.Id,
-						sendMessageResult.GetErrorsString());
+						sendMessageResult.GetNumberingErrorsString());
 
 					PublishStoredEmailStatusUpdateMessage(
 						message.Payload.Id,

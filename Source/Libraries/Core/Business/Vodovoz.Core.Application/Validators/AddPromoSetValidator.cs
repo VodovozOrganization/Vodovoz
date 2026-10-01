@@ -2,21 +2,29 @@
 using System.Collections.Generic;
 using Autofac;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Application.Orders.Validators.Rules;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Sale;
+using VodovozBusiness.Rules;
 using VodovozBusiness.Validation;
+using VodovozBusiness.Validation.Rules;
 
 namespace Vodovoz.Core.Application.Validators
 {
 	public class AddPromoSetValidator : IAddPromoSetValidator
 	{
-		private readonly IEnumerable<IAddPromoSetRule> _rules;
+		private readonly IEnumerable<IAddPromoSetRule> _addPromoSetRules;
+		private readonly IEnumerable<IAddNomenclatureToSaleRule> _addPromoSetItemsRules;
+		private readonly IEnumerable<IAddSaleItemRule> _addSaleItemRules;
 
-		public AddPromoSetValidator(IEnumerable<IAddPromoSetRule> rules)
+		public AddPromoSetValidator(
+			IEnumerable<IAddPromoSetRule> addPromoSetRules,
+			IEnumerable<IAddNomenclatureToSaleRule> addPromoSetItemsRules,
+			IEnumerable<IAddSaleItemRule> addSaleItemRules = null)
 		{
-			_rules = rules ?? throw new ArgumentNullException(nameof(rules));
+			_addPromoSetRules = addPromoSetRules ?? throw new ArgumentNullException(nameof(addPromoSetRules));
+			_addPromoSetItemsRules = addPromoSetItemsRules ?? throw new ArgumentNullException(nameof(addPromoSetItemsRules));
+			_addSaleItemRules = addSaleItemRules ?? new List<IAddSaleItemRule>();
 		}
 		
 		/// <summary>
@@ -33,7 +41,30 @@ namespace Vodovoz.Core.Application.Validators
 			PromotionalSet proSet
 			)
 		{
-			foreach(var rule in _rules)
+			foreach(var addSaleItemRule in _addSaleItemRules)
+			{
+				var result = addSaleItemRule.Apply(source);
+
+				if(result.IsFailure)
+				{
+					return Result.Failure<string>(result.Errors);
+				}
+			}
+
+			foreach(var proSetItem in proSet.PromotionalSetItems)
+			{
+				foreach(var addPromoSetItemsRule in _addPromoSetItemsRules)
+				{
+					var result = addPromoSetItemsRule.Apply(proSetItem.Nomenclature, source);
+
+					if(result.IsFailure)
+					{
+						return Result.Failure<string>(result.Errors);
+					}
+				}
+			}
+			
+			foreach(var rule in _addPromoSetRules)
 			{
 				var result = rule.Apply(uow, source, proSet);
 
@@ -44,48 +75,6 @@ namespace Vodovoz.Core.Application.Validators
 			}
 			
 			return Result.Success(string.Empty);
-		}
-	}
-
-	public interface IAddPromoSetValidatorFactory
-	{
-		IAddPromoSetValidator CreateForOrder();
-		IAddPromoSetValidator Create();
-	}
-
-	public class AddPromoSetValidatorFactory : IAddPromoSetValidatorFactory
-	{
-		private readonly ILifetimeScope _lifetimeScope;
-
-		public AddPromoSetValidatorFactory(ILifetimeScope lifetimeScope)
-		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-		}
-		
-		public IAddPromoSetValidator CreateForOrder()
-		{
-			var rules = new List<IAddPromoSetRule>
-			{
-				_lifetimeScope.Resolve<AddMoreOnePromoSetForNewClientsToOrderRule>(),
-				_lifetimeScope.Resolve<AddPromoSetToSelfDeliveryRule>(),
-				_lifetimeScope.Resolve<AddPromoSetForNewClientsWithPreviousShipmentRule>(),
-				_lifetimeScope.Resolve<AddPromoSetForNotNewClientsOrWithoutPreviousShipmentsRule>()
-			};
-
-			return new AddPromoSetValidator(rules);
-		}
-		
-		public IAddPromoSetValidator Create()
-		{
-			var rules = new List<IAddPromoSetRule>
-			{
-				_lifetimeScope.Resolve<AddMoreOnePromoSetForNewClientsRule>(),
-				_lifetimeScope.Resolve<AddPromoSetToSelfDeliveryRule>(),
-				_lifetimeScope.Resolve<AddPromoSetForNewClientsWithPreviousShipmentRule>(),
-				_lifetimeScope.Resolve<AddPromoSetForNotNewClientsOrWithoutPreviousShipmentsRule>()
-			};
-
-			return new AddPromoSetValidator(rules);
 		}
 	}
 }

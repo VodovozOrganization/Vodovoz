@@ -40,6 +40,7 @@ using QSProjectsLib;
 using QSWidgetLib;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
@@ -164,6 +165,7 @@ using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Errors.Edo;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.NotificationSenders;
@@ -330,6 +332,7 @@ namespace Vodovoz
 		private ICounterpartyEdoAccountController _counterpartyEdoAccountController;
 		private IOrderSaleHandler _saleHandler;
 		private IGoodsPriceCalculator _goodsPriceCalculator;
+		private IOrderSaleItemFactory _orderSaleItemFactory;
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
 		private bool _canEditOrderExtraCash;
@@ -624,7 +627,8 @@ namespace Vodovoz
 				_nomenclatureSettings,
 				_flyerRepository,
 				_orderContractUpdater,
-				_saleHandler
+				_saleHandler,
+				_orderSaleItemFactory
 				);
 			
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
@@ -683,7 +687,8 @@ namespace Vodovoz
 				_nomenclatureSettings,
 				_flyerRepository,
 				_orderContractUpdater,
-				_saleHandler
+				_saleHandler,
+				_orderSaleItemFactory
 				);
 			
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
@@ -742,6 +747,7 @@ namespace Vodovoz
 			_saleHandler = _lifetimeScope.Resolve<IOrderSaleHandler>();
 			_saleHandler.SetSource(Entity);
 			_goodsPriceCalculator = _lifetimeScope.Resolve<IGoodsPriceCalculator>();
+			_orderSaleItemFactory = _lifetimeScope.Resolve<IOrderSaleItemFactory>();
 		}
 
 		private void ConfigureDlg()
@@ -806,21 +812,17 @@ namespace Vodovoz
 			Entity.ObservableFinalOrderService.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
 
-			Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
-			Entity.ObservableOrderItems.ElementRemoved += ObservableOrderItems_ElementRemoved;
+			Entity.OrderItems.CollectionChanged += OnOrderItemsChanged;
 
 			//Подписывемся на изменения листа для сокрытия колонки промонаборов
 			Entity.ObservablePromotionalSets.ListChanged += ObservablePromotionalSets_ListChanged;
 			Entity.ObservablePromotionalSets.ElementAdded += ObservablePromotionalSets_ElementAdded;
 			Entity.ObservablePromotionalSets.ElementRemoved += ObservablePromotionalSets_ElementRemoved;
 
-			//Подписываемся на изменение товара, для обновления количества оборудования в доп. соглашении
-			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
-			Entity.ObservableOrderEquipments.ElementChanged += ObservableOrderEquipments_ElementChanged_ChangeCount;
-
 			Entity.ObservableOrderDepositItems.ElementAdded += ObservableOrderDepositItemsOnElementAdded;
 			Entity.ObservableOrderDepositItems.ElementRemoved += ObservableOrderDepositItemsOnElementRemoved;
 
+			Entity.ObservableOrderEquipments.ElementChanged += ObservableOrderEquipments_ElementChanged_ChangeCount;
 			Entity.ObservableOrderEquipments.ElementAdded += ObservableOrderEquipmentsOnElementAdded;
 			Entity.ObservableOrderEquipments.ElementRemoved += ObservableOrderEquipmentsOnElementRemoved;
 
@@ -1293,6 +1295,19 @@ namespace Vodovoz
 			RefreshDebtorDebtNotifier();
 
 			UpdateDocumentsDescription();
+		}
+
+		private void OnOrderItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			switch(e.Action)
+			{
+				case NotifyCollectionChangedAction.Add:
+					OrderItemsElementAdded(e.NewStartingIndex);
+					break;
+				case  NotifyCollectionChangedAction.Remove:
+					OrderItemsElementRemoved();
+					break;
+			}
 		}
 
 		private void SetDriverExtensionCallViewModel()
@@ -2373,7 +2388,7 @@ namespace Vodovoz
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
-			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
+			treeItems.ItemsDataSource = Entity.OrderItems;
 			treeItems.Selection.Mode = SelectionMode.Multiple;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
 			treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault().Visible = Entity.PromotionalSets.Count > 0;
@@ -2508,6 +2523,8 @@ namespace Vodovoz
 			var path = new TreePath(args.Path);
 			treeItems.YTreeModel.GetIter(out var iter, path);
 			treeItems.YTreeModel.Adapter.EmitRowChanged(path, iter);
+
+			OrderItemCountChanged(orderItem);
 		}
 
 		private void OnRentEdited(object o, EditedArgs args)
@@ -3790,12 +3807,12 @@ namespace Vodovoz
 				return;
 			}
 
-			//TODO переделать на новый алгоритм
-			_saleHandler.TryAddPromoSet(UoW, proSet);
-			/*if(CanAddNomenclaturesToOrder() && Entity.CanAddPromotionalSet(proSet, _freeLoaderChecker, _promotionalSetRepository))
+			var addPromoSetResult = _saleHandler.TryAddPromoSet(UoW, _interactiveService, proSet);
+
+			if(addPromoSetResult.IsFailure)
 			{
-				ActivatePromotionalSet(proSet);
-			}*/
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, addPromoSetResult.GetErrorsString());
+			}
 
 			if(!yCmbPromoSets.IsSelectedNot)
 			{
@@ -3873,49 +3890,61 @@ namespace Vodovoz
 				defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;
 			}
 
-			var journalViewModel =
-				_navigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
-					this,
-					f =>
-					{
-						f.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
-						f.SelectCategory = defaultCategory;
-						f.SelectSaleCategory = SaleCategory.forSale;
-						f.RestrictArchive = false;
-						f.CanChangeShowArchive = false;
-						f.CanChangeOnlyOnlineNomenclatures = false;
-					},
-					OpenPageOptions.AsSlaveIgnoreHash,
-					vm =>
-					{
-						vm.SelectionMode = JournalSelectionMode.Single;
-						vm.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-						vm.TabName = "Номенклатура на продажу";
-						vm.CalculateQuantityOnStock = true;
-					})
-				.ViewModel;
+			_navigationManager.OpenViewModelOnTdi<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+				this,
+				f =>
+				{
+					f.AvailableCategories = NomenclatureEntity.GetCategoriesForSaleToOrder();
+					f.SelectCategory = defaultCategory;
+					f.SelectSaleCategory = SaleCategory.forSale;
+					f.RestrictArchive = false;
+					f.CanChangeShowArchive = false;
+					f.CanChangeOnlyOnlineNomenclatures = false;
+				},
+				OpenPageOptions.AsSlaveIgnoreHash,
+				vm =>
+				{
+					vm.SelectionMode = JournalSelectionMode.Single;
+					vm.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+					vm.TabName = "Номенклатура на продажу";
+					vm.CalculateQuantityOnStock = true;
+					vm.SelectionMode = JournalSelectionMode.Multiple;
+					vm.OnSelectResult += OnSelectSaleItemsNomenclatures;
+				});
+		}
 
-			journalViewModel.SelectionMode = JournalSelectionMode.Multiple;
-
-			journalViewModel.OnSelectResult += (s, ea) =>
+		private void OnSelectSaleItemsNomenclatures(object sender, JournalSelectedEventArgs e)
+		{
+			(sender as JournalViewModelBase).OnSelectResult -= OnSelectSaleItemsNomenclatures;
+			var selectedNodes = e.GetSelectedObjects<NomenclatureJournalNode>();
+			
+			if(!selectedNodes.Any())
 			{
-				var selectedNodes = ea.SelectedObjects.Cast<NomenclatureJournalNode>().ToList();
-				if(selectedNodes == null || !selectedNodes.Any())
-				{
-					return;
-				}
+				return;
+			}
+			
+			var sb = new StringBuilder();
 
-				foreach(var node in selectedNodes)
+			foreach(var node in selectedNodes)
+			{
+				var addingResult = _saleHandler.TryAddNomenclature(UoW, UoW.Session.Get<Nomenclature>(node.Id));
+
+				if(addingResult.IsFailure)
 				{
-					_saleHandler.TryAddNomenclature(UoW, UoWGeneric.Session.Get<Nomenclature>(node.Id));
+					sb.AppendLine(addingResult.GetErrorsString());
 				}
-			};
+			}
+
+			if(sb.Length > 0)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, sb.ToString(), "Нет возможности добавить все выбранные позиции");
+			}
 		}
 
 		public void FillOrderItems(Order order)
 		{
 			if(Entity.OrderStatus != OrderStatus.NewOrder
-				|| Entity.ObservableOrderItems.Any() && !MessageDialogHelper.RunQuestionDialog(
+				|| Entity.OrderItems.Any() && !MessageDialogHelper.RunQuestionDialog(
 					"Вы уверены, что хотите удалить все позиции из текущего заказа и заполнить его позициями из выбранного?"))
 			{
 				return;
@@ -4782,7 +4811,7 @@ namespace Vodovoz
 		protected void OnEnumDiscountUnitEnumItemSelected(object sender, EnumItemClickedEventArgs e)
 		{
 			SetDiscountEditable();
-			var sum = Entity.ObservableOrderItems.Sum(i => i.CurrentCount * i.Price);
+			var sum = Entity.OrderItems.Sum(i => i.CurrentCount * i.Price);
 			var unit = (DiscountUnits)e.ItemEnum;
 			spinDiscount.Adjustment.Upper = unit == DiscountUnits.money ? (double)sum : 100d;
 
@@ -4907,15 +4936,17 @@ namespace Vodovoz
 			entityVMEntryClient.IsEditable = Entity.CanChangeContractor();
 		}
 
-		private void Entity_ObservableOrderItems_ElementAdded(object aList, int[] aIdx)
+		private void OrderItemsElementAdded(int elementIndex)
 		{
-			FixPrice(aIdx[0]);
+			//TODO проверить нужность этого метода, т.к. по идее цена подбирается сразу, а для воды дополнительно пересчитывается
+			FixPrice(elementIndex);
 
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
 				Entity.CheckAndSetOrderIsService();
 				_saleHandler.UpdateDeliveryCost(UoW);
 			}
+			
 			_treeItemsNomenclatureColumnWidth = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width;
 			treeItems.ExposeEvent += TreeItemsOnExposeEvent;
 
@@ -4932,13 +4963,13 @@ namespace Vodovoz
 			}
 		}
 
-		private void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
+		private void OrderItemsElementRemoved()
 		{
-			var items = aList as GenericObservableList<OrderItem>;
-			for(var i = 0; i < items?.Count; i++)
+			//TODO проверить целесообразность метода
+			/*for(var i = 0; i < newList?.Count; i++)
 			{
 				FixPrice(i);
-			}
+			}*/
 
 			HboxReturnTareReasonCategoriesShow();
 
@@ -4978,7 +5009,7 @@ namespace Vodovoz
 
 		private void UpdateOrderItemsPrices()
 		{
-			for(int i = 0; i < Entity.ObservableOrderItems.Count; i++)
+			for(int i = 0; i < Entity.OrderItems.Count; i++)
 			{
 				FixPrice(i);
 			}
@@ -4986,7 +5017,7 @@ namespace Vodovoz
 
 		private void FixPrice(int id)
 		{
-			OrderItem item = Entity.ObservableOrderItems[id];
+			OrderItem item = Entity.OrderItems[id];
 			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0)
 			{
 				return;
@@ -5018,48 +5049,33 @@ namespace Vodovoz
 		/// также в доп. соглашении и списке оборудования заказа
 		/// + если меняем количество у 19л бут, то меняем видимость у hboxReturnTareReason
 		/// </summary>
-		private void ObservableOrderItems_ElementChanged_ChangeCount(object aList, int[] aIdx)
+		private void OrderItemCountChanged(OrderItem orderItem)
 		{
-			if(aList is GenericObservableList<OrderItem>)
+			//TODO проверить целесообразность метода
+			//FixPrice(orderItem);
+
+			if(orderItem != null && orderItem.Nomenclature.IsWater19L)
 			{
-				foreach(var i in aIdx)
-				{
-					OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
-
-					FixPrice(aIdx[0]);
-
-					//TODO-5967 почему это здесь? Признак альтернативной цены должен устанавливаться в установке цены
-					/*if(oItem?.CopiedFromUndelivery == null)
-					{
-						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(true, true) : oItem.Count;
-						oItem.IsAlternativePrice = Entity.HasPermissionsForAlternativePrice
-							&& oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
-							&& oItem.GetWaterFixedPrice() == null;
-					}*/
-
-					if(oItem != null && oItem.Nomenclature.IsWater19L)
-					{
-						HboxReturnTareReasonCategoriesShow();
-					}
-
-					if(oItem != null && oItem.Count > 0 && DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
-					{
-						_saleHandler.UpdateDeliveryCost(UoW);
-					}
-
-					if(oItem == null)
-					{
-						return;
-					}
-
-					if(oItem.Nomenclature.Category == NomenclatureCategory.equipment)
-					{
-						ChangeEquipmentsCount(oItem, (int)oItem.Count);
-					}
-
-					UpdateClientSecondOrderDiscount();
-				}
+				HboxReturnTareReasonCategoriesShow();
 			}
+
+			if(orderItem != null && orderItem.Count > 0 && DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+			{
+				_saleHandler.UpdateDeliveryCost(UoW);
+			}
+
+			if(orderItem == null)
+			{
+				return;
+			}
+
+			if(orderItem.Nomenclature.Category == NomenclatureCategory.equipment)
+			{
+				ChangeEquipmentsCount(orderItem, (int)orderItem.Count);
+			}
+
+			//TODO Нужно ли добавлять/удалять скидку за второй заказ при смене количества
+			UpdateClientSecondOrderDiscount();
 		}
 
 		/// <summary>
@@ -5449,12 +5465,12 @@ namespace Vodovoz
 						discount,
 						discount);
 					
-					_discountsController.SetCustomDiscountForOrder(UoW, reason, discountValue, Entity.ObservableOrderItems);
+					_discountsController.SetCustomDiscountForOrder(UoW, reason, discountValue, Entity.OrderItems);
 				}
 				else
 				{
 					_discountsController.SetDiscountFromDiscountReasonForOrder(
-						reason, Entity.ObservableOrderItems, _canChangeDiscountValue, out string messages);
+						reason, Entity.OrderItems, _canChangeDiscountValue, out string messages);
 
 					if(messages?.Length > 0)
 					{
@@ -5803,7 +5819,7 @@ namespace Vodovoz
 
 		private bool NeedToCreateOrderForDailyRentEquipmentReturn =>
 			_justCreated &&
-			Entity.ObservableOrderItems.Any(orderItem =>
+			Entity.OrderItems.Any(orderItem =>
 				orderItem.Nomenclature.Id == _nomenclatureSettings.DailyCoolerRentNomenclatureId);
 
 		private void OnSlaveOrderClosed(object sender, EventArgs e)

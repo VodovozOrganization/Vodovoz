@@ -67,7 +67,7 @@ namespace CustomerOrdersApi.Library.V4.Services.Import
 						request.BatchId,
 						orderId,
 						entityType,
-						validationResult.GetErrorsString());
+						validationResult.GetNumberingErrorsString());
 
 					errorOrderIds.Add(orderId);
 					continue;

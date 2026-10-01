@@ -2,6 +2,7 @@
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Service;
 using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Sale;
@@ -9,7 +10,7 @@ using VodovozBusiness.Validation;
 
 namespace Vodovoz.Core.Application.Sale
 {
-	public class SaleWithTaxHandler : SaleHandler
+	public class SaleWithTaxHandler : SaleHandler, ISaleWithTaxHandler
 	{
 		public SaleWithTaxHandler(
 			SaleItemWithTaxHandler saleItemHandler,
@@ -20,7 +21,7 @@ namespace Vodovoz.Core.Application.Sale
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
 			IAddNomenclatureToSaleValidator addNomenclatureToSaleValidator,
-			IAddPromoSetValidator addPromoSetValidator,
+			IAddPromoSetValidatorFactory addPromoSetValidatorFactory,
 			ISaleItemFactory saleItemFactory
 			) : base(
 				saleItemHandler,
@@ -31,7 +32,7 @@ namespace Vodovoz.Core.Application.Sale
 				nomenclatureSettings,
 				nomenclatureRepository,
 				addNomenclatureToSaleValidator,
-				addPromoSetValidator,
+				addPromoSetValidatorFactory,
 				saleItemFactory
 				)
 		{

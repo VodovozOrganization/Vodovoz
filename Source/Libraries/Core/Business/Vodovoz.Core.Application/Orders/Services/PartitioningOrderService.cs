@@ -11,6 +11,7 @@ using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Models.Orders;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -24,6 +25,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IOrderConfirmationService _orderConfirmationService;
 		private readonly IOrderSaleHandler _saleHandler;
+		private readonly IOrderSaleItemFactory _saleItemFactory;
 
 		public PartitioningOrderService(
 			ILogger<IPartitioningOrderService> logger,
@@ -32,7 +34,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IFlyerRepository flyerRepository,
 			IOrderContractUpdater orderContractUpdater,
 			IOrderConfirmationService orderConfirmationService,
-			IOrderSaleHandler saleHandler
+			IOrderSaleHandler saleHandler,
+			IOrderSaleItemFactory saleItemFactory
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -42,6 +45,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_orderConfirmationService = orderConfirmationService ?? throw new ArgumentNullException(nameof(orderConfirmationService));
 			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_saleItemFactory = saleItemFactory ?? throw new ArgumentNullException(nameof(saleItemFactory));
 		}
 		
 		public Result<IEnumerable<int>> CreatePartOrdersAndSave(
@@ -67,7 +71,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 						_nomenclatureSettings,
 						_flyerRepository,
 						_orderContractUpdater,
-						_saleHandler);
+						_saleHandler,
+						_saleItemFactory);
 
 					if(i == 0)
 					{

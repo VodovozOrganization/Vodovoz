@@ -135,7 +135,7 @@ namespace Vodovoz
 		public DeliveryPoint DeliveryPoint
 		{
 			get => Order.DeliveryPoint;
-			private set => Order.UpdateDeliveryPoint(value, _contractUpdater);
+			private set => Order.UpdateDeliveryPoint(value, _contractUpdater, _saleHandler);
 		}
 		
 		public PaymentType PaymentType
@@ -396,21 +396,19 @@ namespace Vodovoz
 			switch(nomenclature.Category)
 			{
 				case NomenclatureCategory.water:
-					_routeListItem.Order.AddWaterForSale(
+					_saleHandler.AddWaterForSale(
 						UoW,
-						_contractUpdater,
-						_saleHandler,
-						_goodsPriceCalculator,
 						NewOrderSaleItem.Create(nomenclature, 0));
 					break;
 				case NomenclatureCategory.master:
-					_routeListItem.Order.AddMasterNomenclature(UoW, _contractUpdater, _saleHandler, nomenclature, 0);
+					_saleHandler.AddMasterNomenclature(UoW, NewOrderSaleItem.Create(nomenclature, 0));
 					break;
 				default:
-					_routeListItem.Order.AddAnyGoodsNomenclatureForSale(UoW, _contractUpdater, _saleHandler, nomenclature, true);
+					_saleHandler.AddAnyGoodsNomenclatureForSale(UoW, nomenclature, true);
 					break;
 			}
 
+			ActualCountsOfOrderItemsFromNullToZero();
 			UpdateItemsList();
 		}
 
@@ -431,7 +429,7 @@ namespace Vodovoz
 			clientEntry.ViewModel = GetClientEntityEntryViewModel();
 
 			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, _flyerRepository, _saleHandler);
-			ConfigureDeliveryPointRefference(Client);
+			ConfigureDeliveryPointReference(Client);
 
 			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
 				.AddColumn("Название")
@@ -523,11 +521,10 @@ namespace Vodovoz
 			entryOnlineOrder.Binding.AddBinding(_routeListItem.Order, e => e.OnlinePaymentNumber, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
-			_routeListItem.Order.ObservableOrderItems.ListContentChanged += (sender, e) => { UpdateItemsList(); };
+			Order.OrderItems.ContentChanged += OnOrderItemsContentChanged;
 
-			_routeListItem.Order.ObservableOrderItems.ElementAdded += (aList, aIdx) => ActualCountsOfOrderItemsFromNullToZero();
-			_routeListItem.Order.ObservableOrderEquipments.ElementAdded += (aList, aIdx) => ActualCountsOfOrderEqupmentFromNullToZero();
-			_routeListItem.Order.ObservableOrderDepositItems.ElementAdded += (aList, aIdx) => ActualCountsOfOrderDepositsFromNullToZero();
+			Order.ObservableOrderEquipments.ElementAdded += (aList, aIdx) => ActualCountsOfOrderEqupmentFromNullToZero();
+			Order.ObservableOrderDepositItems.ElementAdded += (aList, aIdx) => ActualCountsOfOrderDepositsFromNullToZero();
 
 			yspinbuttonBottlesByStockCount.Binding.AddBinding(_routeListItem.Order, e => e.BottlesByStockCount, w => w.ValueAsInt)
 				.InitializeFromSource();
@@ -725,7 +722,7 @@ namespace Vodovoz
 			_saleHandler.SetActualCountZero();
 		}
 
-		private void ConfigureDeliveryPointRefference(Counterparty client = null)
+		private void ConfigureDeliveryPointReference(Counterparty client = null)
 		{
 			var deliveryPointFilter = new DeliveryPointJournalFilterViewModel
 			{
@@ -857,7 +854,7 @@ namespace Vodovoz
 
 			if(CompletedChange == ChangedType.DeliveryPoint)
 			{
-				_routeListItem.Order.UpdateDeliveryPoint(DeliveryPoint, _contractUpdater);
+				_routeListItem.Order.UpdateDeliveryPoint(DeliveryPoint, _contractUpdater, _saleHandler);
 			}
 
 			if(CompletedChange == ChangedType.Both)
@@ -867,7 +864,7 @@ namespace Vodovoz
 				//иначе при записи клиента убирается не его точка доставки и будет ошибка при
 				//изменении документов которые должны меняться при смене клиента потомучто точка
 				//доставки будет пустая
-				_routeListItem.Order.UpdateDeliveryPoint(DeliveryPoint, _contractUpdater);
+				_routeListItem.Order.UpdateDeliveryPoint(DeliveryPoint, _contractUpdater, _saleHandler);
 				_routeListItem.Order.UpdateClient(Client, _contractUpdater, out var updateClientMessage);
 				_routeListItem.Order.UpdateBottleMovementOperation(UoW, nomenclatureSettings, _routeListItem.BottlesReturned);
 			}
@@ -919,7 +916,7 @@ namespace Vodovoz
 
 			_lastCounterparty = clientEntry.ViewModel.Entity as Counterparty;
 
-			ConfigureDeliveryPointRefference(clientEntry.ViewModel.Entity as Counterparty);
+			ConfigureDeliveryPointReference(clientEntry.ViewModel.Entity as Counterparty);
 			DeliveryPoint = null;
 			Order.ContactPhone = null;
 
@@ -968,13 +965,18 @@ namespace Vodovoz
 		{
 			OpenSelectNomenclatureDlg();
 		}
+		
+		private void OnOrderItemsContentChanged(object sender, EventArgs e)
+		{
+			UpdateItemsList();
+		}
 
 		protected void OnButtonDeleteOrderItemClicked(object sender, EventArgs e)
 		{
 			if(ytreeToClient.GetSelectedObject() is OrderItemReturnsNode selectedItemNode
 				&& selectedItemNode.OrderItem != null)
 			{
-				_routeListItem.Order.RemoveItemFromClosingOrder(UoW, _contractUpdater, selectedItemNode.OrderItem);
+				_saleHandler.RemoveItemFromClosingOrder(UoW, selectedItemNode.OrderItem);
 				UpdateItemsList();
 			}
 		}
@@ -985,7 +987,7 @@ namespace Vodovoz
 			//значит такое оборудование можно удалять из изменения заказа
 			if(e.OrderItem == null && e.Count == 0)
 			{
-				_routeListItem.Order.RemoveEquipment(UoW, _contractUpdater, _saleHandler, e);
+				_saleHandler.RemoveEquipment(UoW, e);
 			}
 		}
 

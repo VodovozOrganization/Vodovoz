@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Application.Orders.Delivery;
+using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
@@ -22,7 +24,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		public NewOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
-			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
+			IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext> deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings,
 			IClientDeliveryPointsChecker clientDeliveryPointsChecker,
 			ISaleDiscountController discountController,

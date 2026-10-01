@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Results;
@@ -77,6 +78,17 @@ namespace VodovozBusiness.Controllers
 		/// <param name="newOrderSaleItem">Данные по новой позиции</param>
 		void AddWaterForSale(IUnitOfWork uow, NewOrderSaleItem newOrderSaleItem);
 
+		void AddMasterNomenclature(
+			IUnitOfWork uow,
+			NewOrderSaleItem newOrderSaleItem,
+			int quantityOfFollowingNomenclatures = 0);
+
+		void AddAnyGoodsNomenclatureForSale(
+			IUnitOfWork uow,
+			Nomenclature nomenclature,
+			bool isChangeOrder = false,
+			int? cnt = null);
+
 		/// <summary>
 		/// Добавление продаваемой позиции
 		/// </summary>
@@ -93,9 +105,10 @@ namespace VodovozBusiness.Controllers
 		/// Добавление промонабора
 		/// </summary>
 		/// <param name="uow">unit of work</param>
+		/// <param name="interactiveService">Сервис для отображения сообщения пользователю</param>
 		/// <param name="proSet">Промонабор</param>
 		/// <returns></returns>
-		Result TryAddPromoSet(IUnitOfWork uow, PromotionalSet proSet);
+		Result TryAddPromoSet(IUnitOfWork uow, IInteractiveService interactiveService, PromotionalSet proSet);
 
 		/// <summary>
 		/// Установка цены на выезд мастера при необходимости

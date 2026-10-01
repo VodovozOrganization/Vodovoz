@@ -23,6 +23,6 @@ namespace VodovozBusiness.Domain.Orders
 		/// <inheritdoc/>>
 		public override OnlineOrderVersion OrderVersion => OnlineOrderVersion.V2;
 
-		public IEnumerable<OnlineOrderPromoSet> OnlinePromoSets => PromoSets;
+		public virtual IEnumerable<OnlineOrderPromoSet> OnlinePromoSets => PromoSets;
 	}
 }

@@ -6,6 +6,7 @@ using Vodovoz.CachingRepositories.Common;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain;
 using Vodovoz.Factories;
+using Vodovoz.Models.Orders;
 using Vodovoz.Options;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -14,6 +15,7 @@ using Vodovoz.Tools.Orders;
 using Vodovoz.Validation;
 using VodovozBusiness.CachingRepositories.Employees;
 using VodovozBusiness.CachingRepositories.Subdivisions;
+using VodovozBusiness.Factories;
 
 namespace Vodovoz
 {
@@ -47,6 +49,8 @@ namespace Vodovoz
 				.AddService<IErrorReporter>(context => ErrorReporter.Instance, serviceLifetime)
 				.AddService<OrderStateKey>(serviceLifetime)
 				.AddService<OnlineOrderStateKey>(serviceLifetime)
+				.AddService<OrderCopyModel>(serviceLifetime)
+				//.AddSaleItemFactories(serviceLifetime)
 			;
 
 		private static IServiceCollection RegisterClassesByInterfaces(
@@ -67,5 +71,17 @@ namespace Vodovoz
 			=> services
 				.AddScoped<IEmployeeInMemoryNameWithInitialsCacheRepository, EmployeeInMemoryNameWithInitialsCacheRepository>()
 				.AddScoped<IDomainEntityNodeInMemoryCacheRepository<Subdivision>, SubdivisionInMemoryTitleCacheRepository>();
+
+		/*private static IServiceCollection AddSaleItemFactories(
+			this IServiceCollection services,
+			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped
+		)
+		{
+			return services
+				.AddService<ISaleItemFactory, SaleItemFactory>(serviceLifetime)
+				.AddService<IOrderSaleItemFactory, OrderSaleItemFactory>(serviceLifetime)
+				.AddService<IOnlineOrderTemplateSaleItemFactory, OnlineOrderTemplateSaleItemFactory>(serviceLifetime)
+				;
+		}*/
 	}
 }

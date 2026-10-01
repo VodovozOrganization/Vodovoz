@@ -23,6 +23,7 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -39,6 +40,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IOrderSaleHandler _saleHandler;
+		private readonly IOrderSaleItemFactory _saleItemFactory;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
 		public CustomerOrderTransferService(
@@ -52,6 +54,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			ICallTaskWorker callTaskWorker,
 			IOrderContractUpdater orderContractUpdater,
 			IOrderSaleHandler saleHandler,
+			IOrderSaleItemFactory saleItemFactory,
 			IRouteListItemRepository routeListItemRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -64,6 +67,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_saleItemFactory = saleItemFactory ?? throw new ArgumentNullException(nameof(saleItemFactory));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 		}
 
@@ -420,7 +424,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				UoW = uow
 			};
 
-			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater, _saleHandler);
+			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater, _saleHandler, _saleItemFactory);
 
 			var copying = orderCopyModel.StartCopyOrder(uow, originalOrder.Id, newOrder)
 				.CopyFields()

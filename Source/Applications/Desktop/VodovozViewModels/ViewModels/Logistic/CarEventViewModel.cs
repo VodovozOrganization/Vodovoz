@@ -759,7 +759,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					_interactiveService.ShowMessage(
 						ImportanceLevel.Error,
-						$"Не удалось загрузить скан заказ-наряда в S3:\n{result.GetErrorsString()}",
+						$"Не удалось загрузить скан заказ-наряда в S3:\n{result.GetNumberingErrorsString()}",
 						"Ошибка загрузки файла");
 					return false;
 				}
@@ -783,7 +783,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					_interactiveService.ShowMessage(
 						ImportanceLevel.Error,
-						$"Не удалось обновить скан заказ-наряда в S3:\n{result.GetErrorsString()}",
+						$"Не удалось обновить скан заказ-наряда в S3:\n{result.GetNumberingErrorsString()}",
 						"Ошибка обновления файла");
 					return false;
 				}
@@ -804,7 +804,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					_interactiveService.ShowMessage(
 						ImportanceLevel.Error,
-						$"Не удалось удалить скан заказ-наряда из S3:\n{result.GetErrorsString()}",
+						$"Не удалось удалить скан заказ-наряда из S3:\n{result.GetNumberingErrorsString()}",
 						"Ошибка удаления файла");
 					return false;
 				}

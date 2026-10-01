@@ -3,6 +3,7 @@ using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Errors.Clients;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.Orders;
 using VodovozBusiness.Domain.Orders;
@@ -40,7 +41,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			if(district is null)
 			{
-				return Result.Success(0m);
+				return Result.Failure<decimal>(DeliveryPointErrors.CouldNotCalculateDeliveryBecauseDistrictNotFound(onlineOrder.DeliveryPoint?.Id));
 			}
 			
 			_onlineOrderStateKey.InitializeFields(onlineOrder);

@@ -10,6 +10,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 using VodovozBusiness.Nodes;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -17,33 +18,32 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	internal sealed class PromotionalSetRepository : IPromotionalSetRepository
 	{
-		internal static Func<IUnitOfWork, VodovozOrder, bool, Dictionary<int, int[]>> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap;
-		/// <summary>
-		/// Возврат словаря, у которого ключ это <see cref="PromotionalSet.Id"/>,
-		/// а значение - массив с <see cref="VodovozOrder.Id"/>, для всех точек доставок
-		/// похожих по полям <see cref="DeliveryPoint.City"/>,
-		/// <see cref="DeliveryPoint.Street"/>, <see cref="DeliveryPoint.Building"/>,
-		/// <see cref="DeliveryPoint.Room"/>
-		/// </summary>
-		/// <returns>Словарь</returns>
-		/// <param name="uow">Unit Of Work</param>
-		/// <param name="currOrder">Заказ, из которого берётся точка доставки</param>
-		/// <param name="ignoreCurrentOrder">Если <c>true</c>, то в выборке будет
-		/// игнорироваться заказ передаваемы в качестве параметра <paramref name="currOrder"/></param>
+		internal static Func<IUnitOfWork, ISaleSource, bool, Dictionary<int, int[]>> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap;
+		
+		/// <inheritdoc/>
 		public Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(
-			IUnitOfWork uow, VodovozOrder currOrder, bool ignoreCurrentOrder = false)
+			IUnitOfWork uow, ISaleSource saleSource, bool ignoreCurrentSource = false)
 		{
 			if(GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap != null)
 			{
-				return GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap(uow, currOrder, ignoreCurrentOrder);
+				return GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap(uow, saleSource, ignoreCurrentSource);
 			}
 
 			VodovozOrder ordersAlias = null;
 			PromotionalSet promotionalSetAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 
-			var dp = currOrder.DeliveryPoint;
-			var oId = !ignoreCurrentOrder ? -1 : currOrder.Id;
+			var dp = saleSource.DeliveryPoint;
+			int oId;
+
+			if(!ignoreCurrentSource || !(saleSource is VodovozOrder))
+			{
+				oId = -1;
+			}
+			else
+			{
+				oId = saleSource.Id;
+			}
 
 			var subQuerySimilarDP = QueryOver.Of(() => deliveryPointAlias)
 			   .Where(p => p.City == dp.City)

@@ -395,7 +395,7 @@ namespace Vodovoz
 
 			if(addingProductCodesResult.IsFailure)
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, addingProductCodesResult.GetErrorsString());
+				_interactiveService.ShowMessage(ImportanceLevel.Error, addingProductCodesResult.GetNumberingErrorsString());
 				return false;
 			}
 

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
@@ -17,7 +19,7 @@ namespace VodovozBusiness.Domain.Sale
 		PrepositionalPlural = "Продаваемых позициях автозаказов с ИПЗ"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderTemplateSaleItem : PropertyChangedBase, IDomainObject
+	public class OnlineOrderTemplateSaleItem : PropertyChangedBase, IDomainObject, ISaleItem
 	{
 		private decimal _price;
 		private int _templateId;
@@ -103,40 +105,56 @@ namespace VodovozBusiness.Domain.Sale
 			set => SetField(ref _personalDiscount, value);
 		}
 
-		IEnumerable<IProductDiscountData> ICalculatingPriceV5.Discounts => Discounts
+		/*IEnumerable<IProductDiscountData> ICalculatingPriceV5.Discounts => Discounts
 			.Select(x => new ProductDiscountData
 			{
 				Discount = x.IsDiscountInMoney ? x.MoneyDiscount : x.PercentDiscount,
 				IsDiscountInMoney = x.IsDiscountInMoney,
 				DiscountReason = x.DiscountReason
-			});
+			});*/
 
+		public virtual bool IsUserPrice { get; set; }
+		
 		public virtual bool IsFixedPrice { get; set; }
 
 		public virtual decimal Sum => Math.Round(Price * Count, 2);
 
 		public static OnlineOrderTemplateSaleItem Create(
-			decimal count,
-			decimal price,
-			Nomenclature nomenclature,
-			PromotionalSet promotionalSet,
 			int templateId,
-			IObservableList<DiscountReasonBase> discountReasons,
+			NewOrderSaleItem newSaleItem,
 			PersonalDiscount personalDiscount = null
 		)
 		{
 			var onlineOrderItem = new OnlineOrderTemplateSaleItem
 			{
-				Count = count,
-				Price = price,
-				Nomenclature = nomenclature,
-				PromoSet = promotionalSet,
+				Count = newSaleItem.Count,
+				Price = newSaleItem.PriceData.Price,
+				Nomenclature = newSaleItem.Nomenclature,
+				PromoSet = newSaleItem.PromoSet,
 				TemplateId = templateId,
-				DiscountReasons = discountReasons,
 				PersonalDiscount = personalDiscount
 			};
 
+			if(newSaleItem.DiscountReasons != null && newSaleItem.DiscountReasons.Any())
+			{
+				foreach(var discount in newSaleItem.DiscountReasons)
+				{
+					onlineOrderItem.DiscountReasons.Add(discount);
+				}
+			}
+
 			return onlineOrderItem;
 		}
+
+		public virtual bool IsAlternativePrice { get; set; }
+		public virtual bool IsMasterNomenclature => Nomenclature != null && Nomenclature.Category == NomenclatureCategory.master;
+
+		decimal ISetCount.Count
+		{
+			get => Count;
+			set => Count = value;
+		}
+
+		IEnumerable<DiscountReasonBase> IDiscountReasons.DiscountReasons => DiscountReasons;
 	}
 }

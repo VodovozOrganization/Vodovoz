@@ -53,7 +53,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderStateKey.InitializeFields(order);
 
 			var price =
-				district?.GetDeliveryPrice(_orderStateKey, order.ObservableOrderItems
+				district?.GetDeliveryPrice(_orderStateKey, order.OrderItems
 					.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m))
 				?? 0m;
 

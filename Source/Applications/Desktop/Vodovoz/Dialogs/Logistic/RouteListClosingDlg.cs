@@ -24,6 +24,7 @@ using QSProjectsLib;
 using QSReport;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -349,17 +350,15 @@ namespace Vodovoz
 			routeListAddressesView.RouteList = Entity;
 			foreach(RouteListItem item in routeListAddressesView.Items) 
 			{
-				item.Order.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged;
-				item.Order.ObservableOrderItems.ElementAdded += ObservableOrderItems_ElementAdded;
-				item.Order.ObservableOrderItems.ElementRemoved += ObservableOrderItems_ElementRemoved;
+				item.Order.OrderItems.ContentChanged += OnOrderItemsContentChanged;
 
-				item.Order.ObservableOrderEquipments.ElementChanged += ObservableOrderItems_ElementChanged;
-				item.Order.ObservableOrderEquipments.ElementAdded += ObservableOrderItems_ElementAdded;
-				item.Order.ObservableOrderEquipments.ElementRemoved += ObservableOrderItems_ElementRemoved;
+				item.Order.ObservableOrderEquipments.ElementChanged += OnOrderElementChanged;
+				item.Order.ObservableOrderEquipments.ElementAdded += OnOrderElementAdded;
+				item.Order.ObservableOrderEquipments.ElementRemoved += OnOrderElementRemoved;
 
-				item.Order.ObservableOrderDepositItems.ElementChanged += ObservableOrderItems_ElementChanged;
-				item.Order.ObservableOrderDepositItems.ElementAdded += ObservableOrderItems_ElementAdded;
-				item.Order.ObservableOrderDepositItems.ElementRemoved += ObservableOrderItems_ElementRemoved;
+				item.Order.ObservableOrderDepositItems.ElementChanged += OnOrderElementChanged;
+				item.Order.ObservableOrderDepositItems.ElementAdded += OnOrderElementAdded;
+				item.Order.ObservableOrderDepositItems.ElementRemoved += OnOrderElementRemoved;
 			}
 			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
@@ -928,17 +927,22 @@ namespace Vodovoz
 			OnItemsUpdated();
 		}
 
-		void ObservableOrderItems_ElementAdded(object aList, int[] aIdx)
+		private void OnOrderItemsContentChanged(object sender, EventArgs e)
 		{
 			OrderReturnsChanged();
 		}
 
-		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
+		private void OnOrderElementAdded(object aList, int[] aIdx)
 		{
 			OrderReturnsChanged();
 		}
 
-		void ObservableOrderItems_ElementChanged(object aList, int[] aIdx)
+		private void OnOrderElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			OrderReturnsChanged();
+		}
+
+		private void OnOrderElementChanged(object aList, int[] aIdx)
 		{
 			OrderReturnsChanged();
 		}

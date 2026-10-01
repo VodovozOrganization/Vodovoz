@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 using VodovozBusiness.Nodes;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -17,11 +18,11 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// </summary>
 		/// <returns>Словарь</returns>
 		/// <param name="uow">Unit Of Work</param>
-		/// <param name="currOrder">Заказ, из которого берётся точка доставки</param>
-		/// <param name="ignoreCurrentOrder">Если <c>true</c>, то в выборке будет
-		/// игнорироваться заказ передаваемы в качестве параметра <paramref name="currOrder"/></param>
+		/// <param name="saleSource">Источник продажи(заказ, шаблон), из которого берётся точка доставки</param>
+		/// <param name="ignoreCurrentSource">Если <c>true</c>, то в выборке будет
+		/// игнорироваться заказ передаваемый в качестве параметра <paramref name="saleSource"/></param>
 		Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(
-			IUnitOfWork uow, Order currOrder, bool ignoreCurrentOrder = false);
+			IUnitOfWork uow, ISaleSource saleSource, bool ignoreCurrentSource = false);
 		bool AddressHasAlreadyBeenUsedForPromoForNewClients(IUnitOfWork uow, DeliveryPoint deliveryPoint);
 		/// <summary>
 		/// Получение данных по промонаборам онлайн заказа

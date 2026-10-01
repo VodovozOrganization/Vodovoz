@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Infrastructure;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Errors.Clients;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Validation;
@@ -25,7 +28,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 	{
 		protected OrderFromOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
-			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
+			IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext> deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings,
 			IClientDeliveryPointsChecker clientDeliveryPointsChecker,
 			IDiscountController discountController,
@@ -47,7 +50,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 
 		protected IGoodsPriceCalculator PriceCalculator { get; }
-		protected IOnlineOrderDeliveryPriceGetter DeliveryPriceGetter { get; }
+		protected IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext> DeliveryPriceGetter { get; }
 		protected INomenclatureSettings NomenclatureSettings { get; }
 		protected IClientDeliveryPointsChecker ClientDeliveryPointsChecker { get; }
 		protected IDiscountController DiscountController { get; }
@@ -529,33 +532,45 @@ namespace Vodovoz.Core.Application.Orders.Services
 				OnlineOrder.OnlineOrderItems
 					.SingleOrDefault(x => x.PromoSet is null && x.NomenclatureId == NomenclatureSettings.PaidDeliveryNomenclatureId);
 
-			var deliveryPrice = DeliveryPriceGetter.GetDeliveryPrice(OnlineOrder);
-			var needPaidDelivery = deliveryPrice > 0;
-			var checkOnlineOrderSum = CheckOnlineOrderSum.Create(1, deliveryPrice, 0);
+			var deliveryPriceResult = DeliveryPriceGetter
+				.GetDeliveryPrice(DeliveryPriceGetterContext<OnlineOrderDeliveryPriceContext>.Create(
+					OnlineOrderDeliveryPriceContext.Create(OnlineOrder)));
 
-			if(paidDelivery != null)
+			if(deliveryPriceResult.IsFailure)
 			{
-				paidDelivery.NomenclaturePrice = deliveryPrice;
+				ValidationResults.Add(DeliveryPointErrors.CouldNotCalculateDeliveryBecauseDistrictNotFound(OnlineOrder.DeliveryPoint?.Id));
 			}
-
-			if(needPaidDelivery && paidDelivery != null)
+			else
 			{
-				if(paidDelivery.Price != deliveryPrice)
-				{
-					ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectPricePaidDelivery(deliveryPrice, paidDelivery.Price));
-				}
-			}
-			else if(needPaidDelivery && paidDelivery is null)
-			{
-				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.NeedPaidDelivery);
-			}
-			else if(!needPaidDelivery && paidDelivery != null)
-			{
-				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.NotNeedPaidDelivery);
-				checkOnlineOrderSum.Count = 0;
-			}
+				var deliveryPrice = deliveryPriceResult.Value;
 			
-			CalculatedOrderItemPrices.Add(checkOnlineOrderSum);
+				var needPaidDelivery = deliveryPrice > 0;
+				var checkOnlineOrderSum = CheckOnlineOrderSum.Create(1, deliveryPrice, 0);
+
+				if(paidDelivery != null)
+				{
+					paidDelivery.NomenclaturePrice = deliveryPrice;
+				}
+
+				if(needPaidDelivery && paidDelivery != null)
+				{
+					if(paidDelivery.Price != deliveryPrice)
+					{
+						ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectPricePaidDelivery(deliveryPrice, paidDelivery.Price));
+					}
+				}
+				else if(needPaidDelivery && paidDelivery is null)
+				{
+					ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.NeedPaidDelivery);
+				}
+				else if(!needPaidDelivery && paidDelivery != null)
+				{
+					ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.NotNeedPaidDelivery);
+					checkOnlineOrderSum.Count = 0;
+				}
+			
+				CalculatedOrderItemPrices.Add(checkOnlineOrderSum);
+			}
 		}
 		
 		protected virtual void ValidateFastDelivery()

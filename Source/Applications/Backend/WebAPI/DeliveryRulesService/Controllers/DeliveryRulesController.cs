@@ -157,7 +157,7 @@ namespace DeliveryRulesService.Controllers
 				});
 
 				var fastDeliveryNomenclature = _nomenclatureRepository.GetFastDeliveryNomenclature(uow);
-				result.DeliveryInfo.FastDeliveryPrice = fastDeliveryNomenclature.GetPrice(1);
+				result.DeliveryInfo.FastDeliveryPrice = fastDeliveryNomenclature.GetPrice(1).Price;
 				result.DeliveryInfo.FastDeliveryId = _nomenclatureSettings.FastDeliveryNomenclatureId;
 			}
 			

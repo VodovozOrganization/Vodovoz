@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 using Autofac;
-using FluentNHibernate.Data;
 using Gamma.Widgets;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
@@ -21,7 +20,6 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using RestSharp.Validation;
 using Vodovoz.Core.Application.Orders.Validators;
-using Vodovoz.Core.Application.Templates;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
@@ -35,6 +33,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -43,9 +42,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Validation;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -55,9 +56,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IGoodsPriceCalculator _goodsPriceCalculator;
-		private readonly OnlineOrderTemplateProductHandler _productHandler;
+		private readonly ISaleWithTaxHandler _saleHandler;
+		private readonly IAddNomenclatureToSaleValidator _addNomenclatureToSaleValidator;
 		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
+		private readonly SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
 		private readonly Employee _currentEmployee;
 		private DateTime _createdAt;
 		private bool _isArchive;
@@ -87,21 +90,31 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IGoodsPriceCalculator goodsPriceCalculator,
-			OnlineOrderTemplateProductHandler productHandler,
+			ISaleWithTaxHandler saleHandler,
+			IAddNomenclatureToSaleValidator addNomenclatureToSaleValidator,
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
-			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel
+			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
+			SelectPaymentTypeViewModel selectPaymentTypeViewModel
 			) : base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
 		{
 			_entityUoWBuilder = entityUoWBuilder ?? throw new ArgumentNullException(nameof(entityUoWBuilder));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_goodsPriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
-			_productHandler = productHandler ?? throw new ArgumentNullException(nameof(productHandler));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_addNomenclatureToSaleValidator =
+				addNomenclatureToSaleValidator ?? throw new ArgumentNullException(nameof(addNomenclatureToSaleValidator));
 			_deliveryPointViewModelBuilder = deliveryPointViewModelBuilder ?? throw new ArgumentNullException(nameof(deliveryPointViewModelBuilder));
 			_deliveryPointJournalFilterViewModel =
 				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));
+			_selectPaymentTypeViewModel = selectPaymentTypeViewModel ?? throw new ArgumentNullException(nameof(selectPaymentTypeViewModel));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			UoW = _entityUoWBuilder.CreateUoW<OnlineOrderTemplate>(_unitOfWorkFactory);
+			var uowGeneric = _entityUoWBuilder.CreateUoW<OnlineOrderTemplate>(_unitOfWorkFactory);
+			UoW = uowGeneric;
+			
+			
+			//TODO надо переделать инициализацию
+			Entity = new OnlineOrderTemplateProxy();
 			
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
@@ -119,10 +132,22 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			CreateCommands();
 			//CreatePropertyChangeRelations();
 			ConfigureEntryViewModels();
+			ConfigureSelectPaymentTypeViewModel();
+		}
+
+		private void ConfigureSelectPaymentTypeViewModel()
+		{
+			_selectPaymentTypeViewModel.AddExcludedPaymentTypes(
+				Domain.Client.PaymentType.Barter,
+				Domain.Client.PaymentType.Cashless,
+				Domain.Client.PaymentType.ContractDocumentation,
+				Domain.Client.PaymentType.SmsQR
+				);
 		}
 
 		public ILifetimeScope LifetimeScope { get; }
 		public IUnitOfWork UoW { get; }
+		public OnlineOrderTemplateProxy Entity { get; }
 		
 		public bool CanEdit => true;
 		public bool HasPermissionsForAlternativePrice { get; private set; }
@@ -285,8 +310,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		private void AddForSale()
 		{
-			if(!CanAddProductsToTemplate())
+			var canAddNomenclatureResult = _addNomenclatureToSaleValidator
+				.CanAddNomenclature(Entity);
+			
+			if(canAddNomenclatureResult.IsFailure)
 			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, canAddNomenclatureResult.GetErrorsString());
 				return;
 			}
 			
@@ -297,137 +326,56 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;
 			}*/
 
-			var journalViewModel =
-				NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
-					this,
-					f =>
-					{
-						f.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder();
-						f.SelectCategory = defaultCategory;
-						f.SelectSaleCategory = SaleCategory.forSale;
-						f.RestrictArchive = false;
-						f.CanChangeShowArchive = false;
-						f.CanChangeOnlyOnlineNomenclatures = false;
-						f.OnlyOnlineNomenclatures = true;
-					},
-					OpenPageOptions.AsSlaveIgnoreHash,
-					vm =>
-					{
-						vm.SelectionMode = JournalSelectionMode.Single;
-						vm.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(_commonServices);
-						vm.TabName = "Номенклатура на продажу";
-						vm.CalculateQuantityOnStock = true;
-					})
-				.ViewModel;
-
-			journalViewModel.SelectionMode = JournalSelectionMode.Multiple;
-			journalViewModel.OnSelectResult += OnSaleProductsSelectResult;
+			NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, Action<NomenclatureFilterViewModel>>(
+				this,
+				f =>
+				{
+					f.AvailableCategories = NomenclatureEntity.GetCategoriesForSaleToOrder();
+					f.SelectCategory = defaultCategory;
+					f.SelectSaleCategory = SaleCategory.forSale;
+					f.RestrictArchive = false;
+					f.CanChangeShowArchive = false;
+					f.CanChangeOnlyOnlineNomenclatures = false;
+					f.OnlyOnlineNomenclatures = true;
+				},
+				OpenPageOptions.AsSlaveIgnoreHash,
+				vm =>
+				{
+					vm.SelectionMode = JournalSelectionMode.Multiple;
+					vm.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(_commonServices);
+					vm.TabName = "Номенклатура на продажу";
+					vm.CalculateQuantityOnStock = true;
+					vm.OnSelectResult += OnSelectSaleItemsNomenclatures;
+				});
 		}
 		
-		private bool CanAddProductsToTemplate()
+		private void OnSelectSaleItemsNomenclatures(object sender, JournalSelectedEventArgs args)
 		{
-			if(Counterparty == null)
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Для добавления товара на продажу должен быть выбран клиент");
-				return false;
-			}
-
-			if(DeliveryPoint == null && IsSelfDelivery)
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Для добавления товара на продажу должна быть выбрана точка доставки");
-				return false;
-			}
-
-			return true;
-		}
-		
-		private void OnSaleProductsSelectResult(object sender, JournalSelectedEventArgs args)
-		{
-			(sender as JournalViewModelBase).OnSelectResult -= OnSaleProductsSelectResult;
+			(sender as JournalViewModelBase).OnSelectResult -= OnSelectSaleItemsNomenclatures;
 			
-			var selectedNodes = args.SelectedObjects.Cast<NomenclatureJournalNode>().ToList();
+			var selectedNodes = args.GetSelectedObjects<NomenclatureJournalNode>();
 
 			if(!selectedNodes.Any())
 			{
 				return;
 			}
+			
+			var sb = new StringBuilder();
 
 			foreach(var node in selectedNodes)
 			{
-				//_productHandler.TryAddProduct(UoW, Entity, UoW.Session.Get<Nomenclature>(node.Id));
-			}
-		}
-		
-		public virtual void AddOrderItem(
-			IUnitOfWork uow,
-			OnlineOrderTemplateSaleItem saleItem,
-			bool forceUseAlternativePrice = false)
-		{
-			if(SaleItems.Contains(saleItem))
-			{
-				return;
-			}
-			
-			SaleItems.Add(saleItem);
-			Recalculate();
-		}
-		
-		private void Recalculate()
-		{
-			RecalculateWaterPrices();
-		}
-		
-		public virtual void RecalculateWaterPrices()
-		{
-			/*for(var i = 0; i < Products.Count; i++)
-			{
-				if(Products[i].Nomenclature.Category == NomenclatureCategory.water)
+				var addingResult = _saleHandler.TryAddNomenclature(UoW, UoW.Session.Get<Nomenclature>(node.Id));
+
+				if(addingResult.IsFailure)
 				{
-					Products[i].RecalculatePrice();
+					sb.AppendLine(addingResult.GetErrorsString());
 				}
-			}*/
-		}
-		
-		public virtual void RecalculatePrice()
-		{
-			/*if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || CopiedFromUndelivery != null)
-			{
-				return;
 			}
 
-			//TODO надо переделать подбор фиксы с учетом создания заказа из онлайна и установки промокода на позицию с фиксой
-			var fixedPrice = Order.GetFixedPriceOrNull(Nomenclature, TotalCountInOrder);
-
-			if(fixedPrice != null && CopiedFromUndelivery == null)
+			if(sb.Length > 0)
 			{
-				IsFixedPrice = true;
-				if(Price != fixedPrice.Price)
-				{
-					SetPrice(fixedPrice.Price);
-				}
-				return;
+				ShowWarningMessage(sb.ToString(), "Нет возможности добавить все выбранные позиции");
 			}
-
-			IsFixedPrice = false;
-
-			SetPrice(GetPriceByTotalCount());*/
-		}
-		
-		public virtual void SetPrice(decimal price)
-		{
-			//Если цена не отличается от той которая должна быть по прайсам в 
-			//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
-			/*IsUserPrice = (price != GetPriceByTotalCount() && price != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
-
-			price = decimal.Round(price, 2);
-
-			if(Price != price)
-			{
-				Price = price;
-
-				RecalculateDiscount();
-				RecalculateVAT();
-			}*/
 		}
 
 		private void SelectPaymentType()
@@ -437,142 +385,22 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		
 		private void YCmbPromoSets_ItemSelected(object sender, ItemSelectedEventArgs e)
 		{
-			/*if(!(e.SelectedItem is PromotionalSet proSet))
+			if(!(e.SelectedItem is PromotionalSet proSet))
 			{
 				return;
 			}
 
-			if(CanAddProductsToTemplate() && CanAddPromotionalSet(proSet, _freeLoaderChecker, _promotionalSetRepository))
+			var addPromoSetResult = _saleHandler.TryAddPromoSet(UoW, _commonServices.InteractiveService, proSet);
+
+			if(addPromoSetResult.IsFailure)
 			{
-				ActivatePromotionalSet(proSet);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, addPromoSetResult.GetErrorsString());
 			}
 
-			if(!yCmbPromoSets.IsSelectedNot)
+			/*if(!yCmbPromoSets.IsSelectedNot)
 			{
 				yCmbPromoSets.SelectedItem = SpecialComboState.Not;
 			}*/
-		}
-		
-		private void ActivatePromotionalSet(PromotionalSet proSet)
-		{
-			//Добавление спец. действий промонабора
-			/*
-			foreach(var action in proSet.PromotionalSetActions)
-			{
-				action.Activate(Entity);
-			}
-			*/
-			//Добавление номенклатур из промонабора
-			TryAddNomenclatureFromPromoSet(proSet);
-
-			//Entity.ObservablePromotionalSets.Add(proSet);
-		}
-		
-		private void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
-		{
-			/*if(proSet == null || proSet.IsArchive || !proSet.PromotionalSetItems.Any())
-			{
-				return;
-			}
-
-			foreach(var proSetItem in proSet.PromotionalSetItems)
-			{
-				var nomenclature = proSetItem.Nomenclature;
-				if(Entity.OrderItems.Any(x =>
-						!Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
-					&& nomenclature.Category == NomenclatureCategory.master)
-				{
-					MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
-					return;
-				}
-
-				if(Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
-					&& !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category))
-				{
-					MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
-					return;
-				}
-
-				AddProduct(
-					UoW,
-					proSetItem.Nomenclature,
-					proSetItem.Count,
-					proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
-					proSetItem.IsDiscountInMoney,
-					true,
-					null,
-					proSetItem.PromoSet
-				);
-			}*/
-			
-			//TODO уточнить по поводу расчета стоимости доставки
-		}
-		
-		/// <summary>
-		/// Проверка на возможность добавления промонабора в заказ
-		/// </summary>
-		/// <returns><c>true</c>, если можно добавить промонабор,
-		/// <c>false</c> если нельзя.</returns>
-		/// <param name="proSet">Промонабор (промонабор)</param>
-		public virtual bool CanAddPromotionalSet(
-			PromotionalSet proSet,
-			IFreeLoaderChecker freeLoaderChecker,
-			IPromotionalSetRepository promotionalSetRepository)
-		{
-			/*if(PromotionalSets.Any(x => x.PromotionalSetForNewClients && proSet.PromotionalSetForNewClients))
-			{
-				_commonServices.InteractiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					"В заказ нельзя добавить два промо-набора для новых клиентов");
-				return false;
-			}*/
-
-			if(IsSelfDelivery)
-			{
-				return true;
-			}
-
-			if(proSet.PromotionalSetForNewClients
-				&& freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(UoW, IsSelfDelivery, Counterparty, DeliveryPoint))
-			{
-				var message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
-				
-				return false;
-			}
-
-			var proSetDict = new Dictionary<int, int[]>();//promotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW);
-
-			if(!proSet.PromotionalSetForNewClients | !proSetDict.Any())
-			{
-				return true;
-			}
-
-			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
-			var sb = new StringBuilder(
-				$"Для адреса \"{address}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n");
-			
-			foreach(var d in proSetDict)
-			{
-				var proSetTitle = UoW.GetById<PromotionalSet>(d.Key).ShortTitle;
-				var orders = string.Join(
-					" ,",
-					UoW.GetById<Order>(d.Value).Select(o => o.Title)
-				);
-				sb.AppendLine($"– {proSetTitle}: {orders}");
-			}
-			
-			sb.AppendLine($"Вы уверены, что хотите добавить \"{proSet.Title}\"");
-			
-			return _commonServices.InteractiveService.Question(sb.ToString());
-		}
-	}
-	
-	public class OnlineOrderTemplateAddProductValidator : IAddProductValidator
-	{
-		public Result Validate(Nomenclature addingNomenclature, IAddSaleItemSource source)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

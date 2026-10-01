@@ -197,7 +197,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
-			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderWithoutDeliveryForAdvancePaymentItems;
+			treeItems.ItemsDataSource = ViewModel.Entity.AdvanceSaleItems;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
 
 			orderitemdiscountreasonsview.ViewModel = ViewModel.OrderItemDiscountReasonsViewModel;

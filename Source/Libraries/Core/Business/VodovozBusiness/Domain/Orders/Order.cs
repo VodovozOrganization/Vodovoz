@@ -18,6 +18,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Services;
@@ -509,27 +510,29 @@ namespace Vodovoz.Domain.Orders
 		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments => 
 			_observableOrderDocuments?.ReconnectToObject(OrderDocuments) ?? (_observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments));
 
-		private IList<OrderItem> orderItems = new List<OrderItem>();
+		private ObservableList<OrderItem> _orderItems = new ObservableList<OrderItem>();
 
 		[Display(Name = "Строки заказа")]
 		[OrderTracker1c]
-		public virtual new IList<OrderItem> OrderItems {
-			get => orderItems;
-			set => SetField(ref orderItems, value, () => OrderItems);
+		public virtual new ObservableList<OrderItem> OrderItems
+		{
+			get => _orderItems;
+			set => SetField(ref _orderItems, value, () => OrderItems);
+			//TODO была подписка на ListContentChanged
 		}
 
-		private GenericObservableList<OrderItem> observableOrderItems;
+		/*private GenericObservableList<OrderItem> OrderItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<OrderItem> ObservableOrderItems {
+		public virtual GenericObservableList<OrderItem> OrderItems {
 			get {
-				if(observableOrderItems == null) {
-					observableOrderItems = new GenericObservableList<OrderItem>(orderItems);
-					observableOrderItems.ListContentChanged += ObservableOrderItems_ListContentChanged;
+				if(OrderItems == null) {
+					OrderItems = new GenericObservableList<OrderItem>(_orderItems);
+					OrderItems.ListContentChanged += OrderItems_ListContentChanged;
 				}
 
-				return observableOrderItems;
+				return OrderItems;
 			}
-		}
+		}*/
 
 		private IList<OrderEquipment> orderEquipments = new List<OrderEquipment>();
 
@@ -715,7 +718,7 @@ namespace Vodovoz.Domain.Orders
 					if(!IsLoadedFrom1C && Trifle == null && (PaymentType == PaymentType.Cash) && this.OrderSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
-					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
+					if(OrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
 						yield return new ValidationResult("В заказе должно быть указано количество во всех позициях товара и оборудования");
 					//если ни у точки доставки, ни у контрагента нет ни одного номера телефона
 					if(!IsLoadedFrom1C && !((DeliveryPoint != null && DeliveryPoint.Phones.Any()) || Client.Phones.Any()))
@@ -739,17 +742,17 @@ namespace Vodovoz.Domain.Orders
 					
 					if(!IsCopiedFromUndelivery)
 					{
-						OrderItemsPriceValidation(ObservableOrderItems, incorrectPriceItems, goodsPriceCalculator);
+						OrderItemsPriceValidation(OrderItems, incorrectPriceItems, goodsPriceCalculator);
 					}
 					else //если копия из недовоза сверяем цены с переносимым заказом
 					{
-						var currentCopiedItems = ObservableOrderItems.Where(oi => oi.CopiedFromUndelivery != null).ToArray();
+						var currentCopiedItems = OrderItems.Where(oi => oi.CopiedFromUndelivery != null).ToArray();
 					
 						//сначала проверяем все позиции у которых можно менять цену из старого заказа
 						CopiedOrderItemsPriceValidation(currentCopiedItems, incorrectPriceItems);
 
 						//затем смотрим у новых добавленных, если таковые имеются
-						var newAddedItems = ObservableOrderItems.Where(oi => oi.CopiedFromUndelivery == null).ToArray();
+						var newAddedItems = OrderItems.Where(oi => oi.CopiedFromUndelivery == null).ToArray();
 
 						if(newAddedItems.Any())
 						{
@@ -886,10 +889,10 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult($"В заказе №{Id} с оплатой по \"{PaymentType.GetEnumDisplayName(true)}\"  отсутствует номер оплаты.");
 			}
 
-			if (ObservableOrderItems.Any(x => x.Discount > 0 && !x.DiscountReasons.Any() && x.PromoSet == null))
+			if (OrderItems.Any(x => x.Discount > 0 && !x.DiscountReasons.Any() && x.PromoSet == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
-			if(ObservableOrderItems.Any(x => x.ActualSum < 0))
+			if(OrderItems.Any(x => x.ActualSum < 0))
 			{
 				yield return new ValidationResult(
 					"Сумма строки заказа не должна быть отрицательной",
@@ -1336,7 +1339,7 @@ namespace Vodovoz.Domain.Orders
 			_routeListItemRepository.WasOrderInAnyRouteList(UoW, this)
 				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
 
-		public virtual bool HasItemsNeededToLoad => ObservableOrderItems.Any(orderItem =>
+		public virtual bool HasItemsNeededToLoad => OrderItems.Any(orderItem =>
 				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderItem.Nomenclature.Category) && !orderItem.Nomenclature.NoDelivery)
 			|| ObservableOrderEquipments.Any(orderEquipment =>
 				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderEquipment.Nomenclature.Category) && !orderEquipment.Nomenclature.NoDelivery);
@@ -1366,7 +1369,7 @@ namespace Vodovoz.Domain.Orders
 			.Count() > 0;
 
 		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems =>
-			ObservableOrderItems.Any(x =>
+			OrderItems.Any(x =>
 			x.Nomenclature.IsAccountableInTrueMark && x.Nomenclature.Gtins.Any() && x.Count > 0);
 
 		/// <summary>
@@ -1591,7 +1594,7 @@ namespace Vodovoz.Domain.Orders
 				RefreshContactPhone();
 			}
 
-			if(orderItems.Any(x => x.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId))
+			if(_orderItems.Any(x => x.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				saleHandler.TrySetMasterCallNomenclaturePrice(UoW);
 			}
@@ -1625,7 +1628,7 @@ namespace Vodovoz.Domain.Orders
 				message = "Дата договора будет изменена при сохранении текущего заказа!";
 			}
 
-			if(orderItems.Any(x => x.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId))
+			if(_orderItems.Any(x => x.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				saleHandler.SetSource(this);
 				saleHandler.TrySetMasterCallNomenclaturePrice(UoW);
@@ -1756,7 +1759,7 @@ namespace Vodovoz.Domain.Orders
 				stockBottleDiscountReason = GetDiscountReasonStockBottle(orderSettings, stockBottleDiscountPercent);
 			}
 
-			foreach(OrderItem item in ObservableOrderItems
+			foreach(OrderItem item in OrderItems
 				.Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
 				.Where(x => !x.Nomenclature.IsDisposableTare)
 				.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L)) {
@@ -1808,7 +1811,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool HasWater()
 		{
 			var categories = Nomenclature.GetCategoriesRequirementForWaterAgreement();
-			return ObservableOrderItems.Any(x => categories.Contains(x.Nomenclature.Category));
+			return OrderItems.Any(x => categories.Contains(x.Nomenclature.Category));
 		}
 
 		public virtual void CheckAndSetOrderIsService()
@@ -1829,7 +1832,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual int GetTotalWater19LCount(bool doNotCountWaterFromPromoSets = false, bool doNotCountPresentsDiscount = false)
 		{
-			var water19L = ObservableOrderItems.Where(x => x.Nomenclature.IsWater19L);
+			var water19L = OrderItems.Where(x => x.Nomenclature.IsWater19L);
 
 			if(doNotCountWaterFromPromoSets)
 			{
@@ -1967,7 +1970,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ClearPromoSetReferences()
 		{
-			foreach(var item in ObservableOrderItems)
+			foreach(var item in OrderItems)
 			{
 				if(item.PromoSet is null)
 				{
@@ -1980,7 +1983,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void PromotionalSetRemovedWithoutOrderItem(PromotionalSet promoSet, IOrderSaleHandler saleHandler)
 		{
-			foreach(var item in ObservableOrderItems)
+			foreach(var item in OrderItems)
 			{
 				if(item.PromoSet != promoSet)
 				{
@@ -2087,7 +2090,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ClearOrderItemsList()
 		{
-			ObservableOrderItems.Clear();
+			OrderItems.Clear();
 			UpdateDocuments();
 		}
 
@@ -2363,7 +2366,7 @@ namespace Vodovoz.Domain.Orders
 			if(Client == null || Client.PersonType == PersonType.legal)
 				return 0;
 
-			var waterItemsCount = (int)ObservableOrderItems.Select(item => item)
+			var waterItemsCount = (int)OrderItems.Select(item => item)
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 				.Sum(item => item.Count);
 
@@ -3007,7 +3010,7 @@ namespace Vodovoz.Domain.Orders
 			                 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
 			                 && validationContext.Items.ContainsKey("uowFactory"))
 			{
-				bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
+				bool hasMaster = OrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
 				var orderCheckedOutsideSession = _orderRepository
 					.GetSameOrderForDateAndDeliveryPoint((IUnitOfWorkFactory)validationContext.Items["uowFactory"],
@@ -3065,14 +3068,14 @@ namespace Vodovoz.Domain.Orders
 			if(DeliveryPoint == null)
 				return null;
 			Nomenclature defaultWater = DeliveryPoint.DefaultWaterNomenclature;
-			var orderWaters = ObservableOrderItems.Where(w => w.Nomenclature.Category == NomenclatureCategory.water && !w.Nomenclature.IsDisposableTare);
+			var orderWaters = OrderItems.Where(w => w.Nomenclature.Category == NomenclatureCategory.water && !w.Nomenclature.IsDisposableTare);
 
 			//Если имеется для точки доставки номенклатура по умолчанию,
 			//если имеется вода в заказе и ни одна 19 литровая вода в заказе
 			//не совпадает с номенклатурой по умолчанию, то сообщение о штрафе!
 			if(defaultWater != null
 			   && orderWaters.Any()
-			   && !ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.water && !i.Nomenclature.IsDisposableTare
+			   && !OrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.water && !i.Nomenclature.IsDisposableTare
 												   && i.Nomenclature == defaultWater)) {
 
 				//список вод в заказе за исключением дефолтной для сообщения о штрафе
@@ -4192,7 +4195,7 @@ namespace Vodovoz.Domain.Orders
 			var hasMarkedOrderItem = false;
 			var hasUnmarkedOrderItem = false;
 
-			foreach(var orderItem in ObservableOrderItems)
+			foreach(var orderItem in OrderItems)
 			{
 				if(!hasMarkedOrderItem)
 				{
@@ -4214,7 +4217,7 @@ namespace Vodovoz.Domain.Orders
 			OnPropertyChanged(nameof(OrderCashSum));
 		}
 
-		protected internal virtual void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
+		protected internal virtual void OrderItems_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(OrderSum));
 			OnPropertyChanged(nameof(OrderCashSum));
@@ -4536,7 +4539,7 @@ namespace Vodovoz.Domain.Orders
 		#region Obsolete
 
 		[Obsolete("Должно быть не актуально после ввода новой системы расчёта ЗП (I-2150)")]
-		public virtual decimal MoneyForMaster => ObservableOrderItems
+		public virtual decimal MoneyForMaster => OrderItems
 			.Where(i => i.Nomenclature.Category == NomenclatureCategory.master && i.ActualCount.HasValue)
 			.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount.Value * i.Price);
 

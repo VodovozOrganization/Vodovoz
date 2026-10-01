@@ -58,7 +58,7 @@ namespace CustomerAppsApi.V2.Controllers
 
 				if(result.IsFailure)
 				{
-					return BadRequest(result.GetErrorsString());
+					return BadRequest(result.GetNumberingErrorsString());
 				}
 
 				return Ok();

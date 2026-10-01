@@ -572,7 +572,7 @@ namespace Vodovoz.ViewModels.TrueMark
 
 				if(result.IsFailure)
 				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning, result.GetErrorsString(), "Коды не перенесены");
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, result.GetNumberingErrorsString(), "Коды не перенесены");
 					return;
 				}
 

@@ -10,6 +10,10 @@ namespace VodovozBusiness.Domain.Sale
 	public interface ISaleSource : IFreeDeliveryPrice
 	{
 		/// <summary>
+		/// Идентификатор
+		/// </summary>
+		int Id { get; }
+		/// <summary>
 		/// Клиент
 		/// </summary>
 		Counterparty Counterparty { get; }

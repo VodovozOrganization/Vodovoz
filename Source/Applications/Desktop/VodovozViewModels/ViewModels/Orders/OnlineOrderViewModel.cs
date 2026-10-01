@@ -582,7 +582,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 			if(result.IsFailure)
 			{
-				ValidationErrors = result.GetErrorsString();
+				ValidationErrors = result.GetNumberingErrorsString();
 			}
 			
 			OnPropertyChanged(nameof(ValidationErrors));
