@@ -17,6 +17,11 @@ using QS.Project.Core;
 using QS.Services;
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.Config;
+using CustomerOrdersApi.Library.Default.Extensions;
+using CustomerOrdersApi.Library.V4.Extensions;
+using CustomerOrdersApi.Library.V5.Extensions;
+using CustomerOrdersApi.Library.V6.Extensions;
+using CustomerOrdersApi.Library.V7.Extensions;
 using Osrm;
 using TransactionalOutbox.Abstractions;
 using Vodovoz;
@@ -83,7 +88,7 @@ namespace CustomerOrdersApi
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 				.AddPaymentApiClients(Configuration)
-				.AddPaymentRefundServices();
+				;
 
 			services.AddStaticScopeForEntity();
 			services.AddStaticHistoryTracker();

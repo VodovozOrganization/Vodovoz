@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.V4.Extensions;
 using CustomerOrdersApi.Library.V4.Factories;
 using CustomerOrdersApi.Library.V4.Repositories;
 using Microsoft.Extensions.Configuration;
