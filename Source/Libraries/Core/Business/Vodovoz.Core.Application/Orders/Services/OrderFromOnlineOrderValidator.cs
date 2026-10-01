@@ -118,9 +118,18 @@ namespace Vodovoz.Core.Application.Orders.Services
 				}
 			}
 			
-			if(_onlineOrder.DeliveryDate < DateTime.Today && _onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
+			var now = DateTime.Now;
+			if(_onlineOrder.DeliveryDate < now.Date && _onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
 			{
 				_validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDeliveryDate);
+			}
+			else if(_onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New
+				&& !_onlineOrder.IsSelfDelivery
+				&& !_onlineOrder.IsFastDelivery
+				&& _onlineOrder.DeliverySchedule != null
+				&& _onlineOrder.DeliveryDate.Date.Add(_onlineOrder.DeliverySchedule.To) <= now)
+			{
+				_validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.DeliveryIntervalExpired);
 			}
 
 			if(!string.IsNullOrEmpty(onlineOrder.ContactPhone))
