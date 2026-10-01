@@ -11,6 +11,7 @@ using CustomerOrdersApi.Library.V4.Extensions;
 using CustomerOrdersApi.Library.V5.Extensions;
 using CustomerOrdersApi.Library.V6.Extensions;
 using CustomerOrdersApi.Library.V7.Extensions;
+using CustomerOrdersApi.Library.V8.Extensions;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -79,6 +80,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddVersion5()
 						.AddVersion6()
 						.AddVersion7()
+						.AddVersion8()
 						.AddCoreApplicationOrderServices()
 						.AddCoreDataRepositories()
 						.AddOsrm()

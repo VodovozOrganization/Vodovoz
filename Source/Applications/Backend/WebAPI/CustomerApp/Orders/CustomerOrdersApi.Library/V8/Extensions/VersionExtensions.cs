@@ -31,7 +31,7 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 			return services;
 		}
 		
-		private static void AddTopologyV8(IRabbitMqBusFactoryConfigurator configurator)
+		public static void AddTopologyV8(IRabbitMqBusFactoryConfigurator configurator)
 		{
 			configurator.Message<Dto.Orders.CreatingOnlineOrder>(x => x.SetEntityName(Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
 			configurator.Publish<Dto.Orders.CreatingOnlineOrder>(x =>

@@ -22,6 +22,7 @@ using CustomerOrdersApi.Library.V4.Extensions;
 using CustomerOrdersApi.Library.V5.Extensions;
 using CustomerOrdersApi.Library.V6.Extensions;
 using CustomerOrdersApi.Library.V7.Extensions;
+using CustomerOrdersApi.Library.V8.Extensions;
 using Osrm;
 using TransactionalOutbox.Abstractions;
 using Vodovoz;
@@ -80,6 +81,7 @@ namespace CustomerOrdersApi
 				.AddVersion5()
 				.AddVersion6()
 				.AddVersion7()
+				.AddVersion8()
 				.AddVersioning()
 				.AddOsrm()
 				.AddSwaggerGen(opt =>

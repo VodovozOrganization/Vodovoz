@@ -70,6 +70,7 @@ namespace CustomerOrdersApi.Library
 				V5.Extensions.VersionExtensions.AddTopologyV5(configurator);
 				V6.Extensions.VersionExtensions.AddTopologyV6(configurator);
 				V7.Extensions.VersionExtensions.AddTopologyV7(configurator);
+				V8.Extensions.VersionExtensions.AddTopologyV8(configurator);
 
 				configurator.ConfigureEndpoints(context);
 			});
