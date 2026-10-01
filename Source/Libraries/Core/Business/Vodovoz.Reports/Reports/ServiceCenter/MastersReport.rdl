@@ -901,7 +901,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox39">
-                          <Value>={expense_advance}</Value>
+                          <Value>=Iif({expense_advance} = null, "", Format({expense_advance}, "#,##0"))</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -912,7 +912,6 @@
                             <BorderWidth />
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Top</VerticalAlign>
-                            <Format>#,##0</Format>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>
