@@ -79,6 +79,20 @@ namespace Vodovoz.Views.Edo
 
 			yhboxTransferContent.HeightRequest = 140;
 
+			yhboxTransferTasks.Binding
+				.AddBinding(ViewModel, vm => vm.HasTransfers, w => w.Visible)
+				.InitializeFromSource();
+
+			yhboxTransferContent.Binding
+				.AddBinding(ViewModel, vm => vm.HasTransfers, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelNoTransfers.Binding
+				.AddSource(ViewModel)
+				.AddFuncBinding(vm => !vm.HasTransfers, w => w.Visible)
+				.AddBinding(vm => vm.NoTransfersMessage, w => w.LabelProp)
+				.InitializeFromSource();
+
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}
 
@@ -115,6 +129,14 @@ namespace Vodovoz.Views.Edo
 					var transferView = new EdoInOrderDocflowsStageView();
 					transferView.ViewModel = docflows;
 					return transferView;
+				case EdoInOrderTransferWaitingRequestsStageViewModel waitingRequests:
+					var waitingRequestsView = new EdoInOrderTransferWaitingRequestsStageView();
+					waitingRequestsView.ViewModel = waitingRequests;
+					return waitingRequestsView;
+				case EdoInOrderTransferPreparingStageViewModel preparing:
+					var preparingView = new EdoInOrderTransferPreparingStageView();
+					preparingView.ViewModel = preparing;
+					return preparingView;
 				default:
 					throw new NotSupportedException($"Не поддерживаемый тип стадии: " +
 						$"{ViewModel.TransferStageViewModel.GetType()}");
