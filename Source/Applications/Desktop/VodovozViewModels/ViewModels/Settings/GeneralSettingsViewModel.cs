@@ -22,6 +22,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
+using Vodovoz.Settings.Edo;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Mango;
@@ -52,6 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly IValidator _validator;
 		private readonly IClosingDeliveriesSettings _closingDeliveriesSettings;
 		private readonly IMangoSettings _mangoSettings;
+		private readonly IEdoClosedPeriodSettings _edoClosedPeriodSettings;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEEVMBuilder;
 
@@ -125,7 +127,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			IDebtorsSettings debtorsSettings,
 			IValidator validator,
 			IClosingDeliveriesSettings closingDeliveriesSettings,
-			IMangoSettings mangoSettings) : base(commonServices?.InteractiveService, navigation)
+			IMangoSettings mangoSettings,
+			IEdoClosedPeriodSettings edoClosedPeriodSettings) : base(commonServices?.InteractiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -142,6 +145,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
 			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
+			_edoClosedPeriodSettings = edoClosedPeriodSettings ?? throw new ArgumentNullException(nameof(edoClosedPeriodSettings));
 			_vatRateEEVMBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
@@ -247,6 +251,20 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ClosingDeliveriesNotificationEmailsTo = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmailsTo;
 			SaveClosingDeliveriesNotificationEmailsCommand = new DelegateCommand(SaveClosingDeliveriesNotificationEmails, () => CanMassiveChangePaymentDeferment);
 			SaveClosingDeliveriesNotificationEmailsCommand.CanExecuteChangedWith(this, vm => vm.CanMassiveChangePaymentDeferment);
+
+			CanEditEdoClosedPeriodSettings =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Core.Domain.Permissions.BookkeeppingPermissions.CanSendEdoDocumentsForPreviousPeriods);
+			Q1ClosingDate = EdoClosedPeriodHelper.ToDayMonthString(
+				_edoClosedPeriodSettings.Q1ClosingDayMonth.Day, _edoClosedPeriodSettings.Q1ClosingDayMonth.Month);
+			Q2ClosingDate = EdoClosedPeriodHelper.ToDayMonthString(
+				_edoClosedPeriodSettings.Q2ClosingDayMonth.Day, _edoClosedPeriodSettings.Q2ClosingDayMonth.Month);
+			Q3ClosingDate = EdoClosedPeriodHelper.ToDayMonthString(
+				_edoClosedPeriodSettings.Q3ClosingDayMonth.Day, _edoClosedPeriodSettings.Q3ClosingDayMonth.Month);
+			Q4ClosingDate = EdoClosedPeriodHelper.ToDayMonthString(
+				_edoClosedPeriodSettings.Q4ClosingDayMonth.Day, _edoClosedPeriodSettings.Q4ClosingDayMonth.Month);
+			SaveEdoClosedPeriodSettingsCommand = new DelegateCommand(SaveEdoClosedPeriodSettings, () => CanEditEdoClosedPeriodSettings);
+			SaveEdoClosedPeriodSettingsCommand.CanExecuteChangedWith(this, vm => vm.CanEditEdoClosedPeriodSettings);
 
 			LettersOfClaimTimeoutDays = _debtorsSettings.LettersOfClaimTimeoutDays;
 			ClaimDocumentCreatedBy = _debtorsSettings.ClaimDocumentCreatedBy;
@@ -1524,7 +1542,94 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
-		#endregion Уведомление о блокировке поставок		
+		#endregion Уведомление о блокировке поставок
+
+		#region Даты окончания кварталов для закрытия бухгалтерских периодов ЭДО
+
+		public bool CanEditEdoClosedPeriodSettings
+		{
+			get => _canEditEdoClosedPeriodSettings;
+			set => SetField(ref _canEditEdoClosedPeriodSettings, value);
+		}
+		private bool _canEditEdoClosedPeriodSettings;
+
+		/// <summary>
+		/// Дата закрытия I квартала в формате ДД.ММ
+		/// </summary>
+		public string Q1ClosingDate
+		{
+			get => _q1ClosingDate;
+			set => SetField(ref _q1ClosingDate, value);
+		}
+		private string _q1ClosingDate;
+
+		/// <summary>
+		/// Дата закрытия II квартала в формате ДД.ММ
+		/// </summary>
+		public string Q2ClosingDate
+		{
+			get => _q2ClosingDate;
+			set => SetField(ref _q2ClosingDate, value);
+		}
+		private string _q2ClosingDate;
+
+		/// <summary>
+		/// Дата закрытия III квартала в формате ДД.ММ
+		/// </summary>
+		public string Q3ClosingDate
+		{
+			get => _q3ClosingDate;
+			set => SetField(ref _q3ClosingDate, value);
+		}
+		private string _q3ClosingDate;
+
+		/// <summary>
+		/// Дата закрытия IV квартала в формате ДД.ММ
+		/// </summary>
+		public string Q4ClosingDate
+		{
+			get => _q4ClosingDate;
+			set => SetField(ref _q4ClosingDate, value);
+		}
+		private string _q4ClosingDate;
+
+		public DelegateCommand SaveEdoClosedPeriodSettingsCommand { get; }
+
+		private void SaveEdoClosedPeriodSettings()
+		{
+			if(!TryParseClosingDate(Q1ClosingDate, "I", out var q1Day, out var q1Month)
+				|| !TryParseClosingDate(Q2ClosingDate, "II", out var q2Day, out var q2Month)
+				|| !TryParseClosingDate(Q3ClosingDate, "III", out var q3Day, out var q3Month)
+				|| !TryParseClosingDate(Q4ClosingDate, "IV", out var q4Day, out var q4Month))
+			{
+				return;
+			}
+
+			_edoClosedPeriodSettings.UpdateQ1ClosingDayMonth(q1Day, q1Month);
+			_edoClosedPeriodSettings.UpdateQ2ClosingDayMonth(q2Day, q2Month);
+			_edoClosedPeriodSettings.UpdateQ3ClosingDayMonth(q3Day, q3Month);
+			_edoClosedPeriodSettings.UpdateQ4ClosingDayMonth(q4Day, q4Month);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		private bool TryParseClosingDate(string value, string quarterName, out int day, out int month)
+		{
+			if(EdoClosedPeriodHelper.TryParseDayMonth(value, out day, out month)
+				&& day >= 1
+				&& day <= DateTime.DaysInMonth(2001, month))
+			{
+				return true;
+			}
+
+			day = 0;
+			month = 0;
+			_commonServices.InteractiveService.ShowMessage(
+				ImportanceLevel.Error,
+				$"Некорректная дата закрытия {quarterName} квартала: \"{value}\". Укажите дату в формате ДД.ММ.");
+			return false;
+		}
+
+		#endregion Даты окончания кварталов для закрытия бухгалтерских периодов ЭДО		
 
 		public EntityJournalOpener EntityJournalOpener { get; }
 

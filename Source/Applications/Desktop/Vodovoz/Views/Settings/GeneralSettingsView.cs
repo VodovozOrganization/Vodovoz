@@ -733,6 +733,69 @@ namespace Vodovoz.Views.Settings
 		private void ConfigureAccountingSettings()
 		{
 			paymentWriteOffFinancialExpenseCatogories.ViewModel = ViewModel.PaymentWriteOffAllowedFinancialExpenseCategoriesViewModel;
+			ConfigureEdoClosedPeriodSettings();
+		}
+
+		private void ConfigureEdoClosedPeriodSettings()
+		{
+			var accountingPage = paymentWriteOffFinancialExpenseCatogories;
+			ynotebookData.Remove(accountingPage);
+
+			var vbox = new yVBox { Spacing = 6, BorderWidth = 6 };
+			vbox.Add(accountingPage);
+			var pageChild = (Gtk.Box.BoxChild)vbox[accountingPage];
+			pageChild.Position = 0;
+			pageChild.Expand = true;
+			pageChild.Fill = true;
+
+			var frame = new Gtk.Frame("Даты окончания кварталов (закрытие бухгалтерских периодов) для ЭДО");
+			var frameBox = new yVBox { Spacing = 6, BorderWidth = 6 };
+			frame.Add(frameBox);
+
+			frameBox.Add(CreateEdoClosingDateRow("Закрытие I квартала (январь-март), ДД.ММ:", vm => vm.Q1ClosingDate));
+			frameBox.Add(CreateEdoClosingDateRow("Закрытие II квартала (апрель-июнь), ДД.ММ:", vm => vm.Q2ClosingDate));
+			frameBox.Add(CreateEdoClosingDateRow("Закрытие III квартала (июль-сентябрь), ДД.ММ:", vm => vm.Q3ClosingDate));
+			frameBox.Add(CreateEdoClosingDateRow("Закрытие IV квартала (октябрь-декабрь), ДД.ММ:", vm => vm.Q4ClosingDate));
+
+			var saveButton = new yButton { Label = "Сохранить даты окончания кварталов" };
+			saveButton.BindCommand(ViewModel.SaveEdoClosedPeriodSettingsCommand);
+			frameBox.Add(saveButton);
+
+			vbox.Add(frame);
+			var frameChild = (Gtk.Box.BoxChild)vbox[frame];
+			frameChild.Position = 1;
+			frameChild.Expand = false;
+			frameChild.Fill = false;
+
+			ynotebookData.InsertPage(vbox, labelAccountingPage, 4);
+			vbox.ShowAll();
+		}
+
+		private Gtk.HBox CreateEdoClosingDateRow(
+			string labelText,
+			System.Linq.Expressions.Expression<System.Func<GeneralSettingsViewModel, object>> viewModelProperty)
+		{
+			var hbox = new Gtk.HBox { Spacing = 6 };
+
+			var label = new yLabel { LabelProp = labelText };
+			hbox.Add(label);
+			var labelChild = (Gtk.Box.BoxChild)hbox[label];
+			labelChild.Position = 0;
+			labelChild.Expand = false;
+			labelChild.Fill = false;
+
+			var entry = new yEntry { MaxLength = 5, WidthChars = 6 };
+			entry.Binding
+				.AddBinding(ViewModel, viewModelProperty, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditEdoClosedPeriodSettings, w => w.Sensitive)
+				.InitializeFromSource();
+			hbox.Add(entry);
+			var entryChild = (Gtk.Box.BoxChild)hbox[entry];
+			entryChild.Position = 1;
+			entryChild.Expand = false;
+			entryChild.Fill = false;
+
+			return hbox;
 		}
 
 		private void OnNotepadRadiobuttonToggled(object sender, EventArgs e)

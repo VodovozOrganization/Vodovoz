@@ -1,14 +1,17 @@
 using EdoService.Library;
 using Gamma.Binding.Core;
 using QS.Dialog;
+using QS.DomainModel.UoW;
 using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Settings.Edo;
 
 namespace Vodovoz.ViewModels.Edo
 {
@@ -17,15 +20,21 @@ namespace Vodovoz.ViewModels.Edo
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEdoService _edoService;
 		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly IEdoClosedPeriodSettings _edoClosedPeriodSettings;
+		private readonly IUnitOfWorkFactory _uowFactory;
 
 		public EdoDocumentActionsFactory(
 			IInteractiveService interactiveService,
 			IEdoService edoService,
-			ICurrentPermissionService currentPermissionService)
+			ICurrentPermissionService currentPermissionService,
+			IEdoClosedPeriodSettings edoClosedPeriodSettings,
+			IUnitOfWorkFactory uowFactory)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_edoClosedPeriodSettings = edoClosedPeriodSettings ?? throw new ArgumentNullException(nameof(edoClosedPeriodSettings));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
 		public IEnumerable<BusyCommand> CreateActions(
@@ -84,6 +93,11 @@ namespace Vodovoz.ViewModels.Edo
 				"Переотправить",
 				() =>
 				{
+					if(IsResendBlockedByClosedPeriod(document.TaskId))
+					{
+						return;
+					}
+
 					var result = _edoService.ResendNewEdoTask(document.TaskId);
 					ShowResult(result);
 
@@ -119,6 +133,11 @@ namespace Vodovoz.ViewModels.Edo
 
 		private void ResendUpd(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
+			if(IsResendBlockedByClosedPeriod(document.TaskId))
+			{
+				return;
+			}
+
 			if(IsCanResendViaOrderDocumentSendEvent(document))
 			{
 				ResendViaOrderDocumentSendEvent(document, onActionCompleted);
@@ -195,6 +214,11 @@ namespace Vodovoz.ViewModels.Edo
 
 		private void ResendUpdWithCancellation(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
+			if(IsResendBlockedByClosedPeriod(document.TaskId))
+			{
+				return;
+			}
+
 			if(!_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentWithCancellation))
 			{
 				_interactiveService.ShowMessage(
@@ -222,6 +246,11 @@ namespace Vodovoz.ViewModels.Edo
 
 		private void ResendUpdWithCodesFromPool(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
+			if(IsResendBlockedByClosedPeriod(document.TaskId))
+			{
+				return;
+			}
+
 			if(!_interactiveService.Question(
 				"Документ будет переотправлен с подбором новых кодов ЧЗ из пула. Продолжить?"))
 			{
@@ -257,6 +286,11 @@ namespace Vodovoz.ViewModels.Edo
 					"Переобработать проблему",
 					() =>
 					{
+						if(IsResendBlockedByClosedPeriod(document.TaskId))
+						{
+							return;
+						}
+
 						var result = _edoService.RehandleNewReceiptDocumentWithProblem(document.TaskId);
 						if(result.IsSuccess)
 						{
@@ -284,7 +318,15 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				actions.Add(new BusyCommand(
 					"Переотправить",
-					() => ShowResult(_edoService.TryResendUpdDocument(document.TaskId))
+					() =>
+					{
+						if(IsResendBlockedByClosedPeriod(document.TaskId))
+						{
+							return;
+						}
+
+						ShowResult(_edoService.TryResendUpdDocument(document.TaskId));
+					}
 				));
 			}
 		}
@@ -298,13 +340,66 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				actions.Add(new BusyCommand(
 					"Переотправить",
-					() => ShowResult(_edoService.TryResendReceiptDocument(document.TaskId))
+					() =>
+					{
+						if(IsResendBlockedByClosedPeriod(document.TaskId))
+						{
+							return;
+						}
+
+						ShowResult(_edoService.TryResendReceiptDocument(document.TaskId));
+					}
 				));
 			}
 		}
 
-		private void ShowErrorMessage(IEnumerable<Error> errors)
+		private bool IsResendBlockedByClosedPeriod(int taskId)
 		{
+			var accountingDate = GetAccountingDate(taskId);
+
+			if(!accountingDate.HasValue)
+			{
+				return false;
+			}
+
+			if(!_edoClosedPeriodSettings.IsClosedPeriod(accountingDate.Value))
+			{
+				return false;
+			}
+
+			if(_currentPermissionService.ValidatePresetPermission(
+				BookkeeppingPermissions.CanSendEdoDocumentsForPreviousPeriods))
+			{
+				return false;
+			}
+
+			_interactiveService.ShowMessage(ImportanceLevel.Error,
+				"Не удалось переотправить документ.\nПричина:\nДокумент в закрытом бухгалтерском периоде. "
+				+ "Для переотправки обратитесь в бухгалтерию");
+			return true;
+		}
+
+		private DateTime? GetAccountingDate(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var task = uow.GetById<EdoTask>(taskId);
+
+				if(task is OrderEdoTask orderTask && orderTask.FormalEdoRequest?.Order?.DeliveryDate != null)
+				{
+					return orderTask.FormalEdoRequest.Order.DeliveryDate;
+				}
+
+				if(task is ReceiptEdoTask receiptTask && receiptTask.FiscalDocuments.Any())
+				{
+					return receiptTask.FiscalDocuments.Max(x => x.FiscalTime ?? x.CheckoutTime);
+				}
+
+				return task?.CreationTime;
+			}
+		}
+
+		private void ShowErrorMessage(IEnumerable<Error> errors)		{
 			_interactiveService.ShowMessage(
 				ImportanceLevel.Error,
 				"Не удалось переотправить документ.\nПричины:\n - " +
