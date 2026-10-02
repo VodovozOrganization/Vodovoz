@@ -17,5 +17,7 @@ namespace Edo.Common
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task SaveCodeToPool(TrueMarkProductCode productCode, CancellationToken cancellationToken);
+
+		Task SavePoolResultCodeToPool(TrueMarkProductCode productCode, CancellationToken cancellationToken);
 	}
 }
