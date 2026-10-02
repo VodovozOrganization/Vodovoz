@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V7;
+﻿using DriverApi.Contracts.V7;
 using DriverApi.Contracts.V7.Requests;
 using DriverApi.Contracts.V7.Responses;
 using DriverAPI.Library.Helpers;
@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 using IApiRouteListService = DriverAPI.Library.V7.Services.IRouteListService;
 using IRouteListSpecialConditionsService = Vodovoz.Services.Logistics.IRouteListSpecialConditionsService;
 using IRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
@@ -163,6 +164,7 @@ namespace DriverAPI.Controllers.V7
 		/// </summary>
 		/// <returns></returns>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -177,7 +179,7 @@ namespace DriverAPI.Controllers.V7
 			var recievedTime = DateTime.Now;
 			var resultMessage = "OK";
 
-			var localActionTime = requestDto.ActionTimeUtc.ToLocalTime();
+			var localActionTime = (await GetActionTimeUtcAsync(requestDto.ActionTimeUtc)).ToLocalTime();
 
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeService.GetByAPILogin(user.UserName);
@@ -247,6 +249,7 @@ namespace DriverAPI.Controllers.V7
 		/// <param name="specialConditionsIds">Идентификаторы специальных условий для принятия</param>
 		/// <returns></returns>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -345,11 +348,14 @@ namespace DriverAPI.Controllers.V7
 		/// <param name="confirmRouteListAddressTransferRecievedRequest"></param>
 		/// <returns></returns>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public IActionResult ConfirmRouteListAddressTransferRecieved(ConfirmRouteListAddressTransferRecievedRequest confirmRouteListAddressTransferRecievedRequest)
+		public async Task<IActionResult> ConfirmRouteListAddressTransferRecieved(ConfirmRouteListAddressTransferRecievedRequest confirmRouteListAddressTransferRecievedRequest)
 		{
-			_routeListTransferService.ConfirmRouteListAddressTransferRecieved(confirmRouteListAddressTransferRecievedRequest.RouteListAddress, confirmRouteListAddressTransferRecievedRequest.ActionTimeUtc.ToLocalTime());
+			_routeListTransferService.ConfirmRouteListAddressTransferRecieved(
+				confirmRouteListAddressTransferRecievedRequest.RouteListAddress,
+				(await GetActionTimeUtcAsync(confirmRouteListAddressTransferRecievedRequest.ActionTimeUtc)).ToLocalTime());
 			return NoContent();
 		}
 
@@ -371,6 +377,7 @@ namespace DriverAPI.Controllers.V7
 		/// </summary>
 		/// <param name="selectAddressRequest">Модель данных входящего запроса</param>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]

@@ -1,4 +1,4 @@
-using EventsApi.Library.Models;
+﻿using EventsApi.Library.Models;
 using LogisticsEventsApi.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +12,7 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Logistics;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 
 namespace DriverAPI.Controllers.V7
 {
@@ -50,6 +51,7 @@ namespace DriverAPI.Controllers.V7
 		/// <returns>Http status OK или ошибка</returns>
 		/// <exception cref="Exception">ошибка</exception>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompletedDriverWarehouseEventDto))]

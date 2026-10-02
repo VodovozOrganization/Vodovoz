@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V7;
+﻿using DriverApi.Contracts.V7;
 using DriverApi.Contracts.V7.Requests;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V7.Services;
@@ -15,6 +15,7 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Errors;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 
 namespace DriverAPI.Controllers.V7
 {
@@ -89,6 +90,7 @@ namespace DriverAPI.Controllers.V7
 		/// <param name="routeListAddressCoordinate"></param>
 		/// <returns></returns>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -107,7 +109,7 @@ namespace DriverAPI.Controllers.V7
 
 			var resultMessage = "OK";
 
-			var localActionTime = routeListAddressCoordinate.ActionTimeUtc.ToLocalTime();
+			var localActionTime = (await GetActionTimeUtcAsync(routeListAddressCoordinate.ActionTimeUtc)).ToLocalTime();
 
 			var timeCheckResult = _actionTimeHelper.CheckRequestTime(recievedTime, localActionTime);
 
@@ -177,6 +179,7 @@ namespace DriverAPI.Controllers.V7
 		/// <param name="registerTrackCoordinateRequestModel"></param>
 		/// <returns></returns>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
