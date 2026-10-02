@@ -61,8 +61,6 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			var primaryDocuments = new[]
 			{
-				EdoInOrderDocumentType.Upd,
-				EdoInOrderDocumentType.Receipt,
 				EdoInOrderDocumentType.Tender
 			};
 

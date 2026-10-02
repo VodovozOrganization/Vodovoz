@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
@@ -14,6 +14,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using Vodovoz.Core.Data.Logistics;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Repositories;
@@ -65,6 +66,10 @@ namespace Vodovoz.ViewModels.TrueMark
 		private readonly ViewModelEEVMBuilder<Order> _orderViewModelEEVMBuilder;
 		private IUnitOfWork _reuseTargetOrderEntryUow;
 		private int _orderId;
+		private int? _edoTaskId;
+		private readonly IExcessTrueMarkCodesDeletionService _excessCodesDeletionService;
+		private bool _canDeleteExcessCodes;
+		private int _activeCodesPage;
 		private int _codesRequired;
 		private int _codesProvided;
 		private int _codesProvidedFromScan;
@@ -108,10 +113,12 @@ namespace Vodovoz.ViewModels.TrueMark
 			ICancelledOrderTrueMarkCodesReuseService cancelledOrderTrueMarkCodesReuseService,
 			IInteractiveService interactiveService,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
-			ViewModelEEVMBuilder<Order> orderViewModelEEVMBuilder
+			ViewModelEEVMBuilder<Order> orderViewModelEEVMBuilder,
+			IExcessTrueMarkCodesDeletionService excessCodesDeletionService
 			) : base()
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_excessCodesDeletionService = excessCodesDeletionService ?? throw new ArgumentNullException(nameof(excessCodesDeletionService));
 			_canReuseRejectedCodesFromCanceledOrder =
 				commonServices?.CurrentPermissionService.ValidatePresetPermission(
 					OrderPermissions.CanReuseRejectedCodesFromCanceledOrder)
@@ -145,6 +152,22 @@ namespace Vodovoz.ViewModels.TrueMark
 		}
 
 		public ICommand RefreshCommand { get; private set; }
+		/// <summary>Удаляет выбранные лишние коды из документа с возвратом в пул.</summary>
+		public ICommand DeleteExcessCodesCommand { get; private set; }
+
+		/// <summary>Доступность удаления для текущего документа и пользователя.</summary>
+		public virtual bool CanDeleteExcessCodes
+		{
+			get => _canDeleteExcessCodes;
+			private set => SetField(ref _canDeleteExcessCodes, value);
+		}
+
+		/// <summary>Выбранная вкладка источника кодов.</summary>
+		public virtual int ActiveCodesPage
+		{
+			get => _activeCodesPage;
+			set => SetField(ref _activeCodesPage, value);
+		}
 		public ICommand CopyDriverSourceCodesCommand { get; private set; }
 		public ICommand CopyDriverResultCodesCommand { get; private set; }
 		public ICommand CopyWarehouseSourceCodesCommand { get; private set; }
@@ -404,6 +427,16 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void CreateCommands()
 		{
+			var deleteCommand = new DelegateCommand(DeleteExcessCodes,
+				() => CanDeleteExcessCodes && GetSelectedProductCodeIds().Any());
+			deleteCommand.CanExecuteChangedWith(this,
+				x => x.CanDeleteExcessCodes,
+				x => x.ActiveCodesPage,
+				x => x.ScannedByDriverCodesSelected,
+				x => x.ScannedByWarehouseCodesSelected,
+				x => x.ScannedBySelfdeliveryCodesSelected,
+				x => x.AddedFromPoolCodesSelected);
+			DeleteExcessCodesCommand = deleteCommand;
 			RefreshCommand = new DelegateCommand(Reload);
 
 			// Copy driver codes
@@ -524,6 +557,28 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void Reload()
 		{
+			CanDeleteExcessCodes = false;
+			ScannedByDriverCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
+			ScannedByWarehouseCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
+			ScannedBySelfdeliveryCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
+			AddedFromPoolCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
+			ScannedStagingCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
+
+			if(_edoTaskId == 0)
+			{
+				_scannedByDriverCodesOrigin = new List<OrderCodeItemViewModel>();
+				_scannedByWarehouseCodesOrigin = new List<OrderCodeItemViewModel>();
+				_scannedBySelfdeliveryCodesOrigin = new List<OrderCodeItemViewModel>();
+				_addedFromPoolCodesOrigin = new List<OrderCodeItemViewModel>();
+				_scannedStagingCodesOrigin = new List<OrderCodeItemViewModel>();
+				TotalScannedByDriver = TotalScannedByWarehouse = TotalScannedBySelfdelivery = 0;
+				TotalAddedFromPool = TotalScannedStagingCodes = 0;
+				CodesRequired = CodesProvided = CodesProvidedFromScan = 0;
+				CanShowReuseRejectedCodesControls = false;
+				SearchText = null;
+				return;
+			}
+
 			if(OrderId <= 0)
 			{
 				return;
@@ -531,8 +586,12 @@ namespace Vodovoz.ViewModels.TrueMark
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
+				if(_edoTaskId > 0)
+				{
+					CanDeleteExcessCodes = _excessCodesDeletionService.CanDelete(uow.GetById<OrderEdoTask>(_edoTaskId.Value));
+				}
 				var order = uow.GetById<Order>(OrderId);
-				CanShowReuseRejectedCodesControls = order?.OrderStatus == OrderStatus.Canceled
+				CanShowReuseRejectedCodesControls = !_edoTaskId.HasValue && order?.OrderStatus == OrderStatus.Canceled
 					&& _canReuseRejectedCodesFromCanceledOrder;
 
 				ReloadCodesFromDriver(uow);
@@ -554,6 +613,57 @@ namespace Vodovoz.ViewModels.TrueMark
 				CodesProvided = CodesProvidedFromScan + TotalAddedFromPool;
 				OnPropertyChanged(nameof(CanReuseRejectedCodes));
 			}
+		}
+
+		private IEnumerable<int> GetSelectedProductCodeIds()
+		{
+			var selections = new[] { ScannedByDriverCodesSelected, ScannedByWarehouseCodesSelected,
+				ScannedBySelfdeliveryCodesSelected, AddedFromPoolCodesSelected };
+			if(ActiveCodesPage < 0 || ActiveCodesPage >= selections.Length)
+			{
+				return Enumerable.Empty<int>();
+			}
+			return (selections[ActiveCodesPage] ?? Enumerable.Empty<OrderCodeItemViewModel>())
+				.SelectMany(GetProductCodeIds).Distinct().ToArray();
+		}
+
+		private static IEnumerable<int> GetProductCodeIds(OrderCodeItemViewModel row)
+		{
+			if(row.ProductCodeId > 0)
+			{
+				yield return row.ProductCodeId;
+			}
+			foreach(var id in row.Children.SelectMany(GetProductCodeIds))
+			{
+				yield return id;
+			}
+		}
+
+		private void DeleteExcessCodes()
+		{
+			if(!CanDeleteExcessCodes || !_edoTaskId.HasValue)
+			{
+				return;
+			}
+			var ids = GetSelectedProductCodeIds().ToArray();
+			if(ids.Length == 0 || !_interactiveService.Question(
+				$"Удалить выбранные коды ({ids.Length}) из документа и вернуть их в пул?"))
+			{
+				return;
+			}
+			using(var uow = _uowFactory.CreateWithoutRoot("Удаление лишних кодов маркировки"))
+			{
+				var result = _excessCodesDeletionService.Delete(uow, _edoTaskId.Value, ids);
+				if(result.IsFailure)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, result.GetErrorsString());
+					return;
+				}
+				uow.Commit();
+			}
+			Reload();
+			_interactiveService.ShowMessage(ImportanceLevel.Info,
+				"Коды удалены из документа и возвращены в пул. Запустите переобработку задачи во вкладке ЭДО.");
 		}
 
 		private void ReuseRejectedCodes()
@@ -605,12 +715,25 @@ namespace Vodovoz.ViewModels.TrueMark
 			}
 
 			OrderId = orderId;
+			_edoTaskId = null;
+			Reload();
+		}
+
+		/// <summary>
+		/// Загружает коды выбранной задачи ЭДО. При отсутствии задачи очищает список.
+		/// </summary>
+		/// <param name="orderId">Номер заказа.</param>
+		/// <param name="edoTaskId">Номер задачи ЭДО или ноль, если документ не выбран.</param>
+		public void LoadForDocument(int orderId, int edoTaskId)
+		{
+			OrderId = orderId;
+			_edoTaskId = edoTaskId;
 			Reload();
 		}
 
 		private void ReloadCodesFromDriver(IUnitOfWork uow)
 		{
-			var instanceCodes = _trueMarkRepository.GetCodesFromDriverByOrder(uow, OrderId);
+			var instanceCodes = _trueMarkRepository.GetCodesFromDriverByOrder(uow, OrderId, _edoTaskId);
 
 			var groupCodesIds = instanceCodes
 				.Where(x => x.SourceCode != null)
@@ -652,6 +775,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			{
 				var vm = new OrderCodeItemViewModel
 				{
+					ProductCodeId = x.Id,
 					SourceCode = x.SourceCode,
 					ResultCode = x.ResultCode,
 					Status = x.SourceCodeStatus,
@@ -684,7 +808,7 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void ReloadCodesFromWarehouse(IUnitOfWork uow)
 		{
-			var instanceCodes = _trueMarkRepository.GetCodesFromWarehouseByOrder(uow, OrderId);
+			var instanceCodes = _trueMarkRepository.GetCodesFromWarehouseByOrder(uow, OrderId, _edoTaskId);
 
 			var groupCodesIds = instanceCodes
 				.Where(x => x.SourceCode != null)
@@ -731,6 +855,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			{
 				var vm = new OrderCodeItemViewModel
 				{
+					ProductCodeId = x.Id,
 					SourceCode = x.SourceCode,
 					ResultCode = x.ResultCode,
 					Status = x.SourceCodeStatus,
@@ -768,7 +893,7 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void ReloadCodesFromSelfdelivery(IUnitOfWork uow)
 		{
-			var instanceCodes = _trueMarkRepository.GetCodesFromSelfdeliveryByOrder(uow, OrderId);
+			var instanceCodes = _trueMarkRepository.GetCodesFromSelfdeliveryByOrder(uow, OrderId, _edoTaskId);
 
 			var groupCodesIds = instanceCodes
 				.Where(x => x.SourceCode != null)
@@ -815,6 +940,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			{
 				var vm = new OrderCodeItemViewModel
 				{
+					ProductCodeId = x.Id,
 					SourceCode = x.SourceCode,
 					ResultCode = x.ResultCode,
 					Status = x.SourceCodeStatus,
@@ -847,7 +973,7 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void ReloadCodesFromPool(IUnitOfWork uow)
 		{
-			var poolCodes = _trueMarkRepository.GetCodesFromPoolByOrder(uow, OrderId);
+			var poolCodes = _trueMarkRepository.GetCodesFromPoolByOrder(uow, OrderId, _edoTaskId);
 			var unscannedReason = _routeListItemRepository.GetUnscannedCodesReason(uow, OrderId);
 			_totalAddedFromPool = poolCodes.Count();
 
@@ -855,6 +981,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			{
 				_addedFromPoolCodesOrigin = poolCodes.Select(x => new OrderCodeItemViewModel
 				{
+					ProductCodeId = x.Id,
 					SourceCode = x.SourceCode,
 					ResultCode = x.ResultCode,					
 					Status = x.SourceCodeStatus,
@@ -865,7 +992,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			}
 			else
 			{
-				if(!string.IsNullOrWhiteSpace(unscannedReason))
+				if(!_edoTaskId.HasValue && !string.IsNullOrWhiteSpace(unscannedReason))
 				{
 					_addedFromPoolCodesOrigin = new List<OrderCodeItemViewModel>
 					{
@@ -884,6 +1011,13 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void ReloadScanndedStagingCodes(IUnitOfWork uow)
 		{
+			if(_edoTaskId.HasValue)
+			{
+				TotalScannedStagingCodes = 0;
+				_scannedStagingCodesOrigin = new List<OrderCodeItemViewModel>();
+				return;
+			}
+
 			var stagingTrueMarkCodes = _trueMarkRepository.GetAllStagingCodesByOrderId(uow, OrderId);
 			TotalScannedStagingCodes = stagingTrueMarkCodes.Where(x => x.IsIdentification).Count();
 			var allCodes =
