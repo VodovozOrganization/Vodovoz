@@ -18,6 +18,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private DateTime? _endDate;
 		private string _address;
 		private string _jurAddress;
+		private Guid? _fiasId;
 		private EmployeeEntity _leader;
 		private EmployeeEntity _accountant;
 		private OrganizationEntity _organization;
@@ -65,6 +66,29 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _jurAddress;
 			set => SetField(ref _jurAddress, value);
+		}
+
+		[Display(Name = "Код ФИАС")]
+		public virtual Guid? FiasId
+		{
+			get => _fiasId;
+			set => SetField(ref _fiasId, value);
+		}
+
+		public string FiasString
+		{
+			get => FiasId?.ToString();
+			set
+			{
+				if(Guid.TryParse(value, out var result))
+				{
+					FiasId = result;
+				}
+				else
+				{
+					FiasId = null;
+				}
+			}
 		}
 
 		[Display(Name = "Руководитель")]
