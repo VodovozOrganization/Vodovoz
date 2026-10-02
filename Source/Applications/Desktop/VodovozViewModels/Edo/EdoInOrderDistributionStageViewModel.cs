@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.Edo
 			"Для чека на этой стадии также решается, нужно ли сохранять коды в пул (стадия «Забор кодов»).\n"
 			+ "При необходимости недостающие или неподходящие коды подбираются из пула кодов организации.";
 
-		/// <param name="documentType">Тип документа, для чека к описанию добавляется дополнение о решении пробивать чек</param>
+		/// <param name="documentType">Тип документа, для чека к описанию добавляется дополнение о сохранении кодов в пул</param>
 		public EdoInOrderDistributionStageViewModel(EdoInOrderDocumentType documentType)
 		{
 			Description = documentType == EdoInOrderDocumentType.Receipt
