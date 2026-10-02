@@ -2664,6 +2664,7 @@ namespace Vodovoz
 		private void OnYButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
 		{
 			var newRequests = new List<PrimaryEdoRequest>();
+			var blockedByClosedPeriodCount = 0;
 			using(var resendUow = _unitOfWorkFactory.CreateWithoutRoot("Переотправка документов ЭДО клиента"))
 			{
 				var documentEdoTasks =
@@ -2676,7 +2677,13 @@ namespace Vodovoz
 
 				var edoTasks = documentEdoTasks.Concat(receiptEdoTasks).ToList();
 
-				foreach (var newRequest in edoTasks.Select(task => task.FormalEdoRequest.Order.Id).Select(orderId => new PrimaryEdoRequest
+				var ordersWithoutRequestsIds =
+					_edoDocflowRepository.GetClientOrdersWithoutEdoRequestsForUpdResend(resendUow, Entity.Id).ToList();
+
+				var blockedOrderIds = GetClosedPeriodBlockedOrderIds(resendUow, edoTasks, ordersWithoutRequestsIds);
+				blockedByClosedPeriodCount = blockedOrderIds.Count;
+
+				foreach (var newRequest in edoTasks.Select(task => task.FormalEdoRequest.Order.Id).Where(orderId => !blockedOrderIds.Contains(orderId)).Select(orderId => new PrimaryEdoRequest
 				         {
 					         Order = new OrderEntity
 					         {
@@ -2691,7 +2698,7 @@ namespace Vodovoz
 					newRequests.Add(newRequest);
 				}
 
-				foreach(var orderId in _edoDocflowRepository.GetClientOrdersWithoutEdoRequestsForUpdResend(resendUow, Entity.Id))
+				foreach(var orderId in ordersWithoutRequestsIds.Where(orderId => !blockedOrderIds.Contains(orderId)))
 				{
 					var newRequest = new PrimaryEdoRequest
 					{
@@ -2719,7 +2726,49 @@ namespace Vodovoz
 			}
 
 			UpdateEdoDocumentDataNodes(_edoDocumentsCurrentPage);
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Переотправка выполнена.");
+
+			if(blockedByClosedPeriodCount > 0)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					$"Не удалось переотправить документы в количестве {blockedByClosedPeriodCount}.\nПричина:\n"
+					+ "Документы в закрытом бухгалтерском периоде. Для переотправки обратитесь в бухгалтерию");
+			}
+			else
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Переотправка выполнена.");
+			}
+		}
+
+		private HashSet<int> GetClosedPeriodBlockedOrderIds(
+			IUnitOfWork uow,
+			List<OrderEdoTask> edoTasks,
+			List<int> ordersWithoutRequestsIds)
+		{
+			if(_commonServices.CurrentPermissionService.ValidatePresetPermission(
+				BookkeeppingPermissions.CanSendEdoDocumentsForPreviousPeriods))
+			{
+				return new HashSet<int>();
+			}
+
+			var closedPeriodSettings = _lifetimeScope.Resolve<IEdoClosedPeriodSettings>();
+
+			var orderIds = edoTasks
+				.Select(task => task.FormalEdoRequest.Order.Id)
+				.Concat(ordersWithoutRequestsIds)
+				.Distinct()
+				.ToList();
+
+			if(orderIds.Count == 0)
+			{
+				return new HashSet<int>();
+			}
+
+			return uow.GetAll<OrderEntity>()
+				.Where(o => orderIds.Contains(o.Id))
+				.ToList()
+				.Where(o => o.DeliveryDate.HasValue && closedPeriodSettings.IsClosedPeriod(o.DeliveryDate.Value))
+				.Select(o => o.Id)
+				.ToHashSet();
 		}
 
 		private EdoInOrderDocumentHistoryRowViewModel BuildHistoryRowOrNull(EdoDockflowData dockflowData)
