@@ -177,24 +177,11 @@ namespace Vodovoz.ViewModels.Warehouses
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 
-			BuildTtnEntryViewModels();
-
 			EnterTtnDataCommand = new DelegateCommand(EnterTtnData, () => CanEnterTtnData);
 			EnterTtnDataCommand.CanExecuteChangedWith(this, x => x.CanEnterTtnData);
 
 			Entity.PropertyChanged += OnMovementDocumentPropertyChanged;
 			NeedPrintTtn = Entity.NeedPrintTtn;
-		}
-
-		private void BuildTtnEntryViewModels()
-		{
-			var page = NavigationManager.OpenViewModel<TtnDataViewModel>(
-				this,
-				OpenPageOptions.AsSlave,
-				vm =>
-				{
-					vm.Configure(Entity);
-				});
 		}
 
 		private void OnMovementDocumentPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -227,13 +214,6 @@ namespace Vodovoz.ViewModels.Warehouses
 				}
 			}
 		}
-
-		public IEntityEntryViewModel TtnCargoSenderViewModel { get; private set; }
-		public IEntityEntryViewModel TtnCargoReceiverViewModel { get; private set; }
-		public IEntityEntryViewModel TtnPayerViewModel { get; private set; }
-		public IEntityEntryViewModel TtnCarViewModel { get; private set; }
-		public IEntityEntryViewModel TtnSemitrailerViewModel { get; private set; }
-		public IEntityEntryViewModel TtnDriverViewModel { get; private set; }
 
 		public ILifetimeScope Scope => _scope;
 
@@ -365,18 +345,10 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		private void EnterTtnData()
 		{
-			var page = NavigationManager.OpenViewModel<TtnDataViewModel>(
+			NavigationManager.OpenViewModel<TtnDataViewModel>(
 				this,
 				OpenPageOptions.AsSlave,
-				vm =>
-				{
-					vm.CargoSenderViewModel = TtnCargoSenderViewModel;
-					vm.CargoReceiverViewModel = TtnCargoReceiverViewModel;
-					vm.PayerViewModel = TtnPayerViewModel;
-					vm.CarViewModel = TtnCarViewModel;
-					vm.TrailerViewModel = TtnSemitrailerViewModel;
-					vm.DriverViewModel = TtnDriverViewModel;
-				});
+				vm => vm.Configure(Entity));
 		}
 
 		private void ConfigureEntityChangingRelations()

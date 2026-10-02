@@ -6,12 +6,12 @@ using QS.Navigation;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -27,8 +27,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private readonly IInteractiveService _interactiveService;
 		private readonly ILifetimeScope _scope;
 
-		private readonly ViewModelEEVMBuilder<Organization> _organizationEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Organization> _cargoSenderEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Organization> _cargoReceiverEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Organization> _payerEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Car> _carEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Car> _semitrailerEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _employeeEEVMBuilder;
 
 		private DelegateCommand _acceptCommand;
@@ -39,16 +42,29 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
-			ViewModelEEVMBuilder<Organization> organizationEEVMBuilder,
+			ViewModelEEVMBuilder<Organization> cargoSenderEEVMBuilder,
+			ViewModelEEVMBuilder<Organization> cargoReceiverEEVMBuilder,
+			ViewModelEEVMBuilder<Organization> payerEEVMBuilder,
 			ViewModelEEVMBuilder<Car> carEEVMBuilder,
+			ViewModelEEVMBuilder<Car> semitrailerEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> employeeEEVMBuilder)
 			: base(unitOfWorkFactory, interactiveService, navigationManager)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			_organizationEEVMBuilder = organizationEEVMBuilder ?? throw new ArgumentNullException(nameof(organizationEEVMBuilder));
-			_carEEVMBuilder = carEEVMBuilder ?? throw new ArgumentNullException(nameof(carEEVMBuilder));
-			_employeeEEVMBuilder = employeeEEVMBuilder ?? throw new ArgumentNullException(nameof(employeeEEVMBuilder));
+
+			_cargoSenderEEVMBuilder = cargoSenderEEVMBuilder
+				?? throw new ArgumentNullException(nameof(cargoSenderEEVMBuilder));
+			_cargoReceiverEEVMBuilder = cargoReceiverEEVMBuilder
+				?? throw new ArgumentNullException(nameof(cargoReceiverEEVMBuilder));
+			_payerEEVMBuilder = payerEEVMBuilder
+				?? throw new ArgumentNullException(nameof(payerEEVMBuilder));
+			_carEEVMBuilder = carEEVMBuilder
+				?? throw new ArgumentNullException(nameof(carEEVMBuilder));
+			_semitrailerEEVMBuilder = semitrailerEEVMBuilder
+				?? throw new ArgumentNullException(nameof(semitrailerEEVMBuilder));
+			_employeeEEVMBuilder = employeeEEVMBuilder
+				?? throw new ArgumentNullException(nameof(employeeEEVMBuilder));
 
 			Title = "Данные для печати ТТН";
 
@@ -56,12 +72,12 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			CancelCommand = new DelegateCommand(Cancel);
 		}
 
-		public IEntityEntryViewModel CargoSenderViewModel { get; set; }
-		public IEntityEntryViewModel CargoReceiverViewModel { get; set; }
-		public IEntityEntryViewModel PayerViewModel { get; set; }
-		public IEntityEntryViewModel CarViewModel { get; set; }
-		public IEntityEntryViewModel TrailerViewModel { get; set; }
-		public IEntityEntryViewModel DriverViewModel { get; set; }
+		public IEntityEntryViewModel CargoSenderViewModel { get; private set; }
+		public IEntityEntryViewModel CargoReceiverViewModel { get; private set; }
+		public IEntityEntryViewModel PayerViewModel { get; private set; }
+		public IEntityEntryViewModel CarViewModel { get; private set; }
+		public IEntityEntryViewModel TrailerViewModel { get; private set; }
+		public IEntityEntryViewModel DriverViewModel { get; private set; }
 
 		public bool CanAccept => true;
 		public DelegateCommand AcceptCommand { get; }
@@ -78,19 +94,31 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				throw new ArgumentNullException(nameof(entity));
 			}
 
-			CargoSenderViewModel = BuildOrganizationEntryViewModel(entity, e => e.TtnCargoSender);
-			CargoReceiverViewModel = BuildOrganizationEntryViewModel(entity, e => e.TtnCargoReceiver);
-			PayerViewModel = BuildOrganizationEntryViewModel(entity, e => e.TtnPayer);
-			CarViewModel = BuildCarEntryViewModel(entity, e => e.TtnCar);
-			TrailerViewModel = BuildTrailerEntryViewModel(entity, e => e.TtnSemitrailer);
-			DriverViewModel = BuildDriverEntryViewModel(entity, e => e.TtnDriver);
+			CargoSenderViewModel = BuildOrganizationEntryViewModel(
+				_cargoSenderEEVMBuilder, entity, e => e.TtnCargoSender);
+
+			CargoReceiverViewModel = BuildOrganizationEntryViewModel(
+				_cargoReceiverEEVMBuilder, entity, e => e.TtnCargoReceiver);
+
+			PayerViewModel = BuildOrganizationEntryViewModel(
+				_payerEEVMBuilder, entity, e => e.TtnPayer);
+
+			CarViewModel = BuildCarEntryViewModel(
+				_carEEVMBuilder, entity, e => e.TtnCar);
+
+			TrailerViewModel = BuildTrailerEntryViewModel(
+				_semitrailerEEVMBuilder, entity, e => e.TtnSemitrailer);
+
+			DriverViewModel = BuildDriverEntryViewModel(
+				_employeeEEVMBuilder, entity, e => e.TtnDriver);
 		}
 
 		private IEntityEntryViewModel BuildOrganizationEntryViewModel(
+			ViewModelEEVMBuilder<Organization> builder,
 			MovementDocument entity,
-			System.Linq.Expressions.Expression<Func<MovementDocument, Organization>> property)
+			Expression<Func<MovementDocument, Organization>> property)
 		{
-			return _organizationEEVMBuilder
+			return builder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(entity, property)
@@ -100,10 +128,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		}
 
 		private IEntityEntryViewModel BuildCarEntryViewModel(
+			ViewModelEEVMBuilder<Car> builder,
 			MovementDocument entity,
-			System.Linq.Expressions.Expression<Func<MovementDocument, Car>> property)
+			Expression<Func<MovementDocument, Car>> property)
 		{
-			return _carEEVMBuilder
+			return builder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(entity, property)
@@ -113,10 +142,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		}
 
 		private IEntityEntryViewModel BuildTrailerEntryViewModel(
+			ViewModelEEVMBuilder<Car> builder,
 			MovementDocument entity,
-			System.Linq.Expressions.Expression<Func<MovementDocument, Car>> property)
+			Expression<Func<MovementDocument, Car>> property)
 		{
-			return _carEEVMBuilder
+			return builder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(entity, property)
@@ -130,10 +160,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		}
 
 		private IEntityEntryViewModel BuildDriverEntryViewModel(
+			ViewModelEEVMBuilder<Employee> builder,
 			MovementDocument entity,
-			System.Linq.Expressions.Expression<Func<MovementDocument, Employee>> property)
+			Expression<Func<MovementDocument, Employee>> property)
 		{
-			return _employeeEEVMBuilder
+			return builder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(entity, property)
