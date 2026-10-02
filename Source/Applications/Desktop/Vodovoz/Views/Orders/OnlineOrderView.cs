@@ -409,7 +409,6 @@ namespace Vodovoz.Views.Orders
 		
 		private void ConfigureTreeNotPromoItems()
 		{
-			//TODO-5967 переделать выделение цветом неверной скидки, чтобы не вызывать сто раз IsApplicableDiscount
 			treeViewNotPromoItems.ColumnsConfig = FluentColumnsConfig<OnlineOrderItem>.Create()
 				.AddColumn("№")
 					.AddNumericRenderer(node => ViewModel.OnlineOrderNotPromoItems.IndexOf(node) + 1)

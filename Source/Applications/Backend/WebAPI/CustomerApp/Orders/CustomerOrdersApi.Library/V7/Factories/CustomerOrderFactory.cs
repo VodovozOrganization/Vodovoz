@@ -11,7 +11,6 @@ using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.InfoMessages;
-using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
@@ -19,6 +18,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Mango;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Services.Logistics;
 
 namespace CustomerOrdersApi.Library.V7.Factories
 {
@@ -32,6 +32,7 @@ namespace CustomerOrdersApi.Library.V7.Factories
 		private readonly IMangoSettings _mangoSettings;
 		private readonly IOptionsMonitor<CourierCoordinatesOptions> _courierCoordinatesOptions;
 		private readonly IOnlineOrderItemDtoFactory _onlineOrderItemFactory;
+		private readonly IDriverContactNumberService _driverContactNumberService;
 
 		public CustomerOrderFactory(
 			IExternalOrderStatusConverter externalOrderStatusConverter,
@@ -41,7 +42,8 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			ICustomerOrderTransferService orderTransferService,
 			IMangoSettings mangoSettings,
 			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions,
-			IOnlineOrderItemDtoFactory onlineOrderItemFactory
+			IOnlineOrderItemDtoFactory onlineOrderItemFactory,
+			IDriverContactNumberService driverContactNumberService
 			)
 		{
 			_externalOrderStatusConverter =
@@ -53,6 +55,7 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
 			_courierCoordinatesOptions = courierCoordinatesOptions ?? throw new ArgumentNullException(nameof(courierCoordinatesOptions));
 			_onlineOrderItemFactory = onlineOrderItemFactory ?? throw new ArgumentNullException(nameof(onlineOrderItemFactory));
+			_driverContactNumberService = driverContactNumberService ?? throw new ArgumentNullException(nameof(driverContactNumberService));
 		}
 
 		public async Task<DetailedOrderInfoDto> CreateDetailedOrderInfo(
@@ -62,7 +65,6 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			OnlineOrderTimers timers,
 			OnlineOrder onlineOrder,
 			DateTime ratingAvailableFrom,
-			DriverMangoExtensionNumber driversMangoExtensionNumber,
 			bool establishedRoute,
 			bool isOrderWasSelectedAsNext,
 			DateTime? driversCoordinatesLastUpdateTime,
@@ -76,7 +78,6 @@ namespace CustomerOrdersApi.Library.V7.Factories
 				timers,
 				onlineOrder,
 				ratingAvailableFrom,
-				driversMangoExtensionNumber,
 				establishedRoute,
 				isOrderWasSelectedAsNext,
 				driversCoordinatesLastUpdateTime,
@@ -162,7 +163,6 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			OnlineOrderTimers timers,
 			OnlineOrder onlineOrder,
 			DateTime ratingAvailableFrom,
-			DriverMangoExtensionNumber driversMangoExtensionNumber,
 			bool establishedRoute,
 			bool isOrderWasSelectedAsNext,
 			DateTime? driversCoordinatesLastUpdateTime,
@@ -214,11 +214,10 @@ namespace CustomerOrdersApi.Library.V7.Factories
 
 			await UpdateAvailableOperations(uow, orderInfo, order, onlineOrder, cancellationToken);
 
-			if(driversMangoExtensionNumber != null
-				&& driversMangoExtensionNumber.Status == DriverMangoExtensionNumberStatus.Active)
+			if(orderInfo.OrderStatus == ExternalOrderStatus.OrderDelivering)
 			{
 				orderInfo.DriversMangoNumber =
-					_mangoSettings.DriversCallsLineNumber + ",," + driversMangoExtensionNumber.ExtensionNumber;
+					await _driverContactNumberService.GetDriverContactNumberForCustomersApiAsync(uow, order.Id, cancellationToken);
 			}
 
 			return orderInfo;

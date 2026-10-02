@@ -222,20 +222,10 @@ namespace Vodovoz.Core.Application.Sale
 				.Where(x => x.UseDiscountType == UseDiscountType.NotApplicable)
 				.ToList();
 
-			var isNotApplicableDiscount = false;
-			
-			foreach(var notApplicableDiscount in notApplicableDiscounts)
-			{
-				if(saleItem.DiscountReasons.Any(discountReason =>
-					(saleItem.IsFixedPrice && notApplicableDiscount.DiscountType == DiscountType.FixedPrice)
-						|| (int)discountReason.DiscountReasonType == (int)notApplicableDiscount.DiscountType))
-				{
-					isNotApplicableDiscount = true;
-					break;
-				}
-			}
-
-			return isNotApplicableDiscount;
+			return notApplicableDiscounts.Any(notApplicableDiscount =>
+				(saleItem.IsFixedPrice && notApplicableDiscount.DiscountType == DiscountType.FixedPrice)
+				|| saleItem.DiscountReasons.Any(discountReason =>
+					(int)discountReason.DiscountReasonType == (int)notApplicableDiscount.DiscountType));
 		}
 		
 		private Result CanApplyDiscount(DiscountReasonBase addingDiscount, IApplicablePromotion saleItem)
