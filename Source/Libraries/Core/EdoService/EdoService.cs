@@ -217,7 +217,7 @@ namespace EdoService.Library
 					return Result.Failure<string>(checkOtherTasksResult.Errors);
 				}
 
-				var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(edoTask);
+				var productCodes = TrueMarkProductCodeFactory.CreateCodesFromCancelledTask(edoTask);
 				var resendEdoRequest = _manualEdoRequestFactory.Create(uow, order, productCodes);
 				var withdrawalDocument = withdrawalDocuments.Single();
 
@@ -631,7 +631,7 @@ namespace EdoService.Library
 		private void ResendDocumentForCancelledEdoTask(
 			IUnitOfWork uow, OrderEntity order, OrderEdoTask edoTask, bool transferCodeReservations = false)
 		{
-			var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(edoTask);
+			var productCodes = TrueMarkProductCodeFactory.CreateCodesFromCancelledTask(edoTask);
 			var request = _manualEdoRequestFactory.Create(uow, order, productCodes);
 
 			if(transferCodeReservations)
