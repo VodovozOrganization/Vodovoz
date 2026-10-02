@@ -83,6 +83,22 @@ namespace Vodovoz.Views.Edo
 					var docflowsView = new EdoInOrderDocflowsStageView();
 					docflowsView.ViewModel = docflows;
 					return docflowsView;
+				case EdoInOrderDistributionStageViewModel distribution:
+					var distributionView = new EdoInOrderDistributionStageView();
+					distributionView.ViewModel = distribution;
+					return distributionView;
+				case EdoInOrderSavedToPoolStageViewModel savedToPool:
+					var savedToPoolView = new EdoInOrderSavedToPoolStageView();
+					savedToPoolView.ViewModel = savedToPool;
+					return savedToPoolView;
+				case EdoInOrderTenderSendingStageViewModel tenderSending:
+					var tenderSendingView = new EdoInOrderTenderSendingStageView();
+					tenderSendingView.ViewModel = tenderSending;
+					return tenderSendingView;
+				case EdoInOrderTenderManualUploadedStageViewModel tenderManualUploaded:
+					var tenderManualUploadedView = new EdoInOrderTenderManualUploadedStageView();
+					tenderManualUploadedView.ViewModel = tenderManualUploaded;
+					return tenderManualUploadedView;
 				default:
 					throw new NotSupportedException($"Не поддерживаемый тип стадии: {ViewModel.StageViewModel.GetType()}");
 			}

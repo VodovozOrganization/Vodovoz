@@ -1,12 +1,24 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using System.ComponentModel;
+using Vodovoz.ViewModels.Edo;
+
 namespace Vodovoz.Views.Edo
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EdoInOrderSavedToPoolStageView : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class EdoInOrderSavedToPoolStageView : WidgetViewBase<EdoInOrderSavedToPoolStageViewModel>
 	{
 		public EdoInOrderSavedToPoolStageView()
 		{
 			this.Build();
+		}
+
+		protected override void ConfigureWidget()
+		{
+			base.ConfigureWidget();
+
+			ylabelDescription.Binding
+				.AddBinding(ViewModel, vm => vm.Description, w => w.LabelProp)
+				.InitializeFromSource();
 		}
 	}
 }
