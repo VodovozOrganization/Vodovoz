@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
 using System;
@@ -94,6 +94,11 @@ namespace Vodovoz.Views.Edo
 				.InitializeFromSource();
 
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+			
+			if(ViewModel.TransferStageViewModel != null)
+			{
+				ShowStage();
+			}
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -145,8 +150,14 @@ namespace Vodovoz.Views.Edo
 
 		private void CloseStageView()
 		{
+			if(_stageView == null)
+			{
+				return;
+			}
+
 			yhboxTransferStage.Remove(_stageView);
-			_stageView?.Destroy();
+			_stageView.Destroy();
+			_stageView = null;
 		}
 
 		protected override void OnDestroyed()

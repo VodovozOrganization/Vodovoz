@@ -36,9 +36,11 @@ namespace Vodovoz.Views.Edo
 		{
 			base.ConfigureWidget();
 
-			if(ViewModel == null)
+			CloseStageView();
+
+			if(ViewModel?.StageViewModel != null)
 			{
-				CloseStageView();
+				ShowStage();
 			}
 		}
 
@@ -106,8 +108,14 @@ namespace Vodovoz.Views.Edo
 
 		private void CloseStageView()
 		{
+			if(_stageView == null)
+			{
+				return;
+			}
+
 			yhboxDocumentStage.Remove(_stageView);
-			_stageView?.Destroy();
+			_stageView.Destroy();
+			_stageView = null;
 		}
 	}
 }

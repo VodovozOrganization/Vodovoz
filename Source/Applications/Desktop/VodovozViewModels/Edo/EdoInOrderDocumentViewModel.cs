@@ -1,4 +1,4 @@
-﻿using EdoService.Library;
+using EdoService.Library;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Dialog;
 using QS.ViewModels;
@@ -42,6 +42,11 @@ namespace Vodovoz.ViewModels.Edo
 
 			_pipelineViewModel.PropertyChanged += PipelineOnPropertyChanged;
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			
+			if(_pipelineViewModel.CurrentStage != null)
+			{
+				StageChanged();
+			}
 		}
 
 		public ICommand EdoInOrderRefreshCommand { get; set; }
