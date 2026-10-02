@@ -122,7 +122,6 @@ namespace Vodovoz.Views.Edo
 			this.ylabelNoTransfers.Name = "ylabelNoTransfers";
 			this.ylabelNoTransfers.Xalign = 0F;
 			this.ylabelNoTransfers.Yalign = 0F;
-			this.ylabelNoTransfers.Wrap = true;
 			this.ylabelNoTransfers.Selectable = true;
 			this.yvboxTransfer.Add(this.ylabelNoTransfers);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxTransfer[this.ylabelNoTransfers]));

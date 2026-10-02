@@ -44,7 +44,6 @@ namespace Vodovoz.Views.Edo
 			this.ylabelDescription.Name = "ylabelDescription";
 			this.ylabelDescription.Xalign = 0F;
 			this.ylabelDescription.Yalign = 0F;
-			this.ylabelDescription.Wrap = true;
 			this.ylabelDescription.Selectable = true;
 			w1.Add(this.ylabelDescription);
 			this.scrolledwindow.Add(w1);

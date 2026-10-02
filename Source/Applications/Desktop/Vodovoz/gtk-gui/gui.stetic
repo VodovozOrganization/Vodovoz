@@ -201777,7 +201777,6 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
                     <property name="Yalign">0</property>
-                    <property name="Wrap">True</property>
                     <property name="Selectable">True</property>
                   </widget>
                   <packing>
@@ -204763,7 +204762,6 @@ not tooltip</property>
                         <property name="MemberName" />
                         <property name="Xalign">0</property>
                         <property name="Yalign">0</property>
-                        <property name="Wrap">True</property>
                         <property name="Selectable">True</property>
                       </widget>
                     </child>
@@ -204816,7 +204814,6 @@ not tooltip</property>
                         <property name="MemberName" />
                         <property name="Xalign">0</property>
                         <property name="Yalign">0</property>
-                        <property name="Wrap">True</property>
                         <property name="Selectable">True</property>
                       </widget>
                     </child>
@@ -204869,7 +204866,6 @@ not tooltip</property>
                         <property name="MemberName" />
                         <property name="Xalign">0</property>
                         <property name="Yalign">0</property>
-                        <property name="Wrap">True</property>
                         <property name="Selectable">True</property>
                       </widget>
                     </child>
@@ -204922,7 +204918,6 @@ not tooltip</property>
                         <property name="MemberName" />
                         <property name="Xalign">0</property>
                         <property name="Yalign">0</property>
-                        <property name="Wrap">True</property>
                         <property name="Selectable">True</property>
                       </widget>
                     </child>
@@ -204975,7 +204970,6 @@ not tooltip</property>
                         <property name="MemberName" />
                         <property name="Xalign">0</property>
                         <property name="Yalign">0</property>
-                        <property name="Wrap">True</property>
                         <property name="Selectable">True</property>
                       </widget>
                     </child>
@@ -205028,7 +205022,6 @@ not tooltip</property>
                         <property name="MemberName" />
                         <property name="Xalign">0</property>
                         <property name="Yalign">0</property>
-                        <property name="Wrap">True</property>
                         <property name="Selectable">True</property>
                       </widget>
                     </child>
