@@ -1,4 +1,4 @@
-﻿using EdoService.Library;
+using EdoService.Library;
 using QS.Dialog;
 using QS.ViewModels;
 using QS.ViewModels.Widgets.Pipeline;
@@ -14,23 +14,41 @@ namespace Vodovoz.ViewModels.Edo
 {
 	public class EdoInOrderTransferStageViewModel : WidgetViewModelBase 
 	{
+		private const string _transferNotRequiredMessage =
+			"Трансфер кодов маркировки не требовался: в заказе нет кодов маркировки, либо все коды уже числились на организации, "
+			+ "указанной в заказе. Документ перешёл к отправке без передачи кодов между организациями.";
+
+		private const string _transferNotStartedMessage =
+			"Необходимость трансфера будет определена на стадии «Распределение».";
+
+		private const string _transferRequestsNotDistributedMessage =
+			"Запросы на трансфер кодов сформированы и ожидают обработки. Данные о трансфере появятся после того, как запросы "
+			+ "будут распределены. Если стадия отмечена проблемой, причину можно посмотреть на вкладке «Проблемы».";
+
 		private readonly IEnumerable<EdoInOrderTaxcomDocflowNode> _allDocflows;
 		private readonly IEdoService _edoService;
 		private readonly IInteractiveService _interactiveService;
+		private readonly StageStatus _transferStageStatus;
 		private IList<EdoInOrderTransferRowViewModel> _transfers;
 		private EdoInOrderTransferRowViewModel _selectedTransfer;
 		private PipelineViewModel _pipelineViewModel;
 		private IList<string> _transferedCodes;
 		private WidgetViewModelBase _transferStageViewModel;
+		private bool _hasTransfers;
+		private string _noTransfersMessage;
 
 		public EdoInOrderTransferStageViewModel(
 			IEnumerable<EdoInOrderTaxcomDocflowNode> allDocflows, 
 			IEdoService edoService,
-			IInteractiveService interactiveService)
+			IInteractiveService interactiveService,
+			StageStatus transferStageStatus)
 		{
 			_allDocflows = allDocflows ?? throw new ArgumentNullException(nameof(allDocflows));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_transferStageStatus = transferStageStatus;
+
+			UpdateNoTransfersState();
 		}
 
 		public virtual IList<EdoInOrderTransferRowViewModel> Transfers
@@ -40,6 +58,7 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				if(SetField(ref _transfers, value))
 				{
+					UpdateNoTransfersState();
 					SelectedTransfer = _transfers?.FirstOrDefault();
 				}
 			}
@@ -75,6 +94,49 @@ namespace Vodovoz.ViewModels.Edo
 			set => SetField(ref _transferStageViewModel, value);
 		}
 
+		/// <summary>
+		/// Есть ли по документу хотя бы один трансфер.
+		/// Если нет - вместо таблиц трансферов и цепочки стадий трансфера показывается <see cref="NoTransfersMessage"/>
+		/// </summary>
+		public virtual bool HasTransfers
+		{
+			get => _hasTransfers;
+			private set => SetField(ref _hasTransfers, value);
+		}
+
+		/// <summary>
+		/// Пояснение, которое показывается вместо таблиц, если трансферов по документу нет.
+		/// Зависит от статуса стадии «Трансфер»: не начата, в работе (или с проблемой), пройдена
+		/// </summary>
+		public virtual string NoTransfersMessage
+		{
+			get => _noTransfersMessage;
+			private set => SetField(ref _noTransfersMessage, value);
+		}
+
+		private void UpdateNoTransfersState()
+		{
+			HasTransfers = _transfers?.Any() ?? false;
+			NoTransfersMessage = HasTransfers
+				? string.Empty
+				: GetNoTransfersMessage(_transferStageStatus);
+		}
+
+		private static string GetNoTransfersMessage(StageStatus transferStageStatus)
+		{
+			switch(transferStageStatus)
+			{
+				case StageStatus.Completed:
+					return _transferNotRequiredMessage;
+				case StageStatus.NotStarted:
+					return _transferNotStartedMessage;
+				case StageStatus.InProgress:
+				case StageStatus.Failed:
+					return _transferRequestsNotDistributedMessage;
+				default:
+					throw new NotSupportedException($"Не поддерживаемый статус стадии: {transferStageStatus}");
+			}
+		}
 
 		private void SelectTransfer()
 		{
@@ -185,6 +247,18 @@ namespace Vodovoz.ViewModels.Edo
 					_interactiveService);
 
 				TransferStageViewModel = docflowsStageViewModel;
+				return;
+			}
+
+			if(EdoTransferTaskStage.WaitingRequests.Equals(enumStage.Content))
+			{
+				TransferStageViewModel = new EdoInOrderTransferWaitingRequestsStageViewModel();
+				return;
+			}
+
+			if(EdoTransferTaskStage.PreparingToSend.Equals(enumStage.Content))
+			{
+				TransferStageViewModel = new EdoInOrderTransferPreparingStageViewModel();
 				return;
 			}
 
