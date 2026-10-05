@@ -333,14 +333,13 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		}
 
 		public IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null)
-		public IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId)
-			=> GetRequestCodesByOrder<AutoTrueMarkProductCode>(uow, orderId);
+			=> GetRequestCodesByOrder<AutoTrueMarkProductCode>(uow, orderId, edoTaskId);
 
 		/// <inheritdoc/>
 		public IEnumerable<ResentTrueMarkProductCode> GetResentCodesByOrder(IUnitOfWork uow, int orderId)
 			=> GetRequestCodesByOrder<ResentTrueMarkProductCode>(uow, orderId);
 
-		private IList<T> GetRequestCodesByOrder<T>(IUnitOfWork uow, int orderId) where T : TrueMarkProductCode
+		private IList<T> GetRequestCodesByOrder<T>(IUnitOfWork uow, int orderId, int? edoTaskId = null) where T : TrueMarkProductCode
 		{
 			T autoProductCodeAlias = null;
 			FormalEdoRequest edoRequestAlias = null;
