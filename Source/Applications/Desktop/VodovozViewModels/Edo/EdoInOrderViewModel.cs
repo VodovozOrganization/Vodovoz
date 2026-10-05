@@ -107,6 +107,10 @@ namespace Vodovoz.ViewModels.Edo
 				SelectDocument();
 				SelectProblemsByDocument();
 				EdoInOrderDocumentActionsViewModel.SelectedDocument = _selectedDocument;
+				if(_codesLoaded)
+				{
+					OrderCodesViewModel.LoadForDocument(_orderId, _selectedDocument?.Document.TaskId ?? 0);
+				}
 				OnPropertyChanged(nameof(SelectedDocument));
 			}
 		}
@@ -279,7 +283,7 @@ namespace Vodovoz.ViewModels.Edo
 			}
 
 			var stopwatch = Stopwatch.StartNew();
-			OrderCodesViewModel.LoadForOrder(_orderId);
+			OrderCodesViewModel.LoadForDocument(_orderId, SelectedDocument?.Document.TaskId ?? 0);
 			_codesLoaded = true;
 			_logger.Info("ЭДО заказа {OrderId}: загрузка кодов ЧЗ: {Elapsed}", _orderId, stopwatch.Elapsed);
 		}
@@ -289,6 +293,7 @@ namespace Vodovoz.ViewModels.Edo
 			if(SelectedDocumentGroupType == null)
 			{
 				Documents = new List<EdoInOrderDocumentHistoryRowViewModel>();
+				SelectedDocument = null;
 				return;
 			}
 

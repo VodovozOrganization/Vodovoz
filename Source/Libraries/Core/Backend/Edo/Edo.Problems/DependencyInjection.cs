@@ -15,6 +15,7 @@ namespace Edo.Problems
 	{
 		public static IServiceCollection AddEdoProblemRegistration(this IServiceCollection services)
 		{
+			services.AddEdoNotifications();
 			services.TryAddScoped<IUnitOfWork>(x => x.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 			services.RemoveAll(typeof(IReceiptContactProblemSource));
 

@@ -8,6 +8,14 @@ namespace Vodovoz.Core.Domain.Permissions
 	public static partial class EdoPermissions
 	{
 		/// <summary>
+		/// Пользователь может удалять лишние коды маркировки из документа.
+		/// </summary>
+		[Display(
+			Name = "Удаление лишних кодов маркировки",
+			Description = "Пользователь может удалять выбранные лишние коды маркировки из документа")]
+		public static string CanDeleteExcessTrueMarkCodes => nameof(CanDeleteExcessTrueMarkCodes);
+
+		/// <summary>
 		/// Разрешено закрывать ЭДО задачу по Тендеру
 		/// </summary>
 		public static string CanCloseTenderEdoTask => nameof(CanCloseTenderEdoTask);
