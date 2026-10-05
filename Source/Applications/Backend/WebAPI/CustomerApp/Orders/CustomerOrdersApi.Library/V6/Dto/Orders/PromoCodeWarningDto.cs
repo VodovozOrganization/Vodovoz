@@ -1,5 +1,5 @@
-﻿using System;
-using Vodovoz.Core.Domain.Clients;
+﻿using CustomerOrders.Abstractions;
+using System;
 
 namespace CustomerOrdersApi.Library.V6.Dto.Orders
 {
@@ -11,7 +11,7 @@ namespace CustomerOrdersApi.Library.V6.Dto.Orders
 		/// <summary>
 		/// Источник заказа
 		/// </summary>
-		public Source Source { get; set; }
+		public ExternalSource Source { get; set; }
 		/// <summary>
 		/// Номер онлайн заказа из ИПЗ
 		/// </summary>

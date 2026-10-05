@@ -1,20 +1,19 @@
-﻿using System;
+﻿using CustomerOrders.Abstractions.V8.Sale;
+using CustomerOrders.Contracts.V8.Orders.Items;
+using CustomerOrdersApi.Library.V8.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Data.Sale;
-using Vodovoz.Core.Domain.Extensions;
-using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Interfaces.Sale;
+using CustomerOrdersApi.Library.V8.Services;
 using Vodovoz.Domain.Orders;
-using VodovozBusiness.Controllers;
 
 namespace CustomerOrdersApi.Library.V8.Factories
 {
-	public class OnlineOrderItemDtoFactory : IOnlineOrderItemDtoFactory
+	internal class OnlineOrderItemDtoFactory : IOnlineOrderItemDtoFactory
 	{
-		private readonly IDiscountController _discountController;
+		private readonly IOnlineOrderDiscountHandler _discountController;
 
-		public OnlineOrderItemDtoFactory(IDiscountController discountController)
+		public OnlineOrderItemDtoFactory(IOnlineOrderDiscountHandler discountController)
 		{
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 		}

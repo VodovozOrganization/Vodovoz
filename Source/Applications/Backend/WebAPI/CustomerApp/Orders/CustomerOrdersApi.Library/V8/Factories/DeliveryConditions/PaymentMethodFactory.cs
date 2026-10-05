@@ -1,0 +1,26 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using CustomerOrdersApi.Library.V8.Dto.Carts;
+
+namespace CustomerOrdersApi.Library.V8.Factories.DeliveryConditions
+{
+	/// <summary>
+	/// Фабрика по созданию доступных методов оплат для ИПЗ
+	/// </summary>
+	public abstract class PaymentMethodFactory
+	{
+		/// <summary>
+		/// Создание необходимых методов оплат
+		/// </summary>
+		/// <param name="paymentTypes">Список доступных методов оплат для ИПЗ</param>
+		/// <returns></returns>
+		protected virtual IEnumerable<PaymentMethod> Create(IEnumerable<(string PaymentType, bool Available)> paymentTypes)
+		{
+			var index = 0;
+			
+			return paymentTypes
+				.Select(x => PaymentMethod.Create(++index, x.PaymentType, x.Available))
+				.ToList();
+		}
+	}
+}

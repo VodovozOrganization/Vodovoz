@@ -18,9 +18,12 @@ namespace CustomerOrdersApi.Library.V4.Extensions
 				.AddScoped<ICustomerOrdersDiscountServiceV4, CustomerOrdersDiscountServiceV4>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV4, CustomerOrderFixedPriceServiceV4>()
 				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
-				.AddScoped<V4.Repositories.ICustomerOrderRepository, V4.Repositories.CustomerOrderRepository>()
+				.AddScoped<Repositories.ICustomerOrderRepository, Repositories.CustomerOrderRepository>()
 				.AddScoped<ISiteOrdersImportRequestValidator, SiteOrdersImportRequestValidator>()
 				.AddScoped<ISiteOrdersImportService, SiteOrdersImportService>()
+				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
+				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+				.AddScoped<IApplicablePromotionFactory, ApplicablePromotionFactory>()
 				.AddCommonDependencies();
 			
 			return services;

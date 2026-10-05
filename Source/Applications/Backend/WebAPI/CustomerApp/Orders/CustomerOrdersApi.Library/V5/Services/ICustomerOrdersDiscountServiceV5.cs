@@ -1,11 +1,7 @@
-﻿using System;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
+﻿using CustomerOrdersApi.Library.V5.Dto.Orders;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
-using VodovozBusiness.Domain.Orders;
+using CustomerOrders.Abstractions.V5.Sale;
 
 namespace CustomerOrdersApi.Library.V5.Services
 {

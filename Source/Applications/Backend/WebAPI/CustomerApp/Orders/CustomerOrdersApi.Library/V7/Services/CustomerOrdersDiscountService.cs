@@ -2,25 +2,24 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrders.Abstractions;
+using CustomerOrders.Abstractions.V7.Sale;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
 using CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts;
+using CustomerOrdersApi.Library.V7.Extensions;
 using CustomerOrdersApi.Library.V7.Factories;
 using CustomerOrdersApi.Library.V7.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Interfaces.Sale;
-using Vodovoz.Handlers;
-using Vodovoz.Nodes;
 using Vodovoz.Settings.Orders;
-using VodovozBusiness.Nodes;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V7.Services
 {
-	public class CustomerOrdersDiscountService : SignatureService, ICustomerOrdersDiscountService
+	internal class CustomerOrdersDiscountService : SignatureService, ICustomerOrdersDiscountService
 	{
 		private readonly ILogger<CustomerOrdersService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -62,7 +61,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 				applyPromoCodeDto.Signature,
 				new ApplyPromoCodeSignatureParams
 				{
-					OrderId = applyPromoCodeDto.Source == Source.MobileApp
+					OrderId = applyPromoCodeDto.Source == ExternalSource.MobileApp
 						? applyPromoCodeDto.ExternalCounterpartyId.ToString()
 						: applyPromoCodeDto.ExternalOrderId.ToString(),
 					OrderSumInKopecks = (int)(applyPromoCodeDto.OrderSum * 100),
@@ -92,17 +91,8 @@ namespace CustomerOrdersApi.Library.V7.Services
 		public ISaleItemPromotion ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Применение промокода к онлайн заказу");
-
-			var dto = new CanApplyOnlineOrderPromoCodeV7
-			{
-				Source = applyPromoCodeDto.Source,
-				PromoCode =	applyPromoCodeDto.PromoCode,
-				Time = applyPromoCodeDto.RequestTime.ToLocalTime(),
-				CounterpartyId = applyPromoCodeDto.ErpCounterpartyId,
-				Products = applyPromoCodeDto.OnlineOrderItems
-			};
 			
-			var result = _onlineOrderDiscountHandler.TryApplyPromoCodeV7(uow, dto);
+			var result = _onlineOrderDiscountHandler.TryApplyPromoCode(uow, applyPromoCodeDto);
 
 			if(result.IsFailure)
 			{
@@ -117,7 +107,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 		}
 		
 		public async Task<FirstOrderDiscountConditionsDto> CanApplyFirstOrderDiscount(
-			Source source,
+			ExternalSource source,
 			Guid? externalCounterpartyId,
 			int? erpCounterpartyId,
 			CancellationToken cancellationToken
@@ -135,7 +125,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 					uow,
 					externalCounterpartyId,
 					erpCounterpartyId.Value,
-					source,
+					source.ToSource(),
 					cancellationToken);
 
 			return FirstOrderDiscountConditionsDto.Create(!isClientHasNotCancelledOnlineOrdersFromSource);
@@ -158,15 +148,8 @@ namespace CustomerOrdersApi.Library.V7.Services
 				return AppliedFirstOrderDiscountDto.Create(
 					_onlineOrderDiscountHandler.CalculateDiscounts(uow, applyFirstOrderDiscountDto.OnlineOrderItems));
 			}
-
-			var dto = CanApplyFirstOrderDiscountRequest.Create(
-				applyFirstOrderDiscountDto.Source,
-				applyFirstOrderDiscountDto.ErpCounterpartyId,
-				applyFirstOrderDiscountDto.ExternalCounterpartyId,
-				applyFirstOrderDiscountDto.OnlineOrderItems
-			);
 			
-			var result = _onlineOrderDiscountHandler.TryApplyFirstOrderDiscount(uow, dto);
+			var result = _onlineOrderDiscountHandler.TryApplyFirstOrderDiscount(uow, applyFirstOrderDiscountDto);
 			
 			return AppliedFirstOrderDiscountDto.Create(result);
 		}

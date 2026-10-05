@@ -1,4 +1,6 @@
 ﻿using System;
+using CustomerOrders.Abstractions;
+using CustomerOrders.Abstractions.V8.Sale;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V8.Dto.Orders.FixedPrice;
 using CustomerOrdersApi.Library.V8.Factories;
@@ -6,14 +8,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Interfaces.Sale;
-using Vodovoz.Handlers;
 using VodovozBusiness.Nodes;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V8.Services
 {
-	public class CustomerOrderFixedPriceService : SignatureService, ICustomerOrderFixedPriceService
+	internal class CustomerOrderFixedPriceService : SignatureService, ICustomerOrderFixedPriceService
 	{
 		private readonly ILogger<CustomerOrdersService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -47,7 +47,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 				applyFixedPriceDto.Signature,
 				new ApplyFixedPriceSignatureParams
 				{
-					OrderId = applyFixedPriceDto.Source == Source.MobileApp
+					OrderId = applyFixedPriceDto.Source == ExternalSource.MobileApp
 						? applyFixedPriceDto.ExternalCounterpartyId.ToString()
 						: applyFixedPriceDto.ExternalOrderId.ToString(),
 					OrderSumInKopecks = (int)(applyFixedPriceDto.OrderSum * 100),
@@ -57,19 +57,11 @@ namespace CustomerOrdersApi.Library.V8.Services
 				out generatedSignature);
 		}
 		
-		public ISaleItemPromotion ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
+		public ISalePromotion ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Применение фиксы к онлайн заказу {applyFixedPriceDto.ExternalOrderId}");
 
-			var node = new CanApplyOnlineOrderFixedPriceV7
-			{
-				IsSelfDelivery =	applyFixedPriceDto.IsSelfDelivery,
-				DeliveryPointId = applyFixedPriceDto.ErpDeliveryPointId,
-				CounterpartyId = applyFixedPriceDto.ErpCounterpartyId,
-				OnlineOrderItems = applyFixedPriceDto.OnlineOrderItems
-			};
-
-			var (fixedPriceAppliedToAllOrder, saleItems) = _onlineOrderFixedPriceHandler.TryApplyFixedPriceV7(uow, node);
+			var (fixedPriceAppliedToAllOrder, saleItems) = _onlineOrderFixedPriceHandler.TryApplyFixedPrice(uow, applyFixedPriceDto);
 
 			return AppliedFixedPriceDto.Create(
 				saleItems,

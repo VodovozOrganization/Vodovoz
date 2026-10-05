@@ -42,12 +42,6 @@ namespace Vodovoz.Errors.Orders
 					nameof(InvalidMinimalOrderSum),
 					"Несоответствие минимальной сумме");
 			
-			public static Error UnsuitableItemsInCart =>
-				new Error(
-					typeof(DiscountErrors),
-					nameof(UnsuitableItemsInCart),
-					"Неподходящие товары в корзине");
-			
 			public static Error ItemsInCartHasBigDiscount =>
 				new Error(
 					typeof(DiscountErrors),

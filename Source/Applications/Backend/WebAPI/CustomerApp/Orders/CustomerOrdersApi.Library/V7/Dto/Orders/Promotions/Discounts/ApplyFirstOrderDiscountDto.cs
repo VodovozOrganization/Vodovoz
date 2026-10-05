@@ -1,34 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CustomerOrders.Abstractions;
+using CustomerOrders.Abstractions.V7.Carts;
+using CustomerOrders.Abstractions.V7.Sale;
 using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
-using Vodovoz.Core.Domain.Clients;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts
 {
 	/// <summary>
 	/// Информация для применения скидки на первый заказ
 	/// </summary>
-	public class ApplyFirstOrderDiscountDto
+	public class ApplyFirstOrderDiscountDto : IApplyingFirstOrderDiscount
 	{
-		/// <summary>
-		/// Источник заказа
-		/// </summary>
-		public Source Source { get; set; }
+		/// <inheritdoc/>
+		public ExternalSource Source { get; set; }
 		/// <summary>
 		/// Номер онлайн заказа из ИПЗ
 		/// </summary>
 		public Guid? ExternalOrderId { get; set; }
-		/// <summary>
-		/// Id контрагента в ДВ
-		/// </summary>
+		/// <inheritdoc/>
 		public int? ErpCounterpartyId { get; set; }
-		/// <summary>
-		/// Id клиента в ИПЗ
-		/// </summary>
+		/// <inheritdoc/>
 		public Guid? ExternalCounterpartyId { get; set; }
 		/// <summary>
 		/// Список товаров
 		/// </summary>
 		public IEnumerable<OnlineOrderItemDto> OnlineOrderItems { get; set; }
+		/// <inheritdoc/>
+		[JsonIgnore]
+		public decimal OrderSum => OnlineOrderItems.Sum(x => x.CurrentSum);
+
+		public IEnumerable<IOrderedCartItem> CartItems => OnlineOrderItems;
 	}
 }

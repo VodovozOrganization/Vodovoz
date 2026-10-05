@@ -7,11 +7,9 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Clients;
+using CustomerOrders.Abstractions;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Handlers;
 using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Nodes;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V6.Services
@@ -47,7 +45,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 				applyFixedPriceDto.Signature,
 				new ApplyFixedPriceSignatureParams
 				{
-					OrderId = applyFixedPriceDto.Source == Source.MobileApp
+					OrderId = applyFixedPriceDto.Source == ExternalSource.MobileApp
 						? applyFixedPriceDto.ExternalCounterpartyId.ToString()
 						: applyFixedPriceDto.ExternalOrderId.ToString(),
 					OrderSumInKopecks = (int)(GetOnlineOrderSum(applyFixedPriceDto.OnlineOrderItems) * 100),
@@ -60,16 +58,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		public Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Применение фиксы к онлайн заказу {applyFixedPriceDto.ExternalOrderId}");
-
-			var node = new CanApplyOnlineOrderFixedPrice
-			{
-				IsSelfDelivery =	applyFixedPriceDto.IsSelfDelivery,
-				DeliveryPointId = applyFixedPriceDto.ErpDeliveryPointId,
-				CounterpartyId = applyFixedPriceDto.ErpCounterpartyId,
-				OnlineOrderItems = applyFixedPriceDto.OnlineOrderItems
-			};
-			
-			return _onlineOrderFixedPriceHandler.TryApplyFixedPrice(uow, node);
+			return _onlineOrderFixedPriceHandler.TryApplyFixedPrice(uow, applyFixedPriceDto);
 		}
 		
 		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDto> orderItems)

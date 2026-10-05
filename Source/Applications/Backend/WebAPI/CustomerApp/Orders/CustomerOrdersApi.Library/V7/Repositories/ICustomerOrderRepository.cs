@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrders.Abstractions;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;

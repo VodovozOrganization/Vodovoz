@@ -1,5 +1,5 @@
-﻿using System;
-using VodovozBusiness.Domain.Orders;
+﻿using CustomerOrders.Abstractions.V5.Sale;
+using System;
 
 namespace CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem
 {

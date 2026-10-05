@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Abstractions;
+using CustomerOrders.Abstractions.V3.Sale;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
 using CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Handlers;
-using Vodovoz.Nodes;
-using VodovozBusiness.Domain.Orders;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.Default.Services
@@ -48,7 +46,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 				applyPromoCodeDto.Signature,
 				new ApplyPromoCodeSignatureParams
 				{
-					OrderId = applyPromoCodeDto.Source == Source.MobileApp
+					OrderId = applyPromoCodeDto.Source == ExternalSource.MobileApp
 						? applyPromoCodeDto.ExternalCounterpartyId.ToString()
 						: applyPromoCodeDto.ExternalOrderId.ToString(),
 					OrderSumInKopecks = (int)(GetOnlineOrderSum(applyPromoCodeDto.OnlineOrderItems) * 100),
@@ -77,18 +75,8 @@ namespace CustomerOrdersApi.Library.Default.Services
 
 		public Result<IEnumerable<IOnlineOrderedProduct>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
 		{
-			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Применение промокода к онлайн заказу");
-
-			var dto = new CanApplyOnlineOrderPromoCode
-			{
-				PromoCode =	applyPromoCodeDto.PromoCode,
-				Time = applyPromoCodeDto.RequestTime.ToLocalTime(),
-				CounterpartyId = applyPromoCodeDto.ErpCounterpartyId.Value,
-				Products = applyPromoCodeDto.OnlineOrderItems,
-				Source = applyPromoCodeDto.Source
-			};
-			
-			return _onlineOrderDiscountHandler.TryApplyPromoCode(uow, dto);
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Применение промокода к онлайн заказу");		
+			return _onlineOrderDiscountHandler.TryApplyPromoCode(uow, applyPromoCodeDto);
 		}
 
 		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDto> orderItems)

@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel;
+using CustomerOrdersApi.Library.V8.Factories;
+using CustomerOrdersApi.Library.V8.Services;
 using CustomerOrdersApi.Library.V8.Dto.Orders.RequestsForCall;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +26,9 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 				.AddScoped<Factories.IInfoMessageFactory, Factories.InfoMessageFactory>()
 				.AddScoped<Factories.IOnlineOrderItemDtoFactory, Factories.OnlineOrderItemDtoFactory>()
 				.AddScoped<Repositories.ICustomerOrderRepository, Repositories.CustomerOrderRepository>()
+				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
+				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+				.AddScoped<IApplicablePromotionFactory, ApplicablePromotionFactory>()
 				.AddCommonDependencies()
 				.AddPaymentRefundServices()
 				;

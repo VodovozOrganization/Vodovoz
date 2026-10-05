@@ -10,7 +10,6 @@ using Vodovoz.Core.Application.Clients.Services;
 using Vodovoz.Core.Application.Complaints;
 using Vodovoz.Core.Application.Contacts;
 using Vodovoz.Core.Application.Employees;
-using Vodovoz.Core.Application.Factories;
 using Vodovoz.Core.Application.FastPayment;
 using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Application.Goods;
@@ -33,7 +32,6 @@ using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Service;
-using Vodovoz.Handlers;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using VodovozBusiness.Controllers;
@@ -129,8 +127,6 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IFixedPriceGetter, FixedPriceGetter>()
 				.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 				.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
-				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
-				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
 				.AddDriverApiNotificationsSenders()
 				.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
 				.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()
@@ -150,7 +146,6 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
 				.AddScoped<ICustomerOrderTransferService, CustomerOrderTransferService>()
 				.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
-				.AddScoped<IApplicablePromotionFactory, ApplicablePromotionFactory>()
 				.AddSaleHandlers()
 				.AddDiscountControllers()
 				.AddScoped<IAddPromoSetValidatorFactory, AddPromoSetValidatorFactory>()

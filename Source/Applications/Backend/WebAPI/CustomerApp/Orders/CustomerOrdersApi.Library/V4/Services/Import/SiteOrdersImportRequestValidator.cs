@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
+using CustomerOrders.Abstractions;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V4.Dto.Orders.Import;
 using Microsoft.Extensions.Options;
@@ -42,7 +43,7 @@ namespace CustomerOrdersApi.Library.V4.Services.Import
 		/// </summary>
 		public bool ValidateSignature(OrdersImportRequest request, out string generatedSignature)
 		{
-			var sourceSign = GetSourceSign(Source.VodovozWebSite, _signatureOptions);
+			var sourceSign = GetSourceSign(ExternalSource.VodovozWebSite, _signatureOptions);
 
 			if(string.IsNullOrEmpty(sourceSign))
 			{

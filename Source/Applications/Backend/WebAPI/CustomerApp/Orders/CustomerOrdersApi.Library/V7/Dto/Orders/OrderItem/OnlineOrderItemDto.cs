@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Vodovoz.Core.Data.Sale;
-using Vodovoz.Core.Domain.Interfaces.Sale;
+﻿using CustomerOrders.Abstractions.V7.Carts;
+using CustomerOrders.Contracts.V7.Orders.Items;
+using System.Collections.Generic;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem
 {

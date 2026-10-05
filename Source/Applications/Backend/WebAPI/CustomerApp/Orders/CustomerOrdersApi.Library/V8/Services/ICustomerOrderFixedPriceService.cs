@@ -1,5 +1,5 @@
-﻿using CustomerOrdersApi.Library.V8.Dto.Orders.FixedPrice;
-using Vodovoz.Core.Domain.Interfaces.Sale;
+﻿using CustomerOrders.Abstractions.V8.Sale;
+using CustomerOrdersApi.Library.V8.Dto.Orders.FixedPrice;
 
 namespace CustomerOrdersApi.Library.V8.Services
 {
@@ -20,6 +20,6 @@ namespace CustomerOrdersApi.Library.V8.Services
 		/// </summary>
 		/// <param name="applyFixedPriceDto">Данные для применения фиксы</param>
 		/// <returns>Список товаров в случае, если есть фикса. Сообщение ошибки</returns>
-		ISaleItemPromotion ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto);
+		ISalePromotion ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto);
 	}
 }

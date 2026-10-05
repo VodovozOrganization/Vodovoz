@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using CustomerOrders.Abstractions.Common;
+using CustomerOrders.Abstractions.V7.Sale;
 using CustomerOrdersApi.Library.V7.Dto.Orders.Promotions;
-using Vodovoz.Core.Domain.Interfaces.Common;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
 

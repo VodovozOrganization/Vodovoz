@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using CustomerOrders.Abstractions;
+using CustomerOrders.Abstractions.V4.Sale;
 using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
-using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Library.V4.Dto.Orders
 {
 	/// <summary>
 	/// Информация для проверки применимости промокода
 	/// </summary>
-	public class ApplyPromoCodeDto
+	public class ApplyPromoCodeDto : IApplyingPromoCode
 	{
 		/// <summary>
 		/// Источник заказа
 		/// </summary>
-		public Source Source { get; set; }
+		public ExternalSource Source { get; set; }
 		/// <summary>
 		/// Номер онлайн заказа из ИПЗ
 		/// </summary>
@@ -41,5 +42,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		public IEnumerable<OnlineOrderItemDto> OnlineOrderItems { get; set; }
 		[JsonIgnore]
 		public DateTime RequestTime { get; } = DateTime.UtcNow;
+
+		IEnumerable<IOnlineOrderedProduct> IApplyingPromoCode.OnlineOrderItems => OnlineOrderItems;
 	}
 }

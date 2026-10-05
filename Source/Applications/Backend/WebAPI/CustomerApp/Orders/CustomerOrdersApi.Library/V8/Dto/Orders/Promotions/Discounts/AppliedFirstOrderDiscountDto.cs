@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Vodovoz.Core.Domain.Interfaces.Sale;
+﻿using CustomerOrders.Abstractions.V8.Sale;
+using System.Collections.Generic;
 
 namespace CustomerOrdersApi.Library.V8.Dto.Orders.Promotions.Discounts
 {

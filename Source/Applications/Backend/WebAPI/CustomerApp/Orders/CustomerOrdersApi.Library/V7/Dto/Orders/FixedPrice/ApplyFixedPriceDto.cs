@@ -2,31 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using CustomerOrders.Abstractions;
+using CustomerOrders.Abstractions.V7.Carts;
+using CustomerOrders.Abstractions.V7.Sale;
 using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
-using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice
 {
 	/// <summary>
 	/// Информация для применения фиксы
 	/// </summary>
-	public class ApplyFixedPriceDto
+	public class ApplyFixedPriceDto : IApplyingFixedPrice
 	{
 		/// <summary>
 		/// Источник заказа
 		/// </summary>
-		public Source Source { get; set; }
+		public ExternalSource Source { get; set; }
 		/// <summary>
 		/// Номер онлайн заказа из ИПЗ
 		/// </summary>
 		public Guid? ExternalOrderId { get; set; }
-		/// <summary>
-		/// Id контрагента в ДВ
-		/// </summary>
+		/// <inheritdoc/>
 		public int? ErpCounterpartyId { get; set; }
-		/// <summary>
-		/// Id точки доставки в ДВ
-		/// </summary>
+		/// <inheritdoc/>
 		public int? ErpDeliveryPointId { get; set; }
 		/// <summary>
 		/// Контрольная сумма, для проверки валидности отправителя
@@ -36,9 +34,7 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice
 		/// Id клиента в ИПЗ
 		/// </summary>
 		public Guid? ExternalCounterpartyId { get; set; }
-		/// <summary>
-		/// Самовывоз
-		/// </summary>
+		/// <inheritdoc/>
 		public bool IsSelfDelivery { get; set; }
 		/// <summary>
 		/// Сумма заказа
@@ -49,5 +45,6 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice
 		/// Список товаров
 		/// </summary>
 		public IEnumerable<OnlineOrderItemDto> OnlineOrderItems { get; set; }
+		IEnumerable<IOrderedCartItem> IApplyingFixedPrice.OnlineOrderItems => OnlineOrderItems;
 	}
 }

@@ -12,15 +12,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 	public class NewOrderSaleItemsFromPromoSetCreator : INewOrderSaleItemsFromPromoSetCreator
 	{
 		private readonly IOrderDiscountsController _discountsController;
-		private readonly IApplicablePromotionFactory _applicablePromotionFactory;
 
 		public NewOrderSaleItemsFromPromoSetCreator(
-			IOrderDiscountsController discountsController,
-			IApplicablePromotionFactory applicablePromotionFactory
+			IOrderDiscountsController discountsController
 			)
 		{
 			_discountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
-			_applicablePromotionFactory = applicablePromotionFactory ?? throw new ArgumentNullException(nameof(applicablePromotionFactory));
 		}
 		
 		/// <inheritdoc/>
@@ -48,7 +45,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 			
 			var newSaleItems = new List<NewOrderSaleItem>();
-			var promoSaleItem = _applicablePromotionFactory.CreateApplicablePromotion(onlineOrderPromoSet);
+			var promoSaleItem = ApplicablePromotion.Create(onlineOrderPromoSet);
 			var totalPromoSetItemsDiscount = _discountsController.CalculatePromoSetItemsTotalDiscount(
 				uow,
 				promoSaleItem,

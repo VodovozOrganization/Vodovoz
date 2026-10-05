@@ -1,27 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using CustomerOrders.Abstractions;
+using CustomerOrders.Abstractions.V3.Sale;
 using CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem;
-using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Library.Default.Dto.Orders
 {
 	/// <summary>
 	/// Информация для проверки применимости промокода
 	/// </summary>
-	public class ApplyPromoCodeDto
+	public class ApplyPromoCodeDto : IApplyingPromoCode
 	{
-		/// <summary>
-		/// Источник заказа
-		/// </summary>
-		public Source Source { get; set; }
+		/// <inheritdoc/>
+		public ExternalSource Source { get; set; }
 		/// <summary>
 		/// Номер онлайн заказа из ИПЗ
 		/// </summary>
 		public Guid? ExternalOrderId { get; set; }
-		/// <summary>
-		/// Id контрагента в ДВ
-		/// </summary>
+		/// <inheritdoc/>
 		public int? ErpCounterpartyId { get; set; }
 		/// <summary>
 		/// Контрольная сумма, для проверки валидности отправителя
@@ -31,15 +28,13 @@ namespace CustomerOrdersApi.Library.Default.Dto.Orders
 		/// Id клиента в ИПЗ
 		/// </summary>
 		public Guid? ExternalCounterpartyId { get; set; }
-		/// <summary>
-		/// Промокод
-		/// </summary>
+		/// <inheritdoc/>
 		public string PromoCode { get; set; }
-		/// <summary>
-		/// Список товаров
-		/// </summary>
+		/// <inheritdoc/>
 		public IEnumerable<OnlineOrderItemDto> OnlineOrderItems { get; set; }
+		/// <inheritdoc/>
 		[JsonIgnore]
 		public DateTime RequestTime { get; } = DateTime.UtcNow;
+		IEnumerable<IOnlineOrderedProduct> IApplyingPromoCode.OnlineOrderItems => OnlineOrderItems;
 	}
 }

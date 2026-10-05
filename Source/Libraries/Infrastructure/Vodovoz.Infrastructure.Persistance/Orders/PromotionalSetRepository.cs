@@ -156,6 +156,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return itemsQuery.ToList();
 		}
 
+		public bool HasPromoSetsForNewClients(IUnitOfWork uow, IEnumerable<int> promotionalSetIds)
+		{
+			return (
+				from promoSet in uow.Session.Query<PromotionalSet>()
+				where promotionalSetIds.Contains(promoSet.Id)
+					&& promoSet.PromotionalSetForNewClients
+				select promoSet)
+			.Any();
+		}
+
 		private string GetBuildingNumber(string building)
 		{
 			string buildingNumber = string.Empty;

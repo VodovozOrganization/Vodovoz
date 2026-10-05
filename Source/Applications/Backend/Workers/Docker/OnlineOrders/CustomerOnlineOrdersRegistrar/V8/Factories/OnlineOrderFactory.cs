@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Abstractions.V8.Sale;
 using CustomerOrdersApi.Library.V8.Dto.Orders;
 using CustomerOrdersApi.Library.V8.Dto.Orders.OrderItem;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;

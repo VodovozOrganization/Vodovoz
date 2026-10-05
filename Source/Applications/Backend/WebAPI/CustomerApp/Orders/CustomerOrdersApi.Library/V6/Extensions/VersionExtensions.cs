@@ -19,6 +19,9 @@ namespace CustomerOrdersApi.Library.V6.Extensions
 				.AddScoped<ICustomerOrderCancellationService, CustomerOrderCancellationService>()
 				.AddScoped<ICourierTrackingService, CourierTrackingService>()
 				.AddScoped<Repositories.ICustomerOrderRepository, Repositories.CustomerOrderRepository>()
+				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
+				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+				.AddScoped<IApplicablePromotionFactory, ApplicablePromotionFactory>()
 				.AddCommonDependencies()
 				.AddPaymentRefundServices()
 				;

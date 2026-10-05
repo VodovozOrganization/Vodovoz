@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomerOrders.Abstractions;
+using System;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 
@@ -6,6 +7,23 @@ namespace VodovozBusiness.Extensions
 {
 	public static class SourceExtensions
 	{
+		public static GoodsOnlineParameterType ToGoodsOnlineParameterType(this ExternalSource source)
+		{
+			switch(source)
+			{
+				case ExternalSource.MobileApp:
+					return GoodsOnlineParameterType.ForMobileApp;
+				case ExternalSource.VodovozWebSite:
+					return GoodsOnlineParameterType.ForVodovozWebSite;
+				case ExternalSource.KulerSaleWebSite:
+					return GoodsOnlineParameterType.ForKulerSaleWebSite;
+				case ExternalSource.AiBot:
+					return GoodsOnlineParameterType.ForAiBot;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(source), $"ИПЗ {source} не поддерживается");
+			}
+		}
+
 		public static GoodsOnlineParameterType ToGoodsOnlineParameterType(this Source source)
 		{
 			switch(source)

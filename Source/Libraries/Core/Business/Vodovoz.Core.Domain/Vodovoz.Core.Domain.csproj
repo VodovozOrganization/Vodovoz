@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Applications\Backend\WebAPI\CustomerApp\Orders\CustomerOrders.Contracts\CustomerOrders.Contracts.csproj" />
     <ProjectReference Include="..\..\..\External\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj" />
     <ProjectReference Include="..\..\..\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />

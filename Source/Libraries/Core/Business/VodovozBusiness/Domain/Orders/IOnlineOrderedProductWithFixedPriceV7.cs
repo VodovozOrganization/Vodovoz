@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CustomerOrders.Abstractions.V8.Sale;
+using System.Collections.Generic;
 using Vodovoz.Core.Domain.Goods;
 
 namespace VodovozBusiness.Domain.Orders

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using CustomerAppsApi.Library.V2.Dto;
 using CustomerAppsApi.Library.V2.Dto.Goods;
 using CustomerAppsApi.Library.V2.Dto.Goods.Attributes;
-using Vodovoz.Converters;
-using Vodovoz.Core.Domain.Extensions;
+using CustomerAppsApi.Library.V2.Extensions;
 using Vodovoz.Core.Domain.Goods;
 
 namespace CustomerAppsApi.Library.V2.Factories

@@ -1,4 +1,5 @@
-﻿using CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice;
+﻿using CustomerOrders.Abstractions.V7.Sale;
+using CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 
 namespace CustomerOrdersApi.Library.V7.Services

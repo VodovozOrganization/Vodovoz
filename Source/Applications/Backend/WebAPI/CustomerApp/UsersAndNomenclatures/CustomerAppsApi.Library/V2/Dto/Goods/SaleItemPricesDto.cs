@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Vodovoz.Core.Domain.Goods;
+using CustomerAppsApi.Library.V2.Dto.Sale;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 

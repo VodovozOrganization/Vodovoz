@@ -12,7 +12,6 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -20,7 +19,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 	public class NewOnlineOrderValidator : OrderFromOnlineOrderValidator
 	{
 		private readonly ISaleDiscountController _discountController;
-		private readonly IApplicablePromotionFactory _applicablePromotionFactory;
 
 		public NewOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
@@ -31,8 +29,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IFreeLoaderChecker freeLoaderChecker,
 			IOrderOrganizationManager orderOrganizationManager,
 			IOrderSettings orderSettings,
-			IOrderRepository orderRepository,
-			IApplicablePromotionFactory applicablePromotionFactory
+			IOrderRepository orderRepository
 			)
 			: base(
 				goodsPriceCalculator,
@@ -46,7 +43,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 				orderRepository)
 		{
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
-			_applicablePromotionFactory = applicablePromotionFactory ?? throw new ArgumentNullException(nameof(applicablePromotionFactory));
 		}
 		
 		private new OnlineOrderV2 OnlineOrder => base.OnlineOrder as OnlineOrderV2;
@@ -111,7 +107,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		private void ValidateDiscounts(OnlineOrderPromoSet onlinePromoSet)
 		{
-			var applicablePromotion = _applicablePromotionFactory.CreateApplicablePromotion(onlinePromoSet);
+			var applicablePromotion = ApplicablePromotion.Create(onlinePromoSet);
 			var notApplicableDiscountReasonsBuilder = new StringBuilder();
 
 			foreach(var discountReason in onlinePromoSet.DiscountReasons)
@@ -141,7 +137,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			var price = onlinePromoSet.PromoSet.Sum();
 			
-			var applicablePromotion = _applicablePromotionFactory.CreateApplicablePromotion(onlinePromoSet);
+			var applicablePromotion = ApplicablePromotion.Create(onlinePromoSet);
 			var applicableDiscountReasons = onlinePromoSet.DiscountReasons
 				.Where(x => _discountController.IsApplicableDiscount(x, applicablePromotion).IsSuccess)
 				.ToList();

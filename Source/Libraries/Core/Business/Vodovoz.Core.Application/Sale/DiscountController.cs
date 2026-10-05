@@ -1,11 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Abstractions.V8.Sale;
+using CustomerOrders.Contracts.V8.Sale;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Interfaces;
-using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Goods;
@@ -46,65 +47,10 @@ namespace Vodovoz.Core.Application.Sale
 
 			if(isNotApplicableDiscount)
 			{
-				return Result.Failure(DiscountErrors.DiscountNotAllowed);
+				return Result.Failure(DiscountErrors.DiscountForItemNotAllowed);
 			}
 			
 			return CanApplyDiscount(addingDiscount, saleItem);
-		}
-
-		/// <inheritdoc/>
-		public virtual (decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
-			ICalculatingTotalMoneyDiscount saleItem
-		)
-		{
-			if(saleItem is null)
-			{
-				throw new ArgumentNullException(
-					nameof(saleItem),
-					$"Продаваемая позиция должна реализовывать интерфейс {nameof(ICalculatingTotalMoneyDiscount)}");
-			}
-			
-			var currentSumWithoutDiscount = saleItem.CurrentRawPrice;
-			var discountAmounts = new Dictionary<int, IDiscountAmount>();
-			var totalDiscountMoney = 0m;
-
-			foreach(var discountReason in saleItem.DiscountReasons)
-			{
-				var discountMoney = CalculateMoneyDiscount(currentSumWithoutDiscount, discountReason);
-				totalDiscountMoney += discountMoney;
-
-				IDiscountAmount discountAmount;
-
-				if(currentSumWithoutDiscount >= totalDiscountMoney)
-				{
-					discountAmount = DiscountAmount.Create(discountReason.Id, discountReason.ToString(), discountMoney);
-				}
-				else
-				{
-					var difference = totalDiscountMoney - currentSumWithoutDiscount;
-					discountAmount = DiscountAmount.Create(
-						discountReason.Id,
-						discountReason.ToString(),
-						difference >= discountMoney ? 0m : discountMoney - difference);
-					totalDiscountMoney = currentSumWithoutDiscount;
-				}
-
-				discountAmounts.Add(discountAmount.Id, discountAmount);
-			}
-
-			if(saleItem.PersonalDiscount != null)
-			{
-				totalDiscountMoney += saleItem.PersonalDiscount.DiscountValue.DiscountMoney;
-				
-				var personalDiscountAmount = DiscountAmount.Create(
-					saleItem.PersonalDiscount.DiscountReason.Id,
-					saleItem.PersonalDiscount.DiscountReason.ToString(),
-					saleItem.PersonalDiscount.DiscountValue.DiscountMoney);
-				
-				discountAmounts.Add(personalDiscountAmount.Id, personalDiscountAmount);
-			}
-
-			return (totalDiscountMoney, discountAmounts);
 		}
 		
 		public decimal CalculateMoneyDiscount(
@@ -255,7 +201,7 @@ namespace Vodovoz.Core.Application.Sale
 				if(saleItem.PromoSet != null)
 				{
 					return CanApplyToPromoSet(saleItem.PromoSet.Id, addingDiscount.PromoSets.Select(x => x.Id).ToArray())
-						.ToResult(DiscountErrors.DiscountNotAllowed);
+						.ToResult(DiscountErrors.DiscountForItemNotAllowed);
 				}
 			}
 
@@ -270,7 +216,7 @@ namespace Vodovoz.Core.Application.Sale
 					CanApplyToNomenclature(saleItem.Nomenclature.Id, addingDiscount.Nomenclatures)
 					|| CanApplyToNomenclatureCategory(saleItem.Nomenclature.Category, addingDiscount.NomenclatureCategories)
 					|| CanApplyToProductGroup(saleItem.Nomenclature.ProductGroup, addingDiscount.ProductGroups))
-				.ToResult(DiscountErrors.DiscountNotAllowed);
+				.ToResult(DiscountErrors.DiscountForItemNotAllowed);
 		}
 
 		/// <summary>

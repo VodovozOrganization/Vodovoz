@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using Vodovoz.Core.Domain.Interfaces.Common;
+﻿using CustomerOrders.Abstractions.V7.Sale;
+using System.Collections.Generic;
+using CustomerOrders.Abstractions.Common;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Results;
 

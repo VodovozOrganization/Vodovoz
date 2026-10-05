@@ -11,5 +11,9 @@
 		/// Id основания скидки для первого онлайн заказа
 		/// </summary>
 		int FirstOnlineOrderDiscountReasonId { get; }
+		/// <summary>
+		/// Id основания скидки для первого онлайн автозаказа
+		/// </summary>
+		int AutoOrderDiscountReasonId { get; }
 	}
 }

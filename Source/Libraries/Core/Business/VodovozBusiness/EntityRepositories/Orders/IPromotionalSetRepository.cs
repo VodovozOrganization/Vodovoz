@@ -38,5 +38,12 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="onlineOrderId">Идентификатор онлайн заказа</param>
 		/// <returns></returns>
 		IEnumerable<OnlineOrderPromoSetItemNode> GetOnlineOrderPromoSetItemsData(IUnitOfWork uow, int onlineOrderId);
+		/// <summary>
+		/// Есть ли среди списка идентификаторов промонаборов промики для новых клиентов
+		/// </summary>
+		/// <param name="uow">Unit Of Work</param>
+		/// <param name="promotionalSetIds">Идентификаторы промонаборов</param>
+		/// <returns></returns>
+		bool HasPromoSetsForNewClients(IUnitOfWork uow, IEnumerable<int> promotionalSetIds);
 	}
 }

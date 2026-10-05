@@ -2,27 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using CustomerOrders.Abstractions;
+using CustomerOrders.Abstractions.V7.Carts;
+using CustomerOrders.Abstractions.V7.Sale;
 using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
-using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts
 {
 	/// <summary>
 	/// Информация для проверки применимости промокода
 	/// </summary>
-	public class ApplyPromoCodeDto
+	public class ApplyPromoCodeDto : IApplyingPromoCode
 	{
-		/// <summary>
-		/// Источник заказа
-		/// </summary>
-		public Source Source { get; set; }
+		/// <inheritdoc/>
+		public ExternalSource Source { get; set; }
 		/// <summary>
 		/// Номер онлайн заказа из ИПЗ
 		/// </summary>
 		public Guid? ExternalOrderId { get; set; }
-		/// <summary>
-		/// Id контрагента в ДВ
-		/// </summary>
+		/// <inheritdoc/>
 		public int? ErpCounterpartyId { get; set; }
 		/// <summary>
 		/// Контрольная сумма, для проверки валидности отправителя
@@ -32,20 +30,19 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts
 		/// Id клиента в ИПЗ
 		/// </summary>
 		public Guid? ExternalCounterpartyId { get; set; }
-		/// <summary>
-		/// Промокод
-		/// </summary>
+		/// <inheritdoc/>
 		public string PromoCode { get; set; }
-		/// <summary>
-		/// Сумма заказа
-		/// </summary>
+		/// <inheritdoc/>
 		[JsonIgnore]
 		public decimal OrderSum => OnlineOrderItems.Sum(x => x.CurrentSum);
 		/// <summary>
 		/// Список товаров
 		/// </summary>
 		public IEnumerable<OnlineOrderItemDto> OnlineOrderItems { get; set; }
+		/// <inheritdoc/>
 		[JsonIgnore]
 		public DateTime RequestTime { get; } = DateTime.UtcNow;
+
+		IEnumerable<IOrderedCartItem> IApplyingPromoCode.OnlineOrderItems => OnlineOrderItems;
 	}
 }

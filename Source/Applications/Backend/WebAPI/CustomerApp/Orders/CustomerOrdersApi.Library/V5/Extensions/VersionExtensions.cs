@@ -21,6 +21,9 @@ namespace CustomerOrdersApi.Library.V5.Extensions
 				.AddScoped<Repositories.ICustomerOrderRepository, Repositories.CustomerOrderRepository>()
 				.AddScoped<ISiteOrdersImportRequestValidator, SiteOrdersImportRequestValidator>()
 				.AddScoped<ISiteOrdersImportService, SiteOrdersImportService>()
+				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
+				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+				.AddScoped<IApplicablePromotionFactory, ApplicablePromotionFactory>()
 				.AddCommonDependencies()
 				.AddPaymentRefundServices()
 				;

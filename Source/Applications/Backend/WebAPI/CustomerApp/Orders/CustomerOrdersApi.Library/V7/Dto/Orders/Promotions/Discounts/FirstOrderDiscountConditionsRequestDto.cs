@@ -1,4 +1,5 @@
 ﻿using System;
+using CustomerOrders.Abstractions;
 using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts
@@ -11,7 +12,7 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts
 		/// <summary>
 		/// Источник заказа
 		/// </summary>
-		public Source Source { get; set; }
+		public ExternalSource Source { get; set; }
 
 		/// <summary>
 		/// Внешний Id пользователя

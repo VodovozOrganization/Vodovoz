@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Vodovoz.Core.Data.Sale;
+using CustomerOrders.Contracts.V7.Orders.Items;
 using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders

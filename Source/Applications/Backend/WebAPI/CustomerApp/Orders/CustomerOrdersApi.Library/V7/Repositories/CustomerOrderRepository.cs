@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrders.Abstractions;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;

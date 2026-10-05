@@ -2,9 +2,8 @@
 {
 	public class DiscountDto
 	{
-		private DiscountDto(int id, bool isDiscountInMoney, decimal discount)
+		protected DiscountDto(bool isDiscountInMoney, decimal discount)
 		{
-			DiscountReasonId = id;
 			IsDiscountInMoney = isDiscountInMoney;
 			Discount = discount;
 		}
@@ -17,12 +16,8 @@
 		/// Скидка
 		/// </summary>
 		public decimal Discount { get; }
-		/// <summary>
-		/// Id скидки/промокода
-		/// </summary>
-		public int DiscountReasonId { get; }
 
-		public static DiscountDto Create(int id, bool isDiscountInMoney, decimal discount) =>
-			new DiscountDto(id, isDiscountInMoney, discount);
+		public static DiscountDto Create(bool isDiscountInMoney, decimal discount) =>
+			new DiscountDto(isDiscountInMoney, discount);
 	}
 }

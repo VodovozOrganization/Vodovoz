@@ -2,6 +2,8 @@
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrders.Abstractions;
+using CustomerOrders.Contracts.V8.Sale;
 using CustomerOrdersApi.Library.V8.Dto.Orders;
 using CustomerOrdersApi.Library.V8.Dto.Orders.Promotions.Discounts;
 using CustomerOrdersApi.Library.V8.Services;
@@ -180,6 +182,77 @@ namespace CustomerOrdersApi.Controllers.V8
 					"ExternalCounterpartyId = {ExternalClientId}, CounterpartyErpId = {CounterpartyErpId} от {Source}",
 					requestDto.ExternalCounterpartyId,
 					requestDto.ErpCounterpartyId,
+					sourceName
+				);
+
+				return Problem();
+			}
+		}
+		
+		/// <summary>
+		/// Применение скидки за авто заказ
+		/// </summary>
+		/// <param name="applyAutoOrderDiscount">Данные для применения скидки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список товаров с детализацией скидок, если скидка недоступна - вернется пришедший список</returns>
+		[HttpGet]
+		[Authorize]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApplyAutoOrderDiscountResponse))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public IActionResult ApplyAutoOrderDiscount(
+			[FromBody] ApplyAutoOrderDiscountRequest applyAutoOrderDiscount,
+			CancellationToken cancellationToken)
+		{
+			var sourceName = applyAutoOrderDiscount.Source.GetEnumTitle();
+			
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос на применение скидки за автозаказ {@AutoOrderDiscountRequest}, проверяем...", applyAutoOrderDiscount);
+				
+				var result = _discountService.ProcessAutoOrderDiscount(applyAutoOrderDiscount, cancellationToken);
+
+				_logger.LogInformation("Отправляем ответ по скидке: {@AutoOrderDiscountResponse}", result);
+				return Ok(result);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при применении скидки за автозаказ {ExternalOrderId} пользователя {ExternalClientId} от {Source}",
+					applyAutoOrderDiscount.ExternalOrderId,
+					applyAutoOrderDiscount.ExternalCounterpartyId,
+					sourceName);
+
+				return Problem();
+			}
+		}
+
+		/// <summary>
+		/// Проверка доступности использования скидки на первый заказ для клиента
+		/// </summary>
+		/// <param name="source">Источник запроса <see cref="ExternalSource"/></param>
+		/// <returns>Результат проверки <see cref="FirstOrderDiscountConditionsDto"/></returns>
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FirstOrderDiscountConditionsDto))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[HttpGet]
+		[Authorize]
+		public IActionResult GetOrderTemplateConditions(ExternalSource source)
+		{
+			var sourceName = source.GetEnumTitle();
+
+			try
+			{
+				_logger.LogInformation("Поступил запрос получения скидки за автозаказ от {Source}", sourceName);
+				var result = _discountService.GetAutoOrderDiscount();
+				return Ok(result);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка при запросе получения скидки за автозаказ от {Source}",
 					sourceName
 				);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Abstractions.V7.Sale;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
 using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
 using QS.DomainModel.UoW;

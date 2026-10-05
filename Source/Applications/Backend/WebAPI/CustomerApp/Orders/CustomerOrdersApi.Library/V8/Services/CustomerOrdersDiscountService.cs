@@ -2,25 +2,26 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrders.Abstractions;
+using CustomerOrders.Abstractions.V8.Sale;
+using CustomerOrders.Contracts.V8.Sale;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V8.Dto.Orders;
 using CustomerOrdersApi.Library.V8.Dto.Orders.Promotions.Discounts;
+using CustomerOrdersApi.Library.V8.Extensions;
 using CustomerOrdersApi.Library.V8.Factories;
 using CustomerOrdersApi.Library.V8.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Interfaces.Sale;
-using Vodovoz.Handlers;
-using Vodovoz.Nodes;
+using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Settings.Orders;
-using VodovozBusiness.Nodes;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V8.Services
 {
-	public class CustomerOrdersDiscountService : SignatureService, ICustomerOrdersDiscountService
+	internal class CustomerOrdersDiscountService : SignatureService, ICustomerOrdersDiscountService
 	{
 		private readonly ILogger<CustomerOrdersService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -29,6 +30,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 		private readonly IInfoMessageFactory _infoMessageFactory;
 		private readonly ICustomerOrderRepository _customerOrderRepository;
 		private readonly IDiscountReasonSettings _discountReasonSettings;
+		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrdersDiscountService(
@@ -39,7 +41,8 @@ namespace CustomerOrdersApi.Library.V8.Services
 			IOnlineOrderDiscountHandler onlineOrderDiscountHandler,
 			IInfoMessageFactory infoMessageFactory,
 			ICustomerOrderRepository customerOrderRepository,
-			IDiscountReasonSettings discountReasonSettings
+			IDiscountReasonSettings discountReasonSettings,
+			IDiscountReasonRepository discountReasonRepository
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -49,6 +52,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 			_infoMessageFactory = infoMessageFactory ?? throw new ArgumentNullException(nameof(infoMessageFactory));
 			_customerOrderRepository = customerOrderRepository ?? throw new ArgumentNullException(nameof(customerOrderRepository));
 			_discountReasonSettings = discountReasonSettings ?? throw new ArgumentNullException(nameof(discountReasonSettings));
+			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_signatureOptions =
 				(signatureOptions ?? throw new ArgumentNullException(nameof(signatureOptions)))
 				.Value;
@@ -62,7 +66,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 				applyPromoCodeDto.Signature,
 				new ApplyPromoCodeSignatureParams
 				{
-					OrderId = applyPromoCodeDto.Source == Source.MobileApp
+					OrderId = applyPromoCodeDto.Source == ExternalSource.MobileApp
 						? applyPromoCodeDto.ExternalCounterpartyId.ToString()
 						: applyPromoCodeDto.ExternalOrderId.ToString(),
 					OrderSumInKopecks = (int)(applyPromoCodeDto.OrderSum * 100),
@@ -89,20 +93,11 @@ namespace CustomerOrdersApi.Library.V8.Services
 				out generatedSignature);
 		}
 
-		public ISaleItemPromotion ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
+		public ISalePromotion ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Применение промокода к онлайн заказу");
-
-			var dto = new CanApplyOnlineOrderPromoCodeV7
-			{
-				Source = applyPromoCodeDto.Source,
-				PromoCode =	applyPromoCodeDto.PromoCode,
-				Time = applyPromoCodeDto.RequestTime.ToLocalTime(),
-				CounterpartyId = applyPromoCodeDto.ErpCounterpartyId,
-				Products = applyPromoCodeDto.OnlineOrderItems
-			};
 			
-			var result = _onlineOrderDiscountHandler.TryApplyPromoCodeV7(uow, dto);
+			var result = _onlineOrderDiscountHandler.TryApplyPromoCode(uow, applyPromoCodeDto);
 
 			if(result.IsFailure)
 			{
@@ -117,7 +112,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 		}
 		
 		public async Task<FirstOrderDiscountConditionsDto> CanApplyFirstOrderDiscount(
-			Source source,
+			ExternalSource source,
 			Guid? externalCounterpartyId,
 			int? erpCounterpartyId,
 			CancellationToken cancellationToken
@@ -135,7 +130,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 					uow,
 					externalCounterpartyId,
 					erpCounterpartyId.Value,
-					source,
+					source.ToSource(),
 					cancellationToken);
 
 			return FirstOrderDiscountConditionsDto.Create(!isClientHasNotCancelledOnlineOrdersFromSource);
@@ -159,16 +154,40 @@ namespace CustomerOrdersApi.Library.V8.Services
 					_onlineOrderDiscountHandler.CalculateDiscounts(uow, applyFirstOrderDiscountDto.OnlineOrderItems));
 			}
 
-			var dto = CanApplyFirstOrderDiscountRequest.Create(
-				applyFirstOrderDiscountDto.Source,
-				applyFirstOrderDiscountDto.ErpCounterpartyId,
-				applyFirstOrderDiscountDto.ExternalCounterpartyId,
-				applyFirstOrderDiscountDto.OnlineOrderItems
-			);
-			
-			var result = _onlineOrderDiscountHandler.TryApplyFirstOrderDiscount(uow, dto);
+			var result = _onlineOrderDiscountHandler.TryApplyFirstOrderDiscount(uow, applyFirstOrderDiscountDto);
 			
 			return AppliedFirstOrderDiscountDto.Create(result);
+		}
+
+		public ISalePromotion ProcessAutoOrderDiscount(
+			ApplyAutoOrderDiscountRequest applyAutoOrderDiscount,
+			CancellationToken cancellationToken)
+		{
+			var action = applyAutoOrderDiscount.Apply ? "Применение" : "Снятие";
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"{action} скидки за автозаказ к онлайн заказу");
+			
+			var result = _onlineOrderDiscountHandler.ProcessAutoOrderDiscount(uow, applyAutoOrderDiscount);
+
+			if(result.IsFailure)
+			{
+				return ApplyAutoOrderDiscountResponse.CreateError(result.Errors.First());
+			}
+			
+			return ApplyAutoOrderDiscountResponse.Create(result.Value);
+		}
+
+		public DiscountDto GetAutoOrderDiscount()
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Получение данных скидки за автозаказ");
+			var discount = _discountReasonRepository.GetDiscountReason(uow, _discountReasonSettings.AutoOrderDiscountReasonId);
+
+			if(discount is null)
+			{
+				throw new InvalidOperationException(
+					"Не найдена скидка за автозаказ. Проверьте корректность идентификатора в параметрах и саму скидку в БД");
+			}
+
+			return DiscountDto.Create(discount.ValueType == DiscountUnits.money, discount.Value);
 		}
 	}
 }

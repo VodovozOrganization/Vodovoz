@@ -10,11 +10,29 @@ namespace Vodovoz.Errors.Orders
 		/// <summary>
 		/// Установка скидки для данной позиции не допускается
 		/// </summary>
+		public static Error DiscountForItemNotAllowed =>
+			new Error(
+				typeof(DiscountErrors),
+				nameof(DiscountForItemNotAllowed),
+				"Установка скидки для данной позиции не допускается");
+		
+		/// <summary>
+		/// Скидка не может быть применена
+		/// </summary>
 		public static Error DiscountNotAllowed =>
 			new Error(
 				typeof(DiscountErrors),
 				nameof(DiscountNotAllowed),
-				"Установка скидки для данной позиции не допускается");
+				"Скидка не может быть применена");
+		
+		/// <summary>
+		/// Скидка не найдена
+		/// </summary>
+		public static Error NotFound =>
+			new Error(
+				typeof(DiscountErrors),
+				nameof(NotFound),
+				"Скидка не найдена");
 		
 		/// <summary>
 		/// Сумма позиции равна нулю, скидка не устанавливается
@@ -62,5 +80,11 @@ namespace Vodovoz.Errors.Orders
 				typeof(DiscountErrors),
 				nameof(AddDiscountException),
 				$"При добавлении скидки произошла ошибка: {message}");
+		
+		public static Error UnsuitableItemsInCart =>
+			new Error(
+				typeof(DiscountErrors),
+				nameof(UnsuitableItemsInCart),
+				"Неподходящие товары в корзине");
 	}
 }

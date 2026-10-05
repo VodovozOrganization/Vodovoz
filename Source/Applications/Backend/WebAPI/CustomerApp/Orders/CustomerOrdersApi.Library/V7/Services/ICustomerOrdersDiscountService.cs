@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrders.Abstractions;
+using CustomerOrders.Abstractions.V7.Sale;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
 using CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Interfaces.Sale;
-using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.V7.Services
 {
@@ -47,7 +48,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные с результатом проверки</returns>
 		Task<FirstOrderDiscountConditionsDto> CanApplyFirstOrderDiscount(
-			Source source,
+			ExternalSource source,
 			Guid? externalCounterpartyId,
 			int? erpCounterpartyId,
 			CancellationToken cancellationToken);

@@ -1,22 +1,21 @@
-﻿using System;
+﻿using CustomerOrders.Abstractions.V7.Sale;
+using CustomerOrders.Contracts.V7.Orders.Items;
+using CustomerOrdersApi.Library.V7.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Data.Sale;
-using Vodovoz.Core.Domain.Extensions;
-using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Interfaces.Sale;
+using CustomerOrdersApi.Library.V7.Services;
 using Vodovoz.Domain.Orders;
-using VodovozBusiness.Controllers;
 
 namespace CustomerOrdersApi.Library.V7.Factories
 {
-	public class OnlineOrderItemDtoFactory : IOnlineOrderItemDtoFactory
+	internal class OnlineOrderItemDtoFactory : IOnlineOrderItemDtoFactory
 	{
-		private readonly IDiscountController _discountController;
+		private readonly IOnlineOrderDiscountHandler _discountHandler;
 
-		public OnlineOrderItemDtoFactory(IDiscountController discountController)
+		public OnlineOrderItemDtoFactory(IOnlineOrderDiscountHandler discountHandler)
 		{
-			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
+			_discountHandler = discountHandler ?? throw new ArgumentNullException(nameof(discountHandler));
 		}
 		
 		public OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(IProduct saleItem)
@@ -32,7 +31,7 @@ namespace CustomerOrdersApi.Library.V7.Factories
 				IsFixedPrice = saleItem.IsFixedPrice,
 				GiftItem = saleItem.GiftItem,
 				ItemType = saleItem.Nomenclature.Category.ToSaleItemType(),
-				Discounts = new List<IDiscountAmount>(_discountController
+				Discounts = new List<IDiscountAmount>(_discountHandler
 					.CalculateTotalDiscountDetails(saleItem as ICalculatingTotalMoneyDiscount)
 					.DiscountDetails
 					.Values)

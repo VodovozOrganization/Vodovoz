@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Core.Domain.Goods;
+using CustomerAppsApi.Library.V2.Dto.Sale;
 
 namespace CustomerAppsApi.Library.V2.Dto.Goods
 {

@@ -32,5 +32,16 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				"Установлена действующая индивидуальная цена",
 				"Индивидуальная цена применена не на все позиции заказа");
 		}
+		
+		public InfoMessage CreateSbpIsCurrentlyUnavailableWarning()
+		{
+			return InfoMessage.Create(
+				"paymentMethod",
+				4,
+				"paymentDown",
+				2,
+				"Оплата по СБП временно недоступна",
+				"Выберите другой способ оплаты или оформите заказ чуть позже");
+		}
 	}
 }
