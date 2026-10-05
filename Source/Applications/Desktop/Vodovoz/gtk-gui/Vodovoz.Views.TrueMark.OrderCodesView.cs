@@ -56,11 +56,11 @@ namespace Vodovoz.Views.TrueMark
 
 		private global::Gamma.GtkWidgets.yHBox yhboxSearch;
 
-		private global::Gamma.GtkWidgets.yButton ybuttonDeleteExcessCodes;
-
 		private global::Gamma.GtkWidgets.yLabel ylabelSearch;
 
 		private global::Gamma.Widgets.CleanableEntry entrySearch;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonDeleteExcessCodes;
 
 		private global::Gamma.GtkWidgets.yNotebook ynotebookCodes;
 
@@ -392,11 +392,18 @@ namespace Vodovoz.Views.TrueMark
 			this.yhboxSearch.Add(this.entrySearch);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.yhboxSearch[this.entrySearch]));
 			w26.Position = 1;
+			// Container child yhboxSearch.Gtk.Box+BoxChild
+			this.ybuttonDeleteExcessCodes = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonDeleteExcessCodes.CanFocus = true;
+			this.ybuttonDeleteExcessCodes.Name = "ybuttonDeleteExcessCodes";
+			this.yhboxSearch.Add(this.ybuttonDeleteExcessCodes);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yhboxSearch[this.ybuttonDeleteExcessCodes]));
+			w27.Position = 2;
 			this.vboxWidget.Add(this.yhboxSearch);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.yhboxSearch]));
-			w27.Position = 1;
-			w27.Expand = false;
-			w27.Fill = false;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.yhboxSearch]));
+			w28.Position = 1;
+			w28.Expand = false;
+			w28.Fill = false;
 			// Container child vboxWidget.Gtk.Box+BoxChild
 			this.ynotebookCodes = new global::Gamma.GtkWidgets.yNotebook();
 			this.ynotebookCodes.CanFocus = true;
@@ -428,8 +435,8 @@ namespace Vodovoz.Views.TrueMark
 			this.ytreeviewWarehouse.Name = "ytreeviewWarehouse";
 			this.GtkScrolledWindow1.Add(this.ytreeviewWarehouse);
 			this.ynotebookCodes.Add(this.GtkScrolledWindow1);
-			global::Gtk.Notebook.NotebookChild w31 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow1]));
-			w31.Position = 1;
+			global::Gtk.Notebook.NotebookChild w32 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow1]));
+			w32.Position = 1;
 			// Notebook tab
 			this.labelPageWarehouse = new global::Gamma.GtkWidgets.yLabel();
 			this.labelPageWarehouse.Name = "labelPageWarehouse";
@@ -446,8 +453,8 @@ namespace Vodovoz.Views.TrueMark
 			this.ytreeviewSelfdelivery.Name = "ytreeviewSelfdelivery";
 			this.GtkScrolledWindow2.Add(this.ytreeviewSelfdelivery);
 			this.ynotebookCodes.Add(this.GtkScrolledWindow2);
-			global::Gtk.Notebook.NotebookChild w33 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow2]));
-			w33.Position = 2;
+			global::Gtk.Notebook.NotebookChild w34 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow2]));
+			w34.Position = 2;
 			// Notebook tab
 			this.labelPageSelfdelivery = new global::Gamma.GtkWidgets.yLabel();
 			this.labelPageSelfdelivery.Name = "labelPageSelfdelivery";
@@ -464,8 +471,8 @@ namespace Vodovoz.Views.TrueMark
 			this.ytreeviewPool.Name = "ytreeviewPool";
 			this.GtkScrolledWindow3.Add(this.ytreeviewPool);
 			this.ynotebookCodes.Add(this.GtkScrolledWindow3);
-			global::Gtk.Notebook.NotebookChild w35 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow3]));
-			w35.Position = 3;
+			global::Gtk.Notebook.NotebookChild w36 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow3]));
+			w36.Position = 3;
 			// Notebook tab
 			this.labelPagePool = new global::Gamma.GtkWidgets.yLabel();
 			this.labelPagePool.Name = "labelPagePool";
@@ -482,8 +489,8 @@ namespace Vodovoz.Views.TrueMark
 			this.ytreeviewStaging.Name = "ytreeviewStaging";
 			this.GtkScrolledWindow4.Add(this.ytreeviewStaging);
 			this.ynotebookCodes.Add(this.GtkScrolledWindow4);
-			global::Gtk.Notebook.NotebookChild w37 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow4]));
-			w37.Position = 4;
+			global::Gtk.Notebook.NotebookChild w38 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow4]));
+			w38.Position = 4;
 			// Notebook tab
 			this.labelPageStaging = new global::Gamma.GtkWidgets.yLabel();
 			this.labelPageStaging.Name = "labelPageStaging";
@@ -509,8 +516,8 @@ namespace Vodovoz.Views.TrueMark
 			this.ynotebookCodes.SetTabLabel(this.GtkScrolledWindow5, this.labelPageResent);
 			this.labelPageResent.ShowAll();
 			this.vboxWidget.Add(this.ynotebookCodes);
-			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.ynotebookCodes]));
-			w40.Position = 2;
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.ynotebookCodes]));
+			w41.Position = 2;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{
