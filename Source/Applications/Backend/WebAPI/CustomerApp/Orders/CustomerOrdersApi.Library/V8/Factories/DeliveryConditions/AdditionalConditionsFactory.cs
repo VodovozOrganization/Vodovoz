@@ -57,6 +57,7 @@ namespace CustomerOrdersApi.Library.V8.Factories.DeliveryConditions
 		private AdditionalCondition CallBeforeInterval(bool isActive = false, bool editable = true)
 		{
 			var parameters = Enum.GetValues<CallBeforeArrivalMinutesType>()
+				.OrderBy(x => x)
 				.Select(item =>
 					AdditionalCondition.AdditionalParameter.Create(((int)item).ToString(), item.GetEnumDisplayName()))
 				.ToList();
