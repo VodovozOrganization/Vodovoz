@@ -28,6 +28,8 @@ namespace Vodovoz.Views.TrueMark
 
 		private global::Gamma.GtkWidgets.yHBox yhboxSearch;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonDeleteExcessCodes;
+
 		private global::Gamma.GtkWidgets.yLabel ylabelSearch;
 
 		private global::Gamma.Widgets.CleanableEntry entrySearch;
@@ -231,6 +233,15 @@ namespace Vodovoz.Views.TrueMark
 			this.yhboxSearch.Add(this.entrySearch);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhboxSearch[this.entrySearch]));
 			w12.Position = 1;
+			this.ybuttonDeleteExcessCodes = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonDeleteExcessCodes.Name = "ybuttonDeleteExcessCodes";
+			this.ybuttonDeleteExcessCodes.CanFocus = true;
+			this.ybuttonDeleteExcessCodes.Label = global::Mono.Unix.Catalog.GetString("Удалить выбранные коды");
+			this.yhboxSearch.Add(this.ybuttonDeleteExcessCodes);
+			global::Gtk.Box.BoxChild deleteCodesChild = ((global::Gtk.Box.BoxChild)(this.yhboxSearch[this.ybuttonDeleteExcessCodes]));
+			deleteCodesChild.Position = 2;
+			deleteCodesChild.Expand = false;
+			deleteCodesChild.Fill = false;
 			this.vboxWidget.Add(this.yhboxSearch);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.yhboxSearch]));
 			w13.Position = 1;

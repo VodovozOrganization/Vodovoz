@@ -1,11 +1,4 @@
-﻿using MassTransit.Initializers;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -13,6 +6,12 @@ using System.Net.Mime;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.FirebaseCloudMessaging;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Domain.Employees;
@@ -67,11 +66,24 @@ namespace Vodovoz.Presentation.WebApi.Security
 		{
 			if(await IsValidCredentialsAsync(loginRequestModel.Username, loginRequestModel.Password))
 			{
+				if(IsEmployeeFired(loginRequestModel.Username))
+				{
+					return Problem("Ошибка авторизации. Данный сотрудник уволен.",
+						statusCode: StatusCodes.Status403Forbidden);
+				}
+
 				return Ok(await GenerateTokenAsync(loginRequestModel.Username));
 			}
 
 			return NotFound("Пара логин/пароль не найдена");
 		}
+
+		/// <summary>
+		/// Проверяет увольнение сотрудника для приложений, ограничивающих вход по его статусу.
+		/// </summary>
+		/// <param name="username">Логин пользователя приложения.</param>
+		/// <returns>Уволен ли сотрудник. По умолчанию проверка отключена.</returns>
+		protected virtual bool IsEmployeeFired(string username) => false;
 
 		private async Task<bool> IsValidCredentialsAsync(string username, string password)
 		{

@@ -223,7 +223,21 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			return routeListCodes;
 		}
 
-		public IEnumerable<CarLoadDocumentItemTrueMarkProductCode> GetCodesFromWarehouseByOrder(IUnitOfWork uow, int orderId)
+		/// <inheritdoc />
+		public bool AreCodesUsedByOtherEdoTasks(IUnitOfWork uow, int taskId, IEnumerable<int> codeIds)
+		{
+			TrueMarkProductCode productCode = null;
+			var ids = codeIds.ToArray();
+			return uow.Session.QueryOver<EdoTaskItem>()
+				.JoinAlias(x => x.ProductCode, () => productCode)
+				.Where(x => x.CustomerEdoTask.Id != taskId)
+				.Where(Restrictions.Disjunction()
+					.Add(Restrictions.In(Projections.Property(() => productCode.SourceCode.Id), ids))
+					.Add(Restrictions.In(Projections.Property(() => productCode.ResultCode.Id), ids)))
+				.RowCount() > 0;
+		}
+
+		public IEnumerable<CarLoadDocumentItemTrueMarkProductCode> GetCodesFromWarehouseByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null)
 		{
 			CarLoadDocumentItemTrueMarkProductCode carLoadTrueMarkProductCodeAlias = null;
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
@@ -236,14 +250,24 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Left.JoinAlias(
 					() => carLoadTrueMarkProductCodeAlias.CarLoadDocumentItem,
 					() => carLoadDocumentItemAlias
-				)
-				.Where(() => carLoadDocumentItemAlias.OrderId == orderId)
-				.List();
+				);
 
-			return carLoadCodes;
+			if(edoTaskId.HasValue)
+			{
+				carLoadCodes.WithSubquery.WhereProperty(x => x.Id).In(
+					QueryOver.Of<EdoTaskItem>()
+						.Where(x => x.CustomerEdoTask.Id == edoTaskId.Value)
+						.Select(x => x.ProductCode.Id));
+			}
+			else
+			{
+				carLoadCodes.Where(() => carLoadDocumentItemAlias.OrderId == orderId);
+			}
+
+			return carLoadCodes.List();
 		}
 
-		public IEnumerable<RouteListItemTrueMarkProductCode> GetCodesFromDriverByOrder(IUnitOfWork uow, int orderId)
+		public IEnumerable<RouteListItemTrueMarkProductCode> GetCodesFromDriverByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null)
 		{
 			RouteListItemTrueMarkProductCode routeListTrueMarkProductCodeAlias = null;
 			RouteListItem routeListItemAlias = null;
@@ -256,14 +280,24 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Left.JoinAlias(
 					() => routeListTrueMarkProductCodeAlias.RouteListItem,
 					() => routeListItemAlias
-				)
-				.Where(() => routeListItemAlias.Order.Id == orderId)
-				.List();
+				);
 
-			return routeListCodes;
+			if(edoTaskId.HasValue)
+			{
+				routeListCodes.WithSubquery.WhereProperty(x => x.Id).In(
+					QueryOver.Of<EdoTaskItem>()
+						.Where(x => x.CustomerEdoTask.Id == edoTaskId.Value)
+						.Select(x => x.ProductCode.Id));
+			}
+			else
+			{
+				routeListCodes.Where(() => routeListItemAlias.Order.Id == orderId);
+			}
+
+			return routeListCodes.List();
 		}
 
-		public IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> GetCodesFromSelfdeliveryByOrder(IUnitOfWork uow, int orderId)
+		public IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> GetCodesFromSelfdeliveryByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null)
 		{
 			SelfDeliveryDocumentItemTrueMarkProductCode selfdeliveryTrueMarkProductCodeAlias = null;
 			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemAlias = null;
@@ -281,13 +315,24 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Left.JoinAlias(
 					() => selfDeliveryDocumentItemAlias.Document,
 					() => selfDeliveryDocumentAlias
-				)
-				.Where(() => selfDeliveryDocumentAlias.Order.Id == orderId)
-				.List();
+				);
 
-			return selfdeliveryCodes;
+			if(edoTaskId.HasValue)
+			{
+				selfdeliveryCodes.WithSubquery.WhereProperty(x => x.Id).In(
+					QueryOver.Of<EdoTaskItem>()
+						.Where(x => x.CustomerEdoTask.Id == edoTaskId.Value)
+						.Select(x => x.ProductCode.Id));
+			}
+			else
+			{
+				selfdeliveryCodes.Where(() => selfDeliveryDocumentAlias.Order.Id == orderId);
+			}
+
+			return selfdeliveryCodes.List();
 		}
 
+		public IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null)
 		public IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId)
 			=> GetRequestCodesByOrder<AutoTrueMarkProductCode>(uow, orderId);
 
@@ -314,13 +359,20 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Left.JoinAlias(
 					() => autoProductCodeAlias.CustomerEdoRequest,
 					() => edoRequestAlias
-				)
-				.Where(() => edoTaskItemAlias.CustomerEdoTask.Id == edoRequestAlias.Task.Id)
-				.Where(() => edoRequestAlias.Order.Id == orderId)
-				.Where(() => autoProductCodeAlias.SourceCodeStatus != SourceProductCodeStatus.SavedToPool)
-				.List();
+				);
 
-			return poolCodes;
+			if(edoTaskId.HasValue)
+			{
+				poolCodes.Where(() => edoTaskItemAlias.CustomerEdoTask.Id == edoTaskId.Value);
+			}
+			else
+			{
+				poolCodes.Where(() => edoRequestAlias.Order.Id == orderId);
+				poolCodes.Where(() => edoTaskItemAlias.CustomerEdoTask.Id == edoRequestAlias.Task.Id);
+				poolCodes.Where(() => autoProductCodeAlias.SourceCodeStatus != SourceProductCodeStatus.SavedToPool);
+			}
+
+			return poolCodes.List();
 		}
 
 		public IList<TrueMarkProductCode> GetRejectedProductCodesByOrder(IUnitOfWork uow, int orderId)
