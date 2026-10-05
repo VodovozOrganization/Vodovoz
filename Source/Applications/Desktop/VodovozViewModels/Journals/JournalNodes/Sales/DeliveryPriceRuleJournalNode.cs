@@ -1,7 +1,7 @@
 ﻿using QS.Project.Journal;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.ViewModels.Journals.JournalNodes
+namespace Vodovoz.ViewModels.Journals.JournalNodes.Sales
 {
 	public class DeliveryPriceRuleJournalNode : JournalEntityNodeBase<DeliveryPriceRule>
 	{

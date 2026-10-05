@@ -3,11 +3,9 @@ using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Sales;
 using Key = Gdk.Key;
 

@@ -170,7 +170,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 
 			if(result.IsFailure)
 			{
-				return ApplyAutoOrderDiscountResponse.CreateError(result.Errors.First());
+				return ApplyAutoOrderDiscountResponse.CreateError(result.Errors.First().Message);
 			}
 			
 			return ApplyAutoOrderDiscountResponse.Create(result.Value);

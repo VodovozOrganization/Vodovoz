@@ -7,6 +7,7 @@ using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Sale;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalNodes.Sales;
 using Vodovoz.ViewModels.ViewModels.Sale;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale

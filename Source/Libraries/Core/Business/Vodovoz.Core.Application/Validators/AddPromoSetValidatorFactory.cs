@@ -11,7 +11,7 @@ using VodovozBusiness.Validation.Rules;
 
 namespace Vodovoz.Core.Application.Validators
 {
-	public class AddPromoSetValidatorFactory : VodovozBusiness.Factories.IAddPromoSetValidatorFactory
+	public class AddPromoSetValidatorFactory : IAddPromoSetValidatorFactory
 	{
 		private readonly IPromotionalSetRepository _promotionalSetRepository;
 		private readonly IFreeLoaderChecker _freeLoaderChecker;

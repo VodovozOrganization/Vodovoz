@@ -24,6 +24,7 @@ using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.Presentation.ViewModels.Logistic;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalNodes.Sales;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.TempAdapters;

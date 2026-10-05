@@ -31,7 +31,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
 using Vodovoz.Services;
@@ -41,11 +40,8 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
-using Vodovoz.ViewModels.ViewModels.Orders;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale;
-using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Validation;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders

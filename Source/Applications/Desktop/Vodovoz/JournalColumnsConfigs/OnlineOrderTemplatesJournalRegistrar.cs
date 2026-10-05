@@ -1,10 +1,7 @@
 ﻿using Core.Infrastructure;
 using Gamma.ColumnConfig;
 using Pango;
-using Vodovoz.Extensions;
-using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Sales;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using VodovozInfrastructure.Extensions;
 

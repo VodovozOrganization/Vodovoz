@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using CustomerOrders.Abstractions.Common;
 using CustomerOrders.Abstractions.V8.Sale;
-using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrders.Contracts.V8.Sale
 {
@@ -19,7 +18,7 @@ namespace CustomerOrders.Contracts.V8.Sale
 		{
 		}
 
-		public static ISalePromotion CreateError(Error error) => new ApplyAutoOrderDiscountResponse(error.Message);
+		public static ISalePromotion CreateError(string error) => new ApplyAutoOrderDiscountResponse(error);
 		public static ISalePromotion Create(IEnumerable<IOrderedCartItemWithDiscountDetails> saleItems, IInfoMessage warning = null) =>
 			new ApplyAutoOrderDiscountResponse(saleItems, warning);
 	}

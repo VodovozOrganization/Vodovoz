@@ -30,7 +30,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 	{
 		private readonly IPromotionalSetRepository _promoSetRepository;
 		private readonly IOrderDiscountsController _discountsController;
-		private readonly IApplicablePromotionFactory _applicablePromotionFactory;
 
 		public OnlineOrderV2ViewModel(
 			ILogger<OnlineOrderV2ViewModel> logger,
@@ -48,8 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IOrderOrganizationManager orderOrganizationManager,
 			MangoManager mangoManager,
 			IPromotionalSetRepository promoSetRepository,
-			IOrderDiscountsController discountsController,
-			IApplicablePromotionFactory applicablePromotionFactory
+			IOrderDiscountsController discountsController
 		)
 			: base(
 				logger,
@@ -70,7 +68,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		{
 			_promoSetRepository = promoSetRepository ?? throw new ArgumentNullException(nameof(promoSetRepository));
 			_discountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
-			_applicablePromotionFactory = applicablePromotionFactory ?? throw new ArgumentNullException(nameof(applicablePromotionFactory));
 
 			Initialize();
 		}
@@ -129,7 +126,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					.FirstOrDefault()
 					?? throw new InvalidOperationException("Промонаборы в онлайн заказе не могут расходиться с промонаборами подобранными запросом!");
 
-				var promoSaleItem = _applicablePromotionFactory.CreateApplicablePromotion(onlinePromoSet);
+				var promoSaleItem = ApplicablePromotion.Create(onlinePromoSet);
 				var discountReasons = onlinePromoSet.DiscountReasons;
 
 				if(onlinePromoSet.OnlineOrderErrorState.HasValue

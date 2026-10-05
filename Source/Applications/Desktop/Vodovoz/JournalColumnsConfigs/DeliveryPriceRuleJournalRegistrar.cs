@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Journal.GtkUI;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.JournalNodes.Sales;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
 namespace Vodovoz.JournalColumnsConfigs
