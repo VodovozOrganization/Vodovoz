@@ -262,10 +262,6 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _paymentType, value);
 		}
 
-		public bool IsSelfDelivery { get; }
-		public bool HasDeposits { get; }
-		public bool HasNonPaidDeliveries { get; }
-
 		private CounterpartyContract contract;
 
 		[Display(Name = "Договор")]
@@ -652,6 +648,9 @@ namespace Vodovoz.Domain.Orders
 		PaymentType? ISaleSource.PaymentType => PaymentType;
 		public virtual IEnumerable<ISaleItem> SaleItems => OrderItems;
 		public virtual IList SaleItemsList => OrderItems;
+		public virtual bool IsSelfDelivery => SelfDelivery;
+		public virtual bool HasDeposits => HasDepositItems();
+		public virtual bool HasNonPaidDeliveries => HasNonPaidDeliveryItems();
 
         #endregion
 

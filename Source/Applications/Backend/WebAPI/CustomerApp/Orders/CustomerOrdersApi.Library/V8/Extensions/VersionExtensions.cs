@@ -2,6 +2,8 @@
 using CustomerOrdersApi.Library.V8.Factories;
 using CustomerOrdersApi.Library.V8.Services;
 using CustomerOrdersApi.Library.V8.Dto.Orders.RequestsForCall;
+using CustomerOrdersApi.Library.V8.Factories.DeliveryConditions;
+using CustomerOrdersApi.Library.V8.Services.Validators;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
@@ -17,18 +19,26 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 		public static IServiceCollection AddVersion8(this IServiceCollection services)
 		{
 			services
-				.AddScoped<Services.ICustomerOrdersService, Services.CustomerOrdersService>()
-				.AddScoped<Services.ICustomerOrdersDiscountService, Services.CustomerOrdersDiscountService>()
-				.AddScoped<Services.ICustomerOrderFixedPriceService, Services.CustomerOrderFixedPriceService>()
-				.AddScoped<Services.ICustomerOrderCancellationService, Services.CustomerOrderCancellationService>()
-				.AddScoped<Services.ICourierTrackingService, Services.CourierTrackingService>()
-				.AddScoped<Factories.ICustomerOrderFactory, Factories.CustomerOrderFactory>()
-				.AddScoped<Factories.IInfoMessageFactory, Factories.InfoMessageFactory>()
-				.AddScoped<Factories.IOnlineOrderItemDtoFactory, Factories.OnlineOrderItemDtoFactory>()
+				.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
+				.AddScoped<ICustomerOrdersDiscountService, CustomerOrdersDiscountService>()
+				.AddScoped<ICustomerOrderFixedPriceService, CustomerOrderFixedPriceService>()
+				.AddScoped<ICustomerOrderCancellationService, CustomerOrderCancellationService>()
+				.AddScoped<ICourierTrackingService, CourierTrackingService>()
+				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
+				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
+				.AddScoped<IOnlineOrderItemDtoFactory, OnlineOrderItemDtoFactory>()
 				.AddScoped<Repositories.ICustomerOrderRepository, Repositories.CustomerOrderRepository>()
 				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
 				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
 				.AddScoped<IApplicablePromotionFactory, ApplicablePromotionFactory>()
+				.AddScoped<ICustomerCartService, CustomerCartService>()
+				.AddScoped<IPaymentMethodsCreator, PaymentMethodsCreator>()
+				.AddScoped<VodovozWebSitePaymentMethodFactory>()
+				.AddScoped<MobileAppPaymentMethodFactory>()
+				.AddScoped<IDeliveryRulesConditionsCreator, DeliveryRulesConditionsCreator>()
+				.AddScoped<IAdditionalConditionsFactory, AdditionalConditionsFactory>()
+				.AddScoped<IOnlineOrderTemplateConditionsCreator, OnlineOrderTemplateConditionsCreator>()
+				.AddScoped<IOnlineOrderTemplateFromOnlineOrderValidator, OnlineOrderTemplateFromOnlineOrderValidator>()
 				.AddCommonDependencies()
 				.AddPaymentRefundServices()
 				;
@@ -100,7 +110,7 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 		private static IServiceCollection AddPaymentRefundServices(this IServiceCollection services)
 		{
 			services.AddScoped<Services.PaymentRefund.IRefundRequestValidator, Services.PaymentRefund.RefundRequestValidator>();
-			services.AddScoped<Factories.IPaymentRefundServiceFactory, Factories.PaymentRefundServiceFactory>();
+			services.AddScoped<IPaymentRefundServiceFactory, PaymentRefundServiceFactory>();
 
 			services.AddScoped<Services.PaymentRefund.Mappers.ICloudPaymentsMapper, Services.PaymentRefund.Mappers.CloudPaymentsMapper>();
 			services.AddScoped<Services.PaymentRefund.IPaymentRefundService, Services.PaymentRefund.CloudPaymentsRefundService>();

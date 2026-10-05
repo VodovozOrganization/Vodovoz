@@ -34,7 +34,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 		/// <inheritdoc/>
 		public OnlineAutoOrderConditions Create(IUnitOfWork uow, OrderConditionsRequest request)
 		{
-			var discountReason = uow.GetById<DiscountReason>(_discountReasonSettings.AutoOrderDiscountReasonId);
+			var discountReason = uow.GetById<DiscountReasonBase>(_discountReasonSettings.AutoOrderDiscountReasonId);
 
 			if(discountReason is null)
 			{

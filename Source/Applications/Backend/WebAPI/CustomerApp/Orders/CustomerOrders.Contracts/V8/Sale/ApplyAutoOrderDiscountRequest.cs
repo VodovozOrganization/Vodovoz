@@ -41,8 +41,8 @@ namespace CustomerOrders.Contracts.V8.Sale
 		/// <summary>
 		/// Текущее наполнение корзины
 		/// </summary>
-		public IEnumerable<OnlineOrderItemDto> CartItems { get; set; }
+		public IEnumerable<OnlineOrderItemDto> OnlineOrderItems { get; set; }
 		
-		IEnumerable<ICartItem> ICanCreateOnlineOrderTemplate.CartItems => CartItems;
+		IEnumerable<ICartItem> ICanCreateOnlineOrderTemplate.CartItems => OnlineOrderItems;
 	}
 }

@@ -253,7 +253,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 				var applied = false;
 				var cartItemsWithDiscountDetails = new List<IOrderedCartItemWithDiscountDetails>();
 
-				foreach(var cartItem in requestData.CartItems)
+				foreach(var cartItem in requestData.OnlineOrderItems)
 				{
 					var cartItemWithDiscountDetails = OnlineOrderItemWithDiscountDetailsDto.Create(cartItem);
 				
@@ -267,7 +267,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 						Vodovoz.Errors.Orders.DiscountErrors.UnsuitableItemsInCart);
 			}
 			
-			return TryRemoveAutoOrderDiscount(uow, requestData.CartItems);
+			return TryRemoveAutoOrderDiscount(uow, requestData.OnlineOrderItems);
 		}
 
 		private bool TryApplyDiscount(
