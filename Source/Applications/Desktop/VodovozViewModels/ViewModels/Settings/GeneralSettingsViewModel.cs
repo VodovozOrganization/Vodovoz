@@ -1524,7 +1524,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
-		#endregion Уведомление о блокировке поставок		
+		#endregion Уведомление о блокировке поставок
 
 		public EntityJournalOpener EntityJournalOpener { get; }
 
