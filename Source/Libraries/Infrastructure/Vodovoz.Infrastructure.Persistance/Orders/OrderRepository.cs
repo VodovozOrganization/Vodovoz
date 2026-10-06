@@ -1153,22 +1153,17 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		public bool OrderHasSentUPD(IUnitOfWork uow, int orderId)
 		{
+			var excludeDocumentStatuses = new[] { EdoDocumentStatus.Cancelled, EdoDocumentStatus.Warning };
+
 			var upds =
 			(from et in uow.Session.Query<EdoTask>()
 			 join er in uow.Session.Query<FormalEdoRequest>() on et.Id equals er.Task.Id
-			 join tri in uow.Session.Query<TransferEdoRequestIteration>() on et.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
-			 from transferEdoRequestIteration in transferEdoRequestIterations.DefaultIfEmpty()
-			 join ter in uow.Session.Query<TransferEdoRequest>() on transferEdoRequestIteration.Id equals ter.Iteration.Id into transferEdoRequests
-			 from transferEdoRequest in transferEdoRequests.DefaultIfEmpty()
-			 join tet in uow.Session.Query<TransferEdoTask>() on transferEdoRequest.TransferEdoTask.Id equals tet.Id into transferEdoTasks
-			 from transferEdoTask in transferEdoTasks.DefaultIfEmpty()
 			 join oed in uow.Session.Query<OrderEdoDocument>() on et.Id equals oed.DocumentTaskId into edoDocuments
 			 from edoDocument in edoDocuments.DefaultIfEmpty()
 			 where
 				 er.Order.Id == orderId
 				 && (edoDocument != null)
-				 && (edoDocument.Status != EdoDocumentStatus.Cancelled
-				 || edoDocument.Status != EdoDocumentStatus.Warning)
+				 && !excludeDocumentStatuses.Contains(edoDocument.Status)
 				 && er.DocumentType == EdoDocumentType.UPD
 			 select
 			 et.Id)
