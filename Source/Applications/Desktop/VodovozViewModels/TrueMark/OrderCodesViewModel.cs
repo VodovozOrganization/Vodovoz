@@ -638,7 +638,7 @@ namespace Vodovoz.ViewModels.TrueMark
 					CanDeleteExcessCodes = _excessCodesDeletionService.CanDelete(uow.GetById<OrderEdoTask>(_edoTaskId.Value));
 				}
 				var order = uow.GetById<Order>(OrderId);
-				CanShowReuseRejectedCodesControls = !_edoTaskId.HasValue && order?.OrderStatus == OrderStatus.Canceled
+				CanShowReuseRejectedCodesControls = order?.OrderStatus == OrderStatus.Canceled
 					&& _canReuseRejectedCodesFromCanceledOrder;
 
 				ReloadCodesFromDriver(uow);
