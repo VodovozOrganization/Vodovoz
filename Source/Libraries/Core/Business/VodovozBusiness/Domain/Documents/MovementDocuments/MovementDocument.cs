@@ -58,7 +58,6 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		private Organization _ttnCargoSender;
 		private Organization _ttnCargoReceiver;
 		private Organization _ttnPayer;
-		private Car _ttnCar;
 		private Car _ttnTrailer;
 		private Employee _ttnDriver;
 
@@ -147,12 +146,6 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		{
 			get => _ttnPayer;
 			set => SetField(ref _ttnPayer, value, () => TtnPayer);
-		}
-
-		public virtual Car TtnCar
-		{
-			get => _ttnCar;
-			set => SetField(ref _ttnCar, value, () => TtnCar);
 		}
 
 		public virtual Car TtnSemitrailer
