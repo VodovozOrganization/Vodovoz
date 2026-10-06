@@ -2685,16 +2685,21 @@ namespace Vodovoz
 				var blockedOrderIds = GetClosedPeriodBlockedOrderIds(resendUow, edoTasks, ordersWithoutRequestsIds);
 				blockedByClosedPeriodCount = blockedOrderIds.Count;
 
-				foreach (var newRequest in edoTasks.Select(task => task.FormalEdoRequest.Order.Id).Where(orderId => !blockedOrderIds.Contains(orderId)).Select(orderId => new PrimaryEdoRequest
-				         {
-					         Order = new OrderEntity
-					         {
-						         Id = orderId
-					         },
-					         Time = DateTime.Now,
-					         Source = EdoRequestSource.Manual,
-					         DocumentType = EdoDocumentType.UPD
-				         }))
+				var newUpdRequests = edoTasks
+					.Select(task => task.FormalEdoRequest.Order.Id)
+					.Where(orderId => !blockedOrderIds.Contains(orderId))
+					.Select(orderId => new PrimaryEdoRequest
+					{
+						Order = new OrderEntity
+						{
+							Id = orderId
+						},
+						Time = DateTime.Now,
+						Source = EdoRequestSource.Manual,
+						DocumentType = EdoDocumentType.UPD
+					});
+
+				foreach (var newRequest in newUpdRequests)
 				{
 					resendUow.Save(newRequest);
 					newRequests.Add(newRequest);
