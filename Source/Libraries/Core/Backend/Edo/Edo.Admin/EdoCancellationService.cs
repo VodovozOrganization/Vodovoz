@@ -99,12 +99,30 @@ namespace Edo.Admin
 
 		private bool IsOrderPriceInvalid(OrderEdoTask orderEdoTask)
 		{
-			var edoRequest = orderEdoTask.FormalEdoRequest;
+			// Корректирующие/возвратные чеки уже собраны по фискальному baseline,
+			// сумма текущего заказа после полной отмены может быть 0 — это ожидаемо.
+			if(orderEdoTask is ReceiptEdoTask receiptEdoTask
+				&& HasCorrectionOrReturnFiscalDocuments(receiptEdoTask))
+			{
+				return false;
+			}
 
-			var isOrderPriceInvalid =
-				edoRequest.Order.OrderItems.Any(x => x.ActualSum < 0) || edoRequest.Order.OrderSum <= 0;
+			var order = orderEdoTask.FormalEdoRequest.Order;
 
-			return isOrderPriceInvalid;
+			return order.OrderItems.Any(x => x.ActualSum < 0) || order.OrderSum <= 0;
+		}
+
+		private static bool HasCorrectionOrReturnFiscalDocuments(ReceiptEdoTask receiptEdoTask)
+		{
+			if(receiptEdoTask.FiscalDocuments == null || !receiptEdoTask.FiscalDocuments.Any())
+			{
+				return false;
+			}
+
+			return receiptEdoTask.FiscalDocuments.Any(x =>
+				x.DocumentType == FiscalDocumentType.Return
+				|| x.DocumentType == FiscalDocumentType.SaleCorrection
+				|| x.DocumentType == FiscalDocumentType.SaleReturnCorrection);
 		}
 
 		private async Task CancelOrderTask(

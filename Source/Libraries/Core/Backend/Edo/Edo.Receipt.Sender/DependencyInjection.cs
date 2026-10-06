@@ -9,6 +9,7 @@ using ModulKassa;
 using QS.DomainModel.UoW;
 using System.Reflection;
 using Edo.Transport.Factories;
+using Vodovoz.Core.Application.Receipts.Correction;
 
 namespace Edo.Receipt.Sender
 {
@@ -21,6 +22,9 @@ namespace Edo.Receipt.Sender
 			services.AddModulKassa();
 
 			services.TryAddScoped<FiscalDocumentFactory>();
+			services.TryAddScoped<ReceiptCorrectionFiscalDocumentBuilder>();
+			services.TryAddScoped<ReceiptCorrectionSaleCodesAssigner>();
+			services.TryAddScoped<ReceiptCorrectionSender>();
 			services.TryAddScoped<ReceiptSendingFailedNotificationService>();
 			services.TryAddScoped<IReceiptQueueNotificationService, ReceiptQueueNotificationService>();
 			services.TryAddScoped<ReceiptSender>();

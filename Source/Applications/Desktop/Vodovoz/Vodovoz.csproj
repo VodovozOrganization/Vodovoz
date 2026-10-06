@@ -459,6 +459,7 @@
     <Compile Include="JournalColumnsConfigs\NotAllocatedCounterpartiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoNotificationSettingJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ProfitCategoriesJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\ReceiptCorrectionExplanatoryNoteJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ServiceDistrictsSetJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FuelCardJournalRegistrar.cs" />
@@ -1631,6 +1632,7 @@
     <Compile Include="SidePanel\InfoViews\CashInfoPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CashInfoPanelView.cs" />
     <Compile Include="Views\Print\DocumentsPrinterView.cs" />
+    <Compile Include="Views\Print\ExplanatoryNotesPrinterView.cs" />
     <Compile Include="Views\Logistic\CarModelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarModelView.cs" />
     <Compile Include="Views\Logistic\CarManufacturerView.cs" />
@@ -1640,6 +1642,7 @@
     <Compile Include="Views\Logistic\CarVersionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarVersionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Print.DocumentsPrinterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Print.ExplanatoryNotesPrinterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PayoutRequestJournalFilterView.cs" />
     <Compile Include="Views\ReportsParameters\Cash\DayOfSalaryGiveoutReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ReportsParameters.Cash.DayOfSalaryGiveoutReportView.cs" />
@@ -2122,6 +2125,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.CodesPoolView.cs" />
     <Compile Include="Filters\GtkViews\EdoProcessFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProcessFilterView.cs" />
+    <Compile Include="Filters\GtkViews\ReceiptCorrectionExplanatoryNoteJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ReceiptCorrectionExplanatoryNoteJournalFilterView.cs" />
     <Compile Include="Filters\GtkViews\EdoProblemFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoProblemFilterView.cs" />
     <Compile Include="Views\Edo\TenderEdoView.cs" />

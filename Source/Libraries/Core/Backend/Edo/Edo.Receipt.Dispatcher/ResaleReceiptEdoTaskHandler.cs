@@ -137,6 +137,15 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
+			if(HasPrebuiltCorrectionFiscalDocuments(receiptEdoTask))
+			{
+				_logger.LogInformation(
+					"Задача Id {EdoTaskId} уже содержит корректирующие/возвратные фискальные документы. " +
+					"Подготовка через ReceiptTaskCreated пропущена (отправка через ReceiptCorrectionSender).",
+					receiptEdoTask.Id);
+				return;
+			}
+
 			if(_edoCancellationService.IsEdoTaskMustBeCancelled(receiptEdoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
@@ -318,8 +327,42 @@ namespace Edo.Receipt.Dispatcher
 		/// <param name="receiptEdoTask"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
+		private static bool HasPrebuiltCorrectionFiscalDocuments(ReceiptEdoTask receiptEdoTask)
+		{
+			return receiptEdoTask.FiscalDocuments != null
+				&& receiptEdoTask.FiscalDocuments.Any(IsPrebuiltCorrectionFiscalDocument);
+		}
+
+		private static bool IsPrebuiltCorrectionFiscalDocument(EdoFiscalDocument document)
+		{
+			if(document == null)
+			{
+				return false;
+			}
+
+			if(document.DocumentType == FiscalDocumentType.Return
+				|| document.DocumentType == FiscalDocumentType.SaleCorrection
+				|| document.DocumentType == FiscalDocumentType.SaleReturnCorrection)
+			{
+				return true;
+			}
+
+			var number = document.DocumentNumber ?? string.Empty;
+			return number.IndexOf("_c", StringComparison.OrdinalIgnoreCase) >= 0
+				&& (number.EndsWith("_ret", StringComparison.OrdinalIgnoreCase)
+					|| number.EndsWith("_sale", StringComparison.OrdinalIgnoreCase));
+		}
+
 		private async Task PrepareFiscalDocuments(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
+			if(HasPrebuiltCorrectionFiscalDocuments(receiptEdoTask))
+			{
+				_logger.LogInformation(
+					"Пропуск пересборки фискальных документов для задачи Id {EdoTaskId}: уже есть корректирующие/возвратные документы.",
+					receiptEdoTask.Id);
+				return;
+			}
+
 			//создать или обновить немаркированные позиции
 			var mainFiscalDocument = UpdateUnmarkedFiscalDocument(receiptEdoTask);
 
@@ -327,7 +370,7 @@ namespace Edo.Receipt.Dispatcher
 			await UpdateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, cancellationToken);
 
 			//создать или обновить сумму в чеках
-			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
+			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments.Where(x => !IsPrebuiltCorrectionFiscalDocument(x)))
 			{
 				UpdateReceiptMoneyPositions(fiscalDocument);
 			}
@@ -868,6 +911,11 @@ namespace Edo.Receipt.Dispatcher
 			var order = receiptEdoTask.FormalEdoRequest.Order;
 			var fiscalDocument = receiptEdoTask.FiscalDocuments.FirstOrDefault(x => x.Index == documentIndex);
 
+			if(fiscalDocument != null && IsPrebuiltCorrectionFiscalDocument(fiscalDocument))
+			{
+				fiscalDocument = null;
+			}
+
 			if(fiscalDocument == null)
 			{
 				var documentNumber = documentIndex > 0
@@ -884,7 +932,7 @@ namespace Edo.Receipt.Dispatcher
 					DocumentType = FiscalDocumentType.Sale,
 					CheckoutTime = order.TimeDelivered ?? DateTime.Now,
 					Contact = _edoOrderContactProvider.GetContact(order).StringValue,
-					ClientInn = order.Client.INN,
+					ClientInn = string.IsNullOrWhiteSpace(order.Client?.INN) ? null : order.Client.INN.Trim(),
 					CashierName = order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName,
 					//По умолчанию не печатаем чеки
 					PrintReceipt = false,

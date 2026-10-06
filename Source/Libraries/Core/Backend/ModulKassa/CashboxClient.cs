@@ -120,9 +120,14 @@ namespace ModulKassa
 				var response = await _httpClient.PostAsJsonAsync(_sendDocumentUrl, doc, cancellationToken);
 				if(!response.IsSuccessStatusCode)
 				{
+					var responseBody = await response.Content.ReadAsStringAsync();
 					var httpCodeMessage = $"HTTP Code: {(int)response.StatusCode} {response.StatusCode}";
-					_logger.LogWarning("Не удалось отправить фискальный документ №{docId} на кассу №{cashboxId}. {httpCodeMessage}.",
-						doc.Id, _setting.CashBoxId, httpCodeMessage);
+					_logger.LogWarning(
+						"Не удалось отправить фискальный документ №{docId} на кассу №{cashboxId}. {httpCodeMessage}. Body: {responseBody}",
+						doc.Id,
+						_setting.CashBoxId,
+						httpCodeMessage,
+						responseBody);
 
 					_logger.LogWarning("Запуск проверки статуса фискального документа №{docId} на кассу №{cashboxId}", 
 						doc.Id, _setting.CashBoxId);
@@ -130,7 +135,10 @@ namespace ModulKassa
 					result = await CheckFiscalDocument(doc, cancellationToken);
 					if(result.SendStatus == SendStatus.Error)
 					{
-						return CreateErrorResult(httpCodeMessage);
+						var detail = string.IsNullOrWhiteSpace(responseBody)
+							? httpCodeMessage
+							: $"{httpCodeMessage}. {responseBody}";
+						return CreateErrorResult(detail);
 					}
 					return result;
 				}
