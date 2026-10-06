@@ -55,36 +55,5 @@ namespace CustomerOrdersApi.Controllers.V8
 				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
 			}
 		}
-		
-		/// <summary>
-		/// Получение условий для дальнейшего оформления заказа
-		/// </summary>
-		/// <param name="request">Данные заказа из корзины для проверки <see cref="OrderConditionsRequest"/></param>
-		/// <returns>Результат проверки <see cref="OrderConditionsResponse"/></returns>
-		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderConditionsResponse))]
-		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-		[HttpPost]
-		public async Task<IActionResult> GetOrderTemplateConditions(OrderConditionsRequest request)
-		{
-			try
-			{
-				_logger.LogInformation("Поступил запрос получения форм оплат и доп условий по заказу из корзины {@OrdersConditionsRequest}", request);
-
-				var result = await _customerCartService.GetOrderConditionsAsync(request);
-				return Ok(result);
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(
-					e,
-					"Ошибка при получении форм оплат и доп условий по заказу из корзины {ExternalCounterpartyId} от {Source}",
-					request.ExternalCounterpartyId,
-					request.Source.ToString());
-				
-				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
-			}
-		}
-		
 	}
 }

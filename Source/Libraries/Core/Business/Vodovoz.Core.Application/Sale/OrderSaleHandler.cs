@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Application.Validators;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Sale;
@@ -23,7 +24,6 @@ using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Sale;
 using VodovozBusiness.Specifications.Sale;
-using VodovozBusiness.Validation;
 
 namespace Vodovoz.Core.Application.Sale
 {
@@ -45,8 +45,8 @@ namespace Vodovoz.Core.Application.Sale
 			IDeliveryRepository deliveryRepository,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
-			IAddNomenclatureToSaleValidator addNomenclatureToSaleValidator,
-			IAddPromoSetValidatorFactory addPromoSetValidatorFactory,
+			OrderAddNomenclatureToSaleValidatorFactory addNomenclatureToSaleValidatorFactory,
+			OrderAddPromoSetValidatorFactory addPromoSetValidatorFactory,
 			IOrderSaleItemFactory saleItemFactory
 			) : base(
 				saleItemHandler,
@@ -56,7 +56,7 @@ namespace Vodovoz.Core.Application.Sale
 				deliveryRepository,
 				nomenclatureSettings,
 				nomenclatureRepository,
-				addNomenclatureToSaleValidator,
+				addNomenclatureToSaleValidatorFactory,
 				addPromoSetValidatorFactory,
 				saleItemFactory
 			)
@@ -356,12 +356,6 @@ namespace Vodovoz.Core.Application.Sale
 						continue;
 				}
 			}
-		}
-		
-		protected override IAddPromoSetValidator GetAddPromoSetValidator()
-		{
-			return AddPromoSetValidatorFactory
-				.CreateForOrder();
 		}
 		
 		protected override Result ActivatePromotionalSet(IUnitOfWork uow, PromotionalSet proSet)

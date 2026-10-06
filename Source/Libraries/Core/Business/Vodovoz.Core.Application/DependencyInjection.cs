@@ -1,6 +1,8 @@
 ﻿using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using QS.Permissions;
+using QS.Services;
 using RevenueService.Client;
 using Sms.Internal.Client;
 using TrueMarkApi.Client;
@@ -149,6 +151,10 @@ namespace Vodovoz.Core.Application
 				.AddSaleHandlers()
 				.AddDiscountControllers()
 				.AddScoped<IAddPromoSetValidatorFactory, AddPromoSetValidatorFactory>()
+				.AddScoped<OrderAddPromoSetValidatorFactory>()
+				.AddScoped<IAddNomenclatureToSaleValidatorFactory, AddNomenclatureToSaleValidatorFactory>()
+				.AddScoped<OrderAddNomenclatureToSaleValidatorFactory>()
+				.TryAddScoped(sp => PermissionsSettings.CurrentPermissionService)
 				;
 
 			return services;

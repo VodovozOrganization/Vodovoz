@@ -6,7 +6,6 @@ using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Service;
 using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Sale;
-using VodovozBusiness.Validation;
 
 namespace Vodovoz.Core.Application.Sale
 {
@@ -20,7 +19,7 @@ namespace Vodovoz.Core.Application.Sale
 			IDeliveryRepository deliveryRepository,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
-			IAddNomenclatureToSaleValidator addNomenclatureToSaleValidator,
+			IAddNomenclatureToSaleValidatorFactory addNomenclatureToSaleValidatorFactory,
 			IAddPromoSetValidatorFactory addPromoSetValidatorFactory,
 			ISaleItemFactory saleItemFactory
 			) : base(
@@ -31,7 +30,7 @@ namespace Vodovoz.Core.Application.Sale
 				deliveryRepository,
 				nomenclatureSettings,
 				nomenclatureRepository,
-				addNomenclatureToSaleValidator,
+				addNomenclatureToSaleValidatorFactory,
 				addPromoSetValidatorFactory,
 				saleItemFactory
 				)

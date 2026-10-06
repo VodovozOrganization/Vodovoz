@@ -1,12 +1,11 @@
 ﻿using System.Text.Json.Serialization;
-using Newtonsoft.Json.Converters;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders.RequestsForCall
 {
 	/// <summary>
 	/// Тип заявки на звонок
 	/// </summary>
-	[JsonConverter(typeof(StringEnumConverter))]
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum RequestForCallType
 	{
 		/// <summary>

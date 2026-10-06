@@ -28,6 +28,11 @@ namespace Vodovoz.Core.Application.Sale
 {
 	public class SaleHandler : ISaleHandler
 	{
+		private readonly IAddNomenclatureToSaleValidatorFactory _addNomenclatureToSaleValidatorFactory;
+		private readonly IAddPromoSetValidatorFactory _addPromoSetValidatorFactory;
+		private IAddNomenclatureToSaleValidator _addNomenclatureToSaleValidator;
+		private IAddPromoSetValidator _addPromoSetValidator;
+
 		public SaleHandler(
 			SaleItemHandler saleItemHandler,
 			IGoodsPriceCalculator goodsPriceCalculator,
@@ -36,7 +41,7 @@ namespace Vodovoz.Core.Application.Sale
 			IDeliveryRepository deliveryRepository,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
-			IAddNomenclatureToSaleValidator addNomenclatureToSaleValidator,
+			IAddNomenclatureToSaleValidatorFactory addNomenclatureToSaleValidatorFactory,
 			IAddPromoSetValidatorFactory addPromoSetValidatorFactory,
 			ISaleItemFactory saleItemFactory
 			)
@@ -47,8 +52,9 @@ namespace Vodovoz.Core.Application.Sale
 			DeliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			NomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			NomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			AddNomenclatureToSaleValidator = addNomenclatureToSaleValidator ?? throw new ArgumentNullException(nameof(addNomenclatureToSaleValidator));
-			AddPromoSetValidatorFactory = addPromoSetValidatorFactory ?? throw new ArgumentNullException(nameof(addPromoSetValidatorFactory));
+			_addNomenclatureToSaleValidatorFactory =
+				addNomenclatureToSaleValidatorFactory ?? throw new ArgumentNullException(nameof(addNomenclatureToSaleValidatorFactory));
+			_addPromoSetValidatorFactory = addPromoSetValidatorFactory ?? throw new ArgumentNullException(nameof(addPromoSetValidatorFactory));
 			SaleItemFactory = saleItemFactory ?? throw new ArgumentNullException(nameof(saleItemFactory));
 			SaleItemHandler = saleItemHandler ?? throw new ArgumentNullException(nameof(saleItemHandler));
 		}
@@ -61,8 +67,25 @@ namespace Vodovoz.Core.Application.Sale
 		protected IDeliveryRepository DeliveryRepository { get; }
 		protected INomenclatureSettings NomenclatureSettings { get; }
 		protected INomenclatureRepository NomenclatureRepository { get; }
-		protected IAddNomenclatureToSaleValidator AddNomenclatureToSaleValidator { get; }
-		protected IAddPromoSetValidatorFactory AddPromoSetValidatorFactory { get; }
+
+		protected IAddNomenclatureToSaleValidator AddNomenclatureToSaleValidator
+		{
+			get
+			{
+				_addNomenclatureToSaleValidator ??= _addNomenclatureToSaleValidatorFactory.Create();
+				return _addNomenclatureToSaleValidator;
+			}
+		}
+
+		protected IAddPromoSetValidator AddPromoSetValidator
+		{
+			get
+			{
+				_addPromoSetValidator ??= _addPromoSetValidatorFactory.Create();
+				return _addPromoSetValidator;
+			}
+		}
+		
 		protected ISaleItemFactory SaleItemFactory { get; }
 
 		public void SetSource(ISaleSource source)
@@ -285,7 +308,7 @@ namespace Vodovoz.Core.Application.Sale
 			IInteractiveService interactiveService,
 			PromotionalSet proSet)
 		{
-			var addPromoValidationResult = GetAddPromoSetValidator()
+			var addPromoValidationResult = AddPromoSetValidator
 				.CanAddPromotionalSet(uow, Source, proSet);
 
 			if(addPromoValidationResult.IsSuccess && !string.IsNullOrWhiteSpace(addPromoValidationResult.Value))
@@ -301,12 +324,6 @@ namespace Vodovoz.Core.Application.Sale
 			}
 
 			return ActivatePromotionalSet(uow, proSet);
-		}
-
-		protected virtual IAddPromoSetValidator GetAddPromoSetValidator()
-		{
-			return AddPromoSetValidatorFactory
-				.Create();
 		}
 		
 		public virtual Result AddNomenclatureFromPromoSet(IUnitOfWork uow, PromotionalSet proSet)

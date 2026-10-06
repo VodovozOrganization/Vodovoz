@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Domain.Interfaces.Orders;
@@ -12,11 +11,17 @@ namespace Vodovoz.Core.Application.Sale
 {
 	public class DeliveryPriceService : IDeliveryPriceService
 	{
-		private readonly IServiceScope _scope;
+		private readonly IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext> _onlineOrderDeliveryPriceGetter;
+		private readonly IDeliveryPriceGetter<OrderDeliveryPriceContext> _orderDeliveryPriceGetter;
 
-		public DeliveryPriceService(IServiceScope scope)
+		public DeliveryPriceService(
+			IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext> onlineOrderDeliveryPriceGetter,
+			IDeliveryPriceGetter<OrderDeliveryPriceContext> orderDeliveryPriceGetter
+			)
 		{
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_onlineOrderDeliveryPriceGetter =
+				onlineOrderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(onlineOrderDeliveryPriceGetter));
+			_orderDeliveryPriceGetter = orderDeliveryPriceGetter ?? throw new ArgumentNullException(nameof(orderDeliveryPriceGetter));
 		}
 		
 		public Result<decimal> GetDeliveryPrice(IUnitOfWork uow, IFreeDeliveryPrice saleSource)
@@ -24,21 +29,19 @@ namespace Vodovoz.Core.Application.Sale
 			switch(saleSource)
 			{
 				case OnlineOrder onlineOrder:
-					var onlineOrderService = _scope.ServiceProvider.GetRequiredService<IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext>>();
 					var onlineOrderContext = DeliveryPriceGetterContext<OnlineOrderDeliveryPriceContext>
 						.Create(
 							OnlineOrderDeliveryPriceContext.Create(onlineOrder)
 							);
 					
-					return onlineOrderService.GetDeliveryPrice(onlineOrderContext);
+					return _onlineOrderDeliveryPriceGetter.GetDeliveryPrice(onlineOrderContext);
 				case Order order:
-					var orderService = _scope.ServiceProvider.GetRequiredService<IDeliveryPriceGetter<OrderDeliveryPriceContext>>();
 					var orderContext = DeliveryPriceGetterContext<OrderDeliveryPriceContext>
 						.Create(
 							OrderDeliveryPriceContext.Create(uow, order)
 							);
 					
-					return orderService.GetDeliveryPrice(orderContext);
+					return _orderDeliveryPriceGetter.GetDeliveryPrice(orderContext);
 			}
 			
 			throw new ArgumentOutOfRangeException(
