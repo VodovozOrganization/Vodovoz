@@ -23,6 +23,9 @@ namespace CustomerOrders.Contracts.V8.Sale
 		/// <inheritdoc/>
 		public bool IsSelfDelivery { get; set; }
 
+		/// <inheritdoc/>
+		public bool IsFastDelivery { get; set; }
+
 		/// <summary>
 		/// Идентификатор заказа из ИПЗ
 		/// </summary>

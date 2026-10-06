@@ -29,6 +29,11 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 			{
 				_validationResults.Add(OnlineOrderTemplateErrors.CantCreateForSelfDelivery);
 			}
+			
+			if(canCreateTemplate.IsFastDelivery)
+			{
+				_validationResults.Add(OnlineOrderTemplateErrors.CantCreateForFastDelivery);
+			}
 
 			if(canCreateTemplate.ErpCounterpartyId is null)
 			{
@@ -40,10 +45,33 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 				_validationResults.Add(OnlineOrderTemplateErrors.IsEmptyDeliveryPoint);
 			}
 
-			var promoSetIds = canCreateTemplate.CartItems
-				.Where(x => x.ItemType == SaleItemType.PromoSet)
-				.Select(x => x.ErpId)
-				.ToArray();
+			var hasEquipments = false;
+			var hasServices = false;
+			var hasRentPackages = false;
+			var promoSetIds = new List<int>();
+			
+			foreach(var cartItem in canCreateTemplate.CartItems)
+			{
+				if(cartItem.ItemType == SaleItemType.Service)
+				{
+					hasServices = true;
+				}
+				
+				if(cartItem.ItemType == SaleItemType.Equipment)
+				{
+					hasEquipments = true;
+				}
+
+				if(cartItem.ItemType == SaleItemType.RentPackage)
+				{
+					hasRentPackages = true;
+				}
+
+				if(cartItem.ItemType == SaleItemType.PromoSet)
+				{
+					promoSetIds.Add(cartItem.ErpId);
+				}
+			}
 
 			if(promoSetIds.Any())
 			{
@@ -53,9 +81,14 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 				}
 			}
 
-			if(canCreateTemplate.CartItems.Any(x => x.ItemType == SaleItemType.RentPackage))
+			if(hasServices)
 			{
-				_validationResults.Add(OnlineOrderTemplateErrors.CantCreateWithFreeRentPackages);
+				_validationResults.Add(OnlineOrderTemplateErrors.CantCreateWithServices);
+			}
+
+			if(hasEquipments || hasRentPackages)
+			{
+				_validationResults.Add(OnlineOrderTemplateErrors.CantCreateWithEquipmentsOrFreeRentPackages);
 			}
 			
 			return !_validationResults.Any() ? Result.Success() : Result.Failure(_validationResults);

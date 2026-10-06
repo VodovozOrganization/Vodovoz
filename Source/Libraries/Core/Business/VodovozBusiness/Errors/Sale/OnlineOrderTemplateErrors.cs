@@ -10,17 +10,29 @@ namespace VodovozBusiness.Errors.Sale
 				nameof(CantCreateForSelfDelivery),
 				"Функция автозаказа недоступна для самовывоза");
 		
+		public static Error CantCreateForFastDelivery =>
+			new Error(
+				typeof(OnlineOrderTemplateErrors),
+				nameof(CantCreateForFastDelivery),
+				"Функция автозаказа недоступна для доставки за час");
+		
 		public static Error CantCreateWithPromosetForNewClients =>
 			new Error(
 				typeof(OnlineOrderTemplateErrors),
 				nameof(CantCreateWithPromosetForNewClients),
 				"Промонаборы для новых клиентов не подходят под условия подключения автозаказа");
 		
-		public static Error CantCreateWithFreeRentPackages =>
+		public static Error CantCreateWithEquipmentsOrFreeRentPackages =>
 			new Error(
 				typeof(OnlineOrderTemplateErrors),
-				nameof(CantCreateWithFreeRentPackages),
+				nameof(CantCreateWithEquipmentsOrFreeRentPackages),
 				"Оборудование/Пакеты аренды не подходят под условия подключения автозаказа");
+		
+		public static Error CantCreateWithServices =>
+			new Error(
+				typeof(OnlineOrderTemplateErrors),
+				nameof(CantCreateWithServices),
+				"Услуги не подходят под условия подключения автозаказа");
 		
 		public static Error IsEmptyDeliveryPoint =>
 			new Error(

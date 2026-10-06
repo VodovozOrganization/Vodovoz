@@ -21,6 +21,11 @@ namespace CustomerOrders.Abstractions.V8.Sale
 		bool IsSelfDelivery { get; }
 		
 		/// <summary>
+		/// Доставка за час
+		/// </summary>
+		bool IsFastDelivery { get; }
+		
+		/// <summary>
 		/// Продаваемые позиции
 		/// </summary>
 		IEnumerable<ICartItem> CartItems { get; }
