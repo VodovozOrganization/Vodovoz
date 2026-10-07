@@ -195577,9 +195577,32 @@ not tooltip</property>
                 <property name="Xalign">0</property>
                 <property name="Yalign">0</property>
                 <child>
-                  <widget class="Gamma.GtkWidgets.yTreeView" id="treeItems">
+                  <widget class="Gtk.HBox" id="hboxOrderItems">
                     <property name="MemberName" />
-                    <property name="CanFocus">True</property>
+                    <property name="Spacing">6</property>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.yTreeView" id="treeItems">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Vodovoz.ViewWidgets.Orders.OrderItemDiscountReasonsView" id="orderitemdiscountreasonsview">
+                        <property name="MemberName" />
+                        <property name="WidthRequest">500</property>
+                        <property name="Events">ButtonPressMask</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
                   </widget>
                 </child>
               </widget>

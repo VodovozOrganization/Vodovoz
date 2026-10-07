@@ -50,7 +50,11 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.Alignment GtkAlignment43;
 
+		private global::Gtk.HBox hboxOrderItems;
+
 		private global::Gamma.GtkWidgets.yTreeView treeItems;
+
+		private global::Vodovoz.ViewWidgets.Orders.OrderItemDiscountReasonsView orderitemdiscountreasonsview;
 
 		protected virtual void Build()
 		{
@@ -273,16 +277,33 @@ namespace Vodovoz.Views.Logistic
 			this.GtkAlignment43 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment43.Name = "GtkAlignment43";
 			// Container child GtkAlignment43.Gtk.Container+ContainerChild
+			this.hboxOrderItems = new global::Gtk.HBox();
+			this.hboxOrderItems.Name = "hboxOrderItems";
+			this.hboxOrderItems.Spacing = 6;
+			// Container child hboxOrderItems.Gtk.Box+BoxChild
 			this.treeItems = new global::Gamma.GtkWidgets.yTreeView();
 			this.treeItems.CanFocus = true;
 			this.treeItems.Name = "treeItems";
-			this.GtkAlignment43.Add(this.treeItems);
+			this.hboxOrderItems.Add(this.treeItems);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hboxOrderItems[this.treeItems]));
+			w24.Position = 0;
+			// Container child hboxOrderItems.Gtk.Box+BoxChild
+			this.orderitemdiscountreasonsview = new global::Vodovoz.ViewWidgets.Orders.OrderItemDiscountReasonsView();
+			this.orderitemdiscountreasonsview.WidthRequest = 500;
+			this.orderitemdiscountreasonsview.Events = ((global::Gdk.EventMask)(256));
+			this.orderitemdiscountreasonsview.Name = "orderitemdiscountreasonsview";
+			this.hboxOrderItems.Add(this.orderitemdiscountreasonsview);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hboxOrderItems[this.orderitemdiscountreasonsview]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
+			this.GtkAlignment43.Add(this.hboxOrderItems);
 			this.frameOrderItems.Add(this.GtkAlignment43);
 			this.vbox1.Add(this.frameOrderItems);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameOrderItems]));
-			w24.Position = 5;
-			w24.Expand = false;
-			w24.Fill = false;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameOrderItems]));
+			w26.Position = 5;
+			w26.Expand = false;
+			w26.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

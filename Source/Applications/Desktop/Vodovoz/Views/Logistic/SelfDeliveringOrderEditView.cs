@@ -16,6 +16,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets.Orders;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -86,7 +87,29 @@ namespace Vodovoz.Views.Logistic
 
 			ConfigureTrees();
 			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderItems;
+
+			orderitemdiscountreasonsview.ViewModel = ViewModel.OrderItemDiscountReasonsViewModel;
+			treeItems.Binding
+				.AddBinding(ViewModel, vm => vm.SelectedOrderItem, w => w.SelectedRow)
+				.InitializeFromSource();
+			ViewModel.OrderItemDiscountReasonsViewModel.PropertyChanged += OnOrderItemDiscountReasonsViewModelPropertyChanged;
 		}
+
+		private void OnOrderItemDiscountReasonsViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(OrderItemDiscountReasonsViewModel.OrderItemDiscountReasons))
+			{
+				treeItems.QueueDraw();
+			}
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.OrderItemDiscountReasonsViewModel.PropertyChanged -= OnOrderItemDiscountReasonsViewModelPropertyChanged;
+
+			base.Destroy();
+		}
+
 		private void ConfigureTrees()
 		{
 			var colorPrimaryText = GdkColors.PrimaryText;
