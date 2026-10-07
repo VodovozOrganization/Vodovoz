@@ -12,17 +12,15 @@ namespace Vodovoz.Tools.Orders
 		public virtual void InitializeFields(OnlineOrder onlineOrder)
 		{
 			OnlineOrder = onlineOrder;
-			DeliveryDate = onlineOrder.DeliveryDate;
-
 			var onlineOrderV2 = onlineOrder.As<OnlineOrderV2>();
 
 			if(onlineOrderV2 is null)
 			{
-				CalculateAllWaterCount(OnlineOrder.OnlineOrderItems);
+				Initialize(OnlineOrder.OnlineOrderItems, onlineOrder.DeliveryDate);
 			}
 			else
 			{
-				CalculateAllWaterCount(GetOnlineOrderV2Items(onlineOrderV2));
+				Initialize(GetOnlineOrderV2Items(onlineOrderV2), onlineOrder.DeliveryDate);
 			}
 		}
 

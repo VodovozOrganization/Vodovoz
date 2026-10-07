@@ -186,7 +186,6 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 					.AddToggleRenderer(x => x.IsDiscountInMoney)
 					.AddSetter((c, n) => c.Activatable = ViewModel.CanChangeDiscountValue)
 					.Editing()
-					.ToggledEvent(OnIsDiscountMoneyToggled)
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.DiscountReasonsNames)                    
@@ -237,24 +236,6 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			}
 
 			ViewModel.SaleHandler.SetPrice(saleItem, (SaleItemPriceType.User, newPrice));
-		}
-		
-		private void OnIsDiscountMoneyToggled(object o, ToggledArgs args)
-		{
-			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
-			
-			if(!(node is OrderWithoutShipmentForAdvancePaymentItem saleItem))
-			{
-				return;
-			}
-			
-			//Т.к. событие приходит до изменения значения, то передаем в расчет инвертированное текущее значение
-			//и меняем местами скидки
-			ViewModel.SaleHandler.RecalculateDiscounts(
-				CommonRecalculateDiscount.CreateDataContext(
-					saleItem,
-					DiscountValue.Create(!saleItem.IsDiscountInMoney, saleItem.DiscountMoney, saleItem.Discount))
-				);
 		}
 		
 		private void OnDiscountEdited(object o, EditedArgs args)

@@ -45,6 +45,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private bool _promoCodeSettingsTabActive;
 		private bool _hasPromoCodeDurationTime;
 		private bool _selectedAllCategories;
+		private bool _oldIsArchive;
 
 		public DiscountReasonViewModel(
 			ILifetimeScope lifetimeScope,
@@ -85,7 +86,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public AddOrRemoveIDomainObjectViewModel AddOrRemovePromoSetsViewModel { get; private set; }
 		public bool IsNewEntity => Entity.Id == 0;
 		public bool AskSaveOnClose => CanEditDiscountReason;
-		public bool CanArchive => CanEditDiscountReason && !IsArchive;
+		public bool CanSave => CanEditDiscountReason || CanArchive;
+		public bool CanArchive =>
+			Entity.Id > 0
+			&& _permissionResult.CanUpdate
+			&& !_oldIsArchive;
 		public bool CanEditDiscountReason => IsNewEntity && _permissionResult.CanCreate;
 		public bool CanEditPromotionalSets => CanEditDiscountReason && Entity.DiscountReasonType != DiscountReasonType.Discount;
 		public bool CanRemoveNomenclatures => IsNomenclaturesSelected && CanEditDiscountReason;
@@ -424,6 +429,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 
 			_promotionalSets = Entity.PromoSets;
+			_oldIsArchive = Entity.IsArchive;
 			TabName = IsNewEntity ? "Новое основание для скидки" : $"Основание для скидки \"{Entity.Name}\"";
 		}
 		

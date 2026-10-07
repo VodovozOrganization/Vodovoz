@@ -241,6 +241,7 @@ namespace Vodovoz
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			_goodsPriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
+			_orderCancellationPermitService = _lifetimeScope.Resolve<OrderCancellationPermitService>();
 			SetOrderItemDiscountReasonsViewModel();
 			CancellationPermit = OrderCancellationPermit.Default();
 		}
