@@ -91,15 +91,10 @@ namespace Vodovoz.ViewModels.Logistic
 			get => _selectedOrderItem;
 			set
 			{
-				if(ReferenceEquals(_selectedOrderItem, value))
+				if(SetField(ref _selectedOrderItem, value))
 				{
-					return;
+					UpdateOrderItemDiscountReasonsViewModel();
 				}
-
-				UnsubscribeFromSelectedOrderItemDiscountReasons();
-				SetField(ref _selectedOrderItem, value);
-				SubscribeToSelectedOrderItemDiscountReasons();
-				UpdateOrderItemDiscountReasonsViewModel();
 			}
 		}
 
@@ -142,36 +137,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 			OrderItemDiscountReasonsViewModel.NewDiscountReason = null;
 			OrderItemDiscountReasonsViewModel.SelectedDiscountReason = null;
-		}
-
-		private void SubscribeToSelectedOrderItemDiscountReasons()
-		{
-			if(_selectedOrderItem?.DiscountReasons != null)
-			{
-				_selectedOrderItem.DiscountReasons.CollectionChanged += OnSelectedOrderItemDiscountReasonsChanged;
-			}
-		}
-
-		private void UnsubscribeFromSelectedOrderItemDiscountReasons()
-		{
-			if(_selectedOrderItem?.DiscountReasons != null)
-			{
-				_selectedOrderItem.DiscountReasons.CollectionChanged -= OnSelectedOrderItemDiscountReasonsChanged;
-			}
-		}
-
-		private void OnSelectedOrderItemDiscountReasonsChanged(object sender, NotifyCollectionChangedEventArgs e)
-		{
-			if(SelectedOrderItem != null)
-			{
-				OrderItemDiscountReasonsViewModel.SetOrderItem(SelectedOrderItem);
-			}
-		}
-
-		public override void Dispose()
-		{
-			UnsubscribeFromSelectedOrderItemDiscountReasons();
-			base.Dispose();
 		}
 
 		private void SetPermissions()

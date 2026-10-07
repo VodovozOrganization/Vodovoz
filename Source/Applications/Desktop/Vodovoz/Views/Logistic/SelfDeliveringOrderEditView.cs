@@ -86,28 +86,14 @@ namespace Vodovoz.Views.Logistic
 			yentryPaymentNumber.Sensitive = false;
 
 			ConfigureTrees();
+
 			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderItems;
 
-			orderitemdiscountreasonsview.ViewModel = ViewModel.OrderItemDiscountReasonsViewModel;
-			treeItems.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedOrderItem, w => w.SelectedRow)
-				.InitializeFromSource();
-			ViewModel.OrderItemDiscountReasonsViewModel.PropertyChanged += OnOrderItemDiscountReasonsViewModelPropertyChanged;
-		}
+            treeItems.Binding
+                .AddBinding(ViewModel, vm => vm.SelectedOrderItem, w => w.SelectedRow)
+                .InitializeFromSource();
 
-		private void OnOrderItemDiscountReasonsViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(OrderItemDiscountReasonsViewModel.OrderItemDiscountReasons))
-			{
-				treeItems.QueueDraw();
-			}
-		}
-
-		public override void Destroy()
-		{
-			ViewModel.OrderItemDiscountReasonsViewModel.PropertyChanged -= OnOrderItemDiscountReasonsViewModelPropertyChanged;
-
-			base.Destroy();
+            orderitemdiscountreasonsview.ViewModel = ViewModel.OrderItemDiscountReasonsViewModel;
 		}
 
 		private void ConfigureTrees()
