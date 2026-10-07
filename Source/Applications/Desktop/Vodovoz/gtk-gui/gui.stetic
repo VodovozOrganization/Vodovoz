@@ -194279,7 +194279,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Views.TrueMark.OrderCodesView" design-size="1518 369">
+  <widget class="Gtk.Bin" id="Vodovoz.Views.TrueMark.OrderCodesView" design-size="1097 369">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -194785,7 +194785,7 @@ not tooltip</property>
           <widget class="Gamma.GtkWidgets.yNotebook" id="ynotebookCodes">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">5</property>
+            <property name="CurrentPage">6</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
@@ -194928,6 +194928,31 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="labelPageResent">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Переотправленные</property>
+              </widget>
+              <packing>
+                <property name="type">tab</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow6">
+                <property name="MemberName" />
+                <property name="ShadowType">In</property>
+                <child>
+                  <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewManuallyAdded">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="ShowScrollbars">True</property>
+                  </widget>
+                </child>
+              </widget>
+              <packing>
+                <property name="Position">6</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="ylabelManuallyAdded">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Добавлены вручную</property>
               </widget>
               <packing>
                 <property name="type">tab</property>
