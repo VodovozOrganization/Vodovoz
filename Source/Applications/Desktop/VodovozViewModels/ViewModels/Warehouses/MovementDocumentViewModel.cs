@@ -1,10 +1,14 @@
 ﻿using Autofac;
+using ClosedXML.Report;
 using QS.Commands;
+using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -19,7 +23,9 @@ using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
@@ -45,11 +51,14 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using VodovozBusiness.CachingRepositories.Employees;
+using VodovozBusiness.Nodes.TTN;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
 	public class MovementDocumentViewModel : EntityTabViewModelBase<MovementDocument>
 	{
+		private const string _ttnTemplatePath = @".\Reports\Warehouse\TTN.xlsx";
+
 		private readonly ILifetimeScope _scope;
 		private readonly IEmployeeService _employeeService;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
@@ -59,6 +68,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private readonly IEmployeeInMemoryNameWithInitialsCacheRepository _employeeInMemoryNameWithInitialsCacheRepository;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
 		private readonly INomenclatureInstanceRepository _nomenclatureInstanceRepository;
+		private readonly IFileDialogService _fileDialogService;
 		private UserSettings _currentUserSettings;
 		private Employee _currentEmployee;
 		private bool _canEditRectroactively;
@@ -78,6 +88,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private DelegateCommand _fillFromOrdersCommand;
 		private DelegateCommand _printCommand;
 		private DelegateCommand _addInventoryInstanceCommand;
+		private DelegateCommand _downloadTtnCommand;
 
 		public MovementDocumentViewModel(
 			IEntityUoWBuilder uowBuilder, 
@@ -94,6 +105,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			ViewModelEEVMBuilder<Warehouse> sourceWarehouseViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Warehouse> targetWarehouseViewModelEEVMBuilder,
 			IEmployeeInMemoryNameWithInitialsCacheRepository employeeInMemoryNameWithInitialsCacheRepository,
+			IFileDialogService fileDialogService,
 			ILifetimeScope scope) 
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -123,6 +135,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			_employeeInMemoryNameWithInitialsCacheRepository = employeeInMemoryNameWithInitialsCacheRepository
 				?? throw new ArgumentNullException(nameof(employeeInMemoryNameWithInitialsCacheRepository));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
 			ResolveInnerDependencies();
@@ -176,6 +189,8 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			EnterTtnDataCommand = new DelegateCommand(EnterTtnData, () => CanEnterTtnData);
 			EnterTtnDataCommand.CanExecuteChangedWith(this, x => x.CanEnterTtnData);
+			DownloadTtnCommand = new DelegateCommand(DownloadTtn, () => CanDownloadTtn);
+			DownloadTtnCommand.CanExecuteChangedWith(this, x => x.CanDownloadTtn);
 
 			Entity.PropertyChanged += OnMovementDocumentPropertyChanged;
 			NeedPrintTtn = Entity.NeedPrintTtn;
@@ -191,6 +206,16 @@ namespace Vodovoz.ViewModels.Warehouses
 			if(e.PropertyName == nameof(Entity.ToWarehouse))
 			{
 				ReloadAllowedWarehousesFrom();
+			}
+
+			if(e.PropertyName == nameof(Entity.NeedPrintTtn)
+				|| e.PropertyName == nameof(Entity.TtnCargoSender)
+				|| e.PropertyName == nameof(Entity.TtnCargoReceiver)
+				|| e.PropertyName == nameof(Entity.TtnPayer)
+				|| e.PropertyName == nameof(Entity.MovementWagon)
+				|| e.PropertyName == nameof(Entity.TtnDriver))
+			{
+				OnPropertyChanged(nameof(CanDownloadTtn));
 			}
 		}
 
@@ -314,6 +339,9 @@ namespace Vodovoz.ViewModels.Warehouses
 		}
 
 		private bool _needPrintTtn;
+
+		[PropertyChangedAlso(nameof(CanEnterTtnData))]
+		[PropertyChangedAlso(nameof(CanDownloadTtn))]
 		public bool NeedPrintTtn
 		{
 			get => _needPrintTtn;
@@ -322,7 +350,6 @@ namespace Vodovoz.ViewModels.Warehouses
 				if(SetField(ref _needPrintTtn, value))
 				{
 					Entity.NeedPrintTtn = value;
-					OnPropertyChanged(nameof(CanEnterTtnData));
 				}
 			}
 		}
@@ -799,6 +826,59 @@ namespace Vodovoz.ViewModels.Warehouses
 					page.ViewModel.OnSelectResult += OnInventoryInstanceSelectResult;
 				}));
 
+		public DelegateCommand DownloadTtnCommand { get; }
+
+		private void DownloadTtn()
+		{
+			if(!CanDownloadTtn)
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Заполните обязательные поля ТТН: грузоотправитель, грузополучатель, плательщик, автомобиль, водитель.");
+				return;
+			}
+			var report = BuildTtnReport(Entity);
+
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить ТТН",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"ТТН_{report.DocNumber}_{DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			try
+			{
+				var template = new XLTemplate(_ttnTemplatePath);
+				template.AddVariable(report);
+				template.Generate();
+				template.SaveAs(result.Path);
+
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					$"ТТН сохранена: {result.Path}");
+			}
+			catch(Exception ex)
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					$"Не удалось сохранить ТТН: {ex.Message}");
+			}
+		}
+
+		public bool CanDownloadTtn =>
+			NeedPrintTtn
+			&& Entity.TtnCargoSender != null
+			&& Entity.TtnCargoReceiver != null
+			&& Entity.TtnPayer != null
+			&& Entity.MovementWagon != null
+			&& Entity.TtnDriver != null;
+
 		#endregion Commands
 
 		private bool HasAccessToStorageTo
@@ -936,11 +1016,309 @@ namespace Vodovoz.ViewModels.Warehouses
 			OnPropertyChanged(nameof(CanChangeDocumentTypeByStorageAndStorageFrom));
 		}
 
+		private TtnReport BuildTtnReport(MovementDocument entity)
+		{
+			if(entity == null)
+			{
+				throw new ArgumentNullException(nameof(entity));
+			}
+
+			var docDate = entity.TimeStamp != default ? entity.TimeStamp : DateTime.Now;
+
+			OrganizationVersion senderVersion;
+			OrganizationVersion receiverVersion;
+			OrganizationVersion payerVersion;
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				senderVersion = GetActiveOrganizationVersion(uow, entity.TtnCargoSender?.Id, docDate);
+				receiverVersion = GetActiveOrganizationVersion(uow, entity.TtnCargoReceiver?.Id, docDate);
+				payerVersion = GetActiveOrganizationVersion(uow, entity.TtnPayer?.Id, docDate);
+			}
+
+			var report = new TtnReport
+			{
+				DocNumber = entity.Id != 0 ? entity.Id.ToString() : "",
+				DocDay = docDate.ToString("dd"),
+				DocMonth = docDate.ToString("MM"),
+				DocYear = docDate.ToString("yyyy"),
+
+				// Шапка
+				CargoSenderText = BuildOrganizationText(entity.TtnCargoSender, senderVersion),
+				CargoSenderOkpo = entity.TtnCargoSender?.OKPO ?? "",
+				CargoReceiverText = BuildOrganizationText(entity.TtnCargoReceiver, receiverVersion),
+				CargoReceiverOkpo = entity.TtnCargoReceiver?.OKPO ?? "",
+				PayerText = BuildOrganizationText(entity.TtnPayer, payerVersion),
+				PayerOkpo = entity.TtnPayer?.OKPO ?? "",
+
+				// Товарный раздел
+				Rows = BuildTtnRows(entity),
+				MassBruttoValue = 0,
+				MassBruttoText = "",
+				ReleaseAllowedPosition = CurrentEmployee?.Post?.Name ?? "",
+				ReleaseAllowedName = CurrentEmployee?.FullName ?? "",
+				ReleaseProducedPosition = CurrentEmployee?.Post?.Name ?? "",
+				ReleaseProducedName = CurrentEmployee?.FullName ?? "",
+				CargoAcceptedPosition = "водитель",
+				CargoAcceptedName = entity.TtnDriver?.FullName ?? "",
+
+				// Транспортный раздел
+				DeliveryDay = docDate.ToString("dd"),
+				DeliveryMonthText = MonthToRussianText(docDate.Month),
+				DeliveryYear = docDate.ToString("yyyy"),
+				OrganizationText = BuildOrganizationText(entity.TtnCargoSender, senderVersion),
+				CarModel = entity.MovementWagon?.Name ?? "",
+				CarRegistrationNumber = entity.MovementWagon?.Name ?? "",
+				DriverFullName = entity.TtnDriver?.FullName ?? "",
+				DriverLicenseNumber = entity.TtnDriver?.DrivingLicense ?? "",
+				LoadingPointAddress = entity.FromWarehouse?.Address ?? "",
+				UnloadingPointAddress = entity.ToWarehouse?.Address ?? "",
+				TrailerModel = entity.TtnSemitrailer?.CarModel?.Name ?? "",
+				TrailerRegistrationNumber = entity.TtnSemitrailer?.RegistrationNumber ?? "",
+			};
+
+			report.GrandTotalCount = report.Rows.Sum(r => (int)r.Count);
+			report.GrandTotalCountText = NumberToWords.ToWords(report.GrandTotalCount);
+
+			return report;
+		}
+
+		private static OrganizationVersion GetActiveOrganizationVersion(IUnitOfWork uow, int? organizationId, DateTime date)
+		{
+			if(organizationId == null)
+			{
+				return null;
+			}
+
+			return uow.Session.QueryOver<OrganizationVersion>()
+				.Where(v => v.Organization.Id == organizationId.Value)
+				.Where(v => v.StartDate <= date && (v.EndDate == null || v.EndDate >= date))
+				.OrderBy(v => v.StartDate).Desc
+				.Take(1)
+				.SingleOrDefault();
+		}
+
+		private static string BuildOrganizationText(Organization org, OrganizationVersion version)
+		{
+			if(org == null)
+			{
+				return string.Empty;
+			}
+
+			var parts = new List<string>();
+
+			if(!string.IsNullOrWhiteSpace(org.FullName))
+			{
+				parts.Add(org.FullName);
+			}
+			else if(!string.IsNullOrWhiteSpace(org.Name))
+			{
+				parts.Add(org.Name);
+			}
+
+			var address = version?.JurAddress;
+			if(!string.IsNullOrWhiteSpace(address))
+			{
+				parts.Add(address);
+			}
+
+			if(!string.IsNullOrWhiteSpace(org.INN))
+			{
+				parts.Add($"ИНН {org.INN}");
+			}
+
+			if(!string.IsNullOrWhiteSpace(org.KPP))
+			{
+				parts.Add($"КПП {org.KPP}");
+			}
+
+			return string.Join(", ", parts);
+		}
+
+		private static string MonthToRussianText(int month)
+		{
+			switch(month)
+			{
+				case 1: return "январь";
+				case 2: return "февраль";
+				case 3: return "март";
+				case 4: return "апрель";
+				case 5: return "май";
+				case 6: return "июнь";
+				case 7: return "июль";
+				case 8: return "август";
+				case 9: return "сентябрь";
+				case 10: return "октябрь";
+				case 11: return "ноябрь";
+				case 12: return "декабрь";
+				default: return "";
+			}
+		}
+
+		private IList<TtnReportRow> BuildTtnRows(MovementDocument entity)
+		{
+			var rows = new List<TtnReportRow>();
+
+			foreach(var item in entity.Items)
+			{
+				rows.Add(new TtnReportRow
+				{
+					Code = item.Nomenclature?.Id.ToString() ?? "",
+					Name = item.Nomenclature?.OfficialName ?? "",
+					Count = item.SentAmount,
+					Price = 0,
+					Sum = 0,
+				});
+			}
+
+			return rows;
+		}
+
 		public override void Dispose()
 		{
 			Entity.PropertyChanged -= OnMovementDocumentPropertyChanged;
 
 			base.Dispose();
+		}
+	}
+
+	/// <summary>
+	/// Конвертер целых чисел в русский текст (прописью).
+	/// Поддерживает числа до миллиардов. Род — мужской (один, два...).
+	/// </summary>
+	public static class NumberToWords
+	{
+		private static readonly string[] _units =
+		{
+			"ноль", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять",
+			"десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать",
+			"пятнадцать", "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать"
+		};
+
+		private static readonly string[] _tens =
+		{
+			"", "", "двадцать", "тридцать", "сорок", "пятьдесят",
+			"шестьдесят", "семьдесят", "восемьдесят", "девяносто"
+		};
+
+		private static readonly string[] _hundreds =
+		{
+			"", "сто", "двести", "триста", "четыреста",
+			"пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот"
+		};
+
+		public static string ToWords(int number)
+		{
+			if(number == 0)
+			{
+				return _units[0];
+			}
+
+			if(number < 0)
+			{
+				return "минус " + ToWords(Math.Abs(number));
+			}
+
+			var parts = new List<string>();
+
+			var billions = number / 1_000_000_000;
+			number %= 1_000_000_000;
+
+			var millions = number / 1_000_000;
+			number %= 1_000_000;
+
+			var thousands = number / 1_000;
+			number %= 1_000;
+
+			if(billions > 0)
+			{
+				parts.Add(TripleToWords(billions, GrammaticalGender.Masculine));
+				parts.Add(Pluralize(billions, "миллиард", "миллиарда", "миллиардов"));
+			}
+
+			if(millions > 0)
+			{
+				parts.Add(TripleToWords(millions, GrammaticalGender.Masculine));
+				parts.Add(Pluralize(millions, "миллион", "миллиона", "миллионов"));
+			}
+
+			if(thousands > 0)
+			{
+				parts.Add(TripleToWords(thousands, GrammaticalGender.Feminine));
+				parts.Add(Pluralize(thousands, "тысяча", "тысячи", "тысяч"));
+			}
+
+			if(number > 0)
+			{
+				parts.Add(TripleToWords(number, GrammaticalGender.Masculine));
+			}
+
+			return string.Join(" ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+		}
+
+		private enum GrammaticalGender
+		{
+			Masculine,
+			Feminine
+		}
+
+		private static string TripleToWords(int number, GrammaticalGender gender)
+		{
+			var parts = new List<string>();
+
+			var hundreds = number / 100;
+			var remainder = number % 100;
+
+			if(hundreds > 0)
+			{
+				parts.Add(_hundreds[hundreds]);
+			}
+
+			if(remainder >= 20)
+			{
+				parts.Add(_tens[remainder / 10]);
+				remainder %= 10;
+			}
+
+			if(remainder > 0)
+			{
+				parts.Add(UnitToWords(remainder, gender));
+			}
+
+			return string.Join(" ", parts);
+		}
+
+		private static string UnitToWords(int unit, GrammaticalGender gender)
+		{
+			if(gender == GrammaticalGender.Feminine)
+			{
+				switch(unit)
+				{
+					case 1: return "одна";
+					case 2: return "две";
+					default: return _units[unit];
+				}
+			}
+
+			return _units[unit];
+		}
+
+		private static string Pluralize(int number, string one, string few, string many)
+		{
+			var mod10 = number % 10;
+			var mod100 = number % 100;
+
+			if(mod10 == 1 && mod100 != 11)
+			{
+				return one;
+			}
+
+			if(mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20))
+			{
+				return few;
+			}
+
+			return many;
 		}
 	}
 }

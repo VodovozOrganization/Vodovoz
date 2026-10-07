@@ -211,6 +211,12 @@ namespace Vodovoz.Views.Warehouse
 			buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+
+			buttonDownloadTtn.Binding
+				.AddBinding(ViewModel, vm => vm.NeedPrintTtn, w => w.Visible)
+				.InitializeFromSource();
+
+			buttonDownloadTtn.BindCommand(ViewModel.DownloadTtnCommand);
 		}
 
 		private void OnAddNomenclatureInstanceClicked(object sender, EventArgs e)

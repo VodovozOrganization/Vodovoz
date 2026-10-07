@@ -4,21 +4,54 @@ namespace VodovozBusiness.Nodes.TTN
 {
 	public class TtnReport
 	{
-		public string SelectedFilters { get; set; }
+		// Шапка
 		public string DocNumber { get; set; }
-		public string DocDate { get; set; }
-		public string OrganizationName { get; set; }
-		public string OrganizationAddress { get; set; }
-		public string OrganizationInn { get; set; }
-		public string OrganizationKpp { get; set; }
-		public string CargoSender { get; set; }
-		public string CargoReceiver { get; set; }
-		public string Payer { get; set; }
-		public string DriverFullName { get; set; }
-		public string VehicleNumber { get; set; }
-		public int TotalPlaces { get; set; }
-		public decimal MassNetto { get; set; }
-		public decimal MassBrutto { get; set; }
+		public string DocDay { get; set; }
+		public string DocMonth { get; set; }
+		public string DocYear { get; set; }
+
+		public string CargoSenderText { get; set; }
+		public string CargoSenderOkpo { get; set; }
+		public string CargoReceiverText { get; set; }
+		public string CargoReceiverOkpo { get; set; }
+		public string PayerText { get; set; }
+		public string PayerOkpo { get; set; }
+
+		// Товарный раздел
 		public IList<TtnReportRow> Rows { get; set; } = new List<TtnReportRow>();
+
+		public int GrandTotalCount { get; set; }
+		public string GrandTotalCountText { get; set; }
+
+		public decimal MassBruttoValue { get; set; }
+		public string MassBruttoText { get; set; }
+
+		public string ReleaseAllowedPosition { get; set; }
+		public string ReleaseAllowedName { get; set; }
+
+		public string ReleaseProducedPosition { get; set; }
+		public string ReleaseProducedName { get; set; }
+
+		public string CargoAcceptedPosition { get; set; }
+		public string CargoAcceptedName { get; set; }
+
+		// Транспортный раздел
+		public string DeliveryDay { get; set; }
+		public string DeliveryMonthText { get; set; }
+		public string DeliveryYear { get; set; }
+
+		public string OrganizationText { get; set; }
+
+		public string CarModel { get; set; }
+		public string CarRegistrationNumber { get; set; }
+
+		public string DriverFullName { get; set; }
+		public string DriverLicenseNumber { get; set; }
+
+		public string LoadingPointAddress { get; set; }
+		public string UnloadingPointAddress { get; set; }
+
+		public string TrailerModel { get; set; }
+		public string TrailerRegistrationNumber { get; set; }
 	}
 }

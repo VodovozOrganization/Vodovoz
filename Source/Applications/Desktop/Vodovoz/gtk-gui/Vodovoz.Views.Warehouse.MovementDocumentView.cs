@@ -15,6 +15,7 @@ namespace Vodovoz.Views.Warehouse
 		private global::Gamma.GtkWidgets.yButton buttonAcceptDiscrepancy;
 
 		private global::Gamma.GtkWidgets.yButton buttonCancel;
+		private global::Gamma.GtkWidgets.yButton buttonDownloadTtn;
 
 		private global::Gamma.GtkWidgets.yCheckButton checkNeedPrintTtn;
 
@@ -779,6 +780,16 @@ namespace Vodovoz.Views.Warehouse
 			w63b.Expand = false;
 			w63b.Fill = false;
 			this.vboxView.Add(this.hboxItemsActions);
+			this.buttonDownloadTtn = new global::Gamma.GtkWidgets.yButton();
+			this.buttonDownloadTtn.CanFocus = true;
+			this.buttonDownloadTtn.Name = "buttonDownloadTtn";
+			this.buttonDownloadTtn.UseUnderline = true;
+			this.buttonDownloadTtn.Label = global::Mono.Unix.Catalog.GetString("Скачать ТТН");
+			this.hboxItemsActions.Add(this.buttonDownloadTtn);
+			global::Gtk.Box.BoxChild w63c = ((global::Gtk.Box.BoxChild)(this.hboxItemsActions[this.buttonDownloadTtn]));
+			w63c.Position = 5;
+			w63c.Expand = false;
+			w63c.Fill = false;
 			global::Gtk.Box.BoxChild w64 = ((global::Gtk.Box.BoxChild)(this.vboxView[this.hboxItemsActions]));
 			w64.Position = 4;
 			w64.Expand = false;
