@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -133,17 +133,20 @@ namespace WarehouseApi.Library.Services
 
 		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(IUnitOfWork uow, CarLoadDocument carLoadDocument, IEnumerable<int> cancelledOrdersIds)
 		{
-			var isNotAllCodesAdded = carLoadDocument.Items
+			var ordersWithMissingCodes = carLoadDocument.Items
 				.Where(x =>
 					x.OrderId != null
 					&& !cancelledOrdersIds.Contains(x.OrderId.Value)
 					&& x.Nomenclature.IsAccountableInTrueMark
 					&& x.Nomenclature.Gtin != null)
-				.Any(x => x.TrueMarkCodes.Count < x.Amount);
+				.GroupBy(x => x.OrderId.Value)
+				.Where(g => g.Any(x => x.TrueMarkCodes.Count < x.Amount))
+				.Select(g => g.Key)
+				.ToList();
 
-			if(isNotAllCodesAdded)
+			if(ordersWithMissingCodes.Any())
 			{
-				var error = CarLoadDocumentErrors.CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(carLoadDocument.Id);
+				var error = CarLoadDocumentErrors.CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(carLoadDocument.Id, ordersWithMissingCodes);
 				return Result.Failure(error);
 			}
 

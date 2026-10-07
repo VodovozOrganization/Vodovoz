@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomerAppsApi.Library.V2.Dto.Sale;
+using CustomerApp.Contracts.Sale;
 
 namespace CustomerAppsApi.Library.V2.Dto.Goods
 {

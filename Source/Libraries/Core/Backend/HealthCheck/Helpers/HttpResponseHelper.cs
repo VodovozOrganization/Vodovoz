@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using VodovozHealthCheck.Logging;
 
 namespace VodovozHealthCheck.Helpers
 {
@@ -22,7 +23,13 @@ namespace VodovozHealthCheck.Helpers
 		/// <summary>
 		/// Заголовок для идентификации проверки работоспособности
 		/// </summary>
-		private const string _healthCheckHeader = "X-Health-Check";
+		public const string HealthCheckHeaderName = "X-Health-Check";
+
+		/// <summary>
+		/// Ключ для хранения идентификатора запуска health-check в HttpContext.Items
+		/// </summary>
+		public const string HealthCheckRunIdItemsKey = "HealthCheckRunId";
+
 		private static readonly HttpRequestOptionsKey<string> _сonnectInfoKey =new("connect-info");
 
 		/// <summary>
@@ -239,7 +246,8 @@ namespace VodovozHealthCheck.Helpers
 
 			if(isHealthCheck)
 			{
-				request.Headers.Add(_healthCheckHeader, true.ToString());
+				var runId = LoggingContext.HealthCheckRunId ?? Guid.NewGuid().ToString("N");
+				request.Headers.Add(HealthCheckHeaderName, runId);
 			}
 
 			if(!string.IsNullOrEmpty(apiKey) && !string.IsNullOrEmpty(apiKeyValue))
@@ -322,7 +330,8 @@ namespace VodovozHealthCheck.Helpers
 
 				if(isHealthCheck)
 				{
-					request.Headers.Add(_healthCheckHeader, true.ToString());
+					var runId = LoggingContext.HealthCheckRunId ?? Guid.NewGuid().ToString("N");
+					request.Headers.Add(HealthCheckHeaderName, runId);
 				}
 
 				using var response = await _diagnosticHttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
@@ -354,15 +363,14 @@ namespace VodovozHealthCheck.Helpers
 		/// Определяет, является ли текущий HTTP-запрос health-check запросом (проверкой работоспособности)
 		/// </summary>
 		/// <param name="request">Текущий HTTP-запрос</param>
-		/// <returns>true, если запрос содержит заголовок X-Health-Check</returns>
+		/// <returns>true, если запрос содержит непустой заголовок X-Health-Check</returns>
+		/// <remarks>
+		/// Заголовок несёт GUID (идентификатор запуска проверки, см. LoggingContext.HealthCheckRunId)
+		/// </remarks>
 		public static bool IsHealthCheckRequest(HttpRequest request)
 		{
-			if(request.Headers.TryGetValue(_healthCheckHeader, out var headerValue))
-			{
-				return bool.TryParse(headerValue, out var result) && result;
-			}
-
-			return false;
+			return request.Headers.TryGetValue(HealthCheckHeaderName, out var headerValue)
+				&& !string.IsNullOrEmpty(headerValue);
 		}
 	}
 }

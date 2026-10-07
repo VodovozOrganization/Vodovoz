@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Mango.Client;
 using QS.Commands;
 using QS.Dialog;
@@ -9,6 +9,8 @@ using QSReport;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Mango.Client;
+using QS.Commands;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;

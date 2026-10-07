@@ -1,4 +1,5 @@
-﻿using CustomerOrders.Abstractions.V8.Sale;
+﻿using CustomerApp.Contracts.Sale;
+using CustomerOrders.Abstractions.V8.Sale;
 
 namespace CustomerOrders.Contracts.V8.Orders.Items
 {

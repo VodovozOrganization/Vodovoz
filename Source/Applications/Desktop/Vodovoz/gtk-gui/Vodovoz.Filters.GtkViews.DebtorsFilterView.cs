@@ -82,6 +82,8 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Label label9;
 
+		private global::Gtk.HBox hboxOneOrder;
+
 		private global::QS.Widgets.NullableCheckButton nullablecheckOneOrder;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonHideExcludedFromAutoCalls;
@@ -290,7 +292,7 @@ namespace Vodovoz.Filters.GtkViews
 			w15.Expand = false;
 			w15.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.table2 = new global::Gtk.Table(((uint)(5)), ((uint)(6)), false);
+			this.table2 = new global::Gtk.Table(((uint)(6)), ((uint)(5)), false);
 			this.table2.Name = "table2";
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
@@ -374,8 +376,8 @@ namespace Vodovoz.Filters.GtkViews
 			w22.Position = 2;
 			this.table2.Add(this.hbox7);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table2[this.hbox7]));
-			w23.TopAttach = ((uint)(3));
-			w23.BottomAttach = ((uint)(4));
+			w23.TopAttach = ((uint)(4));
+			w23.BottomAttach = ((uint)(5));
 			w23.LeftAttach = ((uint)(4));
 			w23.RightAttach = ((uint)(5));
 			w23.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -494,8 +496,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.label13.LabelProp = global::Mono.Unix.Catalog.GetString("Создана задача на обзвон");
 			this.table2.Add(this.label13);
 			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table2[this.label13]));
-			w34.TopAttach = ((uint)(3));
-			w34.BottomAttach = ((uint)(4));
+			w34.TopAttach = ((uint)(4));
+			w34.BottomAttach = ((uint)(5));
 			w34.LeftAttach = ((uint)(3));
 			w34.RightAttach = ((uint)(4));
 			w34.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -530,14 +532,31 @@ namespace Vodovoz.Filters.GtkViews
 			w37.XOptions = ((global::Gtk.AttachOptions)(4));
 			w37.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
+			this.hboxOneOrder = new global::Gtk.HBox();
+			this.hboxOneOrder.Name = "hboxOneOrder";
+			this.hboxOneOrder.Spacing = 6;
 			this.nullablecheckOneOrder = new global::QS.Widgets.NullableCheckButton();
 			this.nullablecheckOneOrder.CanFocus = true;
 			this.nullablecheckOneOrder.Name = "nullablecheckOneOrder";
 			this.nullablecheckOneOrder.UseUnderline = true;
-			this.table2.Add(this.nullablecheckOneOrder);
-			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.table2[this.nullablecheckOneOrder]));
+			this.hboxOneOrder.Add(this.nullablecheckOneOrder);
+			global::Gtk.Box.BoxChild oneOrderButtonChild = ((global::Gtk.Box.BoxChild)(this.hboxOneOrder[this.nullablecheckOneOrder]));
+			oneOrderButtonChild.Position = 0;
+			oneOrderButtonChild.Expand = false;
+			oneOrderButtonChild.Fill = false;
+			this.ylabelOneOrder = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOneOrder.Name = "ylabelOneOrder";
+			this.ylabelOneOrder.Xalign = 0F;
+			this.ylabelOneOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Клиенты с одним заказом");
+			this.hboxOneOrder.Add(this.ylabelOneOrder);
+			global::Gtk.Box.BoxChild oneOrderLabelChild = ((global::Gtk.Box.BoxChild)(this.hboxOneOrder[this.ylabelOneOrder]));
+			oneOrderLabelChild.Position = 1;
+			oneOrderLabelChild.Expand = false;
+			oneOrderLabelChild.Fill = false;
+			this.table2.Add(this.hboxOneOrder);
+			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.table2[this.hboxOneOrder]));
 			w38.LeftAttach = ((uint)(2));
-			w38.RightAttach = ((uint)(3));
+			w38.RightAttach = ((uint)(4));
 			w38.XOptions = ((global::Gtk.AttachOptions)(4));
 			w38.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table2.Gtk.Table+TableChild
@@ -583,7 +602,7 @@ namespace Vodovoz.Filters.GtkViews
 			w41.BottomAttach = ((uint)(3));
 			w41.LeftAttach = ((uint)(2));
 			w41.RightAttach = ((uint)(4));
-			w41.XOptions = ((global::Gtk.AttachOptions)(0));
+			w41.XOptions = ((global::Gtk.AttachOptions)(4));
 			w41.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.ycheckbuttonShowAllOrderStatuses = new global::Gamma.GtkWidgets.yCheckButton();
@@ -594,8 +613,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckbuttonShowAllOrderStatuses.UseUnderline = true;
 			this.table2.Add(this.ycheckbuttonShowAllOrderStatuses);
 			global::Gtk.Table.TableChild w42 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonShowAllOrderStatuses]));
-			w42.LeftAttach = ((uint)(5));
-			w42.RightAttach = ((uint)(6));
+			w42.TopAttach = ((uint)(3));
+			w42.BottomAttach = ((uint)(4));
+			w42.LeftAttach = ((uint)(2));
+			w42.RightAttach = ((uint)(4));
 			w42.XOptions = ((global::Gtk.AttachOptions)(4));
 			w42.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
@@ -687,22 +708,12 @@ namespace Vodovoz.Filters.GtkViews
 			w49.Fill = false;
 			this.table2.Add(this.yhboxPrice);
 			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.table2[this.yhboxPrice]));
-			w50.TopAttach = ((uint)(4));
-			w50.BottomAttach = ((uint)(5));
+			w50.TopAttach = ((uint)(5));
+			w50.BottomAttach = ((uint)(6));
 			w50.LeftAttach = ((uint)(2));
 			w50.RightAttach = ((uint)(5));
 			w50.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
-			this.ylabelOneOrder = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelOneOrder.Name = "ylabelOneOrder";
-			this.ylabelOneOrder.Xalign = 0F;
-			this.ylabelOneOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Клиенты с одним заказом");
-			this.table2.Add(this.ylabelOneOrder);
-			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.table2[this.ylabelOneOrder]));
-			w51.LeftAttach = ((uint)(3));
-			w51.RightAttach = ((uint)(4));
-			w51.XOptions = ((global::Gtk.AttachOptions)(4));
-			w51.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox2.Add(this.table2);
 			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.table2]));
 			w52.Position = 2;

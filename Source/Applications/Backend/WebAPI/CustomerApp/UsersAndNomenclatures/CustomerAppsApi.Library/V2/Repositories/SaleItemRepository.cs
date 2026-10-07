@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerApp.Contracts.Sale;
 using CustomerAppsApi.Library.V2.Dto;
 using CustomerAppsApi.Library.V2.Dto.Goods;
-using CustomerAppsApi.Library.V2.Dto.Sale;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Criterion.Lambda;
@@ -244,6 +244,9 @@ namespace CustomerAppsApi.Library.V2.Repositories
 
 			switch(parameterType)
 			{
+				case GoodsOnlineParameterType.ForAiBot:
+					query.And(() => onlineParametersAlias.Type == GoodsOnlineParameterType.ForAiBot);
+					break;
 				case GoodsOnlineParameterType.ForMobileApp:
 					query.And(n => n.MobileAppNomenclatureOnlineCatalog != null)
 						.And(() => onlineParametersAlias.Type == GoodsOnlineParameterType.ForMobileApp);

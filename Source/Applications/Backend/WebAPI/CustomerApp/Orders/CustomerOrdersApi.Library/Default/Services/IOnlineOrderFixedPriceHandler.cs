@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CustomerOrders.Abstractions.V3.Sale;
+using CustomerOrdersApi.Library.Default.Dto.Orders.FixedPrice;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
@@ -34,7 +35,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 		/// <param name="receivedData">Данные, необходимые для проверки фиксы и товары
 		/// <see cref="IApplyingFixedPrice"/></param>
 		/// <returns></returns>
-		Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> TryApplyFixedPrice(
+		Result<IEnumerable<OnlineOrderItemWithFixedPriceDto>> TryApplyFixedPrice(
 			IUnitOfWork uow, IApplyingFixedPrice receivedData);
 	}
 }

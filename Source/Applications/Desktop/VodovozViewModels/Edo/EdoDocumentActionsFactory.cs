@@ -1,4 +1,4 @@
-﻿using EdoService.Library;
+using EdoService.Library;
 using Gamma.Binding.Core;
 using QS.Dialog;
 using QS.Services;
@@ -119,6 +119,12 @@ namespace Vodovoz.ViewModels.Edo
 
 		private void ResendUpd(EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
+			if(IsCanResendViaOrderDocumentSendEvent(document))
+			{
+				ResendViaOrderDocumentSendEvent(document, onActionCompleted);
+				return;
+			}
+
 			if(IsDocumentInProgressOrSent(document))
 			{
 				ResendUpdWithCancellation(document, onActionCompleted);
@@ -169,6 +175,22 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				ShowErrorMessage(result.Errors);
 			}
+		}
+
+		private bool IsCanResendViaOrderDocumentSendEvent(EdoInOrderDocumentNode document)
+		{
+			return _edoService.CanResendViaEdoRequestCreatedEvent(document.TaskId);
+		}
+
+		private void ResendViaOrderDocumentSendEvent(EdoInOrderDocumentNode document, Action onActionCompleted)
+		{
+			var resendResult = _edoService.TryResendViaOrderDocumentSendEventAsync(document.TaskId)
+				.GetAwaiter()
+				.GetResult();
+
+			ShowResult(resendResult);
+
+			onActionCompleted?.Invoke();
 		}
 
 		private void ResendUpdWithCancellation(EdoInOrderDocumentNode document, Action onActionCompleted)

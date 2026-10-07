@@ -22,6 +22,6 @@ namespace CustomerOrdersApi.Library.Default.Services
 		/// </summary>
 		/// <param name="applyFixedPriceDto">Данные для применения фиксы</param>
 		/// <returns>Список товаров в случае, если есть фикса. Сообщение ошибки</returns>
-		Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto);
+		Result<IEnumerable<OnlineOrderItemWithFixedPriceDto>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto);
 	}
 }

@@ -1,12 +1,12 @@
-﻿using Microsoft.Extensions.Hosting;
-using System.Text;
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
+using System.Text;
 using TaxcomEdo.Client;
 using TaxcomEdoConsumer.Consumers;
 using TaxcomEdoConsumer.Options;
@@ -15,6 +15,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Edo.Problems;
 
 namespace TaxcomEdoConsumer
 {
@@ -57,6 +58,8 @@ namespace TaxcomEdoConsumer
 						.AddInfrastructure()
 						.AddHttpClient()
 						.AddTaxcomClient()
+
+						.AddEdoProblemRegistration()
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using DynamicData;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -18,6 +19,7 @@ using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Services.DriverSchedule;
 using VodovozBusiness.EntityRepositories.Logistic;
+using VodovozBusiness.Extensions;
 using VodovozBusiness.Nodes;
 using VodovozInfrastructure.StringHandlers;
 
@@ -33,7 +35,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IDriverScheduleService _driverScheduleService;
 		private readonly ILogisticRepository _logisticRepository;
-
 		private ObservableList<SubdivisionNode> _subdivisions;
 		private IList<CarTypeOfUse> _selectedCarTypeOfUse;
 		private IList<CarOwnType> _selectedCarOwnTypes;
@@ -74,15 +75,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_driverScheduleService = driverScheduleService ?? throw new ArgumentNullException(nameof(driverScheduleService));
 			_logisticRepository = logisticRepository ?? throw new ArgumentNullException(nameof(logisticRepository));
-
 			InitializeWeekPicker(weekPickerViewModelFactory);
 
 			Title = "График водителей";
 
 			SetPermissions();
+
+			var carTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+			var carTypeOfUseForExcludeAsEnum = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 			var typesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>().ToList();
-			typesOfUse.Remove(CarTypeOfUse.Loader);
+			typesOfUse.Remove(carTypeOfUseForExclude);
 			typesOfUse.Remove(CarTypeOfUse.Truck);
+			CarTypeOfUseForExclude = carTypeOfUseForExcludeAsEnum;
 
 			var carOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 
@@ -113,6 +117,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		public DatePickerViewModel WeekPickerViewModel { get; private set; }
 
 		public IInteractiveService InteractiveService => _interactiveService;
+
+		public Enum[] CarTypeOfUseForExclude { get; }
 
 		public IList<CarTypeOfUse> SelectedCarTypeOfUse
 		{

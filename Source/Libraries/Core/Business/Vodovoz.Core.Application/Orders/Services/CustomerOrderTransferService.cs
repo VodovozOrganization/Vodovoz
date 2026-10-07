@@ -375,7 +375,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					_saleHandler,
 					_nomenclatureSettings,
 					_callTaskWorker,
-					needCreateDeliveryFreeBalanceOperation: false);
+					needCreateDeliveryFreeBalanceOperation: true);
 
 				onlineOrder.UpdateOnlineOrderDeliveryData(
 					newDeliverySchedule,

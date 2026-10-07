@@ -128,7 +128,7 @@ namespace Edo.Documents
 				var invalidTaskItems = taskValidationResult.CodeResults.Where(x => !x.IsValid)
 					.Select(x => x.EdoTaskItem);
 				await _edoProblemRegistrar.RegisterCustomProblem<ResaleHasInvalidCodesOnTransferComplete>(
-					documentEdoTask,
+					documentEdoTask.Id,
 					invalidTaskItems,
 					cancellationToken
 				);
@@ -140,7 +140,7 @@ namespace Edo.Documents
 				var notReadyTaskItems = taskValidationResult.CodeResults.Where(x => !x.ReadyToSell)
 					.Select(x => x.EdoTaskItem);
 				await _edoProblemRegistrar.RegisterCustomProblem<HasNotTransferedCodesOnTransferComplete>(
-					documentEdoTask,
+					documentEdoTask.Id,
 					notReadyTaskItems,
 					cancellationToken
 				);

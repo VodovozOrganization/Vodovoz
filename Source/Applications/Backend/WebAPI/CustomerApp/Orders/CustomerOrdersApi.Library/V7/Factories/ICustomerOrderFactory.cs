@@ -19,7 +19,6 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			OnlineOrderTimers timers,
 			OnlineOrder onlineOrder,
 			DateTime ratingAvailableFrom,
-			DriverMangoExtensionNumber driversMangoExtensionNumber,
 			bool establishedRoute,
 			bool isOrderWasSelectedAsNext,
 			DateTime? driversCoordinatesLastUpdateTime,

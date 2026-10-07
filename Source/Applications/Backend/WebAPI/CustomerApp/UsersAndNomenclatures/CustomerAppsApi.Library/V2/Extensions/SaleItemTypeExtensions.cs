@@ -1,4 +1,4 @@
-﻿using CustomerAppsApi.Library.V2.Dto.Sale;
+﻿using CustomerApp.Contracts.Sale;
 using Vodovoz.Core.Domain.Goods;
 
 namespace CustomerAppsApi.Library.V2.Extensions

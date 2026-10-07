@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CustomerOrders.Abstractions.V4.Sale;
+using CustomerOrdersApi.Library.V4.Dto.Orders.FixedPrice;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Nodes;
 
 namespace CustomerOrdersApi.Library.V4.Services
 {
@@ -19,7 +18,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		{
 		}
 
-		public Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> TryApplyFixedPrice(
+		public Result<IEnumerable<OnlineOrderItemWithFixedPriceDto>> TryApplyFixedPrice(
 			IUnitOfWork uow,
 			IApplyingFixedPrice receivedData
 			)
@@ -31,21 +30,21 @@ namespace CustomerOrdersApi.Library.V4.Services
 				receivedData.IsSelfDelivery,
 				out var fixedPrices))
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProductWithFixedPrice>>(Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
+				return Result.Failure<IEnumerable<OnlineOrderItemWithFixedPriceDto>>(Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
 			}
 
 			return TryApplyFixedPrice(receivedData, fixedPrices);
 		}
 
-		private Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> TryApplyFixedPrice(
+		private Result<IEnumerable<OnlineOrderItemWithFixedPriceDto>> TryApplyFixedPrice(
 			IApplyingFixedPrice receivedData,
 			IEnumerable<NomenclatureFixedPrice> fixedPrices)
 		{
-			var itemsWithFixedPrice = new List<IOnlineOrderedProductWithFixedPrice>();
+			var itemsWithFixedPrice = new List<OnlineOrderItemWithFixedPriceDto>();
 
 			foreach(var onlineItem in receivedData.OnlineOrderItems)
 			{
-				var onlineOrderedProductWithFixedPrice = new OnlineOrderItemWithFixedPrice
+				var onlineOrderedProductWithFixedPrice = new OnlineOrderItemWithFixedPriceDto
 				{
 					Count = onlineItem.Count,
 					NomenclatureId = onlineItem.NomenclatureId,

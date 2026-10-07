@@ -82,10 +82,7 @@ namespace Vodovoz.Views.Mango
 					item4.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.OpenUndelivery(selectedOrder); };
 					popupMenu.Add(item4);
 				}
-				if(selectedOrder.OrderStatus == OrderStatus.NewOrder ||
-					selectedOrder.OrderStatus == OrderStatus.WaitForPayment ||
-					selectedOrder.OrderStatus == OrderStatus.Accepted ||
-					selectedOrder.OrderStatus == OrderStatus.InTravelList) {
+				if(ViewModel.CanCancelOrder(selectedOrder)) {
 
 					MenuItem item5 = new MenuItem("Отменить");
 					item5.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.CancelOrder(selectedOrder); };

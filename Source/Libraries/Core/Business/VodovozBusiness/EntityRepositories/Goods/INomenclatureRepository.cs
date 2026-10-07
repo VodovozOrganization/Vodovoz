@@ -112,5 +112,18 @@ namespace Vodovoz.EntityRepositories.Goods
 		/// <param name="nomenclatureId">ID номенклатуры</param>
 		/// <returns></returns>
 		bool CheckAnyOrderWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId);
+
+		/// <summary>
+		/// Получение ноды с идентификатором и именем номенклатуры
+		/// </summary>
+		/// <param name="unitOfWork">unitOfWork</param>
+		/// <param name="nomenclatureId">Идентификатор номенклатуры</param>
+		/// <param name="notArchive">true - не архивнаяя, false - все</param>
+		/// <returns></returns>
+		INamedDomainObject GetNamedNomenclatureNode(
+			IUnitOfWork unitOfWork,
+			int nomenclatureId,
+			bool notArchive = true
+		);
 	}
 }

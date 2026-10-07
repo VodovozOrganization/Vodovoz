@@ -544,7 +544,7 @@ namespace Vodovoz.Core.Application.Sale
 		{
 			foreach(var reason in discountReasons)
 			{
-				discountReasons.Remove(reason);
+				saleItem.DiscountReasons.Remove(reason);
 
 				if(reason.Id == PersonalDiscountReasonId)
 				{

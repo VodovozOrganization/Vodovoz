@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Osrm;
 using QS.Services;
@@ -77,7 +77,8 @@ namespace Vodovoz.Core.Application.Logistics
 			IOsrmSettings osrmSettings,
 			IOsrmClient osrmClient,
 			IOrderSaleHandler saleHandler,
-			IMangoSettings mangoSettings)
+			IMangoSettings mangoSettings
+			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -932,7 +933,6 @@ namespace Vodovoz.Core.Application.Logistics
 		}
 
 		#endregion Статусы МЛ
-
 
 		#region Адреса в МЛ
 

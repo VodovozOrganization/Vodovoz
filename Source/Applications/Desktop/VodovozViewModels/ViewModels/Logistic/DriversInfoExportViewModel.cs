@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using DynamicData;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -20,6 +13,14 @@ using QS.Tdi;
 using QS.Utilities.Enums;
 using QS.Utilities.Text;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
@@ -31,6 +32,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using VodovozBusiness.Extensions;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -57,21 +59,25 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IWageParameterService wageParameterService,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
-			INavigationManager navigation)
+			INavigationManager navigation
+			)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
 			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			_restrictedCarTypesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>();
 			_restrictedCarTypesOfUse.Remove(CarTypeOfUse.Truck);
-			_restrictedCarTypesOfUse.Remove(CarTypeOfUse.Loader);
+			_restrictedCarTypesOfUse.Remove(excludedCarTypesOfUse);
 
 			TabName = "Выгрузка по водителям";
 			Items = new GenericObservableList<DriverInfoNode>();
 
 			DataIsLoading = false;
+
+			CarTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 		}
 
 		public GenericObservableList<DriverInfoNode> Items
@@ -89,6 +95,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool CanExport => !DataIsLoading && Items.Any();
 		public bool CanForm => !DataIsLoading;
+
+		public Enum[] CarTypeOfUseForExclude { get; }
 
 		public IList<CarTypeOfUse> RestrictedCarTypesOfUse
 		{

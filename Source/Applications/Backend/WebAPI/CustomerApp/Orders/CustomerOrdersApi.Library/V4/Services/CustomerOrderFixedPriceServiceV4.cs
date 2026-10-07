@@ -8,10 +8,7 @@ using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Nodes;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V4.Services
@@ -57,7 +54,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				out generatedSignature);
 		}
 		
-		public Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
+		public Result<IEnumerable<OnlineOrderItemWithFixedPriceDto>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Применение фиксы к онлайн заказу {applyFixedPriceDto.ExternalOrderId}");
 			return _onlineOrderFixedPriceHandler.TryApplyFixedPrice(uow, applyFixedPriceDto);

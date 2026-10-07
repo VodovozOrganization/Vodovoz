@@ -22,7 +22,13 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 	{
 		private const string _defaultDateTimeFormat = "dd.MM.yyyy";
 
-		private static readonly CarTypeOfUse[] _excludeTypesOfUse = new CarTypeOfUse[] { CarTypeOfUse.Truck, CarTypeOfUse.Loader };
+		private static readonly CarTypeOfUse[] _excludeTypesOfUse = new CarTypeOfUse[]
+		{
+			CarTypeOfUse.Truck,
+			CarTypeOfUse.Loader,
+			CarTypeOfUse.Semitrailer
+		};
+
 		private static readonly CarOwnType[] _carOwnTypes = new CarOwnType[] { CarOwnType.Company, CarOwnType.Raskat };
 
 		private CarIsNotAtLineReport(

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using CustomerApp.Contracts.Sale;
 using CustomerOrders.Abstractions.V7.Sale;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Repositories;

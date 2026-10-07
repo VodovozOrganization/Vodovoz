@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.Utilities;
 using NHibernate.Criterion;
 using QS.Dialog;
@@ -31,7 +31,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
@@ -42,9 +41,7 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Models;
@@ -95,8 +92,6 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IEmployeeRepository>();
 		private ICarLoadDocumentRepository _carLoadDocumentRepository => ScopeProvider.Scope
 			.Resolve<ICarLoadDocumentRepository>();
-		private IOrderRepository _orderRepository => ScopeProvider.Scope
-			.Resolve<IOrderRepository>();
 		private IOsrmSettings _osrmSettings => ScopeProvider.Scope
 			.Resolve<IOsrmSettings>();
 		private IOsrmClient _osrmClient => ScopeProvider.Scope
@@ -106,10 +101,8 @@ namespace Vodovoz.Domain.Logistic
 		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
 			.Resolve<INomenclatureRepository>();
 
-		private IPermissionRepository _permissionRepository => ScopeProvider.Scope.Resolve<IPermissionRepository>();
-
-		private CarVersion _carVersion;
 		private Car _car;
+		private Car _semitrailer;
 		private RouteListProfitability _routeListProfitability;
 		private GenericObservableList<DeliveryFreeBalanceOperation> _observableDeliveryFreeBalanceOperations;
 
@@ -123,7 +116,6 @@ namespace Vodovoz.Domain.Logistic
 			set {
 				Employee oldDriver = _driver;
 				if(SetField(ref _driver, value, () => Driver)) {
-					ChangeFuelDocumentsOnChangeDriver(oldDriver);
 					if(Id == 0 || oldDriver != _driver)
 						Forwarder = GetDefaultForwarder(_driver);
 				}
@@ -156,11 +148,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual Car Car {
 			get => _car;
 			set {
-				var oldCar = _car;
 				if(SetField(ref _car, value, () => Car))
 				{
-					ChangeFuelDocumentsChangeCar(oldCar);
-
 					if(value?.Driver != null && value.Driver.Status != EmployeeStatus.IsFired)
 					{
 						Driver = value.Driver;
@@ -184,6 +173,16 @@ namespace Vodovoz.Domain.Logistic
 					OnPropertyChanged(nameof(CanAddForwarder));
 				}
 			}
+		}
+		
+		/// <summary>
+		/// Полуприцеп
+		/// </summary>
+		[Display(Name = "Полуприцеп")]
+		public virtual Car Semitrailer
+		{
+			get => _semitrailer;
+			set => SetField(ref _semitrailer, value);
 		}
 
 		DeliveryShift shift;
@@ -794,38 +793,26 @@ namespace Vodovoz.Domain.Logistic
 			return null;
 		}
 
-		public virtual void ChangeFuelDocumentsChangeCar(Car oldCar)
-		{
-			if(oldCar == null || Car == oldCar || !FuelDocuments.Any()) {
-				return;
-			}
-
-			foreach(FuelDocument item in ObservableFuelDocuments) {
-				item.Car = Car;
-				item.FuelOperation.Car = Car;
-			}
-		}
-
-		public virtual void ChangeFuelDocumentsOnChangeDriver(Employee oldDriver)
-		{
-			if(Driver == null || oldDriver == null || Driver == oldDriver || !FuelDocuments.Any())
-				return;
-
-			foreach(FuelDocument item in ObservableFuelDocuments) {
-				item.Driver = Driver;
-				item.FuelOperation.Driver = Driver;
-			}
-		}
-
+		/// <summary>
+		/// Признак того, что операция расхода топлива по МЛ отнесена не на тот автомобиль или того водителя,
+		/// на которых она будет перенесена при следующем <see cref="UpdateFuelOperation"/>
+		/// </summary>
+		/// <returns><c>true</c>, если отличаются</returns>
 		public virtual bool FuelOperationHaveDiscrepancy()
 		{
-			if(FuelOutlayedOperation == null) {
+			if(FuelOutlayedOperation == null)
+			{
 				return false;
 			}
-			var carDiff = FuelDocuments.Select(x => x.FuelOperation).Any(x => x.Car != null && x.Car.Id != Car.Id)
-									   || (FuelOutlayedOperation.Car != null && FuelOutlayedOperation.Car.Id != Car.Id);
-			var driverDiff = FuelDocuments.Select(x => x.FuelOperation).Any(x => x.Driver != null && x.Driver.Id != Driver.Id)
-										  || (FuelOutlayedOperation.Driver != null && FuelOutlayedOperation.Driver.Id != Driver.Id);
+
+			//Расход относится либо на авто компании, либо на водителя, см. UpdateFuelOperation
+			var isCompanyCar = GetCarVersion?.CarOwnType == CarOwnType.Company;
+			var expectedCar = isCompanyCar ? Car : null;
+			var expectedDriver = isCompanyCar ? null : Driver;
+
+			var carDiff = FuelOutlayedOperation.Car?.Id != expectedCar?.Id;
+			var driverDiff = FuelOutlayedOperation.Driver?.Id != expectedDriver?.Id;
+
 			return carDiff || driverDiff;
 		}
 
@@ -1426,42 +1413,38 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool IsDriversDebtInPermittedRangeVerification()
 		{
-			if(Driver != null)
+			if(Driver == null || Driver.IsDriverHasActiveStopListRemoval(UoW))
 			{
-				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount;
-				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsSettings.DriversRouteListsMaxDebtSum;
+				return true;
+			}
 
-				var isDriverHasActiveStopListRemoval = Driver.IsDriverHasActiveStopListRemoval(UoW);
+			var unclosedRouteListsHavingDebtsCount =
+				_routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
+			var unclosedRouteListsDebtsSum =
+				_routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
 
-				if(isDriverHasActiveStopListRemoval)
+			// В существующих сценариях МЛ проверяется превышение порога, включая нулевой.
+			if((Driver.DriverManualStopListUntil > DateTime.Now)
+				|| unclosedRouteListsHavingDebtsCount > GetGeneralSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount
+				|| unclosedRouteListsDebtsSum > GetGeneralSettingsSettings.DriversRouteListsMaxDebtSum)
+			{
+				var messageString =
+					(Driver.DriverManualStopListUntil > DateTime.Now)
+					? $"Водитель {Driver.FullName} добавлен в стоп-лист вручную."
+					: $"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
+					$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей.";
+
+				var canEditDriversStopListParameters =
+					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
+
+				if(canEditDriversStopListParameters)
 				{
-					return true;
+					messageString += "\n\nВсе равно продолжить?";
+					return ServicesConfig.InteractiveService.Question(messageString, "Требуется подтверждение");
 				}
 
-				var unclosedRouteListsHavingDebtsCount =
-					_routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
-				var unclosedRouteListsDebtsSum =
-					_routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
-
-				if(unclosedRouteListsHavingDebtsCount > maxDriversUnclosedRouteListsCountParameter 
-					|| unclosedRouteListsDebtsSum > maxDriversRouteListsDebtsSumParameter)
-				{
-					var messageString =
-						$"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
-						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей.";
-
-					var canEditDriversStopListParameters =
-						ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
-
-					if(canEditDriversStopListParameters)
-					{
-						messageString += "\n\nВсе равно продолжить?";
-						return ServicesConfig.InteractiveService.Question(messageString, "Требуется подтверждение");
-					}
-
-					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, messageString);
-					return false;
-				}
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, messageString);
+				return false;
 			}
 			return true;
 		}
@@ -1626,6 +1609,53 @@ namespace Vodovoz.Domain.Logistic
 				{
 					yield return new ValidationResult("Нельзя использовать погрузчик как автомобиль МЛ",
 						new[] { nameof(Car) });
+				}
+
+				if(Car.CarModel?.CarTypeOfUse == CarTypeOfUse.Semitrailer)
+				{
+					yield return new ValidationResult("Нельзя использовать полуприцеп как автомобиль МЛ",
+						new[] { nameof(Car) });
+				}
+			}
+
+			if(Semitrailer != null)
+			{
+				if(Semitrailer.CarModel?.CarTypeOfUse != CarTypeOfUse.Semitrailer)
+				{
+					yield return new ValidationResult(
+						"Выбранный автомобиль не является полуприцепом",
+						new[] { nameof(Semitrailer) });
+				}
+
+				if(Semitrailer.IsArchive)
+				{
+					yield return new ValidationResult(
+						"Нельзя выбрать архивный полуприцеп",
+						new[] { nameof(Semitrailer) });
+				}
+
+				if(Car?.CarModel?.CarTypeOfUse != CarTypeOfUse.Truck)
+				{
+					yield return new ValidationResult(
+						"Полуприцеп можно привязать только к фуре",
+						new[] { nameof(Semitrailer) });
+				}
+
+
+				var routeListRepository = validationContext.GetService<IRouteListRepository>() ?? throw new InvalidOperationException(
+						$"Для валидации {nameof(RouteList)} должен быть доступен {nameof(IRouteListRepository)} через {nameof(ValidationContext)}");
+
+				var busyRouteList = routeListRepository.GetRouteListByBusySemiTrailer(
+					UoW,
+					Semitrailer.Id,
+					Id,
+					new[] { RouteListStatus.EnRoute });
+
+				if(busyRouteList != null)
+				{
+					yield return new ValidationResult(
+						$"Полуприцеп {Semitrailer.RegistrationNumber} уже используется в МЛ №{busyRouteList.Id} от {busyRouteList.Date:d}",
+						new[] { nameof(Semitrailer) });
 				}
 			}
 

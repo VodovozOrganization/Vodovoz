@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 
@@ -16,6 +17,9 @@ namespace Vodovoz.Core.Domain.Documents
 		private int _edoDocumentId;
 		private bool _isReceived;
 		private bool _isReminderToAcceptUpdEmailSent;
+		private string _correctionNoticeMessage;
+		private string _cancellationOfferMessage;
+		private string _discrepancyMessage;
 
 		/// <summary>
 		/// Идентификатор
@@ -83,6 +87,33 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _isReminderToAcceptUpdEmailSent;
 			set => SetField(ref _isReminderToAcceptUpdEmailSent, value);
+		}
+
+		/// <summary>
+		/// Сообщение из уведомления об уточнении
+		/// </summary>
+		public virtual string CorrectionNoticeMessage
+		{
+			get => _correctionNoticeMessage;
+			set => SetField(ref _correctionNoticeMessage, value);
+		}
+
+		/// <summary>
+		/// Сообщение из предложения об аннулировании
+		/// </summary>
+		public virtual string CancellationOfferMessage
+		{
+			get => _cancellationOfferMessage;
+			set => SetField(ref _cancellationOfferMessage, value);
+		}
+
+		/// <summary>
+		/// Сообщение из документооборота принятного с расхождениями
+		/// </summary>
+		public virtual string DiscrepancyMessage
+		{
+			get => _discrepancyMessage;
+			set => SetField(ref _discrepancyMessage, value);
 		}
 
 		/// <summary>

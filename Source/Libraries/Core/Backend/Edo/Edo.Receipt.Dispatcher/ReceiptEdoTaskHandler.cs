@@ -50,6 +50,10 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
+			edoTask.UpdateWaitingProcessingTaskCreatedEvent(false);
+			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+
 			if(edoTask.ReceiptStatus != EdoReceiptStatus.New)
 			{
 				_logger.LogInformation("Задача Id {ReceiptEdoTaskId} уже в работе", receiptEdoTaskId);

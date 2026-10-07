@@ -1,4 +1,4 @@
-﻿using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Errors.Clients
 {

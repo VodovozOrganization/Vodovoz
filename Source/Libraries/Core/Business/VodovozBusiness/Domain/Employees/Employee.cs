@@ -46,6 +46,7 @@ namespace Vodovoz.Domain.Employees
 		private const int _commentLimit = 255;
 
 		private bool _hasAccessToWarehouseApp;
+		private DateTime? _driverManualStopListUntil;
 
 		private Counterparty _counterparty;
 		private Citizenship _citizenship;
@@ -809,6 +810,17 @@ namespace Vodovoz.Domain.Employees
 			{
 				ObservableDriverWorkScheduleSets.Add(activeDriverWorkScheduleSet);
 			}
+		}
+
+		/// <summary>
+		/// Окончание ручной блокировки водителя независимо от долгов (не включительно).
+		/// Действующее временное снятие приостанавливает эту блокировку.
+		/// </summary>
+		[Display(Name = "Ручной стоп-лист водителя")]
+		public virtual DateTime? DriverManualStopListUntil
+		{
+			get => _driverManualStopListUntil;
+			set => SetField(ref _driverManualStopListUntil, value);
 		}
 
 		public virtual bool IsDriverHasActiveStopListRemoval(IUnitOfWork unitOfWork)

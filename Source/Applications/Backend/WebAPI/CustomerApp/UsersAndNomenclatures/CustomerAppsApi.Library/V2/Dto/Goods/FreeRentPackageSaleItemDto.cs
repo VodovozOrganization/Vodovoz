@@ -1,5 +1,5 @@
-﻿using CustomerAppsApi.Library.V2.Dto.Goods.Attributes;
-using CustomerAppsApi.Library.V2.Dto.Sale;
+﻿using CustomerApp.Contracts.Sale;
+using CustomerAppsApi.Library.V2.Dto.Goods.Attributes;
 
 namespace CustomerAppsApi.Library.V2.Dto.Goods
 {

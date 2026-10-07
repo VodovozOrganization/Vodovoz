@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CustomerOrders.Abstractions.V8.Carts;
+using CustomerApp.Contracts.Sale;
 
 namespace CustomerOrders.Abstractions.V8.Sale
 {

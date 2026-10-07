@@ -8,6 +8,6 @@ namespace CustomerOrdersApi.Library.Default.Dto.Orders.FixedPrice
 		/// <summary>
 		/// Список товаров с фиксой
 		/// </summary>
-		public IEnumerable<IOnlineOrderedProductWithFixedPrice> OnlineOrderItems { get; set; }
+		public IEnumerable<OnlineOrderItemWithFixedPriceDto> OnlineOrderItems { get; set; }
 	}
 }

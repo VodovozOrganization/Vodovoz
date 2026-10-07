@@ -5,8 +5,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.V4.Dto.Orders.FixedPrice;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Nodes;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
@@ -34,10 +32,6 @@ namespace CustomerOrdersApi.HealthCheck
 			{
 				PropertyNameCaseInsensitive = true,
 				PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-				Converters =
-				{
-					new InterfaceToImplementationJsonConverter<IOnlineOrderedProductWithFixedPrice, OnlineOrderItemWithFixedPrice>()
-				}
 			};
 
 			var result = await HttpResponseHelper.SendRequestAsync<AppliedFixedPriceDto>(

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerApp.Contracts.Sale;
 using CustomerOrders.Abstractions.V8.Carts;
 using CustomerOrders.Abstractions.V8.Sale;
 using CustomerOrders.Contracts.V8.Orders.Items;

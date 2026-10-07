@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.V6.Dto.Orders;
+using CustomerOrdersApi.Library.V6.Dto.Orders;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;

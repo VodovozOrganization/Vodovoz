@@ -23,6 +23,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public interface IRouteListRepository
 	{
+		/// <summary>Возвращает действующие снятия стоп-листа водителя на указанный момент.</summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="driverId">Идентификатор водителя.</param>
+		/// <param name="at">Момент проверки.</param>
+		/// <returns>Действующие снятия стоп-листа.</returns>
+		IList<DriverStopListRemoval> GetActiveDriverStopListRemovals(IUnitOfWork uow, int driverId, DateTime at);
+
 		IEnumerable<RouteList> GetDriverRouteLists(IUnitOfWork uow, int driverId, DateTime? date = null, RouteListStatus? status = null);
 		IList<RouteList> GetRoutesAtDay(IUnitOfWork uow, DateTime dateForRouting, bool showCompleted, int[] onlyInGeographicGroup, int[] onlyWithDeliveryShifts);
 		QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds, bool onlyNonPrinted);
@@ -173,5 +180,41 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<bool> IsOrderEverWasSelectedAsNext(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает маршрутный лист, в котором уже используется указанный полуприцеп
+		/// и который находится в одном из переданных статусов
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="semiTrailerId">Идентификатор полуприцепа</param>
+		/// <param name="excludeRouteListId">Идентификатор МЛ, который нужно исключить из поиска (текущий)</param>
+		/// <param name="statuses">Статусы МЛ, которые учитываются</param>
+		RouteList GetRouteListByBusySemiTrailer(
+			IUnitOfWork uow,
+			int semiTrailerId,
+			int excludeRouteListId,
+			IEnumerable<RouteListStatus> statuses);
+
+		/// <summary>
+		/// Возвращает маршрутный лист, в котором уже используется указанный полуприцеп
+		/// и который находится в одном из переданных статусов
+		/// </summary>
+		/// <param name="semiTrailerId">Идентификатор полуприцепа</param>
+		/// <param name="excludeRouteListId">Идентификатор МЛ, который нужно исключить из поиска (текущий)</param>
+		/// <param name="statuses">Статусы МЛ, которые учитываются</param>
+		RouteList GetRouteListByBusySemiTrailer(
+			int semiTrailerId,
+			int excludeRouteListId,
+			IEnumerable<RouteListStatus> statuses);
+
+		/// <summary>
+		/// Возвращает маршрутный лист, в котором уже используется указанный полуприцеп
+		/// и который находится в одном из переданных статусов
+		/// </summary>
+		/// <param name="semiTrailerId">Идентификатор полуприцепа</param>
+		/// <param name="statuses">Статусы МЛ, которые учитываются</param>
+		RouteList GetRouteListByBusySemiTrailer(
+			int semiTrailerId,
+			IEnumerable<RouteListStatus> statuses);
 	}
 }

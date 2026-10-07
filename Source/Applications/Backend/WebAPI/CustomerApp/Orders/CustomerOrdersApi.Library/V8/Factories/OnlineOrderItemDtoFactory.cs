@@ -4,6 +4,7 @@ using CustomerOrdersApi.Library.V8.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerApp.Contracts.Sale;
 using CustomerOrdersApi.Library.V8.Services;
 using Vodovoz.Domain.Orders;
 

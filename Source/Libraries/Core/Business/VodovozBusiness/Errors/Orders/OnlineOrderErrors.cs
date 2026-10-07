@@ -110,6 +110,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectPricePaidDelivery),
 				$"Платная доставка с неверной ценой: пришла {onlineOrderItemPrice}, а должна быть {price}");
 		
+		public static Error ErrorCalculatingPaidDelivery() =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ErrorCalculatingPaidDelivery),
+				$"Не удалось рассчитать платную доставку");
+		
 		public static Error FastDeliveryNotAvailable =>
 			new Error(
 				typeof(OnlineOrderErrors),

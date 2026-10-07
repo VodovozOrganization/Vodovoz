@@ -1,4 +1,4 @@
-﻿using NSubstitute;
+using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
 using QS.Dialog;
@@ -57,6 +57,38 @@ namespace VodovozBusinessTests.Domain.Orders
 			_priceCalculator = Substitute.For<IGoodsPriceCalculator>();
 		}
 		
+		[TestCase(OrderStatus.Closed, true, false, true, false)]
+		[TestCase(OrderStatus.Closed, false, false, true, false)]
+		[TestCase(OrderStatus.NewOrder, true, false, true, true)]
+		[TestCase(OrderStatus.Accepted, true, false, true, true)]
+		[TestCase(OrderStatus.Accepted, true, true, true, false)]
+		[TestCase(OrderStatus.Accepted, true, false, false, false)]
+		public void SaveEntity_UpdatesContractOnlyWhenNeeded(
+			OrderStatus status, bool hasContract, bool loadedFrom1C, bool needUpdateContract, bool expectUpdate)
+		{
+			var uow = Substitute.For<IUnitOfWork>();
+			var contract = hasContract ? new CounterpartyContract() : null;
+			var order = new Order
+			{
+				Id = 1,
+				UoW = uow,
+				OrderStatus = status,
+				Contract = contract,
+				Code1c = loadedFrom1C ? "1C-order" : null,
+				TareNonReturnReason = new NonReturnReason(),
+				Comment = "Updated comment"
+			};
+			var dailyNumberController = Substitute.For<Vodovoz.Domain.IOrderDailyNumberController>();
+			var paymentController = Substitute.For<IPaymentFromBankClientController>();
+
+			order.SaveEntity(uow, _contractUpdater, null, dailyNumberController, paymentController, needUpdateContract);
+
+			_contractUpdater.Received(expectUpdate ? 1 : 0).UpdateContract(uow, order);
+			Assert.That(order.Contract, Is.SameAs(contract));
+			Assert.That(order.Comment, Is.EqualTo("Updated comment"));
+			uow.Received(1).Save(order);
+		}
+
 		#region OrderItemsPacks
 
 		private static Order ForfeitWaterAndEmptyBottles(
@@ -290,7 +322,8 @@ namespace VodovozBusinessTests.Domain.Orders
 				Substitute.For<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>(),
 				Substitute.For<IFastPaymentRepository>(),
 				_contractUpdater,
-				_saleHandler);
+				_saleHandler
+				);
 			var fastPayment = new FastPayment
 			{
 				Order = order,

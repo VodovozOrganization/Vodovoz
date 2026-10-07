@@ -58,6 +58,16 @@ namespace Vodovoz.Logistic
 
 			InitializeSpecialConditions();
 
+			ylabelSemitrailer.Binding
+				.AddBinding(ViewModel, vm => vm.IsSemiTrailerVisible, w => w.Visible)
+				.InitializeFromSource();
+
+			entrySemitrailer.ViewModel = ViewModel.SemitrailerViewModel;
+			entrySemitrailer.Binding
+				.AddBinding(ViewModel, vm => vm.IsSemiTrailerVisible, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanWorkWithSemitrailers, w => w.Sensitive)
+				.InitializeFromSource();
+
 			entryCar.ViewModel = ViewModel.CarViewModel;
 			entryCar.Binding
 				.AddBinding(ViewModel, vm => vm.CanAccept, w => w.Sensitive)

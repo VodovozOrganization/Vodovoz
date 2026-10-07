@@ -12,7 +12,9 @@ using System.Threading.Tasks;
 using Vodovoz.Settings.CashReceipt;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Helpers;
 using VodovozHealthCheck.Providers;
+using VodovozHealthCheck.Logging;
 
 namespace CashReceiptApi.HealthChecks
 {
@@ -47,6 +49,9 @@ namespace CashReceiptApi.HealthChecks
 				using var httpClient = new HttpClient(handler);
 
 				httpClient.DefaultRequestHeaders.Add("ApiKey", _cashReceiptSettings.CashReceiptApiKey);
+
+				var runId = LoggingContext.HealthCheckRunId ?? Guid.NewGuid().ToString("N");
+				httpClient.DefaultRequestHeaders.Add(HttpResponseHelper.HealthCheckHeaderName, runId);
 
 				var options = new GrpcChannelOptions();
 				options.HttpClient = httpClient;

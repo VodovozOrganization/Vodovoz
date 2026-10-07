@@ -1,4 +1,4 @@
-﻿using DriverApi.Notifications.Client;
+using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.Permissions;
@@ -38,6 +38,7 @@ using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders.Delivery;
 using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Service;
 using VodovozBusiness.Domain.Settings;
@@ -96,6 +97,10 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
 				.AddScoped<IPaymentByCardOnlineBuilderFactory, PaymentByCardOnlineBuilderFactory>()
 				.AddScoped<PaymentsFromYookassaParser>()
+				.AddScoped<CustomerCartWaterCounts>()
+				.AddScoped<IOnlineCartDistrictRulesGetter, OnlineCartDistrictRulesGetter>()
+				.AddScoped<IDeliveryRulesHandler, DeliveryRulesHandler>()
+				.AddScoped<IDeliveryCostDataFactory, DeliveryCostDataFactory>()
 				.AddTrueMarkApiClient()
 				.AddCoreApplicationOrderServices()
 				;

@@ -1,4 +1,4 @@
-﻿using Edo.Contracts.Messages.Dto;
+using Edo.Contracts.Messages.Dto;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;

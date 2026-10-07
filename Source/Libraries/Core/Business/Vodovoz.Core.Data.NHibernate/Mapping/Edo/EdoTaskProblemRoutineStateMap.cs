@@ -25,6 +25,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			Map(x => x.LastRetryTime)
 				.Column("last_retry_time");
+			
+			Map(x => x.WaitingProcessingTaskCreatedEvent)
+				.Column("waiting_processing_task_created_event");
 		}
 	}
 }

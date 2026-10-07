@@ -31,7 +31,7 @@ namespace Vodovoz.Views.Orders
 			buttonSave.BindCommand(ViewModel.SaveCommand);
 			
 			buttonSave.Binding
-				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			buttonCancel.BindCommand(ViewModel.CloseCommand);
@@ -143,6 +143,7 @@ namespace Vodovoz.Views.Orders
 			frameBox.Expand = false;
 			var tableDiscountInfoBox = (Box.BoxChild)vboxDiscountInfo[tableDiscountInfo];
 			vboxDiscountInfo.ReorderChild(_frameApplicabilities, tableDiscountInfoBox.Position + 1);
+			_frameApplicabilities.Sensitive = ViewModel.CanEditDiscountReason;
 		}
 		
 		private void ConfigureApplicability(
