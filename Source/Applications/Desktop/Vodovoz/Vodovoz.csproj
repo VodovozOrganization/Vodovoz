@@ -2200,6 +2200,18 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AdditionalFuelTypeManagementView.cs" />
     <Compile Include="Filters\GtkViews\EdoDeviationFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoDeviationFilterView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderDistributionStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderDistributionStageView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderSavedToPoolStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderSavedToPoolStageView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderTenderSendingStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTenderSendingStageView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderTenderManualUploadedStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTenderManualUploadedStageView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderTransferWaitingRequestsStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTransferWaitingRequestsStageView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderTransferPreparingStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTransferPreparingStageView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -101,6 +101,7 @@
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
     <Compile Include="Edo\EdoDocumentActionsFactory.cs" />
     <Compile Include="Edo\EdoInOrderDocflowsStageViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderDistributionStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentActionsViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentHistoryRowViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentGroupType.cs" />
@@ -109,9 +110,14 @@
     <Compile Include="Edo\EdoInOrderDocumentViewModel.cs" />
     <Compile Include="Edo\EdoInOrderReceiptSendStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderReceiptViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderSavedToPoolStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderTaxcomDocflowViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderTenderManualUploadedStageViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderTenderSendingStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderTransferRowViewModel.cs" />
     <Compile Include="Edo\EdoInOrderTransferStageViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderTransferPreparingStageViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderTransferWaitingRequestsStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderViewModel.cs" />
     <Compile Include="Edo\EdoInOrderProblemViewModel.cs" />
     <Compile Include="Edo\EdoViewModel.cs" />
