@@ -328,9 +328,8 @@ namespace Vodovoz.Tools.Orders
 
 		static bool IsOrderWithOrderItemsAndWithoutDeposits(OrderStateKey key) =>
 		(
-			!key.IsPriceOfAllOrderItemsZero
+			key.HasNonDepositSale
 			&& !key.NeedToRefundDepositToClient
-			&& key.HasOrderItems
 		);
 	}
 
