@@ -1,20 +1,20 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
-using Autofac;
-using NHibernate.Criterion;
-using QS.Navigation;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Warehouses;
-using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		private ILifetimeScope _lifetimeScope;
 		private WarehouseJournalFilterViewModel _filterViewModel;
 		private WarehousePermissionsType[] _warehousePermissions;
-		
+
 		public WarehouseJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,

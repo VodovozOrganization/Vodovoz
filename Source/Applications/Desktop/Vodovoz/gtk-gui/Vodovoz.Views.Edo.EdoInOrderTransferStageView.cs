@@ -28,6 +28,8 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gamma.GtkWidgets.yHBox yhboxTransferStage;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelNoTransfers;
+
 		private global::Gtk.Label GtkLabel;
 
 		protected virtual void Build()
@@ -115,6 +117,17 @@ namespace Vodovoz.Views.Edo
 			this.yvboxTransfer.Add(this.yhboxTransferContent);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxTransfer[this.yhboxTransferContent]));
 			w9.Position = 1;
+			// Container child yvboxTransfer.Gtk.Box+BoxChild
+			this.ylabelNoTransfers = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelNoTransfers.Name = "ylabelNoTransfers";
+			this.ylabelNoTransfers.Xalign = 0F;
+			this.ylabelNoTransfers.Yalign = 0F;
+			this.ylabelNoTransfers.Selectable = true;
+			this.yvboxTransfer.Add(this.ylabelNoTransfers);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxTransfer[this.ylabelNoTransfers]));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.GtkAlignment.Add(this.yvboxTransfer);
 			this.frameMain.Add(this.GtkAlignment);
 			this.GtkLabel = new global::Gtk.Label();

@@ -99,6 +99,11 @@ namespace Vodovoz.Journals.JournalNodes
 		public string ResultOfCounterparty { get; set; }
 		public string ResultOfEmployees { get; set; }
 		public string ArrangementText { get; set; }
+
+		/// <summary>
+		/// Последний заказ, после рекламации
+		/// </summary>
+		public int? LastOrderId { get; set; }
 	}
 
 	public class ComplaintWithDepartmentsReactionJournalNode : ComplaintJournalNode
