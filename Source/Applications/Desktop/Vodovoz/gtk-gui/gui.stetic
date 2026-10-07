@@ -195363,7 +195363,6 @@ not tooltip</property>
               <packing>
                 <property name="Position">1</property>
                 <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
               </packing>
             </child>
           </widget>
@@ -195593,7 +195592,7 @@ not tooltip</property>
                     <child>
                       <widget class="Vodovoz.ViewWidgets.Orders.OrderItemDiscountReasonsView" id="orderitemdiscountreasonsview">
                         <property name="MemberName" />
-                        <property name="WidthRequest">500</property>
+                        <property name="WidthRequest">490</property>
                         <property name="Events">ButtonPressMask</property>
                       </widget>
                       <packing>

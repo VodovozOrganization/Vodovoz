@@ -117,7 +117,6 @@ namespace Vodovoz.Views.Logistic
 			this.hbox2.Add(this.entityentryCounterparty);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityentryCounterparty]));
 			w5.Position = 1;
-			w5.Expand = false;
 			this.vbox1.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
 			w6.Position = 1;
@@ -285,18 +284,18 @@ namespace Vodovoz.Views.Logistic
 			this.treeItems.CanFocus = true;
 			this.treeItems.Name = "treeItems";
 			this.hboxOrderItems.Add(this.treeItems);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hboxOrderItems[this.treeItems]));
-			w24.Position = 0;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hboxOrderItems[this.treeItems]));
+			w22.Position = 0;
 			// Container child hboxOrderItems.Gtk.Box+BoxChild
 			this.orderitemdiscountreasonsview = new global::Vodovoz.ViewWidgets.Orders.OrderItemDiscountReasonsView();
-			this.orderitemdiscountreasonsview.WidthRequest = 500;
+			this.orderitemdiscountreasonsview.WidthRequest = 490;
 			this.orderitemdiscountreasonsview.Events = ((global::Gdk.EventMask)(256));
 			this.orderitemdiscountreasonsview.Name = "orderitemdiscountreasonsview";
 			this.hboxOrderItems.Add(this.orderitemdiscountreasonsview);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hboxOrderItems[this.orderitemdiscountreasonsview]));
-			w25.Position = 1;
-			w25.Expand = false;
-			w25.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hboxOrderItems[this.orderitemdiscountreasonsview]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.GtkAlignment43.Add(this.hboxOrderItems);
 			this.frameOrderItems.Add(this.GtkAlignment43);
 			this.vbox1.Add(this.frameOrderItems);
