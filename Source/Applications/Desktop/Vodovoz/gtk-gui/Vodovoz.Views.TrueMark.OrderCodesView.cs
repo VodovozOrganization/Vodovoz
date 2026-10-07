@@ -100,6 +100,12 @@ namespace Vodovoz.Views.TrueMark
 
 		private global::Gamma.GtkWidgets.yLabel labelPageResent;
 
+		private global::Gtk.ScrolledWindow GtkScrolledWindow6;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewManuallyAdded;
+
+		private global::Gtk.Label ylabelManuallyAdded;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -402,7 +408,7 @@ namespace Vodovoz.Views.TrueMark
 			this.ynotebookCodes = new global::Gamma.GtkWidgets.yNotebook();
 			this.ynotebookCodes.CanFocus = true;
 			this.ynotebookCodes.Name = "ynotebookCodes";
-			this.ynotebookCodes.CurrentPage = 5;
+			this.ynotebookCodes.CurrentPage = 6;
 			// Container child ynotebookCodes.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -501,17 +507,35 @@ namespace Vodovoz.Views.TrueMark
 			this.ytreeviewResent.Name = "ytreeviewResent";
 			this.GtkScrolledWindow5.Add(this.ytreeviewResent);
 			this.ynotebookCodes.Add(this.GtkScrolledWindow5);
-			global::Gtk.Notebook.NotebookChild resentPage = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow5]));
-			resentPage.Position = 5;
+			global::Gtk.Notebook.NotebookChild w40 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow5]));
+			w40.Position = 5;
 			// Notebook tab
 			this.labelPageResent = new global::Gamma.GtkWidgets.yLabel();
 			this.labelPageResent.Name = "labelPageResent";
 			this.labelPageResent.LabelProp = global::Mono.Unix.Catalog.GetString("Переотправленные");
 			this.ynotebookCodes.SetTabLabel(this.GtkScrolledWindow5, this.labelPageResent);
 			this.labelPageResent.ShowAll();
+			// Container child ynotebookCodes.Gtk.Notebook+NotebookChild
+			this.GtkScrolledWindow6 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow6.Name = "GtkScrolledWindow6";
+			this.GtkScrolledWindow6.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow6.Gtk.Container+ContainerChild
+			this.ytreeviewManuallyAdded = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewManuallyAdded.CanFocus = true;
+			this.ytreeviewManuallyAdded.Name = "ytreeviewManuallyAdded";
+			this.GtkScrolledWindow6.Add(this.ytreeviewManuallyAdded);
+			this.ynotebookCodes.Add(this.GtkScrolledWindow6);
+			global::Gtk.Notebook.NotebookChild w42 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow6]));
+			w42.Position = 6;
+			// Notebook tab
+			this.ylabelManuallyAdded = new global::Gtk.Label();
+			this.ylabelManuallyAdded.Name = "ylabelManuallyAdded";
+			this.ylabelManuallyAdded.LabelProp = global::Mono.Unix.Catalog.GetString("Добавлены вручную");
+			this.ynotebookCodes.SetTabLabel(this.GtkScrolledWindow6, this.ylabelManuallyAdded);
+			this.ylabelManuallyAdded.ShowAll();
 			this.vboxWidget.Add(this.ynotebookCodes);
-			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.ynotebookCodes]));
-			w41.Position = 2;
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.ynotebookCodes]));
+			w43.Position = 2;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{
