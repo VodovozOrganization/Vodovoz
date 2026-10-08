@@ -3,9 +3,11 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 
 namespace Edo.Scheduler.Service
@@ -69,6 +71,19 @@ namespace Edo.Scheduler.Service
 					requestId,
 					request.Order.Id,
 					request.Order.OrderStatus);
+				return;
+			}
+
+			if(request.DocumentType == EdoDocumentType.UPD
+				&& request.Order != null
+				&& !request.Order.OrderItems.Any(item =>
+					item.Nomenclature.Category != NomenclatureCategory.deposit
+					&& item.ActualSum > 0m))
+			{
+				_logger.LogInformation(
+					"Заказ без продажи кроме залога. Задачу УПД по ЭДО не создаём. RequestId: {RequestId}. OrderId: {OrderId}",
+					requestId,
+					request.Order.Id);
 				return;
 			}
 
