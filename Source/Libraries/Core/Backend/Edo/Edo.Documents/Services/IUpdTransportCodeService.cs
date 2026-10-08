@@ -4,14 +4,14 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Documents.Services
 {
+	/// <summary>
+	/// Проверяет состав транспортных кодов перед отправкой УПД заказа.
+	/// </summary>
 	public interface IUpdTransportCodeService
 	{
 		/// <summary>
 		/// Снимает связи с транспортниками, состав которых не соответствует позициям УПД.
 		/// </summary>
-		/// <param name="documentEdoTask">Задача создания УПД.</param>
-		/// <param name="cancellationToken">Токен отмены.</param>
-		/// <returns>Задача проверки и сохранения изменённых кодов.</returns>
 		Task DetachIncompleteTransportCodesAsync(
 			DocumentEdoTask documentEdoTask,
 			CancellationToken cancellationToken);

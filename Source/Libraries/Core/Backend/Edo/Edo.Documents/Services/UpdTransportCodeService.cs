@@ -11,7 +11,7 @@ using Vodovoz.Core.Domain.TrueMark;
 namespace Edo.Documents.Services
 {
 	/// <summary>
-	/// Проверяет состав транспортных кодов перед отправкой УПД заказа.
+	/// <inheritdoc/>
 	/// </summary>
 	public class UpdTransportCodeService : IUpdTransportCodeService
 	{
@@ -19,7 +19,7 @@ namespace Edo.Documents.Services
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 
 		/// <summary>
-		/// Создаёт сервис проверки транспортных кодов УПД.
+		/// Конструктор.
 		/// </summary>
 		/// <param name="uow">Единица работы.</param>
 		/// <param name="trueMarkWaterCodeService">Сервис иерархии кодов маркировки.</param>
@@ -30,11 +30,11 @@ namespace Edo.Documents.Services
 		}
 
 		/// <summary>
-		/// Снимает связи с транспортниками, состав которых не соответствует позициям УПД.
-		/// </summary>
+		/// <inheritdoc/>
 		/// <param name="documentEdoTask">Задача создания УПД.</param>
 		/// <param name="cancellationToken">Токен отмены.</param>
 		/// <returns>Задача проверки и сохранения изменённых кодов.</returns>
+		/// </summary>
 		public async Task DetachIncompleteTransportCodesAsync(
 			DocumentEdoTask documentEdoTask,
 			CancellationToken cancellationToken)
