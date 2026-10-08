@@ -774,8 +774,16 @@ namespace Vodovoz.Core.Domain.Orders
 				OrderStatus.Closed
 			};
 
+		public static OrderStatus[] GetUndeliveryStatuses() =>
+			new OrderStatus[]
+			{
+				OrderStatus.Canceled,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.NotDelivered
+			};
+
 		#endregion Вычисляемые свойства
-		
+
 		/// <summary>
 		/// Проверка, является ли клиент по заказу сетевым покупателем
 		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада

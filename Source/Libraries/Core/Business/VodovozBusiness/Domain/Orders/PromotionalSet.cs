@@ -187,6 +187,39 @@ namespace Vodovoz.Domain.Orders
 					new[] { nameof(PromotionalSetItems) }
 				);
 			}
+
+			foreach(var promoSetItem in PromotionalSetItems)
+			{
+				var nomenclaturePrice = promoSetItem
+					.Nomenclature
+					?.NomenclaturePrice
+					?.OrderBy(x => x.MinCount)
+					?.FirstOrDefault(x => promoSetItem.Count >= x.MinCount);
+
+				if(nomenclaturePrice == null)
+				{
+					yield return new ValidationResult(
+						$"Не удалось определить цену номенклатуры {promoSetItem.Nomenclature.Name} для количества {promoSetItem.Count}",
+						new[] { nameof(PromotionalSetItems) }
+					);
+
+					continue;
+				}
+
+				var priceWithDiscount = promoSetItem.IsDiscountInMoney
+					? nomenclaturePrice.Price - promoSetItem.DiscountMoney
+					: nomenclaturePrice.Price * (1m - promoSetItem.Discount / 100m);
+
+				if(priceWithDiscount < 1m)
+				{
+					yield return new ValidationResult(
+						$"Номенклатура {promoSetItem.Nomenclature.Name}, цена за {promoSetItem.Count} шт: " +
+						$"без скидки промонабора {nomenclaturePrice.Price:0.00} руб., со скидкой промонабора {priceWithDiscount:0.00} руб. " +
+						"По законодательству мы не имеем права продавать дешевле 1 рубля.",
+						new[] { nameof(PromotionalSetItems) }
+					);
+				}
+			}
 		}
 
 		#endregion

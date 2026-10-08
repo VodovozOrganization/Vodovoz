@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using QS.Services;
 using Serilog;
+using Vodovoz.Presentation.WebApi;
 using Vodovoz.Presentation.WebApi.ErrorHandling;
 using VodovozHealthCheck;
 
@@ -74,6 +75,8 @@ namespace DriverAPI
 			app.UseAuthentication();
 			app.UseAuthorization();
 			
+			app.UseIdempotency();
+
 			app.UseVodovozHealthCheck();
 
 			app.UseEndpoints(endpoints =>

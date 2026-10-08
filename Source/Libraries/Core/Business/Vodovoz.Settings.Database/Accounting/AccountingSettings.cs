@@ -8,6 +8,8 @@ namespace Vodovoz.Settings.Database.Accounting
 {
 	public class AccountingSettings : IAccountingSettings
 	{
+		private const string _accountingPeriodClosingDatesParameterName = "accounting_period_closing_dates";
+
 		private readonly ISettingsController _settingsController;
 
 		public AccountingSettings(ISettingsController settingsController)
@@ -19,7 +21,7 @@ namespace Vodovoz.Settings.Database.Accounting
 		public IEnumerable<DateTime> GetAccountingPeriodClosingDates()
 		{
 			var stringDates = _settingsController
-				.GetValue<string>("accounting_period_closing_dates")
+				.GetValue<string>(_accountingPeriodClosingDatesParameterName)
 				.Split(',');
 			
 			var dates = new List<DateTime>();
@@ -48,6 +50,18 @@ namespace Vodovoz.Settings.Database.Accounting
 			});
 
 			return dates;
+		}
+
+		/// <inheritdoc/>
+		public void UpdateAccountingPeriodClosingDates(DateTime firstQuarter, DateTime secondQuarter, DateTime thirdQuarter, DateTime fourthQuarter)
+		{
+			var value = string.Join(",",
+				firstQuarter.ToString("dd.MM", CultureInfo.InvariantCulture),
+				secondQuarter.ToString("dd.MM", CultureInfo.InvariantCulture),
+				thirdQuarter.ToString("dd.MM", CultureInfo.InvariantCulture),
+				fourthQuarter.ToString("dd.MM", CultureInfo.InvariantCulture));
+
+			_settingsController.CreateOrUpdateSetting(_accountingPeriodClosingDatesParameterName, value);
 		}
 	}
 }

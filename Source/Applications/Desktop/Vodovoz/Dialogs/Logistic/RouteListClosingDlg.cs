@@ -1229,6 +1229,9 @@ namespace Vodovoz
 			UoW.Save(Entity.RouteListProfitability);
 			UoW.Commit();
 
+			_addressKeepingDocumentItemsCacheList.Clear();
+			_addressKeepingDocumentBottlesCacheList.Clear();
+
 			if(_cancellationRequestActions.Any())
 			{
 				foreach(var cancellationAction in _cancellationRequestActions)

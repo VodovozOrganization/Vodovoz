@@ -71,6 +71,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool _isNeedToUpdateCarInfoInDriverEntity;
 		private int _upcomingTechInspectKmCalculated;
 		private readonly ICarEventRepository _carEventRepository;
+		private readonly ICarRepository _carRepository;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFuelRepository _fuelRepository;
 		private readonly IDocTemplateRepository _documentTemplateRepository;
@@ -117,7 +118,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CarVersionsManagementViewModel carVersionsManagementViewModel,
 			IDocumentPrinter documentPrinter,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
-			IAdditionalFuelTypeManagementViewModelFactory additionalFuelTypeManagementViewModelFactory)
+			IAdditionalFuelTypeManagementViewModelFactory additionalFuelTypeManagementViewModelFactory,
+			ICarRepository carRepository)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -254,6 +256,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_oldAdditionalFuelTypes = new List<CarAdditionalFuelType>(Entity.AdditionalFuelTypes);
 
 			SetIsCarUsedInDeliveryDefaultValueIfNeed();
+			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 		}
 
 		public bool CanEdit { get; private set; }
@@ -1042,6 +1045,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 
 			Entity.IsUsedInDelivery = true;
+		}
+
+		protected override bool BeforeValidation()
+		{
+			if(ValidationContext.ServiceContainer.GetService(typeof(ICarRepository)) is null)
+			{
+				ValidationContext.ServiceContainer.AddService(typeof(ICarRepository), _carRepository);
+			}
+
+			return base.BeforeValidation();
 		}
 
 		public override void Dispose()

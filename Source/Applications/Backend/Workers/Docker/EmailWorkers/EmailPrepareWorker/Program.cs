@@ -15,7 +15,6 @@ using QS.Project.Domain;
 using QS.Project.HibernateMapping;
 using QS.Report;
 using RabbitMQ.MailSending;
-using Vodovoz.Core.Application.Clients;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.Domain.Controllers;
@@ -24,11 +23,7 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
-using Vodovoz.Settings.Database.Organizations;
-using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Controllers;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
-using DependencyInjection = Vodovoz.Data.NHibernate.DependencyInjection;
 
 namespace EmailPrepareWorker
 {
@@ -80,7 +75,7 @@ namespace EmailPrepareWorker
 					services.AddInfrastructure();
 					services.AddTrackedUoW();
 					services.AddStaticHistoryTracker();
-					DependencyInjection.AddStaticScopeForEntity(services);
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 					services.AddScoped<ISettingsController, SettingsController>()
 						.AddScoped<IEmailSettings, EmailSettings>()

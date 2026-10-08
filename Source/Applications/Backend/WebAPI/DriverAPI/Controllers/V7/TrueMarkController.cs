@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V7.Requests;
+﻿using DriverApi.Contracts.V7.Requests;
 using DriverApi.Contracts.V7.Responses;
 using DriverAPI.Library.V7.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +16,7 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic.Drivers;
 using Vodovoz.Errors;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 using OrderErrors = Vodovoz.Errors.Orders.OrderErrors;
 using RouteListErrors = Vodovoz.Errors.Logistics.RouteListErrors;
 using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem;
@@ -68,17 +69,16 @@ namespace DriverAPI.Controllers.V7
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns></returns>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
 		public async Task<IActionResult> AddOrderCode([FromBody] AddOrderCodeRequest addOrderCodeRequestModel, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("(Добавление кода ЧЗ к заказу: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
+			_logger.LogInformation("(Добавление кода ЧЗ к заказу: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				addOrderCodeRequestModel.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization],
-				HttpContext.Request.Headers["X-Idempotency-Key"],
-				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+				Request.Headers[HeaderNames.Authorization]);
 
 			var recievedTime = DateTime.Now;
 
@@ -139,17 +139,16 @@ namespace DriverAPI.Controllers.V7
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns></returns>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
 		public async Task<IActionResult> ChangeOrderCode([FromBody] ChangeOrderCodeRequest changeOrderCodeRequest, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("(Замена кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
+			_logger.LogInformation("(Замена кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				changeOrderCodeRequest.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization],
-				HttpContext.Request.Headers["X-Idempotency-Key"],
-				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+				Request.Headers[HeaderNames.Authorization]);
 
 			var recievedTime = DateTime.Now;
 
@@ -205,18 +204,17 @@ namespace DriverAPI.Controllers.V7
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns></returns>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrueMarkCodeProcessingResultResponse))]
 		public async Task<IActionResult> DeleteOrderCode([FromBody] DeleteOrderCodeRequest deleteOrderCodeRequest, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
-				"(Удаление кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
+				"(Удаление кода ЧЗ в заказе: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				deleteOrderCodeRequest.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization],
-				HttpContext.Request.Headers["X-Idempotency-Key"],
-				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+				Request.Headers[HeaderNames.Authorization]);
 
 			var recievedTime = DateTime.Now;
 
@@ -272,17 +270,16 @@ namespace DriverAPI.Controllers.V7
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns></returns>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> SendOrderCodes([FromBody] SendOrderCodesRequest sendOrderCodesRequestModel, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("(Добавление кодов ЧЗ к заказу: {OrderId}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
+			_logger.LogInformation("(Добавление кодов ЧЗ к заказу: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				sendOrderCodesRequestModel.OrderId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization],
-				HttpContext.Request.Headers["X-Idempotency-Key"],
-				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+				Request.Headers[HeaderNames.Authorization]);
 
 			var recievedTime = DateTime.Now;
 
@@ -355,12 +352,10 @@ namespace DriverAPI.Controllers.V7
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CheckCodeResultResponse))]
 		public async Task<IActionResult> CheckCode([FromQuery] string code, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("(Проверка кода ЧЗ: {Code}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
+			_logger.LogInformation("(Проверка кода ЧЗ: {Code}) пользователем {Username} | User token: {AccessToken}",
 				code,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization],
-				HttpContext.Request.Headers["X-Idempotency-Key"],
-				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+				Request.Headers[HeaderNames.Authorization]);
 
 			var receivedTime = DateTime.Now;
 

@@ -594,6 +594,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 					var selectedRouteListAddresses = SelectedSourceRouteListAddresses
 						.Cast<RouteListItemNode>()
+						.Where(x => x.RouteListItem != null)
 						.Select(x => x.RouteListItem);
 
 					var isAddressChanged = _routeListItemRepository.RouteListItemWasChanged(unitOfWork, selectedRouteListAddresses);

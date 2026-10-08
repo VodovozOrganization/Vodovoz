@@ -9,6 +9,8 @@ using Edo.Common;
 using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
+using EdoNotifications.Contracts;
+using Notifications.Infrastructure;
 using Edo.Problems.Custom;
 using Edo.Problems.Custom.Sources;
 using Edo.Problems.Exception;
@@ -84,7 +86,8 @@ namespace Receipt.Dispatcher.Tests
 					new IndustryRequisiteMissingOrganizationToken(), new IndustryRequisiteRegualtoryDocumentIsMissing(),
 					new IndustryRequisiteCheckApiError()
 				}),
-				new EdoTaskExceptionSourcesPersister(factory, Array.Empty<EdoTaskProblemExceptionSource>()));
+				new EdoTaskExceptionSourcesPersister(factory, Array.Empty<EdoTaskProblemExceptionSource>()),
+				Substitute.For<IOutboxNotificationPublisher<EdoNotificationMessage>>());
 			var taskValidator = new EdoTaskValidator(Substitute.For<ILogger<EdoTaskValidator>>(),
 				new EdoTaskValidatorsProvider(new EdoTaskValidatorsPersister(factory, Array.Empty<IEdoTaskValidator>())),
 				Substitute.For<IServiceProvider>(), registrar);

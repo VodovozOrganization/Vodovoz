@@ -276,16 +276,6 @@ namespace Vodovoz.Controllers
 					.SingleOrDefault(x => x.RouteListItem.Id == changedRouteListItem.Id)
 				?? new RouteListAddressKeepingDocument();
 
-			if(itemsCacheList != null)
-			{
-				foreach(var item in itemsCacheList)
-				{
-					changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Remove(item.DeliveryFreeBalanceOperation);
-					routeListKeepingDocument.Items.Remove(item);
-					uow.Delete(item);
-				}
-			}
-
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 			routeListKeepingDocument.AuthorId = currentEmployee.Id;
 			routeListKeepingDocument.RouteListItem = changedRouteListItem;
@@ -312,6 +302,24 @@ namespace Vodovoz.Controllers
 						Amount = n.Sum(s => forceUsePlanCount ? s.Count : s.CurrentCount)
 					})
 					.ToList();
+
+				// Закоммиченные строки из кеша не трогаем, удаляем только те, что ещё не в БД, их пересчитаем заново.
+				if(itemsCacheList != null && itemsCacheList.Any())
+				{
+					var cachedIds = itemsCacheList.Select(x => x.Id).ToList();
+
+					var committedIds = uowLocal.GetAll<RouteListAddressKeepingDocumentItem>()
+						.Where(x => cachedIds.Contains(x.Id))
+						.Select(x => x.Id)
+						.ToList();
+
+					foreach(var item in itemsCacheList.Where(x => !committedIds.Contains(x.Id)).ToList())
+					{
+						changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Remove(item.DeliveryFreeBalanceOperation);
+						routeListKeepingDocument.Items.Remove(item);
+						uow.Delete(item);
+					}
+				}
 			}
 
 			if(isBottlesDiscrepancy)

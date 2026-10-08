@@ -10,6 +10,13 @@ namespace DriverAPI.Library.Errors
 		public static class Authorization
 		{
 			/// <summary>
+			/// Вход уволенного сотрудника запрещён.
+			/// </summary>
+			public static Error EmployeeIsFired =>
+				new Error(typeof(Authorization), nameof(EmployeeIsFired),
+					"Ошибка авторизации. Данный сотрудник уволен.");
+
+			/// <summary>
 			/// Доступ к маршрутному листу запрещен
 			/// У запрашивающего доступ к маршрутному листу нет для этого прав
 			/// </summary>

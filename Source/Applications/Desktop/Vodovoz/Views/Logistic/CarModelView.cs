@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Navigation;
 using QS.Views.GtkUI;
+using System.ComponentModel;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
@@ -44,6 +45,9 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+			maxWeightSpin.Adjustment.Upper = ViewModel.MaxWeightUpperLimit;
+
 			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboTypeOfUse.Binding
 				.AddBinding(ViewModel.Entity, e => e.CarTypeOfUse, w => w.SelectedItem)
@@ -80,6 +84,20 @@ namespace Vodovoz.Views.Logistic
 
 			buttonChangeVersionDate.Binding.AddBinding(ViewModel, vm => vm.CanChangeFuelVersionDate, w => w.Sensitive).InitializeFromSource();
 			buttonChangeVersionDate.Clicked += (sender, args) => ViewModel.ChangeFuelVersionStartDate();
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName is nameof(CarModelViewModel.MaxWeightUpperLimit))
+			{
+				maxWeightSpin.Adjustment.Upper = ViewModel.MaxWeightUpperLimit;
+			}
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			base.Destroy();
 		}
 	}
 }

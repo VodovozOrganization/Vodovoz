@@ -54,5 +54,11 @@ namespace EdoNotifications.Contracts
 		/// </summary>
 		[Display(Name = "Зависший чек в очереди")]
 		ReceiptQueueStalled = 7,
+
+		/// <summary>
+		/// Превышение кодов в заказе.
+		/// </summary>
+		[Display(Name = "Превышение кодов в заказе")]
+		ExcessCodes = 8,
 	}
 }
