@@ -54,6 +54,7 @@ namespace WarehouseApi.Library.Services
 		private readonly ICarLoadDocumentTrueMarkCodesProcessingService _codesProcessingService;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> _carLoadDocumentItemProductCodeRepository;
+		private readonly IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> _selfDeliveryDocumentItemProductCodeRepository;
 		private readonly IBus _messageBus;
 
 		public CarLoadService(
@@ -71,6 +72,7 @@ namespace WarehouseApi.Library.Services
 			ICarLoadDocumentTrueMarkCodesProcessingService codesProcessingService,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> carLoadDocumentItemProductCodeRepository,
+			IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> selfDeliveryDocumentItemProductCodeRepository,
 			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -88,6 +90,8 @@ namespace WarehouseApi.Library.Services
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_carLoadDocumentItemProductCodeRepository = carLoadDocumentItemProductCodeRepository
 				?? throw new ArgumentNullException(nameof(carLoadDocumentItemProductCodeRepository));
+			_selfDeliveryDocumentItemProductCodeRepository = selfDeliveryDocumentItemProductCodeRepository
+				?? throw new ArgumentNullException(nameof(selfDeliveryDocumentItemProductCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -211,12 +215,17 @@ namespace WarehouseApi.Library.Services
 				.Select(x => x.Nomenclature)
 				.ToArray();
 
-			var orderDto = order.ToApiDtoV1(nomenclatures, selfDeliveryDocument);
+			var productCodesByItemId = selfDeliveryDocument is null
+				? Enumerable.Empty<SelfDeliveryDocumentItemTrueMarkProductCode>().ToLookup(x => x.SelfDeliveryDocumentItem.Id)
+				: await _selfDeliveryDocumentItemProductCodeRepository
+					.GetProductCodesByItemIdAsync(_uow, selfDeliveryDocument.Items, cancellationToken);
+
+			var orderDto = order.ToApiDtoV1(nomenclatures, selfDeliveryDocument, productCodesByItemId);
 
 			if(selfDeliveryDocument != null)
 			{
 				orderDto.Items
-					.PopulateRelatedCodes(_uow, _trueMarkWaterCodeService, selfDeliveryDocument.Items.SelectMany(x => x.TrueMarkProductCodes));
+					.PopulateRelatedCodes(_uow, _trueMarkWaterCodeService, productCodesByItemId.SelectMany(x => x));
 			}
 
 			orderDto.Items.ForEach(item =>

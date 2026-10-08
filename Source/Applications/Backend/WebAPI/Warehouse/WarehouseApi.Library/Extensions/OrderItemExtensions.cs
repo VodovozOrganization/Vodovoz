@@ -15,7 +15,11 @@ namespace WarehouseApi.Library.Extensions
 {
 	public static class OrderItemExtensions
 	{
-		public static OrderItemDto ToApiDtoV1(this OrderItem orderItem, Nomenclature nomenclature, SelfDeliveryDocumentItem selfDeliveryDocumentItem)
+		public static OrderItemDto ToApiDtoV1(
+			this OrderItem orderItem,
+			Nomenclature nomenclature,
+			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
+			ILookup<int, SelfDeliveryDocumentItemTrueMarkProductCode> productCodesByItemId)
 		{
 			if(orderItem is null)
 			{
@@ -38,7 +42,8 @@ namespace WarehouseApi.Library.Extensions
 
 			if(selfDeliveryDocumentItem != null)
 			{
-				var codes = selfDeliveryDocumentItem.TrueMarkProductCodes
+				var codes = productCodesByItemId[selfDeliveryDocumentItem.Id]
+					.OrderBy(x => x.Id)
 					.Select((code, index) => new TrueMarkCodeDto
 					{
 						SequenceNumber = index,
@@ -53,7 +58,11 @@ namespace WarehouseApi.Library.Extensions
 			return orderItemDto;
 		}
 
-		public static IEnumerable<OrderItemDto> ToApiDtoV1(this IEnumerable<OrderItem> orderItems, IEnumerable<Nomenclature> nomenclatures, SelfDeliveryDocument selfDeliveryDocument)
+		public static IEnumerable<OrderItemDto> ToApiDtoV1(
+			this IEnumerable<OrderItem> orderItems,
+			IEnumerable<Nomenclature> nomenclatures,
+			SelfDeliveryDocument selfDeliveryDocument,
+			ILookup<int, SelfDeliveryDocumentItemTrueMarkProductCode> productCodesByItemId)
 		{
 			if(orderItems is null)
 			{
@@ -63,7 +72,8 @@ namespace WarehouseApi.Library.Extensions
 			return orderItems
 				.Select(x => x.ToApiDtoV1(nomenclatures
 					.FirstOrDefault(n => n.Id == x.Nomenclature.Id),
-					selfDeliveryDocument?.Items?.FirstOrDefault(i => i.OrderItem?.Id == x.Id)))
+					selfDeliveryDocument?.Items?.FirstOrDefault(i => i.OrderItem?.Id == x.Id),
+					productCodesByItemId))
 				.ToList();
 		}
 

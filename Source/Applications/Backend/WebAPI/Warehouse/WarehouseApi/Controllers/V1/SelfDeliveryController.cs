@@ -16,6 +16,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 using VodovozBusiness.Employees;
 using WarehouseApi.Contracts.Requests.V1;
+using WarehouseApi.Contracts.Responses.V1;
 using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Library.Extensions;
 using WarehouseApi.Library.Services;
@@ -85,8 +86,9 @@ namespace WarehouseApi.Controllers.V1
 				.BindAsync(employee =>
 					_selfDeliveryService.SetTareToReturn(employee, request.TareToReturn))
 				.BindAsync(selfDeliveryDocument => EndLoad(selfDeliveryDocument, cancellationToken))
-				.MatchAsync<SelfDeliveryDocument, IActionResult>(
-					selfDeliveryDocument => Ok(_selfDeliveryService.CreateSelfDeliveryResponse(selfDeliveryDocument)),
+				.BindAsync(selfDeliveryDocument => CreateResponse(selfDeliveryDocument, cancellationToken))
+				.MatchAsync<GetSelfDeliveryResponse, IActionResult>(
+					response => Ok(response),
 					errors => Problem(
 						string.Join(", ", errors.Select(e => e.Message)),
 						statusCode: StatusCodes.Status400BadRequest));
@@ -116,6 +118,11 @@ namespace WarehouseApi.Controllers.V1
 
 			return selfDeliveryDocument;
 		}
+
+		private async Task<Result<GetSelfDeliveryResponse>> CreateResponse(
+			SelfDeliveryDocument selfDeliveryDocument,
+			CancellationToken cancellationToken) =>
+			await _selfDeliveryService.CreateSelfDeliveryResponseAsync(selfDeliveryDocument, cancellationToken);
 
 		private async Task<Result<IdentityUser>> GetUserAsync(ClaimsPrincipal userClaims)
 		{

@@ -15,6 +15,8 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Specifications.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -128,6 +130,26 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		private Dictionary<int, int> GetAddedCodesCountByItemId(
+			IUnitOfWork unitOfWork,
+			IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> productCodeRepository)
+		{
+			var savedItemsIds = Items.Where(x => x.Id > 0).Select(x => x.Id).ToList();
+
+			if(savedItemsIds.Count == 0)
+			{
+				return new Dictionary<int, int>();
+			}
+
+			return productCodeRepository
+				.Get(unitOfWork, SelfDeliveryDocumentItemTrueMarkProductCodeSpecification.CreateForSelfDeliveryDocumentItemIds(savedItemsIds))
+				.GroupBy(x => x.SelfDeliveryDocumentItem.Id)
+				.ToDictionary(g => g.Key, g => g.Count());
+		}
+
+		private static int GetAddedCodesCount(Dictionary<int, int> addedCodesCountByItemId, SelfDeliveryDocumentItem item) =>
+			addedCodesCountByItemId.TryGetValue(item.Id, out var count) ? count : 0;
+
 		/// <summary>
 		/// Проверка валидности документа самовывоза
 		/// </summary>
@@ -158,6 +180,16 @@ namespace Vodovoz.Domain.Documents
 				throw new ArgumentNullException(nameof(orderEdoRequestRepository));
 			}
 
+			if(!(validationContext.GetService(typeof(IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode>))
+				is IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> productCodeRepository))
+			{
+				throw new ArgumentNullException(nameof(productCodeRepository));
+			}
+
+			// Коды загружаются один раз на документ и только если проверка кодов нужна
+			var addedCodesCountByItemId = new Lazy<Dictionary<int, int>>(() =>
+				GetAddedCodesCountByItemId(unitOfWork, productCodeRepository));
+
 			foreach(var item in Items)
 			{
 				if(item.Amount > item.AmountInStock)
@@ -187,7 +219,7 @@ namespace Vodovoz.Domain.Documents
 					   Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded)
 				   && Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
 				   && item.Nomenclature.IsAccountableInTrueMark
-				   && item.Amount > item.TrueMarkProductCodes.Count
+				   && item.Amount > GetAddedCodesCount(addedCodesCountByItemId.Value, item)
 				   && Order.Client.IsNewEdoProcessing)
 				{
 					yield return new ValidationResult(

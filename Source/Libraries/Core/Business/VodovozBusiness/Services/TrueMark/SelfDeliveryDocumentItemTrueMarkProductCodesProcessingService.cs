@@ -9,6 +9,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Specifications.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
@@ -23,16 +24,20 @@ namespace VodovozBusiness.Services.TrueMark
 	public class SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService : ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService
 	{
 		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
+		private readonly IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> _selfDeliveryDocumentItemProductCodeRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
 
 		public SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService(
 			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
+			IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> selfDeliveryDocumentItemProductCodeRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
 		{
 			_nomenclatureRepository =
 				nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_selfDeliveryDocumentItemProductCodeRepository = selfDeliveryDocumentItemProductCodeRepository
+				?? throw new ArgumentNullException(nameof(selfDeliveryDocumentItemProductCodeRepository));
 			_trueMarkWaterCodeService =
 				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
@@ -78,16 +83,16 @@ namespace VodovozBusiness.Services.TrueMark
 				waterCode => new TrueMarkAnyCode[] { waterCode })
 				.ToList();
 
+			var addedCodes = new HashSet<(string Gtin, string SerialNumber)>(
+				await GetAddedSourceCodeKeys(uow, selfDeliveryDocumentItem, cancellationToken));
+
 			foreach(var code in trueMarkAnyCodes)
 			{
 				if(code.IsTrueMarkWaterIdentificationCode)
 				{
-					var isCodeAlreadyAdded =
-						selfDeliveryDocumentItem.TrueMarkProductCodes.Any(x =>
-						x.SourceCode.Gtin == code.TrueMarkWaterIdentificationCode.Gtin
-						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber);
+					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
 
-					if(!isCodeAlreadyAdded)
+					if(!addedCodes.Contains(codeKey))
 					{
 						AddTrueMarkCodeToSelfDeliveryDocumentItem(
 							uow,
@@ -95,6 +100,8 @@ namespace VodovozBusiness.Services.TrueMark
 							code.TrueMarkWaterIdentificationCode,
 							status,
 							problem);
+
+						addedCodes.Add(codeKey);
 					}
 				}
 
@@ -127,6 +134,27 @@ namespace VodovozBusiness.Services.TrueMark
 						return true;
 					});
 			}
+		}
+
+		private async Task<IEnumerable<(string Gtin, string SerialNumber)>> GetAddedSourceCodeKeys(
+			IUnitOfWork uow,
+			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
+			CancellationToken cancellationToken)
+		{
+			if(selfDeliveryDocumentItem.Id == 0)
+			{
+				return Enumerable.Empty<(string Gtin, string SerialNumber)>();
+			}
+
+			return (await _selfDeliveryDocumentItemProductCodeRepository
+				.GetAsync(
+					uow,
+					SelfDeliveryDocumentItemTrueMarkProductCodeSpecification.CreateForSelfDeliveryDocumentItemId(selfDeliveryDocumentItem.Id),
+					cancellationToken: cancellationToken))
+				.Value
+				.Where(x => x.SourceCode != null)
+				.Select(x => (x.SourceCode.Gtin, x.SourceCode.SerialNumber))
+				.ToList();
 		}
 
 		private void AddTrueMarkCodeToSelfDeliveryDocumentItem(
@@ -171,6 +199,11 @@ namespace VodovozBusiness.Services.TrueMark
 			{
 				throw new InvalidOperationException(
 					"Коды ЧЗ можно добавить только к номенклатуре, которая подлежит учету в Честном Знаке");
+			}
+
+			if(selfDeliveryDocumentItem.Id == 0)
+			{
+				await uow.SaveAsync(selfDeliveryDocumentItem.Document, cancellationToken: cancellationToken);
 			}
 
 			var addProductCodesResult =
@@ -353,34 +386,59 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 		
-		public Result IsAllTrueMarkProductCodesAdded(SelfDeliveryDocument document)
+		public async Task<Result> IsAllTrueMarkProductCodesAddedAsync(
+			IUnitOfWork uow,
+			SelfDeliveryDocument document,
+			CancellationToken cancellationToken = default)
 		{
-			foreach(var item in document.Items)
-			{
-				var checkResult =
-					IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(item);
+			var savedItemsIds = document.Items.Where(x => x.Id > 0).Select(x => x.Id).ToList();
 
-				if(checkResult.IsFailure)
-				{
-					return checkResult;
-				}
-			}
+			var codes = savedItemsIds.Count == 0
+				? Enumerable.Empty<SelfDeliveryDocumentItemTrueMarkProductCode>()
+				: (await _selfDeliveryDocumentItemProductCodeRepository
+					.GetAsync(
+						uow,
+						SelfDeliveryDocumentItemTrueMarkProductCodeSpecification.CreateForSelfDeliveryDocumentItemIds(savedItemsIds),
+						cancellationToken: cancellationToken))
+					.Value;
 
-			return Result.Success();
+			return CheckAllTrueMarkProductCodesAdded(document, codes);
 		}
 
-		private Result IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(SelfDeliveryDocumentItem selfDeliveryDocumentItem)
+		public Result IsAllTrueMarkProductCodesAdded(IUnitOfWork uow, SelfDeliveryDocument document)
 		{
-			if(!selfDeliveryDocumentItem.Nomenclature.IsAccountableInTrueMark)
-			{
-				return Result.Success();
-			}
+			var savedItemsIds = document.Items.Where(x => x.Id > 0).Select(x => x.Id).ToList();
 
-			var isAllTrueMarkCodesAdded = selfDeliveryDocumentItem.Amount == selfDeliveryDocumentItem.TrueMarkProductCodes.Count();
+			var codes = savedItemsIds.Count == 0
+				? Enumerable.Empty<SelfDeliveryDocumentItemTrueMarkProductCode>()
+				: _selfDeliveryDocumentItemProductCodeRepository.Get(
+					uow,
+					SelfDeliveryDocumentItemTrueMarkProductCodeSpecification.CreateForSelfDeliveryDocumentItemIds(savedItemsIds));
 
-			if(!isAllTrueMarkCodesAdded)
+			return CheckAllTrueMarkProductCodesAdded(document, codes);
+		}
+
+		private Result CheckAllTrueMarkProductCodesAdded(
+			SelfDeliveryDocument document,
+			IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> codes)
+		{
+			var codesCountByItemId = codes
+				.GroupBy(x => x.SelfDeliveryDocumentItem.Id)
+				.ToDictionary(g => g.Key, g => g.Count());
+
+			foreach(var item in document.Items)
 			{
-				return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
+				if(!item.Nomenclature.IsAccountableInTrueMark)
+				{
+					continue;
+				}
+
+				codesCountByItemId.TryGetValue(item.Id, out var codesCount);
+
+				if(item.Amount != codesCount)
+				{
+					return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
+				}
 			}
 
 			return Result.Success();
