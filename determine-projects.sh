@@ -4,6 +4,9 @@ set -eu
 ROOT_PATH="${1:-$PWD}"
 PUBLISH_PROFILE_FILE="${2:-registry-prod.pubxml}"
 
+# Base profile name (registry-prod), used to find organization profiles (registry-prod-<organization>.pubxml).
+PUBLISH_PROFILE_NAME="${PUBLISH_PROFILE_FILE%.pubxml}"
+
 # Returns path relative to ROOT_PATH and with forward slashes.
 relative_path() {
   full_path="$1"
@@ -42,6 +45,18 @@ read_xml_property() {
   printf '%s\n' "$value"
 }
 
+json_escape() {
+  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+# Appends image to images_json.
+append_image() {
+  if [ -n "$images_json" ]; then
+    images_json="$images_json,"
+  fi
+  images_json="$images_json$(printf '{"containerRepository":"%s","publishImageTag":"%s"}' "$(json_escape "$1")" "$(json_escape "$2")")"
+}
+
 script_dir="$(cd "$ROOT_PATH" && pwd)"
 applications_path="$script_dir/Source/Applications"
 
@@ -78,23 +93,39 @@ while IFS= read -r project_dir; do
   project_file="$1"
 
   repository_settings_path="$project_dir/RepositorySettings.props"
-  publish_profile_path="$project_dir/Properties/PublishProfiles/$PUBLISH_PROFILE_FILE"
-
-  container_repository="$(read_xml_property "$repository_settings_path" "ContainerRepository")"
-  publish_image_tag="$(read_xml_property "$publish_profile_path" "PublishImageTag")"
+  publish_profiles_dir="$project_dir/Properties/PublishProfiles"
+  publish_profile_path="$publish_profiles_dir/$PUBLISH_PROFILE_FILE"
   project_path="$(relative_path "$project_file" "$script_dir")"
+  images_json=""
 
-  escaped_project_path="$(printf '%s' "$project_path" | sed 's/\\/\\\\/g; s/"/\\"/g')"
-  escaped_container_repository="$(printf '%s' "$container_repository" | sed 's/\\/\\\\/g; s/"/\\"/g')"
-  escaped_publish_image_tag="$(printf '%s' "$publish_image_tag" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+  # Main image: repository from RepositorySettings.props, tag from the main profile.
+  if [ -f "$publish_profile_path" ]; then
+    container_repository="$(read_xml_property "$repository_settings_path" "ContainerRepository")"
+    publish_image_tag="$(read_xml_property "$publish_profile_path" "PublishImageTag")"
+    append_image "$container_repository" "$publish_image_tag"
+  fi
+
+  # Organization images: each <profile>-<organization>.pubxml defines its own repository and tag.
+  # The project is built once and pushed to all of these repositories.
+  for organization_profile_path in "$publish_profiles_dir/$PUBLISH_PROFILE_NAME"-*.pubxml; do
+    if [ -f "$organization_profile_path" ]; then
+      container_repository="$(read_xml_property "$organization_profile_path" "ContainerRepository")"
+      publish_image_tag="$(read_xml_property "$organization_profile_path" "PublishImageTag")"
+      append_image "$container_repository" "$publish_image_tag"
+    fi
+  done
+
+  if [ -z "$images_json" ]; then
+    echo "No publish profiles $PUBLISH_PROFILE_FILE or $PUBLISH_PROFILE_NAME-*.pubxml found for project: $project_path" >&2
+    exit 1
+  fi
 
   if [ "$first" -eq 0 ]; then
     printf ','
   fi
   first=0
 
-  printf '{"projectPath":"%s","containerRepository":"%s","publishImageTag":"%s"}' \
-    "$escaped_project_path" "$escaped_container_repository" "$escaped_publish_image_tag"
+  printf '{"projectPath":"%s","images":[%s]}' "$(json_escape "$project_path")" "$images_json"
 done < "$tmp_project_dirs_file"
 
 printf ']\n'

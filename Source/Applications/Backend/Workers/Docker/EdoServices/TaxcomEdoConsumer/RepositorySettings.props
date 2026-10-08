@@ -1,0 +1,8 @@
+﻿<Project>
+  <!--
+    Общего образа нет: проект публикуется только в репозитории организаций,
+    указанные в профилях Properties/PublishProfiles/registry-<окружение>-<организация>.pubxml
+  -->
+  <PropertyGroup>
+  </PropertyGroup>
+</Project>
