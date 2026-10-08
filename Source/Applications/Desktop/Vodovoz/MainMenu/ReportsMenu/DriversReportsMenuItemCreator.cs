@@ -7,6 +7,7 @@ using QSReport;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistic;
 using Vodovoz.ViewModels.ReportsParameters.Logistics;
+using Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesReport;
 using Vodovoz.ViewModels.ViewModels.Reports.Logistics.LastRouteListReport;
 
 namespace Vodovoz.MainMenu.ReportsMenu
@@ -80,6 +81,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
         	driversMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по распределению водителей на районы",
         		OnDriversToDistrictsAssignmentReportPressed));
         	driversMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по последнему МЛ по водителям", OnLastRouteListReportPressed));
+			driversMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по выполненным адресам и районам", OnCompletedAddressesReportPressed));
         }
 
         /// <summary>
@@ -160,6 +162,16 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private void OnLastRouteListReportPressed(object sender, EventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<LastRouteListReportViewModel>(null, OpenPageOptions.IgnoreHash);
+		}
+
+		/// <summary>
+		/// Отчет по выполненным адресам и районам
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnCompletedAddressesReportPressed(object sender, EventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<CompletedAddressesReportViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
         
         #endregion
