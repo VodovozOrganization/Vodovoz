@@ -56,8 +56,6 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				PayerText = BuildOrganizationText(entity.TtnPayer, payerVersion),
 
 				Rows = BuildTtnRows(entity),
-				MassBruttoValue = 0,
-				MassBruttoText = "",
 
 				ReleaseAllowedPosition = currentEmployee?.Post?.Name ?? "",
 				ReleaseAllowedName = ShortName(currentEmployee?.FullName),
@@ -80,8 +78,8 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				TrailerRegistrationNumber = entity.TtnSemitrailer?.RegistrationNumber ?? "",
 			};
 
-			report.GrandTotalCount = report.Rows.Sum(r => (int)r.Count);
-			report.GrandTotalCountText = NumberToWords.ToWords(report.GrandTotalCount);
+			report.MassBruttoValue = report.Rows.Sum(r => r.Weight);
+			report.MassBruttoText = NumberToWords.ToWords((int)report.MassBruttoValue) + " кг";
 
 			return report;
 		}
@@ -120,23 +118,24 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				if(rowsCount > 1)
 				{
 					ws1.InsertRow(firstItemRow + 1, rowsCount - 1);
+
+					for(int i = 1; i < rowsCount; i++)
+					{
+						ws1.Cells[firstItemRow, 1, firstItemRow, ws1.Dimension.End.Column]
+							.Copy(ws1.Cells[firstItemRow + i, 1]);
+
+						ws1.Row(firstItemRow + i).Height = ws1.Row(firstItemRow).Height;
+					}
 				}
 
 				var row = firstItemRow;
 				foreach(var item in report.Rows)
 				{
-					ws1.Cells[row, 1].Value = item.Code;      // A
-					ws1.Cells[row, 12].Value = "";            // L
-					ws1.Cells[row, 29].Value = "";            // AC
-					ws1.Cells[row, 45].Value = item.Count;    // AS
-					ws1.Cells[row, 54].Value = item.Weight;    // BB
-					ws1.Cells[row, 64].Value = item.Name;     // BL
-					ws1.Cells[row, 83].Value = "";            // CE
-					ws1.Cells[row, 95].Value = "";            // CQ
-					ws1.Cells[row, 106].Value = 0;            // DB
-					ws1.Cells[row, 113].Value = 0;            // DI
-					ws1.Cells[row, 125].Value = item.Sum;     // DU
-					ws1.Cells[row, 160].Value = row - firstItemRow + 1; // FC
+					ws1.Cells[$"A{row}"].Value = item.Code;
+					ws1.Cells[$"AS{row}"].Value = item.Count;
+					ws1.Cells[$"BU{row}"].Value = item.Name;
+					ws1.Cells[$"EO{row}"].Value = item.Weight;
+					ws1.Cells[$"FC{row}"].Value = item.Sum;
 					row++;
 				}
 
@@ -146,12 +145,15 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				var totalSum = report.Rows.Sum(r => r.Sum);
 
 				ws1.Cells[$"AS{19 + shift}"].Value = totalCount;
-				ws1.Cells[$"DU{19 + shift}"].Value = totalSum;
+				ws1.Cells[$"FC{19 + shift}"].Value = totalSum;
 				ws1.Cells[$"AS{20 + shift}"].Value = totalCount;
-				ws1.Cells[$"DU{20 + shift}"].Value = totalSum;
+				ws1.Cells[$"FC{20 + shift}"].Value = totalSum;
 
-				ws1.Cells[$"CF{29 + shift}"].Value = report.MassBruttoText;
-				ws1.Cells[$"FU{26 + shift}"].Value = report.MassBruttoValue;
+				ws1.Cells[$"EO{19 + shift}"].Value = report.MassBruttoValue;
+				ws1.Cells[$"EO{20 + shift}"].Value = report.MassBruttoValue;
+
+				ws1.Cells[$"DS{25 + shift}"].Value = report.MassBruttoValue;
+				ws1.Cells[$"CR{26 + shift}"].Value = report.MassBruttoText;
 
 				ws1.Cells[$"A{34 + shift}"].Value = report.ReleaseAllowedPosition;
 				ws1.Cells[$"AG{34 + shift}"].Value = report.ReleaseAllowedName;
@@ -269,7 +271,7 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 					Code = item.Nomenclature?.Id.ToString() ?? "",
 					Name = item.Nomenclature?.OfficialName ?? "",
 					Count = item.SentAmount,
-					Weight = item.Nomenclature.Weight,
+					Weight = item.Nomenclature?.Weight ?? 0m,
 					Sum = 0,
 				});
 			}
