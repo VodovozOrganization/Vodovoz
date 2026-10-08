@@ -17,7 +17,9 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Specifications.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
@@ -51,6 +53,7 @@ namespace WarehouseApi.Library.Services
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
 		private readonly ICarLoadDocumentTrueMarkCodesProcessingService _codesProcessingService;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
+		private readonly IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> _carLoadDocumentItemProductCodeRepository;
 		private readonly IBus _messageBus;
 
 		public CarLoadService(
@@ -67,6 +70,7 @@ namespace WarehouseApi.Library.Services
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
 			ICarLoadDocumentTrueMarkCodesProcessingService codesProcessingService,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
+			IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> carLoadDocumentItemProductCodeRepository,
 			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -82,6 +86,8 @@ namespace WarehouseApi.Library.Services
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
 			_codesProcessingService = codesProcessingService ?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
+			_carLoadDocumentItemProductCodeRepository = carLoadDocumentItemProductCodeRepository
+				?? throw new ArgumentNullException(nameof(carLoadDocumentItemProductCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -243,13 +249,17 @@ namespace WarehouseApi.Library.Services
 				documentOrderItems.Select(x => x.Id),
 				cancellationToken);
 
-			response.Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems, carLoadDocumentItemsStagingCodes);
+			var productCodesByItemId = await GetProductCodesByItemIdAsync(documentOrderItems, cancellationToken);
+
+			response.Order = _carLoadDocumentConverter.ConvertToApiOrder(documentOrderItems, productCodesByItemId, carLoadDocumentItemsStagingCodes);
 
 			if(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.Done)
 			{
 				foreach(var documentOrderItem in documentOrderItems)
 				{
-					foreach(var trueMarkProductCode in documentOrderItem.TrueMarkCodes)
+					var documentOrderItemCodes = productCodesByItemId[documentOrderItem.Id].ToList();
+
+					foreach(var trueMarkProductCode in documentOrderItemCodes)
 					{
 						if(trueMarkProductCode.ResultCode == null)
 						{
@@ -285,7 +295,7 @@ namespace WarehouseApi.Library.Services
 							.ToArray();
 
 						var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
-							&& documentOrderItem.TrueMarkCodes.Any(y =>
+							&& documentOrderItemCodes.Any(y =>
 								(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
 								|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
 							.Select(x => x.TrueMarkWaterIdentificationCode)
@@ -360,7 +370,7 @@ namespace WarehouseApi.Library.Services
 
 			var failureResponse = new AddOrderCodeResponse
 			{
-				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
+				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit, await GetProductCodesByItemIdAsync(documentItemToEdit, cancellationToken)),
 				Result = OperationResultEnumDto.Error,
 			};
 
@@ -443,7 +453,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			NomenclatureDto nomenclatureDto =
-				_carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
+				_carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit, await GetProductCodesByItemIdAsync(documentItemToEdit, cancellationToken));
 
 			if(nomenclatureDto != null)
 			{
@@ -480,7 +490,7 @@ namespace WarehouseApi.Library.Services
 
 			var failureResponse = new ChangeOrderCodeResponse
 			{
-				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit),
+				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit, await GetProductCodesByItemIdAsync(documentItemToEdit, cancellationToken)),
 				Result = OperationResultEnumDto.Error,
 			};
 
@@ -591,7 +601,7 @@ namespace WarehouseApi.Library.Services
 
 			if(nomenclatureDto is null)
 			{
-				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
+				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit, await GetProductCodesByItemIdAsync(documentItemToEdit, cancellationToken));
 			}
 
 			if(nomenclatureDto != null && addedCode != null)
@@ -684,7 +694,7 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
 
-			var edoRequests = CreateEdoRequests(carLoadDocument);
+			var edoRequests = await CreateEdoRequestsAsync(carLoadDocument, cancellationToken);
 
 			try
 			{
@@ -847,19 +857,53 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		private IEnumerable<PrimaryEdoRequest> CreateEdoRequests(CarLoadDocument carLoadDocument)
+		private Task<ILookup<int, CarLoadDocumentItemTrueMarkProductCode>> GetProductCodesByItemIdAsync(
+			CarLoadDocumentItem documentItem,
+			CancellationToken cancellationToken)
+		{
+			return GetProductCodesByItemIdAsync(
+				documentItem is null ? Enumerable.Empty<CarLoadDocumentItem>() : new[] { documentItem },
+				cancellationToken);
+		}
+
+		private async Task<ILookup<int, CarLoadDocumentItemTrueMarkProductCode>> GetProductCodesByItemIdAsync(
+			IEnumerable<CarLoadDocumentItem> documentItems,
+			CancellationToken cancellationToken)
+		{
+			var savedItemsIds = documentItems
+				.Where(x => x.Id > 0)
+				.Select(x => x.Id)
+				.Distinct()
+				.ToList();
+
+			var productCodes = (await _carLoadDocumentItemProductCodeRepository
+				.GetAsync(
+					_uow,
+					CarLoadDocumentItemTrueMarkProductCodeSpecification.CreateForCarLoadDocumentItemIds(savedItemsIds),
+					cancellationToken: cancellationToken))
+				.Value;
+
+			return productCodes.ToLookup(x => x.CarLoadDocumentItem.Id);
+		}
+
+		private async Task<IEnumerable<PrimaryEdoRequest>> CreateEdoRequestsAsync(CarLoadDocument carLoadDocument, CancellationToken cancellationToken)
 		{
 			var ordersNeedsRequest =
 				carLoadDocument.Items
 				.Where(x => x.IsIndividualSetForOrder && x.OrderId != null)
 				.GroupBy(x => x.OrderId)
-				.ToDictionary(x => x.Key, x => x.SelectMany(c => c.TrueMarkCodes).ToList());
+				.ToList();
 
-			var orders = _orderRepository.Get(_uow, x => ordersNeedsRequest.Keys.Contains(x.Id));
+			var productCodesByItemId = await GetProductCodesByItemIdAsync(ordersNeedsRequest.SelectMany(x => x), cancellationToken);
+
+			var codesByOrderId = ordersNeedsRequest
+				.ToDictionary(x => x.Key, x => x.SelectMany(c => productCodesByItemId[c.Id]).ToList());
+
+			var orders = _orderRepository.Get(_uow, x => codesByOrderId.Keys.Contains(x.Id));
 
 			var edoRequests = new List<PrimaryEdoRequest>();
 
-			foreach(var item in ordersNeedsRequest)
+			foreach(var item in codesByOrderId)
 			{
 				var orderId = item.Key;
 				var trueMarkCodes = item.Value;

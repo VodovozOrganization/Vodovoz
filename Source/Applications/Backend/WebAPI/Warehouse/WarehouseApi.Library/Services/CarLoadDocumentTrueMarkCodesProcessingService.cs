@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +8,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Specifications.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
@@ -26,18 +27,22 @@ namespace WarehouseApi.Library.Services
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
+		private readonly IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> _carLoadDocumentItemProductCodeRepository;
 
 		public CarLoadDocumentTrueMarkCodesProcessingService(
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IGenericRepository<Order> orderRepository,
-			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
+			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService,
+			IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> carLoadDocumentItemProductCodeRepository)
 		{
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository;
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
 				?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCleanupService));
+			_carLoadDocumentItemProductCodeRepository = carLoadDocumentItemProductCodeRepository
+				?? throw new ArgumentNullException(nameof(carLoadDocumentItemProductCodeRepository));
 		}
 
 		public async Task<Result> AddProductCodesToCarLoadDocumentAndDeleteStagingCodes(
@@ -79,7 +84,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			var isAllTrueMarkCodesAddedResult =
-				IsAllTrueMarkCodesInCarLoadDocumentAdded(uow, carLoadDocument, cancelledOrdersIds);
+				await IsAllTrueMarkCodesInCarLoadDocumentAdded(uow, carLoadDocument, cancelledOrdersIds, cancellationToken);
 
 			if(isAllTrueMarkCodesAddedResult.IsFailure)
 			{
@@ -131,8 +136,26 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
-		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(IUnitOfWork uow, CarLoadDocument carLoadDocument, IEnumerable<int> cancelledOrdersIds)
+		private async Task<Result> IsAllTrueMarkCodesInCarLoadDocumentAdded(
+			IUnitOfWork uow,
+			CarLoadDocument carLoadDocument,
+			IEnumerable<int> cancelledOrdersIds,
+			CancellationToken cancellationToken)
 		{
+			var savedItemsIds = carLoadDocument.Items
+				.Where(x => x.Id > 0)
+				.Select(x => x.Id)
+				.ToList();
+
+			var codesCountByItemId = (await _carLoadDocumentItemProductCodeRepository
+				.GetAsync(
+					uow,
+					CarLoadDocumentItemTrueMarkProductCodeSpecification.CreateForCarLoadDocumentItemIds(savedItemsIds),
+					cancellationToken: cancellationToken))
+				.Value
+				.GroupBy(x => x.CarLoadDocumentItem.Id)
+				.ToDictionary(g => g.Key, g => g.Count());
+
 			var ordersWithMissingCodes = carLoadDocument.Items
 				.Where(x =>
 					x.OrderId != null
@@ -140,7 +163,7 @@ namespace WarehouseApi.Library.Services
 					&& x.Nomenclature.IsAccountableInTrueMark
 					&& x.Nomenclature.Gtin != null)
 				.GroupBy(x => x.OrderId.Value)
-				.Where(g => g.Any(x => x.TrueMarkCodes.Count < x.Amount))
+				.Where(g => g.Any(x => (codesCountByItemId.TryGetValue(x.Id, out var codesCount) ? codesCount : 0) < x.Amount))
 				.Select(g => g.Key)
 				.ToList();
 
@@ -261,16 +284,24 @@ namespace WarehouseApi.Library.Services
 				waterCode => new TrueMarkAnyCode[] { waterCode })
 				.ToList();
 
+			var addedCodeKeys = (await _carLoadDocumentItemProductCodeRepository
+				.GetAsync(
+					uow,
+					CarLoadDocumentItemTrueMarkProductCodeSpecification.CreateForCarLoadDocumentItemId(carLoadDocumentItem.Id),
+					cancellationToken: cancellationToken))
+				.Value
+				.Where(x => x.SourceCode != null)
+				.Select(x => (x.SourceCode.Gtin, x.SourceCode.SerialNumber));
+
+			var addedCodes = new HashSet<(string Gtin, string SerialNumber)>(addedCodeKeys);
+
 			foreach(var code in trueMarkAnyCodes)
 			{
 				if(code.IsTrueMarkWaterIdentificationCode)
 				{
-					var isCodeAlreadyAddedToRouteListItem =
-						carLoadDocumentItem.TrueMarkCodes.Any(x =>
-						x.SourceCode.Gtin == code.TrueMarkWaterIdentificationCode.Gtin
-						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber);
+					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
 
-					if(!isCodeAlreadyAddedToRouteListItem)
+					if(addedCodes.Add(codeKey))
 					{
 						AddTrueMarkCodeToCarLoadDocumentItem(
 							uow,
@@ -537,7 +568,7 @@ namespace WarehouseApi.Library.Services
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult = IsCarLoadDocumentItemHaveNoAddedCodes(carLoadDocumentItem);
+			codeCheckingProcessResult = await IsCarLoadDocumentItemHaveNoAddedCodes(uow, carLoadDocumentItem, cancellationToken);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -588,7 +619,7 @@ namespace WarehouseApi.Library.Services
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult = IsCarLoadDocumentItemHaveNoAddedCodes(carLoadDocumentItem);
+			codeCheckingProcessResult = await IsCarLoadDocumentItemHaveNoAddedCodes(uow, carLoadDocumentItem, cancellationToken);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -614,9 +645,20 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
-		private Result IsCarLoadDocumentItemHaveNoAddedCodes(CarLoadDocumentItem carLoadDocumentItem)
+		private async Task<Result> IsCarLoadDocumentItemHaveNoAddedCodes(
+			IUnitOfWork uow,
+			CarLoadDocumentItem carLoadDocumentItem,
+			CancellationToken cancellationToken)
 		{
-			if(carLoadDocumentItem?.TrueMarkCodes.Count > 0)
+			if(carLoadDocumentItem != null
+				&& carLoadDocumentItem.Id > 0
+				&& (await _carLoadDocumentItemProductCodeRepository.GetAsync(
+					uow,
+					CarLoadDocumentItemTrueMarkProductCodeSpecification.CreateForCarLoadDocumentItemId(carLoadDocumentItem.Id),
+					limit: 1,
+					cancellationToken: cancellationToken))
+				.Value
+				.Any())
 			{
 				var error = TrueMarkCodeErrors.RelatedDocumentHasTrueMarkCodes;
 				return Result.Failure(error);

@@ -28,6 +28,7 @@ namespace WarehouseApi.Library.Converters
 
 		public OrderDto ConvertToApiOrder(
 			IEnumerable<CarLoadDocumentItem> carLoadDocumentItems,
+			ILookup<int, CarLoadDocumentItemTrueMarkProductCode> productCodesByItemId,
 			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes)
 		{
 			var waterCarLoadDocumentItems = carLoadDocumentItems
@@ -41,7 +42,7 @@ namespace WarehouseApi.Library.Converters
 				Id = firstDocumentItem?.OrderId ?? 0,
 				CarLoadDocument = firstDocumentItem?.Document?.Id ?? 0,
 				State = GetApiOrderLoadOperationState(waterCarLoadDocumentItems, carLoadDocumentItemsStagingCodes),
-				Items = GetApiOrderItems(waterCarLoadDocumentItems, carLoadDocumentItemsStagingCodes)
+				Items = GetApiOrderItems(waterCarLoadDocumentItems, productCodesByItemId, carLoadDocumentItemsStagingCodes)
 			};
 
 			return apiOrder;
@@ -49,6 +50,7 @@ namespace WarehouseApi.Library.Converters
 
 		public NomenclatureDto ConvertToApiNomenclature(
 			CarLoadDocumentItem documentItem,
+			ILookup<int, CarLoadDocumentItemTrueMarkProductCode> productCodesByItemId,
 			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes = null)
 		{
 			var apiNomenclature = new NomenclatureDto
@@ -58,7 +60,7 @@ namespace WarehouseApi.Library.Converters
 				Gtin = documentItem.Nomenclature.Gtins.Select(x => x.GtinNumber),
 				GroupGtins = documentItem.Nomenclature.GroupGtins.Select(gg => new GroupGtinDto { Gtin = gg.GtinNumber, Count = gg.CodesCount }),
 				Quantity = (int)documentItem.Amount,
-				Codes = GetApiTrueMarkCodes(documentItem, carLoadDocumentItemsStagingCodes)
+				Codes = GetApiTrueMarkCodes(documentItem, productCodesByItemId, carLoadDocumentItemsStagingCodes)
 			};
 
 			return apiNomenclature;
@@ -66,6 +68,7 @@ namespace WarehouseApi.Library.Converters
 
 		private List<OrderItemDto> GetApiOrderItems(
 			List<CarLoadDocumentItem> waterCarLoadDocuemntItems,
+			ILookup<int, CarLoadDocumentItemTrueMarkProductCode> productCodesByItemId,
 			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes)
 		{
 			var apiOrderItems = new List<OrderItemDto>();
@@ -81,7 +84,7 @@ namespace WarehouseApi.Library.Converters
 					Quantity = (int)documentItem.Amount,
 				};
 
-				apiOrderItem.Codes.AddRange(GetApiTrueMarkCodes(documentItem, carLoadDocumentItemsStagingCodes));
+				apiOrderItem.Codes.AddRange(GetApiTrueMarkCodes(documentItem, productCodesByItemId, carLoadDocumentItemsStagingCodes));
 
 				apiOrderItems.Add(apiOrderItem);
 			}
@@ -118,6 +121,7 @@ namespace WarehouseApi.Library.Converters
 
 		private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(
 			CarLoadDocumentItem documentItem,
+			ILookup<int, CarLoadDocumentItemTrueMarkProductCode> productCodesByItemId,
 			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes = null)
 		{
 			var sequenceNumber = 0;
@@ -125,7 +129,8 @@ namespace WarehouseApi.Library.Converters
 			if(documentItem.Document.LoadOperationState == CarLoadDocumentLoadOperationState.Done
 				|| carLoadDocumentItemsStagingCodes == null)
 			{
-				return documentItem.TrueMarkCodes
+				return productCodesByItemId[documentItem.Id]
+					.OrderBy(code => code.Id)
 					.Select(code => ConvertToApiTrueMarkCode(code, sequenceNumber++))
 					.ToList();
 			}

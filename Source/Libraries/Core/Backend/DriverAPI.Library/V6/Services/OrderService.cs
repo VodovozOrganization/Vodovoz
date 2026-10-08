@@ -70,6 +70,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IGenericRepository<CarLoadDocument> _carLoadDocumentRepository;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly IGenericRepository<RouteListItemTrueMarkProductCode> _routeListItemProductCodeRepository;
+		private readonly IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> _carLoadDocumentItemProductCodeRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IDomainRouteListService _domainRouteListService;
@@ -94,6 +95,7 @@ namespace DriverAPI.Library.V6.Services
 			IGenericRepository<CarLoadDocument> carLoadDocumentRepository,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			IGenericRepository<RouteListItemTrueMarkProductCode> routeListItemProductCodeRepository,
+			IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> carLoadDocumentItemProductCodeRepository,
 			IOrderContractUpdater contractUpdater,
 			ICounterpartyEdoAccountController edoAccountController,
 			IDomainRouteListService domainRouteListService,
@@ -118,6 +120,8 @@ namespace DriverAPI.Library.V6.Services
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_routeListItemProductCodeRepository = routeListItemProductCodeRepository ?? throw new ArgumentNullException(nameof(routeListItemProductCodeRepository));
+			_carLoadDocumentItemProductCodeRepository = carLoadDocumentItemProductCodeRepository
+				?? throw new ArgumentNullException(nameof(carLoadDocumentItemProductCodeRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
@@ -652,7 +656,7 @@ namespace DriverAPI.Library.V6.Services
 			{
 				var orderId = routeListAddress.Order.Id;
 
-				if(IsOrderHasCodesInCarLoadDocument(orderId))
+				if(await IsOrderHasCodesInCarLoadDocument(orderId, cancellationToken))
 				{
 					return CheckNetworkClientOrderScannedCodes(routeListAddress);
 				}
@@ -849,7 +853,7 @@ namespace DriverAPI.Library.V6.Services
 
 			// Если на скаладе не сканировались коды ЧЗ, то разрешить добавить коды
 
-			bool hasCodesInCarLoadDocument = IsOrderHasCodesInCarLoadDocument(orderId);
+			bool hasCodesInCarLoadDocument = await IsOrderHasCodesInCarLoadDocument(orderId, cancellationToken);
 
 			if(vodovozOrderItem.IsTrueMarkCodesMustBeAddedInWarehouse(_edoAccountController) && hasCodesInCarLoadDocument)
 			{
@@ -882,19 +886,25 @@ namespace DriverAPI.Library.V6.Services
 			}
 		}
 
-		private bool IsOrderHasCodesInCarLoadDocument(int orderId)
+		private async Task<bool> IsOrderHasCodesInCarLoadDocument(int orderId, CancellationToken cancellationToken)
 		{
 			var carLoadDocuments =
 				_carLoadDocumentRepository
 				.Get(_uow, x => x.RouteList.Addresses.Any(routeListItem => routeListItem.Order.Id == orderId));
 
 			var carLoadDocumentItems =
-				carLoadDocuments.SelectMany(x => x.Items.Where(x => x.OrderId == orderId));
-
-			var hasCodesInCarLoadDocument =
-				carLoadDocumentItems.Any(x => x.TrueMarkCodes.Any(x => x.SourceCode != null || x.ResultCode != null));
+				carLoadDocuments.SelectMany(x => x.Items.Where(x => x.OrderId == orderId)).ToList();
 
 			var carLoadDocumentItemsIds = carLoadDocumentItems.Select(x => x.Id).ToList();
+
+			var hasCodesInCarLoadDocument =
+				(await _carLoadDocumentItemProductCodeRepository
+				.GetAsync(
+					_uow,
+					CarLoadDocumentItemTrueMarkProductCodeSpecification.CreateForCarLoadDocumentItemIds(carLoadDocumentItemsIds),
+					cancellationToken: cancellationToken))
+				.Value
+				.Any(x => x.SourceCode != null || x.ResultCode != null);
 
 			var hasCarLoadDocumentItemStagingTrueMarkCodes =
 				_stagingTrueMarkCodeRepository.Get(
