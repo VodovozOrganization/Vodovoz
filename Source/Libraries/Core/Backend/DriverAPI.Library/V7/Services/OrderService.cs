@@ -16,6 +16,8 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Specifications.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -67,6 +69,7 @@ namespace DriverAPI.Library.V7.Services
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IGenericRepository<CarLoadDocument> _carLoadDocumentRepository;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
+		private readonly IGenericRepository<RouteListItemTrueMarkProductCode> _routeListItemProductCodeRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IDomainRouteListService _domainRouteListService;
@@ -90,6 +93,7 @@ namespace DriverAPI.Library.V7.Services
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			IGenericRepository<CarLoadDocument> carLoadDocumentRepository,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
+			IGenericRepository<RouteListItemTrueMarkProductCode> routeListItemProductCodeRepository,
 			IOrderContractUpdater contractUpdater,
 			ICounterpartyEdoAccountController edoAccountController,
 			IDomainRouteListService domainRouteListService,
@@ -113,6 +117,7 @@ namespace DriverAPI.Library.V7.Services
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
+			_routeListItemProductCodeRepository = routeListItemProductCodeRepository ?? throw new ArgumentNullException(nameof(routeListItemProductCodeRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
@@ -445,7 +450,10 @@ namespace DriverAPI.Library.V7.Services
 				Order = vodovozOrder,
 			};
 
-			foreach(var code in routeListAddress.TrueMarkCodes)
+			var routeListAddressCodes = _routeListItemProductCodeRepository
+				.Get(_uow, RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListAddress.Id));
+
+			foreach(var code in routeListAddressCodes)
 			{
 				edoRequest.ProductCodes.Add(code);
 			}

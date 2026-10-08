@@ -15,6 +15,7 @@ using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Specifications.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Orders;
@@ -33,6 +34,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly IGenericRepository<RouteListItemEntity> _routeListItemRepository;
+		private readonly IGenericRepository<RouteListItemTrueMarkProductCode> _routeListItemProductCodeRepository;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
 
@@ -45,6 +47,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			IOrderRepository orderRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			IGenericRepository<RouteListItemEntity> routeListItemRepository,
+			IGenericRepository<RouteListItemTrueMarkProductCode> routeListItemProductCodeRepository,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
 		{
@@ -64,6 +67,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
 			_routeListItemRepository =
 				routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_routeListItemProductCodeRepository =
+				routeListItemProductCodeRepository ?? throw new ArgumentNullException(nameof(routeListItemProductCodeRepository));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
@@ -609,7 +614,10 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				Order = routeListAddress.Order,
 			};
 
-			foreach(var code in routeListAddress.TrueMarkCodes)
+			var routeListAddressCodes = _routeListItemProductCodeRepository
+				.Get(uow, RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListAddress.Id));
+
+			foreach(var code in routeListAddressCodes)
 			{
 				edoRequest.ProductCodes.Add(code);
 			}

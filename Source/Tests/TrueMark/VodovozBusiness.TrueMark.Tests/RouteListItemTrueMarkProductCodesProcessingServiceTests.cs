@@ -60,7 +60,7 @@ namespace VodovozBusiness.TrueMark.Tests
 
 			_service = new RouteListItemTrueMarkProductCodesProcessingService(
 				Substitute.For<IOrderRepository>(),
-				Substitute.For<IGenericRepository<RouteListItemEntity>>(),
+				Substitute.For<IGenericRepository<RouteListItemTrueMarkProductCode>>(),
 				Substitute.For<IGenericRepository<StagingTrueMarkCode>>(),
 				Substitute.For<ITrueMarkWaterCodeService>(),
 				Substitute.For<ITrueMarkCodesPoolCleanupService>(),

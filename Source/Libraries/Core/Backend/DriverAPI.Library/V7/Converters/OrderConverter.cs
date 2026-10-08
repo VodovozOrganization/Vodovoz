@@ -9,6 +9,9 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Specifications.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
@@ -33,6 +36,7 @@ namespace DriverAPI.Library.V7.Converters
 		private readonly IOrderRepository _orderRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
+		private readonly IGenericRepository<RouteListItemTrueMarkProductCode> _routeListItemProductCodeRepository;
 
 		/// <summary>
 		/// Конструктор
@@ -45,6 +49,8 @@ namespace DriverAPI.Library.V7.Converters
 		/// <param name="qrPaymentConverter"></param>
 		/// <param name="orderRepository"></param>
 		/// <param name="trueMarkWaterCodeService"></param>
+		/// <param name="edoAccountController"></param>
+		/// <param name="routeListItemProductCodeRepository"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public OrderConverter(
 			IUnitOfWork uow,
@@ -55,7 +61,8 @@ namespace DriverAPI.Library.V7.Converters
 			QrPaymentConverter qrPaymentConverter,
 			IOrderRepository orderRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
-			ICounterpartyEdoAccountController edoAccountController)
+			ICounterpartyEdoAccountController edoAccountController,
+			IGenericRepository<RouteListItemTrueMarkProductCode> routeListItemProductCodeRepository)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
@@ -66,6 +73,8 @@ namespace DriverAPI.Library.V7.Converters
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
+			_routeListItemProductCodeRepository = routeListItemProductCodeRepository
+				?? throw new ArgumentNullException(nameof(routeListItemProductCodeRepository));
 		}
 
 		/// <summary>
@@ -396,9 +405,11 @@ namespace DriverAPI.Library.V7.Converters
 				.Where(x => x.OrderItemId == saleItem.Id)
 				.Select(x => x.TrueMarkProductCodeId);
 
-			codes = routeListItem.TrueMarkCodes
+			codes = _routeListItemProductCodeRepository
+				.Get(_uow, RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListItem.Id))
 				.Where(x => orderItemCodesIds.Contains(x.Id))
 				.Where(x => x.SourceCode != null || x.ResultCode != null)
+				.OrderBy(x => x.Id)
 				.Select(x => x.SourceCode ?? x.ResultCode)
 				.ToList();
 

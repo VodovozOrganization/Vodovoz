@@ -35,7 +35,9 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Permissions;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Specifications.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -107,6 +109,7 @@ namespace Vodovoz
 		private readonly OrderCancellationPermitService _orderCancellationPermitService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
+		private readonly IGenericRepository<RouteListItemTrueMarkProductCode> _routeListItemProductCodeRepository;
 		private readonly IMangoCallButtonViewModelFactory _mangoCallButtonViewModelFactory;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
@@ -146,6 +149,7 @@ namespace Vodovoz
 			IOrderContractUpdater orderContractUpdater,
 			IRouteListService routeListService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
+			IGenericRepository<RouteListItemTrueMarkProductCode> routeListItemProductCodeRepository,
 			OrderCancellationService orderCancellationService,
 			OrderCancellationPermitService orderCancellationPermitService,
 			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
@@ -178,6 +182,7 @@ namespace Vodovoz
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
+			_routeListItemProductCodeRepository = routeListItemProductCodeRepository ?? throw new ArgumentNullException(nameof(routeListItemProductCodeRepository));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
@@ -662,7 +667,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var request = CreateOrderRequest(UoW, rli, rli.RouteListItem.TrueMarkCodes);
+			var request = CreateOrderRequest(UoW, rli, GetRouteListItemProductCodes(rli.RouteListItem.Id));
 			UpdateCreatedEdoRequests(request, addressStatus);
 		}
 
@@ -824,7 +829,7 @@ namespace Vodovoz
 					var request = requestData.Request;
 					request.ProductCodes.Clear();
 
-					foreach(var code in routeListItem.TrueMarkCodes)
+					foreach(var code in GetRouteListItemProductCodes(routeListItem.Id))
 					{
 						request.ProductCodes.Add(code);
 					}
@@ -1138,7 +1143,7 @@ namespace Vodovoz
 		private PrimaryEdoRequest CreateOrderRequest(
 			IUnitOfWork uow,
 			RouteListKeepingItemNode item,
-			IObservableList<RouteListItemTrueMarkProductCode> codes)
+			IEnumerable<RouteListItemTrueMarkProductCode> codes)
 		{
 			return new PrimaryEdoRequest
 			{
@@ -1150,6 +1155,13 @@ namespace Vodovoz
 				ProductCodes = new ObservableList<TrueMarkProductCode>(codes),
 				Author = _employeeRepository.GetEmployeeForCurrentUser(uow)
 			};
+		}
+
+		private IEnumerable<RouteListItemTrueMarkProductCode> GetRouteListItemProductCodes(int routeListItemId)
+		{
+			return _routeListItemProductCodeRepository
+				.Get(UoW, RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListItemId))
+				.ToList();
 		}
 
 		private bool HasEdoRequest(int orderId)

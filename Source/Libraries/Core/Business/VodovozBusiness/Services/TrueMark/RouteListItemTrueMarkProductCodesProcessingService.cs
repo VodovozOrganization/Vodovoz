@@ -9,6 +9,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Specifications.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Goods;
@@ -25,7 +26,7 @@ namespace VodovozBusiness.Services.TrueMark
 	public class RouteListItemTrueMarkProductCodesProcessingService : IRouteListItemTrueMarkProductCodesProcessingService
 	{
 		private readonly IOrderRepository _orderRepository;
-		private readonly IGenericRepository<RouteListItemEntity> _routeListItemRepository;
+		private readonly IGenericRepository<RouteListItemTrueMarkProductCode> _routeListItemProductCodeRepository;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
@@ -34,7 +35,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 		public RouteListItemTrueMarkProductCodesProcessingService(
 			IOrderRepository orderRepository,
-			IGenericRepository<RouteListItemEntity> routeListItemRepository,
+			IGenericRepository<RouteListItemTrueMarkProductCode> routeListItemProductCodeRepository,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService,
@@ -42,7 +43,8 @@ namespace VodovozBusiness.Services.TrueMark
 			TrueMarkCodesPoolFactory trueMarkCodesPoolFactory)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_routeListItemProductCodeRepository = routeListItemProductCodeRepository
+				?? throw new ArgumentNullException(nameof(routeListItemProductCodeRepository));
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService;
 			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
@@ -123,17 +125,20 @@ namespace VodovozBusiness.Services.TrueMark
 				waterCode => new TrueMarkAnyCode[] { waterCode })
 				.ToList();
 
+			var addedCodeKeys = _routeListItemProductCodeRepository
+				.Get(uow, RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListAddress.Id))
+				.Where(x => x.SourceCode != null)
+				.Select(x => (x.SourceCode.Gtin, x.SourceCode.SerialNumber));
+
+			var addedCodes = new HashSet<(string Gtin, string SerialNumber)>(addedCodeKeys);
+
 			foreach(var code in trueMarkAnyCodes)
 			{
 				if(code.IsTrueMarkWaterIdentificationCode)
 				{
-					var isCodeAlreadyAddedToRouteListItem =
-						routeListAddress.TrueMarkCodes.Any(x =>
-						x.SourceCode != null
-						&& x.SourceCode.Gtin == code.TrueMarkWaterIdentificationCode.Gtin
-						&& x.SourceCode.SerialNumber == code.TrueMarkWaterIdentificationCode.SerialNumber);
+					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
 
-					if(!isCodeAlreadyAddedToRouteListItem)
+					if(!addedCodes.Contains(codeKey))
 					{
 						var orderId = routeListAddress.Order?.Id
 							?? (routeListAddress as RouteListItem)?.Order?.Id;
@@ -159,6 +164,8 @@ namespace VodovozBusiness.Services.TrueMark
 							code.TrueMarkWaterIdentificationCode,
 							status,
 							problem);
+
+						addedCodes.Add(codeKey);
 					}
 				}
 
@@ -748,11 +755,11 @@ namespace VodovozBusiness.Services.TrueMark
 
 		private Result IsRouteListItemHaveNoAddedCodes(IUnitOfWork uow, int routeListItemid)
 		{
-			var routeListItem = _routeListItemRepository.GetFirstOrDefault(
+			var addedCodesCount = _routeListItemProductCodeRepository.GetCount(
 				uow,
-				x => x.Id == routeListItemid);
+				RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListItemid));
 
-			if(routeListItem?.TrueMarkCodes.Count > 0)
+			if(addedCodesCount > 0)
 			{
 				var error = TrueMarkCodeErrors.RelatedDocumentHasTrueMarkCodes;
 				return Result.Failure(error);
