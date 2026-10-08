@@ -21,6 +21,7 @@ namespace Edo.Documents
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			services.TryAddScoped<IUpdDocumentBuilder, UpdDocumentBuilder>();
+			services.TryAddScoped<UpdTransportCodeService>();
 
 			services.TryAddScoped<DocumentEdoTaskHandler>();
 			services.TryAddScoped<ForOwnNeedDocumentEdoTaskHandler>();
