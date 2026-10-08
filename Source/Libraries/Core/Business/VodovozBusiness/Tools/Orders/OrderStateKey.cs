@@ -99,14 +99,9 @@ namespace Vodovoz.Tools.Orders
 
 			IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.ActualSum) <= 0m;
 
-			var saleItems = Order.ObservableOrderItems
+			HasNonDepositSale = Order.ObservableOrderItems
 				.Where(item => item.Nomenclature.Category != NomenclatureCategory.deposit)
-				.ToList();
-			var onlyPaidDelivery = saleItems.Count == 1
-				&& saleItems[0].Nomenclature.Id == nomenclatureSettings.PaidDeliveryNomenclatureId;
-			HasNonDepositSale = saleItems.Any()
-				&& !onlyPaidDelivery
-				&& saleItems.Sum(item => item.ActualSum) > 0m;
+				.Sum(item => item.ActualSum) > 0m;
 
 			NeedToReturnBottles = Order.BottlesReturn > 0;
 			NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();

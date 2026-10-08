@@ -279,6 +279,7 @@ namespace Vodovoz.Tools.Orders
 				      || (key.Order.Client?.WorksThroughOrganization != null
 				          && key.Order.Client.WorksThroughOrganization.Id == _beveragesWorldOrganizationId))
 				  && IsOrderWithOrderItemsAndWithoutDeposits(key)))
+				&& key.HasNonDepositSale
 				&& (key.OrderStatus >= OrderStatus.Accepted ||
 					(key.OrderStatus == OrderStatus.WaitForPayment && key.IsSelfDelivery && key.PayAfterShipment))
 			);
@@ -328,8 +329,9 @@ namespace Vodovoz.Tools.Orders
 
 		static bool IsOrderWithOrderItemsAndWithoutDeposits(OrderStateKey key) =>
 		(
-			key.HasNonDepositSale
+			!key.IsPriceOfAllOrderItemsZero
 			&& !key.NeedToRefundDepositToClient
+			&& key.HasOrderItems
 		);
 	}
 
