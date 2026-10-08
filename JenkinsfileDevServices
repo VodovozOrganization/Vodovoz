@@ -92,21 +92,15 @@ try {
 				}
 
 				def determinedProjects = parsedProjects.collect { p ->
-					// Один проект может публиковаться в несколько репозиториев (например, по одному на организацию)
-					def images = (p.images ?: []).collect { image ->
-						[
-							containerRepository: (image.containerRepository ?: '').toString(),
-							publishImageTag: (image.publishImageTag ?: '').toString()
-						]
-					}
 					[
 						projectPath: (p.projectPath ?: '').toString(),
-						images: images
+						containerRepository: (p.containerRepository ?: '').toString(),
+						publishImageTag: (p.publishImageTag ?: '').toString()
 					]
 				}
 
 				def invalidProjects = determinedProjects.findAll {
-					!it.projectPath || !it.images || it.images.findAll { image -> !image.containerRepository || !image.publishImageTag }
+					!it.projectPath || !it.containerRepository || !it.publishImageTag
 				}
 				if (invalidProjects) {
 					error("Скрипт determine-projects.sh вернул некорректные данные для ${invalidProjects.size()} проект(ов)")
@@ -117,10 +111,9 @@ try {
 				PUBLISHING_PROJECT_QUEUE = determinedProjects.collect { it.collectEntries { key, value -> [key, value] } }
 
 				def projectsSummary = PUBLISHING_PROJECTS.collect { p ->
-					"projectPath=${p.projectPath}; images=${p.images.collect { "${it.containerRepository}:${it.publishImageTag}" }.join(', ')}"
+					"projectPath=${p.projectPath}; containerRepository=${p.containerRepository}; publishImageTag=${p.publishImageTag}"
 				}.join('\n')
-				def totalImages = PUBLISHING_PROJECTS.collect { it.images.size() }.sum()
-				echo "Найдено проектов для публикации: ${PUBLISHING_PROJECTS.size()} (образов: ${totalImages})\n${projectsSummary}"
+				echo "Найдено проектов для публикации: ${PUBLISHING_PROJECTS.size()}\n${projectsSummary}"
 			}
 		}
 	}
@@ -215,18 +208,15 @@ try {
 
 										processedProjects++
 										def projectPath = projectInfo.projectPath
+										def imageRepository = projectInfo.containerRepository
+										def imageTag = projectInfo.publishImageTag
 										def projectDll = projectPath.tokenize('/').last().replace('.csproj', '.dll')
 										def publishDir = "/work/.publish/${projectDll.replace('.dll', '')}"
-										def imageFullNames = projectInfo.images.collect { "${DOCKER_REGISTRY_URL}/${it.containerRepository}:${it.publishImageTag}" }
-										def imageTagArguments = imageFullNames.collect { "-t \"${it}\"" }.join(' ')
-										def stageName = "${projectInfo.images[0].containerRepository}:${projectInfo.images[0].publishImageTag}"
-										if (imageFullNames.size() > 1) {
-											stageName += " (+${imageFullNames.size() - 1})"
-										}
+										def imageFullName = "${DOCKER_REGISTRY_URL}/${imageRepository}:${imageTag}"
 
 										try {
-										stage(stageName) {
-											echo "Builder ${builderNumber}/${totalBuilders} picked project ${processedProjects}: ${projectPath} -> ${imageFullNames.join(', ')}"
+										stage("${imageRepository}:${imageTag}") {
+											echo "Builder ${builderNumber}/${totalBuilders} picked project ${processedProjects}: ${projectPath} -> ${imageFullName}"
 
 											// Публикуем артефакты .NET и готовим Dockerfile рядом с output.
 											sh "docker exec ${cid} sh -c 'mkdir -p \"${publishDir}\"'"
@@ -242,24 +232,22 @@ EOF'
 											""".stripIndent()
 
 											if (isBuildInterrupted()) {
-												error("Build прерван, пропуск docker build для ${imageFullNames.join(', ')}")
+												error("Build прерван, пропуск docker build для ${imageFullName}")
 											}
-											// Собираем runtime-образ один раз со всеми тегами и публикуем каждый в registry.
-											sh "docker exec ${cid} sh -c 'docker build --pull --no-cache --force-rm ${imageTagArguments} \"${publishDir}\"'"
+											// Собираем runtime-образ и публикуем его в registry.
+											sh "docker exec ${cid} sh -c 'docker build --pull --no-cache --force-rm -t \"${imageFullName}\" \"${publishDir}\"'"
 
-											for (pushingImageFullName in imageFullNames) {
-												if (isBuildInterrupted()) {
-													error("Build прерван, пропуск docker push для ${pushingImageFullName}")
-												}
-												sh "docker exec ${cid} sh -c 'docker push \"${pushingImageFullName}\"'"
+											if (isBuildInterrupted()) {
+												error("Build прерван, пропуск docker push для ${imageFullName}")
 											}
+											sh "docker exec ${cid} sh -c 'docker push \"${imageFullName}\"'"
 										}
 									} catch (Exception e) {
 										if (isBuildInterrupted() || e instanceof org.jenkinsci.plugins.workflow.steps.FlowInterruptedException) {
 											requestBuildStop("Build interrupted on ${branchName}")
 											throw e
 										}
-										echo "FAILED ${imageFullNames.join(', ')}: ${e.message}"
+										echo "FAILED ${imageFullName}: ${e.message}"
 										currentBuild.result = 'FAILURE'
 									}
 									}

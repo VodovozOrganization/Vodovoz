@@ -49,12 +49,16 @@ json_escape() {
   printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
 }
 
-# Appends image to images_json.
-append_image() {
-  if [ -n "$images_json" ]; then
-    images_json="$images_json,"
+# Prints publishing entry: project path, container repository, image tag.
+print_project() {
+  if [ "$first" -eq 0 ]; then
+    printf ','
   fi
-  images_json="$images_json$(printf '{"containerRepository":"%s","publishImageTag":"%s"}' "$(json_escape "$1")" "$(json_escape "$2")")"
+  first=0
+  project_images_count=$((project_images_count + 1))
+
+  printf '{"projectPath":"%s","containerRepository":"%s","publishImageTag":"%s"}' \
+    "$(json_escape "$1")" "$(json_escape "$2")" "$(json_escape "$3")"
 }
 
 script_dir="$(cd "$ROOT_PATH" && pwd)"
@@ -96,36 +100,29 @@ while IFS= read -r project_dir; do
   publish_profiles_dir="$project_dir/Properties/PublishProfiles"
   publish_profile_path="$publish_profiles_dir/$PUBLISH_PROFILE_FILE"
   project_path="$(relative_path "$project_file" "$script_dir")"
-  images_json=""
+  project_images_count=0
 
   # Main image: repository from RepositorySettings.props, tag from the main profile.
   if [ -f "$publish_profile_path" ]; then
     container_repository="$(read_xml_property "$repository_settings_path" "ContainerRepository")"
     publish_image_tag="$(read_xml_property "$publish_profile_path" "PublishImageTag")"
-    append_image "$container_repository" "$publish_image_tag"
+    print_project "$project_path" "$container_repository" "$publish_image_tag"
   fi
 
   # Organization images: each <profile>-<organization>.pubxml defines its own repository and tag.
-  # The project is built once and pushed to all of these repositories.
+  # The project is published as a separate entry for each of these repositories.
   for organization_profile_path in "$publish_profiles_dir/$PUBLISH_PROFILE_NAME"-*.pubxml; do
     if [ -f "$organization_profile_path" ]; then
       container_repository="$(read_xml_property "$organization_profile_path" "ContainerRepository")"
       publish_image_tag="$(read_xml_property "$organization_profile_path" "PublishImageTag")"
-      append_image "$container_repository" "$publish_image_tag"
+      print_project "$project_path" "$container_repository" "$publish_image_tag"
     fi
   done
 
-  if [ -z "$images_json" ]; then
+  if [ "$project_images_count" -eq 0 ]; then
     echo "No publish profiles $PUBLISH_PROFILE_FILE or $PUBLISH_PROFILE_NAME-*.pubxml found for project: $project_path" >&2
     exit 1
   fi
-
-  if [ "$first" -eq 0 ]; then
-    printf ','
-  fi
-  first=0
-
-  printf '{"projectPath":"%s","images":[%s]}' "$(json_escape "$project_path")" "$images_json"
 done < "$tmp_project_dirs_file"
 
 printf ']\n'
