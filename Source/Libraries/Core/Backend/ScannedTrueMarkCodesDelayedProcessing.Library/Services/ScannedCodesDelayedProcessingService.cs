@@ -596,7 +596,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					routeListAddress.Order.Id,
 					routeListAddress.Id);
 
-				var edoRequest = CreateEdoRequest(uow, routeListAddress);
+				var edoRequest = await CreateEdoRequest(uow, routeListAddress, cancellationToken);
 
 				newEdoRequests.Add(edoRequest);
 			}
@@ -604,7 +604,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			return newEdoRequests;
 		}
 
-		private PrimaryEdoRequest CreateEdoRequest(IUnitOfWork uow, RouteListItemEntity routeListAddress)
+		private async Task<PrimaryEdoRequest> CreateEdoRequest(IUnitOfWork uow, RouteListItemEntity routeListAddress, CancellationToken cancellationToken)
 		{
 			var edoRequest = new PrimaryEdoRequest
 			{
@@ -614,8 +614,12 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				Order = routeListAddress.Order,
 			};
 
-			var routeListAddressCodes = _routeListItemProductCodeRepository
-				.Get(uow, RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListAddress.Id));
+			var routeListAddressCodes = (await _routeListItemProductCodeRepository
+				.GetAsync(
+					uow,
+					RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListAddress.Id),
+					cancellationToken: cancellationToken))
+				.Value;
 
 			foreach(var code in routeListAddressCodes)
 			{

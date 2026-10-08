@@ -125,8 +125,12 @@ namespace VodovozBusiness.Services.TrueMark
 				waterCode => new TrueMarkAnyCode[] { waterCode })
 				.ToList();
 
-			var addedCodeKeys = _routeListItemProductCodeRepository
-				.Get(uow, RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListAddress.Id))
+			var addedCodeKeys = (await _routeListItemProductCodeRepository
+				.GetAsync(
+					uow,
+					RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListAddress.Id),
+					cancellationToken: cancellationToken))
+				.Value
 				.Where(x => x.SourceCode != null)
 				.Select(x => (x.SourceCode.Gtin, x.SourceCode.SerialNumber));
 
@@ -717,7 +721,7 @@ namespace VodovozBusiness.Services.TrueMark
 				return codeCheckingProcessResult;
 			}
 
-			codeCheckingProcessResult = IsRouteListItemHaveNoAddedCodes(uow, stagingTrueMarkCode.RelatedDocumentId);
+			codeCheckingProcessResult = await IsRouteListItemHaveNoAddedCodes(uow, stagingTrueMarkCode.RelatedDocumentId, cancellationToken);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -753,13 +757,16 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private Result IsRouteListItemHaveNoAddedCodes(IUnitOfWork uow, int routeListItemid)
+		private async Task<Result> IsRouteListItemHaveNoAddedCodes(IUnitOfWork uow, int routeListItemid, CancellationToken cancellationToken)
 		{
-			var addedCodesCount = _routeListItemProductCodeRepository.GetCount(
+			var addedCodes = (await _routeListItemProductCodeRepository.GetAsync(
 				uow,
-				RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListItemid));
+				RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListItemid),
+				limit: 1,
+				cancellationToken: cancellationToken))
+				.Value;
 
-			if(addedCodesCount > 0)
+			if(addedCodes.Any())
 			{
 				var error = TrueMarkCodeErrors.RelatedDocumentHasTrueMarkCodes;
 				return Result.Failure(error);

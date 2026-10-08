@@ -432,7 +432,7 @@ namespace DriverAPI.Library.V6.Services
 				&& edoRequest == null
 				&& (vodovozOrder.Client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds || isAllOwnNeedsOrderDriversScannedCodesProcessed))
 			{
-				edoRequest = CreateEdoRequests(vodovozOrder, routeListAddress);
+				edoRequest = await CreateEdoRequests(vodovozOrder, routeListAddress, cancellationToken);
 				edoRequestCreated = true;
 			}
 
@@ -444,7 +444,7 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private PrimaryEdoRequest CreateEdoRequests(Order vodovozOrder, RouteListItem routeListAddress)
+		private async Task<PrimaryEdoRequest> CreateEdoRequests(Order vodovozOrder, RouteListItem routeListAddress, CancellationToken cancellationToken)
 		{
 			var edoRequest = new PrimaryEdoRequest
 			{
@@ -454,8 +454,12 @@ namespace DriverAPI.Library.V6.Services
 				Order = vodovozOrder,
 			};
 
-			var routeListAddressCodes = _routeListItemProductCodeRepository
-				.Get(_uow, RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListAddress.Id));
+			var routeListAddressCodes = (await _routeListItemProductCodeRepository
+				.GetAsync(
+					_uow,
+					RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListAddress.Id),
+					cancellationToken: cancellationToken))
+				.Value;
 
 			foreach(var code in routeListAddressCodes)
 			{
