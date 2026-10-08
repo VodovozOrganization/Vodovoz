@@ -1,12 +1,19 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
@@ -192,6 +199,39 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.SingleOrDefault();
 
 			return changedItem != null;
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<CompletedAddressesCountNode>> GetCompletedAddressesCountsByDriverAndDistrictAsync(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
+		{
+			RouteListItem routeListItemAlias = null;
+			RouteList routeListAlias = null;
+			Employee driverAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			District districtAlias = null;
+			CompletedAddressesCountNode resultAlias = null;
+
+			return await uow.Session.QueryOver(() => routeListItemAlias)
+				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias, JoinType.LeftOuterJoin)
+				.Where(() => routeListItemAlias.Status == RouteListItemStatus.Completed)
+				.And(() => routeListAlias.Date >= startDate.Date)
+				.And(() => routeListAlias.Date <= endDate.Date)
+				.SelectList(list => list
+					.SelectGroup(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
+					.SelectGroup(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
+					.SelectGroup(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
+					.SelectGroup(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+					.SelectGroup(() => districtAlias.Id).WithAlias(() => resultAlias.DistrictId)
+					.SelectGroup(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+					.SelectCount(() => routeListItemAlias.Id).WithAlias(() => resultAlias.CompletedAddressesCount))
+				.TransformUsing(Transformers.AliasToBean<CompletedAddressesCountNode>())
+				.ListAsync<CompletedAddressesCountNode>(cancellationToken);
 		}
 	}
 }
