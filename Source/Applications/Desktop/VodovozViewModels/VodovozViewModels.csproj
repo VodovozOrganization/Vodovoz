@@ -1559,6 +1559,7 @@
       <Version>0.2.6</Version>
     </PackageReference>
     <PackageReference Include="CsvHelper" Version="15.0.10" />
+    <PackageReference Include="EPPlus" Version="8.7.1" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />

@@ -11,11 +11,8 @@ namespace VodovozBusiness.Nodes.TTN
 		public string DocYear { get; set; }
 
 		public string CargoSenderText { get; set; }
-		public string CargoSenderOkpo { get; set; }
 		public string CargoReceiverText { get; set; }
-		public string CargoReceiverOkpo { get; set; }
 		public string PayerText { get; set; }
-		public string PayerOkpo { get; set; }
 
 		// Товарный раздел
 		public IList<TtnReportRow> Rows { get; set; } = new List<TtnReportRow>();

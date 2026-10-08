@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using ClosedXML.Report;
+using OfficeOpenXml;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -15,6 +15,7 @@ using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Users.Settings;
@@ -837,7 +838,19 @@ namespace Vodovoz.ViewModels.Warehouses
 					"Заполните обязательные поля ТТН: грузоотправитель, грузополучатель, плательщик, автомобиль, водитель.");
 				return;
 			}
-			var report = BuildTtnReport(Entity);
+
+			TtnReport report;
+			try
+			{
+				report = BuildTtnReport(Entity);
+			}
+			catch(Exception ex)
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					$"Не удалось собрать данные ТТН: {ex.Message}");
+				return;
+			}
 
 			var dialogSettings = new DialogSettings
 			{
@@ -854,10 +867,94 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			try
 			{
-				var template = new XLTemplate(_ttnTemplatePath);
-				template.AddVariable(report);
-				template.Generate();
-				template.SaveAs(result.Path);
+				var templateFile = new FileInfo(_ttnTemplatePath);
+
+				ExcelPackage.License.SetNonCommercialPersonal("ВВ");
+
+				using(var package = new ExcelPackage(templateFile))
+				{
+					var ws1 = package.Workbook.Worksheets["Товарный раздел"];
+
+					// Шапка
+					ws1.Cells["FM6"].Value = report.DocNumber;
+					ws1.Cells["FM7"].Value = report.DocDay;
+					ws1.Cells["FS7"].Value = report.DocMonth;
+					ws1.Cells["FZ7"].Value = report.DocYear;
+
+					ws1.Cells["V9"].Value = report.CargoSenderText;
+					ws1.Cells["V11"].Value = report.CargoReceiverText;
+					ws1.Cells["V13"].Value = report.PayerText;
+
+					const int firstItemRow = 18;
+					var rowsCount = report.Rows.Count;
+
+					if(rowsCount > 1)
+					{
+						ws1.InsertRow(firstItemRow + 1, rowsCount - 1);
+					}
+
+					var row = firstItemRow;
+					foreach(var item in report.Rows)
+					{
+						ws1.Cells[row, 1].Value = item.Code;      // A
+						ws1.Cells[row, 12].Value = "";            // L
+						ws1.Cells[row, 29].Value = "";            // AC
+						ws1.Cells[row, 45].Value = item.Count;    // AS
+						ws1.Cells[row, 54].Value = item.Price;    // BB
+						ws1.Cells[row, 64].Value = item.Name;     // BL
+						ws1.Cells[row, 83].Value = "";            // CE
+						ws1.Cells[row, 95].Value = "";            // CQ
+						ws1.Cells[row, 106].Value = 0;            // DB
+						ws1.Cells[row, 113].Value = 0;            // DI
+						ws1.Cells[row, 125].Value = item.Sum;     // DU
+						ws1.Cells[row, 160].Value = row - firstItemRow + 1; // FC
+						row++;
+					}
+
+					var shift = rowsCount - 1;
+
+					var totalCount = report.Rows.Sum(r => (int)r.Count);
+					var totalSum = report.Rows.Sum(r => r.Sum);
+
+					ws1.Cells[$"AS{19 + shift}"].Value = totalCount;
+					ws1.Cells[$"DU{19 + shift}"].Value = totalSum;
+					ws1.Cells[$"AS{20 + shift}"].Value = totalCount;
+					ws1.Cells[$"DU{20 + shift}"].Value = totalSum;
+
+					ws1.Cells[$"CF{29 + shift}"].Value = report.MassBruttoText;
+					ws1.Cells[$"FU{26 + shift}"].Value = report.MassBruttoValue;
+
+					ws1.Cells[$"A{34 + shift}"].Value = report.ReleaseAllowedPosition;
+					ws1.Cells[$"AG{34 + shift}"].Value = report.ReleaseAllowedName;
+					ws1.Cells[$"AB{37 + shift}"].Value = report.ReleaseProducedPosition;
+					ws1.Cells[$"BR{37 + shift}"].Value = report.ReleaseProducedName;
+					ws1.Cells[$"EB{31 + shift}"].Value = report.CargoAcceptedPosition;
+					ws1.Cells[$"FI{31 + shift}"].Value = report.CargoAcceptedName;
+
+					var ws2 = package.Workbook.Worksheets["Транспортный раздел"];
+
+					ws2.Cells["FP2"].Value = report.DocNumber;
+					ws2.Cells["X3"].Value = report.DeliveryDay;
+					ws2.Cells["AD3"].Value = report.DeliveryMonthText;
+					ws2.Cells["AW3"].Value = report.DeliveryYear;
+					ws2.Cells["N4"].Value = report.OrganizationText;
+					ws2.Cells["X7"].Value = report.PayerText;
+					ws2.Cells["L9"].Value = report.DriverFullName;
+					ws2.Cells["CU9"].Value = report.DriverLicenseNumber;
+					ws2.Cells["CO4"].Value = report.CarModel;
+					ws2.Cells["EL4"].Value = report.CarRegistrationNumber;
+					ws2.Cells["Q14"].Value = report.LoadingPointAddress;
+					ws2.Cells["CT14"].Value = report.UnloadingPointAddress;
+					ws2.Cells["CH16"].Value = report.TrailerModel;
+					ws2.Cells["EF16"].Value = report.TrailerRegistrationNumber;
+					ws2.Cells["FU26"].Value = report.MassBruttoValue;
+					ws2.Cells["I31"].Value = report.ReleaseAllowedPosition;
+					ws2.Cells["AH31"].Value = report.ReleaseAllowedName;
+					ws2.Cells["AA36"].Value = report.CargoAcceptedName;
+					ws2.Cells["DC31"].Value = report.CargoAcceptedName;
+
+					package.SaveAs(new FileInfo(result.Path));
+				}
 
 				CommonServices.InteractiveService.ShowMessage(
 					ImportanceLevel.Info,
@@ -1045,22 +1142,19 @@ namespace Vodovoz.ViewModels.Warehouses
 
 				// Шапка
 				CargoSenderText = BuildOrganizationText(entity.TtnCargoSender, senderVersion),
-				CargoSenderOkpo = entity.TtnCargoSender?.OKPO ?? "",
 				CargoReceiverText = BuildOrganizationText(entity.TtnCargoReceiver, receiverVersion),
-				CargoReceiverOkpo = entity.TtnCargoReceiver?.OKPO ?? "",
 				PayerText = BuildOrganizationText(entity.TtnPayer, payerVersion),
-				PayerOkpo = entity.TtnPayer?.OKPO ?? "",
 
 				// Товарный раздел
 				Rows = BuildTtnRows(entity),
 				MassBruttoValue = 0,
 				MassBruttoText = "",
 				ReleaseAllowedPosition = CurrentEmployee?.Post?.Name ?? "",
-				ReleaseAllowedName = CurrentEmployee?.FullName ?? "",
+				ReleaseAllowedName = ShortName(CurrentEmployee?.FullName),
 				ReleaseProducedPosition = CurrentEmployee?.Post?.Name ?? "",
-				ReleaseProducedName = CurrentEmployee?.FullName ?? "",
+				ReleaseProducedName = ShortName(CurrentEmployee?.FullName),
 				CargoAcceptedPosition = "водитель",
-				CargoAcceptedName = entity.TtnDriver?.FullName ?? "",
+				CargoAcceptedName = ShortName(entity.TtnDriver?.FullName),
 
 				// Транспортный раздел
 				DeliveryDay = docDate.ToString("dd"),
@@ -1172,6 +1266,38 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 
 			return rows;
+		}
+
+		private static string ShortName(string fullName)
+		{
+			if(string.IsNullOrWhiteSpace(fullName))
+			{
+				return string.Empty;
+			}
+
+			var parts = fullName
+				.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+			if(parts.Length == 1)
+			{
+				return parts[0];
+			}
+
+			var lastName = parts[0];
+			var initials = new List<string>();
+
+			for(int i = 1; i < parts.Length; i++)
+			{
+				var part = parts[i];
+				if(!string.IsNullOrWhiteSpace(part))
+				{
+					initials.Add(part[0] + ".");
+				}
+			}
+
+			return initials.Count > 0
+				? $"{lastName} {string.Join(" ", initials)}"
+				: lastName;
 		}
 
 		public override void Dispose()
