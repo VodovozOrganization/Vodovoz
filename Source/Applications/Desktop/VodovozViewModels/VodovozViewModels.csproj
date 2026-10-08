@@ -1026,6 +1026,10 @@
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\DriversWarehousesEventsReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\CompletedAddressesReport\CompletedAddressesReport.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\CompletedAddressesReport\CompletedAddressesReport.ExportToExcel.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\CompletedAddressesReport\CompletedAddressesReportFilterSelection.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\CompletedAddressesReport\CompletedAddressesReportRow.cs" />
     <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReport.cs" />
     <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReport.LastRouteListNodeNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReportRow.cs" />
