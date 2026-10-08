@@ -1030,6 +1030,7 @@
     <Compile Include="ViewModels\Reports\Logistics\CompletedAddressesReport\CompletedAddressesReport.ExportToExcel.cs" />
     <Compile Include="ViewModels\Reports\Logistics\CompletedAddressesReport\CompletedAddressesReportFilterSelection.cs" />
     <Compile Include="ViewModels\Reports\Logistics\CompletedAddressesReport\CompletedAddressesReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Logistics\CompletedAddressesReport\CompletedAddressesReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReport.cs" />
     <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReport.LastRouteListNodeNode.cs" />
     <Compile Include="ViewModels\Reports\Logistics\LastRouteListReport\LastRouteListReportRow.cs" />

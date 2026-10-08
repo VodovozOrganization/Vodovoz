@@ -505,6 +505,11 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			return result;
 		}
 
+		/// <summary>
+		/// Перестроить список элементов активного раздела фильтра, например после смены источника данных
+		/// </summary>
+		public void RefreshActiveFilterElements() => UpdateFilteredElements();
+
 		private void UpdateFilteredElements()
 		{
 			if(ActiveFilter is IncludeExcludeFilter filter)
