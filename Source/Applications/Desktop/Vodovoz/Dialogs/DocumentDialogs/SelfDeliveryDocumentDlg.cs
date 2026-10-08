@@ -27,6 +27,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -67,6 +68,7 @@ namespace Vodovoz
 		private INomenclatureRepository _nomenclatureRepository;
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
 		private IGenericRepository<FormalEdoRequest> _orderEdoRequestRepository;
+		private IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> _selfDeliveryProductCodeRepository;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher =
 			ScopeProvider.Scope.Resolve<IEdoRequestCreatedEventPublisher>();
@@ -140,6 +142,7 @@ namespace Vodovoz
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 			_orderEdoRequestRepository = _lifetimeScope.Resolve<IGenericRepository<FormalEdoRequest>>();
 			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
+			_selfDeliveryProductCodeRepository = _lifetimeScope.Resolve<IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode>>();
 		}
 		
 		private void ConfigureValidationContext(IValidationContextFactory validationContextFactory)
@@ -201,6 +204,7 @@ namespace Vodovoz
 			Entity.UpdateStockAmount(UoW, _stockRepository);
 			Entity.UpdateAlreadyUnloaded(UoW, _nomenclatureRepository, _bottlesRepository);
 			selfdeliverydocumentitemsview1.DocumentUoW = UoWGeneric;
+			selfdeliverydocumentitemsview1.SetSelfDeliveryProductCodeRepository(_selfDeliveryProductCodeRepository);
 			//bottlereceptionview1.UoW = UoW;
 			UpdateWidgets();
 			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
