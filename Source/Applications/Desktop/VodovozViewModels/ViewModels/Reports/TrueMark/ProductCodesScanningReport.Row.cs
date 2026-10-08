@@ -18,6 +18,11 @@
 			public decimal MultiplyDuplicatedCodesPercent => ((decimal)MultiplyDuplicatedCodesCount / TotalCodesCount) * 100;
 			public int InvalidCodesCount { get; set; }
 			public decimal InvalidCodesPercent => ((decimal)InvalidCodesCount / TotalCodesCount) * 100;
+
+			/// <summary>
+			/// Номера заказов, по которым имеются неотсканированные коды (через запятую)
+			/// </summary>
+			public string OrdersWithUnscannedCodes { get; set; }
 		}
 	}
 }

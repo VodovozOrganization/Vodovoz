@@ -1,12 +1,12 @@
+﻿using Gamma.ColumnConfig;
+using Gamma.Widgets;
+using Gtk;
+using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Gamma.ColumnConfig;
-using Gamma.Widgets;
-using Gtk;
-using QS.Views.GtkUI;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
@@ -137,15 +137,31 @@ namespace Vodovoz.Views.Suppliers
 			enumChkListStorages.Binding
 				.AddBinding(ViewModel, vm => vm.Sensitivity, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
+			yradiobuttonShowActive.Binding
+				.AddBinding(ViewModel, vm => vm.IsOnlyActiveSelected, w => w.Active)
+				.InitializeFromSource();
+
+			yradiobuttonShowArchive.Binding
+				.AddBinding(ViewModel, vm => vm.IsOnlyArchivedSelected, w => w.Active)
+				.InitializeFromSource();
+
+			yradiobuttonShowAll.Binding
+				.AddBinding(ViewModel, vm => vm.IsAllSelected, w => w.Active)
+				.InitializeFromSource();
+
+			yhboxArchive.Binding
+				.AddBinding(ViewModel, vm => vm.Sensitivity, w => w.Sensitive)
+				.InitializeFromSource();
+
 			chkGroupByActiveStorages.Binding
 				.AddBinding(ViewModel, vm => vm.GroupingActiveStorage, w => w.Active)
 				.InitializeFromSource();
 
 			eventboxArrow.ButtonPressEvent += (o, args) =>
 			{
-				vboxSections.Visible = !vboxSections.Visible;
-				arrowSlider.ArrowType = vboxSections.Visible ? ArrowType.Left : ArrowType.Right;
+				yvboxFilters.Visible = !yvboxFilters.Visible;
+				arrowSlider.ArrowType = yvboxFilters.Visible ? ArrowType.Left : ArrowType.Right;
 			};
 
 			treeData.EnableGridLines = TreeViewGridLines.Both;

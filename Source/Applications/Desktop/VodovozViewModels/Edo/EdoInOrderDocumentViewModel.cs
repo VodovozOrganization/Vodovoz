@@ -1,4 +1,4 @@
-﻿using EdoService.Library;
+using EdoService.Library;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Dialog;
 using QS.ViewModels;
@@ -42,6 +42,11 @@ namespace Vodovoz.ViewModels.Edo
 
 			_pipelineViewModel.PropertyChanged += PipelineOnPropertyChanged;
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			
+			if(_pipelineViewModel.CurrentStage != null)
+			{
+				StageChanged();
+			}
 		}
 
 		public ICommand EdoInOrderRefreshCommand { get; set; }
@@ -68,6 +73,24 @@ namespace Vodovoz.ViewModels.Edo
 				throw new NotSupportedException($"Поддерживается работа только с {nameof(EnumPipelineStageViewModel)}");
 			}
 
+			var distributionStages = new Enum[] {
+				DocumentEdoTaskStage.New,
+				EdoReceiptStatus.New,
+				TenderEdoTaskStage.New
+			};
+			var isDistributionStages = distributionStages.Any(x => x.Equals(enumStage.Content));
+			if(isDistributionStages)
+			{
+				StageViewModel = new EdoInOrderDistributionStageViewModel(_documentViewModel.DocumentType);
+				return;
+			}
+
+			if(EdoReceiptStatus.SavedToPool.Equals(enumStage.Content))
+			{
+				StageViewModel = new EdoInOrderSavedToPoolStageViewModel();
+				return;
+			}
+
 			var transferStages = new Enum[] {
 				DocumentEdoTaskStage.Transfering,
 				EdoReceiptStatus.Transfering,
@@ -76,7 +99,11 @@ namespace Vodovoz.ViewModels.Edo
 			var isAnyTransfer = transferStages.Any(x => x.Equals(enumStage.Content));
 			if(isAnyTransfer)
 			{
-				var transferStageViewModel = new EdoInOrderTransferStageViewModel(_allDocflows, _edoService, _interactiveService)
+				var transferStageViewModel = new EdoInOrderTransferStageViewModel(
+					_allDocflows,
+					_edoService,
+					_interactiveService,
+					enumStage.Status)
 				{
 					Transfers = _allTransfers
 						.Where(x => x.OrderTaskId == _documentViewModel.Document.TaskId)
@@ -121,6 +148,18 @@ namespace Vodovoz.ViewModels.Edo
 				};
 
 				StageViewModel = docflowsStageViewModel;
+				return;
+			}
+
+			if(TenderEdoTaskStage.Sending.Equals(enumStage.Content))
+			{
+				StageViewModel = new EdoInOrderTenderSendingStageViewModel();
+				return;
+			}
+
+			if(TenderEdoTaskStage.ManualUploaded.Equals(enumStage.Content))
+			{
+				StageViewModel = new EdoInOrderTenderManualUploadedStageViewModel();
 				return;
 			}
 

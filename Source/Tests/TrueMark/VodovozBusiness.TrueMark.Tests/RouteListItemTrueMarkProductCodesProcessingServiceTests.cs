@@ -63,6 +63,7 @@ namespace VodovozBusiness.TrueMark.Tests
 				Substitute.For<IGenericRepository<RouteListItemEntity>>(),
 				Substitute.For<IGenericRepository<StagingTrueMarkCode>>(),
 				Substitute.For<ITrueMarkWaterCodeService>(),
+				Substitute.For<ITrueMarkCodesPoolCleanupService>(),
 				_trueMarkRepository,
 				trueMarkCodesPoolFactory);
 		}

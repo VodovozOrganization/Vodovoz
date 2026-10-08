@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents.MovementDocuments;
@@ -165,6 +165,24 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 				.List<SelfDeliveryAddressDto>();
 
 			return addresses;
+		}
+
+		public bool HasNonZeroBalance(IUnitOfWork uow, int warehouseId)
+		{
+			WarehouseBulkGoodsAccountingOperation bulkAlias = null;
+			WarehouseInstanceGoodsAccountingOperation instanceAlias = null;
+
+			var bulkSum = uow.Session.QueryOver(() => bulkAlias)
+				.Where(() => bulkAlias.Warehouse.Id == warehouseId)
+				.Select(Projections.Sum(() => bulkAlias.Amount))
+				.SingleOrDefault<decimal?>() ?? 0;
+
+			var instanceSum = uow.Session.QueryOver(() => instanceAlias)
+				.Where(() => instanceAlias.Warehouse.Id == warehouseId)
+				.Select(Projections.Sum(() => instanceAlias.Amount))
+				.SingleOrDefault<decimal?>() ?? 0;
+
+			return bulkSum != 0 || instanceSum != 0;
 		}
 	}
 }

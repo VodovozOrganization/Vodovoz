@@ -507,7 +507,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Edo.Receipt", "Libraries\Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Edo.Receipt.Api", "Applications\Backend\Workers\Docker\Edo\Edo.Receipt.Api\Edo.Receipt.Api.csproj", "{80DCD4B6-2479-4308-B6C3-2909B57907E2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Infrastructure.WebApi.Caching.Redis", "Libraries\Infrastructure\Vodovoz.Infrastructure.WebApi.Caching.Redis\Vodovoz.Infrastructure.WebApi.Caching.Redis.csproj", "{FFDF97BE-ABCB-4E13-BB66-CF67D9E35E19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Infrastructure.WebApi.Caching.Garnet", "Libraries\Infrastructure\Vodovoz.Infrastructure.WebApi.Caching.Garnet\Vodovoz.Infrastructure.WebApi.Caching.Garnet.csproj", "{FFDF97BE-ABCB-4E13-BB66-CF67D9E35E19}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Presentation.WebApi.Caching", "Applications\Backend\WebAPI\Vodovoz.Presentation.WebApi.Caching\Vodovoz.Presentation.WebApi.Caching.csproj", "{4E3D0A2A-E81D-4FFA-A2AA-94B8D67FFB88}"
 EndProject

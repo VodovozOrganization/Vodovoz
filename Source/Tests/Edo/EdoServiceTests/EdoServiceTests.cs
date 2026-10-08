@@ -95,7 +95,8 @@ namespace EdoServices.Tests
 				_uow,
 				_uowFactory,
 				_customSourcesPersister,
-				_exceptionSourcesPersister
+				_exceptionSourcesPersister,
+				Substitute.For<Notifications.Infrastructure.IOutboxNotificationPublisher<EdoNotifications.Contracts.EdoNotificationMessage>>()
 			);
 
 			_messageService = new MessageService(
@@ -1225,12 +1226,14 @@ namespace EdoServices.Tests
 				new ReceiptEdoTask
 				{
 					Id = 127,
+					Problems = new ObservableList<EdoTaskProblem>(),
 					Status = EdoTaskStatus.New,
 					ReceiptStatus = EdoReceiptStatus.New
 				},
 				new TenderEdoTask
 				{
 					Id = 128,
+					Problems = new ObservableList<EdoTaskProblem>(),
 					Status = EdoTaskStatus.New,
 					Stage = TenderEdoTaskStage.New
 				}

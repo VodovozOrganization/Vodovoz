@@ -11,6 +11,13 @@ namespace Vodovoz.EntityRepositories.TrueMark
 {
 	public interface ITrueMarkRepository
 	{
+		/// <summary>Проверяет связи физических кодов с другими задачами ЭДО.</summary>
+		/// <param name="uow">UOW.</param>
+		/// <param name="taskId">Исключаемая задача.</param>
+		/// <param name="codeIds">Номера физических кодов.</param>
+		/// <returns>Есть ли связи с другими задачами.</returns>
+		bool AreCodesUsedByOtherEdoTasks(IUnitOfWork uow, int taskId, IEnumerable<int> codeIds);
+		
 		Task<IEnumerable<TrueMarkWaterIdentificationCode>> LoadWaterCodes(List<int> codeIds, CancellationToken cancellationToken);
 
 		ISet<string> GetAllowedCodeOwnersInn();
@@ -65,26 +72,50 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// Возвращает коды маркировки для заказа,
 		/// которые были добавлены складом в документе погрузки автомобиля.
 		/// </summary>
-		IEnumerable<CarLoadDocumentItemTrueMarkProductCode> GetCodesFromWarehouseByOrder(IUnitOfWork uow, int orderId);
+		/// <param name="uow">UOW.</param>
+		/// <param name="orderId">Номер заказа для просмотра без выбранной задачи.</param>
+		/// <param name="edoTaskId">Номер задачи ЭДО; при наличии выбираются только её коды.</param>
+		/// <returns>Коды выбранной задачи или заказа.</returns>
+		IEnumerable<CarLoadDocumentItemTrueMarkProductCode> GetCodesFromWarehouseByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null);
 
 		/// <summary>
 		/// Возвращает коды маркировки для заказа,
 		/// которые были добавлены из маршрутного листа водителем.
 		/// </summary>
-		IEnumerable<RouteListItemTrueMarkProductCode> GetCodesFromDriverByOrder(IUnitOfWork uow, int orderId);
+		/// <param name="uow">UOW.</param>
+		/// <param name="orderId">Номер заказа для просмотра без выбранной задачи.</param>
+		/// <param name="edoTaskId">Номер задачи ЭДО; при наличии выбираются только её коды.</param>
+		/// <returns>Коды выбранной задачи или заказа.</returns>
+		IEnumerable<RouteListItemTrueMarkProductCode> GetCodesFromDriverByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null);
 
 		/// <summary>
 		/// Возвращает коды маркировки для заказа,
 		/// которые были добавлены из самовывоза.
 		/// </summary>
-		IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> GetCodesFromSelfdeliveryByOrder(IUnitOfWork uow, int orderId);
+		/// <param name="uow">UOW.</param>
+		/// <param name="orderId">Номер заказа для просмотра без выбранной задачи.</param>
+		/// <param name="edoTaskId">Номер задачи ЭДО; при наличии выбираются только её коды.</param>
+		/// <returns>Коды выбранной задачи или заказа.</returns>
+		IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> GetCodesFromSelfdeliveryByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null);
 
 		/// <summary>
 		/// Возвращает коды маркировки для заказа, 
 		/// которые были добавлены из пула в виду отсутствия 
 		/// кодов из других источников (склад, водитель, самовывоз).
 		/// </summary>
-		IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId);
+		/// <param name="uow">UOW.</param>
+		/// <param name="orderId">Номер заказа для просмотра без выбранной задачи.</param>
+		/// <param name="edoTaskId">Номер задачи ЭДО; при наличии выбираются только её коды.</param>
+		/// <returns>Коды выбранной задачи или заказа.</returns>
+		IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null);
+
+		/// <summary>
+		/// Возвращает переотправленные коды маркировки заказа.
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns>Переотправленные коды, не возвращенные в пул</returns>
+		IEnumerable<ResentTrueMarkProductCode> GetResentCodesByOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
 		/// Возвращает отклоненные коды маркировки, принадлежащие заказу по источнику кода.
@@ -95,15 +126,15 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		IList<TrueMarkProductCode> GetRejectedProductCodesByOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
-		/// Возвращает автоматические коды ручных ЭДО-заявок указанного заказа по GTIN.
+		/// Возвращает автоматические и переотправленные коды ручных ЭДО-заявок заказа по GTIN.
 		/// </summary>
 		/// <param name="uow">Unit of Work</param>
 		/// <param name="orderId">Номер заказа</param>
 		/// <param name="gtin">GTIN кода</param>
 		/// <param name="sourceCodeStatuses">Статусы исходного кода</param>
 		/// <param name="problem">Проблема кода</param>
-		/// <returns>Список автоматических кодов ручных ЭДО-заявок</returns>
-		IList<AutoTrueMarkProductCode> GetAutoProductCodesByManualEdoRequests(
+		/// <returns>Коды ручных ЭДО-заявок для проверки повторного использования</returns>
+		IList<TrueMarkProductCode> GetReusableProductCodesByManualEdoRequests(
 			IUnitOfWork uow,
 			int orderId,
 			string gtin,

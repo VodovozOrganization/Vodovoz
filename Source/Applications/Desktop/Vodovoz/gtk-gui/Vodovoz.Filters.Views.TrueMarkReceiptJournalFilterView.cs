@@ -10,7 +10,11 @@ namespace Vodovoz.Filters.Views
 
 		private global::Gtk.Label label28;
 
-		private global::QS.Widgets.GtkUI.DateRangePicker dateRangeFilter;
+		private global::QS.Widgets.GtkUI.DatePicker datepickerFrom;
+
+		private global::Gtk.Label label29;
+
+		private global::QS.Widgets.GtkUI.DatePicker datepickerTo;
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboStatus;
 
@@ -40,15 +44,42 @@ namespace Vodovoz.Filters.Views
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child yhbox1.Gtk.Box+BoxChild
-			this.dateRangeFilter = new global::QS.Widgets.GtkUI.DateRangePicker();
-			this.dateRangeFilter.Events = ((global::Gdk.EventMask)(256));
-			this.dateRangeFilter.Name = "dateRangeFilter";
-			this.dateRangeFilter.StartDate = new global::System.DateTime(0);
-			this.dateRangeFilter.EndDate = new global::System.DateTime(0);
-			this.yhbox1.Add(this.dateRangeFilter);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.dateRangeFilter]));
+			this.datepickerFrom = new global::QS.Widgets.GtkUI.DatePicker();
+			this.datepickerFrom.Events = ((global::Gdk.EventMask)(256));
+			this.datepickerFrom.Name = "datepickerFrom";
+			this.datepickerFrom.WithTime = true;
+			this.datepickerFrom.HideCalendarButton = false;
+			this.datepickerFrom.Date = new global::System.DateTime(0);
+			this.datepickerFrom.IsEditable = true;
+			this.datepickerFrom.AutoSeparation = false;
+			this.datepickerFrom.HideButtonClearDate = false;
+			this.yhbox1.Add(this.datepickerFrom);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.datepickerFrom]));
 			w2.Position = 1;
 			w2.Expand = false;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.label29 = new global::Gtk.Label();
+			this.label29.Name = "label29";
+			this.label29.LabelProp = global::Mono.Unix.Catalog.GetString("-");
+			this.yhbox1.Add(this.label29);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.label29]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.datepickerTo = new global::QS.Widgets.GtkUI.DatePicker();
+			this.datepickerTo.Events = ((global::Gdk.EventMask)(256));
+			this.datepickerTo.Name = "datepickerTo";
+			this.datepickerTo.WithTime = true;
+			this.datepickerTo.HideCalendarButton = false;
+			this.datepickerTo.Date = new global::System.DateTime(0);
+			this.datepickerTo.IsEditable = true;
+			this.datepickerTo.AutoSeparation = false;
+			this.datepickerTo.HideButtonClearDate = false;
+			this.yhbox1.Add(this.datepickerTo);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.datepickerTo]));
+			w4.Position = 3;
+			w4.Expand = false;
 			// Container child yhbox1.Gtk.Box+BoxChild
 			this.yenumcomboStatus = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboStatus.Name = "yenumcomboStatus";
@@ -57,10 +88,10 @@ namespace Vodovoz.Filters.Views
 			this.yenumcomboStatus.UseShortTitle = false;
 			this.yenumcomboStatus.DefaultFirst = false;
 			this.yhbox1.Add(this.yenumcomboStatus);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.yenumcomboStatus]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.yenumcomboStatus]));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child yhbox1.Gtk.Box+BoxChild
 			this.ycheckbtnUnscannedReason = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbtnUnscannedReason.CanFocus = true;
@@ -69,15 +100,15 @@ namespace Vodovoz.Filters.Views
 			this.ycheckbtnUnscannedReason.DrawIndicator = true;
 			this.ycheckbtnUnscannedReason.UseUnderline = true;
 			this.yhbox1.Add(this.ycheckbtnUnscannedReason);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ycheckbtnUnscannedReason]));
-			w4.Position = 3;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ycheckbtnUnscannedReason]));
+			w6.Position = 5;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.yvboxFilter.Add(this.yhbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxFilter[this.yhbox1]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxFilter[this.yhbox1]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			this.Add(this.yvboxFilter);
 			if ((this.Child != null))
 			{
