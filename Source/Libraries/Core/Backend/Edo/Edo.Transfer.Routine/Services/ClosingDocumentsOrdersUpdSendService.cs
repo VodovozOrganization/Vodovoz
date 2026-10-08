@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Delivery;
@@ -105,15 +104,6 @@ namespace Edo.Transfer.Routine.Services
 					continue;
 				}
 
-				if(!HasPositiveSaleBesidesDeposit(order))
-				{
-					_logger.LogInformation(
-						"Заказ без продажи кроме залога. УПД по ЭДО не создаём. OrderId: {OrderId}",
-						order.Id);
-
-					continue;
-				}
-
 				if(order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark))
 				{
 					_logger.LogError(
@@ -149,16 +139,6 @@ namespace Edo.Transfer.Routine.Services
 					continue;
 				}
 
-				if(!HasPositiveSaleBesidesDeposit(edoRequest.Order))
-				{
-					_logger.LogInformation(
-						"Заказ без продажи кроме залога. Необработанную заявку УПД по ЭДО не отправляем. RequestId: {RequestId}. OrderId: {OrderId}",
-						edoRequest.Id,
-						edoRequest.Order.Id);
-
-					continue;
-				}
-
 				if(edoRequest.Order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark))
 				{
 					_logger.LogError(
@@ -172,11 +152,6 @@ namespace Edo.Transfer.Routine.Services
 				yield return edoRequest;
 			}
 		}
-
-		private static bool HasPositiveSaleBesidesDeposit(OrderEntity order) =>
-			order.OrderItems.Any(item =>
-				item.Nomenclature.Category != NomenclatureCategory.deposit
-				&& item.ActualSum > 0m);
 
 		private PrimaryEdoRequest CreateEdoRequests(OrderEntity order)
 		{
