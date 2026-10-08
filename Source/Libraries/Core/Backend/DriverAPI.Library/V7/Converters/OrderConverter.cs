@@ -4,6 +4,8 @@ using QS.Utilities.Numeric;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Text;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
@@ -85,11 +87,12 @@ namespace DriverAPI.Library.V7.Converters
 		/// <param name="smsPaymentStatus">Статус оплаты по смс</param>
 		/// <param name="qrPaymentDtoStatus">Статус оплаты по QR-коду</param>
 		/// <returns></returns>
-		public OrderDto ConvertToAPIOrder(
+		public async Task<OrderDto> ConvertToAPIOrder(
 			Order vodovozOrder,
 			RouteListItem routeListItem,
 			SmsPaymentStatus? smsPaymentStatus,
-			FastPaymentStatus? qrPaymentDtoStatus)
+			FastPaymentStatus? qrPaymentDtoStatus,
+			CancellationToken cancellationToken)
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
@@ -107,7 +110,7 @@ namespace DriverAPI.Library.V7.Converters
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderSum = vodovozOrder.OrderSum,
-				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems, routeListItem),
+				OrderSaleItems = await PrepareSaleItemsList(vodovozOrder.OrderItems, routeListItem, cancellationToken),
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,
 				OrderReceptionItems = pairOfSplitedLists.orderReceptionItems,
 				IsFastDelivery = vodovozOrder.IsFastDelivery,
@@ -236,23 +239,25 @@ namespace DriverAPI.Library.V7.Converters
 			return (deliveryItems, receptionItems);
 		}
 
-		private IEnumerable<OrderSaleItemDto> PrepareSaleItemsList(
+		private async Task<IEnumerable<OrderSaleItemDto>> PrepareSaleItemsList(
 			IEnumerable<OrderItem> orderItems,
-			RouteListItem routeListItem)
+			RouteListItem routeListItem,
+			CancellationToken cancellationToken)
 		{
 			var result = new List<OrderSaleItemDto>();
 
 			foreach(var saleItem in orderItems)
 			{
-				result.Add(ConvertToAPIOrderSaleItem(saleItem, routeListItem));
+				result.Add(await ConvertToAPIOrderSaleItem(saleItem, routeListItem, cancellationToken));
 			}
 
 			return result;
 		}
 
-		private OrderSaleItemDto ConvertToAPIOrderSaleItem(
+		private async Task<OrderSaleItemDto> ConvertToAPIOrderSaleItem(
 			OrderItem saleItem,
-			RouteListItem routeListItem)
+			RouteListItem routeListItem,
+			CancellationToken cancellationToken)
 		{
 			var result = new OrderSaleItemDto
 			{
@@ -270,7 +275,7 @@ namespace DriverAPI.Library.V7.Converters
 				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false,
 				Gtin = saleItem.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList(),
 				GroupGtins = saleItem.Nomenclature.GroupGtins.Select(x => new GroupGtinDto { Gtin = x.GtinNumber, Count = x.CodesCount }).ToList(),
-				Codes = GetOrderItemCodes(saleItem, routeListItem)
+				Codes = await GetOrderItemCodes(saleItem, routeListItem, cancellationToken)
 			};
 
 			if(saleItem.Nomenclature.TareVolume != null)
@@ -298,9 +303,10 @@ namespace DriverAPI.Library.V7.Converters
 			return result;
 		}
 
-		private IEnumerable<TrueMarkCodeDto> GetOrderItemCodes(
+		private async Task<IEnumerable<TrueMarkCodeDto>> GetOrderItemCodes(
 			OrderItem saleItem,
-			RouteListItem routeListItem)
+			RouteListItem routeListItem,
+			CancellationToken cancellationToken)
 		{
 			var codes = Enumerable.Empty<TrueMarkCodeDto>();
 
@@ -316,12 +322,11 @@ namespace DriverAPI.Library.V7.Converters
 				&& routeListItem.Status == RouteListItemStatus.EnRoute)
 			{
 				var allStagingCodes =
-					_trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+					await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
 						_uow,
 						StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
-						routeListItem.Id)
-					.GetAwaiter()
-					.GetResult();
+						routeListItem.Id,
+						cancellationToken);
 
 				codes = allStagingCodes.Select(PopulateStagingTrueMarkCodes(allStagingCodes));
 
@@ -331,7 +336,7 @@ namespace DriverAPI.Library.V7.Converters
 			var addedTrueMarkWaterCodes =
 				isTrueMarkCodesMustBeAddedInWarehouse
 				? GetCodesAddedInWarehouse(saleItem)
-				: GetCodesAddedByDriver(saleItem, routeListItem);
+				: await GetCodesAddedByDriver(saleItem, routeListItem, cancellationToken);
 
 			var trueMarkCodes = new List<TrueMarkAnyCode>();
 
@@ -390,7 +395,10 @@ namespace DriverAPI.Library.V7.Converters
 			return codes;
 		}
 
-		private IEnumerable<TrueMarkWaterIdentificationCode> GetCodesAddedByDriver(OrderItem saleItem, RouteListItem routeListItem)
+		private async Task<IEnumerable<TrueMarkWaterIdentificationCode>> GetCodesAddedByDriver(
+			OrderItem saleItem,
+			RouteListItem routeListItem,
+			CancellationToken cancellationToken)
 		{
 			var codes = new List<TrueMarkWaterIdentificationCode>();
 
@@ -405,8 +413,12 @@ namespace DriverAPI.Library.V7.Converters
 				.Where(x => x.OrderItemId == saleItem.Id)
 				.Select(x => x.TrueMarkProductCodeId);
 
-			codes = _routeListItemProductCodeRepository
-				.Get(_uow, RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListItem.Id))
+			codes = (await _routeListItemProductCodeRepository
+				.GetAsync(
+					_uow,
+					RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListItem.Id),
+					cancellationToken: cancellationToken))
+				.Value
 				.Where(x => orderItemCodesIds.Contains(x.Id))
 				.Where(x => x.SourceCode != null || x.ResultCode != null)
 				.OrderBy(x => x.Id)
@@ -492,9 +504,10 @@ namespace DriverAPI.Library.V7.Converters
 		/// <param name="saleItem">Строка заказа</param>
 		/// <param name="routeListItem">Строка маршрутного листа</param>
 		/// <returns></returns>
-		public NomenclatureTrueMarkCodesDto ConvertOrderItemTrueMarkCodesDataToDto(
+		public async Task<NomenclatureTrueMarkCodesDto> ConvertOrderItemTrueMarkCodesDataToDto(
 			OrderItem saleItem,
-			RouteListItem routeListItem)
+			RouteListItem routeListItem,
+			CancellationToken cancellationToken)
 		{
 			var result = new NomenclatureTrueMarkCodesDto
 			{
@@ -503,7 +516,7 @@ namespace DriverAPI.Library.V7.Converters
 				Gtin = saleItem.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList(),
 				GroupGtins = saleItem.Nomenclature.GroupGtins.Select(x => new GroupGtinDto { Gtin = x.GtinNumber, Count = x.CodesCount }).ToList(),
 				Quantity = saleItem.ActualCount ?? saleItem.Count,
-				Codes = GetOrderItemCodes(saleItem, routeListItem)
+				Codes = await GetOrderItemCodes(saleItem, routeListItem, cancellationToken)
 			};
 			return result;
 		}

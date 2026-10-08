@@ -77,14 +77,14 @@ namespace DriverAPI.Controllers.V6
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderDto))]
-		public IActionResult GetOrder(int orderId)
+		public async Task<IActionResult> GetOrder(int orderId, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
 				orderId,
 				Request.Headers[HeaderNames.Authorization]);
 
 			return MapResult(
-				_orderService.GetOrder(orderId),
+				await _orderService.GetOrder(orderId, cancellationToken),
 				result =>
 				{
 					if(result.IsSuccess)

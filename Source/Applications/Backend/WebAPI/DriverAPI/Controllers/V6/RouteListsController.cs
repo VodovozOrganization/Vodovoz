@@ -101,7 +101,7 @@ namespace DriverAPI.Controllers.V6
 				.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
 				.SelectMany(x => x.IncompletedRouteList.RouteListAddresses.Select(x => x.OrderId));
 
-			var orders = _orderService.Get(ordersIds.ToArray());
+			var orders = await _orderService.Get(ordersIds.ToArray(), cancellationToken);
 
 			var resortedOrders = new List<OrderDto>();
 
