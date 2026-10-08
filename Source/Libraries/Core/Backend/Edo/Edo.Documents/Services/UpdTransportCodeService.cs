@@ -13,7 +13,7 @@ namespace Edo.Documents.Services
 	/// <summary>
 	/// Проверяет состав транспортных кодов перед отправкой УПД заказа.
 	/// </summary>
-	public class UpdTransportCodeService
+	public class UpdTransportCodeService : IUpdTransportCodeService
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;

@@ -28,7 +28,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _publishEndpoint;
-		private readonly UpdTransportCodeService _updTransportCodeService;
+		private readonly IUpdTransportCodeService _updTransportCodeService;
 
 		public ForResaleDocumentEdoTaskHandler(
 			IUnitOfWork uow,
@@ -38,7 +38,7 @@ namespace Edo.Documents
 			ITrueMarkCodesPool trueMarkCodesPool,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus publishEndpoint,
-			UpdTransportCodeService updTransportCodeService
+			IUpdTransportCodeService updTransportCodeService
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));

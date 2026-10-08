@@ -31,7 +31,7 @@ namespace Edo.Documents
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
-		private readonly UpdTransportCodeService _updTransportCodeService;
+		private readonly IUpdTransportCodeService _updTransportCodeService;
 
 		public ForOwnNeedDocumentEdoTaskHandler(
 			IUnitOfWork uow,
@@ -44,7 +44,7 @@ namespace Edo.Documents
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
-			UpdTransportCodeService updTransportCodeService
+			IUpdTransportCodeService updTransportCodeService
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
