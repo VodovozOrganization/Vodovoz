@@ -27,6 +27,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Specifications.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
@@ -393,18 +394,22 @@ namespace Vodovoz
 				return false;
 			}
 
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
+			Entity.LastEditedTime = DateTime.Now;
+
+			if(Entity.LastEditorId == null)
+			{
+				MessageDialogHelper.RunErrorDialog(
+					"Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, " +
+					"так как некого указывать в качестве кладовщика.");
+				return false;
+			}
+
 			var addingProductCodesResult = AddProductCodesAndCheckIsAllCodesAddedIfNeed();
 
 			if(addingProductCodesResult.IsFailure)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error, addingProductCodesResult.GetErrorsString());
-				return false;
-			}
-
-			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
-			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditorId == null) {
-				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
 
@@ -499,9 +504,14 @@ namespace Vodovoz
 
 		private PrimaryEdoRequest CreateEdoRequest()
 		{
-			var codes = Entity.Items
-				.SelectMany(x => x.TrueMarkProductCodes)
+			var itemIds = Entity.Items
+				.Where(x => x.Id > 0)
+				.Select(x => x.Id)
 				.ToList();
+
+			var codes = _selfDeliveryProductCodeRepository.Get(
+				UoW,
+				SelfDeliveryDocumentItemTrueMarkProductCodeSpecification.CreateForSelfDeliveryDocumentItemIds(itemIds));
 
 			var edoRequest = new PrimaryEdoRequest
 			{
