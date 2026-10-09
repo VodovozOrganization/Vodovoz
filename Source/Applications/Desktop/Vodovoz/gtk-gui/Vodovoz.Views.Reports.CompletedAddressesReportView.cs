@@ -77,7 +77,6 @@ namespace Vodovoz.Views.Reports
 			// Container child hboxPeriod.Gtk.Box+BoxChild
 			this.labelPeriod = new global::Gtk.Label();
 			this.labelPeriod.Name = "labelPeriod";
-			this.labelPeriod.Xalign = 1F;
 			this.labelPeriod.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
 			this.hboxPeriod.Add(this.labelPeriod);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxPeriod[this.labelPeriod]));
