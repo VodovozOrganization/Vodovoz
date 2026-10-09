@@ -1,6 +1,4 @@
-﻿using ClosedXML.Excel;
-using OfficeOpenXml;
-using OfficeOpenXml.Style;
+﻿using OfficeOpenXml;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -166,20 +164,25 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				var ws2 = package.Workbook.Worksheets["Транспортный раздел"];
 
 				const int firstCargoRow = 23;
+				const int cargoRowsInTemplate = 3;   
+				const int cargoStyleSourceRow = 24;  
+
 				var cargoRowsCount = report.Rows.Count;
-				const int cargoRowsInTemplate = 3;
-				const int cargoStyleSourceRow = 24;
 
 				if(cargoRowsCount > cargoRowsInTemplate)
 				{
 					var insertCount = cargoRowsCount - cargoRowsInTemplate;
-					ws2.InsertRow(firstCargoRow + cargoRowsInTemplate, insertCount);
+
+					var insertAtRow = cargoStyleSourceRow + 1;
+					ws2.InsertRow(insertAtRow, insertCount);
+
+					var lastColumn = ws2.Dimension.End.Column;
 
 					for(int i = 0; i < insertCount; i++)
 					{
-						var targetRow = firstCargoRow + cargoRowsInTemplate + i;
+						var targetRow = insertAtRow + i;
 
-						ws2.Cells[cargoStyleSourceRow, 1, cargoStyleSourceRow, ws2.Dimension.End.Column]
+						ws2.Cells[cargoStyleSourceRow, 1, cargoStyleSourceRow, lastColumn]
 							.Copy(ws2.Cells[targetRow, 1]);
 
 						ws2.Row(targetRow).Height = ws2.Row(cargoStyleSourceRow).Height;
