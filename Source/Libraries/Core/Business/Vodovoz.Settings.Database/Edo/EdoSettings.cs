@@ -50,6 +50,12 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public string TaxcomGetDocflowStatusEndpoint => _settingsController.GetStringValue(nameof(TaxcomGetDocflowStatusEndpoint));
 
+		public int CodePoolExpireDateCheckAdditinalDays =>
+			_settingsController.GetIntValue("edo.code_pool_expire_date_check_additional_days");
+
+		public int GeneralExpireDateCheckAdditinalDays =>
+			_settingsController.GetIntValue("edo.general_expire_date_check_additional_days");
+
 		public IReadOnlyDictionary<int, string> TaxcomOrganizationBaseAddresses
 		{
 			get

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using TrueMark.Contracts;
 using Vodovoz.EntityRepositories.TrueMark;
+using Vodovoz.Settings.Database.Edo;
 using Vodovoz.Settings.Edo;
 
 namespace VodovozBusiness.Models.TrueMark
@@ -76,7 +77,8 @@ namespace VodovozBusiness.Models.TrueMark
 				var isIntroduced = status.Status == ProductInstanceStatusEnum.Introduced;
 				var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(status.OwnerInn);
 				var isOurGtin = _ourCodesChecker.IsOurGtinOwner(status.Gtin);
-				var notExpired = expirationDate.HasValue && expirationDate.Value >= DateTime.Today;
+				var additionalDays = _edoSettings.CodePoolExpireDateCheckAdditinalDays;
+				var notExpired = expirationDate.HasValue && expirationDate.Value.AddDays(-additionalDays) >= DateTime.Today;
 
 				if(notExpired)
 				{
