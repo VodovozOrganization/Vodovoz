@@ -470,7 +470,8 @@ namespace Vodovoz.ViewModels.TrueMark
 				x => x.ScannedByDriverCodesSelected,
 				x => x.ScannedByWarehouseCodesSelected,
 				x => x.ScannedBySelfdeliveryCodesSelected,
-				x => x.AddedFromPoolCodesSelected);
+				x => x.AddedFromPoolCodesSelected,
+				x => x.ResentCodesSelected);
 			DeleteExcessCodesCommand = deleteCommand;
 			RefreshCommand = new DelegateCommand(Reload);
 
@@ -609,6 +610,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			ScannedByWarehouseCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 			ScannedBySelfdeliveryCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 			AddedFromPoolCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
+			ResentCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 			ScannedStagingCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 
 			if(_edoTaskId == 0)
@@ -617,9 +619,10 @@ namespace Vodovoz.ViewModels.TrueMark
 				_scannedByWarehouseCodesOrigin = new List<OrderCodeItemViewModel>();
 				_scannedBySelfdeliveryCodesOrigin = new List<OrderCodeItemViewModel>();
 				_addedFromPoolCodesOrigin = new List<OrderCodeItemViewModel>();
+				_resentCodesOrigin = new List<OrderCodeItemViewModel>();
 				_scannedStagingCodesOrigin = new List<OrderCodeItemViewModel>();
 				TotalScannedByDriver = TotalScannedByWarehouse = TotalScannedBySelfdelivery = 0;
-				TotalAddedFromPool = TotalScannedStagingCodes = 0;
+				TotalAddedFromPool = TotalScannedStagingCodes = TotalResent = 0;
 				CodesRequired = CodesProvided = CodesProvidedFromScan = 0;
 				CanShowReuseRejectedCodesControls = false;
 				SearchText = null;
@@ -666,7 +669,8 @@ namespace Vodovoz.ViewModels.TrueMark
 		private IEnumerable<int> GetSelectedProductCodeIds()
 		{
 			var selections = new[] { ScannedByDriverCodesSelected, ScannedByWarehouseCodesSelected,
-				ScannedBySelfdeliveryCodesSelected, AddedFromPoolCodesSelected };
+				ScannedBySelfdeliveryCodesSelected, AddedFromPoolCodesSelected,
+				Enumerable.Empty<OrderCodeItemViewModel>(), ResentCodesSelected };
 			if(ActiveCodesPage < 0 || ActiveCodesPage >= selections.Length)
 			{
 				return Enumerable.Empty<int>();
@@ -1021,9 +1025,10 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void ReloadResentCodes(IUnitOfWork uow)
 		{
-			_resentCodesOrigin = _trueMarkRepository.GetResentCodesByOrder(uow, OrderId)
+			_resentCodesOrigin = _trueMarkRepository.GetResentCodesByOrder(uow, OrderId, _edoTaskId)
 				.Select(x => new OrderCodeItemViewModel
 				{
+					ProductCodeId = x.Id,
 					SourceCode = x.SourceCode,
 					ResultCode = x.ResultCode,
 					Status = x.SourceCodeStatus,
