@@ -69,13 +69,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		}
 
 		/// <summary>
-		/// Различные водители из узлов (ключ - id строкой, заголовок - ФИО), по алфавиту
+		/// Водители для фильтра (ключ - id строкой, заголовок - ФИО), по алфавиту
 		/// </summary>
 		public static IList<(string Key, string Title)> GetDrivers(IEnumerable<CompletedAddressesCountNode> nodes)
 		{
 			return nodes
 				.GroupBy(n => n.DriverId)
-				.Select(g => (Key: g.Key.ToString(), Title: GetDriverFullName(g.First()), Id: g.Key))
+				.Select(g => (
+					Key: g.Key.ToString(),
+					Title: GetDriverFullName(g.First()),
+					Id: g.Key))
 				.OrderBy(d => d.Title, GetTitleComparer())
 				.ThenBy(d => d.Id)
 				.Select(d => (d.Key, d.Title))
@@ -83,7 +86,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		}
 
 		/// <summary>
-		/// Различные районы из узлов (ключ - название, для адресов без района - константа), по алфавиту заголовка
+		/// Районы для фильтра (ключ - название, для адресов без района - константа), по алфавиту заголовка
 		/// </summary>
 		public static IList<(string Key, string Title)> GetDistricts(IEnumerable<CompletedAddressesCountNode> nodes)
 		{

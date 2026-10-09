@@ -7,9 +7,11 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 	/// <summary>
 	/// Вкладка отчета по выполненным адресам и районам
 	/// </summary>
-	public class CompletedAddressesReportViewModel : DialogTabViewModelBase
+	public class CompletedAddressesReportViewModel : DialogTabViewModelBase, ITDICloseControlTab
 	{
 		private readonly ILogger<CompletedAddressesReportViewModel> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -46,11 +48,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		private DateTime? _endDate;
 		private CompletedAddressesReport _report;
 		private bool _isReportGenerationInProgress;
-		private bool _isFilterListsLoading;
 		private bool _isSavedSelectionApplied;
-		private CancellationTokenSource _reportCancellationTokenSource;
-		private CancellationTokenSource _filterListsCancellationTokenSource;
-		private Task _filterListsLoadingTask = Task.CompletedTask;
+		private volatile bool _isDisposed;
 
 		public CompletedAddressesReportViewModel(
 			ILogger<CompletedAddressesReportViewModel> logger,
@@ -98,6 +97,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 
 			ExportReportCommand = new DelegateCommand(ExportReport, () => CanExportReport);
 			ExportReportCommand.CanExecuteChangedWith(this, vm => vm.CanExportReport);
+
+			PropertyChanged += OnViewModelPropertyChanged;
 		}
 
 		/// <summary>
@@ -127,13 +128,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		public DateTime? StartDate
 		{
 			get => _startDate;
-			set
-			{
-				if(SetField(ref _startDate, value))
-				{
-					OnPeriodChanged();
-				}
-			}
+			set => SetField(ref _startDate, value);
 		}
 
 		/// <summary>
@@ -143,13 +138,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		public DateTime? EndDate
 		{
 			get => _endDate;
-			set
-			{
-				if(SetField(ref _endDate, value))
-				{
-					OnPeriodChanged();
-				}
-			}
+			set => SetField(ref _endDate, value);
 		}
 
 		/// <summary>
@@ -178,21 +167,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		}
 
 		/// <summary>
-		/// Идет загрузка списков водителей и районов выбранного периода
-		/// </summary>
-		[PropertyChangedAlso(nameof(CanChangeFilters), nameof(CanGenerateReport))]
-		public bool IsFilterListsLoading
-		{
-			get => _isFilterListsLoading;
-			private set => SetField(ref _isFilterListsLoading, value);
-		}
-
-		/// <summary>
 		/// Период выбран: обе даты заданы, начало не позже конца
 		/// </summary>
 		public bool IsPeriodSelected => StartDate.HasValue && EndDate.HasValue && StartDate.Value.Date <= EndDate.Value.Date;
 
-		public bool CanChangeFilters => IsPeriodSelected && !IsFilterListsLoading && !IsReportGenerationInProgress;
+		public bool CanChangeFilters => IsPeriodSelected && !IsReportGenerationInProgress;
 
 		public bool CanChangePeriod => !IsReportGenerationInProgress;
 
@@ -202,82 +181,55 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 
 		public bool CanExportReport => !IsReportGenerationInProgress && Report != null && Report.Rows.Any();
 
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(StartDate) || e.PropertyName == nameof(EndDate))
+			{
+				OnPeriodChanged();
+			}
+		}
+
 		private void OnPeriodChanged()
 		{
-			_filterListsCancellationTokenSource?.Cancel();
-
-			if(IsPeriodSelected)
+			if(!IsPeriodSelected)
 			{
-				_filterListsLoadingTask = ReloadFilterListsAsync();
+				ApplyFilterLists(new List<CompletedAddressesCountNode>());
 				return;
 			}
 
-			IsFilterListsLoading = false;
-			ApplyFilterLists(new List<CompletedAddressesCountNode>());
+			ReloadFilterLists();
 		}
 
-		private async Task ReloadFilterListsAsync()
+		/// <summary>
+		/// Загружает списки водителей и районов выбранного периода (быстрый запрос, выполняется синхронно)
+		/// </summary>
+		private void ReloadFilterLists()
 		{
-			var cancellationTokenSource = new CancellationTokenSource();
-			_filterListsCancellationTokenSource = cancellationTokenSource;
-
-			var startDate = StartDate.Value;
-			var endDate = EndDate.Value;
-
-			IsFilterListsLoading = true;
-
 			try
 			{
 				IList<CompletedAddressesCountNode> nodes;
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Списки фильтров отчета по выполненным адресам"))
 				{
-					nodes = await _routeListItemRepository.GetCompletedAddressesCountsByDriverAndDistrictAsync(
-						uow, startDate, endDate, cancellationTokenSource.Token);
+					nodes = _routeListItemRepository.GetCompletedAddressesCountsByDriverAndDistrict(
+						uow, StartDate.Value, EndDate.Value);
 				}
 
-				cancellationTokenSource.Token.ThrowIfCancellationRequested();
-
-				_guiDispatcher.RunInGuiTread(() =>
-				{
-					if(!cancellationTokenSource.IsCancellationRequested)
-					{
-						ApplyFilterLists(nodes);
-					}
-				});
-			}
-			catch(OperationCanceledException)
-			{
+				ApplyFilterLists(nodes);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при загрузке списков фильтров отчета по выполненным адресам");
 
-				_guiDispatcher.RunInGuiTread(() =>
-				{
-					if(!cancellationTokenSource.IsCancellationRequested)
-					{
-						ApplyFilterLists(new List<CompletedAddressesCountNode>());
-					}
+				ApplyFilterLists(new List<CompletedAddressesCountNode>());
 
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Error, $"При загрузке списков фильтров возникла ошибка:\n{ex.Message}");
-				});
-			}
-			finally
-			{
-				_guiDispatcher.RunInGuiTread(() =>
-				{
-					if(ReferenceEquals(_filterListsCancellationTokenSource, cancellationTokenSource))
-					{
-						IsFilterListsLoading = false;
-					}
-				});
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error, $"При загрузке списков фильтров возникла ошибка:\n{ex.Message}");
 			}
 		}
 
 		/// <summary>
-		/// Подставляет списки периода в фильтр. Выполняется в потоке GUI
+		/// Подставляет списки периода в фильтр
 		/// </summary>
 		private void ApplyFilterLists(IList<CompletedAddressesCountNode> nodes)
 		{
@@ -381,62 +333,77 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 
 			IsReportGenerationInProgress = true;
 
-			var cancellationTokenSource = new CancellationTokenSource();
-			_reportCancellationTokenSource = cancellationTokenSource;
-
 			try
 			{
 				IList<CompletedAddressesCountNode> nodes;
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Отчет по выполненным адресам и районам"))
 				{
-					nodes = await _routeListItemRepository.GetCompletedAddressesCountsByDriverAndDistrictAsync(
-						uow, startDate, endDate, cancellationTokenSource.Token);
+					nodes =
+						await _routeListItemRepository.GetCompletedAddressesCountsByDriverAndDistrictAsync(
+						uow,
+						startDate,
+						endDate,
+						token);
 				}
 
-				cancellationTokenSource.Token.ThrowIfCancellationRequested();
+				token.ThrowIfCancellationRequested();
 
 				var report = CompletedAddressesReport.Create(startDate, endDate, nodes, selection);
 
-				_guiDispatcher.RunInGuiTread(() => Report = report);
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					if(_isDisposed)
+					{
+						return;
+					}
+
+					Report = report;
+				});
 			}
 			catch(OperationCanceledException ex)
 			{
-				LogErrorAndShowMessageInGuiThread(ex, "Формирование отчета было прервано вручную");
+				if(_isDisposed)
+				{
+					_logger.LogInformation(ex, "Формирование отчета по выполненным адресам прервано закрытием вкладки");
+				}
+				else
+				{
+					_logger.LogInformation(ex, "Формирование отчета по выполненным адресам прервано пользователем");
+
+					ShowMessageInGuiThread(ImportanceLevel.Error, "Формирование отчета было прервано вручную");
+				}
 			}
 			catch(Exception ex)
 			{
-				LogErrorAndShowMessageInGuiThread(ex, $"При формировании отчета возникла ошибка:\n{ex.Message}");
+				if(_isDisposed)
+				{
+					_logger.LogInformation(ex, "Формирование отчета по выполненным адресам прервано закрытием вкладки");
+				}
+				else
+				{
+					_logger.LogError(ex, "Ошибка формирования отчета по выполненным адресам");
+
+					ShowMessageInGuiThread(ImportanceLevel.Error, $"При формировании отчета возникла ошибка:\n{ex.Message}");
+				}
 			}
 			finally
 			{
-				_guiDispatcher.RunInGuiTread(() => IsReportGenerationInProgress = false);
-
-				if(ReferenceEquals(_reportCancellationTokenSource, cancellationTokenSource))
+				_guiDispatcher.RunInGuiTread(() =>
 				{
-					_reportCancellationTokenSource = null;
-				}
+					if(_isDisposed)
+					{
+						return;
+					}
 
-				cancellationTokenSource.Dispose();
+					IsReportGenerationInProgress = false;
+				});
 			}
 		}
 
 		private void AbortReportGeneration()
 		{
-			var cancellationTokenSource = _reportCancellationTokenSource;
-
-			if(!IsReportGenerationInProgress || cancellationTokenSource == null)
-			{
-				return;
-			}
-
-			try
-			{
-				cancellationTokenSource.Cancel();
-			}
-			catch(ObjectDisposedException)
-			{
-			}
+			GenerateReportCommand.Abort();
 		}
 
 		/// <summary>
@@ -519,20 +486,45 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 			return dialogSettings;
 		}
 
-		private void LogErrorAndShowMessageInGuiThread(Exception ex, string message)
+		private void ShowMessageInGuiThread(ImportanceLevel importanceLevel, string message)
 		{
-			_logger.LogError(ex, "Ошибка формирования отчета по выполненным адресам: {Message}", message);
-
 			_guiDispatcher.RunInGuiTread(() =>
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, message);
+				if(_isDisposed)
+				{
+					return;
+				}
+
+				_interactiveService.ShowMessage(importanceLevel, message);
 			});
+		}
+
+		/// <summary>
+		/// Запрещает закрытие вкладки, пока формируется отчет
+		/// </summary>
+		public bool CanClose()
+		{
+			if(!IsReportGenerationInProgress)
+			{
+				return true;
+			}
+
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Error,
+				"Формирование отчета в процессе.\n\n" +
+				"Чтобы закрыть вкладку необходимо либо дождаться результата формирования отчета,\n" +
+				"либо отменить его выполнение");
+
+			return false;
 		}
 
 		public override void Dispose()
 		{
-			_reportCancellationTokenSource?.Cancel();
-			_filterListsCancellationTokenSource?.Cancel();
+			_isDisposed = true;
+
+			PropertyChanged -= OnViewModelPropertyChanged;
+
+			GenerateReportCommand.Abort();
 
 			base.Dispose();
 		}

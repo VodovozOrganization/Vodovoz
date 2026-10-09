@@ -43,5 +43,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <returns>Узлы: водитель, район (может быть пустым), количество адресов</returns>
 		Task<IList<CompletedAddressesCountNode>> GetCompletedAddressesCountsByDriverAndDistrictAsync(
 			IUnitOfWork uow, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Синхронный вариант <see cref="GetCompletedAddressesCountsByDriverAndDistrictAsync"/> (тот же запрос)
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="startDate">Начало периода</param>
+		/// <param name="endDate">Конец периода</param>
+		/// <returns>Узлы: водитель, район (может быть пустым), количество адресов</returns>
+		IList<CompletedAddressesCountNode> GetCompletedAddressesCountsByDriverAndDistrict(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate);
 	}
 }

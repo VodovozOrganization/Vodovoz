@@ -202,8 +202,21 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 		}
 
 		/// <inheritdoc/>
-		public async Task<IList<CompletedAddressesCountNode>> GetCompletedAddressesCountsByDriverAndDistrictAsync(
+		public Task<IList<CompletedAddressesCountNode>> GetCompletedAddressesCountsByDriverAndDistrictAsync(
 			IUnitOfWork uow, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
+		{
+			return CreateCompletedAddressesCountsQuery(uow, startDate, endDate).ListAsync<CompletedAddressesCountNode>(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public IList<CompletedAddressesCountNode> GetCompletedAddressesCountsByDriverAndDistrict(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate)
+		{
+			return CreateCompletedAddressesCountsQuery(uow, startDate, endDate).List<CompletedAddressesCountNode>();
+		}
+
+		private static IQueryOver<RouteListItem, RouteListItem> CreateCompletedAddressesCountsQuery(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate)
 		{
 			RouteListItem routeListItemAlias = null;
 			RouteList routeListAlias = null;
@@ -213,7 +226,9 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			District districtAlias = null;
 			CompletedAddressesCountNode resultAlias = null;
 
-			return await uow.Session.QueryOver(() => routeListItemAlias)
+			// Группировка только по id, имена берутся агрегатом MIN: так запрос корректен при ONLY_FULL_GROUP_BY
+			// и без проверки функциональной зависимости (id однозначно определяет имя)
+			return uow.Session.QueryOver(() => routeListItemAlias)
 				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
@@ -224,14 +239,13 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.And(() => routeListAlias.Date <= endDate.Date)
 				.SelectList(list => list
 					.SelectGroup(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
-					.SelectGroup(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
-					.SelectGroup(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
-					.SelectGroup(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+					.SelectMin(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
+					.SelectMin(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
+					.SelectMin(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
 					.SelectGroup(() => districtAlias.Id).WithAlias(() => resultAlias.DistrictId)
-					.SelectGroup(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+					.SelectMin(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
 					.SelectCount(() => routeListItemAlias.Id).WithAlias(() => resultAlias.CompletedAddressesCount))
-				.TransformUsing(Transformers.AliasToBean<CompletedAddressesCountNode>())
-				.ListAsync<CompletedAddressesCountNode>(cancellationToken);
+				.TransformUsing(Transformers.AliasToBean<CompletedAddressesCountNode>());
 		}
 	}
 }
