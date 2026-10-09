@@ -784,7 +784,8 @@ namespace Receipt.Dispatcher.Tests
 			var pool = Substitute.For<ITrueMarkCodesPool>();
 			var handler = new Edo.Documents.ForResaleDocumentEdoTaskHandler(_unitOfWork, repository,
 				Substitute.For<ITrueMarkCodesValidator>(), new TransferRequestCreator(Substitute.For<IEdoRepository>()),
-				pool, registrar, Substitute.For<IBus>());
+				pool, registrar, Substitute.For<IBus>(),
+				new UpdTransportCodeService(_unitOfWork, Substitute.For<ITrueMarkWaterCodeService>()));
 			var method = typeof(Edo.Documents.ForResaleDocumentEdoTaskHandler).GetMethod("CreateUpdDocument",
 				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 			Func<Task> distribute = () => (Task)method.Invoke(handler, new object[] { task, CancellationToken.None });
