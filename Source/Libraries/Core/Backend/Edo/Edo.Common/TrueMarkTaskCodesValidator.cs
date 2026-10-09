@@ -10,6 +10,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Data.Repositories.Goods;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Settings.Edo;
 
 namespace Edo.Common
 {
@@ -17,16 +18,19 @@ namespace Edo.Common
 	{
 		private readonly IEdoRepository _edoRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IEdoSettings _edoSettings;
 		private readonly ITrueMarkApiClient _trueMarkApiClient;
 
 		public TrueMarkTaskCodesValidator(
 			IEdoRepository edoRepository,
 			INomenclatureRepository nomenclatureRepository,
+			IEdoSettings edoSettings,
 			ITrueMarkApiClient trueMarkApiClient
 			)
 		{
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
 		}
 
@@ -63,9 +67,10 @@ namespace Edo.Common
 				codeValidationResult.ReadyToSell = false;
 			}
 
+			var additionalDays = _edoSettings.GeneralExpireDateCheckAdditinalDays;
 			// проверка на то что продукт не просрочен
 			if(productInstanceStatus.ExpirationDate is null
-				|| productInstanceStatus.ExpirationDate < DateTime.Today)
+				|| productInstanceStatus.ExpirationDate.Value.AddDays(-additionalDays) < DateTime.Today)
 			{
 				codeValidationResult.IsExpired = true;
 				codeValidationResult.IsValid = false;
