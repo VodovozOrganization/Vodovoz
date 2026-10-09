@@ -114,8 +114,9 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// </summary>
 		/// <param name="uow">Unit of Work</param>
 		/// <param name="orderId">Номер заказа</param>
-		/// <returns>Переотправленные коды, не возвращенные в пул</returns>
-		IEnumerable<ResentTrueMarkProductCode> GetResentCodesByOrder(IUnitOfWork uow, int orderId);
+		/// <param name="edoTaskId">Номер задачи ЭДО; без него применяется выборка по заказу.</param>
+		/// <returns>Коды выбранной задачи; при выборке по заказу исключаются возвращённые в пул.</returns>
+		IEnumerable<ResentTrueMarkProductCode> GetResentCodesByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null);
 
 		/// <summary>
 		/// Возвращает отклоненные коды маркировки, принадлежащие заказу по источнику кода.

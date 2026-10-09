@@ -336,8 +336,8 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			=> GetRequestCodesByOrder<AutoTrueMarkProductCode>(uow, orderId, edoTaskId);
 
 		/// <inheritdoc/>
-		public IEnumerable<ResentTrueMarkProductCode> GetResentCodesByOrder(IUnitOfWork uow, int orderId)
-			=> GetRequestCodesByOrder<ResentTrueMarkProductCode>(uow, orderId);
+		public IEnumerable<ResentTrueMarkProductCode> GetResentCodesByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null)
+			=> GetRequestCodesByOrder<ResentTrueMarkProductCode>(uow, orderId, edoTaskId);
 
 		private IList<T> GetRequestCodesByOrder<T>(IUnitOfWork uow, int orderId, int? edoTaskId = null) where T : TrueMarkProductCode
 		{
