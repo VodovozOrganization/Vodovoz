@@ -8,6 +8,7 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Vodovoz.Controllers;
@@ -15,6 +16,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
+using Vodovoz.ViewModels.Widgets.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -26,6 +28,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
 		private bool _canEditPriceDiscountFromRouteListAndSelfDelivery;
+		private OrderItem _selectedOrderItem;
 
 		public SelfDeliveringOrderEditViewModel(
 
@@ -38,6 +41,7 @@ namespace Vodovoz.ViewModels.Logistic
 			ICurrentPermissionService currentPermissionService,
 			IOrderContractUpdater orderContractUpdater,
 			SelectPaymentTypeViewModel selectPaymentTypeViewModel,
+			OrderItemDiscountReasonsViewModel orderItemDiscountReasonsViewModel,
 			INavigationManager navigation = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -45,9 +49,15 @@ namespace Vodovoz.ViewModels.Logistic
 			_selectPaymentTypeViewModel = selectPaymentTypeViewModel ?? throw new ArgumentNullException(nameof(selectPaymentTypeViewModel));;
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 
+			OrderItemDiscountReasonsViewModel = orderItemDiscountReasonsViewModel ?? throw new ArgumentNullException(nameof(orderItemDiscountReasonsViewModel));
+
 			SetPermissions();
 
 			CanChangeDiscountValue = _canEditPriceDiscountFromRouteListAndSelfDelivery;
+
+			OrderItemDiscountReasonsViewModel.Initialize(UoW);
+			OrderItemDiscountReasonsViewModel.IsEditEnabled = CanChangeDiscountValue;
+
 			DiscountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 
@@ -67,6 +77,26 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool CanChangeDiscountValue { get; }
 		public IOrderDiscountsController DiscountsController { get; }
 		public ILifetimeScope LifetimeScope { get; }
+
+		/// <summary>
+		/// ViewModel блока оснований скидки выбранной строки заказа
+		/// </summary>
+		public OrderItemDiscountReasonsViewModel OrderItemDiscountReasonsViewModel { get; }
+
+		/// <summary>
+		/// Выбранная в таблице строка заказа, основания которой показывает блок оснований скидки
+		/// </summary>
+		public OrderItem SelectedOrderItem
+		{
+			get => _selectedOrderItem;
+			set
+			{
+				if(SetField(ref _selectedOrderItem, value))
+				{
+					UpdateOrderItemDiscountReasonsViewModel();
+				}
+			}
+		}
 
 		public IEnumerable<GeoGroup> GetSelfDeliveryGeoGroups()
 		{
@@ -93,6 +123,21 @@ namespace Vodovoz.ViewModels.Logistic
 
 			_selectPaymentTypeViewModel.PaymentTypeSelected -= OnPaymentTypeSelected;
 		} 
+
+		private void UpdateOrderItemDiscountReasonsViewModel()
+		{
+			if(SelectedOrderItem != null)
+			{
+				OrderItemDiscountReasonsViewModel.SetOrderItem(SelectedOrderItem);
+			}
+			else
+			{
+				OrderItemDiscountReasonsViewModel.ResetOrderItem();
+			}
+
+			OrderItemDiscountReasonsViewModel.NewDiscountReason = null;
+			OrderItemDiscountReasonsViewModel.SelectedDiscountReason = null;
+		}
 
 		private void SetPermissions()
 		{
