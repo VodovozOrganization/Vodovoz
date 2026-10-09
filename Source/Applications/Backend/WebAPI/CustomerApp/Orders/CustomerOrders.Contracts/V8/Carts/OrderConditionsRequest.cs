@@ -2,6 +2,7 @@
 using CustomerOrders.Contracts.V8.Orders.Items;
 using System;
 using System.Collections.Generic;
+using CustomerApp.Contracts.Common;
 using CustomerApp.Contracts.Sale;
 using CustomerOrders.Abstractions.V8.Sale;
 

@@ -1,4 +1,4 @@
-﻿namespace CustomerOrders.Abstractions
+﻿namespace CustomerApp.Contracts.Common
 {
 	/// <summary>
 	/// Внешний источник (ИПЗ)

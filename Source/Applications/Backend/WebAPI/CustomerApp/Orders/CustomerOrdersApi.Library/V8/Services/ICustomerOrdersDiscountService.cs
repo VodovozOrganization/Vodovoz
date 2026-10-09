@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerApp.Contracts.Common;
 using CustomerOrders.Abstractions;
 using CustomerOrders.Abstractions.V8.Sale;
 using CustomerOrders.Contracts.V8.Sale;

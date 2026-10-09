@@ -21,6 +21,14 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <returns></returns>
 		bool HasExternalCounterparties(IUnitOfWork uow, int phoneId);
 		/// <summary>
+		/// Есть ли зарегистрированный пользователь с таким id и с нужного ИПЗ
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="externalCounterpartyId">Идентификатор пользователя</param>
+		/// <param name="counterpartyFrom">Откуда пользователь(ИПЗ)</param>
+		/// <returns></returns>
+		bool ExternalCounterpartyExists(IUnitOfWork uow, Guid externalCounterpartyId, CounterpartyFrom counterpartyFrom);
+		/// <summary>
 		/// Получения информации о внешних пользователях
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>

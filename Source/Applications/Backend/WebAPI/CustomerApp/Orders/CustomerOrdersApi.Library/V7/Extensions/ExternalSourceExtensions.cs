@@ -1,5 +1,6 @@
 ﻿using CustomerOrders.Abstractions;
 using System;
+using CustomerApp.Contracts.Common;
 using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Library.V7.Extensions

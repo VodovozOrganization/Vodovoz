@@ -149,5 +149,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <returns>Email адреса контрагентов</returns>
 		Task<IList<CounterpartyEmailWithPurposeNode>> GetCounterpartiesEmailsWithPurposeAsync(
 			IUnitOfWork uow, IEnumerable<int> counterpartyIds, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверка наличия в системе контрагента 
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyId">Идентификатор клиента</param>
+		/// <returns>true - если есть, false - нет</returns>
+		bool CounterpartyExists(IUnitOfWork uow, int? counterpartyId);
 	}
 }

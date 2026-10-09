@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerApp.Contracts.Common;
 using CustomerOrders.Abstractions;
 using CustomerOrders.Abstractions.V4.Sale;
 using CustomerOrdersApi.Library.V4.Factories;

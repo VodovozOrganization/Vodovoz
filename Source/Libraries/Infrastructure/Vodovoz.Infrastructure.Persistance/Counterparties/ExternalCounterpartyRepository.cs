@@ -60,6 +60,15 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.Query<ExternalCounterparty>()
 				.Any(ec => ec.Phone.Id == phoneId);
 		}
+		
+		/// <inheritdoc/>
+		public bool ExternalCounterpartyExists(IUnitOfWork uow, Guid externalCounterpartyId, CounterpartyFrom counterpartyFrom)
+		{
+			return uow.Session
+				.Query<ExternalCounterparty>()
+				.Where(ec => ec.ExternalCounterpartyId == externalCounterpartyId)
+				.Any(ec => ec.CounterpartyFrom == counterpartyFrom);
+		}
 
 		/// <inheritdoc/>
 		public bool HasActiveMobileAppUser(IUnitOfWork uow, int counterpartyId)

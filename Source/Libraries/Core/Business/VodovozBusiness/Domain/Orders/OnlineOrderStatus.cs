@@ -26,6 +26,12 @@ namespace Vodovoz.Domain.Orders
 		/// Отменен
 		/// </summary>
 		[Display(Name = "Отменен")]
-		Canceled
+		Canceled,
+		//TODO разобраться с сортировкой
+		/// <summary>
+		/// Ожидает настройки автозаказа
+		/// </summary>
+		[Display(Name = "Ожидает настройки автозаказа")]
+		PendingAutoOrderSettings
 	}
 }

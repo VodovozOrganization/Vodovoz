@@ -125,6 +125,11 @@ namespace CustomerOrdersApi.Library.V8.Dto.Orders
 		/// Не приезжать раньше интервала
 		/// </summary>
 		bool DontArriveBeforeInterval { get; set; }
+						
+		/// <summary>
+		/// Автозаказ подключен
+		/// </summary>
+		public bool IsAutoOrderEnabled { get; set; }
 
 		/// <summary>
 		/// Список товаров

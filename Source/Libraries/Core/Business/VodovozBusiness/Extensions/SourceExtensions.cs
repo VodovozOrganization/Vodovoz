@@ -1,7 +1,9 @@
 ﻿using CustomerOrders.Abstractions;
 using System;
+using CustomerApp.Contracts.Common;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Domain.Client;
 
 namespace VodovozBusiness.Extensions
 {
@@ -36,6 +38,21 @@ namespace VodovozBusiness.Extensions
 					return GoodsOnlineParameterType.ForKulerSaleWebSite;
 				case Source.AiBot:
 					return GoodsOnlineParameterType.ForAiBot;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(source), $"ИПЗ {source} не поддерживается");
+			}
+		}
+		
+		public static CounterpartyFrom ToCounterpartyFrom(this ExternalSource source)
+		{
+			switch(source)
+			{
+				case ExternalSource.MobileApp:
+					return CounterpartyFrom.MobileApp;
+				case ExternalSource.VodovozWebSite:
+					return CounterpartyFrom.WebSite;
+				case ExternalSource.AiBot:
+					return CounterpartyFrom.AiBot;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(source), $"ИПЗ {source} не поддерживается");
 			}

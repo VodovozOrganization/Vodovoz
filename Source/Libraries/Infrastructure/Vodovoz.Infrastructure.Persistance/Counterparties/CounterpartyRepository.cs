@@ -844,5 +844,15 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 
 			return await query.ToListAsync(cancellationToken);
 		}
+
+		public bool CounterpartyExists(IUnitOfWork uow, int? counterpartyId)
+		{
+			var query =
+				from counterparty in uow.Session.Query<Counterparty>()
+				where counterparty.Id == counterpartyId
+				select counterparty.Id;
+			
+			return query.Any();
+		}
 	}
 }

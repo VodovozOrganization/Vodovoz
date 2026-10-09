@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using CustomerOrders.Contracts.V8.Carts;

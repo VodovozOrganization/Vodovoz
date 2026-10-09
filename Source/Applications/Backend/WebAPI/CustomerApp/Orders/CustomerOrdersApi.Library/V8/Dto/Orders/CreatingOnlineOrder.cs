@@ -10,125 +10,81 @@ namespace CustomerOrdersApi.Library.V8.Dto.Orders
 	public class CreatingOnlineOrder : ICreatingOnlineOrder
 	{
 		public const string ExchangeAndQueueName = "creating-online-orders-v8";
-		/// <summary>
-		/// Источник заказа
-		/// </summary>
+		
+		/// <inheritdoc/>
 		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public Source Source { get; set; }
 		
-		/// <summary>
-		/// Номер онлайн заказа из ИПЗ
-		/// </summary>
+		/// <inheritdoc/>
 		public Guid ExternalOrderId { get; set; }
 		
-		/// <summary>
-		/// Id контрагента в ДВ
-		/// </summary>
+		/// <inheritdoc/>
 		public int? ErpCounterpartyId { get; set; }
 		
-		/// <summary>
-		/// Контрольная сумма заказа, для проверки валидности отправителя
-		/// </summary>
+		/// <inheritdoc/>
 		public string Signature { get; set; }
 		
-		/// <summary>
-		/// Id клиента в ИПЗ
-		/// </summary>
+		/// <inheritdoc/>
 		public Guid? ExternalCounterpartyId { get; set; }
 		
-		/// <summary>
-		/// Id точки доставки в ДВ
-		/// </summary>
+		/// <inheritdoc/>
 		public int? DeliveryPointId { get; set; }
 
-		/// <summary>
-		/// Самовывоз?
-		/// </summary>
+		/// <inheritdoc/>
 		public bool IsSelfDelivery { get; set; }
 		
-		/// <summary>
-		/// Id гео группы в ДВ для самовывоза
-		/// </summary>
+		/// <inheritdoc/>
 		public int? SelfDeliveryGeoGroupId { get; set; }
 		
-		/// <summary>
-		/// Форма оплаты
-		/// </summary>
+		/// <inheritdoc/>
 		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
 		
-		/// <summary>
-		/// Статус оплаты
-		/// </summary>
+		/// <inheritdoc/>
 		public OnlineOrderPaymentStatus OnlineOrderPaymentStatus { get; set; }
 
-		/// <summary>
-		/// Номер оплаты
-		/// </summary>
+		/// <inheritdoc/>
 		public int? OnlinePayment { get; set; }
 
-		/// <summary>
-		/// Источник оплаты
-		/// </summary>
+		/// <inheritdoc/>
 		public OnlinePaymentSource? OnlinePaymentSource { get; set; }
 
-		/// <summary>
-		/// Нужно подтверждение по телефону?
-		/// </summary>
+		/// <inheritdoc/>
 		public bool IsNeedConfirmationByCall { get; set; }
 
-		/// <summary>
-		/// Дата доставки
-		/// </summary>
+		/// <inheritdoc/>
 		public DateTime DeliveryDate { get; set; }
 
-		/// <summary>
-		/// Id времени доставки из ДВ
-		/// </summary>
+		/// <inheritdoc/>
 		public int? DeliveryScheduleId { get; set; }
 		
-		/// <summary>
-		/// Отзвон за
-		/// </summary>
+		/// <inheritdoc/>
 		public int? CallBeforeArrivalMinutes { get; set; }
 		
-		/// <summary>
-		/// Доставка за час?
-		/// </summary>
+		/// <inheritdoc/>
 		public bool IsFastDelivery { get; set; }
 
-		/// <summary>
-		/// Номер для связи
-		/// </summary>
+		/// <inheritdoc/>
 		public string ContactPhone { get; set; }
 
-		/// <summary>
-		/// Комментарий к заказу
-		/// </summary>
+		/// <inheritdoc/>
 		public string OnlineOrderComment { get; set; }
 
-		/// <summary>
-		/// Сдача с
-		/// </summary>
+		/// <inheritdoc/>
 		public int? Trifle { get; set; }
 
-		/// <summary>
-		/// Бутылей на возврат
-		/// </summary>
+		/// <inheritdoc/>
 		public int? BottlesReturn { get; set; }
 		
-		/// <summary>
-		/// Сумма онлайн заказа
-		/// </summary>
+		/// <inheritdoc/>
 		public decimal OrderSum { get; set; }
 		
-		/// <summary>
-		/// Не приезжать раньше интервала
-		/// </summary>
+		/// <inheritdoc/>
 		public bool DontArriveBeforeInterval { get; set; }
+				
+		/// <inheritdoc/>
+		public bool IsAutoOrderEnabled { get; set; }
 
-		/// <summary>
-		/// Список товаров
-		/// </summary>
+		/// <inheritdoc/>
 		public IList<OnlineOrderItemDto> OnlineOrderItems { get; set; }
 	}
 }

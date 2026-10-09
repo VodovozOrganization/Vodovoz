@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using CustomerApp.Contracts.Common;
 using CustomerOrders.Abstractions;
 using CustomerOrders.Abstractions.V8.Carts;
 using CustomerOrders.Abstractions.V8.Sale;

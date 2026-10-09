@@ -25,6 +25,10 @@ namespace Vodovoz.Core.Domain.Orders
 		private TimeSpan _payTimeWithFastDelivery;
 		private TimeSpan _timeForTransferToManualProcessingWithFastDelivery;
 		private TimeSpan _timeForWaitingBeforeSendPaymentNotification;
+		private TimeSpan _autoOrderSettingsTime;
+		private TimeSpan _timeForTransferAutoOrderToManualProcessingFromSettings;
+		private TimeSpan _autoOrderPayTime;
+		private TimeSpan _timeForTransferAutoOrderToManualProcessingFromPaying;
 
 		public virtual int Id { get; set; }
 
@@ -77,6 +81,46 @@ namespace Vodovoz.Core.Domain.Orders
 			get => _timeForWaitingBeforeSendPaymentNotification;
 			set => SetField(ref _timeForWaitingBeforeSendPaymentNotification, value);
 		}
+		
+		/// <summary>
+		/// Время для настройки автозаказа
+		/// </summary>
+		[Display(Name = "Время для настройки автозаказа")]
+		public virtual TimeSpan AutoOrderSettingsTime
+		{
+			get => _autoOrderSettingsTime;
+			set => SetField(ref _autoOrderSettingsTime, value);
+		}
+
+		/// <summary>
+		/// Время для переноса автозаказа на ручную обработку с процесса настройки
+		/// </summary>
+		[Display(Name = "Время для переноса автозаказа на ручную обработку с процесса настройки")]
+		public virtual TimeSpan TimeForTransferAutoOrderToManualProcessingFromSettings
+		{
+			get => _timeForTransferAutoOrderToManualProcessingFromSettings;
+			set => SetField(ref _timeForTransferAutoOrderToManualProcessingFromSettings, value);
+		}
+
+		/// <summary>
+		/// Время для привязки рекуррентной ссылки к автозаказу
+		/// </summary>
+		[Display(Name = "Время для привязки рекуррентной ссылки к автозаказу")]
+		public virtual TimeSpan AutoOrderPayTime
+		{
+			get => _autoOrderPayTime;
+			set => SetField(ref _autoOrderPayTime, value);
+		}
+
+		/// <summary>
+		/// Время для переноса автозаказа на ручную обработку с процесса оплаты
+		/// </summary>
+		[Display(Name = "Время для переноса автозаказа на ручную обработку с процесса оплаты")]
+		public virtual TimeSpan TimeForTransferAutoOrderToManualProcessingFromPaying
+		{
+			get => _timeForTransferAutoOrderToManualProcessingFromPaying;
+			set => SetField(ref _timeForTransferAutoOrderToManualProcessingFromPaying, value);
+		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
@@ -92,6 +136,20 @@ namespace Vodovoz.Core.Domain.Orders
 				yield return new ValidationResult(
 					"Время для переноса заказа на ручную обработку с доставкой за час не может быть равным" +
 					" или меньше времени для оплаты заказа клиентом с доставкой за час");
+			}
+			
+			if(TimeForTransferAutoOrderToManualProcessingFromSettings <= AutoOrderSettingsTime)
+			{
+				yield return new ValidationResult(
+					"Время для переноса автозаказа на ручную обработку с процесса настройки не может быть равным" +
+					" или меньше времени для его настройки");
+			}
+			
+			if(TimeForTransferAutoOrderToManualProcessingFromPaying <= AutoOrderPayTime)
+			{
+				yield return new ValidationResult(
+					"Время для переноса автозаказа на ручную обработку с процесса оплаты не может быть равным" +
+					" или меньше времени для его оплаты");
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerApp.Contracts.Common;
 using CustomerOrders.Abstractions;
 using CustomerOrders.Abstractions.V7.Sale;
 using CustomerOrdersApi.Library.V7.Dto.Orders;

@@ -1,4 +1,4 @@
-﻿using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Library.V8.Dto.Orders
 {
@@ -23,5 +23,15 @@ namespace CustomerOrdersApi.Library.V8.Dto.Orders
 		/// Номер онлайн заказа в ДВ
 		/// </summary>
 		public int? OnlineOrderId { get; set; }
+
+		/// <summary>
+		/// Требуется ли настройка автозаказа
+		/// </summary>
+		public bool IsAutoOrderSetupRequired { get; set; }
+
+		/// <summary>
+		/// Таймер до истечения времени на настройку автозаказа (в секундах)
+		/// </summary>
+		public int TimerForAutoOrderSetupSeconds { get; set; }
 	}
 }

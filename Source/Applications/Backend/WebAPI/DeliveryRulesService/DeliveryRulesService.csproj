@@ -50,7 +50,6 @@
 		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
 		<ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
-		<ProjectReference Include="..\CustomerApp\Orders\CustomerOrders.Abstractions\CustomerOrders.Abstractions.csproj" />
 		<ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
 	</ItemGroup>
 

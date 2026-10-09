@@ -1,4 +1,5 @@
 ﻿using System;
+using CustomerApp.Contracts.Common;
 using CustomerOrders.Abstractions;
 using Vodovoz.Core.Domain.Clients;
 

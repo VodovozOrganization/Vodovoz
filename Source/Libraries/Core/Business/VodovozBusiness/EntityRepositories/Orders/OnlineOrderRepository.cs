@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
@@ -50,6 +51,40 @@ namespace Vodovoz.EntityRepositories.Orders
 				select onlineOrder;
 
 			return onlineOrders.ToList();
+		}
+
+		/// <inheritdoc/>
+		public bool OnlineOrderExists(IUnitOfWork uow, int onlineOderId)
+		{
+			var onlineOrders =
+				from onlineOrder in uow.Session.Query<OnlineOrder>()
+				where onlineOrder.Id == onlineOderId
+				select onlineOrder.Id;
+			
+			return onlineOrders.Any();
+		}
+
+		/// <inheritdoc/>
+		public bool OnlineOrderFromCounterparty(IUnitOfWork uow, int onlineOrderId, int? counterpartyId)
+		{
+			var onlineOrders =
+				from onlineOrder in uow.Session.Query<OnlineOrder>()
+				where onlineOrder.Id == onlineOrderId
+					&& onlineOrder.CounterpartyId == counterpartyId
+				select onlineOrder.Id;
+			
+			return onlineOrders.Any();
+		}
+
+		public bool IsAutoOrderEnabled(IUnitOfWork uow, int onlineOrderId)
+		{
+			var onlineOrders =
+				from onlineOrder in uow.Session.Query<OnlineOrderV2>()
+				where onlineOrder.Id == onlineOrderId
+					&& onlineOrder.IsAutoOrderEnabled
+				select onlineOrder.Id;
+			
+			return onlineOrders.Any();
 		}
 	}
 }

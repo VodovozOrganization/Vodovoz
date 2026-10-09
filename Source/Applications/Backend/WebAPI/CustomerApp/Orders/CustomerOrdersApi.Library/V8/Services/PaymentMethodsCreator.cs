@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomerApp.Contracts.Common;
 using CustomerOrders.Abstractions;
 using CustomerOrdersApi.Library.V8.Dto.Carts;
 using CustomerOrdersApi.Library.V8.Factories.DeliveryConditions;

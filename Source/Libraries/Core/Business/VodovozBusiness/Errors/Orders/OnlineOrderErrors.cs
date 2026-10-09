@@ -74,8 +74,10 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(IsEmptyOnlineOrder),
 				"Не найден онлайн заказ");
-		public static Error OnlineOrderNotFound =>
-			new Error("400", "Онлайн заказ не найден");
+		public static Error OnlineOrderNotFound(string code = null) =>
+			new Error(code ?? "400", "Онлайн заказ не найден");
+		public static Error IsOrderNotBelongCounterparty =>
+			new Error("400", "Онлайн заказ не принадлежит клиенту");
 		public static Error OnlineOrderIsPaidButOnlinePaymentIsEmpty =>
 			new Error("400", "Онлайн заказ оплачен, но не заполнен номер оплаты");
 		public static Error OnlineOrderCanceled =>
@@ -98,6 +100,16 @@ namespace Vodovoz.Errors.Orders
 			new Error("408", "Время на оплату заказа истекло. В ближайшее время с Вами свяжется менеджер для оформления заказа");
 		public static Error IsOnlineOrderTimersEmpty =>
 			new Error("500", "Не найдены таймеры для онлайн заказов");
+		/// <summary>
+		/// Автозаказ недоступен для этого заказа
+		/// </summary>
+		public static Error IsOrderTemplateUnavailable =>
+			new Error("400", "Автозаказ недоступен для этого заказа");
+		/// <summary>
+		/// Достигнуто максимальное количество активных автозаказов
+		/// </summary>
+		public static Error IsOrderTemplatesLimitExceeded =>
+			new Error("400", "Достигнуто максимальное количество активных автозаказов");
 
 		public static Error CantUpdateOrder(string errorMessage) =>
 			new Error(

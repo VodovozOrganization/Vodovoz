@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using CustomerApp.Contracts.Common;
 using CustomerOrders.Abstractions;
 using CustomerOrders.Abstractions.V5.Sale;
 using CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem;

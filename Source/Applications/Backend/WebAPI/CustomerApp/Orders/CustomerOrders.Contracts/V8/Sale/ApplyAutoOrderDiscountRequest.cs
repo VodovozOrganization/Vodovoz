@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomerApp.Contracts.Common;
 using CustomerApp.Contracts.Sale;
 using CustomerOrders.Abstractions;
 using CustomerOrders.Abstractions.V8.Sale;

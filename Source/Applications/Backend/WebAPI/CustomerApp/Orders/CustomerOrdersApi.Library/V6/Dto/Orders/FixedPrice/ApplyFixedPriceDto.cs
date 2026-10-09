@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomerApp.Contracts.Common;
 using CustomerOrders.Abstractions;
 using CustomerOrders.Abstractions.V6.Sale;
 using CustomerOrdersApi.Library.V6.Dto.Orders.OrderItem;

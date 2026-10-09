@@ -52,6 +52,12 @@ namespace VodovozBusiness.Errors.Sale
 				nameof(IsEmptyCounterparty),
 				"Нельзя подключить автозаказ без данных по клиенту");
 		
+		public static Error IsEmptyExternalCounterparty =>
+			new Error(
+				typeof(OnlineOrderTemplateErrors),
+				nameof(IsEmptyExternalCounterparty),
+				"Нельзя подключить автозаказ без данных по пользователю");
+		
 		public static Error IsEmptyDeliverySchedule =>
 			new Error(
 				typeof(OnlineOrderTemplateErrors),

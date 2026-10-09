@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using CustomerApp.Contracts.Common;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts
 {

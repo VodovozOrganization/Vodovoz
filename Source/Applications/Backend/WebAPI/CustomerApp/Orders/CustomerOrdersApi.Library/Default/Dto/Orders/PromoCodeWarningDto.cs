@@ -1,5 +1,6 @@
 ﻿using CustomerOrders.Abstractions;
 using System;
+using CustomerApp.Contracts.Common;
 
 namespace CustomerOrdersApi.Library.Default.Dto.Orders
 {

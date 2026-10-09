@@ -1,4 +1,5 @@
 ﻿using System;
+using CustomerApp.Contracts.Common;
 using CustomerOrders.Abstractions;
 
 namespace CustomerOrdersApi.Library.V8.Dto.Orders.Promotions.Discounts

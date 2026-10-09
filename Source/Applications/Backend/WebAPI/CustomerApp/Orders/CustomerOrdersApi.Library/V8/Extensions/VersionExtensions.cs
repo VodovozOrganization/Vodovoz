@@ -3,6 +3,9 @@ using CustomerOrdersApi.Library.V8.Factories;
 using CustomerOrdersApi.Library.V8.Services;
 using CustomerOrdersApi.Library.V8.Dto.Orders.RequestsForCall;
 using CustomerOrdersApi.Library.V8.Factories.DeliveryConditions;
+using CustomerOrdersApi.Library.V8.Factories.DeliverySchedules;
+using CustomerOrdersApi.Library.V8.Repositories;
+using CustomerOrdersApi.Library.V8.Services.Converters;
 using CustomerOrdersApi.Library.V8.Services.Validators;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +42,12 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 				.AddScoped<IAdditionalConditionsFactory, AdditionalConditionsFactory>()
 				.AddScoped<IOnlineOrderTemplateConditionsCreator, OnlineOrderTemplateConditionsCreator>()
 				.AddScoped<IOnlineOrderTemplateFromOnlineOrderValidator, OnlineOrderTemplateFromOnlineOrderValidator>()
+				.AddScoped<IRepeatEveryWeeksConverter, RepeatEveryWeeksConverter>()
+				.AddScoped<ITemplateDeliveryScheduleDescriptionFactory, TemplateDeliveryScheduleDescriptionFactory>()
+				.AddScoped<ITemplateControllerRequestValidator, TemplateControllerRequestValidator>()
+				.AddScoped<IRepeatTemplateEveryWeeksFactory, RepeatTemplateEveryWeeksFactory>()
+				.AddScoped<IRepeatTemplateEveryMonthFactory, RepeatTemplateEveryMonthFactory>()
+				.AddScoped<IOnlineTemplateRepository, OnlineTemplateRepository>()
 				.AddCommonDependencies()
 				.AddPaymentRefundServices()
 				;

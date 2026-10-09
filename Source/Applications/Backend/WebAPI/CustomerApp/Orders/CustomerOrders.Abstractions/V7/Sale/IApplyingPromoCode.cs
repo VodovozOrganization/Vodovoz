@@ -1,6 +1,7 @@
 ﻿using CustomerOrders.Abstractions.V7.Carts;
 using System;
 using System.Collections.Generic;
+using CustomerApp.Contracts.Common;
 
 namespace CustomerOrders.Abstractions.V7.Sale
 {
