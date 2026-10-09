@@ -23,6 +23,9 @@ namespace VodovozBusiness.Nodes.TTN
 		public decimal MassBruttoValue { get; set; }
 		public string MassBruttoText { get; set; }
 
+		public decimal MassBruttoTonsValue { get; set; }
+		public string MassBruttoTonsText { get; set; }
+
 		public string ReleaseAllowedPosition { get; set; }
 		public string ReleaseAllowedName { get; set; }
 

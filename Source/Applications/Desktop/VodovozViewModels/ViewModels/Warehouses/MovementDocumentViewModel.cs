@@ -22,9 +22,7 @@ using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
@@ -837,6 +835,26 @@ namespace Vodovoz.ViewModels.Warehouses
 					ImportanceLevel.Warning,
 					"Заполните обязательные поля ТТН: грузоотправитель, грузополучатель, плательщик, автомобиль, водитель.");
 				return;
+			}
+
+			if(NeedPrintTtn)
+			{
+				var confirmed = CommonServices.InteractiveService.Question(
+					"Документ перемещения будет сохранён. Продолжить?",
+					"Печать ТТН");
+
+				if(!confirmed)
+				{
+					return;
+				}
+
+				if(!Save(false))
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						"Не удалось сохранить документ перемещения.");
+					return;
+				}
 			}
 
 			TtnReport report;

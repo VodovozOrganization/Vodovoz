@@ -79,6 +79,8 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 
 			report.MassBruttoValue = report.Rows.Sum(r => r.Weight);
 			report.MassBruttoText = NumberToWords.ToWords((int)report.MassBruttoValue) + " кг";
+			report.MassBruttoTonsValue = report.MassBruttoValue / 1000m;
+			report.MassBruttoTonsText = NumberToWords.ToWords((int)report.MassBruttoTonsValue);
 
 			return report;
 		}
@@ -133,7 +135,7 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 					ws1.Cells[$"A{row}"].Value = item.Code;
 					ws1.Cells[$"AS{row}"].Value = item.Count;
 					ws1.Cells[$"BU{row}"].Value = item.Name;
-					ws1.Cells[$"EO{row}"].Value = item.Weight;
+					ws1.Cells[$"EO{row}"].Value = item.Weight / 1000m;
 					ws1.Cells[$"FC{row}"].Value = item.Sum;
 					row++;
 				}
@@ -142,14 +144,15 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 
 				var totalCount = report.Rows.Sum(r => (int)r.Count);
 				var totalSum = report.Rows.Sum(r => r.Sum);
+				var massBruttoTons = report.MassBruttoValue / 1000m;
 
 				ws1.Cells[$"AS{19 + shift}"].Value = totalCount;
 				ws1.Cells[$"FC{19 + shift}"].Value = totalSum;
 				ws1.Cells[$"AS{20 + shift}"].Value = totalCount;
 				ws1.Cells[$"FC{20 + shift}"].Value = totalSum;
 
-				ws1.Cells[$"EO{19 + shift}"].Value = report.MassBruttoValue;
-				ws1.Cells[$"EO{20 + shift}"].Value = report.MassBruttoValue;
+				ws1.Cells[$"EO{19 + shift}"].Value = massBruttoTons;
+				ws1.Cells[$"EO{20 + shift}"].Value = massBruttoTons;
 
 				ws1.Cells[$"DS{25 + shift}"].Value = report.MassBruttoValue;
 				ws1.Cells[$"CR{26 + shift}"].Value = report.MassBruttoText;
@@ -195,7 +198,7 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 					ws2.Cells[$"A{cargoRow}"].Value = i + 1;
 					ws2.Cells[$"D{cargoRow}"].Value = report.Rows[i].Name;
 					ws2.Cells[$"EJ{cargoRow}"].Value = report.Rows[i].Code;
-					ws2.Cells[$"FU{cargoRow}"].Value = report.Rows[i].Weight;
+					ws2.Cells[$"FU{cargoRow}"].Value = report.Rows[i].Weight / 1000m;
 					cargoRow++;
 				}
 
@@ -215,12 +218,12 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				ws2.Cells["CT14"].Value = report.UnloadingPointAddress;
 				ws2.Cells["CH16"].Value = report.TrailerModel;
 				ws2.Cells["EF16"].Value = report.TrailerRegistrationNumber;
-				ws2.Cells[$"FU{26 + cargoShift}"].Value = report.MassBruttoValue;
+				ws2.Cells[$"FU{26 + cargoShift}"].Value = report.MassBruttoTonsValue;
 				ws2.Cells[$"I{31 + cargoShift}"].Value = report.ReleaseAllowedPosition;
 				ws2.Cells[$"AH{31 + cargoShift}"].Value = report.ReleaseAllowedName;
 				ws2.Cells[$"AA{36 + cargoShift}"].Value = report.CargoAcceptedName;
 				ws2.Cells[$"DC{31 + cargoShift}"].Value = report.CargoAcceptedName;
-				ws2.Cells[$"CF{29 + cargoShift}"].Value = report.MassBruttoText;
+				ws2.Cells[$"CF{29 + cargoShift}"].Value = report.MassBruttoTonsText;
 
 				package.SaveAs(new FileInfo(outputPath));
 			}
