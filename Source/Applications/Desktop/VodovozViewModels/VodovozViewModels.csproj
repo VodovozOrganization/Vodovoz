@@ -171,6 +171,7 @@
     <Compile Include="Services\SalesReport\SalesReportService.cs" />
     <Compile Include="Services\Warehouse\IMovementDocumentService.cs" />
     <Compile Include="Services\Warehouse\MovementDocumentService.cs" />
+    <Compile Include="Services\Warehouse\NumberToWords.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByOldNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow.cs" />

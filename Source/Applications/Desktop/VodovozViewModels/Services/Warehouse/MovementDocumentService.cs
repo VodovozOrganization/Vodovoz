@@ -1,4 +1,6 @@
-﻿using OfficeOpenXml;
+﻿using ClosedXML.Excel;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -8,7 +10,6 @@ using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.ViewModels.Warehouses;
 using VodovozBusiness.Nodes.TTN;
 
 namespace Vodovoz.ViewModels.Services.Warehouse
@@ -164,6 +165,39 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 
 				var ws2 = package.Workbook.Worksheets["Транспортный раздел"];
 
+				const int firstCargoRow = 23;
+				var cargoRowsCount = report.Rows.Count;
+				const int cargoRowsInTemplate = 3;
+				const int cargoStyleSourceRow = 24;
+
+				if(cargoRowsCount > cargoRowsInTemplate)
+				{
+					var insertCount = cargoRowsCount - cargoRowsInTemplate;
+					ws2.InsertRow(firstCargoRow + cargoRowsInTemplate, insertCount);
+
+					for(int i = 0; i < insertCount; i++)
+					{
+						var targetRow = firstCargoRow + cargoRowsInTemplate + i;
+
+						ws2.Cells[cargoStyleSourceRow, 1, cargoStyleSourceRow, ws2.Dimension.End.Column]
+							.Copy(ws2.Cells[targetRow, 1]);
+
+						ws2.Row(targetRow).Height = ws2.Row(cargoStyleSourceRow).Height;
+					}
+				}
+
+				var cargoRow = firstCargoRow;
+				for(int i = 0; i < report.Rows.Count; i++)
+				{
+					ws2.Cells[$"A{cargoRow}"].Value = i + 1;
+					ws2.Cells[$"D{cargoRow}"].Value = report.Rows[i].Name;
+					ws2.Cells[$"EJ{cargoRow}"].Value = report.Rows[i].Code;
+					ws2.Cells[$"FU{cargoRow}"].Value = report.Rows[i].Weight;
+					cargoRow++;
+				}
+
+				var cargoShift = Math.Max(0, report.Rows.Count - cargoRowsInTemplate);
+
 				ws2.Cells["FP2"].Value = report.DocNumber;
 				ws2.Cells["X3"].Value = report.DeliveryDay;
 				ws2.Cells["AD3"].Value = report.DeliveryMonthText;
@@ -178,11 +212,12 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				ws2.Cells["CT14"].Value = report.UnloadingPointAddress;
 				ws2.Cells["CH16"].Value = report.TrailerModel;
 				ws2.Cells["EF16"].Value = report.TrailerRegistrationNumber;
-				ws2.Cells["FU26"].Value = report.MassBruttoValue;
-				ws2.Cells["I31"].Value = report.ReleaseAllowedPosition;
-				ws2.Cells["AH31"].Value = report.ReleaseAllowedName;
-				ws2.Cells["AA36"].Value = report.CargoAcceptedName;
-				ws2.Cells["DC31"].Value = report.CargoAcceptedName;
+				ws2.Cells[$"FU{26 + cargoShift}"].Value = report.MassBruttoValue;
+				ws2.Cells[$"I{31 + cargoShift}"].Value = report.ReleaseAllowedPosition;
+				ws2.Cells[$"AH{31 + cargoShift}"].Value = report.ReleaseAllowedName;
+				ws2.Cells[$"AA{36 + cargoShift}"].Value = report.CargoAcceptedName;
+				ws2.Cells[$"DC{31 + cargoShift}"].Value = report.CargoAcceptedName;
+				ws2.Cells[$"CF{29 + cargoShift}"].Value = report.MassBruttoText;
 
 				package.SaveAs(new FileInfo(outputPath));
 			}
