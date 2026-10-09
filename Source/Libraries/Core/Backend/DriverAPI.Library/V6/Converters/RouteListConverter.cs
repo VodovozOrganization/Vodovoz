@@ -64,6 +64,7 @@ namespace DriverAPI.Library.V6.Converters
 				{
 					RouteListId = routeList.Id,
 					RouteListStatus = _routeListStatusConverter.ConvertToAPIRouteListStatus(routeList.Status),
+					RouteListComment = routeList.Status == RouteListStatus.Delivered ? routeList.ClosingComment : null,
 					CashMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
 							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cash)
