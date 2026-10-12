@@ -216,7 +216,7 @@ namespace WarehouseApi.Library.Services
 				.ToArray();
 
 			var productCodesByItemId = selfDeliveryDocument is null
-				? Enumerable.Empty<SelfDeliveryDocumentItemTrueMarkProductCode>().ToLookup(x => x.SelfDeliveryDocumentItem.Id)
+				? Enumerable.Empty<SelfDeliveryDocumentItemTrueMarkProductCode>().ToLookup(x => x.SelfDeliveryDocumentItemId.Value)
 				: await _selfDeliveryDocumentItemProductCodeRepository
 					.GetProductCodesByItemIdAsync(_uow, selfDeliveryDocument.Items, cancellationToken);
 

@@ -187,7 +187,7 @@ namespace VodovozBusiness.Services.TrueMark
 				case CarLoadDocumentItemTrueMarkProductCode carLoadProductCode:
 					return _trueMarkRepository.GetOrderIdByTrueMarkProductCode(uow, carLoadProductCode) ?? 0;
 				case SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryProductCode:
-					return selfDeliveryProductCode.SelfDeliveryDocumentItem?.Document?.Order?.Id ?? 0;
+					return _trueMarkRepository.GetOrderIdByTrueMarkProductCode(uow, selfDeliveryProductCode) ?? 0;
 				default:
 					return productCode.CustomerEdoRequest?.Order?.Id ?? 0;
 			}

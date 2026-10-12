@@ -143,7 +143,7 @@ namespace Vodovoz.Domain.Documents
 
 			return productCodeRepository
 				.Get(unitOfWork, SelfDeliveryDocumentItemTrueMarkProductCodeSpecification.CreateForSelfDeliveryDocumentItemIds(savedItemsIds))
-				.GroupBy(x => x.SelfDeliveryDocumentItem.Id)
+				.GroupBy(x => x.SelfDeliveryDocumentItemId.Value)
 				.ToDictionary(g => g.Key, g => g.Count());
 		}
 

@@ -21,7 +21,7 @@ namespace Vodovoz.Core.Domain.Specifications.TrueMark
 		/// </summary>
 		/// <param name="selfDeliveryDocumentItemId">Идентификатор строки отпуска самовывоза</param>
 		public static SelfDeliveryDocumentItemTrueMarkProductCodeSpecification CreateForSelfDeliveryDocumentItemId(int selfDeliveryDocumentItemId)
-			=> new SelfDeliveryDocumentItemTrueMarkProductCodeSpecification(x => x.SelfDeliveryDocumentItem.Id == selfDeliveryDocumentItemId);
+			=> new SelfDeliveryDocumentItemTrueMarkProductCodeSpecification(x => x.SelfDeliveryDocumentItemId == selfDeliveryDocumentItemId);
 
 		/// <summary>
 		/// Создает спецификацию для кодов продукта нескольких строк отпуска самовывоза
@@ -30,7 +30,7 @@ namespace Vodovoz.Core.Domain.Specifications.TrueMark
 		public static SelfDeliveryDocumentItemTrueMarkProductCodeSpecification CreateForSelfDeliveryDocumentItemIds(IEnumerable<int> selfDeliveryDocumentItemIds)
 		{
 			var ids = selfDeliveryDocumentItemIds.ToList();
-			return new SelfDeliveryDocumentItemTrueMarkProductCodeSpecification(x => ids.Contains(x.SelfDeliveryDocumentItem.Id));
+			return new SelfDeliveryDocumentItemTrueMarkProductCodeSpecification(x => x.SelfDeliveryDocumentItemId != null && ids.Contains(x.SelfDeliveryDocumentItemId.Value));
 		}
 	}
 }

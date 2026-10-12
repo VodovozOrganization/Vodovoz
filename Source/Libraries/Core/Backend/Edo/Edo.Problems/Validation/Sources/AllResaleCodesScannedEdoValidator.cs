@@ -137,7 +137,7 @@ namespace Edo.Problems.Validation.Sources
 					join document in unitOfWork.Session.Query<SelfDeliveryDocumentEntity>() on item.Document.Id equals document.Id
 					where document.Order.Id == orderEdoRequest.Order.Id
 					join productCode in unitOfWork.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
-						on item.Id equals productCode.SelfDeliveryDocumentItem.Id
+						on (int?)item.Id equals productCode.SelfDeliveryDocumentItemId
 					group productCode by productCode.ResultCode.Gtin
 					into grouped
 					select new ScannedNomenclatureGtinDto

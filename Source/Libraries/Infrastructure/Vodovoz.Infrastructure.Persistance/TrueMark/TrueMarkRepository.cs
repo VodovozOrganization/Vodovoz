@@ -308,10 +308,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Left.JoinAlias(
-					() => selfdeliveryTrueMarkProductCodeAlias.SelfDeliveryDocumentItem,
-					() => selfDeliveryDocumentItemAlias
-				)
+				.JoinEntityAlias(
+					() => selfDeliveryDocumentItemAlias,
+					() => selfDeliveryDocumentItemAlias.Id == selfdeliveryTrueMarkProductCodeAlias.SelfDeliveryDocumentItemId,
+					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(
 					() => selfDeliveryDocumentItemAlias.Document,
 					() => selfDeliveryDocumentAlias
@@ -410,9 +410,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var selfDeliveryProductCodes = uow.Session.QueryOver(() => selfDeliveryProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.JoinAlias(
-					() => selfDeliveryProductCodeAlias.SelfDeliveryDocumentItem,
-					() => selfDeliveryDocumentItemAlias)
+				.JoinEntityAlias(
+					() => selfDeliveryDocumentItemAlias,
+					() => selfDeliveryDocumentItemAlias.Id == selfDeliveryProductCodeAlias.SelfDeliveryDocumentItemId,
+					JoinType.InnerJoin)
 				.JoinAlias(
 					() => selfDeliveryDocumentItemAlias.Document,
 					() => selfDeliveryDocumentAlias)
@@ -547,7 +548,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			OrderEntity selfDeliveryOrderAlias = null;
 
 			var selfDeliveryIdentificationCodeIds = uow.Session.QueryOver(() => selfDeliveryProductCodeAlias)
-				.JoinAlias(() => selfDeliveryProductCodeAlias.SelfDeliveryDocumentItem, () => selfDeliveryDocumentItemAlias)
+				.JoinEntityAlias(
+					() => selfDeliveryDocumentItemAlias,
+					() => selfDeliveryDocumentItemAlias.Id == selfDeliveryProductCodeAlias.SelfDeliveryDocumentItemId,
+					JoinType.InnerJoin)
 				.JoinAlias(() => selfDeliveryDocumentItemAlias.Document, () => selfDeliveryDocumentAlias)
 				.JoinAlias(() => selfDeliveryDocumentAlias.Order, () => selfDeliveryOrderAlias)
 				.WhereRestrictionOn(() => selfDeliveryProductCodeAlias.SourceCode.Id).IsIn(codeIds)
@@ -796,8 +800,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 					}
 				case SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryDocumentItemTrueMarkProductCode:
 					{
-						var selfDeliveryDocumentItemId = selfDeliveryDocumentItemTrueMarkProductCode
-							.SelfDeliveryDocumentItem?.Id;
+						var selfDeliveryDocumentItemId = selfDeliveryDocumentItemTrueMarkProductCode.SelfDeliveryDocumentItemId;
 
 						if(selfDeliveryDocumentItemId is null)
 						{

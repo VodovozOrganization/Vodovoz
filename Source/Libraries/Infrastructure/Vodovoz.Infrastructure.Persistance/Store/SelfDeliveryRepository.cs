@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Documents;
@@ -88,6 +89,16 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			return unloadedDict;
 		}
 
+		public IDictionary<int, SelfDeliveryDocument> GetSelfDeliveryDocumentsByItemIds(IUnitOfWork uow, IEnumerable<int> selfDeliveryDocumentItemIds)
+		{
+			var ids = selfDeliveryDocumentItemIds.Distinct().ToList();
+
+			return uow.Session.Query<SelfDeliveryDocumentItem>()
+				.Where(x => ids.Contains(x.Id))
+				.Select(x => new { x.Id, x.Document })
+				.ToDictionary(x => x.Id, x => x.Document);
+		}
+
 		public bool IsSelfDeliveryDocumentItemsUsedInEdoTasks(IUnitOfWork uow, int selfDeliveryDocumentId)
 		{
 			var edoTasks =
@@ -95,7 +106,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 				 join selfDeliveryDocumentItem in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
 				 on selfDeliveryDocument.Id equals selfDeliveryDocumentItem.Document.Id
 				 join trueMarkProductCode in uow.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
-				 on selfDeliveryDocumentItem.Id equals trueMarkProductCode.SelfDeliveryDocumentItem.Id
+				 on (int?)selfDeliveryDocumentItem.Id equals trueMarkProductCode.SelfDeliveryDocumentItemId
 				 join edoTaskItem in uow.Session.Query<EdoTaskItem>() on trueMarkProductCode.Id equals edoTaskItem.ProductCode.Id
 				 where selfDeliveryDocument.Id == selfDeliveryDocumentId
 				 select edoTaskItem)

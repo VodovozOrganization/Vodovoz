@@ -170,7 +170,6 @@ namespace VodovozBusiness.Services.TrueMark
 				status,
 				problem);
 
-			selfDeliveryDocumentItem.TrueMarkProductCodes.Add(productCode);
 			uow.Save(productCode);
 		}
 
@@ -178,16 +177,24 @@ namespace VodovozBusiness.Services.TrueMark
 			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			SourceProductCodeStatus status,
-			ProductCodeProblem problem) =>
-			new SelfDeliveryDocumentItemTrueMarkProductCode()
+			ProductCodeProblem problem)
+		{
+			if(selfDeliveryDocumentItem.Id == 0)
+			{
+				throw new InvalidOperationException(
+					"Строка документа самовывоза должна быть сохранена до создания кода продукта");
+			}
+
+			return new SelfDeliveryDocumentItemTrueMarkProductCode()
 			{
 				CreationTime = DateTime.Now,
 				SourceCodeStatus = status,
 				SourceCode = trueMarkWaterIdentificationCode,
 				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkWaterIdentificationCode : default,
-				SelfDeliveryDocumentItem = selfDeliveryDocumentItem,
+				SelfDeliveryDocumentItemId = selfDeliveryDocumentItem.Id,
 				Problem = problem
 			};
+		}
 
 		public async Task<Result> AddProductCodesToSelfDeliveryDocumentItem(
 			IUnitOfWork uow,
@@ -423,7 +430,7 @@ namespace VodovozBusiness.Services.TrueMark
 			IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> codes)
 		{
 			var codesCountByItemId = codes
-				.GroupBy(x => x.SelfDeliveryDocumentItem.Id)
+				.GroupBy(x => x.SelfDeliveryDocumentItemId.Value)
 				.ToDictionary(g => g.Key, g => g.Count());
 
 			foreach(var item in document.Items)

@@ -61,6 +61,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		private readonly INavigationManager _navigation;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
+		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
 		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly ICancelledOrderTrueMarkCodesReuseService _cancelledOrderTrueMarkCodesReuseService;
 		private readonly IInteractiveService _interactiveService;
@@ -116,6 +117,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			INavigationManager navigation,
 			IRouteListItemRepository routeListItemRepository,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
+			ISelfDeliveryRepository selfDeliveryRepository,
 			IGenericRepository<Employee> employeeRepository,
 			ICancelledOrderTrueMarkCodesReuseService cancelledOrderTrueMarkCodesReuseService,
 			IInteractiveService interactiveService,
@@ -137,6 +139,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			_navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
+			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_cancelledOrderTrueMarkCodesReuseService = cancelledOrderTrueMarkCodesReuseService
 				?? throw new ArgumentNullException(nameof(cancelledOrderTrueMarkCodesReuseService));
@@ -996,7 +999,14 @@ namespace Vodovoz.ViewModels.TrueMark
 				})
 				.ToDictionary(x => x.GroupCode.Id);
 
-			var authorId = instanceCodes.FirstOrDefault()?.SelfDeliveryDocumentItem?.Document?.AuthorId;
+			var selfDeliveryDocumentsByItemId = _selfDeliveryRepository.GetSelfDeliveryDocumentsByItemIds(
+				uow,
+				instanceCodes.Where(x => x.SelfDeliveryDocumentItemId.HasValue).Select(x => x.SelfDeliveryDocumentItemId.Value));
+
+			var firstItemId = instanceCodes.FirstOrDefault()?.SelfDeliveryDocumentItemId;
+			var authorId = firstItemId.HasValue && selfDeliveryDocumentsByItemId.TryGetValue(firstItemId.Value, out var firstDocument)
+				? firstDocument?.AuthorId
+				: null;
 			var author = authorId.HasValue
 				? _employeeRepository.GetFirstOrDefault(uow, e => e.Id == authorId.Value)
 				: null;
@@ -1012,7 +1022,7 @@ namespace Vodovoz.ViewModels.TrueMark
 					Status = x.SourceCodeStatus,
 					ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
 					Problem = x.Problem,
-					SourceDocumentId = x.SelfDeliveryDocumentItem.Document.Id,
+					SourceDocumentId = selfDeliveryDocumentsByItemId[x.SelfDeliveryDocumentItemId.Value].Id,
 					CodeAuthorId = authorId,
 					CodeAuthor = author?.FullName
 				};

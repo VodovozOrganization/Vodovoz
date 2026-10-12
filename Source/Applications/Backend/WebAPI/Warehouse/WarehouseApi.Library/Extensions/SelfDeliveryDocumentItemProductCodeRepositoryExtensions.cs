@@ -37,7 +37,7 @@ namespace WarehouseApi.Library.Extensions
 
 			if(savedItemsIds.Count == 0)
 			{
-				return Enumerable.Empty<SelfDeliveryDocumentItemTrueMarkProductCode>().ToLookup(x => x.SelfDeliveryDocumentItem.Id);
+				return Enumerable.Empty<SelfDeliveryDocumentItemTrueMarkProductCode>().ToLookup(x => x.SelfDeliveryDocumentItemId.Value);
 			}
 
 			var productCodes = (await repository
@@ -47,7 +47,7 @@ namespace WarehouseApi.Library.Extensions
 					cancellationToken: cancellationToken))
 				.Value;
 
-			return productCodes.ToLookup(x => x.SelfDeliveryDocumentItem.Id);
+			return productCodes.ToLookup(x => x.SelfDeliveryDocumentItemId.Value);
 		}
 	}
 }
