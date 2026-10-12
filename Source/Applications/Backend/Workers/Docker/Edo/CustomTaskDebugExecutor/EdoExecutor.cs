@@ -617,9 +617,15 @@ namespace CustomTaskDebugExecutor
 					Status = description.DocFlow.Status,
 					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
 				};
+				EdoDocFlowStatus? docflowStatus = null;
+				if(Enum.TryParse(docflowUpdatedEvent.Status, true, out EdoDocFlowStatus parsedStatus))
+				{
+					docflowStatus = parsedStatus;
+				}
 
-				var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
-				docflowUpdatedEvent.IsReceived = recievedStatuses.Contains(docflowUpdatedEvent.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
+				docflowUpdatedEvent.IsReceived = TaxcomDocflowReceipt.IsReceived(
+					docflowStatus,
+					description.DocFlow.Documents?.Select(document => document.TransactionCode));
 				
 				var publishEndpoint = _serviceProvider.GetRequiredService<IPublishEndpoint>();
 				await publishEndpoint.Publish(docflowUpdatedEvent);

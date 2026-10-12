@@ -35,7 +35,8 @@ namespace Edo.Contracts.Messages.Events
 		public DateTime? StatusChangeTime { get; set; }
 
 		/// <summary>
-		/// Доставлено
+		/// Документ получен клиентом: по статусу документооборота
+		/// или по транзакции подтверждения отправки извещения о получении
 		/// </summary>
 		public bool IsReceived { get; set; }
 	}

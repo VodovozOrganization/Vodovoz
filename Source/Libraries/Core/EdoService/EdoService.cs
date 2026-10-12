@@ -1420,8 +1420,15 @@ namespace EdoService.Library
 					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
 				};
 
-				var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
-				docflowUpdatedEvent.IsReceived = recievedStatuses.Contains(docflowUpdatedEvent.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
+				EdoDocFlowStatus? docflowStatus = null;
+				if(Enum.TryParse(docflowUpdatedEvent.Status, true, out EdoDocFlowStatus parsedStatus))
+				{
+					docflowStatus = parsedStatus;
+				}
+
+				docflowUpdatedEvent.IsReceived = TaxcomDocflowReceipt.IsReceived(
+					docflowStatus,
+					description.DocFlow.Documents?.Select(document => document.TransactionCode));
 
 				await _bus.Publish(docflowUpdatedEvent, cancellationToken);
 

@@ -37,7 +37,6 @@ namespace EdoDocumentFlowUpdater
 {
 	public class TaxcomEdoDocumentFlowUpdater : BackgroundService
 	{
-		private const string _postDateConfirmation = "PostDateConfirmation";
 		private const string _trueMarkAccepted = "TracingAccepted";
 		private const string _trueMarkRejected = "TracingRejected";
 		private const string _trueMarkCancellationAccepted = "TracingCancellationAccepted";
@@ -255,11 +254,9 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 
-			/*var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
-			var isReceived = recievedStatuses.Contains(docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);*/
-
-			var isReceived = docflow.Documents
-				.FirstOrDefault(x => x.TransactionCode == _postDateConfirmation) != null;
+			var isReceived = TaxcomDocflowReceipt.IsReceived(
+				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>(),
+				docflow.Documents?.Select(document => document.TransactionCode));
 
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent
 			{
@@ -518,14 +515,16 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 			
-			var containerReceived =
-				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value is EdoDocFlowStatus.Sent;
+			var edoDocFlowStatus = docflow.Status.TryParseAsEnum<EdoDocFlowStatus>();
+			var containerReceived = TaxcomDocflowReceipt.IsReceived(
+				edoDocFlowStatus,
+				docflow.Documents?.Select(document => document.TransactionCode));
 
 			container.DocFlowId = docflow.Id;
 			container.Received = containerReceived;
 			container.InternalId = mainDocument.InternalId;
 			container.ErrorDescription = docflow.ErrorDescription;
-			container.EdoDocFlowStatus = docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value;
+			container.EdoDocFlowStatus = edoDocFlowStatus ?? EdoDocFlowStatus.Unknown;
 
 			if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 			{
