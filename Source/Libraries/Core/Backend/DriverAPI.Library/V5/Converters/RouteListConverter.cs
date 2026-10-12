@@ -41,8 +41,9 @@ namespace DriverAPI.Library.V5.Converters
 		/// </summary>
 		/// <param name="routeList">Маршрутный лист ДВ</param>
 		/// <param name="itemsToReturn">Оборудование на возврат</param>
-		/// <returns></returns>
-		public RouteListDto ConvertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn, IEnumerable<KeyValuePair<int, string>> spectiaConditionsToAccept)
+		/// <param name="useRoomTypeDisplayName">Использовать отображаемое название типа помещения</param>
+		/// <returns>Данные маршрутного листа</returns>
+		public RouteListDto ConvertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn, IEnumerable<KeyValuePair<int, string>> spectiaConditionsToAccept, bool useRoomTypeDisplayName = false)
 		{
 			var result = new RouteListDto()
 			{
@@ -93,7 +94,7 @@ namespace DriverAPI.Library.V5.Converters
 
 					foreach(var address in routeList.Addresses.OrderBy(address => address.IndexInRoute))
 					{
-						routelistAddresses.Add(ConvertToAPIRouteListAddress(address));
+						routelistAddresses.Add(ConvertToAPIRouteListAddress(address, useRoomTypeDisplayName));
 					}
 
 					result.IncompletedRouteList = new IncompletedRouteListDto()
@@ -109,7 +110,7 @@ namespace DriverAPI.Library.V5.Converters
 			return result;
 		}
 
-		private RouteListAddressDto ConvertToAPIRouteListAddress(RouteListItem routeListAddress)
+		private RouteListAddressDto ConvertToAPIRouteListAddress(RouteListItem routeListAddress, bool useRoomTypeDisplayName)
 		{
 			return new RouteListAddressDto()
 			{
@@ -118,7 +119,7 @@ namespace DriverAPI.Library.V5.Converters
 				DeliveryIntervalStart = routeListAddress.Order.DeliveryDate + routeListAddress.Order.DeliverySchedule.From ?? DateTime.MinValue,
 				DeliveryIntervalEnd = routeListAddress.Order.DeliveryDate + routeListAddress.Order.DeliverySchedule.To ?? DateTime.MinValue,
 				OrderId = routeListAddress.Order.Id,
-				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(routeListAddress.Order.DeliveryPoint)
+				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(routeListAddress.Order.DeliveryPoint, useRoomTypeDisplayName)
 			};
 		}
 
