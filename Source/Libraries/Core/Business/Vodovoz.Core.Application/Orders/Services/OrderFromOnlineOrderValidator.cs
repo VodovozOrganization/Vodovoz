@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Infrastructure;
@@ -128,17 +128,17 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 			
 			var now = DateTime.Now;
-			if(_onlineOrder.DeliveryDate < now.Date && _onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
+			if(OnlineOrder.DeliveryDate < now.Date && OnlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
 			{
 				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDeliveryDate);
 			}
-			else if(_onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New
-				&& !_onlineOrder.IsSelfDelivery
-				&& !_onlineOrder.IsFastDelivery
-				&& _onlineOrder.DeliverySchedule != null
-				&& _onlineOrder.DeliveryDate.Date.Add(_onlineOrder.DeliverySchedule.To) <= now)
+			else if(OnlineOrder.OnlineOrderStatus == OnlineOrderStatus.New
+				&& !OnlineOrder.IsSelfDelivery
+				&& !OnlineOrder.IsFastDelivery
+				&& OnlineOrder.DeliverySchedule != null
+				&& OnlineOrder.DeliveryDate.Date.Add(OnlineOrder.DeliverySchedule.To) <= now)
 			{
-				_validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.DeliveryIntervalExpired);
+				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.DeliveryIntervalExpired);
 			}
 
 			if(!string.IsNullOrEmpty(OnlineOrder.ContactPhone))
