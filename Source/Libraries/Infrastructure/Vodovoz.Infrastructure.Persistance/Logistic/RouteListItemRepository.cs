@@ -226,13 +226,11 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			District districtAlias = null;
 			CompletedAddressesCountNode resultAlias = null;
 
-			// Группировка только по id, имена берутся агрегатом MIN: так запрос корректен при ONLY_FULL_GROUP_BY
-			// и без проверки функциональной зависимости (id однозначно определяет имя)
 			return uow.Session.QueryOver(() => routeListItemAlias)
 				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
-				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias, JoinType.LeftOuterJoin)
+				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias, JoinType.LeftOuterJoin)
 				.Where(() => routeListItemAlias.Status == RouteListItemStatus.Completed)
 				.And(() => routeListAlias.Date >= startDate.Date)

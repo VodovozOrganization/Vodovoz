@@ -49,6 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		private CompletedAddressesReport _report;
 		private bool _isReportGenerationInProgress;
 		private bool _isSavedSelectionApplied;
+		private bool _isFilterListsReloadScheduled;
 		private volatile bool _isDisposed;
 
 		public CompletedAddressesReportViewModel(
@@ -191,6 +192,28 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 
 		private void OnPeriodChanged()
 		{
+			if(_isFilterListsReloadScheduled)
+			{
+				return;
+			}
+
+			_isFilterListsReloadScheduled = true;
+
+			_guiDispatcher.RunInGuiTread(ApplyPeriodToFilterLists);
+		}
+
+		/// <summary>
+		/// Обновляет списки фильтров по итоговому периоду после того, как обе даты присвоены
+		/// </summary>
+		private void ApplyPeriodToFilterLists()
+		{
+			_isFilterListsReloadScheduled = false;
+
+			if(_isDisposed)
+			{
+				return;
+			}
+
 			if(!IsPeriodSelected)
 			{
 				ApplyFilterLists(new List<CompletedAddressesCountNode>());
@@ -331,7 +354,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 
 			SaveFilterSelection(selection);
 
-			IsReportGenerationInProgress = true;
+			_guiDispatcher.RunInGuiTread(() => IsReportGenerationInProgress = true);
 
 			try
 			{
@@ -339,8 +362,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Отчет по выполненным адресам и районам"))
 				{
-					nodes =
-						await _routeListItemRepository.GetCompletedAddressesCountsByDriverAndDistrictAsync(
+					nodes = await _routeListItemRepository.GetCompletedAddressesCountsByDriverAndDistrictAsync(
 						uow,
 						startDate,
 						endDate,
@@ -433,8 +455,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 			{
 				_logger.LogError(ex, "Ошибка при сохранении выбора фильтров отчета по выполненным адресам");
 
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Warning, $"Не удалось сохранить выбор фильтров:\n{ex.Message}");
+				ShowMessageInGuiThread(ImportanceLevel.Warning, $"Не удалось сохранить выбор фильтров:\n{ex.Message}");
 			}
 		}
 
