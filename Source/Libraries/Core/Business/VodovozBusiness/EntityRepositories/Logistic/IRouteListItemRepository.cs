@@ -23,6 +23,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 		string GetUnscannedCodesReason(IUnitOfWork uow, int orderId);
 
 		/// <summary>
+		/// Получает маршрутные листы адресов по id адресов
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="routeListItemIds">Id адресов маршрутных листов</param>
+		/// <returns>Словарь: id адреса - маршрутный лист адреса</returns>
+		IDictionary<int, RouteList> GetRouteListsByRouteListItemIds(IUnitOfWork uow, IEnumerable<int> routeListItemIds);
+
+		/// <summary>
 		/// Проверяет, были ли изменения в переданных адресах по сравнению с их состоянием в базе данных.
 		/// </summary>
 		/// <param name="uow">Unit of work</param>

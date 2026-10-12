@@ -119,7 +119,7 @@ namespace Edo.Problems.Validation.Sources
 			var scannedRouteListCodes =
 				(from routeListItem in unitOfWork.Session.Query<RouteListItemEntity>()
 					join productCode in unitOfWork.Session.Query<RouteListItemTrueMarkProductCode>()
-						on routeListItem.Id equals productCode.RouteListItem.Id
+						on (int?)routeListItem.Id equals productCode.RouteListItemId
 					where routeListItem.Order.Id == orderEdoRequest.Order.Id
 					      && productCode.SourceCodeStatus == SourceProductCodeStatus.Accepted
 					group productCode by productCode.ResultCode.Gtin

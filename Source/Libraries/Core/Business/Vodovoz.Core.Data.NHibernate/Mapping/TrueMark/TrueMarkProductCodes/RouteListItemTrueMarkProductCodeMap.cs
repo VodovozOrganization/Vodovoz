@@ -9,7 +9,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark.TrueMarkProductCodes
 		{
 			DiscriminatorValue("RouteListItem");
 
-			References(x => x.RouteListItem).Column("route_list_item_id");
+			Map(x => x.RouteListItemId).Column("route_list_item_id");
 		}
 	}
 }

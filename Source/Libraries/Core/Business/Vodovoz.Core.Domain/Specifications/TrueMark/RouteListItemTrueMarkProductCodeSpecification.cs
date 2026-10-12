@@ -19,6 +19,6 @@ namespace Vodovoz.Core.Domain.Specifications.TrueMark
 		/// </summary>
 		/// <param name="routeListItemId">Идентификатор адреса маршрутного листа</param>
 		public static RouteListItemTrueMarkProductCodeSpecification CreateForRouteListItemId(int routeListItemId)
-			=> new RouteListItemTrueMarkProductCodeSpecification(x => x.RouteListItem.Id == routeListItemId);
+			=> new RouteListItemTrueMarkProductCodeSpecification(x => x.RouteListItemId == routeListItemId);
 	}
 }

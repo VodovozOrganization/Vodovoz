@@ -27,6 +27,7 @@ namespace VodovozBusiness.TrueMark.Tests
 	public class RouteListItemTrueMarkProductCodesProcessingServiceTests
 	{
 		private const int _orderId = 1;
+		private const int _routeListItemId = 4;
 		private const int _orderItemId = 2;
 		private const int _reusedIdentificationCodeId = 3;
 		private const string _gtin = "04602009723186";
@@ -105,7 +106,10 @@ namespace VodovozBusiness.TrueMark.Tests
 				.PutCodeAsync(_reusedIdentificationCodeId, Arg.Any<CancellationToken>());
 			Assert.Null(reusedProductCode.ResultCode);
 			Assert.Equal(SourceProductCodeStatus.SavedToPool, reusedProductCode.SourceCodeStatus);
-			Assert.Same(driverIdentificationCode, routeListItem.TrueMarkCodes.Single().SourceCode);
+			_uow.Received(1).Save(
+				Arg.Is<RouteListItemTrueMarkProductCode>(x =>
+					ReferenceEquals(x.SourceCode, driverIdentificationCode) && x.RouteListItemId == routeListItem.Id),
+				Arg.Any<bool>());
 		}
 
 		/// <summary>
@@ -136,7 +140,10 @@ namespace VodovozBusiness.TrueMark.Tests
 				.PutCodeAsync(_reusedIdentificationCodeId, Arg.Any<CancellationToken>());
 			Assert.Null(reusedProductCode.ResultCode);
 			Assert.Equal(SourceProductCodeStatus.SavedToPool, reusedProductCode.SourceCodeStatus);
-			Assert.Same(driverIdentificationCode, routeListItem.TrueMarkCodes.Single().SourceCode);
+			_uow.Received(1).Save(
+				Arg.Is<RouteListItemTrueMarkProductCode>(x =>
+					ReferenceEquals(x.SourceCode, driverIdentificationCode) && x.RouteListItemId == routeListItem.Id),
+				Arg.Any<bool>());
 		}
 
 		/// <summary>
@@ -160,7 +167,10 @@ namespace VodovozBusiness.TrueMark.Tests
 			await _trueMarkCodesPool
 				.DidNotReceive()
 				.PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
-			Assert.Same(driverIdentificationCode, routeListItem.TrueMarkCodes.Single().SourceCode);
+			_uow.Received(1).Save(
+				Arg.Is<RouteListItemTrueMarkProductCode>(x =>
+					ReferenceEquals(x.SourceCode, driverIdentificationCode) && x.RouteListItemId == routeListItem.Id),
+				Arg.Any<bool>());
 		}
 
 		/// <summary>
@@ -272,6 +282,7 @@ namespace VodovozBusiness.TrueMark.Tests
 		private static RouteListItemEntity CreateRouteListItem() =>
 			new RouteListItemEntity
 			{
+				Id = _routeListItemId,
 				Order = new OrderEntity
 				{
 					Id = _orderId

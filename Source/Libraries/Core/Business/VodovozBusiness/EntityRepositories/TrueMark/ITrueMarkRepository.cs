@@ -197,6 +197,14 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		Task<int?> GetOrderIdByTrueMarkProductCode(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode, CancellationToken cancellationToken);
 
 		/// <summary>
+		/// Возвращает номер заказа по коду товара Честного Знака (синхронно, для десктопа)
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="trueMarkProductCode">Код ЧЗ товара</param>
+		/// <returns>Номер заказа</returns>
+		int? GetOrderIdByTrueMarkProductCode(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode);
+
+		/// <summary>
 		/// Возвращает все коды ЧЗ для промежуточного хранения, добавленные для заказа
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>

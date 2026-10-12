@@ -2829,7 +2829,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			var productCodes =
 				from routeListItem in uow.Session.Query<RouteListItem>()
-				join productCode in uow.Session.Query<RouteListItemTrueMarkProductCode>() on routeListItem.Id equals productCode.RouteListItem.Id
+				join productCode in uow.Session.Query<RouteListItemTrueMarkProductCode>() on (int?)routeListItem.Id equals productCode.RouteListItemId
 				where routeListItem.Order.Id == orderId
 				select productCode;
 

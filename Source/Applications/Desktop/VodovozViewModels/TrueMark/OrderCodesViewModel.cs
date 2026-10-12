@@ -819,8 +819,17 @@ namespace Vodovoz.ViewModels.TrueMark
 				.ToDictionary(x => x.GroupCode.Id);
 
 			_totalScannedByDriver = instanceCodes.Count();
+
+			var routeListItemIds = instanceCodes
+				.Where(x => x.RouteListItemId.HasValue)
+				.Select(x => x.RouteListItemId.Value);
+
+			var routeLists = _routeListItemRepository.GetRouteListsByRouteListItemIds(uow, routeListItemIds);
+
 			_scannedByDriverCodesOrigin = instanceCodes.Select(x =>
 			{
+				var routeList = routeLists[x.RouteListItemId.Value];
+
 				var vm = new OrderCodeItemViewModel
 				{
 					ProductCodeId = x.Id,
@@ -829,9 +838,9 @@ namespace Vodovoz.ViewModels.TrueMark
 					Status = x.SourceCodeStatus,
 					ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
 					Problem = x.Problem,
-					SourceDocumentId = x.RouteListItem.RouteList.Id,
-					CodeAuthorId = x.RouteListItem.RouteList.Driver.Id,
-					CodeAuthor = x.RouteListItem.RouteList.Driver.FullName
+					SourceDocumentId = routeList.Id,
+					CodeAuthorId = routeList.Driver.Id,
+					CodeAuthor = routeList.Driver.FullName
 				};
 
 				if(x.SourceCode != null && x.SourceCode.ParentTransportCodeId.HasValue)

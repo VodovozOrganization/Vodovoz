@@ -1,5 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using System;
@@ -21,6 +22,17 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					  .Where(rli => rli.Status != RouteListItemStatus.Transfered)
 					  .Where(() => routeListItemAlias.Order.Id == order.Id)
 					  .SingleOrDefault();
+		}
+
+		/// <inheritdoc/>
+		public IDictionary<int, RouteList> GetRouteListsByRouteListItemIds(IUnitOfWork uow, IEnumerable<int> routeListItemIds)
+		{
+			var ids = routeListItemIds.Distinct().ToList();
+
+			return uow.Session.Query<RouteListItem>()
+				.Where(x => ids.Contains(x.Id))
+				.Select(x => new { x.Id, x.RouteList })
+				.ToDictionary(x => x.Id, x => x.RouteList);
 		}
 
 		public IList<RouteListItem> GetRouteListItemsForOrder(IUnitOfWork uow, int orderId)

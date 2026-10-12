@@ -97,7 +97,6 @@ namespace VodovozBusiness.Services.TrueMark
 				status,
 				problem);
 
-			routeListAddress.TrueMarkCodes.Add(productCode);
 			uow.Save(productCode);
 
 			var trueMarkCodeOrderItem = new TrueMarkProductCodeOrderItem
@@ -283,7 +282,7 @@ namespace VodovozBusiness.Services.TrueMark
 				SourceCodeStatus = status,
 				SourceCode = trueMarkWaterIdentificationCode,
 				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkWaterIdentificationCode : default,
-				RouteListItem = routeListAddress,
+				RouteListItemId = routeListAddress.Id,
 				Problem = problem
 			};
 

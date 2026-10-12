@@ -277,10 +277,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Left.JoinAlias(
-					() => routeListTrueMarkProductCodeAlias.RouteListItem,
-					() => routeListItemAlias
-				);
+				.JoinEntityAlias(
+					() => routeListItemAlias,
+					() => routeListItemAlias.Id == routeListTrueMarkProductCodeAlias.RouteListItemId,
+					JoinType.LeftOuterJoin);
 
 			if(edoTaskId.HasValue)
 			{
@@ -388,9 +388,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var routeListProductCodes = uow.Session.QueryOver(() => routeListProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.JoinAlias(
-					() => routeListProductCodeAlias.RouteListItem,
-					() => routeListItemAlias)
+				.JoinEntityAlias(
+					() => routeListItemAlias,
+					() => routeListItemAlias.Id == routeListProductCodeAlias.RouteListItemId,
+					JoinType.InnerJoin)
 				.Where(() => routeListItemAlias.Order.Id == orderId)
 				.Where(() => routeListProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
 				.Where(() => routeListProductCodeAlias.SourceCode != null)
@@ -510,7 +511,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			OrderEntity routeListOrderAlias = null;
 
 			var routeListIdentificationCodeIds = uow.Session.QueryOver(() => routeListProductCodeAlias)
-				.JoinAlias(() => routeListProductCodeAlias.RouteListItem, () => routeListItemAlias)
+				.JoinEntityAlias(
+					() => routeListItemAlias,
+					() => routeListItemAlias.Id == routeListProductCodeAlias.RouteListItemId,
+					JoinType.InnerJoin)
 				.JoinAlias(() => routeListItemAlias.Order, () => routeListOrderAlias)
 				.WhereRestrictionOn(() => routeListProductCodeAlias.SourceCode.Id).IsIn(codeIds)
 				.Where(() => routeListProductCodeAlias.ResultCode == null)
@@ -732,25 +736,52 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 		public async Task<int?> GetOrderIdByTrueMarkProductCode(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode, CancellationToken cancellationToken)
 		{
+			var query = CreateOrderIdByTrueMarkProductCodeQuery(uow, trueMarkProductCode);
+
+			if(query is null)
+			{
+				return null;
+			}
+
+			return await query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		public int? GetOrderIdByTrueMarkProductCode(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode)
+		{
+			var query = CreateOrderIdByTrueMarkProductCodeQuery(uow, trueMarkProductCode);
+
+			if(query is null)
+			{
+				return null;
+			}
+
+			return query.FirstOrDefault();
+		}
+
+		private IQueryable<int?> CreateOrderIdByTrueMarkProductCodeQuery(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode)
+		{
 			switch(trueMarkProductCode)
 			{
 				case CarLoadDocumentItemTrueMarkProductCode carLoadDocumentItemTrueMarkProduct:
 					{
-						var query =
+						return
 							from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItemEntity>()
 							where carLoadDocumentItem.Id == carLoadDocumentItemTrueMarkProduct.CarLoadDocumentItem.Id
 							select carLoadDocumentItem.OrderId;
-
-						return await query.FirstOrDefaultAsync(cancellationToken);
 					}
 				case RouteListItemTrueMarkProductCode routeListItemTrueMarkProductCode:
 					{
-						var query =
-							from routeListItem in uow.Session.Query<RouteListItemEntity>()
-							where routeListItem.Id == routeListItemTrueMarkProductCode.RouteListItem.Id
-							select routeListItem.Order.Id;
+						var routeListItemId = routeListItemTrueMarkProductCode.RouteListItemId;
 
-						return await query.FirstOrDefaultAsync(cancellationToken);
+						if(routeListItemId is null)
+						{
+							return null;
+						}
+
+						return
+							from routeListItem in uow.Session.Query<RouteListItemEntity>()
+							where routeListItem.Id == routeListItemId.Value
+							select (int?)routeListItem.Order.Id;
 					}
 				case SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryDocumentItemTrueMarkProductCode:
 					{
@@ -759,48 +790,37 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 						if(selfDeliveryDocumentItemId is null)
 						{
-							var customerEdoRequestId = trueMarkProductCode.CustomerEdoRequest?.Id;
-
-							if(customerEdoRequestId is null)
-							{
-								return null;
-							}
-
-							var fallbackQuery =
-								from customerEdoRequest in uow.Session.Query<FormalEdoRequest>()
-								where customerEdoRequest.Id == customerEdoRequestId.Value
-								select customerEdoRequest.Order.Id;
-
-							return await fallbackQuery.FirstOrDefaultAsync(cancellationToken);
+							return CreateOrderIdByCustomerEdoRequestQuery(uow, trueMarkProductCode);
 						}
 
-						var query =
+						return
 							from selfDeliveryDocumentItem in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
 							where selfDeliveryDocumentItem.Id == selfDeliveryDocumentItemId.Value
-							select selfDeliveryDocumentItem.Document.Order.Id;
-
-						return await query.FirstOrDefaultAsync(cancellationToken);
+							select (int?)selfDeliveryDocumentItem.Document.Order.Id;
 					}
 				case AutoTrueMarkProductCode _:
 				case ResentTrueMarkProductCode _:
 					{
-						var customerEdoRequestId = trueMarkProductCode.CustomerEdoRequest?.Id;
-
-						if(customerEdoRequestId is null)
-						{
-							return null;
-						}
-
-						var query =
-							from orderEdoReques in uow.Session.Query<FormalEdoRequest>()
-							where orderEdoReques.Id == customerEdoRequestId.Value
-							select orderEdoReques.Order.Id;
-
-						return await query.FirstOrDefaultAsync(cancellationToken);
+						return CreateOrderIdByCustomerEdoRequestQuery(uow, trueMarkProductCode);
 					}
 				default:
 					throw new InvalidOperationException("Неизвестный тип кода ЧЗ товара");
 			}
+		}
+
+		private IQueryable<int?> CreateOrderIdByCustomerEdoRequestQuery(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode)
+		{
+			var customerEdoRequestId = trueMarkProductCode.CustomerEdoRequest?.Id;
+
+			if(customerEdoRequestId is null)
+			{
+				return null;
+			}
+
+			return
+				from customerEdoRequest in uow.Session.Query<FormalEdoRequest>()
+				where customerEdoRequest.Id == customerEdoRequestId.Value
+				select (int?)customerEdoRequest.Order.Id;
 		}
 
 		public IList<StagingTrueMarkCode> GetAllStagingCodesByOrderId(IUnitOfWork uow, int orderId)
