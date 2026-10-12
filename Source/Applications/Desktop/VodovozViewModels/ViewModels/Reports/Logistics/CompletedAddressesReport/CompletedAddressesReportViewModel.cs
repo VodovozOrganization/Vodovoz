@@ -15,6 +15,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Presentation.ViewModels.Common;
@@ -41,8 +43,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		private readonly IncludeExcludeBoolParamsFilter _driversFilter;
 		private readonly IncludeExcludeBoolParamsFilter _districtsFilter;
 
-		private IList<(string Key, string Title)> _drivers = new List<(string Key, string Title)>();
-		private IList<(string Key, string Title)> _districts = new List<(string Key, string Title)>();
+		private IList<(int Id, string Title)> _drivers = new List<(int Id, string Title)>();
+		private IList<(int? Id, string Title)> _districts = new List<(int? Id, string Title)>();
 
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -261,21 +263,33 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 
 			var selection = GetSelectionToApply(nodes.Count > 0);
 
-			ApplySelection(
+			ApplySelection<int, Employee>(
 				_driversFilter,
 				_drivers,
-				selection.IncludedDriverIds.Select(x => x.ToString()),
-				selection.ExcludedDriverIds.Select(x => x.ToString()));
+				selection.IncludedDriverIds,
+				selection.ExcludedDriverIds);
 
-			ApplySelection(
+			ApplySelection<int?, District>(
 				_districtsFilter,
 				_districts,
-				selection.IncludedDistrictKeys,
-				selection.ExcludedDistrictKeys);
+				GetDistrictIds(selection.IncludedDistrictIds, selection.IsWithoutDistrictIncluded),
+				GetDistrictIds(selection.ExcludedDistrictIds, selection.IsWithoutDistrictExcluded));
 
 			_driversFilter.RefreshFilteredElements();
 			_districtsFilter.RefreshFilteredElements();
 			FilterViewModel.RefreshActiveFilterElements();
+		}
+
+		private static IEnumerable<int?> GetDistrictIds(IEnumerable<int> districtIds, bool isWithoutDistrict)
+		{
+			var ids = districtIds.Select(x => (int?)x).ToList();
+
+			if(isWithoutDistrict)
+			{
+				ids.Add(null);
+			}
+
+			return ids;
 		}
 
 		private CompletedAddressesReportFilterSelection GetSelectionToApply(bool hasData)
@@ -296,35 +310,40 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 			return saved;
 		}
 
-		private static void ApplySelection(
+		private static void ApplySelection<TId, TEntity>(
 			IncludeExcludeBoolParamsFilter filter,
-			IList<(string Key, string Title)> items,
-			IEnumerable<string> includedKeys,
-			IEnumerable<string> excludedKeys)
+			IList<(TId Id, string Title)> items,
+			IEnumerable<TId> includedIds,
+			IEnumerable<TId> excludedIds)
 		{
-			var available = new Dictionary<string, (string Key, string Title)>(StringComparer.OrdinalIgnoreCase);
-
-			foreach(var item in items)
-			{
-				available[item.Key] = item;
-			}
-
 			filter.IncludedElements.Clear();
 			filter.ExcludedElements.Clear();
 
-			foreach(var key in includedKeys.Distinct(StringComparer.OrdinalIgnoreCase))
+			// Идентификаторы, которых нет в списке периода (например, после смены версии районов), пропускаются
+			foreach(var id in includedIds.Distinct())
 			{
-				if(available.TryGetValue(key, out var item))
-				{
-					filter.IncludedElements.Add(new IncludeExcludeElement<string, string> { Id = item.Key, Title = item.Title });
-				}
+				AddSelectedElement<TId, TEntity>(filter.IncludedElements, items, id);
 			}
 
-			foreach(var key in excludedKeys.Distinct(StringComparer.OrdinalIgnoreCase))
+			foreach(var id in excludedIds.Distinct())
 			{
-				if(available.TryGetValue(key, out var item))
+				AddSelectedElement<TId, TEntity>(filter.ExcludedElements, items, id);
+			}
+		}
+
+		private static void AddSelectedElement<TId, TEntity>(
+			IList<IncludeExcludeElement> elements,
+			IList<(TId Id, string Title)> items,
+			TId id)
+		{
+			var comparer = EqualityComparer<TId>.Default;
+
+			foreach(var item in items)
+			{
+				if(comparer.Equals(item.Id, id))
 				{
-					filter.ExcludedElements.Add(new IncludeExcludeElement<string, string> { Id = item.Key, Title = item.Title });
+					elements.Add(new IncludeExcludeElement<TId, TEntity> { Id = item.Id, Title = item.Title });
+					return;
 				}
 			}
 		}
@@ -333,12 +352,41 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		{
 			var selection = new CompletedAddressesReportFilterSelection();
 
-			selection.IncludedDriverIds.AddRange(_driversFilter.IncludedElements.Select(x => int.Parse(x.Number)));
-			selection.ExcludedDriverIds.AddRange(_driversFilter.ExcludedElements.Select(x => int.Parse(x.Number)));
-			selection.IncludedDistrictKeys.AddRange(_districtsFilter.IncludedElements.Select(x => x.Number));
-			selection.ExcludedDistrictKeys.AddRange(_districtsFilter.ExcludedElements.Select(x => x.Number));
+			selection.IncludedDriverIds.AddRange(
+				_driversFilter.IncludedElements.Cast<IncludeExcludeElement<int, Employee>>().Select(x => x.Id));
+			selection.ExcludedDriverIds.AddRange(
+				_driversFilter.ExcludedElements.Cast<IncludeExcludeElement<int, Employee>>().Select(x => x.Id));
+
+			FillDistricts(
+				_districtsFilter.IncludedElements,
+				selection.IncludedDistrictIds,
+				out var isWithoutDistrictIncluded);
+			selection.IsWithoutDistrictIncluded = isWithoutDistrictIncluded;
+
+			FillDistricts(
+				_districtsFilter.ExcludedElements,
+				selection.ExcludedDistrictIds,
+				out var isWithoutDistrictExcluded);
+			selection.IsWithoutDistrictExcluded = isWithoutDistrictExcluded;
 
 			return selection;
+		}
+
+		private static void FillDistricts(IEnumerable<IncludeExcludeElement> elements, List<int> districtIds, out bool isWithoutDistrict)
+		{
+			isWithoutDistrict = false;
+
+			foreach(var id in elements.Cast<IncludeExcludeElement<int?, District>>().Select(x => x.Id))
+			{
+				if(id.HasValue)
+				{
+					districtIds.Add(id.Value);
+				}
+				else
+				{
+					isWithoutDistrict = true;
+				}
+			}
 		}
 
 		private async Task GenerateReport(CancellationToken token)
@@ -352,7 +400,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 			var endDate = EndDate.Value;
 			var selection = GetCurrentSelection();
 
-			SaveFilterSelection(selection);
+			await SaveFilterSelectionAsync(selection);
 
 			_guiDispatcher.RunInGuiTread(() => IsReportGenerationInProgress = true);
 
@@ -366,12 +414,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 						uow,
 						startDate,
 						endDate,
+						selection.ToCountsFilter(),
 						token);
 				}
 
 				token.ThrowIfCancellationRequested();
 
-				var report = CompletedAddressesReport.Create(startDate, endDate, nodes, selection);
+				var report = CompletedAddressesReport.Create(startDate, endDate, nodes);
 
 				_guiDispatcher.RunInGuiTread(() =>
 				{
@@ -431,7 +480,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		/// <summary>
 		/// Сохраняет выбор фильтров пользователя целиком (прежнее значение не сливается с новым)
 		/// </summary>
-		private void SaveFilterSelection(CompletedAddressesReportFilterSelection selection)
+		private async Task SaveFilterSelectionAsync(CompletedAddressesReportFilterSelection selection)
 		{
 			var json = selection.ToJson();
 
@@ -446,8 +495,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 					if(settings != null)
 					{
 						settings.CompletedAddressesReportFilterSelectionJson = json;
-						uow.Save(settings);
-						uow.Commit();
+						await uow.SaveAsync(settings);
+						await uow.CommitAsync();
 					}
 				}
 			}

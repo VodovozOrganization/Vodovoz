@@ -15,16 +15,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 	public partial class CompletedAddressesReport
 	{
 		/// <summary>
-		/// Ключ адресов без района (как COALESCE в запросе бизнеса)
-		/// </summary>
-		public const string WithoutDistrictKey = "(без района)";
-
-		/// <summary>
 		/// Заголовок колонки адресов без района
 		/// </summary>
 		public const string WithoutDistrictTitle = "Без района";
-
-		private static readonly StringComparer _keyComparer = StringComparer.OrdinalIgnoreCase;
 
 		private CompletedAddressesReport()
 		{
@@ -56,103 +49,70 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		public IList<CompletedAddressesReportRow> Rows { get; private set; } = new List<CompletedAddressesReportRow>();
 
 		/// <summary>
-		/// Ключ района узла: название района или ключ адресов без района
+		/// Водители для фильтра (id и ФИО), по алфавиту
 		/// </summary>
-		public static string GetDistrictKey(CompletedAddressesCountNode node)
-		{
-			if(node.DistrictId == null || string.IsNullOrWhiteSpace(node.DistrictName))
-			{
-				return WithoutDistrictKey;
-			}
-
-			return node.DistrictName.Trim();
-		}
-
-		/// <summary>
-		/// Водители для фильтра (ключ - id строкой, заголовок - ФИО), по алфавиту
-		/// </summary>
-		public static IList<(string Key, string Title)> GetDrivers(IEnumerable<CompletedAddressesCountNode> nodes)
+		public static IList<(int Id, string Title)> GetDrivers(IEnumerable<CompletedAddressesCountNode> nodes)
 		{
 			return nodes
 				.GroupBy(n => n.DriverId)
-				.Select(g => (
-					Key: g.Key.ToString(),
-					Title: GetDriverFullName(g.First()),
-					Id: g.Key))
+				.Select(g => (Id: g.Key, Title: GetDriverFullName(g.First())))
 				.OrderBy(d => d.Title, GetTitleComparer())
 				.ThenBy(d => d.Id)
-				.Select(d => (d.Key, d.Title))
 				.ToList();
 		}
 
 		/// <summary>
-		/// Районы для фильтра (ключ - название, для адресов без района - константа), по алфавиту заголовка
+		/// Районы для фильтра (id района, для адресов без района - null), по алфавиту заголовка
 		/// </summary>
-		public static IList<(string Key, string Title)> GetDistricts(IEnumerable<CompletedAddressesCountNode> nodes)
+		public static IList<(int? Id, string Title)> GetDistricts(IEnumerable<CompletedAddressesCountNode> nodes)
 		{
 			return nodes
-				.Select(GetDistrictKey)
-				.Distinct(_keyComparer)
-				.Select(k => (Key: k, Title: GetDistrictTitle(k)))
+				.GroupBy(n => n.DistrictId)
+				.Select(g => (Id: g.Key, Title: GetDistrictTitle(g.First())))
 				.OrderBy(d => d.Title, GetTitleComparer())
+				.ThenBy(d => d.Id)
 				.ToList();
 		}
 
 		/// <summary>
-		/// Построение отчета из узлов запроса с учетом выбора фильтров
+		/// Построение отчета из узлов запроса (узлы уже отфильтрованы запросом)
 		/// </summary>
 		public static CompletedAddressesReport Create(
 			DateTime startDate,
 			DateTime endDate,
-			IEnumerable<CompletedAddressesCountNode> nodes,
-			CompletedAddressesReportFilterSelection selection)
+			IEnumerable<CompletedAddressesCountNode> nodes)
 		{
-			selection = selection ?? new CompletedAddressesReportFilterSelection();
+			var items = nodes.ToList();
 
-			var includedDrivers = new HashSet<int>(selection.IncludedDriverIds);
-			var excludedDrivers = new HashSet<int>(selection.ExcludedDriverIds);
-			var includedDistricts = new HashSet<string>(selection.IncludedDistrictKeys, _keyComparer);
-			var excludedDistricts = new HashSet<string>(selection.ExcludedDistrictKeys, _keyComparer);
-
-			var filtered = nodes
-				.Where(n => includedDrivers.Count == 0 || includedDrivers.Contains(n.DriverId))
-				.Where(n => !excludedDrivers.Contains(n.DriverId))
-				.Select(n => new { Node = n, DistrictKey = GetDistrictKey(n) })
-				.Where(x => includedDistricts.Count == 0 || includedDistricts.Contains(x.DistrictKey))
-				.Where(x => !excludedDistricts.Contains(x.DistrictKey))
-				.ToList();
-
-			var sums = filtered
-				.GroupBy(x => new { x.Node.DriverId, DistrictKey = x.DistrictKey.ToUpperInvariant() })
+			var sums = items
+				.GroupBy(n => new { n.DriverId, n.DistrictId })
 				.Select(g => new
 				{
 					g.Key.DriverId,
-					g.Key.DistrictKey,
-					Count = g.Sum(x => x.Node.CompletedAddressesCount)
+					g.Key.DistrictId,
+					Count = g.Sum(n => n.CompletedAddressesCount)
 				})
 				.Where(s => s.Count != 0)
 				.ToList();
 
-			var titlesByKey = filtered
-				.GroupBy(x => x.DistrictKey.ToUpperInvariant())
-				.ToDictionary(g => g.Key, g => GetDistrictTitle(g.First().DistrictKey));
-
 			var districtColumns = sums
-				.Select(s => s.DistrictKey)
+				.Select(s => s.DistrictId)
 				.Distinct()
-				.OrderBy(k => titlesByKey[k], GetTitleComparer())
+				.Select(id => new { Id = id, Node = items.First(n => n.DistrictId == id) })
+				.OrderBy(d => GetDistrictTitle(d.Node), GetTitleComparer())
+				.ThenBy(d => d.Id)
 				.ToList();
 
-			var driverNames = filtered
-				.GroupBy(x => x.Node.DriverId)
-				.ToDictionary(g => g.Key, g => GetDriverFullName(g.First().Node));
+			var driverNames = items
+				.GroupBy(n => n.DriverId)
+				.ToDictionary(g => g.Key, g => GetDriverFullName(g.First()));
 
 			var rows = sums
 				.GroupBy(s => s.DriverId)
 				.Select(g =>
 				{
 					var counts = districtColumns
-						.Select(k => g.Where(s => s.DistrictKey == k).Sum(s => s.Count))
+						.Select(c => g.Where(s => s.DistrictId == c.Id).Sum(s => s.Count))
 						.ToArray();
 
 					return new CompletedAddressesReportRow
@@ -171,7 +131,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 			{
 				StartDate = startDate,
 				EndDate = endDate,
-				DistrictTitles = districtColumns.Select(k => titlesByKey[k]).ToList(),
+				DistrictTitles = districtColumns.Select(c => GetDistrictTitle(c.Node)).ToList(),
 				Rows = rows
 			};
 		}
@@ -181,9 +141,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 			return PersonHelper.PersonFullName(node.DriverLastName, node.DriverName, node.DriverPatronymic);
 		}
 
-		private static string GetDistrictTitle(string districtKey)
+		private static string GetDistrictTitle(CompletedAddressesCountNode node)
 		{
-			return _keyComparer.Equals(districtKey, WithoutDistrictKey) ? WithoutDistrictTitle : districtKey;
+			return node.DistrictId == null ? WithoutDistrictTitle : node.DistrictName;
 		}
 
 		private static StringComparer GetTitleComparer()

@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 {
@@ -19,8 +21,8 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 
 		/// <inheritdoc/>
 		public IncludeExludeFiltersViewModel CreateCompletedAddressesReportIncludeExcludeFilter(
-			Func<IEnumerable<(string Key, string Title)>> getDrivers,
-			Func<IEnumerable<(string Key, string Title)>> getDistricts)
+			Func<IEnumerable<(int Id, string Title)>> getDrivers,
+			Func<IEnumerable<(int? Id, string Title)>> getDistricts)
 		{
 			if(getDrivers == null)
 			{
@@ -38,23 +40,23 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			{
 				config.DefaultName = DriversFilterName;
 				config.GenitivePluralTitle = "Водителей";
-				config.RefreshFunc = filter => FillElements(filter, filtersViewModel, getDrivers(), splitSearchByWords: true);
+				config.RefreshFunc = filter => FillElements<int, Employee>(filter, filtersViewModel, getDrivers(), splitSearchByWords: true);
 			});
 
 			filtersViewModel.AddFilter("Районы", new Dictionary<string, string>(), config =>
 			{
 				config.DefaultName = DistrictsFilterName;
 				config.GenitivePluralTitle = "Районов";
-				config.RefreshFunc = filter => FillElements(filter, filtersViewModel, getDistricts(), splitSearchByWords: false);
+				config.RefreshFunc = filter => FillElements<int?, District>(filter, filtersViewModel, getDistricts(), splitSearchByWords: false);
 			});
 
 			return filtersViewModel;
 		}
 
-		private static void FillElements(
+		private static void FillElements<TId, TEntity>(
 			IncludeExcludeBoolParamsFilter filter,
 			IncludeExludeFiltersViewModel filtersViewModel,
-			IEnumerable<(string Key, string Title)> items,
+			IEnumerable<(TId Id, string Title)> items,
 			bool splitSearchByWords)
 		{
 			var search = filtersViewModel.CurrentSearchString ?? string.Empty;
@@ -69,7 +71,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			{
 				if(words.All(word => item.Title.IndexOf(word, StringComparison.OrdinalIgnoreCase) >= 0))
 				{
-					filter.FilteredElements.Add(new IncludeExcludeElement<string, string> { Id = item.Key, Title = item.Title });
+					filter.FilteredElements.Add(new IncludeExcludeElement<TId, TEntity> { Id = item.Id, Title = item.Title });
 				}
 			}
 		}

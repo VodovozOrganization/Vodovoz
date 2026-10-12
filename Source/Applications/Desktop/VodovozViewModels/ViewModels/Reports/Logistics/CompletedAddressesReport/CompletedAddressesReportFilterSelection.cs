@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesReport
 {
@@ -19,14 +20,40 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 		public List<int> ExcludedDriverIds { get; set; } = new List<int>();
 
 		/// <summary>
-		/// Ключи (названия) включенных районов
+		/// Идентификаторы включенных районов
 		/// </summary>
-		public List<string> IncludedDistrictKeys { get; set; } = new List<string>();
+		public List<int> IncludedDistrictIds { get; set; } = new List<int>();
 
 		/// <summary>
-		/// Ключи (названия) исключенных районов
+		/// Идентификаторы исключенных районов
 		/// </summary>
-		public List<string> ExcludedDistrictKeys { get; set; } = new List<string>();
+		public List<int> ExcludedDistrictIds { get; set; } = new List<int>();
+
+		/// <summary>
+		/// Элемент "Без района" включен
+		/// </summary>
+		public bool IsWithoutDistrictIncluded { get; set; }
+
+		/// <summary>
+		/// Элемент "Без района" исключен
+		/// </summary>
+		public bool IsWithoutDistrictExcluded { get; set; }
+
+		/// <summary>
+		/// Условия запроса по выбору фильтров
+		/// </summary>
+		public CompletedAddressesCountsFilter ToCountsFilter()
+		{
+			return new CompletedAddressesCountsFilter
+			{
+				IncludedDriverIds = new List<int>(IncludedDriverIds),
+				ExcludedDriverIds = new List<int>(ExcludedDriverIds),
+				IncludedDistrictIds = new List<int>(IncludedDistrictIds),
+				ExcludedDistrictIds = new List<int>(ExcludedDistrictIds),
+				IsWithoutDistrictIncluded = IsWithoutDistrictIncluded,
+				IsWithoutDistrictExcluded = IsWithoutDistrictExcluded
+			};
+		}
 
 		/// <summary>
 		/// Сериализация выбора в JSON
@@ -59,8 +86,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 
 				parsed.IncludedDriverIds = parsed.IncludedDriverIds ?? new List<int>();
 				parsed.ExcludedDriverIds = parsed.ExcludedDriverIds ?? new List<int>();
-				parsed.IncludedDistrictKeys = parsed.IncludedDistrictKeys ?? new List<string>();
-				parsed.ExcludedDistrictKeys = parsed.ExcludedDistrictKeys ?? new List<string>();
+				parsed.IncludedDistrictIds = parsed.IncludedDistrictIds ?? new List<int>();
+				parsed.ExcludedDistrictIds = parsed.ExcludedDistrictIds ?? new List<int>();
 
 				selection = parsed;
 				return true;

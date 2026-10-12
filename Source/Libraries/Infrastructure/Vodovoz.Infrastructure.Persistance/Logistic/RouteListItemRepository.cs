@@ -203,20 +203,20 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 
 		/// <inheritdoc/>
 		public Task<IList<CompletedAddressesCountNode>> GetCompletedAddressesCountsByDriverAndDistrictAsync(
-			IUnitOfWork uow, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
+			IUnitOfWork uow, DateTime startDate, DateTime endDate, CompletedAddressesCountsFilter filter, CancellationToken cancellationToken)
 		{
-			return CreateCompletedAddressesCountsQuery(uow, startDate, endDate).ListAsync<CompletedAddressesCountNode>(cancellationToken);
+			return CreateCompletedAddressesCountsQuery(uow, startDate, endDate, filter).ListAsync<CompletedAddressesCountNode>(cancellationToken);
 		}
 
 		/// <inheritdoc/>
 		public IList<CompletedAddressesCountNode> GetCompletedAddressesCountsByDriverAndDistrict(
 			IUnitOfWork uow, DateTime startDate, DateTime endDate)
 		{
-			return CreateCompletedAddressesCountsQuery(uow, startDate, endDate).List<CompletedAddressesCountNode>();
+			return CreateCompletedAddressesCountsQuery(uow, startDate, endDate, null).List<CompletedAddressesCountNode>();
 		}
 
 		private static IQueryOver<RouteListItem, RouteListItem> CreateCompletedAddressesCountsQuery(
-			IUnitOfWork uow, DateTime startDate, DateTime endDate)
+			IUnitOfWork uow, DateTime startDate, DateTime endDate, CompletedAddressesCountsFilter filter)
 		{
 			RouteListItem routeListItemAlias = null;
 			RouteList routeListAlias = null;
@@ -226,7 +226,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			District districtAlias = null;
 			CompletedAddressesCountNode resultAlias = null;
 
-			return uow.Session.QueryOver(() => routeListItemAlias)
+			var query = uow.Session.QueryOver(() => routeListItemAlias)
 				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
@@ -234,7 +234,55 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias, JoinType.LeftOuterJoin)
 				.Where(() => routeListItemAlias.Status == RouteListItemStatus.Completed)
 				.And(() => routeListAlias.Date >= startDate.Date)
-				.And(() => routeListAlias.Date <= endDate.Date)
+				.And(() => routeListAlias.Date <= endDate.Date);
+
+			if(filter != null)
+			{
+				if(filter.IncludedDriverIds.Count > 0)
+				{
+					query.WhereRestrictionOn(() => driverAlias.Id).IsIn(filter.IncludedDriverIds.ToArray());
+				}
+
+				if(filter.ExcludedDriverIds.Count > 0)
+				{
+					query.WhereRestrictionOn(() => driverAlias.Id).Not.IsIn(filter.ExcludedDriverIds.ToArray());
+				}
+
+				if(filter.IncludedDistrictIds.Count > 0 || filter.IsWithoutDistrictIncluded)
+				{
+					var includedDistricts = Restrictions.Disjunction();
+
+					if(filter.IncludedDistrictIds.Count > 0)
+					{
+						includedDistricts.Add(Restrictions.In(
+							Projections.Property(() => districtAlias.Id),
+							filter.IncludedDistrictIds.Cast<object>().ToArray()));
+					}
+
+					if(filter.IsWithoutDistrictIncluded)
+					{
+						includedDistricts.Add(Restrictions.IsNull(Projections.Property(() => districtAlias.Id)));
+					}
+
+					query.And(includedDistricts);
+				}
+
+				if(filter.ExcludedDistrictIds.Count > 0)
+				{
+					query.And(Restrictions.Disjunction()
+						.Add(Restrictions.IsNull(Projections.Property(() => districtAlias.Id)))
+						.Add(Restrictions.Not(Restrictions.In(
+							Projections.Property(() => districtAlias.Id),
+							filter.ExcludedDistrictIds.Cast<object>().ToArray()))));
+				}
+
+				if(filter.IsWithoutDistrictExcluded)
+				{
+					query.And(Restrictions.IsNotNull(Projections.Property(() => districtAlias.Id)));
+				}
+			}
+
+			return query
 				.SelectList(list => list
 					.SelectGroup(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
 					.SelectMin(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
