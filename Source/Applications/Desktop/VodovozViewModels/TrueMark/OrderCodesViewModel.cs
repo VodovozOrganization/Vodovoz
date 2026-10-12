@@ -22,6 +22,7 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
@@ -59,6 +60,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly INavigationManager _navigation;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly ICancelledOrderTrueMarkCodesReuseService _cancelledOrderTrueMarkCodesReuseService;
 		private readonly IInteractiveService _interactiveService;
@@ -113,6 +115,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			INavigationManager navigation,
 			IRouteListItemRepository routeListItemRepository,
+			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IGenericRepository<Employee> employeeRepository,
 			ICancelledOrderTrueMarkCodesReuseService cancelledOrderTrueMarkCodesReuseService,
 			IInteractiveService interactiveService,
@@ -133,6 +136,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_cancelledOrderTrueMarkCodesReuseService = cancelledOrderTrueMarkCodesReuseService
 				?? throw new ArgumentNullException(nameof(cancelledOrderTrueMarkCodesReuseService));
@@ -902,7 +906,10 @@ namespace Vodovoz.ViewModels.TrueMark
 				})
 				.ToDictionary(x => x.GroupCode.Id);
 
-			var carLoadDocumentIds = instanceCodes.Select(x => x.CarLoadDocumentItem.Document.Id).Distinct();
+			var carLoadDocumentIdsByItemId = _carLoadDocumentRepository.GetCarLoadDocumentIdsByItemIds(
+				uow,
+				instanceCodes.Where(x => x.CarLoadDocumentItemId.HasValue).Select(x => x.CarLoadDocumentItemId.Value));
+			var carLoadDocumentIds = carLoadDocumentIdsByItemId.Values.Distinct();
 			var carLoadEvents = uow.Session.QueryOver<CompletedDriverWarehouseEventProxy>()
 				.WhereRestrictionOn(x => x.DocumentId).IsIn(carLoadDocumentIds.ToArray())
 				.List();
@@ -910,6 +917,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			_totalScannedByWarehouse = instanceCodes.Count();
 			_scannedByWarehouseCodesOrigin = instanceCodes.Select(x =>
 			{
+				var carLoadDocumentId = carLoadDocumentIdsByItemId[x.CarLoadDocumentItemId.Value];
+
 				var vm = new OrderCodeItemViewModel
 				{
 					ProductCodeId = x.Id,
@@ -918,11 +927,11 @@ namespace Vodovoz.ViewModels.TrueMark
 					Status = x.SourceCodeStatus,
 					ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
 					Problem = x.Problem,
-					SourceDocumentId = x.CarLoadDocumentItem.Document.Id
+					SourceDocumentId = carLoadDocumentId
 				};
 
 				var author = carLoadEvents
-					.Where(y => y.DocumentId == x.CarLoadDocumentItem.Document.Id)
+					.Where(y => y.DocumentId == carLoadDocumentId)
 					.FirstOrDefault()?.Employee;
 
 				vm.CodeAuthorId = author?.Id;

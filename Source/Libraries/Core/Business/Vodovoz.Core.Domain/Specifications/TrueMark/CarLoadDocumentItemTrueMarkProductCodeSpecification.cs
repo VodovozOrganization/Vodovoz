@@ -21,7 +21,7 @@ namespace Vodovoz.Core.Domain.Specifications.TrueMark
 		/// </summary>
 		/// <param name="carLoadDocumentItemId">Идентификатор строки талона погрузки</param>
 		public static CarLoadDocumentItemTrueMarkProductCodeSpecification CreateForCarLoadDocumentItemId(int carLoadDocumentItemId)
-			=> new CarLoadDocumentItemTrueMarkProductCodeSpecification(x => x.CarLoadDocumentItem.Id == carLoadDocumentItemId);
+			=> new CarLoadDocumentItemTrueMarkProductCodeSpecification(x => x.CarLoadDocumentItemId == carLoadDocumentItemId);
 
 		/// <summary>
 		/// Создает спецификацию для кодов продукта нескольких строк талона погрузки
@@ -30,7 +30,7 @@ namespace Vodovoz.Core.Domain.Specifications.TrueMark
 		public static CarLoadDocumentItemTrueMarkProductCodeSpecification CreateForCarLoadDocumentItemIds(IEnumerable<int> carLoadDocumentItemIds)
 		{
 			var ids = carLoadDocumentItemIds.ToList();
-			return new CarLoadDocumentItemTrueMarkProductCodeSpecification(x => ids.Contains(x.CarLoadDocumentItem.Id));
+			return new CarLoadDocumentItemTrueMarkProductCodeSpecification(x => x.CarLoadDocumentItemId != null && ids.Contains(x.CarLoadDocumentItemId.Value));
 		}
 	}
 }

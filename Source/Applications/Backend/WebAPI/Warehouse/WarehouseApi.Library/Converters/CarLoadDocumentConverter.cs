@@ -41,7 +41,7 @@ namespace WarehouseApi.Library.Converters
 			{
 				Id = firstDocumentItem?.OrderId ?? 0,
 				CarLoadDocument = firstDocumentItem?.Document?.Id ?? 0,
-				State = GetApiOrderLoadOperationState(waterCarLoadDocumentItems, carLoadDocumentItemsStagingCodes),
+				State = GetApiOrderLoadOperationState(waterCarLoadDocumentItems, productCodesByItemId, carLoadDocumentItemsStagingCodes),
 				Items = GetApiOrderItems(waterCarLoadDocumentItems, productCodesByItemId, carLoadDocumentItemsStagingCodes)
 			};
 
@@ -94,6 +94,7 @@ namespace WarehouseApi.Library.Converters
 
 		private LoadOperationStateEnumDto GetApiOrderLoadOperationState(
 			IEnumerable<CarLoadDocumentItem> carLoadDocumentItems,
+			ILookup<int, CarLoadDocumentItemTrueMarkProductCode> productCodesByItemId,
 			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes)
 		{
 			var itemsLoadState = new List<CarLoadDocumentLoadOperationState>();
@@ -101,7 +102,7 @@ namespace WarehouseApi.Library.Converters
 			foreach(var item in carLoadDocumentItems)
 			{
 				carLoadDocumentItemsStagingCodes.TryGetValue(item.Id, out var stagingCodes);
-				itemsLoadState.Add(item.GetDocumentItemLoadOperationState(stagingCodes ?? Enumerable.Empty<StagingTrueMarkCode>()));
+				itemsLoadState.Add(item.GetDocumentItemLoadOperationState(productCodesByItemId[item.Id].Count(), stagingCodes ?? Enumerable.Empty<StagingTrueMarkCode>()));
 			}
 
 			var apiOrderLoadOperationState = LoadOperationStateEnumDto.NotStarted;

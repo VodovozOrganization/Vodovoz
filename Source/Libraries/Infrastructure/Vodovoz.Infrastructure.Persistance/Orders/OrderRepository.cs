@@ -2894,7 +2894,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			var codes =
 				(from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItem>()
-				 join productCode in uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>() on carLoadDocumentItem.Id equals productCode.CarLoadDocumentItem.Id
+				 join productCode in uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>() on (int?)carLoadDocumentItem.Id equals productCode.CarLoadDocumentItemId
 				 where carLoadDocumentItem.OrderId == orderId
 				 select productCode.ResultCode)
 				.ToList();

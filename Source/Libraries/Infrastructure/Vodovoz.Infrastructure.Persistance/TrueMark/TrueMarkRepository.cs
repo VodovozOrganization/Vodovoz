@@ -247,10 +247,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Left.JoinAlias(
-					() => carLoadTrueMarkProductCodeAlias.CarLoadDocumentItem,
-					() => carLoadDocumentItemAlias
-				);
+				.JoinEntityAlias(
+					() => carLoadDocumentItemAlias,
+					() => carLoadDocumentItemAlias.Id == carLoadTrueMarkProductCodeAlias.CarLoadDocumentItemId,
+					JoinType.LeftOuterJoin);
 
 			if(edoTaskId.HasValue)
 			{
@@ -399,9 +399,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var carLoadProductCodes = uow.Session.QueryOver(() => carLoadProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.JoinAlias(
-					() => carLoadProductCodeAlias.CarLoadDocumentItem,
-					() => carLoadDocumentItemAlias)
+				.JoinEntityAlias(
+					() => carLoadDocumentItemAlias,
+					() => carLoadDocumentItemAlias.Id == carLoadProductCodeAlias.CarLoadDocumentItemId,
+					JoinType.InnerJoin)
 				.Where(() => carLoadDocumentItemAlias.OrderId == orderId)
 				.Where(() => carLoadProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
 				.Where(() => carLoadProductCodeAlias.SourceCode != null)
@@ -528,7 +529,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			OrderEntity carLoadOrderAlias = null;
 
 			var carLoadIdentificationCodeIds = uow.Session.QueryOver(() => carLoadProductCodeAlias)
-				.JoinAlias(() => carLoadProductCodeAlias.CarLoadDocumentItem, () => carLoadDocumentItemAlias)
+				.JoinEntityAlias(
+					() => carLoadDocumentItemAlias,
+					() => carLoadDocumentItemAlias.Id == carLoadProductCodeAlias.CarLoadDocumentItemId,
+					JoinType.InnerJoin)
 				.JoinEntityAlias(() => carLoadOrderAlias, () => carLoadOrderAlias.Id == carLoadDocumentItemAlias.OrderId)
 				.WhereRestrictionOn(() => carLoadProductCodeAlias.SourceCode.Id).IsIn(codeIds)
 				.Where(() => carLoadProductCodeAlias.ResultCode == null)
@@ -764,9 +768,16 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			{
 				case CarLoadDocumentItemTrueMarkProductCode carLoadDocumentItemTrueMarkProduct:
 					{
+						var carLoadDocumentItemId = carLoadDocumentItemTrueMarkProduct.CarLoadDocumentItemId;
+
+						if(carLoadDocumentItemId is null)
+						{
+							return null;
+						}
+
 						return
 							from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItemEntity>()
-							where carLoadDocumentItem.Id == carLoadDocumentItemTrueMarkProduct.CarLoadDocumentItem.Id
+							where carLoadDocumentItem.Id == carLoadDocumentItemId.Value
 							select carLoadDocumentItem.OrderId;
 					}
 				case RouteListItemTrueMarkProductCode routeListItemTrueMarkProductCode:

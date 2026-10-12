@@ -12,5 +12,13 @@ namespace Vodovoz.EntityRepositories.Store
 		Task<IEnumerable<CarLoadDocument>> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId);
 		Task<IEnumerable<CarLoadDocumentItem>> GetAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(IUnitOfWork uow, int orderId);
 		CarLoadDocumentLoadingProcessAction GetLastLoadingProcessActionByDocumentId(IUnitOfWork uow, int documentId);
+
+		/// <summary>
+		/// Получение идентификаторов талонов погрузки по идентификаторам их строк
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="carLoadDocumentItemIds">Идентификаторы строк талонов погрузки</param>
+		/// <returns>Идентификатор талона погрузки по идентификатору строки</returns>
+		IDictionary<int, int> GetCarLoadDocumentIdsByItemIds(IUnitOfWork uow, IEnumerable<int> carLoadDocumentItemIds);
 	}
 }

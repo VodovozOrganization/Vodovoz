@@ -153,7 +153,7 @@ namespace WarehouseApi.Library.Services
 					CarLoadDocumentItemTrueMarkProductCodeSpecification.CreateForCarLoadDocumentItemIds(savedItemsIds),
 					cancellationToken: cancellationToken))
 				.Value
-				.GroupBy(x => x.CarLoadDocumentItem.Id)
+				.GroupBy(x => x.CarLoadDocumentItemId.Value)
 				.ToDictionary(g => g.Key, g => g.Count());
 
 			var ordersWithMissingCodes = carLoadDocument.Items
@@ -368,7 +368,6 @@ namespace WarehouseApi.Library.Services
 				status,
 				problem);
 
-			carLoadDocumentItem.TrueMarkCodes.Add(productCode);
 			uow.Save(productCode);
 		}
 
@@ -383,7 +382,7 @@ namespace WarehouseApi.Library.Services
 				SourceCodeStatus = status,
 				SourceCode = trueMarkWaterIdentificationCode,
 				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkWaterIdentificationCode : default,
-				CarLoadDocumentItem = carLoadDocumentItem,
+				CarLoadDocumentItemId = carLoadDocumentItem.Id,
 				Problem = problem
 			};
 

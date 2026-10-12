@@ -892,7 +892,7 @@ namespace WarehouseApi.Library.Services
 					cancellationToken: cancellationToken))
 				.Value;
 
-			return productCodes.ToLookup(x => x.CarLoadDocumentItem.Id);
+			return productCodes.ToLookup(x => x.CarLoadDocumentItemId.Value);
 		}
 
 		private async Task<IEnumerable<PrimaryEdoRequest>> CreateEdoRequestsAsync(CarLoadDocument carLoadDocument, CancellationToken cancellationToken)
