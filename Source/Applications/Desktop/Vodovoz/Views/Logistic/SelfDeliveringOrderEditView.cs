@@ -1,4 +1,4 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gtk;
@@ -18,6 +18,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Logistic;
 using VodovozBusiness.Domain.Orders;
+using Vodovoz.ViewModels.Widgets.Orders;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -87,8 +88,16 @@ namespace Vodovoz.Views.Logistic
 			yentryPaymentNumber.Sensitive = false;
 
 			ConfigureTrees();
+
 			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderItems;
+
+            treeItems.Binding
+                .AddBinding(ViewModel, vm => vm.SelectedOrderItem, w => w.SelectedRow)
+                .InitializeFromSource();
+
+            orderitemdiscountreasonsview.ViewModel = ViewModel.OrderItemDiscountReasonsViewModel;
 		}
+
 		private void ConfigureTrees()
 		{
 			var colorPrimaryText = GdkColors.PrimaryText;

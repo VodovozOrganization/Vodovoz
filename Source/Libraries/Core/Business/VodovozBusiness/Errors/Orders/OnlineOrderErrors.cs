@@ -42,6 +42,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectDeliveryDate),
 				"Дата доставки не может быть раньше сегодняшнего дня");
 		
+		public static Error DeliveryIntervalExpired =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(DeliveryIntervalExpired),
+				"Выбранный интервал доставки уже закончился. Требуется ручная обработка онлайн-заказа");
+
 		public static Error IsEmptyDistrictFromDeliveryPoint =>
 			new Error(
 				typeof(OnlineOrderErrors),

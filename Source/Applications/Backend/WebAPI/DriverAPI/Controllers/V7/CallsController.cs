@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Errors.Logistics;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 using Vodovoz.Presentation.WebApi.Common;
 
 namespace DriverAPI.Controllers.V7
@@ -54,17 +55,16 @@ namespace DriverAPI.Controllers.V7
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns><see cref="GetCallResponse"/></returns>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetCallResponse))]
 		public async Task<IActionResult> GetCall([FromBody] GetCallRequest getCallRequest, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Запрос на звонок на номер: {ClientPhoneNumber}, маршрутный лист {RouteListId} от пользователя {Username} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
+			_logger.LogInformation("Запрос на звонок на номер: {ClientPhoneNumber}, маршрутный лист {RouteListId} от пользователя {Username}",
 				getCallRequest.Number,
 				getCallRequest.RouteListId,
-				HttpContext.User.Identity?.Name ?? "Unknown",
-				HttpContext.Request.Headers["X-Idempotency-Key"],
-				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+				HttpContext.User.Identity?.Name ?? "Unknown");
 
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeService.GetByAPILogin(user.UserName);

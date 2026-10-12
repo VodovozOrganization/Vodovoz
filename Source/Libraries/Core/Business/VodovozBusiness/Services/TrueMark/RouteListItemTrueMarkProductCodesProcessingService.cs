@@ -228,7 +228,7 @@ namespace VodovozBusiness.Services.TrueMark
 			reusedProductCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
 		}
 
-		private AutoTrueMarkProductCode GetReusedProductCode(IUnitOfWork uow, int orderId, string gtin)
+		private TrueMarkProductCode GetReusedProductCode(IUnitOfWork uow, int orderId, string gtin)
 		{
 			var reusableStatuses = new[]
 			{
@@ -236,7 +236,7 @@ namespace VodovozBusiness.Services.TrueMark
 				SourceProductCodeStatus.Accepted
 			};
 			var reusedProductCodeCandidates = _trueMarkRepository
-				.GetAutoProductCodesByManualEdoRequests(
+				.GetReusableProductCodesByManualEdoRequests(
 					uow,
 					orderId,
 					gtin,

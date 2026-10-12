@@ -276,7 +276,9 @@ namespace Edo.Documents
 						var availableGtins = orderItem.Nomenclature.Gtins.Select(x => x.GtinNumber);
 						foreach(var availableGtin in availableGtins)
 						{
-							var availableCode = unprocessedCodes.FirstOrDefault(x => x.ProductCode.SourceCode.Gtin == availableGtin);
+							var availableCode = unprocessedCodes.FirstOrDefault(x => x.ProductCode.SourceCode.Gtin == availableGtin
+								&& (x.ProductCode.SourceCode.ParentWaterGroupCodeId == null
+									|| !string.IsNullOrEmpty((x.ProductCode.ResultCode ?? x.ProductCode.SourceCode).CheckCode)));
 							if(availableCode == null)
 							{
 								continue;
@@ -342,8 +344,7 @@ namespace Edo.Documents
 				.ToList()
 				;
 
-			// исключили из обрабатываемого списка все коды, которые содержатся в группах
-			// они не подходят для индивидуальной обработки, потому что не имеют CheckCode
+			// Неполные группы после проверки состава вернутся в индивидуальную обработку.
 			unprocessedTaskItems.RemoveAll(x => codesThatContainedInGroup.Contains(x));
 
 			var groupped = codesThatContainedInGroup
@@ -370,12 +371,17 @@ namespace Edo.Documents
 
 			foreach(var parentCode in parentCodes)
 			{
-				result.Add(parentCode, codesThatContainedInGroup
-					.Where(ctcig => parentCode
-						.GetAllCodes()
-						.Where(x => x.IsTrueMarkWaterIdentificationCode)
-						.Select(x => x.TrueMarkWaterIdentificationCode)
-						.Any(x => x.Id == ctcig.ProductCode.SourceCode.Id)));
+				var groupCodeIds = new HashSet<int>(parentCode.GetAllCodes()
+					.Where(x => x.IsTrueMarkWaterIdentificationCode)
+					.Select(x => x.TrueMarkWaterIdentificationCode.Id));
+				var groupItems = codesThatContainedInGroup
+					.Where(x => groupCodeIds.Contains(x.ProductCode.SourceCode.Id)).ToList();
+				if(!groupCodeIds.SetEquals(groupItems.Select(x => x.ProductCode.SourceCode.Id)))
+				{
+					unprocessedTaskItems.AddRange(groupItems);
+					continue;
+				}
+				result.Add(parentCode, groupItems);
 			}
 
 			// нашли все групповые коды

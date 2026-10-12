@@ -107,7 +107,7 @@ namespace Edo.Documents.Services
 				// и поиск и назначение соответствующих кодов
 
 				// Обработка нулевых позиций
-				if(await HandleZeroPriceItemAsync(context, orderItem, cancellationToken))
+				if(HandleZeroPriceItem(context, orderItem))
 				{
 					continue;
 				}
@@ -133,36 +133,21 @@ namespace Edo.Documents.Services
 			return updInventPositions;
 		}
 
-		private async Task<bool> HandleZeroPriceItemAsync(
-			UpdDocumentCreationContext context,
-			OrderItemEntity orderItem,
-			CancellationToken cancellationToken)
+		private bool HandleZeroPriceItem(UpdDocumentCreationContext context, OrderItemEntity orderItem)
 		{
-			if(orderItem.ActualSum <= 0
-				&& context.DocumentEdoTask.DocumentType is EdoDocumentType.UPD)
+			if(orderItem.ActualSum > 0 || context.DocumentEdoTask.DocumentType != EdoDocumentType.UPD)
 			{
-				if(orderItem.Nomenclature.IsAccountableInTrueMark && context.UnprocessedCodes.Any())
-				{
-					var i = 0;
-					while(i < context.UnprocessedCodes.Count)
-					{
-						if(context.UnprocessedCodes[i].ProductCode.SourceCode != null
-							&& context.UnprocessedCodes[i].ProductCode.ResultCode is null
-							&& orderItem.Nomenclature.Gtins.Any(x => x.GtinNumber == context.UnprocessedCodes[i].ProductCode.SourceCode?.Gtin))
-						{
-							await _trueMarkCodesPool.PutCodeAsync(context.UnprocessedCodes[i].ProductCode.SourceCode.Id, cancellationToken);
-							context.DocumentEdoTask.Items.Remove(context.UnprocessedCodes[i]);
-							context.UnprocessedCodes.RemoveAt(i);
-						}
-						else
-						{
-							i++;
-						}
-					}
-				}
-				return true;
+				return false;
 			}
-			return false;
+
+			if(orderItem.Nomenclature.IsAccountableInTrueMark)
+			{
+				context.UnprocessedCodes.RemoveAll(x => x.ProductCode.SourceCode != null
+					&& x.ProductCode.ResultCode == null
+					&& orderItem.Nomenclature.Gtins.Any(gtin => gtin.GtinNumber == x.ProductCode.SourceCode.Gtin));
+			}
+
+			return true;
 		}
 
 		private async Task ProcessAccountableOrderItemAsync(
@@ -320,6 +305,17 @@ namespace Edo.Documents.Services
 				if(availableCode is null)
 				{
 					continue;
+				}
+
+				var sourceCode = availableCode.ProductCode.SourceCode;
+				if(sourceCode.ParentWaterGroupCodeId != null && string.IsNullOrEmpty(sourceCode.CheckCode)
+					&& (availableCode.ProductCode.ResultCode == null || availableCode.ProductCode.ResultCode.Id == sourceCode.Id))
+				{
+					AddCodeRequirement(context, availableGtin, orderItem, codeItemsToAssign, edoTaskItemForChange: availableCode);
+					availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
+					context.UnprocessedCodes.Remove(availableCode);
+					assignedCount = 1;
+					return true;
 				}
 
 				// ResultCode будет заполнен, если проиходит повторное создание документов
@@ -664,18 +660,19 @@ namespace Edo.Documents.Services
 
 		private void CleanupUnusedCodes(UpdDocumentCreationContext context)
 		{
-			if(!context.UnprocessedCodes.Any())
+			var unusedCodes = context.UnprocessedCodes.Where(x => x.ProductCode.SourceCode == null).ToList();
+			if(!unusedCodes.Any())
 			{
 				return;
 			}
 
 			_logger.LogInformation(
 				"Удаляем {Count} неиспользованных кодов из задачи",
-				context.UnprocessedCodes.Count);
+				unusedCodes.Count);
 
 			// оставшиеся коды удаляем из задачи
 			// потому что их не удалось назначить ни на один товар
-			foreach(var unprocessedCode in context.UnprocessedCodes)
+			foreach(var unprocessedCode in unusedCodes)
 			{
 				context.DocumentEdoTask.Items.Remove(unprocessedCode);
 			}
@@ -703,8 +700,7 @@ namespace Edo.Documents.Services
 				.Where(x => x.ProductCode.SourceCode.ParentWaterGroupCodeId != null)
 				.ToList();
 
-			// исключили из обрабатываемого списка все коды, которые содержатся в группах
-			// они не подходят для индивидуальной обработки, потому что не имеют CheckCode
+			// Сначала проверяем состав групп; неполные вернутся в индивидуальную обработку.
 			unprocessedTaskItems.RemoveAll(x => codesThatContainedInGroup.Contains(x));
 
 			var groupped = codesThatContainedInGroup
@@ -731,12 +727,17 @@ namespace Edo.Documents.Services
 
 			foreach(var parentCode in parentCodes)
 			{
-				result.Add(parentCode, codesThatContainedInGroup
-					.Where(ctcig => parentCode
-						.GetAllCodes()
-						.Where(x => x.IsTrueMarkWaterIdentificationCode)
-						.Select(x => x.TrueMarkWaterIdentificationCode)
-						.Any(x => x.Id == ctcig.ProductCode.SourceCode?.Id)));
+				var groupCodeIds = new HashSet<int>(parentCode.GetAllCodes()
+					.Where(x => x.IsTrueMarkWaterIdentificationCode)
+					.Select(x => x.TrueMarkWaterIdentificationCode.Id));
+				var groupItems = codesThatContainedInGroup
+					.Where(x => groupCodeIds.Contains(x.ProductCode.SourceCode.Id)).ToList();
+				if(!groupCodeIds.SetEquals(groupItems.Select(x => x.ProductCode.SourceCode.Id)))
+				{
+					unprocessedTaskItems.AddRange(groupItems);
+					continue;
+				}
+				result.Add(parentCode, groupItems);
 			}
 
 			// нашли все групповые коды

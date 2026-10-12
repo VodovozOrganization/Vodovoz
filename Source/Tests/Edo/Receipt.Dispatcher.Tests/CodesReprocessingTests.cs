@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -9,6 +9,8 @@ using Edo.Common;
 using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
+using EdoNotifications.Contracts;
+using Notifications.Infrastructure;
 using Edo.Problems.Custom;
 using Edo.Problems.Custom.Sources;
 using Edo.Problems.Exception;
@@ -64,6 +66,7 @@ namespace Receipt.Dispatcher.Tests
 			ConfigurePreload<EdoTaskItem>();
 			var repository = Substitute.For<IEdoRepository>();
 			var nomenclatures = Substitute.For<INomenclatureRepository>();
+			var edoSettings = Substitute.For<IEdoSettings>();
 			repository.GetEdoOrganizationsAsync(Arg.Any<CancellationToken>())
 				.Returns(new[] { new OrganizationEntity { INN = Inn } });
 			nomenclatures.GetGtinsAsync(Arg.Any<CancellationToken>())
@@ -76,7 +79,7 @@ namespace Receipt.Dispatcher.Tests
 			};
 			_api.GetProductInstanceInfoAsync(Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>())
 				.Returns(new ProductInstancesInfoResponse { InstanceStatuses = new[] { _codeStatus } });
-			_validator = new TrueMarkTaskCodesValidator(repository, nomenclatures, _api);
+			_validator = new TrueMarkTaskCodesValidator(repository, nomenclatures, edoSettings, _api);
 			var factory = Substitute.For<IUnitOfWorkFactory>();
 			var registrar = new EdoProblemRegistrar(_uow, factory,
 				new EdoTaskCustomSourcesPersister(factory, new EdoTaskProblemCustomSource[]
@@ -84,7 +87,8 @@ namespace Receipt.Dispatcher.Tests
 					new IndustryRequisiteMissingOrganizationToken(), new IndustryRequisiteRegualtoryDocumentIsMissing(),
 					new IndustryRequisiteCheckApiError()
 				}),
-				new EdoTaskExceptionSourcesPersister(factory, Array.Empty<EdoTaskProblemExceptionSource>()));
+				new EdoTaskExceptionSourcesPersister(factory, Array.Empty<EdoTaskProblemExceptionSource>()),
+				Substitute.For<IOutboxNotificationPublisher<EdoNotificationMessage>>());
 			var taskValidator = new EdoTaskValidator(Substitute.For<ILogger<EdoTaskValidator>>(),
 				new EdoTaskValidatorsProvider(new EdoTaskValidatorsPersister(factory, Array.Empty<IEdoTaskValidator>())),
 				Substitute.For<IServiceProvider>(), registrar);
