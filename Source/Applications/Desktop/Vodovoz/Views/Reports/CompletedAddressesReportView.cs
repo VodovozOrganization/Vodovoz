@@ -71,7 +71,7 @@ namespace Vodovoz.Views.Reports
 			var report = ViewModel.Report;
 
 			var columnsConfig = FluentColumnsConfig<CompletedAddressesReportRow>.Create()
-				.AddColumn("ФИО").AddTextRenderer(r => r.DriverFullName);
+				.AddColumn("ФИО").HeaderAlignment(0.5f).AddTextRenderer(r => r.DriverFullName);
 
 			if(report != null)
 			{
@@ -80,13 +80,13 @@ namespace Vodovoz.Views.Reports
 					var districtIndex = i;
 
 					columnsConfig
-						.AddColumn(report.DistrictTitles[i])
+						.AddColumn(report.DistrictTitles[i]).HeaderAlignment(0.5f)
 						.AddNumericRenderer(r => r.DistrictCounts[districtIndex]);
 				}
 			}
 
 			ytreeReportRows.ColumnsConfig = columnsConfig
-				.AddColumn("Суммарно адресов по всем районам").AddNumericRenderer(r => r.Total)
+				.AddColumn("Суммарно адресов по всем районам").HeaderAlignment(0.5f).AddNumericRenderer(r => r.Total)
 				.AddColumn("")
 				.Finish();
 

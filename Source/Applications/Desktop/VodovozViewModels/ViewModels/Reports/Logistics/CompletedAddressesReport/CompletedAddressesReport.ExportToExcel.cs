@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 				var titleRange = worksheet.Range(1, 2, 1, totalColumn - 1 > 2 ? totalColumn - 1 : 2);
 				titleRange.Merge();
 				titleRange.Style.Font.Bold = true;
-				titleRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+				titleRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
 				worksheet.Cell(_headerRow, 1).Value = "ФИО";
 				for(var i = 0; i < districtsCount; i++)

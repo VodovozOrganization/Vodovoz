@@ -253,9 +253,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.CompletedAddressesRepo
 			}
 		}
 
-		/// <summary>
-		/// Подставляет списки периода в фильтр
-		/// </summary>
 		private void ApplyFilterLists(IList<CompletedAddressesCountNode> nodes)
 		{
 			_drivers = CompletedAddressesReport.GetDrivers(nodes);
