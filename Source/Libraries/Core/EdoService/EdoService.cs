@@ -455,6 +455,19 @@ namespace EdoService.Library
 			bool hasDocflow = HasDocflow(uow, edoTask);
 			bool hasCancelledDocflow = HasCancelledDocflow(uow, edoTask.Id);
 
+			if(!hasDocflow && edoTask.Status == EdoTaskStatus.Problem
+				&& edoTask.As<DocumentEdoTask>()?.Stage == DocumentEdoTaskStage.New)
+			{
+				var otherTasksResult = CheckOtherTasks(uow, edoTask, taskId);
+				if(otherTasksResult.IsFailure)
+				{
+					return Result.Failure<string>(otherTasksResult.Errors);
+				}
+
+				_messageService.PublishTaskCreatedEvent(edoTask).GetAwaiter().GetResult();
+				return Result.Success("Задача успешно отправлена на повторную обработку");
+			}
+
 			var checkOtherRequestsResult = CheckOtherRequests(uow, edoTask.FormalEdoRequest, taskId);
 			if(checkOtherRequestsResult.IsFailure)
 			{
