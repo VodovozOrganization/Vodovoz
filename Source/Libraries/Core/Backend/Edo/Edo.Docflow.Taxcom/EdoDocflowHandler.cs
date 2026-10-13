@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
@@ -191,9 +191,9 @@ namespace Edo.Docflow.Taxcom
 			var statusChanged = lastAction is null
 				|| lastAction.DocFlowState != newStatus.Value
 				|| lastAction.TrueMarkTraceabilityStatus != newTraceabilityStatus;
-			var receiptChanged = taxcomDocflow.IsReceived != @event.IsReceived;
+			var receiveChanged = taxcomDocflow.IsReceived != @event.IsReceived;
 
-			if(statusChanged || receiptChanged)
+			if(statusChanged || receiveChanged)
 			{
 				if(statusChanged)
 				{

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Edo.Contracts.Messages.Events
 {
@@ -36,7 +36,7 @@ namespace Edo.Contracts.Messages.Events
 
 		/// <summary>
 		/// Документ получен клиентом: по статусу документооборота
-		/// или по транзакции подтверждения отправки извещения о получении
+		/// или по транзакции извещения о получении, титула покупателя либо уточнения
 		/// </summary>
 		public bool IsReceived { get; set; }
 	}

@@ -34,6 +34,8 @@ namespace Edo.Contracts.Xml
 	public class Document
 	{
 		[XmlAttribute]
+		public string ReglamentCode { get; set; }
+		[XmlAttribute]
 		public string TransactionCode { get; set; }
 		[XmlElement]
 		public Definition Definition { get; set; }
