@@ -54,5 +54,25 @@ namespace Vodovoz.Settings.Orders
 		/// Id оснований для скидки Довоз
 		/// </summary>
 		int[] AdditionalDeliveryDiscountReasonsIds { get; }
+
+		/// <summary>
+		/// Включить измененную стоимость первой Доставки за час
+		/// </summary>
+		bool EnableChangedFirstFastDeliveryCost { get; }
+
+		/// <summary>
+		/// Измененная стоимость первой Доставки за час (в рублях, от 1 до 1000)
+		/// </summary>
+		decimal ChangedFirstFastDeliveryCost { get; }
+
+		/// <summary>
+		/// Установить признак "Включить изменённую стоимость первой Доставки за час"
+		/// </summary>
+		void SetEnableChangedFirstFastDeliveryCost(bool value);
+
+		/// <summary>
+		/// Установить изменённую стоимость первой Доставки за час
+		/// </summary>
+		void SetChangedFirstFastDeliveryCost(decimal value);
 	}
 }

@@ -3797,5 +3797,23 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			return await query.ToListAsync(cancellationToken);
 		}
+
+		///<inheritdoc/>
+		public bool HasCounterpartyOtherFastDeliveryOrder(
+			IUnitOfWork uow,
+			int counterpartyId,
+			int excludeOrderId)
+		{
+			var query = uow.Session.QueryOver<Order>()
+				.Where(o => o.Client.Id == counterpartyId)
+				.And(o => o.IsFastDelivery);
+
+			if(excludeOrderId > 0)
+			{
+				query.And(o => o.Id != excludeOrderId);
+			}
+
+			return query.RowCount() > 0;
+		}
 	}
 }

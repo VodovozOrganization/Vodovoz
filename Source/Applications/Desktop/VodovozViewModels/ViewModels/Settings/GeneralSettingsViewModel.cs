@@ -17,7 +17,6 @@ using System.Linq;
 using System.Windows.Input;
 using Vodovoz.Core.Data.Repositories.Cash;
 using Vodovoz.Core.Domain.Cash;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings;
@@ -52,6 +51,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly ViewModelEEVMBuilder<Organization> _organizationViewModelBuilder;
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IDebtorsSettings _debtorsSettings;
+		private readonly IOrderSettings _orderSettings;
 		private readonly IValidator _validator;
 		private readonly IClosingDeliveriesSettings _closingDeliveriesSettings;
 		private readonly IMangoSettings _mangoSettings;
@@ -130,7 +130,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			IValidator validator,
 			IClosingDeliveriesSettings closingDeliveriesSettings,
 			IMangoSettings mangoSettings,
-			IAccountingSettings accountingSettings) : base(commonServices?.InteractiveService, navigation)
+			IAccountingSettings accountingSettings,
+			IOrderSettings orderSettings) : base(commonServices?.InteractiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -142,7 +143,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				organizationViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationViewModelBuilder));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_debtorsSettings = debtorsSettings ?? throw new ArgumentNullException(nameof(debtorsSettings));
-			OrganizationForOrderFromSet = 
+			OrganizationForOrderFromSet =
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
@@ -153,6 +154,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carInsuranceSettings = carInsuranceSettings ?? throw new ArgumentNullException(nameof(carInsuranceSettings));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			TabName = "Общие настройки";
 
 			RouteListPrintedFormPhones = _generalSettings.GetRouteListPrintedFormPhones;
@@ -188,6 +190,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_fastDelivery19LBottlesLimitCount = _generalSettings.FastDelivery19LBottlesLimitCount;
 			CanEditFastDelivery19LBottlesLimitSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanEditFastDelivery19LBottlesLimit);
 			SaveFastDelivery19LBottlesLimitActiveCommand = new DelegateCommand(SaveIsFastDelivery19LBottlesLimitActive, () => CanEditFastDelivery19LBottlesLimitSetting);
+
+			SaveChangedFirstFastDeliveryCostCommand = new DelegateCommand(SaveChangedFirstFastDeliveryCost);
+
+			EnableChangedFirstFastDeliveryCost = _orderSettings.EnableChangedFirstFastDeliveryCost;
+			ChangedFirstFastDeliveryCost = _orderSettings.ChangedFirstFastDeliveryCost;
 
 			_billAdditionalInfo = _generalSettings.GetBillAdditionalInfo;
 			CanSaveBillAdditionalInfo = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.Documents.CanEditBillAdditionalInfo);
@@ -231,8 +238,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_gazelleMaxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
 			_loaderMaxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
 			_minivanMaxDailyFuelLimit = fuelControlSettings.MinivanMaxDailyFuelLimit;
-			
-			CanEditOrderOrganizationsSettings = 
+
+			CanEditOrderOrganizationsSettings =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(
 					Vodovoz.Core.Domain.Permissions.SettingsPermissions.CanEditOrderOrganizationsSettings);
 			CanEditDailyFuelLimitsSetting =
@@ -241,7 +248,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			_defaultPaymentDeferment = generalSettings.DefaultPaymentDeferment;
 			_defaultVatRate = generalSettings.DefaultVatRate;
-			
+
 			CanMassiveChangePaymentDeferment = _commonServices.CurrentPermissionService
 				.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanMassiveChangePaymentDeferment);
 			CanMassiveChangeVatRate = _commonServices.CurrentPermissionService
@@ -1746,6 +1753,38 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					$"Сохранение недоступно!" +
 					$"\nМаксимально допустимая длина строки составляет {maxLength} символов." +
 					$"\nВы ввели {currentLength} символов.");
+		}
+
+		private bool _enableChangedFirstFastDeliveryCost;
+		public bool EnableChangedFirstFastDeliveryCost
+		{
+			get => _enableChangedFirstFastDeliveryCost;
+			set => SetField(ref _enableChangedFirstFastDeliveryCost, value);
+		}
+
+		private decimal _changedFirstFastDeliveryCost;
+		public decimal ChangedFirstFastDeliveryCost
+		{
+			get => _changedFirstFastDeliveryCost;
+			set => SetField(ref _changedFirstFastDeliveryCost, value);
+		}
+
+		public DelegateCommand SaveChangedFirstFastDeliveryCostCommand { get; }
+
+		private void SaveChangedFirstFastDeliveryCost()
+		{
+			if(ChangedFirstFastDeliveryCost < 1 || ChangedFirstFastDeliveryCost > 1000)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Измененная стоимость первой Доставки за час должна быть от 1 до 1000 руб.");
+				return;
+			}
+
+			_orderSettings.SetEnableChangedFirstFastDeliveryCost(EnableChangedFirstFastDeliveryCost);
+			_orderSettings.SetChangedFirstFastDeliveryCost(ChangedFirstFastDeliveryCost);
+
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Настройки сохранены");
 		}
 
 		public override void Dispose()

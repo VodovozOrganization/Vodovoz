@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Orders;
@@ -80,22 +81,49 @@ namespace Vodovoz.Settings.Database.Orders
 				PaymentByCardFromSiteId
 			};
 
+		///<inheritdoc/>
 		public int[] OksDiscountReasonsIds => _settingsController
 			.GetStringValue(nameof(OksDiscountReasonsIds))
 			.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
 			.Select(x => int.Parse(x.Trim(' ')))
 			.ToArray();
 
+		///<inheritdoc/>
 		public int[] ProductChangeDiscountReasonsIds => _settingsController
 			.GetStringValue(nameof(ProductChangeDiscountReasonsIds))
 			.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
 			.Select(x => int.Parse(x.Trim(' ')))
 			.ToArray();
 
+		///<inheritdoc/>
 		public int[] AdditionalDeliveryDiscountReasonsIds => _settingsController
 			.GetStringValue(nameof(AdditionalDeliveryDiscountReasonsIds))
 			.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
 			.Select(x => int.Parse(x.Trim(' ')))
 			.ToArray();
+
+		///<inheritdoc/>
+		public bool EnableChangedFirstFastDeliveryCost =>
+			_settingsController.GetValue<bool>(nameof(EnableChangedFirstFastDeliveryCost));
+
+		///<inheritdoc/>
+		public decimal ChangedFirstFastDeliveryCost =>
+			_settingsController.GetValue<decimal>(nameof(ChangedFirstFastDeliveryCost));
+
+		///<inheritdoc/>
+		public void SetEnableChangedFirstFastDeliveryCost(bool value)
+		{
+			_settingsController.CreateOrUpdateSetting(
+				nameof(EnableChangedFirstFastDeliveryCost),
+				value.ToString());
+		}
+
+		///<inheritdoc/>
+		public void SetChangedFirstFastDeliveryCost(decimal value)
+		{
+			_settingsController.CreateOrUpdateSetting(
+				nameof(ChangedFirstFastDeliveryCost),
+				value.ToString(CultureInfo.InvariantCulture));
+		}
 	}
 }

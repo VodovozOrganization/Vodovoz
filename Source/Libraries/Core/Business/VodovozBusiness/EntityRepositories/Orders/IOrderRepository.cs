@@ -663,5 +663,18 @@ namespace Vodovoz.EntityRepositories.Orders
 			DateTime fromCreateDate,
 			IEnumerable<OrderStatus> excludeOrderStatuses,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверяет, есть ли у контрагента другие заказы (кроме указанного)
+		/// с номенклатурой быстрой доставки
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="counterpartyId">Идентификатор клиента</param>
+		/// <param name="excludeOrderId">Идентификатор заказа для исключения</param>
+		/// <returns>True - у клиента это первый заказ с ДЗЧ, false - иначе</returns>
+		bool HasCounterpartyOtherFastDeliveryOrder(
+			IUnitOfWork uow,
+			int counterpartyId,
+			int excludeOrderId);
 	}
 }

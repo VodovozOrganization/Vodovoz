@@ -1992,6 +1992,8 @@ namespace Vodovoz
 				}
 
 				Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater);
+				ApplyChangedFirstFastDeliveryCostIfNeeded();
+
 				return;
 			}
 
@@ -2907,6 +2909,8 @@ namespace Vodovoz
 
 		private Result AcceptOrder()
 		{
+			ApplyChangedFirstFastDeliveryCostIfNeeded();
+
 			if(!Save())
 			{
 				return _lastSaveResult;
@@ -4001,6 +4005,48 @@ namespace Vodovoz
 			}
 
 			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReasons: discountReasons);
+
+			ApplyChangedFirstFastDeliveryCostIfNeeded();
+		}
+
+		private void ApplyChangedFirstFastDeliveryCostIfNeeded()
+		{
+			if(!_orderSettings.EnableChangedFirstFastDeliveryCost)
+			{
+				return;
+			}
+
+			var fastDeliveryItem = Entity.OrderItems
+				.FirstOrDefault(oi => oi.Nomenclature.Id == _fastDeliveryNomenclatureId);
+
+			if(fastDeliveryItem is null)
+			{
+				return;
+			}
+
+			if(Entity.Client is null)
+			{
+				return;
+			}
+
+			var alreadyHadFastDelivery = _orderRepository.HasCounterpartyOtherFastDeliveryOrder(
+				UoW,
+				Entity.Client.Id,
+				Entity.Id);
+
+			if(alreadyHadFastDelivery)
+			{
+				return;
+			}
+
+			var newPrice = _orderSettings.ChangedFirstFastDeliveryCost;
+
+			if(fastDeliveryItem.Price == newPrice)
+			{
+				return;
+			}
+
+			fastDeliveryItem.SetPrice(newPrice);
 		}
 
 		private void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
@@ -4276,6 +4322,7 @@ namespace Vodovoz
 			UpdateClientSecondOrderDiscount();
 
 			_isFastDeliveryAvailabilityChecked = false;
+			ApplyChangedFirstFastDeliveryCostIfNeeded();
 		}
 
 		private void UpdateBarterPaymentTypeVisible()

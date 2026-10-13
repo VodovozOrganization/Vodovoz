@@ -1,26 +1,19 @@
 ﻿using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
+using Gtk;
 using QS.DomainModel.Entity;
 using QS.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Autofac;
-using Gamma.GtkWidgets;
-using Gtk;
-using QS.Extensions.Observable.Collections.List;
-using QS.ViewModels.Control.EEVM;
-using QS.Views.Control;
-using ReactiveUI;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.Views.Common;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Nodes;
-using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Views.Settings
 {
@@ -327,8 +320,81 @@ namespace Vodovoz.Views.Settings
 			yentryClaimDocumentCreatorPhone.WidthChars = 40;
 
 			ybuttonSaveLettersOfClaimSettings.BindCommand(ViewModel.SaveLettersOfClaimSettingsCommand);
+
+			ConfigureChangedFirstFastDeliveryCostSettings();
+
 		}
-		
+
+		private void ConfigureChangedFirstFastDeliveryCostSettings()
+		{
+			var frame = new Gtk.Frame { Name = "frameChangedFirstFastDeliveryCost", BorderWidth = 1 };
+			var frameLabel = new Gtk.Label
+			{
+				Name = "frameChangedFirstFastDeliveryCostLabel",
+				UseMarkup = true,
+				LabelProp = Mono.Unix.Catalog.GetString("<b>Стоимость первой Доставки за час</b>")
+			};
+			frame.LabelWidget = frameLabel;
+
+			var frameBox = new yVBox { Spacing = 6, BorderWidth = 6 };
+			frame.Add(frameBox);
+
+			// Чекбокс "Включить измененную стоимость первой Доставки за час"
+			var checkBox = new yCheckButton
+			{
+				Name = "ycheckChangedFirstFastDeliveryCostEnabled",
+				Label = Mono.Unix.Catalog.GetString("Включить измененную стоимость первой Доставки за час"),
+				DrawIndicator = true,
+				UseUnderline = true
+			};
+			checkBox.Binding
+				.AddBinding(ViewModel, vm => vm.EnableChangedFirstFastDeliveryCost, w => w.Active)
+				.InitializeFromSource();
+			frameBox.Add(checkBox);
+
+			// Строка "Измененная стоимость"
+			var hbox = new yHBox { Spacing = 6 };
+			frameBox.Add(hbox);
+
+			var label = new yLabel { LabelProp = Mono.Unix.Catalog.GetString("Измененная стоимость:") };
+			hbox.Add(label);
+
+			var spin = new ySpinButton(1D, 1000D, 1D)
+			{
+				Name = "yspinbuttonChangedFirstFastDeliveryCost",
+				WidthRequest = 100,
+				Digits = 2,
+				Numeric = true
+			};
+			spin.Binding
+				.AddBinding(ViewModel, vm => vm.ChangedFirstFastDeliveryCost, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			hbox.Add(spin);
+
+			var rubLabel = new yLabel { LabelProp = Mono.Unix.Catalog.GetString("руб.") };
+			hbox.Add(rubLabel);
+
+			// Кнопка "Сохранить"
+			var saveButton = new yButton
+			{
+				Name = "ybuttonSaveChangedFirstFastDeliveryCost",
+				UseUnderline = true,
+				Label = Mono.Unix.Catalog.GetString("Сохранить")
+			};
+			saveButton.BindCommand(ViewModel.SaveChangedFirstFastDeliveryCostCommand);
+
+			hbox.Add(saveButton);
+
+			// Вставляем фрейм в правую колонку после "Массовое изменение ставки НДС" (frame9)
+			yvboxAlternativePrices.Add(frame);
+			var child = (Gtk.Box.BoxChild)yvboxAlternativePrices[frame];
+			child.Position = 6;
+			child.Expand = false;
+			child.Fill = false;
+
+			frame.ShowAll();
+		}
+
 		private void ConfigureEmployeesFixedPrices()
 		{
 			//Чтобы помещалось 4 строчки без полосы прокрутки
