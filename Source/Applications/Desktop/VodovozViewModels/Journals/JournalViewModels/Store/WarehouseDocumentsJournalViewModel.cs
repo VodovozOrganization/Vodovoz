@@ -10,14 +10,17 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Specifications.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Core.Domain.Warehouses.Documents;
@@ -60,6 +63,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		private readonly IInteractiveService _interactiveService;
 		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
 		private readonly SelfdeliveryCancellationService _selfdeliveryCancellationService;
+		private readonly IDeleteEntityService _deleteEntityService;
+		private readonly IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> _selfDeliveryProductCodeRepository;
 
 		public WarehouseDocumentsJournalViewModel(
 			WarehouseDocumentsJournalFilterViewModel filterViewModel,
@@ -71,6 +76,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			IInteractiveService interactiveService,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			SelfdeliveryCancellationService selfdeliveryCancellationService,
+			IDeleteEntityService deleteEntityService,
+			IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> selfDeliveryProductCodeRepository,
 			Action<WarehouseDocumentsJournalFilterViewModel> filterConfiguration = null
 		)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager)
@@ -80,6 +87,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
 			_selfdeliveryCancellationService = selfdeliveryCancellationService ?? throw new ArgumentNullException(nameof(selfdeliveryCancellationService));
+			_deleteEntityService = deleteEntityService ?? throw new ArgumentNullException(nameof(deleteEntityService));
+			_selfDeliveryProductCodeRepository = selfDeliveryProductCodeRepository
+				?? throw new ArgumentNullException(nameof(selfDeliveryProductCodeRepository));
 			UseSlider = false;
 			SearchEnabled = true;
 			TabName = "Журнал складских документов";
@@ -1373,6 +1383,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 					if(config.PermissionResult.CanDelete)
 					{
+						if(selectedNode.DocTypeEnum == DocumentType.SelfDeliveryDocument)
+						{
+							DeleteSelfDeliveryDocument(selectedNode.Id);
+							return;
+						}
+
 						DeleteHelper.DeleteEntity(selectedNode.EntityType, selectedNode.Id);
 					}
 				},
@@ -1380,6 +1396,92 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			);
 
 			NodeActionsList.Add(deleteAction);
+		}
+
+		private void DeleteSelfDeliveryDocument(int documentId)
+		{
+			var deletionUow = UnitOfWorkFactory.CreateWithoutRoot($"Удаление отпуска самовывоза №{documentId}");
+
+			try
+			{
+				var deletion = _deleteEntityService.DeleteEntity<SelfDeliveryDocument>(
+					documentId,
+					deletionUow,
+					() => UnlinkSelfDeliveryDocumentTrueMarkCodes(deletionUow, documentId));
+
+				if(deletion.DeletionExecuted != null)
+				{
+					CompleteSelfDeliveryDocumentDeletion(deletion, deletionUow);
+					return;
+				}
+
+				PropertyChangedEventHandler onDeletionChanged = null;
+				onDeletionChanged = (sender, args) =>
+				{
+					if(args.PropertyName != nameof(DeleteCore.DeletionExecuted) || deletion.DeletionExecuted == null)
+					{
+						return;
+					}
+
+					deletion.PropertyChanged -= onDeletionChanged;
+					CompleteSelfDeliveryDocumentDeletion(deletion, deletionUow);
+				};
+				deletion.PropertyChanged += onDeletionChanged;
+			}
+			catch
+			{
+				deletionUow.Dispose();
+				throw;
+			}
+		}
+
+		private void CompleteSelfDeliveryDocumentDeletion(DeleteCore deletion, IUnitOfWork deletionUow)
+		{
+			try
+			{
+				if(deletion.DeletionExecuted == true)
+				{
+					deletionUow.Commit();
+				}
+			}
+			catch(Exception ex)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					$"Не удалось удалить отпуск самовывоза, изменения отменены: {ex.Message}",
+					"Ошибка удаления");
+			}
+			finally
+			{
+				deletionUow.Dispose();
+			}
+		}
+
+		private void UnlinkSelfDeliveryDocumentTrueMarkCodes(IUnitOfWork deletionUow, int documentId)
+		{
+			var document = deletionUow.GetById<SelfDeliveryDocument>(documentId);
+
+			if(document == null)
+			{
+				return;
+			}
+
+			var itemIds = document.Items.Select(x => x.Id).Where(x => x > 0).ToList();
+
+			if(!itemIds.Any())
+			{
+				return;
+			}
+
+			var codes = _selfDeliveryProductCodeRepository.Get(
+				deletionUow,
+				SelfDeliveryDocumentItemTrueMarkProductCodeSpecification.CreateForSelfDeliveryDocumentItemIds(itemIds));
+
+			foreach(var code in codes)
+			{
+				code.SelfDeliveryDocumentItemId = null;
+				deletionUow.Save(code);
+			}
 		}
 
 		protected void CreateCustomAddActions()

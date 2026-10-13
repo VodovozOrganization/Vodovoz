@@ -405,6 +405,8 @@ namespace Vodovoz
 				return false;
 			}
 
+			Entity.UpdateOperations(UoW);
+
 			var addingProductCodesResult = AddProductCodesAndCheckIsAllCodesAddedIfNeed();
 
 			if(addingProductCodesResult.IsFailure)
@@ -413,7 +415,6 @@ namespace Vodovoz
 				return false;
 			}
 
-			Entity.UpdateOperations(UoW);
 			Entity.UpdateReceptions(UoW, GoodsReceptionList, _nomenclatureRepository, _bottlesRepository);
 
 			var employeeSettings = _lifetimeScope.Resolve<IEmployeeSettings>();

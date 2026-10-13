@@ -935,21 +935,14 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<InventoryDocumentItem>()
 				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
 
-			DeleteConfig.AddDeleteInfo(
-				new DeleteInfo
-				{
-					ObjectClass = typeof(SelfDeliveryDocumentItemTrueMarkProductCode),
-					SqlSelect = "SELECT id FROM @tablename ",
-					DisplayString = "Код ЧЗ товара №{0}"
-				}.FillFromMetaInfo());
+			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentItemTrueMarkProductCode>();
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocument>()
 				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.Document)
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation)
-				.AddClearDependence<SelfDeliveryDocumentItemTrueMarkProductCode>(x => x.SelfDeliveryDocumentItemId);
+				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentReturned>()
 				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
