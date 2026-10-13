@@ -132342,6 +132342,128 @@ not tooltip</property>
                                 <property name="Fill">False</property>
                               </packing>
                             </child>
+                            <child>
+                              <widget class="Gtk.Frame" id="frame11">
+                                <property name="MemberName" />
+                                <child>
+                                  <widget class="Gtk.Alignment" id="GtkAlignment59">
+                                    <property name="MemberName" />
+                                    <property name="Xalign">0</property>
+                                    <property name="Yalign">0</property>
+                                    <property name="LeftPadding">12</property>
+                                    <child>
+                                      <widget class="Gtk.VBox" id="vbox14">
+                                        <property name="MemberName" />
+                                        <property name="Spacing">6</property>
+                                        <child>
+                                          <widget class="Gamma.GtkWidgets.yCheckButton" id="ycheckbuttonEnableChangedFastDeliveryCost">
+                                            <property name="MemberName" />
+                                            <property name="CanFocus">True</property>
+                                            <property name="Label" translatable="yes">Включить измененную стоимость первой Доставки за час</property>
+                                            <property name="DrawIndicator">True</property>
+                                            <property name="HasLabel">True</property>
+                                            <property name="UseUnderline">True</property>
+                                          </widget>
+                                          <packing>
+                                            <property name="Position">0</property>
+                                            <property name="AutoSize">True</property>
+                                            <property name="Expand">False</property>
+                                            <property name="Fill">False</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <widget class="Gamma.GtkWidgets.yHBox" id="yhbox4">
+                                            <property name="MemberName" />
+                                            <property name="Spacing">6</property>
+                                            <child>
+                                              <widget class="Gamma.GtkWidgets.yLabel" id="ylabel20">
+                                                <property name="MemberName" />
+                                                <property name="LabelProp" translatable="yes">Измененная стоимость:</property>
+                                              </widget>
+                                              <packing>
+                                                <property name="Position">0</property>
+                                                <property name="AutoSize">True</property>
+                                                <property name="Expand">False</property>
+                                                <property name="Fill">False</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <widget class="Gamma.GtkWidgets.ySpinButtonCurrencyFormat" id="yspinbuttonFastDeliveryCost">
+                                                <property name="MemberName" />
+                                                <property name="CanFocus">True</property>
+                                                <property name="Upper">10000000</property>
+                                                <property name="PageIncrement">10</property>
+                                                <property name="StepIncrement">1</property>
+                                                <property name="ClimbRate">1</property>
+                                                <property name="Digits">2</property>
+                                                <property name="Numeric">True</property>
+                                                <property name="ValueAsDecimal">0</property>
+                                                <property name="ValueAsInt">0</property>
+                                              </widget>
+                                              <packing>
+                                                <property name="Position">1</property>
+                                                <property name="AutoSize">True</property>
+                                                <property name="Expand">False</property>
+                                                <property name="Fill">False</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <widget class="Gamma.GtkWidgets.yLabel" id="ylabel21">
+                                                <property name="MemberName" />
+                                                <property name="LabelProp" translatable="yes">руб.</property>
+                                              </widget>
+                                              <packing>
+                                                <property name="Position">2</property>
+                                                <property name="AutoSize">True</property>
+                                                <property name="Expand">False</property>
+                                                <property name="Fill">False</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <widget class="Gamma.GtkWidgets.yButton" id="buttonSaveFastDeliveryCost">
+                                                <property name="MemberName" />
+                                                <property name="CanFocus">True</property>
+                                                <property name="Type">TextOnly</property>
+                                                <property name="Label" translatable="yes">Сохранить</property>
+                                                <property name="UseUnderline">True</property>
+                                              </widget>
+                                              <packing>
+                                                <property name="Position">3</property>
+                                                <property name="AutoSize">True</property>
+                                                <property name="Expand">False</property>
+                                                <property name="Fill">False</property>
+                                              </packing>
+                                            </child>
+                                          </widget>
+                                          <packing>
+                                            <property name="Position">1</property>
+                                            <property name="AutoSize">True</property>
+                                            <property name="Expand">False</property>
+                                            <property name="Fill">False</property>
+                                          </packing>
+                                        </child>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                </child>
+                                <child>
+                                  <widget class="Gtk.Label" id="GtkLabel121">
+                                    <property name="MemberName" />
+                                    <property name="LabelProp" translatable="yes">&lt;b&gt;Стоимость первой Доставки за час&lt;/b&gt;</property>
+                                    <property name="UseMarkup">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="type">label_item</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="Position">6</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
                           </widget>
                           <packing>
                             <property name="Position">1</property>
@@ -195800,10 +195922,10 @@ not tooltip</property>
                 <property name="Xalign">0</property>
                 <property name="Yalign">0</property>
                 <child>
-                  <widget class="Gamma.GtkWidgets.yTreeView" id="treeItems">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                  </widget>
+                      <widget class="Gamma.GtkWidgets.yTreeView" id="treeItems">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                      </widget>
                 </child>
               </widget>
             </child>
