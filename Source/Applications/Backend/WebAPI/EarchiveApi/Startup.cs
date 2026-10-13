@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 using NLog.Web;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
@@ -30,11 +29,6 @@ namespace EarchiveApi
 		{
 			services.AddDatabaseConnectionSettings();
 			services.AddDatabaseConnectionString();
-			services.AddSingleton(provider =>
-			{
-				var connectionStringBuilder = provider.GetRequiredService<MySqlConnectionStringBuilder>();
-				return new MySqlConnection(connectionStringBuilder.ConnectionString);
-			});
 
 			services.AddGrpc();
 
