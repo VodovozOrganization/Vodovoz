@@ -224,17 +224,19 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		}
 
 		/// <inheritdoc />
-		public bool AreCodesUsedByOtherEdoTasks(IUnitOfWork uow, int taskId, IEnumerable<int> codeIds)
+		public IList<EdoTaskItem> GetItemsUsingCodesInOtherEdoTasks(IUnitOfWork uow, int taskId, IEnumerable<int> codeIds)
 		{
 			TrueMarkProductCode productCode = null;
 			var ids = codeIds.ToArray();
 			return uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.CustomerEdoTask)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.JoinAlias(x => x.ProductCode, () => productCode)
 				.Where(x => x.CustomerEdoTask.Id != taskId)
 				.Where(Restrictions.Disjunction()
 					.Add(Restrictions.In(Projections.Property(() => productCode.SourceCode.Id), ids))
 					.Add(Restrictions.In(Projections.Property(() => productCode.ResultCode.Id), ids)))
-				.RowCount() > 0;
+				.List();
 		}
 
 		public IEnumerable<CarLoadDocumentItemTrueMarkProductCode> GetCodesFromWarehouseByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null)
