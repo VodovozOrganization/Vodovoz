@@ -99,8 +99,6 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 
 			var templateFile = new FileInfo(_ttnTemplatePath);
 
-			ExcelPackage.License.SetNonCommercialPersonal("Имя");
-
 			using(var package = new ExcelPackage(templateFile))
 			{
 				var ws1 = package.Workbook.Worksheets["Товарный раздел"];
