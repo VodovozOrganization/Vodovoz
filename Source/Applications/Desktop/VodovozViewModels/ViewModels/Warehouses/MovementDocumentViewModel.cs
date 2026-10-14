@@ -837,7 +837,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				return;
 			}
 
-			if(NeedPrintTtn)
+			if(NeedPrintTtn && UoW.HasChanges)
 			{
 				var confirmed = CommonServices.InteractiveService.Question(
 					"Документ перемещения будет сохранён. Продолжить?",
