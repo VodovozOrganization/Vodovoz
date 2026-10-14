@@ -286,21 +286,6 @@ namespace WarehouseApi.Library.Services
 
 			foreach(var code in trueMarkAnyCodes)
 			{
-				if(code.IsTrueMarkWaterIdentificationCode)
-				{
-					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
-
-					if(addedCodeKeys.Add(codeKey))
-					{
-						AddTrueMarkCodeToCarLoadDocumentItem(
-							uow,
-							carLoadDocumentItem,
-							code.TrueMarkWaterIdentificationCode,
-							status,
-							problem);
-					}
-				}
-
 				await code.Match(
 					async transportCode =>
 					{
@@ -329,6 +314,21 @@ namespace WarehouseApi.Library.Services
 
 						return true;
 					});
+
+				if(code.IsTrueMarkWaterIdentificationCode)
+				{
+					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
+
+					if(addedCodeKeys.Add(codeKey))
+					{
+						AddTrueMarkCodeToCarLoadDocumentItem(
+							uow,
+							carLoadDocumentItem,
+							code.TrueMarkWaterIdentificationCode,
+							status,
+							problem);
+					}
+				}
 			}
 		}
 

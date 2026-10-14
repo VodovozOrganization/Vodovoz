@@ -86,23 +86,6 @@ namespace VodovozBusiness.Services.TrueMark
 
 			foreach(var code in trueMarkAnyCodes)
 			{
-				if(code.IsTrueMarkWaterIdentificationCode)
-				{
-					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
-
-					if(!addedCodeKeys.Contains(codeKey))
-					{
-						AddTrueMarkCodeToSelfDeliveryDocumentItem(
-							uow,
-							selfDeliveryDocumentItem,
-							code.TrueMarkWaterIdentificationCode,
-							status,
-							problem);
-
-						addedCodeKeys.Add(codeKey);
-					}
-				}
-
 				await code.Match(
 					async transportCode =>
 					{
@@ -131,6 +114,23 @@ namespace VodovozBusiness.Services.TrueMark
 
 						return true;
 					});
+
+				if(code.IsTrueMarkWaterIdentificationCode)
+				{
+					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
+
+					if(!addedCodeKeys.Contains(codeKey))
+					{
+						AddTrueMarkCodeToSelfDeliveryDocumentItem(
+							uow,
+							selfDeliveryDocumentItem,
+							code.TrueMarkWaterIdentificationCode,
+							status,
+							problem);
+
+						addedCodeKeys.Add(codeKey);
+					}
+				}
 			}
 		}
 

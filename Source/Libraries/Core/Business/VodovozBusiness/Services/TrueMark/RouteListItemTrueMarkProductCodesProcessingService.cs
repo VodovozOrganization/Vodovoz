@@ -122,6 +122,35 @@ namespace VodovozBusiness.Services.TrueMark
 
 			foreach(var code in trueMarkAnyCodes)
 			{
+				await code.Match(
+					async transportCode =>
+					{
+						if(transportCode.Id == 0)
+						{
+							await uow.SaveAsync(transportCode, cancellationToken: cancellationToken);
+						}
+
+						return true;
+					},
+					async groupCode =>
+					{
+						if(groupCode.Id == 0)
+						{
+							await uow.SaveAsync(groupCode, cancellationToken: cancellationToken);
+						}
+
+						return true;
+					},
+					async waterCode =>
+					{
+						if(waterCode.Id == 0)
+						{
+							await uow.SaveAsync(waterCode, cancellationToken: cancellationToken);
+						}
+
+						return true;
+					});
+
 				if(code.IsTrueMarkWaterIdentificationCode)
 				{
 					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
@@ -156,35 +185,6 @@ namespace VodovozBusiness.Services.TrueMark
 						addedCodeKeys.Add(codeKey);
 					}
 				}
-
-				await code.Match(
-					async transportCode =>
-					{
-						if(transportCode.Id == 0)
-						{
-							await uow.SaveAsync(transportCode, cancellationToken: cancellationToken);
-						}
-
-						return true;
-					},
-					async groupCode =>
-					{
-						if(groupCode.Id == 0)
-						{
-							await uow.SaveAsync(groupCode, cancellationToken: cancellationToken);
-						}
-
-						return true;
-					},
-					async waterCode =>
-					{
-						if(waterCode.Id == 0)
-						{
-							await uow.SaveAsync(waterCode, cancellationToken: cancellationToken);
-						}
-
-						return true;
-					});
 			}
 		}
 
