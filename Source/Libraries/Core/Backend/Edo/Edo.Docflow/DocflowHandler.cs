@@ -270,7 +270,7 @@ namespace Edo.Docflow
 				case EdoDocFlowStatus.InProgress:
 					document.Status = EdoDocumentStatus.InProgress;
 
-					if(TaxcomDocflowReceive.ShouldMarkAsSent(docflowStatus, updatedEvent.IsReceived)
+					if(TaxcomDocflowStateByTransactions.ShouldMarkAsSent(docflowStatus, updatedEvent.IsReceived)
 						&& document is OrderEdoDocument)
 					{
 						message = OrderDocumentSentEvent.Create(document.Id);

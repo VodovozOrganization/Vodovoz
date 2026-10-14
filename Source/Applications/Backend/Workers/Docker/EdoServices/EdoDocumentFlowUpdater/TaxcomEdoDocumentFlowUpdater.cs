@@ -254,21 +254,21 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 
-			var transactionCodes = docflow.Documents?
-				.SelectMany(document => new[] { document.TransactionCode, document.ReglamentCode });
-			var resolvedStatus = TaxcomDocflowReceive.ResolveStatus(
+			var state = TaxcomDocflowStateByTransactions.Resolve(
 				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>(),
-				transactionCodes);
+				docflow.Documents,
+				document => document.TransactionCode,
+				document => document.ReglamentCode);
 
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent
 			{
 				DocFlowId = docflow.Id,
 				MainDocumentId = mainDocument.ExternalIdentifier,
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
-				Status = resolvedStatus?.ToString() ?? docflow.Status,
+				Status = state.Status?.ToString() ?? docflow.Status,
 				StatusChangeDateTime = docflow.StatusChangeDateTime,
 				ErrorDescription = docflow.ErrorDescription,
-				IsReceived = TaxcomDocflowReceive.IsReceived(resolvedStatus, transactionCodes)
+				IsReceived = state.IsReceived
 			};
 
 			UpdateTrueMarkTraceabilityInfo(docflow, @event);
@@ -517,17 +517,17 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 			
-			var transactionCodes = docflow.Documents?
-				.SelectMany(document => new[] { document.TransactionCode, document.ReglamentCode });
-			var resolvedStatus = TaxcomDocflowReceive.ResolveStatus(
+			var state = TaxcomDocflowStateByTransactions.Resolve(
 				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>(),
-				transactionCodes);
+				docflow.Documents,
+				document => document.TransactionCode,
+				document => document.ReglamentCode);
 
 			container.DocFlowId = docflow.Id;
-			container.Received = TaxcomDocflowReceive.IsReceived(resolvedStatus, transactionCodes);
+			container.Received = state.IsReceived;
 			container.InternalId = mainDocument.InternalId;
 			container.ErrorDescription = docflow.ErrorDescription;
-			container.EdoDocFlowStatus = resolvedStatus ?? EdoDocFlowStatus.Unknown;
+			container.EdoDocFlowStatus = state.Status ?? EdoDocFlowStatus.Unknown;
 
 			if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 			{

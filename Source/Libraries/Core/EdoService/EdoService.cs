@@ -1411,23 +1411,25 @@ namespace EdoService.Library
 					));
 				}
 
-				var transactionCodes = description.DocFlow.Documents?
-					.SelectMany(document => new[] { document.TransactionCode, document.ReglamentCode });
 				EdoDocFlowStatus? reportedStatus = null;
 				if(Enum.TryParse(description.DocFlow.Status, true, out EdoDocFlowStatus parsedStatus))
 				{
 					reportedStatus = parsedStatus;
 				}
 
-				var resolvedStatus = TaxcomDocflowReceive.ResolveStatus(reportedStatus, transactionCodes);
+				var state = TaxcomDocflowStateByTransactions.Resolve(
+					reportedStatus,
+					description.DocFlow.Documents,
+					document => document.TransactionCode,
+					document => document.ReglamentCode);
 				var docflowUpdatedEvent = new OutgoingTaxcomDocflowUpdatedEvent
 				{
 					DocFlowId = description.DocFlow.Id,
 					EdoAccount = edoAccount,
 					MainDocumentId = mainDocument.Definition.Identifiers.ExternalIdentifier,
-					Status = resolvedStatus?.ToString() ?? description.DocFlow.Status,
+					Status = state.Status?.ToString() ?? description.DocFlow.Status,
 					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
-					IsReceived = TaxcomDocflowReceive.IsReceived(resolvedStatus, transactionCodes)
+					IsReceived = state.IsReceived
 				};
 
 				await _bus.Publish(docflowUpdatedEvent, cancellationToken);
