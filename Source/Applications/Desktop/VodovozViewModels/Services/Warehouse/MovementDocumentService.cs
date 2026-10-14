@@ -310,7 +310,7 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 					Code = item.Nomenclature?.Id.ToString() ?? "",
 					Name = item.Nomenclature?.OfficialName ?? "",
 					Count = item.SentAmount,
-					Weight = item.Nomenclature?.Weight ?? 0m,
+					Weight = (item.Nomenclature?.Weight ?? 0m) * item.SentAmount,
 					Sum = 0,
 				});
 			}
