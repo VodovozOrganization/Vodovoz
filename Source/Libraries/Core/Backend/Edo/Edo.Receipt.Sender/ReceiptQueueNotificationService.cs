@@ -110,7 +110,6 @@ namespace Edo.Receipt.Sender
 						}
 						var cashbox = await _cashboxClientProvider.GetCashboxAsync(task.CashboxId.Value, cancellationToken);
 						var result = await cashbox.CheckFiscalDocument(document.DocumentGuid.ToString(), cancellationToken);
-						cancellationToken.ThrowIfCancellationRequested();
 						if(result.SendStatus == ModulKassa.DTO.SendStatus.Error || result.FiscalDocumentInfo == null)
 						{
 							_logger.LogWarning("Не удалось проверить состояние чека {FiscalDocumentId}: {ErrorMessage}. Уведомление пропущено",
@@ -118,6 +117,7 @@ namespace Edo.Receipt.Sender
 							continue;
 						}
 						var currentState = result.FiscalDocumentInfo;
+						
 						if(currentState.Status != ModulKassa.DTO.FiscalDocumentStatus.Queued)
 						{
 							var status = ReceiptConverters.ConvertFiscalDocumentStatus(currentState.Status);
@@ -135,6 +135,7 @@ namespace Edo.Receipt.Sender
 								document.Status = status;
 								document.StatusChangeTime = DateTime.Parse(currentState.TimeStatusChangedString);
 							}
+							
 							document.FailureMessage = currentState.FailureInfo?.Message;
 							await uow.SaveAsync(document, cancellationToken: cancellationToken);
 							if(task.Status != EdoTaskStatus.Completed && document.Stage == FiscalDocumentStage.Completed
