@@ -28,9 +28,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {
 	public class TtnDataViewModel : DialogTabViewModelBase
 	{
-		private readonly IInteractiveService _interactiveService;
-		private readonly ILifetimeScope _scope;
-
 		private readonly ViewModelEEVMBuilder<Organization> _cargoSenderEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Organization> _cargoReceiverEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Organization> _payerEEVMBuilder;
@@ -38,14 +35,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private readonly ViewModelEEVMBuilder<Car> _semitrailerEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _employeeEEVMBuilder;
 
-		private DelegateCommand _acceptCommand;
-		private DelegateCommand _cancelCommand;
-
 		public TtnDataViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigationManager,
-			ILifetimeScope scope,
 			ViewModelEEVMBuilder<Organization> cargoSenderEEVMBuilder,
 			ViewModelEEVMBuilder<Organization> cargoReceiverEEVMBuilder,
 			ViewModelEEVMBuilder<Organization> payerEEVMBuilder,
@@ -54,9 +47,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			ViewModelEEVMBuilder<Employee> employeeEEVMBuilder)
 			: base(unitOfWorkFactory, interactiveService, navigationManager)
 		{
-			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-
 			_cargoSenderEEVMBuilder = cargoSenderEEVMBuilder
 				?? throw new ArgumentNullException(nameof(cargoSenderEEVMBuilder));
 			_cargoReceiverEEVMBuilder = cargoReceiverEEVMBuilder
@@ -87,10 +77,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		public DelegateCommand AcceptCommand { get; }
 		public DelegateCommand CancelCommand { get; }
 
-		/// <summary>
-		/// Строит все EntityEntryViewModel с владельцем <c>this</c> (TtnDataViewModel),
-		/// чтобы вложенные журналы открывались от вкладки ТТН.
-		/// </summary>
 		public void Configure(MovementDocument entity)
 		{
 			if(entity is null)

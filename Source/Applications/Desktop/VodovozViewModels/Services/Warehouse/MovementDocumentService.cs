@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 
 		public TtnReport BuildTtnReport(MovementDocument entity, Employee currentEmployee)
 		{
-			if(entity == null)
+			if(entity is null)
 			{
 				throw new ArgumentNullException(nameof(entity));
 			}
@@ -229,7 +229,7 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 
 		private static OrganizationVersion GetActiveOrganizationVersion(IUnitOfWork uow, int? organizationId, DateTime date)
 		{
-			if(organizationId == null)
+			if(organizationId is null)
 			{
 				return null;
 			}
@@ -244,7 +244,7 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 
 		private static string BuildOrganizationText(Organization org, OrganizationVersion version)
 		{
-			if(org == null)
+			if(org is null)
 			{
 				return string.Empty;
 			}

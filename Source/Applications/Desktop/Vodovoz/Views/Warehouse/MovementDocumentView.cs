@@ -49,15 +49,15 @@ namespace Vodovoz.Views.Warehouse
 				.AddBinding(ViewModel, vm => vm.CanVisibleWagon, w => w.Visible)
 				.InitializeFromSource();
 
-			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Editable).InitializeFromSource();
+			ytextviewComment.Binding
+				.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Editable)
+				.InitializeFromSource();
 
-			// Чекбокс "Требуется печатная ТТН"
 			checkNeedPrintTtn.Binding
 				.AddBinding(ViewModel, vm => vm.NeedPrintTtn, w => w.Active)
 				.InitializeFromSource();
 
-			// Кнопка "Внести данные по ТТН" — видна только при активном чекбоксе
 			buttonEnterTtnData.Binding
 				.AddBinding(ViewModel, vm => vm.CanEnterTtnData, w => w.Visible)
 				.InitializeFromSource();
