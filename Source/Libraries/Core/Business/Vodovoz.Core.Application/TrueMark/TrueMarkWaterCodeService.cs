@@ -295,10 +295,17 @@ namespace Vodovoz.Core.Application.TrueMark
 
 		private Result IsCodeNotExpired(ProductInstanceStatus productInstanceStatus)
 		{
-			if(productInstanceStatus.ExpirationDate >= DateTime.Today)
+			if(productInstanceStatus.ExpirationDate == null)
+			{
+				return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsExpired);
+			}
+
+			var additionalDays = _edoSettings.GeneralExpireDateCheckAdditinalDays;
+			if(productInstanceStatus.ExpirationDate.Value.AddDays(-additionalDays) >= DateTime.Today)
 			{
 				return Result.Success();
 			}
+
 			return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsExpired);
 		}
 

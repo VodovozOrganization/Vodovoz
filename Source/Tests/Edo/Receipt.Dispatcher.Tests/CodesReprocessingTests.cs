@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -66,6 +66,7 @@ namespace Receipt.Dispatcher.Tests
 			ConfigurePreload<EdoTaskItem>();
 			var repository = Substitute.For<IEdoRepository>();
 			var nomenclatures = Substitute.For<INomenclatureRepository>();
+			var edoSettings = Substitute.For<IEdoSettings>();
 			repository.GetEdoOrganizationsAsync(Arg.Any<CancellationToken>())
 				.Returns(new[] { new OrganizationEntity { INN = Inn } });
 			nomenclatures.GetGtinsAsync(Arg.Any<CancellationToken>())
@@ -78,7 +79,7 @@ namespace Receipt.Dispatcher.Tests
 			};
 			_api.GetProductInstanceInfoAsync(Arg.Any<IEnumerable<string>>(), Arg.Any<CancellationToken>())
 				.Returns(new ProductInstancesInfoResponse { InstanceStatuses = new[] { _codeStatus } });
-			_validator = new TrueMarkTaskCodesValidator(repository, nomenclatures, _api);
+			_validator = new TrueMarkTaskCodesValidator(repository, nomenclatures, edoSettings, _api);
 			var factory = Substitute.For<IUnitOfWorkFactory>();
 			var registrar = new EdoProblemRegistrar(_uow, factory,
 				new EdoTaskCustomSourcesPersister(factory, new EdoTaskProblemCustomSource[]

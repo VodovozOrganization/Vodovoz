@@ -718,7 +718,8 @@ namespace Vodovoz.ViewModels.Logistic
 				Errors.Logistics.RouteListErrors.RouteListItem.TransferRequiresLoadingWhenRouteListEnRoute.Code,
 				Errors.Logistics.RouteListErrors.RouteListItem.TransferNotEnoughtFreeBalance.Code,
 				Errors.Logistics.RouteListErrors.RouteListItem.OrdersWithCreatedUpdNeedToReload.Code,
-				Errors.Logistics.RouteListErrors.RouteListItem.OrderRecentlyCanceled.Code
+				Errors.Logistics.RouteListErrors.RouteListItem.OrderRecentlyCanceled.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.InvalidOrderStatusForTransfer
 			};
 
 			var errorMessages = errors

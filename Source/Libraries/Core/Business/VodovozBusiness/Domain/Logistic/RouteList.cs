@@ -851,7 +851,7 @@ namespace Vodovoz.Domain.Logistic
 
 				UoW.Save(toAddress);
 			}
-			else
+			else if(!OrderEntity.GetUndeliveryStatuses().Contains(address.Order.OrderStatus))
 			{
 				address.ChangeOrderStatus(OrderStatus.Accepted);
 			}

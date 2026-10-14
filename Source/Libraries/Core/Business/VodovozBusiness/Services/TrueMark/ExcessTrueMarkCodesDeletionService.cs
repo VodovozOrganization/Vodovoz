@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Services;
 using TrueMark.Codes.Pool;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Results;
@@ -20,17 +21,20 @@ namespace VodovozBusiness.Services.TrueMark
 		private readonly ICurrentPermissionService _permissions;
 		private readonly TrueMarkCodesPoolFactory _poolFactory;
 		private readonly ITrueMarkRepository _repository;
+		private readonly IEdoRepository _edoRepository;
 
 		/// <summary>Конструктор.</summary>
 		/// <param name="permissions">Права текущего пользователя.</param>
 		/// <param name="poolFactory">Фабрика пула в транзакции операции.</param>
 		/// <param name="repository">Репозиторий кодов маркировки.</param>
+		/// <param name="edoRepository">Репозиторий документов ЭДО.</param>
 		public ExcessTrueMarkCodesDeletionService(ICurrentPermissionService permissions,
-			TrueMarkCodesPoolFactory poolFactory, ITrueMarkRepository repository)
+			TrueMarkCodesPoolFactory poolFactory, ITrueMarkRepository repository, IEdoRepository edoRepository)
 		{
 			_permissions = permissions ?? throw new ArgumentNullException(nameof(permissions));
 			_poolFactory = poolFactory ?? throw new ArgumentNullException(nameof(poolFactory));
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 		}
 
 		/// <summary>
@@ -76,7 +80,8 @@ namespace VodovozBusiness.Services.TrueMark
 				return Failure("EmptyCode", "У выбранного элемента отсутствует код для возврата в пул.");
 			}
 			var codeIds = codes.Select(x => x.Id).ToArray();
-			if(_repository.AreCodesUsedByOtherEdoTasks(uow, taskId, codeIds)
+			if(_repository.GetItemsUsingCodesInOtherEdoTasks(uow, taskId, codeIds)
+				.Any(x => !CanIgnoreHistoricalCodeUsage(uow, x))
 				|| task.Items.Where(x => !ids.Contains(x.ProductCode.Id)).Any(x =>
 					codeIds.Contains(x.ProductCode.SourceCode?.Id ?? 0)
 					|| codeIds.Contains(x.ProductCode.ResultCode?.Id ?? 0)))
@@ -99,6 +104,41 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 			uow.Save(task);
 			return Result.Success();
+		}
+
+		private bool CanIgnoreHistoricalCodeUsage(IUnitOfWork uow, EdoTaskItem item)
+		{
+			var linkedTask = item.CustomerEdoTask;
+			if(linkedTask.Status != EdoTaskStatus.Cancelled
+				|| item.ProductCode.SourceCodeStatus != SourceProductCodeStatus.Rejected
+				|| item.ProductCode.ResultCode != null)
+			{
+				return false;
+			}
+
+			if(linkedTask.TaskType == EdoTaskType.Document)
+			{
+				var document = _edoRepository.GetOrderEdoDocumentByTaskId(uow, linkedTask.Id);
+				if(document != null && document.Status != EdoDocumentStatus.Cancelled)
+				{
+					return false;
+				}
+			}
+			else
+			{
+				var receiptTask = linkedTask.As<ReceiptEdoTask>();
+				if(receiptTask == null || receiptTask.FiscalDocuments.Any())
+				{
+					return false;
+				}
+			}
+
+			return linkedTask.TransferIterations.All(iteration =>
+				iteration.Status == TransferEdoRequestIterationStatus.Completed
+				&& iteration.TransferEdoRequests.All(request =>
+					request.TransferEdoTask != null
+					&& request.TransferEdoTask.Status == EdoTaskStatus.Completed
+					&& request.TransferEdoTask.TransferStatus == EdoTransferTaskStage.Completed));
 		}
 
 		private static decimal GetExcessCount(OrderEdoTask task) =>
