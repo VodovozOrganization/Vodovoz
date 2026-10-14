@@ -11,14 +11,12 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.Specifications.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.TrueMark;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.TrueMark;
 
@@ -38,7 +36,7 @@ namespace DriverAPI.Library.V6.Converters
 		private readonly IOrderRepository _orderRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
-		private readonly IGenericRepository<RouteListItemTrueMarkProductCode> _routeListItemProductCodeRepository;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 
 		/// <summary>
 		/// Конструктор
@@ -51,8 +49,8 @@ namespace DriverAPI.Library.V6.Converters
 		/// <param name="qrPaymentConverter"></param>
 		/// <param name="orderRepository"></param>
 		/// <param name="trueMarkWaterCodeService"></param>
-		/// <param name="edoAccountController"></param>
-		/// <param name="routeListItemProductCodeRepository"></param>
+		/// <param name="edoAccountController">Контроллер ЭДО-аккаунтов контрагентов</param>
+		/// <param name="trueMarkRepository">Репозиторий кодов Честного Знака</param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public OrderConverter(
 			IUnitOfWork uow,
@@ -64,7 +62,7 @@ namespace DriverAPI.Library.V6.Converters
 			IOrderRepository orderRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ICounterpartyEdoAccountController edoAccountController,
-			IGenericRepository<RouteListItemTrueMarkProductCode> routeListItemProductCodeRepository)
+			ITrueMarkRepository trueMarkRepository)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
@@ -75,8 +73,8 @@ namespace DriverAPI.Library.V6.Converters
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
-			_routeListItemProductCodeRepository = routeListItemProductCodeRepository
-				?? throw new ArgumentNullException(nameof(routeListItemProductCodeRepository));
+			_trueMarkRepository = trueMarkRepository
+				?? throw new ArgumentNullException(nameof(trueMarkRepository));
 		}
 
 		/// <summary>
@@ -86,6 +84,7 @@ namespace DriverAPI.Library.V6.Converters
 		/// <param name="routeListItem">Адрес маршрутного листа</param>
 		/// <param name="smsPaymentStatus">Статус оплаты по смс</param>
 		/// <param name="qrPaymentDtoStatus">Статус оплаты по QR-коду</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns></returns>
 		public async Task<OrderDto> ConvertToAPIOrder(
 			Order vodovozOrder,
@@ -412,15 +411,7 @@ namespace DriverAPI.Library.V6.Converters
 				.Where(x => x.OrderItemId == saleItem.Id)
 				.Select(x => x.TrueMarkProductCodeId);
 
-			codes = (await _routeListItemProductCodeRepository
-				.GetAsync(
-					_uow,
-					RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListItem.Id),
-					cancellationToken: cancellationToken))
-				.Value
-				.Where(x => orderItemCodesIds.Contains(x.Id))
-				.Where(x => x.SourceCode != null || x.ResultCode != null)
-				.OrderBy(x => x.Id)
+			codes = (await _trueMarkRepository.GetRouteListItemProductCodesByIdsWithSourceOrResultAsync(_uow, routeListItem.Id, orderItemCodesIds, cancellationToken))
 				.Select(x => x.SourceCode ?? x.ResultCode)
 				.ToList();
 
@@ -502,6 +493,7 @@ namespace DriverAPI.Library.V6.Converters
 		/// </summary>
 		/// <param name="saleItem">Строка заказа</param>
 		/// <param name="routeListItem">Строка маршрутного листа</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns></returns>
 		public async Task<NomenclatureTrueMarkCodesDto> ConvertOrderItemTrueMarkCodesDataToDto(
 			OrderItem saleItem,

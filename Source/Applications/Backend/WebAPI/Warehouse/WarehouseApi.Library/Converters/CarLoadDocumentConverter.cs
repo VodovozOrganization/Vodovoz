@@ -102,7 +102,9 @@ namespace WarehouseApi.Library.Converters
 			foreach(var item in carLoadDocumentItems)
 			{
 				carLoadDocumentItemsStagingCodes.TryGetValue(item.Id, out var stagingCodes);
-				itemsLoadState.Add(item.GetDocumentItemLoadOperationState(productCodesByItemId[item.Id].Count(), stagingCodes ?? Enumerable.Empty<StagingTrueMarkCode>()));
+				itemsLoadState.Add(item.GetDocumentItemLoadOperationState(
+					productCodesByItemId[item.Id].Count(),
+					stagingCodes ?? Enumerable.Empty<StagingTrueMarkCode>()));
 			}
 
 			var apiOrderLoadOperationState = LoadOperationStateEnumDto.NotStarted;

@@ -17,12 +17,12 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.Specifications.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
 using Vodovoz.Errors.Orders;
 using Vodovoz.Models;
@@ -53,8 +53,7 @@ namespace WarehouseApi.Library.Services
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
 		private readonly ICarLoadDocumentTrueMarkCodesProcessingService _codesProcessingService;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
-		private readonly IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> _carLoadDocumentItemProductCodeRepository;
-		private readonly IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> _selfDeliveryDocumentItemProductCodeRepository;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IBus _messageBus;
 
 		public CarLoadService(
@@ -71,8 +70,7 @@ namespace WarehouseApi.Library.Services
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
 			ICarLoadDocumentTrueMarkCodesProcessingService codesProcessingService,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
-			IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> carLoadDocumentItemProductCodeRepository,
-			IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> selfDeliveryDocumentItemProductCodeRepository,
+			ITrueMarkRepository trueMarkRepository,
 			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -88,10 +86,7 @@ namespace WarehouseApi.Library.Services
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
 			_codesProcessingService = codesProcessingService ?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
-			_carLoadDocumentItemProductCodeRepository = carLoadDocumentItemProductCodeRepository
-				?? throw new ArgumentNullException(nameof(carLoadDocumentItemProductCodeRepository));
-			_selfDeliveryDocumentItemProductCodeRepository = selfDeliveryDocumentItemProductCodeRepository
-				?? throw new ArgumentNullException(nameof(selfDeliveryDocumentItemProductCodeRepository));
+			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -215,10 +210,11 @@ namespace WarehouseApi.Library.Services
 				.Select(x => x.Nomenclature)
 				.ToArray();
 
-			var productCodesByItemId = selfDeliveryDocument is null
-				? Enumerable.Empty<SelfDeliveryDocumentItemTrueMarkProductCode>().ToLookup(x => x.SelfDeliveryDocumentItemId.Value)
-				: await _selfDeliveryDocumentItemProductCodeRepository
-					.GetProductCodesByItemIdAsync(_uow, selfDeliveryDocument.Items, cancellationToken);
+			var productCodesByItemId = (await _trueMarkRepository.GetSelfDeliveryDocumentItemsProductCodesAsync(
+					_uow,
+					selfDeliveryDocument?.Items.Select(x => x.Id) ?? Enumerable.Empty<int>(),
+					cancellationToken))
+				.ToLookup(x => x.SelfDeliveryDocumentItemId.Value);
 
 			var orderDto = order.ToApiDtoV1(nomenclatures, selfDeliveryDocument, productCodesByItemId);
 
@@ -379,7 +375,11 @@ namespace WarehouseApi.Library.Services
 
 			var failureResponse = new AddOrderCodeResponse
 			{
-				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit, await GetProductCodesByItemIdAsync(documentItemToEdit, cancellationToken)),
+				Nomenclature = documentItemToEdit is null
+					? null
+					: _carLoadDocumentConverter.ConvertToApiNomenclature(
+						documentItemToEdit,
+						await GetProductCodesByItemIdAsync(documentItemToEdit, cancellationToken)),
 				Result = OperationResultEnumDto.Error,
 			};
 
@@ -499,7 +499,11 @@ namespace WarehouseApi.Library.Services
 
 			var failureResponse = new ChangeOrderCodeResponse
 			{
-				Nomenclature = documentItemToEdit is null ? null : _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit, await GetProductCodesByItemIdAsync(documentItemToEdit, cancellationToken)),
+				Nomenclature = documentItemToEdit is null
+					? null
+					: _carLoadDocumentConverter.ConvertToApiNomenclature(
+						documentItemToEdit,
+						await GetProductCodesByItemIdAsync(documentItemToEdit, cancellationToken)),
 				Result = OperationResultEnumDto.Error,
 			};
 
@@ -610,7 +614,9 @@ namespace WarehouseApi.Library.Services
 
 			if(nomenclatureDto is null)
 			{
-				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit, await GetProductCodesByItemIdAsync(documentItemToEdit, cancellationToken));
+				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(
+					documentItemToEdit,
+					await GetProductCodesByItemIdAsync(documentItemToEdit, cancellationToken));
 			}
 
 			if(nomenclatureDto != null && addedCode != null)
@@ -879,18 +885,10 @@ namespace WarehouseApi.Library.Services
 			IEnumerable<CarLoadDocumentItem> documentItems,
 			CancellationToken cancellationToken)
 		{
-			var savedItemsIds = documentItems
-				.Where(x => x.Id > 0)
-				.Select(x => x.Id)
-				.Distinct()
-				.ToList();
-
-			var productCodes = (await _carLoadDocumentItemProductCodeRepository
-				.GetAsync(
-					_uow,
-					CarLoadDocumentItemTrueMarkProductCodeSpecification.CreateForCarLoadDocumentItemIds(savedItemsIds),
-					cancellationToken: cancellationToken))
-				.Value;
+			var productCodes = await _trueMarkRepository.GetCarLoadDocumentItemsProductCodesAsync(
+				_uow,
+				documentItems.Select(x => x.Id),
+				cancellationToken);
 
 			return productCodes.ToLookup(x => x.CarLoadDocumentItemId.Value);
 		}

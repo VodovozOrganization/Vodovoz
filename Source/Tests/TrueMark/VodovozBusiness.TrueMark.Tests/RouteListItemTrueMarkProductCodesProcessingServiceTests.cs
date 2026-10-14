@@ -10,8 +10,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.Specifications;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
@@ -61,18 +60,15 @@ namespace VodovozBusiness.TrueMark.Tests
 				Substitute.For<IUnitOfWorkFactory>());
 			trueMarkCodesPoolFactory.Configure().Create(_uow).Returns(_trueMarkCodesPool);
 
-			var routeListItemProductCodeRepository = Substitute.For<IGenericRepository<RouteListItemTrueMarkProductCode>>();
-			routeListItemProductCodeRepository
-				.GetAsync(
+			_trueMarkRepository
+				.GetRouteListItemProductCodesSourceCodesAsync(
 					Arg.Any<IUnitOfWork>(),
-					Arg.Any<ExpressionSpecification<RouteListItemTrueMarkProductCode>>(),
 					Arg.Any<int>(),
 					Arg.Any<CancellationToken>())
-				.Returns(Result.Success<IEnumerable<RouteListItemTrueMarkProductCode>>(new List<RouteListItemTrueMarkProductCode>()));
+				.Returns(Task.FromResult<IList<TrueMarkWaterIdentificationCode>>(new List<TrueMarkWaterIdentificationCode>()));
 
 			_service = new RouteListItemTrueMarkProductCodesProcessingService(
 				Substitute.For<IOrderRepository>(),
-				routeListItemProductCodeRepository,
 				Substitute.For<IGenericRepository<StagingTrueMarkCode>>(),
 				Substitute.For<ITrueMarkWaterCodeService>(),
 				Substitute.For<ITrueMarkCodesPoolCleanupService>(),

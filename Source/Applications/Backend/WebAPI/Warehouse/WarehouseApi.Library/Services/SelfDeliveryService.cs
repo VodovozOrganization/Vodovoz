@@ -15,7 +15,6 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -26,6 +25,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors.Stores;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
@@ -43,7 +43,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly IGenericRepository<Warehouse> _warehouseRepository;
 		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
-		private readonly IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> _selfDeliveryDocumentItemProductCodeRepository;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
@@ -63,7 +63,7 @@ namespace WarehouseApi.Library.Services
 			IGenericRepository<Order> orderRepository,
 			IGenericRepository<Warehouse> warehouseRepository,
 			IGenericRepository<Subdivision> subdivisionRepository,
-			IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> selfDeliveryDocumentItemProductCodeRepository,
+			ITrueMarkRepository trueMarkRepository,
 			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ICounterpartyEdoAccountController edoAccountController,
@@ -87,8 +87,8 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_subdivisionRepository = subdivisionRepository
 				?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			_selfDeliveryDocumentItemProductCodeRepository = selfDeliveryDocumentItemProductCodeRepository
-				?? throw new ArgumentNullException(nameof(selfDeliveryDocumentItemProductCodeRepository));
+			_trueMarkRepository = trueMarkRepository
+				?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_codesProcessingService = codesProcessingService
 				?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService
@@ -478,8 +478,11 @@ namespace WarehouseApi.Library.Services
 
 		private async Task<PrimaryEdoRequest> CreateEdoRequestAsync(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
-			var codes = (await _selfDeliveryDocumentItemProductCodeRepository
-					.GetProductCodesByItemIdAsync(_unitOfWork, selfDeliveryDocument.Items, cancellationToken))
+			var codes = (await _trueMarkRepository.GetSelfDeliveryDocumentItemsProductCodesAsync(
+					_unitOfWork,
+					selfDeliveryDocument.Items.Select(x => x.Id),
+					cancellationToken))
+				.ToLookup(x => x.SelfDeliveryDocumentItemId.Value)
 				.SelectMany(x => x.OrderBy(c => c.Id))
 				.ToList();
 
@@ -522,8 +525,11 @@ namespace WarehouseApi.Library.Services
 			SelfDeliveryDocument selfDeliveryDocument,
 			CancellationToken cancellationToken)
 		{
-			var productCodesByItemId = await _selfDeliveryDocumentItemProductCodeRepository
-				.GetProductCodesByItemIdAsync(_unitOfWork, selfDeliveryDocument.Items, cancellationToken);
+			var productCodesByItemId = (await _trueMarkRepository.GetSelfDeliveryDocumentItemsProductCodesAsync(
+					_unitOfWork,
+					selfDeliveryDocument.Items.Select(x => x.Id),
+					cancellationToken))
+				.ToLookup(x => x.SelfDeliveryDocumentItemId.Value);
 
 			var nomenclatures =
 				selfDeliveryDocument.Order.OrderItems

@@ -866,5 +866,244 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			return codes.ToList();
 		}
+
+		/// <inheritdoc/>
+		public IList<RouteListItemTrueMarkProductCode> GetRouteListItemProductCodes(IUnitOfWork uow, int routeListItemId)
+		{
+			return GetRouteListItemProductCodesQuery(uow, routeListItemId).ToList();
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<RouteListItemTrueMarkProductCode>> GetRouteListItemProductCodesAsync(
+			IUnitOfWork uow,
+			int routeListItemId,
+			CancellationToken cancellationToken)
+		{
+			return await GetRouteListItemProductCodesQuery(uow, routeListItemId).ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<RouteListItemTrueMarkProductCode>> GetRouteListItemProductCodesByIdsWithSourceOrResultAsync(
+			IUnitOfWork uow,
+			int routeListItemId,
+			IEnumerable<int> productCodeIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(productCodeIds);
+
+			if(!ids.Any())
+			{
+				return new List<RouteListItemTrueMarkProductCode>();
+			}
+
+			return await uow.Session.Query<RouteListItemTrueMarkProductCode>()
+				.Where(x => x.RouteListItemId == routeListItemId
+					&& ids.Contains(x.Id)
+					&& (x.SourceCode != null || x.ResultCode != null))
+				.OrderBy(x => x.Id)
+				.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<TrueMarkWaterIdentificationCode>> GetRouteListItemProductCodesSourceCodesAsync(
+			IUnitOfWork uow,
+			int routeListItemId,
+			CancellationToken cancellationToken)
+		{
+			return await uow.Session.Query<RouteListItemTrueMarkProductCode>()
+				.Where(x => x.RouteListItemId == routeListItemId && x.SourceCode != null)
+				.Select(x => x.SourceCode)
+				.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<bool> IsRouteListItemHasProductCodesAsync(IUnitOfWork uow, int routeListItemId, CancellationToken cancellationToken)
+		{
+			return await uow.Session.Query<RouteListItemTrueMarkProductCode>()
+				.AnyAsync(x => x.RouteListItemId == routeListItemId, cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<CarLoadDocumentItemTrueMarkProductCode>> GetCarLoadDocumentItemsProductCodesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> carLoadDocumentItemIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(carLoadDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new List<CarLoadDocumentItemTrueMarkProductCode>();
+			}
+
+			return await uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>()
+				.Where(x => x.CarLoadDocumentItemId != null && ids.Contains(x.CarLoadDocumentItemId.Value))
+				.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IDictionary<int, int>> GetCarLoadDocumentItemsProductCodesCountAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> carLoadDocumentItemIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(carLoadDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new Dictionary<int, int>();
+			}
+
+			var counts = await uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>()
+				.Where(x => x.CarLoadDocumentItemId != null && ids.Contains(x.CarLoadDocumentItemId.Value))
+				.GroupBy(x => x.CarLoadDocumentItemId)
+				.Select(g => new { ItemId = g.Key, Count = g.Count() })
+				.ToListAsync(cancellationToken);
+
+			return counts.ToDictionary(x => x.ItemId.Value, x => x.Count);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<TrueMarkWaterIdentificationCode>> GetCarLoadDocumentItemProductCodesSourceCodesAsync(
+			IUnitOfWork uow,
+			int carLoadDocumentItemId,
+			CancellationToken cancellationToken)
+		{
+			return await uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>()
+				.Where(x => x.CarLoadDocumentItemId == carLoadDocumentItemId && x.SourceCode != null)
+				.Select(x => x.SourceCode)
+				.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<bool> IsCarLoadDocumentItemsHaveAddedProductCodesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> carLoadDocumentItemIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(carLoadDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return false;
+			}
+
+			return await uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>()
+				.AnyAsync(x => x.CarLoadDocumentItemId != null
+					&& ids.Contains(x.CarLoadDocumentItemId.Value)
+					&& (x.SourceCode != null || x.ResultCode != null), cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public IList<SelfDeliveryDocumentItemTrueMarkProductCode> GetSelfDeliveryDocumentItemsProductCodes(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds)
+		{
+			var ids = GetDistinctPositiveIds(selfDeliveryDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new List<SelfDeliveryDocumentItemTrueMarkProductCode>();
+			}
+
+			return GetSelfDeliveryDocumentItemsProductCodesQuery(uow, ids).ToList();
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<SelfDeliveryDocumentItemTrueMarkProductCode>> GetSelfDeliveryDocumentItemsProductCodesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(selfDeliveryDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new List<SelfDeliveryDocumentItemTrueMarkProductCode>();
+			}
+
+			return await GetSelfDeliveryDocumentItemsProductCodesQuery(uow, ids).ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public IDictionary<int, int> GetSelfDeliveryDocumentItemsProductCodesCount(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds)
+		{
+			var ids = GetDistinctPositiveIds(selfDeliveryDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new Dictionary<int, int>();
+			}
+
+			var counts = GetSelfDeliveryDocumentItemsProductCodesCountQuery(uow, ids).ToList();
+
+			return counts.ToDictionary(x => x.ItemId.Value, x => x.Count);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IDictionary<int, int>> GetSelfDeliveryDocumentItemsProductCodesCountAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(selfDeliveryDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new Dictionary<int, int>();
+			}
+
+			var counts = await GetSelfDeliveryDocumentItemsProductCodesCountQuery(uow, ids).ToListAsync(cancellationToken);
+
+			return counts.ToDictionary(x => x.ItemId.Value, x => x.Count);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<TrueMarkWaterIdentificationCode>> GetSelfDeliveryDocumentItemProductCodesSourceCodesAsync(
+			IUnitOfWork uow,
+			int selfDeliveryDocumentItemId,
+			CancellationToken cancellationToken)
+		{
+			return await uow.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
+				.Where(x => x.SelfDeliveryDocumentItemId == selfDeliveryDocumentItemId && x.SourceCode != null)
+				.Select(x => x.SourceCode)
+				.ToListAsync(cancellationToken);
+		}
+
+		private static IQueryable<RouteListItemTrueMarkProductCode> GetRouteListItemProductCodesQuery(IUnitOfWork uow, int routeListItemId)
+		{
+			return uow.Session.Query<RouteListItemTrueMarkProductCode>()
+				.Where(x => x.RouteListItemId == routeListItemId);
+		}
+
+		private static IQueryable<SelfDeliveryDocumentItemTrueMarkProductCode> GetSelfDeliveryDocumentItemsProductCodesQuery(
+			IUnitOfWork uow,
+			IList<int> selfDeliveryDocumentItemIds)
+		{
+			return uow.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
+				.Where(x => x.SelfDeliveryDocumentItemId != null && selfDeliveryDocumentItemIds.Contains(x.SelfDeliveryDocumentItemId.Value));
+		}
+
+		private static IQueryable<ProductCodesCountNode> GetSelfDeliveryDocumentItemsProductCodesCountQuery(
+			IUnitOfWork uow,
+			IList<int> selfDeliveryDocumentItemIds)
+		{
+			return GetSelfDeliveryDocumentItemsProductCodesQuery(uow, selfDeliveryDocumentItemIds)
+				.GroupBy(x => x.SelfDeliveryDocumentItemId)
+				.Select(g => new ProductCodesCountNode { ItemId = g.Key, Count = g.Count() });
+		}
+
+		private sealed class ProductCodesCountNode
+		{
+			public int? ItemId { get; set; }
+			public int Count { get; set; }
+		}
+
+		private static List<int> GetDistinctPositiveIds(IEnumerable<int> ids)
+		{
+			return ids.Where(x => x > 0).Distinct().ToList();
+		}
 	}
 }

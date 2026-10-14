@@ -15,10 +15,10 @@ using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.Specifications.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.TrueMark;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Services.TrueMark;
 
@@ -34,7 +34,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly IGenericRepository<RouteListItemEntity> _routeListItemRepository;
-		private readonly IGenericRepository<RouteListItemTrueMarkProductCode> _routeListItemProductCodeRepository;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
 
@@ -47,7 +47,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			IOrderRepository orderRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			IGenericRepository<RouteListItemEntity> routeListItemRepository,
-			IGenericRepository<RouteListItemTrueMarkProductCode> routeListItemProductCodeRepository,
+			ITrueMarkRepository trueMarkRepository,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
 		{
@@ -67,8 +67,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
 			_routeListItemRepository =
 				routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_routeListItemProductCodeRepository =
-				routeListItemProductCodeRepository ?? throw new ArgumentNullException(nameof(routeListItemProductCodeRepository));
+			_trueMarkRepository =
+				trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
@@ -504,7 +504,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 						orderItemId,
 						trueMarkAnyCode,
 						productCodeStatus,
-						productCodeProblem);
+						productCodeProblem,
+						cancellationToken);
 
 					if(!isCodeHasDuplicate)
 					{
@@ -614,12 +615,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				Order = routeListAddress.Order,
 			};
 
-			var routeListAddressCodes = (await _routeListItemProductCodeRepository
-				.GetAsync(
-					uow,
-					RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListAddress.Id),
-					cancellationToken: cancellationToken))
-				.Value;
+			var routeListAddressCodes = await _trueMarkRepository.GetRouteListItemProductCodesAsync(uow, routeListAddress.Id, cancellationToken);
 
 			foreach(var code in routeListAddressCodes)
 			{

@@ -60,14 +60,18 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="document">Документ отпуска самовывоза</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns></returns>
+		/// <returns>
+		/// Успех, если для всех строк с учётом в ЧЗ число кодов равно количеству; иначе ошибка <c>TrueMarkCodeErrors.NotAllCodesAdded</c>
+		/// </returns>
 		Task<Result> IsAllTrueMarkProductCodesAddedAsync(IUnitOfWork uow, SelfDeliveryDocument document, CancellationToken cancellationToken = default);
 		/// <summary>
 		/// Синхронная проверка, что все коды продуктов Честного Знака добавлены для строк документа самовывоза (для десктопа)
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="document">Документ отпуска самовывоза</param>
-		/// <returns></returns>
+		/// <returns>
+		/// Успех, если для всех строк с учётом в ЧЗ число кодов равно количеству; иначе ошибка <c>TrueMarkCodeErrors.NotAllCodesAdded</c>
+		/// </returns>
 		Result IsAllTrueMarkProductCodesAdded(IUnitOfWork uow, SelfDeliveryDocument document);
 		/// <summary>
 		/// Получает промежуточные коды Честного Знака, привязанные к строкам документа самовывоза

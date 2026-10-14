@@ -27,8 +27,6 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.Specifications.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -40,6 +38,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Employee;
@@ -69,7 +68,7 @@ namespace Vodovoz
 		private INomenclatureRepository _nomenclatureRepository;
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
 		private IGenericRepository<FormalEdoRequest> _orderEdoRequestRepository;
-		private IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> _selfDeliveryProductCodeRepository;
+		private ITrueMarkRepository _trueMarkRepository;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher =
 			ScopeProvider.Scope.Resolve<IEdoRequestCreatedEventPublisher>();
@@ -143,7 +142,7 @@ namespace Vodovoz
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 			_orderEdoRequestRepository = _lifetimeScope.Resolve<IGenericRepository<FormalEdoRequest>>();
 			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
-			_selfDeliveryProductCodeRepository = _lifetimeScope.Resolve<IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode>>();
+			_trueMarkRepository = _lifetimeScope.Resolve<ITrueMarkRepository>();
 		}
 		
 		private void ConfigureValidationContext(IValidationContextFactory validationContextFactory)
@@ -205,7 +204,7 @@ namespace Vodovoz
 			Entity.UpdateStockAmount(UoW, _stockRepository);
 			Entity.UpdateAlreadyUnloaded(UoW, _nomenclatureRepository, _bottlesRepository);
 			selfdeliverydocumentitemsview1.DocumentUoW = UoWGeneric;
-			selfdeliverydocumentitemsview1.SetSelfDeliveryProductCodeRepository(_selfDeliveryProductCodeRepository);
+			selfdeliverydocumentitemsview1.SetTrueMarkRepository(_trueMarkRepository);
 			//bottlereceptionview1.UoW = UoW;
 			UpdateWidgets();
 			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
@@ -505,14 +504,7 @@ namespace Vodovoz
 
 		private PrimaryEdoRequest CreateEdoRequest()
 		{
-			var itemIds = Entity.Items
-				.Where(x => x.Id > 0)
-				.Select(x => x.Id)
-				.ToList();
-
-			var codes = _selfDeliveryProductCodeRepository.Get(
-				UoW,
-				SelfDeliveryDocumentItemTrueMarkProductCodeSpecification.CreateForSelfDeliveryDocumentItemIds(itemIds));
+			var codes = _trueMarkRepository.GetSelfDeliveryDocumentItemsProductCodes(UoW, Entity.Items.Select(x => x.Id));
 
 			var edoRequest = new PrimaryEdoRequest
 			{

@@ -5,10 +5,8 @@ using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.Specifications.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Infrastructure;
 
 namespace Vodovoz
@@ -16,7 +14,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SelfDeliveryDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		private IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> _selfDeliveryProductCodeRepository;
+		private ITrueMarkRepository _trueMarkRepository;
 
 		public SelfDeliveryDocumentItemsView()
 		{
@@ -73,9 +71,9 @@ namespace Vodovoz
 		/// <summary>
 		/// Устанавливает репозиторий кодов продукта строк отпуска самовывоза
 		/// </summary>
-		public void SetSelfDeliveryProductCodeRepository(IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> repository)
+		public void SetTrueMarkRepository(ITrueMarkRepository trueMarkRepository)
 		{
-			_selfDeliveryProductCodeRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 		}
 
 		private int GetAddedProductCodesCount(SelfDeliveryDocumentItem item)
@@ -85,9 +83,10 @@ namespace Vodovoz
 				return 0;
 			}
 
-			return _selfDeliveryProductCodeRepository.GetCount(
-				DocumentUoW,
-				SelfDeliveryDocumentItemTrueMarkProductCodeSpecification.CreateForSelfDeliveryDocumentItemId(item.Id));
+			return _trueMarkRepository.GetSelfDeliveryDocumentItemsProductCodesCount(DocumentUoW, new[] { item.Id })
+				.TryGetValue(item.Id, out var count)
+				? count
+				: 0;
 		}
 
 		void YtreeviewItems_Selection_Changed(object sender, EventArgs e)

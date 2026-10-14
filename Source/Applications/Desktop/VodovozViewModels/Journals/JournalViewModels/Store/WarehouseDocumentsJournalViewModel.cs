@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Microsoft.Extensions.Logging;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
@@ -20,8 +21,6 @@ using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.Specifications.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Client;
@@ -38,6 +37,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
@@ -58,15 +58,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			typeof(DriverAttachedTerminalReturnDocument)
 		};
 
+		private readonly ILogger<WarehouseDocumentsJournalViewModel> _logger;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IGenericRepository<CarEvent> _carEventRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
 		private readonly SelfdeliveryCancellationService _selfdeliveryCancellationService;
 		private readonly IDeleteEntityService _deleteEntityService;
-		private readonly IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> _selfDeliveryProductCodeRepository;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 
 		public WarehouseDocumentsJournalViewModel(
+			ILogger<WarehouseDocumentsJournalViewModel> logger,
 			WarehouseDocumentsJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -77,19 +79,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ISelfDeliveryRepository selfDeliveryRepository,
 			SelfdeliveryCancellationService selfdeliveryCancellationService,
 			IDeleteEntityService deleteEntityService,
-			IGenericRepository<SelfDeliveryDocumentItemTrueMarkProductCode> selfDeliveryProductCodeRepository,
+			ITrueMarkRepository trueMarkRepository,
 			Action<WarehouseDocumentsJournalFilterViewModel> filterConfiguration = null
 		)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
 			_selfdeliveryCancellationService = selfdeliveryCancellationService ?? throw new ArgumentNullException(nameof(selfdeliveryCancellationService));
 			_deleteEntityService = deleteEntityService ?? throw new ArgumentNullException(nameof(deleteEntityService));
-			_selfDeliveryProductCodeRepository = selfDeliveryProductCodeRepository
-				?? throw new ArgumentNullException(nameof(selfDeliveryProductCodeRepository));
+			_trueMarkRepository = trueMarkRepository
+				?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			UseSlider = false;
 			SearchEnabled = true;
 			TabName = "Журнал складских документов";
@@ -1407,11 +1410,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				var deletion = _deleteEntityService.DeleteEntity<SelfDeliveryDocument>(
 					documentId,
 					deletionUow,
-					() => UnlinkSelfDeliveryDocumentTrueMarkCodes(deletionUow, documentId));
+					() => UnlinkSelfDeliveryDocumentTrueMarkCodesOrDispose(deletionUow, documentId));
 
 				if(deletion.DeletionExecuted != null)
 				{
-					CompleteSelfDeliveryDocumentDeletion(deletion, deletionUow);
+					CompleteSelfDeliveryDocumentDeletion(deletion, deletionUow, documentId);
 					return;
 				}
 
@@ -1424,7 +1427,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					}
 
 					deletion.PropertyChanged -= onDeletionChanged;
-					CompleteSelfDeliveryDocumentDeletion(deletion, deletionUow);
+					CompleteSelfDeliveryDocumentDeletion(deletion, deletionUow, documentId);
 				};
 				deletion.PropertyChanged += onDeletionChanged;
 			}
@@ -1435,7 +1438,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 		}
 
-		private void CompleteSelfDeliveryDocumentDeletion(DeleteCore deletion, IUnitOfWork deletionUow)
+		private void CompleteSelfDeliveryDocumentDeletion(DeleteCore deletion, IUnitOfWork deletionUow, int documentId)
 		{
 			try
 			{
@@ -1446,6 +1449,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 			catch(Exception ex)
 			{
+				_logger.LogError(ex, "Ошибка фиксации удаления отпуска самовывоза {SelfDeliveryDocumentId}", documentId);
+
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Error,
 					$"Не удалось удалить отпуск самовывоза, изменения отменены: {ex.Message}",
@@ -1454,6 +1459,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			finally
 			{
 				deletionUow.Dispose();
+			}
+		}
+
+		private void UnlinkSelfDeliveryDocumentTrueMarkCodesOrDispose(IUnitOfWork deletionUow, int documentId)
+		{
+			try
+			{
+				UnlinkSelfDeliveryDocumentTrueMarkCodes(deletionUow, documentId);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка отвязки кодов ЧЗ при удалении отпуска самовывоза {SelfDeliveryDocumentId}", documentId);
+				deletionUow.Dispose();
+				throw;
 			}
 		}
 
@@ -1466,16 +1485,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				return;
 			}
 
-			var itemIds = document.Items.Select(x => x.Id).Where(x => x > 0).ToList();
-
-			if(!itemIds.Any())
-			{
-				return;
-			}
-
-			var codes = _selfDeliveryProductCodeRepository.Get(
-				deletionUow,
-				SelfDeliveryDocumentItemTrueMarkProductCodeSpecification.CreateForSelfDeliveryDocumentItemIds(itemIds));
+			var codes = _trueMarkRepository.GetSelfDeliveryDocumentItemsProductCodes(deletionUow, document.Items.Select(x => x.Id));
 
 			foreach(var code in codes)
 			{

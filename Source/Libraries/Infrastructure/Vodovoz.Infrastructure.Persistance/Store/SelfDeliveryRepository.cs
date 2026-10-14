@@ -89,6 +89,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			return unloadedDict;
 		}
 
+		/// <inheritdoc/>
 		public IDictionary<int, SelfDeliveryDocument> GetSelfDeliveryDocumentsByItemIds(IUnitOfWork uow, IEnumerable<int> selfDeliveryDocumentItemIds)
 		{
 			var ids = selfDeliveryDocumentItemIds.Distinct().ToList();

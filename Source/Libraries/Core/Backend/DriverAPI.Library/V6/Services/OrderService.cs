@@ -17,8 +17,6 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.Specifications.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -29,6 +27,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
@@ -69,8 +68,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IGenericRepository<CarLoadDocument> _carLoadDocumentRepository;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
-		private readonly IGenericRepository<RouteListItemTrueMarkProductCode> _routeListItemProductCodeRepository;
-		private readonly IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> _carLoadDocumentItemProductCodeRepository;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IDomainRouteListService _domainRouteListService;
@@ -94,8 +92,7 @@ namespace DriverAPI.Library.V6.Services
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			IGenericRepository<CarLoadDocument> carLoadDocumentRepository,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
-			IGenericRepository<RouteListItemTrueMarkProductCode> routeListItemProductCodeRepository,
-			IGenericRepository<CarLoadDocumentItemTrueMarkProductCode> carLoadDocumentItemProductCodeRepository,
+			ITrueMarkRepository trueMarkRepository,
 			IOrderContractUpdater contractUpdater,
 			ICounterpartyEdoAccountController edoAccountController,
 			IDomainRouteListService domainRouteListService,
@@ -119,9 +116,8 @@ namespace DriverAPI.Library.V6.Services
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
-			_routeListItemProductCodeRepository = routeListItemProductCodeRepository ?? throw new ArgumentNullException(nameof(routeListItemProductCodeRepository));
-			_carLoadDocumentItemProductCodeRepository = carLoadDocumentItemProductCodeRepository
-				?? throw new ArgumentNullException(nameof(carLoadDocumentItemProductCodeRepository));
+			_trueMarkRepository = trueMarkRepository
+				?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
@@ -132,6 +128,7 @@ namespace DriverAPI.Library.V6.Services
 		/// Получение заказа в требуемом формате из заказа программы ДВ (использует функцию ниже)
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>APIOrder</returns>
 		public async Task<Result<OrderDto>> GetOrder(int orderId, CancellationToken cancellationToken)
 		{
@@ -172,6 +169,7 @@ namespace DriverAPI.Library.V6.Services
 		/// Получение списка заказов в требуемом формате из заказов программы ДВ по списку идентификаторов
 		/// </summary>
 		/// <param name="orderIds">Список идентификаторов заказов</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>IEnumerable APIOrder</returns>
 		public async Task<IEnumerable<OrderDto>> Get(int[] orderIds, CancellationToken cancellationToken)
 		{
@@ -185,7 +183,12 @@ namespace DriverAPI.Library.V6.Services
 				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderSmsPaymentStatus(vodovozOrder.Id);
 				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id, vodovozOrder.OnlinePaymentNumber);
 				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
-				var order = await _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem, smsPaymentStatus, qrPaymentStatus, cancellationToken);
+				var order = await _orderConverter.ConvertToAPIOrder(
+					vodovozOrder,
+					routeListItem,
+					smsPaymentStatus,
+					qrPaymentStatus,
+					cancellationToken);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder).Value;
 				result.Add(order);
 			}
@@ -445,7 +448,10 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private async Task<PrimaryEdoRequest> CreateEdoRequests(Order vodovozOrder, RouteListItem routeListAddress, CancellationToken cancellationToken)
+		private async Task<PrimaryEdoRequest> CreateEdoRequests(
+			Order vodovozOrder,
+			RouteListItem routeListAddress,
+			CancellationToken cancellationToken)
 		{
 			var edoRequest = new PrimaryEdoRequest
 			{
@@ -455,12 +461,7 @@ namespace DriverAPI.Library.V6.Services
 				Order = vodovozOrder,
 			};
 
-			var routeListAddressCodes = (await _routeListItemProductCodeRepository
-				.GetAsync(
-					_uow,
-					RouteListItemTrueMarkProductCodeSpecification.CreateForRouteListItemId(routeListAddress.Id),
-					cancellationToken: cancellationToken))
-				.Value;
+			var routeListAddressCodes = await _trueMarkRepository.GetRouteListItemProductCodesAsync(_uow, routeListAddress.Id, cancellationToken);
 
 			foreach(var code in routeListAddressCodes)
 			{
@@ -808,7 +809,10 @@ namespace DriverAPI.Library.V6.Services
 			if(vodovozOrder is null)
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return await GetFailureTrueMarkCodeProcessingResponse(OrderErrors.NotFound, errorMessage: $"Заказ не найден: {orderId}", cancellationToken: cancellationToken);
+				return await GetFailureTrueMarkCodeProcessingResponse(
+					OrderErrors.NotFound,
+					errorMessage: $"Заказ не найден: {orderId}",
+					cancellationToken: cancellationToken);
 			}
 
 			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);
@@ -903,13 +907,7 @@ namespace DriverAPI.Library.V6.Services
 			var carLoadDocumentItemsIds = carLoadDocumentItems.Select(x => x.Id).ToList();
 
 			var hasCodesInCarLoadDocument =
-				(await _carLoadDocumentItemProductCodeRepository
-				.GetAsync(
-					_uow,
-					CarLoadDocumentItemTrueMarkProductCodeSpecification.CreateForCarLoadDocumentItemIds(carLoadDocumentItemsIds),
-					cancellationToken: cancellationToken))
-				.Value
-				.Any(x => x.SourceCode != null || x.ResultCode != null);
+				await _trueMarkRepository.IsCarLoadDocumentItemsHaveAddedProductCodesAsync(_uow, carLoadDocumentItemsIds, cancellationToken);
 
 			var hasCarLoadDocumentItemStagingTrueMarkCodes =
 				_stagingTrueMarkCodeRepository.Get(
@@ -936,7 +934,10 @@ namespace DriverAPI.Library.V6.Services
 			if(vodovozOrder is null)
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return await GetFailureTrueMarkCodeProcessingResponse(OrderErrors.NotFound, errorMessage: $"Заказ не найден: {orderId}", cancellationToken: cancellationToken);
+				return await GetFailureTrueMarkCodeProcessingResponse(
+					OrderErrors.NotFound,
+					errorMessage: $"Заказ не найден: {orderId}",
+					cancellationToken: cancellationToken);
 			}
 
 			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);
@@ -1019,7 +1020,10 @@ namespace DriverAPI.Library.V6.Services
 			if(vodovozOrder is null)
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return await GetFailureTrueMarkCodeProcessingResponse(OrderErrors.NotFound, errorMessage: $"Заказ не найден: {orderId}", cancellationToken: cancellationToken);
+				return await GetFailureTrueMarkCodeProcessingResponse(
+					OrderErrors.NotFound,
+					errorMessage: $"Заказ не найден: {orderId}",
+					cancellationToken: cancellationToken);
 			}
 
 			var vodovozOrderItem = vodovozOrder.OrderItems.FirstOrDefault(x => x.Id == orderSaleItemId);

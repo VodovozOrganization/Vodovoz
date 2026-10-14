@@ -229,5 +229,166 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<int?> GetOrderIdByStagingCode(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает коды товара адреса маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeListItemId">Номер адреса МЛ</param>
+		/// <returns>Коды товара адреса</returns>
+		IList<RouteListItemTrueMarkProductCode> GetRouteListItemProductCodes(IUnitOfWork uow, int routeListItemId);
+
+		/// <summary>
+		/// Возвращает коды товара адреса маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeListItemId">Номер адреса МЛ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Коды товара адреса</returns>
+		Task<IList<RouteListItemTrueMarkProductCode>> GetRouteListItemProductCodesAsync(
+			IUnitOfWork uow,
+			int routeListItemId,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает коды товара адреса маршрутного листа, отобранные по заданным номерам кодов.
+		/// В выборку попадают только коды с заполненным исходным кодом или кодом результата, результат упорядочен по номеру кода.
+		/// Пустой список номеров даёт пустой результат без запроса
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeListItemId">Номер адреса МЛ</param>
+		/// <param name="productCodeIds">Номера кодов товара</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Коды товара адреса, упорядоченные по номеру</returns>
+		Task<IList<RouteListItemTrueMarkProductCode>> GetRouteListItemProductCodesByIdsWithSourceOrResultAsync(
+			IUnitOfWork uow,
+			int routeListItemId,
+			IEnumerable<int> productCodeIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает исходные коды ЧЗ кодов товара адреса маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeListItemId">Номер адреса МЛ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Исходные коды ЧЗ</returns>
+		Task<IList<TrueMarkWaterIdentificationCode>> GetRouteListItemProductCodesSourceCodesAsync(
+			IUnitOfWork uow,
+			int routeListItemId,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверяет, есть ли у адреса маршрутного листа коды товара
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeListItemId">Номер адреса МЛ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>true, если у адреса есть хотя бы один код</returns>
+		Task<bool> IsRouteListItemHasProductCodesAsync(IUnitOfWork uow, int routeListItemId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает коды товара строк талона погрузки
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="carLoadDocumentItemIds">Номера строк талона</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Коды товара строк</returns>
+		Task<IList<CarLoadDocumentItemTrueMarkProductCode>> GetCarLoadDocumentItemsProductCodesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> carLoadDocumentItemIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает число кодов товара по строкам талона погрузки
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="carLoadDocumentItemIds">Номера строк талона</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Словарь: номер строки - число кодов. Строк без кодов в словаре нет</returns>
+		Task<IDictionary<int, int>> GetCarLoadDocumentItemsProductCodesCountAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> carLoadDocumentItemIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает исходные коды ЧЗ кодов товара строки талона погрузки
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="carLoadDocumentItemId">Номер строки талона</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Исходные коды ЧЗ</returns>
+		Task<IList<TrueMarkWaterIdentificationCode>> GetCarLoadDocumentItemProductCodesSourceCodesAsync(
+			IUnitOfWork uow,
+			int carLoadDocumentItemId,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверяет, добавлены ли коды товара (исходный код или код результата) к строкам талона погрузки
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="carLoadDocumentItemIds">Номера строк талона</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>true, если хотя бы у одной строки есть добавленный код</returns>
+		Task<bool> IsCarLoadDocumentItemsHaveAddedProductCodesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> carLoadDocumentItemIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает коды товара строк отпуска самовывоза
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="selfDeliveryDocumentItemIds">Номера строк отпуска самовывоза</param>
+		/// <returns>Коды товара строк</returns>
+		IList<SelfDeliveryDocumentItemTrueMarkProductCode> GetSelfDeliveryDocumentItemsProductCodes(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds);
+
+		/// <summary>
+		/// Возвращает коды товара строк отпуска самовывоза
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="selfDeliveryDocumentItemIds">Номера строк отпуска самовывоза</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Коды товара строк</returns>
+		Task<IList<SelfDeliveryDocumentItemTrueMarkProductCode>> GetSelfDeliveryDocumentItemsProductCodesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает число кодов товара по строкам отпуска самовывоза
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="selfDeliveryDocumentItemIds">Номера строк отпуска самовывоза</param>
+		/// <returns>Словарь: номер строки - число кодов. Строк без кодов в словаре нет</returns>
+		IDictionary<int, int> GetSelfDeliveryDocumentItemsProductCodesCount(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds);
+
+		/// <summary>
+		/// Возвращает число кодов товара по строкам отпуска самовывоза
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="selfDeliveryDocumentItemIds">Номера строк отпуска самовывоза</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Словарь: номер строки - число кодов. Строк без кодов в словаре нет</returns>
+		Task<IDictionary<int, int>> GetSelfDeliveryDocumentItemsProductCodesCountAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает исходные коды ЧЗ кодов товара строки отпуска самовывоза
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="selfDeliveryDocumentItemId">Номер строки отпуска самовывоза</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Исходные коды ЧЗ</returns>
+		Task<IList<TrueMarkWaterIdentificationCode>> GetSelfDeliveryDocumentItemProductCodesSourceCodesAsync(
+			IUnitOfWork uow,
+			int selfDeliveryDocumentItemId,
+			CancellationToken cancellationToken);
 	}
 }
