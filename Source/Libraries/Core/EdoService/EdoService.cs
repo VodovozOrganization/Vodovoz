@@ -410,6 +410,22 @@ namespace EdoService.Library
 			}
 		}
 
+		public void AllowResendInClosedAccountingPeriod(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Разрешение переотправки ЭДО в закрытом бухгалтерском периоде"))
+			{
+				var edoTask = uow.Session.Get<OrderEdoTask>(taskId);
+				if(edoTask?.FormalEdoRequest == null)
+				{
+					return;
+				}
+
+				edoTask.FormalEdoRequest.Source = EdoRequestSource.ClosedPeriodPrivilegedResend;
+				uow.Save(edoTask.FormalEdoRequest);
+				uow.Commit();
+			}
+		}
+
 		private static Result ValidateNewEdoTaskStage(OrderEdoTask edoTask)
 		{
 			bool canResume;
