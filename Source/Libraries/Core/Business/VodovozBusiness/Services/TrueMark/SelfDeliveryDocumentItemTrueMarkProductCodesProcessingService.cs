@@ -60,6 +60,7 @@ namespace VodovozBusiness.Services.TrueMark
 			TrueMarkAnyCode trueMarkAnyCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem,
+			ISet<(string Gtin, string SerialNumber)> addedCodeKeys,
 			CancellationToken cancellationToken = default)
 		{
 			if(uow is null)
@@ -83,16 +84,13 @@ namespace VodovozBusiness.Services.TrueMark
 				waterCode => new TrueMarkAnyCode[] { waterCode })
 				.ToList();
 
-			var addedCodes = new HashSet<(string Gtin, string SerialNumber)>(
-				await GetAddedSourceCodeKeys(uow, selfDeliveryDocumentItem, cancellationToken));
-
 			foreach(var code in trueMarkAnyCodes)
 			{
 				if(code.IsTrueMarkWaterIdentificationCode)
 				{
 					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
 
-					if(!addedCodes.Contains(codeKey))
+					if(!addedCodeKeys.Contains(codeKey))
 					{
 						AddTrueMarkCodeToSelfDeliveryDocumentItem(
 							uow,
@@ -101,7 +99,7 @@ namespace VodovozBusiness.Services.TrueMark
 							status,
 							problem);
 
-						addedCodes.Add(codeKey);
+						addedCodeKeys.Add(codeKey);
 					}
 				}
 
@@ -257,6 +255,9 @@ namespace VodovozBusiness.Services.TrueMark
 				return Result.Failure(error);
 			}
 
+			var addedCodeKeys = new HashSet<(string Gtin, string SerialNumber)>(
+				await GetAddedSourceCodeKeys(uow, selfDeliveryDocumentItem, cancellationToken));
+
 			foreach(var trueMarkAnyCode in trueMarkAnyCodesResult.Value)
 			{
 				await AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(
@@ -265,6 +266,7 @@ namespace VodovozBusiness.Services.TrueMark
 					trueMarkAnyCode,
 					SourceProductCodeStatus.Accepted,
 					ProductCodeProblem.None,
+					addedCodeKeys,
 					cancellationToken);
 			}
 

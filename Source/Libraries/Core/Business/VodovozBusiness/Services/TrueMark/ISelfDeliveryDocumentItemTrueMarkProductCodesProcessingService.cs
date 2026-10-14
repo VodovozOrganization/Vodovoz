@@ -52,8 +52,11 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="trueMarkAnyCode">Код Честного Знака</param>
 		/// <param name="status">Статус исходного кода продукта</param>
 		/// <param name="problem">Проблема с кодом продукта</param>
+		/// <param name="addedCodeKeys">
+		/// Ключи (Gtin, SerialNumber) кодов источника, уже добавленных к строке. Загружаются один раз на строку и пополняются добавленными кодами
+		/// </param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
-		Task AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(IUnitOfWork uow, SelfDeliveryDocumentItem selfDeliveryDocumentItem, TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem, CancellationToken cancellationToken = default);
+		Task AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(IUnitOfWork uow, SelfDeliveryDocumentItem selfDeliveryDocumentItem, TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem, ISet<(string Gtin, string SerialNumber)> addedCodeKeys, CancellationToken cancellationToken = default);
 		/// <summary>
 		/// Проверка, что все коды продуктов Честного Знака добавлены для строк документа самовывоза
 		/// </summary>

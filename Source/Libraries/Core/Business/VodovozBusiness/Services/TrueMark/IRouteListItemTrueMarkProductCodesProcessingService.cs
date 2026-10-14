@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
@@ -39,9 +40,27 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="trueMarkAnyCode">Код ЧЗ</param>
 		/// <param name="status">Статус кода продукта</param>
 		/// <param name="problem">Тип проблемы кода ЧЗ</param>
+		/// <param name="addedCodeKeys">
+		/// Ключи (Gtin, SerialNumber) кодов источника, уже добавленных к адресу. Получается через <see cref="GetAddedSourceCodeKeysAsync"/>
+		/// один раз на адрес и пополняется добавленными кодами
+		/// </param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат операции</returns>
 		Task AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(IUnitOfWork uow, RouteListItemEntity routeListAddress, int orderSaleItemId,
-			TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem, CancellationToken cancellationToken = default);
+			TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem,
+			ISet<(string Gtin, string SerialNumber)> addedCodeKeys, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Загружает ключи (Gtin, SerialNumber) кодов источника, уже добавленных к строке маршрутного листа
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="routeListItemId">Id строки МЛ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Изменяемый набор ключей для передачи в методы добавления кодов</returns>
+		Task<ISet<(string Gtin, string SerialNumber)>> GetAddedSourceCodeKeysAsync(
+			IUnitOfWork uow,
+			int routeListItemId,
+			CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Добавляет код Честного Знака для промежуточного хранения с привязкой к строке маршрутного листа

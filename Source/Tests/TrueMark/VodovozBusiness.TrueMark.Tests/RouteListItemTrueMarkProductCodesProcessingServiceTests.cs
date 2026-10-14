@@ -60,13 +60,6 @@ namespace VodovozBusiness.TrueMark.Tests
 				Substitute.For<IUnitOfWorkFactory>());
 			trueMarkCodesPoolFactory.Configure().Create(_uow).Returns(_trueMarkCodesPool);
 
-			_trueMarkRepository
-				.GetRouteListItemProductCodesSourceCodesAsync(
-					Arg.Any<IUnitOfWork>(),
-					Arg.Any<int>(),
-					Arg.Any<CancellationToken>())
-				.Returns(Task.FromResult<IList<TrueMarkWaterIdentificationCode>>(new List<TrueMarkWaterIdentificationCode>()));
-
 			_service = new RouteListItemTrueMarkProductCodesProcessingService(
 				Substitute.For<IOrderRepository>(),
 				Substitute.For<IGenericRepository<StagingTrueMarkCode>>(),
@@ -95,7 +88,8 @@ namespace VodovozBusiness.TrueMark.Tests
 				_orderItemId,
 				driverIdentificationCode,
 				SourceProductCodeStatus.Accepted,
-				ProductCodeProblem.None);
+				ProductCodeProblem.None,
+				new HashSet<(string Gtin, string SerialNumber)>());
 
 			await _trueMarkCodesPool
 				.Received(1)
@@ -129,7 +123,8 @@ namespace VodovozBusiness.TrueMark.Tests
 				_orderItemId,
 				driverIdentificationCode,
 				SourceProductCodeStatus.New,
-				ProductCodeProblem.None);
+				ProductCodeProblem.None,
+				new HashSet<(string Gtin, string SerialNumber)>());
 
 			await _trueMarkCodesPool
 				.Received(1)
@@ -158,7 +153,8 @@ namespace VodovozBusiness.TrueMark.Tests
 				_orderItemId,
 				driverIdentificationCode,
 				SourceProductCodeStatus.Accepted,
-				ProductCodeProblem.None);
+				ProductCodeProblem.None,
+				new HashSet<(string Gtin, string SerialNumber)>());
 
 			await _trueMarkCodesPool
 				.DidNotReceive()
@@ -192,7 +188,8 @@ namespace VodovozBusiness.TrueMark.Tests
 				_orderItemId,
 				CreateDriverIdentificationCode(),
 				SourceProductCodeStatus.Accepted,
-				ProductCodeProblem.None);
+				ProductCodeProblem.None,
+				new HashSet<(string Gtin, string SerialNumber)>());
 
 			await _trueMarkCodesPool
 				.DidNotReceive()
@@ -220,7 +217,8 @@ namespace VodovozBusiness.TrueMark.Tests
 				_orderItemId,
 				CreateDriverIdentificationCode(),
 				status,
-				problem);
+				problem,
+				new HashSet<(string Gtin, string SerialNumber)>());
 
 			_trueMarkRepository
 				.DidNotReceive()
@@ -233,6 +231,35 @@ namespace VodovozBusiness.TrueMark.Tests
 			await _trueMarkCodesPool
 				.DidNotReceive()
 				.PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
+		}
+
+		/// <summary>
+		/// Проверяет, что код с ключом из набора не добавляется повторно,
+		/// а новый ключ попадает в набор.
+		/// </summary>
+		[Fact]
+		public async Task DriverCode_AddedOnlyOnce_AndKeyAddedToSet()
+		{
+			var routeListItem = CreateRouteListItem();
+			var driverIdentificationCode = CreateDriverIdentificationCode();
+			var addedCodeKeys = new HashSet<(string Gtin, string SerialNumber)>();
+
+			for(var i = 0; i < 2; i++)
+			{
+				await _service.AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
+					_uow,
+					routeListItem,
+					_orderItemId,
+					driverIdentificationCode,
+					SourceProductCodeStatus.New,
+					ProductCodeProblem.None,
+					addedCodeKeys);
+			}
+
+			Assert.Contains((_gtin, "driver-code"), addedCodeKeys);
+			_uow.Received(1).Save(
+				Arg.Is<RouteListItemTrueMarkProductCode>(x => ReferenceEquals(x.SourceCode, driverIdentificationCode)),
+				Arg.Any<bool>());
 		}
 
 		private static AutoTrueMarkProductCode CreateReusedProductCode()

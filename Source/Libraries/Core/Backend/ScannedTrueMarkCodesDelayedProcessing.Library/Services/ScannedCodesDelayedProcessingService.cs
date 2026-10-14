@@ -175,6 +175,9 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				.GroupBy(x => x.OrderItem)
 				.ToDictionary(x => x.Key, x => x.Select(c => c.DriversScannedCode).ToList());
 
+			var addedCodeKeys = await _routeListItemTrueMarkProductCodesProcessingService
+				.GetAddedSourceCodeKeysAsync(uow, routeListAddress.Id, cancellationToken);
+
 			foreach(var routeListItemScannedCode in routeListItemScannedCodes)
 			{
 				var scannedTrueMarkAnyCodesDataResult = await GetTrueMarkCodesByScannedCodes(
@@ -218,6 +221,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					scannedTrueMarkAnyCodesData,
 					routeListAddress,
 					routeListItemScannedCode.Key.Id,
+					addedCodeKeys,
 					cancellationToken);
 			}
 		}
@@ -457,6 +461,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData,
 			RouteListItemEntity routeListAddress,
 			int orderItemId,
+			ISet<(string Gtin, string SerialNumber)> addedCodeKeys,
 			CancellationToken cancellationToken)
 		{
 			foreach(var codeData in codesData)
@@ -505,6 +510,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 						trueMarkAnyCode,
 						productCodeStatus,
 						productCodeProblem,
+						addedCodeKeys,
 						cancellationToken);
 
 					if(!isCodeHasDuplicate)

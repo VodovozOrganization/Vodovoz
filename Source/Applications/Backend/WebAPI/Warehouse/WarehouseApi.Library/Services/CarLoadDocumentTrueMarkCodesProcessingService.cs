@@ -219,6 +219,13 @@ namespace WarehouseApi.Library.Services
 				return Result.Failure(error);
 			}
 
+			var addedCodeKeys = new HashSet<(string Gtin, string SerialNumber)>(
+				(await _trueMarkRepository.GetCarLoadDocumentItemProductCodesSourceCodesAsync(
+					uow,
+					routeListItem.Id,
+					cancellationToken))
+				.Select(x => (x.Gtin, x.SerialNumber)));
+
 			foreach(var trueMarkAnyCode in trueMarkAnyCodesResult.Value)
 			{
 				var notUsedResult = EnsureTrueMarkAnyCodeNotUsed(trueMarkAnyCode);
@@ -234,6 +241,7 @@ namespace WarehouseApi.Library.Services
 					trueMarkAnyCode,
 					SourceProductCodeStatus.Accepted,
 					ProductCodeProblem.None,
+					addedCodeKeys,
 					cancellationToken);
 			}
 
@@ -267,6 +275,7 @@ namespace WarehouseApi.Library.Services
 			TrueMarkAnyCode trueMarkAnyCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem,
+			ISet<(string Gtin, string SerialNumber)> addedCodeKeys,
 			CancellationToken cancellationToken = default)
 		{
 			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkAnyCode.Match(
@@ -275,21 +284,13 @@ namespace WarehouseApi.Library.Services
 				waterCode => new TrueMarkAnyCode[] { waterCode })
 				.ToList();
 
-			var addedCodeKeys = (await _trueMarkRepository.GetCarLoadDocumentItemProductCodesSourceCodesAsync(
-					uow,
-					carLoadDocumentItem.Id,
-					cancellationToken))
-				.Select(x => (x.Gtin, x.SerialNumber));
-
-			var addedCodes = new HashSet<(string Gtin, string SerialNumber)>(addedCodeKeys);
-
 			foreach(var code in trueMarkAnyCodes)
 			{
 				if(code.IsTrueMarkWaterIdentificationCode)
 				{
 					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
 
-					if(addedCodes.Add(codeKey))
+					if(addedCodeKeys.Add(codeKey))
 					{
 						AddTrueMarkCodeToCarLoadDocumentItem(
 							uow,

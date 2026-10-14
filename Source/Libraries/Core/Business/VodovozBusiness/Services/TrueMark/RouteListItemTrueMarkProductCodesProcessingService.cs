@@ -110,6 +110,7 @@ namespace VodovozBusiness.Services.TrueMark
 			TrueMarkAnyCode trueMarkAnyCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem,
+			ISet<(string Gtin, string SerialNumber)> addedCodeKeys,
 			CancellationToken cancellationToken = default
 		)
 		{
@@ -119,21 +120,13 @@ namespace VodovozBusiness.Services.TrueMark
 				waterCode => new TrueMarkAnyCode[] { waterCode })
 				.ToList();
 
-			var addedCodeKeys = (await _trueMarkRepository.GetRouteListItemProductCodesSourceCodesAsync(
-					uow,
-					routeListAddress.Id,
-					cancellationToken))
-				.Select(x => (x.Gtin, x.SerialNumber));
-
-			var addedCodes = new HashSet<(string Gtin, string SerialNumber)>(addedCodeKeys);
-
 			foreach(var code in trueMarkAnyCodes)
 			{
 				if(code.IsTrueMarkWaterIdentificationCode)
 				{
 					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
 
-					if(!addedCodes.Contains(codeKey))
+					if(!addedCodeKeys.Contains(codeKey))
 					{
 						var orderId = routeListAddress.Order?.Id
 							?? (routeListAddress as RouteListItem)?.Order?.Id;
@@ -160,7 +153,7 @@ namespace VodovozBusiness.Services.TrueMark
 							status,
 							problem);
 
-						addedCodes.Add(codeKey);
+						addedCodeKeys.Add(codeKey);
 					}
 				}
 
@@ -193,6 +186,20 @@ namespace VodovozBusiness.Services.TrueMark
 						return true;
 					});
 			}
+		}
+
+		/// <inheritdoc/>
+		public async Task<ISet<(string Gtin, string SerialNumber)>> GetAddedSourceCodeKeysAsync(
+			IUnitOfWork uow,
+			int routeListItemId,
+			CancellationToken cancellationToken = default)
+		{
+			var sourceCodes = await _trueMarkRepository.GetRouteListItemProductCodesSourceCodesAsync(
+				uow,
+				routeListItemId,
+				cancellationToken);
+
+			return new HashSet<(string Gtin, string SerialNumber)>(sourceCodes.Select(x => (x.Gtin, x.SerialNumber)));
 		}
 
 		private async Task ReturnReusedProductCodeToPool(
@@ -391,6 +398,8 @@ namespace VodovozBusiness.Services.TrueMark
 
 			var stagingCodesByOrderItemId = stagingCodes.ToLookup(x => x.OrderItemId);
 
+			var addedCodeKeys = await GetAddedSourceCodeKeysAsync(uow, routeListItem.Id, cancellationToken);
+
 			foreach(var orderItem in order.OrderItems)
 			{
 				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
@@ -434,6 +443,7 @@ namespace VodovozBusiness.Services.TrueMark
 						stagingCodesForOrderItem,
 						routeListItem,
 						orderItem.Id,
+						addedCodeKeys,
 						cancellationToken);
 
 				if(addProductCodesResult.IsFailure)
@@ -506,6 +516,7 @@ namespace VodovozBusiness.Services.TrueMark
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			RouteListItemEntity routeListItem,
 			int orderItemId,
+			ISet<(string Gtin, string SerialNumber)> addedCodeKeys,
 			CancellationToken cancellationToken = default)
 		{
 			foreach(var stagingCode in stagingCodes.Where(x => x.ParentCodeId is null))
@@ -549,6 +560,7 @@ namespace VodovozBusiness.Services.TrueMark
 					trueMarkAnyCode,
 					SourceProductCodeStatus.Accepted,
 					ProductCodeProblem.None,
+					addedCodeKeys,
 					cancellationToken);
 			}
 
