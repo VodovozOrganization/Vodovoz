@@ -265,6 +265,10 @@ namespace Vodovoz
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
+					builder.RegisterType<ExcessTrueMarkCodesDeletionService>()
+						.As<IExcessTrueMarkCodesDeletionService>()
+						.InstancePerLifetimeScope();
+					
 					builder.RegisterType<CancelledOrderTrueMarkCodesReuseService>()
 						.As<ICancelledOrderTrueMarkCodesReuseService>()
 						.InstancePerLifetimeScope();

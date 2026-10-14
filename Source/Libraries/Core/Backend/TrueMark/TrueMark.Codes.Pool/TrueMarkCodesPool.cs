@@ -32,14 +32,9 @@ namespace TrueMark.Codes.Pool
 			{
 				query.ExecuteUpdate();
 			}
-			catch(Exception ex)
+			catch(Exception ex) when(ex.FindExceptionTypeInInner<MySqlException>()?.Number == (int)MySqlErrorCode.DuplicateKeyEntry)
 			{
-				var mySqlException = ex.FindExceptionTypeInInner<MySqlException>();
-
-				if(mySqlException != null && mySqlException.Number == (int)MySqlErrorCode.DuplicateKeyEntry)
-				{
-					return;
-				}
+				return;
 			}
 		}
 

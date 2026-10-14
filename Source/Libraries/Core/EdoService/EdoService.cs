@@ -217,7 +217,7 @@ namespace EdoService.Library
 					return Result.Failure<string>(checkOtherTasksResult.Errors);
 				}
 
-				var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(edoTask);
+				var productCodes = TrueMarkProductCodeFactory.CreateCodesFromCancelledTask(edoTask);
 				var resendEdoRequest = _manualEdoRequestFactory.Create(uow, order, productCodes);
 				var withdrawalDocument = withdrawalDocuments.Single();
 
@@ -455,6 +455,19 @@ namespace EdoService.Library
 			bool hasDocflow = HasDocflow(uow, edoTask);
 			bool hasCancelledDocflow = HasCancelledDocflow(uow, edoTask.Id);
 
+			if(!hasDocflow && edoTask.Status == EdoTaskStatus.Problem
+				&& edoTask.As<DocumentEdoTask>()?.Stage == DocumentEdoTaskStage.New)
+			{
+				var otherTasksResult = CheckOtherTasks(uow, edoTask, taskId);
+				if(otherTasksResult.IsFailure)
+				{
+					return Result.Failure<string>(otherTasksResult.Errors);
+				}
+
+				_messageService.PublishTaskCreatedEvent(edoTask).GetAwaiter().GetResult();
+				return Result.Success("Задача успешно отправлена на повторную обработку");
+			}
+
 			var checkOtherRequestsResult = CheckOtherRequests(uow, edoTask.FormalEdoRequest, taskId);
 			if(checkOtherRequestsResult.IsFailure)
 			{
@@ -631,7 +644,7 @@ namespace EdoService.Library
 		private void ResendDocumentForCancelledEdoTask(
 			IUnitOfWork uow, OrderEntity order, OrderEdoTask edoTask, bool transferCodeReservations = false)
 		{
-			var productCodes = TrueMarkProductCodeFactory.CreateAutoCodesFromCancelledTask(edoTask);
+			var productCodes = TrueMarkProductCodeFactory.CreateCodesFromCancelledTask(edoTask);
 			var request = _manualEdoRequestFactory.Create(uow, order, productCodes);
 
 			if(transferCodeReservations)

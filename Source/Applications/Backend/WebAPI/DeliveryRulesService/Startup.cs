@@ -23,6 +23,7 @@ namespace DeliveryRulesService
 		{
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
+			services.Configure<ResponseLoggingOptions>(Configuration.GetSection("ResponseLogging"));
 			services.AddDeliveryRulesService();
 		}
 

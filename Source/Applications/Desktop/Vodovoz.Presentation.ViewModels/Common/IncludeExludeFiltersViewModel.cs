@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Commands;
 using QS.Dialog;
@@ -432,8 +432,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				"Слева от категорий отображается счетчик выбранных в ней элементов.\n" +
 				"При выборе хотя бы одной ✔️ в текущем фильтре - в выборку попадут только указанные значения.\n" +
 				"При выборе X - из выборки будут исключены выбранные элементы.\n" +
-				"При выборе галочки \"Показать архивные\" будут доступны для выбора архивные элементы." +
-				"!Фильтр по статусу заказов сейчас работает только в отчете по рентабельности!", //Todo: убрать при релизе 4445
+				"При выборе галочки \"Показать архивные\" будут доступны для выбора архивные элементы.",
 				"Справка по фильтру");
 		}
 
@@ -504,6 +503,11 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 			return result;
 		}
+
+		/// <summary>
+		/// Перестроить список элементов активного раздела фильтра, например после смены источника данных
+		/// </summary>
+		public void RefreshActiveFilterElements() => UpdateFilteredElements();
 
 		private void UpdateFilteredElements()
 		{

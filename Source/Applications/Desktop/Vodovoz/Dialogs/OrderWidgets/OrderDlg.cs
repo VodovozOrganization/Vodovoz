@@ -123,6 +123,8 @@ using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings;
+using Vodovoz.Core.Domain.Rules.Edo;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
@@ -1654,6 +1656,11 @@ namespace Vodovoz
 				return;
 			}
 
+			if(IsEdoResendBlockedByClosedPeriod())
+			{
+				return;
+			}
+
 			if(!(SelectedEdoDocumentDataNode.EdoDocumentType is null))
 			{
 				switch(SelectedEdoDocumentDataNode?.EdoDocumentType)
@@ -1672,6 +1679,40 @@ namespace Vodovoz
 				ResendUpd();
 				CustomizeSendDocumentAgainButton();
 			}
+		}
+
+		/// <summary>
+		/// Проверка закрытого бухгалтерского периода перед переотправкой документа ЭДО.
+		/// Возвращает true, если переотправка запрещена (период закрыт и нет права на отправку за прошлые периоды).
+		/// </summary>
+		private bool IsEdoResendBlockedByClosedPeriod()
+		{
+			var closedPeriodRule = ScopeProvider.Scope.Resolve<CanProcessOrSendEdoByClosingAccountingDate>();
+
+			try
+			{
+				if(closedPeriodRule.Check(Entity.DeliveryDate))
+				{
+					return false;
+				}
+			}
+			catch(System.Exception ex) when (ex is InvalidOperationException || ex is SettingException)
+			{
+				return false;
+			}
+
+			var canSendForPreviousPeriods = ServicesConfig.CommonServices.CurrentPermissionService
+				.ValidatePresetPermission(BookkeeppingPermissions.CanSendEdoDocumentsForPreviousPeriods);
+
+			if(canSendForPreviousPeriods)
+			{
+				return false;
+			}
+
+			_interactiveService.ShowMessage(ImportanceLevel.Error,
+				"Не удалось переотправить документ.\nПричина:\nДокумент в закрытом бухгалтерском периоде. "
+				+ "Для переотправки обратитесь в бухгалтерию");
+			return true;
 		}
 
 		private void ResendEquipmentTransferEdoRequest()

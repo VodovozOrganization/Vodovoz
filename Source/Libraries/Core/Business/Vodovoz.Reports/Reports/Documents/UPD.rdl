@@ -116,7 +116,7 @@ WHERE
     orders.id AS order_id,
     document_organization_counters.document_number AS document_number,
     orders.delivery_date AS order_date,
-    orders.counterparty_external_order_id,
+    orders.client_external_order_id,
     counterparty_contract.number AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,
                 '%d.%m.%y') AS contract_date,
@@ -368,8 +368,8 @@ WHERE
           <DataField>inn_kpp</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="counterparty_external_order_id">
-          <DataField>counterparty_external_order_id</DataField>
+        <Field Name="client_external_order_id">
+          <DataField>client_external_order_id</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
         <Field Name="payments_info">
@@ -729,11 +729,11 @@ WHERE o.id = @order_id
           </CustomReportItem>
           <Textbox Name="Textbox75" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.20pt</Height>
-            <Width>150pt</Width>
-            <Value>='Номер заказа покупателя: ' + {counterparty_external_order_id}</Value>
+            <Width>175.00pt</Width>
+            <Value>='Номер заказа покупателя: ' + {client_external_order_id}</Value>
             <ZIndex>0</ZIndex>
-            <Left>335pt</Left>
-            <Top>1.4pt</Top>
+            <Left>320.00pt</Left>
+            <Top>1.40pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -745,7 +745,7 @@ WHERE o.id = @order_id
               <FontSize>8pt</FontSize>
             </Style>
             <Visibility>
-              <Hidden>=Fields!counterparty_external_order_id.IsMissing</Hidden>
+              <Hidden>=Fields!client_external_order_id.IsMissing</Hidden>
             </Visibility>
           </Textbox>
         </ReportItems>
