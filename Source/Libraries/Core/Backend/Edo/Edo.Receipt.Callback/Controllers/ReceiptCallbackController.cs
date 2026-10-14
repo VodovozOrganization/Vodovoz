@@ -1,4 +1,4 @@
-﻿using Edo.Contracts.Messages.Events;
+using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -144,15 +144,7 @@ namespace Edo.Receipt.Callback.Controllers
 					checkResult.ErrorMessage);
 			}
 
-			document.FiscalNumber = checkResult.FiscalDocumentInfo.FiscalInfo.FnDocNumber.ToString();
-			document.FiscalMark = checkResult.FiscalDocumentInfo.FiscalInfo.FnDocMark.ToString();
-			document.FiscalKktNumber = checkResult.FiscalDocumentInfo.FiscalInfo.EcrRegistrationNumber;
-
-			document.Status = ReceiptConverters.ConvertFiscalDocumentStatus(checkResult.FiscalDocumentInfo.Status);
-			document.StatusChangeTime = DateTime.Parse(checkResult.FiscalDocumentInfo.TimeStatusChangedString);
-			document.FiscalTime = DateTime.Parse(checkResult.FiscalDocumentInfo.FiscalInfo.Date);
-
-			document.Stage = FiscalDocumentStage.Completed;
+			ReceiptFiscalDocumentUpdater.UpdateFiscalDocument(document, checkResult.FiscalDocumentInfo);
 
 			return true;
 		}
