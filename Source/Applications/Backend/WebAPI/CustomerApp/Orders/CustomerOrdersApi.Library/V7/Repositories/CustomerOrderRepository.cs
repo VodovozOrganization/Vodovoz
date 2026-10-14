@@ -305,7 +305,7 @@ namespace CustomerOrdersApi.Library.V7.Repositories
 			
 			if(await onlineWithNotCancelledOrderByClientQuery.AnyAsync(cancellationToken))
 			{
-				return false;
+				return true;
 			}
 			
 			//сначала проверяем не отмененные заказы на основе онлайнов от искомого пользователя
@@ -324,7 +324,7 @@ namespace CustomerOrdersApi.Library.V7.Repositories
 			
 			if(await onlineWithNotCancelledOrderByExternalCounterpartyQuery.AnyAsync(cancellationToken))
 			{
-				return false;
+				return true;
 			}
 			
 			//Если не нашли значит их нет или они все отменены. Проверяем только онлайны
