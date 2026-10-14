@@ -1095,15 +1095,15 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Select(g => new ProductCodesCountNode { ItemId = g.Key, Count = g.Count() });
 		}
 
+		private static List<int> GetDistinctPositiveIds(IEnumerable<int> ids)
+		{
+			return ids.Where(x => x > 0).Distinct().ToList();
+		}
+
 		private sealed class ProductCodesCountNode
 		{
 			public int? ItemId { get; set; }
 			public int Count { get; set; }
-		}
-
-		private static List<int> GetDistinctPositiveIds(IEnumerable<int> ids)
-		{
-			return ids.Where(x => x > 0).Distinct().ToList();
 		}
 	}
 }

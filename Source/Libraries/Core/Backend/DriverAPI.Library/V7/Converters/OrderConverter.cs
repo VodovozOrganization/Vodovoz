@@ -412,7 +412,11 @@ namespace DriverAPI.Library.V7.Converters
 				.Where(x => x.OrderItemId == saleItem.Id)
 				.Select(x => x.TrueMarkProductCodeId);
 
-			codes = (await _trueMarkRepository.GetRouteListItemProductCodesByIdsWithSourceOrResultAsync(_uow, routeListItem.Id, orderItemCodesIds, cancellationToken))
+			codes = (await _trueMarkRepository.GetRouteListItemProductCodesByIdsWithSourceOrResultAsync(
+					_uow,
+					routeListItem.Id,
+					orderItemCodesIds,
+					cancellationToken))
 				.Select(x => x.SourceCode ?? x.ResultCode)
 				.ToList();
 
