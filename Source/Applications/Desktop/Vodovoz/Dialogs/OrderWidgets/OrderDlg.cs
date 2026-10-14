@@ -4005,8 +4005,6 @@ namespace Vodovoz
 			}
 
 			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReasons: discountReasons);
-
-			ApplyChangedFirstFastDeliveryCostIfNeeded();
 		}
 
 		private void ApplyChangedFirstFastDeliveryCostIfNeeded()
@@ -4322,7 +4320,6 @@ namespace Vodovoz
 			UpdateClientSecondOrderDiscount();
 
 			_isFastDeliveryAvailabilityChecked = false;
-			ApplyChangedFirstFastDeliveryCostIfNeeded();
 		}
 
 		private void UpdateBarterPaymentTypeVisible()
@@ -5121,6 +5118,7 @@ namespace Vodovoz
 
 			Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater);
 			Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater);
+			ApplyChangedFirstFastDeliveryCostIfNeeded();
 
 			UpdateClientSecondOrderDiscount();
 			UpdateUIState();
