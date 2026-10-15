@@ -40227,7 +40227,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Sale.MasterVisitCostDlg" design-size="761 659">
+  <widget class="Gtk.Bin" id="Vodovoz.Views.Dialogs.Sale.MasterVisitCostView" design-size="761 659">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>

@@ -19,6 +19,7 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
+using Vodovoz.ViewModels.Dialogs.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories.Goods;
@@ -1089,7 +1090,7 @@ public partial class MainWindow : Window
 
 	private void OnActionMasterVisitCostActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenTdiTab<MasterVisitCostDlg>(null);
+		NavigationManager.OpenViewModel<MasterVisitCostViewModel>(null);
 	}
 	
 	/// <summary>
