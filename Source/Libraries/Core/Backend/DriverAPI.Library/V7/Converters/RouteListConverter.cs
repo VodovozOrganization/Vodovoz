@@ -44,8 +44,9 @@ namespace DriverAPI.Library.V7.Converters
 		/// <param name="specialConditionsToAccept"></param>
 		/// <param name="permittedDistance">Разрешенное расстояние от ERP</param>
 		/// <param name="lastSelectedAddressId">Последний выбранный следующим для доставки адрес МЛ</param>
-		/// <returns></returns>
-		public RouteListDto ConvertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn, IEnumerable<KeyValuePair<int, string>> specialConditionsToAccept, int permittedDistance, int? lastSelectedAddressId = null)
+		/// <param name="useRoomTypeDisplayName">Использовать отображаемое название типа помещения</param>
+		/// <returns>Данные маршрутного листа</returns>
+		public RouteListDto ConvertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn, IEnumerable<KeyValuePair<int, string>> specialConditionsToAccept, int permittedDistance, int? lastSelectedAddressId = null, bool useRoomTypeDisplayName = false)
 		{
 			var result = new RouteListDto
 			{
@@ -103,7 +104,7 @@ namespace DriverAPI.Library.V7.Converters
 
 					foreach(var address in routeList.Addresses.OrderBy(address => address.IndexInRoute))
 					{
-						routelistAddresses.Add(ConvertToAPIRouteListAddress(address));
+						routelistAddresses.Add(ConvertToAPIRouteListAddress(address, useRoomTypeDisplayName));
 					}
 
 					result.IncompletedRouteList = new IncompletedRouteListDto()
@@ -129,7 +130,7 @@ namespace DriverAPI.Library.V7.Converters
 			return result;
 		}
 
-		private RouteListAddressDto ConvertToAPIRouteListAddress(RouteListItem routeListAddress)
+		private RouteListAddressDto ConvertToAPIRouteListAddress(RouteListItem routeListAddress, bool useRoomTypeDisplayName)
 		{
 			return new RouteListAddressDto()
 			{
@@ -138,7 +139,7 @@ namespace DriverAPI.Library.V7.Converters
 				DeliveryIntervalStart = routeListAddress.Order.DeliveryDate + routeListAddress.Order.DeliverySchedule.From ?? DateTime.MinValue,
 				DeliveryIntervalEnd = routeListAddress.Order.DeliveryDate + routeListAddress.Order.DeliverySchedule.To ?? DateTime.MinValue,
 				OrderId = routeListAddress.Order.Id,
-				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(routeListAddress.Order.DeliveryPoint)
+				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(routeListAddress.Order.DeliveryPoint, useRoomTypeDisplayName)
 			};
 		}
 

@@ -122,7 +122,8 @@ namespace DriverAPI.Library.V6.Services
 				_routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId),
 				specialConditionsToAccept,
 				permittedDistance,
-				lastSelectedAddress?.NextAddressId);
+				lastSelectedAddress?.NextAddressId,
+				useRoomTypeDisplayName: true);
 		}
 
 		public async Task<IEnumerable<RouteListDto>> GetRouteLists(int[] routeListsIds, CancellationToken cancellationToken = default)
@@ -158,7 +159,8 @@ namespace DriverAPI.Library.V6.Services
 						_routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id),
 						spectiaConditionsToAccept,
 						permittedDistance,
-						lastSelectedAddress?.NextAddressId);
+						lastSelectedAddress?.NextAddressId,
+						useRoomTypeDisplayName: true);
 
 					routeLists.Add(routeListDto);
 				}
