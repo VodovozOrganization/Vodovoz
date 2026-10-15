@@ -1,5 +1,4 @@
 ﻿using Edo.Common;
-using Edo.Common.Services;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -23,7 +22,7 @@ namespace Edo.Documents.Services
 		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly ITrueMarkCodesPoolCodeProvider _trueMarkCodesPoolCodeProvider;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly IUpdTransportCodeService _updTransportCodeService;
 		private readonly ILogger<UpdDocumentBuilder> _logger;
 
 		public UpdDocumentBuilder(
@@ -31,14 +30,14 @@ namespace Edo.Documents.Services
 			ITrueMarkCodesPool trueMarkCodesPool,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			ITrueMarkCodesPoolCodeProvider trueMarkCodesPoolCodeProvider,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			IUpdTransportCodeService updTransportCodeService,
 			ILogger<UpdDocumentBuilder> logger)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_trueMarkCodesPoolCodeProvider = trueMarkCodesPoolCodeProvider ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCodeProvider));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_updTransportCodeService = updTransportCodeService ?? throw new ArgumentNullException(nameof(updTransportCodeService));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
@@ -183,6 +182,11 @@ namespace Edo.Documents.Services
 				// в которыех есть заполенный SourceCode, т.е. исключаем неотсканированные позиции задачи
 				if(TryAssignExistingIndividualCode(context, orderItem, codeItemsToAssign, out var assignedIndividualCount))
 				{
+					var individualCode = codeItemsToAssign.Last().IndividualCode;
+					if(individualCode != null)
+					{
+						await _updTransportCodeService.DisaggregateCodeAsync(individualCode, cancellationToken);
+					}
 					assignedQuantity += assignedIndividualCount;
 					continue;
 				}
@@ -246,7 +250,7 @@ namespace Edo.Documents.Services
 				if(availableQuantity < groupTaskItems.Count())
 				{
 					context.GroupCodesWithTaskItems.Remove(groupCode);
-					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, groupCode, cancellationToken);
+					await _updTransportCodeService.DisaggregateCodeAsync(groupCode, cancellationToken);
 					continue;
 				}
 
@@ -571,7 +575,7 @@ namespace Edo.Documents.Services
 
 				foreach(var code in codesToDisaggregate)
 				{
-					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, code, cancellationToken);
+					await _updTransportCodeService.DisaggregateCodeAsync(code, cancellationToken);
 				}
 			}
 
