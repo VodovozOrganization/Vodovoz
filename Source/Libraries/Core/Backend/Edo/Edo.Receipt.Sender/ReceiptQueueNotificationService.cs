@@ -157,7 +157,7 @@ namespace Edo.Receipt.Sender
 							("DocumentNumber", document.DocumentNumber ?? string.Empty),
 							("EdoTaskId", task.Id.ToString(CultureInfo.InvariantCulture)),
 							("OrderId", task.FormalEdoRequest?.Order?.Id.ToString(CultureInfo.InvariantCulture) ?? string.Empty),
-							("CashboxId", task.CashboxId?.ToString(CultureInfo.InvariantCulture) ?? string.Empty),
+							("CashboxName", cashbox.RetailPointName ?? string.Empty),
 							("QueuedSince", document.StatusChangeTime.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)),
 							("PreviousNotificationTime", document.LastQueueNotificationTime?.ToString("O", CultureInfo.InvariantCulture) ?? string.Empty));
 
