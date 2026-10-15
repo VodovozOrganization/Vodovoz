@@ -97,15 +97,33 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 		}
 
 		public IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null)
+			=> GetDriverRouteListsIdsInStatuses(
+				uow,
+				driver,
+				status.HasValue ? new[] { status.Value } : null);
+
+		/// <summary>
+		/// Возвращает номера маршрутных листов водителя в указанных статусах.
+		/// </summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="driver">Водитель.</param>
+		/// <param name="statuses">Допустимые статусы маршрутных листов.</param>
+		/// <returns>Номера маршрутных листов.</returns>
+		public IEnumerable<int> GetDriverRouteListsIdsInStatuses(IUnitOfWork uow, Employee driver, IReadOnlyCollection<RouteListStatus> statuses)
 		{
+			if(statuses != null && statuses.Count == 0)
+			{
+				return Array.Empty<int>();
+			}
+
 			RouteList routeListAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 					  .Where(() => routeListAlias.Driver == driver);
 
-			if(status != null)
+			if(statuses != null)
 			{
-				query.Where(() => routeListAlias.Status == status);
+				query.WhereRestrictionOn(() => routeListAlias.Status).IsIn(statuses.ToArray());
 			}
 
 			return query.Select(x => x.Id).List<int>();
