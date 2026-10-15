@@ -24,6 +24,16 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.Source)
 				.Column("source");
 
+			Map(x => x.SourceDocumentId)
+				.Column("source_document_id")
+				.Not.Update();
+
+			Map(x => x.DocumentSnapshot)
+				.Column("document_snapshot")
+				.CustomSqlType("longtext")
+				.Length(int.MaxValue)
+				.Not.Update();
+
 			Map(x => x.DocumentType)
 				.Column("document_type")
 				.ReadOnly();

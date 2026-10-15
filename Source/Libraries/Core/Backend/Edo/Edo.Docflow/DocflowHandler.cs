@@ -8,6 +8,7 @@ using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Contracts.Documents;
@@ -189,6 +190,25 @@ namespace Edo.Docflow
 			if(edoTask is null)
 			{
 				_logger.LogWarning($"Задача ЭДО акта №{document.InformalDocumentTaskId} не найдена");
+				return;
+			}
+
+			if(informalEdoRequest.IsBill)
+			{
+				var snapshot = JsonSerializer.Deserialize<InfoForCreatingEdoInformalOrderDocument>(
+					informalEdoRequest.DocumentSnapshot);
+				if(snapshot?.IsBill != true || snapshot.FileData?.Image == null || snapshot.FileData.Image.Length == 0)
+				{
+					throw new InvalidOperationException($"У заявки счета №{informalEdoRequest.Id} отсутствует PDF снимка");
+				}
+
+				await _publishEndpoint.Publish(new TaxcomDocflowInformalDocumentSendEvent
+				{
+					EdoAccount = snapshot.OrganizationInfoForEdo.TaxcomEdoAccountId,
+					EdoOutgoingDocumentId = document.Id,
+					DocumentInfo = snapshot,
+					EdoTaskId = edoTask.Id
+				}, cancellationToken);
 				return;
 			}
 

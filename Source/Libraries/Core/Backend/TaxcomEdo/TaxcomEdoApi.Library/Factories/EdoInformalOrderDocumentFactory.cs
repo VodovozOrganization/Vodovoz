@@ -13,14 +13,14 @@ namespace TaxcomEdoApi.Library.Factories
 		{
 			var nonformalizedDocument = new NonformalizedDocument
 			{
-				Number = data.FileData.OrderId.ToString(),
-				Type = DocumentType.Statement,
+				Number = data.IsBill ? data.FileData.BillNumber : data.FileData.OrderId.ToString(),
+				Type = data.IsBill ? DocumentType.Account : DocumentType.Statement,
 				Attachment = new Taxcom.Client.Api.Entity.FileData
 				{
 					Image = data.FileData.Image,
 					Name = data.FileData.Name
 				},
-				Date = DateTime.Now,
+				Date = data.IsBill ? data.FileData.DocumentDate : DateTime.Now,
 				ExternalIdentifier = data.MainDocumentId.ToString(),
 				Sender =
 				{

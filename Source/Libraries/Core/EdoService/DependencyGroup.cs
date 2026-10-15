@@ -24,6 +24,8 @@ namespace EdoService.Library
 				.AddScoped<IAuthorizationService, TaxcomAuthorizationService>()
 				.AddScoped<IContactStateConverter, ContactStateConverter>()
 				.AddScoped<IInformalEdoRequestFactory, EquipmentTransferEdoRequestFactory>()
+				.AddScoped<BillEdoRequestFactory>()
+				.AddScoped<BillEdoRequestSender>()
 				.AddScoped<EdoTaskCustomSourcesPersister>()
 				.AddScoped<EdoTaskExceptionSourcesPersister>()
 				.AddScoped<EdoProblemRegistrar>()

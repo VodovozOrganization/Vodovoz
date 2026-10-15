@@ -8,8 +8,10 @@ using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 
@@ -68,6 +70,19 @@ namespace Edo.InformalOrderDocuments.Handlers
 				return;
 			}
 
+			if(informalEdoRequest.IsBill)
+			{
+				var snapshot = JsonSerializer.Deserialize<InfoForCreatingEdoInformalOrderDocument>(
+					informalEdoRequest.DocumentSnapshot);
+				if(snapshot?.IsBill != true || snapshot.FileData?.Image == null || snapshot.FileData.Image.Length == 0)
+				{
+					throw new InvalidOperationException($"У заявки счета №{informalEdoRequest.Id} отсутствует PDF снимка");
+				}
+
+				await SendDocument(edoTask, snapshot.FileData, cancellationToken);
+				return;
+			}
+
 			var order = await _uow.Session.GetAsync<OrderEntity>(informalEdoRequest.Order.Id, cancellationToken);
 			if(order == null)
 			{
@@ -92,21 +107,7 @@ namespace Edo.InformalOrderDocuments.Handlers
 
 				var result = await handler.ProcessDocumentAsync(order, orderDocument.Id, cancellationToken);
 
-				var edoDocument = CreateInformalDocument(edoTask.Id);
-
-				var fileDataMessage = new InformalDocumentFileDataSendEvent
-				{
-					DocumentId = edoDocument.Id,
-					FileData = result
-				};
-
-				edoTask.Status = EdoTaskStatus.InProgress;
-
-				await _publishEndpoint.Publish(fileDataMessage, cancellationToken);
-
-				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-				await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
-				await _uow.CommitAsync(cancellationToken);
+				await SendDocument(edoTask, result, cancellationToken);
 
 			}
 			catch(Exception ex)
@@ -118,6 +119,21 @@ namespace Edo.InformalOrderDocuments.Handlers
 				throw;
 			}
 			
+		}
+
+		private async Task SendDocument(OrderDocumentEdoTask edoTask, OrderDocumentFileData fileData, CancellationToken cancellationToken)
+		{
+			var edoDocument = CreateInformalDocument(edoTask.Id);
+			edoTask.Status = EdoTaskStatus.InProgress;
+			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+			await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+
+			await _publishEndpoint.Publish(new InformalDocumentFileDataSendEvent
+			{
+				DocumentId = edoDocument.Id,
+				FileData = fileData
+			}, cancellationToken);
 		}
 
 		private OutgoingInformalEdoDocument CreateInformalDocument(int edoTaskId)

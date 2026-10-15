@@ -11,6 +11,35 @@ namespace Vodovoz.Core.Domain.Edo
 		private OrderEntity _order;
 		private OrderDocumentEdoTask _task;
 		private OrderDocumentType _orderDocumentType;
+		private int? _sourceDocumentId;
+		private string _documentSnapshot;
+
+		/// <summary>
+		/// Заявка относится к счету на оплату
+		/// </summary>
+		public virtual bool IsBill => OrderDocumentType == OrderDocumentType.Bill
+			|| OrderDocumentType == OrderDocumentType.SpecialBill
+			|| OrderDocumentType == OrderDocumentType.BillWSForDebt
+			|| OrderDocumentType == OrderDocumentType.BillWSForAdvancePayment
+			|| OrderDocumentType == OrderDocumentType.BillWSForPayment;
+
+		/// <summary>
+		/// Идентификатор исходного счета в таблице, определяемой типом документа
+		/// </summary>
+		public virtual int? SourceDocumentId
+		{
+			get => _sourceDocumentId;
+			set => SetField(ref _sourceDocumentId, value);
+		}
+
+		/// <summary>
+		/// Сохраненные реквизиты отправки и PDF счета в формате JSON
+		/// </summary>
+		public virtual string DocumentSnapshot
+		{
+			get => _documentSnapshot;
+			set => SetField(ref _documentSnapshot, value);
+		}
 
 		/// <summary>
 		/// Код заказа c документом заказа

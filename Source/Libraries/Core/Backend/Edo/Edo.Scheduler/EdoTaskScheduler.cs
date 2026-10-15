@@ -180,14 +180,27 @@ namespace Edo.Scheduler.Service
 				return;
 			}
 
-			switch(request.OrderDocumentType)
+			if(request.IsBill)
 			{
-				case OrderDocumentType.EquipmentTransfer:
-					edoTask = _equipmentTransferEdoRequestTaskScheduler.CreateTask((EquipmentTransferEdoRequest)request);
-					break;
-				default:
-					throw new InvalidOperationException($"Неизвестный тип заявки " +
-						$"{nameof(InformalEdoRequest)} {request.Type}");
+				if(string.IsNullOrWhiteSpace(request.DocumentSnapshot))
+				{
+					throw new InvalidOperationException($"У заявки счета №{request.Id} отсутствует снимок документа");
+				}
+				var billTask = new OrderDocumentEdoTask { Status = EdoTaskStatus.New };
+				request.Task = billTask;
+				edoTask = billTask;
+			}
+			else
+			{
+				switch(request.OrderDocumentType)
+				{
+					case OrderDocumentType.EquipmentTransfer:
+						edoTask = _equipmentTransferEdoRequestTaskScheduler.CreateTask((EquipmentTransferEdoRequest)request);
+						break;
+					default:
+						throw new InvalidOperationException($"Неизвестный тип заявки " +
+							$"{nameof(InformalEdoRequest)} {request.Type}");
+				}
 			}
 
 			await _uow.SaveAsync(request, cancellationToken: cancellationToken);
