@@ -29,11 +29,26 @@ namespace Edo.Documents.Services
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
 
+		/// <inheritdoc />
+		public async Task DisaggregateCodeAsync(TrueMarkAnyCode code, CancellationToken cancellationToken)
+		{
+			var root = _trueMarkWaterCodeService.GetParentGroupCode(_uow, code);
+			if(root.IsTrueMarkTransportCode)
+			{
+				foreach(var innerCode in root.TrueMarkTransportCode.GetAllCodes().ToArray())
+				{
+					await innerCode.Match(
+						transportCode => ClearTransportCodeAsync(transportCode, cancellationToken),
+						groupCode => ClearTransportCodeAsync(groupCode, cancellationToken),
+						waterCode => ClearTransportCodeAsync(waterCode, cancellationToken));
+				}
+			}
+
+			await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, code, cancellationToken);
+		}
+
 		/// <summary>
 		/// <inheritdoc/>
-		/// <param name="documentEdoTask">Задача создания УПД.</param>
-		/// <param name="cancellationToken">Токен отмены.</param>
-		/// <returns>Задача проверки и сохранения изменённых кодов.</returns>
 		/// </summary>
 		public async Task DetachIncompleteTransportCodesAsync(
 			DocumentEdoTask documentEdoTask,

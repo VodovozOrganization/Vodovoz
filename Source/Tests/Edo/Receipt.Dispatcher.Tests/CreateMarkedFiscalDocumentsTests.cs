@@ -593,7 +593,7 @@ namespace Receipt.Dispatcher.Tests
 			codeRepository.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
 				.Returns(call => Task.FromResult(_waterGroupCodeRepository.Data.FirstOrDefault(x => x.Id == (int)call[0])));
 			var builder = new UpdDocumentBuilder(_unitOfWork, pool, codeRepository,
-				Substitute.For<ITrueMarkCodesPoolCodeProvider>(), Substitute.For<ITrueMarkWaterCodeService>(),
+				Substitute.For<ITrueMarkCodesPoolCodeProvider>(), Substitute.For<IUpdTransportCodeService>(),
 				Substitute.For<ILogger<UpdDocumentBuilder>>());
 
 			await builder.BuildUpdDocumentAsync(task, default);
@@ -648,7 +648,7 @@ namespace Receipt.Dispatcher.Tests
 			repository.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
 				.Returns(call => Task.FromResult(_waterGroupCodeRepository.Data.Single(x => x.Id == (int)call[0])));
 			var builder = new UpdDocumentBuilder(_unitOfWork, pool, repository, provider,
-				Substitute.For<ITrueMarkWaterCodeService>(), Substitute.For<ILogger<UpdDocumentBuilder>>());
+				Substitute.For<IUpdTransportCodeService>(), Substitute.For<ILogger<UpdDocumentBuilder>>());
 
 			if(poolEmpty)
 			{

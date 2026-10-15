@@ -10,7 +10,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Common.Services;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
@@ -30,7 +29,6 @@ namespace Edo.Documents
 		private readonly IUpdDocumentBuilder _updDocumentBuilder;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IUpdTransportCodeService _updTransportCodeService;
 
 		public ForOwnNeedDocumentEdoTaskHandler(
@@ -43,7 +41,6 @@ namespace Edo.Documents
 			IUpdDocumentBuilder updDocumentBuilder,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IUpdTransportCodeService updTransportCodeService
 			)
 		{
@@ -56,7 +53,6 @@ namespace Edo.Documents
 			_updDocumentBuilder = updDocumentBuilder ?? throw new ArgumentNullException(nameof(updDocumentBuilder));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_updTransportCodeService = updTransportCodeService ?? throw new ArgumentNullException(nameof(updTransportCodeService));
 		}
 
@@ -141,7 +137,7 @@ namespace Edo.Documents
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 							codeResult.EdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 
-							await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, newCode, cancellationToken);
+							await _updTransportCodeService.DisaggregateCodeAsync(newCode, cancellationToken);
 						}
 					}
 
