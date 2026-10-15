@@ -85,6 +85,7 @@ public partial class MainWindow : Window
 
 	Action ActionServiceClaims;
 	Action ActionServiceDeliveryRules;
+	Action ActionMasterVisitCost;
 
 	//Работа с клиентами
 	Action ActionCallTasks;
@@ -216,6 +217,7 @@ public partial class MainWindow : Window
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
 		ActionServiceDeliveryRules = new Action(nameof(ActionServiceDeliveryRules), "Условия доставки", null, null);
+		ActionMasterVisitCost = new Action(nameof(ActionMasterVisitCost), "Стоимость выезда мастера", null, null);
 
 		//Склад
 		ActionWarehouseDocuments = new Action("ActionWarehouseDocuments", "Журнал документов", null, "table");
@@ -331,6 +333,7 @@ public partial class MainWindow : Window
 		//Сервис
 		w1.Add(ActionServiceClaims, null);
 		w1.Add(ActionServiceDeliveryRules, null);
+		w1.Add(ActionMasterVisitCost, null);
 		
 		//Склад
 		w1.Add(ActionWarehouseDocuments, null);
@@ -457,6 +460,7 @@ public partial class MainWindow : Window
 		//Сервис
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionServiceDeliveryRules.Activated += OnActionServiceDeliveryRulesActivated;
+		ActionMasterVisitCost.Activated += OnActionMasterVisitCostActivated;
 		
 		//Склад
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
@@ -1081,6 +1085,11 @@ public partial class MainWindow : Window
 	private void OnActionServiceDeliveryRulesActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<ServiceDistrictsSetJournalViewModel>(null);
+	}
+
+	private void OnActionMasterVisitCostActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenTdiTab<MasterVisitCostDlg>(null);
 	}
 	
 	/// <summary>
