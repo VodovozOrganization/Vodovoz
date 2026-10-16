@@ -21,9 +21,9 @@ namespace Vodovoz.Core.Domain.Documents
 	}
 
 	/// <summary>
-	/// Сначала берётся статус Такском. Если он ещё «В процессе» или «Получено оператором»,
-	/// а в транзакциях уже есть титул покупателя или уточнение, статус заменяется.
-	/// Предложение об аннулировании и его принятие заменяют статус, даже если Такском ещё присылает прежний.
+	/// Статус Такском заменяется по транзакциям, только если он ещё «В процессе»,
+	/// «Не начат» или «Получено оператором». Порядок транзакций не учитывается:
+	/// важнее наличие более высокого шага. Конечный шаг — принятое аннулирование.
 	/// </summary>
 	public static class TaxcomDocflowStateByTransactions
 	{
@@ -50,7 +50,8 @@ namespace Vodovoz.Core.Domain.Documents
 			"FormalizedStatementCustomer",
 			"FormalizedConsignmentCustomer",
 			"FormalizedWorkResultCustomer",
-			"FormalizedTradingCustomer"
+			"FormalizedTradingCustomer",
+			"FormalizedKC2Customer"
 		};
 
 		private static readonly EdoDocFlowStatus[] _statusesThatMeanReceived =
@@ -75,20 +76,15 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			EdoDocFlowStatus.InProgress,
 			EdoDocFlowStatus.Sent,
-			EdoDocFlowStatus.NotStarted,
-			EdoDocFlowStatus.PreparingToSend,
-			EdoDocFlowStatus.Unknown
+			EdoDocFlowStatus.NotStarted
 		};
 
-		public static TaxcomDocflowState Resolve<TDocument>(
+		public static TaxcomDocflowState Resolve(
 			EdoDocFlowStatus? reportedStatus,
-			IEnumerable<TDocument> documents,
-			Func<TDocument, string> transactionCode,
-			Func<TDocument, string> reglamentCode)
+			IEnumerable<string> transactionCodes)
 		{
-			var codes = ReadCodes(documents, transactionCode, reglamentCode);
+			var codes = Normalize(transactionCodes);
 			var status = ResolveStatus(reportedStatus, codes);
-			status = ApplyCancellation(status, DeriveCancellation(codes));
 
 			return new TaxcomDocflowState(status, IsReceived(status, codes));
 		}
@@ -101,25 +97,12 @@ namespace Vodovoz.Core.Domain.Documents
 
 		private static EdoDocFlowStatus? ResolveStatus(EdoDocFlowStatus? reportedStatus, IReadOnlyList<string> codes)
 		{
-			var derivedStatus = DeriveStatusFromTransactions(codes);
-			if(derivedStatus.HasValue && CanBeCorrectedByTransaction(reportedStatus))
+			if(!CanBeCorrectedByTransaction(reportedStatus))
 			{
-				return derivedStatus;
+				return reportedStatus;
 			}
 
-			return reportedStatus;
-		}
-
-		private static EdoDocFlowStatus? ApplyCancellation(
-			EdoDocFlowStatus? status,
-			EdoDocFlowStatus? cancellationStatus)
-		{
-			if(!cancellationStatus.HasValue || status == EdoDocFlowStatus.Cancelled)
-			{
-				return status;
-			}
-
-			return cancellationStatus;
+			return DeriveStatusFromTransactions(codes) ?? reportedStatus;
 		}
 
 		private static bool IsReceived(EdoDocFlowStatus? status, IReadOnlyList<string> codes)
@@ -142,21 +125,17 @@ namespace Vodovoz.Core.Domain.Documents
 			return false;
 		}
 
-		private static List<string> ReadCodes<TDocument>(
-			IEnumerable<TDocument> documents,
-			Func<TDocument, string> transactionCode,
-			Func<TDocument, string> reglamentCode)
+		private static List<string> Normalize(IEnumerable<string> transactionCodes)
 		{
 			var codes = new List<string>();
-			if(documents == null || transactionCode == null || reglamentCode == null)
+			if(transactionCodes == null)
 			{
 				return codes;
 			}
 
-			foreach(var document in documents)
+			foreach(var transactionCode in transactionCodes)
 			{
-				AddCode(codes, transactionCode(document));
-				AddCode(codes, reglamentCode(document));
+				AddCode(codes, transactionCode);
 			}
 
 			return codes;
@@ -173,41 +152,28 @@ namespace Vodovoz.Core.Domain.Documents
 		private static EdoDocFlowStatus? DeriveStatusFromTransactions(IReadOnlyList<string> codes)
 		{
 			EdoDocFlowStatus? derivedStatus = null;
-			foreach(var code in codes)
+
+			if(codes.Any(IsClarification))
 			{
-				if(IsBuyerTitle(code))
-				{
-					derivedStatus = EdoDocFlowStatus.Succeed;
-				}
-				else if(IsClarification(code))
-				{
-					derivedStatus = EdoDocFlowStatus.Warning;
-				}
+				derivedStatus = EdoDocFlowStatus.Warning;
+			}
+
+			if(codes.Any(IsBuyerTitle))
+			{
+				derivedStatus = EdoDocFlowStatus.Succeed;
+			}
+
+			if(codes.Any(IsCancellationOffer) && !codes.Any(IsCancellationRejected))
+			{
+				derivedStatus = EdoDocFlowStatus.WaitingForCancellation;
+			}
+
+			if(codes.Any(IsCancellationAccepted))
+			{
+				derivedStatus = EdoDocFlowStatus.Cancelled;
 			}
 
 			return derivedStatus;
-		}
-
-		private static EdoDocFlowStatus? DeriveCancellation(IReadOnlyList<string> codes)
-		{
-			EdoDocFlowStatus? cancellationStatus = null;
-			foreach(var code in codes)
-			{
-				if(IsCancellationRejected(code))
-				{
-					cancellationStatus = null;
-				}
-				else if(IsCancellationAccepted(code))
-				{
-					cancellationStatus = EdoDocFlowStatus.Cancelled;
-				}
-				else if(IsCancellationOffer(code))
-				{
-					cancellationStatus = EdoDocFlowStatus.WaitingForCancellation;
-				}
-			}
-
-			return cancellationStatus;
 		}
 
 		private static bool CanBeCorrectedByTransaction(EdoDocFlowStatus? status)

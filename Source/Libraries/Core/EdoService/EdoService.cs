@@ -1419,9 +1419,7 @@ namespace EdoService.Library
 
 				var state = TaxcomDocflowStateByTransactions.Resolve(
 					reportedStatus,
-					description.DocFlow.Documents,
-					document => document.TransactionCode,
-					document => document.ReglamentCode);
+					description.DocFlow.Documents?.Select(document => document.TransactionCode));
 				var docflowUpdatedEvent = new OutgoingTaxcomDocflowUpdatedEvent
 				{
 					DocFlowId = description.DocFlow.Id,

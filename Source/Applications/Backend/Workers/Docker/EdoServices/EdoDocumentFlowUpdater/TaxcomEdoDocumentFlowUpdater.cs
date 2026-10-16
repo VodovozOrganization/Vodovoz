@@ -256,9 +256,7 @@ namespace EdoDocumentFlowUpdater
 
 			var state = TaxcomDocflowStateByTransactions.Resolve(
 				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>(),
-				docflow.Documents,
-				document => document.TransactionCode,
-				document => document.ReglamentCode);
+				docflow.Documents?.Select(document => document.TransactionCode));
 
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent
 			{
@@ -519,9 +517,7 @@ namespace EdoDocumentFlowUpdater
 			
 			var state = TaxcomDocflowStateByTransactions.Resolve(
 				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>(),
-				docflow.Documents,
-				document => document.TransactionCode,
-				document => document.ReglamentCode);
+				docflow.Documents?.Select(document => document.TransactionCode));
 
 			container.DocFlowId = docflow.Id;
 			container.Received = state.IsReceived;
