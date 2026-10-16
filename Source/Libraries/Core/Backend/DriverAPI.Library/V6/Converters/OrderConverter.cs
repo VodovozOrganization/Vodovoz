@@ -75,12 +75,14 @@ namespace DriverAPI.Library.V6.Converters
 		/// <param name="routeListItem">Адрес маршрутного листа</param>
 		/// <param name="smsPaymentStatus">Статус оплаты по смс</param>
 		/// <param name="qrPaymentDtoStatus">Статус оплаты по QR-коду</param>
+		/// <param name="useRoomTypeDisplayName">Использовать отображаемое название типа помещения</param>
 		/// <returns></returns>
 		public OrderDto ConvertToAPIOrder(
 			Order vodovozOrder,
 			RouteListItem routeListItem,
 			SmsPaymentStatus? smsPaymentStatus,
-			FastPaymentStatus? qrPaymentDtoStatus)
+			FastPaymentStatus? qrPaymentDtoStatus,
+			bool useRoomTypeDisplayName = false)
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
@@ -96,7 +98,7 @@ namespace DriverAPI.Library.V6.Converters
 				Counterparty = vodovozOrder.Client.FullName,
 				PhoneNumbers = CreatePhoneList(vodovozOrder),
 				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
-				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
+				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint, useRoomTypeDisplayName),
 				OrderSum = vodovozOrder.OrderSum,
 				OrderSaleItems = PrepareSaleItemsList(vodovozOrder.OrderItems, routeListItem),
 				OrderDeliveryItems = pairOfSplitedLists.orderDeliveryItems,

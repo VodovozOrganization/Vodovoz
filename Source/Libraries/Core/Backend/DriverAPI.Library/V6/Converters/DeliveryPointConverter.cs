@@ -1,4 +1,5 @@
 ﻿using DriverApi.Contracts.V6;
+using Gamma.Utilities;
 using Vodovoz.Domain.Client;
 
 namespace DriverAPI.Library.V6.Converters
@@ -12,8 +13,9 @@ namespace DriverAPI.Library.V6.Converters
 		/// Метод конвертации в DTO
 		/// </summary>
 		/// <param name="deliveryPoint">Точка доставки из ДВ</param>
-		/// <returns></returns>
-		public AddressDto ExtractAPIAddressFromDeliveryPoint(DeliveryPoint deliveryPoint)
+		/// <param name="useRoomTypeDisplayName">Использовать отображаемое название типа помещения</param>
+		/// <returns>Адрес точки доставки</returns>
+		public AddressDto ExtractAPIAddressFromDeliveryPoint(DeliveryPoint deliveryPoint, bool useRoomTypeDisplayName = false)
 		{
 			return new AddressDto()
 			{
@@ -25,7 +27,7 @@ namespace DriverAPI.Library.V6.Converters
 				Apartment = deliveryPoint.Room,
 				DeliveryPointCategory = deliveryPoint.Category?.Name,
 				EntranceType = deliveryPoint.EntranceType.ToString(),
-				RoomType = deliveryPoint.RoomType.ToString(),
+				RoomType = useRoomTypeDisplayName ? deliveryPoint.RoomType.GetEnumTitle() : deliveryPoint.RoomType.ToString(),
 				Latitude = deliveryPoint.Latitude ?? 0,
 				Longitude = deliveryPoint.Longitude ?? 0
 			};
