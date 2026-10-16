@@ -616,6 +616,22 @@ namespace Vodovoz.EntityRepositories.Orders
 			CancellationToken cancellationToken);
 
 		/// <summary>
+		/// Заказы сетей и тендерных клиентов по правилам отчета "Отсрочка сети": неоплаченные и частично оплаченные
+		/// безналичные заказы с положительной суммой, кроме отмененных и недоставленных.
+		/// Фильтров отчета (клиент, менеджер, автор) и нижней границы даты нет
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="maxDeliveryDate">Максимальная дата доставки заказа (включительно)</param>
+		/// <param name="counterpartyFromTenderId">Id источника "Тендер" клиента</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Заказы с суммой, оплаченной суммой, отсрочкой клиента, автором, адресом и телефоном</returns>
+		Task<IList<ChainStoreDelayOrderNode>> GetChainStoreDelayOrdersAsync(
+			IUnitOfWork uow,
+			DateTime maxDeliveryDate,
+			int counterpartyFromTenderId,
+			CancellationToken cancellationToken);
+
+		/// <summary>
 		/// Id контрагентов, у которых есть сервисные заказы с датой доставки, начиная с указанной,
 		/// исключая заказы в указанных статусах.
 		/// Сервисным считается заказ, содержащий хотя бы одну номенклатуру из указанного списка
