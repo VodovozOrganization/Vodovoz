@@ -240,7 +240,6 @@ namespace Vodovoz.Views.Dialogs.Sale
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonInsertFromBuffer.Clicked += new global::System.EventHandler(this.OnButtonInsertFromBufferClicked);
 		}
 	}
 }

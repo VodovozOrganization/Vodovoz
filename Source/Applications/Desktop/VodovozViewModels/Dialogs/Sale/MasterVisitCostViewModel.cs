@@ -1,10 +1,12 @@
 using Fias.Client.Loaders;
 using GeoCoderApi.Client;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
+using System.Globalization;
 using Vodovoz.Tools.Logistic;
 using VodovozBusiness.Domain.Service;
 
@@ -42,13 +44,29 @@ namespace Vodovoz.ViewModels.Dialogs.Sale
 			Title = "Стоимость выезда мастера";
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
 			_unitOfWork.Session.DefaultReadOnly = true;
+
+			InsertFromBufferCommand = new DelegateCommand(InsertFromBuffer);
 		}
+
+		public event EventHandler CitySelectionChanged;
+		public event EventHandler StreetSelectionChanged;
+		public event EventHandler AddressCleared;
+		public event EventHandler CoordinatesChanged;
+		public event EventHandler PriceChanged;
+
+		public DelegateCommand InsertFromBufferCommand { get; }
+
+		public Func<string> ReadClipboardText { get; set; }
 
 		public ICitiesDataLoader CitiesDataLoader { get; }
 
 		public IStreetsDataLoader StreetsDataLoader { get; }
 
 		public IHousesDataLoader HousesDataLoader { get; }
+
+		public Guid? CityGuid { get; private set; }
+
+		public Guid? StreetGuid { get; private set; }
 
 		public decimal? Latitude { get; private set; }
 
@@ -60,13 +78,80 @@ namespace Vodovoz.ViewModels.Dialogs.Sale
 
 		public bool HasPrice { get; private set; }
 
-		public void SetCoordinates(decimal? latitude, decimal? longitude)
+		public void SelectCity(Guid? cityGuid)
+		{
+			CityGuid = cityGuid;
+			CitySelectionChanged?.Invoke(this, EventArgs.Empty);
+		}
+
+		public void SelectStreet(Guid? streetGuid)
+		{
+			StreetGuid = streetGuid;
+			StreetSelectionChanged?.Invoke(this, EventArgs.Empty);
+		}
+
+		public void CompleteBuilding(
+			string cityName,
+			string streetName,
+			string streetTypeShort,
+			string buildingName,
+			bool fiasCompleted,
+			decimal? latitude,
+			decimal? longitude)
+		{
+			if(!fiasCompleted)
+			{
+				return;
+			}
+
+			if(!string.IsNullOrWhiteSpace(buildingName) || latitude == null || longitude == null)
+			{
+				var address = $"{cityName}, {streetName} {streetTypeShort}, {buildingName}";
+				(latitude, longitude) = FindCoordinates(address);
+			}
+
+			SetCoordinates(latitude, longitude);
+			UpdatePrice();
+		}
+
+		public void Dispose()
+		{
+			_unitOfWork?.Dispose();
+		}
+
+		private void InsertFromBuffer()
+		{
+			AddressCleared?.Invoke(this, EventArgs.Empty);
+
+			var hasError = true;
+			var coordinates = ReadClipboardText?.Invoke()?.Split(',');
+			if(coordinates?.Length == 2)
+			{
+				var goodLatitude = decimal.TryParse(coordinates[0].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var latitude);
+				var goodLongitude = decimal.TryParse(coordinates[1].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var longitude);
+				SetCoordinates(latitude, longitude);
+
+				if(goodLatitude && goodLongitude)
+				{
+					UpdatePrice();
+					hasError = false;
+				}
+			}
+
+			if(hasError)
+			{
+				ShowError("Буфер обмена не содержит координат или содержит неправильные координаты");
+			}
+		}
+
+		private void SetCoordinates(decimal? latitude, decimal? longitude)
 		{
 			Latitude = latitude;
 			Longitude = longitude;
+			CoordinatesChanged?.Invoke(this, EventArgs.Empty);
 		}
 
-		public void UpdatePrice()
+		private void UpdatePrice()
 		{
 			var price = _deliveryPriceCalculator.CalculateForService(Latitude, Longitude);
 			if(price.HasError)
@@ -74,16 +159,18 @@ namespace Vodovoz.ViewModels.Dialogs.Sale
 				HasPrice = false;
 				Price = null;
 				ServiceDistrict = null;
-				_interactiveService.ShowMessage(ImportanceLevel.Error, price.ErrorMessage);
+				ShowError(price.ErrorMessage);
+				PriceChanged?.Invoke(this, EventArgs.Empty);
 				return;
 			}
 
 			HasPrice = true;
 			Price = price;
 			ServiceDistrict = _unitOfWork.GetById<ServiceDistrict>(price.ServiceDistrictId);
+			PriceChanged?.Invoke(this, EventArgs.Empty);
 		}
 
-		public (decimal? Latitude, decimal? Longitude) FindCoordinates(string address)
+		private (decimal? Latitude, decimal? Longitude) FindCoordinates(string address)
 		{
 			try
 			{
@@ -95,20 +182,15 @@ namespace Vodovoz.ViewModels.Dialogs.Sale
 			}
 			catch(Exception)
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, "Произошла ошибка при запросе координат в геокодере");
+				ShowError("Произошла ошибка при запросе координат в геокодере");
 			}
 
 			return (null, null);
 		}
 
-		public void ShowError(string message)
+		private void ShowError(string message)
 		{
 			_interactiveService.ShowMessage(ImportanceLevel.Error, message);
-		}
-
-		public void Dispose()
-		{
-			_unitOfWork?.Dispose();
 		}
 	}
 }
