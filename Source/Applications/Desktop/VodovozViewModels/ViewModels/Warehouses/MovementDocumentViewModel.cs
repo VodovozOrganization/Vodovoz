@@ -1,10 +1,13 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -40,10 +43,13 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Services.Warehouse;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 using VodovozBusiness.CachingRepositories.Employees;
+using VodovozBusiness.Nodes.TTN;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
@@ -58,6 +64,8 @@ namespace Vodovoz.ViewModels.Warehouses
 		private readonly IEmployeeInMemoryNameWithInitialsCacheRepository _employeeInMemoryNameWithInitialsCacheRepository;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
 		private readonly INomenclatureInstanceRepository _nomenclatureInstanceRepository;
+		private readonly IFileDialogService _fileDialogService;
+		private readonly IMovementDocumentService _movementDocumentService;
 		private UserSettings _currentUserSettings;
 		private Employee _currentEmployee;
 		private bool _canEditRectroactively;
@@ -77,6 +85,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private DelegateCommand _fillFromOrdersCommand;
 		private DelegateCommand _printCommand;
 		private DelegateCommand _addInventoryInstanceCommand;
+		private DelegateCommand _downloadTtnCommand;
 
 		public MovementDocumentViewModel(
 			IEntityUoWBuilder uowBuilder, 
@@ -93,10 +102,12 @@ namespace Vodovoz.ViewModels.Warehouses
 			ViewModelEEVMBuilder<Warehouse> sourceWarehouseViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Warehouse> targetWarehouseViewModelEEVMBuilder,
 			IEmployeeInMemoryNameWithInitialsCacheRepository employeeInMemoryNameWithInitialsCacheRepository,
+			IFileDialogService fileDialogService,
+			IMovementDocumentService movementDocumentService,
 			ILifetimeScope scope) 
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			if(navigationManager == null)
+			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
@@ -122,6 +133,8 @@ namespace Vodovoz.ViewModels.Warehouses
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			_employeeInMemoryNameWithInitialsCacheRepository = employeeInMemoryNameWithInitialsCacheRepository
 				?? throw new ArgumentNullException(nameof(employeeInMemoryNameWithInitialsCacheRepository));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_movementDocumentService = movementDocumentService ?? throw new ArgumentNullException(nameof(movementDocumentService));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
 			ResolveInnerDependencies();
@@ -173,7 +186,13 @@ namespace Vodovoz.ViewModels.Warehouses
 				.UseViewModelDialog<WarehouseViewModel>()
 				.Finish();
 
+			EnterTtnDataCommand = new DelegateCommand(EnterTtnData, () => CanEnterTtnData);
+			EnterTtnDataCommand.CanExecuteChangedWith(this, x => x.CanEnterTtnData);
+			DownloadTtnCommand = new DelegateCommand(DownloadTtn, () => CanDownloadTtn);
+			DownloadTtnCommand.CanExecuteChangedWith(this, x => x.CanDownloadTtn);
+
 			Entity.PropertyChanged += OnMovementDocumentPropertyChanged;
+			NeedPrintTtn = Entity.NeedPrintTtn;
 		}
 
 		private void OnMovementDocumentPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -186,6 +205,16 @@ namespace Vodovoz.ViewModels.Warehouses
 			if(e.PropertyName == nameof(Entity.ToWarehouse))
 			{
 				ReloadAllowedWarehousesFrom();
+			}
+
+			if(e.PropertyName == nameof(Entity.NeedPrintTtn)
+				|| e.PropertyName == nameof(Entity.TtnCargoSender)
+				|| e.PropertyName == nameof(Entity.TtnCargoReceiver)
+				|| e.PropertyName == nameof(Entity.TtnPayer)
+				|| e.PropertyName == nameof(Entity.MovementWagon)
+				|| e.PropertyName == nameof(Entity.TtnDriver))
+			{
+				OnPropertyChanged(nameof(CanDownloadTtn));
 			}
 		}
 
@@ -308,6 +337,26 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 		}
 
+		private bool _needPrintTtn;
+
+		[PropertyChangedAlso(nameof(CanEnterTtnData))]
+		[PropertyChangedAlso(nameof(CanDownloadTtn))]
+		public bool NeedPrintTtn
+		{
+			get => _needPrintTtn;
+			set
+			{
+				if(SetField(ref _needPrintTtn, value))
+				{
+					Entity.NeedPrintTtn = value;
+				}
+			}
+		}
+
+		public bool CanEnterTtnData => NeedPrintTtn;
+
+		public DelegateCommand EnterTtnDataCommand { get; }
+
 		public bool CanShowWarehouseFrom => Entity.StorageFrom == StorageType.Warehouse;
 		public bool CanShowEmployeeFrom => Entity.StorageFrom == StorageType.Employee;
 		public bool CanShowCarFrom => Entity.StorageFrom == StorageType.Car;
@@ -315,6 +364,14 @@ namespace Vodovoz.ViewModels.Warehouses
 		public bool CanShowWarehouseTo => Entity.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToWarehouse;
 		public bool CanShowEmployeeTo => Entity.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToEmployee;
 		public bool CanShowCarTo => Entity.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToCar;
+
+		private void EnterTtnData()
+		{
+			NavigationManager.OpenViewModel<TtnDataViewModel>(
+				this,
+				OpenPageOptions.AsSlave,
+				vm => vm.Configure(Entity));
+		}
 
 		private void ConfigureEntityChangingRelations()
 		{
@@ -767,6 +824,88 @@ namespace Vodovoz.ViewModels.Warehouses
 					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 					page.ViewModel.OnSelectResult += OnInventoryInstanceSelectResult;
 				}));
+
+		public DelegateCommand DownloadTtnCommand { get; }
+
+		private void DownloadTtn()
+		{
+			if(!CanDownloadTtn)
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Заполните обязательные поля ТТН: грузоотправитель, грузополучатель, плательщик, автомобиль, водитель.");
+				return;
+			}
+
+			if(NeedPrintTtn && UoW.HasChanges)
+			{
+				var confirmed = CommonServices.InteractiveService.Question(
+					"Документ перемещения будет сохранён. Продолжить?",
+					"Печать ТТН");
+
+				if(!confirmed)
+				{
+					return;
+				}
+
+				if(!Save(false))
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						"Не удалось сохранить документ перемещения.");
+					return;
+				}
+			}
+
+			TtnReport report;
+			try
+			{
+				report = _movementDocumentService.BuildTtnReport(Entity, CurrentEmployee);
+			}
+			catch(Exception ex)
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					$"Не удалось собрать данные ТТН: {ex.Message}");
+				return;
+			}
+
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить ТТН",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"ТТН_{report.DocNumber}_{DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			try
+			{
+				_movementDocumentService.SaveTtnReport(report, result.Path);
+
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					$"ТТН сохранена: {result.Path}");
+			}
+			catch(Exception ex)
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					$"Не удалось сохранить ТТН: {ex.Message}");
+			}
+		}
+
+		public bool CanDownloadTtn =>
+			NeedPrintTtn
+			&& Entity.TtnCargoSender != null
+			&& Entity.TtnCargoReceiver != null
+			&& Entity.TtnPayer != null
+			&& Entity.MovementWagon != null
+			&& Entity.TtnDriver != null;
 
 		#endregion Commands
 
