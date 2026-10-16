@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
@@ -188,32 +188,39 @@ namespace Edo.Docflow.Taxcom
 
 			EdoDocflowUpdatedEvent edoDocflowUpdatedEvent = null;
 
-			if(lastAction is null
+			var statusChanged = lastAction is null
 				|| lastAction.DocFlowState != newStatus.Value
-				|| lastAction.TrueMarkTraceabilityStatus != newTraceabilityStatus)
-			{
-				var newAction = new TaxcomDocflowAction
-				{
-					DocFlowState = newStatus.Value,
-					Time = @event.StatusChangeDateTime,
-					TaxcomDocflowId = taxcomDocflow.Id,
-					ErrorMessage = @event.ErrorDescription,
-					TrueMarkTraceabilityStatus = newTraceabilityStatus
-				};
+				|| lastAction.TrueMarkTraceabilityStatus != newTraceabilityStatus;
+			var receiveChanged = taxcomDocflow.IsReceived != @event.IsReceived;
 
-				taxcomDocflow.Actions.Add(newAction);
+			if(statusChanged || receiveChanged)
+			{
+				if(statusChanged)
+				{
+					var newAction = new TaxcomDocflowAction
+					{
+						DocFlowState = newStatus.Value,
+						Time = @event.StatusChangeDateTime,
+						TaxcomDocflowId = taxcomDocflow.Id,
+						ErrorMessage = @event.ErrorDescription,
+						TrueMarkTraceabilityStatus = newTraceabilityStatus
+					};
+
+					taxcomDocflow.Actions.Add(newAction);
+				}
+
 				taxcomDocflow.IsReceived = @event.IsReceived;
 
 				edoDocflowUpdatedEvent = new EdoDocflowUpdatedEvent
 				{
 					EdoDocumentId = taxcomDocflow.EdoDocumentId,
 					DocFlowId = @event.DocFlowId,
-					DocFlowStatus = newAction.DocFlowState.ToString(),
-					TrueMarkTraceabilityStatus = newAction.TrueMarkTraceabilityStatus?.ToString(),
+					DocFlowStatus = newStatus.Value.ToString(),
+					TrueMarkTraceabilityStatus = newTraceabilityStatus?.ToString(),
 					IsReceived = @event.IsReceived
 				};
 
-				if(newAction.DocFlowState == EdoDocFlowStatus.Succeed)
+				if(newStatus.Value == EdoDocFlowStatus.Succeed)
 				{
 					edoDocflowUpdatedEvent.StatusChangeTime = @event.StatusChangeDateTime;
 					//TODO если нужно сохранять файлы по завершению документооборота,

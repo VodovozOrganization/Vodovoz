@@ -37,7 +37,6 @@ namespace EdoDocumentFlowUpdater
 {
 	public class TaxcomEdoDocumentFlowUpdater : BackgroundService
 	{
-		private const string _postDateConfirmation = "PostDateConfirmation";
 		private const string _trueMarkAccepted = "TracingAccepted";
 		private const string _trueMarkRejected = "TracingRejected";
 		private const string _trueMarkCancellationAccepted = "TracingCancellationAccepted";
@@ -255,21 +254,19 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 
-			/*var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
-			var isReceived = recievedStatuses.Contains(docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);*/
-
-			var isReceived = docflow.Documents
-				.FirstOrDefault(x => x.TransactionCode == _postDateConfirmation) != null;
+			var state = TaxcomDocflowStateByTransactions.Resolve(
+				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>(),
+				docflow.Documents?.Select(document => document.TransactionCode));
 
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent
 			{
 				DocFlowId = docflow.Id,
 				MainDocumentId = mainDocument.ExternalIdentifier,
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
-				Status = docflow.Status,
+				Status = state.Status?.ToString() ?? docflow.Status,
 				StatusChangeDateTime = docflow.StatusChangeDateTime,
 				ErrorDescription = docflow.ErrorDescription,
-				IsReceived = isReceived
+				IsReceived = state.IsReceived
 			};
 
 			UpdateTrueMarkTraceabilityInfo(docflow, @event);
@@ -518,14 +515,15 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 			
-			var containerReceived =
-				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value is EdoDocFlowStatus.Sent;
+			var state = TaxcomDocflowStateByTransactions.Resolve(
+				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>(),
+				docflow.Documents?.Select(document => document.TransactionCode));
 
 			container.DocFlowId = docflow.Id;
-			container.Received = containerReceived;
+			container.Received = state.IsReceived;
 			container.InternalId = mainDocument.InternalId;
 			container.ErrorDescription = docflow.ErrorDescription;
-			container.EdoDocFlowStatus = docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value;
+			container.EdoDocFlowStatus = state.Status ?? EdoDocFlowStatus.Unknown;
 
 			if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 			{

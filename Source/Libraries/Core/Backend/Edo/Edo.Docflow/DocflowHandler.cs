@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Edo.Contracts.Messages.Dto;
 using Edo.Contracts.Messages.Events;
 using Edo.Docflow.Factories;
@@ -270,7 +270,8 @@ namespace Edo.Docflow
 				case EdoDocFlowStatus.InProgress:
 					document.Status = EdoDocumentStatus.InProgress;
 
-					if(updatedEvent.DocFlowId.HasValue && updatedEvent.IsReceived)
+					if(TaxcomDocflowStateByTransactions.ShouldMarkAsSent(docflowStatus, updatedEvent.IsReceived)
+						&& document is OrderEdoDocument)
 					{
 						message = OrderDocumentSentEvent.Create(document.Id);
 					}
