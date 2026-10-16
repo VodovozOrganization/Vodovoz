@@ -125,6 +125,20 @@ namespace BitrixNotificationsSend.Client
 			return await SendBatch(commands, cancellationToken);
 		}
 
+		public async Task<Result<BitrixBatchResult>> SendChainStoreDelayDeals(
+			IEnumerable<ChainStoreDelayDealDto> chainStoreDelayDeals,
+			CancellationToken cancellationToken)
+		{
+			var commands = new Dictionary<string, string>();
+
+			foreach(var chainStoreDelayDeal in chainStoreDelayDeals)
+			{
+				commands.Add(chainStoreDelayDeal.DealCommandKey, BitrixCommandBuilder.CreateCommand(_dealAddMethod, chainStoreDelayDeal));
+			}
+
+			return await SendBatch(commands, cancellationToken);
+		}
+
 		public async Task<Result<BitrixBatchResult>> UpdateUndeliveredOrderDeals(
 			IEnumerable<UndeliveredOrderDto> undeliveredOrders,
 			CancellationToken cancellationToken)
