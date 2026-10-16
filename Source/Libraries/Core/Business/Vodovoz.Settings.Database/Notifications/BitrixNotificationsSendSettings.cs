@@ -84,6 +84,27 @@ namespace Vodovoz.Settings.Database.Notifications
 		public DateTime UndeliveredOrdersMinLastEditedTime =>
 			_settingsController.GetDateTimeValue($"{_parametersPrefix}UndeliveredOrdersMinLastEditedTime");
 
+		public bool ChainStoreDelayDealsSendEnabled =>
+			_settingsController.GetBoolValue($"{_parametersPrefix}ChainStoreDelayDealsSendEnabled");
+
+		public TimeSpan ChainStoreDelayDealsSendInterval =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}ChainStoreDelayDealsSendInterval");
+
+		public TimeSpan ChainStoreDelayDealsSendTimeFrom =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}ChainStoreDelayDealsSendTimeFrom");
+
+		public TimeSpan ChainStoreDelayDealsSendTimeTo =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}ChainStoreDelayDealsSendTimeTo");
+
+		public int ChainStoreDelayDealsDaysBeforePaymentDate =>
+			_settingsController.GetIntValue($"{_parametersPrefix}ChainStoreDelayDealsDaysBeforePaymentDate");
+
+		public int ChainStoreDelayDealsCategoryId =>
+			_settingsController.GetIntValue($"{_parametersPrefix}ChainStoreDelayDealsCategoryId");
+
+		public string ChainStoreDelayDealsStageId =>
+			_settingsController.GetStringValue($"{_parametersPrefix}ChainStoreDelayDealsStageId");
+
 		public string PlannedOrdersNewStageId =>
 			_settingsController.GetStringValue($"{_parametersPrefix}PlannedOrdersNewStageId");
 

@@ -15,6 +15,7 @@ namespace BitrixNotificationsSend.Library
 			services.ConfigureOptions<ConfigurePlannedOrdersDealsCreateOptions>();
 			services.ConfigureOptions<ConfigureLastServiceOrdersDealsCreateOptions>();
 			services.ConfigureOptions<ConfigureUndeliveredOrdersDealsCreateOptions>();
+			services.ConfigureOptions<ConfigureChainStoreDelayDealsCreateOptions>();
 
 			services.AddBitrixNotificationsSendClient();
 
