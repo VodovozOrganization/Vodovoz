@@ -34,11 +34,12 @@ namespace Vodovoz.Views.Dialogs.Sale
 			entryStreet.StreetSelected += (sender, args) => ViewModel.SelectStreet(entryStreet.FiasGuid);
 			entryBuilding.FocusOutEvent += (sender, args) => CompleteBuilding();
 
-			ViewModel.CitySelectionChanged += (sender, args) => ApplyCity();
-			ViewModel.StreetSelectionChanged += (sender, args) => ApplyStreet();
-			ViewModel.AddressCleared += (sender, args) => ClearAddress();
-			ViewModel.CoordinatesChanged += (sender, args) => ShowCoordinates();
-			ViewModel.PriceChanged += (sender, args) => ShowPrice();
+			ViewModel.PropertyChanged += (sender, args) =>
+			{
+				ApplyAddress();
+				ShowCoordinates();
+				ShowPrice();
+			};
 
 			MapWidget.MapProvider = GMapProviders.GoogleMap;
 			MapWidget.Position = new PointLatLng(59.93900, 30.31646);
@@ -67,51 +68,31 @@ namespace Vodovoz.Views.Dialogs.Sale
 				longitude);
 		}
 
-		private void ApplyCity()
+		private void ApplyAddress()
 		{
-			ClearBuildingEntry();
-			ClearStreetEntry();
+			if(ViewModel.UpdateCity)
+			{
+				entryCity.FiasGuid = ViewModel.CityFiasGuid;
+				entryCity.CityName = ViewModel.CityName;
+				entryCity.Text = ViewModel.CityText;
+			}
 
-			entryStreet.CityGuid = ViewModel.CityGuid;
-			entryStreet.FireStreetChange();
-			entryBuilding.CityGuid = ViewModel.CityGuid;
-		}
+			if(ViewModel.UpdateStreet)
+			{
+				entryStreet.CityGuid = ViewModel.StreetCityGuid;
+				entryStreet.StreetTypeName = ViewModel.StreetTypeName;
+				entryStreet.StreetTypeNameShort = ViewModel.StreetTypeShort;
+				entryStreet.StreetName = ViewModel.StreetName;
+				entryStreet.StreetDistrict = ViewModel.StreetDistrict;
+				entryStreet.FireStreetChange();
+			}
 
-		private void ApplyStreet()
-		{
-			entryBuilding.StreetGuid = ViewModel.StreetGuid;
-			entryBuilding.BuildingName = string.Empty;
-		}
-
-		private void ClearAddress()
-		{
-			ClearCityEntry();
-			ClearBuildingEntry();
-			ClearStreetEntry();
-		}
-
-		private void ClearCityEntry()
-		{
-			entryCity.FiasGuid = null;
-			entryCity.CityName = string.Empty;
-			entryCity.Text = string.Empty;
-		}
-
-		private void ClearStreetEntry()
-		{
-			entryStreet.CityGuid = null;
-			entryStreet.StreetTypeName = string.Empty;
-			entryStreet.StreetTypeNameShort = string.Empty;
-			entryStreet.StreetName = string.Empty;
-			entryStreet.StreetDistrict = string.Empty;
-			entryStreet.FireStreetChange();
-		}
-
-		private void ClearBuildingEntry()
-		{
-			entryBuilding.StreetGuid = null;
-			entryBuilding.CityGuid = null;
-			entryBuilding.BuildingName = string.Empty;
+			if(ViewModel.UpdateBuilding)
+			{
+				entryBuilding.StreetGuid = ViewModel.BuildingStreetGuid;
+				entryBuilding.CityGuid = ViewModel.BuildingCityGuid;
+				entryBuilding.BuildingName = ViewModel.BuildingName;
+			}
 		}
 
 		private void ShowPrice()

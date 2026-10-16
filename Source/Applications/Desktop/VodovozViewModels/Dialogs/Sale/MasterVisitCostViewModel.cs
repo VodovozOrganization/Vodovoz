@@ -12,28 +12,24 @@ using VodovozBusiness.Domain.Service;
 
 namespace Vodovoz.ViewModels.Dialogs.Sale
 {
-	public class MasterVisitCostViewModel : DialogViewModelBase, IDisposable
+	public class MasterVisitCostViewModel : UowDialogViewModelBase
 	{
+		private const string DialogTitle = "Стоимость выезда мастера";
+
 		private readonly IDeliveryPriceCalculator _deliveryPriceCalculator;
 		private readonly IGeoCoderApiClient _geoCoderApiClient;
 		private readonly IInteractiveService _interactiveService;
-		private readonly IUnitOfWork _unitOfWork;
 
 		public MasterVisitCostViewModel(
-			INavigationManager navigation,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigation,
 			IDeliveryPriceCalculator deliveryPriceCalculator,
 			ICitiesDataLoader citiesDataLoader,
 			IStreetsDataLoader streetsDataLoader,
 			IHousesDataLoader housesDataLoader,
 			IGeoCoderApiClient geoCoderApiClient,
-			IInteractiveService interactiveService) : base(navigation)
+			IInteractiveService interactiveService) : base(unitOfWorkFactory, navigation, UoWTitle: DialogTitle)
 		{
-			if(unitOfWorkFactory is null)
-			{
-				throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			}
-
 			CitiesDataLoader = citiesDataLoader ?? throw new ArgumentNullException(nameof(citiesDataLoader));
 			StreetsDataLoader = streetsDataLoader ?? throw new ArgumentNullException(nameof(streetsDataLoader));
 			HousesDataLoader = housesDataLoader ?? throw new ArgumentNullException(nameof(housesDataLoader));
@@ -41,18 +37,11 @@ namespace Vodovoz.ViewModels.Dialogs.Sale
 			_geoCoderApiClient = geoCoderApiClient ?? throw new ArgumentNullException(nameof(geoCoderApiClient));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
-			Title = "Стоимость выезда мастера";
-			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
-			_unitOfWork.Session.DefaultReadOnly = true;
+			Title = DialogTitle;
+			UoW.Session.DefaultReadOnly = true;
 
 			InsertFromBufferCommand = new DelegateCommand(InsertFromBuffer);
 		}
-
-		public event EventHandler CitySelectionChanged;
-		public event EventHandler StreetSelectionChanged;
-		public event EventHandler AddressCleared;
-		public event EventHandler CoordinatesChanged;
-		public event EventHandler PriceChanged;
 
 		public DelegateCommand InsertFromBufferCommand { get; }
 
@@ -64,9 +53,33 @@ namespace Vodovoz.ViewModels.Dialogs.Sale
 
 		public IHousesDataLoader HousesDataLoader { get; }
 
-		public Guid? CityGuid { get; private set; }
+		public bool UpdateCity { get; private set; }
 
-		public Guid? StreetGuid { get; private set; }
+		public bool UpdateStreet { get; private set; }
+
+		public bool UpdateBuilding { get; private set; }
+
+		public Guid? CityFiasGuid { get; private set; }
+
+		public string CityName { get; private set; }
+
+		public string CityText { get; private set; }
+
+		public Guid? StreetCityGuid { get; private set; }
+
+		public string StreetName { get; private set; }
+
+		public string StreetTypeName { get; private set; }
+
+		public string StreetTypeShort { get; private set; }
+
+		public string StreetDistrict { get; private set; }
+
+		public Guid? BuildingCityGuid { get; private set; }
+
+		public Guid? BuildingStreetGuid { get; private set; }
+
+		public string BuildingName { get; private set; }
 
 		public decimal? Latitude { get; private set; }
 
@@ -80,14 +93,20 @@ namespace Vodovoz.ViewModels.Dialogs.Sale
 
 		public void SelectCity(Guid? cityGuid)
 		{
-			CityGuid = cityGuid;
-			CitySelectionChanged?.Invoke(this, EventArgs.Empty);
+			UpdateCity = false;
+			ClearStreet(cityGuid);
+			ClearBuilding(cityGuid, null);
+			FirePropertyChanged();
 		}
 
 		public void SelectStreet(Guid? streetGuid)
 		{
-			StreetGuid = streetGuid;
-			StreetSelectionChanged?.Invoke(this, EventArgs.Empty);
+			UpdateCity = false;
+			UpdateStreet = false;
+			UpdateBuilding = true;
+			BuildingStreetGuid = streetGuid;
+			BuildingName = string.Empty;
+			FirePropertyChanged();
 		}
 
 		public void CompleteBuilding(
@@ -114,14 +133,12 @@ namespace Vodovoz.ViewModels.Dialogs.Sale
 			UpdatePrice();
 		}
 
-		public void Dispose()
-		{
-			_unitOfWork?.Dispose();
-		}
-
 		private void InsertFromBuffer()
 		{
-			AddressCleared?.Invoke(this, EventArgs.Empty);
+			ClearCity();
+			ClearStreet(null);
+			ClearBuilding(null, null);
+			FirePropertyChanged();
 
 			var hasError = true;
 			var coordinates = ReadClipboardText?.Invoke()?.Split(',');
@@ -144,11 +161,37 @@ namespace Vodovoz.ViewModels.Dialogs.Sale
 			}
 		}
 
+		private void ClearCity()
+		{
+			UpdateCity = true;
+			CityFiasGuid = null;
+			CityName = string.Empty;
+			CityText = string.Empty;
+		}
+
+		private void ClearStreet(Guid? cityGuid)
+		{
+			UpdateStreet = true;
+			StreetCityGuid = cityGuid;
+			StreetName = string.Empty;
+			StreetTypeName = string.Empty;
+			StreetTypeShort = string.Empty;
+			StreetDistrict = string.Empty;
+		}
+
+		private void ClearBuilding(Guid? cityGuid, Guid? streetGuid)
+		{
+			UpdateBuilding = true;
+			BuildingCityGuid = cityGuid;
+			BuildingStreetGuid = streetGuid;
+			BuildingName = string.Empty;
+		}
+
 		private void SetCoordinates(decimal? latitude, decimal? longitude)
 		{
 			Latitude = latitude;
 			Longitude = longitude;
-			CoordinatesChanged?.Invoke(this, EventArgs.Empty);
+			FirePropertyChanged();
 		}
 
 		private void UpdatePrice()
@@ -160,14 +203,14 @@ namespace Vodovoz.ViewModels.Dialogs.Sale
 				Price = null;
 				ServiceDistrict = null;
 				ShowError(price.ErrorMessage);
-				PriceChanged?.Invoke(this, EventArgs.Empty);
+				FirePropertyChanged();
 				return;
 			}
 
 			HasPrice = true;
 			Price = price;
-			ServiceDistrict = _unitOfWork.GetById<ServiceDistrict>(price.ServiceDistrictId);
-			PriceChanged?.Invoke(this, EventArgs.Empty);
+			ServiceDistrict = UoW.GetById<ServiceDistrict>(price.ServiceDistrictId);
+			FirePropertyChanged();
 		}
 
 		private (decimal? Latitude, decimal? Longitude) FindCoordinates(string address)
