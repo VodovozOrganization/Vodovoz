@@ -24,6 +24,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 
@@ -158,6 +159,15 @@ namespace Vodovoz.Domain.Documents
 				throw new ArgumentNullException(nameof(orderEdoRequestRepository));
 			}
 
+			if(!(validationContext.GetService(typeof(ITrueMarkRepository)) is ITrueMarkRepository trueMarkRepository))
+			{
+				throw new ArgumentNullException(nameof(trueMarkRepository));
+			}
+
+			// Коды загружаются один раз на документ и только если проверка кодов нужна
+			var addedCodesCountByItemId = new Lazy<IDictionary<int, int>>(() =>
+				trueMarkRepository.GetSelfDeliveryDocumentItemsProductCodesCount(unitOfWork, Items.Select(x => x.Id)));
+
 			foreach(var item in Items)
 			{
 				if(item.Amount > item.AmountInStock)
@@ -187,7 +197,7 @@ namespace Vodovoz.Domain.Documents
 					   Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded)
 				   && Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
 				   && item.Nomenclature.IsAccountableInTrueMark
-				   && item.Amount > item.TrueMarkProductCodes.Count
+				   && item.Amount > (addedCodesCountByItemId.Value.TryGetValue(item.Id, out var addedCodesCount) ? addedCodesCount : 0)
 				   && Order.Client.IsNewEdoProcessing)
 				{
 					yield return new ValidationResult(

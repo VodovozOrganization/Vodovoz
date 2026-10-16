@@ -56,8 +56,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 			References(x => x.LateArrivalReasonAuthor).Column("late_arrival_reason_author_id");
 			References(x => x.CommentForFineAuthor).Column("comment_for_fine_author_id");
 
-			HasMany(x => x.TrueMarkCodes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_item_id");
-
 			HasManyToMany(x => x.Fines)
 				.Table("fines_to_route_list_addresses")
 				.ParentKeyColumn("route_list_address_id")

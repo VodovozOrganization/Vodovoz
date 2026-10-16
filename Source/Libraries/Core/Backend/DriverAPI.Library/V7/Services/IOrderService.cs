@@ -21,15 +21,17 @@ namespace DriverAPI.Library.V7.Services
 		/// Получить заказ по номеру
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат с DTO заказа</returns>
-		Result<OrderDto> GetOrder(int orderId);
+		Task<Result<OrderDto>> GetOrder(int orderId, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Получить заказы по массиву номеров
 		/// </summary>
 		/// <param name="orderIds">Массив номеров заказов</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Перечисление DTO заказов</returns>
-		IEnumerable<OrderDto> Get(int[] orderIds);
+		Task<IEnumerable<OrderDto>> Get(int[] orderIds, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Изменить тип оплаты заказа

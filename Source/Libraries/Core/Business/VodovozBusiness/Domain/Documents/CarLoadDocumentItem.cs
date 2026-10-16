@@ -160,9 +160,11 @@ namespace Vodovoz.Domain.Documents
 		/// <summary>
 		/// Получение статуса погрузки строки документа погрузки
 		/// </summary>
+		/// <param name="loadedItemsCount">Количество загруженных кодов строки (из запроса кодов по id строки)</param>
+		/// <param name="stagingTrueMarkCodes">Промежуточные коды строки</param>
 		/// <returns></returns>
 		/// <exception cref="InvalidOperationException"></exception>
-		public virtual CarLoadDocumentLoadOperationState GetDocumentItemLoadOperationState(IEnumerable<StagingTrueMarkCode> stagingTrueMarkCodes)
+		public virtual CarLoadDocumentLoadOperationState GetDocumentItemLoadOperationState(int loadedItemsCount, IEnumerable<StagingTrueMarkCode> stagingTrueMarkCodes)
 		{
 			if(OrderId is null)
 			{
@@ -173,8 +175,6 @@ namespace Vodovoz.Domain.Documents
 			{
 				throw new InvalidOperationException("Получение статуса погрузки строки документа погрузки доступно только для товаров категории \"Вода\"");
 			}
-
-			var loadedItemsCount = TrueMarkCodes.Count;
 
 			var state =
 				loadedItemsCount == 0 && stagingTrueMarkCodes.Count() == 0
