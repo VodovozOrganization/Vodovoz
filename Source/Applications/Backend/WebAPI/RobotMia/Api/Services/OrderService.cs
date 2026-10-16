@@ -17,6 +17,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.RobotMia.Api.Exceptions;
@@ -27,7 +28,9 @@ using Vodovoz.RobotMia.Contracts.Responses.V1;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Specifications.Orders;
 using static RobotMiaApi.Errors.RobotMiaErrors;
@@ -66,6 +69,8 @@ namespace Vodovoz.RobotMia.Api.Services
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly IOrderConfirmationService _orderConfirmationService;
+		private readonly IOrderSaleHandler _saleHandler;
+		private readonly IGoodsPriceCalculator _goodsPriceCalculator;
 		private readonly Employee _robotMiaEmployee;
 
 		/// <summary>
@@ -88,6 +93,8 @@ namespace Vodovoz.RobotMia.Api.Services
 		/// <param name="paymentFromBankClientController"></param>
 		/// <param name="contractUpdater"></param>
 		/// <param name="orderConfirmationService"></param>
+		/// <param name="saleHandler"></param>
+		/// <param name="goodsPriceCalculator"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -105,7 +112,10 @@ namespace Vodovoz.RobotMia.Api.Services
 			ICounterpartyContractRepository counterpartyContractRepository,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			IOrderContractUpdater contractUpdater,
-			IOrderConfirmationService orderConfirmationService)
+			IOrderConfirmationService orderConfirmationService,
+			IOrderSaleHandler saleHandler,
+			IGoodsPriceCalculator goodsPriceCalculator
+			)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -135,6 +145,8 @@ namespace Vodovoz.RobotMia.Api.Services
 				?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_orderConfirmationService = orderConfirmationService ?? throw new ArgumentNullException(nameof(orderConfirmationService));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_goodsPriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 
 			_robotMiaEmployee = employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 		}
@@ -290,13 +302,25 @@ namespace Vodovoz.RobotMia.Api.Services
 
 					if(nomenclature.Id == _nomenclatureSettings.ForfeitId)
 					{
-						order.AddNomenclature(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
+						order.AddNomenclature(
+							unitOfWork,
+							_contractUpdater,
+							_saleHandler,
+							_goodsPriceCalculator,
+							NewOrderSaleItem.Create(nomenclature, saleItem.Count)
+							);
 						continue;
 					}
 
 					if(nomenclature.Category == NomenclatureCategory.water)
 					{
-						order.AddWaterForSale(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
+						order.AddWaterForSale(
+							unitOfWork,
+							_contractUpdater,
+							_saleHandler,
+							_goodsPriceCalculator,
+							NewOrderSaleItem.Create(nomenclature, saleItem.Count)
+							);
 					}
 					else if(!nomenclaturesParameters.ContainsKey(nomenclature.Id)
 						|| nomenclaturesParameters[nomenclature.Id].GoodsOnlineAvailability != GoodsOnlineAvailability.ShowAndSale)
@@ -306,11 +330,16 @@ namespace Vodovoz.RobotMia.Api.Services
 					}
 					else
 					{
-						order.AddNomenclature(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
+						order.AddNomenclature(
+							unitOfWork,
+							_contractUpdater,
+							_saleHandler,
+							_goodsPriceCalculator,
+							NewOrderSaleItem.Create(nomenclature, saleItem.Count)
+							);
 					}
 				}
 
-				order.RecalculateItemsPrice();
 				var deliveryCostResult = _vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
 
 				if(!deliveryCostResult.IsFailure)
@@ -471,7 +500,13 @@ namespace Vodovoz.RobotMia.Api.Services
 
 				if(nomenclature.Id == _nomenclatureSettings.ForfeitId)
 				{
-					order.AddNomenclature(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
+					order.AddNomenclature(
+						unitOfWork,
+						_contractUpdater,
+						_saleHandler,
+						_goodsPriceCalculator,
+						NewOrderSaleItem.Create(nomenclature, saleItem.Count)
+						);
 					continue;
 				}
 
@@ -483,18 +518,27 @@ namespace Vodovoz.RobotMia.Api.Services
 
 				if(nomenclature.Category == NomenclatureCategory.water)
 				{
-					order.AddWaterForSale(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
+					order.AddWaterForSale(
+						unitOfWork,
+						_contractUpdater,
+						_saleHandler,
+						_goodsPriceCalculator,
+						NewOrderSaleItem.Create(nomenclature, saleItem.Count)
+						);
 				}
 				else
 				{
-					order.AddNomenclature(unitOfWork, _contractUpdater, nomenclature, saleItem.Count);
+					order.AddNomenclature(
+						unitOfWork,
+						_contractUpdater,
+						_saleHandler,
+						_goodsPriceCalculator,
+						NewOrderSaleItem.Create(nomenclature, saleItem.Count)
+						);
 				}
 			}
 
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
-			order.RecalculateItemsPrice();
-			_vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
-			
 			var deliveryCostResult = _vodovozOrderService.UpdateDeliveryCost(unitOfWork, order);
 
 			if(!deliveryCostResult.IsFailure)

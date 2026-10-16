@@ -1,8 +1,4 @@
 ﻿using Autofac;
-using Mango.Client;
-using CustomerNotifications.Contracts;
-using Notifications.Infrastructure;
-using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -11,25 +7,19 @@ using QSReport;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using Mango.Client;
+using QS.Commands;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Reports;
-using Vodovoz.Services.Logistics;
-using Vodovoz.Settings.Nomenclature;
-using Vodovoz.TempAdapters;
-using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.Services.Orders;
 using Vodovoz.Views.Mango;
 using VodovozBusiness.EntityRepositories.Nodes;
-using VodovozBusiness.NotificationSenders;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 {
@@ -37,86 +27,43 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IRouteListRepository _routedListRepository;
-		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IInteractiveService _interactiveService;
-		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IUnitOfWork _uow;
-		private readonly ICallTaskWorker _callTaskWorker;
-		private readonly IRouteListService _routeListService;
-		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
-		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private readonly OrderCancellationService _orderCancellationService;
-		private readonly OrderCancellationPermitService _orderCancellationPermitService;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
+		private ILifetimeScope _scope;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
 
 		public Counterparty currentCounterparty { get;private set; }
 		public event Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
+		//TODO-5967 проверить инициализацию окна звонка
 		public CounterpartyTalkViewModel(
+			ILifetimeScope scope,
 			ITdiCompatibilityNavigation tdinavigation,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IRouteListRepository routedListRepository,
-			IRouteListItemRepository routeListItemRepository,
 			IInteractiveService interactiveService,
-			MangoManager manager,
-			INomenclatureSettings nomenclatureSettings,
 			IOrderRepository orderRepository,
-			ICallTaskWorker callTaskWorker,
-			IRouteListService routeListService,
-			IRouteListChangesNotificationSender routeListChangesNotificationSender,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
-			IGtkTabsOpener gtkTabsOpener,
-			OrderCancellationService orderCancellationService,
-			OrderCancellationPermitService orderCancellationPermitService
+			MangoManager manager
 			)
 			: base(tdinavigation, manager)
 		{
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(tdinavigation));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_routedListRepository = routedListRepository ?? throw new ArgumentNullException(nameof(routedListRepository));
-			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_uow = _unitOfWorkFactory.CreateWithoutRoot();
-			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
-			_routeListChangesNotificationSender =
-				routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
-			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
-			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
-			_orderCancellationPermitService =
-				orderCancellationPermitService ?? throw new ArgumentNullException(nameof(orderCancellationPermitService));
-			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 
 			if(ActiveCall.CounterpartyIds.Any())
 			{
 				var clients = _uow.GetById<Counterparty>(ActiveCall.CounterpartyIds);
 
-				foreach(Counterparty client in clients)
+				foreach(var client in clients)
 				{
-					var model = new CounterpartyOrderViewModel(
-						client,
-						_gtkTabsOpener,
-						_unitOfWorkFactory,
-						tdinavigation,
-						_interactiveService,
-						routedListRepository,
-						MangoManager,
-						_nomenclatureSettings,
-						_callTaskWorker,
-						_orderRepository,
-						_routeListItemRepository,
-						_routeListService,
-						_routeListChangesNotificationSender,
-						_orderCancellationService,
-						_orderCancellationPermitService,
-						_customerNotificationPublisher
+					var model = _scope.Resolve<CounterpartyOrderViewModel>(
+						new TypedParameter(typeof(Counterparty), client)
 						);
 
 					CounterpartyOrdersViewModels.Add(model);
@@ -171,27 +118,11 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		{
 			if(e.CloseSource == CloseSource.Save)
 			{
-				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
+				var client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
 				
-				var model = 
-					new CounterpartyOrderViewModel(
-						client,
-						_gtkTabsOpener,
-						_unitOfWorkFactory,
-						_tdiNavigation,
-						_interactiveService,
-						_routedListRepository,
-						MangoManager,
-						_nomenclatureSettings,
-						_callTaskWorker,
-						_orderRepository,
-						_routeListItemRepository,
-						_routeListService,
-						_routeListChangesNotificationSender,
-						_orderCancellationService,
-						_orderCancellationPermitService,
-						_customerNotificationPublisher
-						);
+				var model = _scope.Resolve<CounterpartyOrderViewModel>(
+					new TypedParameter(typeof(Counterparty), client)
+				);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -204,7 +135,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		void OnExistingCounterpartyPageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
-			Counterparty client = _uow.GetById<Counterparty>(counterpartyNode.Id);
+			var client = _uow.GetById<Counterparty>(counterpartyNode.Id);
 			if(!CounterpartyOrdersViewModels.Any(c => c.Client.Id == client.Id)) {
 				if(_interactiveService.Question($"Добавить телефон к контрагенту {client.Name} ?", "Телефон контрагента")) 
 				{
@@ -214,25 +145,9 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 					_uow.Commit();
 				}
 
-				var model =
-					new CounterpartyOrderViewModel(
-						client,
-						_gtkTabsOpener,
-						_unitOfWorkFactory,
-						_tdiNavigation,
-						_interactiveService,
-						_routedListRepository,
-						MangoManager,
-						_nomenclatureSettings,
-						_callTaskWorker,
-						_orderRepository,
-						_routeListItemRepository,
-						_routeListService,
-						_routeListChangesNotificationSender,
-						_orderCancellationService,
-						_orderCancellationPermitService,
-						_customerNotificationPublisher
-						);
+				var model = _scope.Resolve<CounterpartyOrderViewModel>(
+					new TypedParameter(typeof(Counterparty), client)
+				);
 				
 				CounterpartyOrdersViewModels.Add(model);
 				currentCounterparty = client;
@@ -369,6 +284,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			}
 
 			_uow?.Dispose();
+			_scope = null;
 		}
 	}
 }

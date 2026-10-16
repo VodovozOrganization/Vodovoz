@@ -17,6 +17,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.Core.Domain.Orders;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -25,6 +26,7 @@ namespace Vodovoz.ViewWidgets
 	{
 		private IList<int> _activeFlyersNomenclaturesIds;
 		private IFlyerRepository _flyerRepository;
+		private IOrderSaleHandler _saleHandler;
 		public IUnitOfWork UoW { get; set; }
 
 		public Order Order { get; set; }
@@ -54,12 +56,19 @@ namespace Vodovoz.ViewWidgets
 		/// </summary>
 		int treeAnyGoodsFirstColWidth;
 
-		public void Configure(IUnitOfWork uow, Order order, IFlyerRepository flyerRepository)
+		public void Configure(
+			IUnitOfWork uow,
+			Order order,
+			IFlyerRepository flyerRepository,
+			IOrderSaleHandler saleHandler
+			)
 		{
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			
 			UoW = uow;
 			Order = order;
+			
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			UpdateActiveFlyersNomenclaturesIds();
 
 			buttonDeleteEquipment.Sensitive = false;
@@ -395,7 +404,8 @@ namespace Vodovoz.ViewWidgets
 
 		void AddNomenclatureToClient(Nomenclature nomenclature)
 		{
-			Order.AddEquipmentNomenclatureToClient(nomenclature, UoW);
+			Order.AddEquipmentNomenclatureToClient(nomenclature);
+			_saleHandler.UpdateRentsCount();
 		}
 
 		protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
@@ -441,7 +451,9 @@ namespace Vodovoz.ViewWidgets
 
 		void AddNomenclatureFromClient(Nomenclature nomenclature)
 		{
-			Order.AddEquipmentNomenclatureFromClient(nomenclature, UoW);
+			Order.AddEquipmentNomenclatureFromClient(nomenclature);
+			Order.UpdateDocuments();
+			_saleHandler.UpdateRentsCount();
 		}
 	}
 }

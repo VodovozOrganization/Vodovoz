@@ -13,6 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -25,6 +26,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly IOrderSaleHandler _saleHandler;
 
 		public OrderConfirmationService(
 			IFastDeliveryHandler fastDeliveryHandler,
@@ -32,7 +34,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			IOrderContractUpdater orderContractUpdater,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			IOrderSaleHandler saleHandler
 			)
 		{
 			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));
@@ -42,6 +45,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 		}
 
 		public async Task<Result<bool>> TryAcceptOrderCreatedByOnlineOrderAsync(
@@ -92,7 +96,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		public void AcceptOrder(IUnitOfWork uow, Employee employee, Order order, bool needUpdateContract = true)
 		{
-			order.AcceptOrder(employee, _callTaskWorker);
+			order.AcceptOrder(employee, _callTaskWorker, _saleHandler);
 			order.SaveEntity(
 				uow, 
 				_orderContractUpdater, 

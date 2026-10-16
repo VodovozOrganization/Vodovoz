@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
+using QS.Project.DB;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Nodes;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Nodes;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
@@ -91,6 +88,72 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List<VodovozOrder>();
 
 			return result.Count != 0;
+		}
+
+		/// <inheritdoc/>
+		public IEnumerable<OnlineOrderPromoSetNode> GetOnlineOrderPromoSetsData(IUnitOfWork uow, int onlineOrderId)
+		{
+			OnlineOrderPromoSet onlinePromoSetAlias = null;
+			PromotionalSet promoSetAlias = null;
+			DiscountReasonBase discountReasonAlias = null;
+			OnlineOrderPromoSetNode resultAlias = null;
+			
+			var query = uow.Session.QueryOver(() => onlinePromoSetAlias)
+				.JoinAlias(() => onlinePromoSetAlias.PromoSet, () => promoSetAlias)
+				.Left.JoinAlias(() => onlinePromoSetAlias.DiscountReasons, () => discountReasonAlias)
+				.Where(() => onlinePromoSetAlias.OnlineOrder.Id == onlineOrderId)
+				.SelectList(list => list
+					.SelectGroup(() => onlinePromoSetAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => promoSetAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => onlinePromoSetAlias.Count).WithAlias(() => resultAlias.Count)
+					.Select(() => onlinePromoSetAlias.Price).WithAlias(() => resultAlias.ReceivedPrice)
+					.Select(CustomProjections.GroupConcat(() => discountReasonAlias.Name)).WithAlias(() => resultAlias.DiscountReasonNames)
+				)
+				.TransformUsing(Transformers.AliasToBean<OnlineOrderPromoSetNode>());
+			
+			return query.List<OnlineOrderPromoSetNode>();
+		}
+
+		/// <inheritdoc/>
+		public IEnumerable<OnlineOrderPromoSetItemNode> GetOnlineOrderPromoSetItemsData(IUnitOfWork uow, int onlineOrderId)
+		{
+			var itemsQuery =
+				from onlinePromoSet in uow.Session.Query<OnlineOrderPromoSet>()
+				join promoSet in uow.Session.Query<PromotionalSet>()
+					on onlinePromoSet.PromoSet.Id equals promoSet.Id
+				join promoSetItem in uow.Session.Query<PromotionalSetItem>()
+					on promoSet.Id equals promoSetItem.PromoSet.Id
+				join nomenclature in uow.Session.Query<Nomenclature>()
+					on promoSetItem.Nomenclature.Id equals nomenclature.Id
+				join dependNomenclature in uow.Session.Query<Nomenclature>()
+					on nomenclature.DependsOnNomenclature equals dependNomenclature into groupDependNomenclatures
+				from dependNomenclature in groupDependNomenclatures.DefaultIfEmpty()
+				where onlinePromoSet.OnlineOrder.Id == onlineOrderId
+
+				let nomenclaturePrice =
+					from price in uow.Session.Query<NomenclaturePrice>()
+					where price.Nomenclature.Id == nomenclature.Id
+						&& price.MinCount == 1
+					select price.Price
+				
+				let dependNomenclaturePrice =
+					from dependPrice in uow.Session.Query<NomenclaturePrice>()
+					where dependPrice.Nomenclature.Id == dependNomenclature.Id
+						&& dependPrice.MinCount == 1
+					select dependPrice.Price
+
+				select new OnlineOrderPromoSetItemNode
+				{
+					Id = promoSetItem.Id,
+					OnlinePromoSetId = onlinePromoSet.Id,
+					Name = nomenclature.Name,
+					Count = promoSetItem.Count * onlinePromoSet.Count,
+					IsDiscountInMoney = promoSetItem.IsDiscountInMoney,
+					DiscountMoney = promoSetItem.DiscountMoney,
+					NomenclaturePrice = dependNomenclature != null ? dependNomenclaturePrice.FirstOrDefault() : nomenclaturePrice.FirstOrDefault()
+				};
+			
+			return itemsQuery.ToList();
 		}
 
 		private string GetBuildingNumber(string building)

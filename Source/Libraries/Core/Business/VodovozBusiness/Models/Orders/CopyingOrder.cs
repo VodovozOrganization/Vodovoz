@@ -4,10 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Models.Orders
@@ -20,6 +24,7 @@ namespace Vodovoz.Models.Orders
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IFlyerRepository _flyerRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IOrderSaleHandler _saleHandler;
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
 		private readonly int _fastDeliveryNomenclatureId;
@@ -32,7 +37,9 @@ namespace Vodovoz.Models.Orders
 			Order resultOrder,
 			INomenclatureSettings nomenclatureSettings,
 			IFlyerRepository flyerRepository,
-			IOrderContractUpdater contractUpdater)
+			IOrderContractUpdater contractUpdater,
+			IOrderSaleHandler saleHandler
+			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_copiedOrder = copiedOrder ?? throw new ArgumentNullException(nameof(copiedOrder));
@@ -47,6 +54,8 @@ namespace Vodovoz.Models.Orders
 				nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_saleHandler.SetSource(_resultOrder);
 
 			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
 			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
@@ -198,7 +207,8 @@ namespace Vodovoz.Models.Orders
 				CopyDependentOrderEquipment(orderItem);
 			}
 
-			_resultOrder.RecalculateItemsPrice();
+			//TODO-5967 проверить правильность пересчета цены
+			//_resultOrder.RecalculateItemsPrice();
 
 			return this;
 		}
@@ -228,7 +238,8 @@ namespace Vodovoz.Models.Orders
 				CopyDependentOrderEquipment(orderItem);
 			}
 
-			_resultOrder.RecalculateItemsPrice();
+			//TODO-5967 проверить правильность пересчета цены
+			//_resultOrder.RecalculateItemsPrice();
 
 			return this;
 		}
@@ -286,6 +297,8 @@ namespace Vodovoz.Models.Orders
 			{
 				CopyOrderEquipment(orderEquipment);
 			}
+			
+			_saleHandler.UpdateRentsCount();
 
 			return this;
 		}
@@ -384,6 +397,9 @@ namespace Vodovoz.Models.Orders
 			{
 				CopyOrderEquipment(orderEquipment);
 			}
+			
+			//TODO-5967 возможно стоит вынести пересчет выше, в вызываемый класс
+			_saleHandler.UpdateRentsCount();
 		}
 
 		private void CopyOrderItem(
@@ -392,7 +408,11 @@ namespace Vodovoz.Models.Orders
 			bool withPrices = false,
 			bool isCopiedFromUndelivery = false)
 		{
-			var newOrderItem = OrderItem.CreateForSale(_resultOrder, orderItem.Nomenclature, orderItem.Count, orderItem.Price);
+			var newOrderItem = OrderItem.CreateForSale(
+				_saleHandler,
+				_resultOrder,
+				NewOrderSaleItem.Create(orderItem.Nomenclature, orderItem.Count, (SaleItemPriceType.General, orderItem.Price))
+			);
 			
 			newOrderItem.PromoSet = orderItem.PromoSet;
 			newOrderItem.IsUserPrice = withPrices;
@@ -409,7 +429,7 @@ namespace Vodovoz.Models.Orders
 				CopyingDiscounts(orderItem, newOrderItem, _needCopyStockBottleDiscount);
 			}
 
-			_resultOrder.AddOrderItem(_uow, _contractUpdater, newOrderItem);
+			_resultOrder.AddOrderItem(_uow, _contractUpdater, _saleHandler, newOrderItem);
 		}
 
 		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo, bool withStockBottleDiscount)
@@ -418,11 +438,11 @@ namespace Vodovoz.Models.Orders
 
 			if(orderItemFrom.DiscountMoney > 0 && orderItemFrom.Discount > 0 && (orderItemFrom.DiscountReasons.Any() || isPromoset))
 			{
-				orderItemTo.SetDiscount(orderItemFrom.IsDiscountInMoney, orderItemFrom.Discount, orderItemFrom.DiscountMoney, orderItemFrom.DiscountReasons);
+				_saleHandler.CopyDiscounts(_uow, orderItemTo, orderItemFrom);
 			}
 			else if(orderItemFrom.OriginalDiscountMoney > 0 && orderItemFrom.OriginalDiscount > 0 && (orderItemFrom.OriginalDiscountReasons.Any() || isPromoset))
 			{
-				orderItemTo.SetDiscount(orderItemFrom.IsDiscountInMoney, orderItemFrom.OriginalDiscount.Value, orderItemFrom.OriginalDiscountMoney.Value, orderItemFrom.OriginalDiscountReasons);
+				_saleHandler.CopyOriginalDiscounts(_uow, orderItemTo, orderItemFrom);
 			}
 
 			if(withStockBottleDiscount)
@@ -433,21 +453,7 @@ namespace Vodovoz.Models.Orders
 
 		private void CopyOrderEquipment(OrderEquipment orderEquipment)
 		{
-			var newOrderEquipment = new OrderEquipment
-			{
-				Order = _resultOrder,
-				Direction = orderEquipment.Direction,
-				DirectionReason = orderEquipment.DirectionReason,
-				OrderItem = orderEquipment.OrderItem,
-				Equipment = orderEquipment.Equipment,
-				OwnType = orderEquipment.OwnType,
-				Nomenclature = orderEquipment.Nomenclature,
-				Reason = orderEquipment.Reason,
-				Confirmed = orderEquipment.Confirmed,
-				ConfirmedComment = orderEquipment.ConfirmedComment,
-				Count = orderEquipment.Count
-			};
-
+			var newOrderEquipment = OrderEquipment.CreateNewFromOther(_copiedOrder, orderEquipment);
 			_resultOrder.ObservableOrderEquipments.Add(newOrderEquipment);
 		}
 	}

@@ -8,22 +8,22 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -34,7 +34,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		PrepositionalPlural = "счетах без отгрузки на предоплату")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class OrderWithoutShipmentForAdvancePayment : OrderWithoutShipmentBase, IDomainObject, IPrintableRDLDocument, IEmailableDocument, IValidatableObject
+	public class OrderWithoutShipmentForAdvancePayment :
+		OrderWithoutShipmentBase,
+		IDomainObject,
+		IPrintableRDLDocument,
+		IEmailableDocument,
+		IRecalculateTaxSource,
+		ISaleSource,
+		IValidatableObject
 	{
 		public virtual int Id { get; set; }
 		
@@ -58,49 +65,40 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 		}
 
-		public virtual void RecalculateItemsPrice()
+		public virtual void AddNewNomenclatureWithoutDiscount(
+			Nomenclature nomenclature,
+			ISaleHandler saleHandler,
+			int count = 0,
+			PromotionalSet proSet = null)
 		{
-			foreach(OrderWithoutShipmentForAdvancePaymentItem item in ObservableOrderWithoutDeliveryForAdvancePaymentItems) {
-				if(item.Nomenclature.Category == NomenclatureCategory.water) {
-					item.RecalculatePrice();
-				}
-			}
+			var canApplyAlternativePrice =
+				HasPermissionsForAlternativePrice
+				&& nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
+
+			var oi = OrderWithoutShipmentForAdvancePaymentItem
+				.Create(this, count, nomenclature, nomenclature.GetPrice(1, canApplyAlternativePrice));
+
+			AddItemWithNomenclatureForSale(oi, saleHandler);
 		}
 
-		public virtual int GetTotalWater19LCount()
+		private void AddItemWithNomenclatureForSale(
+			OrderWithoutShipmentForAdvancePaymentItem saleItem,
+			ISaleHandler saleHandler)
 		{
-			var water19L =
-				ObservableOrderWithoutDeliveryForAdvancePaymentItems.Where(x => x.Nomenclature.IsWater19L);
+			var canApplyAlternativePrice =
+				HasPermissionsForAlternativePrice 
+				&& saleItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= saleItem.Count);
 
-			return (int)water19L.Sum(x => x.Count);
-		}
-
-		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, bool discountInMoney = false, DiscountReason discountReason = null, PromotionalSet proSet = null)
-		{
-			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
-			                               && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
-
-			OrderWithoutShipmentForAdvancePaymentItem oi = new OrderWithoutShipmentForAdvancePaymentItem {
-				OrderWithoutDeliveryForAdvancePayment = this,
-				Count = count,
-				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1, canApplyAlternativePrice)
-			};
-
-			oi.AddDiscount(discountInMoney, discount, discountReason);
-			AddItemWithNomenclatureForSale(oi);
-		}
-
-		public virtual void AddItemWithNomenclatureForSale(OrderWithoutShipmentForAdvancePaymentItem orderItem)
-		{
-			var canApplyAlternativePrice = HasPermissionsForAlternativePrice 
-			                               && orderItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= orderItem.Count);
-			var acceptableCategories = Nomenclature.GetCategoriesForSale();
-			if(orderItem?.Nomenclature == null || !acceptableCategories.Contains(orderItem.Nomenclature.Category))
+			var acceptableCategories = NomenclatureEntity.GetCategoriesForSale();
+			
+			if(saleItem?.Nomenclature == null || !acceptableCategories.Contains(saleItem.Nomenclature.Category))
+			{
 				return;
+			}
 
-			orderItem.IsAlternativePrice = canApplyAlternativePrice;
-			ObservableOrderWithoutDeliveryForAdvancePaymentItems.Add(orderItem);
+			saleItem.IsAlternativePrice = canApplyAlternativePrice;
+			ObservableOrderWithoutDeliveryForAdvancePaymentItems.Add(saleItem);
+			saleHandler.Recalculate();
 		}
 
 		public virtual void RemoveItem(OrderWithoutShipmentForAdvancePaymentItem item)
@@ -122,10 +120,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				}
 			}
 		}
-		
-		
 
 		#region implemented abstract members of IPrintableRDLDocument
+		
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
@@ -142,6 +139,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			return reportInfo;
 		}
 		public virtual Dictionary<object, object> Parameters { get; set; }
+		
 		#endregion
 
 		public virtual string Title => string.Format($"Счет №Ф{Id} от {CreateDate:d} {SpecialContractNumber}");
@@ -232,7 +230,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				);
 			}
 
-			if (Client == null)
+			if(Client == null)
 				yield return new ValidationResult(
 					"Необходимо заполнить контрагента.",
 					new[] {nameof(Client)}
@@ -246,5 +244,21 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		}
 
 		public virtual int DocumentId => Id;
+
+		#region IRecalculateTaxSource implementation
+
+		public virtual DateTime? DeliveryDate => null;
+		IUsnModeOrganization IRecalculateTaxSource.Organization => Organization;
+
+		#endregion
+
+		#region ISaleSource implementation
+
+		public virtual DeliveryPoint DeliveryPoint => null;
+		public virtual Counterparty Counterparty => Client;
+
+		public virtual IEnumerable<ISaleItem> SaleItems => OrderWithoutDeliveryForAdvancePaymentItems;
+
+		#endregion
 	}
 }

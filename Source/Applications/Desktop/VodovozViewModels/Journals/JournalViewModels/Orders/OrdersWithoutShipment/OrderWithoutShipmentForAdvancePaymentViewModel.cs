@@ -17,6 +17,7 @@ using System;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
@@ -41,6 +42,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Widgets.Orders;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Errors.Edo;
 using EdoDocumentType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
@@ -87,6 +89,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEdoService edoService,
 			IOrganizationSettings organizationSettings,
 			IOrderSettings orderSettings,
+			ISaleHandler saleHandler,
+			ISaleDiscountController saleDiscountController,
 			ViewModelEEVMBuilder<Organization> organizationViewModelEEVMBuilder,
 			OrderItemDiscountReasonsViewModel orderItemDiscountReasonsViewModel)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
@@ -99,6 +103,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_emailRepository = emailRepository;
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			InitializeSaleHandler(saleHandler);
 			OrderItemDiscountReasonsViewModel = orderItemDiscountReasonsViewModel ?? throw new ArgumentNullException(nameof(orderItemDiscountReasonsViewModel));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
@@ -153,7 +158,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 
-			OrderItemDiscountReasonsViewModel.Initialize(UoW);
+			OrderItemDiscountReasonsViewModel.Initialize(
+				UoW, saleDiscountController ?? throw new ArgumentNullException(nameof(saleDiscountController)));
 
 			UpdateEdoContainers();
 			InitializeCommands();
@@ -161,6 +167,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
+		private void InitializeSaleHandler(ISaleHandler saleHandler)
+		{
+			SaleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			SaleHandler.SetSource(Entity);
+		}
+		
 		private void OnOrganizationViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			UpdateEmails();
@@ -174,6 +186,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		}
 
 		public OrderItemDiscountReasonsViewModel OrderItemDiscountReasonsViewModel { get; }
+		public ISaleHandler SaleHandler { get; private set; }
 
 		public bool CanSendBillByEdo => Entity.Client?.NeedSendBillByEdo ?? false && !EdoContainers.Any();
 
@@ -338,7 +351,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 							return;
 						}
 
-						TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+						TryAddNewNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
 					};
 					
 					TabParent.AddSlaveTab(this, journalViewModel);
@@ -415,7 +428,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			return true;
 		}
 
-		private void TryAddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
+		private void TryAddNewNomenclature(Nomenclature nomenclature, int count = 0)
 		{
 			if(nomenclature.OnlineStore != null && !_canAddOnlineStoreNomenclaturesToOrder)
 			{
@@ -423,7 +436,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				return;
 			}
 
-			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
+			Entity.AddNewNomenclatureWithoutDiscount(nomenclature, SaleHandler, count);
 		}
 		
 		private bool IsOnlineStoreOrderWithoutShipment(OrderWithoutShipmentForAdvancePayment order)
@@ -437,11 +450,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			if(SelectedItem != null
 				&& SelectedItem is OrderWithoutShipmentForAdvancePaymentItem orderItem)
 			{
-				OrderItemDiscountReasonsViewModel.SetOrderItem(orderItem);
+				OrderItemDiscountReasonsViewModel.SetSaleItem(orderItem);
 				return;
 			}
 
-			OrderItemDiscountReasonsViewModel.ResetOrderItem();
+			OrderItemDiscountReasonsViewModel.ResetSaleItem();
 		}
 
 		public override void Dispose()

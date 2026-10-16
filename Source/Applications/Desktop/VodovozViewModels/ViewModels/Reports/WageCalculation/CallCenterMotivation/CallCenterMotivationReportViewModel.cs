@@ -361,7 +361,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 			var includedOrganizations = organizationsFilter.GetIncluded().ToArray();
 			var excludedOrganizations = organizationsFilter.GetExcluded().ToArray();
 
-			var discountReasonsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<DiscountReason>>();
+			var discountReasonsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<DiscountReasonBase>>();
 			var includedDiscountReasons = discountReasonsFilter.GetIncluded().ToArray();
 			var excludedDiscountReasons = discountReasonsFilter.GetExcluded().ToArray();
 
@@ -397,7 +397,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 			CounterpartyContract counterpartyContractAlias = null;
 			Organization organizationAlias = null;
 			Phone orderContactPhoneAlias = null;
-			DiscountReason discountReasonAlias = null;
+			DiscountReasonBase discountReasonAlias = null;
 
 			CallCenterMotivationReportOrderItemNode resultNodeAlias = null;
 
