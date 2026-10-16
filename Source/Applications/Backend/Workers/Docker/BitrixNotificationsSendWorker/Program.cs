@@ -1,6 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using BitrixNotificationsSend.Library;
 using BitrixNotificationsSendWorker.CashlessDebts;
+using BitrixNotificationsSendWorker.ChainStoreDelay;
 using BitrixNotificationsSendWorker.LastServiceOrders;
 using BitrixNotificationsSendWorker.PlannedOrders;
 using BitrixNotificationsSendWorker.UndeliveredOrders;
@@ -76,6 +77,7 @@ namespace BitrixNotificationsSendWorker
 					services.AddHostedService<PlannedOrdersDealsCreateWorker>();
 					services.AddHostedService<LastServiceOrdersDealsCreateWorker>();
 					services.AddHostedService<UndeliveredOrdersDealsCreateWorker>();
+					services.AddHostedService<ChainStoreDelayDealsCreateWorker>();
 				});
 	}
 }
