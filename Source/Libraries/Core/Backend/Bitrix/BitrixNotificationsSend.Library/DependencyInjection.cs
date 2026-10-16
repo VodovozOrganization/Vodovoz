@@ -25,6 +25,8 @@ namespace BitrixNotificationsSend.Library
 			services.AddTransient<IUndeliveredOrdersDealsCreateService, UndeliveredOrdersDealsCreateService>();
 			services.AddTransient<IBitrixBatchesSendService, BitrixBatchesSendService>();
 			services.AddTransient<ILastServiceOrderDtoFactory, LastServiceOrderDtoFactory>();
+			services.AddTransient<IChainStoreDelayBitrixDealFactory, ChainStoreDelayBitrixDealFactory>();
+			services.AddTransient<IChainStoreDelayDealsCreateService, ChainStoreDelayDealsCreateService>();
 
 			return services;
 		}
