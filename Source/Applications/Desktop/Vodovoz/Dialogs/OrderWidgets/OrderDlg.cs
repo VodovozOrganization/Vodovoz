@@ -4139,8 +4139,7 @@ namespace Vodovoz
 						continue;
 				}
 			}
-			//TODO-5967 проверить пересчет
-			//Entity.RecalculateItemsPrice();
+
 			UpdateOrderAddressTypeWithUI();
 		}
 		#endregion
@@ -4977,8 +4976,7 @@ namespace Vodovoz
 				SetDiscountUnitEditable();
 				spinDiscount.ValueAsDecimal = 0;
 				SetDiscountEditable();
-				//TODO-5967 доработать удаление
-				//_discountsController.ClearOrdersItemDiscounts(Entity.ObservableOrderItems);
+				_discountsController.ClearDiscounts(Entity.ObservableOrderItems);
 			}
 		}
 
@@ -5231,15 +5229,6 @@ namespace Vodovoz
 
 					FixPrice(aIdx[0]);
 
-					//TODO-5967 почему это здесь? Признак альтернативной цены должен устанавливаться в установке цены
-					/*if(oItem?.CopiedFromUndelivery == null)
-					{
-						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(true, true) : oItem.Count;
-						oItem.IsAlternativePrice = Entity.HasPermissionsForAlternativePrice
-							&& oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
-							&& oItem.GetWaterFixedPrice() == null;
-					}*/
-
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
 					{
 						HboxReturnTareReasonCategoriesShow();
@@ -5324,7 +5313,6 @@ namespace Vodovoz
 		/// товаров заказа, в списке оборудования дополнительного соглашения и
 		/// меняет количество залогов за оборудование в списке товаров заказа
 		/// </summary>
-		[Obsolete("Перенести всю логику в OrderSaleHandler")]
 		private void ChangeEquipmentsCount(OrderItem orderItem, int newCount)
 		{
 			var orderEquip = Entity.OrderEquipments.FirstOrDefault(x => x.OrderItem == orderItem);

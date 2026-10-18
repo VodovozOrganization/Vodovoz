@@ -309,6 +309,15 @@ namespace Vodovoz.Core.Application.Sale
 			return promoSetItemsWithDiscounts;
 		}
 
+		/// <inheritdoc/>
+		public virtual void ClearDiscounts(IEnumerable<IApplyDiscountReasonItem> saleItems)
+		{
+			foreach(var saleItem in saleItems)
+			{
+				ClearDiscounts(saleItem);
+			}
+		}
+
 		protected virtual void CalculateAndSetDiscount(IApplyDiscountReasonItem saleItem, IDiscountValue newDiscount)
 		{
 			var discountValue = CalculateDiscount(saleItem, newDiscount);
@@ -325,18 +334,6 @@ namespace Vodovoz.Core.Application.Sale
 			saleItem.DiscountReasons.Clear();
 			saleItem.PersonalDiscount = null;
 			saleItem.SetDiscount(DiscountValue.CreateZero());
-		}
-		
-		/// <summary>
-		/// Удаление скидок из позиций на продажу
-		/// </summary>
-		/// <param name="saleItems">Продаваемые позиции</param>
-		protected virtual void ClearDiscounts(IEnumerable<IApplyDiscountReasonItem> saleItems)
-		{
-			foreach(var saleItem in saleItems)
-			{
-				ClearDiscounts(saleItem);
-			}
 		}
 
 		/// <summary>

@@ -94,7 +94,6 @@ namespace Vodovoz.Core.Application.Sale
 
 		protected virtual void RecalculateItemsPrice()
 		{
-			//TODO-5967 проверить работу метода, т.к. в заказе могут добавляться или исключаться позиции по вызовам событий
 			foreach(var saleItem in Source.SaleItems.ToList())
 			{
 				if(saleItem.Nomenclature.Category == NomenclatureCategory.water)
@@ -118,44 +117,6 @@ namespace Vodovoz.Core.Application.Sale
 			(SaleItemPriceType PriceType, decimal Price) calculatedPriceData,
 			ISpecificationTwoArgs specification)
 		{
-			//TODO-5967 проверить алгоритм установки булевых параметров. Также пользователь может вернуть цену у позиции, где есть фикса, поэтому нужно проработать и этот вариант
-			
-			/*if(specification.IsSatisfiedBy(saleItem, receivedPriceData))
-			{
-				saleItem.IsUserPrice = true;
-				saleItem.IsFixedPrice = false;
-				saleItem.IsAlternativePrice = false;
-				return;
-			}
-			
-			switch(receivedPriceData.PriceType)
-			{
-				case SaleItemPriceType.Fixed:
-					saleItem.IsFixedPrice = true;
-					saleItem.IsUserPrice = false;
-					saleItem.IsAlternativePrice = false;
-					break;
-				case SaleItemPriceType.User:
-					if(calculatedPriceData.PriceType == SaleItemPriceType.Fixed)
-					{
-						
-					}
-					saleItem.IsUserPrice = false;
-					saleItem.IsFixedPrice = false;
-					saleItem.IsAlternativePrice = false;
-					break;
-				case SaleItemPriceType.Alternative:
-					saleItem.IsAlternativePrice = true;
-					saleItem.IsUserPrice = false;
-					saleItem.IsFixedPrice = false;
-					break;
-				default:
-					saleItem.IsAlternativePrice = false;
-					saleItem.IsUserPrice = false;
-					saleItem.IsFixedPrice = false;
-					break;
-			}*/
-			
 			switch(receivedPriceData.PriceType)
 			{
 				case SaleItemPriceType.Fixed:

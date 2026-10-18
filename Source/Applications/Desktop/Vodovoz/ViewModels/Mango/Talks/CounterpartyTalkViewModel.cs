@@ -38,7 +38,6 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		public Counterparty currentCounterparty { get;private set; }
 		public event Action CounterpartyOrdersModelsUpdateEvent = () => { };
 
-		//TODO-5967 проверить инициализацию окна звонка
 		public CounterpartyTalkViewModel(
 			ILifetimeScope scope,
 			ITdiCompatibilityNavigation tdinavigation,

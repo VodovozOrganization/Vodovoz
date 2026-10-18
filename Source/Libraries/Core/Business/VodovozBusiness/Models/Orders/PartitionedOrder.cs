@@ -227,7 +227,6 @@ namespace Vodovoz.Models.Orders
 			OrderItem orderItem,
 			bool withDiscounts = false)
 		{
-			//TODO-5967 нужно проверить алгоритм установки булевых
 			var newOrderItem = OrderItem.CreateForSale(
 				_saleHandler,
 				_resultOrder,

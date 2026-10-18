@@ -144,19 +144,6 @@ namespace VodovozBusiness.Domain.Orders
 					"Не заполнена конечная дата действия промокода",
 					new[] { nameof(EndDate) });
 			}
-
-			/*using(var uow =
-				validationContext.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Проверка промокода на дубли"))
-			{
-
-				if(discountRepository.ExistsPromoCodeWithName(uow, Id, PromoCodeName, out var duplicatePromoCode))
-				{
-					var archived = duplicatePromoCode.IsArchive ? "архивный" : null;
-					yield return new ValidationResult(
-						$"Уже есть созданный {archived} промокод {duplicatePromoCode.Id} {duplicatePromoCode.Name}",
-						new[] { nameof(PromoCodeName) });
-				}
-			}*/
 		}
 
 		public override string ToString()

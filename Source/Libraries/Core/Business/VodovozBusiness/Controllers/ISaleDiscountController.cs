@@ -71,5 +71,11 @@ namespace VodovozBusiness.Controllers
 			IEnumerable<DiscountReasonBase> discountReasons,
 			bool canUseAlternativePrices = false
 		);
+
+		/// <summary>
+		/// Удаление скидок из позиций на продажу
+		/// </summary>
+		/// <param name="saleItems">Продаваемые позиции</param>
+		void ClearDiscounts(IEnumerable<IApplyDiscountReasonItem> saleItems);
 	}
 }
