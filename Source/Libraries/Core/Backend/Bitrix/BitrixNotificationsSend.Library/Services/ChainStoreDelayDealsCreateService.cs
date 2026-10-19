@@ -22,8 +22,6 @@ namespace BitrixNotificationsSend.Library.Services
 	/// <inheritdoc/>
 	public class ChainStoreDelayDealsCreateService : IChainStoreDelayDealsCreateService
 	{
-		private const string _dealCommandKeyPrefix = "chain_store_delay_deal_";
-
 		private readonly ILogger<ChainStoreDelayDealsCreateService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
@@ -33,7 +31,6 @@ namespace BitrixNotificationsSend.Library.Services
 		private readonly IBitrixDealsClient _bitrixDealsClient;
 		private readonly IBitrixBatchesSendService _bitrixBatchesSendService;
 		private readonly IGenericRepository<ChainStoreDelayBitrixDeal> _dealRepository;
-		private readonly IGenericRepository<ChainStoreDelayBitrixDealOrder> _dealOrderRepository;
 		private readonly IChainStoreDelayBitrixDealFactory _dealFactory;
 
 		public ChainStoreDelayDealsCreateService(
@@ -46,7 +43,6 @@ namespace BitrixNotificationsSend.Library.Services
 			IBitrixDealsClient bitrixDealsClient,
 			IBitrixBatchesSendService bitrixBatchesSendService,
 			IGenericRepository<ChainStoreDelayBitrixDeal> dealRepository,
-			IGenericRepository<ChainStoreDelayBitrixDealOrder> dealOrderRepository,
 			IChainStoreDelayBitrixDealFactory dealFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -59,7 +55,6 @@ namespace BitrixNotificationsSend.Library.Services
 			_bitrixDealsClient = bitrixDealsClient ?? throw new ArgumentNullException(nameof(bitrixDealsClient));
 			_bitrixBatchesSendService = bitrixBatchesSendService ?? throw new ArgumentNullException(nameof(bitrixBatchesSendService));
 			_dealRepository = dealRepository ?? throw new ArgumentNullException(nameof(dealRepository));
-			_dealOrderRepository = dealOrderRepository ?? throw new ArgumentNullException(nameof(dealOrderRepository));
 			_dealFactory = dealFactory ?? throw new ArgumentNullException(nameof(dealFactory));
 		}
 
@@ -94,16 +89,12 @@ namespace BitrixNotificationsSend.Library.Services
 					return 0;
 				}
 
-				var previouslySentOrderIds = new HashSet<int>(_dealOrderRepository
+				var previouslySentOrderIds = new HashSet<int>(_dealRepository
 					.Get(uow, x => candidateOrderIds.Contains(x.OrderId))
 					.Select(x => x.OrderId));
 
-				var counterpartyIdsWithTodayDeals = new HashSet<int>(_dealRepository
-					.Get(uow, x => x.CreationDate >= today && x.CreationDate < today.AddDays(1))
-					.Select(x => x.CounterpartyId));
-
 				var deals = _dealFactory
-					.CreateDeals(orders, previouslySentOrderIds, counterpartyIdsWithTodayDeals, today, daysBeforePaymentDate, moscowNow)
+					.CreateDeals(orders, previouslySentOrderIds, today, daysBeforePaymentDate, moscowNow)
 					.ToList();
 
 				foreach(var deal in deals)
@@ -138,7 +129,7 @@ namespace BitrixNotificationsSend.Library.Services
 				var stageId = _bitrixNotificationsSendSettings.ChainStoreDelayDealsStageId;
 
 				dealDtos = _dealRepository
-					.Get(uow, x => x.Status == BitrixDealSynchronizationStatus.DealCreateRequired)
+					.Get(uow, x => x.Status == ChainStoreDelayBitrixDealStatus.DealCreateRequired)
 					.Select(x => CreateDealDto(x, categoryId, stageId))
 					.ToList();
 			}
@@ -196,7 +187,7 @@ namespace BitrixNotificationsSend.Library.Services
 					}
 
 					deal.BitrixDealId = bitrixDealId;
-					deal.Status = BitrixDealSynchronizationStatus.DealActual;
+					deal.Status = ChainStoreDelayBitrixDealStatus.DealCreated;
 					deal.LastSynchronizedDate = now;
 					deal.LastUpdateDate = now;
 					deal.LastError = null;
@@ -266,23 +257,23 @@ namespace BitrixNotificationsSend.Library.Services
 				CounterpartyName = deal.CounterpartyName,
 				PhoneNumber = deal.PhoneNumber,
 				CounterpartyInn = deal.CounterpartyInn,
-				DeliveryAddresses = deal.DeliveryAddresses,
-				InitiatorOrderId = deal.InitiatorOrderId,
-				OrderAuthors = deal.OrderAuthors,
-				OrdersSum = deal.OrdersSum,
-				InitiatorEstimatedPaymentDate = deal.InitiatorEstimatedPaymentDate,
+				DeliveryAddress = deal.DeliveryAddress,
+				OrderId = deal.OrderId,
+				OrderAuthor = deal.OrderAuthor,
+				OrderSum = deal.OrderSum,
+				EstimatedPaymentDate = deal.EstimatedPaymentDate,
 				DaysOverdue = deal.DaysOverdue,
-				DebtSum = deal.DebtSum
+				Debt = deal.Debt
 			};
 
 		private static int? GetDealIdFromCommandKey(string commandKey)
 		{
-			if(string.IsNullOrWhiteSpace(commandKey) || !commandKey.StartsWith(_dealCommandKeyPrefix, StringComparison.Ordinal))
+			if(string.IsNullOrWhiteSpace(commandKey) || !commandKey.StartsWith(ChainStoreDelayDealCommandKeys.CreateCommandKeyPrefix, StringComparison.Ordinal))
 			{
 				return null;
 			}
 
-			return int.TryParse(commandKey.Substring(_dealCommandKeyPrefix.Length), out var dealId)
+			return int.TryParse(commandKey.Substring(ChainStoreDelayDealCommandKeys.CreateCommandKeyPrefix.Length), out var dealId)
 				? (int?)dealId
 				: null;
 		}

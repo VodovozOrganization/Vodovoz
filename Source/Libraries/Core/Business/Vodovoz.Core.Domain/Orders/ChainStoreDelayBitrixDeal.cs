@@ -1,5 +1,4 @@
 ﻿using QS.DomainModel.Entity;
-using QS.Extensions.Observable.Collections.List;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,22 +17,22 @@ namespace Vodovoz.Core.Domain.Orders
 		private DateTime _creationDate;
 		private DateTime? _lastUpdateDate;
 		private DateTime? _lastSynchronizedDate;
-		private BitrixDealSynchronizationStatus _status;
+		private DateTime? _closedDate;
+		private ChainStoreDelayBitrixDealStatus _status;
 		private long? _bitrixDealId;
 		private string _lastError;
 		private int _counterpartyId;
-		private int _initiatorOrderId;
+		private int _orderId;
 		private string _dealTitle;
 		private string _counterpartyName;
 		private string _counterpartyInn;
 		private string _phoneNumber;
-		private string _deliveryAddresses;
-		private string _orderAuthors;
-		private decimal _ordersSum;
-		private DateTime _initiatorEstimatedPaymentDate;
+		private string _deliveryAddress;
+		private string _orderAuthor;
+		private decimal _orderSum;
+		private DateTime _estimatedPaymentDate;
 		private int _daysOverdue;
-		private decimal _debtSum;
-		private IObservableList<ChainStoreDelayBitrixDealOrder> _orders = new ObservableList<ChainStoreDelayBitrixDealOrder>();
+		private decimal _debt;
 
 		/// <summary>
 		/// Идентификатор записи.
@@ -76,10 +75,20 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Статус синхронизации сделки.
+		/// Дата закрытия сделки при оплате заказа.
 		/// </summary>
-		[Display(Name = "Статус")]
-		public virtual BitrixDealSynchronizationStatus Status
+		[Display(Name = "Дата закрытия сделки")]
+		public virtual DateTime? ClosedDate
+		{
+			get => _closedDate;
+			set => SetField(ref _closedDate, value);
+		}
+
+		/// <summary>
+		/// Состояние отправки сделки.
+		/// </summary>
+		[Display(Name = "Состояние")]
+		public virtual ChainStoreDelayBitrixDealStatus Status
 		{
 			get => _status;
 			set => SetField(ref _status, value);
@@ -116,13 +125,13 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Номер заказа-инициатора.
+		/// Номер заказа, по которому создаётся сделка.
 		/// </summary>
-		[Display(Name = "Заказ-инициатор")]
-		public virtual int InitiatorOrderId
+		[Display(Name = "Заказ")]
+		public virtual int OrderId
 		{
-			get => _initiatorOrderId;
-			set => SetField(ref _initiatorOrderId, value);
+			get => _orderId;
+			set => SetField(ref _orderId, value);
 		}
 
 		/// <summary>
@@ -156,7 +165,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Телефон для связи из заказа-инициатора.
+		/// Телефон для связи из заказа.
 		/// </summary>
 		[Display(Name = "Телефон")]
 		public virtual string PhoneNumber
@@ -166,47 +175,47 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Адреса доставки группы заказов через запятую.
+		/// Адрес доставки заказа ("Самовывоз" для самовывоза).
 		/// </summary>
-		[Display(Name = "Адреса доставки")]
-		public virtual string DeliveryAddresses
+		[Display(Name = "Адрес доставки")]
+		public virtual string DeliveryAddress
 		{
-			get => _deliveryAddresses;
-			set => SetField(ref _deliveryAddresses, value);
+			get => _deliveryAddress;
+			set => SetField(ref _deliveryAddress, value);
 		}
 
 		/// <summary>
-		/// Авторы заказов группы через запятую.
+		/// Автор заказа.
 		/// </summary>
-		[Display(Name = "Авторы заказов")]
-		public virtual string OrderAuthors
+		[Display(Name = "Автор заказа")]
+		public virtual string OrderAuthor
 		{
-			get => _orderAuthors;
-			set => SetField(ref _orderAuthors, value);
+			get => _orderAuthor;
+			set => SetField(ref _orderAuthor, value);
 		}
 
 		/// <summary>
-		/// Сумма заказов группы.
+		/// Сумма заказа.
 		/// </summary>
-		[Display(Name = "Сумма заказов")]
-		public virtual decimal OrdersSum
+		[Display(Name = "Сумма заказа")]
+		public virtual decimal OrderSum
 		{
-			get => _ordersSum;
-			set => SetField(ref _ordersSum, value);
+			get => _orderSum;
+			set => SetField(ref _orderSum, value);
 		}
 
 		/// <summary>
-		/// Расчётная дата платежа заказа-инициатора.
+		/// Расчётная дата платежа заказа.
 		/// </summary>
-		[Display(Name = "Расчётная дата платежа инициатора")]
-		public virtual DateTime InitiatorEstimatedPaymentDate
+		[Display(Name = "Расчётная дата платежа")]
+		public virtual DateTime EstimatedPaymentDate
 		{
-			get => _initiatorEstimatedPaymentDate;
-			set => SetField(ref _initiatorEstimatedPaymentDate, value);
+			get => _estimatedPaymentDate;
+			set => SetField(ref _estimatedPaymentDate, value);
 		}
 
 		/// <summary>
-		/// Дни просрочки самого раннего заказа группы.
+		/// Дни просрочки (всегда 0).
 		/// </summary>
 		[Display(Name = "Дней просрочки")]
 		public virtual int DaysOverdue
@@ -216,23 +225,13 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Долг по группе заказов.
+		/// Долг по заказу (равен сумме заказа).
 		/// </summary>
-		[Display(Name = "Сумма долга")]
-		public virtual decimal DebtSum
+		[Display(Name = "Долг")]
+		public virtual decimal Debt
 		{
-			get => _debtSum;
-			set => SetField(ref _debtSum, value);
-		}
-
-		/// <summary>
-		/// Состав группы заказов.
-		/// </summary>
-		[Display(Name = "Заказы")]
-		public virtual IObservableList<ChainStoreDelayBitrixDealOrder> Orders
-		{
-			get => _orders;
-			set => SetField(ref _orders, value);
+			get => _debt;
+			set => SetField(ref _debt, value);
 		}
 	}
 }

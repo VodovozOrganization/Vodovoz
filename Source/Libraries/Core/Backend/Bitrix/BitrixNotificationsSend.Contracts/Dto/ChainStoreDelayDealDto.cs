@@ -37,7 +37,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// Ключ команды создания сделки в пакетном запросе.
 		/// </summary>
 		[JsonIgnore]
-		public string DealCommandKey => $"chain_store_delay_deal_{ChainStoreDelayBitrixDealId}";
+		public string DealCommandKey => $"{ChainStoreDelayDealCommandKeys.CreateCommandKeyPrefix}{ChainStoreDelayBitrixDealId}";
 
 		/// <summary>
 		/// Наименование клиента.
@@ -58,44 +58,44 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		public string CounterpartyInn { get; set; }
 
 		/// <summary>
-		/// Адреса доставки по группе заказов.
+		/// Адрес доставки заказа.
 		/// </summary>
 		[JsonPropertyName("UF_CRM_5DA85CF9E13B9")]
-		public string DeliveryAddresses { get; set; }
+		public string DeliveryAddress { get; set; }
 
 		/// <summary>
-		/// Номер заказа-инициатора.
+		/// Номер заказа.
 		/// </summary>
 		[JsonPropertyName("UF_CRM_1590590364997")]
-		public int InitiatorOrderId { get; set; }
+		public int OrderId { get; set; }
 
 		/// <summary>
-		/// Авторы заказов группы.
+		/// Автор заказа.
 		/// </summary>
 		[JsonPropertyName("UF_CRM_1618412191621")]
-		public string OrderAuthors { get; set; }
+		public string OrderAuthor { get; set; }
 
 		/// <summary>
-		/// Сумма по группе заказов. Валюта (CURRENCY_ID) не передаётся.
+		/// Сумма заказа. Валюта (CURRENCY_ID) не передаётся.
 		/// </summary>
 		[JsonPropertyName("OPPORTUNITY")]
-		public decimal OrdersSum { get; set; }
+		public decimal OrderSum { get; set; }
 
 		/// <summary>
-		/// Расчётная дата платежа заказа-инициатора.
+		/// Расчётная дата платежа заказа.
 		/// </summary>
 		[JsonIgnore]
-		public DateTime InitiatorEstimatedPaymentDate { get; set; }
+		public DateTime EstimatedPaymentDate { get; set; }
 
 		/// <summary>
-		/// Расчётная дата платежа заказа-инициатора для Битрикс24.
+		/// Расчётная дата платежа заказа для Битрикс24.
 		/// </summary>
 		[JsonPropertyName("UF_CRM_1721989000906")]
-		public string InitiatorEstimatedPaymentDateString =>
-			InitiatorEstimatedPaymentDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+		public string EstimatedPaymentDateString =>
+			EstimatedPaymentDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
 		/// <summary>
-		/// Дни просрочки самого раннего заказа группы.
+		/// Дни просрочки (всегда 0).
 		/// </summary>
 		[JsonIgnore]
 		public int DaysOverdue { get; set; }
@@ -108,16 +108,16 @@ namespace BitrixNotificationsSend.Contracts.Dto
 			DaysOverdue.ToString(CultureInfo.InvariantCulture);
 
 		/// <summary>
-		/// Долг по группе заказов.
+		/// Долг по заказу.
 		/// </summary>
 		[JsonIgnore]
-		public decimal DebtSum { get; set; }
+		public decimal Debt { get; set; }
 
 		/// <summary>
-		/// Долг по группе заказов для Битрикс24.
+		/// Долг по заказу для Битрикс24.
 		/// </summary>
 		[JsonPropertyName("UF_CRM_1760695840735")]
-		public string DebtSumString =>
-			DebtSum.ToString("0.00", CultureInfo.InvariantCulture);
+		public string DebtString =>
+			Debt.ToString("0.00", CultureInfo.InvariantCulture);
 	}
 }
