@@ -399,6 +399,7 @@ namespace Vodovoz.ViewModels.Edo
 			if(_currentPermissionService.ValidatePresetPermission(
 				BookkeeppingPermissions.CanSendEdoDocumentsForPreviousPeriods))
 			{
+				_edoService.AllowResendInClosedAccountingPeriod(taskId);
 				return false;
 			}
 

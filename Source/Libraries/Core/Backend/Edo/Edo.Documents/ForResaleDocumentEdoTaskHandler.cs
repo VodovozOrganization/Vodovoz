@@ -1,5 +1,6 @@
 ﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
+using Edo.Documents.Services;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
 using Edo.Problems.Exception.EdoExceptions;
@@ -27,6 +28,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _publishEndpoint;
+		private readonly IUpdTransportCodeService _updTransportCodeService;
 
 		public ForResaleDocumentEdoTaskHandler(
 			IUnitOfWork uow,
@@ -35,7 +37,8 @@ namespace Edo.Documents
 			TransferRequestCreator transferRequestCreator,
 			ITrueMarkCodesPool trueMarkCodesPool,
 			EdoProblemRegistrar edoProblemRegistrar,
-			IBus publishEndpoint
+			IBus publishEndpoint,
+			IUpdTransportCodeService updTransportCodeService
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -45,6 +48,7 @@ namespace Edo.Documents
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_updTransportCodeService = updTransportCodeService ?? throw new ArgumentNullException(nameof(updTransportCodeService));
 		}
 
 		public async Task HandleNewForResaleFormalDocument(
@@ -162,6 +166,7 @@ namespace Edo.Documents
 
 		private async Task<OrderEdoDocument> SendDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
 		{
+			await _updTransportCodeService.DetachIncompleteTransportCodesAsync(edoTask, cancellationToken);
 			edoTask.Stage = DocumentEdoTaskStage.Sending;
 
 			var customerEdoDocument = new OrderEdoDocument
