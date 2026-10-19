@@ -3675,6 +3675,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IUnitOfWork uow,
 			DateTime maxDeliveryDate,
 			int counterpartyFromTenderId,
+			int organizationId,
 			CancellationToken cancellationToken)
 		{
 			var undeliveryStatuses = GetUndeliveryStatuses();
@@ -3714,6 +3715,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& order.PaymentType == PaymentType.Cashless
 					&& !undeliveryStatuses.Contains(order.OrderStatus)
 					&& (order.OrderStatus != OrderStatus.WaitForPayment || (order.PayAfterShipment && order.SelfDelivery))
+					&& order.Contract.Organization.Id == organizationId
 					&& orderSum > 0
 
 				select new ChainStoreDelayOrderNode
@@ -3738,6 +3740,26 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			return await query
 				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<IDictionary<int, OrderPaymentStatus>> GetOrdersPaymentStatusesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> orderIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = orderIds.Distinct().ToArray();
+
+			if(ids.Length == 0)
+			{
+				return new Dictionary<int, OrderPaymentStatus>();
+			}
+
+			var statuses = await uow.Session.Query<VodovozOrder>()
+				.Where(o => ids.Contains(o.Id))
+				.Select(o => new { o.Id, o.OrderPaymentStatus })
+				.ToListAsync(cancellationToken);
+
+			return statuses.ToDictionary(x => x.Id, x => x.OrderPaymentStatus);
 		}
 
 		public async Task<IList<int>> GetCounterpartyIdsWithUpcomingServiceOrdersAsync(

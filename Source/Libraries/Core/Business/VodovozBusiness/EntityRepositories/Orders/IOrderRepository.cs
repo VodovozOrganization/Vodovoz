@@ -623,12 +623,26 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="maxDeliveryDate">Максимальная дата доставки заказа (включительно)</param>
 		/// <param name="counterpartyFromTenderId">Id источника "Тендер" клиента</param>
+		/// <param name="organizationId">Id организации договора заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Заказы с суммой, оплаченной суммой, отсрочкой клиента, автором, адресом и телефоном</returns>
 		Task<IList<ChainStoreDelayOrderNode>> GetChainStoreDelayOrdersAsync(
 			IUnitOfWork uow,
 			DateTime maxDeliveryDate,
 			int counterpartyFromTenderId,
+			int organizationId,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Текущие статусы оплаты заказов; заказов, которых нет в базе, в словаре нет
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderIds">Id заказов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Статусы оплаты по Id заказа</returns>
+		Task<IDictionary<int, OrderPaymentStatus>> GetOrdersPaymentStatusesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> orderIds,
 			CancellationToken cancellationToken);
 
 		/// <summary>

@@ -15,6 +15,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Notifications;
+using Vodovoz.Settings.Organizations;
 
 namespace BitrixNotificationsSend.Library.Services
 {
@@ -27,6 +28,7 @@ namespace BitrixNotificationsSend.Library.Services
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly ICounterpartySettings _counterpartySettings;
+		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IBitrixNotificationsSendSettings _bitrixNotificationsSendSettings;
 		private readonly IBitrixDealsClient _bitrixDealsClient;
 		private readonly IBitrixBatchesSendService _bitrixBatchesSendService;
@@ -39,6 +41,7 @@ namespace BitrixNotificationsSend.Library.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOrderRepository orderRepository,
 			ICounterpartySettings counterpartySettings,
+			IOrganizationSettings organizationSettings,
 			IBitrixNotificationsSendSettings bitrixNotificationsSendSettings,
 			IBitrixDealsClient bitrixDealsClient,
 			IBitrixBatchesSendService bitrixBatchesSendService,
@@ -50,6 +53,7 @@ namespace BitrixNotificationsSend.Library.Services
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_bitrixNotificationsSendSettings = bitrixNotificationsSendSettings
 				?? throw new ArgumentNullException(nameof(bitrixNotificationsSendSettings));
 			_bitrixDealsClient = bitrixDealsClient ?? throw new ArgumentNullException(nameof(bitrixDealsClient));
@@ -74,10 +78,11 @@ namespace BitrixNotificationsSend.Library.Services
 					uow,
 					maxDate,
 					_counterpartySettings.CounterpartyFromTenderId,
+					_organizationSettings.VodovozOrganizationId,
 					cancellationToken);
 
 				var candidateOrderIds = orders
-					.Where(x => x.EstimatedPaymentDate > today && x.EstimatedPaymentDate <= maxDate)
+					.Where(x => x.IsInPaymentWindow(today, daysBeforePaymentDate))
 					.Select(x => x.OrderId)
 					.ToArray();
 

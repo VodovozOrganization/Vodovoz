@@ -55,8 +55,7 @@ namespace BitrixNotificationsSend.Library.Factories
 					.ToList();
 
 				var initiator = groupOrders.FirstOrDefault(x =>
-					x.EstimatedPaymentDate > today.Date
-					&& x.EstimatedPaymentDate <= maxDate
+					x.IsInPaymentWindow(today, daysBeforePaymentDate)
 					&& !previouslySentOrderIds.Contains(x.OrderId));
 
 				if(initiator is null)

@@ -99,6 +99,14 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		public decimal Debt => OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid ? OrderSum - PaidSum : OrderSum;
 
 		/// <summary>
+		/// Заказ получает сделку или письмо: расчетная дата платежа от завтра до сегодня плюс N дней включительно
+		/// </summary>
+		/// <param name="today">Сегодняшняя дата</param>
+		/// <param name="daysBeforePaymentDate">За сколько дней до расчетной даты платежа действовать (N)</param>
+		public bool IsInPaymentWindow(DateTime today, int daysBeforePaymentDate) =>
+			EstimatedPaymentDate > today.Date && EstimatedPaymentDate <= today.Date.AddDays(daysBeforePaymentDate);
+
+		/// <summary>
 		/// Автор заказа в формате "Фамилия И.О."; пусто, если фамилия автора не указана
 		/// </summary>
 		public string AuthorShortName =>
