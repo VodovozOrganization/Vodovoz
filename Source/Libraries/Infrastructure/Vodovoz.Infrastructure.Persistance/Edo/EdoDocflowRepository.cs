@@ -23,6 +23,48 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 {
 	public class EdoDocflowRepository : IEdoDocflowRepository
 	{
+		/// <inheritdoc />
+		public IList<EdoDockflowData> GetEdoDocflowDataByOrderWithoutShipmentId(
+			IUnitOfWork uow, int documentId, OrderDocumentType documentType)
+		{
+			return (
+				from request in uow.Session.Query<InformalEdoRequest>()
+				join task in uow.Session.Query<OrderDocumentEdoTask>() on request.Task.Id equals task.Id into tasks
+				from task in tasks.DefaultIfEmpty()
+				join document in uow.Session.Query<OutgoingInformalEdoDocument>() on task.Id equals document.InformalDocumentTaskId into documents
+				from document in documents.DefaultIfEmpty()
+				join docflow in uow.Session.Query<TaxcomDocflow>() on document.Id equals docflow.EdoDocumentId into docflows
+				from docflow in docflows.DefaultIfEmpty()
+				join action in uow.Session.Query<TaxcomDocflowAction>() on docflow.Id equals action.TaxcomDocflowId into actions
+				from action in actions.DefaultIfEmpty()
+
+				let lastActionId = uow.Session.Query<TaxcomDocflowAction>()
+					.Where(x => x.TaxcomDocflowId == docflow.Id)
+					.OrderByDescending(x => x.Id)
+					.Select(x => x.Id)
+					.FirstOrDefault()
+
+				where request.SourceDocumentId == documentId && request.OrderDocumentType == documentType
+					&& (action == null || action.Id == lastActionId)
+				orderby request.Time descending
+				select new EdoDockflowData
+				{
+					IsNewDockflow = true,
+					OrderDocumentType = request.OrderDocumentType,
+					EdoDocumentType = EdoDocumentType.InformalOrderDocument,
+					EdoRequestCreationTime = request.Time,
+					TaskId = task == null ? default(int?) : task.Id,
+					EdoTaskStatus = task == null ? default(EdoTaskStatus?) : task.Status,
+					EdoDocumentStatus = document == null ? default(EdoDocumentStatus?) : document.Status,
+					DocFlowId = docflow == null ? default : docflow.DocflowId,
+					TaxcomDocflowCreationTime = docflow == null ? default(DateTime?) : docflow.CreationTime,
+					IsReceived = docflow != null && docflow.IsReceived,
+					EdoDocFlowStatus = action == null ? default(EdoDocFlowStatus?) : action.DocFlowState,
+					ErrorDescription = action == null ? default : action.ErrorMessage
+				}
+			).ToList();
+		}
+
 		public IList<EdoDockflowData> GetEdoDocflowDataByOrderId(IUnitOfWork uow, int orderId)
 		{
 			var data = (

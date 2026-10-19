@@ -165,11 +165,18 @@ namespace Edo.Scheduler.Service
 			EdoTask edoTask = request.Task;
 			if(edoTask != null)
 			{
+				if(edoTask.Status == EdoTaskStatus.New && edoTask.TaskType == EdoTaskType.InformalOrderDocument)
+				{
+					await _messageBus.Publish(new InformalOrderDocumenTaskCreatedEvent
+					{
+						InformalOrderDocumentTaskId = edoTask.Id
+					}, cancellationToken);
+				}
 				_logger.LogWarning("Для ЭДО заявки Id {InformalEdoRequest} уже была создана задача.", requestId);
 				return;
 			}	
 			
-			if(request.Order != null && request.Order.IsUndeliveredStatus)
+			if(!request.IsBill && request.Order != null && request.Order.IsUndeliveredStatus)
 			{
 				_logger.LogWarning(
 					"Для ЭДО заявки Id {InformalEdoRequest} задача не создается, "

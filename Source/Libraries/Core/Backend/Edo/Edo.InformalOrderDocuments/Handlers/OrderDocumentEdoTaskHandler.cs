@@ -123,11 +123,23 @@ namespace Edo.InformalOrderDocuments.Handlers
 
 		private async Task SendDocument(OrderDocumentEdoTask edoTask, OrderDocumentFileData fileData, CancellationToken cancellationToken)
 		{
-			var edoDocument = CreateInformalDocument(edoTask.Id);
-			edoTask.Status = EdoTaskStatus.InProgress;
-			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
+			var edoDocument = await _uow.Session.Query<OutgoingInformalEdoDocument>()
+				.Where(x => x.InformalDocumentTaskId == edoTask.Id)
+				.OrderByDescending(x => x.Id)
+				.FirstOrDefaultAsync(cancellationToken);
+
+			if(edoDocument == null)
+			{
+				edoDocument = CreateInformalDocument(edoTask.Id);
+				edoTask.Status = EdoTaskStatus.InProgress;
+				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+				await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
+				await _uow.CommitAsync(cancellationToken);
+			}
+			else if(edoDocument.Status != EdoDocumentStatus.NotStarted)
+			{
+				return;
+			}
 
 			await _publishEndpoint.Publish(new InformalDocumentFileDataSendEvent
 			{

@@ -106,6 +106,7 @@ namespace Vodovoz.ViewModels.Edo
 			switch(document.InformalOrderDocumentType.Value)
 			{
 				case OrderDocumentType.Bill:
+				case OrderDocumentType.SpecialBill:
 					return EdoInOrderDocumentType.Bill;
 				default:
 					throw new NotSupportedException($"Не поддерживается отправка документа: {document.InformalOrderDocumentType.Value}.");
@@ -120,6 +121,7 @@ namespace Vodovoz.ViewModels.Edo
 				case EdoInOrderDocumentType.Receipt:
 				case EdoInOrderDocumentType.Tender:
 				case EdoInOrderDocumentType.SaveCode:
+				case EdoInOrderDocumentType.Bill:
 					return EdoInOrderDocumentGroupType.Primary;
 				case EdoInOrderDocumentType.Withdrawal:
 					return EdoInOrderDocumentGroupType.Withdrawal;

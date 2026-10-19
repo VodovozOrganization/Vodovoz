@@ -17,6 +17,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Taxcom.Docflow.Utility;
+using TransactionalOutbox.Domain;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Controllers;
@@ -407,6 +408,51 @@ namespace EdoService.Library
 				uow.Commit();
 
 				return Result.Success("Задача успешно отправлена на повторную обработку");
+			}
+		}
+
+		/// <inheritdoc />
+		public Result<string> ResendBillEdoDocument(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Повторная отправка счета через ЭДО"))
+			{
+				var request = uow.GetAll<InformalEdoRequest>().FirstOrDefault(x => x.Task.Id == taskId
+					&& (x.OrderDocumentType == OrderDocumentType.Bill || x.OrderDocumentType == OrderDocumentType.SpecialBill));
+				if(request?.Order == null)
+				{
+					return Result.Failure<string>(new Error("EdoBillRequestNotFound", "Заявка счета заказа не найдена"));
+				}
+
+				if(request.Task.Status == EdoTaskStatus.New)
+				{
+					uow.Save(new OutboxMessage(new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = taskId }));
+					uow.Commit();
+					return Result.Success("Задача счета отправлена на повторную обработку");
+				}
+
+				var document = uow.GetAll<OutgoingInformalEdoDocument>()
+					.Where(x => x.InformalDocumentTaskId == taskId)
+					.OrderByDescending(x => x.Id)
+					.FirstOrDefault();
+				if(!CanResendEdoDocument(document?.Status))
+				{
+					return Result.Failure<string>(new Error("EdoBillCannotBeResent", "Повторная отправка доступна для счета с ошибкой или аннулированного счета"));
+				}
+
+				var order = uow.GetById<Order>(request.Order.Id);
+				if(order == null)
+				{
+					return Result.Failure<string>(new Error("EdoBillOrderNotFound", "Заказ счета не найден"));
+				}
+
+				if(uow.GetAll<OrderEdoTrueMarkDocumentsActions>().Any(x => x.Order.Id == order.Id && x.IsNeedToResendEdoBill))
+				{
+					return Result.Success("Счет уже ожидает подготовки к повторной отправке");
+				}
+
+				uow.Save(UpdateEdoDocumentAction(uow, order, DocumentContainerType.Bill));
+				uow.Commit();
+				return Result.Success("Счет поставлен на повторную отправку через ЭДО");
 			}
 		}
 

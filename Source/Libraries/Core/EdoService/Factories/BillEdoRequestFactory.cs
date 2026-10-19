@@ -20,7 +20,7 @@ namespace EdoService.Library.Factories
 	/// <summary>
 	/// Создает неформализованные заявки со снимком счета и реквизитов его отправки
 	/// </summary>
-	public class BillEdoRequestFactory
+	public class BillEdoRequestFactory : IBillEdoRequestFactory
 	{
 		private readonly IOrderConverter _orderConverter;
 		private readonly IOrderWithoutShipmentConverter _orderWithoutShipmentConverter;
@@ -56,18 +56,7 @@ namespace EdoService.Library.Factories
 				throw new ArgumentNullException(nameof(order));
 			}
 
-			InformalEdoRequest request;
-			switch(type)
-			{
-				case OrderDocumentType.Bill:
-					request = new OrderBillEdoRequest();
-					break;
-				case OrderDocumentType.SpecialBill:
-					request = new SpecialOrderBillEdoRequest();
-					break;
-				default:
-					throw new ArgumentException("Требуется обычный или особый счет", nameof(type));
-			}
+			var request = CreateOrderBillRequest(type);
 
 			var document = order.OrderDocuments.FirstOrDefault(x => x.Type == type && x.Order.Id == order.Id)
 				?? throw new InvalidOperationException("В заказе отсутствует выбранный счет");
@@ -133,6 +122,19 @@ namespace EdoService.Library.Factories
 				0, info.BillNumber, info.CreationDate, info.Sum,
 				info.OrganizationInfoForEdo, info.CounterpartyInfoForEdo, pdf);
 			return request;
+		}
+
+		private static InformalEdoRequest CreateOrderBillRequest(OrderDocumentType type)
+		{
+			switch(type)
+			{
+				case OrderDocumentType.Bill:
+					return new OrderBillEdoRequest();
+				case OrderDocumentType.SpecialBill:
+					return new SpecialOrderBillEdoRequest();
+				default:
+					throw new ArgumentException("Требуется обычный или особый счет", nameof(type));
+			}
 		}
 
 		private void ValidateConsent(Counterparty client, int organizationId)

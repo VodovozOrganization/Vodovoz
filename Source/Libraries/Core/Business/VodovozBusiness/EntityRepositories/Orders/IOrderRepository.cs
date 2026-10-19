@@ -224,6 +224,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
 
 		/// <summary>
+		/// Проверяет наличие старого контейнера или неформализованной заявки счета заказа
+		/// </summary>
+		/// <param name="uow">Единица работы</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Наличие счета в старом или новом процессе ЭДО</returns>
+		bool HasEdoBill(IUnitOfWork uow, int orderId);
+
+		/// <summary>
 		/// Получение заказа по идентификатору исходящего ЭДО документа
 		/// </summary>
 		/// <param name="uow"></param>

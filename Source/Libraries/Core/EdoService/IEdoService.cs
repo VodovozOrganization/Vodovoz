@@ -136,6 +136,13 @@ namespace EdoService.Library
 		Result<string> ResendNewEdoTask(int taskId);
 
 		/// <summary>
+		/// Повторно запускает новую задачу счета или ставит счет заказа на повторную отправку через новое ЭДО.
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи счета.</param>
+		/// <returns>Результат запуска повторной отправки.</returns>
+		Result<string> ResendBillEdoDocument(int taskId);
+
+		/// <summary>
 		/// Переотправляет документ ЭДО с исходными кодами маркировки.
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи</param>

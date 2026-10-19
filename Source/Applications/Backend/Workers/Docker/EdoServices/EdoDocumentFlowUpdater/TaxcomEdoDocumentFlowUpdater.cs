@@ -23,6 +23,7 @@ using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -649,7 +650,10 @@ namespace EdoDocumentFlowUpdater
 						await SendOfferCancellationContainer(taxcomApiClient, container, cancellationToken);
 					}
 
-					offerCancellation.IsNeedOfferCancellation = false;
+					var hasPendingBills = await SendBillCancellationOffers(
+						uow, taxcomApiClient, offerCancellation, cancellationToken);
+
+					offerCancellation.IsNeedOfferCancellation = hasPendingBills;
 					await uow.SaveAsync(offerCancellation);
 					await uow.CommitAsync();
 				}
@@ -663,6 +667,53 @@ namespace EdoDocumentFlowUpdater
 			}
 		}
 		
+		private async Task<bool> SendBillCancellationOffers(
+			IUnitOfWork uow, ITaxcomApiClient taxcomApiClient,
+			OrderEdoTrueMarkDocumentsActions offerCancellation, CancellationToken cancellationToken)
+		{
+			var statusesWithoutCancellation = new[]
+			{
+				EdoDocumentStatus.Warning,
+				EdoDocumentStatus.Error,
+				EdoDocumentStatus.WaitingForCancellation,
+				EdoDocumentStatus.Cancelled
+			};
+			var billRequests = uow.GetAll<InformalEdoRequest>()
+				.Where(request => request.Order.Id == offerCancellation.Order.Id
+					&& (request.OrderDocumentType == OrderDocumentType.Bill
+						|| request.OrderDocumentType == OrderDocumentType.SpecialBill)
+					&& (!offerCancellation.Created.HasValue || request.Time <= offerCancellation.Created.Value));
+
+			var informalDocuments = uow.GetAll<OutgoingInformalEdoDocument>();
+			var taxcomDocflows = uow.GetAll<TaxcomDocflow>();
+			var hasPendingBills = billRequests.Any(request => request.Task == null
+				|| (request.Task.Status != EdoTaskStatus.Cancelled
+					&& !informalDocuments.Any(document =>
+						document.InformalDocumentTaskId == request.Task.Id
+						&& (statusesWithoutCancellation.Contains(document.Status)
+							|| taxcomDocflows.Any(docflow =>
+								docflow.EdoDocumentId == document.Id && docflow.DocflowId != null)))));
+
+			var billDocflows = (
+				from request in billRequests
+				join document in informalDocuments
+					on request.Task.Id equals document.InformalDocumentTaskId
+				join docflow in taxcomDocflows on document.Id equals docflow.EdoDocumentId
+				where !statusesWithoutCancellation.Contains(document.Status)
+					&& docflow.DocflowId != null
+				select docflow.DocflowId)
+				.Distinct()
+				.ToList();
+
+			foreach(var docflowId in billDocflows)
+			{
+				await taxcomApiClient.SendOfferCancellation(
+					docflowId.ToString(), "Состав заказа был изменен", cancellationToken);
+			}
+
+			return hasPendingBills;
+		}
+
 		private async Task SendOfferCancellationContainer(
 			ITaxcomApiClient taxcomApiClient, EdoContainer edoContainer, CancellationToken cancellationToken)
 		{

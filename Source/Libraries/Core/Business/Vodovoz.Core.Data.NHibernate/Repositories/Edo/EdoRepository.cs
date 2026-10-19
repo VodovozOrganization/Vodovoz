@@ -846,11 +846,11 @@ select
 	null as :task_tender_stage,
 	null as :codes_count_in_request,
 	null as :codes_used_in_task,
-	eod.status as :edo_document_status,
-	et.cancellation_reason as :cancellation_reason
+	et.cancellation_reason as :cancellation_reason,
+	eod.status as :edo_document_status
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
-left join edo_outgoing_documents eod on eod.document_task_id = et.id
+left join edo_outgoing_documents eod on eod.informal_document_task_id = et.id
 where eir.order_id = :order_id
 	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
 ;
