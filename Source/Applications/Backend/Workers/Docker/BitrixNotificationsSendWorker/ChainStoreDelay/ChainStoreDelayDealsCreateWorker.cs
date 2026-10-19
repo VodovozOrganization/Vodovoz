@@ -63,13 +63,14 @@ namespace BitrixNotificationsSendWorker.ChainStoreDelay
 
 					if(_lastCollectDate != moscowNow.Date)
 					{
-						_logger.LogInformation("Запуск сбора данных по отсрочке сети");
+						_logger.LogInformation("Запуск сбора и закрытия сделок по отсрочке сети");
 
 						await dealsCreateService.CollectDeals(stoppingToken);
+						await dealsCreateService.CloseDealsOfPaidOrders(stoppingToken);
 
 						_lastCollectDate = moscowNow.Date;
 
-						_logger.LogInformation("Окончание сбора данных по отсрочке сети");
+						_logger.LogInformation("Окончание сбора и закрытия сделок по отсрочке сети");
 					}
 
 					await dealsCreateService.SendNotCreatedDeals(stoppingToken);
@@ -90,7 +91,7 @@ namespace BitrixNotificationsSendWorker.ChainStoreDelay
 		}
 
 		/// <summary>
-		/// Рабочий день: не суббота и не воскресенье. Праздники не учитываются (Q12)
+		/// Рабочий день: не суббота и не воскресенье. Праздники не учитываются (Q38)
 		/// </summary>
 		private static bool IsWorkingDay(DateTime moscowNow) =>
 			moscowNow.DayOfWeek != DayOfWeek.Saturday && moscowNow.DayOfWeek != DayOfWeek.Sunday;
