@@ -189813,7 +189813,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Organizations.OrganizationView" design-size="1309 697">
+  <widget class="Gtk.Bin" id="Vodovoz.Organizations.OrganizationView" design-size="1254 711">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -189929,12 +189929,6 @@ not tooltip</property>
                         <property name="RowSpacing">6</property>
                         <property name="ColumnSpacing">6</property>
                         <property name="BorderWidth">2</property>
-                        <child>
-                          <placeholder />
-                        </child>
-                        <child>
-                          <placeholder />
-                        </child>
                         <child>
                           <placeholder />
                         </child>
