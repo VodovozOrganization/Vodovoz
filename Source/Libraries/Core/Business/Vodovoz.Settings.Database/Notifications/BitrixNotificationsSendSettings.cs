@@ -105,19 +105,18 @@ namespace Vodovoz.Settings.Database.Notifications
 		public string ChainStoreDelayDealsStageId =>
 			_settingsController.GetStringValue($"{_parametersPrefix}ChainStoreDelayDealsStageId");
 
+		public string ChainStoreDelayDealsClosedStageId =>
+			_settingsController.GetStringValue($"{_parametersPrefix}ChainStoreDelayDealsClosedStageId");
+
+		public string[] ChainStoreDelayDealsFinalStageIds => GetStageIds("ChainStoreDelayDealsFinalStageIds");
+
 		public string PlannedOrdersNewStageId =>
 			_settingsController.GetStringValue($"{_parametersPrefix}PlannedOrdersNewStageId");
 
 		public string PlannedOrdersCompletedStageId =>
 			_settingsController.GetStringValue($"{_parametersPrefix}PlannedOrdersCompletedStageId");
 
-		public string[] PlannedOrdersFinalStageIds =>
-			_settingsController.GetStringValue($"{_parametersPrefix}PlannedOrdersFinalStageIds")
-			?.Split(_stageIdsSeparator)
-			.Select(x => x.Trim())
-			.Where(x => !string.IsNullOrWhiteSpace(x))
-			.ToArray()
-			?? Array.Empty<string>();
+		public string[] PlannedOrdersFinalStageIds => GetStageIds("PlannedOrdersFinalStageIds");
 
 		public DateTime PlannedOrdersLastOrdersCheckDate =>
 			_settingsController.GetDateTimeValue($"{_parametersPrefix}PlannedOrdersLastOrdersCheckDate");
@@ -126,5 +125,13 @@ namespace Vodovoz.Settings.Database.Notifications
 			_settingsController.CreateOrUpdateSetting(
 				$"{_parametersPrefix}PlannedOrdersLastOrdersCheckDate",
 				lastOrdersCheckDate.ToString(_dateSettingFormat, CultureInfo.InvariantCulture));
+
+		private string[] GetStageIds(string settingName) =>
+			_settingsController.GetStringValue($"{_parametersPrefix}{settingName}")
+			?.Split(_stageIdsSeparator)
+			.Select(x => x.Trim())
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.ToArray()
+			?? Array.Empty<string>();
 	}
 }

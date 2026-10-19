@@ -109,6 +109,22 @@ namespace BitrixNotificationsSend.Client
 			CancellationToken cancellationToken);
 
 		/// <summary>
+		/// Пакетное закрытие сделок по отсрочке сети в Битрикс24 (перевод в стадию закрытия)
+		/// </summary>
+		/// <param name="chainStoreDelayDeals">
+		/// Данные для закрытия сделок,
+		/// не более <see cref="BitrixApiLimits.MaxBatchCommandsCount"/> за один вызов
+		/// </param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// Результат отправки с ключами команд закрытых сделок, ошибками по отдельным сделкам
+		/// и данными об операционном бюджете Битрикс24
+		/// </returns>
+		Task<Result<BitrixBatchResult>> CloseChainStoreDelayDeals(
+			IEnumerable<ChainStoreDelayDealCloseDto> chainStoreDelayDeals,
+			CancellationToken cancellationToken);
+
+		/// <summary>
 		/// Пакетное чтение текущих стадий сделок из Битрикс24
 		/// </summary>
 		/// <param name="dealIds">

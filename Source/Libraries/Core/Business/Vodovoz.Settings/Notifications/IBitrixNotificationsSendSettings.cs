@@ -156,6 +156,18 @@ namespace Vodovoz.Settings.Notifications
 		string ChainStoreDelayDealsStageId { get; }
 
 		/// <summary>
+		/// Идентификатор стадии сделки по отсрочке сети в Битрикс24,
+		/// в которую переводится сделка при оплате заказа
+		/// </summary>
+		string ChainStoreDelayDealsClosedStageId { get; }
+
+		/// <summary>
+		/// Идентификаторы завершённых стадий сделок по отсрочке сети в Битрикс24.
+		/// Сделки в этих стадиях при оплате заказа не меняются
+		/// </summary>
+		string[] ChainStoreDelayDealsFinalStageIds { get; }
+
+		/// <summary>
 		/// Идентификатор начальной стадии сделки по плановому заказу в Битрикс24
 		/// </summary>
 		string PlannedOrdersNewStageId { get; }
