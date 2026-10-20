@@ -410,6 +410,22 @@ namespace EdoService.Library
 			}
 		}
 
+		public void AllowResendInClosedAccountingPeriod(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Разрешение переотправки ЭДО в закрытом бухгалтерском периоде"))
+			{
+				var edoTask = uow.Session.Get<OrderEdoTask>(taskId);
+				if(edoTask?.FormalEdoRequest == null)
+				{
+					return;
+				}
+
+				edoTask.FormalEdoRequest.Source = EdoRequestSource.ClosedPeriodPrivilegedResend;
+				uow.Save(edoTask.FormalEdoRequest);
+				uow.Commit();
+			}
+		}
+
 		private static Result ValidateNewEdoTaskStage(OrderEdoTask edoTask)
 		{
 			bool canResume;
@@ -454,6 +470,19 @@ namespace EdoService.Library
 
 			bool hasDocflow = HasDocflow(uow, edoTask);
 			bool hasCancelledDocflow = HasCancelledDocflow(uow, edoTask.Id);
+
+			if(!hasDocflow && edoTask.Status == EdoTaskStatus.Problem
+				&& edoTask.As<DocumentEdoTask>()?.Stage == DocumentEdoTaskStage.New)
+			{
+				var otherTasksResult = CheckOtherTasks(uow, edoTask, taskId);
+				if(otherTasksResult.IsFailure)
+				{
+					return Result.Failure<string>(otherTasksResult.Errors);
+				}
+
+				_messageService.PublishTaskCreatedEvent(edoTask).GetAwaiter().GetResult();
+				return Result.Success("Задача успешно отправлена на повторную обработку");
+			}
 
 			var checkOtherRequestsResult = CheckOtherRequests(uow, edoTask.FormalEdoRequest, taskId);
 			if(checkOtherRequestsResult.IsFailure)

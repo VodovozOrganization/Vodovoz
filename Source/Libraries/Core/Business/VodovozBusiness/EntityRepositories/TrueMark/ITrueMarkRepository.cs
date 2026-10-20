@@ -11,12 +11,12 @@ namespace Vodovoz.EntityRepositories.TrueMark
 {
 	public interface ITrueMarkRepository
 	{
-		/// <summary>Проверяет связи физических кодов с другими задачами ЭДО.</summary>
+		/// <summary>Возвращает элементы других задач ЭДО, использующие физические коды.</summary>
 		/// <param name="uow">UOW.</param>
 		/// <param name="taskId">Исключаемая задача.</param>
 		/// <param name="codeIds">Номера физических кодов.</param>
-		/// <returns>Есть ли связи с другими задачами.</returns>
-		bool AreCodesUsedByOtherEdoTasks(IUnitOfWork uow, int taskId, IEnumerable<int> codeIds);
+		/// <returns>Элементы других задач, ссылающиеся на исходные или итоговые коды.</returns>
+		IList<EdoTaskItem> GetItemsUsingCodesInOtherEdoTasks(IUnitOfWork uow, int taskId, IEnumerable<int> codeIds);
 		
 		Task<IEnumerable<TrueMarkWaterIdentificationCode>> LoadWaterCodes(List<int> codeIds, CancellationToken cancellationToken);
 

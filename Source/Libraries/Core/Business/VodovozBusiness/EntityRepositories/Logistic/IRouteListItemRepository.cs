@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -29,5 +31,29 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="routeListItems">Список адресов для проверки</param>
 		/// <returns>Возвращает true, если были изменения, иначе false</returns>
 		bool RouteListItemWasChanged(IUnitOfWork uow, IEnumerable<RouteListItem> routeListItems);
+
+		/// <summary>
+		/// Количество адресов МЛ в статусе «Выполнен» за период дат МЛ (обе даты включительно)
+		/// в разрезе водителя МЛ и текущего района точки доставки заказа
+		/// с учетом условий по водителям и районам
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="startDate">Начало периода</param>
+		/// <param name="endDate">Конец периода</param>
+		/// <param name="filter">Условия по водителям и районам; null - без ограничений</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Узлы: водитель, район (может быть пустым), количество адресов</returns>
+		Task<IList<CompletedAddressesCountNode>> GetCompletedAddressesCountsByDriverAndDistrictAsync(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate, CompletedAddressesCountsFilter filter, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Синхронный вариант <see cref="GetCompletedAddressesCountsByDriverAndDistrictAsync"/> (тот же запрос без условий по водителям и районам)
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="startDate">Начало периода</param>
+		/// <param name="endDate">Конец периода</param>
+		/// <returns>Узлы: водитель, район (может быть пустым), количество адресов</returns>
+		IList<CompletedAddressesCountNode> GetCompletedAddressesCountsByDriverAndDistrict(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate);
 	}
 }

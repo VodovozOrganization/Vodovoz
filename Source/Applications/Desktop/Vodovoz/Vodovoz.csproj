@@ -1993,8 +1993,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker.cs" />
     <Compile Include="AboutView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AboutView.cs" />
-    <Compile Include="AboutAuthorsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AboutAuthorsView.cs" />
     <Compile Include="Logistic\DistrictSetDiffReportConfirmationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Logistic.DistrictSetDiffReportConfirmationView.cs" />
     <Compile Include="Views\Fuel\FuelCardView.cs" />
@@ -2083,6 +2081,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.AverageFlowDiscrepanciesReportView.cs" />
     <Compile Include="Filters\GtkViews\CarEventTypeFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventTypeFilterView.cs" />
+    <Compile Include="Views\Reports\CompletedAddressesReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.CompletedAddressesReportView.cs" />
     <Compile Include="Views\Reports\LastRouteListReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.LastRouteListReportView.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReportView.cs" />
