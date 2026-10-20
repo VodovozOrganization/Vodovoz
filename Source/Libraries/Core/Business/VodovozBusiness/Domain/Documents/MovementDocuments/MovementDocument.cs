@@ -55,11 +55,12 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		private decimal? _tranporterSum;
 		private Counterparty _transporterCounterparty;
 
-		private Organization _ttnCargoSender;
-		private Organization _ttnCargoReceiver;
-		private Organization _ttnPayer;
-		private Car _ttnTrailer;
-		private Employee _ttnDriver;
+		private Organization _cargoSender;
+		private Organization _cargoReceiver;
+		private Organization _payer;
+		private Car _car;
+		private Car _semitrailer;
+		private Employee _driver;
 
 		public MovementDocument()
 		{
@@ -130,34 +131,40 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 			set => SetField(ref _needPrintTtn, value, () => NeedPrintTtn);
 		}
 
-		public virtual Organization TtnCargoSender
+		public virtual Organization CargoSender
 		{
-			get => _ttnCargoSender;
-			set => SetField(ref _ttnCargoSender, value, () => TtnCargoSender);
+			get => _cargoSender;
+			set => SetField(ref _cargoSender, value, () => CargoSender);
 		}
 
-		public virtual Organization TtnCargoReceiver
+		public virtual Organization CargoReceiver
 		{
-			get => _ttnCargoReceiver;
-			set => SetField(ref _ttnCargoReceiver, value, () => TtnCargoReceiver);
+			get => _cargoReceiver;
+			set => SetField(ref _cargoReceiver, value, () => CargoReceiver);
 		}
 
-		public virtual Organization TtnPayer
+		public virtual Organization Payer
 		{
-			get => _ttnPayer;
-			set => SetField(ref _ttnPayer, value, () => TtnPayer);
+			get => _payer;
+			set => SetField(ref _payer, value, () => Payer);
 		}
 
-		public virtual Car TtnSemitrailer
+		public virtual Car Car
 		{
-			get => _ttnTrailer;
-			set => SetField(ref _ttnTrailer, value, () => TtnSemitrailer);
+			get => _car;
+			set => SetField(ref _car, value, () => Car);
 		}
 
-		public virtual Employee TtnDriver
+		public virtual Car Semitrailer
 		{
-			get => _ttnDriver;
-			set => SetField(ref _ttnDriver, value, () => TtnDriver);
+			get => _semitrailer;
+			set => SetField(ref _semitrailer, value, () => Semitrailer);
+		}
+
+		public virtual Employee Driver
+		{
+			get => _driver;
+			set => SetField(ref _driver, value, () => Driver);
 		}
 
 		#region Send

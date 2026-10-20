@@ -42,11 +42,12 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents.MovementDocuments
 			References(x => x.FromCar).Column("car_from_id");
 			References(x => x.ToCar).Column("car_to_id");
 			References(x => x.TransporterCounterparty).Column("transporter_id");
-			References(x => x.TtnCargoSender).Column("ttn_cargo_sender_id");
-			References(x => x.TtnCargoReceiver).Column("ttn_cargo_receiver_id");
-			References(x => x.TtnPayer).Column("ttn_payer_id");
-			References(x => x.TtnSemitrailer).Column("ttn_semitrailer_id");
-			References(x => x.TtnDriver).Column("ttn_driver_id");
+			References(x => x.CargoSender).Column("cargo_sender_id");
+			References(x => x.CargoReceiver).Column("cargo_receiver_id");
+			References(x => x.Payer).Column("payer_id");
+			References(x => x.Car).Column("car_id");
+			References(x => x.Semitrailer).Column("semitrailer_id");
+			References(x => x.Driver).Column("driver_id");
 
 			HasMany(x => x.Items).Cascade.AllDeleteOrphan().Inverse().KeyColumn("movement_document_id");
 		}

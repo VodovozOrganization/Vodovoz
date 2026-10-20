@@ -1,5 +1,4 @@
-﻿using Autofac;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -12,17 +11,13 @@ using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Store;
-using Vodovoz.Journals;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.ViewModels.Store;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
 {
@@ -31,7 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private readonly ViewModelEEVMBuilder<Organization> _cargoSenderEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Organization> _cargoReceiverEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Organization> _payerEEVMBuilder;
-		private readonly ViewModelEEVMBuilder<MovementWagon> _movementWagonEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<Car> _carEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Car> _semitrailerEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _employeeEEVMBuilder;
 
@@ -42,7 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			ViewModelEEVMBuilder<Organization> cargoSenderEEVMBuilder,
 			ViewModelEEVMBuilder<Organization> cargoReceiverEEVMBuilder,
 			ViewModelEEVMBuilder<Organization> payerEEVMBuilder,
-			ViewModelEEVMBuilder<MovementWagon> movementWagonEEVMBuilder,
+			ViewModelEEVMBuilder<Car> carEEVMBuilder,
 			ViewModelEEVMBuilder<Car> semitrailerEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> employeeEEVMBuilder)
 			: base(unitOfWorkFactory, interactiveService, navigationManager)
@@ -53,8 +48,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				?? throw new ArgumentNullException(nameof(cargoReceiverEEVMBuilder));
 			_payerEEVMBuilder = payerEEVMBuilder
 				?? throw new ArgumentNullException(nameof(payerEEVMBuilder));
-			_movementWagonEEVMBuilder = movementWagonEEVMBuilder
-				?? throw new ArgumentNullException(nameof(movementWagonEEVMBuilder));
+			_carEEVMBuilder = carEEVMBuilder
+				?? throw new ArgumentNullException(nameof(carEEVMBuilder));
 			_semitrailerEEVMBuilder = semitrailerEEVMBuilder
 				?? throw new ArgumentNullException(nameof(semitrailerEEVMBuilder));
 			_employeeEEVMBuilder = employeeEEVMBuilder
@@ -69,7 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		public IEntityEntryViewModel CargoSenderViewModel { get; private set; }
 		public IEntityEntryViewModel CargoReceiverViewModel { get; private set; }
 		public IEntityEntryViewModel PayerViewModel { get; private set; }
-		public IEntityEntryViewModel MovementWagonViewModel { get; private set; }
+		public IEntityEntryViewModel CarViewModel { get; private set; }
 		public IEntityEntryViewModel TrailerViewModel { get; private set; }
 		public IEntityEntryViewModel DriverViewModel { get; private set; }
 
@@ -85,22 +80,22 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			}
 
 			CargoSenderViewModel = BuildOrganizationEntryViewModel(
-				_cargoSenderEEVMBuilder, entity, e => e.TtnCargoSender);
+				_cargoSenderEEVMBuilder, entity, e => e.CargoSender);
 
 			CargoReceiverViewModel = BuildOrganizationEntryViewModel(
-				_cargoReceiverEEVMBuilder, entity, e => e.TtnCargoReceiver);
+				_cargoReceiverEEVMBuilder, entity, e => e.CargoReceiver);
 
 			PayerViewModel = BuildOrganizationEntryViewModel(
-				_payerEEVMBuilder, entity, e => e.TtnPayer);
+				_payerEEVMBuilder, entity, e => e.Payer);
 
-			MovementWagonViewModel = BuildCarEntryViewModel(
-				_movementWagonEEVMBuilder, entity, e => e.MovementWagon);
+			CarViewModel = BuildCarEntryViewModel(
+				_carEEVMBuilder, entity, e => e.Car);
 
 			TrailerViewModel = BuildTrailerEntryViewModel(
-				_semitrailerEEVMBuilder, entity, e => e.TtnSemitrailer);
+				_semitrailerEEVMBuilder, entity, e => e.Semitrailer);
 
 			DriverViewModel = BuildDriverEntryViewModel(
-				_employeeEEVMBuilder, entity, e => e.TtnDriver);
+				_employeeEEVMBuilder, entity, e => e.Driver);
 		}
 
 		private IEntityEntryViewModel BuildOrganizationEntryViewModel(
@@ -118,16 +113,16 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		}
 
 		private IEntityEntryViewModel BuildCarEntryViewModel(
-			ViewModelEEVMBuilder<MovementWagon> builder,
+			ViewModelEEVMBuilder<Car> builder,
 			MovementDocument entity,
-			Expression<Func<MovementDocument, MovementWagon>> property)
+			Expression<Func<MovementDocument, Car>> property)
 		{
 			return builder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
 				.ForProperty(entity, property)
-				.UseViewModelJournalAndAutocompleter<MovementWagonJournalViewModel, MovementWagonJournalFilterViewModel>(f => { })
-				.UseViewModelDialog<MovementWagonViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(f => { })
+				.UseViewModelDialog<CarViewModel>()
 				.Finish();
 		}
 

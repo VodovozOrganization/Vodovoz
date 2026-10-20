@@ -85,7 +85,6 @@ namespace Vodovoz.ViewModels.Warehouses
 		private DelegateCommand _fillFromOrdersCommand;
 		private DelegateCommand _printCommand;
 		private DelegateCommand _addInventoryInstanceCommand;
-		private DelegateCommand _downloadTtnCommand;
 
 		public MovementDocumentViewModel(
 			IEntityUoWBuilder uowBuilder, 
@@ -207,15 +206,37 @@ namespace Vodovoz.ViewModels.Warehouses
 				ReloadAllowedWarehousesFrom();
 			}
 
+			if(e.PropertyName == nameof(Entity.Car))
+			{
+				TryAutofillDriver();
+				OnPropertyChanged(nameof(CanDownloadTtn));
+			}
+
 			if(e.PropertyName == nameof(Entity.NeedPrintTtn)
-				|| e.PropertyName == nameof(Entity.TtnCargoSender)
-				|| e.PropertyName == nameof(Entity.TtnCargoReceiver)
-				|| e.PropertyName == nameof(Entity.TtnPayer)
-				|| e.PropertyName == nameof(Entity.MovementWagon)
-				|| e.PropertyName == nameof(Entity.TtnDriver))
+				|| e.PropertyName == nameof(Entity.CargoSender)
+				|| e.PropertyName == nameof(Entity.CargoReceiver)
+				|| e.PropertyName == nameof(Entity.Payer)
+				|| e.PropertyName == nameof(Entity.Driver))
 			{
 				OnPropertyChanged(nameof(CanDownloadTtn));
 			}
+		}
+
+		private void TryAutofillDriver()
+		{
+			var car = Entity.Car;
+			if(car is null)
+			{
+				return;
+			}
+
+			var carDriver = car.Driver;
+			if(carDriver is null)
+			{
+				return;
+			}
+
+			Entity.Driver = carDriver;
 		}
 
 		public IEntityEntryViewModel WagonEntryViewModel { get; private set; }
@@ -901,11 +922,11 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public bool CanDownloadTtn =>
 			NeedPrintTtn
-			&& Entity.TtnCargoSender != null
-			&& Entity.TtnCargoReceiver != null
-			&& Entity.TtnPayer != null
-			&& Entity.MovementWagon != null
-			&& Entity.TtnDriver != null;
+			&& Entity.CargoSender != null
+			&& Entity.CargoReceiver != null
+			&& Entity.Payer != null
+			&& Entity.Car != null
+			&& Entity.Driver != null;
 
 		#endregion Commands
 

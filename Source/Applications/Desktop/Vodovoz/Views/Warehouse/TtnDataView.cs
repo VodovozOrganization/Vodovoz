@@ -19,7 +19,7 @@ namespace Vodovoz.Views.Warehouse
 
 			entryPayer.ViewModel = ViewModel.PayerViewModel;
 
-			entryCar.ViewModel = ViewModel.MovementWagonViewModel;
+			entryCar.ViewModel = ViewModel.CarViewModel;
 
 			entryTrailer.ViewModel = ViewModel.TrailerViewModel;
 

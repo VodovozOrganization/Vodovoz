@@ -38,9 +38,9 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				senderVersion = GetActiveOrganizationVersion(uow, entity.TtnCargoSender?.Id, docDate);
-				receiverVersion = GetActiveOrganizationVersion(uow, entity.TtnCargoReceiver?.Id, docDate);
-				payerVersion = GetActiveOrganizationVersion(uow, entity.TtnPayer?.Id, docDate);
+				senderVersion = GetActiveOrganizationVersion(uow, entity.CargoSender?.Id, docDate);
+				receiverVersion = GetActiveOrganizationVersion(uow, entity.CargoReceiver?.Id, docDate);
+				payerVersion = GetActiveOrganizationVersion(uow, entity.Payer?.Id, docDate);
 			}
 
 			var report = new TtnReport
@@ -50,9 +50,9 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				DocMonth = docDate.ToString("MM"),
 				DocYear = docDate.ToString("yyyy"),
 
-				CargoSenderText = BuildOrganizationText(entity.TtnCargoSender, senderVersion),
-				CargoReceiverText = BuildOrganizationText(entity.TtnCargoReceiver, receiverVersion),
-				PayerText = BuildOrganizationText(entity.TtnPayer, payerVersion),
+				CargoSenderText = BuildOrganizationText(entity.CargoSender, senderVersion),
+				CargoReceiverText = BuildOrganizationText(entity.CargoReceiver, receiverVersion),
+				PayerText = BuildOrganizationText(entity.Payer, payerVersion),
 
 				Rows = BuildTtnRows(entity),
 
@@ -61,20 +61,20 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				ReleaseProducedPosition = currentEmployee?.Post?.Name ?? "",
 				ReleaseProducedName = ShortName(currentEmployee?.FullName),
 				CargoAcceptedPosition = "водитель",
-				CargoAcceptedName = ShortName(entity.TtnDriver?.FullName),
+				CargoAcceptedName = ShortName(entity.Driver?.FullName),
 
 				DeliveryDay = docDate.ToString("dd"),
 				DeliveryMonthText = MonthToRussianText(docDate.Month),
 				DeliveryYear = docDate.ToString("yyyy"),
-				OrganizationText = BuildOrganizationText(entity.TtnCargoSender, senderVersion),
-				CarModel = entity.MovementWagon?.Name ?? "",
-				CarRegistrationNumber = entity.MovementWagon?.Name ?? "",
-				DriverFullName = entity.TtnDriver?.FullName ?? "",
-				DriverLicenseNumber = entity.TtnDriver?.DrivingLicense ?? "",
+				OrganizationText = BuildOrganizationText(entity.CargoSender, senderVersion),
+				CarModel = entity.Car?.CarModel?.Name ?? "",
+				CarRegistrationNumber = entity.Car?.RegistrationNumber ?? "",
+				DriverFullName = entity.Driver?.FullName ?? "",
+				DriverLicenseNumber = entity.Driver?.DrivingLicense ?? "",
 				LoadingPointAddress = entity.FromWarehouse?.Address ?? "",
 				UnloadingPointAddress = entity.ToWarehouse?.Address ?? "",
-				TrailerModel = entity.TtnSemitrailer?.CarModel?.Name ?? "",
-				TrailerRegistrationNumber = entity.TtnSemitrailer?.RegistrationNumber ?? "",
+				TrailerModel = entity.Semitrailer?.CarModel?.Name ?? "",
+				TrailerRegistrationNumber = entity.Semitrailer?.RegistrationNumber ?? "",
 			};
 
 			report.MassBruttoValue = report.Rows.Sum(r => r.Weight);
