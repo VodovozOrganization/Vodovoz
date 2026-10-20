@@ -115,8 +115,12 @@ namespace EmailDebtNotificationWorker
 					services.AddScoped<IClientEmailSelector, ClientEmailSelector>();
 					services.AddScoped<IEmailBodyGenerator, EmailBodyGenerator>();
 					services.AddScoped<IEmailDebtNotificationService, EmailDebtNotificationService>();
-					services.AddScoped<IChainStoreDelayLettersService, ChainStoreDelayLettersService>();
 					services.AddHostedService<EmailDebtNotificationWorker>();
+
+					services
+						.ConfigureOptions<ConfigureChainStoreDelayLettersOptions>()
+						.AddScoped<IChainStoreDelayLettersService, ChainStoreDelayLettersService>()
+						.AddHostedService<ChainStoreDelayLettersWorker>();
 
 					services
 						.ConfigureOptions<ConfigureEmailClaimLettersOptions>()
