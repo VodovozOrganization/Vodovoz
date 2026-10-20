@@ -81,5 +81,13 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.StoredEmails
 				DiscriminatorValue(nameof(CounterpartyEmailType.InformationLetter));
 			}
 		}
+
+		public class ChainStoreDelayLetterEmailMap : SubclassMap<ChainStoreDelayLetterEmail>
+		{
+			public ChainStoreDelayLetterEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.ChainStoreDelayLetter));
+			}
+		}
 	}
 }
