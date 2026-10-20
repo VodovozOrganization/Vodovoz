@@ -155,11 +155,11 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				ws1.Cells[$"DS{25 + shift}"].Value = report.MassBruttoValue;
 				ws1.Cells[$"CR{26 + shift}"].Value = report.MassBruttoText;
 
-				ws1.Cells[$"A{34 + shift}"].Value = report.ReleaseAllowedPosition;
+				ws1.Cells[$"A{34 + shift}"].Value = PositionShortener.ToShortPosition(report.ReleaseAllowedPosition);
 				ws1.Cells[$"AG{34 + shift}"].Value = report.ReleaseAllowedName;
-				ws1.Cells[$"AB{37 + shift}"].Value = report.ReleaseProducedPosition;
+				ws1.Cells[$"AB{37 + shift}"].Value = PositionShortener.ToShortPosition(report.ReleaseProducedPosition);
 				ws1.Cells[$"BR{37 + shift}"].Value = report.ReleaseProducedName;
-				ws1.Cells[$"EB{31 + shift}"].Value = report.CargoAcceptedPosition;
+				ws1.Cells[$"EB{31 + shift}"].Value = PositionShortener.ToShortPosition(report.CargoAcceptedPosition);
 				ws1.Cells[$"FI{31 + shift}"].Value = report.CargoAcceptedName;
 
 				var ws2 = package.Workbook.Worksheets["Транспортный раздел"];
@@ -217,7 +217,7 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				ws2.Cells["CH16"].Value = report.TrailerModel;
 				ws2.Cells["EF16"].Value = report.TrailerRegistrationNumber;
 				ws2.Cells[$"FU{26 + cargoShift}"].Value = report.MassBruttoTonsValue;
-				ws2.Cells[$"I{31 + cargoShift}"].Value = report.ReleaseAllowedPosition;
+				ws2.Cells[$"I{31 + cargoShift}"].Value = PositionShortener.ToShortPosition(report.ReleaseAllowedPosition);
 				ws2.Cells[$"AH{31 + cargoShift}"].Value = report.ReleaseAllowedName;
 				ws2.Cells[$"AA{36 + cargoShift}"].Value = report.CargoAcceptedName;
 				ws2.Cells[$"DC{31 + cargoShift}"].Value = report.CargoAcceptedName;
@@ -242,7 +242,9 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 				.SingleOrDefault();
 		}
 
-		private static string BuildOrganizationText(Organization org, OrganizationVersion version)
+		private static string BuildOrganizationText(
+			Organization org,
+			OrganizationVersion version)
 		{
 			if(org is null)
 			{
@@ -274,6 +276,55 @@ namespace Vodovoz.ViewModels.Services.Warehouse
 			if(!string.IsNullOrWhiteSpace(org.KPP))
 			{
 				parts.Add($"КПП {org.KPP}");
+			}
+
+			var bankText = BuildBankDetailsText(org);
+			if(!string.IsNullOrWhiteSpace(bankText))
+			{
+				parts.Add(bankText);
+			}
+
+			return string.Join(", ", parts);
+		}
+
+		private static string BuildBankDetailsText(Organization org)
+		{
+			if(org is null)
+			{
+				return string.Empty;
+			}
+
+			var account = org.DefaultAccount
+				?? org.Accounts?.FirstOrDefault(a => !a.Inactive);
+
+			if(account is null)
+			{
+				return string.Empty;
+			}
+
+			var parts = new List<string>();
+
+			if(!string.IsNullOrWhiteSpace(account.Number))
+			{
+				parts.Add($"р/с {account.Number}");
+			}
+
+			if(!string.IsNullOrWhiteSpace(account.InBank?.Name))
+			{
+				parts.Add(account.InBank.Name);
+			}
+
+			if(!string.IsNullOrWhiteSpace(account.InBank?.Bik))
+			{
+				parts.Add($"БИК {account.InBank.Bik}");
+			}
+
+			var corAccountNumber = account.BankCorAccount?.CorAccountNumber
+				?? account.InBank?.DefaultCorAccount?.CorAccountNumber;
+
+			if(!string.IsNullOrWhiteSpace(corAccountNumber))
+			{
+				parts.Add($"к/с {corAccountNumber}");
 			}
 
 			return string.Join(", ", parts);
