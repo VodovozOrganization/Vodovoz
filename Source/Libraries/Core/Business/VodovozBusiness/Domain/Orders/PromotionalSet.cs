@@ -208,7 +208,7 @@ namespace Vodovoz.Domain.Orders
 
 				var priceWithDiscount = promoSetItem.IsDiscountInMoney
 					? (nomenclaturePrice.Price * promoSetItem.Count) - promoSetItem.DiscountMoney
-					: nomenclaturePrice.Price * promoSetItem.Count * (1m - promoSetItem.Discount / 100m);
+					: nomenclaturePrice.Price * (1m - promoSetItem.Discount / 100m);
 
 				if(priceWithDiscount < 1m)
 				{
