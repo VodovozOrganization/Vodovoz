@@ -2,6 +2,7 @@
 using Gamma.Binding.Converters;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
 using Gtk;
 using QS.Journal.GtkUI;
 using QS.Views.GtkUI;
@@ -14,6 +15,9 @@ namespace Vodovoz.Views.TrueMark
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderCodesView : WidgetViewBase<OrderCodesViewModel>
 	{
+		Pango.FontDescription _monospacedFont = Pango.FontDescription.FromString("Consolas 9");
+
+
 		//driver popup
 		private Menu _driverPopup = new Menu();
 		private MenuItem _driverCopySourceCodes = new MenuItem("Копировать исходные коды");
@@ -47,11 +51,15 @@ namespace Vodovoz.Views.TrueMark
 		private Menu _stagingPopup = new Menu();
 		private MenuItem _stagingCopyCodes = new MenuItem("Копировать коды");
 
+		private Menu _manuallyAddedPopup = new Menu();
+		private yMenuItem _manuallyAddedCopySourceCodes = new yMenuItem("Копировать исходные коды");
+		private yMenuItem _manuallyAddedCopyResultCodes = new yMenuItem("Копировать итоговые коды");
+
 		public OrderCodesView()
 		{
 			this.Build();
 		}
-
+		
 		protected override void ConfigureWidget()
 		{
 			base.ConfigureWidget();
@@ -98,6 +106,10 @@ namespace Vodovoz.Views.TrueMark
 
 			labelPageResent.Binding.AddSource(ViewModel)
 				.AddFuncBinding(vm => $"Переотправленные ({vm.TotalResent})", w => w.LabelProp)
+				.InitializeFromSource();
+
+			ylabelManuallyAdded.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => $"Добавлены вручную ({vm.TotalManual})", w => w.LabelProp)
 				.InitializeFromSource();
 
 			entrySearch.Binding.AddSource(ViewModel)
@@ -415,6 +427,48 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewStaging.ButtonReleaseEvent += OnTableStagingRightClick;
 			ytreeviewStaging.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
+
+			ytreeviewManuallyAdded.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ManualCodes, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.ManuallyAddedCodesSelected, w => w.SelectedRows,
+					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
+				.InitializeFromSource();
+			ytreeviewManuallyAdded.Selection.Mode = SelectionMode.Multiple;
+			ytreeviewManuallyAdded.ColumnsConfig = FluentColumnsConfig<OrderCodeItemViewModel>.Create()
+				.AddColumn("Исходный код")
+					.AddTextRenderer(x => x.SourceIdentificationCode)
+					.Editable(false)
+					.SearchHighlight()
+				.AddColumn("Итоговый код")
+					.AddTextRenderer(x => x.ResultIdentificationCode)
+					.Editable(false)
+					.SearchHighlight()
+				.AddColumn("Статус")
+					.HeaderAlignment(0.5f)
+					.AddEnumRenderer(x => x.Status)
+					.Editing(false)
+				.AddColumn("")
+				.Finish();
+			ytreeviewManuallyAdded.Add(_manuallyAddedPopup);
+			_manuallyAddedPopup.Add(_manuallyAddedCopySourceCodes);
+			_manuallyAddedPopup.Add(_manuallyAddedCopyResultCodes);
+			_manuallyAddedPopup.ShowAll();
+			_manuallyAddedCopySourceCodes.BindCommand(ViewModel.CopyManuallyAddedSourceCodesCommand);
+			_manuallyAddedCopyResultCodes.BindCommand(ViewModel.CopyManuallyAddedResultCodesCommand);
+			ytreeviewManuallyAdded.ButtonReleaseEvent += OnTableManuallyAddedRightClick;
+			ytreeviewManuallyAdded.WidgetEvent += SuppressRightClickWithManyRowsSelected;
+
+			ybuttonReuseRejectedCodes.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanMoveRejectedCodesToOrder, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonManuallyAddCode.BindCommand(ViewModel.AddManualCodeCommand);
+
+			yentryManuallyAddCode.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ManualCodeText, w => w.Text)
+				.InitializeFromSource();
+			SetColorForManualCodeEntry();
+
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}
 
@@ -436,28 +490,22 @@ namespace Vodovoz.Views.TrueMark
 				SetColorForSearchEntry();
 			}
 
-			if(e.PropertyName == nameof(ViewModel.CanReuseRejectedCodes)
-				|| e.PropertyName == nameof(ViewModel.ReuseTargetOrder)
-				|| e.PropertyName == nameof(ViewModel.CanShowReuseRejectedCodesControls))
+			if(e.PropertyName == nameof(ViewModel.IsValidManualCodeText))
 			{
-				UpdateReuseCodesControlsVisibility();
-				UpdateReuseRejectedCodesButtonSensitivity();
+				SetColorForManualCodeEntry();
 			}
-		}
 
-		private void UpdateReuseCodesControlsVisibility()
-		{
-			//if(yhboxReuseCodes != null)
-			//{
-			//	yhboxReuseCodes.Visible = ViewModel.CanShowReuseRejectedCodesControls;
-			//}
-		}
-
-		private void UpdateReuseRejectedCodesButtonSensitivity()
-		{
-			if(ybuttonReuseRejectedCodes != null)
+			if(e.PropertyName == nameof(ViewModel.ManualCodeText))
 			{
-				ybuttonReuseRejectedCodes.Sensitive = ViewModel.CanReuseRejectedCodes;
+				yentryManuallyAddCode.ModifyFont(_monospacedFont);
+				if(ViewModel.ManualCodeText.Length >= 50)
+				{
+					yentryManuallyAddCode.WidthChars = 50;
+				}
+				else
+				{
+					yentryManuallyAddCode.WidthChars = ViewModel.ManualCodeText?.Length ?? 0;
+				}
 			}
 		}
 
@@ -482,16 +530,28 @@ namespace Vodovoz.Views.TrueMark
 			}
 		}
 
+		private void SetColorForManualCodeEntry()
+		{
+			if(ViewModel.IsValidManualCodeText)
+			{
+				yentryManuallyAddCode.SetColor(StateType.Normal, GdkColors.SuccessText);
+				yentryManuallyAddCode.SetColor(StateType.Active, GdkColors.SuccessText);
+			}
+			else
+			{
+				yentryManuallyAddCode.SetColor(StateType.Normal, GdkColors.DangerText);
+				yentryManuallyAddCode.SetColor(StateType.Active, GdkColors.DangerText);
+			}
+
+			yentryManuallyAddCode.ModifyFont(_monospacedFont);
+		}
+
 		private void ConfigureReuseCodesControls()
 		{
 			ViewModel.ReuseTargetOrderViewModel.DisposeViewModel = false;
 			entityentryReuseTargetOrder.ViewModel = ViewModel.ReuseTargetOrderViewModel;
-			//yhboxReuseCodes.NoShowAll = false;
 
 			ybuttonReuseRejectedCodes.BindCommand(ViewModel.ReuseRejectedCodesCommand);
-			//yhboxReuseCodes.ShowAll();
-			UpdateReuseCodesControlsVisibility();
-			UpdateReuseRejectedCodesButtonSensitivity();
 		}
 
 		private void HighlightSearchText()
@@ -596,6 +656,16 @@ namespace Vodovoz.Views.TrueMark
 
 			_stagingCopyCodes.Sensitive = ViewModel.CopyStagingCodesCommand.CanExecute(null);
 			_stagingPopup.Popup();
+		}
+
+		private void OnTableManuallyAddedRightClick(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			_manuallyAddedPopup.Popup();
 		}
 
 		protected override void OnDestroyed()

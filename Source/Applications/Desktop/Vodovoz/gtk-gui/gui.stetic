@@ -195428,7 +195428,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="ylabelManuallyAdded">
+              <widget class="Gamma.GtkWidgets.yLabel" id="ylabelManuallyAdded">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Добавлены вручную</property>
               </widget>

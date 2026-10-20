@@ -46,20 +46,13 @@ namespace Vodovoz.Models.TrueMark
 		/// <inheritdoc cref="TrueMarkWaterCodeParser"/>
 		public TrueMarkWaterCode Parse(string rawCode)
 		{
-			var pattern = $"^(?<{_specialCodeName}>(\\\\u00e8)|(\\\\u001d)|([\\u00e8,\\u001d]{{1}}))(?<IdentificationCode>01(?<{_gtinGroupName}>[^{_restrictedChar}]{{14}})21(?<{_serialGroupName}>[^{_restrictedChar}]{{13}}))((\\\\u001d)|([\\u001d]{{1}}))93(?<{_checkGroupName}>[^{_restrictedChar}]{{4}})$";
+			var pattern = $"^(?<{_specialCodeName}>(\\\\u00e8)|(\\\\u001d)|([\\u00e8,\\u001d]{{1}}))?(?<IdentificationCode>01(?<{_gtinGroupName}>[^{_restrictedChar}]{{14}})21(?<{_serialGroupName}>[^{_restrictedChar}]{{13}}))((\\\\u001d)|([\\u001d]{{1}}))?93(?<{_checkGroupName}>[^{_restrictedChar}]{{4}})$";
 			var regex = new Regex(pattern);
 			var match = regex.Match(rawCode);
 			
 			if(!match.Success)
 			{
-				var altPattern = "^(?<IdentificationCode>\\(01\\)(?<GTIN>.{14})\\(21\\)(?<SerialNumber>.{13}))\\(93\\)(?<CheckCode>.{4})$";
-				var altRegex = new Regex(altPattern);
-				match = altRegex.Match(rawCode);
-				
-				if(!match.Success)
-				{
-					throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({rawCode}).");
-				}
+				throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({rawCode}).");
 			}
 
 			Group specialCodeGroup = null;
@@ -260,7 +253,7 @@ namespace Vodovoz.Models.TrueMark
 			return result;
 		}
 		
-		public TrueMarkWaterCode ParseCodeFromSelfDelivery(string code)
+		public TrueMarkWaterCode ParseCodeFromManual(string code)
 		{
 			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>.{{14}})21(?<{_serialGroupName}>.{{13}}))93(?<{_checkGroupName}>.{{4}})";
 			var regex = new Regex(pattern);

@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Transport;
+using Gamma.Binding.Core;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -13,11 +10,18 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Windows.Input;
 using Vodovoz.Core.Data.Logistics;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -28,6 +32,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using VodovozBusiness.Services.Edo;
 using VodovozBusiness.Services.TrueMark;
 
 namespace Vodovoz.ViewModels.TrueMark
@@ -53,6 +58,7 @@ namespace Vodovoz.ViewModels.TrueMark
 	public class OrderCodesViewModel : WidgetViewModelBase
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IClipboard _clipboard;
@@ -68,6 +74,8 @@ namespace Vodovoz.ViewModels.TrueMark
 		private int _orderId;
 		private int? _edoTaskId;
 		private readonly IExcessTrueMarkCodesDeletionService _excessCodesDeletionService;
+		private readonly IEdoRepository _edoRepository;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private bool _canDeleteExcessCodes;
 		private int _activeCodesPage;
 		private int _codesRequired;
@@ -93,20 +101,27 @@ namespace Vodovoz.ViewModels.TrueMark
 		private IList<OrderCodeItemViewModel> _resentCodesOrigin;
 		private IList<OrderCodeItemViewModel> _resentCodes;
 		private IEnumerable<OrderCodeItemViewModel> _resentCodesSelected;
+		private int _totalManual;
+		private IList<OrderCodeItemViewModel> _manualCodesOrigin;
+		private IList<OrderCodeItemViewModel> _manualCodes;
+		private IEnumerable<OrderCodeItemViewModel> _manuallyAddedCodesSelected;
 		private int _totalScannedStagingCodes;
 		private IList<OrderCodeItemViewModel> _scannedStagingCodesOrigin;
 		private IList<OrderCodeItemViewModel> _scannedStagingCodes;
 		private IEnumerable<OrderCodeItemViewModel> _scannedStagingCodesSelected;
 		private string _searchText;
 		private bool? _isValidSearchCodeText;
+		private string _manualCodeText;
+		private bool _isValidManualCodeText;
 		private string _parsedSearchCodeSerialNumber;
 		private Order _reuseTargetOrder;
-		private bool _canShowReuseRejectedCodesControls;
 		private readonly bool _canReuseRejectedCodesFromCanceledOrder;
+		private readonly bool _canAddCodeManually;
+		private OrderStatus? _orderStatus;
 
 		public OrderCodesViewModel(
 			IUnitOfWorkFactory uowFactory,
-			ICommonServices commonServices,
+			ICurrentPermissionService currentPermissionService,
 			ITrueMarkRepository trueMarkRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IClipboard clipboard,
@@ -118,15 +133,17 @@ namespace Vodovoz.ViewModels.TrueMark
 			IInteractiveService interactiveService,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			ViewModelEEVMBuilder<Order> orderViewModelEEVMBuilder,
-			IExcessTrueMarkCodesDeletionService excessCodesDeletionService
+			IExcessTrueMarkCodesDeletionService excessCodesDeletionService,
+			IEdoRepository edoRepository,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodeRepository trueMarkCodeRepository
 			) : base()
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_excessCodesDeletionService = excessCodesDeletionService ?? throw new ArgumentNullException(nameof(excessCodesDeletionService));
-			_canReuseRejectedCodesFromCanceledOrder =
-				commonServices?.CurrentPermissionService.ValidatePresetPermission(
-					OrderPermissions.CanReuseRejectedCodesFromCanceledOrder)
-				?? throw new ArgumentNullException(nameof(commonServices));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
@@ -150,9 +167,18 @@ namespace Vodovoz.ViewModels.TrueMark
 			_addedFromPoolCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 			_resentCodes = new List<OrderCodeItemViewModel>();
 			_resentCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
+			_manualCodes = new List<OrderCodeItemViewModel>();
+			_manuallyAddedCodesSelected = new List<OrderCodeItemViewModel>();
 			_scannedStagingCodes = new List<OrderCodeItemViewModel>();
 			_scannedStagingCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 
+			_canReuseRejectedCodesFromCanceledOrder = _currentPermissionService.ValidatePresetPermission(
+					OrderPermissions.CanReuseRejectedCodesFromCanceledOrder
+			);
+
+			_canAddCodeManually = _currentPermissionService.ValidatePresetPermission(
+					OrderPermissions.CanAddCodesToOrderManually
+			);
 
 			CreateCommands();
 		}
@@ -183,6 +209,8 @@ namespace Vodovoz.ViewModels.TrueMark
 		public ICommand CopyPoolCodesCommand { get; private set; }
 		public ICommand CopyResentSourceCodesCommand { get; private set; }
 		public ICommand CopyResentResultCodesCommand { get; private set; }
+		public ICommand CopyManuallyAddedSourceCodesCommand { get; private set; }
+		public ICommand CopyManuallyAddedResultCodesCommand { get; private set; }
 		public ICommand CopyStagingCodesCommand { get; private set; }
 		public ICommand OpenRouteListCommand { get; private set; }
 		public ICommand OpenCarLoadDocumentCommand { get; private set; }
@@ -320,6 +348,33 @@ namespace Vodovoz.ViewModels.TrueMark
 			set => SetField(ref _resentCodesSelected, value);
 		}
 
+		/// <summary>
+		/// Количество ручных кодов заказа.
+		/// </summary>
+		public virtual int TotalManual
+		{
+			get => _totalManual;
+			set => SetField(ref _totalManual, value);
+		}
+
+		/// <summary>
+		/// Ручные коды с учетом фильтра поиска.
+		/// </summary>
+		public virtual IList<OrderCodeItemViewModel> ManualCodes
+		{
+			get => _manualCodes;
+			set => SetField(ref _manualCodes, value);
+		}
+
+		/// <summary>
+		/// Выбранные ручные коды.
+		/// </summary>
+		public virtual IEnumerable<OrderCodeItemViewModel> ManuallyAddedCodesSelected
+		{
+			get => _manuallyAddedCodesSelected;
+			set => SetField(ref _manuallyAddedCodesSelected, value);
+		}
+
 		public virtual int TotalScannedStagingCodes
 		{
 			get => _totalScannedStagingCodes;
@@ -351,13 +406,197 @@ namespace Vodovoz.ViewModels.TrueMark
 		public virtual bool? IsValidSearchCodeText
 		{
 			get => _isValidSearchCodeText;
-			set => SetField(ref _isValidSearchCodeText, value);
+			private set => SetField(ref _isValidSearchCodeText, value);
 		}
 
 		public virtual string ParsedSearchCodeSerialNumber
 		{
 			get => _parsedSearchCodeSerialNumber;
 			set => SetField(ref _parsedSearchCodeSerialNumber, value);
+		}
+
+		public virtual string ManualCodeText
+		{
+			get => _manualCodeText;
+			set
+			{
+				SetField(ref _manualCodeText, value);
+				ValidateManualCode();
+			}
+		}
+
+		public virtual bool IsValidManualCodeText
+		{
+			get => _isValidManualCodeText;
+			private set => SetField(ref _isValidManualCodeText, value);
+		}
+
+		public virtual bool CanAddManualCode => IsValidManualCodeText
+			&& _canAddCodeManually;
+
+		private void ValidateManualCode()
+		{
+			IsValidManualCodeText = _trueMarkWaterCodeParser.TryParse(_manualCodeText, out var code);
+			AddManualCodeCommand.RaiseCanExecuteChanged();
+		}
+
+		public BusyCommand AddManualCodeCommand { get; private set; }
+
+		private void AddManualCode()
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var lastRequest = _edoRepository.GetLastActualFormalEdoRequest(uow, OrderId);
+				if(lastRequest == null)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Не найден актуальный ЭДО документ",
+						"Проверка кода маркировки"
+					);
+					return;
+				}
+
+				if(CodesProvided >= CodesRequired)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Данный заказ обеспечен кодами",
+						"Проверка кода маркировки"
+					);
+					return;
+				}
+
+				if(!_trueMarkWaterCodeParser.TryParse(_manualCodeText, out var code))
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Введенный код имеет не корректный формат. ({_manualCodeText})",
+						"Проверка кода маркировки"
+					);
+					return;
+				}
+
+				var stagingCodeResult = _trueMarkWaterCodeService.CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
+					code.SourceCode,
+					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+					0,
+					null
+				)
+				.ConfigureAwait(false)
+				.GetAwaiter()
+				.GetResult();
+
+
+				if(!stagingCodeResult.IsSuccess)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Не удалось проверить код. {string.Join(", ", stagingCodeResult.Errors.Select(x => x.Message))}",
+						"Проверка кода маркировки"
+					);
+					return;
+				}
+
+				var inMemmoryStagingCode = stagingCodeResult.Value;
+
+				var usedProductCodes = _trueMarkRepository.GetUsedTrueMarkProductCodeByStagingTrueMarkCode(
+					uow,
+					inMemmoryStagingCode,
+					new CancellationToken()
+				)
+					.ConfigureAwait(false)
+					.GetAwaiter()
+					.GetResult();
+
+				if(usedProductCodes.Any())
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Код уже используется в другом заказе",
+						"Проверка кода маркировки"
+					);
+					return;
+				}
+
+				var trueMarkAnyCodesResult = _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(uow, new[] { inMemmoryStagingCode })
+					.ConfigureAwait(false)
+					.GetAwaiter()
+					.GetResult();
+
+				if(!trueMarkAnyCodesResult.IsSuccess)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Не удалось проверить код. {string.Join(", ", trueMarkAnyCodesResult.Errors.Select(x => x.Message))}",
+						"Проверка кода маркировки"
+					);
+					return;
+				}
+
+				var gtinsInOrder = _edoRepository.GetGtinsInOrder(uow, OrderId);
+				if(!gtinsInOrder.Contains(code.Gtin))
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"В заказе нет товаров с GTIN {code.Gtin}.",
+						"Проверка кода маркировки"
+					);
+					return;
+				}
+
+				var trueMarkAnyCodes = trueMarkAnyCodesResult.Value;
+				foreach(var trueMarkAnyCode in trueMarkAnyCodes)
+				{
+					IEnumerable<TrueMarkAnyCode> matchedCodes = trueMarkAnyCode.Match(
+						transportCode => matchedCodes = transportCode.GetAllCodes(),
+						groupCode => matchedCodes = groupCode.GetAllCodes(),
+						waterCode => new TrueMarkAnyCode[] { waterCode }
+					).ToList();
+
+					trueMarkAnyCode.Match(
+						transportCode =>
+						{
+							if(transportCode.Id == 0)
+							{
+								uow.Save(transportCode);
+							}
+
+							return true;
+						},
+						groupCode =>
+						{
+							if(groupCode.Id == 0)
+							{
+								uow.Save(groupCode);
+							}
+
+							return true;
+						},
+						waterCode =>
+						{
+							if(waterCode.Id == 0)
+							{
+								uow.Save(waterCode);
+							}
+
+							var productCode = new ManualTrueMarkProductCode
+							{
+								CustomerEdoRequest = lastRequest,
+								SourceCode = waterCode,
+								SourceCodeStatus = SourceProductCodeStatus.New,
+							};
+
+							uow.Save(productCode);
+
+							return true;
+						}
+					);
+				}
+
+				uow.Commit();
+				Reload();
+			}
 		}
 
 		/// <summary>
@@ -370,22 +609,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			{
 				if(SetField(ref _reuseTargetOrder, value))
 				{
-					OnPropertyChanged(nameof(CanReuseRejectedCodes));
-				}
-			}
-		}
-
-		/// <summary>
-		/// Доступность блока переноса отклоненных кодов по статусу текущего заказа.
-		/// </summary>
-		public virtual bool CanShowReuseRejectedCodesControls
-		{
-			get => _canShowReuseRejectedCodesControls;
-			set
-			{
-				if(SetField(ref _canShowReuseRejectedCodesControls, value))
-				{
-					OnPropertyChanged(nameof(CanReuseRejectedCodes));
+					OnPropertyChanged(nameof(CanMoveRejectedCodesToOrder));
 				}
 			}
 		}
@@ -393,8 +617,20 @@ namespace Vodovoz.ViewModels.TrueMark
 		/// <summary>
 		/// Доступность переноса отклоненных кодов в выбранный заказ.
 		/// </summary>
-		public virtual bool CanReuseRejectedCodes =>
-			CanShowReuseRejectedCodesControls
+		public virtual bool CanMoveRejectedCodesToOrder =>
+			_orderStatus == OrderStatus.Canceled
+			&& _edoTaskId != null
+			&& _canReuseRejectedCodesFromCanceledOrder
+			&& OrderId > 0
+			&& ReuseTargetOrder?.Id > 0
+			&& ReuseTargetOrder.Id != OrderId;
+
+		/// <summary>
+		/// Доступность переноса выборочных кодов в выбранный заказ.
+		/// </summary>
+		public virtual bool CanMoveSelectedCodesToOrder =>
+			CanMoveRejectedCodesToOrder
+			&& _edoTaskId != null
 			&& OrderId > 0
 			&& ReuseTargetOrder?.Id > 0
 			&& ReuseTargetOrder.Id != OrderId;
@@ -441,8 +677,13 @@ namespace Vodovoz.ViewModels.TrueMark
 			ReuseTargetOrderViewModel = reuseTargetOrderViewModel
 				?? throw new ArgumentNullException(nameof(reuseTargetOrderViewModel));
 
-			ReuseTargetOrderViewModel.Changed += (sender, e) =>
-				OnPropertyChanged(nameof(CanReuseRejectedCodes));
+			ReuseTargetOrderViewModel.Changed += ReuseTargetOrderViewModelChanged;
+				
+		}
+
+		private void ReuseTargetOrderViewModelChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(CanMoveRejectedCodesToOrder));
 		}
 
 		/// <summary>
@@ -540,6 +781,18 @@ namespace Vodovoz.ViewModels.TrueMark
 			copyResentResultCodesCommand.CanExecuteChangedWith(this, x => x.ResentCodesSelected);
 			CopyResentResultCodesCommand = copyResentResultCodesCommand;
 
+			var copyManuallyAddedSourceCodesCommand = new DelegateCommand(
+				() => CopySourceCodesToClipboard(ManuallyAddedCodesSelected),
+				() => ManuallyAddedCodesSelected.Any());
+			copyManuallyAddedSourceCodesCommand.CanExecuteChangedWith(this, x => x.ManuallyAddedCodesSelected);
+			CopyManuallyAddedSourceCodesCommand = copyManuallyAddedSourceCodesCommand;
+
+			var copyManuallyAddedResultCodesCommand = new DelegateCommand(
+				() => CopyResultCodesToClipboard(ManuallyAddedCodesSelected),
+				() => ManuallyAddedCodesSelected.Any());
+			copyManuallyAddedResultCodesCommand.CanExecuteChangedWith(this, x => x.ManuallyAddedCodesSelected);
+			CopyManuallyAddedResultCodesCommand = copyManuallyAddedResultCodesCommand;
+
 			//Copy staging codes
 			var copyStagingCodesCommand = new DelegateCommand(
 				() => CopyResultCodesToClipboard(ScannedStagingCodesSelected),
@@ -594,13 +847,19 @@ namespace Vodovoz.ViewModels.TrueMark
 
 			var reuseRejectedCodesCommand = new DelegateCommand(
 				ReuseRejectedCodes,
-				() => CanReuseRejectedCodes);
+				() => CanMoveRejectedCodesToOrder);
 			reuseRejectedCodesCommand.CanExecuteChangedWith(
 				this,
 				x => x.OrderId,
 				x => x.ReuseTargetOrder,
-				x => x.CanShowReuseRejectedCodesControls);
+				x => x.CanMoveRejectedCodesToOrder);
 			ReuseRejectedCodesCommand = reuseRejectedCodesCommand;
+
+			AddManualCodeCommand = new BusyCommand(
+				"Добавить",
+				() => AddManualCode(),
+				() => CanAddManualCode
+			);
 		}
 
 		private void Reload()
@@ -624,7 +883,6 @@ namespace Vodovoz.ViewModels.TrueMark
 				TotalScannedByDriver = TotalScannedByWarehouse = TotalScannedBySelfdelivery = 0;
 				TotalAddedFromPool = TotalScannedStagingCodes = TotalResent = 0;
 				CodesRequired = CodesProvided = CodesProvidedFromScan = 0;
-				CanShowReuseRejectedCodesControls = false;
 				SearchText = null;
 				return;
 			}
@@ -641,14 +899,14 @@ namespace Vodovoz.ViewModels.TrueMark
 					CanDeleteExcessCodes = _excessCodesDeletionService.CanDelete(uow.GetById<OrderEdoTask>(_edoTaskId.Value));
 				}
 				var order = uow.GetById<Order>(OrderId);
-				CanShowReuseRejectedCodesControls = order?.OrderStatus == OrderStatus.Canceled
-					&& _canReuseRejectedCodesFromCanceledOrder;
+				_orderStatus = order?.OrderStatus;
 
 				ReloadCodesFromDriver(uow);
 				ReloadCodesFromWarehouse(uow);
 				ReloadCodesFromSelfdelivery(uow);
 				ReloadCodesFromPool(uow);
 				ReloadResentCodes(uow);
+				ReloadManualCodes(uow);
 				ReloadScanndedStagingCodes(uow);
 
 				CodesRequired = _trueMarkRepository.GetCodesRequiredByOrder(uow, OrderId);
@@ -661,8 +919,8 @@ namespace Vodovoz.ViewModels.TrueMark
 				FilterCodes();
 
 				OnPropertyChanged(nameof(SearchText));
-				CodesProvided = CodesProvidedFromScan + TotalAddedFromPool + TotalResent;
-				OnPropertyChanged(nameof(CanReuseRejectedCodes));
+				CodesProvided = CodesProvidedFromScan + TotalAddedFromPool + TotalResent + TotalManual;
+				OnPropertyChanged(nameof(CanMoveRejectedCodesToOrder));
 			}
 		}
 
@@ -1037,6 +1295,19 @@ namespace Vodovoz.ViewModels.TrueMark
 			TotalResent = _resentCodesOrigin.Count;
 		}
 
+		private void ReloadManualCodes(IUnitOfWork uow)
+		{
+			_manualCodesOrigin = _trueMarkRepository.GetManualCodesByOrder(uow, OrderId)
+				.Select(x => new OrderCodeItemViewModel
+				{
+					SourceCode = x.SourceCode,
+					ResultCode = x.ResultCode,
+					Status = x.SourceCodeStatus,
+					Problem = x.Problem
+				}).ToList();
+			TotalManual = _manualCodesOrigin.Count;
+		}
+
 		private void ReloadCodesFromPool(IUnitOfWork uow)
 		{
 			var poolCodes = _trueMarkRepository.GetCodesFromPoolByOrder(uow, OrderId, _edoTaskId);
@@ -1121,6 +1392,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				_scannedByDriverCodes = _scannedByDriverCodesOrigin;
 				_addedFromPoolCodes = _addedFromPoolCodesOrigin;
 				_resentCodes = _resentCodesOrigin;
+				_manualCodes = _manualCodesOrigin;
 				_scannedStagingCodes = _scannedStagingCodesOrigin;
 			}
 			else if(_trueMarkWaterCodeParser.FuzzyParse(SearchText, out var parsedCode))
@@ -1132,6 +1404,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				FilterSelfdeliveryCodes(parsedCode);
 				FilterPoolCodes(parsedCode);
 				_resentCodes = _resentCodesOrigin.Where(x => CodeMatched(x, parsedCode)).ToList();
+				_manualCodes = _manualCodesOrigin.Where(x => CodeMatched(x, parsedCode)).ToList();
 				FilterStagingCodes(parsedCode);
 			}
 			else if(_trueMarkWaterCodeParser.IsTransportCode(SearchText))
@@ -1143,6 +1416,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				FilterSelfdeliveryCodes(SearchText);
 				FilterPoolCodes(SearchText);
 				_resentCodes = _resentCodesOrigin.Where(x => CodeMatched(x, SearchText)).ToList();
+				_manualCodes = _manualCodesOrigin.Where(x => CodeMatched(x, SearchText)).ToList();
 			}
 			else
 			{
@@ -1155,6 +1429,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				_scannedByDriverCodes = _scannedByDriverCodesOrigin;
 				_addedFromPoolCodes = _addedFromPoolCodesOrigin;
 				_resentCodes = _resentCodesOrigin;
+				_manualCodes = _manualCodesOrigin;
 				_scannedStagingCodes = _scannedStagingCodesOrigin;
 			}
 
@@ -1167,6 +1442,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			OnPropertyChanged(nameof(TotalAddedFromPool));
 			OnPropertyChanged(nameof(AddedFromPoolCodes));
 			OnPropertyChanged(nameof(ResentCodes));
+			OnPropertyChanged(nameof(ManualCodes));
 			OnPropertyChanged(nameof(ScannedStagingCodes));
 		}
 
@@ -1288,6 +1564,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			_scannedBySelfdeliveryCodes = _scannedBySelfdeliveryCodesOrigin;
 			_addedFromPoolCodes = _addedFromPoolCodesOrigin;
 			_resentCodes = _resentCodesOrigin;
+			_manualCodes = _manualCodesOrigin;
 			_scannedStagingCodes = _scannedStagingCodesOrigin;
 		}
 

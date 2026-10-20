@@ -25,6 +25,16 @@ namespace Vodovoz.Core.Data.Repositories
 		public int? CodesInRequest { get; set; }
 
 		/// <summary>
+		/// Id ЭДО документа
+		/// </summary>
+		public int DocumentId { get; set; }
+
+		/// <summary>
+		/// Документооборот имеет расхождения
+		/// </summary>
+		public bool DocflowHasDiscrepancy { get; set; }
+
+		/// <summary>
 		/// Количество кодов, которые использованы в задаче.
 		/// Это коды которые находяться в строках задачи.
 		/// </summary>

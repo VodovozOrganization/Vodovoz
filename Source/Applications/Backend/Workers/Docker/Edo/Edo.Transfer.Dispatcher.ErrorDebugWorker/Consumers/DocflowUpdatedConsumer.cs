@@ -9,11 +9,11 @@ namespace Edo.Docflow.Consumers
 	public class DocflowUpdatedErrorConsumer : IConsumer<EdoDocflowUpdatedEvent>
 	{
 		private readonly ILogger<DocflowUpdatedConsumer> _logger;
-		private readonly DocflowHandler _docflowHandler;
+		private readonly DocflowStatusUpdateHandler _docflowHandler;
 
 		public DocflowUpdatedErrorConsumer(
 			ILogger<DocflowUpdatedConsumer> logger,
-			DocflowHandler docflowHandler
+			DocflowStatusUpdateHandler docflowHandler
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -24,7 +24,7 @@ namespace Edo.Docflow.Consumers
 		{
 			try
 			{
-				await _docflowHandler.HandleDocflowUpdated(context.Message, context.CancellationToken);
+				await _docflowHandler.HandleDocflowUpdatedEvent(context.Message, context.CancellationToken);
 			}
 			catch(Exception ex)
 			{

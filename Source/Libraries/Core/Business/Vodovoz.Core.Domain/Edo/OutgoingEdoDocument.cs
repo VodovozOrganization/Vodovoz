@@ -14,6 +14,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private EdoDocumentStatus _status;
 		private DateTime? _sendTime;
 		private DateTime? _acceptTime;
+		private bool _hasDiscrepancy;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -69,6 +70,13 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _acceptTime;
 			set => SetField(ref _acceptTime, value);
+		}
+
+		[Display(Name = "Есть расхождение")]
+		public virtual bool HasDiscrepancy
+		{
+			get => _hasDiscrepancy;
+			set => SetField(ref _hasDiscrepancy, value);
 		}
 	}
 }

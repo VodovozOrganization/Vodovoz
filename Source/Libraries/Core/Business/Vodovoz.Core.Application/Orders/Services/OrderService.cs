@@ -1,4 +1,4 @@
-using CustomerNotifications.Contracts;
+﻿using CustomerNotifications.Contracts;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
@@ -963,13 +963,20 @@ namespace Vodovoz.Core.Application.Orders.Services
 			{
 				return;
 			}
-						
+			
+			var hasUpdDocflowDiscrepancy = uow.Session.QueryOver<OrderEdoDocument>()
+				.Where(x => x.DocumentTaskId == requestWithCodes.Task.Id)
+				.Select(x => x.HasDiscrepancy)
+				.SingleOrDefault<bool>();
+
 			if(IsCompletedCodesSaving(requestWithCodes.Task))
 			{
 				return;
 			}
 
-			if(requestWithCodes.Task == null || requestWithCodes.Task.Status != EdoTaskStatus.Cancelled)
+			if(requestWithCodes.Task == null 
+				|| (requestWithCodes.Task.Status != EdoTaskStatus.Cancelled && !hasUpdDocflowDiscrepancy)
+			)
 			{
 				throw new InvalidOperationException("Отклонить коды можно только у отмененной ЭДО задачи");
 			}

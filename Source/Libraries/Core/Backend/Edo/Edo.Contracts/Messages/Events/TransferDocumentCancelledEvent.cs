@@ -3,5 +3,10 @@
 	public class TransferDocumentCancelledEvent
 	{
 		public int DocumentId { get; set; }
+
+		public TransferDocumentCancelledEvent(int documentId)
+		{
+			DocumentId = documentId;
+		}
 	}
 }

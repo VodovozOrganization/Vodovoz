@@ -129,15 +129,13 @@ namespace VodovozBusiness.Errors.Edo
 				"Для документа уже создан процесс переотправки после отмены вывода кодов из оборота в ЧЗ");
 
 		/// <summary>
-		/// Ошибка: статус УПД не позволяет переотправить его с исходными кодами маркировки
+		/// Ошибка: документооборот с расхождением можно переотправить только через диалог работы с расхождениями
 		/// </summary>
-		public static Error ResendWithOriginalCodesStatusNotSupported =>
+		public static Error DocflowWithDiscrepancyCanResendOnlyInDiscrepancyDialog =>
 			new Error(
 				typeof(EdoErrors),
-				nameof(ResendWithOriginalCodesStatusNotSupported),
-				$"Переотправка с исходными кодами доступна только для УПД со статусом " +
-				$"«{EdoDocumentStatus.Warning.GetEnumDisplayName()}» или " +
-				$"«{EdoDocumentStatus.CompletedWithDivergences.GetEnumDisplayName()}»");
+				nameof(DocflowWithDiscrepancyCanResendOnlyInDiscrepancyDialog),
+				$"Документооборот с расхождением можно переотправить только через диалог работы с расхождениями");
 
 		/// <summary>
 		/// Ошибка: не найден успешный вывод кодов из оборота, который можно отменить перед переотправкой

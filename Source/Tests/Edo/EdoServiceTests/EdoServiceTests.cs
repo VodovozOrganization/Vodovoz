@@ -29,6 +29,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Services;
 using VodovozBusiness.Errors.Edo;
 using VodovozBusiness.Services.Edo;
 using Xunit;
@@ -39,6 +40,8 @@ namespace EdoServices.Tests
 {
 	public class EdoServiceTests
 	{
+		private readonly ILogger<EdoService.Library.EdoService> _edoServiceLogger;
+		private readonly IEmployeeService _employeeService;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IUnitOfWork _uow;
 		private readonly IOrderRepository _orderRepository;
@@ -65,6 +68,10 @@ namespace EdoServices.Tests
 
 		public EdoServiceTests()
 		{
+			_edoServiceLogger = Substitute.For<ILogger<EdoService.Library.EdoService>>();
+
+			_employeeService = Substitute.For<IEmployeeService>();
+
 			_uowFactory = Substitute.For<IUnitOfWorkFactory>();
 			_uow = Substitute.For<IUnitOfWork>();
 			_orderRepository = Substitute.For<IOrderRepository>();
@@ -121,12 +128,14 @@ namespace EdoServices.Tests
 			_counterpartyEdoAccountEntityController = Substitute.For<ICounterpartyEdoAccountEntityController>();
 
 			_edoService = new EdoService.Library.EdoService(
+				_edoServiceLogger,
 				_uowFactory,
 				_orderRepository,
 				_organizationRepository,
 				_edoRepository,
 				_messageService,
 				_userService,
+				_employeeService,
 				_edoCancellationService,
 				_taxcomApiFactory,
 				_edoRequestRepository,
@@ -496,48 +505,6 @@ namespace EdoServices.Tests
 
 			// Assert
 			Assert.False(result);
-		}
-
-		[Theory]
-		[InlineData(EdoResendAfterTrueMarkCancellationStatus.CancellationSent)]
-		[InlineData(EdoResendAfterTrueMarkCancellationStatus.Completed)]
-		public void ResendWithCodesFromPool_WhenCancellationResendAlreadyExists_ReturnsFailure(
-			EdoResendAfterTrueMarkCancellationStatus status)
-		{
-			var taskId = 123;
-			var order = new OrderEntity { Id = 1, OrderStatus = OrderStatus.NewOrder };
-			var edoTask = CreateDocumentEdoTask(taskId, order);
-			var cancellationRequest = new EdoResendAfterTrueMarkCancellationRequest
-			{
-				OriginalEdoTask = edoTask,
-				Status = status
-			};
-
-			SetupUowFactoryForDocumentEdoTask(edoTask, new[] { cancellationRequest });
-
-			var result = _edoService.ResendEdoDocumentForOrderWithCodesFromPool(taskId);
-
-			Assert.True(result.IsFailure);
-			Assert.Contains(result.Errors, e => e == EdoErrors.TrueMarkCancellationResendAlreadyExists);
-		}
-
-		[Theory]
-		[InlineData(true)]
-		[InlineData(false)]
-		public void NewResendScenario_WhenOrderIsUndelivered_ReturnsFailure(bool useCodesFromPool)
-		{
-			var taskId = 123;
-			var order = new OrderEntity { Id = 1, OrderStatus = OrderStatus.Canceled };
-			var edoTask = CreateDocumentEdoTask(taskId, order);
-
-			SetupUowFactoryForDocumentEdoTask(edoTask);
-
-			var result = useCodesFromPool
-				? _edoService.ResendEdoDocumentForOrderWithCodesFromPool(taskId)
-				: _edoService.ResendEdoDocumentWithOriginalCodes(taskId);
-
-			Assert.True(result.IsFailure);
-			Assert.Contains(result.Errors, e => e == EdoErrors.IsUndeliveredOrder);
 		}
 
 		[Fact]

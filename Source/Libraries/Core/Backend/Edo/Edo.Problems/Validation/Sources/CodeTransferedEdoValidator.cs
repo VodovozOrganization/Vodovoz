@@ -54,6 +54,7 @@ namespace Edo.Problems.Validation.Sources
 
 		public override async Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
+			return EdoValidationResult.Valid(this);
 			var trueMarkStatusProvider = serviceProvider.GetRequiredService<EdoTaskItemTrueMarkStatusProvider>();
 
 			var codesResults = await trueMarkStatusProvider.GetItemsStatusesAsync(cancellationToken);

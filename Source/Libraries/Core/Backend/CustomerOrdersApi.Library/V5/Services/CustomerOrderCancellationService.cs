@@ -1,4 +1,4 @@
-using CustomerOrdersApi.Library.V5.Dto.Orders.CancelOrder;
+﻿using CustomerOrdersApi.Library.V5.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.V5.Factories;
 using FastPaymentsApi.Contracts.Requests;
 using Gamma.Utilities;
@@ -422,7 +422,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 				"Отмена заказа {OrderId} из маршрутного листа",
 				order.Id);
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order.Id);
 
 			if(routeListItem is null)
 			{
