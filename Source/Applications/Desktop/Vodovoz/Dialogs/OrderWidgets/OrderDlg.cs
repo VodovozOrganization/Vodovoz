@@ -408,6 +408,11 @@ namespace Vodovoz
 
 		public OrderAddressType? TypeOfAddress => Entity.OrderAddressType;
 
+		public bool HasKulerServiceNomenclature =>
+			_orderOrganizationManager != null
+			&& Entity?.OrderItems != null
+			&& _orderOrganizationManager.IsOrderContainsKulerServiceGoods(UoW, Entity.OrderItems);
+
 		public CounterpartyContract Contract => Entity.Contract;
 
 		public bool CanHaveEmails => Entity.Id != 0;
@@ -5045,6 +5050,7 @@ namespace Vodovoz
 
 			UpdateClientSecondOrderDiscount();
 			UpdateUIState();
+			NotifyDeliveryPricePanel();
 		}
 
 		private void TreeItemsOnExposeEvent(object o, ExposeEventArgs args)
@@ -5077,6 +5083,12 @@ namespace Vodovoz
 
 			UpdateClientSecondOrderDiscount();
 			UpdateUIState();
+			NotifyDeliveryPricePanel();
+		}
+
+		private void NotifyDeliveryPricePanel()
+		{
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderAddressType));
 		}
 
 		private void ObservableOrderDocuments_ListChanged(object aList)
