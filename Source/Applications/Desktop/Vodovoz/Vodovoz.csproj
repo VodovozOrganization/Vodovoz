@@ -793,6 +793,7 @@
     <Compile Include="Views\Reports\ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Views\Users\UserRoleView.cs" />
     <Compile Include="Views\Warehouse\TtnDataView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.TtnDataView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderItemReturnsNode.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.ChangedType.cs" />
