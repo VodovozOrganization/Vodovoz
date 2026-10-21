@@ -33,7 +33,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		/// <summary>
-		/// Сохраненные реквизиты отправки и PDF счета в формате JSON
+		/// Сохраненные реквизиты отправки счета в формате JSON; MainDocumentId определяет ключ PDF в хранилище
 		/// </summary>
 		public virtual string DocumentSnapshot
 		{

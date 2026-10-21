@@ -43,7 +43,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 		private readonly IEdoDocflowRepository _edoDocflowRepository;
-		private IGenericRepository<OrderEdoTrueMarkDocumentsActions> _orderEdoTrueMarkDocumentsActionsRepository;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEdoService _edoService;
@@ -65,7 +64,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IGenericRepository<EdoContainer> edoContainerRepository,
 			IEdoDocflowRepository edoDocflowRepository,
-			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
 			IEmailSettings emailSettings,
 			IEmailRepository emailRepository,
 			IEdoService edoService,
@@ -86,7 +84,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
 			_edoDocflowRepository = edoDocflowRepository ?? throw new ArgumentNullException(nameof(edoDocflowRepository));
-			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_organizationSettings = organizationSettings;
@@ -267,14 +264,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					EdoDocuments.Add(document);
 				}
 
-				var action = _orderEdoTrueMarkDocumentsActionsRepository.Get(uow, x => x.OrderWithoutShipmentForDebt.Id == Entity.Id && x.IsNeedToResendEdoBill == true)
-					.FirstOrDefault();
-
-				if(action != null)
-				{
-					var tempContainer = new EdoContainer { Type = EdoDocumentType.BillWSForDebt, EdoDocFlowStatus = EdoDocFlowStatus.PreparingToSend};
-					EdoDocuments.Add(new EdoDockflowData(tempContainer));
-				}
 			}
 
 			OnPropertyChanged(nameof(CanSendBillByEdo));

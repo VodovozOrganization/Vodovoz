@@ -54,12 +54,13 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 					EdoDocumentType = EdoDocumentType.InformalOrderDocument,
 					EdoRequestCreationTime = request.Time,
 					TaskId = task == null ? default(int?) : task.Id,
-					EdoTaskStatus = task == null ? default(EdoTaskStatus?) : task.Status,
+					EdoTaskStatus = task == null ? EdoTaskStatus.Waiting : task.Status,
 					EdoDocumentStatus = document == null ? default(EdoDocumentStatus?) : document.Status,
 					DocFlowId = docflow == null ? default : docflow.DocflowId,
 					TaxcomDocflowCreationTime = docflow == null ? default(DateTime?) : docflow.CreationTime,
 					IsReceived = docflow != null && docflow.IsReceived,
-					EdoDocFlowStatus = action == null ? default(EdoDocFlowStatus?) : action.DocFlowState,
+					EdoDocFlowStatus = action == null
+						? (task == null ? EdoDocFlowStatus.PreparingToSend : default(EdoDocFlowStatus?)) : action.DocFlowState,
 					ErrorDescription = action == null ? default : action.ErrorMessage
 				}
 			).ToList();
@@ -105,7 +106,8 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 
 			var informalDocumentsData = (
 				from edoRequest in uow.Session.Query<InformalEdoRequest>()
-				join edoTask in uow.Session.Query<OrderDocumentEdoTask>() on edoRequest.Task.Id equals edoTask.Id
+				join et in uow.Session.Query<OrderDocumentEdoTask>() on edoRequest.Task.Id equals et.Id into informalTasks
+				from edoTask in informalTasks.DefaultIfEmpty()
 				join oid in uow.Session.Query<OutgoingInformalEdoDocument>() on edoTask.Id equals oid.InformalDocumentTaskId into informalEdoDocuments
 				from informalEdoDocument in informalEdoDocuments.DefaultIfEmpty()
 				join td in uow.Session.Query<TaxcomDocflow>() on informalEdoDocument.Id equals td.EdoDocumentId into taxcomDocflows
@@ -129,11 +131,13 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 					DocFlowId = taxcomDocflow == null ? default : taxcomDocflow.DocflowId,
 					EdoRequestCreationTime = edoRequest.Time,
 					TaxcomDocflowCreationTime = taxcomDocflow == null ? default(DateTime?) : taxcomDocflow.CreationTime,
-					EdoDocFlowStatus = taxcomDocflowAction == null ? default(EdoDocFlowStatus?) : taxcomDocflowAction.DocFlowState,
+					EdoDocFlowStatus = taxcomDocflowAction == null
+						? (edoTask == null ? EdoDocFlowStatus.PreparingToSend : default(EdoDocFlowStatus?)) : taxcomDocflowAction.DocFlowState,
 					IsReceived = taxcomDocflow != null && taxcomDocflow.IsReceived,
 					ErrorDescription = taxcomDocflowAction == null ? default : taxcomDocflowAction.ErrorMessage,
 					IsNewDockflow = true,
 					EdoDocumentType = EdoDocumentType.InformalOrderDocument,
+					TaskId = edoTask == null ? default(int?) : edoTask.Id,
 					EdoTaskStatus = edoTask == null ? default(EdoTaskStatus?) : edoTask.Status,
 					EdoDocumentStatus = informalEdoDocument == null ? default(EdoDocumentStatus?) : informalEdoDocument.Status,
 					OrderDocumentType = edoRequest == null ? default(OrderDocumentType?) : edoRequest.OrderDocumentType

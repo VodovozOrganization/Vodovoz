@@ -1,6 +1,9 @@
 using System;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using EdoService.Library.Services;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.Organizations;
 using TaxcomEdo.Contracts.Counterparties;
@@ -25,6 +28,7 @@ namespace EdoService.Library.Factories
 		private readonly IOrderConverter _orderConverter;
 		private readonly IOrderWithoutShipmentConverter _orderWithoutShipmentConverter;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
+		private readonly IBillEdoDocumentFileStorageService _fileStorageService;
 
 		/// <summary>
 		/// Создает фабрику снимков счетов
@@ -32,14 +36,17 @@ namespace EdoService.Library.Factories
 		/// <param name="orderConverter">Конвертер заказов</param>
 		/// <param name="orderWithoutShipmentConverter">Конвертер счетов без отгрузки</param>
 		/// <param name="edoAccountController">Контроллер согласия клиента на ЭДО</param>
+		/// <param name="fileStorageService">Хранилище PDF счетов</param>
 		public BillEdoRequestFactory(
 			IOrderConverter orderConverter,
 			IOrderWithoutShipmentConverter orderWithoutShipmentConverter,
-			ICounterpartyEdoAccountController edoAccountController)
+			ICounterpartyEdoAccountController edoAccountController,
+			IBillEdoDocumentFileStorageService fileStorageService)
 		{
 			_orderConverter = orderConverter ?? throw new ArgumentNullException(nameof(orderConverter));
 			_orderWithoutShipmentConverter = orderWithoutShipmentConverter ?? throw new ArgumentNullException(nameof(orderWithoutShipmentConverter));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
+			_fileStorageService = fileStorageService ?? throw new ArgumentNullException(nameof(fileStorageService));
 		}
 
 		/// <summary>
@@ -48,8 +55,9 @@ namespace EdoService.Library.Factories
 		/// <param name="order">Сохраненный заказ</param>
 		/// <param name="type">Обычный или особый счет</param>
 		/// <param name="pdf">PDF сохраненного счета без подписи и печати</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Новая заявка со снимком отправляемого счета</returns>
-		public InformalEdoRequest Create(Order order, OrderDocumentType type, byte[] pdf)
+		public async Task<InformalEdoRequest> CreateAsync(Order order, OrderDocumentType type, byte[] pdf, CancellationToken cancellationToken = default)
 		{
 			if(order == null)
 			{
@@ -72,9 +80,9 @@ namespace EdoService.Library.Factories
 				: order.Id.ToString();
 			request.Order = order;
 			request.SourceDocumentId = document.Id;
-			request.DocumentSnapshot = CreateSnapshot(
+			request.DocumentSnapshot = await CreateSnapshotAsync(
 				order.Id, number, document.DocumentDate.Value, info.OrderSum,
-				info.ContractInfoForEdo.OrganizationInfoForEdo, info.CounterpartyInfoForEdo, pdf);
+				info.ContractInfoForEdo.OrganizationInfoForEdo, info.CounterpartyInfoForEdo, pdf, cancellationToken);
 			return request;
 		}
 
@@ -83,8 +91,9 @@ namespace EdoService.Library.Factories
 		/// </summary>
 		/// <param name="bill">Счет на долг, предоплату или постоплату</param>
 		/// <param name="pdf">PDF сохраненного счета без подписи и печати</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Новая заявка со снимком отправляемого счета</returns>
-		public InformalEdoRequest Create(OrderWithoutShipmentBase bill, byte[] pdf)
+		public async Task<InformalEdoRequest> CreateAsync(OrderWithoutShipmentBase bill, byte[] pdf, CancellationToken cancellationToken = default)
 		{
 			if(bill == null)
 			{
@@ -118,9 +127,44 @@ namespace EdoService.Library.Factories
 			}
 
 			request.SourceDocumentId = info.Id;
-			request.DocumentSnapshot = CreateSnapshot(
+			request.DocumentSnapshot = await CreateSnapshotAsync(
 				0, info.BillNumber, info.CreationDate, info.Sum,
-				info.OrganizationInfoForEdo, info.CounterpartyInfoForEdo, pdf);
+				info.OrganizationInfoForEdo, info.CounterpartyInfoForEdo, pdf, cancellationToken);
+			return request;
+		}
+
+		/// <summary>
+		/// Создает заявку, ожидающую подготовки PDF в воркере.
+		/// </summary>
+		/// <param name="type">Тип счета.</param>
+		/// <param name="sourceDocumentId">Идентификатор сохраненного счета.</param>
+		/// <param name="order">Заказ для обычного или особого счета.</param>
+		/// <returns>Заявка без подготовленного снимка.</returns>
+		public static InformalEdoRequest CreatePending(OrderDocumentType type, int sourceDocumentId, OrderEntity order = null)
+		{
+			if(sourceDocumentId <= 0)
+			{
+				throw new ArgumentException("Перед отправкой необходимо сохранить счет", nameof(sourceDocumentId));
+			}
+
+			InformalEdoRequest request;
+			switch(type)
+			{
+				case OrderDocumentType.BillWSForDebt:
+					request = new BillWithoutShipmentForDebtEdoRequest();
+					break;
+				case OrderDocumentType.BillWSForAdvancePayment:
+					request = new BillWithoutShipmentForAdvancePaymentEdoRequest();
+					break;
+				case OrderDocumentType.BillWSForPayment:
+					request = new BillWithoutShipmentForPaymentEdoRequest();
+					break;
+				default:
+					request = CreateOrderBillRequest(type);
+					break;
+			}
+			request.SourceDocumentId = sourceDocumentId;
+			request.Order = order;
 			return request;
 		}
 
@@ -147,9 +191,9 @@ namespace EdoService.Library.Factories
 			}
 		}
 
-		private static string CreateSnapshot(
+		private async Task<string> CreateSnapshotAsync(
 			int orderId, string number, DateTime date, decimal sum,
-			OrganizationInfoForEdo organization, CounterpartyInfoForEdo counterparty, byte[] pdf)
+			OrganizationInfoForEdo organization, CounterpartyInfoForEdo counterparty, byte[] pdf, CancellationToken cancellationToken)
 		{
 			if(pdf == null || pdf.Length == 0)
 			{
@@ -160,9 +204,10 @@ namespace EdoService.Library.Factories
 				throw new InvalidOperationException("У организации счета отсутствует кабинет Такском");
 			}
 
-			return JsonSerializer.Serialize(new InfoForCreatingEdoInformalOrderDocument
+			var documentId = Guid.NewGuid();
+			var snapshot = new InfoForCreatingEdoInformalOrderDocument
 			{
-				MainDocumentId = Guid.NewGuid(),
+				MainDocumentId = documentId,
 				IsBill = true,
 				OrganizationInfoForEdo = new EdoParticipantInfo
 				{
@@ -184,10 +229,12 @@ namespace EdoService.Library.Factories
 					OrderId = orderId,
 					BillNumber = number,
 					FileName = $"Счёт №{number} от {date:dd.MM.yyyy}.pdf",
-					DocumentDate = date,
-					Image = pdf
+					DocumentDate = date
 				}
-			});
+			};
+			var serializedSnapshot = JsonSerializer.Serialize(snapshot);
+			await _fileStorageService.SaveAsync(documentId, pdf, cancellationToken);
+			return serializedSnapshot;
 		}
 	}
 }

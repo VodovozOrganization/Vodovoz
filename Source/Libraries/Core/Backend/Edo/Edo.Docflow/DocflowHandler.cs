@@ -197,6 +197,10 @@ namespace Edo.Docflow
 			{
 				var snapshot = JsonSerializer.Deserialize<InfoForCreatingEdoInformalOrderDocument>(
 					informalEdoRequest.DocumentSnapshot);
+				if(snapshot?.FileData != null && snapshot.FileData.Image == null)
+				{
+					snapshot.FileData.Image = orderDocumentFileData.Image;
+				}
 				if(snapshot?.IsBill != true || snapshot.FileData?.Image == null || snapshot.FileData.Image.Length == 0)
 				{
 					throw new InvalidOperationException($"У заявки счета №{informalEdoRequest.Id} отсутствует PDF снимка");

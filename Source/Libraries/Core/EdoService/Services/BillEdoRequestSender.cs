@@ -1,7 +1,12 @@
 using System;
+using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Contracts.Messages.Events;
+using NHibernate;
+using NLog;
+using TaxcomEdo.Contracts.Documents;
 using TransactionalOutbox.Domain;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Edo;
@@ -14,21 +19,25 @@ namespace EdoService.Library.Services
 	/// </summary>
 	public class BillEdoRequestSender : IBillEdoRequestSender
 	{
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IBillEdoDocumentFileStorageService _fileStorageService;
 
 		/// <summary>
 		/// Создает отправитель заявок счетов
 		/// </summary>
 		/// <param name="uowFactory">Фабрика единиц работы</param>
-		public BillEdoRequestSender(IUnitOfWorkFactory uowFactory)
+		/// <param name="fileStorageService">Хранилище PDF счетов</param>
+		public BillEdoRequestSender(IUnitOfWorkFactory uowFactory, IBillEdoDocumentFileStorageService fileStorageService)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_fileStorageService = fileStorageService ?? throw new ArgumentNullException(nameof(fileStorageService));
 		}
 
 		/// <summary>
-		/// Сохраняет новую заявку счета и событие её создания в одной транзакции
+		/// Сохраняет подготовленную заявку счета и событие её создания в одной транзакции
 		/// </summary>
-		/// <param name="request">Новая заявка, подготовленная фабрикой снимков счетов</param>
+		/// <param name="request">Заявка со снимком счета без созданной задачи</param>
 		/// <param name="source">Источник запуска отправки</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Идентификатор сохраненной заявки</returns>
@@ -45,7 +54,7 @@ namespace EdoService.Library.Services
 		/// Сохраняет заявку, событие её создания и изменения инициатора в одной транзакции
 		/// </summary>
 		/// <param name="uow">Единица работы инициатора отправки</param>
-		/// <param name="request">Новая заявка со снимком счета</param>
+		/// <param name="request">Заявка со снимком счета без созданной задачи</param>
 		/// <param name="source">Источник запуска отправки</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Идентификатор сохраненной заявки</returns>
@@ -56,22 +65,61 @@ namespace EdoService.Library.Services
 			{
 				throw new ArgumentNullException(nameof(request));
 			}
-			if(!request.IsBill || request.Id != 0 || string.IsNullOrWhiteSpace(request.DocumentSnapshot))
+			if(!request.IsBill || request.Task != null || string.IsNullOrWhiteSpace(request.DocumentSnapshot))
 			{
-				throw new ArgumentException("Требуется новая заявка со снимком счета", nameof(request));
+				throw new ArgumentException("Требуется подготовленная заявка счета без созданной задачи", nameof(request));
 			}
 
-			request.Source = source;
-			if(request.Order != null)
+			try
 			{
-				request.Order = uow.Session.Load<OrderEntity>(request.Order.Id);
+				request.Source = source;
+				if(request.Order != null)
+				{
+					request.Order = uow.Session.Load<OrderEntity>(request.Order.Id);
+				}
+				await uow.SaveAsync(request, cancellationToken: cancellationToken);
+				await uow.SaveAsync(
+					new OutboxMessage(new InformalEdoRequestCreatedEvent { InformalRequestId = request.Id }),
+					cancellationToken: cancellationToken);
+				await uow.CommitAsync(cancellationToken);
+				return request.Id;
 			}
-			await uow.SaveAsync(request, cancellationToken: cancellationToken);
-			await uow.SaveAsync(
-				new OutboxMessage(new InformalEdoRequestCreatedEvent { InformalRequestId = request.Id }),
-				cancellationToken: cancellationToken);
-			await uow.CommitAsync(cancellationToken);
-			return request.Id;
+			catch
+			{
+				await DeleteUncommittedPdf(uow, request);
+				throw;
+			}
+		}
+
+		private async Task DeleteUncommittedPdf(IUnitOfWork uow, InformalEdoRequest request)
+		{
+			try
+			{
+				var transaction = uow.Session.GetCurrentTransaction();
+				if(transaction?.IsActive == true)
+				{
+					await transaction.RollbackAsync(CancellationToken.None);
+				}
+
+				if(request.Id != 0)
+				{
+					using(var verificationUow = _uowFactory.CreateWithoutRoot("Проверка сохранения снимка счета ЭДО"))
+					{
+						if(verificationUow.GetAll<InformalEdoRequest>()
+							.Any(x => x.Id == request.Id && x.DocumentSnapshot == request.DocumentSnapshot))
+						{
+							return;
+						}
+					}
+				}
+
+				var snapshot = JsonSerializer.Deserialize<InfoForCreatingEdoInformalOrderDocument>(request.DocumentSnapshot);
+				await _fileStorageService.DeleteAsync(snapshot.MainDocumentId, CancellationToken.None);
+			}
+			catch(Exception exception)
+			{
+				_logger.Error(exception, "Не удалось проверить сохранение заявки счета №{RequestId} или удалить её PDF", request.Id);
+			}
 		}
 	}
 }

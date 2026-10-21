@@ -117,7 +117,7 @@ namespace EdoDocumentsPreparer
 					using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 
 					await PrepareBillsForSend(uow, stoppingToken);
-					await PrepareBillsWithoutShipmentForSend(uow, stoppingToken);
+					await PreparePendingBillsForSend(uow, stoppingToken);
 
 					await _zabbixSender.SendIsHealthyAsync(nameof(EdoDocumentsPreparerWorker), stoppingToken);
 				}
@@ -375,120 +375,92 @@ namespace EdoDocumentsPreparer
 
 		private async Task PrepareBillsForSend(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Получаем заказы по которым нужно отправить счёт");
-
-			try
+			var startDate = DateTime.Today.AddDays(_documentFlowOptions.AddDaysForBillsPreparing);
+			var orderIds = _orderRepository.GetOrdersForEdoSendBills(
+					uow, startDate, _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId)
+				.Select(x => x.Id).ToList();
+			foreach(var orderId in orderIds)
 			{
-				var startDate = DateTime.Today.AddDays(_documentFlowOptions.AddDaysForBillsPreparing);
-				var newOrdersToSend =
-					_orderRepository.GetOrdersForEdoSendBills(
-						uow, startDate, _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
-				var ordersToResend = _orderRepository.GetOrdersForResendBills(uow);
-
-				var orders = newOrdersToSend.Union(ordersToResend).ToList();
-
-				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", orders.Count);
-
-				await SendBillsData(uow, orders, cancellationToken);
-			}
-			catch(Exception e)
-			{
-				const string errorMessage = "Ошибка в процессе получения заказов для формирования счетов";
-				_logger.LogError(e, errorMessage);
-			}
-		}
-
-		private async Task SendBillsData(IUnitOfWork uow, IEnumerable<Order> orders, CancellationToken cancellationToken)
-		{
-			foreach(var order in orders)
-			{
+				using var orderUow = _unitOfWorkFactory.CreateWithoutRoot("Подготовка счета заказа для ЭДО");
 				try
 				{
-					var billActions = uow
-						.GetAll<OrderEdoTrueMarkDocumentsActions>()
-						.Where(x => x.Order.Id == order.Id && x.IsNeedToResendEdoBill)
-						.ToArray();
-
-					var billDocument = order.OrderDocuments.FirstOrDefault(x =>
-						_orderDocumentTypesForSendBill.Contains(x.Type) && x.Order.Id == order.Id);
-
-					if(billDocument is not IPrintableRDLDocument printableRdlDocument)
+					var order = orderUow.GetById<Order>(orderId);
+					var document = order.OrderDocuments.FirstOrDefault(x =>
+						x.Order.Id == order.Id && _orderDocumentTypesForSendBill.Contains(x.Type));
+					if(document == null)
 					{
-						_logger.LogWarning("У заказа {OrderId} не найден документ для отправки счета", order.Id);
-						foreach(var action in billActions)
-						{
-							action.IsNeedToResendEdoBill = false;
-							await uow.SaveAsync(action, cancellationToken: cancellationToken);
-						}
-						await uow.CommitAsync(cancellationToken);
+						_logger.LogWarning("У заказа {OrderId} не найден счет для отправки", order.Id);
 						continue;
 					}
 
-					var pdf = CreateBillPdf(printableRdlDocument);
-					var request = _billEdoRequestFactory.Create(order, billDocument.Type, pdf);
-					foreach(var action in billActions)
-					{
-						action.IsNeedToResendEdoBill = false;
-						await uow.SaveAsync(action, cancellationToken: cancellationToken);
-					}
-
-					await _billEdoRequestSender.SendAsync(
-						uow, request, billActions.Any() ? EdoRequestSource.Manual : EdoRequestSource.None, cancellationToken);
+					var request = await _billEdoRequestFactory.CreateAsync(order, document.Type,
+						CreateBillPdf((IPrintableRDLDocument)document), cancellationToken);
+					await _billEdoRequestSender.SendAsync(orderUow, request, EdoRequestSource.None, cancellationToken);
 				}
-				catch(Exception e)
+				catch(Exception exception)
 				{
-					_logger.LogError(e, "Ошибка в процессе подготовки заявки счёта заказа №{OrderId}", order.Id);
+					_logger.LogError(exception, "Ошибка подготовки счета заказа №{OrderId}", orderId);
 				}
 			}
 		}
 
-		private async Task PrepareBillsWithoutShipmentForSend(IUnitOfWork uow, CancellationToken cancellationToken)
+		private async Task PreparePendingBillsForSend(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Получаем счета без отгрузки для создания заявок ЭДО");
+			var billTypes = new[] { OrderDocumentType.Bill, OrderDocumentType.SpecialBill,
+				OrderDocumentType.BillWSForDebt, OrderDocumentType.BillWSForAdvancePayment, OrderDocumentType.BillWSForPayment };
+			var requestIds = uow.GetAll<InformalEdoRequest>()
+				.Where(x => billTypes.Contains(x.OrderDocumentType) && x.DocumentSnapshot == null
+					&& (x.Task == null || x.Task.Status != EdoTaskStatus.Cancelled))
+				.Select(x => x.Id)
+				.ToList();
 
-			try
+			foreach(var requestId in requestIds)
 			{
-				var actions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-					.Where(x => x.IsNeedToResendEdoBill && x.Order == null)
-					.ToList();
-
-				foreach(var action in actions)
+				using var requestUow = _unitOfWorkFactory.CreateWithoutRoot("Подготовка заявки счета ЭДО");
+				try
 				{
-					try
+					var request = requestUow.GetById<InformalEdoRequest>(requestId);
+					if(request.DocumentSnapshot != null || request.Task?.Status == EdoTaskStatus.Cancelled)
 					{
-						OrderWithoutShipmentBase bill = action.OrderWithoutShipmentForDebt;
-						if(action.OrderWithoutShipmentForPayment != null)
-						{
-							bill = action.OrderWithoutShipmentForPayment;
-						}
-						if(action.OrderWithoutShipmentForAdvancePayment != null)
-						{
-							bill = action.OrderWithoutShipmentForAdvancePayment;
-						}
-
-						if(bill is not IPrintableRDLDocument printableDocument)
-						{
-							_logger.LogWarning("Не найден счет без отгрузки для действия №{ActionId}", action.Id);
-							continue;
-						}
-
-						var pdf = CreateBillPdf(printableDocument);
-						var request = _billEdoRequestFactory.Create(bill, pdf);
-						action.IsNeedToResendEdoBill = false;
-						await uow.SaveAsync(action, cancellationToken: cancellationToken);
-						await _billEdoRequestSender.SendAsync(uow, request, EdoRequestSource.OrderWithoutShipment, cancellationToken);
+						continue;
 					}
-					catch(Exception e)
+
+					InformalEdoRequest prepared;
+					switch(request.OrderDocumentType)
 					{
-						_logger.LogError(e, "Ошибка в процессе создания заявки счета без отгрузки для действия №{ActionId}", action.Id);
+						case OrderDocumentType.Bill:
+						case OrderDocumentType.SpecialBill:
+							var order = requestUow.GetById<Order>(request.Order.Id);
+							var document = order.OrderDocuments.First(x =>
+								x.Id == request.SourceDocumentId && x.Order.Id == order.Id);
+							prepared = await _billEdoRequestFactory.CreateAsync(order, request.OrderDocumentType,
+								CreateBillPdf((IPrintableRDLDocument)document), cancellationToken);
+							break;
+						case OrderDocumentType.BillWSForDebt:
+							prepared = await PrepareBillWithoutShipment(requestUow.GetById<OrderWithoutShipmentForDebt>(request.SourceDocumentId.Value), cancellationToken);
+							break;
+						case OrderDocumentType.BillWSForAdvancePayment:
+							prepared = await PrepareBillWithoutShipment(requestUow.GetById<OrderWithoutShipmentForAdvancePayment>(request.SourceDocumentId.Value), cancellationToken);
+							break;
+						case OrderDocumentType.BillWSForPayment:
+							prepared = await PrepareBillWithoutShipment(requestUow.GetById<OrderWithoutShipmentForPayment>(request.SourceDocumentId.Value), cancellationToken);
+							break;
+						default:
+							throw new NotSupportedException($"Не поддерживается подготовка счета {request.OrderDocumentType}");
 					}
+
+					request.DocumentSnapshot = prepared.DocumentSnapshot;
+					await _billEdoRequestSender.SendAsync(requestUow, request, request.Source, cancellationToken);
+				}
+				catch(Exception exception)
+				{
+					_logger.LogError(exception, "Ошибка подготовки заявки счета ЭДО №{RequestId}", requestId);
 				}
 			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка в процессе создания заявок счетов без отгрузки");
-			}
 		}
+
+		private Task<InformalEdoRequest> PrepareBillWithoutShipment(OrderWithoutShipmentBase bill, CancellationToken cancellationToken)
+			=> _billEdoRequestFactory.CreateAsync(bill, CreateBillPdf((IPrintableRDLDocument)bill), cancellationToken);
 
 		private byte[] CreateBillPdf(IPrintableRDLDocument document)
 		{

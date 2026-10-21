@@ -14,6 +14,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		/// </summary>
 		public BillWithoutShipmentForAdvancePaymentEdoRequestMap()
 		{
+			DynamicUpdate();
 			DiscriminatorValue(nameof(OrderDocumentType.BillWSForAdvancePayment));
 		}
 	}

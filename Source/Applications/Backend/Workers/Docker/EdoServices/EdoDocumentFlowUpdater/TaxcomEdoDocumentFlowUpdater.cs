@@ -608,131 +608,81 @@ namespace EdoDocumentFlowUpdater
 
 		private async Task CancellationDocFlows(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Получаем заказы по которым нужно отменить счёт");
-
-			try
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Аннулирование счетов нового ЭДО");
+			var requests = uow.GetAll<InformalEdoRequest>()
+				.Where(x => (x.OrderDocumentType == OrderDocumentType.Bill || x.OrderDocumentType == OrderDocumentType.SpecialBill)
+					&& x.Task != null && x.Task.CancellationReason != null
+					&& x.Task.Status != EdoTaskStatus.Cancelled && x.Task.Status != EdoTaskStatus.InCancellation)
+				.ToList();
+			foreach(var request in requests)
 			{
-				using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис аннулирования документов");
-				var offerCancellationFromActions = uow
-					.GetAll<OrderEdoTrueMarkDocumentsActions>()
-					.Where(x => x.IsNeedOfferCancellation)
-					.ToList();
-			
-				_logger.LogInformation("Всего нужно аннулировать {OfferCancellationCount}", offerCancellationFromActions.Count);
-
-				foreach(var offerCancellation in offerCancellationFromActions)
+				try
 				{
 					using var scope = _serviceScopeFactory.CreateScope();
-					var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
-				
-					var containersToOfferCancellation = uow.Session.Query<EdoContainer>()
-						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
-							&& ec.Type == DocumentContainerType.Bill
-							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
-							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error
-							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.WaitingForCancellation
-							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Cancelled)
-						.ToList();
-
-					foreach(var container in containersToOfferCancellation)
+					var client = scope.ServiceProvider.GetRequiredService<ITaxcomApiClient>();
+					
+					if(!await SendBillCancellationOffers(uow, client, request, cancellationToken))
 					{
-						//Не отменяем контейнеры, которые были созданы после запроса на аннулирование
-						if(offerCancellation.Created.HasValue && offerCancellation.Created < container.Created)
-						{
-							continue;
-						}
-					
-						_logger.LogInformation("Отменяется оффер из контейнера №{EdoContainerId}, Заказа №{OrderId}, документооборота {DocFlowId}",
-							container.Id,
-							container.Order?.Id,
-							container.DocFlowId);
-					
-						await SendOfferCancellationContainer(taxcomApiClient, container, cancellationToken);
+						continue;
 					}
 
-					var hasPendingBills = await SendBillCancellationOffers(
-						uow, taxcomApiClient, offerCancellation, cancellationToken);
-
-					offerCancellation.IsNeedOfferCancellation = hasPendingBills;
-					await uow.SaveAsync(offerCancellation);
-					await uow.CommitAsync();
+					await uow.SaveAsync(request.Task, cancellationToken: cancellationToken);
+					await uow.CommitAsync(cancellationToken);
+				}
+				catch(Exception exception)
+				{
+					_logger.LogError(exception, "Ошибка аннулирования счета по заявке №{RequestId}", request.Id);
 				}
 			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка в процессе аннулирования документов");
-
-				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
-					$"Ошибка в процессе аннулирования документов: {e}", cancellationToken);
-			}
 		}
-		
+
 		private async Task<bool> SendBillCancellationOffers(
 			IUnitOfWork uow, ITaxcomApiClient taxcomApiClient,
-			OrderEdoTrueMarkDocumentsActions offerCancellation, CancellationToken cancellationToken)
+			InformalEdoRequest request, CancellationToken cancellationToken)
 		{
-			var statusesWithoutCancellation = new[]
+			var document = uow.GetAll<OutgoingInformalEdoDocument>()
+				.Where(x => x.InformalDocumentTaskId == request.Task.Id)
+				.OrderByDescending(x => x.Id)
+				.FirstOrDefault();
+			if(document == null)
 			{
-				EdoDocumentStatus.Warning,
-				EdoDocumentStatus.Error,
-				EdoDocumentStatus.WaitingForCancellation,
-				EdoDocumentStatus.Cancelled
-			};
-			var billRequests = uow.GetAll<InformalEdoRequest>()
-				.Where(request => request.Order.Id == offerCancellation.Order.Id
-					&& (request.OrderDocumentType == OrderDocumentType.Bill
-						|| request.OrderDocumentType == OrderDocumentType.SpecialBill)
-					&& (!offerCancellation.Created.HasValue || request.Time <= offerCancellation.Created.Value));
+				if(request.Task.Status != EdoTaskStatus.New)
+				{
+					return false;
+				}
+				request.Task.ProcessTaskCancellation(EdoTaskStatus.Cancelled, request.Task.CancellationReason);
+				request.Task.EndTime = DateTime.Now;
+				return true;
+			}
 
-			var informalDocuments = uow.GetAll<OutgoingInformalEdoDocument>();
-			var taxcomDocflows = uow.GetAll<TaxcomDocflow>();
-			var hasPendingBills = billRequests.Any(request => request.Task == null
-				|| (request.Task.Status != EdoTaskStatus.Cancelled
-					&& !informalDocuments.Any(document =>
-						document.InformalDocumentTaskId == request.Task.Id
-						&& (statusesWithoutCancellation.Contains(document.Status)
-							|| taxcomDocflows.Any(docflow =>
-								docflow.EdoDocumentId == document.Id && docflow.DocflowId != null)))));
+			switch (document.Status)
+			{
+				case EdoDocumentStatus.Error:
+				case EdoDocumentStatus.Warning:
+					request.Task.CancellationReason = null;
+					return true;
+				case EdoDocumentStatus.Cancelled:
+				case EdoDocumentStatus.WaitingForCancellation:
+					request.Task.ProcessTaskCancellation(document.Status == EdoDocumentStatus.Cancelled
+						? EdoTaskStatus.Cancelled : EdoTaskStatus.InCancellation, request.Task.CancellationReason);
+					return true;
+			}
 
-			var billDocflows = (
-				from request in billRequests
-				join document in informalDocuments
-					on request.Task.Id equals document.InformalDocumentTaskId
-				join docflow in taxcomDocflows on document.Id equals docflow.EdoDocumentId
-				where !statusesWithoutCancellation.Contains(document.Status)
-					&& docflow.DocflowId != null
-				select docflow.DocflowId)
+			var docflowIds = uow.GetAll<TaxcomDocflow>()
+				.Where(x => x.EdoDocumentId == document.Id && x.DocflowId != null)
+				.Select(x => x.DocflowId.Value)
 				.Distinct()
 				.ToList();
-
-			foreach(var docflowId in billDocflows)
+			if(!docflowIds.Any())
 			{
-				await taxcomApiClient.SendOfferCancellation(
-					docflowId.ToString(), "Состав заказа был изменен", cancellationToken);
+				return false;
 			}
-
-			return hasPendingBills;
-		}
-
-		private async Task SendOfferCancellationContainer(
-			ITaxcomApiClient taxcomApiClient, EdoContainer edoContainer, CancellationToken cancellationToken)
-		{
-			try
+			foreach(var docflowId in docflowIds)
 			{
-				await taxcomApiClient.SendOfferCancellation(
-					edoContainer.DocFlowId.ToString(), "Состав заказа был изменен", cancellationToken);
+				await taxcomApiClient.SendOfferCancellation(docflowId.ToString(), request.Task.CancellationReason, cancellationToken);
 			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка в процессе аннулирования документооборота {DocFlowId} из контейнера №{EdoContainerId}, Заказа №{OrderId}",
-					edoContainer.DocFlowId,
-					edoContainer.Id,
-					edoContainer.Order.Id);
-
-				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
-					$"Ошибка в процессе аннулирования документооборота {edoContainer.DocFlowId} из контейнера №{edoContainer.Id}, Заказа №{edoContainer.Order.Id}: {e}",
-					cancellationToken);
-			}
+			request.Task.ProcessTaskCancellation(EdoTaskStatus.InCancellation, request.Task.CancellationReason);
+			return true;
 		}
 
 		private async Task DelayAsync(CancellationToken cancellationToken)

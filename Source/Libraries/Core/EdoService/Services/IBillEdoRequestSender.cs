@@ -8,9 +8,9 @@ namespace EdoService.Library.Services
 	public interface IBillEdoRequestSender
 	{
 		/// <summary>
-		/// Сохраняет новую заявку счета и событие её создания в одной транзакции
+		/// Сохраняет подготовленную заявку счета и событие её создания в одной транзакции
 		/// </summary>
-		/// <param name="request">Новая заявка, подготовленная фабрикой снимков счетов</param>
+		/// <param name="request">Заявка со снимком счета без созданной задачи</param>
 		/// <param name="source">Источник запуска отправки</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Идентификатор сохраненной заявки</returns>
@@ -21,7 +21,7 @@ namespace EdoService.Library.Services
 		/// Сохраняет заявку, событие её создания и изменения инициатора в одной транзакции
 		/// </summary>
 		/// <param name="uow">Единица работы инициатора отправки</param>
-		/// <param name="request">Новая заявка со снимком счета</param>
+		/// <param name="request">Заявка со снимком счета без созданной задачи</param>
 		/// <param name="source">Источник запуска отправки</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Идентификатор сохраненной заявки</returns>
