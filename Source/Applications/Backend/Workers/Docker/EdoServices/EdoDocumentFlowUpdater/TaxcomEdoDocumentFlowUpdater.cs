@@ -229,6 +229,7 @@ namespace EdoDocumentFlowUpdater
 						excludedDocflowIds.AddRange(toExclude);
 
 						_lastEventsProcessTime.LastProcessedEventOutgoingDocuments = lastTime;
+						lastProcessTime = lastTime;
 
 					} while(!docFlowUpdates.IsLast);
 
