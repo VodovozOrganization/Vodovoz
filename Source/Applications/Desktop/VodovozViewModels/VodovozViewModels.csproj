@@ -50,7 +50,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AboutAuthorsViewModel.cs" />
     <Compile Include="Accounting\Payments\PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel.cs" />
     <Compile Include="Accounting\Payments\PaymentWriteOffViewModel.cs" />
     <Compile Include="BaseParameters\BaseParametersViewModel.cs" />
@@ -175,6 +174,10 @@
     <Compile Include="Services\Orders\OrderCancellationPermitService.cs" />
     <Compile Include="Services\SalesReport\ISalesReportService.cs" />
     <Compile Include="Services\SalesReport\SalesReportService.cs" />
+    <Compile Include="Services\Warehouse\IMovementDocumentService.cs" />
+    <Compile Include="Services\Warehouse\MovementDocumentService.cs" />
+    <Compile Include="Services\Warehouse\NumberToWords.cs" />
+    <Compile Include="Services\Warehouse\PositionShortener.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByOldNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow.cs" />
@@ -1176,6 +1179,7 @@
     <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
     <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
     <Compile Include="ViewModels\Warehouses\ShiftChangeResidueDocumentViewModel.cs" />
+    <Compile Include="ViewModels\Warehouses\TtnDataViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\WriteOffDocumentViewModel.cs" />
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
     <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />
@@ -1569,6 +1573,8 @@
       <Version>0.2.6</Version>
     </PackageReference>
     <PackageReference Include="CsvHelper" Version="15.0.10" />
+    <PackageReference Include="EPPlus" Version="4.5.3.3" />
+    <PackageReference Include="EPPlus" Version="4.5.3.3" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
