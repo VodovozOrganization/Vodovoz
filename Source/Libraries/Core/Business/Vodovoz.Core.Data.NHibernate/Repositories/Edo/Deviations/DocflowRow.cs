@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Vodovoz.Core.Domain.Documents;
+
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 {
 	/// <summary>
@@ -21,5 +23,20 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		/// Время создания документооборота
 		/// </summary>
 		public DateTime CreationTime { get; set; }
+
+		/// <summary>
+		/// Текущее состояние документооборота
+		/// </summary>
+		public EdoDocFlowStatus DocFlowState { get; set; }
+
+		/// <summary>
+		/// Время изменения текущего состояния
+		/// </summary>
+		public DateTime? StateChangeTime { get; set; }
+
+		/// <summary>
+		/// Статус прослеживаемости текущего состояния
+		/// </summary>
+		public TrueMarkTraceabilityStatus? TrueMarkTraceabilityStatus { get; set; }
 	}
 }

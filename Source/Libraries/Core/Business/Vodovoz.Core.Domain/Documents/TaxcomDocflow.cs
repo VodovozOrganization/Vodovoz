@@ -1,7 +1,5 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.Extensions.Observable.Collections.List;
 
 namespace Vodovoz.Core.Domain.Documents
 {
@@ -20,6 +18,10 @@ namespace Vodovoz.Core.Domain.Documents
 		private string _correctionNoticeMessage;
 		private string _cancellationOfferMessage;
 		private string _discrepancyMessage;
+		private EdoDocFlowStatus _docFlowState = EdoDocFlowStatus.NotStarted;
+		private DateTime? _stateChangeTime;
+		private string _errorMessage;
+		private TrueMarkTraceabilityStatus? _trueMarkTraceabilityStatus;
 
 		/// <summary>
 		/// Идентификатор
@@ -117,8 +119,39 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
-		/// Список событий документооборота
+		/// Текущее состояние документооборота
 		/// </summary>
-		public virtual IObservableList<TaxcomDocflowAction> Actions { get; set; } = new ObservableList<TaxcomDocflowAction>();
+		public virtual EdoDocFlowStatus DocFlowState
+		{
+			get => _docFlowState;
+			set => SetField(ref _docFlowState, value);
+		}
+
+		/// <summary>
+		/// Время изменения текущего состояния
+		/// </summary>
+		public virtual DateTime? StateChangeTime
+		{
+			get => _stateChangeTime;
+			set => SetField(ref _stateChangeTime, value);
+		}
+
+		/// <summary>
+		/// Сообщение об ошибке текущего состояния
+		/// </summary>
+		public virtual string ErrorMessage
+		{
+			get => _errorMessage;
+			set => SetField(ref _errorMessage, value);
+		}
+
+		/// <summary>
+		/// Статус прослеживаемости в ЧЗ текущего состояния
+		/// </summary>
+		public virtual TrueMarkTraceabilityStatus? TrueMarkTraceabilityStatus
+		{
+			get => _trueMarkTraceabilityStatus;
+			set => SetField(ref _trueMarkTraceabilityStatus, value);
+		}
 	}
 }

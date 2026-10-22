@@ -28,10 +28,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			Map(x => x.DiscrepancyMessage)
 				.Column("discrepancy_message");
 
-			HasMany(x => x.Actions)
-				.KeyColumn("taxcom_docflow_id")
-				.Cascade
-				.AllDeleteOrphan();
+			Map(x => x.DocFlowState).Column("state");
+			Map(x => x.StateChangeTime).Column("state_change_time");
+			Map(x => x.ErrorMessage).Column("error_message");
+			Map(x => x.TrueMarkTraceabilityStatus).Column("true_mark_traceability_status");
 		}
 	}
 }

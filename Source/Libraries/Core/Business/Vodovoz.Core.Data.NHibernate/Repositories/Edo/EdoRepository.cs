@@ -181,13 +181,7 @@ select
 	eod.edo_type as :edo_type,
 	td.id as :taxcom_document_id,
 	td.docflow_id as :taxcom_docflow_id,
-	(
-		SELECT tda.state 
-		FROM taxcom_docflow_actions tda 
-		WHERE tda.taxcom_docflow_id = td.id
-		ORDER BY tda.`time` DESC
-		LIMIT 1
-	) as :last_taxcom_state
+	td.state as :last_taxcom_state
 from taxcom_docflows td
 left join edo_outgoing_documents eod on eod.id = td.edo_document_id
 left join edo_customer_requests ecr on ecr.order_task_id = eod.document_task_id
@@ -199,13 +193,7 @@ select
 	eod.edo_type as :edo_type,
 	td.id as :taxcom_document_id,
 	td.docflow_id as :taxcom_docflow_id,
-	(
-		SELECT tda.state 
-		FROM taxcom_docflow_actions tda 
-		WHERE tda.taxcom_docflow_id = td.id
-		ORDER BY tda.`time` DESC
-		LIMIT 1
-	) as :last_taxcom_state
+	td.state as :last_taxcom_state
 from taxcom_docflows td
 left join edo_outgoing_documents eod on eod.id = td.edo_document_id
 left join edo_transfer_requests etr on etr.transfer_edo_task_id = eod.transfer_task_id
@@ -1302,20 +1290,13 @@ select
 	eod.status as :docflow_status,
 	td.creation_time as :taxcom_docflow_send_time,
 	td.docflow_id as :taxcom_docflow_id,
-	tda.`time` as :last_taxcom_status_update,
-	tda.`state` as :taxcom_status,
-	tda.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
-	tda.`error_message` as :taxcom_error_message
+	td.`state_change_time` as :last_taxcom_status_update,
+	td.`state` as :taxcom_status,
+	td.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
+	td.`error_message` as :taxcom_error_message
 from edo_outgoing_documents eod
 left join edo_customer_requests ecr on ecr.order_task_id = eod.document_task_id
 left join taxcom_docflows td on td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda ON tda.id = (
-    select id
-    from taxcom_docflow_actions
-    where taxcom_docflow_id = td.id
-    order by time desc
-    limit 1
-)
 where ecr.order_id = :order_id
 union all
 select
@@ -1325,22 +1306,15 @@ select
 	eod.status as :docflow_status,
 	td.creation_time as :taxcom_docflow_send_time,
 	td.docflow_id as :taxcom_docflow_id,
-	tda.`time` as :last_taxcom_status_update,
-	tda.`state` as :taxcom_status,
-	tda.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
-	tda.`error_message` as :taxcom_error_message
+	td.`state_change_time` as :last_taxcom_status_update,
+	td.`state` as :taxcom_status,
+	td.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
+	td.`error_message` as :taxcom_error_message
 from edo_outgoing_documents eod
 left join edo_transfer_requests etr on etr.transfer_edo_task_id = eod.transfer_task_id 
 left join edo_transfer_request_iterations etri on etri.id = etr.iteration_id 
 left join edo_customer_requests ecr on ecr.order_task_id = etri.order_edo_task_id
 left join taxcom_docflows td on td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda ON tda.id = (
-    select id
-    from taxcom_docflow_actions
-    where taxcom_docflow_id = td.id
-    order by time desc
-    limit 1
-)
 where ecr.order_id = :order_id
 ;
 ";
