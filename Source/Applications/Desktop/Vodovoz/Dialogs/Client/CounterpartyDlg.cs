@@ -108,6 +108,7 @@ using Vodovoz.Views.Client;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
+using VodovozBusiness.Services.Clients;
 using IOrganizationRepository = Vodovoz.EntityRepositories.Organizations.IOrganizationRepository;
 using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
 using Selection = Gdk.Selection;
@@ -166,6 +167,7 @@ namespace Vodovoz
 		private ICounterpartyFileStorageService _counterpartyFileStorageService;
 		private IGeneralSettings _generalSettings;
 		private IOrderRepository _orderRepository;
+		private IMindboxCounterpartyOutboxService _mindboxCounterpartyOutboxService;
 		private const int _edoDocumentsPageSize = 100;
 		private IObservableList<EdoDockflowData> _edoEdoDocumentDataNodes = new ObservableList<EdoDockflowData>();
 
@@ -353,6 +355,7 @@ namespace Vodovoz
 			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 			_generalSettings = _lifetimeScope.Resolve<IGeneralSettings>();
 			_orderRepository = _lifetimeScope.Resolve<IOrderRepository>();
+			_mindboxCounterpartyOutboxService = _lifetimeScope.Resolve<IMindboxCounterpartyOutboxService>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -1701,6 +1704,8 @@ namespace Vodovoz
 				return false;
 			}
 
+			var isNewCounterparty = Entity.Id == 0;
+
 			try
 			{
 				SetSensetivity(false);
@@ -1731,7 +1736,7 @@ namespace Vodovoz
 				_logger.Info("Сохраняем контрагента...");
 				try
 				{
-					SaveWithPhoneArchiving();
+					SaveWithPhoneArchiving(isNewCounterparty);
 				}
 				catch(Exception ex)
 				{
@@ -1761,11 +1766,35 @@ namespace Vodovoz
 			}
 		}
 
-		private void SaveWithPhoneArchiving()
+		private void TryEnqueueMindboxCounterparty()
+		{
+			try
+			{
+				_mindboxCounterpartyOutboxService.Enqueue(UoW, Entity);
+			}
+			catch(Exception ex)
+			{
+				_logger.Error(
+					ex,
+					"Не удалось поставить контрагента {CounterpartyId} в очередь отправки в Mindbox",
+					Entity.Id);
+			}
+		}
+
+		private void SaveWithPhoneArchiving(bool isNewCounterparty)
 		{
 			try
 			{
 				_phonesViewModel.PrepareSave();
+
+				if(isNewCounterparty && _mindboxCounterpartyOutboxService.IsEnabled)
+				{
+					// Сохраняем контрагента до постановки в очередь,
+					// чтобы NHibernate успел присвоить Id и ссылка из очереди была валидной.
+					UoW.Session.Save(Entity);
+					TryEnqueueMindboxCounterparty();
+				}
+
 				UoW.Save();
 			}
 			catch

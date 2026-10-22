@@ -112,6 +112,7 @@ using Vodovoz.ViewModels.Services.SalesReport;
 using Vodovoz.ViewModels.Services.Warehouse;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.Payments;
+using VodovozBusiness.Services.Clients;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
@@ -232,6 +233,7 @@ namespace Vodovoz
 				.AddSingleton<ViewModelWidgetsRegistrar>()
 				.AddApplication()
 				.AddBusiness(configuration)
+				.AddScoped<IMindboxCounterpartyOutboxService, MindboxCounterpartyOutboxService>()
 				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
 				.AddCoreDataRepositories()
