@@ -103,7 +103,7 @@ namespace Vodovoz.Core.Application.Sale
 			OnlineOrderPromoSet onlinePromoSet
 		)
 		{
-			var currentSumWithoutDiscount = onlinePromoSet.PromoSet.SumWithoutDiscount() * onlinePromoSet.Count;
+			var currentSumWithoutDiscount = onlinePromoSet.Price * onlinePromoSet.Count;
 			var discountAmounts = new Dictionary<int, IDiscountAmount>();
 			var totalDiscountMoney = 0m;
 

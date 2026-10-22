@@ -353,11 +353,11 @@ namespace Vodovoz.Views.Orders
 					{
 						if(node is OnlineOrderPromoSetNode && node.ReceivedPrice != node.OurPrice)
 						{
-							cell.BackgroundGdk = GdkColors.DangerBase;
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
 						}
 						else
 						{
-							cell.BackgroundGdk = GdkColors.PrimaryBase;
+							cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 						}
 					})
 				.AddColumn("Цена с учетом\nскидки из набора\n(ДВ)")
@@ -393,11 +393,11 @@ namespace Vodovoz.Views.Orders
 					{
 						if(node is OnlineOrderPromoSetNode && node.ReceivedSum != node.OurSum)
 						{
-							cell.BackgroundGdk = GdkColors.DangerBase;
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
 						}
 						else
 						{
-							cell.BackgroundGdk = GdkColors.PrimaryBase;
+							cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 						}
 					})
 				.AddColumn("Сумма(ДВ)")

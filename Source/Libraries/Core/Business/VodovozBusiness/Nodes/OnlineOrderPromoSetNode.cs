@@ -13,7 +13,7 @@ namespace VodovozBusiness.Nodes
 		public decimal? ReceivedDiscountMoney { get; set; }
 
 		public decimal? ReceivedSum => ReceivedPrice.HasValue
-			? Math.Round(Count * ReceivedPrice.Value - ReceivedDiscountMoney ?? 0, 2)
+			? Math.Round(Count * ReceivedPrice.Value - (ReceivedDiscountMoney ?? 0), 2)
 			: (decimal?)null;
 
 		public decimal OurPrice { get; set; }

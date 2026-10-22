@@ -52,6 +52,8 @@ namespace Vodovoz.Core.Application.Sale
 			}
 
 			Recalculate();
+			var discountItem = saleItem.ToApplyDiscountReasonItem();
+			RecalculateDiscounts(CommonRecalculateDiscount.CreateDataContext(discountItem));
 			return true;
 		}
 		
@@ -123,11 +125,6 @@ namespace Vodovoz.Core.Application.Sale
 				if(saleItem.Nomenclature.Category == NomenclatureCategory.water)
 				{
 					RecalculatePrice(saleItem);
-				}
-				else
-				{
-					var discountItem = saleItem.ToApplyDiscountReasonItem();
-					RecalculateDiscounts(CommonRecalculateDiscount.CreateDataContext(discountItem));
 				}
 			}
 		}
