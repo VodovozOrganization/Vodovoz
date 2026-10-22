@@ -116,6 +116,39 @@ namespace Edo.Documents.Services
 			);
 		}
 
+		public async Task RebuildForOwnNeedUpdDocumentAsync(
+			DocumentEdoTask documentEdoTask,
+			CancellationToken cancellationToken
+		)
+		{
+			if(documentEdoTask is null)
+			{
+				throw new ArgumentNullException(nameof(documentEdoTask));
+			}
+
+			await RemoveUpdDocumentAsync(documentEdoTask, cancellationToken);
+			await BuildForOwnNeedUpdDocumentAsync(documentEdoTask, cancellationToken);
+		}
+
+		private async Task RemoveUpdDocumentAsync(DocumentEdoTask documentEdoTask, CancellationToken cancellationToken)
+		{
+			var oldUpdDocument = documentEdoTask.Upd;
+
+			if(oldUpdDocument is null)
+			{
+				return;
+			}
+
+			documentEdoTask.Upd = null;
+
+			// Каскад many-to-one не удаляет замененный документ,
+			// поэтому удаляем явно вместе с инвентарными позициями и их кодами
+			if(oldUpdDocument.Id != 0)
+			{
+				await _uow.DeleteAsync(oldUpdDocument, cancellationToken);
+			}
+		}
+
 		public EdoUpdDocument GetUpdDocumentWithoutCodes(DocumentEdoTask documentEdoTask)
 		{
 			if(documentEdoTask is null)

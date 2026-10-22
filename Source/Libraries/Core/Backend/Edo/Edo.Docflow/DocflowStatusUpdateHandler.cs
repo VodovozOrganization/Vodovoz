@@ -209,7 +209,7 @@ namespace Edo.Docflow
 
 				case EdoDocFlowStatus.Cancelled:
 					document.Status = EdoDocumentStatus.Cancelled;
-					await _publishEndpoint.Publish(new OrderDocumentCancelledEvent(document.Id), cancellationToken);
+					await _publishEndpoint.Publish(new TransferDocumentCancelledEvent(document.Id), cancellationToken);
 					break;
 
 				case EdoDocFlowStatus.NotAccepted:

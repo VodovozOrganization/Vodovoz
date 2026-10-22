@@ -36,10 +36,18 @@ namespace Edo.Docflow
 		{
 			services.AddEdoDocflowServices();
 
-			services.AddEdoMassTransit(configureBus: cfg =>
-			{
-				cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
-			});
+			services.AddEdoMassTransit(
+
+				configureRabbit: (context, rabbitCfg) =>
+				{
+					// Обязателен, не отключать не сделав отправку сообщений после коммита
+					rabbitCfg.UseInMemoryOutbox();
+				},
+				configureBus: cfg =>
+				{
+					cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
+				}
+			);
 
 
 			services.AddEdoNotifications();

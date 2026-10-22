@@ -17,6 +17,15 @@ namespace Edo.Documents.Services
 		Task BuildForOwnNeedUpdDocumentAsync(
 			DocumentEdoTask documentEdoTask,
 			CancellationToken cancellationToken);
+		/// <summary>
+		/// Удаляет существующий документ УПД задачи и создает его заново
+		/// с учетом текущих кодов в строках задачи
+		/// </summary>
+		/// <param name="documentEdoTask">Задача ЭДО</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		Task RebuildForOwnNeedUpdDocumentAsync(
+			DocumentEdoTask documentEdoTask,
+			CancellationToken cancellationToken);
 		UpdInventPosition CreateInventPosition(OrderEntity order, OrderItemEntity orderItem);
 		EdoUpdDocument GetUpdDocumentWithoutCodes(DocumentEdoTask documentEdoTask);
 	}

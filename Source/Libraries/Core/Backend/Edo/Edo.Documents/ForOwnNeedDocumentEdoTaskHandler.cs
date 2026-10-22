@@ -143,7 +143,7 @@ namespace Edo.Documents
 
 					if(hasGroupInvalidCodes)
 					{
-						documentEdoTask.UpdInventPositions.Clear();
+						documentEdoTask.Upd = null;
 					}
 				}
 			} while(!isAllValid && attempts > 0);
