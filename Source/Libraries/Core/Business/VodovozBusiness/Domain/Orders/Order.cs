@@ -2815,6 +2815,8 @@ namespace Vodovoz.Domain.Orders
 			GuiltyTypes? guilty = GuiltyTypes.Client,
 			bool needCreateDeliveryFreeBalanceOperation = false)
 		{
+			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, this);
 			var routeList = routeListItem?.RouteList;
 			switch(OrderStatus)
@@ -2846,20 +2848,18 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 			UpdateBottleMovementOperation(uow, nomenclatureSettings, 0);
-
-			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
 		}
 
 		public virtual void CancelDelivery(IUnitOfWork uow, IOrderSaleHandler saleHandler, ICallTaskWorker callTaskWorker)
 		{
-			ChangeStatusAndCreateTasks(saleHandler, OrderStatus.DeliveryCanceled, callTaskWorker);
 			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+			ChangeStatusAndCreateTasks(saleHandler, OrderStatus.DeliveryCanceled, callTaskWorker);
 		}
 
 		public virtual void OverdueDelivery(IUnitOfWork uow, IOrderSaleHandler saleHandler, ICallTaskWorker callTaskWorker)
 		{
-			ChangeStatusAndCreateTasks(saleHandler, OrderStatus.NotDelivered, callTaskWorker);
 			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+			ChangeStatusAndCreateTasks(saleHandler, OrderStatus.NotDelivered, callTaskWorker);
 		}
 
 		public virtual void ChangeStatusAndCreateTasks(IOrderSaleHandler saleHandler, OrderStatus newStatus, ICallTaskWorker callTaskWorker)

@@ -635,6 +635,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 
 		public OrderAddressType? TypeOfAddress => null;
 
+		public bool HasKulerServiceNomenclature => false;
+
 		public override void Dispose()
 		{
 			IsDisposed = true;

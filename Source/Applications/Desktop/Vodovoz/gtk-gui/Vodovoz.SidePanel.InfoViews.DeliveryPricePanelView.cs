@@ -8,6 +8,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.Label label1;
 
+		private global::Gtk.Label labelMasterVisitCost;
+
 		private global::Gtk.Label labelError;
 
 		private global::Vodovoz.ViewWidgets.DeliveryPriceView deliverypriceview;
@@ -33,6 +35,16 @@ namespace Vodovoz.SidePanel.InfoViews
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.labelMasterVisitCost = new global::Gtk.Label();
+			this.labelMasterVisitCost.Name = "labelMasterVisitCost";
+			this.labelMasterVisitCost.LabelProp = global::Mono.Unix.Catalog.GetString("<u><b>Стоимость выезда мастера:</b></u>");
+			this.labelMasterVisitCost.UseMarkup = true;
+			this.vbox1.Add(this.labelMasterVisitCost);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelMasterVisitCost]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.labelError = new global::Gtk.Label();
 			this.labelError.Name = "labelError";
 			this.labelError.Xalign = 0F;
@@ -40,7 +52,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.labelError.Wrap = true;
 			this.vbox1.Add(this.labelError);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelError]));
-			w2.Position = 1;
+			w2.Position = 2;
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
@@ -49,13 +61,14 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.deliverypriceview.Name = "deliverypriceview";
 			this.vbox1.Add(this.deliverypriceview);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.deliverypriceview]));
-			w3.Position = 2;
+			w3.Position = 3;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
 			this.labelError.Hide();
+			this.labelMasterVisitCost.Hide();
 			this.Hide();
 		}
 	}
