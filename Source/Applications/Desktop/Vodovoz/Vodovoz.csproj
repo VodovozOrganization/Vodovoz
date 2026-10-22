@@ -438,6 +438,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SemitrailerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.TtnDataView.cs" />
     <Compile Include="Infrastructure\Converters\RoundedDecimalToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\ValueToLeadingDigitsConverter.cs" />
     <Compile Include="Infrastructure\Converters\TextToBoldTextConverter.cs" />
