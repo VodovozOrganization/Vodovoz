@@ -14,5 +14,10 @@
 		/// Количество снятых отклонений
 		/// </summary>
 		public int ResolvedDeviationsCount { get; set; }
+
+		/// <summary>
+		/// Количество отклонений, проверка или обработка которых завершилась ошибкой
+		/// </summary>
+		public int FailedDeviationsCount { get; set; }
 	}
 }

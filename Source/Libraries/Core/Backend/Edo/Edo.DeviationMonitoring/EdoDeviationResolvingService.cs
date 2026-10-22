@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Results;
 
 namespace Edo.DeviationMonitoring
 {
@@ -24,13 +23,15 @@ namespace Edo.DeviationMonitoring
 		private readonly IEdoDeviationRepository _edoDeviationRepository;
 		private readonly EdoDeviationValidatorsProvider _validatorsProvider;
 		private readonly EdoDeviationMonitoringOptions _options;
+		private readonly IEdoDeviationProcessingService _processingService;
 
 		public EdoDeviationResolvingService(
 			ILogger<EdoDeviationResolvingService> logger,
 			IUnitOfWorkFactory uowFactory,
 			IEdoDeviationRepository edoDeviationRepository,
 			EdoDeviationValidatorsProvider validatorsProvider,
-			IOptionsSnapshot<EdoDeviationMonitoringOptions> options)
+			IOptionsSnapshot<EdoDeviationMonitoringOptions> options,
+			IEdoDeviationProcessingService processingService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -44,6 +45,7 @@ namespace Edo.DeviationMonitoring
 			}
 
 			_options = options.Value;
+			_processingService = processingService ?? throw new ArgumentNullException(nameof(processingService));
 		}
 
 		/// <inheritdoc/>
@@ -83,9 +85,10 @@ namespace Edo.DeviationMonitoring
 			}
 
 			_logger.LogInformation(
-				"Проход снятия отклонений ЭДО завершен. Проверено {CheckedCount}, снято {ResolvedCount}",
+				"Проход снятия отклонений ЭДО завершен. Проверено {CheckedCount}, снято {ResolvedCount}, ошибок {FailedCount}",
 				result.CheckedDeviationsCount,
-				result.ResolvedDeviationsCount);
+				result.ResolvedDeviationsCount,
+				result.FailedDeviationsCount);
 
 			return result;
 		}
@@ -133,21 +136,95 @@ namespace Edo.DeviationMonitoring
 
 			foreach(var deviationNode in deviationNodes)
 			{
-				var resolveReason = GetResolveReason(
-					deviationNode, validators, taskNodes, transferNodes, requestNodes, checkTime);
-
-				if(resolveReason is null)
+				try
 				{
-					continue;
+					var resolveReason = GetResolveReason(
+						deviationNode, validators, taskNodes, transferNodes, requestNodes, checkTime);
+
+					if(resolveReason is null)
+					{
+						if(!_processingService.CanProcess(deviationNode.Deviation, checkTime))
+						{
+							continue;
+						}
+
+						using(var processingUow = _uowFactory.CreateWithoutRoot("Обработка отклонения ЭДО"))
+						{
+							var activeDeviation = await processingUow.Session.GetAsync<EdoTaskDeviation>(
+								deviationNode.Deviation.Id, cancellationToken);
+							if(activeDeviation != null && _processingService.CanProcess(activeDeviation, checkTime))
+							{
+								var currentNode = new EdoTaskDeviationNode {
+									Deviation = activeDeviation, DeviationSourceId = activeDeviation.DeviationSource.Id,
+									EdoTaskId = activeDeviation.EdoTask?.Id, EdoRequestId = activeDeviation.EdoRequest?.Id };
+								var currentReason = await GetCurrentResolveReasonAsync(processingUow, currentNode,
+									validators, transferNodes.ContainsKey(deviationNode.EdoTaskId ?? 0), checkTime, cancellationToken);
+								if(currentReason.HasValue)
+								{
+									activeDeviation.Resolve(checkTime, currentReason.Value);
+									await processingUow.SaveAsync(activeDeviation, cancellationToken: cancellationToken);
+									result.ResolvedDeviationsCount++;
+								}
+								else
+								{
+									await _processingService.ProcessAsync(processingUow, activeDeviation, checkTime, cancellationToken);
+								}
+								await processingUow.CommitAsync(cancellationToken);
+							}
+						}
+						continue;
+					}
+
+					var deviation = deviationNode.Deviation;
+
+					deviation.Resolve(checkTime, resolveReason.Value);
+
+					await uow.SaveAsync(deviation, cancellationToken: cancellationToken);
+					result.ResolvedDeviationsCount++;
+				}
+				catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+				{
+					throw;
+				}
+				catch(Exception ex)
+				{
+					result.FailedDeviationsCount++;
+					_logger.LogError(ex, "Ошибка обработки отклонения ЭДО {DeviationId} типа {DeviationType}",
+						deviationNode.Deviation.Id, deviationNode.Deviation.DeviationSource.DeviationType);
+				}
+			}
+		}
+
+		private async Task<EdoDeviationResolveReason?> GetCurrentResolveReasonAsync(
+			IUnitOfWork uow, EdoTaskDeviationNode node, EdoDeviationValidators validators,
+			bool isTransfer, DateTime checkTime, CancellationToken cancellationToken)
+		{
+			if(node.EdoTaskId.HasValue)
+			{
+				var ids = new[] { node.EdoTaskId.Value };
+				if(isTransfer)
+				{
+					var transfer = (await _edoDeviationRepository.GetTransferTaskNodesAsync(uow, ids, cancellationToken))
+						.FirstOrDefault(x => x.EdoTaskId == node.EdoTaskId.Value);
+					return transfer == null ? EdoDeviationResolveReason.EntityNotFound
+						: GetTransferDeviationResolveReason(node, validators, transfer, checkTime);
 				}
 
-				var deviation = deviationNode.Deviation;
-
-				deviation.Resolve(checkTime, resolveReason.Value);
-
-				await uow.SaveAsync(deviation, cancellationToken: cancellationToken);
-				result.ResolvedDeviationsCount++;
+				var task = (await _edoDeviationRepository.GetTaskNodesAsync(uow, ids, cancellationToken))
+					.FirstOrDefault(x => x.EdoTaskId == node.EdoTaskId.Value);
+				return task == null ? EdoDeviationResolveReason.EntityNotFound
+					: GetTaskDeviationResolveReason(node, validators, task, checkTime);
 			}
+
+			if(node.EdoRequestId.HasValue)
+			{
+				var requests = await _edoDeviationRepository.GetRequestNodesAsync(
+					uow, new[] { node.EdoRequestId.Value }, cancellationToken);
+				return GetRequestDeviationResolveReason(node, validators,
+					requests.ToDictionary(x => x.RequestId), checkTime);
+			}
+
+			return EdoDeviationResolveReason.EntityNotFound;
 		}
 
 		private EdoDeviationResolveReason? GetResolveReason(
@@ -222,10 +299,7 @@ namespace Edo.DeviationMonitoring
 				return EdoDeviationResolveReason.ConditionGone;
 			}
 
-			var isStillActive = IsStillActive(
-				deviationNode,
-				validation.Validator.DeviationType,
-				() => validation.Validator.Validate(task, validation.Source, checkTime));
+			var isStillActive = validation.Validator.Validate(task, validation.Source, checkTime).IsFailure;
 
 			return isStillActive ? (EdoDeviationResolveReason?)null : EdoDeviationResolveReason.ConditionGone;
 		}
@@ -262,10 +336,7 @@ namespace Edo.DeviationMonitoring
 				return EdoDeviationResolveReason.ConditionGone;
 			}
 
-			var isStillActive = IsStillActive(
-				deviationNode,
-				validation.Validator.DeviationType,
-				() => validation.Validator.Validate(transferTask, validation.Source, checkTime));
+			var isStillActive = validation.Validator.Validate(transferTask, validation.Source, checkTime).IsFailure;
 
 			return isStillActive ? (EdoDeviationResolveReason?)null : EdoDeviationResolveReason.ConditionGone;
 		}
@@ -298,10 +369,7 @@ namespace Edo.DeviationMonitoring
 				return EdoDeviationResolveReason.ValidatorDisabled;
 			}
 
-			var isStillActive = IsStillActive(
-				deviationNode,
-				validation.Validator.DeviationType,
-				() => validation.Validator.Validate(request, validation.Source, checkTime));
+			var isStillActive = validation.Validator.Validate(request, validation.Source, checkTime).IsFailure;
 
 			return isStillActive ? (EdoDeviationResolveReason?)null : EdoDeviationResolveReason.ConditionGone;
 		}
@@ -312,24 +380,5 @@ namespace Edo.DeviationMonitoring
 			where TValidator : class, IEdoDeviationValidator =>
 			validations.FirstOrDefault(x => x.Source.Id == deviationNode.DeviationSourceId);
 
-		private bool IsStillActive(
-			EdoTaskDeviationNode deviationNode,
-			EdoDeviationType deviationType,
-			Func<Result> validate)
-		{
-			try
-			{
-				return validate().IsFailure;
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex,
-					"Ошибка проверки актуальности отклонения {DeviationId} типа {DeviationType}",
-					deviationNode.Deviation.Id,
-					deviationType);
-
-				return true;
-			}
-		}
 	}
 }

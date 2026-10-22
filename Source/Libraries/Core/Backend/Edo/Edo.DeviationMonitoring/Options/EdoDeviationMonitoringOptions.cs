@@ -26,5 +26,8 @@ namespace Edo.DeviationMonitoring.Options
 		/// Дата, с которой отслеживается результат обработки кодов в ГИС МТ
 		/// </summary>
 		public DateTime GisMtTrackingStartDate { get; set; }
+
+		/// <summary>Начало обнаружения отклонений, для которых разрешены автоматические действия.</summary>
+		public DateTime? ProcessingStartDate { get; set; }
 	}
 }
