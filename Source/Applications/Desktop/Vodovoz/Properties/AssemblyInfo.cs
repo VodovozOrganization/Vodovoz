@@ -15,7 +15,6 @@ using QS.Project.Versioning;
 [assembly: AssemblyProductCode(3)]
 [assembly: AssemblyModification("gpl")]
 [assembly: AssemblyLogoIcon("Vodovoz.icons.logo.png")]
-[assembly: AssemblyAppWebsite("http://www.qsolution.ru/")]
 
 // The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".
 // The form "{Major}.{Minor}.*" will automatically update the build and revision,
