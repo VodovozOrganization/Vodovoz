@@ -788,18 +788,19 @@ namespace Edo.Documents.Services
 
 		private void CleanupUnusedCodes(UpdDocumentCreationContext context)
 		{
-			if(!context.UnprocessedCodes.Any())
+			var unusedCodes = context.UnprocessedCodes.Where(x => x.ProductCode.SourceCode == null).ToList();
+			if(!unusedCodes.Any())
 			{
 				return;
 			}
 
 			_logger.LogInformation(
 				"Удаляем {Count} неиспользованных кодов из задачи",
-				context.UnprocessedCodes.Count);
+				unusedCodes.Count);
 
 			// оставшиеся коды удаляем из задачи
 			// потому что их не удалось назначить ни на один товар
-			foreach(var unprocessedCode in context.UnprocessedCodes)
+			foreach(var unprocessedCode in unusedCodes)
 			{
 				context.DocumentEdoTask.Items.Remove(unprocessedCode);
 			}
