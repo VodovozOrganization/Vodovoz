@@ -62,7 +62,7 @@ namespace Vodovoz.Views.Edo
 				return;
 			}
 
-			foreach(var action in ViewModel.Actions.Reverse())
+			foreach(var action in ViewModel.Actions)
 			{
 				var button = new yButton();
 				button.Label = action.Text;

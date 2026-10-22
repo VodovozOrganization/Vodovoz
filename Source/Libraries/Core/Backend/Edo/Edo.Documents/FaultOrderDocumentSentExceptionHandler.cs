@@ -35,7 +35,7 @@ namespace Edo.Documents
 			CancellationToken cancellationToken
 		)
 		{
-			var documentId = fault.Message.Id;
+			var documentId = fault.Message.DocumentId;
 			if(!fault.Exceptions.Any())
 			{
 				_logger.LogInformation(

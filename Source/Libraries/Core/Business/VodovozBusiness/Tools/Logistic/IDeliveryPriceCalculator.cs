@@ -8,5 +8,6 @@ namespace Vodovoz.Tools.Logistic
 		DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount, bool needCalculateDistance = true);
 		DeliveryPriceNode Calculate(DeliveryPoint point, int? bottlesCount = null);
 		DeliveryPriceNode CalculateForService(DeliveryPoint point);
+		DeliveryPriceNode CalculateForService(decimal? latitude, decimal? longitude);
 	}
 }

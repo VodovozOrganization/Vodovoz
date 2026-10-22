@@ -16,18 +16,13 @@ namespace Edo.Admin
 
 		public bool CanCancelEdoTask(EdoTask edoTask)
 		{
-			if(edoTask.Status == EdoTaskStatus.Completed)
-			{
-				return false;
-			}
-
 			switch(edoTask.TaskType)
 			{
 				case EdoTaskType.Transfer:
 					return CanCancelTransferEdoTask((TransferEdoTask)edoTask);
 
 				case EdoTaskType.Document:
-					return CanCancelDocumentEdoTask((DocumentEdoTask)edoTask);
+					return true;
 
 				case EdoTaskType.Receipt:
 					return CanCancelReceiptEdoTask((ReceiptEdoTask)edoTask);
@@ -59,17 +54,6 @@ namespace Edo.Admin
 				EdoTransferTaskStage.PreparingToSend,
 				EdoTransferTaskStage.ReadyToSend,
 				EdoTransferTaskStage.InProgress
-			);
-			return canCancel;
-		}
-
-		private bool CanCancelDocumentEdoTask(DocumentEdoTask edoTask)
-		{
-			var canCancel = edoTask.Stage.IsIn(
-				DocumentEdoTaskStage.New,
-				DocumentEdoTaskStage.Transfering,
-				DocumentEdoTaskStage.Sending,
-				DocumentEdoTaskStage.Sent
 			);
 			return canCancel;
 		}

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Edo.Upd;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -10,6 +11,8 @@ namespace Vodovoz.Core.Domain.Edo
 		private EdoDocumentType _documentType;
 		private DocumentEdoTaskStage _stage;
 		private IList<EdoUpdInventPosition> _updInventPositions = new List<EdoUpdInventPosition>();
+		private EdoUpdDocument _upd;
+
 
 		[Display(Name = "Код организации")]
 		public virtual int FromOrganization
@@ -44,6 +47,13 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _updInventPositions;
 			set => SetField(ref _updInventPositions, value);
+		}
+
+		[Display(Name = "УПД")]
+		public virtual EdoUpdDocument Upd
+		{
+			get => _upd;
+			set => SetField(ref _upd, value);
 		}
 
 		public override EdoTaskType TaskType => EdoTaskType.Document;

@@ -224,6 +224,7 @@ namespace Vodovoz.Domain.Payments
 				Organization = Organization,
 				Counterparty = Counterparty,
 				CounterpartyName = CounterpartyName,
+				CounterpartyInn = CounterpartyInn,
 				Status = PaymentState.undistributed,
 				RefundedPayment = this,
 				RefundPaymentFromOrderId = orderId

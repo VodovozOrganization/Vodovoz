@@ -10,7 +10,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Common.Services;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
@@ -30,7 +29,7 @@ namespace Edo.Documents
 		private readonly IUpdDocumentBuilder _updDocumentBuilder;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly IUpdTransportCodeService _updTransportCodeService;
 
 		public ForOwnNeedDocumentEdoTaskHandler(
 			IUnitOfWork uow,
@@ -42,7 +41,7 @@ namespace Edo.Documents
 			IUpdDocumentBuilder updDocumentBuilder,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService
+			IUpdTransportCodeService updTransportCodeService
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -54,7 +53,7 @@ namespace Edo.Documents
 			_updDocumentBuilder = updDocumentBuilder ?? throw new ArgumentNullException(nameof(updDocumentBuilder));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_updTransportCodeService = updTransportCodeService ?? throw new ArgumentNullException(nameof(updTransportCodeService));
 		}
 
 		public async Task HandleNewForOwnNeedsFormalDocument(
@@ -90,7 +89,7 @@ namespace Edo.Documents
 				}
 
 				documentEdoTask.UpdInventPositions.Clear();
-				await _updDocumentBuilder.BuildUpdDocumentAsync(documentEdoTask, cancellationToken);
+				await _updDocumentBuilder.BuildForOwnNeedUpdDocumentAsync(documentEdoTask, cancellationToken);
 
 				// проверить коды в ЧЗ, не валидные снова заменить кодами из пула
 				trueMarkCodesChecker.ClearCache();
@@ -138,13 +137,13 @@ namespace Edo.Documents
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 							codeResult.EdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 
-							await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, newCode, cancellationToken);
+							await _updTransportCodeService.DisaggregateCodeAsync(newCode, cancellationToken);
 						}
 					}
 
 					if(hasGroupInvalidCodes)
 					{
-						documentEdoTask.UpdInventPositions.Clear();
+						documentEdoTask.Upd = null;
 					}
 				}
 			} while(!isAllValid && attempts > 0);
@@ -215,7 +214,7 @@ namespace Edo.Documents
 					return;
 				}
 
-				await _updDocumentBuilder.BuildUpdDocumentAsync(documentEdoTask, cancellationToken);
+				await _updDocumentBuilder.BuildForOwnNeedUpdDocumentAsync(documentEdoTask, cancellationToken);
 				return;
 			}
 
@@ -286,6 +285,7 @@ namespace Edo.Documents
 
 		private async Task<OrderEdoDocument> SendDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
 		{
+			await _updTransportCodeService.DetachIncompleteTransportCodesAsync(edoTask, cancellationToken);
 			edoTask.Stage = DocumentEdoTaskStage.Sending;
 
 			var customerEdoDocument = new OrderEdoDocument
