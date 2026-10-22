@@ -52,7 +52,14 @@ namespace Vodovoz.Models.TrueMark
 			
 			if(!match.Success)
 			{
-				throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({rawCode}).");
+				var altPattern = "^(?<IdentificationCode>\\(01\\)(?<GTIN>.{14})\\(21\\)(?<SerialNumber>.{13}))\\(93\\)(?<CheckCode>.{4})$";
+				var altRegex = new Regex(altPattern);
+				match = altRegex.Match(rawCode);
+				
+				if(!match.Success)
+				{
+					throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({rawCode}).");
+				}
 			}
 
 			Group specialCodeGroup = null;
