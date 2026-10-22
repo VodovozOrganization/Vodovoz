@@ -139,6 +139,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Transport\IncorrectFuelReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Warehouse\TTN.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)\Reports\Bookkeeping\CounterpartyDebtDetailsWithoutOrderByDate.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
