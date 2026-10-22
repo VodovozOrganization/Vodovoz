@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -2817,7 +2817,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, this);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, this.Id);
 			var routeList = routeListItem?.RouteList;
 			switch(OrderStatus)
 			{

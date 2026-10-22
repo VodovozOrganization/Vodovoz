@@ -1318,7 +1318,7 @@ namespace Vodovoz
 			yentryDriversPhone.IsEditable = false;
 
 			yentryDriversPhone.Text =
-				_routeListItemRepository.GetRouteListItemForOrder(UoW, Entity)
+				_routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Id)
 					?.RouteList?.Driver?.PhoneForCounterpartyCalls?.ToString()
 				?? string.Empty;
 		}
@@ -2918,7 +2918,7 @@ namespace Vodovoz
 
 		private void CreateDeliveryFreeBalanceOperations()
 		{
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Id);
 
 			if(routeListItem == null)
 			{
@@ -3756,6 +3756,7 @@ namespace Vodovoz
 			_logger.Info("ЭДО заказа {OrderId}: начало конфигурации ViewModel", Entity.Id);
 			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
 			edoForOrderViewModel.Setup(UoW, Entity.Id);
+
 			var reuseTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
 					this,
 					edoForOrderViewModel.OrderCodesViewModel,
@@ -4804,7 +4805,7 @@ namespace Vodovoz
 				CallTaskWorker, 
 				needCreateDeliveryFreeBalanceOperation: true);
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Id);
 			if(routeListItem != null)
 			{
 				routeListItem.StatusLastUpdate = DateTime.Now;

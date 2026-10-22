@@ -98,6 +98,7 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Edo\EdoDiscrepancyViewModel.cs" />
     <Compile Include="Edo\EdoDocumentActionsFactory.cs" />
     <Compile Include="Edo\EdoInOrderDocflowsStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDistributionStageViewModel.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Edo\EdoInOrderProblemViewModel.cs" />
     <Compile Include="Edo\EdoViewModel.cs" />
     <Compile Include="Edo\IEdoDocumentActionsFactory.cs" />
+    <Compile Include="Edo\UpdCompareViewModel.cs" />
     <Compile Include="Employees\FineCategoryViewModel.cs" />
     <Compile Include="Factories\AdditionalFuelTypeManagementViewModelFactory.cs" />
     <Compile Include="Factories\IAdditionalFuelTypeManagementViewModelFactory.cs" />
@@ -136,6 +138,7 @@
     <Compile Include="Journals\JournalNodes\Banks\BanksJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoDeviationJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoDeviationJournalNodeType.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoDiscrepancyJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoNotificationSettingJournalNode.cs" />
@@ -151,6 +154,7 @@
     <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationHelpTexts.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalMessages.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\EdoDiscrepancyJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoNotificationSettingJournalViewModel.cs" />
@@ -1348,6 +1352,10 @@
       <Project>{a5057b0f-1022-4d60-818e-b8f68890a2aa}</Project>
       <Name>DriverApi.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Documents\Edo.Documents.csproj">
+      <Project>{BF6C6F28-9258-44F9-B508-0DEC734D1A2A}</Project>
+      <Name>Edo.Documents</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj">
       <Project>{9315f39c-5054-410e-b8e9-27c987321b67}</Project>
       <Name>Edo.Problem.Routine</Name>
@@ -1459,6 +1467,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
       <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
       <Name>FuelControl.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Comparer\Comparer.csproj">
+      <Project>{93E79512-C190-4C08-A614-8CB992132970}</Project>
+      <Name>Comparer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj">
       <Project>{b318a2c2-a980-41bd-b072-321bccd70bbb}</Project>

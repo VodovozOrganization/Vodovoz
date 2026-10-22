@@ -1,4 +1,4 @@
-using CustomerNotifications.Contracts;
+﻿using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Notifications.Infrastructure;
@@ -349,7 +349,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 				_callTaskWorker,
 				needCreateDeliveryFreeBalanceOperation: true);
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order.Id);
 			if(routeListItem != null)
 			{
 				routeListItem.StatusLastUpdate = DateTime.Now;

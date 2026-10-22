@@ -2522,7 +2522,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var recalculatedToBaseResponse = _osrmClient.GetRoute(pointsToBase, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
 
-			if(recalculatedToBaseResponse.Routes is null)
+			if(recalculatedToBaseResponse?.Routes is null)
 			{
 				recalculatedToBaseResponse = _osrmClient.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
 			}
