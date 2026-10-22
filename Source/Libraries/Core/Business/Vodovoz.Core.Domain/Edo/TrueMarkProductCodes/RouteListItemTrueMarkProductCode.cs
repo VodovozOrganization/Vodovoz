@@ -1,6 +1,5 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Logistics;
 
 namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 {
@@ -10,13 +9,13 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			Nominative = "код ЧЗ товара адреса маршрутного листа")]
 	public class RouteListItemTrueMarkProductCode : TrueMarkProductCode
 	{
-		private RouteListItemEntity _routeListItem;
+		private int? _routeListItemId;
 
-		[Display(Name = "Адрес маршрутного листа")]
-		public virtual RouteListItemEntity RouteListItem
+		[Display(Name = "Id адреса маршрутного листа")]
+		public virtual int? RouteListItemId
 		{
-			get => _routeListItem;
-			set => SetField(ref _routeListItem, value);
+			get => _routeListItemId;
+			set => SetField(ref _routeListItemId, value);
 		}
 	}
 }

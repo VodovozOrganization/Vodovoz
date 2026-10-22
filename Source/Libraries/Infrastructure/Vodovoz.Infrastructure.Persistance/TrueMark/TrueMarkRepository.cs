@@ -249,10 +249,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Left.JoinAlias(
-					() => carLoadTrueMarkProductCodeAlias.CarLoadDocumentItem,
-					() => carLoadDocumentItemAlias
-				);
+				.JoinEntityAlias(
+					() => carLoadDocumentItemAlias,
+					() => carLoadDocumentItemAlias.Id == carLoadTrueMarkProductCodeAlias.CarLoadDocumentItemId,
+					JoinType.LeftOuterJoin);
 
 			if(edoTaskId.HasValue)
 			{
@@ -279,10 +279,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Left.JoinAlias(
-					() => routeListTrueMarkProductCodeAlias.RouteListItem,
-					() => routeListItemAlias
-				);
+				.JoinEntityAlias(
+					() => routeListItemAlias,
+					() => routeListItemAlias.Id == routeListTrueMarkProductCodeAlias.RouteListItemId,
+					JoinType.LeftOuterJoin);
 
 			if(edoTaskId.HasValue)
 			{
@@ -310,10 +310,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Left.JoinAlias(
-					() => selfdeliveryTrueMarkProductCodeAlias.SelfDeliveryDocumentItem,
-					() => selfDeliveryDocumentItemAlias
-				)
+				.JoinEntityAlias(
+					() => selfDeliveryDocumentItemAlias,
+					() => selfDeliveryDocumentItemAlias.Id == selfdeliveryTrueMarkProductCodeAlias.SelfDeliveryDocumentItemId,
+					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(
 					() => selfDeliveryDocumentItemAlias.Document,
 					() => selfDeliveryDocumentAlias
@@ -390,9 +390,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var routeListProductCodes = uow.Session.QueryOver(() => routeListProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.JoinAlias(
-					() => routeListProductCodeAlias.RouteListItem,
-					() => routeListItemAlias)
+				.JoinEntityAlias(
+					() => routeListItemAlias,
+					() => routeListItemAlias.Id == routeListProductCodeAlias.RouteListItemId,
+					JoinType.InnerJoin)
 				.Where(() => routeListItemAlias.Order.Id == orderId)
 				.Where(() => routeListProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
 				.Where(() => routeListProductCodeAlias.SourceCode != null)
@@ -400,9 +401,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var carLoadProductCodes = uow.Session.QueryOver(() => carLoadProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.JoinAlias(
-					() => carLoadProductCodeAlias.CarLoadDocumentItem,
-					() => carLoadDocumentItemAlias)
+				.JoinEntityAlias(
+					() => carLoadDocumentItemAlias,
+					() => carLoadDocumentItemAlias.Id == carLoadProductCodeAlias.CarLoadDocumentItemId,
+					JoinType.InnerJoin)
 				.Where(() => carLoadDocumentItemAlias.OrderId == orderId)
 				.Where(() => carLoadProductCodeAlias.SourceCodeStatus == SourceProductCodeStatus.Rejected)
 				.Where(() => carLoadProductCodeAlias.SourceCode != null)
@@ -410,9 +412,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var selfDeliveryProductCodes = uow.Session.QueryOver(() => selfDeliveryProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.JoinAlias(
-					() => selfDeliveryProductCodeAlias.SelfDeliveryDocumentItem,
-					() => selfDeliveryDocumentItemAlias)
+				.JoinEntityAlias(
+					() => selfDeliveryDocumentItemAlias,
+					() => selfDeliveryDocumentItemAlias.Id == selfDeliveryProductCodeAlias.SelfDeliveryDocumentItemId,
+					JoinType.InnerJoin)
 				.JoinAlias(
 					() => selfDeliveryDocumentItemAlias.Document,
 					() => selfDeliveryDocumentAlias)
@@ -512,7 +515,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			OrderEntity routeListOrderAlias = null;
 
 			var routeListIdentificationCodeIds = uow.Session.QueryOver(() => routeListProductCodeAlias)
-				.JoinAlias(() => routeListProductCodeAlias.RouteListItem, () => routeListItemAlias)
+				.JoinEntityAlias(
+					() => routeListItemAlias,
+					() => routeListItemAlias.Id == routeListProductCodeAlias.RouteListItemId,
+					JoinType.InnerJoin)
 				.JoinAlias(() => routeListItemAlias.Order, () => routeListOrderAlias)
 				.WhereRestrictionOn(() => routeListProductCodeAlias.SourceCode.Id).IsIn(codeIds)
 				.Where(() => routeListProductCodeAlias.ResultCode == null)
@@ -526,7 +532,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			OrderEntity carLoadOrderAlias = null;
 
 			var carLoadIdentificationCodeIds = uow.Session.QueryOver(() => carLoadProductCodeAlias)
-				.JoinAlias(() => carLoadProductCodeAlias.CarLoadDocumentItem, () => carLoadDocumentItemAlias)
+				.JoinEntityAlias(
+					() => carLoadDocumentItemAlias,
+					() => carLoadDocumentItemAlias.Id == carLoadProductCodeAlias.CarLoadDocumentItemId,
+					JoinType.InnerJoin)
 				.JoinEntityAlias(() => carLoadOrderAlias, () => carLoadOrderAlias.Id == carLoadDocumentItemAlias.OrderId)
 				.WhereRestrictionOn(() => carLoadProductCodeAlias.SourceCode.Id).IsIn(codeIds)
 				.Where(() => carLoadProductCodeAlias.ResultCode == null)
@@ -541,7 +550,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			OrderEntity selfDeliveryOrderAlias = null;
 
 			var selfDeliveryIdentificationCodeIds = uow.Session.QueryOver(() => selfDeliveryProductCodeAlias)
-				.JoinAlias(() => selfDeliveryProductCodeAlias.SelfDeliveryDocumentItem, () => selfDeliveryDocumentItemAlias)
+				.JoinEntityAlias(
+					() => selfDeliveryDocumentItemAlias,
+					() => selfDeliveryDocumentItemAlias.Id == selfDeliveryProductCodeAlias.SelfDeliveryDocumentItemId,
+					JoinType.InnerJoin)
 				.JoinAlias(() => selfDeliveryDocumentItemAlias.Document, () => selfDeliveryDocumentAlias)
 				.JoinAlias(() => selfDeliveryDocumentAlias.Order, () => selfDeliveryOrderAlias)
 				.WhereRestrictionOn(() => selfDeliveryProductCodeAlias.SourceCode.Id).IsIn(codeIds)
@@ -734,75 +746,97 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 		public async Task<int?> GetOrderIdByTrueMarkProductCode(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode, CancellationToken cancellationToken)
 		{
+			var query = CreateOrderIdByTrueMarkProductCodeQuery(uow, trueMarkProductCode);
+
+			if(query is null)
+			{
+				return null;
+			}
+
+			return await query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		public int? GetOrderIdByTrueMarkProductCode(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode)
+		{
+			var query = CreateOrderIdByTrueMarkProductCodeQuery(uow, trueMarkProductCode);
+
+			if(query is null)
+			{
+				return null;
+			}
+
+			return query.FirstOrDefault();
+		}
+
+		private IQueryable<int?> CreateOrderIdByTrueMarkProductCodeQuery(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode)
+		{
 			switch(trueMarkProductCode)
 			{
 				case CarLoadDocumentItemTrueMarkProductCode carLoadDocumentItemTrueMarkProduct:
 					{
-						var query =
-							from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItemEntity>()
-							where carLoadDocumentItem.Id == carLoadDocumentItemTrueMarkProduct.CarLoadDocumentItem.Id
-							select carLoadDocumentItem.OrderId;
+						var carLoadDocumentItemId = carLoadDocumentItemTrueMarkProduct.CarLoadDocumentItemId;
 
-						return await query.FirstOrDefaultAsync(cancellationToken);
-					}
-				case RouteListItemTrueMarkProductCode routeListItemTrueMarkProductCode:
-					{
-						var query =
-							from routeListItem in uow.Session.Query<RouteListItemEntity>()
-							where routeListItem.Id == routeListItemTrueMarkProductCode.RouteListItem.Id
-							select routeListItem.Order.Id;
-
-						return await query.FirstOrDefaultAsync(cancellationToken);
-					}
-				case SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryDocumentItemTrueMarkProductCode:
-					{
-						var selfDeliveryDocumentItemId = selfDeliveryDocumentItemTrueMarkProductCode
-							.SelfDeliveryDocumentItem?.Id;
-
-						if(selfDeliveryDocumentItemId is null)
-						{
-							var customerEdoRequestId = trueMarkProductCode.CustomerEdoRequest?.Id;
-
-							if(customerEdoRequestId is null)
-							{
-								return null;
-							}
-
-							var fallbackQuery =
-								from customerEdoRequest in uow.Session.Query<FormalEdoRequest>()
-								where customerEdoRequest.Id == customerEdoRequestId.Value
-								select customerEdoRequest.Order.Id;
-
-							return await fallbackQuery.FirstOrDefaultAsync(cancellationToken);
-						}
-
-						var query =
-							from selfDeliveryDocumentItem in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
-							where selfDeliveryDocumentItem.Id == selfDeliveryDocumentItemId.Value
-							select selfDeliveryDocumentItem.Document.Order.Id;
-
-						return await query.FirstOrDefaultAsync(cancellationToken);
-					}
-				case AutoTrueMarkProductCode _:
-				case ResentTrueMarkProductCode _:
-					{
-						var customerEdoRequestId = trueMarkProductCode.CustomerEdoRequest?.Id;
-
-						if(customerEdoRequestId is null)
+						if(carLoadDocumentItemId is null)
 						{
 							return null;
 						}
 
-						var query =
-							from orderEdoReques in uow.Session.Query<FormalEdoRequest>()
-							where orderEdoReques.Id == customerEdoRequestId.Value
-							select orderEdoReques.Order.Id;
+						return
+							from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItemEntity>()
+							where carLoadDocumentItem.Id == carLoadDocumentItemId.Value
+							select carLoadDocumentItem.OrderId;
+					}
+				case RouteListItemTrueMarkProductCode routeListItemTrueMarkProductCode:
+					{
+						var routeListItemId = routeListItemTrueMarkProductCode.RouteListItemId;
 
-						return await query.FirstOrDefaultAsync(cancellationToken);
+						if(routeListItemId is null)
+						{
+							return null;
+						}
+
+						return
+							from routeListItem in uow.Session.Query<RouteListItemEntity>()
+							where routeListItem.Id == routeListItemId.Value
+							select (int?)routeListItem.Order.Id;
+					}
+				case SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryDocumentItemTrueMarkProductCode:
+					{
+						var selfDeliveryDocumentItemId = selfDeliveryDocumentItemTrueMarkProductCode.SelfDeliveryDocumentItemId;
+
+						if(selfDeliveryDocumentItemId is null)
+						{
+							return CreateOrderIdByCustomerEdoRequestQuery(uow, trueMarkProductCode);
+						}
+
+						return
+							from selfDeliveryDocumentItem in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
+							where selfDeliveryDocumentItem.Id == selfDeliveryDocumentItemId.Value
+							select (int?)selfDeliveryDocumentItem.Document.Order.Id;
+					}
+				case AutoTrueMarkProductCode _:
+				case ResentTrueMarkProductCode _:
+					{
+						return CreateOrderIdByCustomerEdoRequestQuery(uow, trueMarkProductCode);
 					}
 				default:
 					throw new InvalidOperationException("Неизвестный тип кода ЧЗ товара");
 			}
+		}
+
+		private IQueryable<int?> CreateOrderIdByCustomerEdoRequestQuery(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode)
+		{
+			var customerEdoRequestId = trueMarkProductCode.CustomerEdoRequest?.Id;
+
+			if(customerEdoRequestId is null)
+			{
+				return null;
+			}
+
+			return
+				from customerEdoRequest in uow.Session.Query<FormalEdoRequest>()
+				where customerEdoRequest.Id == customerEdoRequestId.Value
+				select (int?)customerEdoRequest.Order.Id;
 		}
 
 		public IList<StagingTrueMarkCode> GetAllStagingCodesByOrderId(IUnitOfWork uow, int orderId)
@@ -833,6 +867,245 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				select code;
 
 			return codes.ToList();
+		}
+
+		/// <inheritdoc/>
+		public IList<RouteListItemTrueMarkProductCode> GetRouteListItemProductCodes(IUnitOfWork uow, int routeListItemId)
+		{
+			return GetRouteListItemProductCodesQuery(uow, routeListItemId).ToList();
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<RouteListItemTrueMarkProductCode>> GetRouteListItemProductCodesAsync(
+			IUnitOfWork uow,
+			int routeListItemId,
+			CancellationToken cancellationToken)
+		{
+			return await GetRouteListItemProductCodesQuery(uow, routeListItemId).ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<RouteListItemTrueMarkProductCode>> GetRouteListItemProductCodesByIdsWithSourceOrResultAsync(
+			IUnitOfWork uow,
+			int routeListItemId,
+			IEnumerable<int> productCodeIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(productCodeIds);
+
+			if(!ids.Any())
+			{
+				return new List<RouteListItemTrueMarkProductCode>();
+			}
+
+			return await uow.Session.Query<RouteListItemTrueMarkProductCode>()
+				.Where(x => x.RouteListItemId == routeListItemId
+					&& ids.Contains(x.Id)
+					&& (x.SourceCode != null || x.ResultCode != null))
+				.OrderBy(x => x.Id)
+				.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<TrueMarkWaterIdentificationCode>> GetRouteListItemProductCodesSourceCodesAsync(
+			IUnitOfWork uow,
+			int routeListItemId,
+			CancellationToken cancellationToken)
+		{
+			return await uow.Session.Query<RouteListItemTrueMarkProductCode>()
+				.Where(x => x.RouteListItemId == routeListItemId && x.SourceCode != null)
+				.Select(x => x.SourceCode)
+				.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<bool> IsRouteListItemHasProductCodesAsync(IUnitOfWork uow, int routeListItemId, CancellationToken cancellationToken)
+		{
+			return await uow.Session.Query<RouteListItemTrueMarkProductCode>()
+				.AnyAsync(x => x.RouteListItemId == routeListItemId, cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<CarLoadDocumentItemTrueMarkProductCode>> GetCarLoadDocumentItemsProductCodesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> carLoadDocumentItemIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(carLoadDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new List<CarLoadDocumentItemTrueMarkProductCode>();
+			}
+
+			return await uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>()
+				.Where(x => x.CarLoadDocumentItemId != null && ids.Contains(x.CarLoadDocumentItemId.Value))
+				.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IDictionary<int, int>> GetCarLoadDocumentItemsProductCodesCountAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> carLoadDocumentItemIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(carLoadDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new Dictionary<int, int>();
+			}
+
+			var counts = await uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>()
+				.Where(x => x.CarLoadDocumentItemId != null && ids.Contains(x.CarLoadDocumentItemId.Value))
+				.GroupBy(x => x.CarLoadDocumentItemId)
+				.Select(g => new { ItemId = g.Key, Count = g.Count() })
+				.ToListAsync(cancellationToken);
+
+			return counts.ToDictionary(x => x.ItemId.Value, x => x.Count);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<TrueMarkWaterIdentificationCode>> GetCarLoadDocumentItemProductCodesSourceCodesAsync(
+			IUnitOfWork uow,
+			int carLoadDocumentItemId,
+			CancellationToken cancellationToken)
+		{
+			return await uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>()
+				.Where(x => x.CarLoadDocumentItemId == carLoadDocumentItemId && x.SourceCode != null)
+				.Select(x => x.SourceCode)
+				.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<bool> IsCarLoadDocumentItemsHaveAddedProductCodesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> carLoadDocumentItemIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(carLoadDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return false;
+			}
+
+			return await uow.Session.Query<CarLoadDocumentItemTrueMarkProductCode>()
+				.AnyAsync(x => x.CarLoadDocumentItemId != null
+					&& ids.Contains(x.CarLoadDocumentItemId.Value)
+					&& (x.SourceCode != null || x.ResultCode != null), cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public IList<SelfDeliveryDocumentItemTrueMarkProductCode> GetSelfDeliveryDocumentItemsProductCodes(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds)
+		{
+			var ids = GetDistinctPositiveIds(selfDeliveryDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new List<SelfDeliveryDocumentItemTrueMarkProductCode>();
+			}
+
+			return GetSelfDeliveryDocumentItemsProductCodesQuery(uow, ids).ToList();
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<SelfDeliveryDocumentItemTrueMarkProductCode>> GetSelfDeliveryDocumentItemsProductCodesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(selfDeliveryDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new List<SelfDeliveryDocumentItemTrueMarkProductCode>();
+			}
+
+			return await GetSelfDeliveryDocumentItemsProductCodesQuery(uow, ids).ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public IDictionary<int, int> GetSelfDeliveryDocumentItemsProductCodesCount(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds)
+		{
+			var ids = GetDistinctPositiveIds(selfDeliveryDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new Dictionary<int, int>();
+			}
+
+			var counts = GetSelfDeliveryDocumentItemsProductCodesCountQuery(uow, ids).ToList();
+
+			return counts.ToDictionary(x => x.ItemId.Value, x => x.Count);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IDictionary<int, int>> GetSelfDeliveryDocumentItemsProductCodesCountAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> selfDeliveryDocumentItemIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = GetDistinctPositiveIds(selfDeliveryDocumentItemIds);
+
+			if(!ids.Any())
+			{
+				return new Dictionary<int, int>();
+			}
+
+			var counts = await GetSelfDeliveryDocumentItemsProductCodesCountQuery(uow, ids).ToListAsync(cancellationToken);
+
+			return counts.ToDictionary(x => x.ItemId.Value, x => x.Count);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IList<TrueMarkWaterIdentificationCode>> GetSelfDeliveryDocumentItemProductCodesSourceCodesAsync(
+			IUnitOfWork uow,
+			int selfDeliveryDocumentItemId,
+			CancellationToken cancellationToken)
+		{
+			return await uow.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
+				.Where(x => x.SelfDeliveryDocumentItemId == selfDeliveryDocumentItemId && x.SourceCode != null)
+				.Select(x => x.SourceCode)
+				.ToListAsync(cancellationToken);
+		}
+
+		private static IQueryable<RouteListItemTrueMarkProductCode> GetRouteListItemProductCodesQuery(IUnitOfWork uow, int routeListItemId)
+		{
+			return uow.Session.Query<RouteListItemTrueMarkProductCode>()
+				.Where(x => x.RouteListItemId == routeListItemId);
+		}
+
+		private static IQueryable<SelfDeliveryDocumentItemTrueMarkProductCode> GetSelfDeliveryDocumentItemsProductCodesQuery(
+			IUnitOfWork uow,
+			IList<int> selfDeliveryDocumentItemIds)
+		{
+			return uow.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
+				.Where(x => x.SelfDeliveryDocumentItemId != null && selfDeliveryDocumentItemIds.Contains(x.SelfDeliveryDocumentItemId.Value));
+		}
+
+		private static IQueryable<ProductCodesCountNode> GetSelfDeliveryDocumentItemsProductCodesCountQuery(
+			IUnitOfWork uow,
+			IList<int> selfDeliveryDocumentItemIds)
+		{
+			return GetSelfDeliveryDocumentItemsProductCodesQuery(uow, selfDeliveryDocumentItemIds)
+				.GroupBy(x => x.SelfDeliveryDocumentItemId)
+				.Select(g => new ProductCodesCountNode { ItemId = g.Key, Count = g.Count() });
+		}
+
+		private static List<int> GetDistinctPositiveIds(IEnumerable<int> ids)
+		{
+			return ids.Where(x => x > 0).Distinct().ToList();
+		}
+
+		private sealed class ProductCodesCountNode
+		{
+			public int? ItemId { get; set; }
+			public int Count { get; set; }
 		}
 	}
 }

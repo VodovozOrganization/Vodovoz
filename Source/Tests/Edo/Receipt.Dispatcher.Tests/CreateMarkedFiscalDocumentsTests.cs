@@ -960,11 +960,7 @@ namespace Receipt.Dispatcher.Tests
 				ProductCode = new CarLoadDocumentItemTrueMarkProductCode
 				{
 					Id = carLoadDocumentItemTrueMarkProductCodeAutoIncrementId,
-					CarLoadDocumentItem = new CarLoadDocumentItemEntity
-					{
-						Id = carLoadDocumentItemAutoIncrementId,
-						OrderId = orderId
-					},
+					CarLoadDocumentItemId = carLoadDocumentItemAutoIncrementId,
 					SourceCode = sourceCode
 				}
 			};

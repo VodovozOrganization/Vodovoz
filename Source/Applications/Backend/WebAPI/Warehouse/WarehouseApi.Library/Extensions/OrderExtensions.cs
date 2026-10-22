@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -10,7 +12,11 @@ namespace WarehouseApi.Library.Extensions
 {
 	public static class OrderExtensions
 	{
-		public static OrderDto ToApiDtoV1(this Order order, IEnumerable<Nomenclature> nomenclatures, SelfDeliveryDocument selfDeliveryDocument)
+		public static OrderDto ToApiDtoV1(
+			this Order order,
+			IEnumerable<Nomenclature> nomenclatures,
+			SelfDeliveryDocument selfDeliveryDocument,
+			ILookup<int, SelfDeliveryDocumentItemTrueMarkProductCode> productCodesByItemId)
 		{
 			if(order is null)
 			{
@@ -21,7 +27,7 @@ namespace WarehouseApi.Library.Extensions
 			{
 				Id = order.Id,
 				State = selfDeliveryDocument is null ? LoadOperationStateEnumDto.NotStarted : LoadOperationStateEnumDto.Done,
-				Items = order.OrderItems.ToApiDtoV1(nomenclatures, selfDeliveryDocument)
+				Items = order.OrderItems.ToApiDtoV1(nomenclatures, selfDeliveryDocument, productCodesByItemId)
 			};
 		}
 
