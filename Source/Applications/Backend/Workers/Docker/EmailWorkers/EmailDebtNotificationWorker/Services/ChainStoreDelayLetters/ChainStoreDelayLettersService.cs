@@ -90,15 +90,13 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 
 			using(var uow = _uowFactory.CreateWithoutRoot($"Сервис {nameof(ChainStoreDelayLettersService)}. Отбор заказов"))
 			{
-				var orders = await _orderRepository.GetChainStoreDelayOrdersAsync(
+				var windowOrders = await _orderRepository.GetChainStoreDelayOrdersAsync(
 					uow,
 					today,
 					daysBeforePaymentDate,
 					_counterpartySettings.CounterpartyFromTenderId,
 					_organizationSettings.VodovozOrganizationId,
 					cancellationToken);
-
-				var windowOrders = orders;
 
 				// строки, не отправленные до расчётной даты, переводятся в отдельное состояние
 				// до проверки пустого окна: ранний выход её не должен пропускать
