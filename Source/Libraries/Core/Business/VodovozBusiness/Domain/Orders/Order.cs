@@ -2933,13 +2933,18 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Ответственный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IRouteListService routeListService,
-			INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker,
-			GuiltyTypes? guilty = GuiltyTypes.Client, bool needCreateDeliveryFreeBalanceOperation = false)
+		public virtual void SetUndeliveredStatus(
+			IUnitOfWork uow, 
+			IRouteListService routeListService,
+			INomenclatureSettings nomenclatureSettings, 
+			ICallTaskWorker callTaskWorker,
+			GuiltyTypes? guilty = GuiltyTypes.Client, 
+			bool needCreateDeliveryFreeBalanceOperation = false
+		)
 		{
 			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, this);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, this.Id);
 			var routeList = routeListItem?.RouteList;
 			switch(OrderStatus)
 			{

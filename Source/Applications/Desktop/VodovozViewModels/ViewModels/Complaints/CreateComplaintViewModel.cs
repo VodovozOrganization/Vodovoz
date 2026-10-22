@@ -170,7 +170,7 @@ namespace Vodovoz.ViewModels.Complaints
 					return;
 				}
 
-				var routeList = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Order)?.RouteList;
+				var routeList = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Order.Id)?.RouteList;
 
 				if(routeList is null)
 				{

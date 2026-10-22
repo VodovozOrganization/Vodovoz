@@ -1,7 +1,8 @@
-using EdoService.Library;
+﻿using EdoService.Library;
 using Gamma.Binding.Core;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Services;
 using System;
 using System.Collections.Generic;
@@ -22,19 +23,23 @@ namespace Vodovoz.ViewModels.Edo
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly CanProcessOrSendEdoByClosingAccountingDate _canProcessOrSendEdo;
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly INavigationManager _navigationManager;
 
 		public EdoDocumentActionsFactory(
 			IInteractiveService interactiveService,
 			IEdoService edoService,
 			ICurrentPermissionService currentPermissionService,
 			CanProcessOrSendEdoByClosingAccountingDate canProcessOrSendEdo,
-			IUnitOfWorkFactory uowFactory)
+			IUnitOfWorkFactory uowFactory,
+			INavigationManager navigationManager
+			)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_canProcessOrSendEdo = canProcessOrSendEdo ?? throw new ArgumentNullException(nameof(canProcessOrSendEdo));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 		}
 
 		public IEnumerable<BusyCommand> CreateActions(
@@ -113,7 +118,9 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document,
 			Action onActionCompleted)
 		{
-			if(document.EdoDocumentStatus != EdoDocumentStatus.Succeed)
+			var hasActiveDiscrepancy = document.DocflowDiscrepancyState == EdoDiscrepancyState.Active;
+
+			if(document.EdoDocumentStatus != EdoDocumentStatus.Succeed && !hasActiveDiscrepancy)
 			{
 				actions.Add(new BusyCommand(
 					"Переотправить",
@@ -121,12 +128,11 @@ namespace Vodovoz.ViewModels.Edo
 				));
 			}
 
-			if(IsDocumentCompletedWithClarification(document)
-				&& _currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentWithCodesFromPool))
+			if(hasActiveDiscrepancy)
 			{
 				actions.Add(new BusyCommand(
-					"Переотправить с кодами из пула",
-					() => ResendUpdWithCodesFromPool(document, onActionCompleted)
+					"Открыть расхождение",
+					() => _navigationManager.OpenViewModel<EdoDiscrepancyViewModel, int>(null, document.DocumentId, OpenPageOptions.IgnoreHash)
 				));
 			}
 		}
@@ -147,13 +153,6 @@ namespace Vodovoz.ViewModels.Edo
 			if(IsDocumentInProgressOrSent(document))
 			{
 				ResendUpdWithCancellation(document, onActionCompleted);
-				return;
-			}
-
-			if(IsDocumentCompletedWithClarification(document))
-			{
-				ShowResult(_edoService.ResendEdoDocumentWithOriginalCodes(document.TaskId));
-				onActionCompleted?.Invoke();
 				return;
 			}
 
@@ -244,28 +243,6 @@ namespace Vodovoz.ViewModels.Edo
 			}
 		}
 
-		private void ResendUpdWithCodesFromPool(EdoInOrderDocumentNode document, Action onActionCompleted)
-		{
-			if(IsResendBlockedByClosedPeriod(document.TaskId))
-			{
-				return;
-			}
-
-			if(!_interactiveService.Question(
-				"Документ будет переотправлен с подбором новых кодов ЧЗ из пула. Продолжить?"))
-			{
-				return;
-			}
-
-			ShowResult(_edoService.ResendEdoDocumentForOrderWithCodesFromPool(document.TaskId));
-			onActionCompleted?.Invoke();
-		}
-
-		private bool IsDocumentCompletedWithClarification(EdoInOrderDocumentNode document)
-		{
-			return document.EdoDocumentStatus == EdoDocumentStatus.Warning
-				|| document.EdoDocumentStatus == EdoDocumentStatus.CompletedWithDivergences;
-		}
 
 		private static bool IsDocumentInProgressOrSent(EdoInOrderDocumentNode document)
 		{
