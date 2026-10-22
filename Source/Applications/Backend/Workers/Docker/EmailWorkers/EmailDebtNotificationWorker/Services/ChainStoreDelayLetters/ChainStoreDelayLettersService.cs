@@ -332,7 +332,8 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 					new DateTime(deliveryYear, 1, 1),
 					today));
 
-				var subject = string.Format(_emailSubjectFormat, order.Id);
+				var contractNumber = GetLetterContractNumber(client, contract);
+				var subject = string.Format(_emailSubjectFormat, contractNumber);
 
 				var storedEmail = _emailMessageFactory.CreateStoredEmail(subject, clientEmail, _storedEmailDescription);
 				await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
@@ -352,7 +353,7 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 				await uow.SaveAsync(letterEmail, cancellationToken: cancellationToken);
 
 				var body = _emailBodyGenerator.GenerateChainStoreDelayLetterBody(
-					contract.Number,
+					contractNumber,
 					order.Id,
 					letter.EstimatedPaymentDate,
 					_chainStoreDelayLettersSettings.ContactPhone,
@@ -400,6 +401,13 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 				"Письмо по заказу {OrderId} не отправлено, состояние: {Status}",
 				letter.OrderId,
 				status);
+		}
+
+		private static string GetLetterContractNumber(Counterparty client, CounterpartyContract contract)
+		{
+			return client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(client.SpecialContractNumber)
+				? client.SpecialContractNumber
+				: contract.Number;
 		}
 
 		private async Task PublishEmailMessage(int letterId, SendEmailMessage message, CancellationToken cancellationToken)
