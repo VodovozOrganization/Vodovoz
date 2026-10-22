@@ -616,19 +616,22 @@ namespace Vodovoz.EntityRepositories.Orders
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Заказы сетей и тендерных клиентов по правилам отчета "Отсрочка сети": неоплаченные и частично оплаченные
-		/// безналичные заказы с положительной суммой, кроме отмененных и недоставленных.
-		/// Фильтров отчета (клиент, менеджер, автор) и нижней границы даты нет
+		/// Заказы сетей и тендерных клиентов по правилам отчета "Отсрочка сети" (неоплаченные и частично оплаченные
+		/// безналичные заказы с положительной суммой, кроме отмененных и недоставленных) в окне уведомления: доставлены
+		/// до сегодняшнего дня, расчетная дата платежа (дата доставки + отсрочка клиента) - от завтра до сегодня + N дней включительно.
+		/// Фильтров отчета (клиент, менеджер, автор) нет
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="maxDeliveryDate">Максимальная дата доставки заказа (включительно)</param>
+		/// <param name="today">Сегодняшняя дата (по Москве)</param>
+		/// <param name="daysToPaymentDate">За сколько дней до расчетной даты платежа заказ попадает в окно (N)</param>
 		/// <param name="counterpartyFromTenderId">Id источника "Тендер" клиента</param>
 		/// <param name="organizationId">Id организации договора заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Заказы с суммой, оплаченной суммой, отсрочкой клиента, автором, адресом и телефоном</returns>
 		Task<IList<ChainStoreDelayOrderNode>> GetChainStoreDelayOrdersAsync(
 			IUnitOfWork uow,
-			DateTime maxDeliveryDate,
+			DateTime today,
+			int daysToPaymentDate,
 			int counterpartyFromTenderId,
 			int organizationId,
 			CancellationToken cancellationToken);

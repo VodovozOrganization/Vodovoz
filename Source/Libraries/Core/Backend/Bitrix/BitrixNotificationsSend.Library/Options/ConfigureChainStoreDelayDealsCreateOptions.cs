@@ -10,7 +10,8 @@ namespace BitrixNotificationsSend.Library.Options
 
 		public ConfigureChainStoreDelayDealsCreateOptions(IBitrixNotificationsSendSettings bitrixNotificationsSendSettings)
 		{
-			_bitrixNotificationsSendSettings = bitrixNotificationsSendSettings ?? throw new ArgumentNullException(nameof(bitrixNotificationsSendSettings));
+			_bitrixNotificationsSendSettings = bitrixNotificationsSendSettings
+				?? throw new ArgumentNullException(nameof(bitrixNotificationsSendSettings));
 		}
 
 		public void Configure(ChainStoreDelayDealsCreateOptions options)

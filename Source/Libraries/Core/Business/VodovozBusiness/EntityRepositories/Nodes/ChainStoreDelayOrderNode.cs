@@ -4,7 +4,7 @@ using Vodovoz.Domain.Orders;
 namespace VodovozBusiness.EntityRepositories.Nodes
 {
 	/// <summary>
-	/// Данные заказа сети или тендерного клиента по правилам отчета "Отсрочка сети"
+	/// Данные заказа сети или тендерного клиента в окне уведомления по правилам отчета "Отсрочка сети"
 	/// </summary>
 	public class ChainStoreDelayOrderNode
 	{
@@ -42,11 +42,6 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		/// Признак самовывоза
 		/// </summary>
 		public bool IsSelfDelivery { get; set; }
-
-		/// <summary>
-		/// Id точки доставки, null - для самовывоза или заказа без точки
-		/// </summary>
-		public int? DeliveryPointId { get; set; }
 
 		/// <summary>
 		/// Короткий адрес точки доставки
@@ -97,14 +92,6 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		/// Долг по заказу: для частично оплаченного заказа сумма за вычетом оплаченного
 		/// </summary>
 		public decimal Debt => OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid ? OrderSum - PaidSum : OrderSum;
-
-		/// <summary>
-		/// Заказ получает сделку или письмо: расчетная дата платежа от завтра до сегодня плюс N дней включительно
-		/// </summary>
-		/// <param name="today">Сегодняшняя дата</param>
-		/// <param name="daysBeforePaymentDate">За сколько дней до расчетной даты платежа действовать (N)</param>
-		public bool IsInPaymentWindow(DateTime today, int daysBeforePaymentDate) =>
-			EstimatedPaymentDate > today.Date && EstimatedPaymentDate <= today.Date.AddDays(daysBeforePaymentDate);
 
 		/// <summary>
 		/// Автор заказа в формате "Фамилия И.О."; пусто, если фамилия автора не указана

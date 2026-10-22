@@ -92,20 +92,40 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 			{
 				var orders = await _orderRepository.GetChainStoreDelayOrdersAsync(
 					uow,
-					today.AddDays(daysBeforePaymentDate),
+					today,
+					daysBeforePaymentDate,
 					_counterpartySettings.CounterpartyFromTenderId,
 					_organizationSettings.VodovozOrganizationId,
 					cancellationToken);
 
-				var windowOrders = orders
-					.Where(x => x.IsInPaymentWindow(today, daysBeforePaymentDate))
+				var windowOrders = orders;
+
+				// строки, не отправленные до расчётной даты, переводятся в отдельное состояние
+				// до проверки пустого окна: ранний выход её не должен пропускать
+				var expiredLetters = _letterRepository
+					.Get(uow, x => x.Status == ChainStoreDelayLetterStatus.SendRequired && x.EstimatedPaymentDate <= today)
 					.ToList();
+
+				foreach(var expiredLetter in expiredLetters)
+				{
+					expiredLetter.Status = ChainStoreDelayLetterStatus.PaymentDateReached;
+					expiredLetter.LastUpdateDate = moscowNow;
+
+					await uow.SaveAsync(expiredLetter, cancellationToken: cancellationToken);
+				}
+
+				var expiredLettersCount = expiredLetters.Count;
 
 				if(windowOrders.Count == 0)
 				{
+					if(expiredLettersCount > 0)
+					{
+						await uow.CommitAsync(cancellationToken);
+					}
+
 					_logger.LogInformation(
-						"Нет заказов в окне для писем по заказам сетей и тендеров. Заказов в выборке: {OrdersCount}",
-						orders.Count);
+						"Нет заказов в окне для писем по заказам сетей и тендеров, переведено в \"наступила расчётная дата\" {ExpiredLettersCount}",
+						expiredLettersCount);
 					return 0;
 				}
 
@@ -147,24 +167,25 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 					}
 				}
 
-				if(newLettersCount + repeatedLettersCount > 0)
+				if(newLettersCount + repeatedLettersCount + expiredLettersCount > 0)
 				{
 					await uow.CommitAsync(cancellationToken);
 				}
 
 				_logger.LogInformation(
-					"Отбор заказов для писем сетей и тендеров: в выборке {OrdersCount}, в окне {WindowOrdersCount}, новых {NewLettersCount}, повторных {RepeatedLettersCount}",
-					orders.Count,
+					"Отбор заказов для писем сетей и тендеров: в окне {WindowOrdersCount}, новых {NewLettersCount}, "
+					+ "повторных {RepeatedLettersCount}, переведено в \"наступила расчётная дата\" {ExpiredLettersCount}",
 					windowOrders.Count,
 					newLettersCount,
-					repeatedLettersCount);
+					repeatedLettersCount,
+					expiredLettersCount);
 
 				return newLettersCount + repeatedLettersCount;
 			}
 		}
 
 		/// <inheritdoc/>
-		public async Task<int> SendLetters(CancellationToken cancellationToken)
+		public async Task SendLetters(CancellationToken cancellationToken)
 		{
 			var today = DateTime.UtcNow.ToMoscowDateTime().Date;
 
@@ -203,7 +224,13 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 				}
 			}
 
-			return errorsCount;
+			if(errorsCount > 0)
+			{
+				_logger.LogWarning(
+					"Письма по заказам сетей и тендеров: строк к отправке {LettersCount}, с технической ошибкой {ErrorsCount}",
+					letterIds.Length,
+					errorsCount);
+			}
 		}
 
 		private async Task SaveLetterError(int letterId, string error, CancellationToken cancellationToken)
@@ -318,6 +345,12 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 				var storedEmail = _emailMessageFactory.CreateStoredEmail(subject, clientEmail, _storedEmailDescription);
 				await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
+				if(!storedEmail.Guid.HasValue)
+				{
+					_logger.LogError("Не удалось получить Guid письма по заказу {OrderId} для ссылки отписки", order.Id);
+					throw new InvalidOperationException($"Не удалось получить Guid письма по заказу {order.Id} для ссылки отписки");
+				}
+
 				var letterEmail = new ChainStoreDelayLetterEmail
 				{
 					StoredEmail = storedEmail,
@@ -356,7 +389,7 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 				await uow.CommitAsync(cancellationToken);
 			}
 
-			await PublishEmailMessage(message, cancellationToken);
+			await PublishEmailMessage(letterId, message, cancellationToken);
 		}
 
 		private async Task SaveLetterStatus(
@@ -378,7 +411,7 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 				status);
 		}
 
-		private async Task PublishEmailMessage(SendEmailMessage message, CancellationToken cancellationToken)
+		private async Task PublishEmailMessage(int letterId, SendEmailMessage message, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -389,6 +422,8 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 				_logger.LogError(ex,
 					"Ошибка при публикации сообщения на отправку письма по заказу сети или тендера. StoredEmailId = {StoredEmailId}",
 					message.Payload.Id);
+
+				await SaveLetterError(letterId, $"Ошибка передачи письма в отправку почты: {ex.Message}", cancellationToken);
 			}
 		}
 	}

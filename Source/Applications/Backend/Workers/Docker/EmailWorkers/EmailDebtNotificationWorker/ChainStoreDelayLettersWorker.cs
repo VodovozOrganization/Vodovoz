@@ -58,7 +58,6 @@ namespace EmailDebtNotificationWorker
 
 				var moscowNow = DateTime.UtcNow.ToMoscowDateTime();
 				var workingDayService = scope.ServiceProvider.GetRequiredService<IWorkingDayService>();
-				var errorsCount = 0;
 
 				// Праздники не учитываются (Q38): IsWorkingDay проверяет только будни
 				if(workingDayService.IsWorkingDay(DateTime.Now) && IsInSendTimeInterval(moscowNow))
@@ -74,18 +73,7 @@ namespace EmailDebtNotificationWorker
 						_lastCollectDate = moscowNow.Date;
 					}
 
-					errorsCount = await lettersService.SendLetters(stoppingToken);
-				}
-
-				if(errorsCount > 0)
-				{
-					await _zabbixSender.SendProblemMessageAsync(
-						nameof(ChainStoreDelayLettersWorker),
-						ZabixSenderMessageType.Problem,
-						$"Ошибки формирования писем по заказам сетей и тендеров: {errorsCount}",
-						stoppingToken);
-
-					return;
+					await lettersService.SendLetters(stoppingToken);
 				}
 
 				await _zabbixSender.SendIsHealthyAsync(nameof(ChainStoreDelayLettersWorker), stoppingToken);

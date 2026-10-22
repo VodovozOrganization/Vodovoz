@@ -20,8 +20,6 @@ namespace BitrixNotificationsSend.Library.Factories
 		public IEnumerable<ChainStoreDelayBitrixDeal> CreateDeals(
 			IEnumerable<ChainStoreDelayOrderNode> orders,
 			ISet<int> previouslySentOrderIds,
-			DateTime today,
-			int daysBeforePaymentDate,
 			DateTime creationDate)
 		{
 			if(orders is null)
@@ -34,15 +32,11 @@ namespace BitrixNotificationsSend.Library.Factories
 				throw new ArgumentNullException(nameof(previouslySentOrderIds));
 			}
 
-			var newOrders = orders
-				.Where(x => x.IsInPaymentWindow(today, daysBeforePaymentDate) && !previouslySentOrderIds.Contains(x.OrderId))
+			return orders
+				.Where(x => !previouslySentOrderIds.Contains(x.OrderId))
 				.OrderBy(x => x.EstimatedPaymentDate)
-				.ThenBy(x => x.OrderId);
-
-			foreach(var order in newOrders)
-			{
-				yield return CreateDeal(order, creationDate);
-			}
+				.ThenBy(x => x.OrderId)
+				.Select(x => CreateDeal(x, creationDate));
 		}
 
 		private static ChainStoreDelayBitrixDeal CreateDeal(ChainStoreDelayOrderNode order, DateTime creationDate)
@@ -60,7 +54,7 @@ namespace BitrixNotificationsSend.Library.Factories
 				DeliveryAddress = order.IsSelfDelivery ? _selfDeliveryAddress : order.DeliveryPointShortAddress,
 				OrderAuthor = order.AuthorShortName,
 				OrderSum = order.OrderSum,
-				Debt = order.OrderSum,
+				Debt = order.Debt,
 				EstimatedPaymentDate = order.EstimatedPaymentDate,
 				DaysOverdue = 0
 			};

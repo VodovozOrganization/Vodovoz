@@ -3673,12 +3673,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		public async Task<IList<ChainStoreDelayOrderNode>> GetChainStoreDelayOrdersAsync(
 			IUnitOfWork uow,
-			DateTime maxDeliveryDate,
+			DateTime today,
+			int daysToPaymentDate,
 			int counterpartyFromTenderId,
 			int organizationId,
 			CancellationToken cancellationToken)
 		{
 			var undeliveryStatuses = GetUndeliveryStatuses();
+			var todayDate = today.Date;
+			var maxEstimatedPaymentDate = todayDate.AddDays(daysToPaymentDate);
 
 			var query =
 				from order in uow.Session.Query<VodovozOrder>()
@@ -3693,7 +3696,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				let itemsSum =
 					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
 							   where orderItem.Order.Id == order.Id
-							   select (orderItem.ActualCount ?? orderItem.Count) * orderItem.Price - orderItem.DiscountMoney)
+							   select orderItem.ActualSum)
 							   .Sum() ?? 0
 
 				let orderSum = order.OrderCashSum != 0 ? order.OrderCashSum : itemsSum
@@ -3709,7 +3712,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 				where
 					order.DeliveryDate != null
-					&& order.DeliveryDate <= maxDeliveryDate
+					&& order.DeliveryDate < todayDate
+					&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) > todayDate
+					&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) <= maxEstimatedPaymentDate
 					&& (order.OrderPaymentStatus == OrderPaymentStatus.UnPaid || order.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
 					&& (counterparty.IsChainStore || counterparty.CameFrom.Id == counterpartyFromTenderId)
 					&& order.PaymentType == PaymentType.Cashless
@@ -3727,7 +3732,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					DeliveryDate = order.DeliveryDate.Value,
 					DelayDaysForBuyers = counterparty.DelayDaysForBuyers,
 					IsSelfDelivery = order.SelfDelivery,
-					DeliveryPointId = orderDeliveryPoint.Id == null ? (int?)null : orderDeliveryPoint.Id,
 					DeliveryPointShortAddress = orderDeliveryPoint.ShortAddress,
 					AuthorLastName = author.LastName,
 					AuthorName = author.Name,

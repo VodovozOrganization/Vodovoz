@@ -11,9 +11,7 @@ using System.Threading.Tasks;
 
 namespace BitrixNotificationsSend.Library.Services
 {
-	/// <summary>
-	/// Сервис пакетного чтения текущих стадий сделок из Битрикс24
-	/// </summary>
+	/// <inheritdoc/>
 	public class BitrixDealsStagesReadService : IBitrixDealsStagesReadService
 	{
 		/// <summary>

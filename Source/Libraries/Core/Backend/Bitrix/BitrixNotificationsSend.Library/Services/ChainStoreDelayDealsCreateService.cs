@@ -75,28 +75,26 @@ namespace BitrixNotificationsSend.Library.Services
 			var moscowNow = DateTime.UtcNow.ToMoscowDateTime();
 			var today = moscowNow.Date;
 			var daysBeforePaymentDate = _bitrixNotificationsSendSettings.ChainStoreDelayDealsDaysToPaymentDate;
-			var maxDate = today.AddDays(daysBeforePaymentDate);
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(
 				$"Сервис {nameof(ChainStoreDelayDealsCreateService)}. Сбор сделок по отсрочке сети"))
 			{
 				var orders = await _orderRepository.GetChainStoreDelayOrdersAsync(
 					uow,
-					maxDate,
+					today,
+					daysBeforePaymentDate,
 					_counterpartySettings.CounterpartyFromTenderId,
 					_organizationSettings.VodovozOrganizationId,
 					cancellationToken);
 
 				var candidateOrderIds = orders
-					.Where(x => x.IsInPaymentWindow(today, daysBeforePaymentDate))
 					.Select(x => x.OrderId)
 					.ToArray();
 
 				if(candidateOrderIds.Length == 0)
 				{
 					_logger.LogInformation(
-						"Нет заказов-кандидатов для сделок по отсрочке сети в Битрикс24. Заказов в выборке: {OrdersCount}",
-						orders.Count);
+						"Нет заказов в окне для сделок по отсрочке сети в Битрикс24");
 					return 0;
 				}
 
@@ -105,7 +103,7 @@ namespace BitrixNotificationsSend.Library.Services
 					.Select(x => x.OrderId));
 
 				var deals = _dealFactory
-					.CreateDeals(orders, previouslySentOrderIds, today, daysBeforePaymentDate, moscowNow)
+					.CreateDeals(orders, previouslySentOrderIds, moscowNow)
 					.ToList();
 
 				foreach(var deal in deals)
@@ -119,9 +117,8 @@ namespace BitrixNotificationsSend.Library.Services
 				}
 
 				_logger.LogInformation(
-					"Сбор сделок по отсрочке сети в Битрикс24: заказов в выборке {OrdersCount}, кандидатов {CandidatesCount}, создано отправок {DealsCount}",
+					"Сбор сделок по отсрочке сети в Битрикс24: заказов в окне {OrdersCount}, создано отправок {DealsCount}",
 					orders.Count,
-					candidateOrderIds.Length,
 					deals.Count);
 
 				return deals.Count;
