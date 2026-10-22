@@ -98,6 +98,7 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Edo\EdoDiscrepancyViewModel.cs" />
     <Compile Include="Edo\EdoDocumentActionsFactory.cs" />
     <Compile Include="Edo\EdoInOrderDocflowsStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDistributionStageViewModel.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Edo\EdoInOrderProblemViewModel.cs" />
     <Compile Include="Edo\EdoViewModel.cs" />
     <Compile Include="Edo\IEdoDocumentActionsFactory.cs" />
+    <Compile Include="Edo\UpdCompareViewModel.cs" />
     <Compile Include="Employees\FineCategoryViewModel.cs" />
     <Compile Include="Factories\AdditionalFuelTypeManagementViewModelFactory.cs" />
     <Compile Include="Factories\IAdditionalFuelTypeManagementViewModelFactory.cs" />
@@ -136,6 +138,7 @@
     <Compile Include="Journals\JournalNodes\Banks\BanksJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoDeviationJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoDeviationJournalNodeType.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoDiscrepancyJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoNotificationSettingJournalNode.cs" />
@@ -150,6 +153,7 @@
     <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationHelpTexts.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalMessages.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\EdoDiscrepancyJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoNotificationSettingJournalViewModel.cs" />
@@ -174,6 +178,10 @@
     <Compile Include="Services\Orders\OrderCancellationPermitService.cs" />
     <Compile Include="Services\SalesReport\ISalesReportService.cs" />
     <Compile Include="Services\SalesReport\SalesReportService.cs" />
+    <Compile Include="Services\Warehouse\IMovementDocumentService.cs" />
+    <Compile Include="Services\Warehouse\MovementDocumentService.cs" />
+    <Compile Include="Services\Warehouse\NumberToWords.cs" />
+    <Compile Include="Services\Warehouse\PositionShortener.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByOldNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow.cs" />
@@ -307,6 +315,7 @@
     <Compile Include="Print\PrinterSelectionViewModel.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupVersionViewModel.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
+    <Compile Include="Dialogs\Sale\MasterVisitCostViewModel.cs" />
     <Compile Include="Extensions\DeliveryPointExtensions.cs" />
     <Compile Include="Dialogs\DialogSettingsFactory.cs" />
     <Compile Include="Extensions\EntityTabViewModelBaseExtensions.cs" />
@@ -1175,6 +1184,7 @@
     <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
     <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
     <Compile Include="ViewModels\Warehouses\ShiftChangeResidueDocumentViewModel.cs" />
+    <Compile Include="ViewModels\Warehouses\TtnDataViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\WriteOffDocumentViewModel.cs" />
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
     <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />
@@ -1333,6 +1343,10 @@
       <Project>{a5057b0f-1022-4d60-818e-b8f68890a2aa}</Project>
       <Name>DriverApi.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Documents\Edo.Documents.csproj">
+      <Project>{BF6C6F28-9258-44F9-B508-0DEC734D1A2A}</Project>
+      <Name>Edo.Documents</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj">
       <Project>{9315f39c-5054-410e-b8e9-27c987321b67}</Project>
       <Name>Edo.Problem.Routine</Name>
@@ -1444,6 +1458,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
       <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
       <Name>FuelControl.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Comparer\Comparer.csproj">
+      <Project>{93E79512-C190-4C08-A614-8CB992132970}</Project>
+      <Name>Comparer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj">
       <Project>{b318a2c2-a980-41bd-b072-321bccd70bbb}</Project>
@@ -1568,6 +1586,8 @@
       <Version>0.2.6</Version>
     </PackageReference>
     <PackageReference Include="CsvHelper" Version="15.0.10" />
+    <PackageReference Include="EPPlus" Version="4.5.3.3" />
+    <PackageReference Include="EPPlus" Version="4.5.3.3" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />

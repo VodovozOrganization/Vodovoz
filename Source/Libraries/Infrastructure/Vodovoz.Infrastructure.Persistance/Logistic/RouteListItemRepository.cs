@@ -20,13 +20,13 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	internal sealed class RouteListItemRepository : IRouteListItemRepository
 	{
-		public RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, Domain.Orders.Order order)
+		public RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, int orderId)
 		{
 			RouteListItem routeListItemAlias = null;
 
 			return uow.Session.QueryOver(() => routeListItemAlias)
 					  .Where(rli => rli.Status != RouteListItemStatus.Transfered)
-					  .Where(() => routeListItemAlias.Order.Id == order.Id)
+					  .Where(() => routeListItemAlias.Order.Id == orderId)
 					  .SingleOrDefault();
 		}
 

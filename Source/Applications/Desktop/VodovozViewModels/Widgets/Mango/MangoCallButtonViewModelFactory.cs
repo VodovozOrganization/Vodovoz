@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.Widgets.Mango
 				return viewModel;
 			}
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order.Id);
 
 			if(routeListItem is null)
 			{

@@ -222,5 +222,8 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<int?> GetOrderIdByStagingCode(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
+
+
+		IEnumerable<ManualTrueMarkProductCode> GetManualCodesByOrder(IUnitOfWork uow, int orderId);
 	}
 }
