@@ -190,10 +190,12 @@ namespace Vodovoz.Core.Data.NHibernate.Edo
 
 			HasMany(x => x.Payments)
 				.Cascade.AllDeleteOrphan()
+				.Not.LazyLoad()
 				.KeyColumn("edo_upd_document_id");
 
 			HasMany(x => x.InventPositions)
 				.Cascade.AllDeleteOrphan()
+				.Not.LazyLoad()
 				.KeyColumn("edo_upd_document_id");
 		}
 	}

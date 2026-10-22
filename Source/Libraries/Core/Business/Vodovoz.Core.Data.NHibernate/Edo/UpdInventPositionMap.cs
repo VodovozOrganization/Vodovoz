@@ -49,6 +49,7 @@ namespace Vodovoz.Core.Data.NHibernate.Edo
 
 			HasMany(x => x.Codes)
 				.Cascade.AllDeleteOrphan()
+				.Not.LazyLoad()
 				.KeyColumn("edo_upd_document_invent_position_id");
 		}
 	}
