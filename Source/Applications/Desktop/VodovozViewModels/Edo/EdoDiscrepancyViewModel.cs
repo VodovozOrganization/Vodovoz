@@ -10,6 +10,7 @@ using Notifications.Infrastructure;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Services;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Edo.Upd;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -56,6 +58,7 @@ namespace Vodovoz.ViewModels.Edo
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly IDiffFormatter _diffFormatter;
+		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly EdoDiscrepancyNode _edoDiscrepancy;
 		private DocumentEdoTask _documentEdoTask;
 		private bool _onlyDiffs;
@@ -83,6 +86,7 @@ namespace Vodovoz.ViewModels.Edo
 			IRouteListItemRepository routeListItemRepository,
 			IRouteListChangesNotificationSender routeListChangesNotificationSender,
 			IDiffFormatter diffFormatter,
+			ICurrentPermissionService currentPermissionService,
 			INavigationManager navigationManager
 		) : base(navigationManager)
 		{
@@ -102,10 +106,18 @@ namespace Vodovoz.ViewModels.Edo
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
 			_diffFormatter = diffFormatter ?? throw new ArgumentNullException(nameof(diffFormatter));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 
-            _uow = _unitOfWorkFactory.CreateWithoutRoot();
+			if(!_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanWorkWithEdoDiscrepancyJournal))
+			{
+				throw new AbortCreatingPageException(
+					"Для работы с журналом расхождений ЭДО недостаточно прав.",
+					"Проверка прав"
+				);
+			}
+
 			_edoDiscrepancy = _edoRepository.GetEdoDiscrepancy(_uow, edoDocumentId);
-
 			if(_edoDiscrepancy == null)
 			{
 				throw new AbortCreatingPageException(

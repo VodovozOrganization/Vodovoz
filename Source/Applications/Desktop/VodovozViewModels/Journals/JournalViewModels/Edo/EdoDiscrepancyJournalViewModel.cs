@@ -46,10 +46,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			if(!_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanWorkWithEdoDiscrepancyJournal))
 			{
-				interactiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					"Для работы с журналом расхождений ЭДО недостаточно прав.");
-				return;
+				throw new AbortCreatingPageException(
+					"Для работы с журналом расхождений ЭДО недостаточно прав.",
+					"Проверка прав"
+				);
 			}
 
 			DataLoader = new ThreadSqlDataLoader<EdoDiscrepancyJournalNode>(
