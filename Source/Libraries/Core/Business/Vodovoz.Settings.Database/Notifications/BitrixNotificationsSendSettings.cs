@@ -96,8 +96,8 @@ namespace Vodovoz.Settings.Database.Notifications
 		public TimeSpan ChainStoreDelayDealsSendTimeTo =>
 			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}ChainStoreDelayDealsSendTimeTo");
 
-		public int ChainStoreDelayDealsDaysBeforePaymentDate =>
-			_settingsController.GetIntValue($"{_parametersPrefix}ChainStoreDelayDealsDaysBeforePaymentDate");
+		public int ChainStoreDelayDealsDaysToPaymentDate =>
+			_settingsController.GetIntValue($"{_parametersPrefix}ChainStoreDelayDealsDaysToPaymentDate");
 
 		public int ChainStoreDelayDealsCategoryId =>
 			_settingsController.GetIntValue($"{_parametersPrefix}ChainStoreDelayDealsCategoryId");

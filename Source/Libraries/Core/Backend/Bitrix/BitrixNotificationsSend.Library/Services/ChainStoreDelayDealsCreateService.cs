@@ -74,7 +74,7 @@ namespace BitrixNotificationsSend.Library.Services
 		{
 			var moscowNow = DateTime.UtcNow.ToMoscowDateTime();
 			var today = moscowNow.Date;
-			var daysBeforePaymentDate = _bitrixNotificationsSendSettings.ChainStoreDelayDealsDaysBeforePaymentDate;
+			var daysBeforePaymentDate = _bitrixNotificationsSendSettings.ChainStoreDelayDealsDaysToPaymentDate;
 			var maxDate = today.AddDays(daysBeforePaymentDate);
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(

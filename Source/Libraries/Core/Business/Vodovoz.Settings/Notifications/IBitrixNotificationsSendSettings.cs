@@ -143,7 +143,7 @@ namespace Vodovoz.Settings.Notifications
 		/// <summary>
 		/// За сколько дней до расчётной даты платежа заказ попадает в выгрузку сделок по отсрочке сети
 		/// </summary>
-		int ChainStoreDelayDealsDaysBeforePaymentDate { get; }
+		int ChainStoreDelayDealsDaysToPaymentDate { get; }
 
 		/// <summary>
 		/// Идентификатор воронки сделок по отсрочке сети в Битрикс24
