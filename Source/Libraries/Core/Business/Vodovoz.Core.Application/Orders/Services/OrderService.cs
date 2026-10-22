@@ -964,10 +964,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return;
 			}
 			
-			var hasUpdDocflowDiscrepancy = uow.Session.QueryOver<OrderEdoDocument>()
+			var updDiscrepancyState = uow.Session.QueryOver<OrderEdoDocument>()
 				.Where(x => x.DocumentTaskId == requestWithCodes.Task.Id)
-				.Select(x => x.HasDiscrepancy)
-				.SingleOrDefault<bool>();
+				.Select(x => x.DiscrepancyState)
+				.SingleOrDefault<EdoDiscrepancyState>();
+			var hasUpdDocflowDiscrepancy = updDiscrepancyState == EdoDiscrepancyState.Active;
 
 			if(IsCompletedCodesSaving(requestWithCodes.Task))
 			{

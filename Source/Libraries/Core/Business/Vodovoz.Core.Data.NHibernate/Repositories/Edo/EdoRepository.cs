@@ -185,10 +185,10 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 					JoinType.LeftOuterJoin
 				)
 				.Where(() => edoRequestAlias.Order.Id == orderId)
-				.Select(x => x.HasDiscrepancy)
-				.List<bool>();
+				.Select(x => x.DiscrepancyState)
+				.List<EdoDiscrepancyState>();
 
-			return discrepancies.Any(x => x);
+			return discrepancies.Any(x => x == EdoDiscrepancyState.Active);
 		}
 
 		public IEnumerable<EdoDocflowForOrderNode> GetEdoDocflowsForOrder(IUnitOfWork uow, int orderId)
@@ -845,7 +845,7 @@ select
 	et.cancellation_reason as :cancellation_reason,
 	eod.id as :edo_document_id,
 	eod.status as :edo_document_status,
-	eod.has_discrepancy as :docflow_has_discrepancy
+	eod.discrepancy_state as :docflow_discrepancy_state
 from edo_customer_requests ecr
 left join edo_tasks et on et.id = ecr.order_task_id
 left join edo_outgoing_documents eod on eod.document_task_id = et.id
@@ -870,7 +870,7 @@ select
 	et.cancellation_reason as :cancellation_reason,
 	eod.id as :edo_document_id,
 	eod.status as :edo_document_status,
-	eod.has_discrepancy as :docflow_has_discrepancy
+	eod.discrepancy_state as :docflow_discrepancy_state
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
 left join edo_outgoing_documents eod on eod.document_task_id = et.id
@@ -898,7 +898,7 @@ where eir.order_id = :order_id
 				.Map("cancellation_reason", x => x.CancellationReason, NHibernateUtil.String)
 				.Map("edo_document_id", x => x.DocumentId, NHibernateUtil.Int32)
 				.Map("edo_document_status", x => x.EdoDocumentStatus, new EnumStringType<EdoDocumentStatus>())
-				.Map("docflow_has_discrepancy", x => x.DocflowHasDiscrepancy, NHibernateUtil.Boolean)
+				.Map("docflow_discrepancy_state", x => x.DocflowDiscrepancyState, new EnumStringType<EdoDiscrepancyState>())
 				.SetResultTransformer();
 
 			query.SetParameter("order_id", orderId);
@@ -1540,7 +1540,7 @@ left join
 	FROM taxcom_docflows
 ) td ON td.edo_document_id = eod.id
 left join taxcom_docflow_actions tda on tda.id = td.last_taxcom_action_id
-where eod.has_discrepancy
+where eod.discrepancy_state = 'Active'
 and eod.id = :document_id
 ";
 

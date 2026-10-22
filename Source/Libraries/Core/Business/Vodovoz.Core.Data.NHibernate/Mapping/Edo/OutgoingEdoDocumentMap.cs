@@ -40,8 +40,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.AcceptTime)
 				.Column("accept_time");
 
-			Map(x => x.HasDiscrepancy)
-				.Column("has_discrepancy");
+			Map(x => x.DiscrepancyState)
+				.Column("discrepancy_state");
+
+			Map(x => x.CancellationRequestTime)
+				.Column("cancellation_request_time");
 		}
 	}
 }

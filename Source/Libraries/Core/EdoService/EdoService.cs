@@ -75,6 +75,15 @@ namespace EdoService.Library
 			EdoDocumentStatus.Error
 		};
 
+		private static EdoDocFlowStatus[] _resolvableDiscrepancyStatuses => new[]
+		{
+			EdoDocFlowStatus.Warning,
+			EdoDocFlowStatus.CompletedWithDivergences,
+			EdoDocFlowStatus.NotAccepted,
+			EdoDocFlowStatus.WaitingForCancellation,
+			EdoDocFlowStatus.Cancelled
+		};
+
 		private static EdoDocumentStatus[] _resendableWithCancellationEdoDocumentStatuses => new[]
 		{
 			EdoDocumentStatus.InProgress,
@@ -191,7 +200,7 @@ namespace EdoService.Library
 				}
 
 				var orderDocument = _edoRepository.GetOrderEdoDocumentByTaskId(uow, taskId);
-				if(orderDocument.HasDiscrepancy)
+				if(orderDocument?.DiscrepancyState == EdoDiscrepancyState.Active)
 				{
 					return Result.Failure<string>(EdoErrors.DocflowWithDiscrepancyCanResendOnlyInDiscrepancyDialog);
 				}
@@ -662,9 +671,16 @@ namespace EdoService.Library
 		{
 			try
 			{
-				var request = uow.Session.Query<FormalEdoRequest>()
-					.Where(x => x.Task.Id == edoDiscrepancyNode.DocumentEdoTaskId)
-					.FirstOrDefault();
+				var order = uow.Session.Get<OrderEntity>(edoDiscrepancyNode.OrderId);
+				var sellerEdoAccountId = order.Contract.Organization.TaxcomEdoSettings.EdoAccount;
+
+				var resolveResult = ResolveDiscrepancy(uow, edoDiscrepancyNode, sellerEdoAccountId);
+				if(resolveResult.IsFailure)
+				{
+					return resolveResult;
+				}
+
+				var request = GetFormalEdoRequestByTaskId(uow, edoDiscrepancyNode.DocumentEdoTaskId);
 
 				if(request == null)
 				{
@@ -672,44 +688,8 @@ namespace EdoService.Library
 						$"УПД для задачи №{edoDiscrepancyNode.DocumentEdoTaskId}"));
 				}
 
-				var document = uow.Session.Get<OrderEdoDocument>(edoDiscrepancyNode.ErpDocflowId);
 				var edoTask = uow.Session.Get<OrderEdoTask>(edoDiscrepancyNode.DocumentEdoTaskId);
-				var order = uow.Session.Get<OrderEntity>(edoDiscrepancyNode.OrderId);
-				var sellerEdoAccountId = order.Contract.Organization.TaxcomEdoSettings.EdoAccount;
 				var currentEmployee = _employeeService.GetEmployeeForCurrentUser(uow);
-
-				// убрать расхождение в прошлом документе
-				document.HasDiscrepancy = false;
-
-				// принять статус из такском в прошлом документе
-				switch(edoDiscrepancyNode.TaxcomDocflowStatus)
-				{
-					case EdoDocFlowStatus.Warning:
-						document.Status = EdoDocumentStatus.Warning;
-						break;
-					case EdoDocFlowStatus.CompletedWithDivergences:
-						document.Status = EdoDocumentStatus.CompletedWithDivergences;
-						break;
-					case EdoDocFlowStatus.NotAccepted:
-						document.Status = EdoDocumentStatus.NotAccepted;
-						break;
-					case EdoDocFlowStatus.WaitingForCancellation:
-						document.Status = EdoDocumentStatus.Cancelled;
-						// отправить принятие ПОА
-						var cancellationAccept = new AcceptingWaitingForCancellationDocflowEvent
-						{
-							DocFlowId = edoDiscrepancyNode.TaxcomDocflowId.ToString(),
-							EdoAccount = sellerEdoAccountId
-						};
-						uow.Save(new OutboxMessage(cancellationAccept));
-						break;
-					case EdoDocFlowStatus.Cancelled:
-						document.Status = EdoDocumentStatus.Cancelled;
-						break;
-					default:
-						throw new NotSupportedException($"Статус {edoDiscrepancyNode.TaxcomDocflowStatus} не поддерживается для расхождений ЭДО");
-				}
-				uow.Save(document);
 
 				// создать новые коды
 				var newProductCodes = TrueMarkProductCodeFactory.CreateCodesFromSource(request.ProductCodes);
@@ -760,9 +740,15 @@ namespace EdoService.Library
 		{
 			try
 			{
-				var request = uow.Session.Query<FormalEdoRequest>()
-					.Where(x => x.Task.Id == edoDiscrepancyNode.DocumentEdoTaskId)
-					.FirstOrDefault();
+				var sellerEdoAccountId = order.Contract.Organization.TaxcomEdoSettings.EdoAccount;
+
+				var resolveResult = ResolveDiscrepancy(uow, edoDiscrepancyNode, sellerEdoAccountId);
+				if(resolveResult.IsFailure)
+				{
+					return resolveResult;
+				}
+
+				var request = GetFormalEdoRequestByTaskId(uow, edoDiscrepancyNode.DocumentEdoTaskId);
 
 				if(request == null)
 				{
@@ -770,43 +756,7 @@ namespace EdoService.Library
 						$"УПД для задачи №{edoDiscrepancyNode.DocumentEdoTaskId}"));
 				}
 
-				var document = uow.Session.Get<OrderEdoDocument>(edoDiscrepancyNode.ErpDocflowId);
 				var edoTask = uow.Session.Get<OrderEdoTask>(edoDiscrepancyNode.DocumentEdoTaskId);
-				var sellerEdoAccountId = order.Contract.Organization.TaxcomEdoSettings.EdoAccount;
-				var currentEmployee = _employeeService.GetEmployeeForCurrentUser(uow);
-
-				// убрать расхождение в прошлом документе
-				document.HasDiscrepancy = false;
-
-				// принять статус из такском в прошлом документе
-				switch(edoDiscrepancyNode.TaxcomDocflowStatus)
-				{
-					case EdoDocFlowStatus.Warning:
-						document.Status = EdoDocumentStatus.Warning;
-						break;
-					case EdoDocFlowStatus.CompletedWithDivergences:
-						document.Status = EdoDocumentStatus.CompletedWithDivergences;
-						break;
-					case EdoDocFlowStatus.NotAccepted:
-						document.Status = EdoDocumentStatus.NotAccepted;
-						break;
-					case EdoDocFlowStatus.WaitingForCancellation:
-						document.Status = EdoDocumentStatus.Cancelled;
-						// отправить принятие ПОА
-						var cancellationAccept = new AcceptingWaitingForCancellationDocflowEvent
-						{
-							DocFlowId = edoDiscrepancyNode.TaxcomDocflowId.ToString(),
-							EdoAccount = sellerEdoAccountId
-						};
-						uow.Save(new OutboxMessage(cancellationAccept));
-						break;
-					case EdoDocFlowStatus.Cancelled:
-						document.Status = EdoDocumentStatus.Cancelled;
-						break;
-					default:
-						throw new NotSupportedException($"Статус {edoDiscrepancyNode.TaxcomDocflowStatus} не поддерживается для расхождений ЭДО");
-				}
-				uow.Save(document);
 
 				// отклонить старые коды
 				foreach(var productCode in request.ProductCodes)
@@ -830,6 +780,58 @@ namespace EdoService.Library
 				_logger.LogError(ex, "Ошибка при отмене заказа");
 				return Result.Failure(new Error("Ошибка", ex.Message));
 			}
+		}
+
+		private static FormalEdoRequest GetFormalEdoRequestByTaskId(IUnitOfWork uow, int taskId)
+		{
+			return uow.GetAll<FormalEdoRequest>()
+				.FirstOrDefault(x => x.Task.Id == taskId);
+		}
+
+		/// <summary>
+		/// Переводит расхождение документа в состояние «Разобрано».
+		/// Если клиент запросил аннулирование, отправляет принятие ПОА.
+		/// Статус документа не меняется: его зафиксирует обработчик статусов документооборота
+		/// </summary>
+		private Result ResolveDiscrepancy(IUnitOfWork uow, EdoDiscrepancyNode edoDiscrepancyNode, string sellerEdoAccountId)
+		{
+			if(!_resolvableDiscrepancyStatuses.Contains(edoDiscrepancyNode.TaxcomDocflowStatus))
+			{
+				throw new NotSupportedException($"Статус {edoDiscrepancyNode.TaxcomDocflowStatus} не поддерживается для расхождений ЭДО");
+			}
+
+			var document = uow.Session.Get<OrderEdoDocument>(edoDiscrepancyNode.ErpDocflowId);
+			if(document is null)
+			{
+				return Result.Failure(EdoErrors.DiscrepancyAlreadyResolved);
+			}
+
+			// Блокируем документ и перечитываем его состояние, чтобы исключить повторный разбор
+			uow.Session.Refresh(document, LockMode.Upgrade);
+
+			if(document.DiscrepancyState != EdoDiscrepancyState.Active)
+			{
+				return Result.Failure(EdoErrors.DiscrepancyAlreadyResolved);
+			}
+
+			document.DiscrepancyState = EdoDiscrepancyState.Resolved;
+
+			if(edoDiscrepancyNode.TaxcomDocflowStatus == EdoDocFlowStatus.WaitingForCancellation)
+			{
+				document.CancellationRequestTime = DateTime.Now;
+
+				// отправить принятие ПОА
+				var cancellationAccept = new AcceptingWaitingForCancellationDocflowEvent
+				{
+					DocFlowId = edoDiscrepancyNode.TaxcomDocflowId.ToString(),
+					EdoAccount = sellerEdoAccountId
+				};
+				uow.Save(new OutboxMessage(cancellationAccept));
+			}
+
+			uow.Save(document);
+
+			return Result.Success();
 		}
 
 		private OrderEntity GetOrderByTaskId(IUnitOfWork uow, int taskId)

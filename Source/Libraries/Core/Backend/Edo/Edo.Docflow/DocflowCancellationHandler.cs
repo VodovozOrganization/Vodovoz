@@ -76,6 +76,12 @@ namespace Edo.Docflow
 				CancellationReason = reason
 			};
 
+			// Помечаем, что аннулирование запросили мы сами,
+			// чтобы ответ Такском не был принят за расхождение
+			document.CancellationRequestTime = DateTime.Now;
+			await _uow.SaveAsync(document, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+
 			await _publishEndpoint.Publish(message, cancellationToken);
 		}
 

@@ -118,7 +118,9 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document,
 			Action onActionCompleted)
 		{
-			if(document.EdoDocumentStatus != EdoDocumentStatus.Succeed && !document.DocflowHasDiscrepancy)
+			var hasActiveDiscrepancy = document.DocflowDiscrepancyState == EdoDiscrepancyState.Active;
+
+			if(document.EdoDocumentStatus != EdoDocumentStatus.Succeed && !hasActiveDiscrepancy)
 			{
 				actions.Add(new BusyCommand(
 					"Переотправить",
@@ -126,7 +128,7 @@ namespace Vodovoz.ViewModels.Edo
 				));
 			}
 
-			if(document.DocflowHasDiscrepancy)
+			if(hasActiveDiscrepancy)
 			{
 				actions.Add(new BusyCommand(
 					"Открыть расхождение",

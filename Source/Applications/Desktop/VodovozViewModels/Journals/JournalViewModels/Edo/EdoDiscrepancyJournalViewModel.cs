@@ -199,7 +199,7 @@ left join
 	FROM taxcom_docflows
 ) td ON td.edo_document_id = eod.id
 left join taxcom_docflow_actions tda on tda.id = td.last_taxcom_action_id
-where eod.has_discrepancy
+where eod.discrepancy_state = 'Active'
 group by eod.id
 order by eod.id desc
 ");
@@ -230,7 +230,7 @@ order by eod.id desc
 			var sql = @"
 select count(*) 
 from edo_outgoing_documents eod
-where eod.has_discrepancy
+where eod.discrepancy_state = 'Active'
 ";
 			var query = uow.Session.CreateSQLQuery(sql);
 			return (int)query.UniqueResult<long>();

@@ -138,6 +138,15 @@ namespace VodovozBusiness.Errors.Edo
 				$"Документооборот с расхождением можно переотправить только через диалог работы с расхождениями");
 
 		/// <summary>
+		/// Ошибка: расхождение документооборота уже разобрано
+		/// </summary>
+		public static Error DiscrepancyAlreadyResolved =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(DiscrepancyAlreadyResolved),
+				"Расхождение по документу уже разобрано");
+
+		/// <summary>
 		/// Ошибка: не найден успешный вывод кодов из оборота, который можно отменить перед переотправкой
 		/// </summary>
 		public static Error SuccessfulWithdrawalForResendNotFound =>

@@ -96,6 +96,22 @@ namespace Edo.Docflow
 			CancellationToken cancellationToken
 		)
 		{
+			if(document.DiscrepancyState == EdoDiscrepancyState.Resolved)
+			{
+				// Расхождение уже разобрано: задача отменена вручную, по заказу при необходимости создана новая заявка.
+				// Статус старого документооборота только фиксируем, событий не публикуем
+				if(incomeStatus == EdoDocFlowStatus.Cancelled)
+				{
+					document.Status = EdoDocumentStatus.Cancelled;
+				}
+
+				_logger.LogInformation(
+					"Получен статус документооборота {DocflowStatus} по документу {DocumentId} с разобранным расхождением",
+					incomeStatus,
+					document.Id);
+				return;
+			}
+
 			switch(incomeStatus)
 			{
 				case EdoDocFlowStatus.NotStarted:
@@ -121,6 +137,17 @@ namespace Edo.Docflow
 					break;
 
 				case EdoDocFlowStatus.Succeed:
+					if(document.DiscrepancyState == EdoDiscrepancyState.Active)
+					{
+						// Такском может вернуть Success вместо CompletedWithDivergences/NotAccepted,
+						// расхождение при этом остается и должно быть разобрано вручную
+						_logger.LogWarning(
+							"Получен статус {DocflowStatus} по документу {DocumentId} с активным расхождением, статус проигнорирован",
+							incomeStatus,
+							document.Id);
+						break;
+					}
+
 					var acceptTime = updatedEvent.StatusChangeTime ?? DateTime.Now;
 					document.Status = EdoDocumentStatus.Succeed;
 					document.AcceptTime = acceptTime;
@@ -132,30 +159,40 @@ namespace Edo.Docflow
 					await _publishEndpoint.Publish(new OrderDocumentProblemEvent(document.Id), cancellationToken);
 					break;
 
-				case EdoDocFlowStatus.CompletedWithDivergences:
 				case EdoDocFlowStatus.Warning:
+					await HandleDiscrepancy(document, EdoDocumentStatus.Warning, cancellationToken);
+					break;
+
+				case EdoDocFlowStatus.CompletedWithDivergences:
+					await HandleDiscrepancy(document, EdoDocumentStatus.CompletedWithDivergences, cancellationToken);
+					break;
+
 				case EdoDocFlowStatus.NotAccepted:
-					await HandleDiscrepancy(document, cancellationToken);
+					await HandleDiscrepancy(document, EdoDocumentStatus.NotAccepted, cancellationToken);
 					break;
 
 				case EdoDocFlowStatus.WaitingForCancellation:
-					if(document.Status != EdoDocumentStatus.WaitingForCancellation
-						&& document.Status != EdoDocumentStatus.Cancelled)
+					if(document.CancellationRequestTime.HasValue)
 					{
-						await HandleDiscrepancy(document, cancellationToken);
+						// Аннулирование запросили мы сами
+						document.Status = EdoDocumentStatus.WaitingForCancellation;
+						break;
 					}
+
+					await HandleDiscrepancy(document, EdoDocumentStatus.WaitingForCancellation, cancellationToken);
 					break;
 
 				case EdoDocFlowStatus.Cancelled:
-					if(document.Status == EdoDocumentStatus.WaitingForCancellation)
+					if(document.CancellationRequestTime.HasValue
+						&& document.DiscrepancyState == EdoDiscrepancyState.None)
 					{
+						// Аннулирование, запрошенное нами, подтверждено
 						document.Status = EdoDocumentStatus.Cancelled;
 						await _publishEndpoint.Publish(new OrderDocumentCancelledEvent(document.Id), cancellationToken);
+						break;
 					}
-					else
-					{
-						await HandleDiscrepancy(document, cancellationToken);
-					}
+
+					await HandleDiscrepancy(document, EdoDocumentStatus.Cancelled, cancellationToken);
 					break;
 
 				default:
@@ -289,12 +326,28 @@ namespace Edo.Docflow
 			}
 		}
 
-		private async Task HandleDiscrepancy( 
-			OrderEdoDocument document, 
+		private async Task HandleDiscrepancy(
+			OrderEdoDocument document,
+			EdoDocumentStatus discrepancyStatus,
 			CancellationToken cancellationToken
 		)
 		{
-			document.HasDiscrepancy = true;
+			if(document.DiscrepancyState == EdoDiscrepancyState.Active && document.Status == discrepancyStatus)
+			{
+				// Повтор уже зафиксированного расхождения
+				return;
+			}
+
+			var isNewDiscrepancy = document.DiscrepancyState != EdoDiscrepancyState.Active;
+
+			document.Status = discrepancyStatus;
+			document.DiscrepancyState = EdoDiscrepancyState.Active;
+
+			if(!isNewDiscrepancy)
+			{
+				// Изменился тип расхождения, повторное уведомление не нужно
+				return;
+			}
 
 			var edoRequest = await _uow.Session.QueryOver<FormalEdoRequest>()
 				.Where(x => x.Task.Id == document.DocumentTaskId)

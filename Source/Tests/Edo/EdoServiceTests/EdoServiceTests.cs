@@ -4,6 +4,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Infrastructure;
+using TransactionalOutbox.Domain;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Organizations;
 using Edo.Admin;
 using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
@@ -24,6 +28,7 @@ using QS.Services;
 using Taxcom.Docflow.Utility;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Controllers;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -710,7 +715,7 @@ namespace EdoServices.Tests
 		}
 
 		[Fact]
-		public void ResendWithOriginalCodes_WhenWithdrawalDocumentExistsWithoutRequiredStatus_ReturnsFailure()
+		public void ResendWithOriginalCodes_WhenDocflowHasActiveDiscrepancy_ReturnsFailure()
 		{
 			var taskId = 123;
 			var order = new OrderEntity { Id = 1, OrderStatus = OrderStatus.NewOrder };
@@ -735,12 +740,17 @@ namespace EdoServices.Tests
 				withdrawalRequests: new[] { withdrawalRequest },
 				trueMarkDocuments: new[] { withdrawalDocument });
 			_edoRepository.GetOrderEdoDocumentByTaskId(Arg.Any<IUnitOfWork>(), taskId)
-				.Returns(new OrderEdoDocument { DocumentTaskId = taskId, Status = EdoDocumentStatus.Error });
+				.Returns(new OrderEdoDocument
+				{
+					DocumentTaskId = taskId,
+					Status = EdoDocumentStatus.CompletedWithDivergences,
+					DiscrepancyState = EdoDiscrepancyState.Active
+				});
 
 			var result = _edoService.ResendEdoDocumentWithOriginalCodes(taskId);
 
 			Assert.True(result.IsFailure);
-			Assert.Contains(result.Errors, error => error == EdoErrors.ResendWithOriginalCodesStatusNotSupported);
+			Assert.Contains(result.Errors, error => error == EdoErrors.DocflowWithDiscrepancyCanResendOnlyInDiscrepancyDialog);
 			_edoRequestCreatedEventPublisher.DidNotReceiveWithAnyArgs().Publish(default, default, default);
 		}
 
@@ -1303,6 +1313,122 @@ namespace EdoServices.Tests
 
 					return uow;
 				});
+		}
+
+		[Theory]
+		[InlineData(EdoDiscrepancyState.None)]
+		[InlineData(EdoDiscrepancyState.Resolved)]
+		public void ResendDocumentWithDiscrepancy_WhenDiscrepancyIsNotActive_ReturnsFailureWithoutCommit(
+			EdoDiscrepancyState discrepancyState)
+		{
+			var context = SetupDiscrepancyContext(EdoDocFlowStatus.CompletedWithDivergences, discrepancyState);
+
+			var result = _edoService.ResendDocumentWithDiscrepancy(context.Uow, context.Node);
+
+			Assert.True(result.IsFailure);
+			Assert.Contains(result.Errors, x => x.Code == EdoErrors.DiscrepancyAlreadyResolved.Code);
+			Assert.Equal(discrepancyState, context.Document.DiscrepancyState);
+			Assert.Equal(EdoTaskStatus.InProgress, context.Task.Status);
+			context.Uow.DidNotReceive().Commit();
+		}
+
+		[Fact]
+		public void ResendDocumentWithDiscrepancy_WhenDiscrepancyIsActive_ResolvesDiscrepancyAndCancelsTask()
+		{
+			var context = SetupDiscrepancyContext(EdoDocFlowStatus.CompletedWithDivergences, EdoDiscrepancyState.Active);
+
+			var result = _edoService.ResendDocumentWithDiscrepancy(context.Uow, context.Node);
+
+			Assert.True(result.IsSuccess);
+			Assert.Equal(EdoDiscrepancyState.Resolved, context.Document.DiscrepancyState);
+			Assert.Equal(EdoDocumentStatus.CompletedWithDivergences, context.Document.Status);
+			Assert.Null(context.Document.CancellationRequestTime);
+			Assert.Equal(EdoTaskStatus.Cancelled, context.Task.Status);
+			context.Uow.Session.Received(1).Refresh(context.Document, LockMode.Upgrade);
+			context.Uow.DidNotReceive().Save(Arg.Is<OutboxMessage>(x =>
+				x.Type == typeof(AcceptingWaitingForCancellationDocflowEvent).FullName));
+			context.Uow.Received(1).Commit();
+		}
+
+		[Fact]
+		public void ResendDocumentWithDiscrepancy_WhenClientRequestedCancellation_AcceptsCancellationWithoutCancellingDocument()
+		{
+			var context = SetupDiscrepancyContext(EdoDocFlowStatus.WaitingForCancellation, EdoDiscrepancyState.Active);
+
+			var result = _edoService.ResendDocumentWithDiscrepancy(context.Uow, context.Node);
+
+			Assert.True(result.IsSuccess);
+			Assert.Equal(EdoDiscrepancyState.Resolved, context.Document.DiscrepancyState);
+			// Аннулирование зафиксирует обработчик статусов, когда его подтвердит Такском
+			Assert.Equal(EdoDocumentStatus.WaitingForCancellation, context.Document.Status);
+			Assert.NotNull(context.Document.CancellationRequestTime);
+			context.Uow.Received(1).Save(Arg.Is<OutboxMessage>(x =>
+				x.Type == typeof(AcceptingWaitingForCancellationDocflowEvent).FullName));
+			context.Uow.Received(1).Commit();
+		}
+
+		[Fact]
+		public void ResendDocumentWithDiscrepancy_WhenCalledTwice_ResolvesDiscrepancyOnlyOnce()
+		{
+			var context = SetupDiscrepancyContext(EdoDocFlowStatus.NotAccepted, EdoDiscrepancyState.Active);
+
+			var firstResult = _edoService.ResendDocumentWithDiscrepancy(context.Uow, context.Node);
+			var secondResult = _edoService.ResendDocumentWithDiscrepancy(context.Uow, context.Node);
+
+			Assert.True(firstResult.IsSuccess);
+			Assert.True(secondResult.IsFailure);
+			Assert.Contains(secondResult.Errors, x => x.Code == EdoErrors.DiscrepancyAlreadyResolved.Code);
+			context.Uow.Received(1).Commit();
+		}
+
+		private (IUnitOfWork Uow, EdoDiscrepancyNode Node, OrderEdoDocument Document, DocumentEdoTask Task) SetupDiscrepancyContext(
+			EdoDocFlowStatus taxcomStatus,
+			EdoDiscrepancyState discrepancyState)
+		{
+			const int orderId = 30;
+			const int taskId = 123;
+			const int documentId = 204;
+
+			var organization = Substitute.For<OrganizationEntity>();
+			organization.TaxcomEdoSettings.Returns(new TaxcomEdoSettings { EdoAccount = "seller-edo-account" });
+			var order = new OrderEntity
+			{
+				Id = orderId,
+				Contract = new CounterpartyContractEntity { Organization = organization }
+			};
+			var task = new DocumentEdoTask
+			{
+				Id = taskId,
+				Status = EdoTaskStatus.InProgress
+			};
+			var request = new PrimaryEdoRequest
+			{
+				Order = order,
+				Task = task
+			};
+			var document = new OrderEdoDocument
+			{
+				Id = documentId,
+				DocumentTaskId = taskId,
+				Status = taxcomStatus.ToString().TryParseAsEnum<EdoDocumentStatus>().Value,
+				DiscrepancyState = discrepancyState
+			};
+			var node = new EdoDiscrepancyNode
+			{
+				OrderId = orderId,
+				DocumentEdoTaskId = taskId,
+				ErpDocflowId = documentId,
+				TaxcomDocflowId = Guid.NewGuid(),
+				TaxcomDocflowStatus = taxcomStatus
+			};
+
+			var uow = Substitute.For<IUnitOfWork>();
+			uow.Session.Get<OrderEntity>(orderId).Returns(order);
+			uow.Session.Get<OrderEdoTask>(taskId).Returns(task);
+			uow.Session.Get<OrderEdoDocument>(documentId).Returns(document);
+			uow.GetAll<FormalEdoRequest>().Returns(_ => new FormalEdoRequest[] { request }.AsQueryable());
+
+			return (uow, node, document, task);
 		}
 	}
 }

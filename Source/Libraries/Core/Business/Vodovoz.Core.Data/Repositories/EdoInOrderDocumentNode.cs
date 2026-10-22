@@ -30,9 +30,9 @@ namespace Vodovoz.Core.Data.Repositories
 		public int DocumentId { get; set; }
 
 		/// <summary>
-		/// Документооборот имеет расхождения
+		/// Состояние расхождения документооборота
 		/// </summary>
-		public bool DocflowHasDiscrepancy { get; set; }
+		public EdoDiscrepancyState? DocflowDiscrepancyState { get; set; }
 
 		/// <summary>
 		/// Количество кодов, которые использованы в задаче.
