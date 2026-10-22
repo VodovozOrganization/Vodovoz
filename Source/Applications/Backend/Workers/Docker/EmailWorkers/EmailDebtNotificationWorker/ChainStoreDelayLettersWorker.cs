@@ -59,7 +59,6 @@ namespace EmailDebtNotificationWorker
 				var moscowNow = DateTime.UtcNow.ToMoscowDateTime();
 				var workingDayService = scope.ServiceProvider.GetRequiredService<IWorkingDayService>();
 
-				// Праздники не учитываются (Q38): IsWorkingDay проверяет только будни
 				if(workingDayService.IsWorkingDay(DateTime.Now) && IsInSendTimeInterval(moscowNow))
 				{
 					var lettersService = scope.ServiceProvider.GetRequiredService<IChainStoreDelayLettersService>();

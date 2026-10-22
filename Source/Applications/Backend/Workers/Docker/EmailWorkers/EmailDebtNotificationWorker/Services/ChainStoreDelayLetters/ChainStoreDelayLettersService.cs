@@ -9,11 +9,9 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
@@ -98,8 +96,6 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 					_organizationSettings.VodovozOrganizationId,
 					cancellationToken);
 
-				// строки, не отправленные до расчётной даты, переводятся в отдельное состояние
-				// до проверки пустого окна: ранний выход её не должен пропускать
 				var expiredLetters = _letterRepository
 					.Get(uow, x => x.Status == ChainStoreDelayLetterStatus.SendRequired && x.EstimatedPaymentDate <= today)
 					.ToList();
@@ -191,7 +187,6 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 
 			using(var uow = _uowFactory.CreateWithoutRoot($"Сервис {nameof(ChainStoreDelayLettersService)}. Поиск писем для отправки"))
 			{
-				// просроченные заказы писем не получают
 				letterIds = _letterRepository
 					.Get(uow, x => x.Status == ChainStoreDelayLetterStatus.SendRequired && x.EstimatedPaymentDate > today)
 					.Select(x => x.Id)
@@ -325,7 +320,6 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 					return;
 				}
 
-				// ошибки формирования вложений не перехватываются: это техническая ошибка, формирование повторится
 				var attachments = _emailAttachmentsCreateService
 					.CreateOrdersBillsAttachments(client.Id, organization.Id, new[] { order.Id })
 					.ToList();
@@ -383,7 +377,6 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 
 				await uow.SaveAsync(letter, cancellationToken: cancellationToken);
 
-				// письмо, запись в истории писем клиента и состояние сохраняются одной транзакцией
 				await uow.CommitAsync(cancellationToken);
 			}
 
