@@ -67,8 +67,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				if(totalPromoSetItemsDiscount.TryGetValue(promoItem.Id, out var totalDiscountFromItem))
 				{
 					newSaleItem.UpdateDiscount(
-						totalDiscountFromItem.DiscountValue.IsDiscountMoney,
-						totalDiscountFromItem.DiscountValue.GetDiscount,
+						totalDiscountFromItem.TotalDiscountValue.IsDiscountMoney,
+						totalDiscountFromItem.TotalDiscountValue.GetDiscount,
 						totalDiscountFromItem.DiscountReasons);
 				}
 			}

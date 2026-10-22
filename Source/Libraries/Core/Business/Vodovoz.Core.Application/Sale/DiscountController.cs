@@ -70,25 +70,15 @@ namespace Vodovoz.Core.Application.Sale
 
 			foreach(var discountReason in saleItem.DiscountReasons)
 			{
+				if(discountReason.Id == PersonalDiscountReasonId)
+				{
+					continue;
+				}
+				
 				var discountMoney = CalculateMoneyDiscount(currentSumWithoutDiscount, discountReason);
 				totalDiscountMoney += discountMoney;
 
-				IDiscountAmount discountAmount;
-
-				if(currentSumWithoutDiscount >= totalDiscountMoney)
-				{
-					discountAmount = DiscountAmount.Create(discountReason.Id, discountReason.ToString(), discountMoney);
-				}
-				else
-				{
-					var difference = totalDiscountMoney - currentSumWithoutDiscount;
-					discountAmount = DiscountAmount.Create(
-						discountReason.Id,
-						discountReason.ToString(),
-						difference >= discountMoney ? 0m : discountMoney - difference);
-					totalDiscountMoney = currentSumWithoutDiscount;
-				}
-
+				var discountAmount = CalculateDiscountAmount(currentSumWithoutDiscount, discountReason, discountMoney, ref totalDiscountMoney);
 				discountAmounts.Add(discountAmount.Id, discountAmount);
 			}
 
@@ -96,10 +86,11 @@ namespace Vodovoz.Core.Application.Sale
 			{
 				totalDiscountMoney += saleItem.PersonalDiscount.DiscountValue.DiscountMoney;
 				
-				var personalDiscountAmount = DiscountAmount.Create(
-					saleItem.PersonalDiscount.DiscountReason.Id,
-					saleItem.PersonalDiscount.DiscountReason.ToString(),
-					saleItem.PersonalDiscount.DiscountValue.DiscountMoney);
+				var personalDiscountAmount = CalculateDiscountAmount(
+					currentSumWithoutDiscount,
+					saleItem.PersonalDiscount.DiscountReason,
+					saleItem.PersonalDiscount.DiscountValue.DiscountMoney,
+					ref totalDiscountMoney);
 				
 				discountAmounts.Add(personalDiscountAmount.Id, personalDiscountAmount);
 			}
@@ -107,6 +98,72 @@ namespace Vodovoz.Core.Application.Sale
 			return (totalDiscountMoney, discountAmounts);
 		}
 		
+		/// <inheritdoc/>
+		public virtual (decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+			OnlineOrderPromoSet onlinePromoSet
+		)
+		{
+			var currentSumWithoutDiscount = onlinePromoSet.PromoSet.SumWithoutDiscount() * onlinePromoSet.Count;
+			var discountAmounts = new Dictionary<int, IDiscountAmount>();
+			var totalDiscountMoney = 0m;
+
+			foreach(var discountReason in onlinePromoSet.DiscountReasons)
+			{
+				var discountMoney = CalculateMoneyDiscount(currentSumWithoutDiscount, discountReason);
+				totalDiscountMoney += discountMoney;
+
+				var discountAmount = CalculateDiscountAmount(currentSumWithoutDiscount, discountReason, discountMoney, ref totalDiscountMoney);
+				discountAmounts.Add(discountAmount.Id, discountAmount);
+			}
+
+			return (totalDiscountMoney, discountAmounts);
+		}
+		
+		/// <inheritdoc/>
+		public virtual (decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+			IEnumerable<PromotionalSetItem> promoSetItems,
+			Queue<OrderItem> orderItemsQueue
+		)
+		{
+			var discountAmounts = new Dictionary<int, IDiscountAmount>();
+			var totalDiscountMoney = 0m;
+
+			foreach(var promoSetItem in promoSetItems)
+			{
+				var orderItem = orderItemsQueue.Dequeue();
+				var currentSum = orderItem.CurrentRawPrice;
+				
+				foreach(var discountReason in orderItem.DiscountReasons)
+				{
+					if(discountReason.Id == PersonalDiscountReasonId)
+					{
+						continue;
+					}
+					
+					var discountReasonMoney = CalculateMoneyDiscount(currentSum, discountReason);
+					totalDiscountMoney += discountReasonMoney;
+
+					var discountAmount = CalculateDiscountAmount(currentSum, discountReason, discountReasonMoney, ref totalDiscountMoney);
+					discountAmounts.Add(discountAmount.Id, discountAmount);
+				}
+
+				if(orderItem.PersonalDiscount != null)
+				{
+					totalDiscountMoney += orderItem.PersonalDiscount.DiscountValue.DiscountMoney;
+				
+					var personalDiscountAmount = CalculateDiscountAmount(
+						currentSum,
+						orderItem.PersonalDiscount.DiscountReason,
+						orderItem.PersonalDiscount.DiscountValue.DiscountMoney,
+						ref totalDiscountMoney);
+				
+					discountAmounts.Add(personalDiscountAmount.Id, personalDiscountAmount);
+				}
+			}
+
+			return (totalDiscountMoney, discountAmounts);
+		}
+
 		public decimal CalculateMoneyDiscount(
 			decimal currentRawPrice,
 			DiscountReasonBase discountReason
@@ -228,6 +285,31 @@ namespace Vodovoz.Core.Application.Sale
 					(int)discountReason.DiscountReasonType == (int)notApplicableDiscount.DiscountType));
 		}
 		
+		private IDiscountAmount CalculateDiscountAmount(
+			decimal currentSum,
+			DiscountReasonBase discountReason,
+			decimal discountMoney,
+			ref decimal totalDiscountMoney)
+		{
+			IDiscountAmount discountAmount;
+
+			if(currentSum > totalDiscountMoney)
+			{
+				discountAmount = DiscountAmount.Create(discountReason.Id, discountReason.ToString(), discountMoney);
+			}
+			else
+			{
+				var difference = totalDiscountMoney - currentSum;
+				discountAmount = DiscountAmount.Create(
+					discountReason.Id,
+					discountReason.ToString(),
+					difference >= discountMoney ? 0m : discountMoney - difference);
+				totalDiscountMoney = currentSum;
+			}
+
+			return discountAmount;
+		}
+		
 		private Result CanApplyDiscount(DiscountReasonBase addingDiscount, IApplicablePromotion saleItem)
 		{
 			if(saleItem.Nomenclature is null && saleItem.PromoSet is null)
@@ -264,7 +346,7 @@ namespace Vodovoz.Core.Application.Sale
 		}
 
 		/// <summary>
-		/// Содержит ли основание скидки соответствующую категорию номенклатуры 
+		/// Содержит ли основание скидки соответствующую категорию номенклатуры
 		/// </summary>
 		/// <param name="nomenclatureCategory">Категория номенклатуры</param>
 		/// <param name="discountNomenclatureCategories">Список категорий номенклатур у основания скидки</param>

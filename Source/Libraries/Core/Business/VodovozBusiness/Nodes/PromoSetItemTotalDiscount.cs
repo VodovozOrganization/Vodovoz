@@ -11,39 +11,42 @@ namespace VodovozBusiness.Nodes
 	public class PromoSetItemTotalDiscount
 	{
 		private PromoSetItemTotalDiscount(
-			decimal totalDiscountMoney,
-			IDiscountValue discountValue,
+			IDiscountValue totalDiscountValue,
+			IDiscountValue additionalDiscountValue,
 			IEnumerable<DiscountReasonBase> discountReasons,
 			PersonalDiscount personalDiscount = null)
 		{
-			TotalDiscountMoney = totalDiscountMoney;
-			DiscountValue = discountValue;
+			TotalDiscountValue = totalDiscountValue;
+			AdditionalDiscountValue = additionalDiscountValue;
 			DiscountReasons = discountReasons;
-			PersonalDiscount =  personalDiscount;
+			PersonalDiscount = personalDiscount;
 		}
-		
-		/// <summary>
-		/// Общая скидка в деньгах
-		/// </summary>
-		public decimal TotalDiscountMoney { get; }
+
 		/// <summary>
 		/// Общие данные по скидке <see cref="IDiscountValue"/>
 		/// </summary>
-		public IDiscountValue DiscountValue { get; }
+		public IDiscountValue TotalDiscountValue { get; }
+		
+		/// <summary>
+		/// Данные по дополнительной скидке(промокод, применимая скидка и т.д.) <see cref="IDiscountValue"/>
+		/// </summary>
+		public IDiscountValue AdditionalDiscountValue { get; }
+
 		/// <summary>
 		/// Список оснований скидок
 		/// </summary>
-		public IEnumerable<DiscountReasonBase>  DiscountReasons { get; }
+		public IEnumerable<DiscountReasonBase> DiscountReasons { get; }
+
 		/// <summary>
 		/// Персональная скидка
 		/// </summary>
 		public PersonalDiscount PersonalDiscount { get; }
 
 		public static PromoSetItemTotalDiscount Create(
-			decimal totalDiscountMoney,
-			IDiscountValue discountValue,
+			IDiscountValue totalDiscountValue,
+			IDiscountValue additionalDiscountValue,
 			IEnumerable<DiscountReasonBase> discountReasons,
 			PersonalDiscount personalDiscount = null) =>
-			new PromoSetItemTotalDiscount(totalDiscountMoney, discountValue, discountReasons, personalDiscount);
+			new PromoSetItemTotalDiscount(totalDiscountValue, additionalDiscountValue, discountReasons, personalDiscount);
 	}
 }

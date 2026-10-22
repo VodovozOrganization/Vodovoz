@@ -12,7 +12,6 @@ namespace VodovozBusiness.Controllers
 		void SetCountWithRecalculateRents(IRecalculateRentCount saleItem, decimal count);
 		void SetRentCount(IRecalculateRentCount saleItem, int count);
 		void UpdateRentsCount();
-		void SetPriceForNewSaleItem(IOrderSaleItem newItem, (SaleItemPriceType PriceType, decimal Price) priceData);
 		/// <summary>
 		/// Установка фактического количества позиции
 		/// </summary>

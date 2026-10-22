@@ -55,7 +55,10 @@ namespace Vodovoz.Core.Application.Sale
 			return true;
 		}
 		
-		public virtual void SetPrice(ISaleItem saleItem, (SaleItemPriceType PriceType, decimal Price) priceData)
+		public virtual void SetPrice(
+			ISaleItem saleItem,
+			(SaleItemPriceType PriceType, decimal Price) priceData
+			)
 		{
 			var priceByTotalCount = GoodsPriceCalculator
 				.CalculateItemPrice(
@@ -69,6 +72,27 @@ namespace Vodovoz.Core.Application.Sale
 			UpdatePriceType(saleItem, priceData, priceByTotalCount, SaleItemSpecification.Create(priceByTotalCount));
 
 			SaleItemHandler.SetPrice(
+				CommonRecalculateDiscount.CreateDataContext(discountItem),
+				priceData.Price);
+		}
+		
+		public virtual void SetPriceForNewSaleItem(
+			ISaleItem newItem,
+			(SaleItemPriceType PriceType, decimal Price) priceData
+			)
+		{
+			var priceByTotalCount = GoodsPriceCalculator
+				.CalculateItemPrice(
+					Source.SaleItems,
+					Source.DeliveryPoint,
+					Source.Counterparty,
+					newItem,
+					Source.HasPermissionsForAlternativePrice);
+			
+			var discountItem = newItem.ToApplyDiscountReasonItem();
+			UpdatePriceType(newItem, priceData, priceByTotalCount, SaleItemSpecification.Create(priceByTotalCount));
+			
+			SaleItemHandler.SetPriceForNewSaleItem(
 				CommonRecalculateDiscount.CreateDataContext(discountItem),
 				priceData.Price);
 		}
@@ -99,6 +123,11 @@ namespace Vodovoz.Core.Application.Sale
 				if(saleItem.Nomenclature.Category == NomenclatureCategory.water)
 				{
 					RecalculatePrice(saleItem);
+				}
+				else
+				{
+					var discountItem = saleItem.ToApplyDiscountReasonItem();
+					RecalculateDiscounts(CommonRecalculateDiscount.CreateDataContext(discountItem));
 				}
 			}
 		}

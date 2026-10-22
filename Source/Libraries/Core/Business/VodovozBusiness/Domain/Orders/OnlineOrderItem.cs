@@ -380,20 +380,8 @@ namespace Vodovoz.Domain.Orders
 					? 100 * discountMoney / currentPrice
 					: discountMoney;
 
-			onlineOrderItem.CalculateDiscount(isFixedPrice, discount);
+			onlineOrderItem.CalculateDiscount(discount);
 			return onlineOrderItem;
-		}
-
-		private void CalculateDiscount(bool isFixedPrice, decimal discount)
-		{
-			if(isFixedPrice || discount == 0m)
-			{
-				CalculateDiscount(0m);
-			}
-			else
-			{
-				CalculateDiscount(discount);
-			}
 		}
 
 		private void CalculateDiscount(decimal discount)

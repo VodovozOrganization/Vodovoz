@@ -16,6 +16,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -40,6 +41,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IOnlinePaymentRepository _onlinePaymentRepository;
+		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly ICallTaskWorker _callTaskWorker;
@@ -56,6 +58,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 			IOnlineOrderRepository onlineOrderRepository,
 			ICounterpartyRepository counterpartyRepository,
 			IOnlinePaymentRepository onlinePaymentRepository,
+			IFastPaymentRepository fastPaymentRepository,
 			IRouteListService routeListService,
 			INomenclatureSettings nomenclatureSettings,
 			ICallTaskWorker callTaskWorker,
@@ -72,6 +75,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_onlinePaymentRepository = onlinePaymentRepository ?? throw new ArgumentNullException(nameof(onlinePaymentRepository));
+			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
@@ -550,14 +554,44 @@ namespace CustomerOrdersApi.Library.V7.Services
 				transactionId);
 
 			var refundService = _paymentRefundServiceFactory.GetRefundService(onlineOrder);
+			RefundRequestDto refundRequest;
 
-			var refundRequest = new RefundRequestDto
+			if(onlineOrder.OnlinePaymentSource.HasValue
+				&& FastPaymentCanHandle(onlineOrder.OnlinePaymentSource.Value))
 			{
-				OnlineOrder = onlineOrder,
-				TransactionId = transactionId,
-				Amount = onlineOrder.OnlineOrderSum,
-				ExternalOrderId = onlineOrder?.ExternalOrderId.ToString()
-			};
+				if(!int.TryParse(transactionId, out var externalId))
+				{
+					return Result.Failure(OrderErrors.CannotCancelOrderWithError("Некорректный ID транзакции"));
+				}
+
+				var fastPayment = await _fastPaymentRepository.GetFastPaymentByExternalIdAsync(
+					uow,
+					externalId,
+					cancellationToken: cancellationToken);
+
+				if(fastPayment is null)
+				{
+					return Result.Failure(OrderErrors.CannotCancelOrderWithError("Не найден FastPayment для возврата"));
+				}
+
+				refundRequest = new RefundRequestDto
+				{
+					OnlineOrder = onlineOrder,
+					TransactionId = fastPayment.Ticket,
+					Amount = onlineOrder.OnlineOrderSum,
+					ExternalOrderId = onlineOrder?.ExternalOrderId.ToString()
+				};
+			}
+			else
+			{
+				refundRequest = new RefundRequestDto
+				{
+					OnlineOrder = onlineOrder,
+					TransactionId = transactionId,
+					Amount = onlineOrder.OnlineOrderSum,
+					ExternalOrderId = onlineOrder?.ExternalOrderId.ToString()
+				};
+			}
 
 			var refundResult = await refundService.ProcessRefundAsync(uow, refundRequest, cancellationToken);
 
@@ -613,6 +647,11 @@ namespace CustomerOrdersApi.Library.V7.Services
 
 			return undelivery;
 		}
+		
+		public static bool FastPaymentCanHandle(OnlinePaymentSource paymentSource) =>
+			paymentSource is OnlinePaymentSource.FromMobileAppByQr
+				or OnlinePaymentSource.FromVodovozWebSiteByQr
+				or OnlinePaymentSource.FromAiBotByQr;
 
 		private static bool IsSimpleStatus(OrderStatus status) => 
 			status is OrderStatus.NewOrder

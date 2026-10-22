@@ -460,7 +460,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 			var totalDiscountDetails = CalculateTotalDiscountDetails(calculatingTotalMoneyDiscount);
 
 			receivedCartItem.CurrentSum = Math.Round(receivedCartItem.Count * receivedCartItem.Price - totalDiscountDetails.TotalDiscount, 2);
-			receivedCartItem.CurrentPrice = Math.Round(receivedCartItem.CurrentSum / receivedCartItem.Count, 2);
+			receivedCartItem.CurrentPrice = receivedCartItem.Count == 0
+				? 0m
+				: Math.Round(receivedCartItem.CurrentSum / receivedCartItem.Count, 2);
 
 			foreach(var discountAmount in receivedCartItem.Discounts)
 			{

@@ -44,14 +44,15 @@ namespace Vodovoz.Core.Application.Sale
 			var saleItem = context
 				.ContextDataToCommonRecalculateDiscount()
 				.SaleItem;
-			
-			if(!SetPriceWithoutRecalculate(saleItem, price))
-			{
-				return false;
-			}
-				
+
+			SetPriceWithoutRecalculate(saleItem, price);
 			RecalculateDiscounts(context);
 			return true;
+		}
+		
+		internal virtual void SetPriceForNewSaleItem(IDataContext context, decimal price)
+		{
+			SetPrice(context, price);
 		}
 		
 		protected virtual bool SetPriceWithoutRecalculate(IPrice saleItem, decimal price)

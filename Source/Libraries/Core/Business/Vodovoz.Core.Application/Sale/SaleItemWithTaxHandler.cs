@@ -19,7 +19,7 @@ namespace Vodovoz.Core.Application.Sale
 
 		protected ISaleItemTaxHandler TaxHandler { get; }
 		
-		internal virtual void SetPriceForNewSaleItem(IDataContext context, decimal price)
+		internal override void SetPriceForNewSaleItem(IDataContext context, decimal price)
 		{
 			var saleItem = context
 				.ContextDataToCommonRecalculateDiscount()

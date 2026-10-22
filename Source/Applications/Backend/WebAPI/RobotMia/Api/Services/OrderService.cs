@@ -281,6 +281,7 @@ namespace Vodovoz.RobotMia.Api.Services
 				var deliverySchedule =  unitOfWork.GetById<DeliverySchedule>(calculatePriceRequest.DeliveryIntervalId);
 
 				Order order = unitOfWork.Root;
+				_saleHandler.SetSource(order);
 				order.Author = _robotMiaEmployee;
 				order.UpdateClient(counterparty, _contractUpdater, out var updateClientMessage);
 				order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater);
@@ -415,6 +416,7 @@ namespace Vodovoz.RobotMia.Api.Services
 			}
 
 			Order order = unitOfWork.Root;
+			_saleHandler.SetSource(order);
 			order.Author = author;
 			order.UpdateClient(counterparty, _contractUpdater, out var updateClientMessage);
 			order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater);			

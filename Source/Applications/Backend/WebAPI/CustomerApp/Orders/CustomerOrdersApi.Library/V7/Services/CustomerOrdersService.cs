@@ -8,11 +8,9 @@ using CustomerOrdersApi.Library.V7.Dto.Orders;
 using CustomerOrdersApi.Library.V7.Extensions;
 using CustomerOrdersApi.Library.V7.Factories;
 using CustomerOrdersApi.Library.V7.Repositories;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -22,13 +20,12 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
-using VodovozBusiness.Domain.Sale.RequestsForCall;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V7.Services
 {
-	public class CustomerOrdersService : ICustomerOrdersService
+	public class CustomerOrdersService : SignatureService, ICustomerOrdersService
 	{
 		private readonly ILogger<CustomerOrdersService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -42,8 +39,8 @@ namespace CustomerOrdersApi.Library.V7.Services
 		private readonly IGenericRepository<OrderRating> _genericRatingRepository;
 		private readonly IUnPaidOnlineOrderHandler _unPaidOnlineOrderHandler;
 		private readonly ICourierTrackingService _courierTrackingService;
+		private readonly IOptionsSnapshot<SignatureOptions> _signatureOptions;
 		private readonly IOptionsMonitor<CourierCoordinatesOptions> _courierCoordinatesOptions;
-		private readonly IConfigurationSection _signaturesSection;
 
 		public CustomerOrdersService(
 			ILogger<CustomerOrdersService> logger,
@@ -58,7 +55,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 			IGenericRepository<OrderRating> genericRatingRepository,
 			IUnPaidOnlineOrderHandler unPaidOnlineOrderHandler,
 			ICourierTrackingService courierTrackingService,
-			IConfiguration configuration,
+			IOptionsSnapshot<SignatureOptions> signatureOptions,
 			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -73,16 +70,15 @@ namespace CustomerOrdersApi.Library.V7.Services
 			_genericRatingRepository = genericRatingRepository ?? throw new ArgumentNullException(nameof(genericRatingRepository));
 			_unPaidOnlineOrderHandler = unPaidOnlineOrderHandler ?? throw new ArgumentNullException(nameof(unPaidOnlineOrderHandler));
 			_courierTrackingService = courierTrackingService ?? throw new ArgumentNullException(nameof(courierTrackingService));
+			_signatureOptions = signatureOptions ?? throw new ArgumentNullException(nameof(signatureOptions));
 			_courierCoordinatesOptions = courierCoordinatesOptions ?? throw new ArgumentNullException(nameof(courierCoordinatesOptions));
-
-			_signaturesSection = configuration.GetSection("Signatures");
 		}
 
 		#region ValidateSignature
 
 		public bool ValidateOrderSignature(ICreatingOnlineOrder creatingOnlineOrder, out string generatedSignature)
 		{
-			var sourceSign = GetSourceSign(creatingOnlineOrder.Source);
+			var sourceSign = GetSourceSign(creatingOnlineOrder.Source, _signatureOptions.Value);
 
 			return _signatureManager.Validate(
 				creatingOnlineOrder.Signature,
@@ -98,7 +94,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 
 		public bool ValidateOrderRatingSignature(OrderRatingInfoForCreateDto orderRatingInfo, out string generatedSignature)
 		{
-			var sourceSign = GetSourceSign(orderRatingInfo.Source);
+			var sourceSign = GetSourceSign(orderRatingInfo.Source, _signatureOptions.Value);
 
 			return _signatureManager.Validate(
 				orderRatingInfo.Signature,
@@ -116,7 +112,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 
 		public bool ValidateOrderInfoSignature(GetDetailedOrderInfoDto getDetailedOrderInfoDto, out string generatedSignature)
 		{
-			var sourceSign = GetSourceSign(getDetailedOrderInfoDto.Source);
+			var sourceSign = GetSourceSign(getDetailedOrderInfoDto.Source, _signatureOptions.Value);
 
 			return _signatureManager.Validate(
 				getDetailedOrderInfoDto.Signature,
@@ -133,7 +129,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 
 		public bool ValidateCounterpartyOrdersSignature(GetOrdersDto getOrdersDto, out string generatedSignature)
 		{
-			var sourceSign = GetSourceSign(getOrdersDto.Source);
+			var sourceSign = GetSourceSign(getOrdersDto.Source, _signatureOptions.Value);
 
 			return _signatureManager.Validate(
 				getOrdersDto.Signature,
@@ -150,7 +146,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 		public bool ValidateOnlineOrderPaymentStatusUpdatedSignature(
 			OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto, out string generatedSignature)
 		{
-			var sourceSign = GetSourceSign(paymentStatusUpdatedDto.Source);
+			var sourceSign = GetSourceSign(paymentStatusUpdatedDto.Source, _signatureOptions.Value);
 
 			return _signatureManager.Validate(
 				paymentStatusUpdatedDto.Signature,
@@ -166,7 +162,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 
 		public bool ValidateRequestForCallSignature(CreatingRequestForCallDto creatingInfoDto, out string generatedSignature)
 		{
-			var sourceSign = GetSourceSign(creatingInfoDto.Source);
+			var sourceSign = GetSourceSign(creatingInfoDto.Source, _signatureOptions.Value);
 
 			return _signatureManager.Validate(
 				creatingInfoDto.Signature,
@@ -528,11 +524,6 @@ namespace CustomerOrdersApi.Library.V7.Services
 			var changedOrderDto = ChangedOrderDto.Create(changingOrderDto.OnlineOrderId);
 
 			return Result.Success(changedOrderDto);
-		}
-
-		private string GetSourceSign(Source source)
-		{
-			return _signaturesSection.GetValue<string>(source.ToString());
 		}
 	}
 }

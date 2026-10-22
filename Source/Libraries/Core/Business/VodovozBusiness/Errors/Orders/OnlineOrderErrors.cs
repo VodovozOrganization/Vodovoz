@@ -188,6 +188,14 @@ namespace Vodovoz.Errors.Orders
 				$"{promoSet} пришел с неправильно установленной ценой" +
 				$"\nДолжно быть {price}, а передано {onlinePromoSetPrice}");
 		
+		public static Error IncorrectPriceWithDiscountsPromoSetInOnlineOrder(
+			string promoSet, decimal price, decimal onlinePromoSetPrice) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncorrectPricePromoSetInOnlineOrder),
+				$"{promoSet} пришел с неправильно установленной ценой или скидками" +
+				$"\nДолжно быть {price}, а передано {onlinePromoSetPrice}");
+		
 		public static Error NotApplicableDiscountToNomenclatureOnlineOrder(string nomenclature) =>
 			new Error(
 				typeof(OnlineOrderErrors),

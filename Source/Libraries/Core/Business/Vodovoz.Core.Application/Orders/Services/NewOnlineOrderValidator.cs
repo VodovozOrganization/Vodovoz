@@ -141,21 +141,35 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			var price = onlinePromoSet.PromoSet.Sum();
 			
-			var applicablePromotion = _applicablePromotionFactory.CreateApplicablePromotion(onlinePromoSet);
-			var applicableDiscountReasons = onlinePromoSet.DiscountReasons
-				.Where(x => _discountController.IsApplicableDiscount(x, applicablePromotion).IsSuccess)
-				.ToList();
-
-			var discounts = applicableDiscountReasons
-				.Select(discountReason => _discountController.CalculateMoneyDiscount(price, discountReason))
-				.Sum();
-			
-			price -= discounts;
-
 			if(price != onlinePromoSet.Price)
 			{
 				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectPricePromoSetInOnlineOrder(
 					onlinePromoSet.PromoSet.Title, price, onlinePromoSet.Price));
+			}
+
+			if(onlinePromoSet.DiscountReasons.Any())
+			{
+				var applicablePromotion = _applicablePromotionFactory.CreateApplicablePromotion(onlinePromoSet);
+				var applicableDiscountReasons = onlinePromoSet.DiscountReasons
+					.Where(x => _discountController.IsApplicableDiscount(x, applicablePromotion).IsSuccess)
+					.ToList();
+
+				var applicableDiscounts = applicableDiscountReasons
+					.Select(discountReason => _discountController.CalculateMoneyDiscount(price, discountReason))
+					.Sum();
+				
+				var discounts = onlinePromoSet.DiscountReasons
+					.Select(discountReason => _discountController.CalculateMoneyDiscount(price, discountReason))
+					.Sum();
+
+				var calculatedPriceWithApplicableDiscounts = price - applicableDiscounts;
+				var receivedPriceWithDiscounts = onlinePromoSet.Price - discounts;
+				
+				if(receivedPriceWithDiscounts != calculatedPriceWithApplicableDiscounts)
+				{
+					ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectPriceWithDiscountsPromoSetInOnlineOrder(
+						onlinePromoSet.PromoSet.Title, calculatedPriceWithApplicableDiscounts, receivedPriceWithDiscounts));
+				}
 			}
 		}
 	}

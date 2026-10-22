@@ -11,10 +11,12 @@ namespace VodovozBusiness.Nodes
 		public string Name { get; set; }
 		public decimal Count { get; set; }
 		public decimal? ReceivedPrice { get; set; }
-		public decimal? ReceivedSum => Count * ReceivedPrice;
-		public decimal OurPrice => NomenclaturePrice - DiscountMoney;
+		public decimal? ReceivedDiscountMoney { get; set; }
+		public decimal? ReceivedSum => Count * ReceivedPrice - ReceivedDiscountMoney;
+		public decimal OurPrice => NomenclaturePrice - OurDiscountMoneyFromPromoSet;
+		public decimal OurDiscountMoneyFromPromoSet { get; set; }
+		public decimal OurAdditionalDiscountMoney { get; set; }
 		public decimal NomenclaturePrice { get; set; }
-		public decimal DiscountMoney { get; set; }
 		public bool IsDiscountInMoney { get; set; }
 		public decimal OurSum => Math.Round(Count * OurPrice, 2);
 		public string DiscountReasonNames { get; set; }
@@ -23,23 +25,17 @@ namespace VodovozBusiness.Nodes
 
 		public void UpdateDiscounts(PromoSetItemTotalDiscount itemTotalDiscounts)
 		{
-			var discountValue = itemTotalDiscounts.DiscountValue;
+			var totalDiscountValue = itemTotalDiscounts.TotalDiscountValue;
+			var discountValue = itemTotalDiscounts.AdditionalDiscountValue;
 
-			IsDiscountInMoney = discountValue.IsDiscountMoney;
-			DiscountMoney = discountValue.DiscountMoney;
+			IsDiscountInMoney = totalDiscountValue.IsDiscountMoney;
+			OurDiscountMoneyFromPromoSet = totalDiscountValue.DiscountMoney - discountValue.DiscountMoney;
+			OurAdditionalDiscountMoney = discountValue.DiscountMoney;
 			DiscountReasonNames = string.Join(
 				",",
 				itemTotalDiscounts.DiscountReasons
 					.Select(x => x.Name)
 					.ToArray());
 		}
-
-		#region ICalculateTotalDiscountPromoSetItem implementation
-
-		public decimal Sum(bool useAlternativePrice = false) => OurPrice;
-
-		public decimal SumWithoutDiscount(bool useAlternativePrice = false) => NomenclaturePrice;
-
-		#endregion
 	}
 }

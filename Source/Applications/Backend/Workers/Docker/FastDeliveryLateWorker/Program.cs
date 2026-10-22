@@ -6,6 +6,8 @@ using NLog.Extensions.Logging;
 using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
+using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -58,6 +60,7 @@ namespace FastDeliveryLateWorker
 						.ConfigureFastDeliveryLateOptions(hostContext)
 						.AddSingleton<IOrderSettings, OrderSettings>()
 						.AddSingleton<IEmailService, EmailService>()
+						.AddScoped<IOrderDiscountsController, OrderDiscountsController>()
 						.AddScoped<OrderStateKey>()
 						.AddOsrm()
 						;

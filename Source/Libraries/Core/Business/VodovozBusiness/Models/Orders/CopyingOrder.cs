@@ -446,7 +446,7 @@ namespace Vodovoz.Models.Orders
 
 		private void CopyOrderEquipment(OrderEquipment orderEquipment)
 		{
-			var newOrderEquipment = OrderEquipment.CreateNewFromOther(_copiedOrder, orderEquipment);
+			var newOrderEquipment = OrderEquipment.CreateNewFromOther(_resultOrder, orderEquipment);
 			_resultOrder.ObservableOrderEquipments.Add(newOrderEquipment);
 		}
 	}

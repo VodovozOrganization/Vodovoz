@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -98,6 +100,20 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			DiscountReasonBase discountReasonAlias = null;
 			OnlineOrderPromoSetNode resultAlias = null;
 			
+			var discountMoneyProjection = Projections.Sum(
+				Projections.Conditional(
+					Restrictions.Where(() => discountReasonAlias.ValueType == DiscountUnits.money),
+					Projections.Property(() => discountReasonAlias.Value),
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 * ?3 / 100"),
+						NHibernateUtil.Decimal,
+						Projections.Property(() => onlinePromoSetAlias.Count),
+						Projections.Property(() => onlinePromoSetAlias.Price),
+						Projections.Property(() => discountReasonAlias.Value)
+					)
+				)
+			);
+			
 			var query = uow.Session.QueryOver(() => onlinePromoSetAlias)
 				.JoinAlias(() => onlinePromoSetAlias.PromoSet, () => promoSetAlias)
 				.Left.JoinAlias(() => onlinePromoSetAlias.DiscountReasons, () => discountReasonAlias)
@@ -107,6 +123,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.Select(() => promoSetAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => onlinePromoSetAlias.Count).WithAlias(() => resultAlias.Count)
 					.Select(() => onlinePromoSetAlias.Price).WithAlias(() => resultAlias.ReceivedPrice)
+					.Select(discountMoneyProjection).WithAlias(() => resultAlias.ReceivedDiscountMoney)
 					.Select(CustomProjections.GroupConcat(() => discountReasonAlias.Name)).WithAlias(() => resultAlias.DiscountReasonNames)
 				)
 				.TransformUsing(Transformers.AliasToBean<OnlineOrderPromoSetNode>());
@@ -148,8 +165,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					OnlinePromoSetId = onlinePromoSet.Id,
 					Name = nomenclature.Name,
 					Count = promoSetItem.Count * onlinePromoSet.Count,
-					IsDiscountInMoney = promoSetItem.IsDiscountInMoney,
-					DiscountMoney = promoSetItem.DiscountMoney,
 					NomenclaturePrice = dependNomenclature != null ? dependNomenclaturePrice.FirstOrDefault() : nomenclaturePrice.FirstOrDefault()
 				};
 			

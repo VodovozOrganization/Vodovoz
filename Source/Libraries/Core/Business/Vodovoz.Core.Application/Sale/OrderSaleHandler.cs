@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -40,8 +41,8 @@ namespace Vodovoz.Core.Application.Sale
 				priceData.Price);
 		}
 		
-		public void SetPriceForNewSaleItem(
-			IOrderSaleItem newItem,
+		public override void SetPriceForNewSaleItem(
+			ISaleItem newItem,
 			(SaleItemPriceType PriceType, decimal Price) priceData)
 		{
 			UpdatePriceType(newItem, priceData);
@@ -73,6 +74,23 @@ namespace Vodovoz.Core.Application.Sale
 					Source.HasPermissionsForAlternativePrice
 				)
 			);
+		}
+		
+		protected override void RecalculateItemsPrice()
+		{
+			foreach(var saleItem in Source.SaleItems.ToList())
+			{
+				if(saleItem.Nomenclature.Category == NomenclatureCategory.water)
+				{
+					RecalculatePrice(saleItem);
+				}
+				else
+				{
+					var discountItem = saleItem.ToPreserveDiscount();
+					RecalculateDiscounts(
+						OrderRecalculateDiscount.CreateDataContext(discountItem, Order.IsUndeliveredStatus));
+				}
+			}
 		}
 		
 		public virtual void SetActualCount(IOrderSaleItem saleItem, decimal? newValue)

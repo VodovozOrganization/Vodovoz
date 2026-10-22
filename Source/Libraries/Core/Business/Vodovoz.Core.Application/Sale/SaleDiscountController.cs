@@ -207,13 +207,13 @@ namespace Vodovoz.Core.Application.Sale
 			)
 		{
 			var promoSetItemsWithDiscounts = new Dictionary<int, PromoSetItemTotalDiscount>();
-			var applicableDiscountReasons = new Queue<DiscountReasonBase>(discountReasons);
+			var applicableDiscountReasons = new Queue<DiscountReasonBase>();
 
-			for(var i = 0; i < applicableDiscountReasons.Count; i++)
+			foreach(var discountReason in discountReasons)
 			{
-				if(IsApplicableDiscount(applicableDiscountReasons.Peek(), onlinePromoSet).IsFailure)
+				if(IsApplicableDiscount(discountReason, onlinePromoSet).IsSuccess)
 				{
-					applicableDiscountReasons.Dequeue();
+					applicableDiscountReasons.Enqueue(discountReason);
 				}
 			}
 
@@ -285,8 +285,8 @@ namespace Vodovoz.Core.Application.Sale
 					promoSetItemsWithDiscounts.Add(
 						promoSetItem.Id,
 						PromoSetItemTotalDiscount.Create(
-							totalDiscountMoney,
 							DiscountValue.Create(true, totalDiscountMoney * 100 / rawItemPrice, totalDiscountMoney),
+							DiscountValue.Create(true, applicableDiscountToItem * 100 / rawItemPrice, applicableDiscountToItem),
 							new []{ personalDiscountReason },
 							personalDiscount));
 				}
@@ -295,8 +295,8 @@ namespace Vodovoz.Core.Application.Sale
 					promoSetItemsWithDiscounts.Add(
 						promoSetItem.Id,
 						PromoSetItemTotalDiscount.Create(
-							totalDiscountMoney,
 							DiscountValue.Create(isDiscountInMoney, totalDiscountMoney * 100 / rawItemPrice, totalDiscountMoney),
+							DiscountValue.Create(isDiscountInMoney, applicableDiscountToItem * 100 / rawItemPrice, applicableDiscountToItem),
 							currentDiscountReasons));
 				}
 

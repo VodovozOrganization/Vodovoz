@@ -407,7 +407,11 @@ namespace CustomerOrdersApi.Library.V7.Factories
 				.Select(_onlineOrderItemFactory.CreateWithDiscountDetailsDto)
 				.ToList();
 
-			AddPromoSets(order.PromotionalSets, orderInfoDto);
+			var promoSetOrderItems = new Queue<OrderItem>(
+				order.OrderItems
+				.Where(x => x.PromoSet != null));
+			
+			AddPromoSets(order.PromotionalSets, promoSetOrderItems, orderInfoDto);
 		}
 		
 		private void UpdateOrderItems(OnlineOrder onlineOrder, DetailedOrderInfoDto orderInfoDto)
@@ -431,16 +435,15 @@ namespace CustomerOrdersApi.Library.V7.Factories
 		
 		private void AddPromoSets(IEnumerable<IProduct> orderItems, DetailedOrderInfoDto orderInfoDto)
 		{
-			var promoSetsGroup = orderItems
-				.Where(x => x.PromoSet != null)
-				.ToLookup(x => x.PromoSet.Id);
+			var promoSetOrderItemsQueue = new Queue<IProduct>(orderItems
+				.Where(x => x.PromoSet != null));
 			
-			foreach(var orderItemGroup in promoSetsGroup)
+			var orderItemsByPromoSet = GetOrderItemsByPromoSets(promoSetOrderItemsQueue);
+			var onlineOrderItemPromoSets = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(orderItemsByPromoSet);
+			
+			foreach(var promoSet in onlineOrderItemPromoSets)
 			{
-				var promo = orderItemGroup.First().PromoSet;
-				var promoItemsCount = promo.PromotionalSetItems.Count;
-					
-				orderInfoDto.OrderItems.Add(_onlineOrderItemFactory.CreateWithDiscountDetailsDto(promo, orderItemGroup.Count() / promoItemsCount));
+				orderInfoDto.OrderItems.Add(promoSet);
 			}
 		}
 		
@@ -449,14 +452,18 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			foreach(var onlineOrderPromoSet in onlineOrderPromoSets)
 			{
 				orderInfoDto.OrderItems.Add(
-					_onlineOrderItemFactory.CreateWithDiscountDetailsDto(onlineOrderPromoSet.PromoSet, onlineOrderPromoSet.Count)
-					);
+					_onlineOrderItemFactory.CreateWithDiscountDetailsDto(onlineOrderPromoSet));
 			}
 		}
 		
-		private void AddPromoSets(IEnumerable<PromotionalSet> promoSets, DetailedOrderInfoDto orderInfoDto)
+		private void AddPromoSets(
+			IEnumerable<PromotionalSet> promoSets,
+			Queue<OrderItem> promoSetOrderItemsQueue,
+			DetailedOrderInfoDto orderInfoDto
+			)
 		{
-			var onlineOrderItemPromoSets = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(promoSets);
+			var orderItems = GetOrderItemsByPromoSets(promoSets, promoSetOrderItemsQueue);
+			var onlineOrderItemPromoSets = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(orderItems);
 			
 			foreach(var promoSet in onlineOrderItemPromoSets)
 			{
@@ -464,6 +471,56 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			}
 		}
 		
+		private IList<(PromotionalSet, IEnumerable<IProduct>)> GetOrderItemsByPromoSets(Queue<IProduct> promoSetOrderItemsQueue)
+		{
+			var orderItems = new List<(PromotionalSet, IEnumerable<IProduct>)>();
+
+			while(promoSetOrderItemsQueue.Count > 0)
+			{
+				var i = 0;
+				var promoSet = promoSetOrderItemsQueue.Peek().PromoSet;
+				var count = promoSet.PromotionalSetItems.Count;
+				var promoSetData = (promoSet, new List<IProduct>());
+				orderItems.Add(promoSetData);
+
+				while(i < count)
+				{
+					if(!promoSetOrderItemsQueue.Any())
+					{
+						break;
+					}
+					
+					promoSetData.Item2.Add(promoSetOrderItemsQueue.Dequeue());
+					i++;
+				}
+			}
+
+			return orderItems;
+		}
+
+		private IList<(PromotionalSet, IEnumerable<OrderItem>)> GetOrderItemsByPromoSets(
+			IEnumerable<PromotionalSet> promoSets,
+			Queue<OrderItem> promoSetOrderItemsQueue)
+		{
+			var orderItems = new List<(PromotionalSet, IEnumerable<OrderItem>)>();
+
+			foreach(var promoSet in promoSets)
+			{
+				var i = 0;
+				var count = promoSet.PromotionalSetItems.Count;
+				var promoSetData = (promoSet, new List<OrderItem>());
+				orderItems.Add(promoSetData);
+
+				while(i < count)
+				{
+					promoSetData.Item2.Add(promoSetOrderItemsQueue.Dequeue());
+					i++;
+				}
+			}
+
+			return orderItems;
+		}
+
 		private void AddRentPackages(IEnumerable<OnlineFreeRentPackage> freeRentPackages, DetailedOrderInfoDto orderInfoDto)
 		{
 			foreach(var freeRentPackage in freeRentPackages)

@@ -13,5 +13,12 @@ namespace Vodovoz.Core.Application.Orders.Cart
 		public decimal Count { get; set; }
 		/// <inheritdoc/>
 		public SaleItemType ItemType => Nomenclature.Category.ToSaleItemType();
+
+		public static NomenclatureCartItem Create(Nomenclature nomenclature, decimal count) =>
+			new NomenclatureCartItem
+			{
+				Nomenclature = nomenclature,
+				Count = count
+			};
 	}
 }

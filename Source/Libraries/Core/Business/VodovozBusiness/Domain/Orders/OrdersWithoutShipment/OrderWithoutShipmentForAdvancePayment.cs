@@ -75,10 +75,11 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				HasPermissionsForAlternativePrice
 				&& nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
 
-			var oi = OrderWithoutShipmentForAdvancePaymentItem
-				.Create(this, count, nomenclature, nomenclature.GetPrice(1, canApplyAlternativePrice));
+			var newItem = OrderWithoutShipmentForAdvancePaymentItem
+				.Create(this, count, nomenclature);
+			saleHandler.SetPriceForNewSaleItem(newItem, nomenclature.GetPrice(1, canApplyAlternativePrice));
 
-			AddItemWithNomenclatureForSale(oi, saleHandler);
+			AddItemWithNomenclatureForSale(newItem, saleHandler);
 		}
 
 		private void AddItemWithNomenclatureForSale(
