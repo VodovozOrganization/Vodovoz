@@ -38,6 +38,12 @@ namespace Edo.Docflow.Factories
 		{
 			var upd = documentEdoTask.Upd;
 
+			if(upd == null)
+			{
+				throw new NotSupportedException($"Документ УПД для задачи ЭДО {documentEdoTask.Id} не заполнен.\n" +
+					$"Старые документообороты без сохраненного УПД документа необходимо переотправлять через новый документооборот.");
+			}
+
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
