@@ -438,6 +438,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SemitrailerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.TtnDataView.cs" />
     <Compile Include="Infrastructure\Converters\RoundedDecimalToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\ValueToLeadingDigitsConverter.cs" />
     <Compile Include="Infrastructure\Converters\TextToBoldTextConverter.cs" />
@@ -792,6 +793,7 @@
     <Compile Include="Views\Reports\BulkDebtMailingReportView.cs" />
     <Compile Include="Views\Reports\ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Views\Users\UserRoleView.cs" />
+    <Compile Include="Views\Warehouse\TtnDataView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderItemReturnsNode.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.ChangedType.cs" />
@@ -1014,6 +1016,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersReport.cs" />
     <Compile Include="Dialogs\Sale\DeliveryPriceDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceDlg.cs" />
+    <Compile Include="Views\Dialogs\Sale\MasterVisitCostView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Dialogs.Sale.MasterVisitCostView.cs" />
     <Compile Include="ReportsParameters\Sales\SuburbWaterPriceReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SuburbWaterPriceReport.cs" />
     <Compile Include="ServiceDialogs\Database\CalculateDistanceToPointsDlg.cs" />
@@ -1998,8 +2002,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker.cs" />
     <Compile Include="AboutView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AboutView.cs" />
-    <Compile Include="AboutAuthorsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AboutAuthorsView.cs" />
     <Compile Include="Logistic\DistrictSetDiffReportConfirmationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Logistic.DistrictSetDiffReportConfirmationView.cs" />
     <Compile Include="Views\Fuel\FuelCardView.cs" />

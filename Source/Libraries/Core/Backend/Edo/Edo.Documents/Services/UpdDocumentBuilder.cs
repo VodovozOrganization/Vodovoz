@@ -183,7 +183,7 @@ namespace Edo.Documents.Services
 				if(TryAssignExistingIndividualCode(context, orderItem, codeItemsToAssign, out var assignedIndividualCount))
 				{
 					var individualCode = codeItemsToAssign.Last().IndividualCode;
-					if(individualCode != null)
+					if(individualCode?.ParentWaterGroupCodeId != null)
 					{
 						await _updTransportCodeService.DisaggregateCodeAsync(individualCode, cancellationToken);
 					}
