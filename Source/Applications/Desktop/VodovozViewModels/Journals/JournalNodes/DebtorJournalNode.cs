@@ -30,6 +30,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public DateTime? LastOrderDate { get; set; }
 
 		/// <summary>
+		/// Сумма последнего заказа с учётом скидок и возврата залогов.
+		/// </summary>
+		public decimal LastOrderSum { get; set; }
+
+		/// <summary>
 		/// Сохранённый средний интервал между заказами точки доставки в днях.
 		/// </summary>
 		public int? OrderFrequencyDays { get; set; }
