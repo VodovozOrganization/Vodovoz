@@ -9,9 +9,9 @@ namespace Vodovoz.Core.Data.NHibernate.Edo
 		{
 			Table("taxcom_edo_docflow_last_process_times");
 			DynamicUpdate();
-			
+
 			Id(x => x.Id).GeneratedBy.Native();
-			
+
 			Map(x => x.LastProcessedEventOutgoingDocuments).Column("last_processed_event_outgoing_documents");
 			Map(x => x.LastProcessedEventIngoingDocuments).Column("last_processed_event_ingoing_documents");
 			Map(x => x.LastProcessedEventWaitingForCancellationDocuments)

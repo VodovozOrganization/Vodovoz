@@ -89,7 +89,7 @@ namespace Edo.Documents
 				}
 
 				documentEdoTask.UpdInventPositions.Clear();
-				await _updDocumentBuilder.BuildUpdDocumentAsync(documentEdoTask, cancellationToken);
+				await _updDocumentBuilder.BuildForOwnNeedUpdDocumentAsync(documentEdoTask, cancellationToken);
 
 				// проверить коды в ЧЗ, не валидные снова заменить кодами из пула
 				trueMarkCodesChecker.ClearCache();
@@ -143,7 +143,7 @@ namespace Edo.Documents
 
 					if(hasGroupInvalidCodes)
 					{
-						documentEdoTask.UpdInventPositions.Clear();
+						documentEdoTask.Upd = null;
 					}
 				}
 			} while(!isAllValid && attempts > 0);
@@ -214,7 +214,7 @@ namespace Edo.Documents
 					return;
 				}
 
-				await _updDocumentBuilder.BuildUpdDocumentAsync(documentEdoTask, cancellationToken);
+				await _updDocumentBuilder.BuildForOwnNeedUpdDocumentAsync(documentEdoTask, cancellationToken);
 				return;
 			}
 
