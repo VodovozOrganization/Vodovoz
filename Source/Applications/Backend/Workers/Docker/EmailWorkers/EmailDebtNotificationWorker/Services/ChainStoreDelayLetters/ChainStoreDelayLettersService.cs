@@ -1,4 +1,4 @@
-using BitrixApi.Library.Services;
+﻿using BitrixApi.Library.Services;
 using DateTimeHelpers;
 using Email.Infrastructure.Factories;
 using Email.Infrastructure.Generators;
@@ -88,7 +88,7 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 
 			using(var uow = _uowFactory.CreateWithoutRoot($"Сервис {nameof(ChainStoreDelayLettersService)}. Отбор заказов"))
 			{
-				var windowOrders = await _orderRepository.GetChainStoreDelayOrdersAsync(
+				var orders = await _orderRepository.GetChainStoreDelayOrdersAsync(
 					uow,
 					today,
 					daysBeforePaymentDate,
@@ -110,7 +110,7 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 
 				var expiredLettersCount = expiredLetters.Count;
 
-				if(windowOrders.Count == 0)
+				if(orders.Count == 0)
 				{
 					if(expiredLettersCount > 0)
 					{
@@ -123,16 +123,16 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 					return 0;
 				}
 
-				var windowOrderIds = windowOrders.Select(x => x.OrderId).ToArray();
+				var orderIds = orders.Select(x => x.OrderId).ToArray();
 
 				var existingLetters = _letterRepository
-					.Get(uow, x => windowOrderIds.Contains(x.OrderId))
+					.Get(uow, x => orderIds.Contains(x.OrderId))
 					.ToDictionary(x => x.OrderId);
 
 				var newLettersCount = 0;
 				var repeatedLettersCount = 0;
 
-				foreach(var order in windowOrders)
+				foreach(var order in orders)
 				{
 					if(!existingLetters.TryGetValue(order.OrderId, out var letter))
 					{
@@ -169,7 +169,7 @@ namespace EmailDebtNotificationWorker.Services.ChainStoreDelayLetters
 				_logger.LogInformation(
 					"Отбор заказов для писем сетей и тендеров: в окне {WindowOrdersCount}, новых {NewLettersCount}, "
 					+ "повторных {RepeatedLettersCount}, переведено в \"наступила расчётная дата\" {ExpiredLettersCount}",
-					windowOrders.Count,
+					orders.Count,
 					newLettersCount,
 					repeatedLettersCount,
 					expiredLettersCount);
