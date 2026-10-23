@@ -1,5 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets.PromoSetAction
 {

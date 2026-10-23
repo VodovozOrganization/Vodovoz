@@ -9,10 +9,10 @@ using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.V3.Consumers
@@ -31,7 +31,7 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator)
+			IOnlineOrderValidatorCreator onlineOrderValidatorCreator)
 				: base(
 					logger,
 					unitOfWorkFactory,
@@ -42,7 +42,7 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 					onlineOrderCancellationReasonSettings,
 					orderService,
 					routeListService,
-					onlineOrderValidator)
+					onlineOrderValidatorCreator)
 		{
 		}
 		

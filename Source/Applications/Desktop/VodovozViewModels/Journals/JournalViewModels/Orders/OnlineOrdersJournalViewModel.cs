@@ -18,6 +18,8 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Services.FileDialog;
 using QS.Services;
+using Vodovoz.Core.Domain.Interfaces;
+using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -29,8 +31,11 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
+using Vodovoz.ViewModels.ViewModels.Common;
 using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Reports.Orders;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale.RequestsForCall;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
@@ -54,7 +59,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
-			IGtkTabsOpener gtkTabsOpener, IFileDialogService fileDialogService, Action<OnlineOrdersJournalFilterViewModel> filterParams = null)
+			IGtkTabsOpener gtkTabsOpener,
+			IFileDialogService fileDialogService,
+			Action<OnlineOrdersJournalFilterViewModel> filterParams = null
+			)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
 			_filterViewModel = journalFilterViewModel ?? throw new ArgumentNullException(nameof(journalFilterViewModel));
@@ -155,6 +163,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					},
 					Projections.Constant(int.MaxValue)
 				);
+
+			var onlineOrderTypeProjection = Projections.Conditional(
+				new[]
+				{
+					new ConditionalProjectionCase(
+						Restrictions.Where(() => onlineOrderAlias.OrderVersion == OnlineOrderVersion.V2),
+						Projections.Select(() => typeof(OnlineOrderV2)))
+				},
+				Projections.Select(() => typeof(OnlineOrderV1)));
 
 			#region Фильтрация
 
@@ -342,7 +359,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			
 			query.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => typeof(OnlineOrder)).WithAlias(() => resultAlias.EntityType)
+					.Select(onlineOrderTypeProjection).WithAlias(() => resultAlias.EntityType)
 					.Select(() => OnlineOrder.OnlineOrderName).WithAlias(() => resultAlias.EntityTypeString)
 					.Select(orderByStatusProjection).WithAlias(() => resultAlias.OrderByStatusValue)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
@@ -363,6 +380,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(o => o.NextCallDate).WithAlias(() => resultAlias.NextCallDate)
 					.Select(() => cancellationReasonAlias.Name).WithAlias(() => resultAlias.CancelReason)
 					.Select(ordersIdsProjection).WithAlias(() => resultAlias.OrdersIds)
+					.Select(o => o.HasService).WithAlias(() => resultAlias.HasService)
 				)
 				.OrderBy(o => o.OnlineOrderStatus).Asc()
 				.ThenBy(o => o.Created).Desc()
@@ -371,9 +389,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			return query;
 		}
 
-		public IQueryOver<RequestForCall> RequestsForCallQuery(IUnitOfWork uow)
+		public IQueryOver<RequestForCallBase> RequestsForCallQuery(IUnitOfWork uow)
 		{
-			RequestForCall requestForCallAlias = null;
+			RequestForCallBase requestForCallAlias = null;
 			Order orderAlias = null;
 			Counterparty counterpartyAlias = null;
 			Employee employeeWorkWithAlias = null;
@@ -410,6 +428,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				);
 			
 			var ordersIdsProjection = CustomProjections.GroupConcat(() => orderAlias.Id);
+			
+			var isServiceProjection = Projections.Conditional(
+				Restrictions.Where(() => requestForCallAlias.Type == RequestForCallType.Service),
+				Projections.Constant(true),
+				Projections.Constant(false));
 
 			#region Фильтрация
 			
@@ -424,7 +447,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				|| _filterViewModel.RestrictFastDelivery.HasValue
 				|| _filterViewModel.OnlineOrderId.HasValue
 				|| _filterViewModel.GeographicGroup != null
-				|| _filterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate
 				|| _filterViewModel.WithoutDeliverySchedule)
 			{
 				query.Where(r => r.Id == null);
@@ -464,8 +486,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			var startDate = _filterViewModel.StartDate;
 			var endDate = _filterViewModel.EndDate;
 
+			//т.к. у заявок на звонок нет даты доставки как у онлайн заказа, а они должны отображаться вместе, то поиск ведем всегда по созданию
 			switch(_filterViewModel.FilterDateType)
 			{
+				case OrdersDateFilterType.DeliveryDate:
 				case OrdersDateFilterType.CreationDate:
 					if(startDate.HasValue)
 					{
@@ -473,7 +497,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					}
 					
 					if(endDate.HasValue)
-					{ 
+					{
 						query.Where(r => r.Created <= endDate.Value.LatestDayTime()); 
 					}
 					break;
@@ -514,8 +538,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			
 			query.SelectList(list => list
 					.SelectGroup(r => r.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => typeof(RequestForCall)).WithAlias(() => resultAlias.EntityType)
-					.Select(() => RequestForCall.RequestForCallName).WithAlias(() => resultAlias.EntityTypeString)
+					.Select(() => typeof(RequestForCallBase)).WithAlias(() => resultAlias.EntityType)
+					.Select(() => RequestForCallBase.RequestForCallName).WithAlias(() => resultAlias.EntityTypeString)
 					.Select(orderByStatusProjection).WithAlias(() => resultAlias.OrderByStatusValue)
 					.Select(r => r.Created).WithAlias(() => resultAlias.CreationDate)
 					.Select(r => r.RequestForCallStatus).WithAlias(() => resultAlias.RequestForCallStatus)
@@ -523,6 +547,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(employeeWorkWithProjection).WithAlias(() => resultAlias.ManagerWorkWith)
 					.Select(r => r.Source).WithAlias(() => resultAlias.Source)
 					.Select(ordersIdsProjection).WithAlias(() => resultAlias.OrdersIds)
+					.Select(isServiceProjection).WithAlias(() => resultAlias.HasService)
 				)
 				.OrderBy(r => r.RequestForCallStatus).Asc()
 				.ThenBy(r => r.Created).Desc()
@@ -650,15 +675,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 					var selectedNode = selectedNodes.First();
 
-					if(selectedNode.EntityType == typeof(OnlineOrder))
+					if(selectedNode.EntityType == typeof(OnlineOrderV2))
 					{
-						NavigationManager.OpenViewModel<OnlineOrderViewModel, IEntityUoWBuilder>(
-							this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+						NavigationManager.OpenViewModel<OnlineOrderV2ViewModel, IEntityViewModelContext>(
+							this, EntityViewModelContext.Create(selectedNode.EntityType, UnitOfWorkFactory, selectedNode.Id));
 					}
-					else if(selectedNode.EntityType == typeof(RequestForCall))
+					else if(selectedNode.EntityType == typeof(OnlineOrderV1))
 					{
-						NavigationManager.OpenViewModel<RequestForCallViewModel, IEntityUoWBuilder>(
-							this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+						NavigationManager.OpenViewModel<OnlineOrderV1ViewModel, IEntityViewModelContext>(
+							this, EntityViewModelContext.Create(selectedNode.EntityType, UnitOfWorkFactory, selectedNode.Id));
+					}
+					else if(selectedNode.EntityType == typeof(RequestForCallBase))
+					{
+						NavigationManager.OpenViewModel<RequestForCallViewModel, IEntityViewModelContext>(
+							this, EntityViewModelContext.Create(selectedNode.EntityType, UnitOfWorkFactory, selectedNode.Id));
 					}
 				}
 			);

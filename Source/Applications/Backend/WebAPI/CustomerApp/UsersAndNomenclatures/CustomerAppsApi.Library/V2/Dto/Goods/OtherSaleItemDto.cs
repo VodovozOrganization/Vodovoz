@@ -1,4 +1,5 @@
 ﻿using CustomerAppsApi.Library.V2.Dto.Goods.Attributes;
+using Vodovoz.Core.Domain.Goods;
 
 namespace CustomerAppsApi.Library.V2.Dto.Goods
 {
