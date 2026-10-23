@@ -61,8 +61,7 @@ namespace BitrixNotificationsSend.Library.Factories
 		}
 
 		/// <summary>
-		/// Название сделки "Контрагент, заказ N". Длинное название контрагента обрезается так,
-		/// чтобы название уместилось в колонку, а номер заказа сохранился
+		/// Название сделки "Контрагент, заказ N"
 		/// </summary>
 		private static string CreateDealTitle(ChainStoreDelayOrderNode order)
 		{

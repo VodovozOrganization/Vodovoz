@@ -11,8 +11,7 @@ namespace BitrixNotificationsSend.Library.Services
 	public interface IBitrixDealsStagesReadService
 	{
 		/// <summary>
-		/// Чтение текущих стадий сделок из Битрикс24 пакетами.
-		/// Сделки, по которым запрос не выполнен, остаются без стадии и будут обработаны при следующем запуске
+		/// Чтение текущих стадий сделок из Битрикс24 пакетами
 		/// </summary>
 		/// <param name="dealIds">Id сделок в Битрикс24, для которых нужно получить стадии</param>
 		/// <param name="cancellationToken">Токен отмены</param>

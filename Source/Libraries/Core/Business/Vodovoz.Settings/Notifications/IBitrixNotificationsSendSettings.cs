@@ -120,8 +120,7 @@ namespace Vodovoz.Settings.Notifications
 		DateTime UndeliveredOrdersMinLastEditedTime { get; }
 
 		/// <summary>
-		/// Включена ли выгрузка сделок по отсрочке сети в Битрикс24.
-		/// Когда выключена, воркер отправки не выполняет работу
+		/// Включена ли выгрузка сделок по отсрочке сети в Битрикс24
 		/// </summary>
 		bool ChainStoreDelayDealsSendEnabled { get; }
 
@@ -131,12 +130,12 @@ namespace Vodovoz.Settings.Notifications
 		TimeSpan ChainStoreDelayDealsSendInterval { get; }
 
 		/// <summary>
-		/// Время начала интервала для создания сделок по отсрочке сети в Битрикс24 (по Москве)
+		/// Время начала интервала для создания сделок по отсрочке сети в Битрикс24
 		/// </summary>
 		TimeSpan ChainStoreDelayDealsSendTimeFrom { get; }
 
 		/// <summary>
-		/// Время окончания интервала для создания сделок по отсрочке сети в Битрикс24 (по Москве)
+		/// Время окончания интервала для создания сделок по отсрочке сети в Битрикс24
 		/// </summary>
 		TimeSpan ChainStoreDelayDealsSendTimeTo { get; }
 
@@ -162,8 +161,7 @@ namespace Vodovoz.Settings.Notifications
 		string ChainStoreDelayDealsClosedStageId { get; }
 
 		/// <summary>
-		/// Идентификаторы завершённых стадий сделок по отсрочке сети в Битрикс24.
-		/// Сделки в этих стадиях при оплате заказа не меняются
+		/// Идентификаторы завершённых стадий сделок по отсрочке сети в Битрикс24
 		/// </summary>
 		string[] ChainStoreDelayDealsFinalStageIds { get; }
 

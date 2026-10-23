@@ -13,12 +13,12 @@ namespace EmailDebtNotificationWorker.Options
 		public TimeSpan Interval { get; set; }
 
 		/// <summary>
-		/// Время начала окна отправки (по Москве)
+		/// Время начала окна отправки
 		/// </summary>
 		public TimeSpan SendTimeFrom { get; set; }
 
 		/// <summary>
-		/// Время конца окна отправки (по Москве)
+		/// Время конца окна отправки
 		/// </summary>
 		public TimeSpan SendTimeTo { get; set; }
 	}

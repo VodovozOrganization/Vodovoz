@@ -13,12 +13,12 @@ namespace BitrixNotificationsSend.Library.Options
 		public TimeSpan Interval { get; set; }
 
 		/// <summary>
-		/// Время начала интервала создания сделок (по Москве)
+		/// Время начала интервала создания сделок
 		/// </summary>
 		public TimeSpan SendTimeFrom { get; set; }
 
 		/// <summary>
-		/// Время окончания интервала создания сделок (по Москве)
+		/// Время окончания интервала создания сделок
 		/// </summary>
 		public TimeSpan SendTimeTo { get; set; }
 	}

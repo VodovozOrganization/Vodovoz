@@ -3,12 +3,12 @@
 namespace Vodovoz.Settings.Counterparty
 {
 	/// <summary>
-	/// Настройки писем по заказам сетей и тендерных клиентов (напоминание об оплате)
+	/// Настройки напоминаний об оплате по заказам сетей и тендерных клиентов
 	/// </summary>
 	public interface IChainStoreDelayLettersSettings
 	{
 		/// <summary>
-		/// Включена ли отправка писем. Когда выключена, воркер работу не выполняет
+		/// Включена ли отправка писем
 		/// </summary>
 		bool SendEnabled { get; }
 
@@ -18,12 +18,12 @@ namespace Vodovoz.Settings.Counterparty
 		TimeSpan SendInterval { get; }
 
 		/// <summary>
-		/// Время начала окна отправки писем (по Москве)
+		/// Время начала окна отправки писем
 		/// </summary>
 		TimeSpan SendTimeFrom { get; }
 
 		/// <summary>
-		/// Время конца окна отправки писем (по Москве)
+		/// Время конца окна отправки писем
 		/// </summary>
 		TimeSpan SendTimeTo { get; }
 

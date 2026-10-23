@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Vodovoz.Core.Domain.Orders
 {
 	/// <summary>
-	/// Отправка сделки по отсрочке сети в Битрикс24: значения полей сделки на момент сбора, статус и результат отправки.
+	/// Отправка сделки по отсрочке сети в Битрикс24
 	/// </summary>
 	[Appellative(
 		Gender = GrammaticalGender.Feminine,
@@ -35,7 +35,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private decimal _debt;
 
 		/// <summary>
-		/// Идентификатор записи.
+		/// Идентификатор записи
 		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -45,7 +45,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Дата и время сбора (по Москве).
+		/// Дата и время сбора
 		/// </summary>
 		[Display(Name = "Дата создания")]
 		public virtual DateTime CreationDate
@@ -55,7 +55,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Дата последнего изменения записи (ошибка, статус).
+		/// Дата последнего изменения записи
 		/// </summary>
 		[Display(Name = "Дата обновления")]
 		public virtual DateTime? LastUpdateDate
@@ -65,7 +65,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Дата успешного создания сделки в Битрикс24.
+		/// Дата успешного создания сделки в Битрикс24
 		/// </summary>
 		[Display(Name = "Дата синхронизации")]
 		public virtual DateTime? LastSynchronizedDate
@@ -75,7 +75,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Дата закрытия сделки при оплате заказа.
+		/// Дата закрытия сделки при оплате заказа
 		/// </summary>
 		[Display(Name = "Дата закрытия сделки")]
 		public virtual DateTime? ClosedDate
@@ -85,7 +85,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Состояние отправки сделки.
+		/// Состояние отправки сделки
 		/// </summary>
 		[Display(Name = "Состояние")]
 		public virtual ChainStoreDelayBitrixDealStatus Status
@@ -95,7 +95,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Идентификатор сделки в Битрикс24.
+		/// Идентификатор сделки в Битрикс24
 		/// </summary>
 		[Display(Name = "Код сделки Битрикс24")]
 		public virtual long? BitrixDealId
@@ -105,7 +105,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Текст последней ошибки Битрикс24.
+		/// Текст последней ошибки Битрикс24
 		/// </summary>
 		[Display(Name = "Последняя ошибка")]
 		public virtual string LastError
@@ -115,7 +115,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Идентификатор клиента в ДВ (в Битрикс24 не передаётся).
+		/// Идентификатор клиента в ДВ
 		/// </summary>
 		[Display(Name = "Код клиента")]
 		public virtual int CounterpartyId
@@ -125,7 +125,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Номер заказа, по которому создаётся сделка.
+		/// Номер заказа, по которому создаётся сделка
 		/// </summary>
 		[Display(Name = "Заказ")]
 		public virtual int OrderId
@@ -135,7 +135,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Название сделки.
+		/// Название сделки
 		/// </summary>
 		[Display(Name = "Название сделки")]
 		public virtual string DealTitle
@@ -145,7 +145,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Наименование клиента.
+		/// Наименование клиента
 		/// </summary>
 		[Display(Name = "Наименование клиента")]
 		public virtual string CounterpartyName
@@ -155,7 +155,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// ИНН клиента.
+		/// ИНН клиента
 		/// </summary>
 		[Display(Name = "ИНН клиента")]
 		public virtual string CounterpartyInn
@@ -165,7 +165,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Телефон для связи из заказа.
+		/// Телефон для связи из заказа
 		/// </summary>
 		[Display(Name = "Телефон")]
 		public virtual string PhoneNumber
@@ -175,7 +175,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Адрес доставки заказа ("Самовывоз" для самовывоза).
+		/// Адрес доставки заказа
 		/// </summary>
 		[Display(Name = "Адрес доставки")]
 		public virtual string DeliveryAddress
@@ -185,7 +185,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Автор заказа.
+		/// Автор заказа
 		/// </summary>
 		[Display(Name = "Автор заказа")]
 		public virtual string OrderAuthor
@@ -195,7 +195,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Сумма заказа.
+		/// Сумма заказа
 		/// </summary>
 		[Display(Name = "Сумма заказа")]
 		public virtual decimal OrderSum
@@ -205,7 +205,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Расчётная дата платежа заказа.
+		/// Расчётная дата платежа заказа
 		/// </summary>
 		[Display(Name = "Расчётная дата платежа")]
 		public virtual DateTime EstimatedPaymentDate
@@ -215,7 +215,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Дни просрочки (всегда 0).
+		/// Дни просрочки
 		/// </summary>
 		[Display(Name = "Дней просрочки")]
 		public virtual int DaysOverdue
@@ -225,7 +225,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
-		/// Долг по заказу (равен сумме заказа).
+		/// Долг по заказу
 		/// </summary>
 		[Display(Name = "Долг")]
 		public virtual decimal Debt

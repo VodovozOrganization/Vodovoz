@@ -20,7 +20,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		public long BitrixDealId { get; set; }
 
 		/// <summary>
-		/// Ключ команды закрытия сделки в пакетном запросе, содержит id сохранённой записи об отправке
+		/// Ключ команды закрытия сделки в пакетном запросе
 		/// </summary>
 		[JsonIgnore]
 		public string DealCommandKey => $"{ChainStoreDelayDealCommandKeys.CloseCommandKeyPrefix}{ChainStoreDelayBitrixDealId}";

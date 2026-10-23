@@ -84,17 +84,17 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		public decimal PaidSum { get; set; }
 
 		/// <summary>
-		/// Расчетная дата платежа: дата доставки плюс отсрочка клиента
+		/// Расчетная дата платежа
 		/// </summary>
 		public DateTime EstimatedPaymentDate => DeliveryDate.Date.AddDays(DelayDaysForBuyers);
 
 		/// <summary>
-		/// Долг по заказу: для частично оплаченного заказа сумма за вычетом оплаченного
+		/// Долг по заказу
 		/// </summary>
 		public decimal Debt => OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid ? OrderSum - PaidSum : OrderSum;
 
 		/// <summary>
-		/// Автор заказа в формате "Фамилия И.О."; пусто, если фамилия автора не указана
+		/// Автор заказа в формате "Фамилия И.О."
 		/// </summary>
 		public string AuthorShortName =>
 			string.IsNullOrEmpty(AuthorLastName)

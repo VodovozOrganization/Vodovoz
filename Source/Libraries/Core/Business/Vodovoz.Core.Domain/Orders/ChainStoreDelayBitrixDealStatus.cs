@@ -8,7 +8,7 @@ namespace Vodovoz.Core.Domain.Orders
 	public enum ChainStoreDelayBitrixDealStatus
 	{
 		/// <summary>
-		/// Отправка сохранена, сделка не создана (в том числе после ошибки Битрикс24)
+		/// Отправка сохранена, сделка не создана
 		/// </summary>
 		[Display(Name = "Требуется создание сделки")]
 		DealCreateRequired,

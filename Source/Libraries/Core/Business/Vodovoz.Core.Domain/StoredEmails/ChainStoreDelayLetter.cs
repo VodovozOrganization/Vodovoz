@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Vodovoz.Core.Domain.StoredEmails
 {
 	/// <summary>
-	/// История писем по заказам сетей и тендерных клиентов: одна запись на заказ, состояние и результат отправки
+	/// История писем по заказам сетей и тендерных клиентов
 	/// </summary>
 	[Appellative(
 		Gender = GrammaticalGender.Neuter,
@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		private string _lastError;
 
 		/// <summary>
-		/// Идентификатор записи.
+		/// Идентификатор записи
 		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -34,7 +34,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		}
 
 		/// <summary>
-		/// Дата и время отбора заказа (по Москве).
+		/// Дата и время отбора заказа
 		/// </summary>
 		[Display(Name = "Дата создания")]
 		public virtual DateTime CreationDate
@@ -44,7 +44,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		}
 
 		/// <summary>
-		/// Дата последнего изменения записи (состояние, ошибка).
+		/// Дата последнего изменения записи
 		/// </summary>
 		[Display(Name = "Дата обновления")]
 		public virtual DateTime? LastUpdateDate
@@ -54,7 +54,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		}
 
 		/// <summary>
-		/// Состояние письма.
+		/// Состояние письма
 		/// </summary>
 		[Display(Name = "Состояние")]
 		public virtual ChainStoreDelayLetterStatus Status
@@ -64,7 +64,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		}
 
 		/// <summary>
-		/// Номер заказа (уникален: на заказ создаётся одна запись).
+		/// Номер заказа
 		/// </summary>
 		[Display(Name = "Номер заказа")]
 		public virtual int OrderId
@@ -74,7 +74,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		}
 
 		/// <summary>
-		/// Код клиента.
+		/// Код клиента
 		/// </summary>
 		[Display(Name = "Код клиента")]
 		public virtual int CounterpartyId
@@ -84,7 +84,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		}
 
 		/// <summary>
-		/// Расчётная дата платежа на момент отбора (для текста письма и повторов, пока заказ в окне).
+		/// Расчётная дата платежа на момент отбора
 		/// </summary>
 		[Display(Name = "Расчётная дата платежа")]
 		public virtual DateTime EstimatedPaymentDate
@@ -94,7 +94,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		}
 
 		/// <summary>
-		/// Код письма в истории писем клиента (заполняется после формирования письма).
+		/// Код письма в истории писем клиента
 		/// </summary>
 		[Display(Name = "Код письма клиента")]
 		public virtual int? CounterpartyEmailId
@@ -104,7 +104,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		}
 
 		/// <summary>
-		/// Текст последней технической ошибки формирования письма.
+		/// Текст последней технической ошибки формирования письма
 		/// </summary>
 		[Display(Name = "Ошибка")]
 		public virtual string LastError

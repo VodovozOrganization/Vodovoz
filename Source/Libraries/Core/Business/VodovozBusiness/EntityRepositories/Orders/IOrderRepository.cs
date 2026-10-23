@@ -616,14 +616,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Заказы сетей и тендерных клиентов по правилам отчета "Отсрочка сети" (неоплаченные и частично оплаченные
-		/// безналичные заказы с положительной суммой, кроме отмененных и недоставленных) в окне уведомления: доставлены
-		/// до сегодняшнего дня, расчетная дата платежа (дата доставки + отсрочка клиента) - от завтра до сегодня + N дней включительно.
-		/// Фильтров отчета (клиент, менеджер, автор) нет
+		/// Заказы сетей и тендерных клиентов в окне уведомления по правилам отчета "Отсрочка сети"
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="today">Сегодняшняя дата (по Москве)</param>
-		/// <param name="daysToPaymentDate">За сколько дней до расчетной даты платежа заказ попадает в окно (N)</param>
+		/// <param name="today">Сегодняшняя дата</param>
+		/// <param name="daysToPaymentDate">За сколько дней до расчетной даты платежа заказ попадает в окно</param>
 		/// <param name="counterpartyFromTenderId">Id источника "Тендер" клиента</param>
 		/// <param name="organizationId">Id организации договора заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
@@ -637,7 +634,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Текущие статусы оплаты заказов; заказов, которых нет в базе, в словаре нет
+		/// Текущие статусы оплаты заказов
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="orderIds">Id заказов</param>

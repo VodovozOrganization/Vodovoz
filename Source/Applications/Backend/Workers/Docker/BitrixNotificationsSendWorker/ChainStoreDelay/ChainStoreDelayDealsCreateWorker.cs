@@ -91,7 +91,7 @@ namespace BitrixNotificationsSendWorker.ChainStoreDelay
 		}
 
 		/// <summary>
-		/// Рабочий день: не суббота и не воскресенье. Праздники не учитываются (Q38)
+		/// Рабочий день: не суббота и не воскресенье
 		/// </summary>
 		private static bool IsWorkingDay(DateTime moscowNow) =>
 			moscowNow.DayOfWeek != DayOfWeek.Saturday && moscowNow.DayOfWeek != DayOfWeek.Sunday;

@@ -98,7 +98,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		ReminderToAcceptUpd,
 
 		/// <summary>
-		/// Напоминание об оплате (сети/тендеры)
+		/// Напоминание об оплате сетям и тендерным клиентам
 		/// </summary>
 		[Display(Name = "Напоминание об оплате (сети/тендеры)")]
 		ChainStoreDelayLetter

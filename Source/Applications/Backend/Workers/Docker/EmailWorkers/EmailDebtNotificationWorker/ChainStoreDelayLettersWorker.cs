@@ -15,7 +15,7 @@ using Vodovoz.Zabbix.Sender;
 namespace EmailDebtNotificationWorker
 {
 	/// <summary>
-	/// Воркер рассылки писем по заказам сетей и тендерных клиентов (напоминание об оплате)
+	/// Воркер рассылки напоминаний об оплате по заказам сетей и тендерных клиентов
 	/// </summary>
 	public class ChainStoreDelayLettersWorker : TimerBackgroundServiceBase
 	{
