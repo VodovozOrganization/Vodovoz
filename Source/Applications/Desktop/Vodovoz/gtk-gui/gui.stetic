@@ -47179,12 +47179,6 @@ not tooltip</property>
                           <placeholder />
                         </child>
                         <child>
-                          <placeholder />
-                        </child>
-                        <child>
-                          <placeholder />
-                        </child>
-                        <child>
                           <widget class="QS.Widgets.GtkUI.DatePicker" id="birthdatePicker">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
@@ -190108,7 +190102,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Organizations.OrganizationView" design-size="1309 697">
+  <widget class="Gtk.Bin" id="Vodovoz.Organizations.OrganizationView" design-size="1254 711">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -190224,12 +190218,6 @@ not tooltip</property>
                         <property name="RowSpacing">6</property>
                         <property name="ColumnSpacing">6</property>
                         <property name="BorderWidth">2</property>
-                        <child>
-                          <placeholder />
-                        </child>
-                        <child>
-                          <placeholder />
-                        </child>
                         <child>
                           <placeholder />
                         </child>
@@ -190838,6 +190826,29 @@ not tooltip</property>
                           </packing>
                         </child>
                         <child>
+                          <widget class="QS.Widgets.ValidatedEntry" id="validatedentryEmailForChainStoreNotifications">
+                            <property name="MemberName" />
+                            <property name="CanFocus">True</property>
+                            <property name="IsEditable">True</property>
+                            <property name="InvisibleChar">•</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">8</property>
+                            <property name="BottomAttach">9</property>
+                            <property name="LeftAttach">3</property>
+                            <property name="RightAttach">4</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="QS.Widgets.ValidatedEntry" id="validatedentryEmailForClaimLetters">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
@@ -191218,6 +191229,28 @@ not tooltip</property>
                           <packing>
                             <property name="TopAttach">10</property>
                             <property name="BottomAttach">11</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelEmailForChainStoreNotifications">
+                            <property name="MemberName" />
+                            <property name="Xalign">1</property>
+                            <property name="LabelProp" translatable="yes">E-mail для отправки уведомлений сетям/тендерам:</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">8</property>
+                            <property name="BottomAttach">9</property>
+                            <property name="LeftAttach">2</property>
+                            <property name="RightAttach">3</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>

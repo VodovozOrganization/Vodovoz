@@ -28,6 +28,24 @@ namespace EmailDebtNotificationWorker.Services.Common.Generators
 				<p><em>Это письмо отправлено автоматически.</em></p>";
 		}
 
+		public string GenerateChainStoreDelayLetterBody(
+			string contractNumber,
+			int orderId,
+			DateTime estimatedPaymentDate,
+			string contactPhone,
+			string senderEmail,
+			string unsubscribeUrl)
+		{
+			return $@"
+				<p>Уважаемый клиент!</p>
+				<p>Мы хотим напомнить вам, что на текущий момент у вас имеется задолженность по {contractNumber}/{orderId}, срок оплаты по которому истекает {estimatedPaymentDate:dd.MM.yyyy}.</p>
+				<p>Мы ценим ваше сотрудничество и надеемся на оперативное урегулирование задолженности. Для уточнения деталей Вы можете связаться с нами по телефону {contactPhone} или электронной почте {senderEmail}.</p>
+				<p>Просим вас принять меры к погашению задолженности в ближайшее время, чтобы избежать возможных последствий, включая, при необходимости, обращение в суд.</p>
+				<p>Благодарим за внимание и надеемся на скорое решение вопроса.</p>
+				<p>Вы всегда можете отписаться от нашей рассылки, нажав соответствующую кнопку.</p>
+				<p><a href='{unsubscribeUrl}' class='unsubscribe'>Отписаться</a></p>";
+		}
+
 		public string GenerateClosingDeliveriesEmailBody(
 			decimal debt,
 			int daysBeforeClosingDeliveries,

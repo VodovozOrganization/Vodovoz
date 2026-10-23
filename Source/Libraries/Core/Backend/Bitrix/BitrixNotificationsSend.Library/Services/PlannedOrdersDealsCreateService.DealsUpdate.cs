@@ -1,5 +1,6 @@
 ﻿using BitrixNotificationsSend.Contracts;
 using BitrixNotificationsSend.Contracts.Dto;
+using BitrixNotificationsSend.Library.Extensions;
 using DateTimeHelpers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -23,11 +24,6 @@ namespace BitrixNotificationsSend.Library.Services
 		/// Максимальное количество идентификаторов в одном запросе к базе данных
 		/// </summary>
 		private const int _maxIdsInQuery = 500;
-
-		/// <summary>
-		/// Пауза между пакетными запросами чтения сделок из Битрикс24
-		/// </summary>
-		private static readonly TimeSpan _delayBetweenReadBatches = TimeSpan.FromSeconds(1);
 
 		/// <summary>
 		/// Поиск заказов, созданных клиентами начиная с даты последней проверки
@@ -93,7 +89,7 @@ namespace BitrixNotificationsSend.Library.Services
 
 			var trackedPlannedOrders = new List<PlannedOrder>();
 
-			foreach(var deliveryPointIds in SplitToChunks(ordersByDeliveryPoints.Keys, _maxIdsInQuery))
+			foreach(var deliveryPointIds in ordersByDeliveryPoints.Keys.SplitToChunks(_maxIdsInQuery))
 			{
 				var ids = deliveryPointIds.ToArray();
 
@@ -107,7 +103,7 @@ namespace BitrixNotificationsSend.Library.Services
 							&& ids.Contains(x.DeliveryPointId.Value)));
 			}
 
-			foreach(var counterpartyIds in SplitToChunks(ordersBySelfDeliveryCounterparties.Keys, _maxIdsInQuery))
+			foreach(var counterpartyIds in ordersBySelfDeliveryCounterparties.Keys.SplitToChunks(_maxIdsInQuery))
 			{
 				var ids = counterpartyIds.ToArray();
 
@@ -199,27 +195,6 @@ namespace BitrixNotificationsSend.Library.Services
 				.ThenBy(x => x.OrderId)
 				.ToArray();
 
-		private static IEnumerable<IList<TItem>> SplitToChunks<TItem>(IEnumerable<TItem> items, int chunkSize)
-		{
-			var chunk = new List<TItem>(chunkSize);
-
-			foreach(var item in items)
-			{
-				chunk.Add(item);
-
-				if(chunk.Count == chunkSize)
-				{
-					yield return chunk;
-					chunk = new List<TItem>(chunkSize);
-				}
-			}
-
-			if(chunk.Any())
-			{
-				yield return chunk;
-			}
-		}
-
 		/// <summary>
 		/// Отправка в Битрикс24 обновлений сделок по планируемым заказам,
 		/// по которым найден созданный клиентом заказ.
@@ -253,7 +228,9 @@ namespace BitrixNotificationsSend.Library.Services
 				"Начало обновления сделок по плановым заказам в Битрикс24. Количество строк: {DealUpdatesCount}",
 				dealUpdates.Count);
 
-			var dealsStages = await GetDealsStages(dealUpdates, cancellationToken);
+			var dealsStages = await _bitrixDealsStagesReadService.GetDealsStages(
+				dealUpdates.Select(x => x.BitrixDealId),
+				cancellationToken);
 
 			var finalStageIds = new HashSet<string>(
 				_bitrixNotificationsSendSettings.PlannedOrdersFinalStageIds,
@@ -323,64 +300,6 @@ namespace BitrixNotificationsSend.Library.Services
 				dealUpdatesToSend.Count);
 		}
 
-		/// <summary>
-		/// Чтение текущих стадий сделок из Битрикс24 пакетами
-		/// Сделки, по которым запрос не выполнен, остаются без стадии и будут обработаны при следующем запуске
-		/// </summary>
-		/// <param name="dealUpdates">Плановые заказы, для которых нужно получить стадии сделок</param>
-		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Результат чтения стадий сделок</returns>
-		private async Task<BitrixDealsStagesResult> GetDealsStages(
-			IReadOnlyList<PlannedOrderDealUpdateDto> dealUpdates,
-			CancellationToken cancellationToken)
-		{
-			var dealsStages = new BitrixDealsStagesResult();
-
-			var dealIdsChunks = SplitToChunks(
-				dealUpdates.Select(x => x.BitrixDealId).Distinct(),
-				BitrixApiLimits.MaxBatchCommandsCount)
-				.ToList();
-
-			for(var chunkIndex = 0; chunkIndex < dealIdsChunks.Count; chunkIndex++)
-			{
-				if(chunkIndex > 0)
-				{
-					await Task.Delay(_delayBetweenReadBatches, cancellationToken);
-				}
-
-				var chunkResult = await _bitrixDealsClient.GetDealsStages(dealIdsChunks[chunkIndex], cancellationToken);
-
-				if(chunkResult.IsFailure)
-				{
-					_logger.LogError(
-						"Ошибка чтения стадий сделок из Битрикс24: {ErrorMessage}",
-						chunkResult.Errors.FirstOrDefault()?.Message);
-
-					continue;
-				}
-
-				foreach(var stageByDealId in chunkResult.Value.StagesByDealIds)
-				{
-					dealsStages.StagesByDealIds[stageByDealId.Key] = stageByDealId.Value;
-				}
-
-				foreach(var notFoundDealId in chunkResult.Value.NotFoundDealIds)
-				{
-					dealsStages.NotFoundDealIds.Add(notFoundDealId);
-				}
-
-				foreach(var error in chunkResult.Value.Errors)
-				{
-					_logger.LogError(
-						"Ошибка чтения стадии сделки командой {CommandKey} в Битрикс24: {ErrorMessage}",
-						error.CommandKey,
-						error.Message);
-				}
-			}
-
-			return dealsStages;
-		}
-
 		private async Task MarkDealsCompleted(
 			IReadOnlyList<PlannedOrderDealUpdateDto> succeededDealUpdates,
 			CancellationToken cancellationToken)
@@ -426,7 +345,7 @@ namespace BitrixNotificationsSend.Library.Services
 			{
 				var now = DateTime.UtcNow.ToMoscowDateTime();
 
-				foreach(var idsChunk in SplitToChunks(plannedOrderIds, _maxIdsInQuery))
+				foreach(var idsChunk in plannedOrderIds.SplitToChunks(_maxIdsInQuery))
 				{
 					var ids = idsChunk.ToArray();
 
