@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.Upd;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
@@ -26,6 +27,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
+		private readonly IUpdDocumentBuilder _updDocumentBuilder;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _publishEndpoint;
 		private readonly IUpdTransportCodeService _updTransportCodeService;
@@ -36,6 +38,7 @@ namespace Edo.Documents
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			TransferRequestCreator transferRequestCreator,
 			ITrueMarkCodesPool trueMarkCodesPool,
+			IUpdDocumentBuilder updDocumentBuilder,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus publishEndpoint,
 			IUpdTransportCodeService updTransportCodeService
@@ -46,6 +49,7 @@ namespace Edo.Documents
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
+			_updDocumentBuilder = updDocumentBuilder ?? throw new ArgumentNullException(nameof(updDocumentBuilder));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_updTransportCodeService = updTransportCodeService ?? throw new ArgumentNullException(nameof(updTransportCodeService));
@@ -182,20 +186,27 @@ namespace Edo.Documents
 			return customerEdoDocument;
 		}
 
-
 		private async Task CreateUpdDocument(DocumentEdoTask documentEdoTask, CancellationToken cancellationToken)
 		{
+			if(documentEdoTask.Upd != null)
+			{
+				return;
+			}
+
+			var updDocument = _updDocumentBuilder.GetUpdDocumentWithoutCodes(documentEdoTask);
+
 			var order = documentEdoTask.FormalEdoRequest.Order;
 
 			var unprocessedCodes = documentEdoTask.Items.ToList();
 			var groupCodesWithTaskItems = await TakeGroupCodesWithTaskItems(unprocessedCodes, cancellationToken);
 			var orderItemsByPriceDesc = order.OrderItems.OrderByDescending(x => x.Price).ToArray();
 			
-			var updInventPositions = new List<EdoUpdInventPosition>();
+			var updInventPositions = new List<UpdInventPosition>();
 
 			foreach(var orderItem in orderItemsByPriceDesc)
 			{
-				var codeItemsToAssign = new List<EdoUpdInventPositionCode>();
+				var codeItemsToAssign = new List<UpdProductCode>();
+				var updInventPosition = _updDocumentBuilder.CreateInventPosition(order, orderItem);
 
 				if(orderItem.ActualSum <= 0
 					&& documentEdoTask.DocumentType == EdoDocumentType.UPD)
@@ -262,13 +273,12 @@ namespace Edo.Documents
 								.GetAllCodes()
 								.Count(x => x.IsTrueMarkWaterIdentificationCode);
 
-							var codeItem = new EdoUpdInventPositionCode
+							var codeItem = new UpdProductCode
 							{
 								GroupCode = groupCode,
 								Quantity = codesInGroup
 							};
 							codeItemsToAssign.Add(codeItem);
-
 							assignedQuantity += codesInGroup;
 							continue;
 						}
@@ -304,12 +314,11 @@ namespace Edo.Documents
 
 						if(individualCode != null)
 						{
-							var codeItem = new EdoUpdInventPositionCode
+							var codeItem = new UpdProductCode
 							{
 								IndividualCode = individualCode,
 								Quantity = 1
 							};
-
 							codeItemsToAssign.Add(codeItem);
 							assignedQuantity++;
 							continue;
@@ -320,20 +329,13 @@ namespace Edo.Documents
 					}
 				}
 
-				var inventPosition = new EdoUpdInventPosition
-				{
-					AssignedOrderItem = orderItem,
-					Codes = codeItemsToAssign
-				};
-
-				updInventPositions.Add(inventPosition);
+				updInventPosition.Codes = codeItemsToAssign;
+				updInventPositions.Add(updInventPosition);
 			}
 
-			documentEdoTask.UpdInventPositions.Clear();
-			foreach(var updInventPosition in updInventPositions)
-			{
-				documentEdoTask.UpdInventPositions.Add(updInventPosition);
-			}
+			updDocument.InventPositions = updInventPositions;
+
+			documentEdoTask.Upd = updDocument;
 		}
 
 		private async Task<IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(

@@ -408,6 +408,11 @@ namespace Vodovoz
 
 		public OrderAddressType? TypeOfAddress => Entity.OrderAddressType;
 
+		public bool HasKulerServiceNomenclature =>
+			_orderOrganizationManager != null
+			&& Entity?.OrderItems != null
+			&& _orderOrganizationManager.IsOrderContainsKulerServiceGoods(UoW, Entity.OrderItems);
+
 		public CounterpartyContract Contract => Entity.Contract;
 
 		public bool CanHaveEmails => Entity.Id != 0;
@@ -1284,7 +1289,7 @@ namespace Vodovoz
 			yentryDriversPhone.IsEditable = false;
 
 			yentryDriversPhone.Text =
-				_routeListItemRepository.GetRouteListItemForOrder(UoW, Entity)
+				_routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Id)
 					?.RouteList?.Driver?.PhoneForCounterpartyCalls?.ToString()
 				?? string.Empty;
 		}
@@ -2796,7 +2801,7 @@ namespace Vodovoz
 
 		private void CreateDeliveryFreeBalanceOperations()
 		{
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Id);
 
 			if(routeListItem == null)
 			{
@@ -3623,6 +3628,7 @@ namespace Vodovoz
 			_logger.Info("ЭДО заказа {OrderId}: начало конфигурации ViewModel", Entity.Id);
 			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
 			edoForOrderViewModel.Setup(UoW, Entity.Id);
+
 			var reuseTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
 					this,
 					edoForOrderViewModel.OrderCodesViewModel,
@@ -4649,7 +4655,7 @@ namespace Vodovoz
 			Entity.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, CallTaskWorker, 
 				needCreateDeliveryFreeBalanceOperation: true);
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Id);
 			if(routeListItem != null)
 			{
 				routeListItem.StatusLastUpdate = DateTime.Now;
@@ -4967,6 +4973,7 @@ namespace Vodovoz
 
 			UpdateClientSecondOrderDiscount();
 			UpdateUIState();
+			NotifyDeliveryPricePanel();
 		}
 
 		private void TreeItemsOnExposeEvent(object o, ExposeEventArgs args)
@@ -4999,6 +5006,12 @@ namespace Vodovoz
 
 			UpdateClientSecondOrderDiscount();
 			UpdateUIState();
+			NotifyDeliveryPricePanel();
+		}
+
+		private void NotifyDeliveryPricePanel()
+		{
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderAddressType));
 		}
 
 		private void ObservableOrderDocuments_ListChanged(object aList)

@@ -504,7 +504,7 @@ namespace Vodovoz.ViewModels.Widgets
 					Entity.DriverCallNr = null;
 				}
 
-				var address = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.OldOrder);
+				var address = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.OldOrder.Id);
 				if(address != null
 					&& RouteListItem.GetUndeliveryStatuses().Contains(address.Status))
 				{
@@ -638,7 +638,7 @@ namespace Vodovoz.ViewModels.Widgets
 					fineViewModel.UndeliveredOrder = uow.GetById<UndeliveredOrder>(Entity.Id);
 				}
 
-				var address = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.OldOrder);
+				var address = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.OldOrder.Id);
 
 				if(address != null)
 				{
