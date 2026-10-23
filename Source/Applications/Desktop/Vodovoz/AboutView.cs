@@ -32,7 +32,6 @@ namespace Vodovoz
 				.AddBinding(ViewModel, vm => vm.WebsiteFormatted, w => w.LabelProp)
 				.InitializeFromSource();
 
-			ybuttonAuthors.BindCommand(ViewModel.OpenAuthorsCommand);
 			ybuttonClose.BindCommand(ViewModel.CloseCommand);
 		}
 	}

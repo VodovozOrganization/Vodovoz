@@ -73,6 +73,7 @@ namespace DriverAPI
 			app.UseRouting();
 
 			app.UseAuthentication();
+			app.UsePerUserConcurrencyLimit();
 			app.UseAuthorization();
 			
 			app.UseIdempotency();

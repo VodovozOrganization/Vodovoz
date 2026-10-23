@@ -7,7 +7,8 @@ namespace Vodovoz.ViewModels.Infrastructure.InfoProviders
 	public interface IDeliveryPointInfoProvider : IInfoProvider
 	{
 		DeliveryPoint DeliveryPoint {get;}
-		OrderAddressType? TypeOfAddress { get; } 
+		OrderAddressType? TypeOfAddress { get; }
+		bool HasKulerServiceNomenclature { get; } 
 
 	}
 }

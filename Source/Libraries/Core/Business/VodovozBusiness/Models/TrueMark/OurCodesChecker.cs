@@ -1,21 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using Vodovoz.EntityRepositories.TrueMark;
 
 namespace VodovozBusiness.Models.TrueMark
 {
 	public class OurCodesChecker
 	{
-		private ISet<string> _ownersInn;
-		private ISet<string> _ourGtins;
+		private readonly Lazy<ISet<string>> _ownersInn;
+		private readonly Lazy<ISet<string>> _ourGtins;
 
 		public OurCodesChecker(ITrueMarkRepository trueMarkRepository)
 		{
-			_ownersInn = trueMarkRepository.GetAllowedCodeOwnersInn();
-			_ourGtins = trueMarkRepository.GetAllowedCodeOwnersGtins();
+			if(trueMarkRepository is null)
+			{
+				throw new ArgumentNullException(nameof(trueMarkRepository));
+			}
+
+			_ownersInn = new Lazy<ISet<string>>(trueMarkRepository.GetAllowedCodeOwnersInn, LazyThreadSafetyMode.PublicationOnly);
+			_ourGtins = new Lazy<ISet<string>>(trueMarkRepository.GetAllowedCodeOwnersGtins, LazyThreadSafetyMode.PublicationOnly);
 		}
 
-		public bool IsOurOrganizationOwner(string inn) => _ownersInn.Contains(inn);
+		public bool IsOurOrganizationOwner(string inn) => _ownersInn.Value.Contains(inn);
 
-		public bool IsOurGtinOwner(string gtin) => _ourGtins.Contains(gtin);
+		public bool IsOurGtinOwner(string gtin) => _ourGtins.Value.Contains(gtin);
 	}
 }

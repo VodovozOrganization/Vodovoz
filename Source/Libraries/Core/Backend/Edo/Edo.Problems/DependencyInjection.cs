@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Domain.Controllers;
+using Vodovoz.Core.Domain.Rules.Edo;
 
 namespace Edo.Problems
 {
@@ -33,6 +34,7 @@ namespace Edo.Problems
 			services.TryAddScoped<EdoTaskValidator>();
 			services.TryAddScoped<EdoProblemRegistrar>();
 			services.TryAddScoped<FaultEdoProblemRegistrar>();
+			services.TryAddScoped<CanProcessOrSendEdoByClosingAccountingDate>();
 			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
 			return services;

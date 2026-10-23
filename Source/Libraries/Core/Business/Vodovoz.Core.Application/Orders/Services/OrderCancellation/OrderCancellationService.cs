@@ -3,10 +3,12 @@ using Edo.Contracts.Messages.Events;
 using MassTransit;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Services;
 using System;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 
@@ -20,16 +22,19 @@ namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 	{
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEdoRepository _edoRepository;
+		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IBus _messageBus;
 
 		public OrderCancellationService(
 			IInteractiveService interactiveService,
 			IEdoRepository edoRepository,
+			ICurrentPermissionService currentPermissionService,
 			IBus messageBus
 			)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -50,6 +55,14 @@ namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 			var permit = inputPermit ?? new OrderCancellationPermit();
 
 			var edoTasks = _edoRepository.GetEdoTaskByOrder(uow, order.Id);
+
+			var hasEdoDiscrepancy = _edoRepository.HasEdoDocflowDiscrepancyForOrder(uow, order.Id);
+			if(hasEdoDiscrepancy)
+			{
+				DocflowDiscrepancyCancellationMessage();
+				permit.Type = OrderCancellationPermitType.Deny;
+				return permit;
+			}
 
 			var hasMarkedProducts = order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
 			if(!hasMarkedProducts)
@@ -121,6 +134,16 @@ namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 
 				permit.Type = OrderCancellationPermitType.AllowCancelOrder;
 				return permit;
+			}
+
+			if(edoTask.Status == EdoTaskStatus.Completed)
+			{
+				if(!_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanAnnulSuccessfullyCompletedEdo))
+				{
+					DenyCompletedDocflowCancellationMessage();
+					permit.Type = OrderCancellationPermitType.Deny;
+					return permit;
+				}
 			}
 
 			// Есть ли уже отправленный чек
@@ -250,7 +273,24 @@ namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
             );
         }
 
-        protected virtual bool UpdCancellationConfirmationQuestion()
+		protected virtual void DenyCompletedDocflowCancellationMessage()
+		{
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Warning,
+				"У вас недостаточно прав для аннулирования успешно завершенного документооборота."
+			);
+		}
+
+		protected virtual void DocflowDiscrepancyCancellationMessage()
+		{
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Warning,
+				"В документообороте присутствует расхождение с ЭДО.\n" +
+				"Отменить заказ возможно из диалога расхождения ЭДО."
+			);
+		}
+
+		protected virtual bool UpdCancellationConfirmationQuestion()
         {
             var buttonYes = "Аннулировать УПД";
             var buttonNo = "Отмена";

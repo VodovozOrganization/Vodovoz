@@ -12,11 +12,11 @@ namespace Edo.Docflow.Consumers
 	public class InformalDocumentFileDataSendConsumer : IConsumer<InformalDocumentFileDataSendEvent>
 	{
 		private readonly ILogger<InformalDocumentFileDataSendConsumer> _logger;
-		private readonly DocflowHandler _docflowHandler;
+		private readonly DocflowSendHandler _docflowHandler;
 
 		public InformalDocumentFileDataSendConsumer(
 			ILogger<InformalDocumentFileDataSendConsumer> logger,
-			DocflowHandler docflowHandler
+			DocflowSendHandler docflowHandler
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -30,7 +30,7 @@ namespace Edo.Docflow.Consumers
 				_logger.LogInformation(
 					$"Получено событие {nameof(InformalDocumentFileDataSendEvent)}, DocumentId: {context.Message.FileData}");
 
-				await _docflowHandler.HandleInformalOrderDocument(context.Message.DocumentId, context.Message.FileData, context.CancellationToken);
+				await _docflowHandler.SendInformalOrderDocument(context.Message.DocumentId, context.Message.FileData, context.CancellationToken);
 			}
 			catch(Exception ex)
 			{

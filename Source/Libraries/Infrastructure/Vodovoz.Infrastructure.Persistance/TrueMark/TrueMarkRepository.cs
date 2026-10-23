@@ -6,6 +6,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using NPOI.SS.Formula.Functions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -224,17 +225,19 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		}
 
 		/// <inheritdoc />
-		public bool AreCodesUsedByOtherEdoTasks(IUnitOfWork uow, int taskId, IEnumerable<int> codeIds)
+		public IList<EdoTaskItem> GetItemsUsingCodesInOtherEdoTasks(IUnitOfWork uow, int taskId, IEnumerable<int> codeIds)
 		{
 			TrueMarkProductCode productCode = null;
 			var ids = codeIds.ToArray();
 			return uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.CustomerEdoTask)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.JoinAlias(x => x.ProductCode, () => productCode)
 				.Where(x => x.CustomerEdoTask.Id != taskId)
 				.Where(Restrictions.Disjunction()
 					.Add(Restrictions.In(Projections.Property(() => productCode.SourceCode.Id), ids))
 					.Add(Restrictions.In(Projections.Property(() => productCode.ResultCode.Id), ids)))
-				.RowCount() > 0;
+				.List();
 		}
 
 		public IEnumerable<CarLoadDocumentItemTrueMarkProductCode> GetCodesFromWarehouseByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null)
@@ -336,8 +339,34 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			=> GetRequestCodesByOrder<AutoTrueMarkProductCode>(uow, orderId, edoTaskId);
 
 		/// <inheritdoc/>
-		public IEnumerable<ResentTrueMarkProductCode> GetResentCodesByOrder(IUnitOfWork uow, int orderId)
-			=> GetRequestCodesByOrder<ResentTrueMarkProductCode>(uow, orderId);
+		public IEnumerable<ResentTrueMarkProductCode> GetResentCodesByOrder(IUnitOfWork uow, int orderId, int? edoTaskId = null)
+			=> GetRequestCodesByOrder<ResentTrueMarkProductCode>(uow, orderId, edoTaskId);
+
+		/// <inheritdoc/>
+		public IEnumerable<ManualTrueMarkProductCode> GetManualCodesByOrder(IUnitOfWork uow, int orderId)
+		{
+			ManualTrueMarkProductCode autoProductCodeAlias = null;
+			FormalEdoRequest edoRequestAlias = null;
+			EdoTaskItem edoTaskItemAlias = null;
+
+			var poolCodes = uow.Session.QueryOver(() => autoProductCodeAlias)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.JoinEntityAlias(
+					() => edoTaskItemAlias,
+					() => edoTaskItemAlias.ProductCode.Id == autoProductCodeAlias.Id,
+					JoinType.LeftOuterJoin
+				)
+				.Left.JoinAlias(
+					() => autoProductCodeAlias.CustomerEdoRequest,
+					() => edoRequestAlias
+				);
+			poolCodes.Where(() => edoRequestAlias.Order.Id == orderId);
+
+			return poolCodes.List();
+		}
 
 		private IList<T> GetRequestCodesByOrder<T>(IUnitOfWork uow, int orderId, int? edoTaskId = null) where T : TrueMarkProductCode
 		{

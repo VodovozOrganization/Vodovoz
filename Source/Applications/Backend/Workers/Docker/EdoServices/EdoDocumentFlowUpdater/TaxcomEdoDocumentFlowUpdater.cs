@@ -1,7 +1,6 @@
 ﻿using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
-using Edo.Problems.Custom.Sources;
 using EdoDocumentFlowUpdater.Configs;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,8 +9,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using QS.Services;
-using Renci.SshNet.Messages;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -145,86 +144,92 @@ namespace EdoDocumentFlowUpdater
 		{
 			try
 			{
-				EdoDocFlowUpdates docFlowUpdates;
-
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки исходящих документов"))
 				{
+					var lastProcessTime = _lastEventsProcessTime.LastProcessedEventOutgoingDocuments;
+					DateTime resultLastProcessTime = lastProcessTime;
+
+					var excludedDocflowIds = new List<string>();
+					
+					_logger.LogInformation("Получаем исходящие документы для статуса: Завершен с расхождениями");
+					var completedWithDivergencesProcessed = await ProcessExceptedStatusOutgoingUpdates(
+						uow, 
+						"CompletedWithDivergences", 
+						lastProcessTime, 
+						cancellationToken
+					);
+					excludedDocflowIds.AddRange(completedWithDivergencesProcessed);
+
+					_logger.LogInformation("Получаем исходящие документы для статуса: Не принят");
+					var notAcceptedProcessed = await ProcessExceptedStatusOutgoingUpdates(
+						uow,
+						"NotAccepted",
+						lastProcessTime,
+						cancellationToken
+					);
+					excludedDocflowIds.AddRange(notAcceptedProcessed);
+
+					excludedDocflowIds = excludedDocflowIds.Distinct().ToList();
+
+					EdoDocFlowUpdates docFlowUpdates = null;
 					do
 					{
-						_logger.LogInformation("Получаем исходящие документы");
-
 						using var scope = _serviceScopeFactory.CreateScope();
 						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
-
-						docFlowUpdates =
-							await taxcomApiClient.GetDocFlowsUpdates(
-								new GetDocFlowsUpdatesParameters
-								{
-									DocFlowStatus = null,
-									LastEventTimeStamp = _lastEventsProcessTime.LastProcessedEventOutgoingDocuments.ToBinary(),
-									DocFlowDirection = "Outgoing",
-									DepartmentId = null,
-									IncludeTransportInfo = true
-								},
-								cancellationToken);
+						docFlowUpdates = await taxcomApiClient.GetDocFlowsUpdates(
+							new GetDocFlowsUpdatesParameters
+							{
+								DocFlowStatus = null,
+								LastEventTimeStamp = lastProcessTime.ToBinary(),
+								DocFlowDirection = "Outgoing",
+								DepartmentId = null,
+								IncludeTransportInfo = true
+							},
+							cancellationToken
+						);
 
 						if(docFlowUpdates.Updates is null)
 						{
-							return;
+							break;
 						}
 
-						_logger.LogInformation(
-							"Обрабатываем полученные исходящие документообороты {DocFlowUpdatesCount}",
-							docFlowUpdates.Updates.Count());
+						var remainingUpdates = docFlowUpdates.Updates
+							.Where(x => x.Id.HasValue)
+							.Where(x => !excludedDocflowIds.Contains(x.Id.Value.ToString()))
+							.Select(x => new EdoDocFlow
+							{
+								Id = x.Id,
+								Status = x.Status,
+								InternalStatus = x.InternalStatus,
+								StatusChangeDateTime = x.StatusChangeDateTime,
+								Documents = x.Documents,
+								ErrorDescription = x.ErrorDescription
+							});
 
-						foreach(var docflowUpdate in docFlowUpdates.Updates)
+						docFlowUpdates = new EdoDocFlowUpdates
 						{
-							EdoContainer container = null;
-							EdoDocFlowDocument mainDocument = null;
+							Updates = remainingUpdates,
+							RequestDateTime = docFlowUpdates.RequestDateTime,
+							LastEventTimeStamp = docFlowUpdates.LastEventTimeStamp,
+							IsLast = docFlowUpdates.IsLast
+						};
 
-							if(docflowUpdate.Documents.Any())
-							{
-								mainDocument = docflowUpdate.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.ExternalIdentifier));
+						var lastTime = await ProcessOutgoingUpdates(
+							uow,
+							docFlowUpdates, 
+							taxcomApiClient, 
+							lastProcessTime, 
+							cancellationToken
+						);
 
-								if(mainDocument is null)
-								{
-									_logger.LogWarning(
-										"Исходящий ДО {DocflowId} со статусом {DocflowStatus} пришел без главного документа или с неизвестным документом. Возможно ручная отправка...",
-										docflowUpdate.Id,
-										docflowUpdate.Status);
-									continue;
-								}
+						var toExclude = docFlowUpdates.Updates
+							.Where(x => x.Id.HasValue)
+							.Select(x => x.Id.ToString());
+						excludedDocflowIds.AddRange(toExclude);
 
-								container = _orderRepository.GetEdoContainerByMainDocumentId(uow, mainDocument.ExternalIdentifier);
-							}
-							else
-							{
-								_logger.LogWarning(
-									"Исходящий ДО {DocflowId} со статусом {DocflowStatus} пришел без документов",
-									docflowUpdate.Id,
-									docflowUpdate.Status);
-								continue;
-							}
+						_lastEventsProcessTime.LastProcessedEventOutgoingDocuments = lastTime;
+						lastProcessTime = lastTime;
 
-							_logger.LogInformation(
-								"Обрабатываем полученные изменения исходящего ДО {DocflowId} со статусом {DocflowStatus} транзакция {Transaction}",
-								docflowUpdate.Id,
-								docflowUpdate.Status,
-								mainDocument.TransactionCode);
-
-							if(container != null)
-							{
-								await TryUpdateEdoContainer(cancellationToken, container, docflowUpdate, mainDocument, taxcomApiClient, uow);
-							}
-							else
-							{
-								await SendOutgoingTaxcomDocflowUpdatedEvent(docflowUpdate, mainDocument, cancellationToken);
-							}
-
-							await UpdateDocflowServiceDocumentMessage(uow, docflowUpdate, taxcomApiClient, cancellationToken);
-
-							_lastEventsProcessTime.LastProcessedEventOutgoingDocuments = docflowUpdate.StatusChangeDateTime;
-						}
 					} while(!docFlowUpdates.IsLast);
 
 					await uow.CommitAsync(cancellationToken);
@@ -241,6 +246,132 @@ namespace EdoDocumentFlowUpdater
 			{
 				await SaveLastEventProcessTime(cancellationToken);
 			}
+		}
+
+		private async Task<IEnumerable<string>> ProcessExceptedStatusOutgoingUpdates(
+			IUnitOfWork uow,
+			string status,
+			DateTime lastProcessTime,
+			CancellationToken cancellationToken
+			)
+		{
+			var result = new List<string>();
+			EdoDocFlowUpdates docFlowUpdates = null;
+			do
+			{
+				using var scope = _serviceScopeFactory.CreateScope();
+				var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+				docFlowUpdates = await taxcomApiClient.GetDocFlowsUpdates(
+					new GetDocFlowsUpdatesParameters
+					{
+						DocFlowStatus = status,
+						LastEventTimeStamp = lastProcessTime.ToBinary(),
+						DocFlowDirection = "Outgoing",
+						DepartmentId = null,
+						IncludeTransportInfo = true
+					},
+					cancellationToken
+				);
+
+				if(docFlowUpdates.Updates is null)
+				{
+					return result;
+				}
+
+				// замена статуса у документооборотов, у которых приходит неправильный статус
+				// приходит Success, вместо CompletedWithDivergences и NotAccepted
+				foreach(var update in docFlowUpdates.Updates)
+				{
+					update.Status = status;
+				}
+
+				await ProcessOutgoingUpdates(
+					uow,
+					docFlowUpdates,
+					taxcomApiClient,
+					lastProcessTime,
+					cancellationToken
+				);
+
+				var toExclude = docFlowUpdates.Updates
+					.Where(x => x.Id.HasValue)
+					.Select(x => x.Id.ToString());
+				result.AddRange(toExclude);
+
+			} while(!docFlowUpdates.IsLast);
+
+			return result;
+		}
+
+		private async Task<DateTime> ProcessOutgoingUpdates(
+			IUnitOfWork uow,
+			EdoDocFlowUpdates docFlowUpdates,
+			ITaxcomApiClient taxcomApiClient,
+			DateTime lastProcessEventTime,
+			CancellationToken cancellationToken
+		)
+		{
+			_logger.LogInformation(
+				"Обрабатываем полученные исходящие документообороты: {DocFlowUpdatesCount}",
+				docFlowUpdates.Updates.Count()
+			);
+
+			DateTime lastProcessEventTimeResult = lastProcessEventTime;
+
+			foreach(var docflowUpdate in docFlowUpdates.Updates)
+			{
+				EdoContainer container = null;
+				EdoDocFlowDocument mainDocument = null;
+
+				if(docflowUpdate.Documents.Any())
+				{
+					mainDocument = docflowUpdate.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.ExternalIdentifier));
+
+					if(mainDocument is null)
+					{
+						_logger.LogWarning(
+							"Исходящий ДО {DocflowId} со статусом {DocflowStatus} пришел без главного документа " +
+							"или с неизвестным документом. Возможно ручная отправка...",
+							docflowUpdate.Id,
+							docflowUpdate.Status);
+						continue;
+					}
+
+					container = _orderRepository.GetEdoContainerByMainDocumentId(uow, mainDocument.ExternalIdentifier);
+				}
+				else
+				{
+					_logger.LogWarning(
+						"Исходящий ДО {DocflowId} со статусом {DocflowStatus} пришел без документов",
+						docflowUpdate.Id,
+						docflowUpdate.Status);
+					continue;
+				}
+
+				_logger.LogInformation(
+					"Обрабатываем полученные изменения исходящего ДО {DocflowId} со статусом {DocflowStatus} транзакция {Transaction}",
+					docflowUpdate.Id,
+					docflowUpdate.Status,
+					mainDocument.TransactionCode);
+
+				if(container != null)
+				{
+					await TryUpdateEdoContainer(cancellationToken, container, docflowUpdate, mainDocument, taxcomApiClient, uow);
+				}
+				else
+				{
+					await SendOutgoingTaxcomDocflowUpdatedEvent(docflowUpdate, mainDocument, cancellationToken);
+				}
+
+				await UpdateDocflowServiceDocumentMessage(uow, docflowUpdate, taxcomApiClient, cancellationToken);
+
+				if(lastProcessEventTimeResult < docflowUpdate.StatusChangeDateTime)
+				{
+					lastProcessEventTimeResult = docflowUpdate.StatusChangeDateTime;
+				}
+			}
+
+			return lastProcessEventTimeResult;
 		}
 
 		private async Task SendOutgoingTaxcomDocflowUpdatedEvent(

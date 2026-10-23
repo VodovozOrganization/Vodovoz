@@ -1,5 +1,4 @@
-using Core.Infrastructure;
-using Edo.Contracts.Messages.Dto;
+﻿using Edo.Contracts.Messages.Dto;
 using Edo.Contracts.Messages.Events;
 using Edo.Docflow.Factories;
 using MassTransit;
@@ -12,16 +11,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 
 namespace Edo.Docflow
 {
-	public class DocflowHandler : IDisposable
+	public class DocflowSendHandler : IDisposable
 	{
-		private readonly ILogger<DocflowHandler> _logger;
+		private readonly ILogger<DocflowSendHandler> _logger;
 		private readonly TransferOrderUpdInfoFactory _transferOrderUpdInfoFactory;
 		private readonly OrderUpdInfoFactory _orderUpdInfoFactory;
 		private readonly IPaymentRepository _paymentRepository;
@@ -30,8 +28,8 @@ namespace Edo.Docflow
 		private readonly IUnitOfWork _uow;
 		private readonly IInformalOrderDocumentHandlerFactory _documentHandlerFactory;
 
-		public DocflowHandler(
-			ILogger<DocflowHandler> logger,
+		public DocflowSendHandler(
+			ILogger<DocflowSendHandler> logger,
 			IUnitOfWork uow,
 			TransferOrderUpdInfoFactory transferOrderUpdInfoFactory,
 			OrderUpdInfoFactory orderUpdInfoFactory,
@@ -51,7 +49,7 @@ namespace Edo.Docflow
 			_documentHandlerFactory = informalOrderDocumentHandlerFactory ?? throw new ArgumentNullException(nameof(informalOrderDocumentHandlerFactory));
 		}
 
-		public async Task HandleTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
+		public async Task SendTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<TransferEdoDocument>(transferDocumentId, cancellationToken);
 			if(document is null)
@@ -90,7 +88,7 @@ namespace Edo.Docflow
 			await _publishEndpoint.Publish(message);
 		}
 
-		public async Task HandleOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
+		public async Task SendOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(orderDocumentId, cancellationToken);
 			if(document is null)
@@ -153,7 +151,11 @@ namespace Edo.Docflow
 		/// <param name="orderDocumentId"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public async Task HandleInformalOrderDocument(int orderDocumentId, OrderDocumentFileData orderDocumentFileData, CancellationToken cancellationToken)
+		public async Task SendInformalOrderDocument(
+			int orderDocumentId,
+			OrderDocumentFileData orderDocumentFileData, 
+			CancellationToken cancellationToken
+		)
 		{
 			var document = await _uow.Session.GetAsync<OutgoingInformalEdoDocument>(orderDocumentId, cancellationToken);
 			if(document is null)
@@ -241,235 +243,6 @@ namespace Edo.Docflow
 				_logger.LogError(ex, $"Ошибка при отправке неформализованного документа заказа №{orderDocumentId}");
 				throw;
 			}
-		}
-
-		public async Task HandleDocflowUpdated(EdoDocflowUpdatedEvent updatedEvent, CancellationToken cancellationToken)
-		{
-			var documentId = updatedEvent.EdoDocumentId;
-			var document = await _uow.Session.GetAsync<OutgoingEdoDocument>(documentId, cancellationToken);
-			if(document is null)
-			{
-				_logger.LogWarning("Документ {documentId} не найден", documentId);
-				return;
-			}
-
-			var docflowStatus = updatedEvent.DocFlowStatus.TryParseAsEnum<EdoDocFlowStatus>();
-
-			object message = null;
-
-			switch(docflowStatus)
-			{
-				case EdoDocFlowStatus.Sent:
-					document.Status = EdoDocumentStatus.Sent;
-
-					if(updatedEvent.DocFlowId.HasValue)
-					{
-						message = OrderDocumentSentEvent.Create(document.Id);
-					}
-					break;
-				case EdoDocFlowStatus.InProgress:
-					document.Status = EdoDocumentStatus.InProgress;
-
-					if(TaxcomDocflowStateByTransactions.ShouldMarkAsSent(docflowStatus, updatedEvent.IsReceived)
-						&& document is OrderEdoDocument)
-					{
-						message = OrderDocumentSentEvent.Create(document.Id);
-					}
-					break;
-				case EdoDocFlowStatus.Succeed:
-					var acceptTime = updatedEvent.StatusChangeTime ?? DateTime.Now;
-					document.Status = EdoDocumentStatus.Succeed;
-					document.AcceptTime = acceptTime;
-					switch(document.Type)
-					{
-						case OutgoingEdoDocumentType.Transfer:
-							message = new TransferDocumentAcceptedEvent { DocumentId = document.Id };
-							break;
-						case OutgoingEdoDocumentType.Order:
-							message = new OrderDocumentAcceptedEvent { DocumentId = document.Id };
-							break;
-						case OutgoingEdoDocumentType.InformalOrderDocument:
-							message = new InformalOrderDocumentAcceptedEvent { DocumentId = document.Id };
-							break;
-						default:
-							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
-					}
-					break;
-				case EdoDocFlowStatus.NotStarted:
-
-				// уточнение
-				// мапим на Problem
-				case EdoDocFlowStatus.Warning:
-					document.Status = EdoDocumentStatus.Warning;
-					switch(document.Type)
-					{
-						case OutgoingEdoDocumentType.Transfer:
-							message = new TransferDocumentProblemEvent { DocumentId = document.Id };
-							break;
-						case OutgoingEdoDocumentType.Order:
-							message = new OrderDocumentProblemEvent { DocumentId = document.Id };
-							break;
-						case OutgoingEdoDocumentType.InformalOrderDocument:
-							message = new InformalOrderDocumentProblemEvent { DocumentId = document.Id };
-							break;
-						default:
-							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
-					}
-					break;
-
-				case EdoDocFlowStatus.CompletedWithDivergences:
-					document.Status = EdoDocumentStatus.CompletedWithDivergences;
-					switch(document.Type)
-					{
-						case OutgoingEdoDocumentType.Transfer:
-							message = new TransferDocumentProblemEvent { DocumentId = document.Id };
-							break;
-						case OutgoingEdoDocumentType.Order:
-							message = new OrderDocumentProblemEvent { DocumentId = document.Id };
-							break;
-						case OutgoingEdoDocumentType.InformalOrderDocument:
-							message = new InformalOrderDocumentProblemEvent { DocumentId = document.Id };
-							break;
-						default:
-							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
-					}
-					break;
-
-				// возникла проблема при проверке на стороне такском
-				// мапим на Problem
-				case EdoDocFlowStatus.Error:
-					document.Status = EdoDocumentStatus.Error;
-					break;
-
-				// аннулирование
-				case EdoDocFlowStatus.WaitingForCancellation:
-					document.Status = EdoDocumentStatus.WaitingForCancellation;
-					break;
-
-				case EdoDocFlowStatus.Cancelled:
-					document.Status = EdoDocumentStatus.Cancelled;
-					switch(document.Type)
-					{
-						case OutgoingEdoDocumentType.Transfer:
-							message = new TransferDocumentCancelledEvent { DocumentId = document.Id };
-							break;
-						case OutgoingEdoDocumentType.Order:
-							message = new OrderDocumentCancelledEvent { DocumentId = document.Id };
-							break;
-						case OutgoingEdoDocumentType.InformalOrderDocument:
-							message = new InformalOrderDocumentCancelledEvent { DocumentId = document.Id };
-							break;
-						default:
-							throw new InvalidOperationException($"Неизвестный тип документа {document.Type}");
-					}
-					break;
-
-
-				// с остальными ничего не делаем пока
-
-				// неизвестно что и зачем это
-				case EdoDocFlowStatus.NotAccepted:
-				case EdoDocFlowStatus.Unknown:
-				// наш внутренний статус, можно исключить из ЭДО
-				case EdoDocFlowStatus.PreparingToSend:
-					break;
-
-				default:
-					throw new InvalidOperationException($"Неизвестный статус документооборота {updatedEvent.DocFlowStatus}");
-			}
-
-			await _uow.SaveAsync(document, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
-
-			if(message != null)
-			{
-				await _publishEndpoint.Publish(message, cancellationToken);
-			}
-		}
-
-		public async Task HandleDocflowCancellation(int taskId, string reason, CancellationToken cancellationToken)
-		{
-			var task = await _uow.Session.QueryOver<EdoTask>()
-				.Where(x => x.Id == taskId)
-				.SingleOrDefaultAsync(cancellationToken);
-
-			switch(task.TaskType)
-			{
-				case EdoTaskType.Document:
-					await CancelOrderDocflow((DocumentEdoTask)task, reason, cancellationToken);
-					break;
-				case EdoTaskType.Transfer:
-					await CancelTransferDocflow((TransferEdoTask)task, reason, cancellationToken);
-					break;
-				case EdoTaskType.Receipt:
-				case EdoTaskType.SaveCode:
-				case EdoTaskType.BulkAccounting:
-				case EdoTaskType.Withdrawal:
-				case EdoTaskType.Tender:
-				default:
-					_logger.LogWarning("Для задачи типа {EdoTaskType} не может быть документооборота", task.TaskType);
-					return;
-			}
-		}
-
-		private async Task CancelOrderDocflow(DocumentEdoTask documentEdoTask, string reason, CancellationToken cancellationToken)
-		{
-			var document = await _uow.Session.QueryOver<OrderEdoDocument>()
-				.Where(x => x.DocumentTaskId == documentEdoTask.Id)
-				.SingleOrDefaultAsync(cancellationToken);
-
-			if(document is null)
-			{
-				_logger.LogWarning("Документ для задачи №{TaskId} не найден.", documentEdoTask.Id);
-				return;
-			}
-
-			if(document.Status is EdoDocumentStatus.Cancelled)
-			{
-				_logger.LogWarning("Документ для задачи №{TaskId} уже отменен.", documentEdoTask.Id);
-				return;
-			}
-
-			var message = new TaxcomDocflowRequestCancellationEvent
-			{
-				EdoAccount = documentEdoTask.FormalEdoRequest.Order.Contract.Organization.TaxcomEdoSettings.EdoAccount,
-				DocumentId = document.Id,
-				CancellationReason = reason
-			};
-
-			await _publishEndpoint.Publish(message, cancellationToken);
-		}
-
-		private async Task CancelTransferDocflow(TransferEdoTask transferEdoTask, string reason, CancellationToken cancellationToken)
-		{
-			var document = await _uow.Session.QueryOver<TransferEdoDocument>()
-				.Where(x => x.TransferTaskId == transferEdoTask.Id)
-				.SingleOrDefaultAsync(cancellationToken);
-
-			if(document is null)
-			{
-				_logger.LogWarning("Документ для задачи №{TaskId} не найден.", transferEdoTask.Id);
-				return;
-			}
-
-			if(document.Status is EdoDocumentStatus.Cancelled)
-			{
-				_logger.LogWarning("Документ для задачи №{TaskId} уже отменен.", transferEdoTask.Id);
-				return;
-			}
-
-			var transferOrder = await _uow.Session.QueryOver<TransferOrder>()
-				.Where(x => x.Id == transferEdoTask.TransferOrderId)
-				.SingleOrDefaultAsync(cancellationToken);
-
-			var message = new TaxcomDocflowRequestCancellationEvent
-			{
-				EdoAccount = transferOrder.Seller.TaxcomEdoSettings.EdoAccount,
-				DocumentId = document.Id,
-				CancellationReason = reason
-			};
-
-			await _publishEndpoint.Publish(message, cancellationToken);
 		}
 
 		public void Dispose()
