@@ -27,7 +27,9 @@ namespace CustomerOrdersApi.Library.V7.Factories
 				ErpId = saleItem.Nomenclature.Id,
 				Count = Math.Round(saleItem.Count, 2),
 				Price = Math.Round(saleItem.Price, 2),
-				CurrentPrice = Math.Round(saleItem.ActualSum / saleItem.Count, 2),
+				CurrentPrice = saleItem.Count == 0
+					? 0m
+					: Math.Round(saleItem.ActualSum / saleItem.Count, 2),
 				PriceWithoutDiscount = null,
 				CurrentSum = saleItem.ActualSum,
 				IsFixedPrice = saleItem.IsFixedPrice,
@@ -110,16 +112,21 @@ namespace CustomerOrdersApi.Library.V7.Factories
 			var promoSet = onlinePromoSet.PromoSet;
 			var discountData = _discountController.CalculateTotalDiscountDetails(onlinePromoSet);
 			var price = onlinePromoSet.Price;
-			var currentPrice = price - discountData.TotalDiscount;
+			var count = onlinePromoSet.Count;
+			var totalSumWithoutDiscount = price * count;
+			var currentSum = totalSumWithoutDiscount - discountData.TotalDiscount;
+			var currentPrice = count == 0 
+				? 0m 
+				: currentSum / count;
 			
 			return new OnlineOrderItemWithDiscountDetailsDto
 			{
 				ErpId = promoSet.Id,
-				Count = Math.Round(onlinePromoSet.Count, 2),
+				Count = Math.Round(count, 2),
 				Price = Math.Round(price, 2),
 				CurrentPrice = Math.Round(currentPrice, 2),
 				PriceWithoutDiscount = promoSet.SumWithoutDiscount(),
-				CurrentSum = Math.Round(currentPrice * onlinePromoSet.Count, 2),
+				CurrentSum = Math.Round(currentSum, 2),
 				IsFixedPrice = false,
 				ItemType = SaleItemType.PromoSet,
 				Discounts = new List<IDiscountAmount>(discountData

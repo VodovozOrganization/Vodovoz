@@ -980,10 +980,14 @@ namespace Vodovoz.Domain.Sale
 			WeekDayName weekDayName,
 			ref decimal deliveryPrice)
 		{
-			var dayOfWeekRules = GetSuitableDayOfWeekRules(comparerDeliveryPrice, weekDayName);
+			var dayOfWeekRules = GetSuitableDayOfWeekRules(weekDayName);
 
 			if(dayOfWeekRules.Any())
 			{
+				dayOfWeekRules = dayOfWeekRules
+					.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule))
+					.ToList();
+				
 				var dayOfWeekEShopGoodsSum = GetMinEShopGoodsSum(dayOfWeekRules);
 
 				if(OnlineShopGoodsSumFreeDeliverySpecification.Create(eShopGoodsSum)
@@ -1006,16 +1010,20 @@ namespace Vodovoz.Domain.Sale
 			WeekDayName weekDayName,
 			ref IEnumerable<DistrictRuleItemBase> deliveryRules)
 		{
-			var dayOfWeekRules = GetSuitableDayOfWeekRules(comparerDeliveryPrice, weekDayName);
+			var dayOfWeekRules = GetSuitableDayOfWeekRules(weekDayName);
 
 			if(dayOfWeekRules.Any())
 			{
+				dayOfWeekRules = dayOfWeekRules
+					.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule))
+					.ToList();
+				
 				var dayOfWeekEShopGoodsSum = GetMinEShopGoodsSum(dayOfWeekRules);
 
 				if(OnlineShopGoodsSumFreeDeliverySpecification.Create(eShopGoodsSum)
 					.IsSatisfiedBy(dayOfWeekEShopGoodsSum))
 				{
-					deliveryRules = Array.Empty<DistrictRuleItemBase>();;
+					deliveryRules = Array.Empty<DistrictRuleItemBase>();
 					return true;
 				}
 				
@@ -1026,10 +1034,9 @@ namespace Vodovoz.Domain.Sale
 			return false;
 		}
 		
-		private List<WeekDayDistrictRuleItem> GetSuitableDayOfWeekRules(ComparerDeliveryPrice comparerDeliveryPrice, WeekDayName weekDayName)
+		private List<WeekDayDistrictRuleItem> GetSuitableDayOfWeekRules(WeekDayName weekDayName)
 		{
 			return GetWeekDayRuleItemCollectionByWeekDayName(weekDayName)
-				.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule))
 				.ToList();
 		}
 		
