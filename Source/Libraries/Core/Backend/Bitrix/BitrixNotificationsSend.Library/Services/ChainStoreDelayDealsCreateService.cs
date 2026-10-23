@@ -106,13 +106,13 @@ namespace BitrixNotificationsSend.Library.Services
 					.CreateDeals(orders, previouslySentOrderIds, moscowNow)
 					.ToList();
 
-				foreach(var deal in deals)
-				{
-					await uow.SaveAsync(deal, cancellationToken: cancellationToken);
-				}
-
 				if(deals.Count > 0)
 				{
+					foreach(var deal in deals)
+					{
+						await uow.SaveAsync(deal, cancellationToken: cancellationToken);
+					}
+
 					await uow.CommitAsync(cancellationToken);
 				}
 
@@ -200,29 +200,7 @@ namespace BitrixNotificationsSend.Library.Services
 		/// <inheritdoc/>
 		public async Task CloseDealsOfPaidOrders(CancellationToken cancellationToken)
 		{
-			List<ChainStoreDelayDealCloseDto> dealCloses;
-
-			var closedStageId = _bitrixNotificationsSendSettings.ChainStoreDelayDealsClosedStageId;
-
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(
-				$"Сервис {nameof(ChainStoreDelayDealsCreateService)}. Поиск сделок оплаченных заказов по отсрочке сети"))
-			{
-				var createdDeals = _dealRepository
-					.Get(uow, x => x.Status == ChainStoreDelayBitrixDealStatus.DealCreated && x.BitrixDealId != null)
-					.ToList();
-
-				var paymentStatuses = await GetOrdersPaymentStatuses(uow, createdDeals.Select(x => x.OrderId), cancellationToken);
-
-				dealCloses = createdDeals
-					.Where(x => paymentStatuses.TryGetValue(x.OrderId, out var paymentStatus) && paymentStatus == OrderPaymentStatus.Paid)
-					.Select(x => new ChainStoreDelayDealCloseDto
-					{
-						ChainStoreDelayBitrixDealId = x.Id,
-						BitrixDealId = x.BitrixDealId.Value,
-						StageId = closedStageId
-					})
-					.ToList();
-			}
+			var dealCloses = await GetPaidOrdersDealCloses(cancellationToken);
 
 			if(dealCloses.Count == 0)
 			{
@@ -234,6 +212,45 @@ namespace BitrixNotificationsSend.Library.Services
 				"Начало закрытия сделок оплаченных заказов по отсрочке сети в Битрикс24. Найдено оплаченных: {PaidDealsCount}",
 				dealCloses.Count);
 
+			var dealClosesToSend = await GetDealClosesToSendByBitrixStages(dealCloses, cancellationToken);
+
+			if(dealClosesToSend.Count == 0)
+			{
+				return;
+			}
+
+			await SendDealCloses(dealClosesToSend, cancellationToken);
+		}
+
+		private async Task<List<ChainStoreDelayDealCloseDto>> GetPaidOrdersDealCloses(CancellationToken cancellationToken)
+		{
+			var closedStageId = _bitrixNotificationsSendSettings.ChainStoreDelayDealsClosedStageId;
+
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(
+				$"Сервис {nameof(ChainStoreDelayDealsCreateService)}. Поиск сделок оплаченных заказов по отсрочке сети"))
+			{
+				var createdDeals = _dealRepository
+					.Get(uow, x => x.Status == ChainStoreDelayBitrixDealStatus.DealCreated && x.BitrixDealId != null)
+					.ToList();
+
+				var paymentStatuses = await GetOrdersPaymentStatuses(uow, createdDeals.Select(x => x.OrderId), cancellationToken);
+
+				return createdDeals
+					.Where(x => paymentStatuses.TryGetValue(x.OrderId, out var paymentStatus) && paymentStatus == OrderPaymentStatus.Paid)
+					.Select(x => new ChainStoreDelayDealCloseDto
+					{
+						ChainStoreDelayBitrixDealId = x.Id,
+						BitrixDealId = x.BitrixDealId.Value,
+						StageId = closedStageId
+					})
+					.ToList();
+			}
+		}
+
+		private async Task<List<ChainStoreDelayDealCloseDto>> GetDealClosesToSendByBitrixStages(
+			IReadOnlyList<ChainStoreDelayDealCloseDto> dealCloses,
+			CancellationToken cancellationToken)
+		{
 			var dealsStages = await _bitrixDealsStagesReadService.GetDealsStages(
 				dealCloses.Select(x => x.BitrixDealId),
 				cancellationToken);
@@ -278,11 +295,13 @@ namespace BitrixNotificationsSend.Library.Services
 				closedInBitrixDealIds.Count,
 				dealClosesToSend.Count);
 
-			if(dealClosesToSend.Count == 0)
-			{
-				return;
-			}
+			return dealClosesToSend;
+		}
 
+		private async Task SendDealCloses(
+			IReadOnlyList<ChainStoreDelayDealCloseDto> dealClosesToSend,
+			CancellationToken cancellationToken)
+		{
 			var sendResult = await _bitrixBatchesSendService.SendAll(
 				dealClosesToSend,
 				dealClose => dealClose.DealCommandKey,
