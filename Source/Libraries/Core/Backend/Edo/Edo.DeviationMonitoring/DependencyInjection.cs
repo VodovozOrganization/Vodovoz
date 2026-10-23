@@ -1,5 +1,6 @@
 ﻿using Edo.DeviationMonitoring.Options;
 using Edo.DeviationMonitoring.Validation;
+using Edo.Transport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Linq;
@@ -32,6 +33,9 @@ namespace Edo.DeviationMonitoring
 			services.TryAddScoped<EdoDeviationValidatorsProvider>();
 			services.TryAddScoped<IEdoDeviationRegistrationService, EdoDeviationRegistrationService>();
 			services.TryAddScoped<IEdoDeviationResolvingService, EdoDeviationResolvingService>();
+			services.TryAddScoped<IEdoDeviationProcessingService, EdoDeviationProcessingService>();
+			services.TryAddScoped<IOrderEdoTaskCreatedEventPublisher, OrderEdoTaskCreatedEventPublisher>();
+			services.AddEdoNotifications();
 
 			return services;
 		}
