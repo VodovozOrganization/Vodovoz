@@ -13,11 +13,13 @@ using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
 using TaxcomEdo.Client;
+using Vodovoz.Core.Application.Employees;
 using Vodovoz.Core.Application.Problems.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Services;
 using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Services.Edo;
 
@@ -69,6 +71,7 @@ namespace EdoContactsUpdater
 						.ConfigureZabbixSenderFromDataBase()
 						.AddScoped<IOrderContactProblemUpdateService, OrderContactProblemUpdateService>()
 						.AddScoped<IManualEdoRequestFactory, ManualEdoRequestFactory>()
+						.AddScoped<IEmployeeService, EmployeeService>()
 						;
 					
 					services.AddHostedService<TaxcomEdoContactsUpdaterService>();
