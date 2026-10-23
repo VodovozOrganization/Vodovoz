@@ -915,7 +915,6 @@
     <Compile Include="ViewModels\Complaints\ComplaintViewModel.cs" />
     <Compile Include="ViewModels\Employees\FineViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeViewModel.cs" />
-    <Compile Include="Infrastructure\Services\EmployeeService.cs" />
     <Compile Include="ViewModels\Employees\FineTemplateViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateComplaintViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateInnerComplaintViewModel.cs" />

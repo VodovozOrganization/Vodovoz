@@ -1,20 +1,20 @@
 ﻿using Mailjet.Api.Abstractions;
+using MassTransit;
+using MimeMapping;
 using QS.Attachments.Domain;
 using QS.DomainModel.UoW;
-using RabbitMQ.MailSending;
 using QS.Services;
+using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
-using Vodovoz.Core.Domain.Users;
-using MassTransit;
-using System.Threading.Tasks;
 
-namespace Vodovoz.Infrastructure.Services
+namespace Vodovoz.Core.Application.Employees
 {
 	public class EmployeeService : IEmployeeService
 	{
@@ -119,7 +119,7 @@ namespace Vodovoz.Infrastructure.Services
 				{
 					new EmailAttachment
 					{
-						ContentType = MimeMapping.GetMimeMapping(attachment.FileName),
+						ContentType = MimeUtility.GetMimeMapping(attachment.FileName),
 						Filename = attachment.FileName,
 						Base64Content = Convert.ToBase64String(attachment.ByteFile)
 					}
