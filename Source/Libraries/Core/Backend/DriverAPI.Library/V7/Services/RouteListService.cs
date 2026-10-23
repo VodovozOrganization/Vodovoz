@@ -51,6 +51,10 @@ namespace DriverAPI.Library.V7.Services
 		private readonly IDriverApiSettings _driverApiSettings;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly List<RouteListStatus> _driverRouteListsIdsInStatuses = new()
+		{
+			RouteListStatus.EnRoute, RouteListStatus.Delivered
+		};
 
 		public RouteListService(ILogger<RouteListService> logger,
 			IRouteListRepository routeListRepository,
@@ -176,10 +180,10 @@ namespace DriverAPI.Library.V7.Services
 				return Result.Failure<IEnumerable<int>>(Vodovoz.Errors.Employees.DriverErrors.NotFound);
 			}
 
-			return Result.Success(_routeListRepository.GetDriverRouteListsIds(
+			return Result.Success(_routeListRepository.GetDriverRouteListsIdsInStatuses(
 				_unitOfWork,
 				driver,
-				RouteListStatus.EnRoute));
+				_driverRouteListsIdsInStatuses));
 		}
 
 		public Result RegisterCoordinateForRouteListItem(int routeListAddressId, decimal latitude, decimal longitude, DateTime actionTime, int driverId)
