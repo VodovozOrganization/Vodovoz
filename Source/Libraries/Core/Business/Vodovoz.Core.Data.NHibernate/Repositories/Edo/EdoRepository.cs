@@ -859,9 +859,9 @@ select
 	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = eir.author_id) as :manual_request_author,
 	eir.order_document_type as :order_document_type,
 	et.id as :task_id,
-	et.`type` as :task_type,
+	coalesce(et.`type`, 'InformalOrderDocument') as :task_type,
 	et.document_type as :formal_document_type,
-	et.status as :task_status,
+	coalesce(et.status, 'Waiting') as :task_status,
 	null as :task_upd_stage,
 	null as :task_receipt_stage,
 	null as :task_tender_stage,
@@ -870,12 +870,14 @@ select
 	et.cancellation_reason as :cancellation_reason,
 	eod.id as :edo_document_id,
 	eod.status as :edo_document_status,
-	eod.discrepancy_state as :docflow_discrepancy_state
+	eod.discrepancy_state as :docflow_discrepancy_state,
+	et.cancellation_reason as :cancellation_reason
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
-left join edo_outgoing_documents eod on eod.document_task_id = et.id
+left join edo_outgoing_documents eod on eod.informal_document_task_id = et.id
 where eir.order_id = :order_id
-	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+	and (et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+		or (et.id is null and eir.order_document_type in ('Bill', 'SpecialBill')))
 ;
 ";
 

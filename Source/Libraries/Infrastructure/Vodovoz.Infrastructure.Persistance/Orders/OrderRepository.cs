@@ -1447,6 +1447,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
 			var orderStatusesForOrderDocumentCloser = new[] { OrderStatus.Closed, OrderStatus.WaitForPayment };
+			var billRequestSubquery = QueryOver.Of<InformalEdoRequest>()
+				.Where(request => request.Order.Id == orderAlias.Id)
+				.Where(request => request.OrderDocumentType == OrderDocumentType.Bill
+					|| request.OrderDocumentType == OrderDocumentType.SpecialBill)
+				.Select(request => request.Id);
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
@@ -1460,6 +1465,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						&& defaultEdoAccountAlias.IsDefault));
 
 			query.Where(() => orderAlias.DeliveryDate >= startDate && edoContainerAlias.Id == null);
+			query.WithSubquery.WhereNotExists(billRequestSubquery);
 
 			var orderStatusRestriction = Restrictions.Or(
 					Restrictions.NotEqProperty(Projections.Property(() => orderAlias.DeliverySchedule.Id), Projections.Constant(closingDocumentDeliveryScheduleId)),
@@ -1520,6 +1526,17 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return uow.Session.QueryOver<EdoContainer>()
 				.Where(x => x.Order.Id == orderId)
 				.List();
+		}
+
+		/// <inheritdoc/>
+		public bool HasEdoBill(IUnitOfWork uow, int orderId)
+		{
+			return uow.GetAll<EdoContainer>()
+				.Any(container => container.Order.Id == orderId && container.Type == DocumentContainerType.Bill)
+				|| uow.GetAll<InformalEdoRequest>()
+					.Any(request => request.Order.Id == orderId
+						&& (request.OrderDocumentType == OrderDocumentType.Bill
+							|| request.OrderDocumentType == OrderDocumentType.SpecialBill));
 		}
 
 		public OrderEntity GetOrderByOrderEdoDocumentId(IUnitOfWork uow, int orderEdoDocumentId)
@@ -2781,22 +2798,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return result;
 		}
 		
-		public IEnumerable<VodovozOrder> GetOrdersForResendBills(IUnitOfWork uow, int? organizationId = null)
-		{
-			var result = from orders in uow.Session.Query<Order>()
-				join actions in uow.Session.Query<OrderEdoTrueMarkDocumentsActions>()
-					on orders.Id equals actions.Order.Id
-				join counterpartyContract in uow.Session.Query<CounterpartyContract>()
-					on orders.Contract.Id equals counterpartyContract.Id
-				where actions.IsNeedToResendEdoBill
-					&& (organizationId == null || counterpartyContract.Organization.Id == organizationId)
-				select orders;			
-
-			return result
-				.Distinct()
-				.ToList();
-		}
-
 		public IQueryable<OksDailyReportOrderDiscountDataNode> GetOrdersDiscountsDataForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate)
 		{
 			var discounts =

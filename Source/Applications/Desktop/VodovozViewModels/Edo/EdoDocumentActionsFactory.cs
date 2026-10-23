@@ -54,7 +54,7 @@ namespace Vodovoz.ViewModels.Edo
 			var actions = new List<BusyCommand>();
 			var documentNode = document.Document;
 
-			if(documentNode.TaskStatus == EdoTaskStatus.New)
+			if(documentNode.TaskStatus == EdoTaskStatus.New && document.DocumentType != EdoInOrderDocumentType.Bill)
 			{
 				if(CanResendNewTask(documentNode))
 				{
@@ -75,12 +75,39 @@ namespace Vodovoz.ViewModels.Edo
 				case EdoInOrderDocumentType.SaveCode:
 					CreateSaveCodeActions(actions, document.Document);
 					break;
+				case EdoInOrderDocumentType.Bill:
+					CreateBillActions(actions, documentNode, onActionCompleted);
+					break;
 				case EdoInOrderDocumentType.Tender:
 				default:
 					break;
 			}
 
 			return actions;
+		}
+
+		private void CreateBillActions(List<BusyCommand> actions, EdoInOrderDocumentNode document, Action onActionCompleted)
+		{
+			if(document.TaskId <= 0 || !_currentPermissionService.ValidatePresetPermission("can_resend_edo_documents")
+				|| (document.TaskStatus != EdoTaskStatus.New && !_edoService.CanResendEdoDocument(document.EdoDocumentStatus)))
+			{
+				return;
+			}
+
+			actions.Add(new BusyCommand("Переотправить", () =>
+			{
+				if(IsResendBlockedByClosedPeriod(document.TaskId))
+				{
+					return;
+				}
+
+				var result = _edoService.ResendBillEdoDocument(document.TaskId);
+				ShowResult(result);
+				if(result.IsSuccess)
+				{
+					onActionCompleted?.Invoke();
+				}
+			}));
 		}
 
 		private static bool CanResendNewTask(EdoInOrderDocumentNode document) =>
@@ -365,14 +392,22 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				var task = uow.GetById<EdoTask>(taskId);
 
-				if(task is OrderEdoTask orderTask && orderTask.FormalEdoRequest?.Order?.DeliveryDate != null)
+				switch (task)
 				{
-					return orderTask.FormalEdoRequest.Order.DeliveryDate;
-				}
+					case OrderDocumentEdoTask _:
+					{
+						var request = uow.GetAll<InformalEdoRequest>().FirstOrDefault(x => x.Task.Id == taskId);
+						if(request?.Order != null)
+						{
+							return request.Order.DeliveryDate;
+						}
 
-				if(task is ReceiptEdoTask receiptTask && receiptTask.FiscalDocuments.Any())
-				{
-					return receiptTask.FiscalDocuments.Max(x => x.FiscalTime ?? x.CheckoutTime);
+						break;
+					}
+					case OrderEdoTask orderTask when orderTask.FormalEdoRequest?.Order?.DeliveryDate != null:
+						return orderTask.FormalEdoRequest.Order.DeliveryDate;
+					case ReceiptEdoTask receiptTask when receiptTask.FiscalDocuments.Any():
+						return receiptTask.FiscalDocuments.Max(x => x.FiscalTime ?? x.CheckoutTime);
 				}
 
 				return task?.CreationTime;

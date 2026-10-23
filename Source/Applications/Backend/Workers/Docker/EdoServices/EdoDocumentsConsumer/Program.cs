@@ -32,14 +32,7 @@ namespace EdoDocumentsConsumer
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
 						{
-							busConf.AddConsumer<BillEdoDocumentConsumer, BillEdoDocumentConsumerDefinition>();
 							busConf.AddConsumer<UpdEdoDocumentConsumer, UpdEdoDocumentConsumerDefinition>();
-							busConf.AddConsumer<BillWithoutShipmentForDebtEdoDocumentConsumer,
-								BillWithoutShipmentForDebtEdoDocumentConsumerDefinition>();
-							busConf.AddConsumer<BillWithoutShipmentForPaymentEdoDocumentConsumer,
-								BillWithoutShipmentForPaymentEdoDocumentConsumerDefinition>();
-							busConf.AddConsumer<BillWithoutShipmentForAdvancePaymentEdoDocumentConsumer,
-								BillWithoutShipmentForAdvancePaymentEdoDocumentConsumerDefinition>();
 
 							busConf.ConfigureRabbitMq();
 						});

@@ -369,6 +369,50 @@ namespace EdoService.Library
 			}
 		}
 
+		/// <inheritdoc />
+		public Result<string> ResendBillEdoDocument(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Повторная отправка счета через ЭДО"))
+			{
+				var request = uow.GetAll<InformalEdoRequest>().FirstOrDefault(x => x.Task.Id == taskId
+					&& (x.OrderDocumentType == OrderDocumentType.Bill || x.OrderDocumentType == OrderDocumentType.SpecialBill));
+				if(request?.Order == null)
+				{
+					return Result.Failure<string>(new Error("EdoBillRequestNotFound", "Заявка счета заказа не найдена"));
+				}
+
+				if(request.Task.Status == EdoTaskStatus.New)
+				{
+					uow.Save(new OutboxMessage(new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = taskId }));
+					uow.Commit();
+					return Result.Success("Задача счета отправлена на повторную обработку");
+				}
+
+				var document = uow.GetAll<OutgoingInformalEdoDocument>()
+					.Where(x => x.InformalDocumentTaskId == taskId)
+					.OrderByDescending(x => x.Id)
+					.FirstOrDefault();
+				if(!CanResendEdoDocument(document?.Status))
+				{
+					return Result.Failure<string>(new Error("EdoBillCannotBeResent", "Повторная отправка доступна для счета с ошибкой или аннулированного счета"));
+				}
+
+				var order = uow.GetById<Order>(request.Order.Id);
+				if(order == null)
+				{
+					return Result.Failure<string>(new Error("EdoBillOrderNotFound", "Заказ счета не найден"));
+				}
+
+				if(!QueueBillRequest(uow, order, DocumentContainerType.Bill, request.OrderDocumentType))
+				{
+					return Result.Success("Счет уже ожидает подготовки к повторной отправке");
+				}
+
+				uow.Commit();
+				return Result.Success("Счет поставлен на повторную отправку через ЭДО");
+			}
+		}
+
 		public void AllowResendInClosedAccountingPeriod(int taskId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot("Разрешение переотправки ЭДО в закрытом бухгалтерском периоде"))
@@ -921,10 +965,10 @@ namespace EdoService.Library
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
 			{
-				var edoDocumentsActions = UpdateEdoDocumentAction(uow, entity, type);
-
 				if(type is DocumentContainerType.Upd)
 				{
+					var edoDocumentsActions = UpdateEdoDocumentAction(uow, entity, type);
+
 					var orderLastTrueMarkDocument = uow.GetAll<TrueMarkDocument>()
 						.Where(x => x.Order.Id == entity.GetId())
 						.OrderByDescending(x => x.CreationDate)
@@ -946,75 +990,69 @@ namespace EdoService.Library
 						edoTask.Status = EdoTaskStatus.New;
 						uow.Save(edoTask);
 					}
+					
+					uow.Save(edoDocumentsActions);
+				}
+				else
+				{
+					QueueBillRequest(uow, entity, type);
 				}
 
-				uow.Save(edoDocumentsActions);
 				uow.Commit();
 			}
 		}
 
 		private OrderEdoTrueMarkDocumentsActions UpdateEdoDocumentAction(IUnitOfWork uow, IDomainObject entity, DocumentContainerType type)
 		{
-			var restriction = GetRestrictionByType(entity, type);
-
 			var edoDocumentsAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-					.Where(restriction)
+					.Where(x => x.Order.Id == entity.Id)
 					.FirstOrDefault() ?? new OrderEdoTrueMarkDocumentsActions();
 
-			FillEdoDocumentsActionByType(edoDocumentsAction, entity, type);
-
-			if(type is DocumentContainerType.Upd)
-			{
-				edoDocumentsAction.IsNeedToResendEdoUpd = true;
-			}
-			else
-			{
-				edoDocumentsAction.IsNeedToResendEdoBill = true;
-			}
-
+			edoDocumentsAction.Order = (Order)entity;
+			edoDocumentsAction.IsNeedToResendEdoUpd = true;
 			edoDocumentsAction.Created = DateTime.Now;
 
 			return edoDocumentsAction;
 		}
 
-		private void FillEdoDocumentsActionByType(OrderEdoTrueMarkDocumentsActions edoDocumentsAction, IDomainObject entity, DocumentContainerType type)
+		private bool QueueBillRequest(IUnitOfWork uow, IDomainObject entity, DocumentContainerType type,
+			OrderDocumentType? orderBillType = null)
 		{
+			InformalEdoRequest request;
 			switch(type)
 			{
 				case DocumentContainerType.Bill:
-				case DocumentContainerType.Upd:
-					edoDocumentsAction.Order = (Order)entity;
+					var order = (Order)entity;
+					var document = order.OrderDocuments.FirstOrDefault(x =>
+						x.Order.Id == order.Id && (orderBillType.HasValue ? x.Type == orderBillType.Value
+							: x.Type == OrderDocumentType.Bill || x.Type == OrderDocumentType.SpecialBill))
+						?? throw new InvalidOperationException("В заказе отсутствует счет для отправки");
+					request = BillEdoRequestFactory.CreatePending(document.Type, document.Id,
+						uow.Session.Load<OrderEntity>(order.Id));
 					break;
 				case DocumentContainerType.BillWSForDebt:
-					edoDocumentsAction.OrderWithoutShipmentForDebt = (OrderWithoutShipmentForDebt)entity;
+					request = BillEdoRequestFactory.CreatePending(OrderDocumentType.BillWSForDebt, entity.Id);
 					break;
 				case DocumentContainerType.BillWSForPayment:
-					edoDocumentsAction.OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)entity;
+					request = BillEdoRequestFactory.CreatePending(OrderDocumentType.BillWSForPayment, entity.Id);
 					break;
 				case DocumentContainerType.BillWSForAdvancePayment:
-					edoDocumentsAction.OrderWithoutShipmentForAdvancePayment = (OrderWithoutShipmentForAdvancePayment)entity;
+					request = BillEdoRequestFactory.CreatePending(OrderDocumentType.BillWSForAdvancePayment, entity.Id);
 					break;
 				default:
 					throw new NotImplementedException($"Не поддерживаемый тип {type.GetEnumDisplayName()}");
 			}
-		}
 
-		private Expression<Func<OrderEdoTrueMarkDocumentsActions, bool>> GetRestrictionByType(IDomainObject entity, DocumentContainerType type)
-		{
-			switch(type)
+			if(uow.GetAll<InformalEdoRequest>().Any(x => x.SourceDocumentId == request.SourceDocumentId
+				&& x.OrderDocumentType == request.OrderDocumentType && x.DocumentSnapshot == null
+				&& (x.Task == null || x.Task.Status != EdoTaskStatus.Cancelled)))
 			{
-				case DocumentContainerType.Bill:
-				case DocumentContainerType.Upd:
-					return x => x.Order.Id == entity.GetId();
-				case DocumentContainerType.BillWSForDebt:
-					return x => x.OrderWithoutShipmentForDebt.Id == entity.GetId();
-				case DocumentContainerType.BillWSForPayment:
-					return x => x.OrderWithoutShipmentForPayment.Id == entity.GetId();
-				case DocumentContainerType.BillWSForAdvancePayment:
-					return x => x.OrderWithoutShipmentForAdvancePayment.Id == entity.GetId();
-				default:
-					throw new NotImplementedException($"Не поддерживаемый тип {type.GetEnumDisplayName()}");
+				return false;
 			}
+
+			request.Source = request.Order == null ? EdoRequestSource.OrderWithoutShipment : EdoRequestSource.Manual;
+			uow.Save(request);
+			return true;
 		}
 
 		public Result ValidateEdoContainers(IList<EdoContainer> edoContainers)
@@ -1133,27 +1171,42 @@ namespace EdoService.Library
 
 		public void CancelOldEdoOffers(IUnitOfWork unitOfWork, Order order)
 		{
-			var containersToRevokeStatuses = new EdoDocFlowStatus[]
+			const string reason = "Состав заказа был изменен";
+			var requestedAt = DateTime.Now;
+			var requests = unitOfWork.GetAll<InformalEdoRequest>()
+				.Where(x => x.Order.Id == order.Id && x.Time <= requestedAt
+					&& (x.OrderDocumentType == OrderDocumentType.Bill || x.OrderDocumentType == OrderDocumentType.SpecialBill))
+				.ToList();
+			foreach(var request in requests)
 			{
-				EdoDocFlowStatus.Succeed
-			};
+				if(request.Task == null)
+				{
+					request.Task = new OrderDocumentEdoTask { Status = EdoTaskStatus.Cancelled,
+						CancellationReason = reason, EndTime = requestedAt };
+					unitOfWork.Save(request);
+				}
+				else if(request.Task.Status != EdoTaskStatus.Cancelled && request.Task.Status != EdoTaskStatus.InCancellation)
+				{
+					request.Task.CancellationReason = reason;
+					unitOfWork.Save(request.Task);
+				}
+			}
 
-			var orderEdoContainers = _orderRepository
-				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Where(ooec => containersToRevokeStatuses.Contains(ooec.EdoDocFlowStatus));
-
-			var restriction = GetRestrictionByType(order, DocumentContainerType.Bill);
-
-			var edoDocumentsAction = unitOfWork.GetAll<OrderEdoTrueMarkDocumentsActions>()
-				.Where(restriction)
-				.FirstOrDefault() ?? new OrderEdoTrueMarkDocumentsActions();
-
-			FillEdoDocumentsActionByType(edoDocumentsAction, order, DocumentContainerType.Bill);
-
-			edoDocumentsAction.IsNeedOfferCancellation = true;
-
-			unitOfWork.Save(edoDocumentsAction);
-
+			var containers = _orderRepository.GetEdoContainersByOrderId(unitOfWork, order.Id)
+				.Where(x => x.Type == DocumentContainerType.Bill && x.Created <= requestedAt
+					&& x.DocFlowId.HasValue && x.EdoDocFlowStatus != EdoDocFlowStatus.Warning
+					&& x.EdoDocFlowStatus != EdoDocFlowStatus.Error
+					&& x.EdoDocFlowStatus != EdoDocFlowStatus.WaitingForCancellation
+					&& x.EdoDocFlowStatus != EdoDocFlowStatus.Cancelled);
+			foreach(var container in containers)
+			{
+				unitOfWork.Save(new OutboxMessage(new TaxcomDocflowRequestCancellationEvent
+				{
+					LegacyBillDocflowId = container.DocFlowId,
+					EdoAccount = order.Contract.Organization.TaxcomEdoSettings?.EdoAccount,
+					CancellationReason = reason
+				}));
+			}
 			unitOfWork.Commit();
 		}
 
