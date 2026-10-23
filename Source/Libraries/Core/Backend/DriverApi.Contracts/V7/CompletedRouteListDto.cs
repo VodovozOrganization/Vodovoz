@@ -23,6 +23,16 @@ namespace DriverApi.Contracts.V7
 		public decimal CashMoney { get; set; }
 
 		/// <summary>
+		/// Сумма сдачи по наличным заказам
+		/// </summary>
+		public decimal ChangeAmount { get; set; }
+
+		/// <summary>
+		/// Итоговая сумма наличных для кассы
+		/// </summary>
+		public decimal MoneyForCashbox { get; set; }
+
+		/// <summary>
 		/// Деньги по карте через терминал
 		/// </summary>
 		public decimal TerminalCardMoney { get; set; }
