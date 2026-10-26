@@ -17,7 +17,7 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		/// <summary>
 		/// Общее количество товаров из всех позиций 
 		/// </summary>
-		public int ItemsCount { get; set; }
+		public decimal ItemsCount { get; set; }
 		
 		/// <summary>
 		/// Идентификатор точки доставки
@@ -37,7 +37,7 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		/// <summary>
 		/// Позиции на продажу
 		/// </summary>
-		public IEnumerable<OnlineOrderItemWithDiscountDetailsDto> OnlineOrderItems { get; set; }
+		public IList<OnlineOrderItemWithDiscountDetailsDto> OnlineOrderItems { get; set; }
 		
 		/// <summary>
 		/// Калькуляция по заказу(сумма, доставка, скидка и т.д.)

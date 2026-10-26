@@ -79,7 +79,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 						"Онлайн-заказ с идентификатором {OnlineOrderId} не найден",
 						getCourierCoordinatesDto.OnlineOrderId);
 
-					return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.OnlineOrderNotFound);
+					return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.OnlineOrderNotFound());
 				}
 
 				var orders = _orderRepository.GetOrdersFromOnlineOrder(uow, onlineOrder.Id);

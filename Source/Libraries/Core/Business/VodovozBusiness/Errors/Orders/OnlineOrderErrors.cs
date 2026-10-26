@@ -34,7 +34,7 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				typeof(OnlineOrderErrors),
 				nameof(DeliveryPointNotBelongCounterparty),
-				$"Точка доставки не принадлежит клиенту");
+				"Точка доставки не принадлежит клиенту");
 		
 		public static Error IncorrectDeliveryDate =>
 			new Error(
@@ -126,7 +126,7 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				typeof(OnlineOrderErrors),
 				nameof(ErrorCalculatingPaidDelivery),
-				$"Не удалось рассчитать платную доставку");
+				"Не удалось рассчитать платную доставку");
 		
 		public static Error FastDeliveryNotAvailable =>
 			new Error(
@@ -150,7 +150,7 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				typeof(OnlineOrderErrors),
 				nameof(IsIncorrectOnlineOrderPromoSetForNewClientsCount),
-				$"В онлайн заказе содержится больше одного промонабора для новых клиентов");
+				"В онлайн заказе содержится больше одного промонабора для новых клиентов");
 		
 		public static Error IncorrectCountNomenclatureInOnlineOrderPromoSet(
 			string promoSetTitle, int position, string nomenclature, int countFromPromoSet, int countFromOnlineOrderItem) =>
@@ -255,7 +255,7 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				typeof(OnlineOrderErrors),
 				nameof(IncompatibleDiscountInOnlineOrderItem),
-				"В строке заказа содежратся несовместимые друг с другом скидки");
+				"В строке заказа содержатся несовместимые друг с другом скидки");
 
 		/// <summary>
 		/// В строке заказа содежратся несовместимые друг с другом скидки
@@ -313,17 +313,28 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				typeof(OnlineOrderErrors),
 				nameof(ClientHasOrdersForThisDate),
-				$"У клиента уже есть оформленные заказы: { orderIds } на этот день!");
+				$"У клиента/пользователя уже есть оформленные заказы: { orderIds } на этот день!");
 		
-		public static Error ClientDontPayOrder() =>
+		public static Error ClientDontPayOrderInAllottedTime() =>
 			new Error(
 				typeof(OnlineOrderErrors),
-				nameof(ClientDontPayOrder),
+				nameof(ClientDontPayOrderInAllottedTime),
 				"Заказ не был оплачен в отведенный срок");
+		
+		/// <summary>
+		/// Пользователь не оформил автозаказ в отведенное время
+		/// </summary>
+		/// <returns></returns>
+		public static Error ClientDontSetAutoOrderInAllottedTime() =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ClientDontSetAutoOrderInAllottedTime),
+				"Пользователь не оформил автозаказ в отведенное время");
+
 		public static Error EmployeeNotFound(Source source) =>
 			new Error(
 				"400",
-				$"Не удалось получить информацию о пользователе из источника {source}");
+				$"Не удалось получить информацию о сотруднике по источнику {source}");
 
 		public static Error IncorrectOrdersData =>
 			new Error(

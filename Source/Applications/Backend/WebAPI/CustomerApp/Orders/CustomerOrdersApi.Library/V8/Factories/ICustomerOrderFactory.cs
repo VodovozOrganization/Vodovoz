@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.V8.Dto.Orders;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
@@ -14,6 +15,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 	{
 		Task<DetailedOrderInfoDto> CreateDetailedOrderInfo(
 			IUnitOfWork uow,
+			Source source,
 			Order order,
 			OrderRating orderRating,
 			OnlineOrderTimers timers,

@@ -3,6 +3,7 @@ using CustomerOrders.Contracts.V8.Sale.Templates;
 using CustomerOrdersApi.Library.V8.Services.Converters;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Extensions;
 
 namespace CustomerOrdersApi.Library.V8.Factories.DeliverySchedules
 {
@@ -27,9 +28,9 @@ namespace CustomerOrdersApi.Library.V8.Factories.DeliverySchedules
 			
 			switch(deliverySchedule.Type)
 			{
-				case TemplateDeliveryScheduleType.Weekly:
+				case CustomerTemplateDeliveryScheduleType.Weekly:
 					return GenerateWeeklyDescription(deliverySchedule, from, to);
-				case TemplateDeliveryScheduleType.Monthly:
+				case CustomerTemplateDeliveryScheduleType.Monthly:
 					return GenerateMonthlyDescription(deliverySchedule, from, to);
 				default:
 					throw new InvalidOperationException($"Неизвестный тип доставки автозаказа {deliverySchedule.Type}");
@@ -47,6 +48,8 @@ namespace CustomerOrdersApi.Library.V8.Factories.DeliverySchedules
 				throw new InvalidOperationException("Не заполнен день доставки для недельного типа!");
 			}
 
+			var weekDay = deliverySchedule.WeekDay.ToWeekDayName();
+
 			if(!deliverySchedule.RepeatEveryWeeks.HasValue)
 			{
 				throw new InvalidOperationException("Не заполнены повторы через определенное количество недель для недельного типа!");
@@ -59,7 +62,7 @@ namespace CustomerOrdersApi.Library.V8.Factories.DeliverySchedules
 
 			var repeat = _repeatEveryWeeksConverter.Convert(deliverySchedule.RepeatEveryWeeks.Value);
 			
-			return $"По {deliverySchedule.WeekDay.GetAttribute<AppellativeAttribute>()?.DativePlural} с {fromInterval} до {toInterval}," +
+			return $"По {weekDay.GetAttribute<AppellativeAttribute>()?.DativePlural.ToLower()} с {fromInterval} до {toInterval}," +
 				$" {repeat}, начиная с {deliverySchedule.FirstDeliveryDate:dd.MM.yyyy}";
 		}
 

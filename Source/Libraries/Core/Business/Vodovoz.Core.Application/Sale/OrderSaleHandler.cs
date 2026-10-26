@@ -531,9 +531,12 @@ namespace Vodovoz.Core.Application.Sale
 			return base.TryRemoveSaleItem(uow, saleItem);
 		}
 
-		protected override void RemoveSaleItem(IUnitOfWork uow, ISaleItem saleItem)
+		protected override bool RemoveSaleItem(IUnitOfWork uow, ISaleItem saleItem)
 		{
-			base.RemoveSaleItem(uow, saleItem);
+			if(!base.RemoveSaleItem(uow, saleItem))
+			{
+				return false;
+			}
 
 			var masterCallNomenclatureId = NomenclatureSettings.MasterCallNomenclatureId;
 			
@@ -546,6 +549,7 @@ namespace Vodovoz.Core.Application.Sale
 			}
 
 			_contractUpdater.UpdateContract(uow, Order);
+			return true;
 		}
 
 		public virtual void RemoveEquipment(IUnitOfWork uow, OrderEquipment equipment)

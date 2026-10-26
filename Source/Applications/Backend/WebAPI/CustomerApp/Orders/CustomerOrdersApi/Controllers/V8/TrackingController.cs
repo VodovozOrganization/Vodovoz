@@ -94,7 +94,7 @@ namespace CustomerOrdersApi.Controllers.V8
 
 			if(firstError != null
 				&& (firstError.Code == OrderErrors.NotFound
-					|| firstError.Code == OnlineOrderErrors.OnlineOrderNotFound
+					|| firstError.Code == OnlineOrderErrors.OnlineOrderNotFound()
 					|| firstError.Code == OnlineOrderErrors.ErpOrderForOnlineOrderNotFound))
 			{
 				return StatusCodes.Status404NotFound;

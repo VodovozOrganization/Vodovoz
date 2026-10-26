@@ -9,6 +9,10 @@ namespace Vodovoz.Core.Domain.Clients
 	public enum Source
 	{
 		/// <summary>
+		/// Программа ДВ
+		/// </summary>
+		DeliveryWaterProgram = 0,
+		/// <summary>
 		/// Мобильное приложение
 		/// </summary>
 		[Appellative (

@@ -12,7 +12,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			return (
 				from template in uow.Session.Query<OnlineOrderTemplate>()
 				where template.CounterpartyId == counterpartyId
-					&& template.Status == OnlineOrderTemplateStatus.Active
+					&& template.Status != OnlineOrderTemplateStatus.Archived
 				select template.Id
 				)
 				.Count();

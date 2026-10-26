@@ -8,6 +8,16 @@ namespace Vodovoz.Core.Domain.Sale
 	public enum OnlineOrderTemplateStatus
 	{
 		/// <summary>
+		/// Ожидание оплаты
+		/// </summary>
+		[Display(Name = "Ожидание оплаты")]
+		AwaitingPayment,
+		/// <summary>
+		/// Проблема с оплатой
+		/// </summary>
+		[Display(Name = "Проблема с оплатой")]
+		PaymentProblem,
+		/// <summary>
 		/// Активен
 		/// </summary>
 		[Display(Name = "Активен")]
@@ -16,6 +26,11 @@ namespace Vodovoz.Core.Domain.Sale
 		/// Приостановлен
 		/// </summary>
 		[Display(Name = "Приостановлен")]
-		Inactive
+		Inactive,
+		/// <summary>
+		/// Архивирован
+		/// </summary>
+		[Display(Name = "Архивирован")]
+		Archived
 	}
 }

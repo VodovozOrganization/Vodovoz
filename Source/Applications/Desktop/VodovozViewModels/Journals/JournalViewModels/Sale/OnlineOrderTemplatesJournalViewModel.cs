@@ -192,7 +192,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 					foreach(OnlineOrderTemplatesJournalNode node in selected)
 					{
 						var template = UoW.GetById<OnlineOrderTemplate>(node.Id);
-						template.UpdateState(!template.IsActive, template.IsArchive);
+						template.UpdateStateByPaymentType(!template.IsActive, template.IsArchive);
 						UoW.Save(template);
 						changed++;
 					}
@@ -230,7 +230,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 						if(!node.IsArchive)
 						{
 							var template = UoW.GetById<OnlineOrderTemplate>(node.Id);
-							template.UpdateState(false, true);
+							template.UpdateStateByPaymentType(false, true);
 							UoW.Save(template);
 							changed++;
 						}

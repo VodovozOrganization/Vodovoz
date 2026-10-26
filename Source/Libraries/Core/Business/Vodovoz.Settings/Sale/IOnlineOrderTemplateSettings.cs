@@ -6,8 +6,13 @@ namespace Vodovoz.Settings.Sale
 	public interface IOnlineOrderTemplateSettings : IRepeatTemplateSettings
 	{
 		/// <summary>
-		/// Получение максимального количества активных шаблонов
+		/// Получение максимального количества "рабочих" шаблонов(не архивных)
 		/// </summary>
 		int GetMaximumNumberActiveOnlineOrderTemplates { get; }
+
+		/// <summary>
+		/// Получение количества дат следующих доставок при ответе CheckOrderTemplate <see cref="CheckOrderTemplateResponse"/>
+		/// </summary>
+		int GetNumberNextDeliveriesToDisplay { get; }
 	}
 }

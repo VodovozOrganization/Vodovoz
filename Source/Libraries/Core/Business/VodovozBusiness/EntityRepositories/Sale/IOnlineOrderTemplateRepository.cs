@@ -5,7 +5,7 @@ namespace VodovozBusiness.EntityRepositories.Sale
 	public interface IOnlineOrderTemplateRepository
 	{
 		/// <summary>
-		/// Получение количества активных шаблонов клиента
+		/// Получение количества "рабочих" шаблонов клиента(всех, которые не архивные, дабы исключить перебор по максимуму)
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="counterpartyId">Идентификатор клиента</param>

@@ -20,6 +20,7 @@ using Vodovoz.Validation;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Models.Orders;
+using VodovozBusiness.Nodes;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -152,9 +153,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 				var ordersIds =
 					OrderRepository.GetClientOrdersIdsForDate(
 						uow,
-						OnlineOrder.DeliveryDate,
-						OnlineOrder.CounterpartyId,
-						OnlineOrder.DeliveryPointId);
+						CheckClientOrdersForDateNode.Create(
+							OnlineOrder.Source,
+							OnlineOrder.ExternalCounterpartyId,
+							OnlineOrder.DeliveryDate,
+							OnlineOrder.CounterpartyId,
+							OnlineOrder.DeliveryPointId
+						)
+					);
 
 				if(ordersIds.Any())
 				{
@@ -167,7 +173,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 				&& OnlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.UnPaid
 				&& OnlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
 			{
-				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.ClientDontPayOrder());
+				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.ClientDontPayOrderInAllottedTime());
+			}
+
+			if(OnlineOrder.IsAutoOrderEnabled
+				&& OnlineOrder.Template is null
+				&& OnlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
+			{
+				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.ClientDontSetAutoOrderInAllottedTime());
 			}
 
 			ValidateOnlineOrderItems(uow);

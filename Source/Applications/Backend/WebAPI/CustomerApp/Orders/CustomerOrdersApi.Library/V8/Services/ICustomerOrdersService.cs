@@ -57,7 +57,9 @@ namespace CustomerOrdersApi.Library.V8.Services
 		/// </summary>
 		/// <param name="getDetailedOrderInfoDto">Данные для получения деталей заказа</param>
 		/// <returns>Детали заказа <see cref="DetailedOrderInfoDto"/></returns>
-		Task<DetailedOrderInfoDto> GetDetailedOrderInfo(GetDetailedOrderInfoDto getDetailedOrderInfoDto, CancellationToken cancellationToken
+		Task<DetailedOrderInfoDto> GetDetailedOrderInfo(
+			GetDetailedOrderInfoDto getDetailedOrderInfoDto,
+			CancellationToken cancellationToken
 		);
 
 		/// <summary>
@@ -74,29 +76,38 @@ namespace CustomerOrdersApi.Library.V8.Services
 		/// <param name="getCounterpartyOrdersDto">Данные для получения заказов клиента</param>
 		/// <param name="cancellationToken">Токен для отмены операции</param>
 		/// <returns>Активные заказы клиента <see cref="ActiveOrdersDto"/></returns>
-		Task<ActiveOrdersDto> GetCurrentClientOrders(GetCounterpartyOrdersDto getCounterpartyOrdersDto, CancellationToken cancellationToken = default);
+		Task<ActiveOrdersDto> GetCurrentClientOrders(
+			GetCounterpartyOrdersDto getCounterpartyOrdersDto,
+			CancellationToken cancellationToken = default
+			);
 
 		/// <summary>
 		/// Получение списка причин оценки заказа
 		/// </summary>
 		/// <returns>Список причин оценки заказа <see cref="OrderRatingReasonDto"/></returns>
 		IEnumerable<OrderRatingReasonDto> GetOrderRatingReasons();
+
 		/// <summary>
 		/// Оценка заказа
 		/// </summary>
 		/// <param name="orderRatingInfo">Данные по оценке заказа</param>
 		void CreateOrderRating(OrderRatingInfoForCreateDto orderRatingInfo);
+
 		/// <summary>
 		/// Создание заявки на звонок
 		/// </summary>
 		/// <param name="creatingInfoDto">Данные по заявке на звонок</param>
 		void CreateRequestForCall(CreatingRequestForCallDto creatingInfoDto);
+
 		/// <summary>
 		/// Получение доступных форм оплат
 		/// </summary>
 		/// <param name="getAvailablePaymentMethods">Данные для получения доступных способов оплат</param>
 		/// <returns></returns>
-		(int HttpCode, string Message, AvailablePaymentMethods AvailablePayments) GetAvailablePaymentMethods(GetAvailablePaymentMethodsDto getAvailablePaymentMethods);
+		(int HttpCode, string Message, AvailablePaymentMethods AvailablePayments) GetAvailablePaymentMethods(
+			GetAvailablePaymentMethodsDto getAvailablePaymentMethods
+			);
+
 		/// <summary>
 		/// Обновление заказа
 		/// </summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrders.Contracts.V8.Common;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.V8.Dto.Orders;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.InfoMessages;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
@@ -19,6 +21,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Mango;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Extensions;
 
 namespace CustomerOrdersApi.Library.V8.Factories
 {
@@ -57,6 +60,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 
 		public async Task<DetailedOrderInfoDto> CreateDetailedOrderInfo(
 			IUnitOfWork uow,
+			Source source,
 			Order order,
 			OrderRating orderRating,
 			OnlineOrderTimers timers,
@@ -71,6 +75,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		{
 			var orderInfo = await CreateOrderInfoDto(
 				uow,
+				source,
 				order,
 				orderRating,
 				timers,
@@ -157,6 +162,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 
 		private async Task<DetailedOrderInfoDto> CreateOrderInfoDto(
 			IUnitOfWork uow,
+			Source source,
 			Order order,
 			OrderRating orderRating,
 			OnlineOrderTimers timers,
@@ -202,7 +208,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 
 			UpdateAvailabilityRepeatOrder(orderInfo);
 			UpdateOrderRating(orderRating, ratingAvailableFrom, orderInfo);
-			UpdateOrderItems(order, orderInfo);
+			UpdateOrderItems(source, order, orderInfo);
 			
 			orderInfo.UpdateTrackingAvailability(
 				establishedRoute,
@@ -272,6 +278,23 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				{
 					orderInfo.InfoMessages = Array.Empty<InfoMessage>();
 				}
+			}
+
+			if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.PendingAutoOrderSettings)
+			{
+				if(onlineOrder.TemplateSetupStartTime is null)
+				{
+					throw new InvalidOperationException(
+						"Потеряна метка для настройки автозаказа. " +
+						$"Проверьте все места перевода онлайн заказа в статус {nameof(OnlineOrderStatus.PendingAutoOrderSettings)}");
+				}
+				
+				orderInfo.IsAutoOrderSetupRequired = true;
+				orderInfo.TimerForAutoOrderSetup =
+					OnlineOrderTimerSetupDto.Create(
+						onlineOrder.TemplateSetupStartTime.StartTime,
+						onlineOrder.TemplateSetupStartTime.TimerSeconds
+						);
 			}
 
 			if(!onlineOrder.IsSelfDelivery)
@@ -401,11 +424,11 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			orderInfoDto.IsRatingAvailable = false;
 		}
 		
-		private void UpdateOrderItems(Order order, DetailedOrderInfoDto orderInfoDto)
+		private void UpdateOrderItems(Source source, Order order, DetailedOrderInfoDto orderInfoDto)
 		{
 			orderInfoDto.OrderItems = order.OrderItems
 				.Where(x => x.PromoSet is null)
-				.Select(_onlineOrderItemFactory.CreateWithDiscountDetailsDto)
+				.Select(x => _onlineOrderItemFactory.CreateWithDiscountDetailsDto(x, source.ToGoodsOnlineParameterType()))
 				.ToList();
 
 			AddPromoSets(order.PromotionalSets, orderInfoDto);
@@ -415,7 +438,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		{
 			orderInfoDto.OrderItems = onlineOrder.OnlineOrderItems
 				.Where(x => x.PromoSet is null)
-				.Select(_onlineOrderItemFactory.CreateWithDiscountDetailsDto)
+				.Select(x => _onlineOrderItemFactory.CreateWithDiscountDetailsDto(x, onlineOrder.Source.ToGoodsOnlineParameterType()))
 				.ToList();
 
 			if(onlineOrder is OnlineOrderV2 onlineOrderV2)

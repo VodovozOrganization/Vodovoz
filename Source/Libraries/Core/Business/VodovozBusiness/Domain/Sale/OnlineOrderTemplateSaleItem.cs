@@ -105,14 +105,6 @@ namespace VodovozBusiness.Domain.Sale
 			set => SetField(ref _personalDiscount, value);
 		}
 
-		/*IEnumerable<IProductDiscountData> ICalculatingPriceV5.Discounts => Discounts
-			.Select(x => new ProductDiscountData
-			{
-				Discount = x.IsDiscountInMoney ? x.MoneyDiscount : x.PercentDiscount,
-				IsDiscountInMoney = x.IsDiscountInMoney,
-				DiscountReason = x.DiscountReason
-			});*/
-
 		public virtual bool IsUserPrice { get; set; }
 		
 		public virtual bool IsFixedPrice { get; set; }
@@ -121,11 +113,11 @@ namespace VodovozBusiness.Domain.Sale
 
 		public static OnlineOrderTemplateSaleItem Create(
 			int templateId,
-			NewOrderSaleItem newSaleItem,
+			NewSaleItem newSaleItem,
 			PersonalDiscount personalDiscount = null
 		)
 		{
-			var onlineOrderItem = new OnlineOrderTemplateSaleItem
+			var templateSaleItem = new OnlineOrderTemplateSaleItem
 			{
 				Count = newSaleItem.Count,
 				Price = newSaleItem.PriceData.Price,
@@ -139,11 +131,11 @@ namespace VodovozBusiness.Domain.Sale
 			{
 				foreach(var discount in newSaleItem.DiscountReasons)
 				{
-					onlineOrderItem.DiscountReasons.Add(discount);
+					templateSaleItem.DiscountReasons.Add(discount);
 				}
 			}
 
-			return onlineOrderItem;
+			return templateSaleItem;
 		}
 
 		public virtual bool IsAlternativePrice { get; set; }

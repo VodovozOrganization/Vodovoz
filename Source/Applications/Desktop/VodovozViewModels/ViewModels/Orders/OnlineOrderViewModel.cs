@@ -17,6 +17,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -115,13 +116,48 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public virtual OnlineOrder Entity => (OnlineOrder)entity;
 
 		public IGtkTabsOpener GtkTabsOpener { get; }
+		
+		/// <summary>
+		/// Команда взятия в работу
+		/// </summary>
 		public DelegateCommand GetToWorkCommand { get; private set; }
+		/// <summary>
+		/// Команда отмены онлайн заказа
+		/// </summary>
 		public DelegateCommand CancelOnlineOrderCommand { get; private set; }
+		/// <summary>
+		/// Команда открытия заявки на сопоставление клиента из ИПЗ, при наличии
+		/// </summary>
 		public DelegateCommand OpenExternalCounterpartyMatchingCommand { get; private set; }
+		/// <summary>
+		/// Команда звонка клиенту
+		/// </summary>
 		public DelegateCommand CallClientCommand { get; private set; }
+		/// <summary>
+		/// Команда добавления комментария оператора
+		/// </summary>
 		public DelegateCommand AddOperatorCommentCommand { get; private set; }
+		/// <summary>
+		/// Команда добавления комментария о недозвоне
+		/// </summary>
 		public DelegateCommand AddFailedCallCommentCommand { get; private set; }
+		/// <summary>
+		/// Команда закрытия карточки онлайн заказа
+		/// </summary>
 		public DelegateCommand CancelCommand { get; private set; }
+		/// <summary>
+		/// Команда открытия настройки автозаказа
+		/// </summary>
+		public DelegateCommand OpenSetupTemplateCommand { get; private set; }
+		/// <summary>
+		/// Команда открытия оплаты автозаказа
+		/// </summary>
+		public DelegateCommand OpenPayTemplateCommand { get; private set; }
+		/// <summary>
+		/// Команда архивации шаблона автозаказа
+		/// </summary>
+		public DelegateCommand ArchiveTemplateCommand { get; private set; }
+		
 		public IList<OnlineOrderItem> OnlineOrderPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineOrderItem> OnlineOrderNotPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineFreeRentPackage> OnlineRentPackages { get; protected set; }
@@ -245,12 +281,44 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		/// <summary>
 		/// Автозаказ
 		/// </summary>
-		public bool IsTemplateOrder => Entity.TemplateId.HasValue;
+		public bool IsTemplateOrder => Entity.Template != null;
 		
+		/// <summary>
+		/// Можно переводить в настройку автозаказа
+		/// </summary>
+		public bool CanMovedToSetupTemplate =>
+			Entity.OnlineOrderStatus == OnlineOrderStatus.New
+				&& Entity.Template is null;
+
+		/// <summary>
+		/// Можно переводить в настройку автозаказа
+		/// </summary>
+		public bool CanMovedToPayTemplate =>
+			Entity.OnlineOrderStatus == OnlineOrderStatus.New
+			&& Entity.Template != null
+			&& TemplateNotPaid();
+
+		
+		/// <summary>
+		/// Автозаказ не оплачен
+		/// </summary>
+		/// <returns>true - не оплачен и можно переводить на оплату, false - оплачен или нельзя переводить на оплату</returns>
+		private bool TemplateNotPaid()
+		{
+			if(Entity.Template is null)
+			{
+				return false;
+			}
+			
+			var template = UoW.GetById<OnlineOrderTemplate>(Entity.Template.Id);
+			//TODO Подумать, нет ли еще возможных вариантов
+			return template?.Status == OnlineOrderTemplateStatus.PaymentProblem;
+		}
+
 		/// <summary>
 		/// Идентификатор шаблона автозаказа
 		/// </summary>
-		public string TemplateIdString => IsTemplateOrder ? Entity.TemplateId.ToString() : string.Empty;
+		public string TemplateIdString => IsTemplateOrder ? Entity.Template.Id.ToString() : string.Empty;
 
 		public string OnlineOrderPaymentType => Entity.OnlineOrderPaymentType.GetEnumDisplayName();
 		public string OnlineOrderDeliveryDate => Entity.DeliveryDate.ToShortDateString();
@@ -324,7 +392,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 			if(_onlineOrderTimers is null)
 			{
-				throw new InvalidOperationException("Не установлены таймеры для онлайн заказов! Дальнейшая работа невозможна");
+				throw new InvalidOperationException(
+					$"Не установлены таймеры для онлайн заказов! ${nameof(OnlineOrderTimers)} Дальнейшая работа невозможна");
 			}
 		}
 		
@@ -349,6 +418,63 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			CreateAddFailedCallCommentCommand();
 			CreateAddOperatorCommentCommand();
 			CreateCancelCommand();
+			CreateOpenSetupTemplateCommand();
+			CreateOpenPayTemplateCommand();
+			CreateArchiveTemplateCommand();
+		}
+
+		private void CreateArchiveTemplateCommand()
+		{
+			ArchiveTemplateCommand = new DelegateCommand(() =>
+				{
+					//TODO подумать над возможностью разархивации сущности, если не было закрытия вкладки/сохранения
+					UoW.Session.Refresh(Entity);
+
+					if(Entity.Template is null)
+					{
+						ShowWarningMessage("Невозможно архивировать шаблон автозаказа, т.к. он не привязан к онлайн заказу!");
+						return;
+					}
+
+					var template = UoW.GetById<OnlineOrderTemplate>(Entity.Template.Id);
+
+					if(template is null)
+					{
+						ShowWarningMessage("Невозможно архивировать шаблон автозаказа, т.к. он не найден");
+						return;
+					}
+
+					template.Archive();
+				}
+			);
+		}
+
+		private void CreateOpenPayTemplateCommand()
+		{
+			OpenPayTemplateCommand = new DelegateCommand(
+				() =>
+				{
+					Entity.ToPayTemplate(
+						_onlineOrderTimers.AutoOrderPayTimeByOperator.Seconds,
+						OnlineOrderTimestampType.AutoOrderPayTimeByOperator
+						);
+					Save();
+				}
+			);
+		}
+
+		private void CreateOpenSetupTemplateCommand()
+		{
+			OpenSetupTemplateCommand = new DelegateCommand(
+				() =>
+				{
+					Entity.ToSetupTemplate(
+						_onlineOrderTimers.AutoOrderSettingsTimeByOperator.Seconds,
+						OnlineOrderTimestampType.AutoOrderSettingsTimeByOperator
+						);
+					Save();
+				}
+			);
 		}
 
 		private void CreateGetToWorkCommand()

@@ -4,9 +4,13 @@ using CustomerOrdersApi.Library.V8.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerApp.Contracts.Common;
 using CustomerApp.Contracts.Sale;
 using CustomerOrdersApi.Library.V8.Services;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Extensions;
 
 namespace CustomerOrdersApi.Library.V8.Factories
 {
@@ -19,21 +23,49 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 		}
 		
-		public OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(IProduct saleItem)
+		public OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(IProduct saleItem, GoodsOnlineParameterType parameterType)
 		{
+			var onlineParameters = saleItem.Nomenclature.NomenclatureOnlineParameters
+				.FirstOrDefault(x => x.Type == parameterType);
+
+			var onlinePrice = onlineParameters?.GetOnlinePrice(saleItem.Count);
+			
 			return new OnlineOrderItemWithDiscountDetailsDto
 			{
 				ErpId = saleItem.Nomenclature.Id,
 				Count = saleItem.Count,
 				Price = saleItem.Price,
 				CurrentPrice = Math.Round(saleItem.ActualSum / saleItem.Count, 2),
-				PriceWithoutDiscount = null,
+				PriceWithoutDiscount = onlinePrice?.PriceWithoutDiscount,
 				CurrentSum = saleItem.ActualSum,
 				IsFixedPrice = saleItem.IsFixedPrice,
 				GiftItem = saleItem.GiftItem,
 				ItemType = saleItem.Nomenclature.Category.ToSaleItemType(),
 				Discounts = new List<IDiscountAmount>(_discountController
 					.CalculateTotalDiscountDetails(saleItem as ICalculatingTotalMoneyDiscount)
+					.DiscountDetails
+					.Values)
+			};
+		}
+		
+		public OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(OnlineOrderPromoSet onlinePromoSet)
+		{
+			var currentPrice = onlinePromoSet.Price;
+			var priceWithoutDiscount = onlinePromoSet.PromoSet.SumWithoutDiscount();
+			var currentSum = Math.Round(currentPrice * onlinePromoSet.Count, 2);
+			
+			return new OnlineOrderItemWithDiscountDetailsDto
+			{
+				ErpId = onlinePromoSet.PromoSet.Id,
+				Count = onlinePromoSet.Count,
+				Price = currentPrice,
+				CurrentPrice = currentPrice,
+				PriceWithoutDiscount = priceWithoutDiscount,
+				CurrentSum = currentSum,
+				IsFixedPrice = false,
+				ItemType = SaleItemType.PromoSet,
+				Discounts =  new List<IDiscountAmount>(_discountController
+					.CalculateTotalDiscountDetails(onlinePromoSet)
 					.DiscountDetails
 					.Values)
 			};

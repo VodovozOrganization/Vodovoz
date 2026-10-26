@@ -41,12 +41,15 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.NextCallDate).Column("next_call_date").Nullable();
 			Map(x => x.NextCallDateChanged).Column("next_call_date_changed").Nullable();
 			Map(x => x.HasService).Column("has_service");
-			Map(x => x.TemplateId).Column("template_id");
 			Map(x => x.OrderVersion)
 				.Column(OnlineOrder.OrderVersionColumn)
 				.Not.Update()
 				.Not.Insert()
 				.Access.ReadOnly();
+			
+			Map(x => x.IsAutoOrderEnabled)
+				.Column("is_auto_order_enabled")
+				.Not.Nullable();
 			
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");
@@ -54,6 +57,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.SelfDeliveryGeoGroup).Column("self_delivery_geo_group_id");
 			References(x => x.EmployeeWorkWith).Column("employee_work_with_id");
 			References(x => x.OnlineOrderCancellationReason).Column("online_order_cancellation_reason_id");
+			References(x => x.Template).Column("template_id");
 
 			HasMany(x => x.Orders)
 				.KeyColumn("online_order_id")

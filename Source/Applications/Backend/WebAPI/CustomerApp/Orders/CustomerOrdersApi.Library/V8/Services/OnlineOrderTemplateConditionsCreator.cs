@@ -16,12 +16,12 @@ namespace CustomerOrdersApi.Library.V8.Services
 	{
 		private readonly ILogger<OnlineOrderTemplateConditionsCreator> _logger;
 		private readonly IDiscountReasonSettings _discountReasonSettings;
-		private readonly IOnlineOrderTemplateFromOnlineOrderValidator _onlineOrderTemplateValidator;
+		private readonly ICanCreateTemplateFromOnlineOrderValidator _onlineOrderTemplateValidator;
 
 		public OnlineOrderTemplateConditionsCreator(
 			ILogger<OnlineOrderTemplateConditionsCreator> logger,
 			IDiscountReasonSettings discountReasonSettings,
-			IOnlineOrderTemplateFromOnlineOrderValidator onlineOrderTemplateValidator
+			ICanCreateTemplateFromOnlineOrderValidator onlineOrderTemplateValidator
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

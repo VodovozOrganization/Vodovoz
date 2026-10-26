@@ -45,6 +45,7 @@ using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.EntityRepositories.Nodes;
+using VodovozBusiness.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
@@ -2725,24 +2726,39 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return earliestOrder;
 		}
 
-		public IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int? counterpartyId, int? deliveryPointId)
+		public IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, CheckClientOrdersForDateNode data)
 		{
-			var query = uow.Session.Query<VodovozOrder>()
-				.Where(x => x.DeliveryDate == date);
-
-			if(counterpartyId.HasValue)
+			var query = uow.Session.QueryOver<VodovozOrder>()
+				.Where(x => x.DeliveryDate == data.DeliveryDate);
+			
+			if(!data.CounterpartyId.HasValue)
 			{
-				query = query.Where(x => x.Client.Id == counterpartyId.Value);
+				if(!data.ExternalCounterpartyId.HasValue)
+				{
+					return Array.Empty<int>();
+				}
+				
+				OnlineOrder onlineOrderAlias = null;
+				
+				query = query
+					.JoinAlias(x => x.OnlineOrder, () => onlineOrderAlias)
+					.And(() => onlineOrderAlias.ExternalCounterpartyId == data.ExternalCounterpartyId)
+					.And(() => onlineOrderAlias.Source == data.Source)
+					;
+			}
+			else
+			{
+				query = query.Where(x => x.Client.Id == data.CounterpartyId.Value);
 			}
 
-			if(deliveryPointId.HasValue)
+			if(data.DeliveryPointId.HasValue)
 			{
-				query = query.Where(x => x.DeliveryPoint.Id == deliveryPointId.Value);
+				query = query.Where(x => x.DeliveryPoint.Id == data.DeliveryPointId.Value);
 			}
 
 			return query
 				.Select(x => x.Id)
-				.ToList();
+				.List<int>();
 		}
 
 		public async Task<IReadOnlyCollection<OverdueDebtOverPeriodLimitAggregateNode>> GetWithoutClosedDeliveriesCounterpartiesOverdueDebts

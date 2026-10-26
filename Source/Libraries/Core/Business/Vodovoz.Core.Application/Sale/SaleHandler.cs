@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog;
@@ -20,6 +21,7 @@ using VodovozBusiness.Domain.Sale;
 using VodovozBusiness.Domain.Service;
 using VodovozBusiness.Extensions;
 using VodovozBusiness.Factories;
+using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Sale;
 using VodovozBusiness.Specifications.Sale;
 using VodovozBusiness.Validation;
@@ -511,7 +513,7 @@ namespace Vodovoz.Core.Application.Sale
 			}
 
 			SetPriceForNewSaleItem(saleItem, priceData);
-			Source.SaleItemsList.Add(saleItem);
+			(Source.SaleItems as IList).Add(saleItem);
 
 			Recalculate();
 			TrySetMasterCallNomenclaturePrice(uow);
@@ -584,25 +586,29 @@ namespace Vodovoz.Core.Application.Sale
 			
 		}
 		
-		protected virtual void RemoveSaleItem(IUnitOfWork uow, ISaleItem saleItem)
+		protected virtual bool RemoveSaleItem(IUnitOfWork uow, ISaleItem saleItem)
 		{
 			if(!Source.SaleItems.Contains(saleItem))
 			{
-				return;
+				return false;
 			}
+
+			var saleItemsList = Source.SaleItems as IList;
 
 			if(saleItem.PromoSet != null)
 			{
 				var itemsToRemove = Source.SaleItems.Where(oi => oi.PromoSet == saleItem.PromoSet).ToList();
 				foreach (var item in itemsToRemove)
 				{
-					Source.SaleItemsList.Remove(item);
+					saleItemsList.Remove(item);
 				}
 			}
 			else
 			{
-				Source.SaleItemsList.Remove(saleItem);
+				saleItemsList.Remove(saleItem);
 			}
+
+			return true;
 		}
 		
 		public Result UpdateDeliveryCost(IUnitOfWork unitOfWork)

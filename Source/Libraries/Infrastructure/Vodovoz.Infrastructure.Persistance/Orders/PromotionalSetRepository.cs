@@ -162,7 +162,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				from promoSet in uow.Session.Query<PromotionalSet>()
 				where promotionalSetIds.Contains(promoSet.Id)
 					&& promoSet.PromotionalSetForNewClients
-				select promoSet)
+				select promoSet.Id)
 			.Any();
 		}
 

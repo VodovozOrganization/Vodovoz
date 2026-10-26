@@ -11,13 +11,16 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Errors.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
@@ -86,11 +89,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 				foreach(var onlineOrder in waitingForPaymentOnlineOrders)
 				{
-					TransferToManualProcessing(onlineOrder,
-						onlineOrder.IsFastDelivery
-							? onlineOrderTimers.TimeForTransferToManualProcessingWithFastDelivery
-							: onlineOrderTimers.TimeForTransferToManualProcessingWithoutFastDelivery);
-
+					TransferToManualProcessing(onlineOrder, onlineOrderTimers);
 					await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 				}
 
@@ -107,7 +106,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			if(onlineOrder is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderNotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderNotFound());
 			}
 
 			if(onlineOrder.OnlineOrderStatus != OnlineOrderStatus.WaitingForPayment)
@@ -155,7 +154,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			if(onlineOrder is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderNotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderNotFound());
+			}
+			
+			var recurrentPaymentValidationResult = ValidateRecurrentPayment(onlineOrder, data.RecurrentPayment);
+
+			if(recurrentPaymentValidationResult.IsFailure)
+			{
+				return Result.Failure(recurrentPaymentValidationResult.Errors);
 			}
 			
 			if(data.PaymentStatus is OnlineOrderPaymentStatus.Paid && !data.OnlinePayment.HasValue)
@@ -187,25 +193,37 @@ namespace Vodovoz.Core.Application.Orders.Services
 				if(onlineOrder.OnlineOrderStatus is OnlineOrderStatus.Canceled
 					&& data.PaymentStatus is OnlineOrderPaymentStatus.Paid)
 				{
+					//TODO-6115 что делаем в такой ситуации при автозаказе?
+					//TODO-6115 По идее надо обнулять рекуррентный платеж и возвращать деньги
 					onlineOrder.UpdateOnlineOrderPaymentData(
+						uow,
 						data.OnlineOrderPaymentType,
 						data.OnlinePaymentSource,
 						data.PaymentStatus,
 						data.UnPaidReason,
-						data.OnlinePayment);
+						data.OnlinePayment,
+						data.RecurrentPayment
+						);
+
+					if(data.RecurrentPayment != null
+						&& onlineOrder.Template != null)
+					{
+						// TODO-6115 отменяем платеж и возвращаем деньги
+					}
 					
 					await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 					return Result.Success();
 				}
 				
-				if(onlineOrder.EmployeeWorkWith != null)
+				if(onlineOrder.EmployeeWorkWith != null
+					&& onlineOrder.Template is null)
 				{
 					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOrderAlreadyProcessingAndCannotChanged);
 				}
 			}
 			
 			_logger.LogInformation("Полностью обновляем онлайн заказ {OnlineOrderId}", onlineOrder.Id);
-			onlineOrder.UpdateOnlineOrder(deliverySchedule, data);
+			onlineOrder.UpdateOnlineOrder(uow, deliverySchedule, data);
 
 			if(onlineOrder.OnlineOrderStatus is OnlineOrderStatus.New
 				&& onlineOrder.EmployeeWorkWith is null
@@ -221,7 +239,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 						Date = DateTime.Now
 					};
 
-					uow.Save(onlinePayment);
+					await uow.SaveAsync(onlinePayment, cancellationToken: cancellationToken);
 				}
 
 				var validationResult = _onlineOrderValidatorCreator
@@ -248,6 +266,63 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}			
 
 			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
+			return Result.Success();
+		}
+
+		private void TryUpdateTemplate(
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			TemplateRecurrentPaymentData recurrentPayment)
+		{
+			var onlineOrderV2 = onlineOrder.As<OnlineOrderV2>();
+			var template = onlineOrder.Template;
+			
+			if(onlineOrderV2 is null
+				|| !onlineOrderV2.IsAutoOrderEnabled
+				|| template is null
+			)
+			{
+				return;
+			}
+
+			if(string.IsNullOrWhiteSpace(recurrentPayment.Token))
+			{
+				
+			}
+			
+		}
+
+		private Result ValidateRecurrentPayment(
+			OnlineOrder onlineOrder,
+			TemplateRecurrentPaymentData recurrentPayment
+			)
+		{
+			var onlineOrderV2 = onlineOrder.As<OnlineOrderV2>();
+
+			if(onlineOrderV2 is null
+				|| !onlineOrderV2.IsAutoOrderEnabled
+				|| onlineOrderV2.Template is null
+			)
+			{
+				return Result.Success();
+			}
+			
+			if(recurrentPayment is null)
+			{
+				return Result.Failure(OnlineOrderErrors.RecurrentPayment.IsEmptyRecurrentPayment);
+			}
+
+			if(string.IsNullOrWhiteSpace(recurrentPayment.Token))
+			{
+				return Result.Failure(OnlineOrderErrors.RecurrentPayment.IsEmptyToken);
+			}
+			
+			if(string.IsNullOrWhiteSpace(recurrentPayment.AccountId))
+			{
+				return Result.Failure(OnlineOrderErrors.RecurrentPayment.IsEmptyAccountId);
+			}
+			
+			//уточнить по поводу последних двух параметров
 			return Result.Success();
 		}
 
@@ -295,11 +370,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 
 			onlineOrder.UpdateOnlineOrderPaymentData(
+				uow,
 				data.OnlineOrderPaymentType,
 				data.OnlinePaymentSource,
 				data.PaymentStatus,
 				data.UnPaidReason,
-				data.OnlinePayment);
+				data.OnlinePayment,
+				data.RecurrentPayment
+				);
 
 			if(data.OnlinePayment.HasValue
 				&& data.PaymentStatus is OnlineOrderPaymentStatus.Paid
@@ -431,10 +509,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		private void TransferToManualProcessing(
 			OnlineOrder onlineOrder,
-			TimeSpan timeForTransfer)
+			OnlineOrderTimers orderTimers)
 		{
-			if(onlineOrder.TryMoveToManualProcessingWithoutPaymentByUnPaidReason(
-				timeForTransfer.TotalSeconds, "Заказ не был оплачен в отведенный срок"))
+			const string message = "Заказ не был оплачен в отведенный срок";
+			
+			if(onlineOrder.TryMoveToManualProcessingWithoutPaymentByUnPaidReason(orderTimers, message))
 			{
 				_logger.LogInformation("Переводим на ручное онлайн заказ №{WaitingForPaymentOrderId}", onlineOrder.Id);
 			}

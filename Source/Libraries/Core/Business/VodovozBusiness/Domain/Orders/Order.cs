@@ -507,11 +507,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments => 
 			_observableOrderDocuments?.ReconnectToObject(OrderDocuments) ?? (_observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments));
 
-		private ObservableList<OrderItem> _orderItems = new ObservableList<OrderItem>();
+		private IObservableList<OrderItem> _orderItems = new ObservableList<OrderItem>();
 
 		[Display(Name = "Строки заказа")]
 		[OrderTracker1c]
-		public virtual new ObservableList<OrderItem> OrderItems
+		public virtual new IObservableList<OrderItem> OrderItems
 		{
 			get => _orderItems;
 			set => SetField(ref _orderItems, value, () => OrderItems);
@@ -648,7 +648,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual Counterparty Counterparty => Client;
 		PaymentType? ISaleSource.PaymentType => PaymentType;
 		public virtual IEnumerable<ISaleItem> SaleItems => OrderItems;
-		public virtual IList SaleItemsList => OrderItems;
 		public virtual bool IsSelfDelivery => SelfDelivery;
 		public virtual bool HasDeposits => HasDepositItems();
 		public virtual bool HasNonPaidDeliveries => HasNonPaidDeliveryItems();

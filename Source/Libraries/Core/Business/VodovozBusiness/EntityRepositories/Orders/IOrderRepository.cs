@@ -20,6 +20,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.EntityRepositories.Nodes;
+using VodovozBusiness.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -342,11 +343,9 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// Получение идентификаторов заказов на дату по клиенту и ТД
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="date">Дата доставки заказа</param>
-		/// <param name="counterpartyId">Идентификатор клиента</param>
-		/// <param name="deliveryPointId">Идентификатор ТД</param>
+		/// <param name="data">Данные для проверки</param>
 		/// <returns></returns>
-		IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int? counterpartyId, int? deliveryPointId);
+		IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, CheckClientOrdersForDateNode data);
 
 		/// <summary>
 		/// Получение просроченных задолженностей по контрагентам c открытыми поставками

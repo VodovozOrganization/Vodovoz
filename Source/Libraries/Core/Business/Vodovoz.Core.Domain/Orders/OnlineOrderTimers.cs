@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Sale;
 
 namespace Vodovoz.Core.Domain.Orders
 {
@@ -26,8 +27,10 @@ namespace Vodovoz.Core.Domain.Orders
 		private TimeSpan _timeForTransferToManualProcessingWithFastDelivery;
 		private TimeSpan _timeForWaitingBeforeSendPaymentNotification;
 		private TimeSpan _autoOrderSettingsTime;
+		private TimeSpan _autoOrderSettingsTimeByOperator;
 		private TimeSpan _timeForTransferAutoOrderToManualProcessingFromSettings;
 		private TimeSpan _autoOrderPayTime;
+		private TimeSpan _autoOrderPayTimeByOperator;
 		private TimeSpan _timeForTransferAutoOrderToManualProcessingFromPaying;
 
 		public virtual int Id { get; set; }
@@ -93,6 +96,16 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
+		/// Время для настройки автозаказа
+		/// </summary>
+		[Display(Name = "Время для настройки автозаказа(перевод оператором из карточки онлайн заказа)")]
+		public virtual TimeSpan AutoOrderSettingsTimeByOperator
+		{
+			get => _autoOrderSettingsTimeByOperator;
+			set => SetField(ref _autoOrderSettingsTimeByOperator, value);
+		}
+
+		/// <summary>
 		/// Время для переноса автозаказа на ручную обработку с процесса настройки
 		/// </summary>
 		[Display(Name = "Время для переноса автозаказа на ручную обработку с процесса настройки")]
@@ -102,6 +115,16 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _timeForTransferAutoOrderToManualProcessingFromSettings, value);
 		}
 
+		/// <summary>
+		/// Время для привязки рекуррентной ссылки к автозаказу
+		/// </summary>
+		[Display(Name = "Время для привязки рекуррентной ссылки к автозаказу(перевод оператором из карточки онлайн заказа)")]
+		public virtual TimeSpan AutoOrderPayTimeByOperator
+		{
+			get => _autoOrderPayTimeByOperator;
+			set => SetField(ref _autoOrderPayTimeByOperator, value);
+		}
+		
 		/// <summary>
 		/// Время для привязки рекуррентной ссылки к автозаказу
 		/// </summary>
@@ -120,6 +143,24 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _timeForTransferAutoOrderToManualProcessingFromPaying;
 			set => SetField(ref _timeForTransferAutoOrderToManualProcessingFromPaying, value);
+		}
+		
+		public virtual int AutoOrderTimeSetupInSeconds(OnlineOrderTimestampType? onlineOrderTimestampType)
+		{
+			if(!onlineOrderTimestampType.HasValue)
+			{
+				return 0;
+			}
+			
+			switch(onlineOrderTimestampType)
+			{
+				case OnlineOrderTimestampType.AutoOrderSettingsTime:
+					return (int)AutoOrderSettingsTime.TotalSeconds;
+				case OnlineOrderTimestampType.AutoOrderSettingsTimeByOperator:
+					return (int)AutoOrderSettingsTimeByOperator.TotalSeconds;
+				default:
+					return 0;
+			}
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

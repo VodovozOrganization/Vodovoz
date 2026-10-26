@@ -317,7 +317,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 				if(onlineOrder is null)
 				{
 					_logger.LogWarning("Онлайн заказ с OnlineOrderId {OnlineOrderId} не найден", onlineOrderId.Value);
-					return Result.Failure<(Order, OnlineOrder)>(OnlineOrderErrors.OnlineOrderNotFound);
+					return Result.Failure<(Order, OnlineOrder)>(OnlineOrderErrors.OnlineOrderNotFound());
 				}
 
 				var order = GetActiveOrder(onlineOrder);

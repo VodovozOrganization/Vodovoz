@@ -1,5 +1,6 @@
 ﻿using CustomerOrders.Contracts.V8.Orders.Items;
 using System.Collections.Generic;
+using CustomerOrders.Contracts.V8.Common;
 using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V8.Dto.Orders
@@ -63,5 +64,15 @@ namespace CustomerOrdersApi.Library.V8.Dto.Orders
 		/// Товары/услуги заказа
 		/// </summary>
 		public IList<OnlineOrderItemWithDiscountDetailsDto> OrderItems { get; set; }
+		
+		/// <summary>
+		/// Нужна настройка шаблона автозаказа
+		/// </summary>
+		public bool IsAutoOrderSetupRequired { get; set; }
+		
+		/// <summary>
+		/// Время на настройку шаблона автозаказа
+		/// </summary>
+		public OnlineOrderTimerSetupDto TimerForAutoOrderSetup { get; set; }
 	}
 }

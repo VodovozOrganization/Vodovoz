@@ -6,18 +6,26 @@
 		/// Минимальное значение периодичности повторений по неделям
 		/// </summary>
 		int RepeatEveryWeeksMin { get; }
+
 		/// <summary>
 		/// Максимальное значение периодичности повторений по неделям
 		/// </summary>
 		int RepeatEveryWeeksMax { get; }
+
 		/// <summary>
 		/// Минимальное значение числа месяца для доставок
 		/// </summary>
 		int MonthDayMin { get; }
+
 		/// <summary>
 		/// Максимальное значение числа месяца для доставок
 		/// </summary>
 		int MonthDayMax { get; }
+
+		/// <summary>
+		/// Периодичность повторений по неделям. Значения по умолчанию
+		/// </summary>
+		/// <returns></returns>
 		int[] RepeatEveryWeeksDefault();
 	}
 }

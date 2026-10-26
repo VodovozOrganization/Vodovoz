@@ -217,6 +217,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 
 				return await _customerOrderFactory.CreateDetailedOrderInfo(
 					uow,
+					getDetailedOrderInfoDto.Source,
 					order,
 					orderRating,
 					timers,

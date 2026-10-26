@@ -151,6 +151,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
 				.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
 				.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
+				.AddScoped<IPendingAutoOrderSettingsOnlineOrderHandler, PendingAutoOrderSettingsOnlineOrderHandler>()
 				.AddScoped<ICustomerOrderTransferService, CustomerOrderTransferService>()
 				.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
 				.AddSaleHandlers()
@@ -159,6 +160,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<OrderAddPromoSetValidatorFactory>()
 				.AddScoped<IAddNomenclatureToSaleValidatorFactory, AddNomenclatureToSaleValidatorFactory>()
 				.AddScoped<OrderAddNomenclatureToSaleValidatorFactory>()
+				.AddScoped<ITemplateNextDeliveryDateGenerator, TemplateNextDeliveryDateGenerator>()
 				.TryAddScoped(sp => PermissionsSettings.CurrentPermissionService)
 				;
 

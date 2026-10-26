@@ -22,6 +22,13 @@ namespace CustomerApp.Contracts.Sale.Templates
 				ErpId = erpId,
 				IntervalName = intervalName
 			};
+		
+		public static DeliveryScheduleDto Copy(DeliveryScheduleDto copyingInterval) =>
+			new DeliveryScheduleDto
+			{
+				ErpId = copyingInterval.ErpId,
+				IntervalName = copyingInterval.IntervalName
+			};
 
 		public bool Equals(DeliveryScheduleDto other)
 		{

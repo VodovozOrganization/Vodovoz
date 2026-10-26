@@ -305,10 +305,10 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 			
 			if(await onlineWithNotCancelledOrderByClientQuery.AnyAsync(cancellationToken))
 			{
-				return false;
+				return true;
 			}
 			
-			//сначала проверяем не отмененные заказы на основе онлайнов от искомого пользователя
+			//проверяем не отмененные заказы на основе онлайнов от искомого пользователя
 			var onlineWithNotCancelledOrderByExternalCounterpartyQuery =
 				from order in uow.Session.Query<Order>()
 				join onlineOrder in uow.Session.Query<OnlineOrder>()
@@ -324,7 +324,7 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 			
 			if(await onlineWithNotCancelledOrderByExternalCounterpartyQuery.AnyAsync(cancellationToken))
 			{
-				return false;
+				return true;
 			}
 			
 			//Если не нашли значит их нет или они все отменены. Проверяем только онлайны

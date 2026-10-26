@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Linq;
 using CustomerApp.Contracts.Common;
 using CustomerApp.Contracts.Sale.Templates;
 using CustomerOrders.Contracts.V8.Sale.Templates;
+using CustomerOrdersApi.Library.V8.Repositories;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
@@ -28,6 +32,8 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
 		private readonly IOnlineOrderTemplateRepository _orderTemplateRepository;
+		private readonly ICustomerTemplateRepository _customerTemplateRepository;
+		private readonly CommonDeliverySchedulesService _commonDeliverySchedulesService;
 
 		public TemplateControllerRequestValidator(
 			ILogger<TemplateControllerRequestValidator> logger,
@@ -36,7 +42,9 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 			ICounterpartyRepository counterpartyRepository,
 			IExternalCounterpartyRepository externalCounterpartyRepository,
 			IDeliveryScheduleRepository deliveryScheduleRepository,
-			IOnlineOrderTemplateRepository orderTemplateRepository
+			IOnlineOrderTemplateRepository orderTemplateRepository,
+			ICustomerTemplateRepository customerTemplateRepository,
+			CommonDeliverySchedulesService commonDeliverySchedulesService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -47,6 +55,9 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
 			_deliveryScheduleRepository = deliveryScheduleRepository ?? throw new ArgumentNullException(nameof(deliveryScheduleRepository));
 			_orderTemplateRepository = orderTemplateRepository ?? throw new ArgumentNullException(nameof(orderTemplateRepository));
+			_customerTemplateRepository = customerTemplateRepository ?? throw new ArgumentNullException(nameof(customerTemplateRepository));
+			_commonDeliverySchedulesService =
+				commonDeliverySchedulesService ?? throw new ArgumentNullException(nameof(commonDeliverySchedulesService));
 		}
 		
 		/// <inheritdoc/>
@@ -89,7 +100,38 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 				return checkOrder;
 			}
 			
-			var checkTemplateDeliverySchedule = ValidateTemplateDeliveryScheduleProperties(uow, request);
+			var checkTemplateDeliverySchedule = ValidateTemplateDeliveryScheduleProperties(uow, request.OnlineOrderId, request.Schedule);
+
+			if(checkTemplateDeliverySchedule.IsFailure)
+			{
+				return checkTemplateDeliverySchedule;
+			}
+			
+			return Result.Success();
+		}
+
+		public Result Validate(IUnitOfWork uow, CreateOrderTemplateRequest request)
+		{
+			var counterpartyId = request.ErpCounterpartyId;
+			var externalCounterpartyId = request.ExternalCounterpartyId;
+
+			var checkResult = CheckCommonProperties(uow, request.Source, counterpartyId, externalCounterpartyId, request.OnlineOrderId);
+			
+			if(checkResult.IsFailure)
+			{
+				return checkResult;
+			}
+
+			var checkOrder = ValidateOnlineOrder(uow, request.OnlineOrderId, counterpartyId);
+
+			if(checkOrder.IsFailure)
+			{
+				return checkOrder;
+			}
+			
+			//TODO Стоит ли здесь оставлять проверку по времени deliverySchedule.To < new TimeSpan(11, 0, 0)
+			//т.к. теоретически этот запрос может прийти после нужного момента и срезаться на этом
+			var checkTemplateDeliverySchedule = ValidateTemplateDeliveryScheduleProperties(uow, request.OnlineOrderId, request.Schedule);
 
 			if(checkTemplateDeliverySchedule.IsFailure)
 			{
@@ -113,7 +155,9 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 				return Result.Failure(OnlineOrderErrors.IsOrderTemplateUnavailable);
 			}
 
-			if(_orderTemplateRepository.GetActiveOnlineOrderTemplatesCount(uow, counterpartyId.Value) > ActiveTemplatesMaxCount)
+			//TODO что считаем активным? Ведь теоретически клиент может с разных устройств настраивать несколько автозаказов?
+			if(_orderTemplateRepository
+				.GetActiveOnlineOrderTemplatesCount(uow, counterpartyId.Value) > _templateSettings.GetMaximumNumberActiveOnlineOrderTemplates)
 			{
 				return Result.Failure(OnlineOrderErrors.IsOrderTemplatesLimitExceeded);
 			}
@@ -121,16 +165,20 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 			return Result.Success();
 		}
 
-		private Result ValidateTemplateDeliveryScheduleProperties(IUnitOfWork uow, CheckOrderTemplateRequest request)
+		private Result ValidateTemplateDeliveryScheduleProperties(
+			IUnitOfWork uow,
+			int onlineOrderId,
+			TemplateDeliveryScheduleDto schedule)
 		{
-			if(request.Schedule is null)
+			if(schedule is null)
 			{
 				return Result.Failure(OnlineOrderTemplateApiErrors.IsEmptyExternalCounterparty);
 			}
 			
-			var schedule = request.Schedule;
+			var deliveryScheduleValid = true;
+			ILookup<WeekDayName, DeliveryScheduleDto> scheduleLookup = null;
 
-			if(schedule.Type == TemplateDeliveryScheduleType.Weekly)
+			if(schedule.Type == CustomerTemplateDeliveryScheduleType.Weekly)
 			{
 				if(!schedule.WeekDay.HasValue)
 				{
@@ -148,12 +196,22 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 					return Result.Failure(OnlineOrderTemplateApiErrors.IsScheduleRepeatEveryWeeksInvalid);
 				}
 
+				var firstDeliveryDate = schedule.FirstDeliveryDate;
+
 				if(!schedule.FirstDeliveryDate.HasValue)
 				{
 					return Result.Failure(OnlineOrderTemplateApiErrors.IsEmptyScheduleFirstDeliveryDate);
 				}
+
+				if(firstDeliveryDate <= DateTime.Today)
+				{
+					_logger.LogWarning("Дата первой доставки не может быть раньше или равной сегодня");
+					return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateDateUnavailable);
+				}
 				
-				//проверить допустимость значения
+				scheduleLookup = _customerTemplateRepository.GetWeeklyDeliverySchedules(uow, onlineOrderId);
+				deliveryScheduleValid = scheduleLookup[schedule.WeekDay.Value.ConvertToWeekDayName()]
+					.Any(x => x.ErpId == schedule.DeliveryScheduleId);
 			}
 			else
 			{
@@ -167,21 +225,59 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 				{
 					return Result.Failure(OnlineOrderTemplateApiErrors.IsScheduleMonthDayInvalid);
 				}
+
+				scheduleLookup = _customerTemplateRepository.GetWeeklyDeliverySchedules(uow, onlineOrderId);
+				if(_commonDeliverySchedulesService.ProcessSchedules(scheduleLookup, out var commonDeliverySchedules))
+				{
+					deliveryScheduleValid = commonDeliverySchedules.Any(x => x.ErpId == schedule.DeliveryScheduleId);
+				}
 			}
-			
+
 			var deliverySchedule = _deliveryScheduleRepository.Get(uow, schedule.DeliveryScheduleId);
 
 			if(deliverySchedule is null)
 			{
 				return Result.Failure(OnlineOrderTemplateApiErrors.IsDeliveryScheduleUnknown);
 			}
-			
-			//допустимость значения интервала
-			var deliveryScheduleInvalid = ;
 
-			if(deliveryScheduleInvalid)
+			if(!deliveryScheduleValid)
 			{
 				return Result.Failure(OnlineOrderTemplateApiErrors.IsDeliveryScheduleInvalid);
+			}
+
+			if(deliverySchedule.To < new TimeSpan(11, 0, 0))
+			{
+				if(schedule.Type == CustomerTemplateDeliveryScheduleType.Weekly)
+				{
+					if(schedule.FirstDeliveryDate < DateTime.Today.AddDays(2))
+					{
+						return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateDateUnavailable);
+					}
+				}
+				else
+				{
+					if(schedule.DayOfMonth < DateTime.Today.AddDays(2).Day)
+					{
+						return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateDateUnavailable);
+					}
+				}
+			}
+			else
+			{
+				if(schedule.Type == CustomerTemplateDeliveryScheduleType.Weekly)
+				{
+					if(schedule.FirstDeliveryDate < DateTime.Today.AddDays(3))
+					{
+						return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateDateUnavailable);
+					}
+				}
+				else
+				{
+					if(schedule.DayOfMonth < DateTime.Today.AddDays(3).Day)
+					{
+						return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateDateUnavailable);
+					}
+				}
 			}
 			
 			return Result.Success();

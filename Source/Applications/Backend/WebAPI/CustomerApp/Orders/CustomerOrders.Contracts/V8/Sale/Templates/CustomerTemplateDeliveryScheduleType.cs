@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace CustomerOrders.Contracts.V8.Sale.Templates
 {
 	[JsonConverter(typeof(JsonStringEnumConverter))]
-	public enum TemplateDeliveryScheduleType
+	public enum CustomerTemplateDeliveryScheduleType
 	{
 		/// <summary>
 		/// Недельная(в конкретный день недели)

@@ -26,16 +26,13 @@ namespace Vodovoz.Infrastructure.Persistance.BasicHandbooks
 			return uow.Session.QueryOver<DeliverySchedule>().List<DeliverySchedule>();
 		}
 
-		public INamedDomainObject Get(IUnitOfWork uow, int deliveryScheduleId)
+		public DeliverySchedule Get(IUnitOfWork uow, int deliveryScheduleId)
 		{
 			return (
 				from deliverySchedule in uow.Session.Query<DeliverySchedule>()
 				where deliverySchedule.Id == deliveryScheduleId
-				select new NamedDomainObjectNode
-				{
-					Id = deliverySchedule.Id,
-					Name = deliverySchedule.Name
-				})
+				select deliverySchedule
+				)
 				.FirstOrDefault();
 		}
 

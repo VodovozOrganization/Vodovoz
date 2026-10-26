@@ -31,5 +31,16 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 			IUnitOfWork uow,
 			CheckOrderTemplateRequest request
 		);
+
+		/// <summary>
+		/// Проверка корректности данных запроса создания шаблона автозаказа <see cref="CheckOrderTemplateRequest"/>
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="request">Данные запроса</param>
+		/// <returns>Либо успешный результат, либо с ошибкой <see cref="Result"/></returns>
+		Result Validate(
+			IUnitOfWork uow,
+			CreateOrderTemplateRequest request
+		);
 	}
 }

@@ -5,6 +5,11 @@ namespace Vodovoz.Core.Domain.Extensions
 {
 	public static class WeekDayNameExtensions
 	{
+		public static WeekDayName? ToWeekDayName(this DayOfWeek? dayOfWeek)
+		{
+			return dayOfWeek?.ConvertToWeekDayName();
+		}
+		
 		public static WeekDayName ConvertToWeekDayName(this DayOfWeek dayOfWeek)
 		{
 			switch(dayOfWeek)
@@ -26,6 +31,11 @@ namespace Vodovoz.Core.Domain.Extensions
 				default:
 					throw new NotSupportedException();
 			}
+		}
+
+		public static DayOfWeek? ToDayOfWeek(this WeekDayName? source)
+		{
+			return source?.ToDayOfWeek();
 		}
 		
 		public static DayOfWeek ToDayOfWeek(this WeekDayName source)

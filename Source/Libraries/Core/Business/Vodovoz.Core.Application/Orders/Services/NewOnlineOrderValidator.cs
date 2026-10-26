@@ -5,6 +5,9 @@ using System.Text;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Domain.Interfaces.Orders;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
@@ -19,6 +22,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 	public class NewOnlineOrderValidator : OrderFromOnlineOrderValidator
 	{
 		private readonly ISaleDiscountController _discountController;
+		private readonly IGenericRepository<OnlineOrderTemplate> _templateRepository;
 
 		public NewOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
@@ -29,8 +33,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IFreeLoaderChecker freeLoaderChecker,
 			IOrderOrganizationManager orderOrganizationManager,
 			IOrderSettings orderSettings,
-			IOrderRepository orderRepository
-			)
+			IOrderRepository orderRepository,
+			IGenericRepository<OnlineOrderTemplate> templateRepository)
 			: base(
 				goodsPriceCalculator,
 				deliveryPriceGetter,
@@ -43,9 +47,27 @@ namespace Vodovoz.Core.Application.Orders.Services
 				orderRepository)
 		{
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
+			_templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));
 		}
 		
 		private new OnlineOrderV2 OnlineOrder => base.OnlineOrder as OnlineOrderV2;
+
+		public override Result Validate(IUnitOfWork uow, bool checkPerformedOrders = false)
+		{
+			base.Validate(uow, checkPerformedOrders);
+			
+			if(OnlineOrder.Template != null)
+			{
+				if(OnlineOrder.Template.Status == OnlineOrderTemplateStatus.PaymentProblem)
+				{
+					
+				}
+			}
+			
+			return ValidationResults.Any()
+				? Result.Failure(ValidationResults)
+				: Result.Success();
+		}
 		
 		protected override void ValidatePromoSet(IUnitOfWork uow, IDictionary<int, bool> archivedNomenclatures)
 		{

@@ -1,5 +1,4 @@
 ﻿using CustomerApp.Contracts.Sale;
-using CustomerOrders.Abstractions.V8.Sale;
 using Vodovoz.Core.Domain.Goods;
 
 namespace CustomerOrdersApi.Library.V8.Extensions

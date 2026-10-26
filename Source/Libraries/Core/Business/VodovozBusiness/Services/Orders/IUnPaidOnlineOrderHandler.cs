@@ -12,6 +12,7 @@ namespace VodovozBusiness.Services.Orders
 	{
 		Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IUnitOfWork uow, CancellationToken cancellationToken);
 		Result CanChangePaymentType(IUnitOfWork uow, OnlineOrder onlineOrder);
+
 		Task<Result> TryUpdateOrderAsync(
 			IUnitOfWork uow,
 			IEnumerable<Order> orders,
@@ -23,6 +24,6 @@ namespace VodovozBusiness.Services.Orders
 		/// <summary>
 		/// Отправляет уведомление клиенту о заказе, ожидающем оплаты.
 		/// </summary>
-		Task SendWaitingForPaymentNotificationsAsync(IUnitOfWork uow, CancellationToken cancellationToken); 
+		Task SendWaitingForPaymentNotificationsAsync(IUnitOfWork uow, CancellationToken cancellationToken);
 	}
 }

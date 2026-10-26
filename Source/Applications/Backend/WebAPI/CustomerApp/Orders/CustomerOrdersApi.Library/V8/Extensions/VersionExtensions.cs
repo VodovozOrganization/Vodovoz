@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using CustomerOrders.Contracts.V8.Sale.Templates;
 using CustomerOrdersApi.Library.V8.Factories;
 using CustomerOrdersApi.Library.V8.Services;
 using CustomerOrdersApi.Library.V8.Dto.Orders.RequestsForCall;
@@ -10,7 +11,9 @@ using CustomerOrdersApi.Library.V8.Services.Validators;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
+using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using VodovozBusiness.Domain.Sale.RequestsForCall;
@@ -41,13 +44,17 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 				.AddScoped<IDeliveryRulesConditionsCreator, DeliveryRulesConditionsCreator>()
 				.AddScoped<IAdditionalConditionsFactory, AdditionalConditionsFactory>()
 				.AddScoped<IOnlineOrderTemplateConditionsCreator, OnlineOrderTemplateConditionsCreator>()
-				.AddScoped<IOnlineOrderTemplateFromOnlineOrderValidator, OnlineOrderTemplateFromOnlineOrderValidator>()
+				.AddScoped<ICanCreateTemplateFromOnlineOrderValidator, CanCreateTemplateFromOnlineOrderValidator>()
 				.AddScoped<IRepeatEveryWeeksConverter, RepeatEveryWeeksConverter>()
 				.AddScoped<ITemplateDeliveryScheduleDescriptionFactory, TemplateDeliveryScheduleDescriptionFactory>()
 				.AddScoped<ITemplateControllerRequestValidator, TemplateControllerRequestValidator>()
 				.AddScoped<IRepeatTemplateEveryWeeksFactory, RepeatTemplateEveryWeeksFactory>()
 				.AddScoped<IRepeatTemplateEveryMonthFactory, RepeatTemplateEveryMonthFactory>()
-				.AddScoped<IOnlineTemplateRepository, OnlineTemplateRepository>()
+				.AddScoped<ICustomerTemplateFactory, CustomerTemplateFactory>()
+				.AddScoped<ICustomerTemplateRepository, CustomerTemplateRepository>()
+				.AddScoped<CommonDeliverySchedulesService>()
+				.AddScoped<CustomerTemplateService>()
+				.AddScoped<OnlineOrderTemplateCreator>()
 				.AddCommonDependencies()
 				.AddPaymentRefundServices()
 				;
@@ -112,7 +119,19 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 				UnPaidReason = source.UnPaidReason,
 				DeliveryDate = source.DeliveryDate,
 				DeliveryScheduleId = source.DeliveryScheduleId,
-				TransactionId = source.TransactionId
+				TransactionId = source.TransactionId,
+				RecurrentPayment = source.RecurrentPayment.ToRecurrentPaymentData()
+			};
+		}
+
+		private static TemplateRecurrentPaymentData ToRecurrentPaymentData(this TemplateRecurrentPaymentDto recurrentPaymentDto)
+		{
+			return new TemplateRecurrentPaymentData
+			{
+				AccountId = recurrentPaymentDto.AccountId,
+				Token = recurrentPaymentDto.Token,
+				CardLastFour = recurrentPaymentDto.CardLastFour,
+				CardType = recurrentPaymentDto.CardType
 			};
 		}
 

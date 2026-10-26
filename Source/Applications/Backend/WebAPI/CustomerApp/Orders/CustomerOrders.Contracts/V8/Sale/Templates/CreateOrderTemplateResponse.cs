@@ -1,4 +1,5 @@
 ﻿using System;
+using CustomerOrders.Contracts.V8.Common;
 
 namespace CustomerOrders.Contracts.V8.Sale.Templates
 {
@@ -20,7 +21,7 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		/// <summary>
 		/// Статус заказа
 		/// </summary>
-		public OnlineOrderStatus Status { get; set; }
+		public TemplateStatusDto Status { get; set; }
 
 		/// <summary>
 		/// Дата следующей доставки
@@ -30,7 +31,7 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		/// <summary>
 		/// Способ оплаты
 		/// </summary>
-		public TemplatePaymentType PaymentMethod { get; set; }
+		public TemplatePaymentType PaymentMethod { get; protected set; }
 
 		/// <summary>
 		/// Требуется ли оплата
@@ -38,13 +39,26 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		public bool IsPaymentRequired { get; set; }
 
 		/// <summary>
-		/// Таймер до истечения времени на оплату (в секундах)
+		/// Метка для оплаты автозаказа <see cref="OnlineOrderTimerSetupDto"/>
 		/// </summary>
-		public int TimerForPaySeconds { get; set; }
+		public OnlineOrderTimerSetupDto TimerForPaySeconds { get; set; }
 
 		/// <summary>
 		/// Сумма заказа
 		/// </summary>
 		public decimal OrderSum { get; set; }
+		
+		public void SetPaymentMethod(
+			TemplatePaymentType paymentMethod,
+			OnlineOrderTimerSetupDto timeStamp)
+		{
+			PaymentMethod = paymentMethod;
+			IsPaymentRequired = paymentMethod == TemplatePaymentType.Online || paymentMethod == TemplatePaymentType.Sbp;
+
+			if(IsPaymentRequired)
+			{
+				TimerForPaySeconds = timeStamp;
+			}
+		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace CustomerApp.Contracts.Sale.Templates
 {
@@ -12,6 +13,7 @@ namespace CustomerApp.Contracts.Sale.Templates
 		/// <summary>
 		/// День недели
 		/// </summary>
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public DayOfWeek WeekDay { get; set; }
 		/// <summary>
 		/// Доступность

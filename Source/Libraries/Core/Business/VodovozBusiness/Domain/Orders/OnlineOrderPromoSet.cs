@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 
 namespace VodovozBusiness.Domain.Orders
 {
@@ -14,7 +15,7 @@ namespace VodovozBusiness.Domain.Orders
 		PrepositionalPlural = "Промонаборах онлайн заказа"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderPromoSet : PropertyChangedBase, IDomainObject
+	public class OnlineOrderPromoSet : PropertyChangedBase, IDomainObject, ICalculatingTotalMoneyDiscount
 	{
 		private int _receivedPromoSetId;
 		private decimal _count = -1;
@@ -97,6 +98,15 @@ namespace VodovozBusiness.Domain.Orders
 		/// Название промонабора
 		/// </summary>
 		public virtual string PromoSetName => PromoSet?.Name;
+
+		/// <inheritdoc/>
+		public virtual decimal CurrentRawPrice => PromoSet?.SumWithoutDiscount() ?? 0m;
+
+		/// <inheritdoc/>
+		IEnumerable<DiscountReasonBase> IDiscountReasons.DiscountReasons => DiscountReasons;
+
+		/// <inheritdoc/>
+		public virtual PersonalDiscount PersonalDiscount => null;
 
 		public static OnlineOrderPromoSet Create(
 			int promoSetId,

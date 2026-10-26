@@ -5,7 +5,9 @@ using CustomerApp.Contracts.Sale;
 using CustomerOrdersApi.Library.V8.Dto.Orders;
 using CustomerOrdersApi.Library.V8.Dto.Orders.OrderItem;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -73,12 +75,25 @@ namespace CustomerOnlineOrdersRegistrar.V8.Factories
 				onlineOrder.IsFastDelivery = true;
 			}
 
-			onlineOrder.SetStatus(creatingOnlineOrder.IsAutoOrderEnabled);
-
 			UpdateOnlineComment(onlineOrder, creatingOnlineOrder.OnlineOrderComment);
 			InitializeOnlineOrderReferences(uow, onlineOrder, creatingOnlineOrder);
 			CreateAndAddItems(uow, onlineOrder, creatingOnlineOrder.OnlineOrderItems);
-			onlineOrder.Created = DateTime.Now;
+
+			var now = DateTime.Now;
+			var onlineOrderTimers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
+
+			if(onlineOrderTimers is null)
+			{
+				throw new InvalidOperationException($"Не найдены временные метки для онлайн заказа, проверьте {nameof(OnlineOrderTimers)}");
+			}
+			
+			onlineOrder.Created = now;
+			onlineOrder.SetStatus(
+				creatingOnlineOrder.IsAutoOrderEnabled,
+				(int)onlineOrderTimers.AutoOrderSettingsTime.TotalSeconds,
+				now,
+				OnlineOrderTimestampType.AutoOrderSettingsTime
+				);
 
 			return onlineOrder;
 		}

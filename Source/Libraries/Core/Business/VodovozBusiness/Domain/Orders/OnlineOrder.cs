@@ -4,9 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Clients;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
+using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -70,7 +73,10 @@ namespace Vodovoz.Domain.Orders
 		private IList<OnlineOrderOperatorComments> _operatorComments = new List<OnlineOrderOperatorComments>();
 		private DateTime? _nextCallDateChanged;
 		private bool _hasService;
-		private int? _templateId;
+		private bool _isAutoOrderEnabled;
+		private OnlineOrderTemplate _template;
+		private OnlineOrderTimestamp _templateSetupStartTime;
+		private OnlineOrderTimestamp _templatePayStartTime;
 
 		public virtual int Id { get; set; }
 		
@@ -367,11 +373,21 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Идентификатор шаблона
 		/// </summary>
-		[Display(Name = "Идентификатор шаблона")]
-		public virtual int? TemplateId
+		[Display(Name = "Шаблон автозакза")]
+		public virtual OnlineOrderTemplate Template
 		{
-			get => _templateId;
-			set => SetField(ref _templateId, value);
+			get => _template;
+			set => SetField(ref _template, value);
+		}
+		
+		/// <summary>
+		/// Включен автозаказ
+		/// </summary>
+		[Display(Name = "Включен автозаказ")]
+		public virtual bool IsAutoOrderEnabled
+		{
+			get => _isAutoOrderEnabled;
+			set => SetField(ref _isAutoOrderEnabled, value);
 		}
 
 		/// <summary>
@@ -380,6 +396,24 @@ namespace Vodovoz.Domain.Orders
 		public abstract OnlineOrderVersion OrderVersion { get; }
 		
 		public virtual IEnumerable<ISaleItem> SaleItems => OnlineOrderItems;
+
+		/// <summary>
+		/// Метка отсчета для настройки автозаказа
+		/// </summary>
+		public virtual OnlineOrderTimestamp TemplateSetupStartTime
+		{
+			get => _templateSetupStartTime;
+			set => SetField(ref _templateSetupStartTime, value);
+		}
+
+		/// <summary>
+		/// Метка отсчета для оплаты автозаказа(привязки рекуррентной ссылки)
+		/// </summary>
+		public virtual OnlineOrderTimestamp TemplatePayStartTime
+		{
+			get => _templatePayStartTime;
+			set => SetField(ref _templatePayStartTime, value);
+		}
 
 		/// <summary>
 		/// Заказ не оплачен онлайн и время на оплату не истекло
@@ -422,6 +456,19 @@ namespace Vodovoz.Domain.Orders
 				&& secondsFromCreated < timeToTransferToManualProcessing;
 		}
 
+		public virtual bool TemplateSetupTimeIsUp(OnlineOrderTimers timers)
+		{
+			if(TemplateSetupStartTime is null)
+			{
+				return true;
+			}
+
+			var timeToSetupInSeconds = timers.AutoOrderTimeSetupInSeconds(TemplateSetupStartTime.OnlineOrderTimestampType);
+			
+			return OnlineOrderStatus == OnlineOrderStatus.PendingAutoOrderSettings
+				&& (DateTime.Now - TemplateSetupStartTime.StartTime).TotalSeconds >= timeToSetupInSeconds;
+		}
+
 		public virtual void SetOrderPerformed(IEnumerable<Order> orders, Employee employee = null)
 		{
 			if(employee != null)
@@ -437,26 +484,35 @@ namespace Vodovoz.Domain.Orders
 			OnlineOrderStatus = OnlineOrderStatus.OrderPerformed;
 		}
 
-		public virtual void UpdateOnlineOrder(DeliverySchedule deliverySchedule, UpdateOnlineOrderFromChangeRequest data)
+		public virtual void UpdateOnlineOrder(IUnitOfWork uow, DeliverySchedule deliverySchedule, UpdateOnlineOrderFromChangeRequest data)
 		{
 			UpdateOnlineOrderPaymentData(
-					data.OnlineOrderPaymentType, data.OnlinePaymentSource, data.PaymentStatus, data.UnPaidReason, data.OnlinePayment);
+					uow,
+					data.OnlineOrderPaymentType,
+					data.OnlinePaymentSource,
+					data.PaymentStatus,
+					data.UnPaidReason,
+					data.OnlinePayment,
+					data.RecurrentPayment
+					);
 			UpdateOnlineOrderDeliveryData(deliverySchedule, data.DeliveryScheduleId, data.DeliveryDate, data.IsFastDelivery);
 		}
 		
 		public virtual void UpdateOnlineOrderPaymentData(
+			IUnitOfWork uow,
 			OnlineOrderPaymentType? paymentType,
 			OnlinePaymentSource? paymentSource,
 			OnlineOrderPaymentStatus? paymentStatus,
 			string unPaidReason,
-			int? onlinePayment
+			int? onlinePayment,
+			TemplateRecurrentPaymentData recurrentPaymentData
 		)
 		{
 			if(paymentType is null || paymentStatus is null)
 			{
 				return;
 			}
-			
+
 			OnlineOrderPaymentType = paymentType.Value;
 			OnlinePaymentSource = paymentSource;
 			OnlineOrderPaymentStatus = paymentStatus.Value;
@@ -468,13 +524,28 @@ namespace Vodovoz.Domain.Orders
 				ClearPaymentDataWithReason();
 				return;
 			}
-			
+
 			if(paymentStatus == OnlineOrderPaymentStatus.Paid)
 			{
 				if(OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
 				{
 					OnlineOrderStatus = OnlineOrderStatus.New;
 				}
+
+				if(Template != null
+					&& recurrentPaymentData != null
+					&& !string.IsNullOrWhiteSpace(recurrentPaymentData.Token))
+				{
+					var recurrentPayment = OnlineOrderTemplate.CreateRecurrentPayment(
+						Source,
+						Template.Id,
+						ExternalCounterpartyId,
+						recurrentPaymentData
+					);
+					
+					uow.Save(recurrentPayment);
+				}
+				
 				UnPaidReason = null;
 			}
 			else
@@ -501,10 +572,30 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public virtual bool TryMoveToManualProcessingWithoutPaymentByUnPaidReason(
-			double timeToTransferInSeconds,
+			OnlineOrderTimers orderTimers,
 			string message)
 		{
-			if((DateTime.Now - Created).TotalSeconds >= timeToTransferInSeconds)
+			var timeToTransferInSeconds = 0d;
+			var created = Created;
+			
+			if(IsFastDelivery)
+			{
+				timeToTransferInSeconds = orderTimers.TimeForTransferToManualProcessingWithFastDelivery.TotalSeconds;
+			}
+			else
+			{
+				if(Template != null)
+				{
+					timeToTransferInSeconds = orderTimers.TimeForTransferAutoOrderToManualProcessingFromPaying.TotalSeconds;
+					created = Template.CreatedAt;
+				}
+				else
+				{
+					timeToTransferInSeconds = orderTimers.TimeForTransferToManualProcessingWithoutFastDelivery.TotalSeconds;
+				}
+			}
+			
+			if((DateTime.Now - created).TotalSeconds >= timeToTransferInSeconds)
 			{
 				if(OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid)
 				{
@@ -524,6 +615,26 @@ namespace Vodovoz.Domain.Orders
 		public override string ToString()
 		{
 			return Id > 0 ? $"{OnlineOrderName} №{Id} от {_deliveryDate:d}" : $"Новый {OnlineOrderName.ToLower()}";
+		}
+		
+		public virtual void ToSetupTemplate(
+			int timeToSetupInSeconds,
+			OnlineOrderTimestampType onlineOrderTimestampType,
+			DateTime? startTime = null)
+		{
+			//TODO-6115 сделать различные проверки, чтобы нельзя было перевести в настройку не в тех состояниях
+			OnlineOrderStatus = OnlineOrderStatus.PendingAutoOrderSettings;
+			TemplateSetupStartTime = OnlineOrderTimestamp.Create(startTime ?? DateTime.Now, timeToSetupInSeconds, onlineOrderTimestampType);
+		}
+		
+		public virtual void ToPayTemplate(
+			int timeToPayInSeconds,
+			OnlineOrderTimestampType onlineOrderTimestampType)
+		{
+			//TODO-6115 сделать различные проверки, чтобы нельзя было перевести на оплату не в тех состояниях
+			OnlineOrderStatus = OnlineOrderStatus.WaitingForPayment;
+			TemplateSetupStartTime = null;
+			TemplatePayStartTime = OnlineOrderTimestamp.Create(DateTime.Now, timeToPayInSeconds, onlineOrderTimestampType);
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

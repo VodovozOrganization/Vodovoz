@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using CustomerApp.Contracts.Sale;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Specifications;
 using VodovozBusiness.Domain.Orders.Cart;

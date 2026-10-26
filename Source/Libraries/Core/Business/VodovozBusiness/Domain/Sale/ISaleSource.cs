@@ -38,10 +38,6 @@ namespace VodovozBusiness.Domain.Sale
 		/// </summary>
 		bool HasNonPaidDeliveries { get; }
 		/// <summary>
-		/// Список позиций на продажу
-		/// </summary>
-		IList SaleItemsList { get; }
-		/// <summary>
 		/// Есть права на альтернативную цену
 		/// </summary>
 		bool HasPermissionsForAlternativePrice { get; }

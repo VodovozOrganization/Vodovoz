@@ -4,7 +4,7 @@ using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.V8.Services.Validators
 {
-	public interface IOnlineOrderTemplateFromOnlineOrderValidator
+	public interface ICanCreateTemplateFromOnlineOrderValidator
 	{
 		Result Validate(IUnitOfWork uow, ICanCreateOnlineOrderTemplate canCreateTemplate);
 	}

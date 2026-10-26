@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
@@ -11,6 +12,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IEnumerable<OnlineOrder> GetOnlineOrdersDuplicates(IUnitOfWork uow, OnlineOrder currentOnlineOrder, DateTime? createdAt = null);
 		OnlineOrder GetOnlineOrderById(IUnitOfWork uow, int onlineOrderId);
 		IEnumerable<OnlineOrder> GetWaitingForPaymentOnlineOrders(IUnitOfWork uow);
+
 		/// <summary>
 		/// Проверка существования онлайн заказа в БД
 		/// </summary>
@@ -18,6 +20,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="onlineOderId">Идентификатор онлайн заказа</param>
 		/// <returns>true - существует, false - нет</returns>
 		bool OnlineOrderExists(IUnitOfWork uow, int onlineOderId);
+
 		/// <summary>
 		/// Проверяет, что онлайн заказ принадлежит контрагенту
 		/// </summary>
@@ -26,6 +29,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="counterpartyId">Идентификатор клиента</param>
 		/// <returns></returns>
 		bool OnlineOrderFromCounterparty(IUnitOfWork uow, int onlineOrderId, int? counterpartyId);
+
 		/// <summary>
 		/// Включен автозаказ у онлайн заказа
 		/// </summary>
@@ -33,5 +37,20 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="onlineOrderId">Идентификатор онлайн заказа</param>
 		/// <returns></returns>
 		bool IsAutoOrderEnabled(IUnitOfWork uow, int onlineOrderId);
+
+		/// <summary>
+		/// Получение даты доставки онлайн заказа
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="onlineOrderId">Идентификатор онлайн заказа</param>
+		/// <returns></returns>
+		DateTime GetOnlineOrderDeliveryDate(IUnitOfWork uow, int onlineOrderId);
+
+		/// <summary>
+		/// Получение онлайн заказов в статусе ожидании настройки автозаказа
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <returns></returns>
+		IEnumerable<OnlineOrder> GetPendingAutoOrderSettingsOnlineOrders(IUnitOfWork uow);
 	}
 }

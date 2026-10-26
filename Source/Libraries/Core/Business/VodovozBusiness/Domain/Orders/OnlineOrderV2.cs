@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders.Delivery;
 
@@ -8,18 +10,7 @@ namespace VodovozBusiness.Domain.Orders
 {
 	public class OnlineOrderV2 : OnlineOrder, IOnlineOrderV2FreeDeliveryPrice
 	{
-		private bool _isAutoOrderEnabled;
 		private IList<OnlineOrderPromoSet> _promoSets = new List<OnlineOrderPromoSet>();
-		
-		/// <summary>
-		/// Включен автозаказ
-		/// </summary>
-		[Display(Name = "Включен автозаказ")]
-		public virtual bool IsAutoOrderEnabled
-		{
-			get => _isAutoOrderEnabled;
-			set => SetField(ref _isAutoOrderEnabled, value);
-		}
 		
 		/// <summary>
 		/// Промонаборы
@@ -36,11 +27,16 @@ namespace VodovozBusiness.Domain.Orders
 
 		public virtual IEnumerable<OnlineOrderPromoSet> OnlinePromoSets => PromoSets;
 
-		public void SetStatus(bool isAutoOrderEnabled)
+		public virtual void SetStatus(
+			bool isAutoOrderEnabled,
+			int timeToTemplateSetupInSeconds,
+			DateTime creatingOn,
+			OnlineOrderTimestampType onlineOrderTimestampType
+			)
 		{
 			if(isAutoOrderEnabled)
 			{
-				OnlineOrderStatus = OnlineOrderStatus.PendingAutoOrderSettings;
+				ToSetupTemplate(timeToTemplateSetupInSeconds, onlineOrderTimestampType, creatingOn);
 			}
 			else
 			{

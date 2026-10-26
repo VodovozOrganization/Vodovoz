@@ -27,14 +27,14 @@ namespace CustomerOrdersApi.Library.V8.Services
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IDiscountReasonSettings _discountReasonSettings;
 		private readonly IApplicablePromotionFactory _applicablePromotionFactory;
-		private readonly IOnlineOrderTemplateFromOnlineOrderValidator _templateFromOnlineOrderValidator;
+		private readonly ICanCreateTemplateFromOnlineOrderValidator _templateFromOnlineOrderValidator;
 
 		public OnlineOrderDiscountHandler(
 			ILogger<OnlineOrderDiscountHandler> logger,
 			IDiscountReasonRepository discountReasonRepository,
 			IDiscountReasonSettings discountReasonSettings,
 			IApplicablePromotionFactory applicablePromotionFactory,
-			IOnlineOrderTemplateFromOnlineOrderValidator templateFromOnlineOrderValidator
+			ICanCreateTemplateFromOnlineOrderValidator templateFromOnlineOrderValidator
 			)
 			: base(logger, discountReasonSettings)
 		{
@@ -233,9 +233,9 @@ namespace CustomerOrdersApi.Library.V8.Services
 
 			if(requestData.Apply)
 			{
-				var caCreateTemplate = _templateFromOnlineOrderValidator.Validate(uow, requestData);
+				var canCreateTemplate = _templateFromOnlineOrderValidator.Validate(uow, requestData);
 
-				if(caCreateTemplate.IsFailure)
+				if(canCreateTemplate.IsFailure)
 				{
 					return Result.Failure<IEnumerable<IOrderedCartItemWithDiscountDetails>>(DiscountErrors.DiscountNotAllowed);
 				}

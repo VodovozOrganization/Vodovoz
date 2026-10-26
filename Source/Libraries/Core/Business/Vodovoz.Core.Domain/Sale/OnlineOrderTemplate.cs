@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Payments;
 
 namespace Vodovoz.Core.Domain.Sale
 {
@@ -27,13 +29,11 @@ namespace Vodovoz.Core.Domain.Sale
 		private bool _isSelfDelivery;
 		private bool _isFastDelivery;
 		private string _contactPhone;
-		private OnlineOrderDeliveryFrequency _deliveryFrequency;
 		private OnlineOrderPaymentType _paymentType;
 		private bool _isNeedConfirmationByCall;
 		private bool _dontArriveBeforeInterval;
 		private int _counterpartyId;
 		private int _deliveryPointId;
-		private int _deliveryScheduleId;
 		private int _authorId;
 		private int? _selfDeliveryGeoGroupId;
 		private int? _callBeforeArrivalMinutes;
@@ -41,7 +41,9 @@ namespace Vodovoz.Core.Domain.Sale
 		private int? _trifle;
 		private string _comment;
 		private IObservableList<int> _templateProducts = new ObservableList<int>();
-		private IObservableList<int> _weekdays = new ObservableList<int>();
+		private TemplateDeliveryScheduleData _schedule;
+		private OnlineOrderTemplateStatus _status;
+		private OnlineRecurrentPayment _recurrentPayment;
 
 		public OnlineOrderTemplate() { }
 		
@@ -51,7 +53,6 @@ namespace Vodovoz.Core.Domain.Sale
 			Guid? externalCounterpartyId,
 			int counterpartyId,
 			int deliveryPointId,
-			int deliveryScheduleId,
 			bool isSelfDelivery,
 			int? selfDeliveryGeoGroupId,
 			bool isFastDelivery,
@@ -59,10 +60,10 @@ namespace Vodovoz.Core.Domain.Sale
 			bool dontArriveBeforeInterval,
 			int? callBeforeArrivalMinutes,
 			int? bottlesReturn,
-			OnlineOrderDeliveryFrequency deliveryFrequency,
 			OnlineOrderPaymentType paymentType,
 			string contactPhone,
 			string comment,
+			TemplateDeliveryScheduleData schedule,
 			int? trifle)
 		{
 			Source = source;
@@ -78,14 +79,15 @@ namespace Vodovoz.Core.Domain.Sale
 			DontArriveBeforeInterval = dontArriveBeforeInterval;
 			CounterpartyId = counterpartyId;
 			DeliveryPointId = deliveryPointId;
-			DeliveryScheduleId = deliveryScheduleId;
 			CallBeforeArrivalMinutes = callBeforeArrivalMinutes;
 			BottlesReturn = bottlesReturn;
-			DeliveryFrequency = deliveryFrequency;
 			PaymentType = paymentType;
 			ContactPhone = contactPhone;
 			Comment = comment;
+			Schedule = schedule;
 			Trifle = trifle;
+			
+			UpdateStateByPaymentType();
 		}
 
 		/// <summary>
@@ -162,16 +164,6 @@ namespace Vodovoz.Core.Domain.Sale
 			get => _isFastDelivery;
 			set => SetField(ref _isFastDelivery, value);
 		}
-
-		/// <summary>
-		/// Периодичность доставки
-		/// </summary>
-		[Display(Name = "Периодичность доставки")]
-		public virtual OnlineOrderDeliveryFrequency DeliveryFrequency
-		{
-			get => _deliveryFrequency;
-			set => SetField(ref _deliveryFrequency, value);
-		}
 		
 		/// <summary>
 		/// Тип оплаты
@@ -182,7 +174,17 @@ namespace Vodovoz.Core.Domain.Sale
 			get => _paymentType;
 			set => SetField(ref _paymentType, value);
 		}
-		
+
+		/// <summary>
+		/// Данные по доставке автозаказа
+		/// </summary>
+		[Display(Name = "Данные по доставке автозаказа")]
+		public virtual TemplateDeliveryScheduleData Schedule
+		{
+			get => _schedule;
+			set => SetField(ref _schedule, value);
+		}
+
 		/// <summary>
 		/// Отзвон за
 		/// </summary>
@@ -252,16 +254,6 @@ namespace Vodovoz.Core.Domain.Sale
 			get => _deliveryPointId;
 			set => SetField(ref _deliveryPointId, value);
 		}
-
-		/// <summary>
-		/// Идентификатор интервала доставки
-		/// </summary>
-		[Display(Name = "Идентификатор интервала доставки")]
-		public virtual int DeliveryScheduleId
-		{
-			get => _deliveryScheduleId;
-			set => SetField(ref _deliveryScheduleId, value);
-		}
 		
 		/// <summary>
 		/// Идентификатор автора шаблона
@@ -314,37 +306,30 @@ namespace Vodovoz.Core.Domain.Sale
 		}
 
 		/// <summary>
-		/// Дни недели
+		/// Рекуррентный платеж
 		/// </summary>
-		[Display(Name = "Дни недели")]
-		public virtual IObservableList<int> Weekdays
+		[Display(Name = "Рекуррентный платеж")]
+		public virtual OnlineRecurrentPayment RecurrentPayment
 		{
-			get => _weekdays;
-			set => SetField(ref _weekdays, value);
+			get => _recurrentPayment;
+			set => SetField(ref _recurrentPayment, value);
 		}
 
 		/// <summary>
 		/// Обновление состояния шаблона
 		/// </summary>
-		/// <param name="isActive">Признак активности</param>
-		/// <param name="isArchive">Признак архивности</param>
-		public virtual void UpdateState(bool isActive, bool isArchive)
+		public virtual void UpdateStateByPaymentType()
 		{
-			if(isArchive)
-			{
-				Archive();
-			}
-			else if(IsArchive)
-			{
-				// возможно стоит ответить, что нельзя разархивировать
-			}
-			else
-			{
-				IsActive = isActive;
-			}
+			Status = PostPayments.Contains(PaymentType)
+				? OnlineOrderTemplateStatus.Active
+				: OnlineOrderTemplateStatus.AwaitingPayment;
 		}
-		
-		public virtual OnlineOrderTemplateStatus Status => IsActive ? OnlineOrderTemplateStatus.Active : OnlineOrderTemplateStatus.Inactive;
+
+		public virtual OnlineOrderTemplateStatus Status
+		{
+			get => _status;
+			set => SetField(ref _status, value);
+		}
 
 		public override string ToString()
 		{
@@ -356,11 +341,16 @@ namespace Vodovoz.Core.Domain.Sale
 			return $"{TemplateTitle} №{Id}";
 		}
 
-		private void Archive()
+		public virtual void Archive()
 		{
-			IsArchive = true;
-			IsActive = false;
+			Status = OnlineOrderTemplateStatus.Archived;
 		}
+
+		public static OnlineOrderPaymentType[] PostPayments => new OnlineOrderPaymentType[]
+		{
+			OnlineOrderPaymentType.Cash,
+			OnlineOrderPaymentType.Terminal
+		};
 		
 		public static OnlineOrderTemplate Create(
 			Source source,
@@ -368,7 +358,6 @@ namespace Vodovoz.Core.Domain.Sale
 			Guid? externalCounterpartyId,
 			int counterpartyId,
 			int deliveryPointId,
-			int deliveryScheduleId,
 			bool isSelfDelivery,
 			int? selfDeliveryGeoGroupId,
 			bool isFastDelivery,
@@ -376,10 +365,10 @@ namespace Vodovoz.Core.Domain.Sale
 			bool dontArriveBeforeInterval,
 			int? callBeforeArrivalMinutes,
 			int? bottlesReturn,
-			OnlineOrderDeliveryFrequency deliveryFrequency,
 			OnlineOrderPaymentType paymentType,
 			string contactPhone,
 			string comment,
+			TemplateDeliveryScheduleData schedule,
 			int? trifle
 			) => new OnlineOrderTemplate(
 				source,
@@ -387,7 +376,6 @@ namespace Vodovoz.Core.Domain.Sale
 				externalCounterpartyId,
 				counterpartyId,
 				deliveryPointId,
-				deliveryScheduleId,
 				isSelfDelivery,
 				selfDeliveryGeoGroupId,
 				isFastDelivery,
@@ -395,10 +383,156 @@ namespace Vodovoz.Core.Domain.Sale
 				dontArriveBeforeInterval,
 				callBeforeArrivalMinutes,
 				bottlesReturn,
-				deliveryFrequency,
 				paymentType,
 				contactPhone,
 				comment,
+				schedule,
 				trifle);
+
+		public static OnlineRecurrentPayment CreateRecurrentPayment(
+			Source source,
+			int templateId,
+			Guid? externalCounterpartyId,
+			TemplateRecurrentPaymentData recurrentData)
+			=> OnlineRecurrentPayment.Create(source, templateId, externalCounterpartyId, recurrentData);
+	}
+
+	public enum TemplateDeliveryScheduleType
+	{
+		Weekly,
+		Monthly
+	}
+
+	public class TemplateDeliveryScheduleData : PropertyChangedBase
+	{
+		private TemplateDeliveryScheduleType _deliveryScheduleType;
+		private WeekDayName? _weekday;
+		private int? _repeatEveryWeeks;
+		private DateTime? _firstDeliveryDate;
+		private int? _dayOfMonth;
+		private int _deliveryScheduleId;
+		
+		protected TemplateDeliveryScheduleData() { }
+
+		protected TemplateDeliveryScheduleData(
+			TemplateDeliveryScheduleType scheduleType,
+			int deliveryScheduleId,
+			WeekDayName? weekday,
+			int? repeatEveryWeeks,
+			DateTime? firstDeliveryDate,
+			int? dayOfMonth
+			)
+		{
+			ScheduleType = scheduleType;
+			DeliveryScheduleId = deliveryScheduleId;
+			Weekday = weekday;
+			RepeatEveryWeeks = repeatEveryWeeks;
+			FirstDeliveryDate = firstDeliveryDate;
+			DayOfMonth = dayOfMonth;
+			
+			CheckInitializedProperties();
+		}
+
+		private void CheckInitializedProperties()
+		{
+			if(ScheduleType == TemplateDeliveryScheduleType.Weekly)
+			{
+				if(!_weekday.HasValue)
+				{
+					throw new ArgumentNullException(
+						nameof(Weekday),
+						"Для недельной периодичности обязательно должен быть заполнен день недели!");
+				}
+				
+				if(!_repeatEveryWeeks.HasValue)
+				{
+					throw new ArgumentNullException(
+						nameof(RepeatEveryWeeks),
+						"Для недельной периодичности обязательно должна быть заполнена периодичность!");
+				}
+				
+				if(!_firstDeliveryDate.HasValue)
+				{
+					throw new ArgumentNullException(
+						nameof(FirstDeliveryDate),
+						"Для недельной периодичности обязательно должна быть заполнена дата первой поставки!");
+				}
+			}
+			else
+			{
+				if(!_dayOfMonth.HasValue)
+				{
+					throw new ArgumentNullException(
+						nameof(DayOfMonth),
+						"Для месячной периодичности обязательно должно быть заполнено число месяца!");
+				}
+			}
+		}
+
+		public virtual TemplateDeliveryScheduleType ScheduleType
+		{
+			get => _deliveryScheduleType;
+			protected set => SetField(ref _deliveryScheduleType, value);
+		}
+		
+		/// <summary>
+		/// День недели
+		/// </summary>
+		[Display(Name = "День недели")]
+		public virtual WeekDayName? Weekday
+		{
+			get => _weekday;
+			protected set => SetField(ref _weekday, value);
+		}
+
+		/// <summary>
+		/// Повторы через определенное количество недель
+		/// Доступно только при недельном типе доставки <see cref="TemplateDeliveryScheduleType.Weekly"/> 
+		/// 1 - каждую неделю
+		/// 2 - раз в две недели
+		/// 3 - раз в три недели и т.д.
+		/// </summary>
+		public virtual int? RepeatEveryWeeks
+		{
+			get => _repeatEveryWeeks;
+			protected set => SetField(ref _repeatEveryWeeks, value);
+		}
+
+		/// <summary>
+		/// Дата первой доставки по автозаказу
+		/// </summary>
+		public virtual DateTime? FirstDeliveryDate
+		{
+			get => _firstDeliveryDate;
+			protected set => SetField(ref _firstDeliveryDate, value);
+		}
+
+		/// <summary>
+		/// Число месяца
+		/// Доступно только при месячном типе доставки <see cref="TemplateDeliveryScheduleType.Monthly"/>
+		/// </summary>
+		public virtual int? DayOfMonth
+		{
+			get => _dayOfMonth;
+			protected set => SetField(ref _dayOfMonth, value);
+		}
+
+		/// <summary>
+		/// Идентификатор интервала доставки
+		/// </summary>
+		public virtual int DeliveryScheduleId
+		{
+			get => _deliveryScheduleId;
+			set => SetField(ref _deliveryScheduleId, value);
+		}
+
+		public static TemplateDeliveryScheduleData Create(
+			TemplateDeliveryScheduleType scheduleType,
+			int deliveryScheduleId,
+			WeekDayName? weekday,
+			int? repeatEveryWeeks,
+			DateTime? firstDeliveryDate,
+			int? dayOfMonth) =>
+			new TemplateDeliveryScheduleData(scheduleType, deliveryScheduleId, weekday, repeatEveryWeeks, firstDeliveryDate, dayOfMonth);
 	}
 }

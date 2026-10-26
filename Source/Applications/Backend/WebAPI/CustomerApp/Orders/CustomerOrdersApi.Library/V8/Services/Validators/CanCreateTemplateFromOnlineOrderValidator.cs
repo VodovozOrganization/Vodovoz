@@ -10,12 +10,12 @@ using VodovozBusiness.Errors.Sale;
 
 namespace CustomerOrdersApi.Library.V8.Services.Validators
 {
-	public class OnlineOrderTemplateFromOnlineOrderValidator : IOnlineOrderTemplateFromOnlineOrderValidator
+	public class CanCreateTemplateFromOnlineOrderValidator : ICanCreateTemplateFromOnlineOrderValidator
 	{
 		private readonly IPromotionalSetRepository _promotionalSetRepository;
 		private IList<Error> _validationResults;
 		
-		public OnlineOrderTemplateFromOnlineOrderValidator(
+		public CanCreateTemplateFromOnlineOrderValidator(
 			IPromotionalSetRepository promotionalSetRepository
 			)
 		{

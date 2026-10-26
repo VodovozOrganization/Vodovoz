@@ -12,12 +12,12 @@ namespace Vodovoz.EntityRepositories.BasicHandbooks
 		QueryOver<DeliverySchedule> NotArchiveQuery();
 		IList<DeliverySchedule> All(IUnitOfWork uow);
 		/// <summary>
-		/// Получение графика доставки в виде ноды под интерфейсом <see cref="INamedDomainObject"/>
+		/// Получение графика доставки
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="deliveryScheduleId">Идентификатор графика доставки</param>
 		/// <returns></returns>
-		INamedDomainObject Get(IUnitOfWork uow, int deliveryScheduleId);
+		DeliverySchedule Get(IUnitOfWork uow, int deliveryScheduleId);
 		/// <summary>
 		/// Проверка существования графика доставки
 		/// </summary>

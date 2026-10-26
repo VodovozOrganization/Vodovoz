@@ -40,6 +40,7 @@ namespace CustomerOnlineOrdersUpdater
 				{
 					await TryMoveToManualProcessingWaitingForPaymentOnlineOrders(scope, stoppingToken);
 					await SendWaitingForPaymentNotification(scope, stoppingToken);
+					await TryMoveToManualProcessingPendingAutoOrderSettingsOnlineOrders(scope, stoppingToken);
 					await _zabbixSender.SendIsHealthyAsync(nameof(CustomerOnlineOrdersUpdateWorker), stoppingToken);
 				}
 				catch(Exception ex)
@@ -61,6 +62,25 @@ namespace CustomerOnlineOrdersUpdater
 				using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 				var unPaidOnlineOrderHandler = scope.ServiceProvider.GetService<IUnPaidOnlineOrderHandler>();
 				await unPaidOnlineOrderHandler.TryMoveToManualProcessingWaitingForPaymentOnlineOrders(unitOfWork, cancellationToken);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при работе воркера по обновлению онлайн заказов");
+				throw;
+			}
+		}
+
+		private async Task TryMoveToManualProcessingPendingAutoOrderSettingsOnlineOrders(
+			IServiceScope scope,
+			CancellationToken cancellationToken)
+		{
+			try
+			{
+				var unitOfWorkFactory = scope.ServiceProvider.GetService<IUnitOfWorkFactory>();
+				using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
+				var pendingAutoOrderSettingsOnlineOrderHandler = scope.ServiceProvider.GetService<IPendingAutoOrderSettingsOnlineOrderHandler>();
+				await pendingAutoOrderSettingsOnlineOrderHandler
+					.TryMoveToManualProcessingPendingAutoOrderSettingsOnlineOrders(unitOfWork, cancellationToken);
 			}
 			catch(Exception ex)
 			{

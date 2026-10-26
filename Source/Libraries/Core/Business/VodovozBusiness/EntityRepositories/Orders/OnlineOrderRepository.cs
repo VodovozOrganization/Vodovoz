@@ -86,5 +86,24 @@ namespace Vodovoz.EntityRepositories.Orders
 			
 			return onlineOrders.Any();
 		}
+
+		public DateTime GetOnlineOrderDeliveryDate(IUnitOfWork uow, int onlineOrderId)
+		{
+			var deliveryDate =
+				from onlineOrder in uow.Session.Query<OnlineOrder>()
+				where onlineOrder.Id == onlineOrderId
+				select onlineOrder.DeliveryDate;
+			
+			return deliveryDate.FirstOrDefault();
+		}
+
+		public IEnumerable<OnlineOrder> GetPendingAutoOrderSettingsOnlineOrders(IUnitOfWork uow)
+		{
+			var onlineOrders = from onlineOrder in uow.Session.Query<OnlineOrder>()
+				where onlineOrder.OnlineOrderStatus == OnlineOrderStatus.PendingAutoOrderSettings
+				select onlineOrder;
+
+			return onlineOrders.ToList();
+		}
 	}
 }

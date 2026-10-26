@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using VodovozBusiness.Domain.Sale;
 
 namespace VodovozBusiness.Domain.Orders
 {
-	public class NewOrderSaleItem : IGetFixedPrice
+	public class NewOrderSaleItem : NewSaleItem
 	{
-		private readonly decimal _count;
-
 		private NewOrderSaleItem(
 			Nomenclature nomenclature,
 			decimal count,
@@ -21,44 +17,12 @@ namespace VodovozBusiness.Domain.Orders
 			PromotionalSet promoSet = null,
 			Equipment equipment = null,
 			bool giftItem = false
-		)
+		) : base(nomenclature, count, priceData, discount, isDiscountInMoney, discountReasons, promoSet, giftItem)
 		{
-			Nomenclature = nomenclature;
-			_count = count;
-			PriceData = priceData;
-			Discount = discount;
-			IsDiscountInMoney = isDiscountInMoney;
-			DiscountReasons = discountReasons;
-			PromoSet = promoSet;
 			Equipment = equipment;
-			GiftItem = giftItem;
 		}
 		
-		public Nomenclature Nomenclature { get; }
-
-		public decimal Count
-		{
-			get => _count;
-			set => throw new InvalidOperationException("Нельзя устанавливать количество для новой позиции не через конструктор");
-		}
-
-		public (SaleItemPriceType PriceType, decimal Price) PriceData { get; set; }
-		public decimal Discount { get; private set; }
-		public bool IsDiscountInMoney { get; private set; }
-		public IEnumerable<DiscountReasonBase> DiscountReasons { get; set; }
-		public PromotionalSet PromoSet { get; }
 		public Equipment Equipment { get; }
-		public bool GiftItem { get; }
-
-		public void UpdateDiscount(
-			bool isDiscountInMoney,
-			decimal discount,
-			IEnumerable<DiscountReasonBase> discountReasons)
-		{
-			Discount = discount;
-			DiscountReasons = discountReasons;
-			IsDiscountInMoney = isDiscountInMoney;
-		}
 
 		public static NewOrderSaleItem Create(
 			Nomenclature nomenclature,
@@ -70,6 +34,6 @@ namespace VodovozBusiness.Domain.Orders
 			PromotionalSet promoSet = null,
 			Equipment equipment = null,
 			bool giftItem = false) =>
-				new NewOrderSaleItem(nomenclature, count, priceData, discount, isDiscountInMoney, discountReasons, promoSet, equipment, giftItem);
+			new NewOrderSaleItem(nomenclature, count, priceData, discount, isDiscountInMoney, discountReasons, promoSet, equipment, giftItem);
 	}
 }

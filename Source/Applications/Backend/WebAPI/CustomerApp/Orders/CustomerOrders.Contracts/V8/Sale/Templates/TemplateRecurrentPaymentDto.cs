@@ -1,6 +1,6 @@
 ﻿namespace CustomerOrders.Contracts.V8.Sale.Templates
 {
-	public class TemplateRecurrentPayment
+	public class TemplateRecurrentPaymentDto
 	{
 		/// <summary>
 		/// Токен

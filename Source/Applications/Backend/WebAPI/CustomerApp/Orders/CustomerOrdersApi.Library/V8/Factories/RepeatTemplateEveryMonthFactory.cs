@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomerApp.Contracts.Sale.Templates;
+using CustomerOrdersApi.Library.V8.Services;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Settings.Sale;
 
@@ -11,12 +12,16 @@ namespace CustomerOrdersApi.Library.V8.Factories
 	public class RepeatTemplateEveryMonthFactory : IRepeatTemplateEveryMonthFactory
 	{
 		private readonly IOnlineOrderTemplateSettings _templateSettings;
+		private readonly CommonDeliverySchedulesService _commonDeliverySchedulesService;
 
 		public RepeatTemplateEveryMonthFactory(
-			IOnlineOrderTemplateSettings templateSettings
+			IOnlineOrderTemplateSettings templateSettings,
+			CommonDeliverySchedulesService commonDeliverySchedulesService
 			)
 		{
 			_templateSettings = templateSettings ?? throw new ArgumentNullException(nameof(templateSettings));
+			_commonDeliverySchedulesService =
+				commonDeliverySchedulesService ?? throw new ArgumentNullException(nameof(commonDeliverySchedulesService));
 		}
 		
 		/// <inheritdoc/>
@@ -27,18 +32,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				return TemplateMonthlySchedule.CreateNotAvailable();
 			}
 			
-			var firstDaySchedules = scheduleLookup.FirstOrDefault();
-
-			if(!firstDaySchedules.Any())
-			{
-				return TemplateMonthlySchedule.CreateNotAvailable();
-			}
-			
-			var commonSchedules = firstDaySchedules
-				.Select(x => x)
-				.ToList();
-			
-			var processResult = ProcessSchedules(scheduleLookup, commonSchedules);
+			var processResult = _commonDeliverySchedulesService.ProcessSchedules(scheduleLookup, out var commonSchedules);
 
 			if(!processResult)
 			{
@@ -55,38 +49,6 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			}
 
 			return TemplateMonthlySchedule.CreateAvailable(commonSchedules, monthDays);
-		}
-
-		private bool ProcessSchedules(
-			ILookup<WeekDayName, DeliveryScheduleDto> scheduleLookup,
-			IList<DeliveryScheduleDto> commonSchedules
-			)
-		{
-			var i = 0;
-			
-			foreach(var groupedWeeklySchedules in scheduleLookup)
-			{
-				if(i == 0)
-				{
-					i++;
-					continue;
-				}
-
-				var tempCommonSchedules = commonSchedules
-					.Intersect(groupedWeeklySchedules.ToList())
-					.ToList();
-
-				//если нет пересечений хотя бы по одному дню, то бракуем
-				if(!tempCommonSchedules.Any())
-				{
-					return false;
-				}
-				
-				commonSchedules = tempCommonSchedules;
-				i++;
-			}
-			
-			return true;
 		}
 	}
 }

@@ -1,6 +1,8 @@
 ﻿using CustomerOrders.Contracts.V8.Orders.Items;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V8.Factories
 {
@@ -10,8 +12,9 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		/// Создание дто строки на продажу с детализацией скидок
 		/// </summary>
 		/// <param name="saleItem">Позиция на продажу</param>
+		/// <param name="parameterType">Тип онлайн параметра по источнику заказа <see cref="GoodsOnlineParameterType"/></param>
 		/// <returns></returns>
-		OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(IProduct saleItem);
+		OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(IProduct saleItem, GoodsOnlineParameterType parameterType);
 		/// <summary>
 		/// Создание дто строки на продажу с детализацией скидок из промонабров
 		/// </summary>
@@ -25,6 +28,13 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		/// <param name="count">Количество</param>
 		/// <returns></returns>
 		OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(PromotionalSet promoSet, decimal count);
+		/// <summary>
+		/// Создание дто строки на продажу с детализацией скидок из промонабора
+		/// </summary>
+		/// <param name="onlinePromoSet">Промонабор из онлайн заказа</param>
+		/// <param name="count">Количество</param>
+		/// <returns></returns>
+		OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(OnlineOrderPromoSet onlinePromoSet);
 		/// <summary>
 		/// Создание дто строки на продажу с детализацией скидок из пакета аренды
 		/// </summary>

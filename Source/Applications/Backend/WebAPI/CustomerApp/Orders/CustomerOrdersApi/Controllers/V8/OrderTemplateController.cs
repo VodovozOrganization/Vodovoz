@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Mime;
+using System.Threading;
 using System.Threading.Tasks;
 using CustomerApp.Contracts.Sale.Templates;
 using CustomerOrders.Contracts.V8.Sale.Templates;
@@ -79,9 +80,15 @@ namespace CustomerOrdersApi.Controllers.V8
 			try
 			{
 				_logger.LogInformation("Поступил запрос проверки параметров автозаказа {@CheckOrderTemplateRequest}", request);
-
 				var result = _templateService.CheckOrderTemplate(request);
-				return Ok(result);
+
+				if(result.IsFailure)
+				{
+					var error = result.Errors.First();
+					return Problem(error.Message, statusCode: int.Parse(error.Code));
+				}
+				
+				return Ok(result.Value);
 			}
 			catch(Exception e)
 			{
@@ -94,30 +101,41 @@ namespace CustomerOrdersApi.Controllers.V8
 				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
 			}
 		}
-		
+
 		/// <summary>
 		/// Создание шаблона автозаказа
 		/// </summary>
 		/// <param name="request">Данные для создания шаблона <see cref="CreateOrderTemplateRequest"/></param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат <see cref="OrderConditionsResponse"/></returns>
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CreateOrderTemplateResponse))]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		[HttpGet]
-		public IActionResult CreateOrderTemplate(CreateOrderTemplateRequest request)
+		public async Task<IActionResult> CreateOrderTemplate(
+			CreateOrderTemplateRequest request,
+			CancellationToken cancellationToken
+			)
 		{
 			try
 			{
 				_logger.LogInformation("Поступил запрос создания шаблона автозаказа {@CreateOrderTemplateRequest}", request);
 
-				var result = _templateService.CreateOrderTemplate(request);
-				return Ok(result);
+				var result = await _templateService.CreateOrderTemplate(request, cancellationToken);
+
+				if(result.IsFailure)
+				{
+					var error = result.Errors.First();
+					return Problem(error.Message, statusCode: int.Parse(error.Code));
+				}
+				
+				return Ok(result.Value);
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при получении настроек автозаказа по {OnlineOrderId} от {Source}",
+					"Ошибка при создании шаблона автозаказа по {OnlineOrderId} от {Source}",
 					request.OnlineOrderId,
 					request.Source.ToString());
 				

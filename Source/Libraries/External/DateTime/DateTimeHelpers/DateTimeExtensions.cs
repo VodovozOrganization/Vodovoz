@@ -8,6 +8,12 @@ namespace DateTimeHelpers
 		private const int _moscowUtcOffsetHours = 3;
 		private static GregorianCalendar _calendar = new GregorianCalendar();
 
+		/// <summary>
+		/// Число дней в неделе
+		/// </summary>
+		/// <returns></returns>
+		public static int DaysInWeek() => 7;
+
 		public static int GetWeekNumber(this DateTime dateTime)
 		{
 			return _calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
