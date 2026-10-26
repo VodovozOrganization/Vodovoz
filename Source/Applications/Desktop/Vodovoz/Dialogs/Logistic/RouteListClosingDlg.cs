@@ -122,7 +122,7 @@ namespace Vodovoz
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private INewDriverAdvanceSettings _newDriverAdvanceSettings;
-		private IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private IPermissionRepository _permissionRepository;
 		private IFlyerRepository _flyerRepository;
 		private IOrderContractUpdater _contractUpdater;
@@ -237,7 +237,7 @@ namespace Vodovoz
 			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
 			_employeeNomenclatureMovementRepository = _lifetimeScope.Resolve<IEmployeeNomenclatureMovementRepository>();
 			_newDriverAdvanceSettings = _lifetimeScope.Resolve<INewDriverAdvanceSettings>();
-			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
+			_customerNotificationPublisher = _lifetimeScope.Resolve<INotificationPublisher<CustomerNotificationDomainEvent>>();
 
 			_permissionRepository = _lifetimeScope.Resolve<IPermissionRepository>();
 			

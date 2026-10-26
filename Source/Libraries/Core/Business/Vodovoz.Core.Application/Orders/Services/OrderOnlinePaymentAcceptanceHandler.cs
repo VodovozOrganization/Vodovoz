@@ -24,14 +24,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly ICashRepository _cashRepository;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 
 		public OrderOnlinePaymentAcceptanceHandler(
 			INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			ICashRepository cashRepository,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IFastPaymentRepository fastPaymentRepository,
 			IOrderContractUpdater contractUpdater)
 		{

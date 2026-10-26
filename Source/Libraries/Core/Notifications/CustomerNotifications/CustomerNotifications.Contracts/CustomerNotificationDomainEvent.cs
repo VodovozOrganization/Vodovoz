@@ -1,5 +1,6 @@
 ﻿using System;
-using TransactionalOutbox.Contracts;
+using Notifications.Core;
+using System.Globalization;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 
@@ -8,7 +9,7 @@ namespace CustomerNotifications.Contracts
 	/// <summary>
 	/// Событие для уведомлений клиентов. Содержит информацию о том, какое событие произошло, и какую информацию нужно передать для формирования уведомления.
 	/// </summary>
-	public class CustomerNotificationDomainEvent : IIdempotentOutboxMessage
+	public class CustomerNotificationDomainEvent : IDeduplicatedNotification
 	{
 		/// <summary>
 		/// Код онлайн-заказа в ERP
@@ -63,9 +64,10 @@ namespace CustomerNotifications.Contracts
 
 		public string GetDeduplicationKey() => $"" +
 			$"Event={nameof(CustomerNotificationDomainEvent)}" +
-			$"AggregateId={GetAggregateId()}" +
+			$"AggregateId={GetAggregateKey()}" +
 			$":{nameof(CustomerNotificationEventType)}={CustomerNotificationEventType}";
 
-		public int GetAggregateId() => OnlineOrderId ?? OrderId ?? throw new ArgumentNullException();
+		public string GetAggregateKey() =>
+			(OnlineOrderId ?? OrderId ?? throw new ArgumentNullException()).ToString(CultureInfo.InvariantCulture);
 	}
 }

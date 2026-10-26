@@ -34,6 +34,8 @@ using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace CustomTaskDebugExecutor
 {
@@ -89,7 +91,9 @@ namespace CustomTaskDebugExecutor
 			services.Configure<CashboxesSetting>(configuration);
 
 			services.AddMessageTransportSettings();
-			services.AddEdoMassTransit();
+			// Outbox MassTransit: сообщения сохраняются вместе с данными при подтверждённом коммите,
+			// отправит их любой воркер ЭДО (здесь служба отправки не запускается)
+			services.AddEdoMassTransit(configureBus: busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs));
 
 			services.AddHttpClient();
 

@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IUndeliveryDiscussionCommentFileStorageService _undeliveryDiscussionCommentFileStorageService;
 		private readonly IRouteListService _routeListService;
 		private readonly OrderCancellationService _orderCancellationService;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private ValidationContext _validationContext;
 		private bool _addedCommentToOldUndelivery;
 		private bool _forceSave;
@@ -85,7 +85,7 @@ namespace Vodovoz.ViewModels.Orders
 			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService,
 			IRouteListService routeListService,
 			OrderCancellationService orderCancellationService,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
 			)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{

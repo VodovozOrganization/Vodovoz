@@ -1,30 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json.Serialization;
-using TransactionalOutbox.Contracts;
+using Notifications.Core;
 
 namespace EdoNotifications.Contracts
 {
 	/// <summary>
-	/// ЭДО-уведомление. Содержит информацию о типе уведомления и динамический набор параметров шаблона.
+	/// ЭДО-уведомление. Содержит тип уведомления и динамический набор параметров шаблона.
+	/// Тип — значение колонки edo_notification_settings.edo_notification_type, по нему воркер уведомлений
+	/// находит настройку (класс-наследник EdoNotificationSetting). Создаётся через IEdoNotificationMessageFactory
 	/// </summary>
-	public class EdoNotificationMessage : IIdempotentOutboxMessage
+	public class EdoNotificationMessage : IDeduplicatedNotification
 	{
-		private readonly string _deduplicationKey;
-
 		/// <summary>
-		/// Тип ЭДО уведомления
+		/// Тип ЭДО уведомления — имя класса настройки, например CodeDuplicatedEdoNotificationSetting
 		/// </summary>
-		public EdoNotificationType EdoNotificationType { get; }
+		public string EdoNotificationType { get; }
 
 		/// <summary>
 		/// Параметры шаблона
 		/// </summary>
 		public Dictionary<string, string> TemplateParams { get; }
 
+		/// <summary>
+		/// Создаёт EdoNotificationMessageFactory (тип — имя класса настройки), а при получении — десериализатор
+		/// </summary>
 		[JsonConstructor]
-		private EdoNotificationMessage(
-			EdoNotificationType edoNotificationType,
+		internal EdoNotificationMessage(
+			string edoNotificationType,
 			Dictionary<string, string> templateParams = null)
 		{
 			EdoNotificationType = edoNotificationType;
@@ -32,33 +38,26 @@ namespace EdoNotifications.Contracts
 		}
 
 		/// <summary>
-		/// Конструктор для <see cref="EdoNotificationMessageFactory"/>.
-		/// Принимает уже вычисленный ключ дедупликации, чтобы гарантировать
-		/// единообразие его вычисления через DI-сервис хэширования.
+		/// В одной транзакции схлопываются только одинаковые уведомления (тот же тип и параметры):
+		/// разные уведомления одного типа, например по разным заказам, отправляются все
 		/// </summary>
-		internal EdoNotificationMessage(
-			EdoNotificationType edoNotificationType,
-			Dictionary<string, string> templateParams,
-			string deduplicationKey)
-			: this(edoNotificationType, templateParams)
-		{
-			_deduplicationKey = deduplicationKey;
-		}
+		public string GetAggregateKey() => GetDeduplicationKey();
 
 		/// <summary>
-		/// Оптимизация для сессии. Схлопывает (обновляет) сообщения одного типа в рамках одной транзакции.
+		/// Одинаковый у уведомлений одного типа с одинаковыми параметрами (порядок параметров не важен).
+		/// Параметры хэшируются: текст сводок длинный, а ключ хранится в notification_deduplication_keys
 		/// </summary>
-		public int GetAggregateId()
+		public string GetDeduplicationKey()
 		{
-			return (int)EdoNotificationType;
-		}
+			var text = EdoNotificationType + "\n" + string.Join("\n", TemplateParams
+				.OrderBy(x => x.Key, StringComparer.Ordinal)
+				.Select(x => $"{x.Key}={x.Value}"));
 
-		/// <summary>
-		/// Дедупликация для БД. Гарантирует уникальность комбинации Типа события и его Параметров.
-		/// </summary>
-		public string GetDeduplicationKey() =>
-			_deduplicationKey
-			?? throw new InvalidOperationException(
-				$"Дедупликационный ключ не был вычислен.");
+			using(var md5 = MD5.Create())
+			{
+				var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(text));
+				return $"{EdoNotificationType}:{string.Concat(hash.Select(x => x.ToString("x2")))}";
+			}
+		}
 	}
 }

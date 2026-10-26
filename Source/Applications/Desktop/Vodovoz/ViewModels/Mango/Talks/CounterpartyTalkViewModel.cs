@@ -49,7 +49,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly OrderCancellationService _orderCancellationService;
 		private readonly OrderCancellationPermitService _orderCancellationPermitService;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			ICallTaskWorker callTaskWorker,
 			IRouteListService routeListService,
 			IRouteListChangesNotificationSender routeListChangesNotificationSender,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IGtkTabsOpener gtkTabsOpener,
 			OrderCancellationService orderCancellationService,
 			OrderCancellationPermitService orderCancellationPermitService

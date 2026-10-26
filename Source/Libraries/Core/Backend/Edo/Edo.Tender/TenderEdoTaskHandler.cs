@@ -32,7 +32,7 @@ namespace Edo.Tender
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
 		private readonly TransferRequestCreator _transferRequestCreator;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly EdoCancellationService _edoCancellationService;
 
 		public TenderEdoTaskHandler(
@@ -44,7 +44,7 @@ namespace Edo.Tender
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			TransferRequestCreator transferRequestCreator,
-			IBus messageBus, 
+			IPublishEndpoint publishEndpoint, 
 			EdoCancellationService edoCancellationService
 		)
 		{
@@ -57,7 +57,7 @@ namespace Edo.Tender
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 		}
 
@@ -241,12 +241,13 @@ namespace Edo.Tender
 			}
 
 			await _uow.SaveAsync(tenderEdoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			if(message != null)
 			{
-				await _messageBus.Publish(message, cancellationToken);
+				await _publishEndpoint.Publish(message, cancellationToken);
 			}
+
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		// handle transfered
@@ -308,17 +309,8 @@ namespace Edo.Tender
 				if(!taskValidationResult.IsAllValid && edoTask.Stage == TenderEdoTaskStage.New)
 				{
 					await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+					await _publishEndpoint.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
 					await _uow.CommitAsync(cancellationToken);
-					try
-					{
-						await _messageBus.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
-					}
-					catch(Exception ex)
-					{
-						// Сохраненную новую задачу подхватит штатный NewEdoTasksResendWorker.
-						_logger.LogError(ex, "Не удалось повторно запустить тендерную задачу {TaskId} после проверки кодов. "
-							+ "Задача сохранена на стадии распределения для штатного повторного запуска", edoTask.Id);
-					}
 					return;
 				}
 

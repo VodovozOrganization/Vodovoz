@@ -287,7 +287,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				routeListItemRepository,
 				Substitute.For<ISelfDeliveryRepository>(),
 				Substitute.For<ICashRepository>(),
-				Substitute.For<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>(),
+				Substitute.For<INotificationPublisher<CustomerNotificationDomainEvent>>(),
 				Substitute.For<IFastPaymentRepository>(),
 				_contractUpdater);
 			var fastPayment = new FastPayment

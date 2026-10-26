@@ -27,6 +27,8 @@ using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Settings;
 using VodovozHealthCheck;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace CustomerAppsApi
 {
@@ -85,6 +87,7 @@ namespace CustomerAppsApi
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf =>
 				{
+					busConf.AddVodovozOutbox(OutboxBusNames.Email);
 					busConf.ConfigureRabbitMq((rabbitMq, context) => rabbitMq.AddSendAuthorizationCodesByEmailTopology(context));
 				})
 				.AddControllers()

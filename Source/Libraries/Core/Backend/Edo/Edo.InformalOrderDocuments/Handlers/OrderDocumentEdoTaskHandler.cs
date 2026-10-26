@@ -68,6 +68,15 @@ namespace Edo.InformalOrderDocuments.Handlers
 				return;
 			}
 
+			// Повторная доставка события: документ по задаче уже создан и отправлен
+			if(edoTask.Status != EdoTaskStatus.New)
+			{
+				_logger.LogWarning("Задача ЭДО №{TaskId} уже в статусе {TaskStatus}, повторное событие создания задачи пропущено",
+					edoTask.Id,
+					edoTask.Status);
+				return;
+			}
+
 			var order = await _uow.Session.GetAsync<OrderEntity>(informalEdoRequest.Order.Id, cancellationToken);
 			if(order == null)
 			{
@@ -93,6 +102,10 @@ namespace Edo.InformalOrderDocuments.Handlers
 				var result = await handler.ProcessDocumentAsync(order, orderDocument.Id, cancellationToken);
 
 				var edoDocument = CreateInformalDocument(edoTask.Id);
+				edoTask.Status = EdoTaskStatus.InProgress;
+
+				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+				await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
 
 				var fileDataMessage = new InformalDocumentFileDataSendEvent
 				{
@@ -100,12 +113,7 @@ namespace Edo.InformalOrderDocuments.Handlers
 					FileData = result
 				};
 
-				edoTask.Status = EdoTaskStatus.InProgress;
-
 				await _publishEndpoint.Publish(fileDataMessage, cancellationToken);
-
-				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-				await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
 				await _uow.CommitAsync(cancellationToken);
 
 			}

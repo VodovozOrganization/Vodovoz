@@ -1,4 +1,5 @@
-﻿using Edo.Scheduler.Service;
+﻿using System;
+using Edo.Scheduler.Service;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,13 +28,17 @@ namespace Edo.Scheduler
 			return services;
 		}
 
-		public static IServiceCollection AddEdoScheduler(this IServiceCollection services)
+		public static IServiceCollection AddEdoScheduler(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoSchedulerServices();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
 				cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
+
+				configureBus?.Invoke(cfg);
 			});
 
 			return services;

@@ -12,6 +12,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.InformalOrderDocuments.Worker
 {
@@ -46,7 +48,7 @@ namespace Edo.InformalOrderDocuments.Worker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddInformalOrderDocumentEdo()
+						.AddInformalOrderDocumentEdo(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;

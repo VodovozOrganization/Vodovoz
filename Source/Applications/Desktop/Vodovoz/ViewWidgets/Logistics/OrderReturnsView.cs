@@ -69,7 +69,7 @@ namespace Vodovoz
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly IRouteListService _routeListService;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly ICounterpartyService _counterpartyService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeService _employeeService;
@@ -192,7 +192,7 @@ namespace Vodovoz
 			ILifetimeScope lifetimeScope,
 			IOrderContractUpdater orderContractUpdater,
 			IRouteListService routeListService,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
 			)
 		{
 			if(currentPermissionService is null)

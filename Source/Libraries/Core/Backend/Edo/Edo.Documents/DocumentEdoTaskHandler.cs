@@ -31,7 +31,7 @@ namespace Edo.Documents
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly EdoCancellationService _edoCancellationService;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public DocumentEdoTaskHandler(
 			ILogger<DocumentEdoTaskHandler> logger,
@@ -43,7 +43,7 @@ namespace Edo.Documents
 			EdoProblemRegistrar edoProblemRegistrar,
 			EdoCancellationService edoCancellationService,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
-			IBus messageBus
+			IPublishEndpoint publishEndpoint
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -55,7 +55,7 @@ namespace Edo.Documents
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		// handle new
@@ -221,10 +221,10 @@ namespace Edo.Documents
 			edoTask.Status = EdoTaskStatus.InProgress;
 
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			var message = new OrderDocumentSendEvent { OrderDocumentId = customerDocument.Id };
-			await _messageBus.Publish(message, cancellationToken);
+			await _publishEndpoint.Publish(message, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		private bool IsFormalDocument(DocumentEdoTask edoTask)
@@ -390,6 +390,14 @@ namespace Edo.Documents
 			}
 			
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
+
+			// Повторное или запоздавшее событие отправки не должно откатить уже принятый документ
+			if(edoTask.Stage == DocumentEdoTaskStage.Completed)
+			{
+				_logger.LogWarning("Задача ЭДО {EdoTaskId} уже завершена, {SentEvent} по документу {EdoDocumentId} пропущено",
+					edoTask.Id, sentEvent, edoDocumentId);
+				return;
+			}
 
 			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 			{

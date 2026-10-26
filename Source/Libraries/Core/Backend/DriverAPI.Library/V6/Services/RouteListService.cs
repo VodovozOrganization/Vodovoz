@@ -49,7 +49,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IFastPaymentService _fastPaymentService;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IDriverApiSettings _driverApiSettings;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public RouteListService(ILogger<RouteListService> logger,
@@ -67,7 +67,7 @@ namespace DriverAPI.Library.V6.Services
 			PaymentTypeConverter paymentTypeConverter,
 			IFastPaymentService fastPaymentService,
 			ICallTaskWorker callTaskWorker,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IDriverApiSettings driverApiSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

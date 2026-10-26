@@ -43,6 +43,9 @@ using TrackPointsServiceV5 = DriverAPI.Library.V5.Services.TrackPointsService;
 using DriverApiLibraryV7 = DriverAPI.Library.V7.Services;
 using Mango.Vpbx.Client;
 using VodovozBusiness.Models.TrueMark;
+using TransactionalOutbox.MassTransit;
+using MassTransit;
+using System;
 
 namespace DriverAPI.Library
 {
@@ -55,8 +58,13 @@ namespace DriverAPI.Library
 		/// Добавление сервисов библиотеки
 		/// </summary>
 		/// <param name="services"></param>
+		/// <param name="configuration"></param>
+		/// <param name="configureBus">Настройка шины в приложении: outbox MassTransit (AddVodovozOutbox)</param>
 		/// <returns></returns>
-		public static IServiceCollection AddDriverApiLibrary(this IServiceCollection services, IConfiguration configuration)
+		public static IServiceCollection AddDriverApiLibrary(
+			this IServiceCollection services,
+			IConfiguration configuration,
+			Action<IBusRegistrationConfigurator> configureBus)
 		{
 			// Конвертеры
 			foreach(var type in typeof(DependencyInjection)
@@ -98,7 +106,7 @@ namespace DriverAPI.Library
 
 			services
 				.AddMessageTransportSettings()
-				.AddEdoMassTransit();
+				.AddEdoMassTransit(configureBus: configureBus);
 
 			services
 				.AddMangoVpbxClientServices();

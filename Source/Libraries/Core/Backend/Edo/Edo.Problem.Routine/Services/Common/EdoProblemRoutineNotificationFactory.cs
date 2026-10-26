@@ -20,10 +20,10 @@ namespace Edo.Problem.Routine.Services.Common
 				?? throw new ArgumentNullException(nameof(notificationMessageFactory));
 		}
 
-		public EdoNotificationMessage Create(
+		public EdoNotificationMessage Create<TSetting>(
 			OrderEdoTask edoTask,
-			EdoNotificationType notificationType,
 			IEdoTaskValidator validator)
+			where TSetting : EdoNotificationSetting
 		{
 			if(edoTask == null)
 			{
@@ -35,8 +35,7 @@ namespace Edo.Problem.Routine.Services.Common
 				throw new ArgumentNullException(nameof(validator));
 			}
 
-			return _notificationMessageFactory.Create(
-				notificationType,
+			return _notificationMessageFactory.Create<TSetting>(
 				("EdoTaskId", edoTask.Id.ToString(CultureInfo.InvariantCulture)),
 				("EdoTaskType", GetTaskTypeDisplayName(edoTask.TaskType)),
 				("OrderId", edoTask.FormalEdoRequest.Order.Id.ToString(CultureInfo.InvariantCulture)),

@@ -3,7 +3,6 @@ using Edo.Problem.Routine.Services.CodeDuplicatedProblem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,7 +38,6 @@ namespace Edo.Problem.Routine.Worker
 			using var scope = _serviceScopeFactory.CreateScope();
 
 			var codeDuplicatedProblemService = scope.ServiceProvider.GetRequiredService<ICodeDuplicatedProblemService>();
-			var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
 
 			_logger.LogInformation($"Запуск обработки задач ЭДО с активной проблемой {_problemName}");
 
@@ -47,10 +45,7 @@ namespace Edo.Problem.Routine.Worker
 			{
 				var minEdoTaskCreationTime = DateTime.Today - _options.Value.ProblemTimeout;
 
-				using(var unitOfWork = unitOfWorkFactory.CreateWithoutRoot(nameof(CodeDuplicatedProblemWorker)))
-				{
-					await codeDuplicatedProblemService.ProcessProblemTasksAsync(unitOfWork, minEdoTaskCreationTime, stoppingToken);
-				}
+				await codeDuplicatedProblemService.ProcessProblemTasksAsync(minEdoTaskCreationTime, stoppingToken);
 
 				_logger.LogInformation($"Обработка задач ЭДО с активной проблемой {_problemName} успешно завершена");
 

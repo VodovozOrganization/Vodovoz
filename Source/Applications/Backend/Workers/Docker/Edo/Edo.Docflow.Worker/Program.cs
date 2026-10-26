@@ -12,6 +12,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.Docflow
 {
@@ -47,7 +49,7 @@ namespace Edo.Docflow
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddEdoDocflow()
+						.AddEdoDocflow(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;

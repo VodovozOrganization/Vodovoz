@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Notifications.Infrastructure;
 using Osrm;
 using QS.DomainModel.UoW;
-using TransactionalOutbox.Abstractions;
+using Notifications.Core;
 using Vodovoz.Core.Application.Logistics;
 using Vodovoz.Services.Logistics;
 
@@ -32,7 +32,8 @@ namespace CustomerOnlineOrdersUpdater
 				// Уведомления клиентов
 				.AddCustomerNotificationsSettingsProvider()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<INotificationPublisher<CustomerNotificationDomainEvent>, NotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddNotificationBusNotHosted()
 				;
 
 			return services;

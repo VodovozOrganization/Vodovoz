@@ -19,23 +19,23 @@ namespace Edo.Problem.Routine.Services
 	public class FiscalDocumentSendErrorProblemService
 	{
 		private readonly ILogger<FiscalDocumentSendErrorProblemService> _logger;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IOptionsMonitor<FiscalDocumentSendErrorProblemWorkerOptions> _options;
 		private readonly IEdoRepository _edoRepository;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public FiscalDocumentSendErrorProblemService(
 			ILogger<FiscalDocumentSendErrorProblemService> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWork unitOfWork,
 			IOptionsMonitor<FiscalDocumentSendErrorProblemWorkerOptions> options,
 			IEdoRepository edoRepository,
-			IBus messageBus)
+			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		private DateTime _minFiscalDocumentCreationTime => DateTime.Today - _options.CurrentValue.ProblemTimeout;
@@ -47,13 +47,12 @@ namespace Edo.Problem.Routine.Services
 		/// <returns></returns>
 		public async Task ProcessProblemFiscalDocuments(CancellationToken cancellationToken)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(FiscalDocumentSendErrorProblemService)))
-			{
-				var tasksIds =
-					await _edoRepository.GetSendErrorFiscalDocumentsEdoTasksIds(uow, _minFiscalDocumentCreationTime, cancellationToken);
+			var tasksIds =
+				await _edoRepository.GetSendErrorFiscalDocumentsEdoTasksIds(_unitOfWork, _minFiscalDocumentCreationTime, cancellationToken);
 
-				await TryResendFiscalDocuments(tasksIds, cancellationToken);
-			}
+			await TryResendFiscalDocuments(tasksIds, cancellationToken);
+
+			await _unitOfWork.CommitAsync(cancellationToken);
 		}
 
 		private async Task TryResendFiscalDocuments(IEnumerable<int> receiptEdoTaskIds, CancellationToken cancellationToken)
@@ -85,7 +84,7 @@ namespace Edo.Problem.Routine.Services
 					"Пытаемся повторно отправить фискальный документ с задачей {ReceiptEdoTaskId}",
 					receiptEdoTaskId);
 
-				await _messageBus.Publish(
+				await _publishEndpoint.Publish(
 					new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptEdoTaskId },
 					cancellationToken);
 

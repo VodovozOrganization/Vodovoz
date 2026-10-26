@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly IOrderContractUpdater _orderContractUpdater;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 
 		public OrderConfirmationService(
 			IFastDeliveryHandler fastDeliveryHandler,
@@ -32,7 +32,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			IOrderContractUpdater orderContractUpdater,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
 			)
 		{
 			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));

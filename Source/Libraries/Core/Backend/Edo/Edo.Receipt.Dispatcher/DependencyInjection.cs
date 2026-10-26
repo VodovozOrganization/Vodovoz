@@ -1,4 +1,5 @@
-﻿using Edo.Common;
+﻿using System;
+using Edo.Common;
 using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
@@ -37,14 +38,17 @@ namespace Edo.Receipt.Dispatcher
 
 			return services;
 		}
-
-		public static IServiceCollection AddEdoReceiptDispatcher(this IServiceCollection services)
+		public static IServiceCollection AddEdoReceiptDispatcher(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoReceiptDispatcherServices();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
 				cfg.AddConsumers(Assembly.GetExecutingAssembly());
+
+				configureBus?.Invoke(cfg);
 			});
 
 			return services;

@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Edo
 		private readonly IEdoService _edoService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUpdDocumentBuilder _updDocumentBuilder;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _outboxNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _notificationPublisher;
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IEmployeeService _employeeService;
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
@@ -75,7 +75,7 @@ namespace Vodovoz.ViewModels.Edo
 			IEdoService edoService,
 			IInteractiveService interactiveService,
 			IUpdDocumentBuilder updDocumentBuilder,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> outboxNotificationPublisher,
+			INotificationPublisher<CustomerNotificationDomainEvent> notificationPublisher,
 			IOrderContractUpdater orderContractUpdater,
 			IEmployeeService employeeService,
 			IOrderDailyNumberController orderDailyNumberController,
@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels.Edo
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_updDocumentBuilder = updDocumentBuilder ?? throw new ArgumentNullException(nameof(updDocumentBuilder));
-			_outboxNotificationPublisher = outboxNotificationPublisher ?? throw new ArgumentNullException(nameof(outboxNotificationPublisher));
+			_notificationPublisher = notificationPublisher ?? throw new ArgumentNullException(nameof(notificationPublisher));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_orderDailyNumberController = orderDailyNumberController ?? throw new ArgumentNullException(nameof(orderDailyNumberController));
@@ -349,7 +349,7 @@ namespace Vodovoz.ViewModels.Edo
 					e.UndeliveredOrder.NewOrder.Id,
 					e.UndeliveredOrder.UndeliveryDetalization?.Name
 				);
-				_outboxNotificationPublisher.TryPublish(_cancelOrderUow, customerOrderRescheduledEvent);
+				_notificationPublisher.TryPublish(_cancelOrderUow, customerOrderRescheduledEvent);
 			}
 
 			var result = _edoService.CancelOrderWithEdoDiscrepancy(_cancelOrderUow, _edoDiscrepancy, order);

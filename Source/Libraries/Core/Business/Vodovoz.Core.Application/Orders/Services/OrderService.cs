@@ -73,7 +73,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IOrderConfirmationService _orderConfirmationService;
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IFastDeliveryHandler _fastDeliveryHandler;
 
 		public OrderService(
@@ -100,7 +100,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderContractUpdater orderContractUpdater,
 			IOrderConfirmationService orderConfirmationService,
 			IPaymentItemsRepository paymentItemsRepository,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IFastDeliveryHandler fastDeliveryHandler)
 		{
 			if(nomenclatureSettings is null)
@@ -690,16 +690,19 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			onlineOrder.SetOrderPerformed(new []{ order }, employee);
 
+			if(acceptResult.Value)
+			{
+				// Уведомление клиента сохраняется в outbox тем же коммитом, что и принятие заказа
+				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+				await _customerNotificationPublisher.TryPublishAsync(uow, customerCourierAssignedEvent, cancellationToken);
+			}
+
 			await uow.CommitAsync(cancellationToken);
 
 			if(acceptResult.Value)
 			{
+				// Внешний вызов — только по уже сохранённому заказу
 				_fastDeliveryHandler.NotifyDriverOfFastDeliveryOrderAdded(order.Id);
-
-				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
-				await _customerNotificationPublisher.TryPublishAsync(uow, customerCourierAssignedEvent, cancellationToken);				
-
-				await uow.CommitAsync(cancellationToken);
 			}
 
 			return order.Id;

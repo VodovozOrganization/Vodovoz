@@ -8,6 +8,7 @@ using EdoNotifications.Contracts;
 using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
 
 namespace Edo.Receipt.Sender
 {
@@ -18,13 +19,13 @@ namespace Edo.Receipt.Sender
 	{
 		private readonly ILogger<ReceiptSendingFailedNotificationService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
 
 		public ReceiptSendingFailedNotificationService(
 			ILogger<ReceiptSendingFailedNotificationService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
+			INotificationPublisher<EdoNotificationMessage> notificationPublisher,
 			IEdoNotificationMessageFactory notificationMessageFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -45,8 +46,7 @@ namespace Edo.Receipt.Sender
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ReceiptSendingFailedNotificationService)))
 			{
-				var notification = _notificationMessageFactory.Create(
-					EdoNotificationType.ReceiptSendingFailed,
+				var notification = _notificationMessageFactory.Create<ReceiptSendingFailedEdoNotificationSetting>(
 					("EdoTaskId", edoTaskId.ToString(CultureInfo.InvariantCulture)),
 					("OrderId", orderId?.ToString(CultureInfo.InvariantCulture) ?? string.Empty),
 					("CashboxId", cashboxId?.ToString(CultureInfo.InvariantCulture) ?? string.Empty),

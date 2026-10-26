@@ -1,14 +1,12 @@
-﻿using Core.Infrastructure;
-using EdoNotifications.Contracts;
-using QS.Project.Journal;
+﻿using QS.Project.Journal;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 {
 	public class EdoNotificationSettingJournalNode : JournalEntityNodeBase<EdoNotificationSetting>
 	{
-		public override string Title => $"{EdoNotificationType.GetEnumDisplayName()}";
-		public EdoNotificationType EdoNotificationType { get; set; }
+		public override string Title => Name;
+		public string Name { get; set; }
 		public string Template { get; set; }
 		public bool NotificationDisabled { get; set; }
 		public bool AllowDuplicateNotifications { get; internal set; }

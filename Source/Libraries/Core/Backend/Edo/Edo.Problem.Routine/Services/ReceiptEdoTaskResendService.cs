@@ -14,14 +14,14 @@ namespace Edo.Problem.Routine.Services
 	public class ReceiptEdoTaskResendService : IReceiptEdoTaskResendService
 	{
 		private readonly ILogger<ReceiptEdoTaskResendService> _logger;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public ReceiptEdoTaskResendService(
 			ILogger<ReceiptEdoTaskResendService> logger,
-			IBus messageBus)
+			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		/// <inheritdoc/>
@@ -73,7 +73,7 @@ namespace Edo.Problem.Routine.Services
 				throw new ArgumentNullException(nameof(receiptTask));
 			}
 
-			return _messageBus.Publish(
+			return _publishEndpoint.Publish(
 				new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = receiptTask.Id },
 				cancellationToken);
 		}

@@ -36,6 +36,8 @@ using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Services.Orders;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
 using Email.Infrastructure;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace EmailDebtNotificationWorker
 {
@@ -96,6 +98,8 @@ namespace EmailDebtNotificationWorker
 						{
 							var transportSettings = new ConfigTransportSettings();
 							hostContext.Configuration.Bind("MessageBroker", transportSettings);
+
+							busConf.AddVodovozOutbox(OutboxBusNames.Email);
 
 							busConf.ConfigureRabbitMq((rabbitMq, context) =>
 							{

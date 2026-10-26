@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.OrdersWithoutShipment;
 using TaxcomEdo.Library.Options;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Application.Documents;
 using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Clients;
@@ -57,7 +58,9 @@ namespace EdoDocumentsPreparer
 		private readonly IInfoForCreatingBillWithoutShipmentEdoFactory _billWithoutShipmentEdoInfoFactory;
 		private readonly IInfoForCreatingEdoBillFactory _billInfoFactory;
 		private readonly IFileDataFactory _fileDataFactory;
-		private readonly IPublishEndpoint _publishEndpoint;
+		// Воркер — синглтон, UoW создаётся на каждый проход: сообщения пишутся в его транзакцию явно
+		// TODO: создавать DI-scope на каждый проход и брать из него IUnitOfWork и IPublishEndpoint, тогда IUnitOfWorkOutbox не нужен
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 		private readonly IHostApplicationLifetime _applicationLifetime;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly DateTime _startDate;
@@ -79,7 +82,7 @@ namespace EdoDocumentsPreparer
 			IInfoForCreatingBillWithoutShipmentEdoFactory billWithoutShipmentEdoInfoFactory,
 			IInfoForCreatingEdoBillFactory billInfoFactory,
 			IFileDataFactory fileDataFactory,
-			IPublishEndpoint publishEndpoint,
+			IUnitOfWorkOutbox<IBus> outbox,
 			IHostApplicationLifetime applicationLifetime,
 			ICounterpartyEdoAccountController edoAccountController)
 		{
@@ -100,7 +103,7 @@ namespace EdoDocumentsPreparer
 				billWithoutShipmentEdoInfoFactory ?? throw new ArgumentNullException(nameof(billWithoutShipmentEdoInfoFactory));
 			_billInfoFactory = billInfoFactory ?? throw new ArgumentNullException(nameof(billInfoFactory));
 			_fileDataFactory = fileDataFactory ?? throw new ArgumentNullException(nameof(fileDataFactory));
-			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 			_applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_startDate = DateTime.Now;
@@ -362,7 +365,7 @@ namespace EdoDocumentsPreparer
 			try
 			{
 				_logger.LogInformation("Отправляем данные по {Document} {OrderId} в очередь", document, order.Id);
-				await _publishEndpoint.Publish(updInfo);
+				await PublishAndCommitAsync(uow, updInfo);
 			}
 			catch(Exception e)
 			{
@@ -380,6 +383,16 @@ namespace EdoDocumentsPreparer
 					"Возникла ошибка при попытке отправки документа в очередь",
 					task);
 			}
+		}
+
+		/// <summary>
+		/// Контейнер уже закоммичен: сообщение сохраняется в outbox следующим коммитом этой же UoW и уходит после него
+		/// </summary>
+		private async Task PublishAndCommitAsync<TMessage>(IUnitOfWork uow, TMessage message, CancellationToken cancellationToken = default)
+			where TMessage : class
+		{
+			await _outbox.GetPublishEndpoint(uow).Publish(message, cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 		}
 
 		private async Task PrepareBillsForSend(IUnitOfWork uow, CancellationToken cancellationToken)
@@ -461,7 +474,7 @@ namespace EdoDocumentsPreparer
 						continue;
 					}
 
-					await SendBillData(order, infoForCreatingEdoBill, cancellationToken);
+					await SendBillData(uow, order, infoForCreatingEdoBill, cancellationToken);
 				}
 				catch(Exception e)
 				{
@@ -471,13 +484,13 @@ namespace EdoDocumentsPreparer
 			}
 		}
 
-		private async Task SendBillData(Order order, InfoForCreatingEdoBill infoForCreatingEdoBill, CancellationToken cancellationToken)
+		private async Task SendBillData(IUnitOfWork uow, Order order, InfoForCreatingEdoBill infoForCreatingEdoBill, CancellationToken cancellationToken)
 		{
 			try
 			{
 				_logger.LogInformation("Отправляем данные по счету {OrderId} в очередь", order.Id);
 
-				await _publishEndpoint.Publish(infoForCreatingEdoBill, cancellationToken);
+				await PublishAndCommitAsync(uow, infoForCreatingEdoBill, cancellationToken);
 			}
 			catch(Exception e)
 			{
@@ -547,13 +560,13 @@ namespace EdoDocumentsPreparer
 						switch(infoForCreatingBillWithoutShipmentEdo)
 						{
 							case InfoForCreatingBillWithoutShipmentForDebtEdo billForDebt:
-								await _publishEndpoint.Publish(billForDebt);
+								await PublishAndCommitAsync(uow, billForDebt);
 								break;
 							case InfoForCreatingBillWithoutShipmentForPaymentEdo billForPayment:
-								await _publishEndpoint.Publish(billForPayment);
+								await PublishAndCommitAsync(uow, billForPayment);
 								break;
 							case InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo billForAdvancePayment:
-								await _publishEndpoint.Publish(billForAdvancePayment);
+								await PublishAndCommitAsync(uow, billForAdvancePayment);
 								break;
 						}
 					}

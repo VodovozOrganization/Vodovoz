@@ -7,17 +7,18 @@ using EdoNotifications.Contracts;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
 
 namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 {
 	public class ReceiptContactProblemNotificationService : IReceiptContactProblemNotificationService
 	{
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
 		private readonly IReceiptContactProblemSourceProvider _problemSourceProvider;
 
 		public ReceiptContactProblemNotificationService(
-			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
+			INotificationPublisher<EdoNotificationMessage> notificationPublisher,
 			IEdoNotificationMessageFactory notificationMessageFactory,
 			IReceiptContactProblemSourceProvider problemSourceProvider)
 		{
@@ -52,8 +53,7 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 				throw new ArgumentNullException(nameof(problem));
 			}
 
-			var notification = _notificationMessageFactory.Create(
-				EdoNotificationType.ReceiptContactInvalid,
+			var notification = _notificationMessageFactory.Create<ReceiptContactInvalidEdoNotificationSetting>(
 				("ProblemName", _problemSourceProvider.GetNotificationName(problem.SourceName)),
 				("OrderId", orderId.ToString(CultureInfo.InvariantCulture)),
 				("EdoTaskId", receiptTask.Id.ToString(CultureInfo.InvariantCulture)),

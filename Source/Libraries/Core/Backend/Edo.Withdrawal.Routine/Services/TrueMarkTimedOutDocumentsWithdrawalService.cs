@@ -20,28 +20,28 @@ namespace Edo.Withdrawal.Routine.Services
 	public class TrueMarkTimedOutDocumentsWithdrawalService
 	{
 		private readonly ILogger<TrueMarkTimedOutDocumentsWithdrawalService> _logger;
-		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IUnitOfWork _uow;
 		private readonly IEdoSettings _edoSettings;
 		private readonly IEdoRepository _edoRepository;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public TrueMarkTimedOutDocumentsWithdrawalService(
 			ILogger<TrueMarkTimedOutDocumentsWithdrawalService> logger,
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWork uow,
 			IEdoSettings edoSettings,
 			IEdoRepository edoRepository,
-			IBus messageBus)
+			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
-			_uowFactory = uowFactory
-				?? throw new ArgumentNullException(nameof(uowFactory));
+			_uow = uow
+				?? throw new ArgumentNullException(nameof(uow));
 			_edoSettings = edoSettings
 				?? throw new ArgumentNullException(nameof(edoSettings));
 			_edoRepository = edoRepository
 				?? throw new ArgumentNullException(nameof(edoRepository));
-			_messageBus = messageBus
-				?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint
+				?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		/// <summary>
@@ -51,20 +51,15 @@ namespace Edo.Withdrawal.Routine.Services
 		/// <returns></returns>
 		public async Task ProcessTimedOutDocumentTasks(CancellationToken cancellationToken)
 		{
-			var withdrawalEdoRequests = Enumerable.Empty<WithdrawalEdoRequest>();
+			var timedOutTasks =
+				(await GetTimedOutOrderDocumentTasks(_uow, cancellationToken))
+				.ToList();
 
-			using(var uow = _uowFactory.CreateWithoutRoot(nameof(TrueMarkTimedOutDocumentsWithdrawalService)))
-			{
-				var timedOutTasks =
-					(await GetTimedOutOrderDocumentTasks(uow, cancellationToken))
-					.ToList();
-
-				withdrawalEdoRequests = await CreateWithdrawalEdoRequests(uow, timedOutTasks, cancellationToken);
-
-				await uow.CommitAsync(cancellationToken);
-			}
+			var withdrawalEdoRequests = await CreateWithdrawalEdoRequests(_uow, timedOutTasks, cancellationToken);
 
 			await PublishWithdrawalEdoRequestCreatedEvents(withdrawalEdoRequests, cancellationToken);
+
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		private async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
@@ -180,7 +175,7 @@ namespace Edo.Withdrawal.Routine.Services
 						nameof(WithdrawalEdoRequestCreatedEvent),
 						withdrawalEdoRequest.Id);
 
-				await _messageBus.Publish(
+				await _publishEndpoint.Publish(
 					new WithdrawalEdoRequestCreatedEvent { Id = withdrawalEdoRequest.Id },
 					cancellationToken);
 			}

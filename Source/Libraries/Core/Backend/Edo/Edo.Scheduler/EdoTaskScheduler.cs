@@ -22,7 +22,7 @@ namespace Edo.Scheduler.Service
 		private readonly BillForPaymentEdoRequestTaskScheduler _billForPaymentEdoRequestTaskScheduler;
 		private readonly EquipmentTransferEdoRequestTaskScheduler _equipmentTransferEdoRequestTaskScheduler;
 		private readonly WithdrawalEdoRequestScheduler _withdrawalEdoRequestScheduler;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public EdoTaskScheduler(
 			ILogger<EdoTaskScheduler> logger,
@@ -33,7 +33,7 @@ namespace Edo.Scheduler.Service
 			BillForPaymentEdoRequestTaskScheduler billForPaymentEdoRequestTaskScheduler,
 			EquipmentTransferEdoRequestTaskScheduler equipmentTransferEdoRequestTaskScheduler,
 			WithdrawalEdoRequestScheduler withdrawalEdoRequestScheduler,
-			IBus messageBus
+			IPublishEndpoint publishEndpoint
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -44,7 +44,7 @@ namespace Edo.Scheduler.Service
 			_billForPaymentEdoRequestTaskScheduler = billForPaymentEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(billForPaymentEdoRequestTaskScheduler));
 			_equipmentTransferEdoRequestTaskScheduler = equipmentTransferEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(equipmentTransferEdoRequestTaskScheduler));
 			_withdrawalEdoRequestScheduler = withdrawalEdoRequestScheduler ?? throw new ArgumentNullException(nameof(withdrawalEdoRequestScheduler));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		public async Task CreateTask(int requestId, CancellationToken cancellationToken)
@@ -111,7 +111,6 @@ namespace Edo.Scheduler.Service
 
 			await _uow.SaveAsync(request, cancellationToken: cancellationToken);
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			object message = null;
 			switch(edoTask.TaskType)
@@ -142,8 +141,10 @@ namespace Edo.Scheduler.Service
 
 			if(message != null)
 			{
-				await _messageBus.Publish(message, cancellationToken);
+				await _publishEndpoint.Publish(message, cancellationToken);
 			}
+
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		/// <summary>
@@ -192,7 +193,6 @@ namespace Edo.Scheduler.Service
 
 			await _uow.SaveAsync(request, cancellationToken: cancellationToken);
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			if(edoTask.TaskType != EdoTaskType.InformalOrderDocument)
 			{
@@ -201,10 +201,8 @@ namespace Edo.Scheduler.Service
 
 			var message = new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = edoTask.Id };
 
-			if(message != null)
-			{
-				await _messageBus.Publish(message, cancellationToken);
-			}
+			await _publishEndpoint.Publish(message, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		public void Dispose()

@@ -16,6 +16,8 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Edo.Problems;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace TaxcomEdoConsumer
 {
@@ -83,6 +85,8 @@ namespace TaxcomEdoConsumer
 							busConf.AddConsumer<TaxcomDocflowSendEventConsumer, TaxcomDocflowSendEventConsumerDefinition>();
 
 							busConf.AddConsumer<TaxcomDocflowInformalDocumentSendEventConsumer, TaxcomDocflowInformalDocumentSendEventDefinition>();
+
+							busConf.AddVodovozOutbox(OutboxBusNames.Pacs);
 
 							busConf.ConfigureRabbitMq();
 						});

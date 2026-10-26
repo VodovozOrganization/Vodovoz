@@ -1,4 +1,4 @@
-using EdoDocumentsConsumer.Consumers;
+﻿using EdoDocumentsConsumer.Consumers;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
