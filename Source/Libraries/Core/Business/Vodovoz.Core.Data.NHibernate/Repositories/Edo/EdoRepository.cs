@@ -870,8 +870,7 @@ select
 	et.cancellation_reason as :cancellation_reason,
 	eod.id as :edo_document_id,
 	eod.status as :edo_document_status,
-	eod.discrepancy_state as :docflow_discrepancy_state,
-	et.cancellation_reason as :cancellation_reason
+	eod.discrepancy_state as :docflow_discrepancy_state
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
 left join edo_outgoing_documents eod on eod.informal_document_task_id = et.id
