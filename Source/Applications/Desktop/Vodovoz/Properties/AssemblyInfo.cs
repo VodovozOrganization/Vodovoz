@@ -13,7 +13,6 @@ using QS.Project.Versioning;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyProductCode(3)]
-[assembly: AssemblyModification("gpl")]
 [assembly: AssemblyLogoIcon("Vodovoz.icons.logo.png")]
 
 // The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".
