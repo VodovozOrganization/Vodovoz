@@ -346,12 +346,13 @@ namespace Vodovoz.Views.Orders
 				.AddColumn("Количество")
 					.AddNumericRenderer(x => x.Count)
 					.XAlign(0.5f)
-				.AddColumn("Цена с учетом\nскидки из набора\n(онлайн заказ)")
+					.AddTextRenderer(x => x.PromoSetsCountMultiplierInfo)
+				.AddColumn("Цена промонабора\n(онлайн заказ)")
 					.AddTextRenderer(x => x is OnlineOrderPromoSetItemNode ? "-" : x.ReceivedPrice.ToString())
 					.XAlign(0.5f)
 					.AddSetter((cell, node) =>
 					{
-						if(node is OnlineOrderPromoSetNode && node.ReceivedPrice != node.OurPrice)
+						if(node is OnlineOrderPromoSetNode && node.ReceivedPrice != node.RoundedOurPrice)
 						{
 							cell.CellBackgroundGdk = GdkColors.DangerBase;
 						}
@@ -360,18 +361,35 @@ namespace Vodovoz.Views.Orders
 							cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 						}
 					})
-				.AddColumn("Цена с учетом\nскидки из набора\n(ДВ)")
-					.AddNumericRenderer(x => x.OurPrice)
+				.AddColumn("Цена товара\nпромонабора(ДВ)")
+					.AddNumericRenderer(x => x is OnlineOrderPromoSetNode ? "-" : x.NomenclaturePrice.ToString())
 					.XAlign(0.5f)
-				.AddColumn("Дополнительная\nскидка (онлайн заказ)")
-					.AddNumericRenderer(node => node.ReceivedDiscountMoney)
+				.AddColumn("Скидка в рублях\nиз промонабора(ДВ)")
+					.AddNumericRenderer(x =>
+						x is OnlineOrderPromoSetNode
+							? "-"
+							: $"{x.OurDiscountMoneyFromPromoSet:N2}")
+					.XAlign(0.5f)
+				.AddColumn("Дополнительная\nскидка (онлайн заказ) P")
+					.AddNumericRenderer(x =>
+						x is OnlineOrderPromoSetItemNode
+							? "-"
+							: $"{x.ReceivedDiscountMoney:N2}")
 					.AddSetter((cell, node) =>
 					{
-						cell.CellBackgroundGdk = node.ReceivedDiscountMoney != node.OurAdditionalDiscountMoney ? GdkColors.DangerBase : GdkColors.PrimaryBase;
+						if(node is OnlineOrderPromoSetNode
+							&& node.ReceivedDiscountMoney != node.OurAdditionalDiscountMoney)
+						{
+							cell.CellBackgroundGdk = GdkColors.DangerBase;
+						}
+						else
+						{
+							cell.CellBackgroundGdk = GdkColors.PrimaryBase;
+						}
 					})
 					.XAlign(0.5f)
 				.AddColumn("Дополнительная\nскидка (ДВ)")
-					.AddNumericRenderer(x => x.OurAdditionalDiscountMoney)
+					.AddTextRenderer(x => $"{x.OurAdditionalDiscountMoney:N2}")
 					.XAlign(0.5f)
 				.AddColumn("Основания скидки")
 					.AddTextRenderer(node => node.DiscountReasonNames)

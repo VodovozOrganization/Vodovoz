@@ -140,8 +140,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 				var totalPromoSetItemsDiscount = _discountsController.CalculatePromoSetItemsTotalDiscount(
 					UoW,
-					promoSaleItem,
-					discountReasons);
+					promoSaleItem);
 				
 				foreach(var item in items)
 				{

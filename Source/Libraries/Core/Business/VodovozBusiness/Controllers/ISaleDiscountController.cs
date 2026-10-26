@@ -62,13 +62,24 @@ namespace VodovozBusiness.Controllers
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="onlinePromoSet">Онлайн промонабор</param>
-		/// <param name="discountReasons">Примененные основания скидки</param>
 		/// <param name="canUseAlternativePrices">Можно ли использовать альтернативные цены</param>
 		/// <returns></returns>
 		IDictionary<int, PromoSetItemTotalDiscount> CalculatePromoSetItemsTotalDiscount(
 			IUnitOfWork uow,
 			IApplicablePromotion onlinePromoSet,
-			IEnumerable<DiscountReasonBase> discountReasons,
+			bool canUseAlternativePrices = false
+		);
+
+		/// <summary>
+		/// Подсчет итоговой скидки для позиций промонабора, разбивая общую скидку по всем позициям(для заказа, где промонабор добавляется товарами)
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="onlinePromoSet">Онлайн промонабор</param>
+		/// <param name="canUseAlternativePrices">Можно ли использовать альтернативные цены</param>
+		/// <returns></returns>
+		IReadOnlyList<IDictionary<int, PromoSetItemTotalDiscount>> CalculatePromoSetTotalDiscountBySaleItems(
+			IUnitOfWork uow,
+			IApplicablePromotion onlinePromoSet,
 			bool canUseAlternativePrices = false
 		);
 

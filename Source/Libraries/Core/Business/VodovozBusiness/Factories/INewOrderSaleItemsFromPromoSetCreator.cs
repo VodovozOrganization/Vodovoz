@@ -16,7 +16,7 @@ namespace VodovozBusiness.Factories
 		/// <param name="onlineOrderPromoSet">Промонабор из онлайн заказа</param>
 		/// <param name="hasPermissionsForAlternativePrice">Есть права на альтернативную цену</param>
 		/// <returns></returns>
-		IEnumerable<NewOrderSaleItem> Create(
+		IEnumerable<IEnumerable<NewOrderSaleItem>> Create(
 			IUnitOfWork uow,
 			OnlineOrderPromoSet onlineOrderPromoSet,
 			bool hasPermissionsForAlternativePrice);

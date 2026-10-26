@@ -151,18 +151,7 @@ namespace Vodovoz.Core.Application.Sale
 					saleItem.IsAlternativePrice = false;
 					break;
 				case SaleItemPriceType.User:
-					if(specification.IsSatisfiedBy(saleItem, receivedPriceData))
-					{
-						saleItem.IsUserPrice = true;
-						saleItem.IsFixedPrice = false;
-						saleItem.IsAlternativePrice = false;
-					}
-					else
-					{
-						saleItem.IsUserPrice = false;
-						saleItem.IsFixedPrice = false;
-						saleItem.IsAlternativePrice = false;
-					}
+					CheckUserPrice(saleItem, receivedPriceData, specification);
 					break;
 				case SaleItemPriceType.Alternative:
 					saleItem.IsAlternativePrice = true;
@@ -170,10 +159,28 @@ namespace Vodovoz.Core.Application.Sale
 					saleItem.IsFixedPrice = false;
 					break;
 				default:
-					saleItem.IsAlternativePrice = false;
-					saleItem.IsUserPrice = false;
-					saleItem.IsFixedPrice = false;
+					CheckUserPrice(saleItem, receivedPriceData, specification);
 					break;
+			}
+		}
+
+		private static void CheckUserPrice(
+			ISaleItem saleItem,
+			(SaleItemPriceType PriceType, decimal Price) receivedPriceData,
+			ISpecificationTwoArgs specification
+			)
+		{
+			if(specification.IsSatisfiedBy(saleItem, receivedPriceData))
+			{
+				saleItem.IsUserPrice = true;
+				saleItem.IsFixedPrice = false;
+				saleItem.IsAlternativePrice = false;
+			}
+			else
+			{
+				saleItem.IsUserPrice = false;
+				saleItem.IsFixedPrice = false;
+				saleItem.IsAlternativePrice = false;
 			}
 		}
 	}

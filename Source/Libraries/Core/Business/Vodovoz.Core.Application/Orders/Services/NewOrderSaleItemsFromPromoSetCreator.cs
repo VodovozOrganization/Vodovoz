@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 		
 		/// <inheritdoc/>
-		public IEnumerable<NewOrderSaleItem> Create(
+		public IEnumerable<IEnumerable<NewOrderSaleItem>> Create(
 			IUnitOfWork uow,
 			OnlineOrderPromoSet onlineOrderPromoSet,
 			bool hasPermissionsForAlternativePrice
@@ -32,48 +32,61 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			if(!onlineOrderPromoSet.DiscountReasons.Any())
 			{
-				return onlineOrderPromoSet.PromoSet.PromotionalSetItems
-					.Select(proSetItem =>
-						NewOrderSaleItem.Create(
-							proSetItem.Nomenclature,
-							proSetItem.Count,
-							default,
-							proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
-							proSetItem.IsDiscountInMoney,
-							null,
-							proSetItem.PromoSet
+				return new []
+				{
+					onlineOrderPromoSet.PromoSet.PromotionalSetItems
+						.Select(proSetItem =>
+							NewOrderSaleItem.Create(
+								proSetItem.Nomenclature,
+								proSetItem.Count,
+								default,
+								proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
+								proSetItem.IsDiscountInMoney,
+								null,
+								proSetItem.PromoSet
+							)
 						)
-					)
-					.ToList();
+						.ToList()
+				};
 			}
 			
-			var newSaleItems = new List<NewOrderSaleItem>();
+			//т.к. скидка может превышать стоимость одного или нескольких промонаборов и в заказе они добавляются товарами,
+			//то мы должны просчитать скидки для всез товаров, входящих во все промики
+			var newSaleItemsList = new List<List<NewOrderSaleItem>>();
+			
 			var promoSaleItem = _applicablePromotionFactory.CreateApplicablePromotion(onlineOrderPromoSet);
-			var totalPromoSetItemsDiscount = _discountsController.CalculatePromoSetItemsTotalDiscount(
+			var allPromoSetItemsDiscounts = _discountsController.CalculatePromoSetTotalDiscountBySaleItems(
 				uow,
 				promoSaleItem,
-				onlineOrderPromoSet.DiscountReasons,
 				hasPermissionsForAlternativePrice);
-			
-			foreach(var promoItem in onlineOrderPromoSet.PromoSet.PromotionalSetItems)
+
+			for(var i = 0; i < onlineOrderPromoSet.Count; i++)
 			{
-				var newSaleItem = NewOrderSaleItem.Create(
-					promoItem.Nomenclature,
-					promoItem.Count,
-					promoSet: onlineOrderPromoSet.PromoSet);
+				var newSaleItems = new List<NewOrderSaleItem>();
+				newSaleItemsList.Add(newSaleItems);
 				
-				newSaleItems.Add(newSaleItem);
-				
-				if(totalPromoSetItemsDiscount.TryGetValue(promoItem.Id, out var totalDiscountFromItem))
+				var promoSetItemsDiscounts = allPromoSetItemsDiscounts[i];
+
+				foreach(var promoItem in onlineOrderPromoSet.PromoSet.PromotionalSetItems)
 				{
-					newSaleItem.UpdateDiscount(
-						totalDiscountFromItem.TotalDiscountValue.IsDiscountMoney,
-						totalDiscountFromItem.TotalDiscountValue.GetDiscount,
-						totalDiscountFromItem.DiscountReasons);
+					var newSaleItem = NewOrderSaleItem.Create(
+						promoItem.Nomenclature,
+						promoItem.Count,
+						promoSet: onlineOrderPromoSet.PromoSet);
+
+					newSaleItems.Add(newSaleItem);
+
+					if(promoSetItemsDiscounts.TryGetValue(promoItem.Id, out var totalDiscountFromItem))
+					{
+						newSaleItem.UpdateDiscount(
+							totalDiscountFromItem.TotalDiscountValue.IsDiscountMoney,
+							totalDiscountFromItem.TotalDiscountValue.GetDiscount,
+							totalDiscountFromItem.DiscountReasons);
+					}
 				}
 			}
 			
-			return newSaleItems;
+			return newSaleItemsList;
 		}
 	}
 }

@@ -16,6 +16,11 @@ namespace VodovozBusiness.Nodes
 		/// Количество
 		/// </summary>
 		decimal Count { get; }
+		
+		/// <summary>
+		/// Информация о количестве промонаборов для товара("x Count")
+		/// </summary>
+		string PromoSetsCountMultiplierInfo { get; }
 
 		/// <summary>
 		/// Переданная цена
@@ -33,9 +38,19 @@ namespace VodovozBusiness.Nodes
 		decimal? ReceivedDiscountMoney { get; }
 
 		/// <summary>
-		/// Цена в ДВ
+		/// Цена в ДВ(округленная)
 		/// </summary>
-		decimal OurPrice { get; }
+		decimal RoundedOurPrice { get; }
+		
+		/// <summary>
+		/// Цена товара из промонабора по прайсу
+		/// </summary>
+		decimal? NomenclaturePrice { get; }
+		
+		/// <summary>
+		/// Скидка из промонабора
+		/// </summary>
+		decimal? OurDiscountMoneyFromPromoSet { get; }
 
 		/// <summary>
 		/// Рассчитанная дополнительная скидка(не из промонабора)

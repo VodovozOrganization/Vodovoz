@@ -45,8 +45,11 @@ namespace Vodovoz.Core.Application.Sale
 				.ContextDataToCommonRecalculateDiscount()
 				.SaleItem;
 
-			SetPriceWithoutRecalculate(saleItem, price);
-			RecalculateDiscounts(context);
+			if(SetPriceWithoutRecalculate(saleItem, price))
+			{
+				RecalculateDiscounts(context);
+			}
+
 			return true;
 		}
 		

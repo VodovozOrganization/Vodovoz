@@ -5,6 +5,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using Vodovoz.Domain.Client;
@@ -142,6 +143,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					on promoSet.Id equals promoSetItem.PromoSet.Id
 				join nomenclature in uow.Session.Query<Nomenclature>()
 					on promoSetItem.Nomenclature.Id equals nomenclature.Id
+				join nomenclatureUnit in uow.Session.Query<MeasurementUnits>()
+					on nomenclature.Unit.Id equals nomenclatureUnit.Id
 				join dependNomenclature in uow.Session.Query<Nomenclature>()
 					on nomenclature.DependsOnNomenclature equals dependNomenclature into groupDependNomenclatures
 				from dependNomenclature in groupDependNomenclatures.DefaultIfEmpty()
@@ -164,7 +167,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					Id = promoSetItem.Id,
 					OnlinePromoSetId = onlinePromoSet.Id,
 					Name = nomenclature.Name,
-					Count = promoSetItem.Count * onlinePromoSet.Count,
+					NomenclatureUnit = nomenclatureUnit.Digits,
+					PromoSetsCount = onlinePromoSet.Count,
+					Count = promoSetItem.Count,
 					NomenclaturePrice = dependNomenclature != null ? dependNomenclaturePrice.FirstOrDefault() : nomenclaturePrice.FirstOrDefault()
 				};
 			
