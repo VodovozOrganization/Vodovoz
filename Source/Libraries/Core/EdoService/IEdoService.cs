@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
@@ -136,18 +137,17 @@ namespace EdoService.Library
 		Result<string> ResendNewEdoTask(int taskId);
 
 		/// <summary>
+		/// Помечает заявку задачи как разрешённую к отправке в закрытом бухгалтерском периоде.
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи ЭДО</param>
+		void AllowResendInClosedAccountingPeriod(int taskId);
+
+		/// <summary>
 		/// Переотправляет документ ЭДО с исходными кодами маркировки.
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи</param>
 		/// <returns>Результат переотправки документа</returns>
 		Result<string> ResendEdoDocumentWithOriginalCodes(int taskId);
-
-		/// <summary>
-		/// Переотправляет документ ЭДО с подбором новых кодов ЧЗ из пула.
-		/// </summary>
-		/// <param name="taskId">Идентификатор задачи</param>
-		/// <returns>Результат переотправки документа</returns>
-		Result<string> ResendEdoDocumentForOrderWithCodesFromPool(int taskId);
 
 		/// <summary>
 		/// Переотправка чека по ЭДО по идентификатору задачи
@@ -230,5 +230,15 @@ namespace EdoService.Library
 		/// <param name="taskId">Идентификатор задачи</param>
 		/// <returns>Рещультат отправки</returns>
 		Task<Result<string>> TryResendViaOrderDocumentSendEventAsync(int taskId);
+
+		/// <summary>
+		/// Переотправляет документ у которого есть расхождение по ЭДО
+		/// </summary>
+		Result ResendDocumentWithDiscrepancy(IUnitOfWork uow, EdoDiscrepancyNode edoDiscrepancyNode);
+
+		/// <summary>
+		/// Отменяет заказ у которого документооборот с расхождением
+		/// </summary>
+		Result CancelOrderWithEdoDiscrepancy(IUnitOfWork uow, EdoDiscrepancyNode edoDiscrepancyNode, Order order);
 	}
 }

@@ -13,10 +13,10 @@ namespace EarchiveApi.Services
 	public class EarchiveUpdService : EarchiveUpd.EarchiveUpdBase
 	{
 		private readonly ILogger<EarchiveUpdService> _logger;
-		private readonly MySqlConnection _mySqlConnection;
+		private readonly string _connectionString;
 		private uint _defaultTimeout;
 
-		public EarchiveUpdService(ILogger<EarchiveUpdService> logger, IConfiguration configuration, MySqlConnection mySqlConnection)
+		public EarchiveUpdService(ILogger<EarchiveUpdService> logger, IConfiguration configuration, MySqlConnectionStringBuilder connectionStringBuilder)
 		{
 			if(configuration is null)
 			{
@@ -24,7 +24,7 @@ namespace EarchiveApi.Services
 			}
 
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_mySqlConnection = mySqlConnection ?? throw new ArgumentNullException(nameof(mySqlConnection));
+			_connectionString = (connectionStringBuilder ?? throw new ArgumentNullException(nameof(connectionStringBuilder))).ConnectionString;
 			_defaultTimeout = configuration.GetSection("DomainDB").GetValue<uint>("DefaultTimeout");
 		}
 
@@ -48,7 +48,9 @@ namespace EarchiveApi.Services
 					.Or<TimeoutException>()
 					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(_defaultTimeout));
 
-				var counterparties = (await _mySqlConnection.QueryAsyncWithRetry<CounterpartyInfo>(SelectCounterpartiesSqlQuery, retryPolicy, new { nameSubstring })).ToList();
+				await using var connection = new MySqlConnection(_connectionString);
+
+				var counterparties = (await connection.QueryAsyncWithRetry<CounterpartyInfo>(SelectCounterpartiesSqlQuery, retryPolicy, new { nameSubstring })).ToList();
 
 				foreach(var counterpartyInfo in counterparties)
 				{
@@ -87,7 +89,9 @@ namespace EarchiveApi.Services
 					.Or<TimeoutException>()
 					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(_defaultTimeout));
 
-				var deliveryPoints = (await _mySqlConnection.QueryAsyncWithRetry<DeliveryPointInfo>(SelectAddressesSqlQuery, retryPolicy, new { counterpartyId })).ToList();
+				await using var connection = new MySqlConnection(_connectionString);
+
+				var deliveryPoints = (await connection.QueryAsyncWithRetry<DeliveryPointInfo>(SelectAddressesSqlQuery, retryPolicy, new { counterpartyId })).ToList();
 
 				foreach(var deliveryPointInfo in deliveryPoints)
 				{
@@ -132,7 +136,9 @@ namespace EarchiveApi.Services
 					.Or<TimeoutException>()
 					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(_defaultTimeout));
 
-				var updIds = (await _mySqlConnection.QueryAsyncWithRetry<UpdResponseInfo>(SelectUpdCodesSqlQuery, retryPolicy, new { clientId, deliveryPointId, startDate, endDate })).ToList();
+				await using var connection = new MySqlConnection(_connectionString);
+
+				var updIds = (await connection.QueryAsyncWithRetry<UpdResponseInfo>(SelectUpdCodesSqlQuery, retryPolicy, new { clientId, deliveryPointId, startDate, endDate })).ToList();
 
 				foreach(var updId in updIds)
 				{
@@ -182,8 +188,10 @@ namespace EarchiveApi.Services
 					.Or<TimeoutException>()
 					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(_defaultTimeout));
 
+				await using var connection = new MySqlConnection(_connectionString);
+
 				var updNumbers =
-					(await _mySqlConnection.QueryAsyncWithRetry<UpdNumberResponseInfo>(
+					(await connection.QueryAsyncWithRetry<UpdNumberResponseInfo>(
 						SelectUpdNumbersSqlQuery,
 						retryPolicy,
 						new { orderIds }))

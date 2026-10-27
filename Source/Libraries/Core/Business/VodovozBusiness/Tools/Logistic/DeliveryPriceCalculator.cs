@@ -194,9 +194,11 @@ namespace Vodovoz.Tools.Logistic
 
 		public DeliveryPriceNode CalculateForService(DeliveryPoint deliveryPoint)
 		{
-			var latitude = deliveryPoint.Latitude;
-			var longitude = deliveryPoint.Longitude;
+			return CalculateForService(deliveryPoint.Latitude, deliveryPoint.Longitude);
+		}
 
+		public DeliveryPriceNode CalculateForService(decimal? latitude, decimal? longitude)
+		{
 			var result = new DeliveryPriceNode();
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки"))

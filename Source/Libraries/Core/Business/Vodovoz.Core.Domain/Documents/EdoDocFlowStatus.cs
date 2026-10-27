@@ -28,9 +28,9 @@ namespace Vodovoz.Core.Domain.Documents
 		[Display(Name = "Успешно завершен")]
 		Succeed,
 		/// <summary>
-		/// Предупреждение
+		/// Завершен с уточнением
 		/// </summary>
-		[Display(Name = "Предупреждение")]
+		[Display(Name = "Завершен с уточнением")]
 		Warning,
 		/// <summary>
 		/// Ошибка
@@ -43,9 +43,9 @@ namespace Vodovoz.Core.Domain.Documents
 		[Display(Name = "Не начат")]
 		NotStarted,
 		/// <summary>
-		/// Завершен с уточнениями
+		/// Завершен с расхождением
 		/// </summary>
-		[Display(Name = "Завершен с уточнениями")]
+		[Display(Name = "Завершен с расхождением")]
 		CompletedWithDivergences,
 		/// <summary>
 		/// Не принят

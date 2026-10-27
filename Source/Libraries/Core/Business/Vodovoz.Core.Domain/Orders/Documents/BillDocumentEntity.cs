@@ -68,6 +68,11 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 			IOrganizationSettings organizationSettings = null,
 			IDeliveryScheduleSettings deliveryScheduleSettings = null)
 		{
+			if(KulerServiceBillEmail.IsOrder(Order, organizationSettings))
+			{
+				return KulerServiceBillEmail.Create(Order);
+			}
+
 			var template = new EmailTemplate
 			{
 				Title = "ООО \"Веселый водовоз\"",
@@ -112,8 +117,16 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 			return template;
 		}
 
-		public virtual EmailTemplate GetResendDocumentEmailTemplate()
+		public virtual EmailTemplate GetResendDocumentEmailTemplate() =>
+			GetResendDocumentEmailTemplate(null);
+
+		public virtual EmailTemplate GetResendDocumentEmailTemplate(IOrganizationSettings organizationSettings)
 		{
+			if(KulerServiceBillEmail.IsOrder(Order, organizationSettings))
+			{
+				return KulerServiceBillEmail.Create(Order);
+			}
+
 			var template = new EmailTemplate
 			{
 				Title = "ООО \"Веселый водовоз\"",
@@ -177,8 +190,13 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 			return reportInfo;
 		}
 
-		public virtual EmailTemplate GetResendEmailTemplate()
+		public virtual EmailTemplate GetResendEmailTemplate(IOrganizationSettings organizationSettings = null)
 		{
+			if(KulerServiceBillEmail.IsOrder(Order, organizationSettings))
+			{
+				return KulerServiceBillEmail.Create(Order);
+			}
+
 			var template = new EmailTemplate();
 
 			template.Title = "ООО \"Веселый водовоз\"";

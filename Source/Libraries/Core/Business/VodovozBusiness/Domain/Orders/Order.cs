@@ -2924,11 +2924,18 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Ответственный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IRouteListService routeListService,
-			INomenclatureSettings nomenclatureSettings, ICallTaskWorker callTaskWorker,
-			GuiltyTypes? guilty = GuiltyTypes.Client, bool needCreateDeliveryFreeBalanceOperation = false)
+		public virtual void SetUndeliveredStatus(
+			IUnitOfWork uow, 
+			IRouteListService routeListService,
+			INomenclatureSettings nomenclatureSettings, 
+			ICallTaskWorker callTaskWorker,
+			GuiltyTypes? guilty = GuiltyTypes.Client, 
+			bool needCreateDeliveryFreeBalanceOperation = false
+		)
 		{
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, this);
+			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, this.Id);
 			var routeList = routeListItem?.RouteList;
 			switch(OrderStatus)
 			{
@@ -2959,20 +2966,18 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 			UpdateBottleMovementOperation(uow, nomenclatureSettings, 0);
-
-			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
 		}
 
 		public virtual void CancelDelivery(IUnitOfWork uow, ICallTaskWorker callTaskWorker)
 		{
-			ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
 			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+			ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
 		}
 
 		public virtual void OverdueDelivery(IUnitOfWork uow, ICallTaskWorker callTaskWorker)
 		{
-			ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
 			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+			ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
 		}
 
 		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, ICallTaskWorker callTaskWorker)

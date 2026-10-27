@@ -1,4 +1,4 @@
-using Edo.Admin;
+﻿using Edo.Admin;
 using Edo.Documents.Services;
 using Edo.Common;
 using Edo.Common.Services;
@@ -32,6 +32,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Edo.Upd;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
@@ -592,14 +593,14 @@ namespace Receipt.Dispatcher.Tests
 			var codeRepository = Substitute.For<ITrueMarkCodeRepository>();
 			codeRepository.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
 				.Returns(call => Task.FromResult(_waterGroupCodeRepository.Data.FirstOrDefault(x => x.Id == (int)call[0])));
-			var builder = new UpdDocumentBuilder(_unitOfWork, pool, codeRepository,
-				Substitute.For<ITrueMarkCodesPoolCodeProvider>(), Substitute.For<ITrueMarkWaterCodeService>(),
-				Substitute.For<ILogger<UpdDocumentBuilder>>());
+			var builder = UpdDocumentBuilderFixture.CreateBuilder(_unitOfWork, pool, codeRepository,
+				Substitute.For<ITrueMarkCodesPoolCodeProvider>(), Substitute.For<IUpdTransportCodeService>());
+			UpdDocumentBuilderFixture.PrepareForUpd(task);
 
-			await builder.BuildUpdDocumentAsync(task, default);
+			await builder.BuildForOwnNeedUpdDocumentAsync(task, default);
 
 			Assert.Equal(scans, task.Items.ToArray());
-			Assert.Empty(task.UpdInventPositions);
+			Assert.Empty(task.Upd.InventPositions);
 			await pool.DidNotReceive().PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
 		}
 
@@ -647,22 +648,23 @@ namespace Receipt.Dispatcher.Tests
 			var repository = Substitute.For<ITrueMarkCodeRepository>();
 			repository.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
 				.Returns(call => Task.FromResult(_waterGroupCodeRepository.Data.Single(x => x.Id == (int)call[0])));
-			var builder = new UpdDocumentBuilder(_unitOfWork, pool, repository, provider,
-				Substitute.For<ITrueMarkWaterCodeService>(), Substitute.For<ILogger<UpdDocumentBuilder>>());
+			var builder = UpdDocumentBuilderFixture.CreateBuilder(_unitOfWork, pool, repository, provider,
+				Substitute.For<IUpdTransportCodeService>());
+			UpdDocumentBuilderFixture.PrepareForUpd(task);
 
 			if(poolEmpty)
 			{
-				await Assert.ThrowsAsync<EdoCodePoolMissingCodeException>(() => builder.BuildUpdDocumentAsync(task, default));
+				await Assert.ThrowsAsync<EdoCodePoolMissingCodeException>(() => builder.BuildForOwnNeedUpdDocumentAsync(task, default));
 				Assert.Equal(originalItems, task.Items.ToArray());
 				Assert.Same(source, originalItems[0].ProductCode.SourceCode);
-				Assert.Empty(task.UpdInventPositions);
+				Assert.Null(task.Upd);
 				return;
 			}
-			await builder.BuildUpdDocumentAsync(task, default);
+			await builder.BuildForOwnNeedUpdDocumentAsync(task, default);
 
 			Assert.Equal(originalItems, task.Items.ToArray());
 			Assert.Same(source, originalItems[0].ProductCode.SourceCode);
-			var assigned = Assert.Single(Assert.Single(task.UpdInventPositions).Codes);
+			var assigned = Assert.Single(Assert.Single(task.Upd.InventPositions).Codes);
 			if(completeGroup)
 			{
 				Assert.NotNull(assigned.GroupCode);
@@ -784,19 +786,20 @@ namespace Receipt.Dispatcher.Tests
 			var pool = Substitute.For<ITrueMarkCodesPool>();
 			var handler = new Edo.Documents.ForResaleDocumentEdoTaskHandler(_unitOfWork, repository,
 				Substitute.For<ITrueMarkCodesValidator>(), new TransferRequestCreator(Substitute.For<IEdoRepository>()),
-				pool, registrar, Substitute.For<IBus>());
+				pool, CreateUpdDocumentBuilderForResale(), registrar, Substitute.For<IBus>(),
+				new UpdTransportCodeService(_unitOfWork, Substitute.For<ITrueMarkWaterCodeService>()));
 			var method = typeof(Edo.Documents.ForResaleDocumentEdoTaskHandler).GetMethod("CreateUpdDocument",
 				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 			Func<Task> distribute = () => (Task)method.Invoke(handler, new object[] { task, CancellationToken.None });
 			if(!completeGroup && string.IsNullOrEmpty(checkCode))
 			{
 				await Assert.ThrowsAsync<Edo.Problems.Exception.EdoExceptions.ResaleMissingCodesOnFillInventPositionsException>(distribute);
-				Assert.Empty(task.UpdInventPositions);
+				Assert.Null(task.Upd);
 			}
 			else
 			{
 				await distribute();
-				var codes = Assert.Single(task.UpdInventPositions).Codes;
+				var codes = Assert.Single(task.Upd.InventPositions).Codes;
 				Assert.Equal(2, codes.Sum(x => x.Quantity));
 				if(completeGroup)
 				{
@@ -811,6 +814,15 @@ namespace Receipt.Dispatcher.Tests
 			}
 			Assert.Equal(items, task.Items.ToArray());
 			Assert.Empty(pool.ReceivedCalls());
+		}
+
+		private static IUpdDocumentBuilder CreateUpdDocumentBuilderForResale()
+		{
+			var builder = Substitute.For<IUpdDocumentBuilder>();
+			builder.GetUpdDocumentWithoutCodes(Arg.Any<DocumentEdoTask>()).Returns(_ => new EdoUpdDocument());
+			builder.CreateInventPosition(Arg.Any<OrderEntity>(), Arg.Any<OrderItemEntity>())
+				.Returns(call => new UpdInventPosition { AssignedOrderItem = call.ArgAt<OrderItemEntity>(1) });
+			return builder;
 		}
 
 		private ReceiptEdoTask CreateTaskWithUnusedScans(bool grouped)
@@ -1006,7 +1018,7 @@ namespace Receipt.Dispatcher.Tests
 
 		private OrderEntity CreateOrderForTest(IEnumerable<OrderItemEntity> orderItems)
 		{
-			var order = new OrderEntity
+			var order = new OrderEntityFixture
 			{
 				Id = 1,
 				Contract = new CounterpartyContractEntity
@@ -1088,7 +1100,7 @@ namespace Receipt.Dispatcher.Tests
 			var transferRequestCreator = CreateTransferRequestCreatorFixture(edoRepository);
 			var edoReceiptSettings = Substitute.For<IEdoReceiptSettings>();
 			edoReceiptSettings.MaxCodesInReceiptCount.Returns(1000);
-			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, Substitute.For<INomenclatureRepository>(), Substitute.For<ITrueMarkApiClient>());
+			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, Substitute.For<INomenclatureRepository>(), Substitute.For<IEdoSettings>(), Substitute.For<ITrueMarkApiClient>());
 			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
 			trueMarkCodeRepository
@@ -1183,9 +1195,9 @@ namespace Receipt.Dispatcher.Tests
 			return new TransferRequestCreator(edoRepository);
 		}
 
-		private TrueMarkTaskCodesValidator CreateTrueMarkTaskCodesValidatorFixture(IEdoRepository edoRepository, INomenclatureRepository nomenclatureRepository, ITrueMarkApiClient trueMarkApiClient)
+		private TrueMarkTaskCodesValidator CreateTrueMarkTaskCodesValidatorFixture(IEdoRepository edoRepository, INomenclatureRepository nomenclatureRepository, IEdoSettings edoSettings, ITrueMarkApiClient trueMarkApiClient)
 		{
-			return new TrueMarkTaskCodesValidator(edoRepository, nomenclatureRepository, trueMarkApiClient);
+			return new TrueMarkTaskCodesValidator(edoRepository, nomenclatureRepository, edoSettings, trueMarkApiClient);
 		}
 
 		private TrueMarkCodesPool CreateTrueMarkCodesPoolFixture(IUnitOfWork unitOfWork)

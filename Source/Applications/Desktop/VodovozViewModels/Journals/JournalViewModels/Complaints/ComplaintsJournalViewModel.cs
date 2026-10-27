@@ -811,7 +811,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					return null;
 				}
 
-				var rl = _routeListItemRepository.GetRouteListItemForOrder(UoW, order)?.RouteList;
+				var rl = _routeListItemRepository.GetRouteListItemForOrder(UoW, order.Id)?.RouteList;
 				return rl;
 			}
 

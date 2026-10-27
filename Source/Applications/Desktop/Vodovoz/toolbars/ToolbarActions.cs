@@ -19,6 +19,7 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
+using Vodovoz.ViewModels.Dialogs.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories.Goods;
@@ -85,6 +86,7 @@ public partial class MainWindow : Window
 
 	Action ActionServiceClaims;
 	Action ActionServiceDeliveryRules;
+	Action ActionMasterVisitCost;
 
 	//Работа с клиентами
 	Action ActionCallTasks;
@@ -188,6 +190,7 @@ public partial class MainWindow : Window
 	//Честный знак
 	Action ActionCodesPool;
 	Action ActionEdoProcessJournal;
+	Action ActionEdoDiscrepancyJournal;
 	Action ActionEdoProblemJournal;
 	Action ActionEdoDeviationJournal;
 	
@@ -216,6 +219,7 @@ public partial class MainWindow : Window
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
 		ActionServiceDeliveryRules = new Action(nameof(ActionServiceDeliveryRules), "Условия доставки", null, null);
+		ActionMasterVisitCost = new Action(nameof(ActionMasterVisitCost), "Стоимость выезда мастера", null, null);
 
 		//Склад
 		ActionWarehouseDocuments = new Action("ActionWarehouseDocuments", "Журнал документов", null, "table");
@@ -311,6 +315,7 @@ public partial class MainWindow : Window
 		//Честный знак
 		ActionCodesPool = new Action("ActionCodesPool", "Пул кодов маркировки", null, "table");
 		ActionEdoProcessJournal = new Action("ActionEdoProcessJournal", "Документооброт с клиентами", null, "table");
+		ActionEdoDiscrepancyJournal = new Action("ActionEdoDiscrepancyJournal", "Журнал расхождений документооборота", null, "table");
 		ActionEdoProblemJournal = new Action("ActionEdoProblemJournal", "Журнал проблем документооборота с клиентами", null, "table");
 		ActionEdoDeviationJournal = new Action("ActionEdoDeviationJournal", "Журнал отклонений документооборота ЭДО", null, "table");
 
@@ -331,6 +336,7 @@ public partial class MainWindow : Window
 		//Сервис
 		w1.Add(ActionServiceClaims, null);
 		w1.Add(ActionServiceDeliveryRules, null);
+		w1.Add(ActionMasterVisitCost, null);
 		
 		//Склад
 		w1.Add(ActionWarehouseDocuments, null);
@@ -436,6 +442,7 @@ public partial class MainWindow : Window
 		//Честный знак
 		w1.Add(ActionCodesPool, null);
 		w1.Add(ActionEdoProcessJournal, null);
+		w1.Add(ActionEdoDiscrepancyJournal, null);
 		w1.Add(ActionEdoProblemJournal, null);
 		w1.Add(ActionEdoDeviationJournal, null);
 
@@ -457,6 +464,7 @@ public partial class MainWindow : Window
 		//Сервис
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionServiceDeliveryRules.Activated += OnActionServiceDeliveryRulesActivated;
+		ActionMasterVisitCost.Activated += OnActionMasterVisitCostActivated;
 		
 		//Склад
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
@@ -557,6 +565,7 @@ public partial class MainWindow : Window
 		//Честный знак
 		ActionCodesPool.Activated += OnActionCodesPoolActivated;
 		ActionEdoProcessJournal.Activated += OnActionEdoProcessJournalActivated;
+		ActionEdoDiscrepancyJournal.Activated += OnActionEdoDiscrepancyJournalActivated;
 		ActionEdoProblemJournal.Activated += OnActionEdoProblemJournalActivated;
 		ActionEdoDeviationJournal.Activated += OnActionEdoDeviationJournalActivated;
 		
@@ -822,8 +831,15 @@ public partial class MainWindow : Window
 
 	void ActionRevision_Activated(object sender, System.EventArgs e)
 	{
-		var page = NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RevisionReportViewModel));
-		(page.ViewModel.ReportParametersViewModel as RevisionReportViewModel).TdiTab = ((page as TdiPage<RdlViewerViewModel>).TdiTab);
+		var page = NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(
+			null,
+			typeof(RevisionReportViewModel),
+			OpenPageOptions.IgnoreHash);
+
+		if(page is TdiPage<RdlViewerViewModel> tdiPage)
+		{
+			(page.ViewModel.ReportParametersViewModel as RevisionReportViewModel).TdiTab = tdiPage.TdiTab;
+		}
 	}
 
 	void ActionExportTo1c_Activated(object sender, System.EventArgs e)
@@ -1081,6 +1097,11 @@ public partial class MainWindow : Window
 	private void OnActionServiceDeliveryRulesActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<ServiceDistrictsSetJournalViewModel>(null);
+	}
+
+	private void OnActionMasterVisitCostActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<MasterVisitCostViewModel>(null);
 	}
 	
 	/// <summary>
