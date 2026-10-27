@@ -436,7 +436,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 				"Отмена заказа {OrderId} из маршрутного листа",
 				order.Id);
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order.Id);
 
 			if(routeListItem is null)
 			{
