@@ -8,13 +8,31 @@ namespace Vodovoz.Errors.Orders
 	public static partial class DiscountErrors
 	{
 		/// <summary>
-		/// Установка скидки для данной строки заказа не допускается
+		/// Установка скидки для данной позиции не допускается
 		/// </summary>
-		public static Error DiscountForOrderItemNotAllowed =>
+		public static Error DiscountNotAllowed =>
 			new Error(
 				typeof(DiscountErrors),
-				nameof(DiscountForOrderItemNotAllowed),
-				"Установка скидки для данной строки заказа не допускается");
+				nameof(DiscountNotAllowed),
+				"Установка скидки для данной позиции не допускается");
+		
+		/// <summary>
+		/// Сумма позиции равна нулю, скидка не устанавливается
+		/// </summary>
+		public static Error ZeroSaleItemSum =>
+			new Error(
+				typeof(DiscountErrors),
+				nameof(ZeroSaleItemSum),
+				"Установка скидки не допускается: сумма позиции равна нулю");
+		
+		/// <summary>
+		/// Данная скидка уже применена
+		/// </summary>
+		public static Error DiscountAlreadyApplied =>
+			new Error(
+				typeof(DiscountErrors),
+				nameof(DiscountAlreadyApplied),
+				"Скидка уже применена");
 
 		/// <summary>
 		/// Строка заказа содержит промонабор или фиксированную цену

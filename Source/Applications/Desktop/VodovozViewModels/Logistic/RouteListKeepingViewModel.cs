@@ -106,6 +106,7 @@ namespace Vodovoz
 		private readonly OrderCancellationService _orderCancellationService;
 		private readonly OrderCancellationPermitService _orderCancellationPermitService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly IOrderSaleHandler _saleHandler;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IMangoCallButtonViewModelFactory _mangoCallButtonViewModelFactory;
 		private bool _canClose = true;
@@ -149,7 +150,8 @@ namespace Vodovoz
 			OrderCancellationService orderCancellationService,
 			OrderCancellationPermitService orderCancellationPermitService,
 			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
-			IMangoCallButtonViewModelFactory mangoCallButtonViewModelFactory
+			IMangoCallButtonViewModelFactory mangoCallButtonViewModelFactory,
+			IOrderSaleHandler saleHandler
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -183,6 +185,7 @@ namespace Vodovoz
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
 			_orderCancellationPermitService = orderCancellationPermitService ?? throw new ArgumentNullException(nameof(orderCancellationPermitService));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -640,7 +643,7 @@ namespace Vodovoz
 				rli.RouteListItemStatusHasChangedToCompeteStatus = true;
 			}
 
-			rli.UpdateStatus(_routeListService, _routeListItemStatusToChange, CallTaskWorker);
+			rli.UpdateStatus(_routeListService, _saleHandler, _routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(rli, _routeListItemStatusToChange);
 		}
 
@@ -753,7 +756,7 @@ namespace Vodovoz
 				.Where(x => x.RouteListItem.Order.Id == e.UndeliveredOrder.OldOrder.Id)
 				.FirstOrDefault();
 
-			address.UpdateStatus(_routeListService,  _routeListItemStatusToChange, CallTaskWorker);
+			address.UpdateStatus(_routeListService, _saleHandler,  _routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(address, _routeListItemStatusToChange);
 			UoW.Save(address.RouteListItem);
 

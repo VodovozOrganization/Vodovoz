@@ -48,6 +48,7 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Print.Store;
+using VodovozBusiness.Controllers;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -60,6 +61,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEventsQrPlacer _eventsQrPlacer;
 		private readonly ICustomPrintRdlDocumentsPrinter _carLoadDocumentsPrinter;
 		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly IOrderSaleHandler _saleHandler;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
@@ -100,6 +102,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IEventsQrPlacer eventsQrPlacer,
 			ICustomPrintRdlDocumentsPrinter carLoadDocumentsPrinter,
 			IReportInfoFactory reportInfoFactory,
+			IOrderSaleHandler saleHandler,
 			Action<RouteListJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -118,6 +121,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_eventsQrPlacer = eventsQrPlacer ?? throw new ArgumentNullException(nameof(eventsQrPlacer));
 			_carLoadDocumentsPrinter = carLoadDocumentsPrinter ?? throw new ArgumentNullException(nameof(carLoadDocumentsPrinter));
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_userSettings = userSettings;
 			_storeDocumentHelper = storeDocumentHelper;
@@ -707,7 +711,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 					foreach(var order in orders)
 					{
-						order.ChangeStatusAndCreateTasks(OrderStatus.Accepted, _callTaskWorker);
+						order.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.Accepted, _callTaskWorker);
 						UoW.Save(order);
 					}
 
@@ -992,7 +996,7 @@ namespace Vodovoz.ViewModels.Logistic
 					{
 						if(address.Order.OrderStatus < OrderStatus.OnLoading)
 						{
-							address.Order.ChangeStatusAndCreateTasks(OrderStatus.OnLoading, _callTaskWorker);
+							address.Order.ChangeStatusAndCreateTasks(_saleHandler, OrderStatus.OnLoading, _callTaskWorker);
 						}
 					}
 

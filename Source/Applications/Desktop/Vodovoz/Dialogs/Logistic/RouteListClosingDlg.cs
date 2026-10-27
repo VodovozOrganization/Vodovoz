@@ -43,6 +43,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Service;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -83,6 +84,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.EntityRepositories.Nodes;
 using VodovozBusiness.Services.Cash;
 using VodovozBusiness.Services.Orders;
@@ -255,6 +257,8 @@ namespace Vodovoz
 			_routeListCashProcessingService = _lifetimeScope.Resolve<IRouteListCashProcessingService>();
 
 			_carEventSettings = _lifetimeScope.Resolve<ICarEventSettings>();
+			_saleHandler = _lifetimeScope.Resolve<IOrderSaleHandler>();
+			_goodsPriceCalculator = _lifetimeScope.Resolve<IGoodsPriceCalculator>();
 		}
 
 		private void ConfigureDlg()
@@ -390,7 +394,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Получили возврат на склад");
 			//FIXME Убрать из этого места первоначальное заполнение. Сейчас оно вызывается при переводе статуса на сдачу. После того как не нормально не переведенных в закрытие маршрутников, тут заполение можно убрать.
 			if(!Entity.ClosingFilled)
-				Entity.FirstFillClosing(_wageParameterService);
+				Entity.FirstFillClosing(_wageParameterService, _saleHandler);
 
 			PerformanceHelper.AddTimePoint("Закончено первоначальное заполнение");
 
@@ -861,7 +865,10 @@ namespace Vodovoz
 				_lifetimeScope,
 				_contractUpdater,
 				_routeListService,
-				_customerNotificationPublisher);
+				_customerNotificationPublisher,
+				_saleHandler,
+				_goodsPriceCalculator
+				);
 			
 			dlg.ConfigureForRouteListAddress(node);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;
@@ -942,9 +949,12 @@ namespace Vodovoz
 			}
 
 			item.RecalculateTotalCash();
+			
 			if(!item.IsDelivered() && item.Status != RouteListItemStatus.Transfered)
-				foreach(var itm in item.Order.OrderItems)
-					itm.SetActualCountZero();
+			{
+				_saleHandler.SetSource(item.Order);
+				_saleHandler.SetActualCountZero();
+			}
 
 			routelistdiscrepancyview.FindDiscrepancies();
 			OnItemsUpdated();
@@ -1005,6 +1015,8 @@ namespace Vodovoz
 		private IDiscountReasonRepository _discountReasonRepository;
 		private INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private IRouteListService _routeListService;
+		private IOrderSaleHandler _saleHandler;
+		private IGoodsPriceCalculator _goodsPriceCalculator;
 
 		Nomenclature DefaultBottle {
 			get {
