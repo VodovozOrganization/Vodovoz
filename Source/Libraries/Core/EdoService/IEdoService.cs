@@ -116,6 +116,14 @@ namespace EdoService.Library
 		bool CanResendEdoDocument(EdoDocumentStatus? status);
 
 		/// <summary>
+		/// Проверяет доступность повторной отправки счета по состояниям задачи и документа.
+		/// </summary>
+		/// <param name="taskStatus">Статус задачи счета.</param>
+		/// <param name="documentStatus">Статус исходящего документа.</param>
+		/// <returns>Доступна ли повторная отправка счета.</returns>
+		bool CanResendBillEdoDocument(EdoTaskStatus taskStatus, EdoDocumentStatus? documentStatus);
+
+		/// <summary>
 		/// Переотправка документа по ЭДО по идентификатору задачи
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи</param>

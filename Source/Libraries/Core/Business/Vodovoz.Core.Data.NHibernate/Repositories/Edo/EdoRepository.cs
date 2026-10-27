@@ -856,7 +856,10 @@ select
 	eir.`time` as :request_time,
 	eir.id as :request_id,
 	eir.source as :request_source,
-	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = eir.author_id) as :manual_request_author,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e
+		where e.id = coalesce(eir.author_id, (select o.author_employee_id from orders o
+			where o.id = eir.order_id and eir.source = 'None'
+				and eir.order_document_type in ('Bill', 'SpecialBill')))) as :manual_request_author,
 	eir.order_document_type as :order_document_type,
 	et.id as :task_id,
 	coalesce(et.`type`, 'InformalOrderDocument') as :task_type,

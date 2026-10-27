@@ -79,6 +79,7 @@ namespace EdoService.Library.Factories
 				? document.DocumentOrganizationCounter?.DocumentNumber ?? order.Id.ToString()
 				: order.Id.ToString();
 			request.Order = order;
+			request.Author = order.Author;
 			request.SourceDocumentId = document.Id;
 			request.DocumentSnapshot = await CreateSnapshotAsync(
 				order.Id, number, document.DocumentDate.Value, info.OrderSum,
@@ -126,6 +127,7 @@ namespace EdoService.Library.Factories
 				throw new InvalidOperationException("Перед созданием заявки необходимо сохранить счет");
 			}
 
+			request.Author = bill.Author;
 			request.SourceDocumentId = info.Id;
 			request.DocumentSnapshot = await CreateSnapshotAsync(
 				0, info.BillNumber, info.CreationDate, info.Sum,

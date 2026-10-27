@@ -321,6 +321,15 @@ namespace Edo.Transport
 
 		public static void AddTaxcomEdoTopology(this IRabbitMqBusFactoryConfigurator cfg)
 		{
+			cfg.Send<TaxcomDocflowInformalDocumentSendEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
+			cfg.Message<TaxcomDocflowInformalDocumentSendEvent>(x => x.SetEntityName($"{TaxcomDocflowInformalDocumentSendEvent.Event}.publish"));
+			cfg.Publish<TaxcomDocflowInformalDocumentSendEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Direct;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
 			cfg.Send<TaxcomDocflowSendEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
 			cfg.Message<TaxcomDocflowSendEvent>(x => x.SetEntityName($"{TaxcomDocflowSendEvent.Event}.publish"));
 			cfg.Publish<TaxcomDocflowSendEvent>(x =>

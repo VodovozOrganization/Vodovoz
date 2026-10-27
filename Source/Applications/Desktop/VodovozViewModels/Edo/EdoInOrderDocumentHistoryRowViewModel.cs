@@ -17,14 +17,15 @@ namespace Vodovoz.ViewModels.Edo
 			Time = documentNode.RequestTime;
 			TimeString = Time.ToString("dd.MM.yyyy HH:mm");
 			Source = documentNode.RequestSource;
-			SourceString = Source == EdoRequestSource.Manual
-				? documentNode.ManualRequestAuthor
-				: Source.GetEnumTitle();
 			Status = documentNode.TaskStatus;
 			StatusString = Status.GetEnumTitle();
 			EdoDocumentStatus = documentNode.EdoDocumentStatus;
 			DocumentType = MatchDocumentType(documentNode);
 			DocumentTypeString = DocumentType.GetEnumTitle();
+			SourceString = Source == EdoRequestSource.Manual
+				|| (DocumentType == EdoInOrderDocumentType.Bill && !string.IsNullOrWhiteSpace(documentNode.ManualRequestAuthor))
+					? documentNode.ManualRequestAuthor
+					: Source.GetEnumTitle();
 			DocumentGroupType = MatchDocumentsByGroupType(DocumentType);
 			DocumentGroupTypeString = DocumentGroupType.GetEnumTitle();
 			CodesQuantity = GetCodesQuantity();

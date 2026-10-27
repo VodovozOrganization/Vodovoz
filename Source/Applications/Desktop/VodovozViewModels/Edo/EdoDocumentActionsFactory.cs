@@ -89,7 +89,7 @@ namespace Vodovoz.ViewModels.Edo
 		private void CreateBillActions(List<BusyCommand> actions, EdoInOrderDocumentNode document, Action onActionCompleted)
 		{
 			if(document.TaskId <= 0 || !_currentPermissionService.ValidatePresetPermission("can_resend_edo_documents")
-				|| (document.TaskStatus != EdoTaskStatus.New && !_edoService.CanResendEdoDocument(document.EdoDocumentStatus)))
+				|| !_edoService.CanResendBillEdoDocument(document.TaskStatus, document.EdoDocumentStatus))
 			{
 				return;
 			}

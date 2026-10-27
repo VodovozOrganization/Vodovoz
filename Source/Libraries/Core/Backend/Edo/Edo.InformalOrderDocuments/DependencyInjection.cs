@@ -1,6 +1,7 @@
 ﻿using Edo.Common;
 using Edo.InformalOrderDocuments.Factories;
 using Edo.InformalOrderDocuments.Handlers;
+using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,7 @@ namespace Edo.InformalOrderDocuments
 			services.TryAddScoped(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			services.AddEdo();
+			services.AddEdoProblemRegistration();
 
 			services.AddScoped<IInformalOrderDocumentHandlerFactory, InformalOrderDocumentHandlerFactory>();
 			services.AddScoped<IInformalOrderDocumentFileDataFactory, InformalOrderDocumentFileDataFactory>();

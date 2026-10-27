@@ -383,6 +383,9 @@ namespace EdoService.Library
 
 				if(request.Task.Status == EdoTaskStatus.New)
 				{
+					request.Author = _employeeService.GetEmployeeForCurrentUser(uow);
+					request.Source = EdoRequestSource.Manual;
+					uow.Save(request);
 					uow.Save(new OutboxMessage(new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = taskId }));
 					uow.Commit();
 					return Result.Success("Задача счета отправлена на повторную обработку");
@@ -392,7 +395,7 @@ namespace EdoService.Library
 					.Where(x => x.InformalDocumentTaskId == taskId)
 					.OrderByDescending(x => x.Id)
 					.FirstOrDefault();
-				if(!CanResendEdoDocument(document?.Status))
+				if(!CanResendBillEdoDocument(request.Task.Status, document?.Status))
 				{
 					return Result.Failure<string>(new Error("EdoBillCannotBeResent", "Повторная отправка доступна для счета с ошибкой или аннулированного счета"));
 				}
@@ -897,6 +900,12 @@ namespace EdoService.Library
 		public bool CanResendEdoDocument(EdoDocumentStatus? status) => status.HasValue
 			&& _resendableEdoDocumentStatuses.Contains(status.Value);
 
+		/// <inheritdoc />
+		public bool CanResendBillEdoDocument(EdoTaskStatus taskStatus, EdoDocumentStatus? documentStatus) =>
+			taskStatus == EdoTaskStatus.New
+			|| CanResendEdoDocument(documentStatus)
+			|| (taskStatus == EdoTaskStatus.Problem && documentStatus == EdoDocumentStatus.NotStarted);
+
 		private static int[] GetWithdrawalTaskIdsForBaseTask(IUnitOfWork uow, int taskId)
 		{
 			return uow.GetAll<WithdrawalEdoRequest>()
@@ -1051,6 +1060,7 @@ namespace EdoService.Library
 			}
 
 			request.Source = request.Order == null ? EdoRequestSource.OrderWithoutShipment : EdoRequestSource.Manual;
+			request.Author = _employeeService.GetEmployeeForCurrentUser(uow);
 			uow.Save(request);
 			return true;
 		}
