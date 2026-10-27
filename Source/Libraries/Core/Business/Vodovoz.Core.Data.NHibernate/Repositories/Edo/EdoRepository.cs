@@ -922,6 +922,7 @@ where eir.order_id = :order_id
 			var stepStopwatch = Stopwatch.StartNew();
 			OrderEdoTask orderEdoTaskAlias = null;
 			FormalEdoRequest edoRequestAlias = null;
+			InformalEdoRequest informalEdoRequestAlias = null;
 			EdoTaskProblem edoTaskProblemAlias = null;
 			EdoTaskProblemCustomSourceEntity customProblemDescriptionSourceAlias = null;
 			EdoTaskProblemValidatorSourceEntity validatorDescriptionSourceAlias = null;
@@ -934,6 +935,11 @@ where eir.order_id = :order_id
 			var edoTasksProblems = uow.Session.QueryOver(() => edoTaskProblemAlias)
 				.Left.JoinAlias(() => edoTaskProblemAlias.EdoTask, () => orderEdoTaskAlias)
 				.Left.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.JoinEntityAlias(
+					() => informalEdoRequestAlias,
+					() => informalEdoRequestAlias.Task.Id == orderEdoTaskAlias.Id,
+					JoinType.LeftOuterJoin
+				)
 				.JoinEntityAlias(
 					() => customProblemDescriptionSourceAlias,
 					() => customProblemDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
@@ -949,7 +955,7 @@ where eir.order_id = :order_id
 					() => exceptionDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
 					JoinType.LeftOuterJoin
 				)
-				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.Where(() => edoRequestAlias.Order.Id == orderId || informalEdoRequestAlias.Order.Id == orderId)
 				.SelectList(list => list
 					.SelectGroup(() => edoTaskProblemAlias.Id).WithAlias(() => resultAlias.TaskProblemId)
 					.Select(() => orderEdoTaskAlias.Id).WithAlias(() => resultAlias.OrderTaskId)

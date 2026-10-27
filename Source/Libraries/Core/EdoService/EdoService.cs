@@ -411,6 +411,13 @@ namespace EdoService.Library
 					return Result.Success("Счет уже ожидает подготовки к повторной отправке");
 				}
 
+				if(request.Task.Status != EdoTaskStatus.Cancelled)
+				{
+					request.Task.ProcessTaskCancellation(EdoTaskStatus.Cancelled,
+						$"Новая ручная переотправка пользователем {_userService.GetCurrentUser().Name}");
+					uow.Save(request.Task);
+				}
+
 				uow.Commit();
 				return Result.Success("Счет поставлен на повторную отправку через ЭДО");
 			}
