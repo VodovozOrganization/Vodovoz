@@ -307,7 +307,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			CancellationToken cancellationToken)
 		{
 			SalesReportDataNode resultAlias = null;
-			DiscountReason discountReasonAlias = null;
+			DiscountReasonBase discountReasonAlias = null;
 			Order orderAlias = null;
 			RouteListItem routeListItemAlias = null;
 			RouteList routeListAlias = null;

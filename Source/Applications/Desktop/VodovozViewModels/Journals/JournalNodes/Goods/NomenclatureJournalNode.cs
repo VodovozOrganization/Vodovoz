@@ -1,12 +1,13 @@
 ﻿using System.Linq;
 using Core.Infrastructure;
+using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Goods
 {
-	public class NomenclatureJournalNode : JournalEntityNodeBase<Nomenclature>
+	public class NomenclatureJournalNode : JournalEntityNodeBase<Nomenclature>, INamedDomainObject
 	{
 		public override string Title => Name;
 		public string Name { get; set; }

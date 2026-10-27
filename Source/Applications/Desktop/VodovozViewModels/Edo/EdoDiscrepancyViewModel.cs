@@ -34,6 +34,7 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Orders;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.Orders;
 
@@ -59,6 +60,7 @@ namespace Vodovoz.ViewModels.Edo
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly IDiffFormatter _diffFormatter;
 		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly IOrderSaleHandler _saleHandler;
 		private readonly EdoDiscrepancyNode _edoDiscrepancy;
 		private DocumentEdoTask _documentEdoTask;
 		private bool _onlyDiffs;
@@ -87,7 +89,8 @@ namespace Vodovoz.ViewModels.Edo
 			IRouteListChangesNotificationSender routeListChangesNotificationSender,
 			IDiffFormatter diffFormatter,
 			ICurrentPermissionService currentPermissionService,
-			INavigationManager navigationManager
+			INavigationManager navigationManager,
+			IOrderSaleHandler saleHandler
 		) : base(navigationManager)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -107,6 +110,7 @@ namespace Vodovoz.ViewModels.Edo
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
 			_diffFormatter = diffFormatter ?? throw new ArgumentNullException(nameof(diffFormatter));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 
 			if(!_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanWorkWithEdoDiscrepancyJournal))
@@ -297,15 +301,22 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			var order = _cancelOrderUow.Session.Get<Order>(_edoDiscrepancy.OrderId);
 			var currentEmployee = _employeeService.GetEmployeeForCurrentUser(_cancelOrderUow);
+			_saleHandler.SetSource(order);
 
-			order.SetUndeliveredStatus(_cancelOrderUow, _routeListService, _nomenclatureSettings, _callTaskWorker,
-				needCreateDeliveryFreeBalanceOperation: true);
+			order.SetUndeliveredStatus(
+				_cancelOrderUow,
+				_routeListService,
+				_saleHandler,
+				_nomenclatureSettings,
+				_callTaskWorker,
+				needCreateDeliveryFreeBalanceOperation: true
+				);
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_cancelOrderUow, order.Id);
 			if(routeListItem != null)
 			{
 				routeListItem.StatusLastUpdate = DateTime.Now;
-				routeListItem.SetOrderActualCountsToZeroOnCanceled();
+				routeListItem.SetOrderActualCountsToZeroOnCanceled(_saleHandler);
 				_cancelOrderUow.Save(routeListItem);
 
 				var notificationRequest = new NotificationRouteListChangesRequest
@@ -334,7 +345,7 @@ namespace Vodovoz.ViewModels.Edo
 			}
 			else
 			{
-				order.SetActualCountsToZeroOnCanceled();
+				order.SetActualCountsToZeroOnCanceled(_saleHandler);
 			}
 
 			order.SaveEntity(_cancelOrderUow, _orderContractUpdater, currentEmployee, _orderDailyNumberController, _paymentFromBankClientController);

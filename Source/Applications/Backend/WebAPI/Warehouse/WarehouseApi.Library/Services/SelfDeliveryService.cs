@@ -54,6 +54,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IStockRepository _stockRepository;
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly IPublishEndpoint _publishEndpoint;
+		private readonly IOrderSaleHandler _saleHandler;
 
 		public SelfDeliveryService(
 			ILogger<SelfDeliveryService> logger,
@@ -72,7 +73,8 @@ namespace WarehouseApi.Library.Services
 			ICallTaskWorker callTaskWorker,
 			IStockRepository stockRepository,
 			IBottlesRepository bottlesRepository,
-			IPublishEndpoint publishEndpoint)
+			IPublishEndpoint publishEndpoint,
+			IOrderSaleHandler saleHandler)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -108,6 +110,8 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_publishEndpoint = publishEndpoint
 				?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_saleHandler = saleHandler
+				?? throw new ArgumentNullException(nameof(saleHandler));
 		}
 
 		public async Task<Result<SelfDeliveryDocument>> CreateDocument(
@@ -381,7 +385,8 @@ namespace WarehouseApi.Library.Services
 				_routeListItemRepository,
 				_selfDeliveryRepository,
 				_cashRepository,
-				_callTaskWorker);
+				_callTaskWorker,
+				_saleHandler);
 
 			if(!isFullyShiped)
 			{

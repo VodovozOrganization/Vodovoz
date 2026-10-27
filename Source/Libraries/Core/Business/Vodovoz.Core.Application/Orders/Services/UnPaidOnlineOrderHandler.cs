@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Payments;
@@ -18,8 +17,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -31,7 +30,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderOnlinePaymentAcceptanceHandler _onlinePaymentAcceptanceHandler;
-		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
+		private readonly IOnlineOrderValidatorCreator _onlineOrderValidatorCreator;
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
 		private readonly ICustomerOrderTransferService _orderTransferLogicService;
@@ -43,7 +42,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOnlineOrderRepository onlineOrderRepository,
 			IOrderRepository orderRepository,
 			IOrderOnlinePaymentAcceptanceHandler onlinePaymentAcceptanceHandler,
-			IOrderFromOnlineOrderValidator onlineOrderValidator,
+			IOnlineOrderValidatorCreator onlineOrderValidatorCreator,
 			IOrderService orderService,
 			IRouteListService routeListService,
 			ICustomerOrderTransferService orderTransferLogicService,
@@ -56,7 +55,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_onlinePaymentAcceptanceHandler =
 				onlinePaymentAcceptanceHandler ?? throw new ArgumentNullException(nameof(onlinePaymentAcceptanceHandler));
-			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
+			_onlineOrderValidatorCreator = onlineOrderValidatorCreator ?? throw new ArgumentNullException(nameof(onlineOrderValidatorCreator));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderTransferLogicService = orderTransferLogicService ?? throw new ArgumentNullException(nameof(orderTransferLogicService));
@@ -225,7 +224,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 					uow.Save(onlinePayment);
 				}
 
-				var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder, true);
+				var validationResult = _onlineOrderValidatorCreator
+					.Create(onlineOrder)
+					.Validate(uow, true);
 
 				if(validationResult.IsFailure)
 				{
