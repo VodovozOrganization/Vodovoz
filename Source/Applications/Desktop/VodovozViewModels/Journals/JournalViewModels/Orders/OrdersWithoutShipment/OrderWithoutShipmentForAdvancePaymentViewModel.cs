@@ -1,4 +1,8 @@
-﻿using Autofac;
+﻿using System;
+using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using QS.Commands;
@@ -13,17 +17,12 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using System;
-using System.ComponentModel;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Vodovoz.Core.Application.Sale;
-using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
@@ -43,10 +42,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Widgets.Orders;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Errors.Edo;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
-using Vodovoz.Core.Domain.Orders;
 using EdoDocumentType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
@@ -400,15 +397,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			var permissionService = CommonServices.CurrentPermissionService;
 			
 			_canCreateBillsWithoutShipment = permissionService.ValidatePresetPermission("can_create_bills_without_shipment");
-			CanChangeDiscountValue = permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.UserCanSetDirectDiscountValue);
+			CanChangeDiscountValue = permissionService.ValidatePresetPermission(OrderPermissions.UserCanSetDirectDiscountValue);
 			_canAddOnlineStoreNomenclaturesToOrder =
 				permissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");
 			_userHavePermissionToResendEdoDocuments =
 				CommonServices.PermissionService.ValidateUserPresetPermission(
-					Vodovoz.Core.Domain.Permissions.EdoContainerPermissions.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
+					EdoContainerPermissions.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
 		}
 
-		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(Entity.Client))
 			{
