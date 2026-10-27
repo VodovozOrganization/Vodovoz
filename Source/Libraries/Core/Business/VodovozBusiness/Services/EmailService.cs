@@ -76,9 +76,7 @@ namespace Vodovoz.Services
 			IUnitOfWork unitOfWork,
 			Order order)
 		{
-			var sendedByEdo = _orderRepository
-				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == DocumentContainerType.Bill) > 0;
+			var sendedByEdo = _orderRepository.HasEdoBill(unitOfWork, order.Id);
 
 			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
 			var sended = sendedByEdo || sendedByEmail;
@@ -95,9 +93,7 @@ namespace Vodovoz.Services
 			IUnitOfWork unitOfWork,
 			Order order)
 		{
-			var sendedByEdo = _orderRepository
-				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == DocumentContainerType.Bill) > 0;
+			var sendedByEdo = _orderRepository.HasEdoBill(unitOfWork, order.Id);
 
 			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
 

@@ -1268,13 +1268,6 @@ namespace Vodovoz
 
 			UpdateAvailableEnumSignatureTypes();
 
-			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
-			{
-				UpdateEdoDocumentDataNodes();
-				CustomizeSendDocumentAgainButton();
-			};
-
-			ybuttonSendDocumentAgain.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_edo_documents");
 			ybuttonSendDocumentAgain.Clicked += OnButtonSendDocumentAgainClicked;
 			CustomizeSendDocumentAgainButton();
 
@@ -1594,91 +1587,20 @@ namespace Vodovoz
 			return _edoEdoDocumentDataNodes.ToList();
 		}
 
+		private bool IsSelectedEdoBill => SelectedEdoDocumentDataNode?.OldEdoDocumentType == DocumentContainerType.Bill
+			|| SelectedEdoDocumentDataNode?.OrderDocumentType == OrderDocumentType.Bill
+			|| SelectedEdoDocumentDataNode?.OrderDocumentType == OrderDocumentType.SpecialBill;
+
 		private void CustomizeSendDocumentAgainButton()
 		{
-			if(!_canResendDocumentsToEdo)
-			{
-				ybuttonSendDocumentAgain.Sensitive = false;
-				ybuttonSendDocumentAgain.Label = "Отсутствуют права для повторной отправки";
-
-				return;
-			}
-
-			if(SelectedEdoDocumentDataNode is null)
-			{
-				ybuttonSendDocumentAgain.Label = "Не выбран документ для повторной отправки";
-				ybuttonSendDocumentAgain.Sensitive = false;
-
-				return;
-			}
-
-			if(SelectedEdoDocumentDataNode.EdoDocumentType is null && SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
-			{
-				ybuttonSendDocumentAgain.Label = "Отсутствуют документы для повторной отправки";
-				ybuttonSendDocumentAgain.Sensitive = false;
-
-				return;
-			}
-
-			if(!SelectedEdoDocumentDataNode.IsNewDockflow && SelectedEdoDocumentDataNode.OldEdoDocumentType != null)
-			{
-				var selectedType = SelectedEdoDocumentDataNode.OldEdoDocumentType.Value;
-
-				OrderEdoTrueMarkDocumentsActions resendAction;
-
-				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot($"Переотправка счета из {nameof(OrderDlg)}"))
-				{
-					var resendActionQuery = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-							.Where(x => x.Order.Id == Entity.Id);
-
-					switch(selectedType)
-					{
-						case DocumentContainerType.Bill:
-							resendActionQuery.Where(x => x.IsNeedToResendEdoBill);
-							break;
-					}
-
-					resendAction = resendActionQuery.FirstOrDefault();
-				}
-
-				var alreadyInProcess = resendAction != null
-					&& (resendAction.IsNeedToResendEdoBill && selectedType == DocumentContainerType.Bill);
-
-				if(alreadyInProcess)
-				{
-					ybuttonSendDocumentAgain.Sensitive = false;
-					ybuttonSendDocumentAgain.Label = $"Идет подготовка {selectedType.GetEnumTitle()}";
-
-					return;
-				}
-
-				var outgoingEdoDocuments = GetEdoOutgoingDocuments();
-				var canResendBill = selectedType is DocumentContainerType.Bill && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == DocumentContainerType.Bill);
-
-				if(canResendBill)
-				{
-					ybuttonSendDocumentAgain.Sensitive = true;
-					ybuttonSendDocumentAgain.Label = $"Отправить повторно {selectedType.GetEnumDisplayName()}";
-
-					return;
-				}
-			}
-			else if(SelectedEdoDocumentDataNode.IsNewDockflow && SelectedEdoDocumentDataNode.EdoDocumentType != null)
-			{
-				ybuttonSendDocumentAgain.Sensitive = true;
-				ybuttonSendDocumentAgain.Label = "Отправить повторно";
-			}
-			else
-			{
-				ybuttonSendDocumentAgain.Sensitive = false;
-				ybuttonSendDocumentAgain.Label = "Отправить повторно";
-			}
-
+			ybuttonSendDocumentAgain.NoShowAll = true;
+			ybuttonSendDocumentAgain.Visible = false;
+			ybuttonSendDocumentAgain.Sensitive = false;
 		}
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			if(SelectedEdoDocumentDataNode is null)
+			if(SelectedEdoDocumentDataNode is null || IsSelectedEdoBill)
 			{
 				return;
 			}

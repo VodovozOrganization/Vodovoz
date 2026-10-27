@@ -8,6 +8,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		public InformalEdoRequestMap()
 		{
 			Table("edo_informal_requests");
+			DynamicUpdate();
+			OptimisticLock.All();
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
@@ -23,6 +25,15 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			Map(x => x.Source)
 				.Column("source");
+
+			Map(x => x.SourceDocumentId)
+				.Column("source_document_id")
+				.Not.Update();
+
+			Map(x => x.DocumentSnapshot)
+				.Column("document_snapshot")
+				.CustomSqlType("longtext")
+				.Length(int.MaxValue);
 
 			Map(x => x.DocumentType)
 				.Column("document_type")
