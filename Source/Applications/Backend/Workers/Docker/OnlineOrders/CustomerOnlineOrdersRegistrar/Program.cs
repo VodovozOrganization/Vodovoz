@@ -92,6 +92,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddScoped<IOnlineOrderFactoryV5, OnlineOrderFactoryV5>()
 						.AddScoped<IOnlineOrderFactoryV6, OnlineOrderFactoryV6>()
 						.AddScoped<V7.Factories.IOnlineOrderFactory, V7.Factories.OnlineOrderFactory>()
+						.AddScoped<V8.Factories.IOnlineOrderFactory, V8.Factories.OnlineOrderFactory>()
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
@@ -102,6 +103,7 @@ namespace CustomerOnlineOrdersRegistrar
 							busConf.AddConsumer<V5.Consumers.CreatingOnlineOrderConsumer, V5.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.AddConsumer<V6.Consumers.CreatingOnlineOrderConsumer, V6.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.AddConsumer<V7.Consumers.CreatingOnlineOrderConsumer, V7.Consumers.CreatingOnlineOrderConsumerDefinition>();
+							busConf.AddConsumer<V8.Consumers.CreatingOnlineOrderConsumer, V8.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.ConfigureRabbitMq();
 						})
 
