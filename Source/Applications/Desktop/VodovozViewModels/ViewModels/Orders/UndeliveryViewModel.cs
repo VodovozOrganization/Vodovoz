@@ -1,6 +1,42 @@
-﻿UndeliveryViewModel.cs 503L cognitive
-// C:\Users\Kostya\source\repos\Vodovoz\Source\Applications\Desktop\VodovozViewModels\ViewModels\Orders\UndeliveryViewModel.cs
-§ type UndeliveryViewModel (L40-L117)
+﻿using Autofac;
+using CustomerNotifications.Contracts;
+using Microsoft.Extensions.Logging;
+using Notifications.Infrastructure;
+using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Services;
+using QS.Tdi;
+using QS.ViewModels;
+using QS.ViewModels.Extension;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using Vodovoz.Core.Application.Errors;
+using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Core.Application.Orders;
+using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sms;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Factories;
+using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Organizations;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.Controllers;
+
+namespace Vodovoz.ViewModels.Orders
+{
 	public class UndeliveryViewModel : DialogTabViewModelBase, IAskSaveOnCloseViewModel, ITdiTabAddedNotifier
 	{
 		private readonly ILogger<UndeliveryViewModel> _logger;
@@ -79,7 +115,6 @@
 			_orderCancellationPermit = OrderCancellationPermit.Default();
 		}
 
-§ function function (L118-L191)
 		public void Initialize(
 			IUnitOfWork extrenalUoW = null,
 			int oldOrderId = 0,
@@ -154,8 +189,7 @@
 			Entity.ObservableUndeliveryDiscussions.ElementChanged += OnObservableUndeliveryDiscussionsElementChanged;
 			Entity.ObservableUndeliveryDiscussions.ListContentChanged += OnObservableUndeliveryDiscussionsListContentChanged;
 		}
-// ... 1 lines omitted
-§ function function (L193-L205)
+
 		private void FillNewUndelivery()
 		{
 			Entity.UoW = UoW;
@@ -169,8 +203,34 @@
 			Entity.TimeOfCreation = DateTime.Now;
 			Entity.CreateOkkDiscussion(UoW);
 		}
-// ... 28 lines omitted
-§ function function (L234-L259)
+
+		private void OnObservableUndeliveryDiscussionsListContentChanged(object sender, EventArgs e)
+		{
+			OnDiscussionsChanged();
+		}
+
+		private void OnObservableUndeliveryDiscussionsElementChanged(object aList, int[] aIdx)
+		{
+			OnDiscussionsChanged();
+		}
+
+		private void OnDiscussionsChanged()
+		{
+			if(!_isNewUndelivery)
+			{
+				Entity.UpdateUndeliveryStatusByDiscussionsStatus();
+			}
+		}
+
+		private bool SaveUndelivery(bool needClose = false)
+		{
+			_forceSave = true;
+			var saveResult = Save(needClose);
+			_forceSave = false;
+
+			return saveResult;
+		}
+
 		/// <summary>
 		/// Проверка на возможность создания нового недовоза
 		/// </summary>
@@ -197,8 +257,7 @@
 
 			return false;
 		}
-// ... 1 lines omitted
-§ function function (L261-L271)
+
 		private void ProcessSmsNotification()
 		{
 			if(_isExternalUoW)
@@ -210,8 +269,7 @@
 				_smsNotifier.NotifyUndeliveryAutoTransferNotApproved(Entity);
 			}
 		}
-// ... 1 lines omitted
-§ function function (L273-L395)
+
 		public override bool Save(bool needClose)
 		{
 			var validator = _commonServices.ValidationService;
@@ -331,8 +389,7 @@
 
 			return true;
 		}
-// ... 1 lines omitted
-§ function function (L397-L466)
+
 		private void AddDiscussionsCommentFilesIfNeeded()
 		{
 			var errors = new Dictionary<string, string>();
@@ -403,5 +460,40 @@
 			}
 			while(repeat);
 		}
-7/16 chunks shown (3439 tokens)
-[lean-ctx] full source: read "C:\Users\Kostya\source\repos\Vodovoz\Source\Applications\Desktop\VodovozViewModels\ViewModels\Orders\UndeliveryViewModel.cs" directly (no MCP)  ·  or ctx_read("C:\Users\Kostya\source\repos\Vodovoz\Source\Applications\Desktop\VodovozViewModels\ViewModels\Orders\UndeliveryViewModel.cs", mode="full")
+
+		public void OnTabAdded()
+		{
+			if(Entity.OldOrder == null)
+			{
+				UndeliveredOrderViewModel.OldOrderSelectCommand.Execute();
+			}
+		}
+
+		public UndeliveredOrder Entity { get; private set; }
+
+		private Employee _currentUser;
+
+		public UndeliveryDiscussionsViewModel UndeliveryDiscussionsViewModel { get; private set; }
+
+		public UndeliveredOrderViewModel UndeliveredOrderViewModel { get; private set; }
+
+		public bool AskSaveOnClose => CanEdit;
+
+		public bool CanEdit { get; private set; }
+
+		public event EventHandler<UndeliveryOnOrderCloseEventArgs> Saved;
+
+		public override void Dispose()
+		{
+			UndeliveredOrderViewModel.SaveUndelivery -= SaveUndelivery;
+			Entity.ObservableUndeliveryDiscussions.ElementChanged -= OnObservableUndeliveryDiscussionsElementChanged;
+			Entity.ObservableUndeliveryDiscussions.ListContentChanged -= OnObservableUndeliveryDiscussionsListContentChanged;
+			UndeliveredOrderViewModel.Dispose();
+
+			if(!_isExternalUoW)
+			{
+				base.Dispose();
+			}
+		}
+	}
+}
