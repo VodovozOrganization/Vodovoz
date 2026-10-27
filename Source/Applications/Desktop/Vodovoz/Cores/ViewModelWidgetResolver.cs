@@ -77,10 +77,10 @@ namespace Vodovoz.Core
 
 			var constructor = _viewModelWidgets[tabType]
 				.GetConstructors()
-				.Where(x => x
+				.FirstOrDefault(x => x
 					.GetParameters()
-					.FirstOrDefault(p => p.ParameterType == tabType) != null)
-				.FirstOrDefault();
+					.FirstOrDefault(p => p.ParameterType == tabType
+						|| tabType.IsSubclassOf(p.ParameterType)) != null);
 
 			var constructorParameterTypes = constructor
 				.GetParameters()
@@ -92,7 +92,7 @@ namespace Vodovoz.Core
 
 			foreach(var parameterType in constructorParameterTypes)
 			{
-				if(parameterType == tabType)
+				if(parameterType == tabType || tabType.IsSubclassOf(parameterType))
 				{
 					constructorParameters.Add(tab);
 					continue;

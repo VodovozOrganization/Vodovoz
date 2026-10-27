@@ -38,8 +38,8 @@ namespace Vodovoz.ReportsParameters.Sales
 				"discount_reason",
 				new ParametersFactory(UoW, (filters) =>
 				{
-					SelectableEntityParameter<DiscountReason> resultAlias = null;
-					var query = UoW.Session.QueryOver<DiscountReason>();
+					SelectableEntityParameter<DiscountReasonBase> resultAlias = null;
+					var query = UoW.Session.QueryOver<DiscountReasonBase>();
 					if(filters != null && filters.Any())
 					{
 						foreach(var f in filters)
@@ -52,7 +52,7 @@ namespace Vodovoz.ReportsParameters.Sales
 						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
 						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
 					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<DiscountReason>>());
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<DiscountReasonBase>>());
 					return query.List<SelectableParameter>();
 				})
 			);

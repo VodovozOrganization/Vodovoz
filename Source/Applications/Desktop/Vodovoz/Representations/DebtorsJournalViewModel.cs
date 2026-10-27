@@ -258,7 +258,7 @@ namespace Vodovoz.Representations
 			Order orderCountAlias = null;
 			OrderItem orderItemAlias = null;
 			OrderItem orderItemsSubQueryAlias = null;
-			DiscountReason discountReasonAlias = null;
+			DiscountReasonBase discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
@@ -895,7 +895,7 @@ namespace Vodovoz.Representations
 			Order orderCountAlias = null;
 			OrderItem orderItemAlias = null;
 			OrderItem orderItemsSubQueryAlias = null;
-			DiscountReason discountReasonAlias = null;
+			DiscountReasonBase discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;

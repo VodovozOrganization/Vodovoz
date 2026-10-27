@@ -6,6 +6,7 @@ using QS.Project.Journal;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
+using VodovozBusiness.Domain.Sale.RequestsForCall;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 {
@@ -28,12 +29,12 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		{
 			get
 			{
-				if(EntityType == typeof(OnlineOrder))
+				if(EntityType.BaseType == typeof(OnlineOrder))
 				{
 					return OnlineOrderStatus.Value.GetEnumDisplayName();
 				}
 
-				if(EntityType == typeof(RequestForCall))
+				if(EntityType == typeof(RequestForCallBase))
 				{
 					return RequestForCallStatus.Value.GetEnumDisplayName();
 				}
@@ -52,5 +53,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public string OrdersIds { get; set; }
 		public string CancelReason { get; set; }
 		public DateTime? NextCallDate { get; set; }
+		/// <summary>
+		/// Онлойн заказ - есть сервисные услуги, заявка на звонок - по сервисным услугам
+		/// </summary>
+		public bool HasService { get; set; }
 	}
 }
