@@ -72,7 +72,9 @@ namespace DriverAPI.Library.V7.Converters
 				{
 					RouteListId = routeList.Id,
 					RouteListStatus = _routeListStatusConverter.ConvertToAPIRouteListStatus(routeList.Status),
-					RouteListComment = routeList.Status == RouteListStatus.Delivered ? routeList.ClosingComment : null,
+					RouteListComment = routeList.Status is RouteListStatus.Delivered or RouteListStatus.OnClosing
+						? routeList.ClosingComment
+						: null,
 					CashMoney = cashMoney,
 					ChangeAmount = changeAmount,
 					MoneyForCashbox = cashMoney + changeAmount,

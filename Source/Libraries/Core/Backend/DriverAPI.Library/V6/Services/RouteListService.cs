@@ -53,7 +53,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly List<RouteListStatus> _driverRouteListsIdsInStatuses = new()
 		{
-			RouteListStatus.EnRoute, RouteListStatus.Delivered
+			RouteListStatus.EnRoute, RouteListStatus.Delivered, RouteListStatus.OnClosing
 		};
 
 		public RouteListService(ILogger<RouteListService> logger,
