@@ -33,8 +33,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			var fixedPrice = GetFixedPriceOrNull(
 				deliveryPoint,
 				counterparty,
-				currentSaleItem,
-				_goodsCountCalculator.GetTotalWater19LCount(saleItemsWithCurrent, doNotCalculatePresentsDiscount: true));
+				saleItemsWithCurrent,
+				currentSaleItem);
 
 			if(fixedPrice != null)
 			{
