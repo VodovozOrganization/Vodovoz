@@ -788,7 +788,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<ServiceClaimHistory>();
 
-			DeleteConfig.AddHibernateDeleteInfo<DiscountReason>()
+			DeleteConfig.AddHibernateDeleteInfo<DiscountReasonBase>()
 				.AddRemoveFromDependence<OrderItem>(x => x.DiscountReasons);
 
 			DeleteConfig.AddHibernateDeleteInfo<NonReturnReason>();
