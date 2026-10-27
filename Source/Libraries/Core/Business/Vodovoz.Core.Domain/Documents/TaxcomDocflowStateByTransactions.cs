@@ -22,8 +22,10 @@ namespace Vodovoz.Core.Domain.Documents
 
 	/// <summary>
 	/// Статус Такском заменяется по транзакциям, только если он ещё «В процессе»,
-	/// «Не начат» или «Получено оператором». Порядок транзакций не учитывается:
-	/// важнее наличие более высокого шага. Конечный шаг — принятое аннулирование.
+	/// «Не начат» или «Получено оператором». Титул покупателя сам по себе не делает
+	/// документ успешно завершённым: «Успешно завершен» и «Не принят» приходят от Такском.
+	/// Порядок транзакций не учитывается: важнее наличие более высокого шага.
+	/// Конечный шаг — принятое аннулирование.
 	/// </summary>
 	public static class TaxcomDocflowStateByTransactions
 	{
@@ -156,11 +158,6 @@ namespace Vodovoz.Core.Domain.Documents
 			if(codes.Any(IsClarification))
 			{
 				derivedStatus = EdoDocFlowStatus.Warning;
-			}
-
-			if(codes.Any(IsBuyerTitle))
-			{
-				derivedStatus = EdoDocFlowStatus.Succeed;
 			}
 
 			if(codes.Any(IsCancellationOffer) && !codes.Any(IsCancellationRejected))

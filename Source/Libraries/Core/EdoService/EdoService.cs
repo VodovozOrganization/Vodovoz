@@ -1661,7 +1661,16 @@ namespace EdoService.Library
 
 				await _bus.Publish(docflowUpdatedEvent, cancellationToken);
 
-				return Result.Success($"Статус документооборота {docflowId} обновится в течение нескольких минут. Обновленный статус: {docflowUpdatedEvent.Status}");
+				var statusTitle = state.Status?.GetEnumTitle();
+				if(string.IsNullOrWhiteSpace(statusTitle))
+				{
+					statusTitle = string.IsNullOrWhiteSpace(description.DocFlow.Status)
+						? "не определён"
+						: description.DocFlow.Status;
+				}
+
+				return Result.Success(
+					$"Обновленный статус: {statusTitle}{Environment.NewLine}Документооборот {docflowId} обновится в карточке в течение нескольких минут.");
 			}
 			catch(Exception ex)
 			{
