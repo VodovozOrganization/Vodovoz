@@ -69,7 +69,7 @@ namespace Edo.Documents.Services
 			var documentWaterCodeCounts = new Dictionary<int, int>();
 			var invalidTransportCodeIds = new HashSet<int>();
 
-			foreach(var position in documentEdoTask.UpdInventPositions)
+			foreach(var position in documentEdoTask.Upd.InventPositions)
 			{
 				var positionTransportCodes = new List<TrueMarkTransportCode>();
 				var positionHasWrongQuantity = position.Codes.Sum(x => x.Quantity) != position.AssignedOrderItem.CurrentCount;

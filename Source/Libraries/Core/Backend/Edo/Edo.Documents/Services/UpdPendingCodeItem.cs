@@ -1,4 +1,5 @@
 ﻿using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.Upd;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 
@@ -14,7 +15,7 @@ namespace Edo.Documents.Services
 			/// <summary>
 			/// Код маркировки, который необходимо получить из пула кодов
 			/// </summary>
-			public EdoUpdInventPositionCode CodeItem { get; set; }
+			public UpdProductCode CodeItem { get; set; }
 
 			/// <summary>
 			/// GTIN номенклатуры, для которой необходимо получить код маркировки

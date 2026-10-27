@@ -1,10 +1,14 @@
-﻿using Core.Infrastructure;
+﻿using Comparer;
+using Core.Infrastructure;
 using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
 using DriverApi.Notifications.Client;
 using Edo.Admin;
+using Edo.Contracts.Messages.Events;
+using Edo.Documents;
 using Edo.Problem.Routine;
 using Edo.Transport;
+using EdoService.Library;
 using ExportTo1c.Library.Factories;
 using Fias.Client;
 using FuelControl.Library;
@@ -276,7 +280,19 @@ namespace Vodovoz
 				.AddOrderEdoCodePoolMissingProblem()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
 				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
-				.AddCustomerNotificationsSettingsProvider();
+				.AddCustomerNotificationsSettingsProvider()
+				.AddEdoDocumentsServices()
+			;
+
+			services.AddScoped<Comparer.IDiffFormatter, ThemmedDiffFormater>();
+			services.AddScoped<IOutboxNotificationPublisher<AcceptingWaitingForCancellationDocflowEvent>, 
+				DirectOutboxNotificationPublisher<AcceptingWaitingForCancellationDocflowEvent>>();
+			services.AddScoped<IOutboxNotificationPublisher<EdoRequestCreatedEvent>, 
+				DirectOutboxNotificationPublisher<EdoRequestCreatedEvent>>();
+			services.AddScoped<IOutboxSettingsProvider<AcceptingWaitingForCancellationDocflowEvent>, 
+				AcceptingWaitingForCancellationDocflowEventSettingsProvider>();
+			services.AddScoped<IOutboxSettingsProvider<EdoRequestCreatedEvent>, 
+				EdoRequestCreatedEventSettingsProvider>();
 
 			services.AddScoped<IEdoRequestCreatedEventPublisher, EdoRequestCreatedEventPublisher>();
 			services.AddStaticHistoryTracker();

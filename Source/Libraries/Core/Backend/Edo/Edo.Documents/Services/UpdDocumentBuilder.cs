@@ -8,7 +8,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Controllers;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.Upd;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark;
@@ -23,6 +27,8 @@ namespace Edo.Documents.Services
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly ITrueMarkCodesPoolCodeProvider _trueMarkCodesPoolCodeProvider;
 		private readonly IUpdTransportCodeService _updTransportCodeService;
+		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
+		private readonly IPaymentRepository _paymentRepository;
 		private readonly ILogger<UpdDocumentBuilder> _logger;
 
 		public UpdDocumentBuilder(
@@ -31,26 +37,43 @@ namespace Edo.Documents.Services
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			ITrueMarkCodesPoolCodeProvider trueMarkCodesPoolCodeProvider,
 			IUpdTransportCodeService updTransportCodeService,
-			ILogger<UpdDocumentBuilder> logger)
+			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController,
+			IPaymentRepository paymentRepository,
+			ILogger<UpdDocumentBuilder> logger
+		)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_trueMarkCodesPoolCodeProvider = trueMarkCodesPoolCodeProvider ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCodeProvider));
 			_updTransportCodeService = updTransportCodeService ?? throw new ArgumentNullException(nameof(updTransportCodeService));
+			_counterpartyEdoAccountEntityController = counterpartyEdoAccountEntityController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountEntityController));
+			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public async Task BuildUpdDocumentAsync(
+		public async Task BuildForOwnNeedUpdDocumentAsync(
 			DocumentEdoTask documentEdoTask,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken
+		)
 		{
 			if(documentEdoTask is null)
 			{
 				throw new ArgumentNullException(nameof(documentEdoTask));
 			}
 
+			if(documentEdoTask.Upd != null)
+			{
+				return;
+			}
+
 			var order = documentEdoTask.FormalEdoRequest.Order;
+
+			if(order.Client.PersonType == PersonType.natural)
+			{
+				throw new InvalidOperationException("Нельзя сделать УПД для физического лица");
+			}
+
 			var unprocessedCodes = documentEdoTask.Items.ToList();
 			var groupCodesWithTaskItems = await TakeGroupCodesWithTaskItems(unprocessedCodes, cancellationToken);
 
@@ -62,12 +85,10 @@ namespace Edo.Documents.Services
 			var context = new UpdDocumentCreationContext
 			{
 				DocumentEdoTask = documentEdoTask,
+				Order = order,
 				UnprocessedCodes = unprocessedCodes,
 				GroupCodesWithTaskItems = groupCodesWithTaskItems,
-				OrderItemsByPriceDesc = order.OrderItems.OrderByDescending(x => x.Price).ToArray(),
-				CodesNeeded = new Dictionary<GtinEntity, int>(),
-				PendingCodeItems = new List<UpdPendingCodeItem>(),
-				OrganizationInn = GetOrderOrganizationInn(documentEdoTask)
+				OrderItemsByPriceDesc = order.OrderItems.OrderByDescending(x => x.Price).ToArray()
 			};
 
 			// 1. Создаем инвентарные позиции и собираем информацию о необходимых кодах
@@ -82,25 +103,90 @@ namespace Edo.Documents.Services
 			// 4. Очищаем неиспользованные коды
 			CleanupUnusedCodes(context);
 
-			// 5. Обновляем документ
-			UpdateDocument(documentEdoTask, updInventPositions);
+			// 5. Создаем документ
+			var updDocument = CreateUpdDocument(context, updInventPositions);
+
+			documentEdoTask.Upd = updDocument;
 
 			_logger.LogInformation(
 				"Документ УПД для задачи {TaskId} успешно создан. Инвентарных позиций: {PositionCount}, кодов: {CodeCount}",
 				documentEdoTask.Id,
 				updInventPositions.Count,
-				updInventPositions.Sum(p => p.Codes.Count));
+				updInventPositions.Sum(p => p.Codes.Count)
+			);
 		}
 
-		private async Task<List<EdoUpdInventPosition>> BuildInventPositionsAsync(
-			UpdDocumentCreationContext context,
-			CancellationToken cancellationToken)
+		public async Task RebuildForOwnNeedUpdDocumentAsync(
+			DocumentEdoTask documentEdoTask,
+			CancellationToken cancellationToken
+		)
 		{
-			var updInventPositions = new List<EdoUpdInventPosition>();
+			if(documentEdoTask is null)
+			{
+				throw new ArgumentNullException(nameof(documentEdoTask));
+			}
+
+			await RemoveUpdDocumentAsync(documentEdoTask, cancellationToken);
+			await BuildForOwnNeedUpdDocumentAsync(documentEdoTask, cancellationToken);
+		}
+
+		private async Task RemoveUpdDocumentAsync(DocumentEdoTask documentEdoTask, CancellationToken cancellationToken)
+		{
+			var oldUpdDocument = documentEdoTask.Upd;
+
+			if(oldUpdDocument is null)
+			{
+				return;
+			}
+
+			documentEdoTask.Upd = null;
+
+			// Каскад many-to-one не удаляет замененный документ,
+			// поэтому удаляем явно вместе с инвентарными позициями и их кодами
+			if(oldUpdDocument.Id != 0)
+			{
+				await _uow.DeleteAsync(oldUpdDocument, cancellationToken);
+			}
+		}
+
+		public EdoUpdDocument GetUpdDocumentWithoutCodes(DocumentEdoTask documentEdoTask)
+		{
+			if(documentEdoTask is null)
+			{
+				throw new ArgumentNullException(nameof(documentEdoTask));
+			}
+
+			var order = documentEdoTask.FormalEdoRequest.Order;
+
+			if(order.Client.PersonType == PersonType.natural)
+			{
+				throw new InvalidOperationException("Нельзя сделать УПД для физического лица");
+			}
+
+			var context = new UpdDocumentCreationContext
+			{
+				DocumentEdoTask = documentEdoTask,
+				Order = order,
+				OrderItemsByPriceDesc = order.OrderItems.OrderByDescending(x => x.Price).ToArray()
+			};
+
+			var updInventPositions = BuildInventPositionsWithoutCodes(context);
+
+			var updDocument = CreateUpdDocument(context, updInventPositions);
+			return updDocument;
+		}
+
+		private async Task<List<UpdInventPosition>> BuildInventPositionsAsync(
+			UpdDocumentCreationContext context,
+			CancellationToken cancellationToken
+		)
+		{
+			var updInventPositions = new List<UpdInventPosition>();
 
 			foreach(var orderItem in context.OrderItemsByPriceDesc)
 			{
-				var codeItemsToAssign = new List<EdoUpdInventPositionCode>();
+				var codeItemsToAssign = new List<UpdProductCode>();
+				var inventPosition = CreateInventPosition(context.Order, orderItem);
 
 				// Процесс создания инвентарной позиции УПД
 				// и поиск и назначение соответствующих кодов
@@ -117,19 +203,60 @@ namespace Edo.Documents.Services
 						context,
 						orderItem,
 						codeItemsToAssign,
-						cancellationToken);
+						cancellationToken
+					);
 				}
 
-				var inventPosition = new EdoUpdInventPosition
-				{
-					AssignedOrderItem = orderItem,
-					Codes = codeItemsToAssign
-				};
+				inventPosition.Codes = codeItemsToAssign;
 
 				updInventPositions.Add(inventPosition);
 			}
 
 			return updInventPositions;
+		}
+
+		private List<UpdInventPosition> BuildInventPositionsWithoutCodes(UpdDocumentCreationContext context)
+		{
+			var updInventPositions = new List<UpdInventPosition>();
+
+			foreach(var orderItem in context.OrderItemsByPriceDesc)
+			{
+				var inventPosition = CreateInventPosition(context.Order, orderItem);
+				updInventPositions.Add(inventPosition);
+			}
+
+			return updInventPositions;
+		}
+
+		public UpdInventPosition CreateInventPosition(OrderEntity order, OrderItemEntity orderItem)
+		{
+			var isService = orderItem.Nomenclature.Category == NomenclatureCategory.master
+					|| orderItem.Nomenclature.Category == NomenclatureCategory.service;
+
+			var inventPosition = new UpdInventPosition
+			{
+				AssignedOrderItem = orderItem,
+				NomenclatureId = orderItem.Nomenclature.Id,
+				Name = orderItem.Nomenclature.OfficialName,
+				Count = orderItem.CurrentCount,
+				Price = orderItem.Price,
+				DiscountMoney = orderItem.DiscountMoney,
+				IncludeVat = orderItem.IncludeNDS ?? 0,
+				ValueAddedTax = orderItem.ValueAddedTax,
+				OKEI = orderItem.Nomenclature.Unit.OKEI,
+				UnitName = orderItem.Nomenclature.Unit.Name,
+				IsService = isService
+			};
+
+			var clientSpecialNomenclature = order.Client.SpecialNomenclatures
+				.FirstOrDefault(x => x.Nomenclature.Id == orderItem.Nomenclature.Id);
+
+			if(order.Client.UseSpecialDocFields && clientSpecialNomenclature != null)
+			{
+				inventPosition.SpecialCustomerNomenclatureId = clientSpecialNomenclature.SpecialId;
+			}
+
+			return inventPosition;
 		}
 
 		private bool HandleZeroPriceItem(UpdDocumentCreationContext context, OrderItemEntity orderItem)
@@ -139,6 +266,8 @@ namespace Edo.Documents.Services
 				return false;
 			}
 
+			// Отсканированные коды не удаляем из задачи и не возвращаем в пул автоматически,
+			// только исключаем из распределения
 			if(orderItem.Nomenclature.IsAccountableInTrueMark)
 			{
 				context.UnprocessedCodes.RemoveAll(x => x.ProductCode.SourceCode != null
@@ -152,7 +281,7 @@ namespace Edo.Documents.Services
 		private async Task ProcessAccountableOrderItemAsync(
 			UpdDocumentCreationContext context,
 			OrderItemEntity orderItem,
-			List<EdoUpdInventPositionCode> codeItemsToAssign,
+			List<UpdProductCode> codeItemsToAssign,
 			CancellationToken cancellationToken)
 		{
 			int assignedQuantity = 0;
@@ -165,37 +294,38 @@ namespace Edo.Documents.Services
 				var availableQuantity = (int)(orderItem.CurrentCount - assignedQuantity);
 
 				// сначала ищем и назначем из групповых кодов
-				var (groupSuccess, assignedGroupCount) = await TryAssignGroupCodeAsync(
+				var assignedGroupCount = await TryAssignGroupCodeAsync(
 					context,
 					orderItem,
 					availableQuantity,
 					codeItemsToAssign,
-					cancellationToken);
+					cancellationToken
+				);
 
-				if(groupSuccess)
+				if(assignedGroupCount > 0)
 				{
 					assignedQuantity += assignedGroupCount;
 					continue;
 				}
 
 				// затем, если ничего не смогли взять из групповых, то ищем и назначаем из индивидуальных
-				// в которыех есть заполенный SourceCode, т.е. исключаем неотсканированные позиции задачи
-				if(TryAssignExistingIndividualCode(context, orderItem, codeItemsToAssign, out var assignedIndividualCount))
+				// в которых есть заполенный SourceCode, т.е. исключаем неотсканированные позиции задачи
+				if(TryAssignExistingIndividualCode(context, orderItem, codeItemsToAssign))
 				{
 					var individualCode = codeItemsToAssign.Last().IndividualCode;
 					if(individualCode?.ParentWaterGroupCodeId != null)
 					{
 						await _updTransportCodeService.DisaggregateCodeAsync(individualCode, cancellationToken);
 					}
-					assignedQuantity += assignedIndividualCount;
+					assignedQuantity ++;
 					continue;
 				}
 
 				// затем, если ничего не смогли взять из индивидуальных, то берем неотсканированную позицию
 				// заполняем ее из пула и используем в назначении
-				if(TryAssignUnscannedCode(context, orderItem, codeItemsToAssign, out var assignedUnscannedCount))
+				if(TryAssignUnscannedCode(context, orderItem, codeItemsToAssign))
 				{
-					assignedQuantity += assignedUnscannedCount;
+					assignedQuantity ++;
 					continue;
 				}
 
@@ -206,18 +336,20 @@ namespace Edo.Documents.Services
 					context,
 					orderItem,
 					remainingCount,
-					codeItemsToAssign);
+					codeItemsToAssign
+				);
 
 				assignedQuantity = (int)orderItem.CurrentCount;
 			}
 		}
 
-		private async Task<(bool Success, int AssignedCount)> TryAssignGroupCodeAsync(
+		private async Task<int> TryAssignGroupCodeAsync(
 			UpdDocumentCreationContext context,
 			OrderItemEntity orderItem,
 			int availableQuantity,
-			List<EdoUpdInventPositionCode> codeItemsToAssign,
-			CancellationToken cancellationToken)
+			List<UpdProductCode> codeItemsToAssign,
+			CancellationToken cancellationToken
+		)
 		{
 			var availableGroupGtins = orderItem.Nomenclature.GroupGtins
 				.Where(x => x.CodesCount <= availableQuantity)
@@ -273,27 +405,24 @@ namespace Edo.Documents.Services
 					.GetAllCodes()
 					.Count(x => x.IsTrueMarkWaterIdentificationCode);
 
-				var codeItem = new EdoUpdInventPositionCode
-				{
-					GroupCode = groupCode,
-					Quantity = codesInGroup
+				var codeItem = new UpdProductCode{ 
+					GroupCode = groupCode, 
+					Quantity = codesInGroup 
 				};
 				codeItemsToAssign.Add(codeItem);
 
-				return (true, codesInGroup);
+				return codesInGroup;
 			}
 
-			return (false, 0);
+			return 0;
 		}
 
 		private bool TryAssignExistingIndividualCode(
 			UpdDocumentCreationContext context,
 			OrderItemEntity orderItem,
-			List<EdoUpdInventPositionCode> codeItemsToAssign,
-			out int assignedCount)
+			List<UpdProductCode> codeItemsToAssign
+		)
 		{
-			assignedCount = 0;
-
 			var validUnprocessedCodes = context.UnprocessedCodes
 				.Where(x => x.ProductCode.SourceCode != null)
 				.ToList();
@@ -311,6 +440,7 @@ namespace Edo.Documents.Services
 					continue;
 				}
 
+				// Бутылка из разобранной группы без CheckCode не может быть передана отдельно, заменяем ее кодом из пула
 				var sourceCode = availableCode.ProductCode.SourceCode;
 				if(sourceCode.ParentWaterGroupCodeId != null && string.IsNullOrEmpty(sourceCode.CheckCode)
 					&& (availableCode.ProductCode.ResultCode == null || availableCode.ProductCode.ResultCode.Id == sourceCode.Id))
@@ -318,7 +448,6 @@ namespace Edo.Documents.Services
 					AddCodeRequirement(context, availableGtin, orderItem, codeItemsToAssign, edoTaskItemForChange: availableCode);
 					availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 					context.UnprocessedCodes.Remove(availableCode);
-					assignedCount = 1;
 					return true;
 				}
 
@@ -339,7 +468,6 @@ namespace Edo.Documents.Services
 
 						context.UnprocessedCodes.Remove(availableCode);
 
-						assignedCount = 1;
 						return true;
 					}
 				}
@@ -352,14 +480,11 @@ namespace Edo.Documents.Services
 
 			if(individualCode != null)
 			{
-				var codeItem = new EdoUpdInventPositionCode
-				{
-					IndividualCode = individualCode,
-					Quantity = 1
+				var codeItem = new UpdProductCode { 
+					IndividualCode = individualCode, 
+					Quantity = 1 
 				};
-
 				codeItemsToAssign.Add(codeItem);
-				assignedCount = 1;
 				return true;
 			}
 
@@ -369,11 +494,9 @@ namespace Edo.Documents.Services
 		private bool TryAssignUnscannedCode(
 			UpdDocumentCreationContext context,
 			OrderItemEntity orderItem,
-			List<EdoUpdInventPositionCode> codeItemsToAssign,
-			out int assignedCount)
+			List<UpdProductCode> codeItemsToAssign
+		)
 		{
-			assignedCount = 0;
-
 			var unscannedCodes = context.UnprocessedCodes
 				.Where(x => x.ProductCode.SourceCode is null)
 				.ToList();
@@ -400,14 +523,11 @@ namespace Edo.Documents.Services
 
 			context.UnprocessedCodes.Remove(unscannedCode);
 
-			var codeItem = new EdoUpdInventPositionCode
-			{
-				IndividualCode = unscannedCode.ProductCode.ResultCode,
-				Quantity = 1
+			var codeItem = new UpdProductCode { 
+				IndividualCode = unscannedCode.ProductCode.ResultCode, 
+				Quantity = 1 
 			};
 			codeItemsToAssign.Add(codeItem);
-
-			assignedCount = 1;
 			return true;
 		}
 
@@ -415,7 +535,7 @@ namespace Edo.Documents.Services
 			UpdDocumentCreationContext context,
 			OrderItemEntity orderItem,
 			int count,
-			List<EdoUpdInventPositionCode> codeItemsToAssign)
+			List<UpdProductCode> codeItemsToAssign)
 		{
 			var forNewAvailableGtins = orderItem.Nomenclature.Gtins;
 			var forNewGtinEntity = forNewAvailableGtins.OrderBy(g => g.Priority).FirstOrDefault();
@@ -436,9 +556,10 @@ namespace Edo.Documents.Services
 			UpdDocumentCreationContext context,
 			GtinEntity gtinEntity,
 			OrderItemEntity orderItem,
-			List<EdoUpdInventPositionCode> codeItemsToAssign,
+			List<UpdProductCode> codeItemsToAssign,
 			int count = 1,
-			EdoTaskItem edoTaskItemForChange = null)
+			EdoTaskItem edoTaskItemForChange = null
+		)
 		{
 			if(context.CodesNeeded.ContainsKey(gtinEntity))
 			{
@@ -451,9 +572,8 @@ namespace Edo.Documents.Services
 
 			for(int i = 0; i < count; i++)
 			{
-				var codeItem = new EdoUpdInventPositionCode
+				var codeItem = new UpdProductCode
 				{
-					IndividualCode = null,
 					Quantity = 1
 				};
 				codeItemsToAssign.Add(codeItem);
@@ -470,7 +590,8 @@ namespace Edo.Documents.Services
 
 		private async Task<Dictionary<string, List<TrueMarkWaterIdentificationCode>>> LoadCodesFromPoolAsync(
 			UpdDocumentCreationContext context,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken
+		) 
 		{
 			if(!context.CodesNeeded.Any())
 			{
@@ -488,8 +609,9 @@ namespace Edo.Documents.Services
 			var loadedCodes = await _trueMarkCodesPoolCodeProvider.TakeValidCodesBatchAsync(
 				_trueMarkCodesPool,
 				gtinCounts,
-				context.OrganizationInn,
-				cancellationToken);
+				context.Order.Contract.Organization.INN,
+				cancellationToken
+			);
 
 			if(loadedCodes.IsFailure)
 			{
@@ -682,16 +804,207 @@ namespace Edo.Documents.Services
 			}
 		}
 
-		private void UpdateDocument(
-			DocumentEdoTask documentEdoTask,
-			List<EdoUpdInventPosition> updInventPositions)
+		private EdoUpdDocument CreateUpdDocument(
+			UpdDocumentCreationContext context,
+			List<UpdInventPosition> updInventPositions
+		)
 		{
-			documentEdoTask.UpdInventPositions.Clear();
-			foreach(var updInventPosition in updInventPositions)
+			var order = context.Order;
+
+			var seller = order.Contract.Organization;
+			var sellerOrganization = new UpdOrganization {
+				Name = seller.Name,
+				CountryCode = "643",
+				CountryName = "Россия",
+				Address = seller.ActiveOrganizationVersion.JurAddress,
+				Inn = seller.INN,
+				Kpp = seller.KPP,
+				Ogrn = seller.OGRN,
+				OgrnDate = seller.OGRNDate,
+				EdoAccountId = seller.TaxcomEdoSettings.EdoAccount,
+				IsWithoutVat = order.IsCashlessPaymentTypeAndOrganizationWithoutVAT
+			};
+
+			var counterpartyEdoAccount = _counterpartyEdoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(
+				order.Client,
+				order.Contract.Organization.Id
+			);
+
+			var customer = order.Client;
+			var customerOrganization = BuildCustomerOrganization(customer, counterpartyEdoAccount);
+			var consigneeOrganization = BuildConsigneeOrganization(order, counterpartyEdoAccount);
+
+			var orderPayments = _paymentRepository.GetOrderPayments(_uow, order.Id)
+				.Select(payment => payment.GetFirstParentRefundedPaymentOrCurrent())
+				.Where(x => order.DeliveryDate.HasValue && x.Date < order.DeliveryDate.Value.AddDays(1))
+				.Distinct()
+				.ToList();
+
+			
+
+			var updDocument = new EdoUpdDocument
 			{
-				documentEdoTask.UpdInventPositions.Add(updInventPosition);
+				Guid = Guid.NewGuid(),
+				Number = DocumentNumberBuilder.Build(order, DocumentContainerType.Upd),
+				Date = order.DeliveryDate.Value,
+				Sum = updInventPositions.Sum(x => x.Sum),
+				Seller = sellerOrganization,
+				Customer = customerOrganization,
+				Consignee = consigneeOrganization,
+				GovContract = string.IsNullOrWhiteSpace(order.Client.GovContract) ? null : order.Client.GovContract,
+				ReasonForLeaving = customer.ReasonForLeaving,
+				OrderId = order.Id
+			};
+
+			updDocument.InventPositions = updInventPositions;
+
+			updDocument.Payments = orderPayments.Select(payment => new UpdPayment
+			{
+				PaymentNum = payment.PaymentNum.ToString(),
+				PaymentDate = payment.Date.ToString("dd.MM.yyyy"),
+			}).ToList();
+
+			AddShipingDocument(updDocument, order);
+			AddShipingReasonDocument(updDocument, order);
+
+			if(!string.IsNullOrWhiteSpace(customer.CargoReceiver) && customer.UseSpecialDocFields)
+			{
+				updDocument.SpecialConsignee = customer.CargoReceiver;
+			}
+
+			if(!string.IsNullOrWhiteSpace(order.CounterpartyExternalOrderId) && customer.UseSpecialDocFields)
+			{
+				updDocument.CustomerExternalOrderId = customer.SpecialNomenclatures.Any()
+					? $"{order.CounterpartyExternalOrderId}"
+					: $"N{order.CounterpartyExternalOrderId}";
+			}
+
+			return updDocument;
+		}
+
+		private UpdOrganization BuildCustomerOrganization(
+			CounterpartyEntity customer,
+			CounterpartyEdoAccountEntity counterpartyEdoAccount
+		)
+		{
+			var customerName = customer.FullName;
+			var customerKpp = customer.KPP;
+
+			if(customer.UseSpecialDocFields)
+			{
+				if(!string.IsNullOrWhiteSpace(customer.SpecialCustomer))
+				{
+					customerName = customer.SpecialCustomer;
+				}
+				if(!string.IsNullOrWhiteSpace(customer.PayerSpecialKPP))
+				{
+					customerKpp = customer.PayerSpecialKPP;
+				}
+			}
+			var customerOrganization = new UpdOrganization
+			{
+				Name = customerName,
+				CountryCode = "643",
+				CountryName = "Россия",
+				Address = customer.JurAddress,
+				Inn = customer.INN,
+				Kpp = customerKpp,
+				Ogrn = customer.OGRN,
+				OgrnDate = customer.OGRNDate,
+				EdoAccountId = counterpartyEdoAccount.PersonalAccountIdInEdo
+			};
+
+			return customerOrganization;
+		}
+
+		private UpdOrganization BuildConsigneeOrganization(
+			OrderEntity orderEntity,
+			CounterpartyEdoAccountEntity counterpartyEdoAccount
+		)
+		{
+			var customer = orderEntity.Client;
+			var deliveryPoint = orderEntity.DeliveryPoint;
+
+			var consignee = BuildCustomerOrganization(customer, counterpartyEdoAccount);
+
+			if(customer.CargoReceiverSource == CargoReceiverSource.FromDeliveryPoint)
+			{
+				consignee.Address = deliveryPoint != null ? deliveryPoint.ShortAddress : customer.JurAddress;
+				consignee.Kpp = deliveryPoint?.KPP ?? customer.KPP;
+				return consignee;
+			}
+
+			var useSpecialDoc = !string.IsNullOrWhiteSpace(customer.CargoReceiver) && customer.UseSpecialDocFields;
+			if(customer.CargoReceiverSource == CargoReceiverSource.Special && useSpecialDoc)
+			{
+				consignee.Address = customer.CargoReceiver;
+				consignee.Kpp = customer.PayerSpecialKPP ?? customer.KPP;
+				return consignee;
+			}
+
+			return consignee;
+		}
+
+		private void AddShipingDocument(EdoUpdDocument updDocument, OrderEntity order)
+		{
+			if(order.Client.UseSpecialDocFields
+				&& !string.IsNullOrWhiteSpace(order.Client.SpecialContractName)
+				&& !string.IsNullOrWhiteSpace(order.Client.SpecialContractNumber)
+				&& order.Client.SpecialContractDate.HasValue)
+			{
+				updDocument.ShippingDocument = order.Client.SpecialContractName;
+				updDocument.ShippingDocumentNumber = order.Client.SpecialContractNumber;
+				updDocument.ShippingDocumentDate = $"{order.Client.SpecialContractDate.Value:dd.MM.yyyy}";
+				return;
+			}
+
+			if(order.Client.UseSpecialDocFields && !string.IsNullOrWhiteSpace(order.Client.SpecialContractName))
+			{
+				updDocument.ShippingDocument = "Без документа-основания";
+				return;
+			}
+
+			if(order.Contract != null)
+			{
+				updDocument.ShippingDocument = "Договор";
+				updDocument.ShippingDocumentNumber = order.Contract.Number;
+				updDocument.ShippingDocumentDate = $"{order.Contract.IssueDate:dd.MM.yyyy}";
+			}
+			else
+			{
+				updDocument.ShippingDocument = "Без документа-основания";
 			}
 		}
+
+		private void AddShipingReasonDocument(EdoUpdDocument updDocument, OrderEntity order)
+		{
+			var customer = order.Client;
+
+			if(customer.UseSpecialDocFields
+			   && !string.IsNullOrWhiteSpace(customer.SpecialContractName)
+			   && !string.IsNullOrWhiteSpace(customer.SpecialContractNumber)
+			   && customer.SpecialContractDate.HasValue)
+			{
+				updDocument.ShippingReasonDocument = customer.SpecialContractName;
+				updDocument.ShippingReasonDocumentNumber = customer.SpecialContractNumber;
+				updDocument.ShippingReasonDocumentDate = customer.SpecialContractDate.Value.ToString("dd.MM.yyyy");
+				return;
+			}
+
+			if(customer.UseSpecialDocFields && !string.IsNullOrWhiteSpace(customer.SpecialContractName))
+			{
+				updDocument.ShippingReasonDocument = "Без документа-основания";
+				return;
+			}
+
+			if(order.Contract != null)
+			{
+				updDocument.ShippingReasonDocument = "Договор";
+				updDocument.ShippingReasonDocumentNumber = order.Contract.Number;
+				updDocument.ShippingReasonDocumentDate = order.Contract.IssueDate.ToString("dd.MM.yyyy");
+			}
+		}
+
 
 		private async Task<Dictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
 			List<EdoTaskItem> unprocessedTaskItems,
@@ -747,11 +1060,6 @@ namespace Edo.Documents.Services
 			// нашли все групповые коды
 
 			return result;
-		}
-
-		private static string GetOrderOrganizationInn(DocumentEdoTask documentEdoTask)
-		{
-			return documentEdoTask.FormalEdoRequest.Order.Contract.Organization.INN;
 		}
 	}
 }

@@ -1126,12 +1126,13 @@ namespace Vodovoz.Core.Application.TrueMark
 			return Result.Success(stagingTrueMarkCode);
 		}
 
-		private async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
+		public async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
 			string scannedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
 			int? orderItemId,
-			CancellationToken cancellationToken = default)
+			CancellationToken cancellationToken = default
+		)
 		{
 			var codes = new List<StagingTrueMarkCode>();
 
