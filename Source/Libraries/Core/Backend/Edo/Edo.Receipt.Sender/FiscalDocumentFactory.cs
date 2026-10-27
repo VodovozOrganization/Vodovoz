@@ -30,7 +30,7 @@ namespace Edo.Receipt.Sender
 				Id = GetDocumentGuid(edoFiscalDocument),
 				DocNum = edoFiscalDocument.DocumentNumber,
 				DocType = GetDocType(edoFiscalDocument.DocumentType),
-				CheckoutDateTime = edoFiscalDocument.CheckoutTime.ToString("O"),
+				CheckoutDateTime = FormatCashboxDateTime(edoFiscalDocument.CheckoutTime),
 				Email = edoFiscalDocument.Contact,
 				ClientINN = NormalizeClientInn(edoFiscalDocument.ClientInn),
 				CashierName = edoFiscalDocument.CashierName,
@@ -80,10 +80,24 @@ namespace Edo.Receipt.Sender
 			return new CorrectionInfo
 			{
 				Reason = "INDEPENDENT",
-				DocumentDate = documentDate.ToString("O"),
+				DocumentDate = FormatCashboxDateTime(documentDate),
 				DocumentNum = documentNum,
 				FiscalSign = Truncate(baselineDocument?.FiscalMark, 16)
 			};
+		}
+
+		private static string FormatCashboxDateTime(DateTime value)
+		{
+			if(value.Kind == DateTimeKind.Utc)
+			{
+				value = value.ToLocalTime();
+			}
+			else if(value.Kind == DateTimeKind.Unspecified)
+			{
+				value = DateTime.SpecifyKind(value, DateTimeKind.Local);
+			}
+
+			return value.ToString("yyyy-MM-dd'T'HH:mm:sszzz");
 		}
 
 		private static string Truncate(string value, int maxLength)

@@ -105,7 +105,17 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					FillReturnPositions(fiscalDocument, sourceDocument, process, currentOrder, previousSnapshot);
 					EnsureReturnPositions(fiscalDocument, sourceDocument, currentOrder, previousSnapshot);
 					break;
+				case FiscalDocumentType.SaleReturnCorrection:
+					CloneAllPositions(fiscalDocument, sourceDocument);
+					break;
 				case FiscalDocumentType.SaleCorrection:
+					if(process.ScenarioType == ReceiptCorrectionScenarioType.PaymentTypeChange
+						|| process.ScenarioType == ReceiptCorrectionScenarioType.DeliveryDateChange)
+					{
+						FillIssuedReceiptCorrection(fiscalDocument, sourceDocument, currentOrder);
+						break;
+					}
+
 					FillFromCurrentOrder(
 						fiscalDocument,
 						sourceDocument,
@@ -1460,6 +1470,25 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			return sourceDocument.InventPositions.FirstOrDefault()?.Vat ?? FiscalVat.VatFree;
 		}
 
+		private static void FillIssuedReceiptCorrection(
+			EdoFiscalDocument fiscalDocument,
+			EdoFiscalDocument sourceDocument,
+			OrderEntity currentOrder)
+		{
+			decimal sum = 0;
+			foreach(var sourcePosition in sourceDocument.InventPositions)
+			{
+				sum += AddReturnInventPosition(
+					fiscalDocument, sourceDocument, sourcePosition, sourcePosition.Quantity);
+			}
+
+			var paymentType = currentOrder != null
+				? MapOrderPaymentType(currentOrder.PaymentType)
+				: sourceDocument.MoneyPositions.FirstOrDefault()?.PaymentType ?? FiscalPaymentType.Cash;
+
+			AddMoneyPosition(fiscalDocument, paymentType, sum);
+		}
+
 		private static void CloneAllPositions(EdoFiscalDocument fiscalDocument, EdoFiscalDocument sourceDocument)
 		{
 			decimal sum = 0;
@@ -1531,6 +1560,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					return "sale";
 				case FiscalDocumentType.SaleCorrection:
 					return "corr";
+				case FiscalDocumentType.SaleReturnCorrection:
+					return "sret";
 				default:
 					return documentType.ToString().ToLowerInvariant();
 			}

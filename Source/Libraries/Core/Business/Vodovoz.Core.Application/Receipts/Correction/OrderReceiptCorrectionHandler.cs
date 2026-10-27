@@ -237,6 +237,14 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			}
 
 			var plannedDocumentTypes = _scenarioClassifier.GetPlannedDocumentTypes(scenarioType);
+			if(IsPaymentChangeToCashless(scenarioType, changeSet))
+			{
+				plannedDocumentTypes = new List<FiscalDocumentType>
+				{
+					FiscalDocumentType.SaleReturnCorrection
+				};
+			}
+
 			if(plannedDocumentTypes == null || !plannedDocumentTypes.Any())
 			{
 				return null;
@@ -251,6 +259,15 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				ScenarioType = scenarioType,
 				PlannedDocumentTypes = plannedDocumentTypes
 			};
+		}
+
+		private static bool IsPaymentChangeToCashless(
+			ReceiptCorrectionScenarioType scenarioType,
+			FiscalChangeSet changeSet)
+		{
+			return scenarioType == ReceiptCorrectionScenarioType.PaymentTypeChange
+				&& changeSet.HasPaymentTypeChange
+				&& string.Equals(changeSet.NewPaymentType, "Cashless", StringComparison.Ordinal);
 		}
 
 		private static bool IsEligibleOrderStatus(Order order)

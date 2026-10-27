@@ -105,6 +105,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					return "возврат прихода";
 				case FiscalDocumentType.SaleCorrection:
 					return "чек коррекции прихода";
+				case FiscalDocumentType.SaleReturnCorrection:
+					return "чек коррекции возврата прихода";
 				case FiscalDocumentType.Sale:
 					return "приход";
 				default:

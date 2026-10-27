@@ -64,50 +64,66 @@ namespace Edo.Receipt.Sender
 				|| saleDocument.DocumentType == FiscalDocumentType.SaleCorrection)
 			{
 				await AssignSaleCodesAsync(uow, saleDocument, sourceDocument, cancellationToken);
-			}
-
-			if(order != null)
-			{
-				await ReconcileOrderPoolCodesAsync(uow, order, cancellationToken);
+				if(order != null)
+				{
+					await ReconcileOrderPoolCodesAsync(
+						uow,
+						order,
+						cancellationToken,
+						ResultCodeIds(saleDocument));
+				}
 			}
 		}
 
 		public async Task ReconcileOrderPoolCodesAsync(
 			IUnitOfWork uow,
 			OrderEntity order,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken,
+			IEnumerable<int> keepResultCodeIds = null)
 		{
 			if(uow == null || order == null)
 			{
 				return;
 			}
 
-			var inFlightIds = GetInFlightResultCodeIds(uow, order.Id);
+			var locks = GetOrderPoolCodeLocks(uow, order.Id);
 			var poolCodes = await GetOrderPoolAssignedCodesAsync(uow, order.Id, cancellationToken);
 			if(!poolCodes.Any())
 			{
 				return;
 			}
 
-			var keepIds = new HashSet<int>(inFlightIds);
+			var keepIds = new HashSet<int>(locks.UnfinishedSaleResultCodeIds);
+			if(keepResultCodeIds != null)
+			{
+				keepIds.UnionWith(keepResultCodeIds);
+			}
 			var available = poolCodes
-				.Where(x => x.ResultCode != null && !inFlightIds.Contains(x.ResultCode.Id))
-				.OrderByDescending(x => x.Id)
+				.Where(x => x.ResultCode != null && !locks.IsLocked(x.ResultCode.Id))
+				.OrderBy(x => locks.ReturnedResultCodeIds.Contains(x.ResultCode.Id) ? 1 : 0)
+				.ThenByDescending(x => x.Id)
 				.ToList();
+			var requiredTotal = 0;
+			var consumedSaleIds = new HashSet<int>();
 
-			var inFlightCodes = poolCodes
-				.Where(x => x.ResultCode != null && inFlightIds.Contains(x.ResultCode.Id))
+			var saleLockedCodes = poolCodes
+				.Where(x => x.ResultCode != null && locks.UnfinishedSaleResultCodeIds.Contains(x.ResultCode.Id))
 				.ToList();
-			var consumedInFlightIds = new HashSet<int>();
 
 			foreach(var orderItem in order.OrderItems ?? Enumerable.Empty<OrderItemEntity>())
 			{
 				var nomenclature = orderItem?.Nomenclature;
 				if(nomenclature == null
 					|| !nomenclature.IsAccountableInTrueMark
-					|| orderItem.CurrentCount <= 0
-					|| nomenclature.Gtins == null
-					|| !nomenclature.Gtins.Any())
+					|| orderItem.CurrentCount <= 0)
+				{
+					continue;
+				}
+
+				var quantity = (int)Math.Round(orderItem.CurrentCount, MidpointRounding.AwayFromZero);
+				requiredTotal += quantity;
+
+				if(nomenclature.Gtins == null || !nomenclature.Gtins.Any())
 				{
 					continue;
 				}
@@ -118,20 +134,18 @@ namespace Edo.Receipt.Sender
 						.Where(x => !string.IsNullOrWhiteSpace(x)),
 					StringComparer.OrdinalIgnoreCase);
 
-				var quantity = (int)Math.Round(orderItem.CurrentCount, MidpointRounding.AwayFromZero);
-
-				var coveredByInFlight = inFlightCodes
-					.Where(x => !consumedInFlightIds.Contains(x.ResultCode.Id)
+				var coveredBySale = saleLockedCodes
+					.Where(x => !consumedSaleIds.Contains(x.ResultCode.Id)
 						&& gtins.Contains(x.ResultCode.Gtin))
 					.Take(quantity)
 					.ToList();
 
-				foreach(var productCode in coveredByInFlight)
+				foreach(var productCode in coveredBySale)
 				{
-					consumedInFlightIds.Add(productCode.ResultCode.Id);
+					consumedSaleIds.Add(productCode.ResultCode.Id);
 				}
 
-				var stillNeed = Math.Max(0, quantity - coveredByInFlight.Count);
+				var stillNeed = Math.Max(0, quantity - coveredBySale.Count);
 				var matched = available
 					.Where(x => !keepIds.Contains(x.ResultCode.Id)
 						&& gtins.Contains(x.ResultCode.Gtin))
@@ -139,6 +153,17 @@ namespace Edo.Receipt.Sender
 					.ToList();
 
 				foreach(var productCode in matched)
+				{
+					keepIds.Add(productCode.ResultCode.Id);
+				}
+			}
+
+			var saleLockedCount = saleLockedCodes.Count;
+			var keptAvailable = available.Count(x => keepIds.Contains(x.ResultCode.Id));
+			var needLeft = requiredTotal - saleLockedCount - keptAvailable;
+			if(needLeft > 0)
+			{
+				foreach(var productCode in available.Where(x => !keepIds.Contains(x.ResultCode.Id)).Take(needLeft))
 				{
 					keepIds.Add(productCode.ResultCode.Id);
 				}
@@ -314,7 +339,7 @@ namespace Edo.Receipt.Sender
 				return null;
 			}
 
-			var inFlightIds = GetInFlightResultCodeIds(uow, orderId);
+			var inFlightIds = GetOrderPoolCodeLocks(uow, orderId).AllUnfinishedResultCodeIds;
 
 			var gtinSet = new HashSet<string>(gtins, StringComparer.OrdinalIgnoreCase);
 			var candidates = await GetOrderPoolAssignedCodesAsync(uow, orderId, cancellationToken);
@@ -327,30 +352,96 @@ namespace Edo.Receipt.Sender
 				.FirstOrDefault();
 		}
 
-		private static HashSet<int> GetInFlightResultCodeIds(IUnitOfWork uow, int orderId)
+		private static IEnumerable<int> ResultCodeIds(EdoFiscalDocument document)
 		{
-			var result = new HashSet<int>();
+			return (document.InventPositions ?? Enumerable.Empty<FiscalInventPosition>())
+				.Select(x => x.EdoTaskItem?.ProductCode?.ResultCode?.Id)
+				.Where(x => x.HasValue)
+				.Select(x => x.Value);
+		}
 
+		private static OrderPoolCodeLocks GetOrderPoolCodeLocks(IUnitOfWork uow, int orderId)
+		{
+			var locks = new OrderPoolCodeLocks();
 			var documents = uow.Session.Query<EdoFiscalDocument>()
 				.Where(x => x.ReceiptEdoTask.FormalEdoRequest.Order.Id == orderId
-					&& x.Stage != FiscalDocumentStage.Completed
 					&& x.Status != FiscalDocumentStatus.Failed
 					&& x.Status != FiscalDocumentStatus.SendError)
 				.ToList();
 
 			foreach(var document in documents)
 			{
-				foreach(var position in document.InventPositions ?? Enumerable.Empty<FiscalInventPosition>())
+				var codeIds = (document.InventPositions ?? Enumerable.Empty<FiscalInventPosition>())
+					.Select(x => x.EdoTaskItem?.ProductCode?.ResultCode?.Id)
+					.Where(x => x.HasValue)
+					.Select(x => x.Value)
+					.ToList();
+				if(!codeIds.Any())
 				{
-					var resultCodeId = position.EdoTaskItem?.ProductCode?.ResultCode?.Id;
-					if(resultCodeId.HasValue)
+					continue;
+				}
+
+				if(document.DocumentType == FiscalDocumentType.Return)
+				{
+					foreach(var codeId in codeIds)
 					{
-						result.Add(resultCodeId.Value);
+						locks.ReturnedResultCodeIds.Add(codeId);
 					}
+				}
+
+				var unfinished = document.Stage != FiscalDocumentStage.Completed
+					&& document.Status != FiscalDocumentStatus.Printed
+					&& document.Status != FiscalDocumentStatus.Completed;
+				if(!unfinished)
+				{
+					continue;
+				}
+
+				var target = document.DocumentType == FiscalDocumentType.Sale
+					|| document.DocumentType == FiscalDocumentType.SaleCorrection
+					? locks.UnfinishedSaleResultCodeIds
+					: document.DocumentType == FiscalDocumentType.Return
+						|| document.DocumentType == FiscalDocumentType.SaleReturnCorrection
+						? locks.UnfinishedReturnResultCodeIds
+						: null;
+				if(target == null)
+				{
+					continue;
+				}
+
+				foreach(var codeId in codeIds)
+				{
+					target.Add(codeId);
 				}
 			}
 
-			return result;
+			locks.UnfinishedReturnResultCodeIds.ExceptWith(locks.UnfinishedSaleResultCodeIds);
+			return locks;
+		}
+
+		private sealed class OrderPoolCodeLocks
+		{
+			public HashSet<int> UnfinishedSaleResultCodeIds { get; } = new HashSet<int>();
+
+			public HashSet<int> UnfinishedReturnResultCodeIds { get; } = new HashSet<int>();
+
+			public HashSet<int> ReturnedResultCodeIds { get; } = new HashSet<int>();
+
+			public HashSet<int> AllUnfinishedResultCodeIds
+			{
+				get
+				{
+					var ids = new HashSet<int>(UnfinishedSaleResultCodeIds);
+					ids.UnionWith(UnfinishedReturnResultCodeIds);
+					return ids;
+				}
+			}
+
+			public bool IsLocked(int resultCodeId)
+			{
+				return UnfinishedSaleResultCodeIds.Contains(resultCodeId)
+					|| UnfinishedReturnResultCodeIds.Contains(resultCodeId);
+			}
 		}
 
 		private static async Task<IList<TrueMarkProductCode>> GetOrderPoolAssignedCodesAsync(

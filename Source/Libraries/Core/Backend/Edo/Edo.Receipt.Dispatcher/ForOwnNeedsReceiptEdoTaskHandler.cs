@@ -154,10 +154,7 @@ namespace Edo.Receipt.Dispatcher
 
 			if(HasPrebuiltCorrectionFiscalDocuments(receiptEdoTask))
 			{
-				_logger.LogInformation(
-					"Задача Id {EdoTaskId} уже содержит корректирующие/возвратные фискальные документы. " +
-					"Подготовка через ReceiptTaskCreated пропущена (отправка через ReceiptCorrectionSender).",
-					receiptEdoTask.Id);
+				await HandlePrebuiltCorrectionReceipt(receiptEdoTask, cancellationToken);
 				return;
 			}
 
@@ -221,6 +218,11 @@ namespace Edo.Receipt.Dispatcher
 
 		public async Task HandleTransferComplete(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
+			if(await CompletePrebuiltCorrectionTransfer(receiptEdoTask, cancellationToken))
+			{
+				return;
+			}
+
 			// Повторный подбор допустим только до отправки любого из фискальных документов.
 			if(receiptEdoTask.ReceiptStatus != EdoReceiptStatus.Transfering
 				|| receiptEdoTask.Status == EdoTaskStatus.Completed
@@ -539,6 +541,34 @@ namespace Edo.Receipt.Dispatcher
 		/// <param name="receiptEdoTask"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
+		private Task HandlePrebuiltCorrectionReceipt(
+			ReceiptEdoTask receiptEdoTask,
+			CancellationToken cancellationToken)
+		{
+			_ = cancellationToken;
+			_logger.LogInformation(
+				"Задача Id {EdoTaskId} уже содержит корректирующие фискальные документы. " +
+				"Подготовка через ReceiptTaskCreated пропущена (отправка через ReceiptCorrectionSender).",
+				receiptEdoTask.Id);
+			return Task.CompletedTask;
+		}
+
+		private async Task<bool> CompletePrebuiltCorrectionTransfer(
+			ReceiptEdoTask receiptEdoTask,
+			CancellationToken cancellationToken)
+		{
+			if(!HasPrebuiltCorrectionFiscalDocuments(receiptEdoTask)
+				|| receiptEdoTask.ReceiptStatus != EdoReceiptStatus.Transfering)
+			{
+				return false;
+			}
+
+			receiptEdoTask.ReceiptStatus = EdoReceiptStatus.Sending;
+			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+			return true;
+		}
+
 		private static bool HasPrebuiltCorrectionFiscalDocuments(ReceiptEdoTask receiptEdoTask)
 		{
 			return receiptEdoTask.FiscalDocuments != null

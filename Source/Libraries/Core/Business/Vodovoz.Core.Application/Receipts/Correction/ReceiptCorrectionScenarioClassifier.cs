@@ -122,7 +122,12 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 					};
 				case ReceiptCorrectionScenarioType.PaymentTypeChange:
 				case ReceiptCorrectionScenarioType.DeliveryDateChange:
-					return new List<FiscalDocumentType> { FiscalDocumentType.SaleCorrection };
+					// ФФД 1.2: сначала гасим неверный чек, потом приход с верными данными
+					return new List<FiscalDocumentType>
+					{
+						FiscalDocumentType.SaleReturnCorrection,
+						FiscalDocumentType.SaleCorrection
+					};
 				default:
 					return new List<FiscalDocumentType>();
 			}
