@@ -333,6 +333,16 @@ namespace Vodovoz.Core.Domain.Users.Settings
 		}
 
 		/// <summary>
+		/// Удаляет пробельные символы (пробелы, переносы строк и т.д.) по краям учетных данных API управления топливом
+		/// </summary>
+		public virtual void TrimFuelControlApiAuthData()
+		{
+			FuelControlApiLogin = FuelControlApiLogin?.Trim();
+			FuelControlApiPassword = FuelControlApiPassword?.Trim();
+			FuelControlApiKey = FuelControlApiKey?.Trim();
+		}
+
+		/// <summary>
 		/// Статус рекламации
 		/// </summary>
 		[Display(Name = "Статус рекламации")]

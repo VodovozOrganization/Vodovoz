@@ -26,6 +26,7 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -585,6 +586,7 @@ namespace Vodovoz.Domain.Documents
 		/// <param name="selfDeliveryRepository"></param>
 		/// <param name="cashRepository"></param>
 		/// <param name="callTaskWorker"></param>
+		/// <param name="saleHandler"></param>
 		/// <returns></returns>
 		public virtual bool FullyShiped(
 			IUnitOfWork uow,
@@ -592,11 +594,13 @@ namespace Vodovoz.Domain.Documents
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			ICashRepository cashRepository,
-			ICallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker,
+			IOrderSaleHandler saleHandler)
 		{
 			//Проверка текущего документа
 			return Order.TryCloseSelfDeliveryOrderWithCallTask(
 				uow,
+				saleHandler,
 				nomenclatureSettings,
 				routeListItemRepository,
 				selfDeliveryRepository,
