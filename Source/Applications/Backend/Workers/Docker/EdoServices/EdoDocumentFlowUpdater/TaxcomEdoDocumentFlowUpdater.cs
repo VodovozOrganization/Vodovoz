@@ -22,6 +22,7 @@ using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -736,81 +737,81 @@ namespace EdoDocumentFlowUpdater
 
 		private async Task CancellationDocFlows(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Получаем заказы по которым нужно отменить счёт");
-
-			try
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Аннулирование счетов нового ЭДО");
+			var requests = uow.GetAll<InformalEdoRequest>()
+				.Where(x => (x.OrderDocumentType == OrderDocumentType.Bill || x.OrderDocumentType == OrderDocumentType.SpecialBill)
+					&& x.Task != null && x.Task.CancellationReason != null
+					&& x.Task.Status != EdoTaskStatus.Cancelled && x.Task.Status != EdoTaskStatus.InCancellation)
+				.ToList();
+			foreach(var request in requests)
 			{
-				using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис аннулирования документов");
-				var offerCancellationFromActions = uow
-					.GetAll<OrderEdoTrueMarkDocumentsActions>()
-					.Where(x => x.IsNeedOfferCancellation)
-					.ToList();
-			
-				_logger.LogInformation("Всего нужно аннулировать {OfferCancellationCount}", offerCancellationFromActions.Count);
-
-				foreach(var offerCancellation in offerCancellationFromActions)
+				try
 				{
 					using var scope = _serviceScopeFactory.CreateScope();
-					var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
-				
-					var containersToOfferCancellation = uow.Session.Query<EdoContainer>()
-						.Where(ec => ec.Order.Id == offerCancellation.Order.Id
-							&& ec.Type == DocumentContainerType.Bill
-							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Warning
-							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Error
-							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.WaitingForCancellation
-							&& ec.EdoDocFlowStatus != EdoDocFlowStatus.Cancelled)
-						.ToList();
-
-					foreach(var container in containersToOfferCancellation)
+					var client = scope.ServiceProvider.GetRequiredService<ITaxcomApiClient>();
+					
+					if(!await SendBillCancellationOffers(uow, client, request, cancellationToken))
 					{
-						//Не отменяем контейнеры, которые были созданы после запроса на аннулирование
-						if(offerCancellation.Created.HasValue && offerCancellation.Created < container.Created)
-						{
-							continue;
-						}
-					
-						_logger.LogInformation("Отменяется оффер из контейнера №{EdoContainerId}, Заказа №{OrderId}, документооборота {DocFlowId}",
-							container.Id,
-							container.Order?.Id,
-							container.DocFlowId);
-					
-						await SendOfferCancellationContainer(taxcomApiClient, container, cancellationToken);
+						continue;
 					}
 
-					offerCancellation.IsNeedOfferCancellation = false;
-					await uow.SaveAsync(offerCancellation);
-					await uow.CommitAsync();
+					await uow.SaveAsync(request.Task, cancellationToken: cancellationToken);
+					await uow.CommitAsync(cancellationToken);
+				}
+				catch(Exception exception)
+				{
+					_logger.LogError(exception, "Ошибка аннулирования счета по заявке №{RequestId}", request.Id);
 				}
 			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка в процессе аннулирования документов");
-
-				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
-					$"Ошибка в процессе аннулирования документов: {e}", cancellationToken);
-			}
 		}
-		
-		private async Task SendOfferCancellationContainer(
-			ITaxcomApiClient taxcomApiClient, EdoContainer edoContainer, CancellationToken cancellationToken)
-		{
-			try
-			{
-				await taxcomApiClient.SendOfferCancellation(
-					edoContainer.DocFlowId.ToString(), "Состав заказа был изменен", cancellationToken);
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка в процессе аннулирования документооборота {DocFlowId} из контейнера №{EdoContainerId}, Заказа №{OrderId}",
-					edoContainer.DocFlowId,
-					edoContainer.Id,
-					edoContainer.Order.Id);
 
-				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
-					$"Ошибка в процессе аннулирования документооборота {edoContainer.DocFlowId} из контейнера №{edoContainer.Id}, Заказа №{edoContainer.Order.Id}: {e}",
-					cancellationToken);
+		private async Task<bool> SendBillCancellationOffers(
+			IUnitOfWork uow, ITaxcomApiClient taxcomApiClient,
+			InformalEdoRequest request, CancellationToken cancellationToken)
+		{
+			var document = uow.GetAll<OutgoingInformalEdoDocument>()
+				.Where(x => x.InformalDocumentTaskId == request.Task.Id)
+				.OrderByDescending(x => x.Id)
+				.FirstOrDefault();
+			if(document == null)
+			{
+				if(request.Task.Status != EdoTaskStatus.New)
+				{
+					return false;
+				}
+				request.Task.ProcessTaskCancellation(EdoTaskStatus.Cancelled, request.Task.CancellationReason);
+				request.Task.EndTime = DateTime.Now;
+				return true;
 			}
+
+			switch (document.Status)
+			{
+				case EdoDocumentStatus.Error:
+				case EdoDocumentStatus.Warning:
+					request.Task.CancellationReason = null;
+					return true;
+				case EdoDocumentStatus.Cancelled:
+				case EdoDocumentStatus.WaitingForCancellation:
+					request.Task.ProcessTaskCancellation(document.Status == EdoDocumentStatus.Cancelled
+						? EdoTaskStatus.Cancelled : EdoTaskStatus.InCancellation, request.Task.CancellationReason);
+					return true;
+			}
+
+			var docflowIds = uow.GetAll<TaxcomDocflow>()
+				.Where(x => x.EdoDocumentId == document.Id && x.DocflowId != null)
+				.Select(x => x.DocflowId.Value)
+				.Distinct()
+				.ToList();
+			if(!docflowIds.Any())
+			{
+				return false;
+			}
+			foreach(var docflowId in docflowIds)
+			{
+				await taxcomApiClient.SendOfferCancellation(docflowId.ToString(), request.Task.CancellationReason, cancellationToken);
+			}
+			request.Task.ProcessTaskCancellation(EdoTaskStatus.InCancellation, request.Task.CancellationReason);
+			return true;
 		}
 
 		private async Task DelayAsync(CancellationToken cancellationToken)

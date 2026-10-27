@@ -17,14 +17,15 @@ namespace Vodovoz.ViewModels.Edo
 			Time = documentNode.RequestTime;
 			TimeString = Time.ToString("dd.MM.yyyy HH:mm");
 			Source = documentNode.RequestSource;
-			SourceString = Source == EdoRequestSource.Manual
-				? documentNode.ManualRequestAuthor
-				: Source.GetEnumTitle();
 			Status = documentNode.TaskStatus;
 			StatusString = Status.GetEnumTitle();
 			EdoDocumentStatus = documentNode.EdoDocumentStatus;
 			DocumentType = MatchDocumentType(documentNode);
 			DocumentTypeString = DocumentType.GetEnumTitle();
+			SourceString = Source == EdoRequestSource.Manual
+				|| (DocumentType == EdoInOrderDocumentType.Bill && !string.IsNullOrWhiteSpace(documentNode.ManualRequestAuthor))
+					? documentNode.ManualRequestAuthor
+					: Source.GetEnumTitle();
 			DocumentGroupType = MatchDocumentsByGroupType(DocumentType);
 			DocumentGroupTypeString = DocumentGroupType.GetEnumTitle();
 			CodesQuantity = GetCodesQuantity();
@@ -106,6 +107,7 @@ namespace Vodovoz.ViewModels.Edo
 			switch(document.InformalOrderDocumentType.Value)
 			{
 				case OrderDocumentType.Bill:
+				case OrderDocumentType.SpecialBill:
 					return EdoInOrderDocumentType.Bill;
 				default:
 					throw new NotSupportedException($"Не поддерживается отправка документа: {document.InformalOrderDocumentType.Value}.");
@@ -121,6 +123,8 @@ namespace Vodovoz.ViewModels.Edo
 				case EdoInOrderDocumentType.Tender:
 				case EdoInOrderDocumentType.SaveCode:
 					return EdoInOrderDocumentGroupType.Primary;
+				case EdoInOrderDocumentType.Bill:
+					return EdoInOrderDocumentGroupType.Bills;
 				case EdoInOrderDocumentType.Withdrawal:
 					return EdoInOrderDocumentGroupType.Withdrawal;
 				default:

@@ -1,17 +1,22 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Utilities;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Application.Sale;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.Domain.Orders.Documents;
+using VodovozBusiness.Nodes;
+using Gamma.Utilities;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 {
@@ -77,15 +82,19 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			
 			ConfigureTreeItems();
 
-			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
+			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoDockflowData>.Create()
 				.AddColumn("Код документооборота")
 					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
 				.AddColumn("Отправленные\nдокументы")
-					.AddTextRenderer(x => x.SentDocuments)
+					.AddTextRenderer(x => x.DocumentType)
 				.AddColumn("Статус\nдокументооборота")
-					.AddEnumRenderer(x => x.EdoDocFlowStatus)
+					.AddTextRenderer(x => x.EdoDocFlowStatusString)
+				.AddColumn("Статус задачи\nнового ЭДО")
+					.AddTextRenderer(x => x.EdoTaskStatus.HasValue ? x.EdoTaskStatus.Value.GetEnumTitle() : string.Empty)
+				.AddColumn("Статус документа\nнового ЭДО")
+					.AddTextRenderer(x => x.EdoDocumentStatus.HasValue ? x.EdoDocumentStatus.Value.GetEnumTitle() : string.Empty)
 				.AddColumn("Доставлено\nклиенту?")
-					.AddToggleRenderer(x => x.Received)
+					.AddToggleRenderer(x => x.IsReceived)
 					.Editing(false)
 				.AddColumn("Описание ошибки")
 					.AddTextRenderer(x => x.ErrorDescription)
@@ -93,16 +102,13 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddColumn("")
 				.Finish();
 
-			if(ViewModel.Entity.Id != 0)
-			{
-				CustomizeSendDocumentAgainButton();
-			}
+			CustomizeSendDocumentAgainButton();
 
-			treeViewEdoContainers.ItemsDataSource = ViewModel.EdoContainers;
+			treeViewEdoContainers.ItemsDataSource = ViewModel.EdoDocuments;
 
 			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
 			{
-				ViewModel.UpdateEdoContainers();
+				ViewModel.UpdateEdoDocuments();
 				CustomizeSendDocumentAgainButton();
 			};
 
@@ -125,7 +131,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private void UpdateContainersVisibility()
 		{
-			vboxEdo.Visible = ViewModel.CanSendBillByEdo || ViewModel.EdoContainers.Any();
+			vboxEdo.Visible = ViewModel.CanSendBillByEdo || ViewModel.EdoDocuments.Any();
 		}
 
 		private void ConfigureTreeItems()
@@ -140,17 +146,22 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddColumn("Кол-во")
 				.SetTag("Count")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.Count)
-					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing().WidthChars(10)
-					.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
+					.AddNumericRenderer(node => node.Count, OnCountEdited)
+					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+					.Editing()
+					.WidthChars(10)
+					.AddSetter((cell, node) => cell.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 				.AddColumn("Аренда")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.IsRentCategory ? node.RentString : string.Empty)
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
-					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
-					.AddSetter((c, node) => c.Editable = node.CanEditPrice)
+					.AddNumericRenderer(node => node.Price)
+					.Digits(2).WidthChars(10)
+					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+					.Editing(true)
+					.AddSetter((cell, node) => cell.Editable = node.CanEditPrice)
+					.EditedEvent(OnPriceEdited)
 				.AddColumn("Альтерн.\nцена")
 					.AddToggleRenderer(x => x.IsAlternativePrice).Editing(false)
 				.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
@@ -162,7 +173,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.ManualChangingDiscount)
+					.AddNumericRenderer(node => node.ManualChangingDiscount, OnDiscountEdited)
 					.AddSetter((c, n) => c.Editable = ViewModel.CanChangeDiscountValue)
 					.Editing()
 					.AddSetter(
@@ -193,17 +204,66 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			orderitemdiscountreasonsview.ViewModel = ViewModel.OrderItemDiscountReasonsViewModel;
 		}
 
-		private void CustomizeSendDocumentAgainButton()
+		private void OnCountEdited(object o, EditedArgs args)
 		{
-			if(!ViewModel.EdoContainers.Any())
+			var stringCount = args.NewText.Replace(',', '.');
+			decimal.TryParse(stringCount, NumberStyles.Any, CultureInfo.InvariantCulture, out var newCount);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+
+			if(!(node is OrderWithoutShipmentForAdvancePaymentItem saleItem))
 			{
-				ybuttonSendDocumentAgain.Sensitive = ViewModel.CanSendBillByEdo;
-				ybuttonSendDocumentAgain.Label = "Отправить";
 				return;
 			}
 
-			ybuttonSendDocumentAgain.Sensitive = ViewModel.CanResendEdoBill;
-			ybuttonSendDocumentAgain.Label = "Отправить повторно";
+			ViewModel.SaleHandler.SetCount(saleItem, newCount);
+			var path = new TreePath(args.Path);
+			treeItems.YTreeModel.GetIter(out var iter, path);
+			treeItems.YTreeModel.Adapter.EmitRowChanged(path, iter);
+		}
+		
+		private void OnPriceEdited(object o, EditedArgs args)
+		{
+			var stringPrice = args.NewText.Replace(',', '.');
+			decimal.TryParse(stringPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+
+			if(newPrice < 0)
+			{
+				newPrice = 0;
+			}
+
+			if(!(node is OrderWithoutShipmentForAdvancePaymentItem saleItem))
+			{
+				return;
+			}
+
+			ViewModel.SaleHandler.SetPrice(saleItem, (SaleItemPriceType.User, newPrice));
+		}
+		
+		private void OnDiscountEdited(object o, EditedArgs args)
+		{
+			var stringDiscount = args.NewText.Replace(',', '.');
+			decimal.TryParse(stringDiscount, NumberStyles.Any, CultureInfo.InvariantCulture, out var newDiscount);
+			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+
+			if(!(node is OrderWithoutShipmentForAdvancePaymentItem saleItem))
+			{
+				return;
+			}
+			
+			ViewModel.SaleHandler.RecalculateDiscounts(
+				CommonRecalculateDiscount.CreateDataContext(
+					saleItem,
+					DiscountValue.Create(saleItem.IsDiscountInMoney, newDiscount, newDiscount))
+				);
+		}
+
+		private void CustomizeSendDocumentAgainButton()
+		{
+			ybuttonSendDocumentAgain.NoShowAll = true;
+			ybuttonSendDocumentAgain.Visible = !ViewModel.EdoDocuments.Any();
+			ybuttonSendDocumentAgain.Sensitive = ViewModel.CanSendBillByEdo;
+			ybuttonSendDocumentAgain.Label = "Отправить";
 		}
 
 		private void TreeItems_Selection_Changed(object sender, EventArgs e)

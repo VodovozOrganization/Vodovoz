@@ -116,6 +116,14 @@ namespace EdoService.Library
 		bool CanResendEdoDocument(EdoDocumentStatus? status);
 
 		/// <summary>
+		/// Проверяет доступность повторной отправки счета по состояниям задачи и документа.
+		/// </summary>
+		/// <param name="taskStatus">Статус задачи счета.</param>
+		/// <param name="documentStatus">Статус исходящего документа.</param>
+		/// <returns>Доступна ли повторная отправка счета.</returns>
+		bool CanResendBillEdoDocument(EdoTaskStatus taskStatus, EdoDocumentStatus? documentStatus);
+
+		/// <summary>
 		/// Переотправка документа по ЭДО по идентификатору задачи
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи</param>
@@ -135,6 +143,13 @@ namespace EdoService.Library
 		/// <param name="taskId">Идентификатор задачи ЭДО</param>
 		/// <returns>Результат повторного запуска задачи</returns>
 		Result<string> ResendNewEdoTask(int taskId);
+
+		/// <summary>
+		/// Повторно запускает новую задачу счета или ставит счет заказа на повторную отправку через новое ЭДО.
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи счета.</param>
+		/// <returns>Результат запуска повторной отправки.</returns>
+		Result<string> ResendBillEdoDocument(int taskId);
 
 		/// <summary>
 		/// Помечает заявку задачи как разрешённую к отправке в закрытом бухгалтерском периоде.

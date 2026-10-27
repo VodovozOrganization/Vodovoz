@@ -620,7 +620,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var includedOrganizations = organizationsFilter.GetIncluded().ToArray();
 			var excludedOrganizations = organizationsFilter.GetExcluded().ToArray();
 
-			var discountReasonsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<DiscountReason>>();
+			var discountReasonsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<DiscountReasonBase>>();
 			var includedDiscountReasons = discountReasonsFilter.GetIncluded().ToArray();
 			var excludedDiscountReasons = discountReasonsFilter.GetExcluded().ToArray();
 
@@ -718,7 +718,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			RouteListItem notTransferedRouteListItemAlias = null;
 			Car carAlias = null;
 			CarModel carModelAlias = null;
-			DiscountReason discountReasonAlias = null;
+			DiscountReasonBase discountReasonAlias = null;
 
 			TurnoverWithDynamicsReport.OrderItemNode resultNodeAlias = null;
 

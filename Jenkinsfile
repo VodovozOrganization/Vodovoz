@@ -271,7 +271,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CustomerApp/UsersAndNomenclatures/CustomerAppsApi/CustomerAppsApi.csproj")
 
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
@@ -297,7 +297,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Services/Pacs.Calls.Service/Pacs.Calls.Service.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Services/Pacs.Operator.Service/Pacs.Operator.Service.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/RobotMia/Api/Api.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CustomerOrdersApi/CustomerOrdersApi.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CustomerApp/Orders/CustomerOrdersApi/CustomerOrdersApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/EarchiveApi/EarchiveApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Mango.Api.Service/Mango.Api.Service.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Mango.Service/Mango.Service.csproj")
