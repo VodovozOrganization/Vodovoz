@@ -22,8 +22,8 @@ namespace Vodovoz.Core.Domain.Documents
 
 	/// <summary>
 	/// Статус Такском заменяется по транзакциям, только если он ещё «В процессе»,
-	/// «Не начат» или «Получено оператором». Титул покупателя сам по себе не делает
-	/// документ успешно завершённым: «Успешно завершен» и «Не принят» приходят от Такском.
+	/// «Не начат» или «Получено оператором». Исключение: титул покупателя с КодИтога = 2
+	/// даёт «Завершен с расхождением», с КодИтога = 3 — «Не принят», пока нет аннулирования.
 	/// Порядок транзакций не учитывается: важнее наличие более высокого шага.
 	/// Конечный шаг — принятое аннулирование.
 	/// </summary>
@@ -41,6 +41,16 @@ namespace Vodovoz.Core.Domain.Documents
 		public const string AcceptCancellationOffer = "AcceptCancellationOffer";
 		public const string RejectCancellationOffer = "RejectCancellationOffer";
 		public const string UniversalMessageRejectionNoticeCancellationOffer = "UniversalMessageRejectionNoticeCancellationOffer";
+
+		/// <summary>
+		/// Не код транзакции Такском. Вызывающий код добавляет его, если в титуле покупателя КодИтога = 2.
+		/// </summary>
+		public const string BuyerTitleAcceptedWithDivergences = "BuyerTitleAcceptedWithDivergences";
+
+		/// <summary>
+		/// Не код транзакции Такском. Вызывающий код добавляет его, если в титуле покупателя КодИтога = 3.
+		/// </summary>
+		public const string BuyerTitleNotAccepted = "BuyerTitleNotAccepted";
 
 		private static readonly string[] _buyerTitleCodes =
 		{
@@ -81,6 +91,32 @@ namespace Vodovoz.Core.Domain.Documents
 			EdoDocFlowStatus.NotStarted
 		};
 
+		public static bool ContainsBuyerTitle(IEnumerable<string> transactionCodes)
+		{
+			if(transactionCodes is null)
+			{
+				return false;
+			}
+
+			return transactionCodes.Any(code => !string.IsNullOrWhiteSpace(code) && _buyerTitleCodes.Contains(code));
+		}
+
+		public static IEnumerable<string> WithBuyerTitleResult(IEnumerable<string> transactionCodes, string resultCode)
+		{
+			var codes = transactionCodes ?? Enumerable.Empty<string>();
+			if(resultCode == "3")
+			{
+				return codes.Concat(new[] { BuyerTitleNotAccepted });
+			}
+
+			if(resultCode == "2")
+			{
+				return codes.Concat(new[] { BuyerTitleAcceptedWithDivergences });
+			}
+
+			return codes;
+		}
+
 		public static TaxcomDocflowState Resolve(
 			EdoDocFlowStatus? reportedStatus,
 			IEnumerable<string> transactionCodes)
@@ -99,12 +135,27 @@ namespace Vodovoz.Core.Domain.Documents
 
 		private static EdoDocFlowStatus? ResolveStatus(EdoDocFlowStatus? reportedStatus, IReadOnlyList<string> codes)
 		{
-			if(!CanBeCorrectedByTransaction(reportedStatus))
+			if(CanBeCorrectedByTransaction(reportedStatus))
+			{
+				reportedStatus = DeriveStatusFromTransactions(codes) ?? reportedStatus;
+			}
+
+			if(!BuyerTitleResultCanReplaceStatus(reportedStatus, codes))
 			{
 				return reportedStatus;
 			}
 
-			return DeriveStatusFromTransactions(codes) ?? reportedStatus;
+			if(BuyerTitleHasDivergences(codes))
+			{
+				reportedStatus = EdoDocFlowStatus.CompletedWithDivergences;
+			}
+
+			if(BuyerTitleIsNotAccepted(codes))
+			{
+				return EdoDocFlowStatus.NotAccepted;
+			}
+
+			return reportedStatus;
 		}
 
 		private static bool IsReceived(EdoDocFlowStatus? status, IReadOnlyList<string> codes)
@@ -160,6 +211,21 @@ namespace Vodovoz.Core.Domain.Documents
 				derivedStatus = EdoDocFlowStatus.Warning;
 			}
 
+			if(codes.Any(IsBuyerTitle))
+			{
+				derivedStatus = EdoDocFlowStatus.Succeed;
+			}
+
+			if(BuyerTitleHasDivergences(codes))
+			{
+				derivedStatus = EdoDocFlowStatus.CompletedWithDivergences;
+			}
+
+			if(BuyerTitleIsNotAccepted(codes))
+			{
+				derivedStatus = EdoDocFlowStatus.NotAccepted;
+			}
+
 			if(codes.Any(IsCancellationOffer) && !codes.Any(IsCancellationRejected))
 			{
 				derivedStatus = EdoDocFlowStatus.WaitingForCancellation;
@@ -194,6 +260,24 @@ namespace Vodovoz.Core.Domain.Documents
 		private static bool IsBuyerTitle(string code)
 		{
 			return _buyerTitleCodes.Contains(code);
+		}
+
+		private static bool BuyerTitleHasDivergences(IReadOnlyList<string> codes)
+		{
+			return codes.Any(code => code == BuyerTitleAcceptedWithDivergences);
+		}
+
+		private static bool BuyerTitleIsNotAccepted(IReadOnlyList<string> codes)
+		{
+			return codes.Any(code => code == BuyerTitleNotAccepted);
+		}
+
+		private static bool BuyerTitleResultCanReplaceStatus(EdoDocFlowStatus? status, IReadOnlyList<string> codes)
+		{
+			return status != EdoDocFlowStatus.WaitingForCancellation
+				&& status != EdoDocFlowStatus.Cancelled
+				&& !codes.Any(IsCancellationOffer)
+				&& !codes.Any(IsCancellationAccepted);
 		}
 
 		private static bool IsClarification(string code)

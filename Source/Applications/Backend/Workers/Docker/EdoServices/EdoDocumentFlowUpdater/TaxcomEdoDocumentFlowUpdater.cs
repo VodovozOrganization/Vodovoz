@@ -361,7 +361,7 @@ namespace EdoDocumentFlowUpdater
 				}
 				else
 				{
-					await SendOutgoingTaxcomDocflowUpdatedEvent(docflowUpdate, mainDocument, cancellationToken);
+					await SendOutgoingTaxcomDocflowUpdatedEvent(docflowUpdate, mainDocument, taxcomApiClient, cancellationToken);
 				}
 
 				await UpdateDocflowServiceDocumentMessage(uow, docflowUpdate, taxcomApiClient, cancellationToken);
@@ -375,9 +375,44 @@ namespace EdoDocumentFlowUpdater
 			return lastProcessEventTimeResult;
 		}
 
+		private async Task<IEnumerable<string>> TransactionCodesWithBuyerTitleResult(
+			ITaxcomApiClient taxcomApiClient,
+			Guid? docflowId,
+			IEnumerable<string> transactionCodes,
+			CancellationToken cancellationToken)
+		{
+			var codes = transactionCodes ?? Enumerable.Empty<string>();
+			if(!docflowId.HasValue || !TaxcomDocflowStateByTransactions.ContainsBuyerTitle(codes))
+			{
+				return codes;
+			}
+
+			try
+			{
+				var raw = await taxcomApiClient.GetDocFlowRawData(docflowId.Value.ToString(), cancellationToken);
+				if(raw.IsFailure || raw.Value == null)
+				{
+					return codes;
+				}
+
+				return TaxcomDocflowStateByTransactions.WithBuyerTitleResult(
+					codes,
+					BuyerTitleAcceptance.ReadResultCode(raw.Value));
+			}
+			catch(Exception exception)
+			{
+				_logger.LogWarning(
+					exception,
+					"Не удалось прочитать итог титула покупателя по документообороту {DocflowId}",
+					docflowId);
+				return codes;
+			}
+		}
+
 		private async Task SendOutgoingTaxcomDocflowUpdatedEvent(
 			EdoDocFlow docflow,
 			EdoDocFlowDocument mainDocument,
+			ITaxcomApiClient taxcomApiClient,
 			CancellationToken cancellationToken)
 		{
 			if(mainDocument is null)
@@ -386,9 +421,15 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 
+			var transactionCodes = await TransactionCodesWithBuyerTitleResult(
+				taxcomApiClient,
+				docflow.Id,
+				docflow.Documents?.Select(document => document.TransactionCode),
+				cancellationToken);
+
 			var state = TaxcomDocflowStateByTransactions.Resolve(
 				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>(),
-				docflow.Documents?.Select(document => document.TransactionCode));
+				transactionCodes);
 
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent
 			{
@@ -647,9 +688,15 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 			
+			var transactionCodes = await TransactionCodesWithBuyerTitleResult(
+				taxcomApiClient,
+				docflow.Id,
+				docflow.Documents?.Select(document => document.TransactionCode),
+				cancellationToken);
+
 			var state = TaxcomDocflowStateByTransactions.Resolve(
 				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>(),
-				docflow.Documents?.Select(document => document.TransactionCode));
+				transactionCodes);
 
 			container.DocFlowId = docflow.Id;
 			container.Received = state.IsReceived;

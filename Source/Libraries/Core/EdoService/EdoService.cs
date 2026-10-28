@@ -17,6 +17,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using TaxcomEdo.Client;
 using Taxcom.Docflow.Utility;
 using TransactionalOutbox.Domain;
 using Vodovoz.Core.Data.Repositories;
@@ -1583,6 +1584,40 @@ namespace EdoService.Library
 			}
 		}
 
+		private async Task<IEnumerable<string>> WithNotAcceptedBuyerTitle(
+			ITaxcomApiClient taxcomApiClient,
+			Guid docflowId,
+			IEnumerable<string> transactionCodes,
+			CancellationToken cancellationToken)
+		{
+			var codes = transactionCodes ?? Enumerable.Empty<string>();
+			if(!TaxcomDocflowStateByTransactions.ContainsBuyerTitle(codes))
+			{
+				return codes;
+			}
+
+			try
+			{
+				var raw = await taxcomApiClient.GetDocFlowRawData(docflowId.ToString(), cancellationToken);
+				if(raw.IsFailure || raw.Value == null)
+				{
+					return codes;
+				}
+
+				return TaxcomDocflowStateByTransactions.WithBuyerTitleResult(
+					codes,
+					BuyerTitleAcceptance.ReadResultCode(raw.Value));
+			}
+			catch(Exception exception)
+			{
+				_logger.LogWarning(
+					exception,
+					"Не удалось прочитать итог титула покупателя по документообороту {DocflowId}",
+					docflowId);
+				return codes;
+			}
+		}
+
 		public async Task<Result<string>> UpdateDocflowStatusAsync(
 			IUnitOfWork uow,
 			Guid? docflowId,
@@ -1646,9 +1681,15 @@ namespace EdoService.Library
 					reportedStatus = parsedStatus;
 				}
 
+				var transactionCodes = await WithNotAcceptedBuyerTitle(
+					taxcomApiClient,
+					description.DocFlow.Id,
+					description.DocFlow.Documents?.Select(document => document.TransactionCode),
+					cancellationToken);
+
 				var state = TaxcomDocflowStateByTransactions.Resolve(
 					reportedStatus,
-					description.DocFlow.Documents?.Select(document => document.TransactionCode));
+					transactionCodes);
 				var docflowUpdatedEvent = new OutgoingTaxcomDocflowUpdatedEvent
 				{
 					DocFlowId = description.DocFlow.Id,

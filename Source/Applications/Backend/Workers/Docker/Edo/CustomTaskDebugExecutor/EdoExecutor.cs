@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -571,6 +572,35 @@ namespace CustomTaskDebugExecutor
 			await service.MoveToPrepareToSend(id, cancellationToken);
 		}
 		
+		private static async Task<IEnumerable<string>> WithNotAcceptedBuyerTitle(
+			ITaxcomApiClient taxcomApiClient,
+			Guid docflowId,
+			IEnumerable<string> transactionCodes)
+		{
+			var codes = transactionCodes ?? Enumerable.Empty<string>();
+			if(!TaxcomDocflowStateByTransactions.ContainsBuyerTitle(codes))
+			{
+				return codes;
+			}
+
+			try
+			{
+				var raw = await taxcomApiClient.GetDocFlowRawData(docflowId.ToString());
+				if(raw.IsFailure || raw.Value == null)
+				{
+					return codes;
+				}
+
+				return TaxcomDocflowStateByTransactions.WithBuyerTitleResult(
+					codes,
+					BuyerTitleAcceptance.ReadResultCode(raw.Value));
+			}
+			catch(Exception)
+			{
+				return codes;
+			}
+		}
+
 		private async Task UpdateDocflowStatus()
 		{
 			Console.WriteLine();
@@ -615,9 +645,14 @@ namespace CustomTaskDebugExecutor
 					reportedStatus = parsedStatus;
 				}
 
+				var transactionCodes = await WithNotAcceptedBuyerTitle(
+					taxcomApiClient,
+					description.DocFlow.Id,
+					description.DocFlow.Documents?.Select(document => document.TransactionCode));
+
 				var state = TaxcomDocflowStateByTransactions.Resolve(
 					reportedStatus,
-					description.DocFlow.Documents?.Select(document => document.TransactionCode));
+					transactionCodes);
 				var docflowUpdatedEvent = new OutgoingTaxcomDocflowUpdatedEvent
 				{
 					DocFlowId = description.DocFlow.Id,
