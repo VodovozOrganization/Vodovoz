@@ -47,6 +47,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		private bool _isOrderByDate;
 		private bool _isCanCreateCounterpartyDebtDetailsReport;
 		private bool _showPhones;
+		private bool _showBottlesManager;
 
 		public CounterpartyCashlessDebtsReportViewModel(
 			ICommonServices commonServices,
@@ -126,6 +127,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 
 		public bool CanShowPhones { get; }
 
+		public bool ShowBottlesManager
+		{
+			get => _showBottlesManager;
+			set => SetField(ref _showBottlesManager, value);
+		}
+
 		public bool IsCanCreateCounterpartyDebtDetailsReport
 		{
 			get => _isCanCreateCounterpartyDebtDetailsReport;
@@ -188,6 +195,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			if(reportType == CounterpartyCashlessDebtsReportType.DebtBalance)
 			{
 				_parameters.Add("show_phones", ShowPhones);
+				_parameters.Add("show_bottles_manager", ShowBottlesManager);
 			}
 			
 			LoadReport();

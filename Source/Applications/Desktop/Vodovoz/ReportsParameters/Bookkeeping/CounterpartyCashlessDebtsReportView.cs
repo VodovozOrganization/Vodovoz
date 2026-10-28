@@ -33,6 +33,10 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 				.AddBinding(ViewModel, vm => vm.CanShowPhones, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ycheckbuttonShowBottlesManager.Binding
+				.AddBinding(ViewModel, vm => vm.ShowBottlesManager, w => w.Active)
+				.InitializeFromSource();
+
 			var filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);
 
 			yvboxFilter.Add(filterView);

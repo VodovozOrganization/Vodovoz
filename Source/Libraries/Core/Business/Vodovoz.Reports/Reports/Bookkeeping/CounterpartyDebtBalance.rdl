@@ -218,7 +218,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>=Iif({?show_phones}, "Телефоны", "Организация")</Value>
+                      <Value>=Iif({?show_bottles_manager}, "Менеджер по бутылям", Iif({?show_phones}, "Телефоны", "Организация"))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -230,6 +230,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -842,7 +843,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>=Iif({?show_phones}, {phones}, {org_name})</Value>
+                      <Value>=Iif({?show_bottles_manager}, {bottles_manager_name}, Iif({?show_phones}, {phones}, {org_name}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1169,6 +1170,7 @@
 	        GROUP_CONCAT(DISTINCT (SELECT CONCAT('+7', p.digits_number) FROM phones p WHERE p.id = o.contact_phone_id ORDER BY p.id DESC) SEPARATOR ',\n')	        
 	    ) AS phones,
         org.name AS org_name,
+        IFNULL(CONCAT_WS(' ', bm.last_name, bm.name, bm.patronymic), '') AS bottles_manager_name,
         (
             (SELECT IFNULL(SUM(cmo.income), 0)
                 FROM cashless_movement_operations cmo
@@ -1314,6 +1316,7 @@
     LEFT JOIN counterparty_camefrom ccf ON c.counterparty_camefrom_id = ccf.id
     LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
     LEFT JOIN organizations org ON cc.organization_id = org.id
+    LEFT JOIN employees bm ON c.bottles_manager_id = bm.id
     WHERE o.order_payment_status != 'Paid'
       AND o.payment_type = 'Cashless'
       AND c.person_type = 'legal'
@@ -1461,6 +1464,10 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
         </Field>
         <Field Name="org_name">
           <DataField>org_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bottles_manager_name">
+          <DataField>bottles_manager_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="unallocated_balance">
@@ -1684,6 +1691,13 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
       <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="show_phones">
+      <DataType>Boolean</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="show_bottles_manager">
       <DataType>Boolean</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
