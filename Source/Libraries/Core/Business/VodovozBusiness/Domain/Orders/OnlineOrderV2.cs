@@ -36,6 +36,7 @@ namespace VodovozBusiness.Domain.Orders
 		{
 			if(isAutoOrderEnabled)
 			{
+				IsAutoOrderEnabled = true;
 				ToSetupTemplate(timeToTemplateSetupInSeconds, onlineOrderTimestampType, creatingOn);
 			}
 			else

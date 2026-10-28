@@ -74,7 +74,7 @@ namespace CustomerOrdersApi.Controllers.V8
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CheckOrderTemplateResponse))]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-		[HttpGet]
+		[HttpPost]
 		public IActionResult CheckOrderTemplate(CheckOrderTemplateRequest request)
 		{
 			try
@@ -111,7 +111,7 @@ namespace CustomerOrdersApi.Controllers.V8
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CreateOrderTemplateResponse))]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-		[HttpGet]
+		[HttpPost]
 		public async Task<IActionResult> CreateOrderTemplate(
 			CreateOrderTemplateRequest request,
 			CancellationToken cancellationToken
