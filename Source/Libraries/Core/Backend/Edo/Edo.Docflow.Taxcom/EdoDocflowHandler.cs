@@ -172,8 +172,7 @@ namespace Edo.Docflow.Taxcom
 		public async Task<EdoDocflowUpdatedEvent> UpdateOutgoingTaxcomDocFlow(
 			OutgoingTaxcomDocflowUpdatedEvent @event, CancellationToken cancellationToken = default)
 		{
-			var taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
-				.SingleOrDefault(x => x.MainDocumentId == @event.MainDocumentId);
+			var taxcomDocflow = FindTaxcomDocflow(@event.DocFlowId, @event.MainDocumentId);
 
 			if(taxcomDocflow is null)
 			{
@@ -250,23 +249,19 @@ namespace Edo.Docflow.Taxcom
 		public async Task AcceptIngoingTaxcomEdoDocFlowWaitingForSignature(
 			AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent @event, CancellationToken cancellationToken = default)
 		{
-			var taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
-				.SingleOrDefault(x => x.MainDocumentId == @event.MainDocumentId);
+			var taxcomDocflow = FindTaxcomDocflow(@event.DocFlowId, @event.MainDocumentId)
+				?? _uow.Session.Query<TaxcomDocflow>()
+					.Where(x => x.MainDocumentId == @event.MainDocumentId)
+					.OrderByDescending(x => x.CreationTime).ThenByDescending(x => x.Id)
+					.FirstOrDefault();
 
 			if(taxcomDocflow is null)
 			{
-				_logger.LogWarning("Не нашли отправку с таким документом {ExternalIdentifier}. Попробуем найти по ДО {DocflowId}",
+				_logger.LogWarning("Не нашли отправку для документа {ExternalIdentifier} и документооборота {DocflowId}",
 					@event.MainDocumentId,
 					@event.DocFlowId);
 				
-				taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
-					.SingleOrDefault(x => x.DocflowId == @event.DocFlowId);
-
-				if(taxcomDocflow is null)
-				{
-					_logger.LogWarning("Не нашли отправку с таким ДО {DocflowId}", @event.DocFlowId);
-					return;
-				}
+				return;
 			}
 			
 			if(taxcomDocflow.AcceptingIngoingDocflowTime.HasValue
@@ -298,6 +293,26 @@ namespace Edo.Docflow.Taxcom
 			}
 		}
 		
+		private TaxcomDocflow FindTaxcomDocflow(Guid? docflowId, string mainDocumentId)
+		{
+			if(docflowId.HasValue)
+			{
+				var knownDocflow = _uow.Session.Query<TaxcomDocflow>()
+					.Where(x => x.DocflowId == docflowId)
+					.OrderByDescending(x => x.CreationTime).ThenByDescending(x => x.Id)
+					.FirstOrDefault();
+				if(knownDocflow != null)
+				{
+					return knownDocflow;
+				}
+			}
+
+			return _uow.Session.Query<TaxcomDocflow>()
+				.Where(x => x.MainDocumentId == mainDocumentId && x.DocflowId == null)
+				.OrderByDescending(x => x.CreationTime).ThenByDescending(x => x.Id)
+				.FirstOrDefault();
+		}
+
 		private async Task SaveTaxcomDocflow(TaxcomDocflow taxcomDocflow)
 		{
 			_logger.LogInformation(

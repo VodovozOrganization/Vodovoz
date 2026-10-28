@@ -23,6 +23,7 @@ namespace Edo.Transfer.Sender
 		private readonly IUnitOfWork _uow;
 		private readonly ITransferTaskRepository _transferTaskRepository;
 		private readonly ITransferOrderHeaderPreparer _transferOrderHeaderPreparer;
+		private readonly TransferUpdDocumentBuilder _updDocumentBuilder;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
@@ -32,6 +33,7 @@ namespace Edo.Transfer.Sender
 			IUnitOfWork uow,
 			ITransferTaskRepository transferTaskRepository,
 			ITransferOrderHeaderPreparer transferOrderHeaderPreparer,
+			TransferUpdDocumentBuilder updDocumentBuilder,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
@@ -41,6 +43,7 @@ namespace Edo.Transfer.Sender
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_transferTaskRepository = transferTaskRepository ?? throw new ArgumentNullException(nameof(transferTaskRepository));
 			_transferOrderHeaderPreparer = transferOrderHeaderPreparer ?? throw new ArgumentNullException(nameof(transferOrderHeaderPreparer));
+			_updDocumentBuilder = updDocumentBuilder ?? throw new ArgumentNullException(nameof(updDocumentBuilder));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
@@ -70,6 +73,13 @@ namespace Edo.Transfer.Sender
 				return;
 			}
 
+			if(transferEdoTask.Upd == null && transferEdoTask.TransferOrderId.HasValue)
+			{
+				_logger.LogWarning("В ранее подготовленной задаче на трансфер Id {TransferTaskId} отсутствует сохранённый УПД",
+					transferEdoTask.Id);
+				return;
+			}
+
 			if(transferEdoTask.TransferStatus > EdoTransferTaskStage.PreparingToSend)
 			{
 				_logger.LogWarning("Задача на трансфер Id {TransferEdoTaskId} уже была подготовлена к отправке",
@@ -79,7 +89,10 @@ namespace Edo.Transfer.Sender
 
 			try
 			{
-				await CreateTransferOrder(transferEdoTask, cancellationToken);
+				if(!await CreateTransferOrder(transferEdoTask, cancellationToken))
+				{
+					return;
+				}
 				transferEdoTask.TransferStatus = EdoTransferTaskStage.ReadyToSend;
 			}
 			catch(EdoProblemException ex)
@@ -89,6 +102,7 @@ namespace Edo.Transfer.Sender
 				{
 					throw;
 				}
+				return;
 			}
 			catch(Exception ex)
 			{
@@ -97,6 +111,7 @@ namespace Edo.Transfer.Sender
 				{
 					throw;
 				}
+				return;
 			}
 
 			await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
@@ -110,8 +125,13 @@ namespace Edo.Transfer.Sender
 			await _messageBus.Publish(message, cancellationToken);
 		}
 
-		private async Task CreateTransferOrder(TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
+		private async Task<bool> CreateTransferOrder(TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
 		{
+			if(transferEdoTask.Upd != null)
+			{
+				return true;
+			}
+
 			var transferedCodes = await _transferTaskRepository.GetAllCodesForTransferTaskAsync(_uow, transferEdoTask, cancellationToken);
 			var groupGtins = await _uow.Session.QueryOver<GroupGtinEntity>()
 				.ListAsync(cancellationToken);
@@ -127,7 +147,7 @@ namespace Edo.Transfer.Sender
 					   cancellationToken,
 					   Vodovoz.Core.Domain.Errors.Edo.TransferOrder.TransferOrderCreateDateMissing.Message);
 
-				return;
+				return false;
 			}
 
 			var transferOrderResult = await _transferOrderHeaderPreparer.PrepareAsync(transferEdoTask, cancellationToken);
@@ -138,7 +158,7 @@ namespace Edo.Transfer.Sender
 					transferEdoTask,
 					cancellationToken,
 					string.Join(", ", transferOrderResult.Errors.Select(e => e.Message)));
-				return;
+				return false;
 			}
 
 			var transferOrder = transferOrderResult.Value;
@@ -236,6 +256,8 @@ namespace Edo.Transfer.Sender
 			}
 
 			transferEdoTask.TransferOrderId = transferOrder.Id;
+			transferEdoTask.Upd = await _updDocumentBuilder.BuildAsync(transferOrder, cancellationToken);
+			return true;
 		}
 		
 

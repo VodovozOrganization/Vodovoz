@@ -206953,4 +206953,68 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.Filters.GtkViews.EdoUpdFilterView" design-size="950 40">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.HBox" id="hboxFilter">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.Label" id="labelDate">
+            <property name="MemberName" />
+            <property name="LabelProp" translatable="yes">Дата УПД:</property>
+          </widget>
+          <packing><property name="Position">0</property><property name="AutoSize">True</property><property name="Expand">False</property></packing>
+        </child>
+        <child>
+          <widget class="QS.Widgets.GtkUI.DateRangePicker" id="dateRange">
+            <property name="MemberName" />
+            <property name="StartDate">0</property>
+            <property name="EndDate">0</property>
+          </widget>
+          <packing><property name="Position">1</property><property name="AutoSize">True</property><property name="Expand">False</property></packing>
+        </child>
+        <child>
+          <widget class="Gtk.Label" id="labelType">
+            <property name="MemberName" />
+            <property name="LabelProp" translatable="yes">Тип:</property>
+          </widget>
+          <packing><property name="Position">2</property><property name="AutoSize">True</property><property name="Expand">False</property></packing>
+        </child>
+        <child>
+          <widget class="Gamma.Widgets.yEnumComboBox" id="yenumDocumentType"><property name="MemberName" /></widget>
+          <packing><property name="Position">3</property><property name="AutoSize">True</property><property name="Expand">False</property></packing>
+        </child>
+        <child>
+          <widget class="Gtk.Label" id="labelInn">
+            <property name="MemberName" />
+            <property name="LabelProp" translatable="yes">ИНН покупателя:</property>
+          </widget>
+          <packing><property name="Position">4</property><property name="AutoSize">True</property><property name="Expand">False</property></packing>
+        </child>
+        <child>
+          <widget class="Gamma.GtkWidgets.yEntry" id="yentryInn"><property name="MemberName" /><property name="CanFocus">True</property></widget>
+          <packing><property name="Position">5</property><property name="AutoSize">True</property><property name="Expand">False</property></packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.Views.Edo.EdoUpdDocumentView" design-size="1000 600">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.ScrolledWindow" id="scrolledFields">
+        <property name="MemberName" />
+        <property name="ShadowType">In</property>
+        <child>
+          <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewFields">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="ShowScrollbars">True</property>
+          </widget>
+        </child>
+      </widget>
+    </child>
+  </widget>
 </stetic-interface>
