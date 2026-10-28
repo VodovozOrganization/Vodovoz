@@ -283,6 +283,43 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return taxcomDocflow;
 		}
 
+		public IList<Guid> GetDocflowIdsStuckInSentOrInProgress(
+			IUnitOfWork uow,
+			string edoAccount,
+			DateTime statusChangedBefore)
+		{
+			var stuckStatuses = new[]
+			{
+				EdoDocFlowStatus.Sent,
+				EdoDocFlowStatus.InProgress
+			};
+
+			var docflowIds =
+				from docflow in uow.Session.Query<TaxcomDocflow>()
+				join action in uow.Session.Query<TaxcomDocflowAction>()
+					on docflow.Id equals action.TaxcomDocflowId
+				join orderDocument in uow.Session.Query<OrderEdoDocument>()
+					on docflow.EdoDocumentId equals orderDocument.Id
+				join task in uow.Session.Query<DocumentEdoTask>()
+					on orderDocument.DocumentTaskId equals task.Id
+				join formalRequest in uow.Session.Query<FormalEdoRequest>()
+					on task.FormalEdoRequest.Id equals formalRequest.Id
+				join order in uow.Session.Query<OrderEntity>()
+					on formalRequest.Order.Id equals order.Id
+				join settings in uow.Session.Query<TaxcomEdoSettings>()
+					on order.Contract.Organization.Id equals settings.OrganizationId
+				where action.Id == uow.Session.Query<TaxcomDocflowAction>()
+						.Where(other => other.TaxcomDocflowId == docflow.Id)
+						.Max(other => (int?)other.Id)
+					&& stuckStatuses.Contains(action.DocFlowState)
+					&& action.Time <= statusChangedBefore
+					&& docflow.DocflowId != null
+					&& settings.EdoAccount == edoAccount
+				select docflow.DocflowId.Value;
+
+			return docflowIds.Distinct().ToList();
+		}
+
 		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
 			IUnitOfWork uow,
 			int timeoutDays,
