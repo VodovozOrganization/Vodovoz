@@ -94,10 +94,12 @@ namespace CustomerOrdersApi.Library.V5.Services
 			{
 				if(onlineOrder is not null
 					&& onlineOrder.OnlineOrderStatus is not OnlineOrderStatus.Canceled
-					&& onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline)
-				{
-					return Result.Success();
-				}
+					&& (onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline
+						|| (onlineOrder.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline
+							&& onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+							&& onlineOrder.EmployeeWorkWith is null)
+					)
+				)
 				
 				return Result.Failure(OrderErrors.NotFound);
 			}
@@ -203,7 +205,12 @@ namespace CustomerOrdersApi.Library.V5.Services
 			{
 				if(onlineOrder is not null
 					&& onlineOrder.OnlineOrderStatus is not OnlineOrderStatus.Canceled
-					&& onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline)
+					&& (onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline
+						|| (onlineOrder.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline
+							&& onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+							&& onlineOrder.EmployeeWorkWith is null)
+					)
+				)
 				{
 					await CancelOnlineOrder(uow, onlineOrder, cancellationToken);
 					await uow.CommitAsync(cancellationToken);
