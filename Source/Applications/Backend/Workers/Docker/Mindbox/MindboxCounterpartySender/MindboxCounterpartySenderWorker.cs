@@ -9,7 +9,7 @@ using Vodovoz.Mindbox.Services;
 namespace MindboxCounterpartySender
 {
 	/// <summary>
-	/// Отправляет очередь контрагентов в Mindbox
+	/// Добавляет новых контрагентов в очередь и отправляет её в Mindbox
 	/// </summary>
 	public class MindboxCounterpartySenderWorker : BackgroundService
 	{
@@ -37,6 +37,14 @@ namespace MindboxCounterpartySender
 				{
 					using(var scope = _scopeFactory.CreateScope())
 					{
+						var enqueuer = scope.ServiceProvider.GetRequiredService<IMindboxCounterpartyEnqueuer>();
+						var enqueued = await enqueuer.EnqueueNewCounterpartiesAsync(stoppingToken);
+
+						if(enqueued > 0)
+						{
+							_logger.LogInformation("Добавлено в очередь Mindbox: {Count}", enqueued);
+						}
+
 						var processor = scope.ServiceProvider.GetRequiredService<IMindboxCounterpartyOutboxProcessor>();
 						var processed = await processor.ProcessAsync(stoppingToken);
 

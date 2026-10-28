@@ -1,4 +1,5 @@
-﻿using Vodovoz.Settings.Mindbox;
+﻿using System;
+using System.Globalization;
 
 namespace Vodovoz.Settings.Database.Mindbox
 {
@@ -11,21 +12,24 @@ namespace Vodovoz.Settings.Database.Mindbox
 		private const string BaseUrlSetting = "Mindbox.BaseUrl";
 		private const string SecretKeySetting = "Mindbox.SecretKey";
 		private const string EndpointIdSetting = "Mindbox.EndpointId";
-		private const string CreateCounterpartyOperationSetting = "Mindbox.CreateCounterpartyOperation";
-		private const string CreateCounterpartyOperationTypeSetting = "Mindbox.CreateCounterpartyOperationType";
-		private const string ImportOperationSetting = "Mindbox.ImportOperation";
-		private const string ImportSegmentSetting = "Mindbox.ImportSegment";
-		private const string ImportSourceActionTemplateSetting = "Mindbox.ImportSourceActionTemplate";
-		private const string ImportBatchSizeSetting = "Mindbox.ImportBatchSize";
+		private const string CreateCustomerOperationSetting = "Mindbox.CreateCustomerOperation";
+		private const string CreateCustomerOperationTypeSetting = "Mindbox.CreateCustomerOperationType";
+		private const string TimeoutSecondsSetting = "Mindbox.TimeoutSeconds";
 		private const string SendBatchSizeSetting = "Mindbox.SendBatchSize";
-		private const string MaxSendAttemptsSetting = "Mindbox.MaxSendAttempts";
-		private const string RetryDelaySecondsSetting = "Mindbox.RetryDelaySeconds";
+		private const string EnqueueBatchSizeSetting = "Mindbox.EnqueueBatchSize";
+		private const string RetryScheduleMinutesSetting = "Mindbox.RetryScheduleMinutes";
+		private const string RetryIntervalMinutesSetting = "Mindbox.RetryIntervalMinutes";
+		private const string RetryMaxHoursSetting = "Mindbox.RetryMaxHours";
+		private const string PauseMinutesSetting = "Mindbox.PauseMinutes";
+		private const string TransientErrorsBeforePauseSetting = "Mindbox.TransientErrorsBeforePause";
+		private const string UnavailableAlertMinutesSetting = "Mindbox.UnavailableAlertMinutes";
+		private const string LastEnqueuedCounterpartyIdSetting = "Mindbox.LastEnqueuedCounterpartyId";
 
 		private readonly ISettingsController _settingsController;
 
 		public MindboxSettings(ISettingsController settingsController)
 		{
-			_settingsController = settingsController ?? throw new System.ArgumentNullException(nameof(settingsController));
+			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 
 		/// <inheritdoc />
@@ -59,31 +63,53 @@ namespace Vodovoz.Settings.Database.Mindbox
 		public string EndpointId => GetRequiredString(EndpointIdSetting);
 
 		/// <inheritdoc />
-		public string CreateCounterpartyOperation => GetRequiredString(CreateCounterpartyOperationSetting);
+		public string CreateCustomerOperation => GetRequiredString(CreateCustomerOperationSetting);
 
 		/// <inheritdoc />
-		public string CreateCounterpartyOperationType => GetOptionalString(CreateCounterpartyOperationTypeSetting, "async");
+		public string CreateCustomerOperationType =>
+			GetOptionalString(CreateCustomerOperationTypeSetting, "sync");
 
 		/// <inheritdoc />
-		public string ImportOperation => GetOptionalString(ImportOperationSetting, "DirectCrm.Customers.Import");
-
-		/// <inheritdoc />
-		public string ImportSegment => GetOptionalString(ImportSegmentSetting, string.Empty);
-
-		/// <inheritdoc />
-		public string ImportSourceActionTemplate => GetOptionalString(ImportSourceActionTemplateSetting, string.Empty);
-
-		/// <inheritdoc />
-		public int ImportBatchSize => GetOptionalInt(ImportBatchSizeSetting, 20000);
+		public int TimeoutSeconds => GetOptionalInt(TimeoutSecondsSetting, 10);
 
 		/// <inheritdoc />
 		public int SendBatchSize => GetOptionalInt(SendBatchSizeSetting, 50);
 
 		/// <inheritdoc />
-		public int MaxSendAttempts => GetOptionalInt(MaxSendAttemptsSetting, 10);
+		public int EnqueueBatchSize => GetOptionalInt(EnqueueBatchSizeSetting, 1000);
 
 		/// <inheritdoc />
-		public int RetryDelaySeconds => GetOptionalInt(RetryDelaySecondsSetting, 60);
+		public string RetryScheduleMinutes =>
+			GetOptionalString(RetryScheduleMinutesSetting, "1,5,15,60");
+
+		/// <inheritdoc />
+		public int RetryIntervalMinutes => GetOptionalInt(RetryIntervalMinutesSetting, 60);
+
+		/// <inheritdoc />
+		public int RetryMaxHours => GetOptionalInt(RetryMaxHoursSetting, 24);
+
+		/// <inheritdoc />
+		public int PauseMinutes => GetOptionalInt(PauseMinutesSetting, 5);
+
+		/// <inheritdoc />
+		public int TransientErrorsBeforePause =>
+			GetOptionalInt(TransientErrorsBeforePauseSetting, 3);
+
+		/// <inheritdoc />
+		public int UnavailableAlertMinutes => GetOptionalInt(UnavailableAlertMinutesSetting, 15);
+
+		/// <inheritdoc />
+		public int LastEnqueuedCounterpartyId =>
+			GetOptionalInt(LastEnqueuedCounterpartyIdSetting, -1);
+
+		/// <inheritdoc />
+		public void SetLastEnqueuedCounterpartyId(int counterpartyId)
+		{
+			_settingsController.CreateOrUpdateSetting(
+				LastEnqueuedCounterpartyIdSetting,
+				counterpartyId.ToString(CultureInfo.InvariantCulture),
+				TimeSpan.FromMinutes(1));
+		}
 
 		private string GetRequiredString(string settingName)
 		{
@@ -128,5 +154,97 @@ namespace Vodovoz.Settings.Database.Mindbox
 				return defaultValue;
 			}
 		}
+	}
+
+	/// <summary>
+	/// Настройки интеграции с Mindbox, хранящиеся в base_parameters
+	/// </summary>
+	public interface IMindboxSettings
+	{
+		/// <summary>
+		/// Признак включённости интеграции с Mindbox
+		/// </summary>
+		bool IsEnabled { get; }
+
+		/// <summary>
+		/// Базовый URL API Mindbox
+		/// </summary>
+		string BaseUrl { get; }
+
+		/// <summary>
+		/// Секретный ключ для доступа к API Mindbox
+		/// </summary>
+		string SecretKey { get; }
+
+		/// <summary>
+		/// Идентификатор эндпоинта Mindbox
+		/// </summary>
+		string EndpointId { get; }
+
+		/// <summary>
+		/// Название операции создания клиента
+		/// </summary>
+		string CreateCustomerOperation { get; }
+
+		/// <summary>
+		/// Тип операции создания клиента
+		/// </summary>
+		string CreateCustomerOperationType { get; }
+
+		/// <summary>
+		/// Таймаут запросов к Mindbox в секундах
+		/// </summary>
+		int TimeoutSeconds { get; }
+
+		/// <summary>
+		/// Размер батча при отправке данных
+		/// </summary>
+		int SendBatchSize { get; }
+
+		/// <summary>
+		/// Размер батча при постановке в очередь
+		/// </summary>
+		int EnqueueBatchSize { get; }
+
+		/// <summary>
+		/// Расписание повторов в минутах (например, "1,5,15,60")
+		/// </summary>
+		string RetryScheduleMinutes { get; }
+
+		/// <summary>
+		/// Интервал повторов в минутах
+		/// </summary>
+		int RetryIntervalMinutes { get; }
+
+		/// <summary>
+		/// Максимальное время повторов в часах
+		/// </summary>
+		int RetryMaxHours { get; }
+
+		/// <summary>
+		/// Длительность паузы в минутах
+		/// </summary>
+		int PauseMinutes { get; }
+
+		/// <summary>
+		/// Количество временных ошибок до включения паузы
+		/// </summary>
+		int TransientErrorsBeforePause { get; }
+
+		/// <summary>
+		/// Интервал оповещения о недоступности в минутах
+		/// </summary>
+		int UnavailableAlertMinutes { get; }
+
+		/// <summary>
+		/// Идентификатор последнего поставленного в очередь контрагента
+		/// </summary>
+		int LastEnqueuedCounterpartyId { get; }
+
+		/// <summary>
+		/// Устанавливает идентификатор последнего поставленного в очередь контрагента
+		/// </summary>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		void SetLastEnqueuedCounterpartyId(int counterpartyId);
 	}
 }

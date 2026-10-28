@@ -9,6 +9,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Mindbox;
+using Vodovoz.Mindbox.Services;
+using Vodovoz.Zabbix.Sender;
 
 namespace MindboxCounterpartySender
 {
@@ -42,12 +44,15 @@ namespace MindboxCounterpartySender
 							typeof(EmployeeWithLoginMap).Assembly,
 							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly)
 						.AddDatabaseConnection()
+						.ConfigureZabbixSenderFromDataBase()
 						.AddCore()
 						.AddInfrastructure()
 						.AddTrackedUoW()
-						.AddMindbox()
+						.AddMindbox();
 
-						.AddHostedService<MindboxCounterpartySenderWorker>();
+					services.AddScoped<IMindboxAlertSender, ZabbixMindboxAlertSender>();
+
+					services.AddHostedService<MindboxCounterpartySenderWorker>();
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddStaticHistoryTracker();

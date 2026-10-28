@@ -4,7 +4,7 @@ using QS.DomainModel.Entity;
 namespace Vodovoz.Domain.Client.Mindbox
 {
 	/// <summary>
-	/// Сообщение очереди отправки контрагентов в Mindbox
+	/// Состояние и очередь отправки контрагента в Mindbox
 	/// </summary>
 	[Appellative(
 		Gender = GrammaticalGender.Neuter,
@@ -28,7 +28,7 @@ namespace Vodovoz.Domain.Client.Mindbox
 		public virtual Guid TransactionId { get; set; }
 
 		/// <summary>
-		/// Статус сообщения
+		/// Статус отправки
 		/// </summary>
 		public virtual MindboxCounterpartyOutboxStatus Status { get; set; }
 
@@ -38,9 +38,34 @@ namespace Vodovoz.Domain.Client.Mindbox
 		public virtual int Attempts { get; set; }
 
 		/// <summary>
+		/// Дата и время последней попытки (UTC)
+		/// </summary>
+		public virtual DateTime? LastAttemptAt { get; set; }
+
+		/// <summary>
 		/// Текст последней ошибки
 		/// </summary>
 		public virtual string LastError { get; set; }
+
+		/// <summary>
+		/// HTTP-код последнего ответа Mindbox
+		/// </summary>
+		public virtual int? LastHttpStatusCode { get; set; }
+
+		/// <summary>
+		/// Статус последнего ответа Mindbox
+		/// </summary>
+		public virtual string LastMindboxStatus { get; set; }
+
+		/// <summary>
+		/// Идентификатор ошибки Mindbox
+		/// </summary>
+		public virtual string LastErrorId { get; set; }
+
+		/// <summary>
+		/// Длительность последней попытки, мс
+		/// </summary>
+		public virtual long? LastAttemptDurationMs { get; set; }
 
 		/// <summary>
 		/// Дата и время постановки в очередь (UTC)
@@ -51,6 +76,11 @@ namespace Vodovoz.Domain.Client.Mindbox
 		/// Дата и время следующей попытки (UTC)
 		/// </summary>
 		public virtual DateTime? NextAttemptAt { get; set; }
+
+		/// <summary>
+		/// Предельная дата повторных попыток (UTC)
+		/// </summary>
+		public virtual DateTime RetryUntil { get; set; }
 
 		/// <summary>
 		/// Дата и время успешной отправки (UTC)

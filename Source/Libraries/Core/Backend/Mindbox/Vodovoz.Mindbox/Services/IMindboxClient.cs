@@ -11,18 +11,10 @@ namespace Vodovoz.Mindbox.Services
 	public interface IMindboxClient
 	{
 		/// <summary>
-		/// Создает контрагента в Mindbox
+		/// Создает или обновляет клиента в Mindbox
 		/// </summary>
-		Task<MindboxOperationResult> CreateCounterpartyAsync(
-			MindboxCounterpartyRequest request,
-			Guid transactionId,
-			CancellationToken cancellationToken);
-
-		/// <summary>
-		/// Загружает клиентов в Mindbox через операцию массового импорта
-		/// </summary>
-		Task<MindboxOperationResult> ImportCustomersAsync(
-			byte[] csvContent,
+		Task<MindboxOperationResult> CreateCustomerAsync(
+			MindboxCustomerRequest request,
 			Guid transactionId,
 			CancellationToken cancellationToken);
 	}

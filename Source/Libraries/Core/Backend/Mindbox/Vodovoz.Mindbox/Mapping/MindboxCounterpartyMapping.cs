@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -11,8 +12,8 @@ namespace Vodovoz.Mindbox.Mapping
 	/// </summary>
 	public static class MindboxCounterpartyMapping
 	{
-		public const string PhysicalCounterpartyForm = "physical";
-		public const string LegalCounterpartyForm = "legal";
+		public const string PhysicalCounterpartyForm = "Physical";
+		public const string LegalCounterpartyForm = "Legal";
 
 		public static string GetCounterpartyForm(Counterparty counterparty)
 		{
@@ -26,64 +27,25 @@ namespace Vodovoz.Mindbox.Mapping
 				: PhysicalCounterpartyForm;
 		}
 
-		public static string GetCounterpartyType(Counterparty counterparty)
+		/// <summary>
+		/// Для физического лица приоритет у телефона, который является логином в мобильном приложении.
+		/// </summary>
+		public static string GetMobilePhone(IUnitOfWork unitOfWork, Counterparty counterparty)
 		{
 			if(counterparty == null)
 			{
 				throw new ArgumentNullException(nameof(counterparty));
 			}
 
-			switch(counterparty.CounterpartyType)
+			if(counterparty.PersonType == PersonType.natural && unitOfWork != null)
 			{
-				case CounterpartyType.Supplier:
-					return "supplier";
-				case CounterpartyType.Dealer:
-					return "dealer";
-				case CounterpartyType.AdvertisingDepartmentClient:
-					return "advertisingDepartmentClient";
-				default:
-					return "customer";
-			}
-		}
+				var mobileAppPhone = GetMobileAppPhone(unitOfWork, counterparty.Id);
+				var normalizedMobileAppPhone = MindboxContactValidator.NormalizePhone(mobileAppPhone);
 
-		public static string GetPaymentForm(PaymentType paymentType)
-		{
-			switch(paymentType)
-			{
-				case PaymentType.Cashless:
-					return "cashless";
-				case PaymentType.Terminal:
-					return "terminal";
-				case PaymentType.DriverApplicationQR:
-					return "driverApplicationQr";
-				case PaymentType.SmsQR:
-					return "smsQr";
-				case PaymentType.PaidOnline:
-					return "paidOnline";
-				case PaymentType.Barter:
-					return "barter";
-				case PaymentType.ContractDocumentation:
-					return "contractDocumentation";
-				default:
-					return "cash";
-			}
-		}
-
-		public static string GetSourcePointOfContact(Counterparty counterparty)
-		{
-			if(counterparty == null)
-			{
-				throw new ArgumentNullException(nameof(counterparty));
-			}
-
-			return counterparty.CameFrom?.Name;
-		}
-
-		public static string GetMobilePhone(Counterparty counterparty)
-		{
-			if(counterparty == null)
-			{
-				throw new ArgumentNullException(nameof(counterparty));
+				if(normalizedMobileAppPhone != null)
+				{
+					return normalizedMobileAppPhone;
+				}
 			}
 
 			var phone = counterparty.Phones?
@@ -95,21 +57,12 @@ namespace Vodovoz.Mindbox.Mapping
 					.OrderBy(p => p.Id)
 					.FirstOrDefault();
 
-			if(phone == null)
-			{
-				return null;
-			}
-
-			var digits = new string(phone.DigitsNumber.Where(char.IsDigit).ToArray());
-
-			if(digits.Length == 11 && (digits[0] == '7' || digits[0] == '8'))
-			{
-				digits = digits.Substring(1);
-			}
-
-			return digits.Length == 10 ? $"+7{digits}" : null;
+			return MindboxContactValidator.NormalizePhone(phone?.DigitsNumber);
 		}
 
+		/// <summary>
+		/// Возвращает первый корректный e-mail контрагента
+		/// </summary>
 		public static string GetEmail(Counterparty counterparty)
 		{
 			if(counterparty == null)
@@ -121,20 +74,37 @@ namespace Vodovoz.Mindbox.Mapping
 				.Where(e => !string.IsNullOrWhiteSpace(e.Address))
 				.OrderBy(e => e.Id)
 				.Select(e => e.Address)
-				.FirstOrDefault();
+				.FirstOrDefault(MindboxContactValidator.IsValidEmail);
 		}
 
-		public static DeliveryPoint GetDeliveryPoint(Counterparty counterparty)
+		/// <summary>
+		/// Для юридического лица — полное название, для физического fullName не заполняется.
+		/// </summary>
+		public static string GetFullName(Counterparty counterparty)
 		{
 			if(counterparty == null)
 			{
 				throw new ArgumentNullException(nameof(counterparty));
 			}
 
-			return counterparty.DeliveryPoints?
-				.OrderByDescending(dp => dp.IsActive)
-				.ThenBy(dp => dp.Id)
-				.FirstOrDefault();
+			return string.IsNullOrWhiteSpace(counterparty.FullName)
+				? counterparty.Name
+				: counterparty.FullName;
+		}
+
+		private static string GetMobileAppPhone(IUnitOfWork unitOfWork, int counterpartyId)
+		{
+			var query = from phone in unitOfWork.Session.Query<Phone>()
+				join externalCounterparty in unitOfWork.Session.Query<ExternalCounterparty>()
+					on phone.Id equals externalCounterparty.Phone.Id
+				where phone.Counterparty.Id == counterpartyId
+					&& !phone.IsArchive
+					&& externalCounterparty.CounterpartyFrom == CounterpartyFrom.MobileApp
+					&& !externalCounterparty.IsArchive
+				orderby externalCounterparty.Id descending
+				select phone.DigitsNumber;
+
+			return query.FirstOrDefault();
 		}
 	}
 }

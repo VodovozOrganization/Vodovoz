@@ -717,7 +717,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transfer.Sender.Tests", "Te
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mindbox", "Mindbox", "{69FBD917-3BA8-44DC-9D64-A0581B42438A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mindbox.CounterpartiesExport", "Applications\Backend\Workers\Docker\Mindbox\Mindbox.CounterpartiesExport\Mindbox.CounterpartiesExport.csproj", "{9C48BA09-1B74-DDE3-A515-3C71C2BF0D03}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mindbox.CounterpartiesAdmin", "Applications\Backend\Workers\Docker\Mindbox\Mindbox.CounterpartiesAdmin\Mindbox.CounterpartiesAdmin.csproj", "{9C48BA09-1B74-DDE3-A515-3C71C2BF0D03}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MindboxCounterpartySender", "Applications\Backend\Workers\Docker\Mindbox\MindboxCounterpartySender\MindboxCounterpartySender.csproj", "{E0EA5389-D62F-2FCA-A1BC-9C298A5B500A}"
 EndProject

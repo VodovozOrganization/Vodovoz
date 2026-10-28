@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Vodovoz.Mindbox.Export;
 using Vodovoz.Mindbox.Mapping;
 using Vodovoz.Mindbox.Services;
 
@@ -15,12 +14,14 @@ namespace Vodovoz.Mindbox
 		{
 			services.AddHttpClient(nameof(MindboxClient));
 
-			services.AddSingleton<IMindboxCounterpartyRequestFactory, MindboxCounterpartyRequestFactory>();
-			services.AddSingleton<IMindboxCustomerCsvMapper, MindboxCustomerCsvMapper>();
+			services.AddSingleton<IMindboxCustomerRequestFactory, MindboxCustomerRequestFactory>();
+			services.AddSingleton<IMindboxRetryPolicy, MindboxRetryPolicy>();
+			services.AddSingleton<IMindboxSendingCircuitBreaker, MindboxSendingCircuitBreaker>();
 
 			services.AddScoped<IMindboxClient, MindboxClient>();
+			services.AddScoped<IMindboxAlertSender, LoggingMindboxAlertSender>();
+			services.AddScoped<IMindboxCounterpartyEnqueuer, MindboxCounterpartyEnqueuer>();
 			services.AddScoped<IMindboxCounterpartyOutboxProcessor, MindboxCounterpartyOutboxProcessor>();
-			services.AddScoped<IMindboxCounterpartiesExporter, MindboxCounterpartiesExporter>();
 
 			return services;
 		}

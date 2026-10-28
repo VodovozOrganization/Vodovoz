@@ -14,6 +14,12 @@ namespace Vodovoz.Mindbox.Contracts
 		[JsonPropertyName("errorMessage")]
 		public string ErrorMessage { get; set; }
 
+		[JsonPropertyName("errorId")]
+		public string ErrorId { get; set; }
+
+		[JsonPropertyName("httpStatusCode")]
+		public string HttpStatusCode { get; set; }
+
 		[JsonPropertyName("validationMessages")]
 		public List<MindboxValidationMessage> ValidationMessages { get; set; }
 	}

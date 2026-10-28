@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -7,9 +9,8 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Vodovoz.Mindbox.Contracts;
-using Vodovoz.Settings.Mindbox;
+using Vodovoz.Settings.Database.Mindbox;
 
 namespace Vodovoz.Mindbox.Services
 {
@@ -19,6 +20,7 @@ namespace Vodovoz.Mindbox.Services
 		private const string HttpClientName = nameof(MindboxClient);
 		private const string SuccessStatus = "Success";
 		private const string TransactionAlreadyProcessedStatus = "TransactionAlreadyProcessed";
+		private const string ValidationErrorStatus = "ValidationError";
 
 		private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
 		{
@@ -42,12 +44,17 @@ namespace Vodovoz.Mindbox.Services
 			_settings = settings ?? throw new ArgumentNullException(nameof(settings));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_httpClient = httpClientFactory.CreateClient(HttpClientName);
-			_httpClient.Timeout = TimeSpan.FromSeconds(120);
+
+			var timeoutSeconds = _settings.TimeoutSeconds > 0
+				? _settings.TimeoutSeconds
+				: 10;
+
+			_httpClient.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
 		}
 
 		/// <inheritdoc />
-		public async Task<MindboxOperationResult> CreateCounterpartyAsync(
-			MindboxCounterpartyRequest request,
+		public async Task<MindboxOperationResult> CreateCustomerAsync(
+			MindboxCustomerRequest request,
 			Guid transactionId,
 			CancellationToken cancellationToken)
 		{
@@ -56,51 +63,93 @@ namespace Vodovoz.Mindbox.Services
 				throw new ArgumentNullException(nameof(request));
 			}
 
-			var url = BuildOperationUrl(_settings.CreateCounterpartyOperation, transactionId);
-			var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+			string erpId = null;
 
-			using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
-			using(var httpRequest = CreateRequest(url, content))
+			try
 			{
-				_logger.LogInformation(
-					"Отправка контрагента {CounterpartyId} в Mindbox, операция {Operation}, transactionId {TransactionId}",
-					request.ErpCounterpartyId,
-					_settings.CreateCounterpartyOperation,
-					transactionId);
+				erpId = request.Customer?.Ids?.ErpId;
+				var url = BuildOperationUrl(transactionId);
+				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
 
-				return await SendAsync(httpRequest, cancellationToken);
-			}
-		}
-
-		/// <inheritdoc />
-		public async Task<MindboxOperationResult> ImportCustomersAsync(
-			byte[] csvContent,
-			Guid transactionId,
-			CancellationToken cancellationToken)
-		{
-			if(csvContent == null)
-			{
-				throw new ArgumentNullException(nameof(csvContent));
-			}
-
-			var url = BuildBulkImportUrl(transactionId);
-
-			using(var content = new ByteArrayContent(csvContent))
-			{
-				content.Headers.ContentType = new MediaTypeHeaderValue("text/csv")
-				{
-					CharSet = "utf-8"
-				};
-
+				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
 				using(var httpRequest = CreateRequest(url, content))
 				{
-					_logger.LogInformation(
-						"Отправка CSV в Mindbox, {Bytes} байт, transactionId {TransactionId}",
-						csvContent.Length,
-						transactionId);
+					_logger.LogDebug(
+						"Отправка клиента в Mindbox: erpId={ErpId}, transactionId={TransactionId}, operation={Operation}",
+						erpId,
+						transactionId,
+						_settings.CreateCustomerOperation);
 
-					return await SendAsync(httpRequest, cancellationToken);
+					var stopwatch = Stopwatch.StartNew();
+
+					try
+					{
+						using(var response = await _httpClient.SendAsync(httpRequest, cancellationToken))
+						{
+							var rawResponse = await response.Content.ReadAsStringAsync();
+							stopwatch.Stop();
+
+							var result = MapResponse((int)response.StatusCode, rawResponse, stopwatch.ElapsedMilliseconds);
+
+							LogResult(erpId, transactionId, result);
+
+							return result;
+						}
+					}
+					catch(TaskCanceledException) when(cancellationToken.IsCancellationRequested)
+					{
+						throw;
+					}
+					catch(TaskCanceledException)
+					{
+						stopwatch.Stop();
+
+						var result = MindboxOperationResult.Transient(
+							0,
+							"Timeout",
+							"Превышено время ожидания ответа Mindbox",
+							stopwatch.ElapsedMilliseconds);
+
+						LogResult(erpId, transactionId, result);
+
+						return result;
+					}
+					catch(HttpRequestException ex)
+					{
+						stopwatch.Stop();
+
+						var result = MindboxOperationResult.Transient(
+							0,
+							"ConnectionError",
+							ex.Message,
+							stopwatch.ElapsedMilliseconds);
+
+						LogResult(erpId, transactionId, result);
+
+						return result;
+					}
 				}
+			}
+			catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+			{
+				throw;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка подготовки запроса в Mindbox: erpId={ErpId}, transactionId={TransactionId}",
+					erpId,
+					transactionId);
+
+				return MindboxOperationResult.Failure(
+					MindboxSendOutcome.ProtocolError,
+					0,
+					"RequestError",
+					ex.Message,
+					null,
+					0,
+					null);
 			}
 		}
 
@@ -117,100 +166,140 @@ namespace Vodovoz.Mindbox.Services
 			return request;
 		}
 
-		private async Task<MindboxOperationResult> SendAsync(
-			HttpRequestMessage request,
-			CancellationToken cancellationToken)
-		{
-			try
-			{
-				using(var response = await _httpClient.SendAsync(request, cancellationToken))
-				{
-					var rawResponse = await response.Content.ReadAsStringAsync();
-
-					if(!response.IsSuccessStatusCode)
-					{
-						var errorMessage = $"Mindbox вернул HTTP {(int)response.StatusCode} {response.StatusCode}";
-						_logger.LogWarning("{ErrorMessage}. Ответ: {Response}", errorMessage, rawResponse);
-
-						return MindboxOperationResult.Failure((int)response.StatusCode, errorMessage, rawResponse);
-					}
-
-					var mindboxResponse = TryDeserialize(rawResponse);
-
-					if(mindboxResponse == null)
-					{
-						return MindboxOperationResult.Success((int)response.StatusCode, null, rawResponse);
-					}
-
-					if(IsSuccessStatus(mindboxResponse.Status))
-					{
-						return MindboxOperationResult.Success(
-							(int)response.StatusCode,
-							mindboxResponse.Status,
-							rawResponse);
-					}
-
-					var validationError = BuildValidationError(mindboxResponse);
-					_logger.LogWarning("Mindbox вернул ошибку: {Error}. Ответ: {Response}", validationError, rawResponse);
-
-					return MindboxOperationResult.Failure((int)response.StatusCode, validationError, rawResponse);
-				}
-			}
-			catch(TaskCanceledException ex)
-			{
-				_logger.LogError(ex, "Превышено время ожидания ответа Mindbox");
-				return MindboxOperationResult.Failure(0, "Превышено время ожидания ответа Mindbox");
-			}
-			catch(HttpRequestException ex)
-			{
-				_logger.LogError(ex, "Ошибка HTTP-запроса в Mindbox");
-				return MindboxOperationResult.Failure(0, ex.Message);
-			}
-		}
-
-		private string BuildOperationUrl(string operation, Guid transactionId)
+		private string BuildOperationUrl(Guid transactionId)
 		{
 			var baseUrl = _settings.BaseUrl.TrimEnd('/');
-			var operationType = string.IsNullOrWhiteSpace(_settings.CreateCounterpartyOperationType)
-				? "async"
-				: _settings.CreateCounterpartyOperationType.Trim().ToLowerInvariant();
+			var operationType = string.IsNullOrWhiteSpace(_settings.CreateCustomerOperationType)
+				? "sync"
+				: _settings.CreateCustomerOperationType.Trim().ToLowerInvariant();
 
 			if(operationType != "sync" && operationType != "async")
 			{
 				throw new InvalidOperationException(
-					$"Некорректный тип операции Mindbox: {_settings.CreateCounterpartyOperationType}. Ожидается sync или async.");
+					$"Некорректный тип операции Mindbox: {_settings.CreateCustomerOperationType}. Ожидается sync или async.");
 			}
 
 			return $"{baseUrl}/v3/operations/{operationType}"
 				+ $"?endpointId={Uri.EscapeDataString(_settings.EndpointId)}"
-				+ $"&operation={Uri.EscapeDataString(operation)}"
+				+ $"&operation={Uri.EscapeDataString(_settings.CreateCustomerOperation)}"
 				+ $"&transactionId={transactionId:D}";
 		}
 
-		private string BuildBulkImportUrl(Guid transactionId)
+		private static MindboxOperationResult MapResponse(int httpStatusCode, string rawResponse, long durationMs)
 		{
-			var baseUrl = _settings.BaseUrl.TrimEnd('/');
-			var query = new List<string>
-			{
-				$"endpointId={Uri.EscapeDataString(_settings.EndpointId)}",
-				$"operation={Uri.EscapeDataString(_settings.ImportOperation)}",
-				"csvCodePage=65001",
-				"csvColumnDelimiter=%3B",
-				"csvTextQualifier=%22",
-				$"transactionId={transactionId:D}"
-			};
+			var response = TryDeserialize(rawResponse);
+			var status = response?.Status;
+			var errorMessage = BuildErrorMessage(response, httpStatusCode);
+			var errorId = response?.ErrorId;
 
-			if(!string.IsNullOrWhiteSpace(_settings.ImportSegment))
+			if(httpStatusCode == 200)
 			{
-				query.Add($"segment={Uri.EscapeDataString(_settings.ImportSegment)}");
+				if(string.IsNullOrWhiteSpace(status)
+					|| status.Equals(SuccessStatus, StringComparison.OrdinalIgnoreCase)
+					|| status.Equals(TransactionAlreadyProcessedStatus, StringComparison.OrdinalIgnoreCase))
+				{
+					return MindboxOperationResult.Success(httpStatusCode, status, durationMs, rawResponse);
+				}
+
+				if(status.Equals(ValidationErrorStatus, StringComparison.OrdinalIgnoreCase))
+				{
+					return MindboxOperationResult.Failure(
+						MindboxSendOutcome.ValidationError,
+						httpStatusCode,
+						status,
+						errorMessage,
+						errorId,
+						durationMs,
+						rawResponse);
+				}
+
+				return MindboxOperationResult.Failure(
+					MindboxSendOutcome.ProtocolError,
+					httpStatusCode,
+					status,
+					errorMessage,
+					errorId,
+					durationMs,
+					rawResponse);
 			}
 
-			if(!string.IsNullOrWhiteSpace(_settings.ImportSourceActionTemplate))
+			switch(httpStatusCode)
 			{
-				query.Add($"SourceActionTemplate={Uri.EscapeDataString(_settings.ImportSourceActionTemplate)}");
+				case 400:
+					return MindboxOperationResult.Failure(
+						MindboxSendOutcome.ProtocolError,
+						httpStatusCode,
+						status,
+						errorMessage,
+						errorId,
+						durationMs,
+						rawResponse);
+				case 401:
+				case 403:
+					return MindboxOperationResult.Failure(
+						MindboxSendOutcome.Unauthorized,
+						httpStatusCode,
+						status,
+						errorMessage,
+						errorId,
+						durationMs,
+						rawResponse);
+				case 404:
+					return MindboxOperationResult.Failure(
+						MindboxSendOutcome.NotFound,
+						httpStatusCode,
+						status,
+						errorMessage,
+						errorId,
+						durationMs,
+						rawResponse);
+				case 429:
+					return MindboxOperationResult.Failure(
+						MindboxSendOutcome.RateLimited,
+						httpStatusCode,
+						status,
+						errorMessage,
+						errorId,
+						durationMs,
+						rawResponse);
+				case 500:
+				case 502:
+				case 503:
+				case 504:
+					return MindboxOperationResult.Failure(
+						MindboxSendOutcome.TransientError,
+						httpStatusCode,
+						status,
+						errorMessage,
+						errorId,
+						durationMs,
+						rawResponse);
+				default:
+					// Остальные ответы (в том числе 501, 505) не повторяем:
+					// повтор вернёт тот же результат.
+					return MindboxOperationResult.Failure(
+						MindboxSendOutcome.ProtocolError,
+						httpStatusCode,
+						status,
+						errorMessage,
+						errorId,
+						durationMs,
+						rawResponse);
 			}
+		}
 
-			return $"{baseUrl}/v3/operations/bulk?{string.Join("&", query)}";
+		private void LogResult(string erpId, Guid transactionId, MindboxOperationResult result)
+		{
+			_logger.LogDebug(
+				"Ответ Mindbox: erpId={ErpId}, transactionId={TransactionId}, operation={Operation}, httpCode={HttpCode}, status={Status}, errorId={ErrorId}, durationMs={DurationMs}, outcome={Outcome}",
+				erpId,
+				transactionId,
+				_settings.CreateCustomerOperation,
+				result.HttpStatusCode,
+				result.Status,
+				result.ErrorId,
+				result.DurationMs,
+				result.Outcome);
 		}
 
 		private static MindboxResponse TryDeserialize(string rawResponse)
@@ -230,39 +319,35 @@ namespace Vodovoz.Mindbox.Services
 			}
 		}
 
-		private static bool IsSuccessStatus(string status)
+		private static string BuildErrorMessage(MindboxResponse response, int httpStatusCode)
 		{
-			if(string.IsNullOrWhiteSpace(status))
+			if(response == null)
 			{
-				return true;
+				return $"Mindbox вернул HTTP {httpStatusCode}";
 			}
 
-			return status.Equals(SuccessStatus, StringComparison.OrdinalIgnoreCase)
-				|| status.Equals(TransactionAlreadyProcessedStatus, StringComparison.OrdinalIgnoreCase);
-		}
-
-		private static string BuildValidationError(MindboxResponse response)
-		{
 			if(!string.IsNullOrWhiteSpace(response.ErrorMessage))
 			{
 				return response.ErrorMessage;
 			}
 
-			if(response.ValidationMessages == null || response.ValidationMessages.Count == 0)
+			if(response.ValidationMessages != null && response.ValidationMessages.Count > 0)
 			{
-				return $"Mindbox вернул статус {response.Status}";
+				var messages = new List<string>();
+
+				foreach(var validationMessage in response.ValidationMessages)
+				{
+					messages.Add(string.IsNullOrWhiteSpace(validationMessage.Location)
+						? validationMessage.Message
+						: $"{validationMessage.Location}: {validationMessage.Message}");
+				}
+
+				return string.Join("; ", messages);
 			}
 
-			var messages = new List<string>();
-
-			foreach(var validationMessage in response.ValidationMessages)
-			{
-				messages.Add(string.IsNullOrWhiteSpace(validationMessage.Location)
-					? validationMessage.Message
-					: $"{validationMessage.Location}: {validationMessage.Message}");
-			}
-
-			return string.Join("; ", messages);
+			return string.IsNullOrWhiteSpace(response.Status)
+				? $"Mindbox вернул HTTP {httpStatusCode}"
+				: $"Mindbox вернул статус {response.Status}";
 		}
 	}
 }
