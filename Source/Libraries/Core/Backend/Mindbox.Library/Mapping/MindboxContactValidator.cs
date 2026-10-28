@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Contacts;
 
-namespace Vodovoz.Mindbox.Mapping
+namespace Mindbox.Library.Mapping
 {
 	/// <summary>
 	/// Проверка и маскирование контактных данных для Mindbox

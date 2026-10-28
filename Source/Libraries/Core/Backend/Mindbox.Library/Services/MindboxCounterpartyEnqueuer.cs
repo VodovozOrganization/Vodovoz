@@ -8,7 +8,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.Mindbox;
 using Vodovoz.Settings.Database.Mindbox;
 
-namespace Vodovoz.Mindbox.Services
+namespace Mindbox.Library.Services
 {
 	/// <inheritdoc />
 	public sealed class MindboxCounterpartyEnqueuer : IMindboxCounterpartyEnqueuer

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Mindbox.Contracts;
+using Mindbox.Library.Contracts;
 
-namespace Vodovoz.Mindbox.Services
+namespace Mindbox.Library.Services
 {
 	/// <summary>
 	/// Клиент API Mindbox

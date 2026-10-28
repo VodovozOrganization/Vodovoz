@@ -5,7 +5,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 
-namespace Vodovoz.Mindbox.Mapping
+namespace Mindbox.Library.Mapping
 {
 	/// <summary>
 	/// Правила преобразования контрагента Доставки воды в поля Mindbox

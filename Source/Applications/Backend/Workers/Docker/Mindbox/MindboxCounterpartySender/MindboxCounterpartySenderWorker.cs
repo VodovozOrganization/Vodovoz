@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Vodovoz.Mindbox.Services;
+using Mindbox.Library.Services;
 
 namespace MindboxCounterpartySender
 {

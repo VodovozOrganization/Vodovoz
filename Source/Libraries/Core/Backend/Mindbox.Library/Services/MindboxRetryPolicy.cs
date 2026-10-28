@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Vodovoz.Settings.Database.Mindbox;
 
-namespace Vodovoz.Mindbox.Services
+namespace Mindbox.Library.Services
 {
 
 	/// <inheritdoc />

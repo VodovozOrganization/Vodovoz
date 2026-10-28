@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Vodovoz.Mindbox.Contracts
+namespace Mindbox.Library.Contracts
 {
 	/// <summary>
 	/// Идентификаторы клиента Mindbox

@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Vodovoz.Mindbox.Services
+namespace Mindbox.Library.Services
 {
 	/// <summary>
 	/// Алерт только в лог; используется в консольных утилитах

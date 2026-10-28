@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Vodovoz.Mindbox.Services
+namespace Mindbox.Library.Services
 {
 	/// <summary>
 	/// Отправляет очередь контрагентов в Mindbox

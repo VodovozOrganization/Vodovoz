@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Vodovoz.Mindbox.Contracts
+namespace Mindbox.Library.Contracts
 {
 	/// <summary>
 	/// Ответ Mindbox на операцию

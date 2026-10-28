@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vodovoz.Mindbox.Services
+namespace Mindbox.Library.Services
 {
 	/// <summary>
 	/// Приостанавливает отправку всей очереди при недоступности Mindbox или глобальной ошибке

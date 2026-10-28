@@ -9,10 +9,10 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Mindbox.Contracts;
+using Mindbox.Library.Contracts;
 using Vodovoz.Settings.Database.Mindbox;
 
-namespace Vodovoz.Mindbox.Services
+namespace Mindbox.Library.Services
 {
 	/// <inheritdoc />
 	public sealed class MindboxClient : IMindboxClient

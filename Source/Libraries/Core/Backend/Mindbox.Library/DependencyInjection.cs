@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Vodovoz.Mindbox.Mapping;
-using Vodovoz.Mindbox.Services;
+using Mindbox.Library.Mapping;
+using Mindbox.Library.Services;
 
-namespace Vodovoz.Mindbox
+namespace Mindbox.Library
 {
 	public static class DependencyInjection
 	{

@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Vodovoz.Mindbox.Services;
+using Mindbox.Library.Services;
 using Vodovoz.Zabbix.Sender;
 
 namespace MindboxCounterpartySender

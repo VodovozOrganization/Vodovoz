@@ -8,8 +8,8 @@ using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.Mindbox;
-using Vodovoz.Mindbox.Services;
+using Mindbox.Library;
+using Mindbox.Library.Services;
 using Vodovoz.Zabbix.Sender;
 
 namespace MindboxCounterpartySender

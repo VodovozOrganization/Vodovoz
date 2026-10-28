@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Mindbox
+﻿namespace Mindbox.Library
 {
 	/// <summary>
 	/// Результат выполнения операции в Mindbox

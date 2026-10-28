@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Vodovoz.Mindbox.Contracts
+namespace Mindbox.Library.Contracts
 {
 	/// <summary>
 	/// Тело запроса на создание/обновление клиента в Mindbox

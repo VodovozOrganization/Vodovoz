@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Mindbox
+﻿namespace Mindbox.Library
 {
 	/// <summary>
 	/// Результат отправки запроса в Mindbox

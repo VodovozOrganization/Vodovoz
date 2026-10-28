@@ -1,7 +1,7 @@
 ﻿using System;
 using Vodovoz.Settings.Database.Mindbox;
 
-namespace Vodovoz.Mindbox.Services
+namespace Mindbox.Library.Services
 {
 	/// <inheritdoc />
 	public sealed class MindboxSendingCircuitBreaker : IMindboxSendingCircuitBreaker

@@ -723,7 +723,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MindboxCounterpartySender",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mindbox", "Mindbox", "{F6DB23F0-76C4-4ACB-B621-19DB712F64F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz.Mindbox", "Libraries\Core\Backend\Mindbox\Vodovoz.Mindbox\Vodovoz.Mindbox.csproj", "{5EF8DB89-663D-E0BE-2BA5-2E70A61B41AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mindbox.Library", "Libraries\Core\Backend\Mindbox.Library\Mindbox.Library.csproj", "{5EF8DB89-663D-E0BE-2BA5-2E70A61B41AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Comparer", "Libraries\Core\Infrastructure\Comparer\Comparer.csproj", "{93E79512-C190-4C08-A614-8CB992132970}"
 EndProject

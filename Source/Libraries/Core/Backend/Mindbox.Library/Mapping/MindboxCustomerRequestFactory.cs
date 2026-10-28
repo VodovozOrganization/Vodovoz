@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
-using Vodovoz.Mindbox.Contracts;
+using Mindbox.Library.Contracts;
 
-namespace Vodovoz.Mindbox.Mapping
+namespace Mindbox.Library.Mapping
 {
 	/// <summary>
 	/// Формирует тело запроса на создание/обновление клиента в Mindbox

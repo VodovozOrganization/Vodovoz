@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vodovoz.Mindbox.Services
+namespace Mindbox.Library.Services
 {
 	/// <summary>
 	/// Расписание повторных попыток отправки в Mindbox
