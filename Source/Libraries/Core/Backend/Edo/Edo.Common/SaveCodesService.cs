@@ -68,5 +68,17 @@ namespace Edo.Common
 			productCode.ResultCode = null;
 			productCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
 		}
+
+		public async Task SavePoolResultCodeToPool(TrueMarkProductCode productCode, CancellationToken cancellationToken)
+		{
+			if(productCode?.ResultCode == null)
+			{
+				throw new InvalidOperationException("Result code is null");
+			}
+
+			await _trueMarkCodesPool.PutCodeAsync(productCode.ResultCode.Id, cancellationToken);
+			productCode.ResultCode = null;
+			productCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
+		}
 	}
 }

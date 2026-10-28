@@ -22,6 +22,7 @@ using Vodovoz.Core.Application.Payments;
 using Vodovoz.Core.Application.Payments.OnlinePayments;
 using Vodovoz.Core.Application.Payments.OnlinePayments.Builders;
 using Vodovoz.Core.Application.Receipts;
+using Vodovoz.Core.Application.Receipts.Correction;
 using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Application.Services.Subdivisions;
 using Vodovoz.Core.Application.TrueMark;
@@ -135,6 +136,7 @@ namespace Vodovoz.Core.Application
 				.AddDriverApiNotificationsSenders()
 				.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
 				.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()
+				.AddReceiptCorrectionServices()
 				.AddTransient<IOrganizationForOrderFromSet, OrganizationForOrderFromSet>()
 				.AddScoped<IOrganizationForOnlinePaymentService, OrganizationForOnlinePaymentService>()
 				.AddTransient<OrderOurOrganizationForOrderHandler>()

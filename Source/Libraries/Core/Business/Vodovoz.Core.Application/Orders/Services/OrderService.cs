@@ -1039,7 +1039,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				|| (requestWithCodes.Task.Status != EdoTaskStatus.Cancelled && !hasUpdDocflowDiscrepancy)
 			)
 			{
-				throw new InvalidOperationException("Отклонить коды можно только у отмененной ЭДО задачи");
+				return;
 			}
 
 			foreach(var productCode in requestWithCodes.ProductCodes)
