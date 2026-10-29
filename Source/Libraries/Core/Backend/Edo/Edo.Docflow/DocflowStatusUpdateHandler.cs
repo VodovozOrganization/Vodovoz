@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
 
 namespace Edo.Docflow
 {
@@ -20,14 +21,14 @@ namespace Edo.Docflow
 		private readonly ILogger<DocflowStatusUpdateHandler> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly IPublishEndpoint _publishEndpoint;
 
 		public DocflowStatusUpdateHandler(
 			ILogger<DocflowStatusUpdateHandler> logger,
 			IUnitOfWork uow,
 			IEdoNotificationMessageFactory notificationMessageFactory,
-			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
+			INotificationPublisher<EdoNotificationMessage> notificationPublisher,
 			IPublishEndpoint publishEndpoint
 			)
 		{
@@ -358,8 +359,7 @@ namespace Edo.Docflow
 				throw new InvalidOperationException($"Не удалось найти FormalEdoRequest для документа {document.Id}");
 			}
 
-			var notification = _notificationMessageFactory.Create(
-				EdoNotificationType.DocflowDiscrepancy,
+			var notification = _notificationMessageFactory.Create<DocflowDiscrepancyEdoNotificationSetting>(
 				("OrderId", edoRequest.Order.Id.ToString(CultureInfo.InvariantCulture) ?? string.Empty)
 			);
 

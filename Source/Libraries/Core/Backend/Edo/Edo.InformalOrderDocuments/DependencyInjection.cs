@@ -1,4 +1,5 @@
-﻿using Edo.Common;
+﻿using System;
+using Edo.Common;
 using Edo.InformalOrderDocuments.Factories;
 using Edo.InformalOrderDocuments.Handlers;
 using Edo.Problems;
@@ -19,6 +20,7 @@ namespace Edo.InformalOrderDocuments
 			services.TryAddScoped(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			services.AddEdo();
+			// OrderDocumentEdoTaskHandler регистрирует проблемы задач
 			services.AddEdoProblemRegistration();
 
 			services.AddScoped<IInformalOrderDocumentHandlerFactory, InformalOrderDocumentHandlerFactory>();
@@ -34,7 +36,9 @@ namespace Edo.InformalOrderDocuments
 			return services;
 		}
 
-		public static IServiceCollection AddInformalOrderDocumentEdo(this IServiceCollection services)
+		public static IServiceCollection AddInformalOrderDocumentEdo(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddInformalOrderDocumentEdoServices();
 
@@ -47,6 +51,8 @@ namespace Edo.InformalOrderDocuments
 				configureBus: cfg =>
 				{
 					cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
+
+					configureBus?.Invoke(cfg);
 				}
 			);
 

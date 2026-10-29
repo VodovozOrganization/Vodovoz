@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TransactionalOutbox.Abstractions;
+using Notifications.Core;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
@@ -53,7 +53,8 @@ namespace CustomerNotifications.Application.Builders
 				return null;
 			}
 
-			var notificationText = _customerNotificationSettingsProvider.GetNotificationText(domainEvent);
+			var setting = _customerNotificationSettingsProvider.GetSetting(domainEvent);
+			var notificationText = setting.NotificationText;
 
 			if(string.IsNullOrEmpty(notificationText))
 			{
@@ -130,8 +131,8 @@ namespace CustomerNotifications.Application.Builders
 					var moblieAppData = new CustomerNotificationMessage
 					{
 						CounterpartyErpId = onlineOrder?.CounterpartyId ?? order?.Client?.Id ?? 0,
-						Type = _customerNotificationSettingsProvider.GetCustomerPushType(domainEvent),
-						Target = _customerNotificationSettingsProvider.GetCustomerPushTarget(domainEvent),
+						Type = setting.PushType,
+						Target = setting.PushTarget,
 						Title = domainEvent.CustomerNotificationEventType.GetEnumDisplayName(),
 						Text = notificationText,
 						Params = new Dictionary<string, string>

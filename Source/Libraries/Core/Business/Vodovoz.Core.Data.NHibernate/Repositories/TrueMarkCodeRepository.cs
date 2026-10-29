@@ -7,6 +7,8 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
+using NHibernate.Linq;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories
 {
@@ -209,6 +211,17 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 				.Where(x => x.SerialNumber == code.SerialNumber)
 				.Where(x => x.CheckCode == code.CheckCode)
 				.SingleOrDefault();
+		}
+
+		public async Task<bool> IsWaterCodeUsedAsResultCodeAsync(int identificationCodeId, CancellationToken cancellationToken)
+		{
+			return await _uow.Session.Query<TrueMarkProductCode>()
+				.AnyAsync(
+					x => x.ResultCode != null
+						&& x.ResultCode.Id == identificationCodeId
+						&& (x.SourceCodeStatus == SourceProductCodeStatus.Accepted
+							|| x.SourceCodeStatus == SourceProductCodeStatus.Changed),
+					cancellationToken);
 		}
 	}
 }

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
@@ -37,7 +38,9 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 		private readonly IEmailLinkGenerator _emailLinkGenerator;
 		private readonly IEmailMessageFactory _emailMessageFactory;
 		private readonly IClientEmailSelector _clientEmailSelector;
-		private readonly IBus _bus;
+		// UoW создаётся из фабрики на каждого клиента: письмо пишется в его транзакцию явно
+		// TODO: создавать DI-scope на каждого клиента и брать из него IUnitOfWork и IPublishEndpoint, тогда IUnitOfWorkOutbox не нужен
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 		private const int _maxEmailsPerMinute = 5;
 
 		public EmailDebtNotificationService(
@@ -51,7 +54,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 			IEmailLinkGenerator emailLinkGenerator,
 			IEmailMessageFactory emailMessageFactory,
 			IClientEmailSelector clientEmailSelector,
-			IBus bus
+			IUnitOfWorkOutbox<IBus> outbox
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -64,7 +67,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 			_emailLinkGenerator = emailLinkGenerator ?? throw new ArgumentNullException(nameof(emailLinkGenerator));
 			_emailMessageFactory = emailMessageFactory ?? throw new ArgumentNullException(nameof(emailMessageFactory));
 			_clientEmailSelector = clientEmailSelector ?? throw new ArgumentNullException(nameof(clientEmailSelector));
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 
 		public async Task ScheduleDebtNotificationsAsync(CancellationToken cancellationToken)
@@ -170,8 +173,6 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 				throw new InvalidOperationException($"StoredEmail.Guid не может быть пустым для клиента {client.Id}");
 			}
 
-			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
-
 			var totalDebt = ordersIdsWithDebt.Sum(o => o.Debt);
 
 			var author = _employeeRepository.GetEmployeeForCurrentUser(uow);
@@ -186,15 +187,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 
 			await uow.SaveAsync(orderWithoutShipmentForDebt, cancellationToken: cancellationToken);
 
-			var bulkEmail = new InformationLetterEmail
-			{
-				StoredEmail = storedEmail,
-				OrganizationId = organization.Id,
-				Counterparty = client
-			};
-
-			await uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
-
+			// Счёт коммитится сразу: вложение-отчёт строится по нему через отдельное подключение к БД
 			await uow.CommitAsync(cancellationToken);
 
 			var documentNumbersDict = await _documentOrganizationCounterRepository.GetDocumentNumbersByOrderIds(
@@ -208,6 +201,17 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 
 			var unsubscribeUrl = _emailLinkGenerator.GetUnsubscribeLink(storedEmail.Guid.Value);
 			var messageText = _emailBodyGenerator.GenerateDebtEmailBody(client, ordersWithDebts, documentNumbersDict, unsubscribeUrl);
+
+			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
+
+			var bulkEmail = new InformationLetterEmail
+			{
+				StoredEmail = storedEmail,
+				OrganizationId = organization.Id,
+				Counterparty = client
+			};
+
+			await uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
 
 			await PublishDebtEmailMessageAsync(
 					uow,
@@ -278,7 +282,8 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 				emailSubject,
 				messageText);
 
-			await _bus.Publish(emailMessage, cancellationToken);
+			await _outbox.GetPublishEndpoint(uow).Publish(emailMessage, cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 		}
 	}
 }

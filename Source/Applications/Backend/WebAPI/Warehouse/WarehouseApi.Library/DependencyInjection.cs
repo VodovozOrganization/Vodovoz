@@ -22,6 +22,8 @@ using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using WarehouseApi.Library.Services;
+using System;
+using MassTransit;
 
 namespace WarehouseApi.Library
 {
@@ -33,7 +35,7 @@ namespace WarehouseApi.Library
 		/// </summary>
 		/// <param name="services"></param>
 		/// <returns></returns>
-		public static IServiceCollection AddWarehouseApiDependencies(this IServiceCollection services, IConfiguration configuration)
+		public static IServiceCollection AddWarehouseApiDependencies(this IServiceCollection services, IConfiguration configuration, Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services
 				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("API приложения склада"))
@@ -67,7 +69,8 @@ namespace WarehouseApi.Library
 				.AddEdoMassTransit((context, cfg) =>
 				{
 					cfg.AddEdoTopology(context);
-				});
+				},
+				configureBus);
 
 			services.AddStaticHistoryTracker();
 

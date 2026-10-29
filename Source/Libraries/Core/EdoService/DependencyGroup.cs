@@ -29,7 +29,6 @@ namespace EdoService.Library
 				.AddScoped<EdoTaskCustomSourcesPersister>()
 				.AddScoped<EdoTaskExceptionSourcesPersister>()
 				.AddScoped<EdoProblemRegistrar>()
-				.AddScoped<MessageService>()
 				.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>()
 				;
 

@@ -108,6 +108,7 @@ namespace EdoServices.Tests
 				LockMode.Upgrade,
 				Arg.Any<CancellationToken>());
 			await _publisher.Received(1).Publish(
+				uow,
 				request.ResendEdoRequest.Id,
 				Arg.Any<string>(),
 				Arg.Any<CancellationToken>());

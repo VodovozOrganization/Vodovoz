@@ -32,6 +32,7 @@ using Vodovoz.Zabbix.Sender;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
 using IOrganizationRepository = Vodovoz.EntityRepositories.Organizations.IOrganizationRepository;
+using TransactionalOutbox.MassTransit;
 
 namespace EdoDocumentFlowUpdater
 {
@@ -56,7 +57,10 @@ namespace EdoDocumentFlowUpdater
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly string _serviceName;
 		private readonly IEdoContainerFileStorageService _edoContainerFileStorageService;
-		private readonly IPublishEndpoint _publishEndpoint;
+		// Воркер — синглтон: IPublishEndpoint из DI был бы из корневого scope, который никто не коммитит.
+		// Каждое событие сохраняется в outbox своей короткой транзакцией (PublishInNewTransactionAsync)
+		// TODO: создавать DI-scope на каждое событие и брать из него IUnitOfWork и IPublishEndpoint, тогда IUnitOfWorkOutbox не нужен
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
 		private TaxcomEdoDocflowLastProcessTime _lastEventsProcessTime;
 
@@ -72,7 +76,7 @@ namespace EdoDocumentFlowUpdater
 			ISettingsController settingController,
 			IZabbixSender zabbixSender,
 			IEdoContainerFileStorageService edoContainerFileStorageService,
-			IPublishEndpoint publishEndpoint,
+			IUnitOfWorkOutbox<IBus> outbox,
 			IEdoRepository edoRepository,
 			EdoProblemRegistrar edoProblemRegistrar)
 		{
@@ -84,7 +88,7 @@ namespace EdoDocumentFlowUpdater
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_edoContainerFileStorageService =
 				edoContainerFileStorageService ?? throw new ArgumentNullException(nameof(edoContainerFileStorageService));
-			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
@@ -403,7 +407,9 @@ namespace EdoDocumentFlowUpdater
 
 			UpdateTrueMarkTraceabilityInfo(docflow, @event);
 
-			await _publishEndpoint.Publish(@event, cancellationToken);
+			// Не в транзакции пакета: метка обработанных событий сохраняется отдельно (в finally),
+			// и при сбое коммита пакета событие потерялось бы
+			await _outbox.PublishInNewTransactionAsync(_unitOfWorkFactory, @event, cancellationToken);
 		}
 
 		private static void UpdateTrueMarkTraceabilityInfo(EdoDocFlow docflow, OutgoingTaxcomDocflowUpdatedEvent @event)
@@ -619,7 +625,7 @@ namespace EdoDocumentFlowUpdater
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
 			};
 			
-			await _publishEndpoint.Publish(@event, cancellationToken);
+			await _outbox.PublishInNewTransactionAsync(_unitOfWorkFactory, @event, cancellationToken);
 		}
 
 		private async Task SendAcceptingWaitingForCancellationDocflowEvent(
@@ -631,7 +637,7 @@ namespace EdoDocumentFlowUpdater
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
 			};
 
-			await _publishEndpoint.Publish(@event, cancellationToken);
+			await _outbox.PublishInNewTransactionAsync(_unitOfWorkFactory, @event, cancellationToken);
 		}
 
 		private async Task TryUpdateEdoContainer(

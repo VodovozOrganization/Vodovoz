@@ -22,6 +22,8 @@ using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services;
 using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Services.Edo;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace EdoContactsUpdater
 {
@@ -57,7 +59,7 @@ namespace EdoContactsUpdater
 						.AddTrackedUoW()
 						.AddCoreDataRepositories()
 						.AddMessageTransportSettings()
-						.AddEdoMassTransit()
+						.AddEdoMassTransit(configureBus: busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 						.AddInfrastructure(ServiceLifetime.Singleton)
 						.AddStaticHistoryTracker()
 						.AddStaticScopeForEntity()

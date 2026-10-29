@@ -1,5 +1,4 @@
-﻿using EdoNotifications.Contracts;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System;
@@ -9,6 +8,32 @@ using System.Linq;
 
 namespace Vodovoz.Core.Domain.Edo
 {
+	/// <summary>
+	/// Настройка уведомления ЭДО: текст (шаблон), получатели (email, диалоги Битрикс), отключено ли, можно ли повторять.
+	/// У каждого уведомления свой пустой класс-наследник (папка NotificationSettings). Имя класса — это тип уведомления:
+	/// оно хранится в колонке edo_notification_type, по нему NHibernate выбирает класс, а EdoNotificationsWorker находит
+	/// настройку для пришедшего сообщения. Так же устроены источники проблем ЭДО (<see cref="EdoTaskProblemDescriptionSourceEntity"/>).
+	///
+	/// Как добавить новое уведомление (менять enum и схему таблицы не нужно):
+	/// <list type="number">
+	/// <item>Класс-наследник в Vodovoz.Core.Domain/Edo/NotificationSettings, например
+	/// <c>public class XxxEdoNotificationSetting : EdoNotificationSetting { }</c>. Имя должно оканчиваться на EdoNotificationSetting.</item>
+	/// <item>Маппинг в Vodovoz.Core.Data.NHibernate/Mapping/Edo/NotificationSettings:
+	/// <c>SubclassMap&lt;XxxEdoNotificationSetting&gt;</c> с <c>DiscriminatorValue(nameof(XxxEdoNotificationSetting))</c>.</item>
+	/// <item>Строка в edo_notification_settings — SQL-скриптом к выкладке (синхронизация модели БД данные не переносит).
+	/// Обязательные колонки: <c>edo_notification_type</c> = имя класса и <c>name</c> (журнал, тема письма).
+	/// Удобно сразу заполнить <c>template</c> — начальный текст с плейсхолдерами вида {OrderId}, их знает разработчик,
+	/// и вставить строку выключенной (<c>notification_disabled</c> = 1), чтобы уведомление не рассылалось до настройки.
+	/// Без строки EdoNotificationsWorker не найдёт настройку и сообщение упадёт с ошибкой.</item>
+	/// <item>Публикация там, где возникает событие: <c>IEdoNotificationMessageFactory.Create&lt;XxxEdoNotificationSetting&gt;(("OrderId", ...), ...)</c>
+	/// и <c>INotificationPublisher&lt;EdoNotificationMessage&gt;.TryPublishAsync(uow, notification)</c> в UoW, где меняются данные.
+	/// Ключи параметров — те же плейсхолдеры, что в шаблоне.</item>
+	/// <item>После выкладки в десктопе (диалог «Настройка уведомления по ЭДО») указать получателей, при необходимости
+	/// поправить шаблон и снять «Уведомление отключено».</item>
+	/// </list>
+	/// Журнал и диалог настроек на десктопе менять не нужно: новая строка появится в журнале сама.
+	/// Настройки, нужные только одному уведомлению, добавляются свойствами его класса (с маппингом и колонкой).
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "настройки ЭДО уведомлений ",
 		Nominative = "настройка ЭДО уведомления")]
@@ -17,10 +42,10 @@ namespace Vodovoz.Core.Domain.Edo
 	public class EdoNotificationSetting : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private int _id;
+		private string _name;
 		private string _template;
 		private bool _notificationDisabled;
 		private bool _allowDuplicateNotifications;
-		private EdoNotificationType _edoNotificationType;
 		private string _emails;
 		private string _bitrixDialogs;
 
@@ -35,13 +60,19 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		/// <summary>
-		/// Тип сообщения для ЭДО уведомления
+		/// Тип уведомления — имя класса настройки (колонка edo_notification_type, заполняет NHibernate)
 		/// </summary>
-		[Display(Name = "Тип события для ЭДО уведомления")]
-		public virtual EdoNotificationType EdoNotificationType
+		[Display(Name = "Тип уведомления")]
+		public virtual string EdoNotificationType { get; protected set; }
+
+		/// <summary>
+		/// Название уведомления (журнал настроек, тема письма)
+		/// </summary>
+		[Display(Name = "Название")]
+		public virtual string Name
 		{
-			get => _edoNotificationType;
-			set => SetField(ref _edoNotificationType, value);
+			get => _name;
+			set => SetField(ref _name, value);
 		}
 
 		/// <summary>

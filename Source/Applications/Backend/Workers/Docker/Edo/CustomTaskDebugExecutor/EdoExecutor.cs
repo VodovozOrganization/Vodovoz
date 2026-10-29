@@ -621,8 +621,9 @@ namespace CustomTaskDebugExecutor
 				var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
 				docflowUpdatedEvent.IsReceived = recievedStatuses.Contains(docflowUpdatedEvent.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
 				
-				var publishEndpoint = _serviceProvider.GetRequiredService<IPublishEndpoint>();
-				await publishEndpoint.Publish(docflowUpdatedEvent);
+				// Ручная отправка события без транзакции: напрямую в шину, мимо outbox
+				var bus = _serviceProvider.GetRequiredService<IBus>();
+				await bus.Publish(docflowUpdatedEvent);
 			}
 			catch(Exception ex)
 			{

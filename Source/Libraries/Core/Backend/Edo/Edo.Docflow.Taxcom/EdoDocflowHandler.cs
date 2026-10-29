@@ -35,8 +35,16 @@ namespace Edo.Docflow.Taxcom
 
 		public async Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event, CancellationToken cancellationToken)
 		{
+			if(await IsDocumentAlreadySentAsync(@event.EdoOutgoingDocumentId, cancellationToken))
+			{
+				_logger.LogWarning(
+					"Документ ЭДО {EdoDocumentId} уже отправлен в Такском, повторное событие отправки пропущено",
+					@event.EdoOutgoingDocumentId);
+				return;
+			}
+
 			var now = DateTime.Now;
-			
+
 			var taxcomDocflow = new TaxcomDocflow
 			{
 				CreationTime = now,
@@ -85,8 +93,16 @@ namespace Edo.Docflow.Taxcom
 
 		public async Task CreateTaxcomDocflowInformalDocument(TaxcomDocflowInformalDocumentSendEvent @event, CancellationToken cancellationToken)
 		{
+			if(await IsDocumentAlreadySentAsync(@event.EdoOutgoingDocumentId, cancellationToken))
+			{
+				_logger.LogWarning(
+					"Неформализованный документ ЭДО {EdoDocumentId} уже отправлен в Такском, повторное событие отправки пропущено",
+					@event.EdoOutgoingDocumentId);
+				return;
+			}
+
 			var now = DateTime.Now;
-			
+
 			var taxcomDocflow = new TaxcomDocflow
 			{
 				CreationTime = now,
@@ -126,8 +142,28 @@ namespace Edo.Docflow.Taxcom
 			}
 		}
 
+		/// <summary>
+		/// Документ уже отправлен в Такском: у этого документа (EdoOutgoingDocumentId) есть документооборот,
+		/// последняя попытка которого не завершилась ошибкой. Так повторная доставка события отправки
+		/// не отправляет тот же документ клиенту второй раз.
+		/// Не блокирует:
+		/// <list type="bullet">
+		/// <item>переотправку после ошибки (рутина проблем Такском) — последняя попытка с ошибкой;</item>
+		/// <item>ручную переотправку из десктопа — она создаёт новую заявку, задачу и новый документ
+		/// (старый аннулируется), у нового документа документооборотов ещё нет.</item>
+		/// </list>
+		/// </summary>
+		private async Task<bool> IsDocumentAlreadySentAsync(int edoDocumentId, CancellationToken cancellationToken)
+		{
+			var docflows = await _uow.Session.QueryOver<TaxcomDocflow>()
+				.Where(x => x.EdoDocumentId == edoDocumentId)
+				.ListAsync(cancellationToken);
+
+			return docflows.Any(x => x.Actions.OrderBy(action => action.Time).LastOrDefault()?.DocFlowState != EdoDocFlowStatus.Error);
+		}
+
 		public async Task SendOfferCancellation(
-			TaxcomDocflowRequestCancellationEvent @event, 
+			TaxcomDocflowRequestCancellationEvent @event,
 			CancellationToken cancellationToken
 			)
 		{

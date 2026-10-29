@@ -31,6 +31,7 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\TransactionalOutbox.EntityFrameworkCore\TransactionalOutbox.EntityFrameworkCore.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Admin\Edo.Admin.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />

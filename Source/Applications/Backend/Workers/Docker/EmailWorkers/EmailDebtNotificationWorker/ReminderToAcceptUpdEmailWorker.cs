@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,11 +72,7 @@ namespace EmailDebtNotificationWorker
 		{
 			using var scope = _scopeFactory.CreateScope();
 			var reminderToAcceptUpdService = scope.ServiceProvider.GetRequiredService<IReminderToAcceptUpdService>();
-			var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
-
-			using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot(nameof(ReminderToAcceptUpdEmailWorker));
-
-			await reminderToAcceptUpdService.RemindToAcceptUpd(unitOfWork, _options.Value.TimeoutDays, stoppingToken);
+			await reminderToAcceptUpdService.RemindToAcceptUpd(_options.Value.TimeoutDays, stoppingToken);
 		}
 	}
 }

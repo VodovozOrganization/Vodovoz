@@ -12,6 +12,8 @@ using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.Transfer.Routine.Worker
 {
@@ -47,7 +49,7 @@ namespace Edo.Transfer.Routine.Worker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddEdoTransferRoutine()
+						.AddEdoTransferRoutine(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 						;
 
 					services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
