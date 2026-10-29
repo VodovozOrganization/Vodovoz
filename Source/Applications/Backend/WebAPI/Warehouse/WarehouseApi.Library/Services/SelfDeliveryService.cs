@@ -44,6 +44,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly WarehouseTrueMarkCodePreloader _codePreloader;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -63,6 +64,7 @@ namespace WarehouseApi.Library.Services
 			IGenericRepository<Subdivision> subdivisionRepository,
 			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			WarehouseTrueMarkCodePreloader codePreloader,
 			ICounterpartyEdoAccountController edoAccountController,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
@@ -88,6 +90,8 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService
 				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_codePreloader = codePreloader
+				?? throw new ArgumentNullException(nameof(codePreloader));
 			_edoAccountController = edoAccountController
 				?? throw new ArgumentNullException(nameof(edoAccountController));
 			_nomenclatureSettings = nomenclatureSettings
@@ -168,6 +172,8 @@ namespace WarehouseApi.Library.Services
 			IEnumerable<string> codesToAdd,
 			CancellationToken cancellationToken)
 		{
+			await _codePreloader.PreloadSelfDelivery(selfDeliveryDocument.Order, selfDeliveryDocument, cancellationToken);
+
 			var createStagingCodesResult = await CreateStagingTrueMarkCodes(selfDeliveryDocument, codesToAdd, cancellationToken);
 
 			if(createStagingCodesResult.IsFailure)
@@ -505,8 +511,12 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		public GetSelfDeliveryResponse CreateSelfDeliveryResponse(SelfDeliveryDocument selfDeliveryDocument)
+		public async Task<GetSelfDeliveryResponse> CreateSelfDeliveryResponse(
+			SelfDeliveryDocument selfDeliveryDocument,
+			CancellationToken cancellationToken)
 		{
+			await _codePreloader.PreloadSelfDelivery(selfDeliveryDocument.Order, selfDeliveryDocument, cancellationToken);
+
 			var nomenclatures =
 				selfDeliveryDocument.Order.OrderItems
 				.Select(x => x.Nomenclature)
@@ -519,7 +529,7 @@ namespace WarehouseApi.Library.Services
 			};
 
 			response.Order.Items
-				.PopulateRelatedCodes(_unitOfWork, _trueMarkWaterCodeService, selfDeliveryDocument.Items.SelectMany(x => x.TrueMarkProductCodes));
+				.PopulateRelatedCodes(_codePreloader, selfDeliveryDocument.Items.SelectMany(x => x.TrueMarkProductCodes));
 
 			response.Order.Items.ForEach(item =>
 				item.Codes.ForEach((code, i) =>
