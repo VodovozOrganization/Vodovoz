@@ -126,6 +126,7 @@ namespace EdoDocumentFlowUpdater
 				{
 					await DelayAsync(cancellationToken);
 					await ProcessOutgoingDocuments(cancellationToken);
+					await ProcessStuckDocflowsBuyerTitles(cancellationToken);
 					await CancellationDocFlows(cancellationToken);
 					await ProcessIngoingDocuments(cancellationToken);
 					await ProcessWaitingForCancellationDocuments(cancellationToken);
@@ -233,8 +234,6 @@ namespace EdoDocumentFlowUpdater
 						lastProcessTime = lastTime;
 
 					} while(!docFlowUpdates.IsLast);
-
-					await ProcessBuyerTitlesOfDocflowsStuckInSentOrInProgress(uow, cancellationToken);
 
 					await uow.CommitAsync(cancellationToken);
 				}
@@ -376,6 +375,24 @@ namespace EdoDocumentFlowUpdater
 			}
 
 			return lastProcessEventTimeResult;
+		}
+
+		private async Task ProcessStuckDocflowsBuyerTitles(CancellationToken cancellationToken)
+		{
+			try
+			{
+				using var uow = _unitOfWorkFactory.CreateWithoutRoot(
+					"Сервис проверки титулов покупателя у зависших документооборотов");
+
+				await ProcessBuyerTitlesOfDocflowsStuckInSentOrInProgress(uow, cancellationToken);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при проверке титулов покупателя у зависших документооборотов");
+
+				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+					$"Ошибка при проверке титулов покупателя у зависших документооборотов: {e}", cancellationToken);
+			}
 		}
 
 		private async Task ProcessBuyerTitlesOfDocflowsStuckInSentOrInProgress(
