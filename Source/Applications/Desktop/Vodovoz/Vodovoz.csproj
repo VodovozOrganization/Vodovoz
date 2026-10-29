@@ -450,6 +450,7 @@
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\EdoDiscrepancyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoProblemJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoProcessJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FineCategoryJournalRegistars.cs" />
@@ -794,6 +795,7 @@
     <Compile Include="Views\Reports\ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Views\Users\UserRoleView.cs" />
     <Compile Include="Views\Warehouse\TtnDataView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.TtnDataView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderItemReturnsNode.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.ChangedType.cs" />
@@ -1360,15 +1362,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalesByDiscountReport.cs" />
     <Compile Include="Filters\GtkViews\CallTaskFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CallTaskFilterView.cs" />
-    <Compile Include="JournalNodes\PromotionalSetJournalNode.cs" />
-    <Compile Include="JournalViewModels\PromotionalSetsJournalViewModel.cs" />
     <Compile Include="Views\Orders\PromotionalSetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.PromotionalSetView.cs" />
-    <Compile Include="ViewModels\Orders\PromotionalSetViewModel.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PromoSetAction.AddFixPriceActionView.cs" />
     <Compile Include="ViewWidgets\PromoSetAction\AddFixPriceActionView.cs" />
-    <Compile Include="ViewModels\Orders\AddFixPriceActionViewModel.cs" />
-    <Compile Include="ViewModels\Orders\ICreationControl.cs" />
     <Compile Include="Filters\GtkViews\CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SetBillsReportView.cs" />
@@ -2216,6 +2213,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTransferWaitingRequestsStageView.cs" />
     <Compile Include="Views\Edo\EdoInOrderTransferPreparingStageView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTransferPreparingStageView.cs" />
+    <Compile Include="Views\Edo\EdoDiscrepancyView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoDiscrepancyView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2541,6 +2540,14 @@
       <Project>{b657cbf6-c803-4249-894b-87e8e6e94a62}</Project>
       <Name>Edo.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Contracts\Edo.Contracts.csproj">
+      <Project>{86958F1A-2863-488F-BDC6-AD2D0DF59654}</Project>
+      <Name>Edo.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Documents\Edo.Documents.csproj">
+      <Project>{bf6c6f28-9258-44f9-b508-0dec734d1a2a}</Project>
+      <Name>Edo.Documents</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj">
       <Project>{B131BA90-BEDF-4236-B67F-39D1D810B12B}</Project>
       <Name>Edo.Problem.Routine</Name>
@@ -2672,6 +2679,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Gtk\VodovozFiasWidgets\VodovozFiasWidgets.csproj">
       <Project>{49241ddd-3e0b-4944-9b3f-89f0c42e9e6d}</Project>
       <Name>VodovozFiasWidgets</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Comparer\Comparer.csproj">
+      <Project>{93e79512-c190-4c08-a614-8cb992132970}</Project>
+      <Name>Comparer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj">
       <Project>{b318a2c2-a980-41bd-b072-321bccd70bbb}</Project>

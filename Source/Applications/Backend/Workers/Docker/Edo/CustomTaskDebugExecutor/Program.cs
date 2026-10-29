@@ -34,6 +34,8 @@ using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Infrastructure.FileStorage;
+using Vodovoz.Infrastructure.FileStorage.Options;
 
 namespace CustomTaskDebugExecutor
 {
@@ -81,6 +83,8 @@ namespace CustomTaskDebugExecutor
 				.AddCoreDataRepositories()
 				.AddCore()
 				.AddTrackedUoW()
+				.ConfigureOptions<ConfigureS3Options>()
+				.AddFileStorage()
 				.AddMessageTransportSettings()
 
 				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))

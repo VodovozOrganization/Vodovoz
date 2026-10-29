@@ -18,6 +18,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Orders;
 using static OneOf.Types.TrueFalseOrNull;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IOrderSaleHandler _saleHandler;
 
 		public PaymentOnlineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -42,7 +44,9 @@ namespace Vodovoz.ViewModels.Cash
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IOrderContractUpdater contractUpdater,
 			IEmployeeService employeeService,
-			IInteractiveService interactiveService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			IInteractiveService interactiveService,
+			IOrderSaleHandler saleHandler
+			) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(orderPaymentSettings == null)
 			{
@@ -64,6 +68,7 @@ namespace Vodovoz.ViewModels.Cash
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
 				.GetEmployeeForCurrentUser(UoW);
 			_interactiveService = interactiveService;
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 
 			TabName = "Онлайн оплата";
 
@@ -177,11 +182,11 @@ namespace Vodovoz.ViewModels.Cash
 
 		protected override bool BeforeValidation()
 		{
-			Entity.ChangePaymentTypeToOnline(_callTaskWorker);
+			Entity.ChangePaymentTypeToOnline(_saleHandler, _callTaskWorker);
 
 			if(!Entity.PayAfterShipment)
 			{
-				Entity.SelfDeliveryToLoading(_currentEmployee, CommonServices.CurrentPermissionService, _callTaskWorker);
+				Entity.SelfDeliveryToLoading(_currentEmployee, CommonServices.CurrentPermissionService, _callTaskWorker, _saleHandler);
 			}
 
 			if(Entity.SelfDelivery)

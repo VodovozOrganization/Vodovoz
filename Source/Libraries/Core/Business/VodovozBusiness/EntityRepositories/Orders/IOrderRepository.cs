@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Mango;
@@ -224,6 +223,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
 
 		/// <summary>
+		/// Проверяет наличие старого контейнера или неформализованной заявки счета заказа
+		/// </summary>
+		/// <param name="uow">Единица работы</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Наличие счета в старом или новом процессе ЭДО</returns>
+		bool HasEdoBill(IUnitOfWork uow, int orderId);
+
+		/// <summary>
 		/// Получение заказа по идентификатору исходящего ЭДО документа
 		/// </summary>
 		/// <param name="uow"></param>
@@ -247,33 +254,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters);
 		IList<Order> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId);
 		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
-		IEnumerable<OrderDto> GetCounterpartyOrdersFromOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-		IEnumerable<OrderDto> GetCounterpartyOrdersWithoutOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV4(
-			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
-			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-
-		/// <summary>
-		/// Получение заказов контрагента, которые связаны с онлайн-заказами
-		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <param name="counterpartyId">Id контрагента</param>
-		/// <param name="ratingAvailableFrom">Дата, с которой доступна рейтинговая информация</param>
-		/// <param name="orderStatuses">Статусы заказов</param>
-		/// <returns>Список заказов</returns>
-		IEnumerable<Core.Data.Orders.V6.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV6(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom, IEnumerable<ExternalOrderStatus> orderStatuses = null);
-
-		/// <summary>
-		/// Получение заказов контрагента, которые не связаны с онлайн-заказами
-		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <param name="counterpartyId">Id контрагента</param>
-		/// <param name="ratingAvailableFrom">Дата, с которой доступна рейтинговая информация</param>
-		/// <param name="orderStatuses">Статусы заказов</param>
-		/// <returns>Список заказов</returns>
-		IEnumerable<Core.Data.Orders.V6.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV6(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom, IEnumerable<ExternalOrderStatus> orderStatuses = null);
-
 		IEnumerable<Order> GetOrdersFromOnlineOrder(IUnitOfWork uow, int onlineOrderId);
 		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();
 		OrderStatus[] GetStatusesForFreeBalanceOperations();
@@ -285,7 +265,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
 		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
 		IQueryable<OksDailyReportOrderDiscountDataNode> GetOrdersDiscountsDataForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
-		IEnumerable<Order> GetOrdersForResendBills(IUnitOfWork uow, int? organizationId = null);
 
 		/// <summary>
 		/// Получить все добавленные коды ЧЗ для указанного заказа с доставкой

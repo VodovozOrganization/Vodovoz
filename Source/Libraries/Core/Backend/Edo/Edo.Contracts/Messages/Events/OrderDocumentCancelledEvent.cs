@@ -3,5 +3,10 @@
 	public class OrderDocumentCancelledEvent
 	{
 		public int DocumentId { get; set; }
+
+		public OrderDocumentCancelledEvent(int documentId)
+		{
+			DocumentId = documentId;
+		}
 	}
 }

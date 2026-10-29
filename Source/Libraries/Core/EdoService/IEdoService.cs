@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
@@ -115,6 +116,14 @@ namespace EdoService.Library
 		bool CanResendEdoDocument(EdoDocumentStatus? status);
 
 		/// <summary>
+		/// Проверяет доступность повторной отправки счета по состояниям задачи и документа.
+		/// </summary>
+		/// <param name="taskStatus">Статус задачи счета.</param>
+		/// <param name="documentStatus">Статус исходящего документа.</param>
+		/// <returns>Доступна ли повторная отправка счета.</returns>
+		bool CanResendBillEdoDocument(EdoTaskStatus taskStatus, EdoDocumentStatus? documentStatus);
+
+		/// <summary>
 		/// Переотправка документа по ЭДО по идентификатору задачи
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи</param>
@@ -136,6 +145,13 @@ namespace EdoService.Library
 		Result<string> ResendNewEdoTask(int taskId);
 
 		/// <summary>
+		/// Повторно запускает новую задачу счета или ставит счет заказа на повторную отправку через новое ЭДО.
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи счета.</param>
+		/// <returns>Результат запуска повторной отправки.</returns>
+		Result<string> ResendBillEdoDocument(int taskId);
+
+		/// <summary>
 		/// Помечает заявку задачи как разрешённую к отправке в закрытом бухгалтерском периоде.
 		/// </summary>
 		/// <param name="taskId">Идентификатор задачи ЭДО</param>
@@ -147,13 +163,6 @@ namespace EdoService.Library
 		/// <param name="taskId">Идентификатор задачи</param>
 		/// <returns>Результат переотправки документа</returns>
 		Result<string> ResendEdoDocumentWithOriginalCodes(int taskId);
-
-		/// <summary>
-		/// Переотправляет документ ЭДО с подбором новых кодов ЧЗ из пула.
-		/// </summary>
-		/// <param name="taskId">Идентификатор задачи</param>
-		/// <returns>Результат переотправки документа</returns>
-		Result<string> ResendEdoDocumentForOrderWithCodesFromPool(int taskId);
 
 		/// <summary>
 		/// Переотправка чека по ЭДО по идентификатору задачи
@@ -236,5 +245,15 @@ namespace EdoService.Library
 		/// <param name="taskId">Идентификатор задачи</param>
 		/// <returns>Рещультат отправки</returns>
 		Task<Result<string>> TryResendViaOrderDocumentSendEventAsync(int taskId);
+
+		/// <summary>
+		/// Переотправляет документ у которого есть расхождение по ЭДО
+		/// </summary>
+		Result ResendDocumentWithDiscrepancy(IUnitOfWork uow, EdoDiscrepancyNode edoDiscrepancyNode);
+
+		/// <summary>
+		/// Отменяет заказ у которого документооборот с расхождением
+		/// </summary>
+		Result CancelOrderWithEdoDiscrepancy(IUnitOfWork uow, EdoDiscrepancyNode edoDiscrepancyNode, Order order);
 	}
 }

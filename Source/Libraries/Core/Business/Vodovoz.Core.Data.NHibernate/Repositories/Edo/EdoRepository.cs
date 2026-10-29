@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Extensions;
@@ -24,6 +25,7 @@ using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Rules.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 {
@@ -170,6 +172,23 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				.List<OrderEdoTaskNode>()
 				;
 			return edoTasks;
+		}
+
+		public bool HasEdoDocflowDiscrepancyForOrder(IUnitOfWork uow, int orderId)
+		{
+			OrderEdoDocument orderEdoDocumentAlias = null; 
+			FormalEdoRequest edoRequestAlias = null;
+
+			var discrepancies = uow.Session.QueryOver(() => orderEdoDocumentAlias)
+				.JoinEntityAlias(() => edoRequestAlias,
+					() => edoRequestAlias.Task.Id == orderEdoDocumentAlias.DocumentTaskId,
+					JoinType.LeftOuterJoin
+				)
+				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.Select(x => x.DiscrepancyState)
+				.List<EdoDiscrepancyState>();
+
+			return discrepancies.Any(x => x == EdoDiscrepancyState.Active);
 		}
 
 		public IEnumerable<EdoDocflowForOrderNode> GetEdoDocflowsForOrder(IUnitOfWork uow, int orderId)
@@ -812,7 +831,9 @@ select
 		left join edo_order_task_items eoti on eoti.product_code_id = tmpc.id
 		where eoti.order_edo_task_id = et.id) as :codes_used_in_task,
 	et.cancellation_reason as :cancellation_reason,
-	eod.status as :edo_document_status
+	eod.id as :edo_document_id,
+	eod.status as :edo_document_status,
+	eod.discrepancy_state as :docflow_discrepancy_state
 from edo_customer_requests ecr
 left join edo_tasks et on et.id = ecr.order_task_id
 left join edo_outgoing_documents eod on eod.document_task_id = et.id
@@ -823,24 +844,30 @@ select
 	eir.`time` as :request_time,
 	eir.id as :request_id,
 	eir.source as :request_source,
-	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = eir.author_id) as :manual_request_author,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e
+		where e.id = coalesce(eir.author_id, (select o.author_employee_id from orders o
+			where o.id = eir.order_id and eir.source = 'None'
+				and eir.order_document_type in ('Bill', 'SpecialBill')))) as :manual_request_author,
 	eir.order_document_type as :order_document_type,
 	et.id as :task_id,
-	et.`type` as :task_type,
+	coalesce(et.`type`, 'InformalOrderDocument') as :task_type,
 	et.document_type as :formal_document_type,
-	et.status as :task_status,
+	coalesce(et.status, 'Waiting') as :task_status,
 	null as :task_upd_stage,
 	null as :task_receipt_stage,
 	null as :task_tender_stage,
 	null as :codes_count_in_request,
 	null as :codes_used_in_task,
+	et.cancellation_reason as :cancellation_reason,
+	eod.id as :edo_document_id,
 	eod.status as :edo_document_status,
-	et.cancellation_reason as :cancellation_reason
+	eod.discrepancy_state as :docflow_discrepancy_state
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
-left join edo_outgoing_documents eod on eod.document_task_id = et.id
+left join edo_outgoing_documents eod on eod.informal_document_task_id = et.id
 where eir.order_id = :order_id
-	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+	and (et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+		or (et.id is null and eir.order_document_type in ('Bill', 'SpecialBill')))
 ;
 ";
 
@@ -860,8 +887,10 @@ where eir.order_id = :order_id
 				.Map("task_tender_stage", x => x.TaskTenderStage, new EnumStringType<TenderEdoTaskStage>())
 				.Map("codes_count_in_request", x => x.CodesInRequest, NHibernateUtil.Int32)
 				.Map("codes_used_in_task", x => x.CodesUsedInTask, NHibernateUtil.Int32)
-				.Map("edo_document_status", x => x.EdoDocumentStatus, new EnumStringType<EdoDocumentStatus>())
 				.Map("cancellation_reason", x => x.CancellationReason, NHibernateUtil.String)
+				.Map("edo_document_id", x => x.DocumentId, NHibernateUtil.Int32)
+				.Map("edo_document_status", x => x.EdoDocumentStatus, new EnumStringType<EdoDocumentStatus>())
+				.Map("docflow_discrepancy_state", x => x.DocflowDiscrepancyState, new EnumStringType<EdoDiscrepancyState>())
 				.SetResultTransformer();
 
 			query.SetParameter("order_id", orderId);
@@ -881,6 +910,7 @@ where eir.order_id = :order_id
 			var stepStopwatch = Stopwatch.StartNew();
 			OrderEdoTask orderEdoTaskAlias = null;
 			FormalEdoRequest edoRequestAlias = null;
+			InformalEdoRequest informalEdoRequestAlias = null;
 			EdoTaskProblem edoTaskProblemAlias = null;
 			EdoTaskProblemCustomSourceEntity customProblemDescriptionSourceAlias = null;
 			EdoTaskProblemValidatorSourceEntity validatorDescriptionSourceAlias = null;
@@ -893,6 +923,11 @@ where eir.order_id = :order_id
 			var edoTasksProblems = uow.Session.QueryOver(() => edoTaskProblemAlias)
 				.Left.JoinAlias(() => edoTaskProblemAlias.EdoTask, () => orderEdoTaskAlias)
 				.Left.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.JoinEntityAlias(
+					() => informalEdoRequestAlias,
+					() => informalEdoRequestAlias.Task.Id == orderEdoTaskAlias.Id,
+					JoinType.LeftOuterJoin
+				)
 				.JoinEntityAlias(
 					() => customProblemDescriptionSourceAlias,
 					() => customProblemDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
@@ -908,7 +943,7 @@ where eir.order_id = :order_id
 					() => exceptionDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
 					JoinType.LeftOuterJoin
 				)
-				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.Where(() => edoRequestAlias.Order.Id == orderId || informalEdoRequestAlias.Order.Id == orderId)
 				.SelectList(list => list
 					.SelectGroup(() => edoTaskProblemAlias.Id).WithAlias(() => resultAlias.TaskProblemId)
 					.Select(() => orderEdoTaskAlias.Id).WithAlias(() => resultAlias.OrderTaskId)
@@ -1452,6 +1487,93 @@ where ecr.order_id = :order_id
 					x.EdoTask.Id == taskId
 					&& x.State == TaskProblemState.Active
 					&& sourceNames.Contains(x.SourceName));
+		}
+
+		public EdoDiscrepancyNode GetEdoDiscrepancy(IUnitOfWork uow, int edoDocumentId)
+		{
+			var sql = $@"
+select
+	o.id as :order_id,
+	o.delivery_date as :delivery_date,
+	o.order_status as :order_status,
+	et.id as :order_task_id,
+	eod.id as :edo_document_id,
+	eod.creation_time as :edo_document_time,
+	eod.status as :document_status,
+	td.docflow_id as :taxcom_docflow_id,
+	td.state as :taxcom_docflow_status,
+	td.state_change_time as :taxcom_status_time,
+	td.cancellation_offer_message as :cancellation_offer_message,
+	td.correction_notice_message  as :correction_notice_message,
+	td.discrepancy_message as :discrepancy_message
+from edo_outgoing_documents eod
+left join edo_tasks et on et.id = eod.document_task_id
+left join edo_customer_requests ecr on ecr.order_task_id = et.id
+left join orders o on o.id = ecr.order_id
+left join taxcom_docflows td ON td.edo_document_id = eod.id
+where eod.discrepancy_state = 'Active'
+and eod.id = :document_id
+";
+
+			var query = uow.Session.CreateSQLQuery(sql)
+				.MapParametersToNode<EdoDiscrepancyNode>()
+				.Map("order_id", x => x.OrderId, NHibernateUtil.Int32)
+				.Map("delivery_date", x => x.DeliveryDate, NHibernateUtil.DateTime)
+				.Map("order_status", x => x.OrderStatus, new EnumStringType<OrderStatus>())
+				.Map("order_task_id", x => x.DocumentEdoTaskId, NHibernateUtil.Int32)
+				.Map("edo_document_id", x => x.ErpDocflowId, NHibernateUtil.Int32)
+				.Map("edo_document_time", x => x.ErpDocflowTime, NHibernateUtil.DateTime)
+				.Map("document_status", x => x.ErpDocflowStatus, new EnumStringType<EdoDocumentStatus>())
+				.Map("taxcom_docflow_id", x => x.TaxcomDocflowId, NHibernateUtil.Guid)
+				.Map("taxcom_docflow_status", x => x.TaxcomDocflowStatus, new EnumStringType<EdoDocFlowStatus>())
+				.Map("taxcom_status_time", x => x.TaxcomStatusTime, NHibernateUtil.DateTime)
+				.Map("cancellation_offer_message", x => x.CancellationOfferMessage, NHibernateUtil.String)
+				.Map("correction_notice_message", x => x.CorrectionNoticeMessage, NHibernateUtil.String)
+				.Map("discrepancy_message", x => x.DiscrepancyMessage, NHibernateUtil.String)
+				.SetResultTransformer();
+
+			query.SetParameter("document_id", edoDocumentId);
+			var result = query.UniqueResult<EdoDiscrepancyNode>();
+			return result;
+		}
+
+		public FormalEdoRequest GetLastActualFormalEdoRequest(IUnitOfWork uow, int orderId)
+		{
+			FormalEdoRequest formalEdoRequestAlias = null;
+			EdoTask edoTaskAlias = null;
+
+			var finishedStatuses = new EdoTaskStatus[]
+			{
+				EdoTaskStatus.Completed,
+				EdoTaskStatus.Cancelled,
+				EdoTaskStatus.InCancellation
+			};
+
+			var request = uow.Session.QueryOver(() => formalEdoRequestAlias)
+				.Left.JoinAlias(() => formalEdoRequestAlias.Task, () => edoTaskAlias)
+				.Where(() => formalEdoRequestAlias.Order.Id == orderId)
+				.WhereRestrictionOn(() => edoTaskAlias.Status).Not.IsIn(finishedStatuses)
+				.OrderBy(() => formalEdoRequestAlias.Time).Desc
+				.Take(1)
+				.SingleOrDefault();
+
+			return request;
+		}
+
+		public IEnumerable<string> GetGtinsInOrder(IUnitOfWork uow, int orderId)
+		{
+			GtinEntity gtinAlias = null;
+			NomenclatureEntity nomenclatureAlias = null;
+			OrderItemEntity orderItemAlias = null;
+
+			var gtins = uow.Session.QueryOver(() => gtinAlias)
+				.JoinAlias(() => gtinAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Nomenclature == nomenclatureAlias)
+				.Where(() => orderItemAlias.Order.Id == orderId)
+				.Select(x => x.GtinNumber)
+				.List<string>();
+
+			return gtins;
 		}
 	}
 }

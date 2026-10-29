@@ -8,12 +8,11 @@
 		/// <summary>
 		/// Идентификатор документа
 		/// </summary>
-		public int Id { get; set; }
+		public int DocumentId { get; set; }
 
-		public static OrderDocumentSentEvent Create(int id) =>
-			new OrderDocumentSentEvent
-			{
-				Id = id
-			};
+		public OrderDocumentSentEvent(int documentId)
+		{
+			DocumentId = documentId;
+		}
 	}
 }

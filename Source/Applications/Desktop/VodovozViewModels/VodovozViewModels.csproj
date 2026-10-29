@@ -98,6 +98,7 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Edo\EdoDiscrepancyViewModel.cs" />
     <Compile Include="Edo\EdoDocumentActionsFactory.cs" />
     <Compile Include="Edo\EdoInOrderDocflowsStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDistributionStageViewModel.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Edo\EdoInOrderProblemViewModel.cs" />
     <Compile Include="Edo\EdoViewModel.cs" />
     <Compile Include="Edo\IEdoDocumentActionsFactory.cs" />
+    <Compile Include="Edo\UpdCompareViewModel.cs" />
     <Compile Include="Employees\FineCategoryViewModel.cs" />
     <Compile Include="Factories\AdditionalFuelTypeManagementViewModelFactory.cs" />
     <Compile Include="Factories\IAdditionalFuelTypeManagementViewModelFactory.cs" />
@@ -136,9 +138,11 @@
     <Compile Include="Journals\JournalNodes\Banks\BanksJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoDeviationJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoDeviationJournalNodeType.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoDiscrepancyJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProblemJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoProcessJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Edo\EdoNotificationSettingJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Goods\PromotionalSetJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrderForRouteListJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\BankAccountsMovementsJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\NotAllocatedCounterpartiesJournalNode.cs" />
@@ -150,11 +154,14 @@
     <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationHelpTexts.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalMessages.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\Deviations\EdoDeviationJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\EdoDiscrepancyJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProblemJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Edo\EdoNotificationSettingJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Goods\PromotionalSetsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OnlineOrderNotificationSettingJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FineCategoryJournalViewModel.cs" />
+    <Compile Include="Journals\Mappings\PromotionalSetToJournalMapping.cs" />
     <Compile Include="Journals\Nodes\Cash\VatRateJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrderForRouteListJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\WageCalculation\CallCenterMotivation\CallCenterMotivationCoefficientJournalViewModel.cs" />
@@ -581,6 +588,7 @@
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="ViewModels\Cash\RepeatIntervalTypes.cs" />
     <Compile Include="ViewModels\Cash\VatRateViewModel.cs" />
+    <Compile Include="ViewModels\Common\EntityViewModelContext.cs" />
     <Compile Include="ViewModels\Contacts\EmailsViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyEdoAccountsByOrganizationViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyEdoAccountsViewModel.cs" />
@@ -619,8 +627,10 @@
     <Compile Include="Journals\JournalViewModels\Orders\OrderJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Sale\DeliveryPriceRuleJournalViewModel.cs" />
     <Compile Include="ReportsParameters\Profitability\ProfitabilitySalesReportViewModel.cs" />
+    <Compile Include="ViewModels\Goods\AddFixPriceActionViewModel.cs" />
     <Compile Include="ViewModels\Goods\GroupGtinViewModel.cs" />
     <Compile Include="ViewModels\Goods\GtinViewModel.cs" />
+    <Compile Include="ViewModels\Goods\ICreationControl.cs" />
     <Compile Include="ViewModels\Goods\KulerSaleWebSiteNomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="ViewModels\Goods\MobileAppNomenclatureOnlineCatalogViewModel.cs" />
     <Compile Include="ViewModels\Goods\NomenclatureCostPricesViewModel.cs" />
@@ -636,6 +646,7 @@
     <Compile Include="ViewModels\Counterparty\EdoOperatorViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Goods\NonReturnReasonViewModel.cs" />
+    <Compile Include="ViewModels\Goods\PromotionalSetViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferFilterViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode.cs" />
     <Compile Include="ViewModels\Logistic\RegradingOfGoodsReasonViewModel.cs" />
@@ -869,6 +880,8 @@
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarViewModel.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderNotificationSettingViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OnlineOrderV1ViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OnlineOrderV2ViewModel.cs" />
     <Compile Include="ViewModels\Orders\ServiceDistrictsSetActivationViewModel.cs" />
     <Compile Include="ViewModels\Orders\ServiceDistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderCancellationReasonViewModel.cs" />
@@ -911,7 +924,6 @@
     <Compile Include="ViewModels\Complaints\ComplaintViewModel.cs" />
     <Compile Include="ViewModels\Employees\FineViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeViewModel.cs" />
-    <Compile Include="Infrastructure\Services\EmployeeService.cs" />
     <Compile Include="ViewModels\Employees\FineTemplateViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateComplaintViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateInnerComplaintViewModel.cs" />
@@ -1339,6 +1351,10 @@
       <Project>{a5057b0f-1022-4d60-818e-b8f68890a2aa}</Project>
       <Name>DriverApi.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Documents\Edo.Documents.csproj">
+      <Project>{BF6C6F28-9258-44F9-B508-0DEC734D1A2A}</Project>
+      <Name>Edo.Documents</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj">
       <Project>{9315f39c-5054-410e-b8e9-27c987321b67}</Project>
       <Name>Edo.Problem.Routine</Name>
@@ -1450,6 +1466,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj">
       <Project>{7c6d2e5d-7501-4905-b518-c080b06a6b3e}</Project>
       <Name>FuelControl.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Comparer\Comparer.csproj">
+      <Project>{93E79512-C190-4C08-A614-8CB992132970}</Project>
+      <Name>Comparer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj">
       <Project>{b318a2c2-a980-41bd-b072-321bccd70bbb}</Project>

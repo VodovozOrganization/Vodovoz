@@ -12,6 +12,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Infrastructure.FileStorage;
+using Vodovoz.Infrastructure.FileStorage.Options;
 
 namespace Edo.InformalOrderDocuments.Worker
 {
@@ -45,6 +47,8 @@ namespace Edo.InformalOrderDocuments.Worker
 						.AddNHibernateConventions()
 						.AddCore()
 						.AddTrackedUoW()
+						.ConfigureOptions<ConfigureS3Options>()
+						.AddFileStorage()
 						.AddMessageTransportSettings()
 						.AddInformalOrderDocumentEdo()
 

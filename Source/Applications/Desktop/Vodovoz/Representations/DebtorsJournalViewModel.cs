@@ -36,6 +36,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
@@ -257,7 +258,7 @@ namespace Vodovoz.Representations
 			Order orderCountAlias = null;
 			OrderItem orderItemAlias = null;
 			OrderItem orderItemsSubQueryAlias = null;
-			DiscountReason discountReasonAlias = null;
+			DiscountReasonBase discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
@@ -881,6 +882,7 @@ namespace Vodovoz.Representations
 
 		protected override IQueryOver<Order> ItemsQuery(IUnitOfWork uow)
 		{
+			OrderDepositItem orderDepositItemAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
 			BottlesMovementOperation bottleMovementOperationAlias = null;
@@ -893,7 +895,7 @@ namespace Vodovoz.Representations
 			Order orderCountAlias = null;
 			OrderItem orderItemAlias = null;
 			OrderItem orderItemsSubQueryAlias = null;
-			DiscountReason discountReasonAlias = null;
+			DiscountReasonBase discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
@@ -1250,6 +1252,25 @@ namespace Vodovoz.Representations
 				() => counterpartyAlias.Id,
 				() => counterpartyAlias.Name));
 
+			var orderItemsSumQuery = QueryOver.Of(() => orderItemAlias)
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.Select(OrderProjections.GetOrderSumProjection());
+
+			var orderDepositsSumQuery = QueryOver.Of(() => orderDepositItemAlias)
+				.Where(() => orderDepositItemAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Sum(Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3), 2)"),
+					NHibernateUtil.Decimal,
+					Projections.Property(() => orderDepositItemAlias.Deposit),
+					Projections.Property(() => orderDepositItemAlias.ActualCount),
+					Projections.Property(() => orderDepositItemAlias.Count))));
+
+			var orderSumProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "(IFNULL(?1, 0) - IFNULL(?2, 0))"),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(orderItemsSumQuery),
+				Projections.SubQuery(orderDepositsSumQuery));
+
 			var resultQuery = ordersQuery
 				.Left.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
@@ -1263,6 +1284,7 @@ namespace Vodovoz.Representations
 					.Select(() => counterpartyAlias.PersonType).WithAlias(() => resultAlias.OPF)
 					.Select(() => bottleMovementOperationAlias.Delivered).WithAlias(() => resultAlias.LastOrderBottles)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.LastOrderDate)
+					.Select(orderSumProjection).WithAlias(() => resultAlias.LastOrderSum)
 					.Select(() => deliveryPointAlias.OrderFrequencyDays).WithAlias(() => resultAlias.OrderFrequencyDays)
 					.SelectSubQuery(residueQuery).WithAlias(() => resultAlias.IsResidueExist)
 					.SelectSubQuery(bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)

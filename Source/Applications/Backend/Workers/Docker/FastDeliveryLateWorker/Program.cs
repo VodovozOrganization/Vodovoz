@@ -6,6 +6,9 @@ using NLog.Extensions.Logging;
 using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
+using Vodovoz;
+using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -52,6 +55,7 @@ namespace FastDeliveryLateWorker
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddInfrastructure()
+						.AddBusiness(hostContext.Configuration)
 						.AddTrackedUoW()
 						.AddStaticHistoryTracker()
 						.AddHostedService<FastDeliveryLateWorker>()

@@ -890,7 +890,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 						var undeliveredOrder = page.ViewModel.UoW.GetById<UndeliveredOrder>(selectedNode.Id);
 						page.ViewModel.UndeliveredOrder = undeliveredOrder;
-						page.ViewModel.RouteList = _routeListItemRepository.GetRouteListItemForOrder(page.ViewModel.UoW, undeliveredOrder.OldOrder)?.RouteList;
+						page.ViewModel.RouteList = _routeListItemRepository.GetRouteListItemForOrder(page.ViewModel.UoW, undeliveredOrder.OldOrder.Id)?.RouteList;
 					}
 				)
 			);

@@ -18,6 +18,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.Upd;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
@@ -39,7 +40,7 @@ namespace Receipt.Dispatcher.Tests
 		public async Task DirectBottlesPreserveTransportOnlyForCompleteShipment(int total, int shipped)
 		{
 			var f = new Scenario(0, total, Enumerable.Range(1, shipped), true);
-			await f.Builder.BuildUpdDocumentAsync(f.Task, default);
+			await f.Builder.BuildForOwnNeedUpdDocumentAsync(f.Task, default);
 			Assert.All(f.Bottles, x => Assert.Equal(f.Transport.Id, x.ParentTransportCodeId));
 			await f.Service.DetachIncompleteTransportCodesAsync(f.Task, default);
 			Assert.Equal(shipped, f.Codes.Sum(x => x.Quantity));
@@ -90,7 +91,7 @@ namespace Receipt.Dispatcher.Tests
 			var result = await validator.ValidateAsync(f.Task, services, default);
 			Assert.False(result.IsValid);
 			Assert.NotNull(result.Notification);
-			Assert.Empty(f.Task.UpdInventPositions);
+			Assert.Null(f.Task.Upd);
 			Assert.All(f.Groups, g => Assert.Equal(f.Transport.Id, g.ParentTransportCodeId));
 		}
 
@@ -174,7 +175,7 @@ namespace Receipt.Dispatcher.Tests
 			public readonly UpdTransportCodeService Service;
 			private readonly ITrueMarkCodesPool _pool = Substitute.For<ITrueMarkCodesPool>();
 			private readonly ITrueMarkCodesPoolCodeProvider _provider = Substitute.For<ITrueMarkCodesPoolCodeProvider>();
-			public EdoUpdInventPositionCode[] Codes => Task.UpdInventPositions.SelectMany(x => x.Codes).ToArray();
+			public UpdProductCode[] Codes => Task.Upd.InventPositions.SelectMany(x => x.Codes).ToArray();
 
 			public Scenario(int groupCount, int directCount, IEnumerable<int> selectedIds, bool hasCheckCode)
 			{
@@ -184,12 +185,13 @@ namespace Receipt.Dispatcher.Tests
 				nomenclature.Gtins.Add(new GtinEntity { Id = 1, GtinNumber = "unit-gtin", Nomenclature = nomenclature });
 				nomenclature.GroupGtins.Add(new GroupGtinEntity { Id = 1, GtinNumber = "group-gtin", CodesCount = 2, Nomenclature = nomenclature });
 				nomenclature.VatRateVersions.Add(new VatRateVersion { StartDate = new DateTime(2000, 1, 1), VatRate = new VatRate { VatRateValue = 0m } });
-				var order = new OrderEntity { Id = 1, Contract = new CounterpartyContractEntity { Organization = new OrganizationEntity { INN = "0000000000" } } };
+				var order = new OrderEntityFixture { Id = 1, Contract = new CounterpartyContractEntity { Organization = new OrganizationEntity { INN = "0000000000" } } };
 				var item = new OrderItemEntityFixture { Id = 1, Order = order, Nomenclature = nomenclature };
 				item.SetCount(ids.Length);
 				item.SetPrice(100);
 				order.OrderItems.Add(item);
 				Task = new DocumentEdoTask { DocumentType = EdoDocumentType.UPD, FormalEdoRequest = new PrimaryEdoRequest { Order = order } };
+				UpdDocumentBuilderFixture.PrepareForUpd(Task);
 				var groupRepo = new GenericRepositoryFixture<TrueMarkWaterGroupCode>();
 				var transportRepo = new GenericRepositoryFixture<TrueMarkTransportCode>();
 				transportRepo.Data.Add(Transport);
@@ -212,7 +214,7 @@ namespace Receipt.Dispatcher.Tests
 				var repository = Substitute.For<ITrueMarkCodeRepository>();
 				repository.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
 					.Returns(call => System.Threading.Tasks.Task.FromResult(Groups.Single(x => x.Id == (int)call[0])));
-				Builder = new UpdDocumentBuilder(uow, _pool, repository, _provider, Service, Substitute.For<ILogger<UpdDocumentBuilder>>());
+				Builder = UpdDocumentBuilderFixture.CreateBuilder(uow, _pool, repository, _provider, Service);
 			}
 
 			public void UseReplacement(TrueMarkWaterIdentificationCode replacement)
@@ -226,7 +228,7 @@ namespace Receipt.Dispatcher.Tests
 			{
 				var validation = await new ExcessCodesEdoValidator().ValidateAsync(Task, null, default);
 				Assert.True(validation.IsValid);
-				await Builder.BuildUpdDocumentAsync(Task, default);
+				await Builder.BuildForOwnNeedUpdDocumentAsync(Task, default);
 				await Service.DetachIncompleteTransportCodesAsync(Task, default);
 			}
 

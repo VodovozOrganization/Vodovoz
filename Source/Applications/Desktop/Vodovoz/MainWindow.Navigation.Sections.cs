@@ -5,6 +5,7 @@ using QS.Project.Journal;
 using QS.Report;
 using QS.Report.ViewModels;
 using System;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Orders;
@@ -269,7 +270,12 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<EdoProcessJournalViewModel>(null);
 	}
-	
+
+	protected void OnActionEdoDiscrepancyJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoDiscrepancyJournalViewModel>(null);
+	}
+
 	/// <summary>
 	/// Журнал проблем документооборота с клиентами
 	/// </summary>
