@@ -126,14 +126,11 @@ namespace Edo.Docflow
 					break;
 
 				case EdoDocFlowStatus.InProgress:
-					if(updatedEvent.IsReceived)
+					document.Status = EdoDocumentStatus.InProgress;
+
+					if(TaxcomDocflowStateByTransactions.ShouldMarkAsSent(incomeStatus, updatedEvent.IsReceived))
 					{
-						document.Status = EdoDocumentStatus.Sent;
 						await _publishEndpoint.Publish(new OrderDocumentSentEvent(document.Id), cancellationToken);
-					}
-					else
-					{
-						document.Status = EdoDocumentStatus.InProgress;
 					}
 					break;
 

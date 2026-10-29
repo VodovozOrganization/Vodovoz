@@ -78,15 +78,15 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 				join tda in uow.Session.Query<TaxcomDocflowAction>() on taxcomDocflow.Id equals tda.TaxcomDocflowId into taxcomDocflowActions
 				from taxcomDocflowAction in taxcomDocflowActions.DefaultIfEmpty()
 
-				let lastTaxcomDocflowActionTime = (DateTime?)uow.Session.Query<TaxcomDocflowAction>()
+				let lastTaxcomDocflowActionId = (int?)uow.Session.Query<TaxcomDocflowAction>()
 					.Where(x => x.TaxcomDocflowId == taxcomDocflow.Id)
 					.OrderByDescending(x => x.Id)
-					.Select(x => x.Time)
+					.Select(x => (int?)x.Id)
 					.FirstOrDefault()
 
 				where
 					orderEdoRequest.Order.Id == orderId
-					&& (taxcomDocflowAction == null || taxcomDocflowAction.Time == lastTaxcomDocflowActionTime)
+					&& (taxcomDocflowAction == null || taxcomDocflowAction.Id == lastTaxcomDocflowActionId)
 
 				select new EdoDockflowData
 				{
@@ -115,15 +115,15 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 				join tda in uow.Session.Query<TaxcomDocflowAction>() on taxcomDocflow.Id equals tda.TaxcomDocflowId into taxcomDocflowActions
 				from taxcomDocflowAction in taxcomDocflowActions.DefaultIfEmpty()
 
-				let lastTaxcomDocflowActionTime = (DateTime?)uow.Session.Query<TaxcomDocflowAction>()
+				let lastTaxcomDocflowActionId = (int?)uow.Session.Query<TaxcomDocflowAction>()
 					.Where(x => x.TaxcomDocflowId == taxcomDocflow.Id)
 					.OrderByDescending(x => x.Id)
-					.Select(x => x.Time)
+					.Select(x => (int?)x.Id)
 					.FirstOrDefault()
 
 				where
 					edoRequest.Order.Id == orderId
-					&& (taxcomDocflowAction == null || taxcomDocflowAction.Time == lastTaxcomDocflowActionTime)
+					&& (taxcomDocflowAction == null || taxcomDocflowAction.Id == lastTaxcomDocflowActionId)
 
 				select new EdoDockflowData
 				{

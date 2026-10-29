@@ -17,6 +17,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using TaxcomEdo.Client;
 using Taxcom.Docflow.Utility;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
@@ -1598,6 +1599,40 @@ namespace EdoService.Library
 			}
 		}
 
+		private async Task<IEnumerable<string>> WithNotAcceptedBuyerTitle(
+			ITaxcomApiClient taxcomApiClient,
+			Guid docflowId,
+			IEnumerable<string> transactionCodes,
+			CancellationToken cancellationToken)
+		{
+			var codes = transactionCodes ?? Enumerable.Empty<string>();
+			if(!TaxcomDocflowStateByTransactions.ContainsBuyerTitle(codes))
+			{
+				return codes;
+			}
+
+			try
+			{
+				var raw = await taxcomApiClient.GetDocFlowRawData(docflowId.ToString(), cancellationToken);
+				if(raw.IsFailure || raw.Value == null)
+				{
+					return codes;
+				}
+
+				return TaxcomDocflowStateByTransactions.WithBuyerTitleResult(
+					codes,
+					BuyerTitleAcceptance.ReadResultCode(raw.Value));
+			}
+			catch(Exception exception)
+			{
+				_logger.LogWarning(
+					exception,
+					"Не удалось прочитать итог титула покупателя по документообороту {DocflowId}",
+					docflowId);
+				return codes;
+			}
+		}
+
 		public async Task<Result<string>> UpdateDocflowStatusAsync(
 			IUnitOfWork uow,
 			Guid? docflowId,
@@ -1655,21 +1690,43 @@ namespace EdoService.Library
 					));
 				}
 
+				EdoDocFlowStatus? reportedStatus = null;
+				if(Enum.TryParse(description.DocFlow.Status, true, out EdoDocFlowStatus parsedStatus))
+				{
+					reportedStatus = parsedStatus;
+				}
+
+				var transactionCodes = await WithNotAcceptedBuyerTitle(
+					taxcomApiClient,
+					description.DocFlow.Id,
+					description.DocFlow.Documents?.Select(document => document.TransactionCode),
+					cancellationToken);
+
+				var state = TaxcomDocflowStateByTransactions.Resolve(
+					reportedStatus,
+					transactionCodes);
 				var docflowUpdatedEvent = new OutgoingTaxcomDocflowUpdatedEvent
 				{
 					DocFlowId = description.DocFlow.Id,
 					EdoAccount = edoAccount,
 					MainDocumentId = mainDocument.Definition.Identifiers.ExternalIdentifier,
-					Status = description.DocFlow.Status,
+					Status = state.Status?.ToString() ?? description.DocFlow.Status,
 					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
+					IsReceived = state.IsReceived
 				};
-
-				var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
-				docflowUpdatedEvent.IsReceived = recievedStatuses.Contains(docflowUpdatedEvent.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
 
 				await PublishInNewTransactionAsync(docflowUpdatedEvent, cancellationToken);
 
-				return Result.Success($"Статус документооборота {docflowId} обновится в течение нескольких минут. Обновленный статус: {docflowUpdatedEvent.Status}");
+				var statusTitle = state.Status?.GetEnumTitle();
+				if(string.IsNullOrWhiteSpace(statusTitle))
+				{
+					statusTitle = string.IsNullOrWhiteSpace(description.DocFlow.Status)
+						? "не определён"
+						: description.DocFlow.Status;
+				}
+
+				return Result.Success(
+					$"Обновленный статус: {statusTitle}{Environment.NewLine}Документооборот {docflowId} обновится в карточке в течение нескольких минут.");
 			}
 			catch(Exception ex)
 			{
