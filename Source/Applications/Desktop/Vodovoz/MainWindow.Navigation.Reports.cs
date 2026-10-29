@@ -303,16 +303,16 @@ public partial class MainWindow
 	}
 
 	/// <summary>
-	/// Отчёт о выполнении плана
+	/// Отчет по забору тары
 	/// </summary>
 	/// <param name="sender"></param>
 	/// <param name="e"></param>
-	protected void OnActionPlanImplementationReportActivated(object sender, EventArgs e)
+	protected void OnActionTareCollectionReportActivated(object sender, EventArgs e)
 	{
 		var reportInfoFactory = _autofacScope.Resolve<IReportInfoFactory>();
 		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<PlanImplementationReport>(),
-			() => new QSReport.ReportViewDlg(new PlanImplementationReport(reportInfoFactory)));
+			QSReport.ReportViewDlg.GenerateHashName<TareCollectionReport>(),
+			() => new QSReport.ReportViewDlg(new TareCollectionReport(reportInfoFactory)));
 	}
 
 	/// <summary>

@@ -18,13 +18,13 @@ using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class PlanImplementationReport : SingleUoWWidgetBase, IParametersWidget
+	public partial class TareCollectionReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly IReportInfoFactory _reportInfoFactory;
 		private const string _orderAuthorIncludeParameter = "order_author_include";
 		
-		public PlanImplementationReport(IReportInfoFactory reportInfoFactory, bool orderById = false)
+		public TareCollectionReport(IReportInfoFactory reportInfoFactory, bool orderById = false)
 		{
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			this.Build();
@@ -146,7 +146,7 @@ namespace Vodovoz.ReportsParameters
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title => "Отчёт о выполнении плана";
+		public string Title => "Отчет по забору тары";
 
 		#endregion
 
@@ -161,7 +161,8 @@ namespace Vodovoz.ReportsParameters
 			{
 				{"start_date", dateperiodpicker.StartDateOrNull},
 				{"end_date", dateperiodpicker.EndDateOrNull.Value.AddDays(1).AddTicks(-1)},
-				{"is_creation_date", (OrderDateType)comboTypeOfDate.SelectedItem == OrderDateType.CreationDate}
+				{"is_creation_date", (OrderDateType)comboTypeOfDate.SelectedItem == OrderDateType.CreationDate},
+				{"exclude_negative_net_tare", ycheckbuttonExcludeNegativeNetTare.Active}
 			};
 			
 			foreach(var item in _filter.GetParameters())
@@ -176,11 +177,11 @@ namespace Vodovoz.ReportsParameters
 				&& values.Length == 1
 				&& values[0] == "0")
 			{
-				identifier = "Sales.PlanImplementationFullReport";
+				identifier = "Sales.TareCollectionFullReport";
 			}
 			else
 			{
-				identifier = "Sales.PlanImplementationByEmployeeReport";
+				identifier = "Sales.TareCollectionByEmployeeReport";
 			}
 
 			var reportInfo = _reportInfoFactory.Create(identifier, Title, parameters);
