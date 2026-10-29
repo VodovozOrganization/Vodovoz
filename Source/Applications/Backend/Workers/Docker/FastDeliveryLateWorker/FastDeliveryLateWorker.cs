@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz;
+using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -19,6 +19,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Domain.Orders;
 
 namespace FastDeliveryLateWorker
 {
@@ -32,7 +33,8 @@ namespace FastDeliveryLateWorker
 		public FastDeliveryLateWorker(
 			ILogger<FastDeliveryLateWorker> logger,
 			IOptions<FastDeliveryLateOptions> options,
-			IServiceScopeFactory serviceScopeFactory)
+			IServiceScopeFactory serviceScopeFactory
+			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
@@ -77,7 +79,7 @@ namespace FastDeliveryLateWorker
 				CreateComplaintsForFasteDeliveryLateOrders(scope.ServiceProvider);
 
 				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(FastDeliveryLateWorker), stoppingToken);
 			}
 			catch(Exception e)
 			{
@@ -151,10 +153,14 @@ namespace FastDeliveryLateWorker
 
 				var nomenclatureSettings = serviceProvider.GetRequiredService<INomenclatureSettings>();
 				var orderSettings = serviceProvider.GetRequiredService<IOrderSettings>();
+				var discountsController = serviceProvider.GetRequiredService<IOrderDiscountsController>();
 
 				var fastDeliveryOrderItem = lateOrder.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == nomenclatureSettings.FastDeliveryNomenclatureId);
-				fastDeliveryOrderItem.SetDiscount(100);
-				fastDeliveryOrderItem.DiscountReasons.Add(new DiscountReason { Id = orderSettings.FastDeliveryLateDiscountReasonId });
+				discountsController.SilentSetCustomDiscount(
+					new DiscountReason { Id = orderSettings.FastDeliveryLateDiscountReasonId },
+					fastDeliveryOrderItem,
+					DiscountValue.Create(false, 100m, 100m)
+					);
 				uow.Save(fastDeliveryOrderItem);
 
 				uow.Save(complaint);

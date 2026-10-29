@@ -113,9 +113,12 @@ namespace Vodovoz.Presentation.WebApi.Common
 			{
 				_logger.LogWarning("Произошла ошибка: {Code} - {Message}", error.Code, error.Message);
 			}
+			
+			var firstError = errorsList.First();
 
 			return new ObjectResult(new ProblemDetails
 			{
+				Type = firstError.Code,
 				Instance = HttpContext.Request.Path,
 				Title = GetErrorDisplayName(errorsList.First()) ?? "Произошла ошибка",
 				Status = statusCode ?? StatusCodes.Status500InternalServerError,

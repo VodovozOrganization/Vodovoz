@@ -4,12 +4,13 @@ using QS.Report;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -39,9 +40,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1) 
-			?  $"Акт приема-передачи оборудования №{DocumentOrganizationCounter?.DocumentNumber ?? Order?.Id.ToString()}"
-			:  $"Акт приема-передачи оборудования";
+		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1)
+			? $"Акт приема-передачи оборудования №{DocumentOrganizationCounter?.DocumentNumber ?? Order?.Id.ToString()}"
+			: $"Акт приема-передачи оборудования";
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 
@@ -50,7 +51,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override DocumentOrientation Orientation => DocumentOrientation.Portrait;
 
 		private int _copiesToPrint = 2;
-		public override int CopiesToPrint {
+		public override int CopiesToPrint
+		{
 			get => _copiesToPrint;
 			set => _copiesToPrint = value;
 		}
@@ -58,7 +60,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual string Title => $"Акт приема-передачи оборудования №{Order.Id} от {Order.DeliveryDate:d}";
 
 		[Display(Name = "Контрагент")]
-		public virtual Counterparty Counterparty => Order?.Client;
+		public virtual CounterpartyEntity Counterparty => Order?.Client;
 
 		private bool _hideSignature = true;
 
@@ -69,7 +71,10 @@ namespace Vodovoz.Domain.Orders.Documents
 			set => SetField(ref _hideSignature, value, () => HideSignature);
 		}
 
-		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null, IOrganizationSettings organizationSettings = null)
+		public virtual EmailTemplate GetEmailTemplate(
+			ICounterpartyEdoAccountEntityController edoAccountController = null,
+			IOrganizationSettings organizationSettings = null,
+			IDeliveryScheduleSettings deliveryScheduleSettings = null)
 		{
 			var template = new EmailTemplate
 			{
@@ -160,6 +165,8 @@ namespace Vodovoz.Domain.Orders.Documents
 
 			return template;
 		}
+
+		public virtual int DocumentId => Id;
 	}
 }
 

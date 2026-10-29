@@ -42,6 +42,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectDeliveryDate),
 				"Дата доставки не может быть раньше сегодняшнего дня");
 		
+		public static Error DeliveryIntervalExpired =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(DeliveryIntervalExpired),
+				"Выбранный интервал доставки уже закончился. Требуется ручная обработка онлайн-заказа");
+
 		public static Error IsEmptyDistrictFromDeliveryPoint =>
 			new Error(
 				typeof(OnlineOrderErrors),
@@ -110,6 +116,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectPricePaidDelivery),
 				$"Платная доставка с неверной ценой: пришла {onlineOrderItemPrice}, а должна быть {price}");
 		
+		public static Error ErrorCalculatingPaidDelivery() =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ErrorCalculatingPaidDelivery),
+				$"Не удалось рассчитать платную доставку");
+		
 		public static Error FastDeliveryNotAvailable =>
 			new Error(
 				typeof(OnlineOrderErrors),
@@ -168,6 +180,22 @@ namespace Vodovoz.Errors.Orders
 				$"Номенклатура {nomenclature} пришла с неправильно установленной ценой" +
 				$"\nДолжно быть {price}, а передано {onlineOrderItemPrice}");
 		
+		public static Error IncorrectPricePromoSetInOnlineOrder(
+			string promoSet, decimal price, decimal onlinePromoSetPrice) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncorrectPricePromoSetInOnlineOrder),
+				$"{promoSet} пришел с неправильно установленной ценой" +
+				$"\nДолжно быть {price}, а передано {onlinePromoSetPrice}");
+		
+		public static Error IncorrectPriceWithDiscountsPromoSetInOnlineOrder(
+			string promoSet, decimal price, decimal onlinePromoSetPrice) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncorrectPriceWithDiscountsPromoSetInOnlineOrder),
+				$"{promoSet} пришел с неправильно установленной ценой или скидками" +
+				$"\nДолжно быть {price}, а передано {onlinePromoSetPrice}");
+		
 		public static Error NotApplicableDiscountToNomenclatureOnlineOrder(string nomenclature) =>
 			new Error(
 				typeof(OnlineOrderErrors),
@@ -182,6 +210,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectDiscountNomenclatureInOnlineOrder),
 				$"Номенклатура {nomenclature} пришла с неправильно установленной скидкой" +
 				$"\nДолжно быть {discount}, а передано {onlineOrderItemDiscount}");
+		
+		public static Error NotApplicableDiscountsToPromoSet(string promoSet, string notApplicableDiscounts) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(NotApplicableDiscountsToPromoSet),
+				$"Промонабор {promoSet} пришел со скидками, которые не применимы к нему: {notApplicableDiscounts}");
 		
 		public static Error IncorrectCountNomenclatureInOnlineOrder(string nomenclature, decimal count) =>
 			new Error(
@@ -215,7 +249,30 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectDiscountInOnlineOrderPromoSet),
 				$"В переданном промонаборе {promoSetTitle} в позиции {position} {nomenclature}" +
 				$"\nнеправильно указана скидка: должно быть {discountItemFromPromoSet}, а передано {onlineOrderItemDiscount}");
-		
+
+		/// <summary>
+		/// В строке заказа содежратся несовместимые друг с другом скидки
+		/// </summary>
+		public static Error IncompatibleDiscountInOnlineOrderItem =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncompatibleDiscountInOnlineOrderItem),
+				"В строке заказа содежратся несовместимые друг с другом скидки");
+
+		/// <summary>
+		/// В строке заказа содежратся несовместимые друг с другом скидки
+		/// </summary>
+		/// <param name="discountReasonName">Наименование несовместимой скидки</param>
+		/// <param name="nomenclature">Номенклатура, в которую добавлена несовместимая скидка</param>
+		/// <returns></returns>
+		public static Error CreateIncompatibleDiscountInOnlineOrderItem(
+			string discountReasonName, string nomenclature) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncompatibleDiscountInOnlineOrderItem),
+				$"В строке заказа с номенклатурой {nomenclature} содержится несколько скидок, " +
+				$"при этом скидка \"{discountReasonName}\" несовместима с другими");
+
 		public static Error IncorrectRentPackageIdInOnlineOrder(int? rentPackageId) =>
 			new Error(
 				typeof(OnlineOrderErrors),
@@ -269,5 +326,53 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				"400",
 				$"Не удалось получить информацию о пользователе из источника {source}");
+
+		public static Error IncorrectOrdersData =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncorrectOrdersData),
+				"Некорректные данные по заказу");
+
+		public static Error ErpOrderForOnlineOrderNotFound =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ErpOrderForOnlineOrderNotFound),
+				"Заказ ERP, соответствующий онлайн заказу не найден");
+
+		public static Error OnlineOrderHasManyErpOrders =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(OnlineOrderHasManyErpOrders),
+				"Для онлайн заказа создано несколько заказов в ERP");
+
+		public static Error ErpOrderNotRelatedToOnlineOrder =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ErpOrderNotRelatedToOnlineOrder),
+				"Указанный заказ в ERP не связан с указанным онлайн заказом");
+
+		public static Error OrderHasInvalidStatusForCourierCoordinates =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(OrderHasInvalidStatusForCourierCoordinates),
+				"Статус заказа не позволяет передать координаты курьера");
+
+		public static Error CourierCoordinatesUnavailableSelfDeliveryOrders =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(CourierCoordinatesUnavailableSelfDeliveryOrders),
+				"Координаты курьера недоступны для заказов с самовывозом");
+
+		public static Error OrderHasNoEstablishedRoute =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(OrderHasNoEstablishedRoute),
+				"Для данного заказа маршрут не установлен водителем");
+
+		public static Error CourierCoordinatesAreMissing =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(CourierCoordinatesAreMissing),
+				"Координаты курьера отсутствуют");
 	}
 }

@@ -5,14 +5,12 @@ using CustomerOrdersApi.Library.Default.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using System;
-using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.V3.Consumers
@@ -29,7 +27,7 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator
+			IOnlineOrderValidatorCreator onlineOrderValidatorCreator
 			)
 			: base(
 				logger,
@@ -41,7 +39,7 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 				onlineOrderCancellationReasonSettings,
 				orderService,
 				routeListService,
-				onlineOrderValidator)
+				onlineOrderValidatorCreator)
 		{
 		}
 		

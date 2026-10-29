@@ -1,5 +1,6 @@
-using Edo.Docflow.Taxcom;
+﻿using Edo.Docflow.Taxcom;
 using MassTransit;
+using QS.DomainModel.UoW;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -12,15 +13,18 @@ namespace TaxcomEdoConsumer.Consumers
 		private readonly ILogger<OutgoingTaxcomDocflowUpdatedEventConsumer> _logger;
 		private readonly IEdoDocflowHandler _edoDocflowHandler;
 		private readonly IPublishEndpoint _publishEndpoint;
+		private readonly IUnitOfWork _unitOfWork;
 
 		public OutgoingTaxcomDocflowUpdatedEventConsumer(
 			ILogger<OutgoingTaxcomDocflowUpdatedEventConsumer> logger,
 			IEdoDocflowHandler edoDocflowHandler,
-			IPublishEndpoint publishEndpoint)
+			IPublishEndpoint publishEndpoint,
+			IUnitOfWork unitOfWork)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoDocflowHandler = edoDocflowHandler ?? throw new ArgumentNullException(nameof(edoDocflowHandler));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
 		public async Task Consume(ConsumeContext<OutgoingTaxcomDocflowUpdatedEvent> context)
@@ -45,6 +49,8 @@ namespace TaxcomEdoConsumer.Consumers
 						message.MainDocumentId
 					);
 					await _publishEndpoint.Publish(edoDocflowUpdatedEvent);
+					// Документооборот уже сохранён обработчиком, Commit сохраняет событие в outbox
+					await _unitOfWork.CommitAsync(context.CancellationToken);
 				}
 			}
 			catch(Exception e)

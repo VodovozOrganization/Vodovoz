@@ -12,6 +12,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -21,14 +22,16 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using QS.ViewModels.Dialog;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Errors;
+using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
@@ -56,11 +59,10 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using VodovozBusiness.Extensions;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
 using PhoneViewModel = Vodovoz.ViewModels.ViewModels.Counterparty.PhoneViewModel;
-using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Application.FileStorage;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
@@ -215,6 +217,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			organizations = UoW.GetAll<Organization>().ToList();
 
+			CarTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+
 			GetExternalUsers();
 
 			_employeePermissionSet = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Employee));
@@ -317,6 +321,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		public List<EmployeeCategory> HiddenCategories { get; } = new List<EmployeeCategory>();
 		
+		public CarTypeOfUse[] CarTypeOfUseForExclude { get; }
+
 		public EmployeeDocumentType[] HiddenForRussianDocument { get; } =
 		{
 			EmployeeDocumentType.RefugeeId,
@@ -950,8 +956,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				case nameof(Entity.Status):
 					_statusChangedByUser = true;
 					break;
-				case nameof(Entity.CanRecieveCounterpartyCalls):
-					if(!Entity.CanRecieveCounterpartyCalls)
+				case nameof(Entity.IsNoPhoneForCounterpartyCallsRequired):
+					if(Entity.IsNoPhoneForCounterpartyCallsRequired)
 					{
 						Entity.PhoneForCounterpartyCalls = null;
 					}
@@ -1415,6 +1421,25 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				{
 					return false;
 				}
+			}
+
+			if(Entity.Category == EmployeeCategory.driver
+				&& !Entity.IsNoPhoneForCounterpartyCallsRequired
+				&& Entity.Status != EmployeeStatus.IsFired
+				&& Entity.PhoneForCounterpartyCalls is null)
+			{
+				var firstPhone = Entity.Phones.FirstOrDefault(x => !x.IsArchive);
+
+				if(firstPhone is null)
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						"У водителя должен присутствовать хотя бы один не архивный номер телефона");
+
+					return false;
+				}
+
+				Entity.PhoneForCounterpartyCalls = firstPhone;
 			}
 
 			if(!Validate())

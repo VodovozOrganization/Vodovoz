@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Данные для генерации подписи для применения промокода
 	/// </summary>
-	public class ApplyPromoCodeSignatureParams : SignatureParams
+	public class ApplyPromoCodeSignatureParams : ShopIdSignatureParams
 	{
 		/// <summary>
 		/// Id заказа

@@ -9,12 +9,12 @@ using Microsoft.Extensions.Logging;
 using Pango;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
+using Stetic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
@@ -23,12 +23,16 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Mango;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class CounterpartyPanelView : Bin, IPanelView
 	{
+		private const int _phoneTextWidthChars = 20;
+		private const int _phoneButtonWidthRequest = 32;
+		
 		private readonly IOrderRepository _orderRepository;
 		private readonly ILogger<CounterpartyPanelView> _logger;
 		private readonly ICommonServices _commonServices;
@@ -52,8 +56,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private void Configure()
 		{
-			labelName.LineWrapMode = Pango.WrapMode.WordChar;
-			labelLatestOrderDate.LineWrapMode = Pango.WrapMode.WordChar;
+			labelName.LineWrapMode = WrapMode.WordChar;
+			labelLatestOrderDate.LineWrapMode = WrapMode.WordChar;
 			textviewComment.Editable = _counterpartyPermissionResult.CanUpdate;
 			ytreeCurrentOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
 				.AddColumn("Номер")
@@ -163,28 +167,41 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			List<Phone> phones = _counterparty.Phones.Where(p => !p.IsArchive).ToList();
 			uint rowsCount = Convert.ToUInt32(phones.Count) + 1;
-			PhonesTable.Resize(rowsCount, 2);
+			PhonesTable.Resize(rowsCount, 1);
 			for(uint row = 0; row < rowsCount - 1; row++)
 			{
 				Label label = new Label();
 				label.Selectable = true;
+				label.LineWrap = true;
+				label.LineWrapMode = WrapMode.WordChar;
+				label.WidthChars = _phoneTextWidthChars;
+				label.MaxWidthChars = _phoneTextWidthChars;
 				label.Markup = $"{phones[Convert.ToInt32(row)].LongText}";
 
 				HandsetView handsetView = new HandsetView(phones[Convert.ToInt32(row)].DigitsNumber);
+				handsetView.WidthRequest = _phoneButtonWidthRequest;
 
-				PhonesTable.Attach(label, 0, 1, row, row + 1);
-				PhonesTable.Attach(handsetView, 1, 2, row, row + 1);
+				var phoneRow = new HBox();
+				phoneRow.PackStart(label, true, true, 0);
+				phoneRow.PackEnd(handsetView, false, false, 0);
+
+				PhonesTable.Attach(phoneRow, 0, 1, row, row + 1);
 			}
 
 			Label labelAddPhone = new Label() { LabelProp = "Щёлкните чтобы\n добавить телефон-->" };
-			PhonesTable.Attach(labelAddPhone, 0, 1, rowsCount - 1, rowsCount);
 
 			Image addIcon = new Image();
-			addIcon.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-add", IconSize.Menu);
+			addIcon.Pixbuf = IconLoader.LoadIcon(this, "gtk-add", IconSize.Menu);
 			Button btn = new Button();
 			btn.Image = addIcon;
+			btn.WidthRequest = _phoneButtonWidthRequest;
 			btn.Clicked += OnBtnAddPhoneClicked;
-			PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
+
+			var addPhoneRow = new HBox();
+			addPhoneRow.PackStart(labelAddPhone, true, true, 0);
+			addPhoneRow.PackEnd(btn, false, false, 0);
+			PhonesTable.Attach(addPhoneRow, 0, 1, rowsCount - 1, rowsCount);
+
 			PhonesTable.ShowAll();
 			btn.Sensitive = buttonSaveComment.Sensitive = _counterpartyPermissionResult.CanUpdate && _counterparty.Id != 0;
 

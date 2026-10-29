@@ -1,5 +1,4 @@
-﻿using Edo.ErrorDebugWorker.Consumers;
-using MassTransit;
+﻿using MassTransit;
 
 namespace Edo.ErrorDebugWorker.Consumers.Definitions
 {

@@ -12,17 +12,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -32,7 +35,6 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.NHibernateProjections.Orders;
@@ -42,11 +44,11 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Operations;
-using VodovozBusiness.Domain.StoredEmails;
 using VodovozBusiness.EntityRepositories.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	internal sealed class OrderRepository : IOrderRepository
@@ -101,7 +103,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 					.Where(() => routeListAlias.Id == null
 						|| (carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck
-							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Loader))
+							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Loader
+							&& carModelAlias.CarTypeOfUse != CarTypeOfUse.Semitrailer))
 					.And(() => routeListItemAlias.Id == null || routeListItemAlias.Status != RouteListItemStatus.Transfered);
 			}
 
@@ -143,6 +146,51 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& orderAlias.OrderStatus != OrderStatus.DeliveryCanceled
 					&& orderAlias.OrderStatus != OrderStatus.NotDelivered)
 				.List();
+		}
+
+		public IList<DriverForwardingOrderNode> GetCounterpartyOrdersOnTheWay(IUnitOfWork uow, int counterpartyId)
+		{
+			DriverForwardingOrderNode resultAlias = null;
+			VodovozOrder orderAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			RouteListItem routeListItemAlias = null;
+			RouteList routeListAlias = null;
+			Employee driverAlias = null;
+			DriverMangoExtensionNumber driverMangoExtensionNumberAlias = null;
+
+			var driverExtensionNumberSubquery = QueryOver.Of(() => driverMangoExtensionNumberAlias)
+				.Where(() => driverMangoExtensionNumberAlias.DriverId == driverAlias.Id)
+				.And(() => driverMangoExtensionNumberAlias.Status == DriverMangoExtensionNumberStatus.Active)
+				.And(() => driverMangoExtensionNumberAlias.ExtensionNumber != null)
+				.Select(x => x.ExtensionNumber)
+				.OrderBy(x => x.ActivatedAt).Desc
+				.Take(1);
+
+			return uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.JoinEntityAlias(
+					() => routeListItemAlias,
+					() => routeListItemAlias.Order.Id == orderAlias.Id
+						&& routeListItemAlias.Status == RouteListItemStatus.EnRoute,
+					JoinType.InnerJoin)
+				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyId)
+				.And(() => orderAlias.OrderStatus == OrderStatus.OnTheWay)
+				.SelectList(list => list
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
+					.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.Address)
+					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
+					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
+					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverFirstName)
+					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+					.SelectSubQuery(driverExtensionNumberSubquery).WithAlias(() => resultAlias.DriverExtensionNumber))
+				.OrderBy(() => orderAlias.DeliveryDate).Asc
+				.ThenBy(() => orderAlias.Id).Asc
+				.TransformUsing(Transformers.AliasToBean<DriverForwardingOrderNode>())
+				.List<DriverForwardingOrderNode>();
 		}
 
 		public IList<VodovozOrder> GetCounterpartyOrders(IUnitOfWork UoW, Counterparty counterparty)
@@ -345,6 +393,20 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						   .Take(1)
 						   ;
 			return query.List().FirstOrDefault();
+		}
+
+		/// <inheritdoc/>
+		public bool HasAnotherOrderWithWater19L(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
+			int excludedNomenclatureId, IEnumerable<OrderStatus> orderStatuses)
+		{
+			return uow.Session.Query<OrderItem>()
+				.Any(item => item.Order.Client.Id == counterpartyId
+					&& item.Order.Id != excludedOrderId
+					&& orderStatuses.Contains(item.Order.OrderStatus)
+					&& item.Count > 0
+					&& item.Nomenclature.Id != excludedNomenclatureId
+					&& item.Nomenclature.Category == NomenclatureCategory.water
+					&& item.Nomenclature.TareVolume == TareVolume.Vol19L);
 		}
 
 		public bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty)
@@ -833,36 +895,44 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return null;
 		}
 
-		public decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null)
+		public decimal GetCounterpartyDebt(
+			IUnitOfWork uow, int counterpartyId, int? organizationId = null, bool includeOrdersWithoutOrganization = false)
 		{
 			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
-				uow, counterpartyId, organizationId: organizationId);
+				uow, counterpartyId, organizationId: organizationId, includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 			
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
-				uow, counterpartyId, organizationId: organizationId);
+				uow, counterpartyId, organizationId: organizationId, includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
 
-		public decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null)
+		public decimal GetCounterpartyWaitingForPaymentOrdersDebt(
+			IUnitOfWork uow, int counterpartyId, int? organizationId = null, bool includeOrdersWithoutOrganization = false)
 		{
 			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
 				uow,
 				counterpartyId,
 				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
 				uow,
 				counterpartyId,
 				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
 
 		public decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(
-			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null)
+			IUnitOfWork uow,
+			int counterpartyId,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false)
 		{
 			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
@@ -871,20 +941,26 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
 				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
 				uow,
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
 				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
 
 		public decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(
-			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null)
+			IUnitOfWork uow,
+			int counterpartyId,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false)
 		{
 			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
@@ -893,14 +969,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
 				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
 				uow,
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
 				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
-				organizationId: organizationId);
+				organizationId: organizationId,
+				includeOrdersWithoutOrganization: includeOrdersWithoutOrganization);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
@@ -912,12 +990,14 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IEnumerable<int> includeDeliveryScheduleIds = null,
 			IEnumerable<OrderStatus> excludeOrderStatuses = null,
 			IEnumerable<int> excludeDeliveryScheduleIds = null,
-			int? organizationId = null)
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract contractAlias = null;
+			Organization organisationAlias = null;
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
@@ -959,7 +1039,18 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			{
 				query
 					.Left.JoinAlias(() => orderAlias.Contract, () => contractAlias)
-					.Where(() => contractAlias.Organization.Id == organizationId);
+					.Left.JoinAlias(() => contractAlias.Organization, () => organisationAlias);
+
+				if(includeOrdersWithoutOrganization)
+				{
+					query.And(Restrictions.Or(
+						Restrictions.Where(() => organisationAlias.Id == organizationId),
+						Restrictions.IsNull(Projections.Property(() => organisationAlias.Id))));
+				}
+				else
+				{
+					query.And(() => organisationAlias.Id == organizationId);
+				}
 			}
 
 			var total = query
@@ -976,13 +1067,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IEnumerable<int> includeDeliveryScheduleIds = null,
 			IEnumerable<OrderStatus> excludeOrderStatuses = null,
 			IEnumerable<int> excludeDeliveryScheduleIds = null,
-			int? organizationId = null)
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false)
 		{
 			VodovozOrder orderAlias = null;
 			Counterparty counterpartyAlias = null;
 			PaymentItem paymentItemAlias = null;
 			CashlessMovementOperation cashlessMovOperationAlias = null;
 			CounterpartyContract contractAlias = null;
+			Organization organisationAlias = null;
 
 			var query = uow.Session.QueryOver(() => paymentItemAlias)
 				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovOperationAlias)
@@ -1026,7 +1119,18 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			{
 				query
 					.Left.JoinAlias(() => orderAlias.Contract, () => contractAlias)
-					.Where(() => contractAlias.Organization.Id == organizationId);
+					.Left.JoinAlias(() => contractAlias.Organization, () => organisationAlias);
+
+				if(includeOrdersWithoutOrganization)
+				{
+					query.And(Restrictions.Or(
+						Restrictions.Where(() => organisationAlias.Id == organizationId),
+						Restrictions.IsNull(Projections.Property(() => organisationAlias.Id))));
+				}
+				else
+				{
+					query.And(() => organisationAlias.Id == organizationId);
+				}
 			}
 
 			var totalPaymentsSum = query
@@ -1049,22 +1153,17 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 		public bool OrderHasSentUPD(IUnitOfWork uow, int orderId)
 		{
+			var excludeDocumentStatuses = new[] { EdoDocumentStatus.Cancelled, EdoDocumentStatus.Warning };
+
 			var upds =
 			(from et in uow.Session.Query<EdoTask>()
 			 join er in uow.Session.Query<FormalEdoRequest>() on et.Id equals er.Task.Id
-			 join tri in uow.Session.Query<TransferEdoRequestIteration>() on et.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
-			 from transferEdoRequestIteration in transferEdoRequestIterations.DefaultIfEmpty()
-			 join ter in uow.Session.Query<TransferEdoRequest>() on transferEdoRequestIteration.Id equals ter.Iteration.Id into transferEdoRequests
-			 from transferEdoRequest in transferEdoRequests.DefaultIfEmpty()
-			 join tet in uow.Session.Query<TransferEdoTask>() on transferEdoRequest.TransferEdoTask.Id equals tet.Id into transferEdoTasks
-			 from transferEdoTask in transferEdoTasks.DefaultIfEmpty()
 			 join oed in uow.Session.Query<OrderEdoDocument>() on et.Id equals oed.DocumentTaskId into edoDocuments
 			 from edoDocument in edoDocuments.DefaultIfEmpty()
 			 where
 				 er.Order.Id == orderId
 				 && (edoDocument != null)
-				 && (edoDocument.Status != EdoDocumentStatus.Cancelled
-				 || edoDocument.Status != EdoDocumentStatus.Warning)
+				 && !excludeDocumentStatuses.Contains(edoDocument.Status)
 				 && er.DocumentType == EdoDocumentType.UPD
 			 select
 			 et.Id)
@@ -1348,6 +1447,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
 			var orderStatusesForOrderDocumentCloser = new[] { OrderStatus.Closed, OrderStatus.WaitForPayment };
+			var billRequestSubquery = QueryOver.Of<InformalEdoRequest>()
+				.Where(request => request.Order.Id == orderAlias.Id)
+				.Where(request => request.OrderDocumentType == OrderDocumentType.Bill
+					|| request.OrderDocumentType == OrderDocumentType.SpecialBill)
+				.Select(request => request.Id);
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
@@ -1361,6 +1465,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						&& defaultEdoAccountAlias.IsDefault));
 
 			query.Where(() => orderAlias.DeliveryDate >= startDate && edoContainerAlias.Id == null);
+			query.WithSubquery.WhereNotExists(billRequestSubquery);
 
 			var orderStatusRestriction = Restrictions.Or(
 					Restrictions.NotEqProperty(Projections.Property(() => orderAlias.DeliverySchedule.Id), Projections.Constant(closingDocumentDeliveryScheduleId)),
@@ -1421,6 +1526,17 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return uow.Session.QueryOver<EdoContainer>()
 				.Where(x => x.Order.Id == orderId)
 				.List();
+		}
+
+		/// <inheritdoc/>
+		public bool HasEdoBill(IUnitOfWork uow, int orderId)
+		{
+			return uow.GetAll<EdoContainer>()
+				.Any(container => container.Order.Id == orderId && container.Type == DocumentContainerType.Bill)
+				|| uow.GetAll<InformalEdoRequest>()
+					.Any(request => request.Order.Id == orderId
+						&& (request.OrderDocumentType == OrderDocumentType.Bill
+							|| request.OrderDocumentType == OrderDocumentType.SpecialBill));
 		}
 
 		public OrderEntity GetOrderByOrderEdoDocumentId(IUnitOfWork uow, int orderEdoDocumentId)
@@ -1693,305 +1809,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List<TrueMarkCancellationDto>();
 
 			return result;
-		}
-
-		public IEnumerable<OrderDto> GetCounterpartyOrdersFromOnlineOrders(
-			IUnitOfWork uow,
-			int counterpartyId,
-			DateTime ratingAvailableFrom)
-		{
-			var orders =
-				from onlineOrder in uow.Session.Query<OnlineOrder>()
-				join order in uow.Session.Query<VodovozOrder>()
-					on onlineOrder.Id equals order.OnlineOrder.Id
-				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
-					on order.DeliverySchedule.Id equals deliverySchedule.Id into schedules
-				join orderRating in uow.Session.Query<OrderRating>()
-					on onlineOrder.Id equals orderRating.OnlineOrder.Id into orderRatings
-				from orderRating in orderRatings.DefaultIfEmpty()
-				from deliverySchedule in schedules.DefaultIfEmpty()
-				where order.Client.Id == counterpartyId
-				let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
-				let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
-				let orderStatus =
-					order.OrderStatus == OrderStatus.Canceled
-					|| order.OrderStatus == OrderStatus.DeliveryCanceled
-					|| order.OrderStatus == OrderStatus.NotDelivered
-						? ExternalOrderStatus.Canceled
-						: order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList
-							? ExternalOrderStatus.OrderPerformed
-							: order.OrderStatus == OrderStatus.Shipped
-							|| order.OrderStatus == OrderStatus.Closed
-							|| order.OrderStatus == OrderStatus.UnloadingOnStock
-								? ExternalOrderStatus.OrderCompleted
-								: order.OrderStatus == OrderStatus.WaitForPayment
-									? ExternalOrderStatus.WaitingForPayment
-									: order.OrderStatus == OrderStatus.OnTheWay
-										? ExternalOrderStatus.OrderDelivering
-										: order.OrderStatus == OrderStatus.OnLoading
-											? ExternalOrderStatus.OrderCollecting
-											: ExternalOrderStatus.OrderProcessing
-				
-				let ratingAvailable =
-					order.CreateDate.HasValue
-					&& order.CreateDate >= ratingAvailableFrom
-					&& orderRating == null
-					&& (orderStatus == ExternalOrderStatus.OrderCompleted
-						|| orderStatus == ExternalOrderStatus.Canceled
-						|| orderStatus == ExternalOrderStatus.OrderDelivering)
-				
-				let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
-					? OnlineOrderPaymentStatus.Paid
-					: OnlineOrderPaymentStatus.UnPaid
-					
-				let deliveryScheduleString = order.IsFastDelivery
-					? DeliverySchedule.FastDelivery
-					: deliverySchedule != null
-						? deliverySchedule.DeliveryTime
-						: null
-
-				select new OrderDto
-				{
-					OrderId = order.Id,
-					OnlineOrderId = onlineOrder.Id,
-					OrderStatus = orderStatus,
-					DeliveryDate = order.DeliveryDate.Value,
-					CreationDate = order.CreateDate.Value,
-					OrderSum = order.OrderSum,
-					DeliveryAddress = address,
-					DeliverySchedule = deliveryScheduleString,
-					RatingValue = orderRating.Rating,
-					IsRatingAvailable = ratingAvailable,
-					IsNeedPayment = false,
-					DeliveryPointId = deliveryPointId
-				};
-
-			return orders;
-		}
-		
-		public IEnumerable<OrderDto> GetCounterpartyOrdersWithoutOnlineOrders(
-			IUnitOfWork uow,
-			int counterpartyId,
-			DateTime ratingAvailableFrom)
-		{
-			var orders = from order in uow.Session.Query<VodovozOrder>()
-				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
-					on order.DeliverySchedule.Id equals deliverySchedule.Id into schedules
-				join orderRating in uow.Session.Query<OrderRating>()
-					on order.Id equals orderRating.Order.Id into orderRatings
-				from orderRating in orderRatings.DefaultIfEmpty()
-				from deliverySchedule in schedules.DefaultIfEmpty()
-				where order.Client.Id == counterpartyId && order.OnlineOrder == null
-				let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
-				let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
-				let orderStatus =
-					order.OrderStatus == OrderStatus.Canceled
-					|| order.OrderStatus == OrderStatus.DeliveryCanceled
-					|| order.OrderStatus == OrderStatus.NotDelivered
-						? ExternalOrderStatus.Canceled
-						: order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList
-							? ExternalOrderStatus.OrderPerformed
-							: order.OrderStatus == OrderStatus.Shipped
-							|| order.OrderStatus == OrderStatus.Closed
-							|| order.OrderStatus == OrderStatus.UnloadingOnStock
-								? ExternalOrderStatus.OrderCompleted
-								: order.OrderStatus == OrderStatus.WaitForPayment
-									? ExternalOrderStatus.WaitingForPayment
-									: order.OrderStatus == OrderStatus.OnTheWay
-										? ExternalOrderStatus.OrderDelivering
-										: order.OrderStatus == OrderStatus.OnLoading
-											? ExternalOrderStatus.OrderCollecting
-											: ExternalOrderStatus.OrderProcessing
-				
-				let ratingAvailable =
-					order.CreateDate.HasValue
-					&& order.CreateDate >= ratingAvailableFrom
-					&& orderRating == null
-					&& (orderStatus == ExternalOrderStatus.OrderCompleted
-						|| orderStatus == ExternalOrderStatus.Canceled
-						|| orderStatus == ExternalOrderStatus.OrderDelivering)
-				
-				let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
-					? OnlineOrderPaymentStatus.Paid
-					: OnlineOrderPaymentStatus.UnPaid
-					
-				let deliveryScheduleString = order.IsFastDelivery
-					? DeliverySchedule.FastDelivery
-					: deliverySchedule != null
-						? deliverySchedule.DeliveryTime
-						: null
-
-				select new OrderDto
-				{
-					OrderId = order.Id,
-					OnlineOrderId = null,
-					OrderStatus = orderStatus,
-					DeliveryDate = order.DeliveryDate.Value,
-					CreationDate = order.CreateDate.Value,
-					OrderSum = order.OrderSum,
-					DeliveryAddress = address,
-					DeliverySchedule = deliveryScheduleString,
-					RatingValue = orderRating.Rating,
-					IsRatingAvailable = ratingAvailable,
-					IsNeedPayment = false,
-					DeliveryPointId = deliveryPointId
-				};
-
-			return orders;
-		}
-		
-		public IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV4(
-			IUnitOfWork uow,
-			int counterpartyId,
-			DateTime ratingAvailableFrom)
-		{
-			var orders =
-				from onlineOrder in uow.Session.Query<OnlineOrder>()
-				from timer in uow.Session.Query<OnlineOrderTimers>()
-				join order in uow.Session.Query<VodovozOrder>()
-					on onlineOrder.Id equals order.OnlineOrder.Id
-				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
-					on order.DeliverySchedule.Id equals deliverySchedule.Id into schedules
-				join orderRating in uow.Session.Query<OrderRating>()
-					on onlineOrder.Id equals orderRating.OnlineOrder.Id into orderRatings
-				from orderRating in orderRatings.DefaultIfEmpty()
-				from deliverySchedule in schedules.DefaultIfEmpty()
-				where order.Client.Id == counterpartyId
-				let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
-				let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
-				let orderStatus =
-					order.OrderStatus == OrderStatus.Canceled
-					|| order.OrderStatus == OrderStatus.DeliveryCanceled
-					|| order.OrderStatus == OrderStatus.NotDelivered
-						? ExternalOrderStatus.Canceled
-						: order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList
-							? ExternalOrderStatus.OrderPerformed
-							: order.OrderStatus == OrderStatus.Shipped
-							|| order.OrderStatus == OrderStatus.Closed
-							|| order.OrderStatus == OrderStatus.UnloadingOnStock
-								? ExternalOrderStatus.OrderCompleted
-								: order.OrderStatus == OrderStatus.WaitForPayment
-									? ExternalOrderStatus.WaitingForPayment
-									: order.OrderStatus == OrderStatus.OnTheWay
-										? ExternalOrderStatus.OrderDelivering
-										: order.OrderStatus == OrderStatus.OnLoading
-											? ExternalOrderStatus.OrderCollecting
-											: ExternalOrderStatus.OrderProcessing
-				
-				let ratingAvailable =
-					order.CreateDate.HasValue
-					&& order.CreateDate >= ratingAvailableFrom
-					&& orderRating == null
-					&& (orderStatus == ExternalOrderStatus.OrderCompleted
-						|| orderStatus == ExternalOrderStatus.Canceled
-						|| orderStatus == ExternalOrderStatus.OrderDelivering)
-				
-				let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
-					? OnlineOrderPaymentStatus.Paid
-					: OnlineOrderPaymentStatus.UnPaid
-					
-				let deliveryScheduleString = order.IsFastDelivery
-					? DeliverySchedule.FastDelivery
-					: deliverySchedule != null
-						? deliverySchedule.DeliveryTime
-						: null
-
-				let isNeedPay =
-					onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
-					&& onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
-					&& onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.UnPaid
-					&& (order.IsFastDelivery
-						? (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithFastDelivery.TotalSeconds
-						: (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithoutFastDelivery.TotalSeconds)
-
-				select new Vodovoz.Core.Data.Orders.V4.OrderDto
-				{
-					OrderId = order.Id,
-					OnlineOrderId = onlineOrder.Id,
-					OrderStatus = orderStatus,
-					DeliveryDate = order.DeliveryDate.Value,
-					CreatedDateTimeUtc = DateTimeOffset.Parse(order.CreateDate.Value.ToString()),
-					OrderSum = order.OrderSum,
-					DeliveryAddress = address,
-					DeliverySchedule = deliveryScheduleString,
-					RatingValue = orderRating.Rating,
-					IsRatingAvailable = ratingAvailable,
-					IsNeedPay = isNeedPay,
-					DeliveryPointId = deliveryPointId
-				};
-
-			return orders;
-		}
-		
-		public IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
-			IUnitOfWork uow,
-			int counterpartyId,
-			DateTime ratingAvailableFrom)
-		{
-			var orders = from order in uow.Session.Query<VodovozOrder>()
-				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
-					on order.DeliverySchedule.Id equals deliverySchedule.Id into schedules
-				join orderRating in uow.Session.Query<OrderRating>()
-					on order.Id equals orderRating.Order.Id into orderRatings
-				from orderRating in orderRatings.DefaultIfEmpty()
-				from deliverySchedule in schedules.DefaultIfEmpty()
-				where order.Client.Id == counterpartyId && order.OnlineOrder == null
-				let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
-				let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
-				let orderStatus =
-					order.OrderStatus == OrderStatus.Canceled
-					|| order.OrderStatus == OrderStatus.DeliveryCanceled
-					|| order.OrderStatus == OrderStatus.NotDelivered
-						? ExternalOrderStatus.Canceled
-						: order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList
-							? ExternalOrderStatus.OrderPerformed
-							: order.OrderStatus == OrderStatus.Shipped
-							|| order.OrderStatus == OrderStatus.Closed
-							|| order.OrderStatus == OrderStatus.UnloadingOnStock
-								? ExternalOrderStatus.OrderCompleted
-								: order.OrderStatus == OrderStatus.WaitForPayment
-									? ExternalOrderStatus.WaitingForPayment
-									: order.OrderStatus == OrderStatus.OnTheWay
-										? ExternalOrderStatus.OrderDelivering
-										: order.OrderStatus == OrderStatus.OnLoading
-											? ExternalOrderStatus.OrderCollecting
-											: ExternalOrderStatus.OrderProcessing
-				
-				let ratingAvailable =
-					order.CreateDate.HasValue
-					&& order.CreateDate >= ratingAvailableFrom
-					&& orderRating == null
-					&& (orderStatus == ExternalOrderStatus.OrderCompleted
-						|| orderStatus == ExternalOrderStatus.Canceled
-						|| orderStatus == ExternalOrderStatus.OrderDelivering)
-				
-				let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
-					? OnlineOrderPaymentStatus.Paid
-					: OnlineOrderPaymentStatus.UnPaid
-					
-				let deliveryScheduleString = order.IsFastDelivery
-					? DeliverySchedule.FastDelivery
-					: deliverySchedule != null
-						? deliverySchedule.DeliveryTime
-						: null
-
-				select new Vodovoz.Core.Data.Orders.V4.OrderDto
-				{
-					OrderId = order.Id,
-					OnlineOrderId = null,
-					OrderStatus = orderStatus,
-					DeliveryDate = order.DeliveryDate.Value,
-					CreatedDateTimeUtc = DateTimeOffset.Parse(order.CreateDate.Value.ToString()),
-					OrderSum = order.OrderSum,
-					DeliveryAddress = address,
-					DeliverySchedule = deliveryScheduleString,
-					RatingValue = orderRating.Rating,
-					IsRatingAvailable = ratingAvailable,
-					IsNeedPay = false,
-					DeliveryPointId = deliveryPointId
-				};
-
-			return orders;
 		}
 
 		public IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters)
@@ -2492,22 +2309,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return result;
 		}
 		
-		public IEnumerable<VodovozOrder> GetOrdersForResendBills(IUnitOfWork uow, int? organizationId = null)
-		{
-			var result = from orders in uow.Session.Query<Order>()
-				join actions in uow.Session.Query<OrderEdoTrueMarkDocumentsActions>()
-					on orders.Id equals actions.Order.Id
-				join counterpartyContract in uow.Session.Query<CounterpartyContract>()
-					on orders.Contract.Id equals counterpartyContract.Id
-				where actions.IsNeedToResendEdoBill
-					&& (organizationId == null || counterpartyContract.Organization.Id == organizationId)
-				select orders;			
-
-			return result
-				.Distinct()
-				.ToList();
-		}
-
 		public IQueryable<OksDailyReportOrderDiscountDataNode> GetOrdersDiscountsDataForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate)
 		{
 			var discounts =
@@ -3052,6 +2853,461 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			}
 
 			return query;
+		}
+
+		public Task<DriverMangoExtensionNumber> GetDriversMangoExtensionNumberByOrderId(
+			IUnitOfWork uow,
+			int orderId,
+			CancellationToken cancellationToken)
+		{
+			var routeListItemStatuses =
+				new[] { RouteListItemStatus.EnRoute };
+
+			var query =
+				from order in uow.Session.Query<Order>()
+				join routeListItem in uow.Session.Query<RouteListItem>()
+					on order.Id equals routeListItem.Order.Id
+				join routeList in uow.Session.Query<RouteList>()
+					on routeListItem.RouteList.Id equals routeList.Id
+				join driverMangoExtensionNumber in uow.Session.Query<DriverMangoExtensionNumber>()
+					on routeList.Driver.Id equals driverMangoExtensionNumber.DriverId
+				where
+					order.Id == orderId
+					&& routeListItemStatuses.Contains(routeListItem.Status)
+					&& driverMangoExtensionNumber.Status == DriverMangoExtensionNumberStatus.Active
+				select driverMangoExtensionNumber;
+
+			return query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		public async Task<IEnumerable<int>> GetOrderIdsByCounterpartyFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var orderIds =
+				await (from order in uow.Session.Query<Order>()
+					   where order.Client.Id == counterpartyId
+						   && order.CreateDate >= startDate
+						   && !excludedOrderStatuses.Contains(order.OrderStatus)
+					   select order.Id)
+				.Distinct()
+				.ToListAsync(cancellationToken);
+
+			return orderIds;
+		}
+
+		public async Task<IEnumerable<int>> GetOrderIdsByCounterpartyAndDeliveryPointsFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<int> deliveryPointIds,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var orderIds =
+				await (from order in uow.Session.Query<Order>()
+					   where order.Client.Id == counterpartyId
+						   && order.DeliveryPoint != null
+						   && deliveryPointIds.Contains(order.DeliveryPoint.Id)
+						   && order.CreateDate >= startDate
+						   && !excludedOrderStatuses.Contains(order.OrderStatus)
+					   select order.Id)
+				.Distinct()
+				.ToListAsync(cancellationToken);
+
+			return orderIds;
+		}
+
+		public async Task<IList<PlannedOrdersAggregatedNode>> GetDeliveryPointsOrdersAggregatedDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<OrderStatus> orderStatuses,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			CancellationToken cancellationToken)
+		{
+			var filteredOrders = GetOrdersForAggregation(uow, orderStatuses, deliveryScheduleSettings, selfDelivery: false);
+
+			var query =
+				from order in filteredOrders
+				join deliveryPoint in uow.Session.Query<DeliveryPoint>() on order.DeliveryPoint.Id equals deliveryPoint.Id
+				where
+					deliveryPoint.IsActive
+					&& uow.Session.Query<RouteListItem>().Any(rli => rli.Order.Id == order.Id)
+				group order by new
+				{
+					DeliveryPointId = deliveryPoint.Id,
+					CounterpartyId = deliveryPoint.Counterparty.Id
+				}
+				into ordersGroup
+				select new PlannedOrdersAggregatedNode
+				{
+					DeliveryPointId = ordersGroup.Key.DeliveryPointId,
+					CounterpartyId = ordersGroup.Key.CounterpartyId,
+					MinDeliveryDate = ordersGroup.Min(o => o.DeliveryDate),
+					MaxDeliveryDate = ordersGroup.Max(o => o.DeliveryDate),
+					OrdersCount = ordersGroup.Count()
+				};
+
+			return await query.WithOptions(x => x.SetTimeout(300)).ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<PlannedOrdersAggregatedNode>> GetSelfDeliveryOrdersAggregatedDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<OrderStatus> orderStatuses,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			CancellationToken cancellationToken)
+		{
+			var filteredOrders = GetOrdersForAggregation(uow, orderStatuses, deliveryScheduleSettings, selfDelivery: true);
+
+			var query =
+				from order in filteredOrders
+				group order by order.Client.Id into ordersGroup
+				select new PlannedOrdersAggregatedNode
+				{
+					DeliveryPointId = null,
+					CounterpartyId = ordersGroup.Key,
+					MinDeliveryDate = ordersGroup.Min(o => o.DeliveryDate),
+					MaxDeliveryDate = ordersGroup.Max(o => o.DeliveryDate),
+					OrdersCount = ordersGroup.Count()
+				};
+
+			return await query.WithOptions(x => x.SetTimeout(120)).ToListAsync(cancellationToken);
+		}
+
+		private IQueryable<VodovozOrder> GetOrdersForAggregation(
+			IUnitOfWork uow,
+			IEnumerable<OrderStatus> orderStatuses,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			bool selfDelivery)
+		{
+			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
+			var statuses = orderStatuses.ToArray();
+
+			return
+				from order in uow.Session.Query<VodovozOrder>()
+				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
+				where
+					statuses.Contains(order.OrderStatus)
+					&& order.DeliveryDate != null
+					&& order.SelfDelivery == selfDelivery
+					&& order.DeliverySchedule.Id != closingDocumentDeliveryScheduleId
+					&& !counterparty.IsArchive
+				select order;
+		}
+
+		public async Task<IList<int>> GetDeliveryPointIdsWithUpcomingOrdersAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> deliveryPointIds,
+			DateTime fromDeliveryDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var ids = deliveryPointIds.ToArray();
+
+			var query =
+				(from order in GetUpcomingOrders(uow, fromDeliveryDate, excludeOrderStatuses)
+				 where order.DeliveryPoint != null && ids.Contains(order.DeliveryPoint.Id)
+				 select order.DeliveryPoint.Id)
+				.Distinct();
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<int>> GetCounterpartyIdsWithUpcomingSelfDeliveryOrdersAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			DateTime fromDeliveryDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var ids = counterpartyIds.ToArray();
+
+			var query =
+				(from order in GetUpcomingOrders(uow, fromDeliveryDate, excludeOrderStatuses)
+				 where order.SelfDelivery && ids.Contains(order.Client.Id)
+				 select order.Client.Id)
+				.Distinct();
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		private IQueryable<VodovozOrder> GetUpcomingOrders(
+			IUnitOfWork uow,
+			DateTime fromDeliveryDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses)
+		{
+			var excludeStatuses = excludeOrderStatuses.ToArray();
+
+			return
+				from order in uow.Session.Query<VodovozOrder>()
+				where
+					!excludeStatuses.Contains(order.OrderStatus)
+					&& order.DeliveryDate >= fromDeliveryDate
+				select order;
+		}
+
+		public async Task<IList<PlannedOrderLastOrderNode>> GetDeliveryPointsLastOrdersDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> deliveryPointIds,
+			IEnumerable<DateTime> deliveryDates,
+			IEnumerable<OrderStatus> orderStatuses,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			CancellationToken cancellationToken)
+		{
+			var ids = deliveryPointIds.ToArray();
+
+			var filteredOrders =
+				GetOrdersForLastOrdersData(uow, deliveryDates, orderStatuses, deliveryScheduleSettings, selfDelivery: false)
+				.Where(order =>
+					order.DeliveryPoint != null
+					&& ids.Contains(order.DeliveryPoint.Id)
+					&& uow.Session.Query<RouteListItem>().Any(rli => rli.Order.Id == order.Id));
+
+			var query = SelectLastOrdersData(uow, filteredOrders);
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<PlannedOrderLastOrderNode>> GetSelfDeliveryLastOrdersDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			IEnumerable<DateTime> deliveryDates,
+			IEnumerable<OrderStatus> orderStatuses,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			CancellationToken cancellationToken)
+		{
+			var ids = counterpartyIds.ToArray();
+
+			var filteredOrders =
+				GetOrdersForLastOrdersData(uow, deliveryDates, orderStatuses, deliveryScheduleSettings, selfDelivery: true)
+				.Where(order => ids.Contains(order.Client.Id));
+
+			var query = SelectLastOrdersData(uow, filteredOrders);
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		private IQueryable<VodovozOrder> GetOrdersForLastOrdersData(
+			IUnitOfWork uow,
+			IEnumerable<DateTime> deliveryDates,
+			IEnumerable<OrderStatus> orderStatuses,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			bool selfDelivery)
+		{
+			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
+			var dates = deliveryDates.ToArray();
+			var statuses = orderStatuses.ToArray();
+
+			return
+				from order in uow.Session.Query<VodovozOrder>()
+				where
+					order.SelfDelivery == selfDelivery
+					&& order.DeliveryDate != null
+					&& dates.Contains(order.DeliveryDate.Value)
+					&& statuses.Contains(order.OrderStatus)
+					&& order.DeliverySchedule.Id != closingDocumentDeliveryScheduleId
+				select order;
+		}
+
+		private IQueryable<PlannedOrderLastOrderNode> SelectLastOrdersData(IUnitOfWork uow, IQueryable<VodovozOrder> orders)
+		{
+			return
+				from order in orders
+				join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id into phones
+				from phone in phones.DefaultIfEmpty()
+				join bottlesMovement in uow.Session.Query<BottlesMovementOperation>()
+					on order.BottlesMovementOperation.Id equals bottlesMovement.Id into bottlesMovements
+				from bottlesMovement in bottlesMovements.DefaultIfEmpty()
+				select new PlannedOrderLastOrderNode
+				{
+					OrderId = order.Id,
+					DeliveryPointId = order.DeliveryPoint == null ? (int?)null : order.DeliveryPoint.Id,
+					CounterpartyId = order.Client.Id,
+					DeliveryDate = order.DeliveryDate,
+					ContactPhoneNumber = phone.Number,
+					BottlesMovementDelivered = (int?)bottlesMovement.Delivered,
+					WaterBottlesCount =
+						(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
+								   join nomenclature in uow.Session.Query<Nomenclature>()
+									   on orderItem.Nomenclature.Id equals nomenclature.Id
+								   where
+									   orderItem.Order.Id == order.Id
+									   && nomenclature.Category == NomenclatureCategory.water
+									   && !nomenclature.IsDisposableTare
+								   select orderItem.ActualCount ?? orderItem.Count)
+								   .Sum() ?? 0
+				};
+		}
+
+		public async Task<IList<LastServiceOrderNode>> GetCounterpartiesLastServiceOrdersDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> serviceNomenclatureIds,
+			IEnumerable<OrderStatus> orderStatuses,
+			DateTime minLastOrderDeliveryDate,
+			DateTime maxLastOrderDeliveryDate,
+			CancellationToken cancellationToken)
+		{
+			var nomenclatureIds = serviceNomenclatureIds.ToArray();
+			var statuses = orderStatuses.ToArray();
+
+			var query =
+				from order in GetCompletedServiceOrders(uow, nomenclatureIds, statuses)
+				join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id into phones
+				from phone in phones.DefaultIfEmpty()
+				where
+					order.DeliveryDate >= minLastOrderDeliveryDate
+					&& order.DeliveryDate <= maxLastOrderDeliveryDate
+					&& !uow.Session.Query<LastServiceOrder>().Any(lastServiceOrder =>
+						lastServiceOrder.LastOrderId == order.Id)
+					&& !uow.Session.Query<VodovozOrder>().Any(laterOrder =>
+						laterOrder.Client.Id == order.Client.Id
+						&& statuses.Contains(laterOrder.OrderStatus)
+						&& (laterOrder.DeliveryDate > order.DeliveryDate
+							|| (laterOrder.DeliveryDate == order.DeliveryDate && laterOrder.Id > order.Id))
+						&& uow.Session.Query<OrderItem>().Any(orderItem =>
+							orderItem.Order.Id == laterOrder.Id
+							&& nomenclatureIds.Contains(orderItem.Nomenclature.Id)))
+				select new LastServiceOrderNode
+				{
+					OrderId = order.Id,
+					CounterpartyId = order.Client.Id,
+					DeliveryPointId = order.DeliveryPoint.Id == null ? (int?)null : order.DeliveryPoint.Id,
+					IsSelfDelivery = order.SelfDelivery,
+					DeliveryDate = order.DeliveryDate,
+					ContactPhoneNumber = phone.Number
+				};
+
+			return await query
+				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<int>> GetCounterpartyIdsWithUpcomingServiceOrdersAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			DateTime fromDeliveryDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			IEnumerable<int> serviceNomenclatureIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = counterpartyIds.ToArray();
+			var nomenclatureIds = serviceNomenclatureIds.ToArray();
+
+			var query =
+				(from order in GetUpcomingOrders(uow, fromDeliveryDate, excludeOrderStatuses)
+				 where
+					 ids.Contains(order.Client.Id)
+					 && uow.Session.Query<OrderItem>().Any(orderItem =>
+						 orderItem.Order.Id == order.Id
+						 && nomenclatureIds.Contains(orderItem.Nomenclature.Id))
+				 select order.Client.Id)
+				.Distinct();
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		private IQueryable<VodovozOrder> GetCompletedServiceOrders(
+			IUnitOfWork uow,
+			int[] serviceNomenclatureIds,
+			OrderStatus[] orderStatuses)
+		{
+			return
+				from order in uow.Session.Query<VodovozOrder>()
+				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
+				where
+					orderStatuses.Contains(order.OrderStatus)
+					&& order.DeliveryDate != null
+					&& !counterparty.IsArchive
+					&& uow.Session.Query<OrderItem>().Any(orderItem =>
+						orderItem.Order.Id == order.Id
+						&& serviceNomenclatureIds.Contains(orderItem.Nomenclature.Id))
+				select order;
+		}
+
+		public async Task<IDictionary<int, decimal>> GetCounterpartiesCashlessDebtsAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = counterpartyIds.ToArray();
+			var undeliveryAndNewStatuses = GetUndeliveryAndNewStatuses();
+
+			var notPaidOrdersSums = await (
+				from order in uow.Session.Query<VodovozOrder>()
+				where
+					ids.Contains(order.Client.Id)
+					&& order.PaymentType == PaymentType.Cashless
+					&& !undeliveryAndNewStatuses.Contains(order.OrderStatus)
+					&& order.OrderPaymentStatus != OrderPaymentStatus.Paid
+				select new
+				{
+					CounterpartyId = order.Client.Id,
+					OrderSum =
+						(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
+								   where orderItem.Order.Id == order.Id
+								   select orderItem.ActualSum)
+								   .Sum() ?? 0
+				})
+				.ToListAsync(cancellationToken);
+
+			var partiallyPaidOrdersPaymentsSums = await (
+				from paymentItem in uow.Session.Query<PaymentItem>()
+				join cashlessMovementOperation in uow.Session.Query<CashlessMovementOperation>()
+					on paymentItem.CashlessMovementOperation.Id equals cashlessMovementOperation.Id
+				join order in uow.Session.Query<VodovozOrder>() on paymentItem.Order.Id equals order.Id
+				where
+					ids.Contains(order.Client.Id)
+					&& order.PaymentType == PaymentType.Cashless
+					&& !undeliveryAndNewStatuses.Contains(order.OrderStatus)
+					&& order.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid
+					&& paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
+				select new
+				{
+					CounterpartyId = order.Client.Id,
+					cashlessMovementOperation.Expense
+				})
+				.ToListAsync(cancellationToken);
+
+			var notPaidSumsByCounterparties = notPaidOrdersSums
+				.GroupBy(x => x.CounterpartyId)
+				.ToDictionary(g => g.Key, g => g.Sum(x => x.OrderSum));
+
+			var paymentsSumsByCounterparties = partiallyPaidOrdersPaymentsSums
+				.GroupBy(x => x.CounterpartyId)
+				.ToDictionary(g => g.Key, g => g.Sum(x => x.Expense));
+
+			return notPaidSumsByCounterparties
+				.ToDictionary(
+					x => x.Key,
+					x => x.Value - (paymentsSumsByCounterparties.TryGetValue(x.Key, out var paymentsSum) ? paymentsSum : 0));
+		}
+
+		public async Task<IList<PlannedOrderCreatedOrderNode>> GetOrdersCreatedFromDateAsync(
+			IUnitOfWork uow,
+			DateTime fromCreateDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var excludeStatuses = excludeOrderStatuses.ToArray();
+
+			var query =
+				from order in uow.Session.Query<VodovozOrder>()
+				where
+					!excludeStatuses.Contains(order.OrderStatus)
+					&& order.CreateDate != null
+					&& order.CreateDate >= fromCreateDate
+					&& order.DeliveryDate != null
+				select new PlannedOrderCreatedOrderNode
+				{
+					OrderId = order.Id,
+					DeliveryPointId = order.DeliveryPoint == null ? (int?)null : order.DeliveryPoint.Id,
+					CounterpartyId = order.Client.Id,
+					IsSelfDelivery = order.SelfDelivery,
+					DeliveryDate = order.DeliveryDate
+				};
+
+			return await query.ToListAsync(cancellationToken);
 		}
 	}
 }

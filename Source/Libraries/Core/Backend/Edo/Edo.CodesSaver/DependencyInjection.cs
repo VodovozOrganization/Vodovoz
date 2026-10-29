@@ -1,4 +1,5 @@
-﻿using Edo.Transport;
+﻿using System;
+using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -22,13 +23,17 @@ namespace Edo.CodesSaver
 			return services;
 		}
 
-		public static IServiceCollection AddCodesSaver(this IServiceCollection services)
+		public static IServiceCollection AddCodesSaver(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddCodesSaverServices();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumers(Assembly.GetExecutingAssembly());
+				cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
+
+				configureBus?.Invoke(cfg);
 			});
 
 			return services;

@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Edo.Admin;
 using Edo.Common;
 using Edo.Common.Services;
@@ -49,7 +49,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IEdoOrderContactProvider _edoOrderContactProvider;
 		private readonly ISaveCodesService _saveCodesService;
 		private readonly IOrganizationSettings _organizationSettings;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly EdoCancellationService _edoCancellationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IUnitOfWork _uow;
@@ -77,7 +77,7 @@ namespace Edo.Receipt.Dispatcher
 			IEdoOrderContactProvider edoOrderContactProvider,
 			ISaveCodesService saveCodesService,
 			IOrganizationSettings organizationSettings,
-			IBus messageBus,
+			IPublishEndpoint publishEndpoint,
 			EdoCancellationService edoCancellationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
@@ -98,7 +98,7 @@ namespace Edo.Receipt.Dispatcher
 			_saveCodesService = saveCodesService ?? throw new ArgumentNullException(nameof(saveCodesService));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
@@ -153,18 +153,25 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
-
+			
 			if(_edoCancellationService.IsEdoTaskMustBeCancelled(receiptEdoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
-				
+
 				await _edoCancellationService.CancelTask(receiptEdoTask.Id, reason, false, cancellationToken);
 				return;
 			}
-			
+
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
+				return;
+			}
+
+			// Для уже подготовленного чека повторяем подбор кодов, не меняя принятое решение об отправке на сохранение в пул.
+			if(receiptEdoTask.FiscalDocuments.Any())
+			{
+				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
 				return;
 			}
 
@@ -205,6 +212,16 @@ namespace Edo.Receipt.Dispatcher
 
 		public async Task HandleTransferComplete(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
+			// Повторный подбор допустим только до отправки любого из фискальных документов.
+			if(receiptEdoTask.ReceiptStatus != EdoReceiptStatus.Transfering
+				|| receiptEdoTask.Status == EdoTaskStatus.Completed
+				|| receiptEdoTask.Status == EdoTaskStatus.Cancelled
+				|| receiptEdoTask.Status == EdoTaskStatus.InCancellation
+				|| receiptEdoTask.FiscalDocuments.Any(x => x.Stage != FiscalDocumentStage.Preparing))
+			{
+				return;
+			}
+
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
@@ -289,6 +306,14 @@ namespace Edo.Receipt.Dispatcher
 					cancellationToken
 				);
 
+			if(!taskValidationResult.IsAllValid && receiptEdoTask.ReceiptStatus == EdoReceiptStatus.New)
+			{
+				await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
+				await _publishEndpoint.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = receiptEdoTask.Id }, cancellationToken);
+				await _uow.CommitAsync(cancellationToken);
+				return;
+			}
+
 			if(!taskValidationResult.ReadyToSell)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
@@ -318,10 +343,10 @@ namespace Edo.Receipt.Dispatcher
 			receiptEdoTask.StartTime = DateTime.Now;
 			receiptEdoTask.CashboxId = receiptEdoTask.FormalEdoRequest.Order.Contract.Organization.CashBoxId;
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			var sendReceiptMessage = new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
-			await _messageBus.Publish(sendReceiptMessage);
+			await _publishEndpoint.Publish(sendReceiptMessage);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 
@@ -335,6 +360,8 @@ namespace Edo.Receipt.Dispatcher
 			EdoTaskItemTrueMarkStatusProvider trueMarkCodesChecker,
 			CancellationToken cancellationToken)
 		{
+			// Внутренние попытки подбора выполняются на стадии распределения, а не проверки после трансфера.
+			receiptEdoTask.ReceiptStatus = EdoReceiptStatus.New;
 			await PrepareFiscalDocuments(receiptEdoTask, cancellationToken);
 
 			TrueMarkTaskValidationResult taskValidationResult;
@@ -402,6 +429,8 @@ namespace Edo.Receipt.Dispatcher
 								GetOrderOrganizationInn(receiptEdoTask),
 								cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
+
+							await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, newCode, cancellationToken);
 						}
 					}
 
@@ -423,10 +452,10 @@ namespace Edo.Receipt.Dispatcher
 					TryRecalculateOrderVat(receiptEdoTask);
 
 					await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
-					await _uow.CommitAsync(cancellationToken);
 
 					var receiptTransferMessage = new TransferRequestCreatedEvent { TransferIterationId = iteration.Id };
-					await _messageBus.Publish(receiptTransferMessage);
+					await _publishEndpoint.Publish(receiptTransferMessage);
+					await _uow.CommitAsync(cancellationToken);
 					return;
 				}
 
@@ -479,10 +508,10 @@ namespace Edo.Receipt.Dispatcher
 			TryRecalculateOrderVat(receiptEdoTask);
 			
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			var sendReceiptMessage = new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
-			await _messageBus.Publish(sendReceiptMessage);
+			await _publishEndpoint.Publish(sendReceiptMessage);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		/// <summary>
@@ -606,7 +635,7 @@ namespace Edo.Receipt.Dispatcher
 				.Where(x => x.Count > 0m)
 				.Where(x => x.Nomenclature.IsAccountableInTrueMark == true);
 
-			var expandedMarkedItems = ExpandMarkedOrderItems(markedOrderItems).ToList();
+			var expandedMarkedItems = ExpandMarkedOrderItems(markedOrderItems);
 			var unprocessedCodes = receiptEdoTask.Items.ToList();
 
 
@@ -659,6 +688,21 @@ namespace Edo.Receipt.Dispatcher
 						continue;
 					}
 
+					// проверяем, что стоимость за единицу товара для группового кода можно
+					// получить без остатка (до копеек). Если нет, то не объединяем строки заказа под
+					// групповой код на этом OrderItem, продолжаем искать другой подходящий OrderItem
+					var pricePerItemForGroupCode = Math.Round(orderItem.Price, 2);
+					var groupCodeNetSum =
+						pricePerItemForGroupCode * individualCodesInGroupCount
+						- expandedOrderItemsForOrderItemList
+							.Take(individualCodesInGroupCount)
+							.Sum(x => x.DiscountPerSingleItem);
+
+					if(!CanSplitGroupEvenly(groupCodeNetSum, individualCodesInGroupCount))
+					{
+						continue;
+					}
+
 					var inventPosition = CreateInventPosition(orderItem);
 
 					// i использовать не надо, цикл нужен только для того чтобы прибавить позиции
@@ -708,7 +752,7 @@ namespace Edo.Receipt.Dispatcher
 			// без жесткой привязки к конкретному OrderItem
 			// но в InventPosition будет указан только первый OrderItem
 
-			foreach(var remainGroupCodeItem in groupCodesWithTaskItems)
+			foreach(var remainGroupCodeItem in groupCodesWithTaskItems.ToList())
 			{
 				var groupCode = remainGroupCodeItem.Key;
 				var individualCodesInGroupCount = remainGroupCodeItem.Value.Count();
@@ -737,6 +781,24 @@ namespace Edo.Receipt.Dispatcher
 
 				var orderItemsForInventoryPositionDiscountsSum =
 					orderItemsForInventoryPosition.Sum(x => x.DiscountPerSingleItem);
+
+				// проверяем, что чистую стоимость за единицу товара для группового кода можно
+				// получить без остатка (до копеек). Если нет, то не объединяем строки заказа под
+				// групповой код: дезагрегируем его, входящие штучные коды возвращаем в пул, а строки
+				// заказа уйдут в индивидуальную обработку с подбором недостающих кодов из пула
+				var groupCodeNetSum =
+					orderItemsForInventoryPositionPricesSum - orderItemsForInventoryPositionDiscountsSum;
+
+				if(!CanSplitGroupEvenly(groupCodeNetSum, individualCodesInGroupCount))
+				{
+					// групповой код нельзя использовать в чеке: дезагрегируем его, а входящие штучные
+					// коды возвращаем в общий список необработанных (эти коды были удалены из unprocessedCodes в методе TakeGroupCodesWithTaskItems)
+					// Строки заказа при этом уйдут в индивидуальную обработку с подбором недостающих кодов из пула
+					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, groupCode, cancellationToken);
+					unprocessedCodes.AddRange(remainGroupCodeItem.Value);
+					groupCodesWithTaskItems.Remove(groupCode);
+					continue;
+				}
 
 				//Округляем цену за единицу до копееек в большую стороную. Далее при необходимости увеличим сумму скидки
 				var pricePerItem = Math.Ceiling(100 * orderItemsForInventoryPositionPricesSum / individualCodesInGroupCount) / 100;
@@ -839,27 +901,31 @@ namespace Edo.Receipt.Dispatcher
 
 			} while(currentProcessingPositions.Any());
 
-			// Сохранение остатков в пул
-			foreach(var unprocessedCode in unprocessedCodes)
+			// Очистка неиспользованных элементов без исходного скана
+			foreach(var unprocessedCode in unprocessedCodes.Where(x => x.ProductCode.SourceCode == null))
 			{
-				if(unprocessedCode.ProductCode.SourceCode != null)
-				{
-					await _trueMarkCodesPool.PutCodeAsync(unprocessedCode.ProductCode.SourceCode.Id, cancellationToken);
-				}
 				receiptEdoTask.Items.Remove(unprocessedCode);
 				await _uow.DeleteAsync(unprocessedCode, cancellationToken);
 			}
 
-			// Удаление из задачи не используемых групповых кодов
-			foreach(var groupCodeWithTaskItems in groupCodesWithTaskItems)
+		}
+
+		/// <summary>
+		/// Определяет, можно ли получить чистую стоимость за единицу товара для группового кода
+		/// без остатка (с точностью до копеек). Если нет, то товары нельзя объединять в одну
+		/// строку чека под этот групповой код
+		/// </summary>
+		/// <param name="netSum">Чистая стоимость строки чека (цена * кол-во - скидка)</param>
+		/// <param name="quantity">Количество товаров, покрываемых групповым кодом</param>
+		private static bool CanSplitGroupEvenly(decimal netSum, decimal quantity)
+		{
+			if(quantity <= 0)
 			{
-				foreach(var groupCodeTaskItem in groupCodeWithTaskItems.Value)
-				{
-					receiptEdoTask.Items.Remove(groupCodeTaskItem);
-					await _uow.DeleteAsync(groupCodeTaskItem, cancellationToken);
-				}
+				return false;
 			}
-		}		
+
+			return (netSum * 100m) % quantity == 0;
+		}
 
 		private async Task<IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
 			List<EdoTaskItem> unprocessedTaskItems,
@@ -874,8 +940,7 @@ namespace Edo.Receipt.Dispatcher
 				.ToList()
 				;
 
-			// исключили из обрабатываемого списка все коды, которые содержатся в группах
-			// они не подходят для индивидуальной обработки, потому что не имеют CheckCode
+			// Неполные группы после проверки состава вернутся в индивидуальную обработку.
 			unprocessedTaskItems.RemoveAll(x => codesThatContainedInGroup.Contains(x));
 
 			var groupped = codesThatContainedInGroup
@@ -902,12 +967,17 @@ namespace Edo.Receipt.Dispatcher
 
 			foreach(var parentCode in parentCodes)
 			{
-				result.Add(parentCode, codesThatContainedInGroup
-					.Where(ctcig => parentCode
-						.GetAllCodes()
-						.Where(x => x.IsTrueMarkWaterIdentificationCode)
-						.Select(x => x.TrueMarkWaterIdentificationCode)
-						.Any(x => x.Id == ctcig.ProductCode.SourceCode.Id)));
+				var groupCodeIds = new HashSet<int>(parentCode.GetAllCodes()
+					.Where(x => x.IsTrueMarkWaterIdentificationCode)
+					.Select(x => x.TrueMarkWaterIdentificationCode.Id));
+				var groupItems = codesThatContainedInGroup
+					.Where(x => groupCodeIds.Contains(x.ProductCode.SourceCode.Id)).ToList();
+				if(!groupCodeIds.SetEquals(groupItems.Select(x => x.ProductCode.SourceCode.Id)))
+				{
+					unprocessedTaskItems.AddRange(groupItems);
+					continue;
+				}
+				result.Add(parentCode, groupItems);
 			}
 
 			// нашли все групповые коды
@@ -946,7 +1016,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 		}
 
-		private IEnumerable<(OrderItemEntity OrderItem, decimal DiscountPerSingleItem)> ExpandMarkedOrderItems(IEnumerable<OrderItemEntity> markedOrderItems)
+		private List<(OrderItemEntity OrderItem, decimal DiscountPerSingleItem)> ExpandMarkedOrderItems(IEnumerable<OrderItemEntity> markedOrderItems)
 		{
 			// предоставляет каждую единицу товара отдельным элементом
 			// с рассчитанной пропорциональной скидкой
@@ -978,7 +1048,8 @@ namespace Edo.Receipt.Dispatcher
 
 				return multipliedItems;
 			});
-			return expandedMarkedItems;
+
+			return expandedMarkedItems.ToList();
 		}
 
 		/// <summary>
@@ -1008,7 +1079,7 @@ namespace Edo.Receipt.Dispatcher
 			var resultCodes = unprocessedCodes
 				.Where(x => x.ProductCode.Problem == ProductCodeProblem.None)
 				.Where(x => x.ProductCode.ResultCode != null)
-				.Where(x => x.ProductCode.ResultCode.CheckCode != null);
+				.Where(x => !string.IsNullOrEmpty(x.ProductCode.ResultCode.CheckCode));
 
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
@@ -1030,7 +1101,7 @@ namespace Edo.Receipt.Dispatcher
 					&& x.ProductCode.SourceCode.IsInvalid == false
 					&& x.ProductCode.ResultCode == null
 					&& x.ProductCode.SourceCodeStatus != SourceProductCodeStatus.SavedToPool
-					&& x.ProductCode.SourceCode.CheckCode != null);
+					&& !string.IsNullOrEmpty(x.ProductCode.SourceCode.CheckCode));
 			
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
@@ -1056,9 +1127,12 @@ namespace Edo.Receipt.Dispatcher
 			var ddCodes = unprocessedCodes
 				.Where(x => x.ProductCode.SourceCode != null
 					&& x.ProductCode.SourceCode.IsInvalid == false
-					&& x.ProductCode.ResultCode == null
-					&& (x.ProductCode.Problem.IsIn(ProductCodeProblem.Defect, ProductCodeProblem.Duplicate)
-						|| x.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool));
+					&& (x.ProductCode.ResultCode == null
+						&& (x.ProductCode.Problem.IsIn(ProductCodeProblem.Defect, ProductCodeProblem.Duplicate)
+							|| x.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool)
+						|| x.ProductCode.SourceCode.ParentWaterGroupCodeId != null
+							&& string.IsNullOrEmpty(x.ProductCode.SourceCode.CheckCode)
+							&& (x.ProductCode.ResultCode == null || x.ProductCode.ResultCode.Id == x.ProductCode.SourceCode.Id)));
 
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{

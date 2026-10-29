@@ -1,4 +1,5 @@
-﻿using Grpc.Net.Client;
+﻿using Grpc.Core;
+using Grpc.Net.Client;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Helpers;
+using VodovozHealthCheck.Logging;
 using VodovozHealthCheck.Providers;
 
 namespace EarchiveApi.HealthChecks
@@ -32,7 +35,15 @@ namespace EarchiveApi.HealthChecks
 
 			var earchiveUpdClient = new EarchiveApiTestClient.EarchiveUpd.EarchiveUpdClient(channel);
 
-			var response = earchiveUpdClient.GetAddresses(new EarchiveApiTestClient.CounterpartyInfo { Id = 2 });
+			var runId = LoggingContext.HealthCheckRunId ?? Guid.NewGuid().ToString("N");
+			var headers = new Metadata
+			{
+				{ HttpResponseHelper.HealthCheckHeaderName, runId }
+			};
+
+			var response = earchiveUpdClient.GetAddresses(
+				new EarchiveApiTestClient.CounterpartyInfo { Id = 2 },
+				new CallOptions(headers: headers, cancellationToken: cancellationToken));
 
 			await response.ResponseStream.MoveNext(CancellationToken.None);
 

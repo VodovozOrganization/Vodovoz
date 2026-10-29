@@ -1,4 +1,5 @@
-﻿using Edo.Common;
+﻿using System;
+using Edo.Common;
 using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 using System.Reflection;
 using Edo.Admin;
+using Edo.Transport.Factories;
 using TrueMark.Codes.Pool;
 using TrueMark.Library;
 
@@ -26,22 +28,36 @@ namespace Edo.Receipt.Dispatcher
 			services.TryAddScoped<Tag1260Checker>();
 			services.TryAddScoped<ISaveCodesService, SaveCodesService>();
 
-			services.AddEdo();
-			services.AddEdoProblemRegistration();
-			services.AddCodesPool();
-			services.AddEdoAdminServices();
+			services
+				.AddEdo()
+				.AddEdoProblemRegistration()
+				.AddCodesPool()
+				.AddEdoAdminServices()
+				.AddFaultServices()
+				;
 
 			return services;
 		}
-
-		public static IServiceCollection AddEdoReceiptDispatcher(this IServiceCollection services)
+		public static IServiceCollection AddEdoReceiptDispatcher(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoReceiptDispatcherServices();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
 				cfg.AddConsumers(Assembly.GetExecutingAssembly());
+
+				configureBus?.Invoke(cfg);
 			});
+
+			return services;
+		}
+
+		public static IServiceCollection AddFaultServices(this IServiceCollection services)
+		{
+			services.TryAddScoped<FaultReceiptTaskCreatedExceptionHandler>();
+			services.TryAddScoped<IMassTransitExceptionInfoFactory, MassTransitExceptionInfoFactory>();
 
 			return services;
 		}

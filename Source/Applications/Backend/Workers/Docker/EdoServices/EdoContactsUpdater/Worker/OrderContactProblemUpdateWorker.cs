@@ -36,11 +36,11 @@ namespace EdoContactsUpdater.Worker
 			{
 				await _contactProblemUpdateService.UpdateEdoTaskWithContactProblemAsync(stoppingToken);
 				
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(OrderContactProblemUpdateWorker), stoppingToken);
 			}
 			catch(Exception e)
 			{
-				await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem,
+				await _zabbixSender.SendProblemMessageAsync(nameof(OrderContactProblemUpdateWorker), ZabixSenderMessageType.Problem,
 					$"Ошибка при обработке заказов в: {DateTimeOffset.Now}\nСообщение: " + e.Message,
 					stoppingToken);
 				

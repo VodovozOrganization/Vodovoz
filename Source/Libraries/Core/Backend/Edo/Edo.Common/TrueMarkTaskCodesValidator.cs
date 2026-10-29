@@ -7,18 +7,30 @@ using Core.Infrastructure;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Data.Repositories.Goods;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Settings.Edo;
 
 namespace Edo.Common
 {
 	public class TrueMarkTaskCodesValidator : ITrueMarkCodesValidator
 	{
 		private readonly IEdoRepository _edoRepository;
-		private ITrueMarkApiClient _trueMarkApiClient;
+		private readonly INomenclatureRepository _nomenclatureRepository;
+		private readonly IEdoSettings _edoSettings;
+		private readonly ITrueMarkApiClient _trueMarkApiClient;
 
-		public TrueMarkTaskCodesValidator(IEdoRepository edoRepository, ITrueMarkApiClient trueMarkApiClient)
+		public TrueMarkTaskCodesValidator(
+			IEdoRepository edoRepository,
+			INomenclatureRepository nomenclatureRepository,
+			IEdoSettings edoSettings,
+			ITrueMarkApiClient trueMarkApiClient
+			)
 		{
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
 		}
 
@@ -55,8 +67,10 @@ namespace Edo.Common
 				codeValidationResult.ReadyToSell = false;
 			}
 
+			var additionalDays = _edoSettings.GeneralExpireDateCheckAdditinalDays;
 			// проверка на то что продукт не просрочен
-			if(productInstanceStatus.ExpirationDate < DateTime.Today)
+			if(productInstanceStatus.ExpirationDate is null
+				|| productInstanceStatus.ExpirationDate.Value.AddDays(-additionalDays) < DateTime.Today)
 			{
 				codeValidationResult.IsExpired = true;
 				codeValidationResult.IsValid = false;
@@ -79,7 +93,7 @@ namespace Edo.Common
 			EdoTaskItemTrueMarkStatusProvider edoTaskItemTrueMarkStatusProvider,
 			CancellationToken cancellationToken)
 		{
-			var gtins = await _edoRepository.GetGtinsAsync(cancellationToken);
+			var gtins = await _nomenclatureRepository.GetGtinsAsync(cancellationToken);
 			var gtinNumbers = gtins.Select(x => x.GtinNumber);
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
@@ -91,9 +105,9 @@ namespace Edo.Common
 
 			foreach(var taskItem in edoTask.Items)
 			{
-				var code = taskItem.ProductCode.ResultCode;
+				var code = taskItem.ProductCode.ResultCode ?? taskItem.ProductCode.SourceCode;
 
-				if(!checkResults.TryGetValue(code.IdentificationCode, out var checkResult))
+				if(checkResults == null || !checkResults.TryGetValue(code.IdentificationCode, out var checkResult))
 				{
 					throw new InvalidOperationException($"Не найден код {code.IdentificationCode} " +
 					                                    $"из задачи {edoTask.Id} в результатах проверки из ЧЗ.");
@@ -106,7 +120,38 @@ namespace Edo.Common
 				codeResults.Add(codeResult);
 			}
 
-			return new TrueMarkTaskValidationResult(codeResults);
+			var result = new TrueMarkTaskValidationResult(codeResults);
+			if(result.IsAllValid
+			   || !(edoTask is DocumentEdoTask || edoTask is ReceiptEdoTask || edoTask is TenderEdoTask)
+			   || edoTask.Status == EdoTaskStatus.Completed
+			   || edoTask.Status == EdoTaskStatus.Cancelled
+			   || edoTask.Status == EdoTaskStatus.InCancellation)
+			{
+				return result;
+			}
+
+			var reasonForLeaving = edoTask.FormalEdoRequest.Order.Client.ReasonForLeaving;
+			var canReplaceCodes = reasonForLeaving != ReasonForLeaving.Resale && reasonForLeaving != ReasonForLeaving.Tender;
+
+			// Возвращаем ту же задачу на штатный этап обработки кодов. Сохранение и повторный запуск выполняет обработчик.
+			switch(edoTask)
+			{
+				case DocumentEdoTask documentTask when canReplaceCodes && documentTask.DocumentType == EdoDocumentType.UPD
+					&& documentTask.Stage == DocumentEdoTaskStage.Transfering:
+					documentTask.Stage = DocumentEdoTaskStage.New;
+					documentTask.Status = EdoTaskStatus.New;
+					break;
+				case ReceiptEdoTask receiptTask when canReplaceCodes && receiptTask.ReceiptStatus == EdoReceiptStatus.Transfering
+					&& receiptTask.FiscalDocuments.All(x => x.Stage == FiscalDocumentStage.Preparing):
+					receiptTask.ReceiptStatus = EdoReceiptStatus.New;
+					receiptTask.Status = EdoTaskStatus.New;
+					break;
+				case TenderEdoTask tenderTask when tenderTask.Stage == TenderEdoTaskStage.Transfering:
+					tenderTask.Stage = TenderEdoTaskStage.New;
+					tenderTask.Status = EdoTaskStatus.New;
+					break;
+			}
+			return result;
 		}
 
 		public async Task<IEnumerable<TrueMarkCodeValidationResult>> ValidateAsync(
@@ -114,7 +159,7 @@ namespace Edo.Common
 			string organizationInn,
 			CancellationToken cancellationToken)
 		{
-			var gtins = await _edoRepository.GetGtinsAsync(cancellationToken);
+			var gtins = await _nomenclatureRepository.GetGtinsAsync(cancellationToken);
 			var gtinNumbers = gtins.Select(x => x.GtinNumber);
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
@@ -134,7 +179,7 @@ namespace Edo.Common
 		
 		public async Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<TrueMarkWaterIdentificationCode> codes, string organizationInn, CancellationToken cancellationToken)
 		{
-			var gtins = await _edoRepository.GetGtinsAsync(cancellationToken);
+			var gtins = await _nomenclatureRepository.GetGtinsAsync(cancellationToken);
 			var gtinNumbers = gtins.Select(x => x.GtinNumber);
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
@@ -164,8 +209,8 @@ namespace Edo.Common
 
 		public async Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<string> codes, string organizationInn, CancellationToken cancellationToken)
 		{
-			var gtins = await _edoRepository.GetGtinsAsync(cancellationToken);
-			var groupGtins = await _edoRepository.GetGroupGtinsAsync(cancellationToken);
+			var gtins = await _nomenclatureRepository.GetGtinsAsync(cancellationToken);
+			var groupGtins = await _nomenclatureRepository.GetGroupGtinsAsync(cancellationToken);
 
 			var gtinNumbers =
 				gtins.Select(x => x.GtinNumber)

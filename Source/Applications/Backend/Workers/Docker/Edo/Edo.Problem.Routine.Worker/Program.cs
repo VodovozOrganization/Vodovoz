@@ -10,6 +10,8 @@ using System;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Zabbix.Sender;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.Problem.Routine.Worker
 {
@@ -44,20 +46,34 @@ namespace Edo.Problem.Routine.Worker
 						.AddNHibernateConventions()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddEdoProblemRoutine()
+						.AddEdoProblemRoutine(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
+						.AddOrderEdoCodePoolMissingProblem()
+						.ConfigureZabbixSenderFromDataBase()
 						;
 
 					services
-						.AddHostedService<OrderSelfDeliveryPaidProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(OrderSelfDeliveryPaidProblemWorker));
+						.AddHostedService<OrderSelfDeliveryPaidProblemWorker>();
 
 					services
-						.AddHostedService<FiscalDocumentSendErrorProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(FiscalDocumentSendErrorProblemWorker));
+						.AddHostedService<FiscalDocumentSendErrorProblemWorker>();
 
 					services
-						.AddHostedService<OrderStatusProblemWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(OrderStatusProblemWorker));
+						.AddHostedService<OrderStatusProblemWorker>();
+
+					services
+						.AddHostedService<CodePoolMissingProblemWorker>();
+
+					services
+						.AddHostedService<CodeDuplicatedProblemWorker>();
+					
+					services
+						.AddHostedService<ReceiptContactProblemWorker>();
+
+					services
+						.AddHostedService<NewEdoTasksResendWorker>();
+
+					services
+						.AddHostedService<TaxcomSendProblemWorker>();
 				});
 	}
 }

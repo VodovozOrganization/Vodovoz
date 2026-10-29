@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
@@ -22,6 +23,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 {
 	public interface IRouteListRepository
 	{
+		/// <summary>Возвращает действующие снятия стоп-листа водителя на указанный момент.</summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="driverId">Идентификатор водителя.</param>
+		/// <param name="at">Момент проверки.</param>
+		/// <returns>Действующие снятия стоп-листа.</returns>
+		IList<DriverStopListRemoval> GetActiveDriverStopListRemovals(IUnitOfWork uow, int driverId, DateTime at);
+
 		IEnumerable<RouteList> GetDriverRouteLists(IUnitOfWork uow, int driverId, DateTime? date = null, RouteListStatus? status = null);
 		IList<RouteList> GetRoutesAtDay(IUnitOfWork uow, DateTime dateForRouting, bool showCompleted, int[] onlyInGeographicGroup, int[] onlyWithDeliveryShifts);
 		QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds, bool onlyNonPrinted);
@@ -61,6 +69,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 		decimal TerminalTransferedCountToRouteList(IUnitOfWork unitOfWork, RouteList routeList);
 		IList<DocumentPrintHistory> GetPrintsHistory(IUnitOfWork uow, RouteList routeList);
 		IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null);
+
+		/// <summary>
+		/// Есть ли у водителя маршрутные листы в одном из указанных статусов
+		/// </summary>
+		Task<bool> HasDriverRouteListsInStatusesAsync(
+			IUnitOfWork uow,
+			int driverId,
+			IReadOnlyCollection<RouteListStatus> statuses,
+			CancellationToken cancellationToken);
 		IList<RouteList> GetRouteListsByIds(IUnitOfWork uow, int[] routeListsIds);
 		RouteList GetRouteListById(IUnitOfWork uow, int routeListsId);
 		GoodsInRouteListResultWithSpecialRequirements GetTerminalInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList,
@@ -117,5 +134,87 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="endDate">Конец периода</param>
 		/// <returns>Словарь, где ключ - идентификатор водителя, значение - множество дат с активными маршрутными листами</returns>
 		Dictionary<int, HashSet<DateTime>> GetDriverIdsWithActiveRouteListByDates(IUnitOfWork uow, int[] driverIds, DateTime startDate, DateTime endDate);
+
+		/// <summary>
+		/// Асинхронно получает маршрутный лист по его номеру (идентификатору)
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeListsId">Номер маршрутного листа</param>
+		/// <returns>Маршрутный лист</returns>
+		Task<RouteList> GetRouteListByIdAsync(IUnitOfWork uow, int routeListsId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает последний выбранный адрес водителя в указанном маршрутном листе
+		/// </summary>
+		/// <param name="uow">UnitofWork</param>
+		/// <param name="driverId">Идентификатор водителя</param>
+		/// <param name="routeListId">Идентификатор маршрутного листа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Последняя запись о выборе адреса или null</returns>
+		Task<DriversSelectedAddress> GetLastSelectedAddressForRouteList(IUnitOfWork uow, int driverId, int routeListId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает координаты водителя, которые были получены после указанного времени для данного маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitofWork</param>
+		/// <param name="routeListId">Идентификатор маршрутного листа</param>
+		/// <param name="startFrom">Время начала</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Координаты водителя</returns>
+		Task<TrackPoint> GetDriverLastCoordinate(IUnitOfWork uow, int routeListId, DateTime startFrom, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает адрес маршрутного листа в статусе "В пути" для данного заказа, если такой существует
+		/// </summary>
+		/// <param name="uow">UnitofWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Адрес МЛ</returns>
+		Task<RouteListItem> GetEnRouteRouteListItemByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Проверка, что заказ когда-либо был выбран следующим в маршрутном листе
+		/// </summary>
+		/// <param name="uow">UnitofWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<bool> IsOrderEverWasSelectedAsNext(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает маршрутный лист, в котором уже используется указанный полуприцеп
+		/// и который находится в одном из переданных статусов
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="semiTrailerId">Идентификатор полуприцепа</param>
+		/// <param name="excludeRouteListId">Идентификатор МЛ, который нужно исключить из поиска (текущий)</param>
+		/// <param name="statuses">Статусы МЛ, которые учитываются</param>
+		RouteList GetRouteListByBusySemiTrailer(
+			IUnitOfWork uow,
+			int semiTrailerId,
+			int excludeRouteListId,
+			IEnumerable<RouteListStatus> statuses);
+
+		/// <summary>
+		/// Возвращает маршрутный лист, в котором уже используется указанный полуприцеп
+		/// и который находится в одном из переданных статусов
+		/// </summary>
+		/// <param name="semiTrailerId">Идентификатор полуприцепа</param>
+		/// <param name="excludeRouteListId">Идентификатор МЛ, который нужно исключить из поиска (текущий)</param>
+		/// <param name="statuses">Статусы МЛ, которые учитываются</param>
+		RouteList GetRouteListByBusySemiTrailer(
+			int semiTrailerId,
+			int excludeRouteListId,
+			IEnumerable<RouteListStatus> statuses);
+
+		/// <summary>
+		/// Возвращает маршрутный лист, в котором уже используется указанный полуприцеп
+		/// и который находится в одном из переданных статусов
+		/// </summary>
+		/// <param name="semiTrailerId">Идентификатор полуприцепа</param>
+		/// <param name="statuses">Статусы МЛ, которые учитываются</param>
+		RouteList GetRouteListByBusySemiTrailer(
+			int semiTrailerId,
+			IEnumerable<RouteListStatus> statuses);
 	}
 }

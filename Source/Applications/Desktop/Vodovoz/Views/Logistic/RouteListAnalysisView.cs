@@ -28,7 +28,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void Configure()
 		{
-			table1.Sensitive = false;
+			SetTableFieldsInsensitive();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveWithClose();
 			buttonSave.Sensitive = ViewModel.CanEditRouteList;
@@ -36,6 +36,16 @@ namespace Vodovoz.Views.Logistic
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
 			entityentryCar.ViewModel = ViewModel.CarEntryViewModel;
+
+			ylabelSemitrailer.Binding
+				.AddBinding(ViewModel, vm => vm.IsSemiTrailerVisible, w => w.Visible)
+				.InitializeFromSource();
+
+			entrySemitrailer.ViewModel = ViewModel.SemitrailerViewModel;
+			entrySemitrailer.Binding
+				.AddBinding(ViewModel, vm => vm.IsSemiTrailerVisible, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanWorkWithSemitrailers, w => w.Sensitive)
+				.InitializeFromSource();
 
 			entityVMEntryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			entityVMEntryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
@@ -57,6 +67,8 @@ namespace Vodovoz.Views.Logistic
 			
 			//Заполняем телефоны
 			FillPhones();
+
+			mangocallbuttonviewDriverExtensionPhone.ViewModel = ViewModel.DriverExtensionCallViewModel;
 			
 			//Заполняем информацию о бутылях
 			UpdateBottlesSummaryInfo();
@@ -72,6 +84,19 @@ namespace Vodovoz.Views.Logistic
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
 
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		private void SetTableFieldsInsensitive()
+		{
+			foreach(var widget in table1.Children)
+			{
+				if(widget.Name == mangocallbuttonviewDriverExtensionPhone.Name)
+				{
+					continue;
+				}
+
+				widget.Sensitive = false;
+			}
 		}
 
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)

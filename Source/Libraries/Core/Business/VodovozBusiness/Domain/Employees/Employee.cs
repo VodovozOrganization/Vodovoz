@@ -46,6 +46,7 @@ namespace Vodovoz.Domain.Employees
 		private const int _commentLimit = 255;
 
 		private bool _hasAccessToWarehouseApp;
+		private DateTime? _driverManualStopListUntil;
 
 		private Counterparty _counterparty;
 		private Citizenship _citizenship;
@@ -77,7 +78,7 @@ namespace Vodovoz.Domain.Employees
 		private GenericObservableList<DriverDistrictPrioritySet> _observableDriverDistrictPrioritySets;
 		private GenericObservableList<DriverWorkScheduleSet> _observableDriverWorkScheduleSets;
 		private IWageCalculationRepository _wageCalculationRepository;
-		private bool _canRecieveCounterpartyCalls;
+		private bool _isNoPhoneForCounterpartyCallsRequired;
 		private Phone _phoneForCounterpartyCalls;
 		private District _district;
 
@@ -174,11 +175,16 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _phones, value);
 		}
 
-		[Display(Name = "Водитель может принимать звонки от контрагентов")]
-		public virtual bool CanRecieveCounterpartyCalls
+		/// <summary>
+		/// Необходимость указания телефона для приема звонков от контрагентов
+		/// Если true, то при сохранении сотрудника будет проверяться, что указан телефон для приема звонков от контрагентов
+		/// Если false, то проверка не будет выполняться
+		/// </summary>
+		[Display(Name = "Необходимость указания телефона для приема звонков от контрагентов")]
+		public virtual bool IsNoPhoneForCounterpartyCallsRequired
 		{
-			get => _canRecieveCounterpartyCalls;
-			set => SetField(ref _canRecieveCounterpartyCalls, value);
+			get => _isNoPhoneForCounterpartyCallsRequired;
+			set => SetField(ref _isNoPhoneForCounterpartyCallsRequired, value);
 		}
 
 		[Display(Name = "Телефон для приема звонков от контрагентов")]
@@ -411,11 +417,21 @@ namespace Vodovoz.Domain.Employees
 					new[] { nameof(LoginForNewUser) });
 			}
 
-			if(Status == EmployeeStatus.IsFired &&
+			if(Status is EmployeeStatus.IsFired &&
 				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_fire_employees"))
 			{
 				yield return new ValidationResult($"Недостаточно прав для увольнения сотрудников",
 					new[] { nameof(Status) });
+			}
+
+			if(Status is EmployeeStatus.IsFired)
+			{
+				if(employeeRepository.HasNonZeroBalance(UoW, Id))
+				{
+					yield return new ValidationResult(
+						"Нельзя уволить сотрудника. За ним числятся ненулевые остатки. Переместите/спишите остатки.",
+						new[] { nameof(Status) });
+				}
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser))
@@ -439,13 +455,30 @@ namespace Vodovoz.Domain.Employees
 						@"Обязательно должны быть выбраны поля 'Управляет а\м' для типа и принадлежности авто",
 						new[] { nameof(DriverOfCarTypeOfUse), nameof(DriverOfCarOwnType) });
 				}
-			}
-			
-			if(CanRecieveCounterpartyCalls && PhoneForCounterpartyCalls == null)
-			{
-				yield return new ValidationResult(
-					"При включенной настройке возможности принимать звонки контрагента - требуется установка телефона для связи с водителем",
-					new[] { nameof(CanRecieveCounterpartyCalls), nameof(PhoneForCounterpartyCalls) });
+
+				if(PhoneForCounterpartyCalls == null && !IsNoPhoneForCounterpartyCallsRequired && Status != EmployeeStatus.IsFired)
+				{
+					yield return new ValidationResult(
+						"Не указан номер телефона водителя для приема звонка контрагента",
+						new[] { nameof(PhoneForCounterpartyCalls) });
+				}
+
+				if(PhoneForCounterpartyCalls != null && Status != EmployeeStatus.IsFired)
+				{
+					if(PhoneForCounterpartyCalls.IsArchive)
+					{
+						yield return new ValidationResult(
+							"Архивный номер телефона водителя не может быть указан для приема звонка контрагента",
+							new[] { nameof(PhoneForCounterpartyCalls) });
+					}
+
+					if(!Phones.Contains(PhoneForCounterpartyCalls))
+					{
+						yield return new ValidationResult(
+							"Номер телефона водителя для приема звонка контрагента должен быть выбран из списка номеров водителя",
+							new[] { nameof(PhoneForCounterpartyCalls) });
+					}
+				}
 			}
 
 			if(Subdivision == null || Subdivision.Id == subdivisionSettings.GetParentVodovozSubdivisionId())
@@ -507,6 +540,17 @@ namespace Vodovoz.Domain.Employees
 		{
 			get => ShortName;
 		}
+
+		/// <summary>
+		/// Требуется ли создание сотрудника Манго для этого водителя.
+		/// Сотрудник создаётся, если он является водителем, для него не отключена необходимость
+		/// указания телефона для приёма звонков от контрагентов, и этот телефон указан.
+		/// Свойство не сохраняется в базу данных
+		/// </summary>
+		public virtual bool NeedToCreateMangoEmployee =>
+			Category == EmployeeCategory.driver
+			&& !IsNoPhoneForCounterpartyCallsRequired
+			&& PhoneForCounterpartyCalls != null;
 
 		#endregion Без маппинга
 
@@ -776,6 +820,17 @@ namespace Vodovoz.Domain.Employees
 			{
 				ObservableDriverWorkScheduleSets.Add(activeDriverWorkScheduleSet);
 			}
+		}
+
+		/// <summary>
+		/// Окончание ручной блокировки водителя независимо от долгов (не включительно).
+		/// Действующее временное снятие приостанавливает эту блокировку.
+		/// </summary>
+		[Display(Name = "Ручной стоп-лист водителя")]
+		public virtual DateTime? DriverManualStopListUntil
+		{
+			get => _driverManualStopListUntil;
+			set => SetField(ref _driverManualStopListUntil, value);
 		}
 
 		public virtual bool IsDriverHasActiveStopListRemoval(IUnitOfWork unitOfWork)

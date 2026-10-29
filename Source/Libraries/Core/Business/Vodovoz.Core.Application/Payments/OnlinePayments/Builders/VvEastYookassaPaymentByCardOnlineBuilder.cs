@@ -15,7 +15,8 @@ namespace Vodovoz.Core.Application.Payments.OnlinePayments.Builders
 
 		public override PaymentByCardOnline Build(string[] data)
 		{
-			Sum(data[RegisterData.Columns.PaymentSumColumn])
+			NewPayment()
+				.Sum(data[RegisterData.Columns.PaymentSumColumn])
 				.DateAndTime(data[RegisterData.Columns.DateAndTimeColumn])
 				.PaymentNumberAndSource(data[RegisterData.Columns.PaymentNumberColumn], RegisterData.PaymentFrom.Value);
 			

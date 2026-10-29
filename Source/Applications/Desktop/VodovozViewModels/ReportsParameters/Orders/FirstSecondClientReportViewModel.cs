@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using Core.Infrastructure;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
@@ -11,7 +12,6 @@ using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.Extensions;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Orders
@@ -24,8 +24,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private Employee _author;
-		private DiscountReason _discountReason;
-		private IEnumerable<DiscountReason> _discountReasons;
+		private DiscountReasonBase _discountReason;
+		private IEnumerable<DiscountReasonBase> _discountReasons;
 		private bool _hasPromoset;
 		private bool _showOnlyClientsWithOneOrder;
 		private IList<OrderStatus> _firstOrderStatuses;
@@ -82,13 +82,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 
 		public IEntityAutocompleteSelectorFactory AuthorSelectorFactory { get; }
 
-		public virtual DiscountReason DiscountReason
+		public virtual DiscountReasonBase DiscountReason
 		{
 			get => _discountReason;
 			set => SetField(ref _discountReason, value);
 		}
 
-		public virtual IEnumerable<DiscountReason> DiscountReasons
+		public virtual IEnumerable<DiscountReasonBase> DiscountReasons
 		{
 			get => _discountReasons;
 			set => SetField(ref _discountReasons, value);

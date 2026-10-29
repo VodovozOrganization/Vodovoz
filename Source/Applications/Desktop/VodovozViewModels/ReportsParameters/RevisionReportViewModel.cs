@@ -18,6 +18,7 @@ using System.Data.Bindings;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -29,7 +30,7 @@ using Vodovoz.Reports.Editing;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Organizations;
-using StoredEmails = Vodovoz.Domain.StoredEmails;
+using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -330,9 +331,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				.List<object>()
 				.FirstOrDefault());
 
-			var storedEmail = new StoredEmails.StoredEmail
+			var storedEmail = new StoredEmail
 			{
-				State = StoredEmails.StoredEmailStates.PreparingToSend,
+				State = StoredEmailStates.PreparingToSend,
 				Author = _author,
 				ManualSending = true,
 				SendDate = DateTime.Now,
@@ -374,12 +375,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			try
 			{
 				_emailDirectSender.SendAsync(emailMessage).GetAwaiter().GetResult();
-				storedEmail.State = StoredEmails.StoredEmailStates.SendingComplete;
+				storedEmail.State = StoredEmailStates.SendingComplete;
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Письмо успешно отправлено.");
 			}
 			catch(Exception ex)
 			{
-				storedEmail.State = StoredEmails.StoredEmailStates.SendingError;
+				storedEmail.State = StoredEmailStates.SendingError;
 				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при отправке письма: {ex.Message}");
 			}
 			finally

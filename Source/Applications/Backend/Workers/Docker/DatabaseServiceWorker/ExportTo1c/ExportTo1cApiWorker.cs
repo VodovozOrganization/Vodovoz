@@ -51,11 +51,11 @@ namespace DatabaseServiceWorker.ExportTo1c
 			{
 				await ExportTo1cApiAsync(cancellationToken);
 
-				await _zabbixSender.SendIsHealthyAsync(cancellationToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(ExportTo1cApiWorker), cancellationToken);
 			}
 			catch(Exception ex)
 			{
-				await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, ex.ToString(), cancellationToken);
+				await _zabbixSender.SendProblemMessageAsync(nameof(ExportTo1cApiWorker), ZabixSenderMessageType.Problem, ex.ToString(), cancellationToken);
 
 				_logger.LogError("Экспорт в 1С API не удался {Error}", ex);
 			}

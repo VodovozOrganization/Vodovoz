@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using MassTransit;
+using TransactionalOutbox.MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
@@ -35,6 +37,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
@@ -52,6 +55,8 @@ namespace Vodovoz.Representations
 {
 	public class DebtorsJournalViewModel : EntityJournalViewModelBase<Order, CallTaskViewModel, DebtorJournalNode>
 	{
+		private readonly ILogger<DebtorsJournalViewModel> _journalLogger;
+		private readonly Stopwatch _openingStopwatch = Stopwatch.StartNew();
 		private readonly OrderStatus[] _notDeliveredStatuses = { OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled };
 
 		private readonly IDebtorsSettings _debtorsParameters;
@@ -66,7 +71,9 @@ namespace Vodovoz.Representations
 		private readonly IEmailRepository _emailRepository;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
-		private readonly IBus _messageBus;
+		// На десктопе у диалогов свои UoW, поэтому IPublishEndpoint из DI запрещён: сообщение пишется
+		// в таблицы outbox в транзакции нужного UoW (_outbox.GetPublishEndpoint(uow)), отправляет его бэкенд
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 		private readonly Employee _currentEmployee;
 		private readonly bool _canSendBulkEmails;
 		private Task _newTask;
@@ -76,6 +83,7 @@ namespace Vodovoz.Representations
 		private readonly int _waterSemiozerieId;
 
 		public DebtorsJournalViewModel(
+			ILogger<DebtorsJournalViewModel> journalLogger,
 			ILogger<BulkEmailViewModel> loggerBulkEmailViewModel,
 			ILogger<RabbitMQConnectionFactory> rabbitConnectionFactoryLogger,
 			DebtorsJournalFilterViewModel filterViewModel,
@@ -95,7 +103,7 @@ namespace Vodovoz.Representations
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			IGenericRepository<Nomenclature> nomenclatureRepository,
 			INomenclatureSettings nomenclatureSettings,
-			IBus messageBus)
+			IUnitOfWorkOutbox<IBus> outbox)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			if(unitOfWorkFactory is null)
@@ -113,12 +121,13 @@ namespace Vodovoz.Representations
 				throw new ArgumentNullException(nameof(nomenclatureRepository));
 			}
 
+			_journalLogger = journalLogger ?? throw new ArgumentNullException(nameof(journalLogger));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 			_debtorsParameters = debtorsParameters ?? throw new ArgumentNullException(nameof(debtorsParameters));
 			_loggerBulkEmailViewModel = loggerBulkEmailViewModel ?? throw new ArgumentNullException(nameof(loggerBulkEmailViewModel));
 			_rabbitConnectionFactoryLogger = rabbitConnectionFactoryLogger;
@@ -161,6 +170,13 @@ namespace Vodovoz.Representations
 
 		private void UpdateFooterInfo(object sender, EventArgs e)
 		{
+			if(_openingStopwatch.IsRunning)
+			{
+				_openingStopwatch.Stop();
+				_journalLogger.LogInformation("Журнал задолженности: первая порция данных загружена за {ElapsedMilliseconds} мс",
+					_openingStopwatch.ElapsedMilliseconds);
+			}
+
 			if(_newTask?.Status == TaskStatus.Running)
 			{
 				_cts.Cancel();
@@ -224,8 +240,19 @@ namespace Vodovoz.Representations
 			return resultExpression;
 		}
 
+		private IQueryOver<Order, Order> ApplyLastOrderStatusFilter(IQueryOver<Order, Order> ordersQuery)
+		{
+			if(_filterViewModel == null || !_filterViewModel.ShowAllOrderStatuses)
+			{
+				return ordersQuery.And((x) => x.OrderStatus == OrderStatus.Closed);
+			}
+
+			return ordersQuery;
+		}
+
 		protected Func<IUnitOfWork, int> CountQueryFunction => (uow) =>
 		{
+			var stopwatch = Stopwatch.StartNew();
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
 			BottlesMovementOperation bottlesMovementAlias = null;
@@ -234,7 +261,7 @@ namespace Vodovoz.Representations
 			Order orderCountAlias = null;
 			OrderItem orderItemAlias = null;
 			OrderItem orderItemsSubQueryAlias = null;
-			DiscountReason discountReasonAlias = null;
+			DiscountReasonBase discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
@@ -313,11 +340,12 @@ namespace Vodovoz.Representations
 
 			#region LastOrder
 
-			var lastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
+			var lastOrderQuery = QueryOver.Of(() => lastOrderAlias)
 				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
-					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
+					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id));
+
+			var lastOrderIdQuery = lastOrderQuery
 				.Select(Projections.Property<Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.Id).Desc
 				.Take(1);
@@ -389,6 +417,8 @@ namespace Vodovoz.Representations
 			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
 			}
+
+			ordersQuery = ApplyLastOrderStatusFilter(ordersQuery);
 
 			if(_filterViewModel != null && _filterViewModel.DebtorsTaskStatus != null)
 			{
@@ -570,6 +600,8 @@ namespace Vodovoz.Representations
 				.SetTimeout(300)
 				.UniqueResult<int>();
 
+			stopwatch.Stop();
+			_journalLogger.LogInformation("Журнал задолженности: расчёт общей суммы долга занял {ElapsedMilliseconds} мс", stopwatch.ElapsedMilliseconds);
 			return queryResult;
 		};
 
@@ -717,7 +749,7 @@ namespace Vodovoz.Representations
 						_attachmentsViewModelFactory,
 						_currentEmployee,
 						_emailRepository,
-						_messageBus,
+						_outbox,
 						_attachedFileInformationsViewModelFactory);
 
 					var bulkEmailView = new BulkEmailView(bulkEmailViewModel);
@@ -738,7 +770,6 @@ namespace Vodovoz.Representations
 				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
 					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.WithSubquery.WhereNotExists(olderLastOrderIdQueryWithDate)
 				.Select(Projections.Property<Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.Id).Desc;
@@ -767,7 +798,6 @@ namespace Vodovoz.Representations
 				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null)
 					|| (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.Select(Projections.Property<Order>(p => p.Id));
 
 			if(_filterViewModel?.EndDate != null)
@@ -795,7 +825,11 @@ namespace Vodovoz.Representations
 
 		public void ExportToExcel()
 		{
+			var stopwatch = Stopwatch.StartNew();
 			var rows = ItemsQuery(UoW).List<DebtorJournalNode>();
+			stopwatch.Stop();
+			_journalLogger.LogInformation("Журнал задолженности: выборка {RowCount} строк для Excel заняла {ElapsedMilliseconds} мс",
+				rows.Count, stopwatch.ElapsedMilliseconds);
 			var report = new DebtorsJournalReport(rows, _fileDialogService);
 			report.Export();
 		}
@@ -851,6 +885,7 @@ namespace Vodovoz.Representations
 
 		protected override IQueryOver<Order> ItemsQuery(IUnitOfWork uow)
 		{
+			OrderDepositItem orderDepositItemAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
 			BottlesMovementOperation bottleMovementOperationAlias = null;
@@ -863,7 +898,7 @@ namespace Vodovoz.Representations
 			Order orderCountAlias = null;
 			OrderItem orderItemAlias = null;
 			OrderItem orderItemsSubQueryAlias = null;
-			DiscountReason discountReasonAlias = null;
+			DiscountReasonBase discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
@@ -975,10 +1010,11 @@ namespace Vodovoz.Representations
 
 			#region LastOrder
 
-			var lastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
+			var lastOrderQuery = QueryOver.Of(() => lastOrderAlias)
 				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
-				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
+				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id));
+
+			var lastOrderIdQuery = lastOrderQuery
 				.Select(Projections.Property<Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.Id).Desc
 				.Take(1);
@@ -1050,7 +1086,9 @@ namespace Vodovoz.Representations
 			{
 				ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(lastOrderIdQuery);
 			}
-			
+
+			ordersQuery = ApplyLastOrderStatusFilter(ordersQuery);
+
 			#region Filter
 
 			if(_filterViewModel != null)
@@ -1217,6 +1255,25 @@ namespace Vodovoz.Representations
 				() => counterpartyAlias.Id,
 				() => counterpartyAlias.Name));
 
+			var orderItemsSumQuery = QueryOver.Of(() => orderItemAlias)
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.Select(OrderProjections.GetOrderSumProjection());
+
+			var orderDepositsSumQuery = QueryOver.Of(() => orderDepositItemAlias)
+				.Where(() => orderDepositItemAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Sum(Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3), 2)"),
+					NHibernateUtil.Decimal,
+					Projections.Property(() => orderDepositItemAlias.Deposit),
+					Projections.Property(() => orderDepositItemAlias.ActualCount),
+					Projections.Property(() => orderDepositItemAlias.Count))));
+
+			var orderSumProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "(IFNULL(?1, 0) - IFNULL(?2, 0))"),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(orderItemsSumQuery),
+				Projections.SubQuery(orderDepositsSumQuery));
+
 			var resultQuery = ordersQuery
 				.Left.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
@@ -1230,6 +1287,8 @@ namespace Vodovoz.Representations
 					.Select(() => counterpartyAlias.PersonType).WithAlias(() => resultAlias.OPF)
 					.Select(() => bottleMovementOperationAlias.Delivered).WithAlias(() => resultAlias.LastOrderBottles)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.LastOrderDate)
+					.Select(orderSumProjection).WithAlias(() => resultAlias.LastOrderSum)
+					.Select(() => deliveryPointAlias.OrderFrequencyDays).WithAlias(() => resultAlias.OrderFrequencyDays)
 					.SelectSubQuery(residueQuery).WithAlias(() => resultAlias.IsResidueExist)
 					.SelectSubQuery(bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
 					.SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)

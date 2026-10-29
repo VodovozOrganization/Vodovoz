@@ -48,7 +48,7 @@ namespace EmailDebtNotificationWorker
 				if(!IsEnabled())
 				{
 					_logger.LogInformation("Рассылка писем отключена настройками, пропуск цикла");
-					await zabbixSender.SendIsHealthyAsync(cancellationToken);
+					await zabbixSender.SendIsHealthyAsync(nameof(EmailDebtNotificationWorker), cancellationToken);
 					return;
 				}
 
@@ -58,12 +58,12 @@ namespace EmailDebtNotificationWorker
 				if(!CanSendNow(workingDayService))
 				{
 					_logger.LogDebug("Невозможно отправить сейчас — вне рабочего времени/дня");
-					await zabbixSender.SendIsHealthyAsync(cancellationToken);
+					await zabbixSender.SendIsHealthyAsync(nameof(EmailDebtNotificationWorker), cancellationToken);
 					return;
 				}
 
 				await emailSchedulingService.ScheduleDebtNotificationsAsync(cancellationToken);
-				await zabbixSender.SendIsHealthyAsync(cancellationToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(EmailDebtNotificationWorker), cancellationToken);
 			}
 			catch(Exception ex)
 			{

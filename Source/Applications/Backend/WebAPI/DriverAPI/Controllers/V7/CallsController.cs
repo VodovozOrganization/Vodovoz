@@ -1,0 +1,121 @@
+﻿using DriverApi.Contracts.V7.Requests;
+using DriverApi.Contracts.V7.Responses;
+using DriverAPI.Library.V7.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Net.Mime;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Errors.Logistics;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
+using Vodovoz.Presentation.WebApi.Common;
+
+namespace DriverAPI.Controllers.V7
+{
+	/// <summary>
+	/// Контроллер звонков Манго
+	/// </summary>
+	[ApiVersion("7.0")]
+	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
+	public class CallsController : VersionedController
+	{
+		private readonly ICallsService _callsService;
+		private readonly UserManager<IdentityUser> _userManager;
+		private readonly IEmployeeService _employeeService;
+
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger">Логгер</param>
+		/// <param name="callsService">Сервис для работы со звонками</param>
+		/// <param name="userManager">Сервис для работы с пользователями</param>
+		/// <param name="employeeService">Сервис для работы с сотрудниками</param>
+		public CallsController(
+			ILogger<ApiControllerBase> logger,
+			ICallsService callsService,
+			UserManager<IdentityUser> userManager,
+			IEmployeeService employeeService
+			) : base(logger)
+		{
+			_callsService = callsService ?? throw new System.ArgumentNullException(nameof(callsService));
+			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+		}
+
+		/// <summary>
+		/// Отправка запроса на звонок через API ВАТС Манго
+		/// </summary>
+		/// <param name="getCallRequest">Модель данных входящего запроса</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns><see cref="GetCallResponse"/></returns>
+		[HttpPost]
+		[Idempotent]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetCallResponse))]
+		public async Task<IActionResult> GetCall([FromBody] GetCallRequest getCallRequest, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("Запрос на звонок на номер: {ClientPhoneNumber}, маршрутный лист {RouteListId} от пользователя {Username}",
+				getCallRequest.Number,
+				getCallRequest.RouteListId,
+				HttpContext.User.Identity?.Name ?? "Unknown");
+
+			var user = await _userManager.GetUserAsync(User);
+			var driver = _employeeService.GetByAPILogin(user.UserName);
+
+			try
+			{
+				var result =
+					await _callsService.MakeCall(getCallRequest.RouteListId, driver, getCallRequest.Number, cancellationToken);
+
+				return MapResult(
+					result,
+					result =>
+					{
+						if(result.IsSuccess)
+						{
+							return StatusCodes.Status200OK;
+						}
+
+						var firstError = result.Errors.First();
+
+						if(firstError.Code == RouteListErrors.NotFound)
+						{
+							return StatusCodes.Status404NotFound;
+						}
+
+						if(firstError.Code == RouteListErrors.NotEnRouteState
+							|| firstError.Code == Library.Errors.PhoneNumberErrors.InvalidFormat
+							|| firstError.Code == Library.Errors.PhoneNumberErrors.ActiveMangoExtensionNumberNotFound)
+						{
+							return StatusCodes.Status400BadRequest;
+						}
+
+						if(firstError.Code == Library.Errors.Security.Authorization.RouteListAccessDenied)
+						{
+							return StatusCodes.Status403Forbidden;
+						}
+
+						return StatusCodes.Status500InternalServerError;
+					});
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Произошла ошибка при запросе звонка на номер клиента {ClientPhoneNumber} для маршрутного листа {RouteListId}: {ExceptionMessage}",
+					getCallRequest.Number,
+					getCallRequest.RouteListId,
+					ex.Message);
+
+				return Problem($"Произошла ошибка при запросе звонка на номер клиента {getCallRequest.Number} для маршрутного листа {getCallRequest.RouteListId}");
+			}
+		}
+	}
+}

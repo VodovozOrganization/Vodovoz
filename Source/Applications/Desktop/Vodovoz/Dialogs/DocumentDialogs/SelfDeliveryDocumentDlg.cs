@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using Edo.Transport;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
@@ -21,6 +22,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -36,7 +38,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Employee;
@@ -64,10 +65,12 @@ namespace Vodovoz
 		private IBottlesRepository _bottlesRepository;
 		private IStoreDocumentHelper _storeDocumentHelper;
 		private INomenclatureRepository _nomenclatureRepository;
+		private IOrderSaleHandler _saleHandler;
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
 		private IGenericRepository<FormalEdoRequest> _orderEdoRequestRepository;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
-		private readonly MessageService _messageService = ScopeProvider.Scope.Resolve<MessageService>();
+		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher =
+			ScopeProvider.Scope.Resolve<IEdoRequestCreatedEventPublisher>();
 		private CodesScanViewModel _codesScanViewModel;
 		private ValidationContext _validationContext;
 		private ICounterpartyEdoAccountController _edoAccountController;
@@ -138,6 +141,7 @@ namespace Vodovoz
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 			_orderEdoRequestRepository = _lifetimeScope.Resolve<IGenericRepository<FormalEdoRequest>>();
 			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
+			_saleHandler = _lifetimeScope.Resolve<IOrderSaleHandler>();
 		}
 		
 		private void ConfigureValidationContext(IValidationContextFactory validationContextFactory)
@@ -412,20 +416,30 @@ namespace Vodovoz
 			var routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
 			var selfDeliveryRepository = _lifetimeScope.Resolve<ISelfDeliveryRepository>();
 
-			if(Entity.FullyShiped(UoW, nomenclatureSettings, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker))
+			if(Entity.FullyShiped(
+				UoW,
+				nomenclatureSettings,
+				routeListItemRepository,
+				selfDeliveryRepository,
+				cashRepository,
+				callTaskWorker,
+				_saleHandler))
 			{
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 			}
 
 			var edoRequest = CreateEdoRequest();
-			
-			logger.Info("Сохраняем документ самовывоза...");
-			UoWGeneric.Save();
 
 			if(edoRequest != null)
 			{
-				_messageService.PublishEdoRequestCreatedEvent(edoRequest.Id).GetAwaiter().GetResult();
+				_edoRequestCreatedEventPublisher
+					.Publish(UoW, edoRequest.Id, "Создание ЭДО-заявки по документу самовывоза")
+					.GetAwaiter()
+					.GetResult();
 			}
+
+			logger.Info("Сохраняем документ самовывоза...");
+			UoWGeneric.Save();
 
 			//FIXME Необходимо проверить правильность этого кода, так как если заказ именялся то уведомление на его придет и без кода.
 			//А если в каком то месте нужно получать уведомления об изменениях текущего объекта, то логично чтобы этот объект на него и подписался.
@@ -445,7 +459,7 @@ namespace Vodovoz
 			{
 				if(isAllTrueMarkProductCodesMustBeAdded)
 				{
-					return Result.Failure(Errors.TrueMark.TrueMarkCodeErrors.NotAllCodesAdded);
+					return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
 				}
 
 				return Result.Success();

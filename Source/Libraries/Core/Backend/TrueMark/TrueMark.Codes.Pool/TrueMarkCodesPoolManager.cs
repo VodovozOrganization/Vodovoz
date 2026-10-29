@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Settings.Edo;
 
 namespace TrueMark.Codes.Pool
 {
@@ -15,108 +16,106 @@ namespace TrueMark.Codes.Pool
 	/// - продвижения кодов в верх пула <br/>
 	/// - удаления <br/>
 	/// </summary>
-	public class TrueMarkCodesPoolManager
+	public class TrueMarkCodesPoolManager : ITrueMarkCodesPoolManager
 	{
 		private const string _poolTableName = "true_mark_codes_pool_new";
 
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IEdoSettings _edoSettings;
 
-		public TrueMarkCodesPoolManager(IUnitOfWorkFactory uowFactory)
+		public TrueMarkCodesPoolManager(
+			IUnitOfWorkFactory uowFactory,
+			IEdoSettings edoSettings
+		)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 		}
 
-		public IEnumerable<int> SelectCodes(int count, bool promoted)
+		public async Task<IEnumerable<int>> SelectCodesForCheckAsync(int count, CancellationToken cancellationToken)
 		{
 			using(var uow = CreateUow())
 			{
-				var query = GetSelectCodesQuery(uow, count, promoted);
-				var result = query.List<uint>().Select(x => (int)x);
-				return result;
-			}
-		}
-
-		public async Task<IEnumerable<int>> SelectCodesAsync(int count, bool promoted, CancellationToken cancellationToken)
-		{
-			using(var uow = CreateUow())
-			{
-				var query = GetSelectCodesQuery(uow, count, promoted);
+				var sql = $@"
+					SELECT code_id FROM {_poolTableName}
+					WHERE expiration_date IS NULL
+					ORDER BY adding_time DESC
+					LIMIT :count
+					;";
+				var query = uow.Session.CreateSQLQuery(sql)
+					.SetParameter("count", count);
 				var result = await query.ListAsync<uint>(cancellationToken);
 				return result.Select(x => (int)x);
 			}
 		}
 
-		private IQuery GetSelectCodesQuery(IUnitOfWork uow, int count, bool promoted)
-		{
-			var sql = $@"
-					SELECT code_id FROM {_poolTableName}
-					WHERE promoted = :promoted 
-					ORDER BY adding_time DESC
-					LIMIT :count
-					;";
-			var query = uow.Session.CreateSQLQuery(sql)
-				.SetParameter("count", count)
-				.SetParameter("promoted", promoted);
-			return query;
-		}
-
-		public void PromoteCodes(IEnumerable<int> codeIds, int extraSecond)
+		public async Task UpdateCodesExpirationAsync(
+			IDictionary<int, DateTime> codeExpirationMap,
+			CancellationToken cancellationToken)
 		{
 			using(var uow = CreateUow())
 			{
 				uow.OpenTransaction();
 
-				var query = GetPromoteSelectForUpdateQuery(uow, codeIds);
-				var codesToUpdate = query.List<uint>().ToArray();
+				foreach(var kvp in codeExpirationMap)
+				{
+					var sql = $@"
+						UPDATE {_poolTableName}
+						SET expiration_date = :expirationDate
+						WHERE code_id = :codeId
+						;";
+					var query = uow.Session.CreateSQLQuery(sql)
+						.SetParameter("codeId", kvp.Key)
+						.SetParameter("expirationDate", kvp.Value);
 
-				var updateQuery = GetPromoteUpdateQuery(uow, codesToUpdate, extraSecond);
-				updateQuery.ExecuteUpdate();
-
-				uow.Commit();
-			}
-		}
-
-		public async Task PromoteCodesAsync(IEnumerable<int> codeIds, int extraSecond, CancellationToken cancellationToken)
-		{
-			using(var uow = CreateUow())
-			{
-				uow.OpenTransaction();
-
-				var query = GetPromoteSelectForUpdateQuery(uow, codeIds);
-				var codesToUpdateList = await query.ListAsync<uint>(cancellationToken);
-				var codesToUpdate = codesToUpdateList.ToArray();
-
-				var updateQuery = GetPromoteUpdateQuery(uow, codesToUpdate, extraSecond);
-				await updateQuery.ExecuteUpdateAsync(cancellationToken);
+					await query.ExecuteUpdateAsync(cancellationToken);
+				}
 
 				await uow.CommitAsync(cancellationToken);
 			}
 		}
 
-		private IQuery GetPromoteSelectForUpdateQuery(IUnitOfWork uow, IEnumerable<int> codeIds)
+		public async Task<int> DeleteExpiredCodesAsync(CancellationToken cancellationToken)
 		{
-			var sql = $@"
-					SELECT code_id FROM {_poolTableName}
-					WHERE code_id in (:code_ids)
-					FOR UPDATE SKIP LOCKED
+			using(var uow = CreateUow())
+			{
+				uow.OpenTransaction();
+
+				var additionalDays = _edoSettings.CodePoolExpireDateCheckAdditinalDays;
+
+				var sql = $@"
+					DELETE FROM {_poolTableName}
+					WHERE expiration_date IS NOT NULL 
+						AND DATE_SUB(expiration_date, INTERVAL :additionalDays DAY) < NOW()
 					;";
-			var query = uow.Session.CreateSQLQuery(sql)
-				.SetParameterList("code_ids", codeIds.ToArray());
-			return query;
+				var query = uow.Session.CreateSQLQuery(sql);
+				query.SetParameter("additionalDays", additionalDays);
+
+				var deletedCount = await query.ExecuteUpdateAsync(cancellationToken);
+
+				await uow.CommitAsync(cancellationToken);
+				return deletedCount;
+			}
 		}
 
-		private IQuery GetPromoteUpdateQuery(IUnitOfWork uow, uint[] codesToUpdate, int extraSecond)
+		public async Task<int> DeleteUsedCodesAsync(CancellationToken cancellationToken)
 		{
-			var updateSql = $@"
-					UPDATE {_poolTableName} SET
-						adding_time = ADDDATE(current_timestamp(), INTERVAL :extra_second SECOND),
-						promoted = 1
-					WHERE code_id in (:code_ids)
+			using(var uow = CreateUow())
+			{
+				uow.OpenTransaction();
+
+				var sql = $@"
+					DELETE p FROM {_poolTableName} p
+					INNER JOIN true_mark_product_codes tmpc ON tmpc.result_code_id = p.code_id
+					WHERE tmpc.result_code_id IS NOT NULL
 					;";
-			var updateQuery = uow.Session.CreateSQLQuery(updateSql)
-				.SetParameterList("code_ids", codesToUpdate)
-				.SetParameter("extra_second", extraSecond);
-			return updateQuery;
+
+				var query = uow.Session.CreateSQLQuery(sql);
+				var deletedCount = await query.ExecuteUpdateAsync(cancellationToken);
+
+				await uow.CommitAsync(cancellationToken);
+				return deletedCount;
+			}
 		}
 
 		public void DeleteCodes(IEnumerable<int> codeIds)
@@ -187,7 +186,9 @@ namespace TrueMark.Codes.Pool
 			{
 				var query = GetTotalCountByGtinQuery(uow);
 				var objects = query.List<object[]>();
-				var result = objects.ToDictionary(x => (string)x[0], x => (long)x[1]);
+				var result = objects
+					.Where(x => !string.IsNullOrWhiteSpace((string)x[0]))
+					.ToDictionary(x => (string)x[0], x => (long)x[1]);
 				return result;
 			}
 		}
@@ -198,7 +199,9 @@ namespace TrueMark.Codes.Pool
 			{
 				var query = GetTotalCountByGtinQuery(uow);
 				var objects = await query.ListAsync<object[]>(cancellationToken);
-				var result = objects.ToDictionary(x => (string)x[0], x => (long)x[1]);
+				var result = objects
+					.Where(x => !string.IsNullOrWhiteSpace((string)x[0]))
+					.ToDictionary(x => (string)x[0], x => (long)x[1]);
 				return result;
 			}
 		}
@@ -207,11 +210,10 @@ namespace TrueMark.Codes.Pool
 		{
 			var sql = $@"
 					SELECT
-						tmic.gtin,
+						pool.gtin,
 						Count(pool.code_id)
 					FROM {_poolTableName} pool
-					INNER JOIN true_mark_identification_code tmic ON tmic.id = pool.code_id
-					GROUP BY tmic.gtin
+					GROUP BY pool.gtin
 					;";
 			var query = uow.Session.CreateSQLQuery(sql);
 			return query;

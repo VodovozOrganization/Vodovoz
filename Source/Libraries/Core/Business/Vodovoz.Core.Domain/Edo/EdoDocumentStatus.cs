@@ -9,22 +9,34 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		[Display(Name = "Неизвестно")]
 		Unknown,
+
 		[Display(Name = "В процессе")]
 		InProgress,
-		[Display(Name = "Документооборот завершен успешно")]
+
+		[Display(Name = "Получено оператором")]
+		Sent,
+
+		[Display(Name = "Успешно завершен")]
 		Succeed,
-		[Display(Name = "Предупреждение")]
+
+		[Display(Name = "Завершен с уточнением")]
 		Warning,
+
 		[Display(Name = "Ошибка")]
 		Error,
+
 		[Display(Name = "Не начат")]
 		NotStarted,
-		[Display(Name = "Завершен с различиями")]
+
+		[Display(Name = "Завершен с расхождениями")]
 		CompletedWithDivergences,
+
 		[Display(Name = "Не принят")]
 		NotAccepted,
+
 		[Display(Name = "Аннулирован")]
 		Cancelled,
+
 		[Display(Name = "Ожидает аннулирования")]
 		WaitingForCancellation
 	}

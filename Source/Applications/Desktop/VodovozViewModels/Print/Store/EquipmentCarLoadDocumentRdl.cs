@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using Core.Infrastructure;
+using QS.DomainModel.Entity;
 using QS.Print;
 using QS.Report;
 using System;
@@ -7,7 +8,6 @@ using System.Linq;
 using Vodovoz.Core.Domain.PrintableDocuments;
 using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Extensions;
 using Vodovoz.PrintableDocuments;
 
 namespace Vodovoz.ViewModels.Print.Store

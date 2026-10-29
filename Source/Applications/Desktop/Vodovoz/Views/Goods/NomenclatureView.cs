@@ -485,6 +485,7 @@ namespace Vodovoz.Views.Goods
 			ConfigureParametersForMobileApp();
 			ConfigureParametersForVodovozWebSite();
 			ConfigureParametersForKulerSaleWebSite();
+			ConfigureParametersForAiBot();
 			ConfigureParametersForRobotMia();
 
 			ConfigureTreeOnlinePrices();
@@ -623,6 +624,26 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			entryOnlineDiscountKulerSaleWebSite.Changed += OnNumericEntryChanged;
 		}
+		
+		private void ConfigureParametersForAiBot()
+		{
+			enumCmbOnlineAvailabilityAiBot.ItemsEnum = typeof(GoodsOnlineAvailability);
+			enumCmbOnlineAvailabilityAiBot.ShowSpecialStateNot = true;
+			enumCmbOnlineAvailabilityAiBot.Binding
+				.AddBinding(ViewModel.AiBotNomenclatureOnlineParameters, p => p.NomenclatureOnlineAvailability, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			enumCmbOnlineMarkerAiBot.ItemsEnum = typeof(NomenclatureOnlineMarker);
+			enumCmbOnlineMarkerAiBot.ShowSpecialStateNot = true;
+			enumCmbOnlineMarkerAiBot.Binding
+				.AddBinding(ViewModel.AiBotNomenclatureOnlineParameters, p => p.NomenclatureOnlineMarker, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			entryOnlineDiscountAiBot.Binding
+				.AddBinding(ViewModel.AiBotNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
+				.InitializeFromSource();
+			entryOnlineDiscountAiBot.Changed += OnNumericEntryChanged;
+		}
 
 		private void ConfigureParametersForRobotMia()
 		{
@@ -673,6 +694,11 @@ namespace Vodovoz.Views.Goods
 					.EditingStartedEvent(OnPriceWithoutDiscountStartedEditing)
 					.EditedEvent(OnPriceWithoutDiscountEdited)
 					.AddSetter((cell, node) => cell.Editable = node.CanChangeKulerSaleWebSitePriceWithoutDiscount)
+				.AddColumn("ИИ Бот\n\nЦена без\nскидки")
+					.AddTextRenderer(x => x.AiBotPriceWithoutDiscountString)
+					.EditingStartedEvent(OnPriceWithoutDiscountStartedEditing)
+					.EditedEvent(OnPriceWithoutDiscountEdited)
+					.AddSetter((cell, node) => cell.Editable = node.CanChangeAiBotPriceWithoutDiscount)
 				.AddColumn("")
 				.Finish();
 

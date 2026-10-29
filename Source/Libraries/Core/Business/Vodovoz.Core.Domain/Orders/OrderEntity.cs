@@ -10,8 +10,10 @@ using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Controllers;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders.Documents;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -26,7 +28,7 @@ namespace Vodovoz.Core.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class OrderEntity : PropertyChangedBase, IDomainObject, IBusinessObject
+	public class OrderEntity : PropertyChangedBase, IDomainObject, IBusinessObject, IRecalculateTaxSource
 	{
 		public const string Table = "orders";
 		private int _id;
@@ -683,6 +685,8 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _selfDeliveryGeoGroup, value);
 		}
 
+		public virtual IUsnModeOrganization Organization => Contract?.Organization;
+
 		#region Вычисляемые свойства
 
 		public virtual bool IsUndeliveredStatus =>
@@ -774,8 +778,16 @@ namespace Vodovoz.Core.Domain.Orders
 				OrderStatus.Closed
 			};
 
+		public static OrderStatus[] GetUndeliveryStatuses() =>
+			new OrderStatus[]
+			{
+				OrderStatus.Canceled,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.NotDelivered
+			};
+
 		#endregion Вычисляемые свойства
-		
+
 		/// <summary>
 		/// Проверка, является ли клиент по заказу сетевым покупателем
 		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада
@@ -795,6 +807,48 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		/// <summary>
+		/// Предполагает ли форма оплаты заказа отправку чека
+		/// </summary>
+		public virtual bool IsSendingReceiptExpectedByPaymentType =>
+			CheckIsSendingReceiptExpectedByPaymentType(
+				Client?.ReasonForLeaving,
+				PaymentType,
+				PaymentByCardFrom?.ReceiptRequired);
+
+		/// <summary>
+		/// Предполагает ли форма оплаты заказа отправку чека
+		/// </summary>
+		/// <param name="reasonForLeaving">Цель приобретения воды клиентом по заказу</param>
+		/// <param name="paymentType">Форма оплаты заказа</param>
+		/// <param name="isReceiptRequiredForPaymentFrom">
+		/// Требуется ли чек для места, откуда проведена оплата. Имеет значение только для оплаты онлайн
+		/// </param>
+		/// <returns><see langword="true"/>, если форма оплаты предполагает отправку чека</returns>
+		protected bool CheckIsSendingReceiptExpectedByPaymentType(
+			ReasonForLeaving? reasonForLeaving,
+			PaymentType paymentType,
+			bool? isReceiptRequiredForPaymentFrom)
+		{
+			if(reasonForLeaving == ReasonForLeaving.Tender)
+			{
+				return false;
+			}
+
+			switch(paymentType)
+			{
+				case PaymentType.Cash:
+				case PaymentType.Terminal:
+				case PaymentType.DriverApplicationQR:
+				case PaymentType.SmsQR:
+					return true;
+				case PaymentType.PaidOnline:
+					return isReceiptRequiredForPaymentFrom ?? true;
+				default:
+					return false;
+			}
+		}
+
+		/// <summary>
 		/// Является ли заказ безналичным и организация по договору без НДС
 		/// </summary>
 		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless
@@ -808,6 +862,18 @@ namespace Vodovoz.Core.Domain.Orders
 			}
 		}
 
+		public virtual void UpdateOrderPaymentStatus(OrderPaymentStatus paymentStatus, PaymentType paymentType)
+		{
+			OrderPaymentStatus = paymentStatus;
+
+			if(SelfDelivery
+				&& paymentType == PaymentType.Cashless
+				&& paymentStatus == OrderPaymentStatus.Paid)
+			{
+				IsSelfDeliveryPaid = true;
+			}
+		}
+		
 		public override string ToString()
 		{
 			if(IsLoadedFrom1C)

@@ -4,9 +4,11 @@ using Edo.Problems.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
+using System;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Domain.Controllers;
+using Vodovoz.Core.Domain.Rules.Edo;
 
 namespace Edo.Problems
 {
@@ -14,7 +16,9 @@ namespace Edo.Problems
 	{
 		public static IServiceCollection AddEdoProblemRegistration(this IServiceCollection services)
 		{
+			services.AddEdoNotifications();
 			services.TryAddScoped<IUnitOfWork>(x => x.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
+			services.RemoveAll(typeof(IReceiptContactProblemSource));
 
 			services
 				.AddCustomProblemSourcesFromAssembly()
@@ -29,6 +33,8 @@ namespace Edo.Problems
 			services.TryAddScoped<EdoTaskValidatorsProvider>();
 			services.TryAddScoped<EdoTaskValidator>();
 			services.TryAddScoped<EdoProblemRegistrar>();
+			services.TryAddScoped<FaultEdoProblemRegistrar>();
+			services.TryAddScoped<CanProcessOrSendEdoByClosingAccountingDate>();
 			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
 			return services;
@@ -45,6 +51,7 @@ namespace Edo.Problems
 			foreach(var validatorType in validatorTypes)
 			{
 				services.AddSingleton(typeof(EdoTaskProblemCustomSource), validatorType);
+				AddReceiptContactProblemSource(services, validatorType);
 			}
 
 			return services;
@@ -61,6 +68,7 @@ namespace Edo.Problems
 			foreach(var validatorType in validatorTypes)
 			{
 				services.AddSingleton(typeof(EdoTaskProblemExceptionSource), validatorType);
+				AddReceiptContactProblemSource(services, validatorType);
 			}
 
 			return services;
@@ -77,9 +85,18 @@ namespace Edo.Problems
 			foreach(var validatorType in validatorTypes)
 			{
 				services.AddSingleton(typeof(IEdoTaskValidator), validatorType);
+				AddReceiptContactProblemSource(services, validatorType);
 			}
 
 			return services;
+		}
+
+		private static void AddReceiptContactProblemSource(IServiceCollection services, Type sourceType)
+		{
+			if(typeof(IReceiptContactProblemSource).IsAssignableFrom(sourceType))
+			{
+				services.AddSingleton(typeof(IReceiptContactProblemSource), sourceType);
+			}
 		}
 	}
 }

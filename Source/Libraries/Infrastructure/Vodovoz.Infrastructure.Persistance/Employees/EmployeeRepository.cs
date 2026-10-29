@@ -1,4 +1,5 @@
 ﻿using NHibernate.Criterion;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
@@ -11,12 +12,14 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Subdivisions;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Settings.Employee;
@@ -387,6 +390,70 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 			}
 
 			return await unitOfWork.Session.GetAsync<Employee>(employeeId, cancellationToken);
+		}
+
+		public Task<DriverMangoExtensionNumber> GetActiveDriverMangoExtensionNumber(IUnitOfWork uow, int driverId, CancellationToken cancellationToken) =>
+			uow.Session.Query<DriverMangoExtensionNumber>()
+			.Where(x => x.DriverId == driverId)
+			.Where(x => x.Status == DriverMangoExtensionNumberStatus.Active)
+			.FirstOrDefaultAsync(cancellationToken);
+
+		public Task<Employee> GetEmployeeByIdAsync(IUnitOfWork uow, int employeeId, CancellationToken cancellationToken) =>
+			uow.Session.GetAsync<Employee>(employeeId, cancellationToken);
+
+		public bool CanCreateDriverMangoRegistrationRequest(IUnitOfWork uow, int driverId)
+		{
+			var hasActiveExtensionNumber = uow.Session.Query<DriverMangoExtensionNumber>()
+				.Where(x => x.DriverId == driverId)
+				.Where(x => x.Status == DriverMangoExtensionNumberStatus.Active)
+				.ToFutureValue(q => q.Any());
+
+			var hasNewRegistrationRequest = uow.Session.Query<DriverMangoEmployeeRegistrationRequest>()
+				.Where(x => x.DriverId == driverId)
+				.Where(x => x.Status == DriverMangoEmployeeRegistrationRequestStatus.New)
+				.ToFutureValue(q => q.Any());
+
+			return !hasActiveExtensionNumber.Value && !hasNewRegistrationRequest.Value;
+		}
+
+		public async Task<Employee> GetDriverByOrderId(
+			IUnitOfWork uow,
+			int orderId,
+			CancellationToken cancellationToken)
+		{
+			var routeListItemStatuses =
+				new[] { RouteListItemStatus.EnRoute, RouteListItemStatus.Completed };
+
+			var query =
+				from driver in uow.Session.Query<Employee>()
+				join routeList in uow.Session.Query<RouteList>()
+					on driver.Id equals routeList.Driver.Id
+				join routeListItem in uow.Session.Query<RouteListItem>()
+					on routeList.Id equals routeListItem.RouteList.Id
+				where
+					routeListItem.Order.Id == orderId
+					&& routeListItemStatuses.Contains(routeListItem.Status)
+				select driver;
+
+			return await query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		public bool HasNonZeroBalance(IUnitOfWork uow, int employeeId)
+		{
+			EmployeeBulkGoodsAccountingOperation bulkAlias = null;
+			EmployeeInstanceGoodsAccountingOperation instanceAlias = null;
+
+			var bulkSum = uow.Session.QueryOver(() => bulkAlias)
+				.Where(() => bulkAlias.Employee.Id == employeeId)
+				.Select(Projections.Sum(() => bulkAlias.Amount))
+				.SingleOrDefault<decimal?>() ?? 0;
+
+			var instanceSum = uow.Session.QueryOver(() => instanceAlias)
+				.Where(() => instanceAlias.Employee.Id == employeeId)
+				.Select(Projections.Sum(() => instanceAlias.Amount))
+				.SingleOrDefault<decimal?>() ?? 0;
+
+			return bulkSum != 0 || instanceSum != 0;
 		}
 	}
 }

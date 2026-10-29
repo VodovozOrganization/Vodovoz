@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -184,6 +186,70 @@ namespace EmailDebtNotificationWorker.Services.Common.Generators
             </div>
         </body>
         </html>";
+		}
+
+		public string GenerateReminderToAcceptUpdEmailBody(TimedOutDocFlowGrouppedNode timedOutDocFlowGrouppedNode)
+		{
+			var sb = new StringBuilder();
+
+			sb.AppendLine("<hr/>");
+			sb.AppendLine("<p>Добрый день!</p>");
+			sb.AppendLine("<p>Уважаемый клиент,</p>");
+
+			sb.AppendLine("<p>");
+			sb.AppendLine("Напоминаем, что в системе электронного документооборота (ЭДО) Вам направлен универсальный передаточный документ (УПД) для подписания.");
+			sb.AppendLine("</p>");
+
+			sb.AppendLine("<p><b>Данные по документам:</b></p>");
+
+			sb.AppendLine("<table border='1' cellpadding='5' cellspacing='0'>");
+			sb.AppendLine("<tr>");
+			sb.AppendLine("<th>№ заказа</th>");
+			sb.AppendLine("<th>№ УПД</th>");
+			sb.AppendLine("<th>Дата отправки УПД в ЭДО</th>");
+			sb.AppendLine("<th>Сумма заказа</th>");
+			sb.AppendLine("</tr>");
+
+			foreach(var document in timedOutDocFlowGrouppedNode.Documents)
+			{
+				sb.AppendLine($@"
+					<tr>
+						<td>{document.Order.Id}</td>
+						<td>{document.UpdNum}</td>
+						<td>{document.TaxcomDocflow.CreationTime:dd.MM.yyyy}</td>
+						<td>{document.Order.OrderItems.Sum(oi => (oi.ActualCount ?? oi.Count) * oi.Price - oi.DiscountMoney):N2}</td>
+					</tr>");
+			}
+
+			sb.AppendLine("</table>");
+
+			sb.AppendLine("<br/>");
+
+			sb.AppendLine("<p>");
+			sb.AppendLine("Просим Вас проверить и подписать УПД в ЭДО в ближайшее время. В случае наличия расхождений, сообщите нам ответным письмом или по указанным ниже контактам.");
+			sb.AppendLine("</p>");
+
+			sb.AppendLine("<p>");
+			sb.AppendLine("Если у Вас возникли технические сложности при работе в системе ЭДО, будем признательны за информацию.");
+			sb.AppendLine("</p>");
+
+			sb.AppendLine("<hr/>");
+			sb.AppendLine("<br/><br/>");
+
+			sb.AppendLine($"Контактная информация {timedOutDocFlowGrouppedNode.Organization.FullName}");
+			sb.AppendLine("<br/>");
+			sb.AppendLine($"ИНН/КПП: {timedOutDocFlowGrouppedNode.Organization.INN}/{timedOutDocFlowGrouppedNode.Organization.KPP}");
+			sb.AppendLine("<br/>");
+			sb.AppendLine("Телефон: +7 (812) 317-00-00 доб. (900)");
+			sb.AppendLine("<br/>");
+			sb.AppendLine("Email: client.buh@vodovoz-spb.ru");
+
+			sb.AppendLine("<br/><br/>");
+
+			sb.AppendLine("<p>Благодарим за сотрудничество!</p>");
+
+			return sb.ToString();
+
 		}
 	}
 }

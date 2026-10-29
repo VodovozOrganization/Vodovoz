@@ -66,18 +66,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Libraries\Core\TransactionalOutbox.EntityFrameworkCore\TransactionalOutbox.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\DriverAPI.Library\DriverAPI.Library.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\EventsApi.Library\EventsApi.Library.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Vodovoz.Presentation.WebApi.Authentication.Contracts\Vodovoz.Presentation.WebApi.Authentication.Contracts.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
-    <ProjectReference Include="..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Vodovoz.Trackers\Vodovoz.Trackers.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.WebApi.Caching.Garnet\Vodovoz.Infrastructure.WebApi.Caching.Garnet.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Infrastructure\WebApi\Telemetry\Telemetry.csproj" />
     <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
     <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />

@@ -78,7 +78,7 @@ namespace Vodovoz.Views.Logistic
 			ybuttonInfo.BindCommand(ViewModel.InfoCommand);
 
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
-			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
+			enumcheckCarTypeOfUse.AddEnumToHideList(ViewModel.CarTypeOfUseForExclude);
 			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Truck);
 			enumcheckCarTypeOfUse.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.SelectedCarTypeOfUse, w => w.SelectedValuesList, new EnumsListConverter<CarTypeOfUse>())

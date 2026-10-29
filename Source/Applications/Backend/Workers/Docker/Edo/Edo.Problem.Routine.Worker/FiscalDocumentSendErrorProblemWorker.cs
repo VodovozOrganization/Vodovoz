@@ -43,7 +43,7 @@ namespace Edo.Problem.Routine.Worker
 
 				_logger.LogInformation("Обработка фискальных документов с проблемой отправки успешно завершена");
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(FiscalDocumentSendErrorProblemWorker), stoppingToken);
 			}
 			catch(Exception ex)
 			{

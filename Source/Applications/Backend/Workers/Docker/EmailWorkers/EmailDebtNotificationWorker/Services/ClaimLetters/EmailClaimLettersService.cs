@@ -1,9 +1,9 @@
 ﻿using BitrixApi.Library.Services;
+using Email.Infrastructure.Factories;
+using Email.Infrastructure.Generators;
 using EmailDebtNotificationWorker.Options;
-using EmailDebtNotificationWorker.Services.Common.Factories;
 using EmailDebtNotificationWorker.Services.Common.Generators;
 using EmailDebtNotificationWorker.Services.Common.Selectors;
-using Mailjet.Api.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -15,13 +15,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
-using VodovozBusiness.Domain.StoredEmails;
 using VodovozBusiness.EntityRepositories.Nodes;
+using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailDebtNotificationWorker.Services.ClaimLetters
 {
@@ -30,7 +30,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 		private const string _emailSubject = "Претензия";
 
 		private readonly ILogger<EmailClaimLettersService> _logger;
-		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IUnitOfWork _uow;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailMessageFactory _emailMessageFactory;
@@ -38,7 +38,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 		private readonly IEmailLinkGenerator _emailLinkGenerator;
 		private readonly IClientEmailSelector _clientEmailSelector;
 		private readonly IEmailAttachmentsCreateService _emailAttachmentsCreateService;
-		private readonly IBus _bus;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly IOptionsMonitor<EmailClaimLettersOptions> _emailClaimLettersOptions;
 		private readonly IClaimLetterBillWithoutShipmentService _claimLetterBillWithoutShipmentService;
 
@@ -52,7 +52,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 
 		public EmailClaimLettersService(
 			ILogger<EmailClaimLettersService> logger,
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWork uow,
 			IOrderRepository orderRepository,
 			IEmailRepository emailRepository,
 			IEmailBodyGenerator emailBodyGenerator,
@@ -60,12 +60,12 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 			IClientEmailSelector clientEmailSelector,
 			IEmailAttachmentsCreateService emailAttachmentsCreateService,
 			IEmailMessageFactory emailMessageFactory,
-			IBus bus,
+			IPublishEndpoint publishEndpoint,
 			IOptionsMonitor<EmailClaimLettersOptions> emailClaimLettersOptions,
 			IClaimLetterBillWithoutShipmentService claimLetterBillWithoutShipmentService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailBodyGenerator = emailBodyGenerator ?? throw new ArgumentNullException(nameof(emailBodyGenerator));
@@ -73,16 +73,14 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 			_clientEmailSelector = clientEmailSelector ?? throw new ArgumentNullException(nameof(clientEmailSelector));
 			_emailAttachmentsCreateService = emailAttachmentsCreateService ?? throw new ArgumentNullException(nameof(emailAttachmentsCreateService));
 			_emailMessageFactory = emailMessageFactory ?? throw new ArgumentNullException(nameof(emailMessageFactory));
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_emailClaimLettersOptions = emailClaimLettersOptions ?? throw new ArgumentNullException(nameof(emailClaimLettersOptions));
 			_claimLetterBillWithoutShipmentService = claimLetterBillWithoutShipmentService ?? throw new ArgumentNullException(nameof(claimLetterBillWithoutShipmentService));
 		}
 
 		public async Task SendClaimLetters(CancellationToken cancellationToken)
 		{
-			using var uow = _uowFactory.CreateWithoutRoot(nameof(EmailClaimLettersService));
-
-			var todaySentLetterOfClaimsCount = _emailRepository.GetTodaySentLetterOfClaimsCount(uow);
+			var todaySentLetterOfClaimsCount = _emailRepository.GetTodaySentLetterOfClaimsCount(_uow);
 
 			if(todaySentLetterOfClaimsCount >= _emailClaimLettersOptions.CurrentValue.MaxCountPerDay)
 			{
@@ -97,7 +95,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 				_emailClaimLettersOptions.CurrentValue.MaxCountPerInterval);
 
 			var overdueDebitorsDebtData = (await _orderRepository.GetOverdueDebtorDebtDataForLettersOfClaim(
-				uow,
+				_uow,
 				_emailClaimLettersOptions.CurrentValue.LettersOfClaimTimeoutDays,
 				_excludeCounterpartyRevenueStatuses,
 				_emailClaimLettersOptions.CurrentValue.ResendIntervalDays,
@@ -110,17 +108,24 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 				return;
 			}
 
-			var debtDataWithBills = await PrepareDebtDataWithBillsAsync(uow, overdueDebitorsDebtData, cancellationToken);
+			var debtDataWithBills = await PrepareDebtDataWithBillsAsync(_uow, overdueDebitorsDebtData, cancellationToken);
 
-			await uow.CommitAsync(cancellationToken);
+			// Счета коммитятся сразу: вложения-отчёты строятся по ним через отдельное подключение к БД
+			await _uow.CommitAsync(cancellationToken);
 
-			var emailMessages = await PrepareEmailMessagesAsync(uow, debtDataWithBills, cancellationToken);
-
-			await uow.CommitAsync(cancellationToken);
-
-			foreach(var emailMessage in emailMessages)
+			// Каждому письму — свой коммит: запись о письме и письмо в outbox сохраняются вместе.
+			// Письма с вложениями крупные, пачка их в одной транзакции не помещается в пакет MySQL,
+			// а сбой одного письма откатил бы все остальные
+			foreach(var debtDataWithBill in debtDataWithBills)
 			{
-				await PublishEmailMessage(emailMessage, cancellationToken);
+				var emailMessages = await PrepareEmailMessagesAsync(_uow, new[] { debtDataWithBill }, cancellationToken);
+
+				foreach(var emailMessage in emailMessages)
+				{
+					await PublishEmailMessage(emailMessage, cancellationToken);
+				}
+
+				await _uow.CommitAsync(cancellationToken);
 			}
 		}
 
@@ -169,7 +174,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 			{
 				try
 				{
-					var client = await uow.Session.GetAsync<Counterparty>(data.CounterpartyId, cancellationToken) 
+					var client = await uow.Session.GetAsync<Counterparty>(data.CounterpartyId, cancellationToken)
 						?? throw new InvalidOperationException($"Клиент с Id {data.CounterpartyId} не найден");
 
 					var contract = await uow.Session.GetAsync<CounterpartyContract>(data.ContractId, cancellationToken)
@@ -259,7 +264,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 					$"Клиент {client.Id} {client.FullName} не имеет подходящего email для отправки претензионного письма");
 			}
 
-			var storedEmail = _emailMessageFactory.CreateStoredEmail(emailSubject, emailAddress);
+			var storedEmail = _emailMessageFactory.CreateStoredEmail(emailSubject, emailAddress, null);
 
 			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
@@ -277,7 +282,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 			var emailMessage = _emailMessageFactory.CreateSendEmailMessage(
 				uow,
 				storedEmail,
-				client,
+				client.FullName,
 				organizationFullName,
 				organizationEmailForMailing,
 				attachments,
@@ -292,7 +297,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 		{
 			try
 			{
-				await _bus.Publish(emailMessage, cancellationToken);
+				await _publishEndpoint.Publish(emailMessage, cancellationToken);
 			}
 			catch(Exception ex)
 			{

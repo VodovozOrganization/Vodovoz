@@ -1,7 +1,6 @@
-﻿using QS.Project.Journal;
-using System;
+﻿using System;
+using QS.Project.Journal;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes
@@ -29,6 +28,23 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public int? TaskId { get; set; }
 
 		public DateTime? LastOrderDate { get; set; }
+
+		/// <summary>
+		/// Сумма последнего заказа с учётом скидок и возврата залогов.
+		/// </summary>
+		public decimal LastOrderSum { get; set; }
+
+		/// <summary>
+		/// Сохранённый средний интервал между заказами точки доставки в днях.
+		/// </summary>
+		public int? OrderFrequencyDays { get; set; }
+
+		/// <summary>
+		/// Плановая дата: дата последнего заказа в журнале плюс интервал между заказами.
+		/// </summary>
+		public DateTime? PlannedOrderDate => LastOrderDate.HasValue && OrderFrequencyDays.HasValue
+			? LastOrderDate.Value.AddDays(OrderFrequencyDays.Value)
+			: (DateTime?)null;
 
 		public int? LastOrderBottles { get; set; }
 

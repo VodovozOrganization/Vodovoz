@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo.deviation.monitoring.routine.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>

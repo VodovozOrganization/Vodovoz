@@ -2,6 +2,7 @@
 using Gamma.Binding.Converters;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
 using Gtk;
 using QS.Journal.GtkUI;
 using QS.Views.GtkUI;
@@ -14,6 +15,9 @@ namespace Vodovoz.Views.TrueMark
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderCodesView : WidgetViewBase<OrderCodesViewModel>
 	{
+		Pango.FontDescription _monospacedFont = Pango.FontDescription.FromString("Consolas 9");
+
+
 		//driver popup
 		private Menu _driverPopup = new Menu();
 		private MenuItem _driverCopySourceCodes = new MenuItem("Копировать исходные коды");
@@ -39,18 +43,30 @@ namespace Vodovoz.Views.TrueMark
 		private Menu _poolPopup = new Menu();
 		private MenuItem _poolCopyCodes = new MenuItem("Копировать коды");
 
+		private Menu _resentPopup = new Menu();
+		private MenuItem _resentCopySourceCodes = new MenuItem("Копировать исходные коды");
+		private MenuItem _resentCopyResultCodes = new MenuItem("Копировать итоговые коды");
+
 		//staging popup
 		private Menu _stagingPopup = new Menu();
 		private MenuItem _stagingCopyCodes = new MenuItem("Копировать коды");
+
+		private Menu _manuallyAddedPopup = new Menu();
+		private yMenuItem _manuallyAddedCopySourceCodes = new yMenuItem("Копировать исходные коды");
+		private yMenuItem _manuallyAddedCopyResultCodes = new yMenuItem("Копировать итоговые коды");
 
 		public OrderCodesView()
 		{
 			this.Build();
 		}
-
+		
 		protected override void ConfigureWidget()
 		{
 			base.ConfigureWidget();
+			ybuttonDeleteExcessCodes.BindCommand(ViewModel.DeleteExcessCodesCommand);
+			ynotebookCodes.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ActiveCodesPage, w => w.CurrentPage)
+				.InitializeFromSource();
 
 			ylabelTotalCodesValue.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CodesRequired, w => w.LabelProp, new TextToBoldTextConverter())
@@ -88,9 +104,22 @@ namespace Vodovoz.Views.TrueMark
 				.AddFuncBinding(vm => $"Промежуточные ({vm.TotalScannedStagingCodes})", w => w.LabelProp)
 				.InitializeFromSource();
 
+			labelPageResent.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => $"Переотправленные ({vm.TotalResent})", w => w.LabelProp)
+				.InitializeFromSource();
+
+			ylabelManuallyAdded.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => $"Добавлены вручную ({vm.TotalManual})", w => w.LabelProp)
+				.InitializeFromSource();
+
 			entrySearch.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.SearchText, w => w.Text)
 				.InitializeFromSource();
+
+			if(ViewModel.ReuseTargetOrderViewModel != null)
+			{
+				ConfigureReuseCodesControls();
+			}
 
 			var driverRecursiveConfig = new RecursiveConfig<OrderCodeItemViewModel>(
 				x => x.Parent,
@@ -313,7 +342,7 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewPool.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewPool.ColumnsConfig = FluentColumnsConfig<OrderCodeItemViewModel>.Create()
 				.AddColumn("Код")
-					.AddTextRenderer(x => x.ResultIdentificationCode)
+					.AddTextRenderer(x => x.PoolIdentificationCode)
 					.Editable(false)
 					.SearchHighlight()
 				.AddColumn("Причина не отсканированных кодов")
@@ -332,6 +361,36 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewPool.ButtonReleaseEvent += OnTablePoolRightClick;
 			ytreeviewPool.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
+			ytreeviewResent.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ResentCodes, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.ResentCodesSelected, w => w.SelectedRows,
+					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
+				.InitializeFromSource();
+			ytreeviewResent.Selection.Mode = SelectionMode.Multiple;
+			ytreeviewResent.ColumnsConfig = FluentColumnsConfig<OrderCodeItemViewModel>.Create()
+				.AddColumn("Исходный код")
+					.AddTextRenderer(x => x.SourceIdentificationCode)
+					.Editable(false)
+					.SearchHighlight()
+				.AddColumn("Итоговый код")
+					.AddTextRenderer(x => x.ResultIdentificationCode)
+					.Editable(false)
+					.SearchHighlight()
+				.AddColumn("Статус")
+					.HeaderAlignment(0.5f)
+					.AddEnumRenderer(x => x.Status)
+					.Editing(false)
+				.AddColumn("")
+				.Finish();
+			ytreeviewResent.Add(_resentPopup);
+			_resentPopup.Add(_resentCopySourceCodes);
+			_resentPopup.Add(_resentCopyResultCodes);
+			_resentPopup.ShowAll();
+			_resentCopySourceCodes.Activated += (sender, e) => ViewModel.CopyResentSourceCodesCommand.Execute(null);
+			_resentCopyResultCodes.Activated += (sender, e) => ViewModel.CopyResentResultCodesCommand.Execute(null);
+			ytreeviewResent.ButtonReleaseEvent += OnTableResentRightClick;
+			ytreeviewResent.WidgetEvent += SuppressRightClickWithManyRowsSelected;
+
 			// staging table
 			var stagingRecursiveConfig = new RecursiveConfig<OrderCodeItemViewModel>(
 				x => x.Parent,
@@ -341,7 +400,7 @@ namespace Vodovoz.Views.TrueMark
 				.AddFuncBinding(
 					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedStagingCodes, selfdeliveryRecursiveConfig),
 					w => w.YTreeModel)
-				.AddBinding(vm => vm.ScannedByDriverCodesSelected, w => w.SelectedRows,
+				.AddBinding(vm => vm.ScannedStagingCodesSelected, w => w.SelectedRows,
 					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
 				.InitializeFromSource();
 			ytreeviewStaging.Selection.Mode = SelectionMode.Multiple;
@@ -368,6 +427,48 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewStaging.ButtonReleaseEvent += OnTableStagingRightClick;
 			ytreeviewStaging.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
+
+			ytreeviewManuallyAdded.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ManualCodes, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.ManuallyAddedCodesSelected, w => w.SelectedRows,
+					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
+				.InitializeFromSource();
+			ytreeviewManuallyAdded.Selection.Mode = SelectionMode.Multiple;
+			ytreeviewManuallyAdded.ColumnsConfig = FluentColumnsConfig<OrderCodeItemViewModel>.Create()
+				.AddColumn("Исходный код")
+					.AddTextRenderer(x => x.SourceIdentificationCode)
+					.Editable(false)
+					.SearchHighlight()
+				.AddColumn("Итоговый код")
+					.AddTextRenderer(x => x.ResultIdentificationCode)
+					.Editable(false)
+					.SearchHighlight()
+				.AddColumn("Статус")
+					.HeaderAlignment(0.5f)
+					.AddEnumRenderer(x => x.Status)
+					.Editing(false)
+				.AddColumn("")
+				.Finish();
+			ytreeviewManuallyAdded.Add(_manuallyAddedPopup);
+			_manuallyAddedPopup.Add(_manuallyAddedCopySourceCodes);
+			_manuallyAddedPopup.Add(_manuallyAddedCopyResultCodes);
+			_manuallyAddedPopup.ShowAll();
+			_manuallyAddedCopySourceCodes.BindCommand(ViewModel.CopyManuallyAddedSourceCodesCommand);
+			_manuallyAddedCopyResultCodes.BindCommand(ViewModel.CopyManuallyAddedResultCodesCommand);
+			ytreeviewManuallyAdded.ButtonReleaseEvent += OnTableManuallyAddedRightClick;
+			ytreeviewManuallyAdded.WidgetEvent += SuppressRightClickWithManyRowsSelected;
+
+			ybuttonReuseRejectedCodes.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanMoveRejectedCodesToOrder, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonManuallyAddCode.BindCommand(ViewModel.AddManualCodeCommand);
+
+			yentryManuallyAddCode.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ManualCodeText, w => w.Text)
+				.InitializeFromSource();
+			SetColorForManualCodeEntry();
+
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}
 
@@ -387,6 +488,24 @@ namespace Vodovoz.Views.TrueMark
 			{
 				HighlightSearchText();
 				SetColorForSearchEntry();
+			}
+
+			if(e.PropertyName == nameof(ViewModel.IsValidManualCodeText))
+			{
+				SetColorForManualCodeEntry();
+			}
+
+			if(e.PropertyName == nameof(ViewModel.ManualCodeText))
+			{
+				yentryManuallyAddCode.ModifyFont(_monospacedFont);
+				if(ViewModel.ManualCodeText.Length >= 50)
+				{
+					yentryManuallyAddCode.WidthChars = 50;
+				}
+				else
+				{
+					yentryManuallyAddCode.WidthChars = ViewModel.ManualCodeText?.Length ?? 0;
+				}
 			}
 		}
 
@@ -409,6 +528,30 @@ namespace Vodovoz.Views.TrueMark
 				entrySearch.SetColor(StateType.Normal, GdkColors.DangerText);
 				entrySearch.SetColor(StateType.Active, GdkColors.DangerText);
 			}
+		}
+
+		private void SetColorForManualCodeEntry()
+		{
+			if(ViewModel.IsValidManualCodeText)
+			{
+				yentryManuallyAddCode.SetColor(StateType.Normal, GdkColors.SuccessText);
+				yentryManuallyAddCode.SetColor(StateType.Active, GdkColors.SuccessText);
+			}
+			else
+			{
+				yentryManuallyAddCode.SetColor(StateType.Normal, GdkColors.DangerText);
+				yentryManuallyAddCode.SetColor(StateType.Active, GdkColors.DangerText);
+			}
+
+			yentryManuallyAddCode.ModifyFont(_monospacedFont);
+		}
+
+		private void ConfigureReuseCodesControls()
+		{
+			ViewModel.ReuseTargetOrderViewModel.DisposeViewModel = false;
+			entityentryReuseTargetOrder.ViewModel = ViewModel.ReuseTargetOrderViewModel;
+
+			ybuttonReuseRejectedCodes.BindCommand(ViewModel.ReuseRejectedCodesCommand);
 		}
 
 		private void HighlightSearchText()
@@ -492,6 +635,18 @@ namespace Vodovoz.Views.TrueMark
 			_poolPopup.Popup();
 		}
 
+		private void OnTableResentRightClick(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			_resentCopySourceCodes.Sensitive = ViewModel.CopyResentSourceCodesCommand.CanExecute(null);
+			_resentCopyResultCodes.Sensitive = ViewModel.CopyResentResultCodesCommand.CanExecute(null);
+			_resentPopup.Popup();
+		}
+
 		private void OnTableStagingRightClick(object o, ButtonReleaseEventArgs args)
 		{
 			if(args.Event.Button != (uint)GtkMouseButton.Right)
@@ -501,6 +656,16 @@ namespace Vodovoz.Views.TrueMark
 
 			_stagingCopyCodes.Sensitive = ViewModel.CopyStagingCodesCommand.CanExecute(null);
 			_stagingPopup.Popup();
+		}
+
+		private void OnTableManuallyAddedRightClick(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			_manuallyAddedPopup.Popup();
 		}
 
 		protected override void OnDestroyed()
@@ -522,10 +687,15 @@ namespace Vodovoz.Views.TrueMark
 			_selfdeliveryOpenAuthor?.Destroy();
 			_poolPopup?.Destroy();
 			_poolCopyCodes?.Destroy();
+			_resentPopup?.Destroy();
+			_resentCopySourceCodes?.Destroy();
+			_resentCopyResultCodes?.Destroy();
+			ViewModel?.DisposeReuseTargetOrderEntry();
 			ytreeviewDriver?.Destroy();
 			ytreeviewWarehouse?.Destroy();
 			ytreeviewSelfdelivery?.Destroy();
 			ytreeviewPool?.Destroy();
+			ytreeviewResent?.Destroy();
 
 			base.OnDestroyed();
 		}

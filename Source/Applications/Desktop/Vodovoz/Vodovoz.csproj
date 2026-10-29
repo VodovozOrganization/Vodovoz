@@ -436,7 +436,9 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverScheduleView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.SemitrailerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.ChangingPaymentTypeByDriversReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.TtnDataView.cs" />
     <Compile Include="Infrastructure\Converters\RoundedDecimalToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\ValueToLeadingDigitsConverter.cs" />
     <Compile Include="Infrastructure\Converters\TextToBoldTextConverter.cs" />
@@ -448,6 +450,7 @@
     <Compile Include="JournalColumnsConfigs\BusinessAccountsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\BusinessActivitiesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CallTaskJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\EdoDiscrepancyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoProblemJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoProcessJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FineCategoryJournalRegistars.cs" />
@@ -456,6 +459,7 @@
     <Compile Include="JournalColumnsConfigs\FinancialResponsibilityCenterJournalViewModelRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NonReturnReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NotAllocatedCounterpartiesJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\EdoNotificationSettingJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ProfitCategoriesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RegradingOfGoodsTemplateJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ServiceDistrictsSetJournalRegistrar.cs" />
@@ -785,10 +789,13 @@
     <Compile Include="Views\Employees\PremiumView.cs" />
     <Compile Include="Views\Goods\NomenclaturePurchasePricesView.cs" />
     <Compile Include="Views\Logistic\DriverScheduleView.cs" />
+    <Compile Include="Views\Logistic\SemitrailerView.cs" />
     <Compile Include="Views\Orders\NomenclaturePlanView.cs" />
     <Compile Include="Views\Reports\BulkDebtMailingReportView.cs" />
     <Compile Include="Views\Reports\ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Views\Users\UserRoleView.cs" />
+    <Compile Include="Views\Warehouse\TtnDataView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.TtnDataView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderItemReturnsNode.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.ChangedType.cs" />
@@ -1011,6 +1018,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersReport.cs" />
     <Compile Include="Dialogs\Sale\DeliveryPriceDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceDlg.cs" />
+    <Compile Include="Views\Dialogs\Sale\MasterVisitCostView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Dialogs.Sale.MasterVisitCostView.cs" />
     <Compile Include="ReportsParameters\Sales\SuburbWaterPriceReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SuburbWaterPriceReport.cs" />
     <Compile Include="ServiceDialogs\Database\CalculateDistanceToPointsDlg.cs" />
@@ -1353,15 +1362,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalesByDiscountReport.cs" />
     <Compile Include="Filters\GtkViews\CallTaskFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CallTaskFilterView.cs" />
-    <Compile Include="JournalNodes\PromotionalSetJournalNode.cs" />
-    <Compile Include="JournalViewModels\PromotionalSetsJournalViewModel.cs" />
     <Compile Include="Views\Orders\PromotionalSetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.PromotionalSetView.cs" />
-    <Compile Include="ViewModels\Orders\PromotionalSetViewModel.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PromoSetAction.AddFixPriceActionView.cs" />
     <Compile Include="ViewWidgets\PromoSetAction\AddFixPriceActionView.cs" />
-    <Compile Include="ViewModels\Orders\AddFixPriceActionViewModel.cs" />
-    <Compile Include="ViewModels\Orders\ICreationControl.cs" />
     <Compile Include="Filters\GtkViews\CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SetBillsReportView.cs" />
@@ -1765,6 +1769,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarsMonitoringView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.TurnoverWithDynamicsReportView.cs" />
     <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.MarketingReportView.cs" />
+    <Compile Include="Views\Reports\MarketingReportView.cs" />
     <Compile Include="Views\Sale\DeliveryPriceRuleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Sale.DeliveryPriceRuleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReportGroupPrint.cs" />
@@ -1885,6 +1891,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMaxFastDeliveryOrdersView.cs" />
     <Compile Include="AdministrationTools\RevenueServiceMassCounterpartyUpdateToolView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdministrationTools.RevenueServiceMassCounterpartyUpdateToolView.cs" />
+    <Compile Include="AdministrationTools\OrdersLoadTestingToolView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AdministrationTools.OrdersLoadTestingToolView.cs" />
     <Compile Include="Views\Settings\NamedDomainEntitiesSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Settings.NamedDomainEntitiesSettingsView.cs" />
     <Compile Include="ViewWidgets\Search\CompositeSearchView.cs" />
@@ -1991,8 +1999,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.GtkUI.RestrictedDatePicker.cs" />
     <Compile Include="AboutView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AboutView.cs" />
-    <Compile Include="AboutAuthorsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AboutAuthorsView.cs" />
     <Compile Include="Logistic\DistrictSetDiffReportConfirmationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Logistic.DistrictSetDiffReportConfirmationView.cs" />
     <Compile Include="Views\Fuel\FuelCardView.cs" />
@@ -2081,6 +2087,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.AverageFlowDiscrepanciesReportView.cs" />
     <Compile Include="Filters\GtkViews\CarEventTypeFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarEventTypeFilterView.cs" />
+    <Compile Include="Views\Reports\CompletedAddressesReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.CompletedAddressesReportView.cs" />
     <Compile Include="Views\Reports\LastRouteListReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.LastRouteListReportView.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReportView.cs" />
@@ -2175,6 +2183,38 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTransferStageView.cs" />
     <Compile Include="Views\TrueMark\OrderCodesDialogView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.TrueMark.OrderCodesDialogView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderReceiptSendStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderReceiptSendStageView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderReceiptView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderReceiptView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderDocflowsStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderDocflowsStageView.cs" />
+    <Compile Include="Views\Edo\EdoNotificationSettingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoNotificationSettingView.cs" />
+    <Compile Include="Views\Edo\EdoView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoView.cs" />
+    <Compile Include="ViewWidgets\Mango\MangoCallButtonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Mango.MangoCallButtonView.cs" />
+    <Compile Include="Views\Mango\Talks\DriverForwardingOrderSelectionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.Talks.DriverForwardingOrderSelectionView.cs" />
+    <Compile Include="Views\Logistic\AdditionalFuelTypeManagementView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AdditionalFuelTypeManagementView.cs" />
+    <Compile Include="Filters\GtkViews\EdoDeviationFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoDeviationFilterView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderDistributionStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderDistributionStageView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderSavedToPoolStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderSavedToPoolStageView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderTenderSendingStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTenderSendingStageView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderTenderManualUploadedStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTenderManualUploadedStageView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderTransferWaitingRequestsStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTransferWaitingRequestsStageView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderTransferPreparingStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderTransferPreparingStageView.cs" />
+    <Compile Include="Views\Edo\EdoDiscrepancyView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoDiscrepancyView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2492,9 +2532,21 @@
       <Project>{6950e38b-66b7-4224-aa53-0bf28d4d4a8b}</Project>
       <Name>DriverApi.Notifications.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Admin\Edo.Admin.csproj">
+      <Project>{86CC5608-4BE8-493D-B9B5-C90EC65002BC}</Project>
+      <Name>Edo.Admin</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Common\Edo.Common.csproj">
       <Project>{b657cbf6-c803-4249-894b-87e8e6e94a62}</Project>
       <Name>Edo.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Contracts\Edo.Contracts.csproj">
+      <Project>{86958F1A-2863-488F-BDC6-AD2D0DF59654}</Project>
+      <Name>Edo.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Documents\Edo.Documents.csproj">
+      <Project>{bf6c6f28-9258-44f9-b508-0dec734d1a2a}</Project>
+      <Name>Edo.Documents</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj">
       <Project>{B131BA90-BEDF-4236-B67F-39D1D810B12B}</Project>
@@ -2560,6 +2612,10 @@
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdo.Client\TaxcomEdo.Client.csproj">
+      <Project>{ec46f330-1887-4176-81ce-b95d5c3e469a}</Project>
+      <Name>TaxcomEdo.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj">
       <Project>{88eea039-f3d5-4069-a160-939fdf186ab4}</Project>
       <Name>TrueMark.Codes.Pool</Name>
@@ -2624,6 +2680,10 @@
       <Project>{49241ddd-3e0b-4944-9b3f-89f0c42e9e6d}</Project>
       <Name>VodovozFiasWidgets</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Comparer\Comparer.csproj">
+      <Project>{93e79512-c190-4c08-a614-8cb992132970}</Project>
+      <Name>Comparer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj">
       <Project>{b318a2c2-a980-41bd-b072-321bccd70bbb}</Project>
       <Name>Core.Infrastructure</Name>
@@ -2636,13 +2696,21 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj">
-      <Project>{0B386CE3-047F-54B5-0F40-3741094071F0}</Project>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj">
+      <Project>{ec551759-1397-78fb-6976-dd679a81fa7d}</Project>
       <Name>CustomerNotifications.Application</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
-      <Project>{CDDE0D70-E3C3-A1D6-147E-E805A70744E6}</Project>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
+      <Project>{c98a3f81-c25f-f282-46a3-fb51da0d98e2}</Project>
       <Name>CustomerNotifications.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\EdoNotifications\EdoNotifications.Contracts\EdoNotifications.Contracts.csproj">
+      <Project>{4851B429-7C79-8D8B-6299-DC1F6430111A}</Project>
+      <Name>EdoNotifications.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\EdoNotifications\EdoNotifications.Application\EdoNotifications.Application.csproj">
+      <Project>{8BD3D49B-0542-F42C-17D9-F4B2738E7268}</Project>
+      <Name>EdoNotifications.Application</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj">
       <Project>{F002AF1D-1958-EF09-F21A-0221E7874DE1}</Project>
@@ -2652,9 +2720,13 @@
       <Project>{bf89316b-1a47-7797-6a98-7a3fad52b2e0}</Project>
       <Name>ResourceLocker.Library</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\TransactionalOutbox\TransactionalOutbox.csproj">
-      <Project>{CCD24DF5-779F-4EC0-B2B9-AE81058B6076}</Project>
-      <Name>TransactionalOutbox</Name>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\Notifications.Core\Notifications.Core.csproj">
+      <Project>{A3919E7C-5F5B-7AFA-49F4-D4FCE627ABC0}</Project>
+      <Name>Notifications.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\TransactionalOutbox.MassTransit\TransactionalOutbox.MassTransit.csproj">
+      <Project>{6B60B368-2365-4735-BAA1-7BC6E3288B38}</Project>
+      <Name>TransactionalOutbox.MassTransit</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Vodovoz.Trackers\Vodovoz.Trackers.csproj">
       <Project>{7ac1f7e4-7cab-8fea-ae2c-f6e09cb92a69}</Project>

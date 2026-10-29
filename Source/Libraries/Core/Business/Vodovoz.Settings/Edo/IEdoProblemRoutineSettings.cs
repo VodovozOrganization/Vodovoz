@@ -46,5 +46,70 @@ namespace Vodovoz.Settings.Edo
 		/// Интервал работы воркера обработки проблемы отложенной ночной отправки чеков
 		/// </summary>
 		TimeSpan ReceiptNightSendProblemWorkerInterval { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки проблемы дубликатом кода
+		/// </summary>
+		TimeSpan CodeDuplicatedProblemTimeout { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки проблемы дубликатом кода
+		/// </summary>
+		TimeSpan CodeDuplicatedProblemWorkerInterval { get; }
+
+		/// <summary>
+		/// Таймаут обработки проблемы с контактом чека
+		/// </summary>
+		TimeSpan ReceiptContactProblemTimeout { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки проблемы с контактом чека
+		/// </summary>
+		TimeSpan ReceiptContactProblemWorkerInterval { get; }
+
+		/// <summary>
+		/// Количество попыток повторной обработки проблемы с контактом чека до уведомления
+		/// </summary>
+		int ReceiptContactProblemRetryAttemptsBeforeNotification { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки проблемы отсутствия кода в пуле
+		/// </summary>
+		TimeSpan CodePoolMissingProblemWorkerInterval { get; }
+
+		/// <summary>
+		/// Максимальное количество попыток повторной обработки проблемы отсутствия кода в пуле
+		/// </summary>
+		int CodePoolMissingProblemWorkerMaxAttempts { get; }
+
+		/// <summary>
+		/// Размер батча задач для обработки воркером проблемы отсутствия кода в пуле
+		/// </summary>
+		int CodePoolMissingProblemWorkerBatchSize { get; }
+
+		/// <summary>
+		/// Интервал между попытками обработки проблемной задачи отсутствия кода в пуле в часах
+		/// </summary>
+		int CodePoolMissingProblemWorkerRetryIntervalHours { get; }
+
+		/// <summary>
+		/// Интервал работы воркера повторного запуска новых задач ЭДО
+		/// </summary>
+		TimeSpan NewTasksResendWorkerInterval { get; }
+
+		/// <summary>
+		/// Время, после которого новая задача ЭДО считается просроченной
+		/// </summary>
+		TimeSpan NewTasksResendTimeout { get; }
+
+		/// <summary>
+		/// Размер партии новых задач ЭДО для повторного запуска
+		/// </summary>
+		int NewTasksResendBatchSize { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки ошибок отправки документа в Такском
+		/// </summary>
+		TimeSpan TaxcomSendProblemWorkerInterval { get; }
 	}
 }

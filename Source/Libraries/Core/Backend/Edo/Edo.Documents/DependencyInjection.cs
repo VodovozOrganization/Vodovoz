@@ -1,12 +1,16 @@
-﻿using Edo.Common;
+﻿using Edo.Admin;
+using Edo.Common;
+using Edo.Documents.Services;
 using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
+using System;
 using System.Reflection;
-using Edo.Admin;
+using Edo.Documents.Consumers.Fault;
+using Edo.Transport.Factories;
 using TrueMark.Codes.Pool;
 
 namespace Edo.Documents
@@ -17,27 +21,51 @@ namespace Edo.Documents
 		{
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
+			services.TryAddScoped<IUpdDocumentBuilder, UpdDocumentBuilder>();
+			services.TryAddScoped<IUpdTransportCodeService, UpdTransportCodeService>();
+
 			services.TryAddScoped<DocumentEdoTaskHandler>();
 			services.TryAddScoped<ForOwnNeedDocumentEdoTaskHandler>();
 			services.TryAddScoped<ForResaleDocumentEdoTaskHandler>();
 			services.TryAddScoped<WithdrawalEdoRequestHandler>();
 
-			services.AddEdo();
-			services.AddCodesPool();
-			services.AddEdoProblemRegistration();
-			services.AddEdoAdminServices();
+			services.AddEdo()
+				.AddCodesPool()
+				.AddEdoProblemRegistration()
+				.AddEdoAdminServices()
+				.AddFaultServices();
 			
 			return services;
 		}
 
-		public static IServiceCollection AddEdoDocuments(this IServiceCollection services)
+		/// <param name="configureBus">Дополнительная настройка шины в приложении, например outbox</param>
+		public static IServiceCollection AddEdoDocuments(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoDocumentsServices();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
-				cfg.AddConsumers(Assembly.GetExecutingAssembly());
+				cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
+				cfg.AddConsumer<FaultDocumentTaskCreatedConsumer>();
+
+				configureBus?.Invoke(cfg);
 			});
+
+			return services;
+		}
+		
+		public static IServiceCollection AddFaultServices(this IServiceCollection services)
+		{
+			services
+				.AddScoped<FaultTransferCompleteExceptionHandler>()
+				.AddScoped<FaultDocumentTaskCreatedExceptionHandler>()
+				.AddScoped<FaultOrderDocumentSentExceptionHandler>()
+				.AddScoped<FaultOrderDocumentAcceptedExceptionHandler>()
+				;
+			
+			services.TryAddScoped<IMassTransitExceptionInfoFactory, MassTransitExceptionInfoFactory>();
 
 			return services;
 		}

@@ -16,10 +16,8 @@ namespace Edo.Documents.Consumers
 
 		public async Task Consume(ConsumeContext<OrderDocumentSentEvent> context)
 		{
-			await _documentEdoTaskHandler.HandleSent(context.Message.Id, context.CancellationToken);
+			await _documentEdoTaskHandler.HandleSent(context.Message.DocumentId, context.CancellationToken);
 		}
 	}
-
-	
 }
 

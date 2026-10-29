@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
       <ProjectReference Include="..\..\Edo\Edo.Contracts\Edo.Contracts.csproj" />
       <ProjectReference Include="..\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
     </ItemGroup>
@@ -14,6 +15,7 @@
       <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+      <PackageReference Include="System.IO.Compression" Version="4.3.0" />
       <PackageReference Include="System.Net.Http.Json" Version="6.0.1" />
     </ItemGroup>
 

@@ -1,11 +1,14 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Core.Domain.Edo
 {
+	/// <summary>
+	/// Представляет проблему, связанную с задачей ЭДО
+	/// </summary>
 	public class EdoTaskProblem : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
@@ -17,7 +20,11 @@ namespace Vodovoz.Core.Domain.Edo
 		private TaskProblemState _state;
 		private IObservableList<EdoTaskItem> _taskItems = new ObservableList<EdoTaskItem>();
 		private IObservableList<EdoProblemCustomItem> _customItems = new ObservableList<EdoProblemCustomItem>();
+		private IList<EdoTaskProblemRoutineState> _routineStates = new List<EdoTaskProblemRoutineState>();
 
+		/// <summary>
+		/// Уникальный идентификатор проблемы
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -25,6 +32,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Дата и время создания проблемы
+		/// </summary>
 		[Display(Name = "Время создания")]
 		public virtual DateTime CreationTime
 		{
@@ -32,6 +42,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _creationTime, value);
 		}
 
+		/// <summary>
+		/// Дата и время последнего изменения проблемы
+		/// </summary>
 		[Display(Name = "Время изменения")]
 		public virtual DateTime UpdateTime
 		{
@@ -39,6 +52,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _updateTime, value);
 		}
 
+		/// <summary>
+		/// Тип проблемы
+		/// </summary>
 		[Display(Name = "Тип")]
 		public virtual EdoTaskProblemType Type
 		{
@@ -46,6 +62,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _type, value);
 		}
 
+		/// <summary>
+		/// Задача ЭДО, к которой относится проблема
+		/// </summary>
 		[Display(Name = "Задача")]
 		public virtual EdoTask EdoTask
 		{
@@ -53,6 +72,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _edoTask, value);
 		}
 
+		/// <summary>
+		/// Название источника, вызвавшего проблему
+		/// </summary>
 		[Display(Name = "Источник")]
 		public virtual string SourceName
 		{
@@ -60,6 +82,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _sourceName, value);
 		}
 
+		/// <summary>
+		/// Текущее состояние проблемы
+		/// </summary>
 		[Display(Name = "Состояние")]
 		public virtual TaskProblemState State
 		{
@@ -67,6 +92,9 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _state, value);
 		}
 
+		/// <summary>
+		/// Список строк задачи, связанных с проблемой
+		/// </summary>
 		[Display(Name = "Проблемные строки задачи")]
 		public virtual IObservableList<EdoTaskItem> TaskItems
 		{
@@ -74,52 +102,35 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _taskItems, value);
 		}
 
+		/// <summary>
+		/// Список пользовательских строк проблемы
+		/// </summary>
 		[Display(Name = "Строки проблемы")]
 		public virtual IObservableList<EdoProblemCustomItem> CustomItems
 		{
 			get => _customItems;
 			set => SetField(ref _customItems, value);
 		}
-	}
 
-	public abstract class EdoProblemCustomItem : PropertyChangedBase, IDomainObject
-	{
-		private int _id;
-		private EdoTaskProblem _problem;
-
-		[Display(Name = "Код")]
-		public virtual int Id
+		/// <summary>
+		/// Состояния повторной обработки ЭДО-проблемы
+		/// </summary>
+		public virtual IList<EdoTaskProblemRoutineState> RoutineStates
 		{
-			get => _id;
-			set => SetField(ref _id, value);
+			get => _routineStates;
+			set => SetField(ref _routineStates, value);
 		}
 
-		[Display(Name = "Проблема")]
-		public virtual EdoTaskProblem Problem
+		/// <summary>
+		/// Обновление параметра ожидания обработки TaskCreatedEvent
+		/// </summary>
+		/// <param name="value">Новое значение</param>
+		public virtual void UpdateWaitingProcessingTaskCreatedEvent(bool value)
 		{
-			get => _problem;
-			set => SetField(ref _problem, value);
+			foreach(var routineState in RoutineStates)
+			{
+				routineState.UpdateWaitingProcessingTaskCreatedEvent(value);
+			}
 		}
-
-		public abstract EdoProblemCustomItemType Type { get; }
-	}
-
-	public class EdoProblemGtinItem : EdoProblemCustomItem
-	{
-		private GtinEntity _gtin;
-
-		public override EdoProblemCustomItemType Type => EdoProblemCustomItemType.Gtin;
-
-		[Display(Name = "Gtin")]
-		public virtual GtinEntity Gtin
-		{
-			get => _gtin;
-			set => SetField(ref _gtin, value);
-		}
-	}
-
-	public enum EdoProblemCustomItemType
-	{
-		Gtin
 	}
 }

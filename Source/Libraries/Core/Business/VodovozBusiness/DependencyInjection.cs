@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Extensions;
+using TrueMark.Codes.Pool;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain;
@@ -24,6 +25,7 @@ namespace Vodovoz
 			ServiceLifetime serviceLifetime = ServiceLifetime.Scoped) =>
 			services
 				.AddFeatureManagement()
+				.AddCodesPool()
 				.RegisterClassesByInterfaces("Controller", serviceLifetime)
 				.RegisterClassesByInterfaces("Converter", serviceLifetime)
 				.RegisterClassesByInterfaces("Repository", serviceLifetime)

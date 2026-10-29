@@ -32,7 +32,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 		private readonly IGenericRepository<CounterpartySubtype> _counterpartySubtypeRepository;
 		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
 		private readonly IGenericRepository<Organization> _organizationRepository;
-		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
+		private readonly IGenericRepository<DiscountReasonBase> _discountReasonRepository;
 		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly IGenericRepository<GeoGroup> _geographicalGroupRepository;
@@ -48,7 +48,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			IGenericRepository<Counterparty> counterpartyRepository,
 			IGenericRepository<ProductGroup> productGroupRepository,
 			IGenericRepository<Organization> organizationRepository,
-			IGenericRepository<DiscountReason> discountReasonRepository,
+			IGenericRepository<DiscountReasonBase> discountReasonRepository,
 			IGenericRepository<Subdivision> subdivisionRepository,
 			IGenericRepository<Employee> employeeRepository,
 			IGenericRepository<GeoGroup> geographicalGroupRepository,
@@ -173,6 +173,26 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			
 			includeExludeFiltersViewModel.AddFilter("Дополнительные фильтры", additionalParams);
 			
+			return includeExludeFiltersViewModel;
+		}
+
+		public IncludeExludeFiltersViewModel CreateMarketingReportIncludeExcludeFilter(IUnitOfWork unitOfWork, int? onlyEmployeeId)
+		{
+			var includeExludeFiltersViewModel = CreateDefaultIncludeExludeFiltersViewModel();
+
+			var statusesToSelect = new[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
+
+			AddOrderStatusFilter(includeExludeFiltersViewModel, statusesToSelect);
+
 			return includeExludeFiltersViewModel;
 		}
 

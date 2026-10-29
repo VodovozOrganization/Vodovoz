@@ -1,49 +1,80 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using NLog;
 using System;
 using System.Threading.Tasks;
 using VodovozHealthCheck.Helpers;
+using VodovozHealthCheck.Logging;
 
-namespace VodovozHealthCheck.Logging
+/// <summary>
+/// Управление флагами логирования для health-check запросов.
+/// </summary>
+/// <remarks>
+/// Проверяет, является ли текущий HTTP-запрос проверкой работоспособности (health-check),
+/// и устанавливает флаг <see cref="LoggingContext.SuppressLogging"/>, если <c>true</c>, то
+/// все вызовы ILogger в рамках текущего асинхронного потока выполнения 
+/// подавляются кастомным фильтром NLog <see cref="LoggingFilter"/>.
+/// Должен быть зарегистрирован в пайплайне до <c>UseEndpoints</c>, чтобы охватывать все запросы.
+/// Также устанавливает уникальный идентификатор запуска health-check в <see cref="LoggingContext.HealthCheckRunId"/>
+/// </remarks>
+internal class LoggingMiddleware
 {
-	/// <summary>
-	/// Управление флагом подавления логирования для health-check запросов.
-	/// </summary>
-	/// <remarks>
-	/// Проверяет, является ли текущий HTTP-запрос проверкой работоспособности (health-check),
-	/// и устанавливает флаг <see cref="LoggingContext.SuppressLogging"/>, если <c>true</c>, то
-	/// все вызовы ILogger в рамках текущего асинхронного потока выполнения 
-	/// подавляются кастомным фильтром NLog <see cref="LoggingFilter"/>.
-	/// Должен быть зарегистрирован в пайплайне до <c>UseEndpoints</c>, чтобы охватывать все запросы.
-	/// </remarks>
+	private readonly RequestDelegate _next;
+	private readonly ILogger<LoggingMiddleware> _logger;
 
-	internal class LoggingMiddleware
+	public LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> logger)
 	{
-		private readonly RequestDelegate _next;
+		_next = next;
+		_logger = logger;
+	}
 
-		public LoggingMiddleware(RequestDelegate next)
+	public async Task Invoke(HttpContext context)
+	{
+		var isHealthCheck =
+			HttpResponseHelper.IsHealthCheckRequest(context.Request)
+			|| context.Request.Path.StartsWithSegments("/health")
+			|| context.Request.Path.Value?.Equals("/health", StringComparison.OrdinalIgnoreCase) == true;
+
+		string runId = null;
+
+		if(isHealthCheck)
 		{
-			_next = next;
+			context.Request.Headers.TryGetValue(HttpResponseHelper.HealthCheckHeaderName, out var incomingRunId);
+
+			runId = !string.IsNullOrEmpty(incomingRunId)
+				? incomingRunId.ToString()
+				: Guid.NewGuid().ToString("N");			
+
+			LoggingContext.HealthCheckRunId = runId;
+			context.Items[HttpResponseHelper.HealthCheckRunIdItemsKey] = runId;
+
+			LoggingContext.SuppressLogging = true;
 		}
 
-		public async Task Invoke(HttpContext context)
+		using(ScopeContext.PushProperty("HealthCheckRunId", runId))
 		{
-			var isHealthCheck =
-				HttpResponseHelper.IsHealthCheckRequest(context.Request)
-				|| context.Request.Path.StartsWithSegments("/health")
-				|| context.Request.Path.Value?.Equals("/health", StringComparison.OrdinalIgnoreCase) == true;
-
-			if(isHealthCheck)
-			{
-				LoggingContext.SuppressLogging = true;
-			}
-
 			try
 			{
 				await _next(context);
 			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex,
+					"Необработанное исключение при обработке {Method} {Path}. HealthCheckRunId={RunId}",
+					context.Request.Method,
+					context.Request.Path,
+					runId);
+
+				throw;
+			}
 			finally
 			{
 				LoggingContext.SuppressLogging = false;
+
+				if(isHealthCheck)
+				{
+					LoggingContext.HealthCheckRunId = null;
+				}
 			}
 		}
 	}

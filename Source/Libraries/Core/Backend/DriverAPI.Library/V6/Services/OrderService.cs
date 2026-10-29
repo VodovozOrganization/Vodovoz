@@ -1,4 +1,5 @@
-﻿using DriverApi.Contracts.V6;
+﻿using Core.Infrastructure;
+using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
@@ -27,7 +28,6 @@ using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
-using Vodovoz.Extensions;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
@@ -42,7 +42,7 @@ using OrderItem = Vodovoz.Domain.Orders.OrderItem;
 using OrderItemErrors = Vodovoz.Errors.Orders.OrderItemErrors;
 using RouteListErrors = Vodovoz.Errors.Logistics.RouteListErrors;
 using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
+using TrueMarkCodeErrors = Vodovoz.Core.Domain.Errors.TrueMarkCodeErrors;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -133,7 +133,7 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure<OrderDto>(OrderErrors.NotFound);
 			}
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder.Id);
 
 			if(routeListItem is null)
 			{
@@ -174,7 +174,7 @@ namespace DriverAPI.Library.V6.Services
 			{
 				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderSmsPaymentStatus(vodovozOrder.Id);
 				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id, vodovozOrder.OnlinePaymentNumber);
-				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
+				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder.Id);
 				var order = _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem, smsPaymentStatus, qrPaymentStatus);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder).Value;
 				result.Add(order);

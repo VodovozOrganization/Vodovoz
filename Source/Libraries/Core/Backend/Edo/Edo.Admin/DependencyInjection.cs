@@ -1,4 +1,6 @@
-﻿using Edo.Common;
+﻿using System;
+using Edo.Common;
+using Edo.Common.Services;
 using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
@@ -17,6 +19,7 @@ namespace Edo.Admin
 
 			services.TryAddScoped<EdoCancellationService>();
 			services.TryAddScoped<IEdoCancellationValidator, EdoCancellationValidator>();
+			services.TryAddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>();
 
 			services.AddEdo();
 			services.AddEdoProblemRegistration();
@@ -24,7 +27,9 @@ namespace Edo.Admin
 			return services;
 		}
 
-		public static IServiceCollection AddEdoAdmin(this IServiceCollection services)
+		public static IServiceCollection AddEdoAdmin(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoAdminServices();
 
@@ -37,6 +42,8 @@ namespace Edo.Admin
 				configureBus: cfg =>
 				{
 					cfg.AddConsumers(Assembly.GetExecutingAssembly());
+
+					configureBus?.Invoke(cfg);
 				}
 			);
 

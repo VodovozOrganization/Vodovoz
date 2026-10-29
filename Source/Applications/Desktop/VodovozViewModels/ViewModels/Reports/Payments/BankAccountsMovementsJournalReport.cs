@@ -6,7 +6,6 @@ using Core.Infrastructure;
 using QS.DomainModel.Entity;
 using QS.Project.Services.FileDialog;
 using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using VodovozBusiness.Extensions;
 

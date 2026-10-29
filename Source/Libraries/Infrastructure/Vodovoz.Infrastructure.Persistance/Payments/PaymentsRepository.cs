@@ -71,18 +71,22 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 		{
 			Organization organizationAlias = null;
 
-			var payment = uow.Session.QueryOver<Payment>()
+			var query = uow.Session.QueryOver<Payment>()
 				.JoinAlias(x => x.Organization, () => organizationAlias)
 				.Where(p => p.Date == date)
 				.And(p => p.PaymentNum == number)
-				.And(p => p.CounterpartyInn == counterpartyInn)
-				.And(p => p.CounterpartyAcc == accountNumber)
 				.And(p => p.Total == sum)
 				.And(() => organizationAlias.INN == organisationInn)
-				.And(p => !p.IsManuallyCreated)
-				.SingleOrDefault<Payment>();
+				.And(p => !p.IsManuallyCreated);
 
-			return payment != null;
+			if(!string.IsNullOrWhiteSpace(counterpartyInn))
+			{
+				query
+					.And(p => p.CounterpartyInn == counterpartyInn)
+					.And(p => p.CounterpartyAcc == accountNumber);
+			}
+
+			return query.SingleOrDefault<Payment>() != null;
 		}
 
 		public decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId, int organizationId)

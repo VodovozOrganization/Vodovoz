@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace VodovozBusiness.Models.Orders
 {
@@ -29,13 +32,53 @@ namespace VodovozBusiness.Models.Orders
 		public int? OnlinePaymentNumber { get; private set; }
 		public bool IsSplitedOrder { get; private set; }
 
+		/// <summary>
+		/// Заказ уже оплачен онлайн
+		/// </summary>
+		public bool IsOrderPaid { get; private set; }
+
 		public static OrderOrganizationChoice Create(IUnitOfWork uow, IOrderSettings orderSettings, OnlineOrder onlineOrder)
 		{
 			var paymentFrom = onlineOrder.OnlinePaymentSource.HasValue
 				? uow.GetById<PaymentFrom>(
 					onlineOrder.OnlinePaymentSource.ConvertToPaymentFromId(orderSettings))
 				: null;
+
+			var onlineProducts = new List<IProduct>();
+			var onlineOrderV2 = onlineOrder.As<OnlineOrderV2>();
+
+			onlineProducts.AddRange(onlineOrder.OnlineOrderItems);
 			
+			if(onlineOrderV2 != null)
+			{
+				foreach(var onlineOrderPromoSet in onlineOrderV2.PromoSets)
+				{
+					var promoSet = onlineOrderPromoSet.PromoSet;
+					
+					if(promoSet is null)
+					{
+						continue;
+					}
+
+					onlineProducts
+						.AddRange(promoSet.PromotionalSetItems
+							.Select(promoSetItem => OnlineOrderItem.Create(
+								promoSetItem.Nomenclature.Id,
+								promoSetItem.Count * onlineOrderPromoSet.Count,
+								promoSetItem.IsDiscountInMoney,
+								false,
+								promoSetItem.IsDiscountInMoney ? promoSetItem.DiscountMoney : promoSetItem.Discount,
+								promoSetItem.Price().Price,
+								promoSet.Id,
+								new List<DiscountReasonBase>(),
+								promoSetItem.Nomenclature,
+								promoSet,
+								onlineOrder)
+							)
+						);
+				}
+			}
+
 			return new OrderOrganizationChoice
 			{
 				OrderId = 0,
@@ -46,14 +89,15 @@ namespace VodovozBusiness.Models.Orders
 				OurOrganization = null,
 				ClientWorksThroughOrganization = onlineOrder.Counterparty?.WorksThroughOrganization,
 				CurrentOrderOrganization = null,
-				Goods = onlineOrder.OnlineOrderItems,
+				Goods = onlineProducts,
 				OrderEquipments = new List<OrderEquipment>(),
 				OrderDepositItems = new List<OrderDepositItem>(),
 				IsSelfDelivery = onlineOrder.IsSelfDelivery,
 				PaymentType = onlineOrder.OnlineOrderPaymentType.ToOrderPaymentType(),
 				PaymentFrom = paymentFrom,
 				OnlinePaymentNumber = onlineOrder.OnlinePayment,
-				IsSplitedOrder = false
+				IsSplitedOrder = false,
+				IsOrderPaid = onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.Paid
 			};
 		}
 
@@ -76,7 +120,8 @@ namespace VodovozBusiness.Models.Orders
 				PaymentType = order.PaymentType,
 				PaymentFrom = order.PaymentByCardFrom,
 				OnlinePaymentNumber = order.OnlinePaymentNumber,
-				IsSplitedOrder = !string.IsNullOrWhiteSpace(order.OrderPartsIds)
+				IsSplitedOrder = !string.IsNullOrWhiteSpace(order.OrderPartsIds),
+				IsOrderPaid = order.PaymentType == PaymentType.PaidOnline && order.OnlinePaymentNumber.HasValue
 			};
 		}
 	}

@@ -11,28 +11,34 @@ using Edo.Transfer.Dispatcher;
 using Edo.Transfer.Sender;
 using Edo.Withdrawal;
 using MassTransit;
-using MassTransit.Initializers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Taxcom.Docflow.Utility;
 using TaxcomEdo.Client;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Organizations;
+using Core.Infrastructure;
 
 namespace CustomTaskDebugExecutor
 {
 	public class EdoExecutor
 	{
 		private readonly IServiceProvider _serviceProvider;
+		private readonly IEdoRepository _edoRepository;
 
-		public EdoExecutor(IServiceProvider serviceProvider)
+		public EdoExecutor(
+			IServiceProvider serviceProvider,
+			IEdoRepository edoRepository)
 		{
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 		}
 
 		public async Task TrySendEdoEvent(CancellationToken cancellationToken)
@@ -472,8 +478,8 @@ namespace CustomTaskDebugExecutor
 				return;
 			}
 
-			var service = _serviceProvider.GetRequiredService<DocflowHandler>();
-			await service.HandleTransferDocument(id, cancellationToken);
+			var service = _serviceProvider.GetRequiredService<DocflowSendHandler>();
+			await service.SendTransferDocument(id, cancellationToken);
 		}
 
 		private async Task ReceiveOrderDocumentSendEvent(CancellationToken cancellationToken)
@@ -490,8 +496,8 @@ namespace CustomTaskDebugExecutor
 				return;
 			}
 
-			var service = _serviceProvider.GetRequiredService<DocflowHandler>();
-			await service.HandleOrderDocument(id, cancellationToken);
+			var service = _serviceProvider.GetRequiredService<DocflowSendHandler>();
+			await service.SendOrderDocument(id, cancellationToken);
 		}
 
 		private async Task ReceiveTransferRequestCreatedEvent(CancellationToken cancellationToken)
@@ -566,6 +572,35 @@ namespace CustomTaskDebugExecutor
 			await service.MoveToPrepareToSend(id, cancellationToken);
 		}
 		
+		private static async Task<IEnumerable<string>> WithNotAcceptedBuyerTitle(
+			ITaxcomApiClient taxcomApiClient,
+			Guid docflowId,
+			IEnumerable<string> transactionCodes)
+		{
+			var codes = transactionCodes ?? Enumerable.Empty<string>();
+			if(!TaxcomDocflowStateByTransactions.ContainsBuyerTitle(codes))
+			{
+				return codes;
+			}
+
+			try
+			{
+				var raw = await taxcomApiClient.GetDocFlowRawData(docflowId.ToString());
+				if(raw.IsFailure || raw.Value == null)
+				{
+					return codes;
+				}
+
+				return TaxcomDocflowStateByTransactions.WithBuyerTitleResult(
+					codes,
+					BuyerTitleAcceptance.ReadResultCode(raw.Value));
+			}
+			catch(Exception)
+			{
+				return codes;
+			}
+		}
+
 		private async Task UpdateDocflowStatus()
 		{
 			Console.WriteLine();
@@ -596,34 +631,41 @@ namespace CustomTaskDebugExecutor
 				var uowFactory = _serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
 
 				using var uow = uowFactory.CreateWithoutRoot();
-				var org = uow.GetById<OrganizationEntity>(organizationId);
-
-				if(org is null)
-				{
-					throw new InvalidOperationException("Не найдена организация, по которой был отправлен документ");
-				}
+				var org = uow.GetById<OrganizationEntity>(organizationId) 
+					?? throw new InvalidOperationException("Не найдена организация, по которой был отправлен документ");
 
 				var edoAccount = org.TaxcomEdoSettings.EdoAccount;
 				var description = await taxcomApiClient.GetDocflowStatus(docflowId, edoAccount);
-				var mainDocument = description.DocFlow.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Definition.Identifiers.ExternalIdentifier));
+				var mainDocument = description.DocFlow.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Definition.Identifiers.ExternalIdentifier)) 
+					?? throw new InvalidOperationException("Не найден главный документ");
 
-				if(mainDocument is null)
+				EdoDocFlowStatus? reportedStatus = null;
+				if(Enum.TryParse(description.DocFlow.Status, true, out EdoDocFlowStatus parsedStatus))
 				{
-					throw new InvalidOperationException("Не найден главный документ");
+					reportedStatus = parsedStatus;
 				}
 
+				var transactionCodes = await WithNotAcceptedBuyerTitle(
+					taxcomApiClient,
+					description.DocFlow.Id,
+					description.DocFlow.Documents?.Select(document => document.TransactionCode));
+
+				var state = TaxcomDocflowStateByTransactions.Resolve(
+					reportedStatus,
+					transactionCodes);
 				var docflowUpdatedEvent = new OutgoingTaxcomDocflowUpdatedEvent
 				{
 					DocFlowId = description.DocFlow.Id,
 					EdoAccount = edoAccount,
 					MainDocumentId = mainDocument.Definition.Identifiers.ExternalIdentifier,
-					Status = description.DocFlow.Status,
+					Status = state.Status?.ToString() ?? description.DocFlow.Status,
 					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
+					IsReceived = state.IsReceived
 				};
-				docflowUpdatedEvent.IsReceived = docflowUpdatedEvent.Status == nameof(EdoDocFlowStatus.Succeed);
 				
-				var publishEndpoint = _serviceProvider.GetRequiredService<IPublishEndpoint>();
-				await publishEndpoint.Publish(docflowUpdatedEvent);
+				// Ручная отправка события без транзакции: напрямую в шину, мимо outbox
+				var bus = _serviceProvider.GetRequiredService<IBus>();
+				await bus.Publish(docflowUpdatedEvent);
 			}
 			catch(Exception ex)
 			{
@@ -635,22 +677,21 @@ namespace CustomTaskDebugExecutor
 		private async Task SendEvents(CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException("Перепроверь запрос");
-			using(var uow = _serviceProvider.GetRequiredService<IUnitOfWork>())
-			{
-				var ids = await uow.Session.CreateSQLQuery(
-@"
-select 
-	ecr.id
-from edo_customer_requests ecr
-where ecr.order_task_id is null
-and ecr.source != 'Manual'
-;
-").ListAsync<uint>();
 
-				var bus = _serviceProvider.GetRequiredService<IBus>();
-				var events = ids.Select(x => bus.Publish(new EdoRequestCreatedEvent { Id = (int)x }, cancellationToken));
-				await Task.WhenAll(events);
-			}
+			/*using var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
+			var ids = await uow.Session.CreateSQLQuery(
+				@"
+				select 
+					ecr.id
+				from edo_customer_requests ecr
+				where ecr.order_task_id is null
+				and ecr.source != 'Manual'
+				;
+				").ListAsync<uint>(cancellationToken);
+
+			var bus = _serviceProvider.GetRequiredService<IBus>();
+			var events = ids.Select(x => bus.Publish(new EdoRequestCreatedEvent { Id = (int)x }, cancellationToken));
+			await Task.WhenAll(events);*/
 		}
 
 		private async Task ReceiveWithdrawalCreateEvent(CancellationToken cancellationToken)

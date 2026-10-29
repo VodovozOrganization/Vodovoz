@@ -24,5 +24,18 @@ namespace TrueMark.Contracts.Auth
 		/// </summary>
 		[JsonPropertyName("inn")]
 		public string Inn { get; set; }
+
+		/// <summary>
+		/// Реквизиты действующего аттестата соответствия объекта информатизации, 
+		/// выданного органом по аттестации объектов информатизации
+		/// </summary>
+		[JsonPropertyName("details")]
+		public string Details { get; set; }
+
+		/// <summary>
+		/// Признак запроса единого токена в виде uuid
+		/// </summary>
+		[JsonPropertyName("unitedToken")]
+		public bool UnitedToken { get; set; }
 	}
 }

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 
@@ -70,5 +71,44 @@ namespace Vodovoz.EntityRepositories.Employees
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Сотрудник для установки в заказ</returns>
 		Task<Employee> GetEmployeeBySourceAsync(IUnitOfWork unitOfWork, Source source, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает активный добавочный номер Mango для водителя
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="driverId">Id водителя (сотрудника)</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Активный добавочный номер Mango для водителя</returns>
+		Task<DriverMangoExtensionNumber> GetActiveDriverMangoExtensionNumber(IUnitOfWork uow, int driverId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает сотрудника по идентификатору
+		/// </summary>
+		Task<Employee> GetEmployeeByIdAsync(IUnitOfWork uow, int employeeId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверяет можно ли создать заявку на регистрацию водителя как сотрудника Манго
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="driverId">Id водителя (сотрудника)</param>
+		/// <returns>Результат проверки</returns>
+		bool CanCreateDriverMangoRegistrationRequest(IUnitOfWork uow, int driverId);
+
+		/// <summary>
+		/// Возвращает водителя по номеру заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Водитель</returns>
+		Task<Employee> GetDriverByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверяет, есть ли у сотрудника ненулевые остатки ТМЦ
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="employeeId">Идентификатор сотрудника</param>
+		/// <returns>True - за сотрудником числятся ненулевые остатки, иначе - False</returns>
+		bool HasNonZeroBalance(IUnitOfWork uow, int employeeId);
 	}
 }

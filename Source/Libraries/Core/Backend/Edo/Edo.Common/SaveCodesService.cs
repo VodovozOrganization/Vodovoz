@@ -48,10 +48,25 @@ namespace Edo.Common
 					continue;
 				}
 
-				await _trueMarkCodesPool.PutCodeAsync(productCode.SourceCode.Id, cancellationToken);
-				productCode.ResultCode = null;
-				productCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
+				await SaveCodeToPool(productCode, cancellationToken);
 			}
+		}
+
+		public async Task SaveCodeToPool(TrueMarkProductCode productCode, CancellationToken cancellationToken)
+		{
+			if(productCode.SourceCode is null)
+			{
+				throw new InvalidOperationException("Source code is null");
+			}
+
+			if(productCode.Problem != ProductCodeProblem.None)
+			{
+				throw new InvalidOperationException("Product code has a problem");
+			}
+
+			await _trueMarkCodesPool.PutCodeAsync(productCode.SourceCode.Id, cancellationToken);
+			productCode.ResultCode = null;
+			productCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
 		}
 	}
 }

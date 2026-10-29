@@ -1,0 +1,213 @@
+﻿using Edo.Contracts.Messages.Events;
+using Edo.Problem.Routine.Options;
+using Edo.Problem.Routine.Services.Common;
+using Edo.Problems.Validation;
+using Edo.Transport;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
+using Vodovoz.Core.Domain.FastPayments;
+
+namespace Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem
+{
+	/// <summary>
+	/// Сервис обработки проблем с оплатой при самовывозе в ЭДО
+	/// </summary>
+	public class OrderSelfDeliveryPaidProblemService
+	{
+		private const string _problemSourceName = "Order.SelfdeliveryPaid";
+
+		private readonly ILogger<OrderSelfDeliveryPaidProblemService> _logger;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IOptionsMonitor<OrderSelfDeliveryPaidProblemWorkerOptions> _options;
+		private readonly IEdoTaskValidator _selfDeliveryPaidValidator;
+		private readonly IServiceProvider _serviceProvider;
+		private readonly IEdoRepository _edoRepository;
+		private readonly IEdoProblemRoutineNotificationService _notificationService;
+		private readonly IOrderEdoTaskCreatedEventPublisher _taskCreatedEventPublisher;
+
+		public OrderSelfDeliveryPaidProblemService(
+			ILogger<OrderSelfDeliveryPaidProblemService> logger,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IOptionsMonitor<OrderSelfDeliveryPaidProblemWorkerOptions> options,
+			IEnumerable<IEdoTaskValidator> validators,
+			IServiceProvider serviceProvider,
+			IEdoRepository edoRepository,
+			IEdoProblemRoutineNotificationService notificationService,
+			IOrderEdoTaskCreatedEventPublisher taskCreatedEventPublisher)
+		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_options = options ?? throw new ArgumentNullException(nameof(options));
+			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
+			_selfDeliveryPaidValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
+				.FirstOrDefault(v => v.Name == _problemSourceName)
+				?? throw new InvalidOperationException($"Валидатор с именем '{_problemSourceName}' не зарегистрирован");
+			_notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+			_taskCreatedEventPublisher = taskCreatedEventPublisher ?? throw new ArgumentNullException(nameof(taskCreatedEventPublisher));
+		}
+
+		private DateTime _minEdoTaskCreationTime => DateTime.Today - _options.CurrentValue.ProblemTimeout;
+
+		/// <summary>
+		/// Обработчик задач с проблемой оплаты при самовывозе в ЭДО
+		/// </summary>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		public async Task ProcessProblemTasks(CancellationToken cancellationToken)
+		{
+			IList<int> taskIds;
+
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(OrderSelfDeliveryPaidProblemService)))
+			{
+				var documentTasks =
+					await _edoRepository.GetProblemEdoTasks<DocumentEdoTask>(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+				var receiptTasks =
+					await _edoRepository.GetProblemEdoTasks<ReceiptEdoTask>(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+				var tenderTasks =
+					await _edoRepository.GetProblemEdoTasks<TenderEdoTask>(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+
+				taskIds = documentTasks
+					.Select(x => x.Id)
+					.Concat(receiptTasks.Select(x => x.Id))
+					.Concat(tenderTasks.Select(x => x.Id))
+					.ToList();
+
+				_logger.LogInformation("Найдено {Count} задач ЭДО с активной проблемой {ProblemName}",
+					taskIds.Count, _problemSourceName);
+			}
+
+			await TryResumeTasks(taskIds, cancellationToken);
+		}
+
+		private async Task TryResumeTasks(IList<int> taskIds, CancellationToken cancellationToken)
+		{
+			var successCount = 0;
+			var errorCount = 0;
+
+			foreach(var taskId in taskIds)
+			{
+				try
+				{
+					using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(OrderSelfDeliveryPaidProblemService)))
+					{
+						var edoTask = await uow.Session.GetAsync<OrderEdoTask>(taskId, cancellationToken);
+
+						if(edoTask == null)
+						{
+							_logger.LogWarning("Задача ЭДО {EdoTaskId} не найдена", taskId);
+							continue;
+						}
+
+						var resumed = await TryResumeTask(uow, edoTask, cancellationToken);
+						if(resumed)
+						{
+							successCount++;
+						}
+					}
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Ошибка при обработке задачи ЭДО {EdoTaskId}", taskId);
+					errorCount++;
+				}
+			}
+
+			_logger.LogInformation(
+				"Обработка завершена. Всего задач: {Total}. Возобновлено: {Success}. Ошибок: {Errors}",
+				taskIds.Count,
+				successCount,
+				errorCount);
+		}
+
+		private async Task<bool> TryResumeTask(
+			IUnitOfWork uow,
+			OrderEdoTask edoTask,
+			CancellationToken cancellationToken)
+		{
+			if(!_selfDeliveryPaidValidator.IsApplicable(edoTask))
+			{
+				_logger.LogError(
+					"Задача ЭДО {EdoTaskId} не подходит для обработки проблемой оплаты при самовывозе",
+					edoTask.Id);
+				return false;
+			}
+
+			await RestoreSelfDeliveryPaidFlagForPerformedFastPayment(uow, edoTask, cancellationToken);
+
+			var validationResult = await _selfDeliveryPaidValidator.ValidateAsync(edoTask, _serviceProvider, cancellationToken);
+
+			if(!validationResult.IsValid)
+			{
+				var notificationPublished = await _notificationService.NotifyAsync<OrderSelfDeliveryPaymentProblemEdoNotificationSetting>(
+					uow,
+					edoTask,
+					_selfDeliveryPaidValidator,
+					cancellationToken);
+
+				if(notificationPublished)
+				{
+					await uow.CommitAsync(cancellationToken);
+				}
+
+				_logger.LogDebug(
+					"Задача ЭДО {EdoTaskId}: оплата самовывоза по заказу №{OrderId} ещё не подтверждена, пропускаем",
+					edoTask.Id,
+					edoTask.FormalEdoRequest.Order.Id);
+				return false;
+			}
+
+			_logger.LogInformation(
+				"Задача ЭДО {EdoTaskId}: оплата самовывоза по заказу №{OrderId} подтверждена, возобновляем документооборот",
+				edoTask.Id,
+				edoTask.FormalEdoRequest.Order.Id);
+
+			_taskCreatedEventPublisher.Publish(uow, edoTask, cancellationToken);
+			await uow.CommitAsync(cancellationToken);
+
+			return true;
+		}
+
+		private async Task RestoreSelfDeliveryPaidFlagForPerformedFastPayment(
+			IUnitOfWork uow,
+			OrderEdoTask edoTask,
+			CancellationToken cancellationToken)
+		{
+			var order = edoTask.FormalEdoRequest.Order;
+
+			if(!order.SelfDelivery || order.IsSelfDeliveryPaid)
+			{
+				return;
+			}
+
+			var performedFastPayment = await uow.Session.QueryOver<FastPaymentEntity>()
+				.Where(payment => payment.Order.Id == order.Id)
+				.And(payment => payment.FastPaymentStatus == FastPaymentStatus.Performed)
+				.Take(1)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			if(performedFastPayment == null)
+			{
+				return;
+			}
+
+			order.IsSelfDeliveryPaid = true;
+			await uow.SaveAsync(order, cancellationToken: cancellationToken);
+			await uow.CommitAsync(cancellationToken);
+
+			_logger.LogInformation(
+				"Задача ЭДО {EdoTaskId}: для самовывоза по заказу №{OrderId} найден проведённый быстрый платёж, признак оплаты восстановлен",
+				edoTask.Id,
+				order.Id);
+		}
+	}
+}

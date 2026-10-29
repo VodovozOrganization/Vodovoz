@@ -1,6 +1,16 @@
+﻿using System;
+using MassTransit;
 using Edo.Common;
 using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
+using Edo.Problem.Routine.Services.CodeDuplicatedProblem;
+using Edo.Problem.Routine.Services.CodePoolMissingProblem;
+using Edo.Problem.Routine.Services.Common;
+using Edo.Problem.Routine.Services.NewEdoTasksResend;
+using Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem;
+using Edo.Problem.Routine.Services.OrderStatusProblem;
+using Edo.Problem.Routine.Services.ReceiptContactProblem;
+using Edo.Problem.Routine.Services.TaxcomSendProblem;
 using Edo.Problems;
 using Edo.Transport;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,15 +34,23 @@ namespace Edo.Problem.Routine
 				.AddCoreDataRepositories()
 				.AddCore()
 				.AddEdo()
-				.AddEdoProblemRegistration();
+				.AddEdoProblemRegistration()
+				.AddEdoNotifications();
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+			services.AddScoped<IOrderEdoTaskCreatedEventPublisher, OrderEdoTaskCreatedEventPublisher>();
+			services.AddScoped<INewEdoTasksResendService, NewEdoTasksResendService>();
+ 			services.AddScoped<EdoProblemRoutineNotificationFactory>();
+			services.AddScoped<IEdoProblemRoutineNotificationService, EdoProblemRoutineNotificationService>();
 
 			services
 				.AddOrderSelfDeliveryPaidProblem()
 				.AddOrderFiscalDocumentSendErrorProblem()
 				.AddReceiptNightSendProblem()
 				.AddOrderStatusProblem()
+				.AddCodeDuplicatedProblem()
+				.AddReceiptContactProblem()
+				.AddTaxcomSendProblem()
 				;
 
 			return services;
@@ -43,10 +61,13 @@ namespace Edo.Problem.Routine
 		/// </summary>
 		/// <param name="services">Коллекция сервисов</param>
 		/// <returns>Коллекция сервисов</returns>
-		public static IServiceCollection AddEdoProblemRoutine(this IServiceCollection services)
+		/// <param name="configureBus">Дополнительная настройка шины в приложении, например outbox</param>
+		public static IServiceCollection AddEdoProblemRoutine(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoProblemRoutineServices();
-			services.AddEdoMassTransit();
+			services.AddEdoMassTransit(configureBus: configureBus);
 
 			return services;
 		}
@@ -75,6 +96,14 @@ namespace Edo.Problem.Routine
 			return services;
 		}
 
+		private static IServiceCollection AddCodeDuplicatedProblem(this IServiceCollection services)
+		{
+			services.ConfigureOptions<ConfigureCodeDuplicatedProblemWorkerOptions>();
+			services.AddScoped<ICodeDuplicatedProblemService, CodeDuplicatedProblemService>();
+
+			return services;
+		}
+
 		private static IServiceCollection AddReceiptNightSendProblem(this IServiceCollection services)
 		{
 			services.ConfigureOptions<ConfigureReceiptNightSendProblemWorkerOptions>();
@@ -82,12 +111,30 @@ namespace Edo.Problem.Routine
 
 			return services;
 		}
+
+		private static IServiceCollection AddReceiptContactProblem(this IServiceCollection services) =>
+			services
+				.ConfigureOptions<ConfigureReceiptContactProblemWorkerOptions>()
+				.AddScoped<IReceiptContactProblemSourceProvider, ReceiptContactProblemSourceProvider>()
+				.AddScoped<IReceiptContactProblemService, ReceiptContactProblemService>()
+				.AddScoped<IReceiptEdoTaskResendService, ReceiptEdoTaskResendService>()
+				.AddScoped<IReceiptContactProblemNotificationService, ReceiptContactProblemNotificationService>();
 		
 		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)
 		{
 			services
-				.AddScoped<OrderEdoCodePoolMissingProblemService>()
+				.ConfigureOptions<ConfigureCodePoolMissingProblemWorkerOptions>()
+				.AddScoped<ICodePoolMissingProblemService, CodePoolMissingProblemService>()
 				.AddEdoProblemRegistration();;
+
+			return services;
+		}
+
+		public static IServiceCollection AddTaxcomSendProblem(this IServiceCollection services)
+		{
+			services
+				.ConfigureOptions<ConfigureTaxcomSendProblemWorkerOptions>()
+				.AddScoped<ITaxcomSendProblemService, TaxcomSendProblemService>();
 
 			return services;
 		}

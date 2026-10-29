@@ -25,6 +25,11 @@ namespace Vodovoz.ViewModels.TrueMark
 		private StagingTrueMarkCode _stagingTrueMarkCode;
 		private string _stagingCodeSource;
 
+		public int ProductCodeId
+		{
+			get; set;
+		}
+		
 		public virtual OrderCodeItemViewModel Parent
 		{
 			get => _parent;
@@ -111,6 +116,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			get => _resultIdentificationCode;
 			set => SetField(ref _resultIdentificationCode, value);
 		}
+
+		public virtual string PoolIdentificationCode => ResultIdentificationCode ?? SourceIdentificationCode;
 
 		public virtual bool ReplacedFromPool
 		{

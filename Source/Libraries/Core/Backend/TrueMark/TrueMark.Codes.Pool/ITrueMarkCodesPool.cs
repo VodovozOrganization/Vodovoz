@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TrueMark.Codes.Pool
@@ -33,5 +35,32 @@ namespace TrueMark.Codes.Pool
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Id кода</returns>
 		Task<int> TakeCode(string gtin, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить пачку кодов по GTIN и количеству
+		/// </summary>
+		/// <param name="gtin"></param>
+		/// <param name="count"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		Task<IList<int>> TakeCodes(string gtin, int count, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Удалить код из пула по идентификатору кода ЧЗ (идемпотентно)
+		/// </summary>
+		/// <param name="codeId">Id кода из true_mark_identification_code</param>
+		void RemoveCode(int codeId);
+
+		/// <summary>
+		/// Асинхронно удалить код из пула по идентификатору кода ЧЗ (идемпотентно)
+		/// </summary>
+		/// <param name="codeId">Id кода из true_mark_identification_code</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		Task RemoveCodeAsync(int codeId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Удалить код из пула по GTIN и серийному номеру (идемпотентно)
+		/// </summary>
+		Task RemoveCodeByGtinAndSerialAsync(string gtin, string serialNumber, CancellationToken cancellationToken);
 	}
 }

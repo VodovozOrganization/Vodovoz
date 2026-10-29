@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Settings.Edo;
 
@@ -7,6 +8,7 @@ namespace Vodovoz.Settings.Database.Edo
 	public class EdoSettings : IEdoSettings
 	{
 		private readonly ISettingsController _settingsController;
+		private IReadOnlyDictionary<int, string> _taxcomOrganizationBaseAddresses;
 
 		public EdoSettings(ISettingsController settingsController)
 		{
@@ -30,7 +32,6 @@ namespace Vodovoz.Settings.Database.Edo
 		public string TrueMarkApiParticipantsUri => _settingsController.GetStringValue("TrueMarkApiParticipantsUri");
 		public int CodePoolCheckCodesDepth => _settingsController.GetIntValue("TrueMarkCodePoolCheckCodesDepth");
 		public int CodePoolCheckIntervalMinutes => _settingsController.GetIntValue("TrueMarkCodePoolCheckIntervalMinutes");
-		public int CodePoolPromoteWithExtraSeconds => _settingsController.GetIntValue("TrueMarkCodePoolPromoteWithExtraSeconds");
 		public int CodePoolTakeValidCodeAttempts => _settingsController.GetIntValue("TrueMarkCodePoolTakeValidCodeAttempts");
 		public int[] OrganizationsHavingAccountsInTrueMark => _settingsController
 			.GetStringValue("TrueMark.OrganizationsHavingAccountsInTrueMark")
@@ -42,5 +43,46 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public int WithdrawalDocflowTimeoutDays =>
 			_settingsController.GetIntValue("edo.withdrawal.docflow_timeout");
+
+		public int ExpiredCodesCleanerIntervalMinutes => _settingsController.GetIntValue(nameof(ExpiredCodesCleanerIntervalMinutes));
+
+		public int UsedCodesCleanerIntervalHours => _settingsController.GetIntValue(nameof(UsedCodesCleanerIntervalHours));
+
+		public string TaxcomGetDocflowStatusEndpoint => _settingsController.GetStringValue(nameof(TaxcomGetDocflowStatusEndpoint));
+
+		public int CodePoolExpireDateCheckAdditinalDays =>
+			_settingsController.GetIntValue("edo.code_pool_expire_date_check_additional_days");
+
+		public int GeneralExpireDateCheckAdditinalDays =>
+			_settingsController.GetIntValue("edo.general_expire_date_check_additional_days");
+
+		public IReadOnlyDictionary<int, string> TaxcomOrganizationBaseAddresses
+		{
+			get
+			{
+				var dict = new Dictionary<int, string>();
+
+				var addressesString = _settingsController.GetStringValue(nameof(TaxcomOrganizationBaseAddresses));
+
+				if(!string.IsNullOrWhiteSpace(addressesString))
+				{
+					var cleaned = addressesString.Replace(" ", "");
+					var blocks = cleaned.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+					foreach(var block in blocks)
+					{
+						var inner = block.Trim('{', '}');
+						var parts = inner.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+						if(parts.Count() == 2 && int.TryParse(parts[0].Trim(), out int organizationId))
+						{
+							dict[organizationId] = parts[1].Trim();
+						}
+					}
+				}
+
+				return dict;
+			}
+		}
 	}
 }

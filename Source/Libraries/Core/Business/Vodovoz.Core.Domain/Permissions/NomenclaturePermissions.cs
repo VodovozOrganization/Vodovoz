@@ -39,5 +39,13 @@ namespace Vodovoz.Core.Domain.Permissions
 			Name = "Номенклатура. Доступ к вкладке Сайты и приложения",
 			Description = "Позволяет менять онлайн параметры номенклатуры и в общих настройках устанавливать склады для расчета остатков")]
 		public static string HasAccessToSitesAndAppsTab => "Nomenclature.HasAccessToSitesAndAppsTab";
+
+		/// <summary>
+		/// Пользователь может редактировать сервисные номенклатуры, которые будут использоваться для создания сделок в Битрикс24
+		/// </summary>
+		[Display(
+			Name = "Редактирование сервисных номенклатур для сделок в Битрикс24",
+			Description = "Пользователь может редактировать сервисные номенклатуры, которые будут использоваться для создания сделок в Битрикс24")]
+		public static string CanEditServiceNomenclaturesForBitrixDeals => "Nomenclature.CanEditServiceNomenclaturesForBitrixDeals";
 	}
 }

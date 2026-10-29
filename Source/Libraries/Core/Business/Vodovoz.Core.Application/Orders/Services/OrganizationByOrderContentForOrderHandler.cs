@@ -5,8 +5,10 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
@@ -23,13 +25,15 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrganizationForOrderFromSet _organizationForOrderFromSet;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IFlyerRepository _flyerRepository;
+		private readonly IOrganizationSettings _organizationSettings;
 
 		public OrganizationByOrderContentForOrderHandler(
 			OrganizationByOrderAuthorHandler organizationByOrderAuthorHandler,
 			OrganizationByPaymentTypeForOrderHandler organizationByPaymentTypeForOrderHandler,
 			IOrganizationForOrderFromSet organizationForOrderFromSet,
 			INomenclatureSettings nomenclatureSettings,
-			IFlyerRepository flyerRepository)
+			IFlyerRepository flyerRepository,
+			IOrganizationSettings organizationSettings)
 		{
 			_organizationByOrderAuthorHandler =
 				organizationByOrderAuthorHandler ?? throw new ArgumentNullException(nameof(organizationByOrderAuthorHandler));
@@ -40,6 +44,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
 
 		public override IEnumerable<PartOrderWithGoods> SplitOrderByOrganizations(
@@ -54,7 +59,17 @@ namespace Vodovoz.Core.Application.Orders.Services
 					new PartOrderWithGoods(organizationChoice.CurrentOrderOrganization)
 				};
 			}
-			
+
+			var orderParts = SplitOrderByOrganizationsFromOrderContent(uow, requestTime, organizationChoice);
+
+			return ReplaceOrganizationsInPaidOrder(uow, requestTime, organizationChoice, orderParts);
+		}
+
+		private IEnumerable<PartOrderWithGoods> SplitOrderByOrganizationsFromOrderContent(
+			IUnitOfWork uow,
+			TimeSpan requestTime,
+			OrderOrganizationChoice organizationChoice)
+		{
 			var setsOrganizations = new Dictionary<short, PartOrderWithGoods>();
 			IProduct paidDelivery = null;
 			IList<IProduct> processingGoodsWithoutPaidDelivery = new List<IProduct>();
@@ -192,24 +207,62 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return setsOrganizations.Values;
 		}
 
+		/// <summary>
+		/// В уже оплаченном заказе организация по составу заказа (Кулер Сервис) не подставляется
+		/// Деньги ушли на организацию, подобранную по форме и источнику оплаты, поэтому все части заказа
+		/// получают именно её. Разбиение заказа на части при этом сохраняется, чтобы сервисную часть заказа
+		/// выполнил мастер, а воду привез курьер
+		/// </summary>
+		private IEnumerable<PartOrderWithGoods> ReplaceOrganizationsInPaidOrder(
+			IUnitOfWork uow,
+			TimeSpan requestTime,
+			OrderOrganizationChoice organizationChoice,
+			IEnumerable<PartOrderWithGoods> orderParts)
+		{
+			if(!organizationChoice.IsOrderPaid)
+			{
+				return orderParts;
+			}
+
+			var orderPartsList = orderParts.ToList();
+
+			if(orderPartsList.All(x => x.Organization?.Id != _organizationSettings.KulerServiceOrganizationId))
+			{
+				return orderPartsList;
+			}
+
+			var organizationByPaymentType =
+				_organizationByPaymentTypeForOrderHandler.GetOrganization(uow, requestTime, organizationChoice);
+
+			return orderPartsList
+				.Select(orderPart => ReplaceOrganizationInOrderPart(orderPart, organizationByPaymentType))
+				.ToList();
+		}
+
+		private PartOrderWithGoods ReplaceOrganizationInOrderPart(PartOrderWithGoods orderPart, Organization organization)
+		{
+			if(orderPart.Organization?.Id == organization.Id)
+			{
+				return orderPart;
+			}
+
+			return new PartOrderWithGoods(organization, orderPart.Goods, orderPart.OrderEquipments)
+			{
+				OrderDepositItems = orderPart.OrderDepositItems
+			};
+		}
+
 		public bool OrderHasGoodsFromSeveralOrganizations(
 			IUnitOfWork uow,
 			IList<int> nomenclatureIds)
 		{
-			var kulerServiceSet =
-				uow.GetAll<OrganizationBasedOrderContentSettings>()
-					.FirstOrDefault(x => x.OrderContentSet == 1);
+			var kulerServiceSet = GetKulerServiceSet(uow);
 
 			if(kulerServiceSet is null)
 			{
 				return false;
 			}
-			
-			if(!kulerServiceSet.Nomenclatures.Any() && !kulerServiceSet.ProductGroups.Any())
-			{
-				return false;
-			}
-			
+
 			var i = 0;
 			var kulerServiceProductIds = new List<int>();
 
@@ -228,6 +281,50 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 			
 			return nomenclatureIds.Any() && kulerServiceProductIds.Any();
+		}
+
+		/// <summary>
+		/// Проверка наличия в заказе товаров, продающихся от Кулер Сервис
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="nomenclatures">Номенклатуры, находящиеся в заказе</param>
+		/// <returns><c>true</c> если заказ содержит товары сервисной организации, иначе <c>false</c></returns>
+		public bool IsOrderContainsKulerServiceGoods(IUnitOfWork uow, IEnumerable<OrderItem> orderItems)
+		{
+			if(orderItems is null)
+			{
+				throw new ArgumentNullException(nameof(orderItems));
+			}
+
+			var kulerServiceSet = GetKulerServiceSet(uow);
+
+			if(kulerServiceSet is null)
+			{
+				return false;
+			}
+
+			var nomenclatures = orderItems.Select(x => x.Nomenclature).ToList();
+
+			return nomenclatures.Any(nomenclature => NomenclatureBelongsSet(nomenclature, kulerServiceSet));
+		}
+
+		/// <summary>
+		/// Множество настроек с товарами, продающимися от сервисной организации(Кулер Сервис)
+		/// <c>null</c>, если множество не настроено
+		/// </summary>
+		private OrganizationBasedOrderContentSettings GetKulerServiceSet(IUnitOfWork uow)
+		{
+			var kulerServiceSet =
+				uow.GetAll<OrganizationBasedOrderContentSettings>()
+					.FirstOrDefault(x => x.OrderContentSet == OrganizationBasedOrderContentSettings.KulerServiceOrderContentSet);
+
+			if(kulerServiceSet is null
+				|| (!kulerServiceSet.Nomenclatures.Any() && !kulerServiceSet.ProductGroups.Any()))
+			{
+				return null;
+			}
+
+			return kulerServiceSet;
 		}
 
 		private void ProcessEquipmentsNotDependsOrderItems(

@@ -57,7 +57,7 @@ namespace DatabaseServiceWorker
 					}
 				}
 
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await zabbixSender.SendIsHealthyAsync(nameof(MonitoringArchivingWorker), stoppingToken);
 
 				_logger.LogInformation($"Ожидаем {_delayInMinutes}мин перед следующим запуском");
 				await Task.Delay(1000 * 60 * _delayInMinutes, stoppingToken);

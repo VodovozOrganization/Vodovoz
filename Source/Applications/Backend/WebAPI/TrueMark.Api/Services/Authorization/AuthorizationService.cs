@@ -60,7 +60,8 @@ public class AuthorizationService : IAuthorizationService
 		{
 			Uuid = authKey.Uuid,
 			Data = Convert.ToBase64String(sign),
-			Inn = inn
+			Inn = inn,
+			UnitedToken = true
 		};
 
 		var serializedTokenRequest = JsonSerializer.Serialize(tokenRequest);
@@ -77,8 +78,8 @@ public class AuthorizationService : IAuthorizationService
 				var tokenCache = new AuthorizationTokenCache
 				{
 					CertificateThumbPrint = сertificateThumbPrint,
-					TokenCreateTime = DateTime.Now,
-					Token = tokenResponse.Token
+					TokenExpirationTime = tokenResponse.ExpireDate,
+					Token = tokenResponse.UuidToken
 				};
 
 				_tokenCacheList.Add(tokenCache);

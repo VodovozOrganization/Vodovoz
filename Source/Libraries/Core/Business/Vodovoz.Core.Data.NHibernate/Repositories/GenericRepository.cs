@@ -86,6 +86,7 @@ namespace Vodovoz.Infrastructure.Persistance
 		}
 
 		/// <inheritdoc/>
+		//TODO нет тут никакого Result, надо переделать
 		public async Task<Result<IEnumerable<TEntity>>> GetAsync(
 			IUnitOfWork unitOfWork,
 			Expression<Func<TEntity, bool>> predicate = null,
@@ -113,6 +114,7 @@ namespace Vodovoz.Infrastructure.Persistance
 		}
 
 		/// <inheritdoc/>
+		//TODO нет тут никакого Result, надо переделать
 		public async Task<Result<IEnumerable<TEntity>>> GetAsync(
 			IUnitOfWork unitOfWork,
 			ExpressionSpecification<TEntity> expressionSpecification,

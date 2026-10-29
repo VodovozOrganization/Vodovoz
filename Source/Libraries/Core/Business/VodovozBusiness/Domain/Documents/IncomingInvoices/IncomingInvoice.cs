@@ -83,7 +83,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		}
 
 		public virtual bool HasItemsWithZeroPrimeCostOrSum =>
-			Items.Any(item => item.PrimeCost == 0 || item.Sum == 0);
+			Items.Any(item => item.PrimeCost < 0.01m || Math.Round(item.Sum, 2) == 0);
 
 		[Display(Name = "Склад")]
 		[Required(ErrorMessage = "Склад должен быть указан.")]

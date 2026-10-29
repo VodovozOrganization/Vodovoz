@@ -1,4 +1,5 @@
-﻿using Gamma.GtkWidgets;
+﻿using Core.Infrastructure;
+using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gdk;
 using Gtk;
@@ -15,7 +16,6 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
@@ -65,6 +65,16 @@ namespace Vodovoz.Logistic
 			entityentryCar.ViewModel = ViewModel.CarViewModel;
 			entityentryCar.Binding
 				.AddBinding(ViewModel, vm => vm.LogisticanEditing, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ylabelSemitrailer.Binding
+				.AddBinding(ViewModel, vm => vm.IsSemiTrailerVisible, w => w.Visible)
+				.InitializeFromSource();
+
+			entrySemitrailer.ViewModel = ViewModel.SemitrailerViewModel;
+			entrySemitrailer.Binding
+				.AddBinding(ViewModel, vm => vm.IsSemiTrailerVisible, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanWorkWithSemitrailers, w => w.Sensitive)
 				.InitializeFromSource();
 
 			var deliveryfreebalanceview = new DeliveryFreeBalanceView(ViewModel.DeliveryFreeBalanceViewModel);
@@ -262,6 +272,8 @@ namespace Vodovoz.Logistic
 			phoneForwarder.Binding
 				.AddBinding(ViewModel.Entity, e => e.Forwarder, w => w.Employee)
 				.InitializeFromSource();
+
+			mangocallbuttonviewDriverExtensionPhone.ViewModel = ViewModel.DriverExtensionCallViewModel;
 		}
 
 		private void InitializeRouteListAddressesTreeView()

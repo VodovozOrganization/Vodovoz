@@ -18,8 +18,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Organizations;
+using Core.Infrastructure;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 {

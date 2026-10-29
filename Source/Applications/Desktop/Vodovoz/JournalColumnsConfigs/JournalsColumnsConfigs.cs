@@ -13,11 +13,13 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Goods.ProductGroups;
+using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.Journals.JournalNodes.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Edo.Deviations;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -155,6 +157,37 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 			
+			TreeViewColumnsConfigFactory.Register<EdoDeviationJournalViewModel>(
+				(vm) => FluentColumnsConfig<EdoDeviationJournalNode>.Create()
+					.SetTreeModel(() => new RecursiveTreeModel<EdoDeviationJournalNode>(vm.Items.Cast<EdoDeviationJournalNode>(), vm.RecuresiveConfig))
+					.AddColumn("Заказ").HeaderAlignment(0.5f).AddTextRenderer(node => node.OrderTitle)
+					.AddColumn("Дата доставки").HeaderAlignment(0.5f).AddDateRenderer(node => node.DeliveryDate)
+					.AddColumn("Контрагент").HeaderAlignment(0.5f).AddTextRenderer(node => node.CounterpartyName)
+						.WrapMode(Pango.WrapMode.Word).WrapWidth(200)
+					.AddColumn("Задача").HeaderAlignment(0.5f).AddNumericRenderer(node => node.EdoTaskId)
+					.AddColumn("Тип задачи").HeaderAlignment(0.5f)
+						.AddReadOnlyTextRenderer(node => node.TaskType?.GetEnumTitle())
+					.AddColumn("Статус задачи").HeaderAlignment(0.5f)
+						.AddReadOnlyTextRenderer(node => node.TaskStatus?.GetEnumTitle())
+					.AddColumn("Результат").HeaderAlignment(0.5f).AddTextRenderer(node => node.Result)
+						.WrapMode(Pango.WrapMode.Word).WrapWidth(250)
+					.AddColumn("Идентификатор источника проблемы").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ProblemSourceName)
+						.WrapMode(Pango.WrapMode.Word).WrapWidth(200)
+					.AddColumn("Описание").HeaderAlignment(0.5f).AddTextRenderer(node => node.Description)
+						.WrapMode(Pango.WrapMode.Word).WrapWidth(300)
+					.AddColumn("Рекомендация").HeaderAlignment(0.5f).AddTextRenderer(node => node.Recommendation)
+						.WrapMode(Pango.WrapMode.Word).WrapWidth(300)
+					.AddColumn("Обнаружено").HeaderAlignment(0.5f)
+						.AddReadOnlyTextRenderer(node => node.DetectedTime?.ToString("dd.MM.yyyy HH:mm"))
+					.AddColumn("Состояние").HeaderAlignment(0.5f)
+						.AddReadOnlyTextRenderer(node => node.State?.GetEnumTitle())
+					.AddColumn("Причина снятия").HeaderAlignment(0.5f)
+						.AddReadOnlyTextRenderer(node => node.ResolveReason?.GetEnumTitle())
+					.AddColumn("")
+					.Finish()
+			);
+
 			 TreeViewColumnsConfigFactory.Register<CallCenterMotivationCoefficientJournalViewModel>(ViewModel =>
 				FluentColumnsConfig<CallCenterMotivationCoefficientJournalNode>.Create()
 					.SetTreeModel(ViewModel.CreateAndSaveTreeModel)

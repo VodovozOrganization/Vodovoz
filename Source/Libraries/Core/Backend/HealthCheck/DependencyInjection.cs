@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NLog;
 using NLog.Config;
 using VodovozHealthCheck.Logging;
 using VodovozHealthCheck.Providers;
@@ -27,10 +28,28 @@ namespace VodovozHealthCheck
 		{
 			app.UseMiddleware<LoggingMiddleware>();
 
+			var logger = LogManager.GetCurrentClassLogger();
+
 			var options = new HealthCheckOptions
 			{
 				ResponseWriter = async (ctx, report) =>
 				{
+					foreach(var entry in report.Entries)
+					{
+						if(entry.Value.Status == HealthStatus.Healthy)
+						{
+							continue;
+						}
+
+						logger.Error(
+							entry.Value.Exception,
+							"HealthCheck {CheckName} вернул {Status}. {Description}. HealthCheckRunId={RunId}",
+							entry.Key,
+							entry.Value.Status,
+							entry.Value.Description,
+							LoggingContext.HealthCheckRunId);
+					}
+
 					var writer = responseWriter ?? ctx.RequestServices.GetRequiredService<JsonResponseWriter>();
 					await writer.WriteResponse(ctx, report);
 				},

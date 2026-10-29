@@ -16,6 +16,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 using VodovozBusiness.Domain.Complaints;
+using Selection = Gdk.Selection;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -293,6 +294,8 @@ namespace Vodovoz.Views.Complaints
 			copyCommentsMenuEntry.ButtonPressEvent += CopyCopyCommentsMenuEntry_Activated;
 			copyCommentsMenuEntry.Visible = true;
 			_popupCopyCommentsMenu.Add(copyCommentsMenuEntry);
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
 		}
 
 		private void InitializeEntryViewModels()
@@ -451,6 +454,14 @@ namespace Vodovoz.Views.Complaints
 			else
 			{
 				cell.CellBackgroundGdk = GdkColors.PrimaryBase;
+			}
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.Entity.Id > 0)
+			{
+				GetClipboard(Selection.Clipboard).Text = ViewModel.Title;
 			}
 		}
 

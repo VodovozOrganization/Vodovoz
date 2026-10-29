@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
@@ -8,6 +9,7 @@ namespace Edo.Problems.Validation.Sources
 {
 	public class OrderStatusEdoValidator : OrderEdoValidatorBase, IEdoTaskValidator
 	{
+		[Display(Name = "Статус заказа")]
 		public override string Name
 		{
 			get => "Order.Status";
@@ -32,19 +34,31 @@ namespace Edo.Problems.Validation.Sources
 			get => "Подождать доставки заказа. Если сеть, то подождать отправки заказа со склада в путь";
 		}
 
-		public string GetTemplateMessage(EdoTask edoTask)
+		public override string GetTemplatedMessage(EdoTask edoTask)
 		{
 			var orderEdoRequest = GetEdoRequest(edoTask);
 			if(orderEdoRequest == null)
 			{
 				return Message;
 			}
+
+			if(orderEdoRequest.Order.IsUndeliveredStatus)
+			{
+				return $"Заказ №{orderEdoRequest.Order.Id} отменен, документы по нему клиенту не отправляются";
+			}
+
 			return $"Заказ №{orderEdoRequest.Order.Id} должен как минимум быть отправлен со склада в путь";
 		}
 
 		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
 			var orderEdoRequest = GetEdoRequest(edoTask);
+			
+			if(orderEdoRequest.Order.IsUndeliveredStatus)
+			{
+				return Task.FromResult(EdoValidationResult.Invalid(this));
+			}
+
 			var invalid = orderEdoRequest.Order.OrderStatus < OrderStatus.OnTheWay;
 
 			if(orderEdoRequest.Order.SelfDelivery && orderEdoRequest.Order.IsOrderForResale)

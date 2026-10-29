@@ -1,52 +1,76 @@
-﻿using Edo.Common;
-using Edo.Problems.Custom;
-using Edo.Problems.Exception;
-using Edo.Problems.Validation;
-using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Common;
+using Edo.Problems.Custom;
+using Edo.Problems.Exception;
+using Edo.Problems.Validation;
+using EdoNotifications.Contracts;
+using Notifications.Infrastructure;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Problems
 {
-	public class EdoProblemRegistrar
+	public class EdoProblemRegistrar : EdoProblemRegistrarBase
 	{
 		private readonly IUnitOfWork _taskUow;
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly EdoTaskCustomSourcesPersister _customSourcesPersister;
-		private readonly EdoTaskExceptionSourcesPersister _exceptionSourcesPersister;
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 
 		public EdoProblemRegistrar(
 			IUnitOfWork taskUow,
 			IUnitOfWorkFactory uowFactory,
 			EdoTaskCustomSourcesPersister customSourcesPersister,
-			EdoTaskExceptionSourcesPersister exceptionSourcesPersister
-			)
+			EdoTaskExceptionSourcesPersister exceptionSourcesPersister,
+			INotificationPublisher<EdoNotificationMessage> notificationPublisher
+			) : base(customSourcesPersister, exceptionSourcesPersister)
 		{
 			_taskUow = taskUow ?? throw new ArgumentNullException(nameof(taskUow));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_customSourcesPersister = customSourcesPersister ?? throw new ArgumentNullException(nameof(customSourcesPersister));
-			_exceptionSourcesPersister = exceptionSourcesPersister ?? throw new ArgumentNullException(nameof(exceptionSourcesPersister));
+			_notificationPublisher = notificationPublisher ?? throw new ArgumentNullException(nameof(notificationPublisher));
 		}
 
 		public async Task RegisterCustomProblem<TCustomSource>(
 			EdoTask edoTask,
 			CancellationToken cancellationToken,
-			string customMessage = null
+			string customMessage = null,
+			bool disposeTaskUow = true
 			)
 			where TCustomSource : EdoTaskProblemCustomSource
 		{
-			await RegisterCustomProblem<TCustomSource>(edoTask, new List<EdoTaskItem>(), cancellationToken, customMessage);
+			await RegisterCustomProblem<TCustomSource>(
+				edoTask.Id,
+				new List<EdoTaskItem>(),
+				cancellationToken,
+				customMessage,
+				disposeTaskUow);
 		}
 
 		public async Task RegisterCustomProblem<TCustomSource>(
-			EdoTask edoTask,
+			int edoTaskId,
+			CancellationToken cancellationToken,
+			string customMessage = null,
+			bool disposeTaskUow = true
+			)
+			where TCustomSource : EdoTaskProblemCustomSource
+		{
+			await RegisterCustomProblem<TCustomSource>(
+				edoTaskId,
+				new List<EdoTaskItem>(),
+				cancellationToken,
+				customMessage,
+				disposeTaskUow);
+		}
+
+		public virtual async Task RegisterCustomProblem<TCustomSource>(
+			int edoTaskId,
 			IEnumerable<EdoTaskItem> affectedTaskItems,
 			CancellationToken cancellationToken,
-			string customMessage = null
+			string customMessage = null,
+			bool disposeTaskUow = true
 			)
 			where TCustomSource : EdoTaskProblemCustomSource
 		{
@@ -55,20 +79,14 @@ namespace Edo.Problems
 			// а UoW задачи обязательно закрывается с откатом транзакции
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var task = uow.GetById<EdoTask>(edoTask.Id);
-				var source = _customSourcesPersister.GetCustomSource<TCustomSource>();
+				var task = uow.GetById<EdoTask>(edoTaskId);
+				var source = CustomSourcesPersister.GetCustomSource<TCustomSource>();
 				var problem = task.Problems.FirstOrDefault(x => x.SourceName == source.Name)
-					?? new CustomEdoTaskProblem
-					{
-						SourceName = source.Name,
-						EdoTask = task,
-						CustomMessage = customMessage
-					};
+					?? CustomEdoTaskProblem.Create(source.Name, task, customMessage);
 
 				problem.CreationTime = DateTime.Now;
 				problem.State = TaskProblemState.Active;
 				
-
 				problem.TaskItems.Clear();
 				foreach(var taskItem in affectedTaskItems)
 				{
@@ -83,7 +101,11 @@ namespace Edo.Problems
 				await uow.SaveAsync(task, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
 			}
-			_taskUow.Dispose();
+
+			if(disposeTaskUow)
+			{
+				_taskUow.Dispose();
+			}
 		}
 
 		/// <summary>
@@ -132,18 +154,12 @@ namespace Edo.Problems
 			where TCustomSource : EdoTaskProblemCustomSource
 		{
 			var task = _taskUow.GetById<EdoTask>(edoTask.Id);
-			var source = _customSourcesPersister.GetCustomSource<TCustomSource>();
+			var source = CustomSourcesPersister.GetCustomSource<TCustomSource>();
 			var problem = task.Problems.FirstOrDefault(x => x.SourceName == source.Name)
-				?? new CustomEdoTaskProblem
-				{
-					SourceName = source.Name,
-					EdoTask = task,
-					CustomMessage = customMessage
-				};
+				?? CustomEdoTaskProblem.Create(source.Name, task, customMessage);
 
 			problem.CreationTime = DateTime.Now;
 			problem.State = solved ? TaskProblemState.Solved : TaskProblemState.Active;
-
 
 			problem.TaskItems.Clear();
 			foreach(var taskItem in affectedTaskItems)
@@ -209,29 +225,25 @@ namespace Edo.Problems
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var task = uow.GetById<EdoTask>(edoTask.Id);
-				var sourceName = exception.GetType().Name;
-				var sources = _exceptionSourcesPersister.GetEdoProblemExceptionSources();
-				var source = sources.SingleOrDefault(x => x.Name == sourceName);
+				var source = GetExceptionSource(exception);
 				if(source == null)
 				{
 					_taskUow.Dispose();
 					return false;
 				}
 
-				var problem = task.Problems.FirstOrDefault(x => x.SourceName == sourceName);
-				if(problem == null)
-				{
-					problem = new ExceptionEdoTaskProblem
-					{
-						SourceName = sourceName,
-						EdoTask = task,
-						ExceptionMessage = exception.Message
-					};
-					await uow.SaveAsync(problem, cancellationToken: cancellationToken);
-				}
+				var problem = await GetExceptionProblemAndActivate(uow, task, exception.Message, source, cancellationToken, true);
 
-				problem.CreationTime = DateTime.Now;
-				problem.State = TaskProblemState.Active;
+				var solvedValidationSources = new HashSet<string>(edoTask.Problems
+					.OfType<ValidationEdoTaskProblem>()
+					.Where(x => x.State == TaskProblemState.Solved)
+					.Select(x => x.SourceName));
+				foreach(var validationProblem in task.Problems.OfType<ValidationEdoTaskProblem>()
+					.Where(x => x.State != TaskProblemState.Solved && solvedValidationSources.Contains(x.SourceName)))
+				{
+					validationProblem.State = TaskProblemState.Solved;
+					await uow.SaveAsync(validationProblem, cancellationToken: cancellationToken);
+				}
 
 				// Удаляем старые строки задачи, которые не относятся к обновленной проблеме
 				// и добавляем новые строки задачи, которые относятся к проблеме
@@ -264,10 +276,7 @@ namespace Edo.Problems
 					await uow.SaveAsync(customItem, cancellationToken: cancellationToken);
 				}
 
-				task.Status = source.Importance == EdoProblemImportance.Problem
-					? EdoTaskStatus.Problem
-					: EdoTaskStatus.Waiting;
-
+				task.UpdateStatusByEdoProblemImportance(source.Importance);
 
 				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
 				await uow.SaveAsync(task, cancellationToken: cancellationToken);
@@ -291,8 +300,10 @@ namespace Edo.Problems
 			// А если проблем нет, то все прошлые проблемы разрешившиеся в текущем вызове валидации
 			// закрываем в текущем UoW задачи, будут сохранены в момент коммита изменений по задаче
 
-			IUnitOfWork uow = _taskUow;
-			var invalidResults = validationResults.Where(x => !x.IsValid);
+			var uow = _taskUow;
+			var invalidResults = validationResults
+				.Where(x => !x.IsValid)
+				.ToArray();
 			var isAllValid = !invalidResults.Any();
 			if(!isAllValid)
 			{
@@ -302,6 +313,7 @@ namespace Edo.Problems
 			}
 
 			var edoProblems = edoTask.Problems;
+			var problemsWithoutValidationResults = GetProblemsWithoutValidationResults(edoProblems, validationResults);
 			foreach(var validationResult in validationResults)
 			{
 				var problem = edoProblems.FirstOrDefault(x => x.SourceName == validationResult.Validator.Name);
@@ -316,10 +328,6 @@ namespace Edo.Problems
 							SourceName = validationResult.Validator.Name,
 							EdoTask = edoTask,
 						};
-						break;
-					default:
-						//проблема дальше проверится, убираем ее из списка текущих проблем задачи чтобы остались лишь проблемы без результата валидации
-						edoProblems.Remove(problem);
 						break;
 				}
 
@@ -338,6 +346,11 @@ namespace Edo.Problems
 				}
 
 				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
+
+				if(validationResult.Notification != null)
+				{
+					await _notificationPublisher.TryPublishAsync(uow, validationResult.Notification, cancellationToken);
+				}
 			}
 
 			if(isAllValid)
@@ -345,7 +358,7 @@ namespace Edo.Problems
 				edoTask.Status = EdoTaskStatus.InProgress;
 				
 				//оставшиеся проблемы помечаем решенными т.к. валидация прошла успешно и результатов валидации нет
-				foreach (var edoTaskProblem in edoProblems)
+				foreach(var edoTaskProblem in problemsWithoutValidationResults)
 				{
 					edoTaskProblem.State = TaskProblemState.Solved;
 					await uow.SaveAsync(edoTaskProblem, cancellationToken: cancellationToken);
@@ -375,17 +388,33 @@ namespace Edo.Problems
 
 		}
 
+		private static IReadOnlyCollection<EdoTaskProblem> GetProblemsWithoutValidationResults(
+			IEnumerable<EdoTaskProblem> edoProblems,
+			IEnumerable<EdoValidationResult> validationResults)
+		{
+			var validatedSources = new HashSet<string>(validationResults.Select(x => x.Validator.Name));
+			return edoProblems.Where(x => !validatedSources.Contains(x.SourceName)).ToList();
+		}
+
 		public void SolveCustomProblem<TCustomSource>(EdoTask edoTask)
 			where TCustomSource : EdoTaskProblemCustomSource
 		{
-			var source = _customSourcesPersister.GetCustomSource<TCustomSource>();
+			var source = CustomSourcesPersister.GetCustomSource<TCustomSource>();
 			SolveProblem(edoTask, source.Name);
+		}
+
+		/// <summary>
+		/// Закрывает проблему по имени источника.
+		/// </summary>
+		public void SolveCustomProblem(EdoTask edoTask, string sourceName)
+		{
+			SolveProblem(edoTask, sourceName);
 		}
 
 		public void SolveExceptionProblem<TExceptionSource>(EdoTask edoTask)
 			where TExceptionSource : EdoTaskProblemExceptionSource
 		{
-			var source = _exceptionSourcesPersister.GetExceptionSource<TExceptionSource>();
+			var source = ExceptionSourcesPersister.GetExceptionSource<TExceptionSource>();
 			SolveProblem(edoTask, source.Name);
 		}
 

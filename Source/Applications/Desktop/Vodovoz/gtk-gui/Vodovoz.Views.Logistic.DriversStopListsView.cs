@@ -10,6 +10,8 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton ybuttonRemoveStopList;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonAddToStopList;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonFilter;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonRefresh;
@@ -39,6 +41,12 @@ namespace Vodovoz.Views.Logistic
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonExcludeVisitingMasters;
 
 		private global::Gamma.GtkWidgets.yTable ytableContainers;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxDriverFilter;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelDriverName;
+
+		private global::Gamma.GtkWidgets.yEntry yentryDriverName;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindowCurrent;
 
@@ -77,6 +85,16 @@ namespace Vodovoz.Views.Logistic
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
+			this.ybuttonAddToStopList = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonAddToStopList.CanFocus = true;
+			this.ybuttonAddToStopList.Name = "ybuttonAddToStopList";
+			this.ybuttonAddToStopList.UseUnderline = true;
+			this.ybuttonAddToStopList.Label = global::Mono.Unix.Catalog.GetString("Добавить в стоп-лист");
+			this.yhboxButtons.Add(this.ybuttonAddToStopList);
+			global::Gtk.Box.BoxChild addToStopListChild = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonAddToStopList]));
+			addToStopListChild.Position = 1;
+			addToStopListChild.Expand = false;
+			addToStopListChild.Fill = false;
 			// Container child yhboxButtons.Gtk.Box+BoxChild
 			this.ybuttonFilter = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonFilter.CanFocus = true;
@@ -233,6 +251,31 @@ namespace Vodovoz.Views.Logistic
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yhboxDriverFilter = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxDriverFilter.Name = "yhboxDriverFilter";
+			this.yhboxDriverFilter.Spacing = 6;
+			this.ylabelDriverName = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDriverName.Name = "ylabelDriverName";
+			this.ylabelDriverName.LabelProp = global::Mono.Unix.Catalog.GetString("ФИО водителя:");
+			this.yhboxDriverFilter.Add(this.ylabelDriverName);
+			global::Gtk.Box.BoxChild driverLabelChild = ((global::Gtk.Box.BoxChild)(this.yhboxDriverFilter[this.ylabelDriverName]));
+			driverLabelChild.Position = 0;
+			driverLabelChild.Expand = false;
+			driverLabelChild.Fill = false;
+			this.yentryDriverName = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryDriverName.CanFocus = true;
+			this.yentryDriverName.Name = "yentryDriverName";
+			this.yentryDriverName.IsEditable = true;
+			this.yentryDriverName.InvisibleChar = '●';
+			this.yhboxDriverFilter.Add(this.yentryDriverName);
+			global::Gtk.Box.BoxChild driverEntryChild = ((global::Gtk.Box.BoxChild)(this.yhboxDriverFilter[this.yentryDriverName]));
+			driverEntryChild.Position = 1;
+			this.yvboxMain.Add(this.yhboxDriverFilter);
+			global::Gtk.Box.BoxChild driverFilterChild = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxDriverFilter]));
+			driverFilterChild.Position = 2;
+			driverFilterChild.Expand = false;
+			driverFilterChild.Fill = false;
+			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.ytableContainers = new global::Gamma.GtkWidgets.yTable();
 			this.ytableContainers.Name = "ytableContainers";
 			this.ytableContainers.NRows = ((uint)(2));
@@ -292,7 +335,7 @@ namespace Vodovoz.Views.Logistic
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvboxMain.Add(this.ytableContainers);
 			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableContainers]));
-			w24.Position = 2;
+			w24.Position = 3;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

@@ -32,7 +32,7 @@ namespace Edo.Tender
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
 		private readonly TransferRequestCreator _transferRequestCreator;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly EdoCancellationService _edoCancellationService;
 
 		public TenderEdoTaskHandler(
@@ -44,7 +44,7 @@ namespace Edo.Tender
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			TransferRequestCreator transferRequestCreator,
-			IBus messageBus, 
+			IPublishEndpoint publishEndpoint, 
 			EdoCancellationService edoCancellationService
 		)
 		{
@@ -57,7 +57,7 @@ namespace Edo.Tender
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 		}
 
@@ -217,23 +217,37 @@ namespace Edo.Tender
 				throw new EdoProblemException(new ResaleHasInvalidCodesException(), affectedCodes);
 			}
 
-			// создать трансфер
-			var iteration = await _transferRequestCreator.CreateTransferRequests(
-				_uow,
-				tenderEdoTask,
-				trueMarkCodesChecker,
-				cancellationToken
-			);
-
 			tenderEdoTask.Status = EdoTaskStatus.InProgress;
-			tenderEdoTask.Stage = TenderEdoTaskStage.Transfering;
 
-			var message = new TransferRequestCreatedEvent { TransferIterationId = iteration.Id };
+			TransferRequestCreatedEvent message = null;
+			if(taskValidationResult.ReadyToSell)
+			{
+				tenderEdoTask.Stage = TenderEdoTaskStage.Sending;
+			}
+			else
+			{
+				var iteration = await _transferRequestCreator.CreateTransferRequests(
+					_uow,
+					tenderEdoTask,
+					trueMarkCodesChecker,
+					cancellationToken
+				);
+
+				tenderEdoTask.Stage = TenderEdoTaskStage.Transfering;
+				message = new TransferRequestCreatedEvent
+				{
+					TransferIterationId = iteration.Id
+				};
+			}
 
 			await _uow.SaveAsync(tenderEdoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
-			await _messageBus.Publish(message, cancellationToken);
+			if(message != null)
+			{
+				await _publishEndpoint.Publish(message, cancellationToken);
+			}
+
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		// handle transfered
@@ -267,10 +281,12 @@ namespace Edo.Tender
 				return;
 			}
 
-			if(edoTask.Status == EdoTaskStatus.Completed)
+			if(edoTask.Status == EdoTaskStatus.Completed
+				|| edoTask.Status == EdoTaskStatus.Cancelled
+				|| edoTask.Status == EdoTaskStatus.InCancellation)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
-				                       "так как задача Id {TenderEdoTaskId} уже завершена", edoTask.Id);
+				                       "так как задача Id {TenderEdoTaskId} находится в статусе {TaskStatus}", edoTask.Id, edoTask.Status);
 				return;
 			}
 
@@ -285,6 +301,19 @@ namespace Edo.Tender
 
 			try
 			{
+				// Проверяем коды после трансфера, пока они еще не доступны для выгрузки.
+				var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
+				var taskValidationResult = await _trueMarkTaskCodesValidator.ValidateAsync(
+					edoTask, trueMarkCodesChecker, cancellationToken);
+
+				if(!taskValidationResult.IsAllValid && edoTask.Stage == TenderEdoTaskStage.New)
+				{
+					await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+					await _publishEndpoint.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
+					await _uow.CommitAsync(cancellationToken);
+					return;
+				}
+
 				edoTask.Status = EdoTaskStatus.InProgress;
 				edoTask.Stage = TenderEdoTaskStage.Sending;
 

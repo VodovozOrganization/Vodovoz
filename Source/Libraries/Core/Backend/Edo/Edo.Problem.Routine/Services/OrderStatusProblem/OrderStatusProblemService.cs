@@ -1,0 +1,169 @@
+﻿using Edo.Problem.Routine.Options;
+using Edo.Problem.Routine.Services.Common;
+using Edo.Problems.Validation;
+using Edo.Transport;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
+
+namespace Edo.Problem.Routine.Services.OrderStatusProblem
+{
+	/// <summary>
+	/// Сервис обработки проблем с неверным статусом заказа в ЭДО
+	/// </summary>
+	public class OrderStatusProblemService
+	{
+		private const string _problemSourceName = "Order.Status";
+
+		private readonly ILogger<OrderStatusProblemService> _logger;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IOptionsMonitor<OrderStatusProblemWorkerOptions> _options;
+		private readonly IEdoTaskValidator _orderStatusValidator;
+		private readonly IServiceProvider _serviceProvider;
+		private readonly IEdoRepository _edoRepository;
+		private readonly IEdoProblemRoutineNotificationService _notificationService;
+		private readonly IOrderEdoTaskCreatedEventPublisher _taskCreatedEventPublisher;
+
+		public OrderStatusProblemService(
+			ILogger<OrderStatusProblemService> logger,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IOptionsMonitor<OrderStatusProblemWorkerOptions> options,
+			IEnumerable<IEdoTaskValidator> validators,
+			IServiceProvider serviceProvider,
+			IEdoRepository edoRepository,
+			IEdoProblemRoutineNotificationService notificationService,
+			IOrderEdoTaskCreatedEventPublisher taskCreatedEventPublisher)
+		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_options = options ?? throw new ArgumentNullException(nameof(options));
+			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
+			_notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+
+			_orderStatusValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
+				.FirstOrDefault(v => v.Name == _problemSourceName)
+				?? throw new InvalidOperationException($"Валидатор с именем '{_problemSourceName}' не зарегистрирован");
+			_taskCreatedEventPublisher = taskCreatedEventPublisher ?? throw new ArgumentNullException(nameof(taskCreatedEventPublisher));
+		}
+
+		private DateTime _minEdoTaskCreationTime => DateTime.Today - _options.CurrentValue.ProblemTimeout;
+
+		/// <summary>
+		/// Обработчик задач с неверным статусом заказа в ЭДО
+		/// </summary>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		public async Task ProcessProblemTasks(CancellationToken cancellationToken)
+		{
+			IList<int> taskIds;
+
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(OrderStatusProblemService)))
+			{
+				var tasks = await _edoRepository.GetProblemEdoTasks(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+
+				_logger.LogInformation("Найдено {Count} задач ЭДО с активной проблемой {ProblemName}",
+					tasks.Count, _problemSourceName);
+
+				taskIds = tasks.Select(x => x.Id).ToList();
+			}
+
+			await TryResumeTasks(taskIds, cancellationToken);
+		}
+
+		private async Task TryResumeTasks(IList<int> taskIds, CancellationToken cancellationToken)
+		{
+			var successCount = 0;
+			var errorCount = 0;
+
+			foreach(var taskId in taskIds)
+			{
+				try
+				{
+					using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(OrderStatusProblemService)))
+					{
+						var edoTask = await uow.Session.GetAsync<OrderEdoTask>(taskId, cancellationToken);
+
+						if(edoTask == null)
+						{
+							_logger.LogWarning("Задача ЭДО {EdoTaskId} не найдена", taskId);
+							continue;
+						}
+
+						var resumed = await TryResumeTask(uow, edoTask, cancellationToken);
+
+						if(resumed)
+						{
+							successCount++;
+						}
+					}
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Ошибка при обработке задачи ЭДО {EdoTaskId}", taskId);
+					errorCount++;
+				}
+			}
+
+			_logger.LogInformation(
+				"Обработка завершена. Всего задач: {Total}. Возобновлено: {Success}. Ошибок: {Errors}",
+				taskIds.Count,
+				successCount,
+				errorCount);
+		}
+
+		private async Task<bool> TryResumeTask(
+			IUnitOfWork uow,
+			OrderEdoTask edoTask,
+			CancellationToken cancellationToken)
+		{
+			if(!_orderStatusValidator.IsApplicable(edoTask))
+			{
+				_logger.LogError(
+					"Задача ЭДО {EdoTaskId} не подходит для обработки проблемы с неверным статусом заказа",
+					edoTask.Id);
+				return false;
+			}
+
+			var validationResult = await _orderStatusValidator.ValidateAsync(edoTask, _serviceProvider, cancellationToken);
+
+			if(!validationResult.IsValid)
+			{
+				var notificationPublished = await _notificationService.NotifyAsync<OrderStatusProblemEdoNotificationSetting>(
+					uow,
+					edoTask,
+					_orderStatusValidator,
+					cancellationToken);
+
+				if(notificationPublished)
+				{
+					await uow.CommitAsync(cancellationToken);
+				}
+
+				_logger.LogDebug(
+					"Задача ЭДО {EdoTaskId}: статус заказа №{OrderId} не подходит, пропускаем",
+					edoTask.Id,
+					edoTask.FormalEdoRequest.Order.Id);
+				return false;
+			}
+
+			_logger.LogInformation(
+				"Задача ЭДО {EdoTaskId}: статус заказа №{OrderId} подтверждён, возобновляем документооборот",
+				edoTask.Id,
+				edoTask.FormalEdoRequest.Order.Id);
+
+			_taskCreatedEventPublisher.Publish(uow, edoTask, cancellationToken);
+			await uow.CommitAsync(cancellationToken);
+
+			return true;
+		}
+	}
+}

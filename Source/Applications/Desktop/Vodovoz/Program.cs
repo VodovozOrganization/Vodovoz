@@ -70,6 +70,7 @@ using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Core.Application.Employees;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Presentation.ViewModels.Common;
@@ -112,10 +113,12 @@ using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
 using VodovozInfrastructure.Passwords;
 using VodovozInfrastructure.StringHandlers;
+using VodovozBusiness.Services.TrueMark;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
 using Vodovoz.Application.TrueMark;
+using VodovozBusiness.Models.TrueMark;
 
 namespace Vodovoz
 {
@@ -263,6 +266,14 @@ namespace Vodovoz
 						.AsSelf()
 						.InstancePerLifetimeScope();
 
+					builder.RegisterType<ExcessTrueMarkCodesDeletionService>()
+						.As<IExcessTrueMarkCodesDeletionService>()
+						.InstancePerLifetimeScope();
+					
+					builder.RegisterType<CancelledOrderTrueMarkCodesReuseService>()
+						.As<ICancelledOrderTrueMarkCodesReuseService>()
+						.InstancePerLifetimeScope();
+
 					#endregion TrueMark
 					
 					builder.RegisterType<ReceiptManualController>()
@@ -351,7 +362,8 @@ namespace Vodovoz
 					builder.RegisterType<EmailService>().As<IEmailService>();
 					builder.RegisterType<MysqlChangePasswordModelExtended>().As<IChangePasswordModel>();
 					builder.RegisterType<ApplicationConfigurator>().As<IApplicationConfigurator>().SingleInstance();
-
+					builder.RegisterType<Services.Logistics.DriverStopListService>().As<Services.Logistics.IDriverStopListService>();
+					
 					#endregion
 
 					#region Models

@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DateTimeHelpers;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate;
 using NHibernate.Criterion;
@@ -14,14 +15,12 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using Vodovoz.Application.TrueMark;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.TrueMark;
@@ -100,7 +99,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			if(!filter.EndDate.HasValue)
 			{
-				filter.EndDate = DateTime.Now.Date;
+				filter.EndDate = DateTime.Now.LatestDayTime();
 			}
 
 			Filter = filter;
@@ -681,7 +680,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			var dialogSettings = new DialogSettings();
 			dialogSettings.Title = "Сохранить";
 			dialogSettings.FileName = typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative
-				+ $" с {Filter.StartDate:dd.MM.yyyy} по {Filter.EndDate.Value.Date:dd.MM.yyyy}";
+				+ $" с {Filter.StartDate:dd.MM.yyyy HH.mm} по {Filter.EndDate.Value:dd.MM.yyyy HH.mm}";
 			dialogSettings.DefaultFileExtention = ".xlsx";
 			dialogSettings.FileFilters.Clear();
 			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel", ".xlsx"));

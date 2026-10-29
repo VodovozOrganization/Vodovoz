@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public class OutgoingEdoDocument : PropertyChangedBase
+	public class OutgoingEdoDocument : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private DateTime _creationTime;
@@ -14,6 +14,8 @@ namespace Vodovoz.Core.Domain.Edo
 		private EdoDocumentStatus _status;
 		private DateTime? _sendTime;
 		private DateTime? _acceptTime;
+		private EdoDiscrepancyState _discrepancyState;
+		private DateTime? _cancellationRequestTime;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -69,6 +71,24 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _acceptTime;
 			set => SetField(ref _acceptTime, value);
+		}
+
+		[Display(Name = "Состояние расхождения")]
+		public virtual EdoDiscrepancyState DiscrepancyState
+		{
+			get => _discrepancyState;
+			set => SetField(ref _discrepancyState, value);
+		}
+
+		/// <summary>
+		/// Время, когда мы сами запросили аннулирование документа.
+		/// Нужно, чтобы отличать наше аннулирование от аннулирования, запрошенного клиентом
+		/// </summary>
+		[Display(Name = "Время запроса аннулирования")]
+		public virtual DateTime? CancellationRequestTime
+		{
+			get => _cancellationRequestTime;
+			set => SetField(ref _cancellationRequestTime, value);
 		}
 	}
 }

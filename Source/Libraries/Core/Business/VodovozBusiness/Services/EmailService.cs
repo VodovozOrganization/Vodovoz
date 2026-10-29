@@ -14,6 +14,8 @@ using Vodovoz.Tools.Orders;
 using Email = Vodovoz.Domain.Contacts.Email;
 using Order = Vodovoz.Domain.Orders.Order;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
+using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Core.Domain.Orders.Documents;
 
 namespace Vodovoz.Services
 {
@@ -74,9 +76,7 @@ namespace Vodovoz.Services
 			IUnitOfWork unitOfWork,
 			Order order)
 		{
-			var sendedByEdo = _orderRepository
-				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == DocumentContainerType.Bill) > 0;
+			var sendedByEdo = _orderRepository.HasEdoBill(unitOfWork, order.Id);
 
 			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
 			var sended = sendedByEdo || sendedByEmail;
@@ -93,9 +93,7 @@ namespace Vodovoz.Services
 			IUnitOfWork unitOfWork,
 			Order order)
 		{
-			var sendedByEdo = _orderRepository
-				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == DocumentContainerType.Bill) > 0;
+			var sendedByEdo = _orderRepository.HasEdoBill(unitOfWork, order.Id);
 
 			var sendedByEmail = _emailRepository.HaveSendedEmailForBill(order.Id);
 
@@ -188,7 +186,7 @@ namespace Vodovoz.Services
 			{
 				StoredEmail = storedEmail,
 				Counterparty = order.Client,
-				OrderDocument = document
+				OrderDocument = unitOfWork.GetById<OrderDocumentEntity>(document.Id)
 			};
 
 			unitOfWork.Save(updDocumentEmail);
@@ -235,7 +233,7 @@ namespace Vodovoz.Services
 				{
 					StoredEmail = storedEmail,
 					Counterparty = order.Client,
-					OrderDocument = document
+					OrderDocument = unitOfWork.GetById<OrderDocumentEntity>(document.Id)
 				};
 
 				unitOfWork.Save(orderDocumentEmail);

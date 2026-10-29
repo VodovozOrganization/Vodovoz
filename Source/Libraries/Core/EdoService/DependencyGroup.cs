@@ -1,7 +1,14 @@
-﻿using EdoService.Library.Converters;
+﻿using Edo.Admin;
+using Edo.Problems;
+using Edo.Problems.Custom;
+using Edo.Problems.Exception;
+using Edo.Transport;
+using EdoService.Library.Converters;
 using EdoService.Library.Factories;
 using EdoService.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Vodovoz.Core.Domain.Controllers;
 
 namespace EdoService.Library
 {
@@ -10,14 +17,23 @@ namespace EdoService.Library
 		public static IServiceCollection AddEdoServicesLibrary(this IServiceCollection services)
 		{
 			services
+				.AddEdoAdminServices()
 				.AddScoped<IEdoService, EdoService>()
 				.AddScoped<IEdoLogger, EdoLogger>()
 				.AddScoped<IContactListService, ContactListService>()
 				.AddScoped<IAuthorizationService, TaxcomAuthorizationService>()
 				.AddScoped<IContactStateConverter, ContactStateConverter>()
 				.AddScoped<IInformalEdoRequestFactory, EquipmentTransferEdoRequestFactory>()
+				.AddScoped<IBillEdoRequestFactory, BillEdoRequestFactory>()
+				.AddScoped<IBillEdoRequestSender, BillEdoRequestSender>()
+				.AddScoped<EdoTaskCustomSourcesPersister>()
+				.AddScoped<EdoTaskExceptionSourcesPersister>()
+				.AddScoped<EdoProblemRegistrar>()
+				.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>()
 				;
-			
+
+			services.TryAddScoped<IOrderEdoTaskCreatedEventPublisher, OrderEdoTaskCreatedEventPublisher>();
+
 			return services;
 		}
 	}

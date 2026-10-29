@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Данные для генерации подписи для применения фиксы
 	/// </summary>
-	public class ApplyFixedPriceSignatureParams : SignatureParams
+	public class ApplyFixedPriceSignatureParams : ShopIdSignatureParams
 	{
 		/// <summary>
 		/// Id заказа

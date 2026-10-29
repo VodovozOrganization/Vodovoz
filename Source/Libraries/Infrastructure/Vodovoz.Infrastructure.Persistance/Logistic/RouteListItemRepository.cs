@@ -1,24 +1,32 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	internal sealed class RouteListItemRepository : IRouteListItemRepository
 	{
-		public RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, Domain.Orders.Order order)
+		public RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, int orderId)
 		{
 			RouteListItem routeListItemAlias = null;
 
 			return uow.Session.QueryOver(() => routeListItemAlias)
 					  .Where(rli => rli.Status != RouteListItemStatus.Transfered)
-					  .Where(() => routeListItemAlias.Order.Id == order.Id)
+					  .Where(() => routeListItemAlias.Order.Id == orderId)
 					  .SingleOrDefault();
 		}
 
@@ -171,6 +179,119 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				select routeListAddress.UnscannedCodesReason
 				)
 				.FirstOrDefault();
+		}
+
+		public bool RouteListItemWasChanged(IUnitOfWork uow, IEnumerable<RouteListItem> routeListItems)
+		{
+			var disjunctions = Restrictions.Disjunction();
+
+			foreach(var item in routeListItems)
+			{
+				var id = item.Id;
+				var version = item.Version;
+
+				disjunctions.Add(Restrictions.Where<RouteListItem>(x => x.Id == id && x.Version != version));
+			}
+
+			var changedItem = uow.Session.QueryOver<RouteListItem>()
+				.Where(disjunctions)
+				.Take(1)
+				.SingleOrDefault();
+
+			return changedItem != null;
+		}
+
+		/// <inheritdoc/>
+		public Task<IList<CompletedAddressesCountNode>> GetCompletedAddressesCountsByDriverAndDistrictAsync(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate, CompletedAddressesCountsFilter filter, CancellationToken cancellationToken)
+		{
+			return CreateCompletedAddressesCountsQuery(uow, startDate, endDate, filter).ListAsync<CompletedAddressesCountNode>(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public IList<CompletedAddressesCountNode> GetCompletedAddressesCountsByDriverAndDistrict(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate)
+		{
+			return CreateCompletedAddressesCountsQuery(uow, startDate, endDate, null).List<CompletedAddressesCountNode>();
+		}
+
+		private static IQueryOver<RouteListItem, RouteListItem> CreateCompletedAddressesCountsQuery(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate, CompletedAddressesCountsFilter filter)
+		{
+			RouteListItem routeListItemAlias = null;
+			RouteList routeListAlias = null;
+			Employee driverAlias = null;
+			Domain.Orders.Order orderAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			District districtAlias = null;
+			CompletedAddressesCountNode resultAlias = null;
+
+			var query = uow.Session.QueryOver(() => routeListItemAlias)
+				.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+				.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias, JoinType.LeftOuterJoin)
+				.Where(() => routeListItemAlias.Status == RouteListItemStatus.Completed)
+				.And(() => routeListAlias.Date >= startDate.Date)
+				.And(() => routeListAlias.Date <= endDate.Date);
+
+			if(filter != null)
+			{
+				if(filter.IncludedDriverIds.Count > 0)
+				{
+					query.WhereRestrictionOn(() => driverAlias.Id).IsIn(filter.IncludedDriverIds.ToArray());
+				}
+
+				if(filter.ExcludedDriverIds.Count > 0)
+				{
+					query.WhereRestrictionOn(() => driverAlias.Id).Not.IsIn(filter.ExcludedDriverIds.ToArray());
+				}
+
+				if(filter.IncludedDistrictIds.Count > 0 || filter.IsWithoutDistrictIncluded)
+				{
+					var includedDistricts = Restrictions.Disjunction();
+
+					if(filter.IncludedDistrictIds.Count > 0)
+					{
+						includedDistricts.Add(Restrictions.In(
+							Projections.Property(() => districtAlias.Id),
+							filter.IncludedDistrictIds.Cast<object>().ToArray()));
+					}
+
+					if(filter.IsWithoutDistrictIncluded)
+					{
+						includedDistricts.Add(Restrictions.IsNull(Projections.Property(() => districtAlias.Id)));
+					}
+
+					query.And(includedDistricts);
+				}
+
+				if(filter.ExcludedDistrictIds.Count > 0)
+				{
+					query.And(Restrictions.Disjunction()
+						.Add(Restrictions.IsNull(Projections.Property(() => districtAlias.Id)))
+						.Add(Restrictions.Not(Restrictions.In(
+							Projections.Property(() => districtAlias.Id),
+							filter.ExcludedDistrictIds.Cast<object>().ToArray()))));
+				}
+
+				if(filter.IsWithoutDistrictExcluded)
+				{
+					query.And(Restrictions.IsNotNull(Projections.Property(() => districtAlias.Id)));
+				}
+			}
+
+			return query
+				.SelectList(list => list
+					.SelectGroup(() => driverAlias.Id).WithAlias(() => resultAlias.DriverId)
+					.SelectMin(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverLastName)
+					.SelectMin(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
+					.SelectMin(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+					.SelectGroup(() => districtAlias.Id).WithAlias(() => resultAlias.DistrictId)
+					.SelectMin(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+					.SelectCount(() => routeListItemAlias.Id).WithAlias(() => resultAlias.CompletedAddressesCount))
+				.TransformUsing(Transformers.AliasToBean<CompletedAddressesCountNode>());
 		}
 	}
 }

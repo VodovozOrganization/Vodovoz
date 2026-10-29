@@ -997,8 +997,8 @@ all_fuel_operations as
                 fuel_operations
                 LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
                 LEFT JOIN route_lists ON fuel_documents.route_list_id = route_lists.id
-                LEFT JOIN employees ON IFNULL(fuel_operations.driver_id, route_lists.driver_id) = employees.id
-                LEFT JOIN cars ON IFNULL(fuel_operations.car_id, route_lists.car_id) = cars.id
+                LEFT JOIN employees ON IFNULL(fuel_operations.driver_id, IFNULL(fuel_documents.driver_id, route_lists.driver_id)) = employees.id
+                LEFT JOIN cars ON IFNULL(fuel_operations.car_id, IFNULL(fuel_documents.car_id, route_lists.car_id)) = cars.id
                 LEFT JOIN car_events ON car_events.calibration_fuel_operation_id = fuel_operations.id
             WHERE
                 DATE(fuel_operations.date) &gt;= @start_date

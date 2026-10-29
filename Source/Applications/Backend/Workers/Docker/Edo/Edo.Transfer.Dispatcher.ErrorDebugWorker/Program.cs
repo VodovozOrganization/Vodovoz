@@ -1,36 +1,47 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Edo.CodesSaver;
 using Edo.Common;
+using Edo.Common.Services;
 using Edo.Docflow;
 using Edo.Docflow.Consumers;
+using Edo.Docflow.Consumers.Definitions;
 using Edo.Documents;
-using Edo.ErrorDebugWorker.Consumers;
-using Edo.ErrorDebugWorker.Consumers.Definitions;
+using Edo.Documents.Consumers.Definitions;
+using Edo.Documents.Consumers.Fault;
 using Edo.Problems;
 using Edo.Receipt.Dispatcher;
 using Edo.Receipt.Dispatcher.Consumers;
 using Edo.Receipt.Dispatcher.Consumers.Definitions;
+using Edo.Receipt.Dispatcher.Consumers.Fault;
 using Edo.Receipt.Dispatcher.ErrorDebug.Consumers;
 using Edo.Receipt.Dispatcher.ErrorDebug.Consumers.Definitions;
 using Edo.Receipt.Sender;
 using Edo.Scheduler;
+using Edo.Transfer;
+using Edo.Transfer.Dispatcher;
 using Edo.Transport;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ModulKassa;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
 using System;
+using TaxcomEdo.Client;
+using TaxcomEdoConsumer;
+using TaxcomEdoConsumer.Consumers;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
-namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
+namespace Edo.ErrorDebugWorker
 {
 	public class Program
 	{
@@ -77,7 +88,6 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 
 					services.AddEdo();
 					services.AddEdoProblemRegistration();
-					services.AddCodesPool();
 
 					services.AddEdoTransfer();
 
@@ -93,14 +103,24 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 						.AddEdoTransferSenderServices()
 						;
 
-					services.AddEdo();
-					services.AddEdoProblemRegistration();
-					services.AddCodesPool();
+					services.TryAddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>();
+
+					services.AddTaxcomClient();
+					services.AddHealthChecks();
+
+					services.AddTaxcomEdoConsumerDependenciesGroup();
 
 					services.AddEdoMassTransit(
 						configureBus: cfg =>
 						{
 							// Выбор какой консюмер дебажить:
+
+							//faults
+							//cfg.AddConsumer<FaultTransferCompleteConsumer>();
+							//cfg.AddConsumer<FaultDocumentTaskCreatedConsumer, FaultDocumentTaskCreatedConsumerDefinition>();
+							//cfg.AddConsumer<FaultTransferCompleteConsumer>();
+
+							//cfg.AddConsumer<FaultReceiptTaskCreatedConsumer>();
 
 							//request
 							//cfg.AddConsumer<EdoRequestCreatedErrorConsumer, EdoRequestCreatedErrorConsumerDefinition>();
@@ -111,17 +131,31 @@ namespace Edo.Transfer.Dispatcher.ErrorDebugWorker
 							//cfg.AddConsumer<OrderDocumentAcceptedErrorConsumer, OrderDocumentAcceptedErrorConsumerDefinition>();
 
 							//receipt
+							//cfg.AddConsumer<ReceiptTaskCreatedConsumer, ReceiptTaskCreatedConsumerDefinition>();
 							//cfg.AddConsumer<ReceiptTaskCreatedErrorConsumer, ReceiptTaskCreatedErrorConsumerDefinition>();
 							//cfg.AddConsumer<ReceiptReadyToSendErrorConsumer, ReceiptReadyToSendErrorConsumerDefinition>();
 							//cfg.AddConsumer<ReceiptTransferCompleteErrorConsumer, ReceiptTransferCompleteErrorConsumerDefinition>();
 
+							//cfg.AddConsumer<
+							//	Edo.Receipt.Dispatcher.Consumers.TransferCompleteConsumer,
+							//	Edo.Receipt.Dispatcher.Consumers.Definitions.TransferCompleteConsumerDefinition>();
+
 							//transfer
 							//cfg.AddConsumer<TransferDocumentAcceptedErrorConsumer, TransferDocumentAcceptedErrorConsumerDefinition>();
+							//cfg.AddConsumer<
+							//	Edo.Documents.Consumers.TransferCompleteConsumer,
+							//	Edo.Documents.Consumers.Definitions.TransferCompleteConsumerDefinition>();
 
 							//docflow
 							//cfg.AddConsumer<DocflowUpdatedErrorConsumer, DocflowUpdatedErrorConsumerDefinition>();
 							//cfg.AddConsumer<OrderDocumentSendErrorConsumer, OrderDocumentSendErrorConsumerDefinition>();
-							cfg.AddConsumer<TransferDocumentSendErrorConsumer, TransferDocumentSendErrorConsumerDefinition>();
+							//cfg.AddConsumer<TransferDocumentSendErrorConsumer, TransferDocumentSendErrorConsumerDefinition>();
+							cfg.AddConsumer<DocflowUpdatedConsumer, DocflowUpdatedConsumerDefinition>();
+
+							cfg.AddVodovozOutbox(OutboxBusNames.Pacs);
+
+							//taxcom
+							//cfg.AddConsumer<OutgoingTaxcomDocflowUpdatedEventConsumer, OutgoingTaxcomDocflowUpdatedEventConsumerDefinition>();
 						}
 					);
 				});

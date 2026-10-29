@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Domain.TrueMark;
+using Vodovoz.Models.TrueMark;
 
-namespace Vodovoz.Models.TrueMark
+namespace VodovozBusiness.Models.TrueMark
 {
-	public class TrueMarkCodesChecker
+	public class TrueMarkCodesChecker : ITrueMarkCodesChecker
 	{
 		private readonly ILogger<TrueMarkCodesChecker> _logger;
 		private readonly ITrueMarkApiClient _trueMarkClient;
@@ -62,7 +61,7 @@ namespace Vodovoz.Models.TrueMark
 		}
 
 		public async Task<IDictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus>> CheckCodes(
-			IEnumerable<TrueMarkWaterIdentificationCode> codes, 
+			IEnumerable<TrueMarkWaterIdentificationCode> codes,
 			CancellationToken cancellationToken
 			)
 		{
@@ -80,7 +79,7 @@ namespace Vodovoz.Models.TrueMark
 
 			foreach(var instanceStatus in productInstancesInfo.InstanceStatuses)
 			{
-				var codeFound = productCodes.TryGetValue(instanceStatus.IdentificationCode, 
+				var codeFound = productCodes.TryGetValue(instanceStatus.IdentificationCode,
 					out TrueMarkWaterIdentificationCode code);
 
 				if(!codeFound)

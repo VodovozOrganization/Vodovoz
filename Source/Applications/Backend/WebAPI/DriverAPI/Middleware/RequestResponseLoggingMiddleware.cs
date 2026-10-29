@@ -2,10 +2,10 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Microsoft.Net.Http.Headers;
-using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 
 namespace DriverAPI.Middleware
 {
@@ -50,12 +50,16 @@ namespace DriverAPI.Middleware
 								   "Host: {RequestHost} " +
 								   "Path: {RequestPath} " +
 								   "QueryString: {RequestQueryString} " +
+								   "X-Idempotency-Key: {XIdempotencyKey} " +
+								   "X-Action-Time-Utc: {XActionTimeUtc} " +
 								   "Request Body: {RequestBody}",
 								   context.Request.Scheme,
 								   userAgent,
 								   context.Request.Host,
 								   context.Request.Path,
 								   context.Request.QueryString,
+								   context.Request.Headers[IdempotencyRequestHeadersNames.IdempotencyKey].ToString(),
+								   context.Request.Headers[IdempotencyRequestHeadersNames.ActionTimeUtc].ToString(),
 								   ReadStreamInChunks(requestStream));
 
 			context.Request.Body.Position = 0;
@@ -106,6 +110,8 @@ namespace DriverAPI.Middleware
 								   "Host: {RequestHost} " +
 								   "Path: {RequestPath} " +
 								   "QueryString: {RequestQueryString} " +
+								   "X-Idempotency-Key: {XIdempotencyKey} " +
+								   "X-Idempotent-Replayed: {XIdempotentReplayed} " +
 								   "Response Body: {RequestBody} | " +
 								   "Elapsed: {RequestTotalMilliseconds}ms",
 								   context.Request.Scheme,
@@ -113,6 +119,8 @@ namespace DriverAPI.Middleware
 								   context.Request.Host,
 								   context.Request.Path,
 								   context.Request.QueryString,
+								   context.Request.Headers[IdempotencyRequestHeadersNames.IdempotencyKey].ToString(),
+								   context.Response.Headers[IdempotencyResponseHeadersNames.IdempotentReplayed].ToString(),
 								   text,
 								   watcher.Elapsed.TotalMilliseconds);
 

@@ -1,4 +1,5 @@
-﻿using Edo.Admin;
+﻿using System;
+using Edo.Admin;
 using Edo.Common;
 using Edo.Problems;
 using Edo.Transport;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using ModulKassa;
 using QS.DomainModel.UoW;
 using System.Reflection;
+using Edo.Transport.Factories;
 
 namespace Edo.Receipt.Sender
 {
@@ -20,23 +22,40 @@ namespace Edo.Receipt.Sender
 			services.AddModulKassa();
 
 			services.TryAddScoped<FiscalDocumentFactory>();
+			services.TryAddScoped<ReceiptSendingFailedNotificationService>();
+			services.TryAddScoped<IReceiptQueueNotificationService, ReceiptQueueNotificationService>();
 			services.TryAddScoped<ReceiptSender>();
 
-			services.AddEdo();
-			services.AddEdoProblemRegistration();
-			services.AddEdoAdminServices();
+			services
+	.AddEdo()
+	.AddEdoProblemRegistration()
+	.AddEdoAdminServices()
+	.AddEdoNotifications()
+	.AddFaultServices()
+	;
 
 			return services;
 		}
-
-		public static IServiceCollection AddEdoReceiptSender(this IServiceCollection services)
+		public static IServiceCollection AddEdoReceiptSender(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoReceiptSenderServices();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
 				cfg.AddConsumers(Assembly.GetExecutingAssembly());
+
+				configureBus?.Invoke(cfg);
 			});
+
+			return services;
+		}
+
+		public static IServiceCollection AddFaultServices(this IServiceCollection services)
+		{
+			services.TryAddScoped<FaultReceiptReadyToSendExceptionHandler>();
+			services.TryAddScoped<IMassTransitExceptionInfoFactory, MassTransitExceptionInfoFactory>();
 
 			return services;
 		}

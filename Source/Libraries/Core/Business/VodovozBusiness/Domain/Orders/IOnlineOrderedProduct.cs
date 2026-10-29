@@ -1,19 +1,11 @@
-﻿namespace VodovozBusiness.Domain.Orders
+namespace VodovozBusiness.Domain.Orders
 {
-	public interface IOnlineOrderedProduct
+	public interface IOnlineOrderedProduct : ICanApplyFixedPriceOnline
 	{
-		/// <summary>
-		/// Id номенклатуры в ДВ
-		/// </summary>
-		int NomenclatureId { get; }
 		/// <summary>
 		/// Цена
 		/// </summary>
 		decimal Price { get; set; }
-		/// <summary>
-		/// Количество
-		/// </summary>
-		decimal Count { get; }
 		/// <summary>
 		/// Скидка в деньгах?
 		/// </summary>
@@ -22,10 +14,6 @@
 		/// Скидка
 		/// </summary>
 		decimal Discount { get; set; }
-		/// <summary>
-		/// Id промонабора
-		/// </summary>
-		int? PromoSetId { get; }
 		/// <summary>
 		/// Id скидки/промокода
 		/// </summary>
@@ -38,6 +26,10 @@
 		/// Цена со скидкой
 		/// </summary>
 		decimal PriceWithDiscount { get; }
+		/// <summary>
+		/// Этот товар - подарок?
+		/// </summary>
+		bool GiftItem { get; set; }
 		/// <summary>
 		/// Очистка данных по скидке
 		/// </summary>

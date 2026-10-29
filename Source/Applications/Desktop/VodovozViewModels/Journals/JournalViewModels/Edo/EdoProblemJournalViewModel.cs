@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -13,8 +9,13 @@ using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Edo;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Edo;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
 using ExceptionEdoTaskProblem = Vodovoz.Core.Domain.Edo.ExceptionEdoTaskProblem;
@@ -58,6 +59,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			CreateCopyOrderIdToClipboardAction();
 			CreateOpenOrderAction();
 			CreateCopyTaskIdToClipboardAction();
+			CreateOpenEdoDialogAction();
 		}
 
 		private void CreateCopyOrderIdToClipboardAction()
@@ -109,6 +111,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 					var orderIds = string.Join(", ", selectedNodes.Select(x => x.OrderTaskId));
 
 					_clipboard.SetText(orderIds);
+				}
+			);
+
+			PopupActionsList.Add(action);
+		}
+
+		private void CreateOpenEdoDialogAction()
+		{
+			var action = new JournalAction(
+				"Открыть диалог ЭДО",
+				selected => selected.Count() == 1,
+				selected => true,
+				selected =>
+				{
+					var selectedNode = selected.Cast<EdoProblemJournalNode>().First();
+					NavigationManager.OpenViewModel<EdoViewModel, int>(null, selectedNode.OrderId, OpenPageOptions.IgnoreHash);
 				}
 			);
 

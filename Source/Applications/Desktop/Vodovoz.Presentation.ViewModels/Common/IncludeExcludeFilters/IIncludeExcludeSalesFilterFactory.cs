@@ -33,5 +33,10 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 		/// Если null, то никаких ограничений по сотрудникам</param>
 		/// <returns>Модель представления фильтров include/exclude для отчета по мотивации КЦ</returns>
 		IncludeExludeFiltersViewModel CreateCallCenterMotivationReportIncludeExcludeFilter(IUnitOfWork unitOfWork, int? onlyEmployeeId);
+
+		/// <summary>
+		/// Создает фильтр include/exclude для маркетингового отчета
+		/// </summary>
+		IncludeExludeFiltersViewModel CreateMarketingReportIncludeExcludeFilter(IUnitOfWork unitOfWork, int? onlyEmployeeId);
 	}
 }

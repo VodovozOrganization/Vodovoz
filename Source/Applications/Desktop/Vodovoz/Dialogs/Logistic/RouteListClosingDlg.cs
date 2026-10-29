@@ -42,6 +42,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Service;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -82,6 +83,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.EntityRepositories.Nodes;
 using VodovozBusiness.Services.Cash;
 using VodovozBusiness.Services.Orders;
@@ -122,7 +124,7 @@ namespace Vodovoz
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private INewDriverAdvanceSettings _newDriverAdvanceSettings;
-		private IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private IPermissionRepository _permissionRepository;
 		private IFlyerRepository _flyerRepository;
 		private IOrderContractUpdater _contractUpdater;
@@ -143,7 +145,12 @@ namespace Vodovoz
 		private Employee previousForwarder = null;
 		private bool _canEdit;
 		private bool? _canEditFuelCardNumber;
-		
+
+		private bool _isSemiTrailerVisible =>
+			Entity.Car?.CarModel?.CarTypeOfUse is CarTypeOfUse.Truck;
+
+		private bool _canWorkWithSemitrailers;
+
 
 		private bool _needToSelectTerminalCondition = false;
 		private bool _hasAccessToDriverTerminal = false;
@@ -232,7 +239,7 @@ namespace Vodovoz
 			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
 			_employeeNomenclatureMovementRepository = _lifetimeScope.Resolve<IEmployeeNomenclatureMovementRepository>();
 			_newDriverAdvanceSettings = _lifetimeScope.Resolve<INewDriverAdvanceSettings>();
-			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
+			_customerNotificationPublisher = _lifetimeScope.Resolve<INotificationPublisher<CustomerNotificationDomainEvent>>();
 
 			_permissionRepository = _lifetimeScope.Resolve<IPermissionRepository>();
 			
@@ -246,6 +253,8 @@ namespace Vodovoz
 			_routeListCashProcessingService = _lifetimeScope.Resolve<IRouteListCashProcessingService>();
 
 			_carEventSettings = _lifetimeScope.Resolve<ICarEventSettings>();
+			_saleHandler = _lifetimeScope.Resolve<IOrderSaleHandler>();
+			_goodsPriceCalculator = _lifetimeScope.Resolve<IGoodsPriceCalculator>();
 		}
 
 		private void ConfigureDlg()
@@ -288,7 +297,13 @@ namespace Vodovoz
 			              || ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(RouteListPermissions.CanEditCarOnCloseRouteList));
 			entityentryCar.ViewModel = BuildCarEntryViewModel();
 			entityentryCar.Sensitive = _canEditCar;
+
+			entrySemitrailer.Visible = _isSemiTrailerVisible;
+			ylabelSemitrailer.Visible = _isSemiTrailerVisible;
 			
+			entrySemitrailer.ViewModel = CreateSemitrailerViewModel();
+			entrySemitrailer.Sensitive = _canWorkWithSemitrailers;
+
 			var employeeJournalFactory = _lifetimeScope.Resolve<IEmployeeJournalFactory>();
 			
 			_canEditDriver = _canEdit
@@ -375,7 +390,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Получили возврат на склад");
 			//FIXME Убрать из этого места первоначальное заполнение. Сейчас оно вызывается при переводе статуса на сдачу. После того как не нормально не переведенных в закрытие маршрутников, тут заполение можно убрать.
 			if(!Entity.ClosingFilled)
-				Entity.FirstFillClosing(_wageParameterService);
+				Entity.FirstFillClosing(_wageParameterService, _saleHandler);
 
 			PerformanceHelper.AddTimePoint("Закончено первоначальное заполнение");
 
@@ -482,6 +497,23 @@ namespace Vodovoz
 				.Finish();
 
 			viewModel.CanViewEntity = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanUpdate;
+
+			return viewModel;
+		}
+
+		public IEntityEntryViewModel CreateSemitrailerViewModel()
+		{
+			var viewModel = new LegacyEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Semitrailer)
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictedCarTypesOfUse = new[] { CarTypeOfUse.Semitrailer };
+					filter.Archive = false;
+				})
+				.UseViewModelDialog<SemitrailerViewModel>()
+				.Finish();
+
+			viewModel.CanViewEntity = _canWorkWithSemitrailers;
 
 			return viewModel;
 		}
@@ -829,7 +861,10 @@ namespace Vodovoz
 				_lifetimeScope,
 				_contractUpdater,
 				_routeListService,
-				_customerNotificationPublisher);
+				_customerNotificationPublisher,
+				_saleHandler,
+				_goodsPriceCalculator
+				);
 			
 			dlg.ConfigureForRouteListAddress(node);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;
@@ -910,9 +945,12 @@ namespace Vodovoz
 			}
 
 			item.RecalculateTotalCash();
+			
 			if(!item.IsDelivered() && item.Status != RouteListItemStatus.Transfered)
-				foreach(var itm in item.Order.OrderItems)
-					itm.SetActualCountZero();
+			{
+				_saleHandler.SetSource(item.Order);
+				_saleHandler.SetActualCountZero();
+			}
 
 			routelistdiscrepancyview.FindDiscrepancies();
 			OnItemsUpdated();
@@ -973,6 +1011,8 @@ namespace Vodovoz
 		private IDiscountReasonRepository _discountReasonRepository;
 		private INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private IRouteListService _routeListService;
+		private IOrderSaleHandler _saleHandler;
+		private IGoodsPriceCalculator _goodsPriceCalculator;
 
 		Nomenclature DefaultBottle {
 			get {
@@ -1170,6 +1210,9 @@ namespace Vodovoz
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 			UoW.Save(Entity.RouteListProfitability);
 			UoW.Commit();
+
+			_addressKeepingDocumentItemsCacheList.Clear();
+			_addressKeepingDocumentBottlesCacheList.Clear();
 
 			if(_cancellationRequestActions.Any())
 			{
@@ -1515,22 +1558,48 @@ namespace Vodovoz
 				text.Add("Не указан вид топлива");
 			}
 
-			if(Entity.FuelDocuments.Select(x => x.FuelOperation).Any()) {
-				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp));
+			var ownFuelDocuments = Entity.FuelDocuments
+				.Where(IsFuelDocumentRelatedToCurrentRouteListCarAndDriver)
+				.ToList();
+
+			var otherFuelDocuments = Entity.FuelDocuments
+				.Where(x => !IsFuelDocumentRelatedToCurrentRouteListCarAndDriver(x))
+				.ToList();
+
+			var ownLitersGived = ownFuelDocuments.Sum(x => x.FuelOperation?.LitersGived ?? 0);
+
+			if(ownFuelDocuments.Any())
+			{
+				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp - ownLitersGived));
 			}
 
 			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)", spentFuel, (decimal)Entity.Car.FuelConsumption));
 
-			if(Entity.FuelDocuments.Select(x => x.FuelOperation).Any()) {
-				text.Add(string.Format("Выдано {0:F2} литров",
-					 Entity.FuelDocuments.Select(x => x.FuelOperation.LitersGived).Sum()));
+			if(ownFuelDocuments.Any())
+			{
+				text.Add(string.Format("Выдано {0:F2} литров", ownLitersGived));
+			}
+
+			foreach(var fuelDocument in otherFuelDocuments)
+			{
+				var reason = fuelDocument.Car?.Id != Entity.Car.Id
+					? "на другое авто"
+					: "другому водителю";
+
+				text.Add(string.Format(
+					"Выдано {0}: {1:F2} л. - {2}, {3}, водитель {4}",
+					reason,
+					fuelDocument.FuelOperation?.LitersGived ?? 0,
+					fuelDocument.Car?.RegistrationNumber ?? "авто не указано",
+					GetFuelDocumentIssuingDescription(fuelDocument),
+					fuelDocument.Driver?.ShortName ?? "не указан"));
 			}
 
 			if(Entity.Car.FuelType != null) {
 				text.Add(
 					string.Format(
 						"Текущий остаток топлива {0:F2} л.",
-						balanceBeforeOp + Entity.FuelDocuments.Select(x => x.FuelOperation.LitersGived).Sum() - spentFuel
+						balanceBeforeOp
 					)
 				);
 			}
@@ -1538,6 +1607,47 @@ namespace Vodovoz
 			text.Add($"Номер топливной карты: {Entity.Car.GetCurrentActiveFuelCardVersion()?.FuelCard?.CardNumber}");
 
 			ytextviewFuelInfo.Buffer.Text = string.Join("\n", text);
+		}
+
+		private bool IsFuelDocumentRelatedToCurrentRouteListCarAndDriver(FuelDocument fuelDocument)
+		{
+			if(Entity.Car.GetActiveCarVersionOnDate(Entity.Date)?.IsCompanyCar == true
+				|| Entity.Car.GetCurrentActiveFuelCardVersion() != null)
+			{
+				return fuelDocument.Car != null && fuelDocument.Car.Id == Entity.Car.Id;
+			}
+
+			return fuelDocument.Driver != null
+				&& Entity.Driver != null
+				&& fuelDocument.Driver.Id == Entity.Driver.Id;
+		}
+
+		private string GetFuelDocumentIssuingDescription(FuelDocument fuelDocument)
+		{
+			var parts = new List<string>();
+
+			if(fuelDocument.FuelLimitLitersAmount > 0)
+			{
+				parts.Add($"лимит на карту {fuelDocument.FuelCardNumber ?? "не указана"}");
+			}
+
+			if(fuelDocument.PayedForFuel > 0)
+			{
+				if(fuelDocument.FuelPaymentType == FuelPaymentType.Cash)
+				{
+					parts.Add("наличными");
+				}
+				else if(fuelDocument.FuelPaymentType == FuelPaymentType.Cashless)
+				{
+					parts.Add("безналом");
+				}
+				else
+				{
+					parts.Add("способ оплаты не указан");
+				}
+			}
+
+			return parts.Any() ? string.Join(", ", parts) : "способ выдачи не указан";
 		}
 
 		void LoadDataFromFine()

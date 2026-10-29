@@ -1,5 +1,5 @@
 ﻿using Gamma.Utilities;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Core.Domain.StoredEmails;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 {

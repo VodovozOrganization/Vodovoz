@@ -5,6 +5,7 @@ namespace DateTimeHelpers
 {
 	public static class DateTimeExtensions
 	{
+		private const int _moscowUtcOffsetHours = 3;
 		private static GregorianCalendar _calendar = new GregorianCalendar();
 
 		public static int GetWeekNumber(this DateTime dateTime)
@@ -118,6 +119,13 @@ namespace DateTimeHelpers
 		{
 			return new DateTime(dateTime.Year, 12, 31);
 		}
+		
+		public static DateTime LastDayOfMonth(this DateTime dateTime)
+		{
+			return new DateTime(dateTime.Year, dateTime.Month, 1)
+				.AddMonths(1)
+				.AddDays(-1);
+		}
 
 		public static DateTime FirstDayOfMonth(this DateTime dateTime)
 		{
@@ -168,8 +176,43 @@ namespace DateTimeHelpers
 					return "-";
 			}
 		}
-		
+
+		public static string GetMonthToRussianText(int month)
+		{
+			switch(month)
+			{
+				case 1: return "январь";
+				case 2: return "февраль";
+				case 3: return "март";
+				case 4: return "апрель";
+				case 5: return "май";
+				case 6: return "июнь";
+				case 7: return "июль";
+				case 8: return "август";
+				case 9: return "сентябрь";
+				case 10: return "октябрь";
+				case 11: return "ноябрь";
+				case 12: return "декабрь";
+				default: return "";
+			}
+		}
+
 		public static string ToEdoShortDateString(this DateTime dateTime) => $"{dateTime:yyyy.MM.dd}";
 		public static string ToEdoShortTimeString(this DateTime dateTime) => $"{dateTime:HH.mm.ss}";
+
+		/// <summary>
+		/// Возвращает значение даты и времени, показывающее, сколько в этот момент времени в Москве (UTC+3)
+		/// Результат не привязан к тайм-зоне (<see cref="DateTimeKind.Unspecified"/>)
+		/// </summary>
+		public static DateTime ToMoscowDateTime(this DateTime dateTime)
+		{
+			var utcDateTime = dateTime.Kind == DateTimeKind.Utc
+				? dateTime
+				: dateTime.ToUniversalTime();
+
+			return DateTime.SpecifyKind(
+				utcDateTime.AddHours(_moscowUtcOffsetHours),
+				DateTimeKind.Unspecified);
+		}
 	}
 }

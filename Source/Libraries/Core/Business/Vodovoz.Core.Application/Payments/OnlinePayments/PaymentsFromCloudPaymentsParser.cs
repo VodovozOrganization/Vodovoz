@@ -32,10 +32,15 @@ namespace Vodovoz.Core.Application.Payments.OnlinePayments
 						continue;
 					}
 
-					var data = line.Split(new[] { '\t' });
+					var data = line.Split('\t');
+
+					if(data.Length < 2)
+					{
+						data = line.Split(';');
+					}
 
 					if(count == 1
-					   && (data.Length < 2 || data[0] != "Номер" || data[1] != "Дата и время" || data[2] != "Банк"))
+						&& (data.Length < 2 || data[0] != "Номер" || data[1] != "Дата и время" || data[2] != "Банк"))
 					{
 						throw new ArgumentException("Не подходящий файл или выбран не тот тип загрузки.");
 					}

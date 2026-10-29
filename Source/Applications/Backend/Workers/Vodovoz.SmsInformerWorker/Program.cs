@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -35,6 +35,7 @@ namespace Vodovoz.SmsInformerWorker
 					services
 						.AddHostedService<UndeliveryNotApprovedSmsInformerWorker>()
 						.AddHostedService<NewClientSmsInformerWorker>()
+						.AddHostedService<CourierOnTheWaySmsInformerWorker>()
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
@@ -49,7 +50,7 @@ namespace Vodovoz.SmsInformerWorker
 						.AddInfrastructure()
 						.AddTrackedUoW()
 						.AddSmsInformerWorker(hostContext)
-						.ConfigureZabbixSenderFromDataBase("SmsInformerWorker")
+						.ConfigureZabbixSenderFromDataBase()
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

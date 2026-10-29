@@ -78,22 +78,9 @@ namespace Vodovoz.ViewModels
 
 			Copyright = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright;
 
-			var authorAttributes = Assembly.GetEntryAssembly().GetCustomAttributes<AssemblyAuthorAttribute>();
-
-			Authors = authorAttributes
-				.Select(x => string.Join(" ", x.Name, x.Email, x.YearsOfActivity))
-				.Reverse()
-				.ToArray();
-
-			WikiWebsite = wikiSettings.Url;
-
-			Website = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyAppWebsiteAttribute>()?.Link;
-
-			OpenAuthorsCommand = new DelegateCommand(OpenAuthors);
 			CloseCommand = new DelegateCommand(Close);
 		}
 
-		public DelegateCommand OpenAuthorsCommand { get; }
 		public DelegateCommand CloseCommand { get; }
 
 		public string ProgramName { get; }
@@ -101,23 +88,8 @@ namespace Vodovoz.ViewModels
 		public string Version { get; }
 		public string Description { get; }
 		public string Copyright { get; }
-		public string[] Authors { get; }
-
-		public string WikiWebsite { get; }
-		public string WikiWebsiteFormatted => $"База знаний по работе с программой: <a href=\"{WikiWebsite}\">{WikiWebsite}</a>";
-
-		public string Website { get; }
-		public string WebsiteFormatted => $"<a href=\"{Website}\">{Website}</a>";
 
 		public string BuildTimeFormattedDate { get; }
-
-		private void OpenAuthors()
-		{
-			NavigationManager.OpenViewModel<AboutAuthorsViewModel>(
-				this,
-				OpenPageOptions.AsSlave,
-				viewModel => viewModel.Authors = string.Join("\n", Authors));
-		}
 
 		private void Close()
 		{

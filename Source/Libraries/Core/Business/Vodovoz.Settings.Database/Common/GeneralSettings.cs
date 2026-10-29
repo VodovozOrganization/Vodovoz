@@ -24,6 +24,7 @@ namespace Vodovoz.Settings.Database.Common
 		private const string _isFastDelivery19LBottlesLimitActive = "is_fast_delivery_19l_bottles_limit_active";
 		private const string _fastDelivery19LBottlesLimitCount = "fast_delivery_19l_bottles_limit_count";
 		private const string _warehousesForPricesAndStocksIntegrationName = "warehouses_for_prices_and_stocks_integration_name";
+		private const string _serviceNomenclaturesForBitrixDealsName = "BitrixNotifications.ServiceNomenclaturesForBitrixDeals";
 		private const string _billAdditionalInfo = "bill_additional_info";
 		private const string _carLoadDocumentInfoString = "car_load_document_info_string";
 		private const string _upcomingTechInspectForOurCars = nameof(UpcomingTechInspectForOurCars);
@@ -53,10 +54,13 @@ namespace Vodovoz.Settings.Database.Common
 		public string SubdivisionsToInformComplaintHasNoDriverParameterName => _subdivisionsToInformComplaintHasNoDriverParameterName;
 		public string SubdivisionsAlternativePricesName => _subdivisionsForAlternativePricesName;
 		public string WarehousesForPricesAndStocksIntegrationName => _warehousesForPricesAndStocksIntegrationName;
+		public string ServiceNomenclaturesForBitrixDealsName => _serviceNomenclaturesForBitrixDealsName;
 
 		public int[] SubdivisionsToInformComplaintHasNoDriver => GetSubdivisionsToInformComplaintHasNoDriver();
 		public int[] SubdivisionsForAlternativePrices => GetSubdivisionsForAlternativePrices();
 		public int[] WarehousesForPricesAndStocksIntegration => GetWarehousesForPricesAndStocksIntegration();
+
+		public int[] ServiceNomenclaturesForBitrixDeals => GetServiceNomenclaturesForBitrixDeals();
 
 		public void UpdateOrderAutoComment(string value) =>
 			_settingsController.CreateOrUpdateSetting(_orderAutoComment, value);
@@ -95,6 +99,11 @@ namespace Vodovoz.Settings.Database.Common
 		public void UpdateWarehousesIdsForParameter(IEnumerable<int> warehousesIds, string parameterName)
 		{
 			_settingsController.CreateOrUpdateSetting(parameterName, string.Join(", ", warehousesIds));
+		}
+
+		public void UpdateServiceNomenclaturesForBitrixDeals(IEnumerable<int> nomenclatureIds, string parameterName)
+		{
+			_settingsController.CreateOrUpdateSetting(parameterName, string.Join(", ", nomenclatureIds));
 		}
 
 		public int DriversUnclosedRouteListsHavingDebtMaxCount => _settingsController.GetValue<int>(_driversUnclosedRouteListsHavingDebtMaxCount);
@@ -144,6 +153,11 @@ namespace Vodovoz.Settings.Database.Common
 		private int[] GetWarehousesForPricesAndStocksIntegration()
 		{
 			return ParseIdsFromString(_warehousesForPricesAndStocksIntegrationName);
+		}
+
+		private int[] GetServiceNomenclaturesForBitrixDeals()
+		{
+			return ParseIdsFromString(_serviceNomenclaturesForBitrixDealsName);
 		}
 
 		public string GetBillAdditionalInfo

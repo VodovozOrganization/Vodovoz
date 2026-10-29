@@ -22,18 +22,24 @@ using QS.Project.DB;
 using QS.Project.Services.Interactive;
 using System;
 using System.Text;
-using TransactionalOutbox.Abstractions;
+using Notifications.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Infrastructure.WebApi.Caching.Garnet;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Presentation.WebApi.BuildVersion;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
+using CustomerNotifications.Application;
+using CustomerNotifications.Application.Builders;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace DriverAPI
 {
@@ -98,7 +104,7 @@ namespace DriverAPI
 				.AddScoped<IInteractiveMessage, ConsoleInteractiveMessage>()
 				.AddScoped<IInteractiveService, ConsoleInteractiveService>()
 
-				.AddDriverApiLibrary(configuration)
+				.AddDriverApiLibrary(configuration, busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
@@ -153,9 +159,7 @@ namespace DriverAPI
 
 			// Уведомления клиентов
 
-			services.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
-					.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-					.AddCustomerNotificationsSettingsProvider();
+			services.AddCustomerNotificationsWithSmsFallback();
 
 			// Регистрация контроллеров
 
@@ -175,6 +179,14 @@ namespace DriverAPI
 			});
 
 			services.ConfigureHealthCheckService<DriverApiHealthCheck, ServiceInfoProvider>();
+
+			services
+				.AddWebApiGarnetConnection()
+				.AddGarnetIdempotencyStore()
+				.AddIdempotency("DriverApi", settings => new IdempotencyTimings(
+					settings.DriverApiResponseLifetime,
+					settings.DriverApiMarkerLifetime,
+					settings.DriverApiReplayWaitTimeout));
 
 			services.AddHttpClient();
 

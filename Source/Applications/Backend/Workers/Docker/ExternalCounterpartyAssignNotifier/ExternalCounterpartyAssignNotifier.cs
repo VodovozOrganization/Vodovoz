@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerAppsApi.Library.Dto;
-using CustomerAppsApi.Library.Dto.Counterparties;
 using ExternalCounterpartyAssignNotifier.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -93,7 +91,7 @@ namespace ExternalCounterpartyAssignNotifier
 					}
 				}
 
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(ExternalCounterpartyAssignNotifier), stoppingToken);
 			}
 		}
 

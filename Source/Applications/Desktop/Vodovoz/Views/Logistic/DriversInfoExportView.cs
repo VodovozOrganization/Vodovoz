@@ -1,17 +1,15 @@
-﻿using System;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gamma.Widgets.Additions;
 using Gtk;
 using QS.Dialog.GtkUI;
-using QS.ErrorReporting;
 using QS.Utilities;
 using QS.Utilities.Debug;
 using QS.Views.GtkUI;
+using System;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using WrapMode = Pango.WrapMode;
@@ -34,7 +32,7 @@ namespace Vodovoz.Views.Logistic
 			enumcheckCarTypeOfUse.ExpandCheckButtons = false;
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
 			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Truck);
-			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
+			enumcheckCarTypeOfUse.AddEnumToHideList(ViewModel.CarTypeOfUseForExclude);
 			enumcheckCarTypeOfUse.Binding.AddBinding(ViewModel, vm => vm.RestrictedCarTypesOfUse, w => w.SelectedValuesList,
 				new EnumsListConverter<CarTypeOfUse>()).InitializeFromSource();
 
@@ -309,6 +307,20 @@ namespace Vodovoz.Views.Logistic
 
 			if(isPlan)
 			{
+				columnsConfig.AddColumn("0.5л\nплан")
+					.AddNumericRenderer(x => x.Vol500MlBottlesCount.ToString())
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("0.5л\nфакт")
+					.AddTextRenderer(x => x.Vol500MlBottlesActualCount)
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
 				columnsConfig.AddColumn("обор.\nплан")
 					.AddNumericRenderer(x => x.EquipmentCount.ToString())
 					.XAlign(0.5f);
@@ -443,6 +455,20 @@ namespace Vodovoz.Views.Logistic
 			{
 				columnsConfig.AddColumn("0.6л\nфакт")
 					.AddTextRenderer(x => x.Vol600MlBottlesActualCount)
+					.XAlign(0.5f);
+			}
+
+			if(isPlan)
+			{
+				columnsConfig.AddColumn("0.5л\nплан")
+					.AddNumericRenderer(x => x.Vol500MlBottlesCount.ToString())
+					.XAlign(0.5f);
+			}
+
+			if(isFact)
+			{
+				columnsConfig.AddColumn("0.5л\nфакт")
+					.AddTextRenderer(x => x.Vol500MlBottlesActualCount)
 					.XAlign(0.5f);
 			}
 

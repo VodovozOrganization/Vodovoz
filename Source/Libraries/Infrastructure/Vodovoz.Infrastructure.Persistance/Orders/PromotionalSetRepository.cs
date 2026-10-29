@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.SqlCommand;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
+using QS.Project.DB;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Nodes;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Nodes;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
@@ -93,72 +93,87 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return result.Count != 0;
 		}
 
-		public IEnumerable<PromotionalSetOnlineParametersNode> GetActivePromotionalSetsOnlineParametersForSend(
-			IUnitOfWork uow, GoodsOnlineParameterType parameterType)
+		/// <inheritdoc/>
+		public IEnumerable<OnlineOrderPromoSetNode> GetOnlineOrderPromoSetsData(IUnitOfWork uow, int onlineOrderId)
 		{
-			PromotionalSet promotionalSetAlias = null;
-			PromotionalSetOnlineParametersNode resultAlias = null;
-
-			return uow.Session.QueryOver<PromotionalSetOnlineParameters>()
-				.Left.JoinAlias(p => p.PromotionalSet, () => promotionalSetAlias)
-				.Where(p => p.Type == parameterType)
-				.And(p => p.PromotionalSetOnlineAvailability != null)
-				.And(() => !promotionalSetAlias.IsArchive)
+			OnlineOrderPromoSet onlinePromoSetAlias = null;
+			PromotionalSet promoSetAlias = null;
+			DiscountReasonBase discountReasonAlias = null;
+			OnlineOrderPromoSetNode resultAlias = null;
+			
+			var discountMoneyProjection = Projections.Sum(
+				Projections.Conditional(
+					Restrictions.Where(() => discountReasonAlias.ValueType == DiscountUnits.money),
+					Projections.Property(() => discountReasonAlias.Value),
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 * ?3 / 100"),
+						NHibernateUtil.Decimal,
+						Projections.Property(() => onlinePromoSetAlias.Count),
+						Projections.Property(() => onlinePromoSetAlias.Price),
+						Projections.Property(() => discountReasonAlias.Value)
+					)
+				)
+			);
+			
+			var query = uow.Session.QueryOver(() => onlinePromoSetAlias)
+				.JoinAlias(() => onlinePromoSetAlias.PromoSet, () => promoSetAlias)
+				.Left.JoinAlias(() => onlinePromoSetAlias.DiscountReasons, () => discountReasonAlias)
+				.Where(() => onlinePromoSetAlias.OnlineOrder.Id == onlineOrderId)
 				.SelectList(list => list
-					.Select(p => p.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => promotionalSetAlias.Id).WithAlias(() => resultAlias.PromotionalSetId)
-					.Select(() => promotionalSetAlias.OnlineName).WithAlias(() => resultAlias.PromotionalSetOnlineName)
-					.Select(() => promotionalSetAlias.PromotionalSetForNewClients).WithAlias(() => resultAlias.PromotionalSetForNewClients)
-					.Select(() => promotionalSetAlias.BottlesCountForCalculatingDeliveryPrice)
-						.WithAlias(() => resultAlias.BottlesCountForCalculatingDeliveryPrice)
-					.Select(p => p.PromotionalSetOnlineAvailability).WithAlias(() => resultAlias.AvailableForSale))
-				.TransformUsing(Transformers.AliasToBean<PromotionalSetOnlineParametersNode>())
-				.List<PromotionalSetOnlineParametersNode>();
+					.SelectGroup(() => onlinePromoSetAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => promoSetAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => onlinePromoSetAlias.Count).WithAlias(() => resultAlias.Count)
+					.Select(() => onlinePromoSetAlias.Price).WithAlias(() => resultAlias.ReceivedPrice)
+					.Select(discountMoneyProjection).WithAlias(() => resultAlias.ReceivedDiscountMoney)
+					.Select(CustomProjections.GroupConcat(() => discountReasonAlias.Name)).WithAlias(() => resultAlias.DiscountReasonNames)
+				)
+				.TransformUsing(Transformers.AliasToBean<OnlineOrderPromoSetNode>());
+			
+			return query.List<OnlineOrderPromoSetNode>();
 		}
 
-		public IEnumerable<PromotionalSetItemBalanceNode> GetPromotionalSetsItemsWithBalanceForSend(
-			IUnitOfWork uow,
-			GoodsOnlineParameterType parameterType,
-			IEnumerable<int> warehouses)
+		/// <inheritdoc/>
+		public IEnumerable<OnlineOrderPromoSetItemNode> GetOnlineOrderPromoSetItemsData(IUnitOfWork uow, int onlineOrderId)
 		{
-			PromotionalSet promotionalSetAlias = null;
-			PromotionalSetItem promotionalSetItemAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			Nomenclature nomenclature2Alias = null;
-			WarehouseBulkGoodsAccountingOperation operationAlias = null;
-			PromotionalSetItemBalanceNode resultAlias = null;
+			var itemsQuery =
+				from onlinePromoSet in uow.Session.Query<OnlineOrderPromoSet>()
+				join promoSet in uow.Session.Query<PromotionalSet>()
+					on onlinePromoSet.PromoSet.Id equals promoSet.Id
+				join promoSetItem in uow.Session.Query<PromotionalSetItem>()
+					on promoSet.Id equals promoSetItem.PromoSet.Id
+				join nomenclature in uow.Session.Query<Nomenclature>()
+					on promoSetItem.Nomenclature.Id equals nomenclature.Id
+				join nomenclatureUnit in uow.Session.Query<MeasurementUnits>()
+					on nomenclature.Unit.Id equals nomenclatureUnit.Id
+				join dependNomenclature in uow.Session.Query<Nomenclature>()
+					on nomenclature.DependsOnNomenclature equals dependNomenclature into groupDependNomenclatures
+				from dependNomenclature in groupDependNomenclatures.DefaultIfEmpty()
+				where onlinePromoSet.OnlineOrder.Id == onlineOrderId
 
-			var discountProjection = Projections.Conditional(
-				Restrictions.Where(() => promotionalSetItemAlias.IsDiscountInMoney),
-				Projections.Property(() => promotionalSetItemAlias.DiscountMoney),
-				Projections.Property(() => promotionalSetItemAlias.Discount));
+				let nomenclaturePrice =
+					from price in uow.Session.Query<NomenclaturePrice>()
+					where price.Nomenclature.Id == nomenclature.Id
+						&& price.MinCount == 1
+					select price.Price
+				
+				let dependNomenclaturePrice =
+					from dependPrice in uow.Session.Query<NomenclaturePrice>()
+					where dependPrice.Nomenclature.Id == dependNomenclature.Id
+						&& dependPrice.MinCount == 1
+					select dependPrice.Price
 
-			var balanceSubQuery = QueryOver.Of(() => nomenclature2Alias)
-				.JoinEntityAlias(
-					() => operationAlias,
-					() => nomenclature2Alias.Id == operationAlias.Nomenclature.Id,
-					JoinType.LeftOuterJoin)
-				.Where(() => nomenclatureAlias.Id == nomenclature2Alias.Id)
-				.AndRestrictionOn(() => operationAlias.Warehouse).IsInG(warehouses)
-				.Select(Projections.Sum(() => operationAlias.Amount));
-
-			return uow.Session.QueryOver<PromotionalSetOnlineParameters>()
-				.Left.JoinAlias(p => p.PromotionalSet, () => promotionalSetAlias)
-				.Left.JoinAlias(() => promotionalSetAlias.PromotionalSetItems, () => promotionalSetItemAlias)
-				.Left.JoinAlias(() => promotionalSetItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(p => p.Type == parameterType)
-				.And(p => p.PromotionalSetOnlineAvailability != null)
-				.And(() => !promotionalSetAlias.IsArchive)
-				.SelectList(list => list
-					.Select(() => promotionalSetAlias.Id).WithAlias(() => resultAlias.PromotionalSetId)
-					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(() => promotionalSetItemAlias.Count).WithAlias(() => resultAlias.Count)
-					.Select(discountProjection).WithAlias(() => resultAlias.Discount)
-					.Select(() => promotionalSetItemAlias.IsDiscountInMoney).WithAlias(() => resultAlias.IsDiscountMoney)
-					.SelectSubQuery(balanceSubQuery).WithAlias(() => resultAlias.Stock)
-				)
-				.TransformUsing(Transformers.AliasToBean<PromotionalSetItemBalanceNode>())
-				.List<PromotionalSetItemBalanceNode>();
+				select new OnlineOrderPromoSetItemNode
+				{
+					Id = promoSetItem.Id,
+					OnlinePromoSetId = onlinePromoSet.Id,
+					Name = nomenclature.Name,
+					NomenclatureUnit = nomenclatureUnit.Digits,
+					PromoSetsCount = onlinePromoSet.Count,
+					Count = promoSetItem.Count,
+					NomenclaturePrice = dependNomenclature != null ? dependNomenclaturePrice.FirstOrDefault() : nomenclaturePrice.FirstOrDefault()
+				};
+			
+			return itemsQuery.ToList();
 		}
 
 		private string GetBuildingNumber(string building)

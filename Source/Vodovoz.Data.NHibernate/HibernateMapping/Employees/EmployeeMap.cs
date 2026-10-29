@@ -39,13 +39,14 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			Map(x => x.VisitingMaster).Column("visiting_master");
 			Map(x => x.IsChainStoreDriver).Column("is_chain_store_driver");
 			Map(x => x.IsDriverForOneDay).Column("is_driver_for_one_day");
+			Map(x => x.DriverManualStopListUntil).Column("driver_manual_stop_list_until").Nullable();
 			Map(x => x.Gender).Column("gender");
 			Map(x => x.MinRouteAddresses).Column("min_route_addresses");
 			Map(x => x.MaxRouteAddresses).Column("max_route_addresses");
 			Map(x => x.DriverType).Column("driver_type");
 			Map(x => x.SkillLevel).Column("skill_level");
 			Map(x => x.Comment).Column("comment");
-			Map(x => x.CanRecieveCounterpartyCalls).Column("can_recieve_counterparty_calls");
+			Map(x => x.IsNoPhoneForCounterpartyCallsRequired).Column("is_no_phone_for_counterparty_calls_required");
 
 			Map(x => x.DriverOfCarTypeOfUse).Column("driver_of_car_type_of_use");
 			Map(x => x.DriverOfCarOwnType).Column("driver_of_car_own_type");

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 
@@ -78,15 +79,37 @@ namespace Edo.Withdrawal.Routine.Services
 					case TrueMarkDocumentStatus.Ok:
 						trueMarkDocument.IsSuccess = true;
 						trueMarkDocument.ErrorMessage = null;
+						await UpdateCancellationRequest(uow, trueMarkDocument, true, null, cancellationToken);
 						break;
 					case TrueMarkDocumentStatus.Error:
 						trueMarkDocument.IsSuccess = false;
-						trueMarkDocument.ErrorMessage = documentInfo.ErrorMessage.Substring(0, Math.Min(documentInfo.ErrorMessage.Length, 255));
+						trueMarkDocument.ErrorMessage = TruncateError(documentInfo.ErrorMessage, 255);
+						await UpdateCancellationRequest(
+							uow,
+							trueMarkDocument,
+							false,
+							documentInfo.ErrorMessage,
+							cancellationToken);
 						break;
 					case TrueMarkDocumentStatus.NotFound:
 						_logger.LogWarning(
 							"Документ ЧЗ с Guid {Guid} не найден в системе ЧЗ, пропускаем. Возможно, создание документа еще не завершено",
 							documentGuid);
+						break;
+					case TrueMarkDocumentStatus.Pending:
+						if(string.IsNullOrWhiteSpace(documentInfo.ErrorMessage))
+						{
+							_logger.LogInformation(
+								"Обработка документа ЧЗ с Guid {Guid} еще не завершена",
+								documentGuid);
+						}
+						else
+						{
+							_logger.LogWarning(
+								"Результат обработки документа ЧЗ с Guid {Guid} временно недоступен: {ErrorMessage}",
+								documentGuid,
+								documentInfo.ErrorMessage);
+						}
 						break;
 				}
 
@@ -96,6 +119,51 @@ namespace Edo.Withdrawal.Routine.Services
 			{
 				_logger.LogError(ex, "Ошибка при обновлении статуса документа ЧЗ с Guid {Guid}", documentGuid);
 			}
+		}
+
+		private async Task UpdateCancellationRequest(
+			IUnitOfWork uow,
+			TrueMarkDocument trueMarkDocument,
+			bool isSuccess,
+			string errorMessage,
+			CancellationToken cancellationToken)
+		{
+			if(trueMarkDocument.Type != TrueMarkDocument.TrueMarkDocumentType.WithdrawalCancellation)
+			{
+				return;
+			}
+
+			var cancellationRequest = uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
+				.FirstOrDefault(x => x.CancellationDocument.Id == trueMarkDocument.Id);
+
+			if(cancellationRequest is null)
+			{
+				_logger.LogWarning(
+					"Для документа отмены вывода из оборота {DocumentId} не найден запрос переотправки ЭДО",
+					trueMarkDocument.Id);
+				return;
+			}
+
+			if(isSuccess)
+			{
+				cancellationRequest.MarkReadyToResend();
+			}
+			else
+			{
+				cancellationRequest.MarkCancellationFailed(TruncateError(errorMessage, 500));
+			}
+
+			await uow.SaveAsync(cancellationRequest, cancellationToken: cancellationToken);
+		}
+
+		private static string TruncateError(string error, int maxLength)
+		{
+			if(string.IsNullOrWhiteSpace(error))
+			{
+				return "Неизвестная ошибка обработки документа в ЧЗ";
+			}
+
+			return error.Substring(0, Math.Min(error.Length, maxLength));
 		}
 
 		private async Task<IEnumerable<TrueMarkDocument>> GetTrueMarkDocumentsToUpdate(IUnitOfWork uow, CancellationToken cancellationToken)

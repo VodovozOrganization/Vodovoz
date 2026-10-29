@@ -12,6 +12,7 @@ using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
 using Vodovoz.Core.Data.Repositories.Cash;
@@ -19,10 +20,14 @@ using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Settings;
+using Vodovoz.Settings.Accounting;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Mango;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Accounting.Payments;
@@ -37,6 +42,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private const int _billAdditionalInfoMaxLength = 200;
 
 		private readonly IGeneralSettings _generalSettings;
+		private readonly IDriverApiSettings _driverApiSettings;
 		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly ICarInsuranceSettings _carInsuranceSettings;
 		private readonly ILogger<GeneralSettingsViewModel> _logger;
@@ -48,6 +54,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly IDebtorsSettings _debtorsSettings;
 		private readonly IValidator _validator;
 		private readonly IClosingDeliveriesSettings _closingDeliveriesSettings;
+		private readonly IMangoSettings _mangoSettings;
+		private readonly IAccountingSettings _accountingSettings;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEEVMBuilder;
 
@@ -84,6 +92,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private bool _isIntervalFromAddedInFirstRouteList;
 		private bool _isIntervalFromRouteListItemTransfered;
 		private int _fastDeliveryMaximumPermissibleLateMinutes;
+		private int _maximumPermittedDistanceMeters;
 
 		private int _largusMaxDailyFuelLimit;
 		private int _truckMaxDailyFuelLimit;
@@ -98,9 +107,13 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private string _claimDocumentCreatedBy;
 		private string _claimDocumentCreatorPhone;
 
+		private bool _isDriverMangoEmployeeRegistrationEnabled;
+		private bool _savedIsDriverMangoEmployeeRegistrationEnabled;
+
 		public GeneralSettingsViewModel(
 			ILogger<GeneralSettingsViewModel> logger,
 			IGeneralSettings generalSettings,
+			IDriverApiSettings driverApiSettings,
 			IFuelControlSettings fuelControlSettings,
 			ICarInsuranceSettings carInsuranceSettings,
 			ICommonServices commonServices,
@@ -115,7 +128,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			IOrganizationSettings organizationSettings,
 			IDebtorsSettings debtorsSettings,
 			IValidator validator,
-			IClosingDeliveriesSettings closingDeliveriesSettings) : base(commonServices?.InteractiveService, navigation)
+			IClosingDeliveriesSettings closingDeliveriesSettings,
+			IMangoSettings mangoSettings,
+			IAccountingSettings accountingSettings) : base(commonServices?.InteractiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -131,8 +146,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
 			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
+			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
+			_accountingSettings = accountingSettings ?? throw new ArgumentNullException(nameof(accountingSettings));
 			_vatRateEEVMBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carInsuranceSettings = carInsuranceSettings ?? throw new ArgumentNullException(nameof(carInsuranceSettings));
 			TabName = "Общие настройки";
@@ -199,10 +217,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			SetFastDeliveryIntervalFrom(_generalSettings.FastDeliveryIntervalFrom);
 			CanEditFastDeliveryIntervalFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.CanEditFastDeliveryIntervalFromSetting);
+			CanEditMaximumPermittedDistanceFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.CanEditMaximumPermittedDistanceFromSetting);
 			SaveFastDeliveryIntervalFromCommand = new DelegateCommand(SaveFastDeliveryIntervalFrom, () => CanEditFastDeliveryIntervalFromSetting);
 
 			_fastDeliveryMaximumPermissibleLateMinutes = _generalSettings.FastDeliveryMaximumPermissibleLateMinutes;
 			SaveFastDeliveryMaximumPermissibleLateCommand = new DelegateCommand(SaveFastDeliveryMaximumPermissibleLate, () => CanEditFastDeliveryIntervalFromSetting);
+
+			_maximumPermittedDistanceMeters = _driverApiSettings.PermittedDistance;
+			SaveMaximumPermittedDistanceMetersCommand = new DelegateCommand(SaveMaximumPermittedDistanceMeters, () => CanEditMaximumPermittedDistanceFromSetting);
 
 			_largusMaxDailyFuelLimit = _fuelControlSettings.LargusMaxDailyFuelLimit;
 			_truckMaxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
@@ -239,6 +261,20 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
 			SaveLettersOfClaimSettingsCommand = new DelegateCommand(SaveLettersOfClaimSettings, () => CanEditLettersOfClaimSettings);
 
+			_savedIsDriverMangoEmployeeRegistrationEnabled = _mangoSettings.DriverMangoEmployeeRegistrationEnabled;
+			_isDriverMangoEmployeeRegistrationEnabled = _savedIsDriverMangoEmployeeRegistrationEnabled;
+			CanEditDriverMangoEmployeeRegistrationSettings =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.CanEditDriverMangoEmployeeRegistrationSettings);
+			SaveDriverMangoEmployeeRegistrationSettingsCommand = new DelegateCommand(SaveDriverMangoEmployeeRegistrationSettings, () => CanEditDriverMangoEmployeeRegistrationSettings);
+			SaveDriverMangoEmployeeRegistrationSettingsCommand.CanExecuteChangedWith(this, vm => vm.CanEditDriverMangoEmployeeRegistrationSettings);
+
+			CanEditEdoClosedPeriodSettings =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(
+					Vodovoz.Core.Domain.Permissions.BookkeeppingPermissions.CanSendEdoDocumentsForPreviousPeriods);
+			LoadAccountingPeriodClosingDates();
+			SaveEdoClosedPeriodSettingsCommand = new DelegateCommand(SaveEdoClosedPeriodSettings, () => CanEditEdoClosedPeriodSettings);
+			SaveEdoClosedPeriodSettingsCommand.CanExecuteChangedWith(this, vm => vm.CanEditEdoClosedPeriodSettings);
+
 			InitializeAccountingSettingsViewModels();
 			ConfigureOrderOrganizationsSettings();
 		}
@@ -252,6 +288,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public SubdivisionSettingsViewModel ComplaintsSubdivisionSettingsViewModel { get; private set; }
 
 		public NamedDomainEntitiesSettingsViewModelBase WarehousesForPricesAndStocksIntegrationViewModel { get; private set; }
+
+		public NamedDomainEntitiesSettingsViewModelBase ServiceNomenclaturesForBitrixDealsSettingsViewModel { get; private set; }
+
 		public EmployeeFixedPricesViewModel EmployeeFixedPricesViewModel { get; private set; }
 
 		public string RouteListPrintedFormPhones
@@ -491,6 +530,86 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#endregion
 
+		#region Сервис создания карточек сотрудников Манго
+
+		/// <summary>
+		/// Включён ли сервис создания карточек сотрудников Манго для водителей
+		/// </summary>
+		public bool IsDriverMangoEmployeeRegistrationEnabled
+		{
+			get => _isDriverMangoEmployeeRegistrationEnabled;
+			set => SetField(ref _isDriverMangoEmployeeRegistrationEnabled, value);
+		}
+
+		/// <summary>
+		/// Разрешение на управление работой сервиса создания карточек сотрудников Манго
+		/// </summary>
+		public bool CanEditDriverMangoEmployeeRegistrationSettings { get; }
+
+		/// <summary>
+		/// Команда сохранения настроек сервиса создания карточек сотрудников Манго
+		/// </summary>
+		public DelegateCommand SaveDriverMangoEmployeeRegistrationSettingsCommand { get; }
+
+		private void SaveDriverMangoEmployeeRegistrationSettings()
+		{
+			if(IsDriverMangoEmployeeRegistrationEnabled == _savedIsDriverMangoEmployeeRegistrationEnabled)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Настройка не изменена");
+				return;
+			}
+
+			var switchTimeout = _mangoSettings.DriverMangoEmployeeRegistrationSwitchTimeout;
+			var timeSinceLastChange = DateTime.Now - _mangoSettings.DriverMangoEmployeeRegistrationEnabledChangedAt;
+
+			if(timeSinceLastChange < switchTimeout)
+			{
+				var timeToWait = switchTimeout - timeSinceLastChange;
+
+				ShowWarningMessage(
+					"Слишком частое переключение сервиса по созданию карточек сотрудников в Манго.\n"
+					+ $"Повторное переключение будет доступно через {Math.Ceiling(timeToWait.TotalMinutes)} мин.");
+
+				IsDriverMangoEmployeeRegistrationEnabled = _savedIsDriverMangoEmployeeRegistrationEnabled;
+				return;
+			}
+
+			if(!_commonServices.InteractiveService.Question(
+				GetDriverMangoEmployeeRegistrationQuestion(IsDriverMangoEmployeeRegistrationEnabled, switchTimeout),
+				"Внимание!"))
+			{
+				IsDriverMangoEmployeeRegistrationEnabled = _savedIsDriverMangoEmployeeRegistrationEnabled;
+				return;
+			}
+
+			_mangoSettings.UpdateDriverMangoEmployeeRegistrationEnabled(IsDriverMangoEmployeeRegistrationEnabled, DateTime.Now);
+			_savedIsDriverMangoEmployeeRegistrationEnabled = IsDriverMangoEmployeeRegistrationEnabled;
+
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		private string GetDriverMangoEmployeeRegistrationQuestion(bool enabled, TimeSpan switchTimeout)
+		{
+			var repeatedSwitchInfo =
+				$"Повторное переключение будет доступно через {switchTimeout.TotalMinutes:F0} мин.";
+
+			if(enabled)
+			{
+				return "Сервис по созданию карточек сотрудников в Манго будет включён, "
+					+ "но начнёт работать только на следующие сутки - после удаления карточек из Манго в 02:00 по МСК.\n"
+					+ repeatedSwitchInfo + "\n"
+					+ "Продолжить?";
+			}
+
+			return "Сервис по созданию карточек сотрудников в Манго будет отключён. "
+				+ "Новые карточки создаваться не будут, уже созданные продолжат работать "
+				+ "до удаления в 02:00 по МСК.\n"
+				+ repeatedSwitchInfo + "\n"
+				+ "Продолжить?";
+		}
+
+		#endregion
+
 		#region OrderWaitUntil
 
 		public bool IsOrderWaitUntilActive
@@ -699,6 +818,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			set => SetField(ref _fastDeliveryMaximumPermissibleLateMinutes, value);
 		}
 
+		public int MaximumPermittedDistanceMeters
+		{
+			get => _maximumPermittedDistanceMeters;
+			set => SetField(ref _maximumPermittedDistanceMeters, value);
+		}
+
 		private FastDeliveryIntervalFromEnum FastDeliveryIntervalFrom =>
 			IsIntervalFromOrderCreated
 				? FastDeliveryIntervalFromEnum.OrderCreated
@@ -735,6 +860,16 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private void SaveFastDeliveryMaximumPermissibleLate()
 		{
 			_generalSettings.UpdateFastDeliveryMaximumPermissibleLateMinutes(FastDeliveryMaximumPermissibleLateMinutes);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		public DelegateCommand SaveMaximumPermittedDistanceMetersCommand { get; }
+
+		public bool CanEditMaximumPermittedDistanceFromSetting { get; }
+
+		private void SaveMaximumPermittedDistanceMeters()
+		{
+			_driverApiSettings.SavePermittedDistance(MaximumPermittedDistanceMeters);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
@@ -807,6 +942,121 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		}
 
 		#endregion Бухгалтерия
+
+		#region Даты закрытия бухгалтерского периода
+
+		public bool CanEditEdoClosedPeriodSettings
+		{
+			get => _canEditEdoClosedPeriodSettings;
+			set => SetField(ref _canEditEdoClosedPeriodSettings, value);
+		}
+		private bool _canEditEdoClosedPeriodSettings;
+
+		/// <summary>
+		/// Дата закрытия I квартала в формате ДД.ММ
+		/// </summary>
+		public string Q1ClosingDate
+		{
+			get => _q1ClosingDate;
+			set => SetField(ref _q1ClosingDate, value);
+		}
+		private string _q1ClosingDate;
+
+		/// <summary>
+		/// Дата закрытия II квартала в формате ДД.ММ
+		/// </summary>
+		public string Q2ClosingDate
+		{
+			get => _q2ClosingDate;
+			set => SetField(ref _q2ClosingDate, value);
+		}
+		private string _q2ClosingDate;
+
+		/// <summary>
+		/// Дата закрытия III квартала в формате ДД.ММ
+		/// </summary>
+		public string Q3ClosingDate
+		{
+			get => _q3ClosingDate;
+			set => SetField(ref _q3ClosingDate, value);
+		}
+		private string _q3ClosingDate;
+
+		/// <summary>
+		/// Дата закрытия IV квартала в формате ДД.ММ
+		/// </summary>
+		public string Q4ClosingDate
+		{
+			get => _q4ClosingDate;
+			set => SetField(ref _q4ClosingDate, value);
+		}
+		private string _q4ClosingDate;
+
+		public DelegateCommand SaveEdoClosedPeriodSettingsCommand { get; }
+
+		private void LoadAccountingPeriodClosingDates()
+		{
+			try
+			{
+				var dates = _accountingSettings.GetAccountingPeriodClosingDates().ToList();
+				Q1ClosingDate = FormatQuarterClosingDate(dates, 1);
+				Q2ClosingDate = FormatQuarterClosingDate(dates, 2);
+				Q3ClosingDate = FormatQuarterClosingDate(dates, 3);
+				Q4ClosingDate = FormatQuarterClosingDate(dates, 4);
+			}
+			catch(Exception ex) when(ex is InvalidOperationException || ex is SettingException)
+			{
+				Q1ClosingDate = string.Empty;
+				Q2ClosingDate = string.Empty;
+				Q3ClosingDate = string.Empty;
+				Q4ClosingDate = string.Empty;
+			}
+		}
+
+		private static string FormatQuarterClosingDate(IReadOnlyList<DateTime> dates, int quarter)
+		{
+			foreach(var date in dates)
+			{
+				if((date.Month - 1) / 3 + 1 == quarter)
+				{
+					return date.ToString("dd.MM", CultureInfo.InvariantCulture);
+				}
+			}
+
+			return string.Empty;
+		}
+
+		private void SaveEdoClosedPeriodSettings()
+		{
+			if(!TryParseClosingDate(Q1ClosingDate, "I", 1, out var firstQuarter)
+				|| !TryParseClosingDate(Q2ClosingDate, "II", 2, out var secondQuarter)
+				|| !TryParseClosingDate(Q3ClosingDate, "III", 3, out var thirdQuarter)
+				|| !TryParseClosingDate(Q4ClosingDate, "IV", 4, out var fourthQuarter))
+			{
+				return;
+			}
+
+			_accountingSettings.UpdateAccountingPeriodClosingDates(firstQuarter, secondQuarter, thirdQuarter, fourthQuarter);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		private bool TryParseClosingDate(string value, string quarterName, int quarter, out DateTime date)
+		{
+			var normalized = (value ?? string.Empty).Trim().Replace('/', '.').Replace('-', '.').Replace(' ', '.');
+			if(DateTime.TryParseExact(normalized, new[] { "dd.MM", "d.M", "dd.M", "d.MM" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out date)
+				&& (date.Month - 1) / 3 + 1 == quarter)
+			{
+				return true;
+			}
+
+			date = default;
+			_commonServices.InteractiveService.ShowMessage(
+				ImportanceLevel.Error,
+				$"Некорректная дата закрытия {quarterName} квартала: \"{value}\". Укажите дату в формате ДД.ММ в пределах квартала.");
+			return false;
+		}
+
+		#endregion Даты закрытия бухгалтерского периода
 
 		#region Настройка юр.лиц в заказе
 		
@@ -1402,7 +1652,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
-		#endregion Уведомление о блокировке поставок		
+		#endregion Уведомление о блокировке поставок
 
 		public EntityJournalOpener EntityJournalOpener { get; }
 
@@ -1439,7 +1689,23 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					DetailTitle = "Использовать следующие склады при подсчете остатков для ИПЗ:",
 					Info = "Подсчет остатков при отправке в ИПЗ будет производиться только по выбранным складам."
 				};
-			
+
+			ServiceNomenclaturesForBitrixDealsSettingsViewModel =
+				new ServiceNomenclaturesForBitrixDealsSettingsViewModel(
+					NavigationManager,
+					_commonServices,
+					_unitOfWorkFactory,
+					_generalSettings,
+					_generalSettings.ServiceNomenclaturesForBitrixDealsName)
+				{
+					CanEdit = _commonServices.CurrentPermissionService.ValidatePresetPermission(
+						Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.CanEditServiceNomenclaturesForBitrixDeals),
+					MainTitle = "<b>Настройка сервисных номенклатур для создания сделок в Битрикс24</b>",
+					DetailTitle = "Учитывать заказы со следующими номенклатурами:",
+					Info = "При подборе клиентов для создания сделок в Битрикс24 по последнему заказу сервисного обслуживания\n" +
+						"будут учитываться заказы с выбранными номенклатурами"
+				};
+
 			FillItemSources();
 		}
 

@@ -63,6 +63,11 @@ namespace Vodovoz.FirebaseCloudMessaging
 					message.Data = data;
 				}
 
+				_logger.LogInformation("Отправка PUSH-сообщения в Firebase. Заголовок: {Title}. Тело: {Body}. Данные: {@Data}",
+					title,
+					body,
+					data);
+
 				var options = _optionsMonitor.CurrentValue;
 
 				string messageId = string.Empty;

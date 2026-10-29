@@ -19,6 +19,14 @@ namespace Vodovoz.Core.Domain.Permissions
 			[Display(
 				Name = "Может выдавать топливные лимиты")]
 			public static string CanGiveFuelLimits => "can_give_fuel_limits";
+
+			/// <summary>
+			/// Может изменять вид топлива в диалоге выдачи топлива
+			/// </summary>
+			[Display(
+				Name = "Может изменять вид топлива в диалоге выдачи топлива", 
+				Description = "Даёт пользователю возможность изменять вид топлива в диалоге выдачи топлива")]
+			public static string CanChangeFuelType => nameof(CanChangeFuelType);
 		}
 	}
 }

@@ -66,7 +66,6 @@ namespace Vodovoz.Models.TrueMark
 							pool.id
 						FROM 
 							true_mark_codes_pool pool
-							INNER JOIN true_mark_identification_code code ON code.id = pool.code_id 
 						WHERE 
 							pool.promoted 
 							AND code.gtin = :gtin

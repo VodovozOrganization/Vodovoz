@@ -25,7 +25,7 @@ namespace RoboatsCallsWorker
 				{
 					services
 						.AddHostedService<CloseStaleCallsWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(RoboatsCallsWorker));
+						.ConfigureZabbixSenderFromDataBase();
 				})
 				.ConfigureWebHostDefaults(webBuilder =>
 				{

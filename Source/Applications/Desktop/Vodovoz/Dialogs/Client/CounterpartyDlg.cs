@@ -1,9 +1,13 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using Edo.Common.Services;
+using Edo.Transport;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
+using Gamma.Widgets;
+using GLib;
 using Gtk;
 using NHibernate;
 using NHibernate.Transform;
@@ -11,6 +15,7 @@ using NLog;
 using QS.Banks.Domain;
 using QS.Banks.Repositories;
 using QS.Dialog;
+using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
@@ -30,6 +35,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
+using QSWidgetLib;
 using RevenueService.Client;
 using RevenueService.Client.Dto;
 using RevenueService.Client.Extensions;
@@ -38,17 +44,21 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Application.Errors;
 using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Permissions;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
@@ -56,37 +66,34 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
-using Vodovoz.Models.TrueMark;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Edo;
+using Vodovoz.Settings;
+using Vodovoz.Core.Domain.Rules.Edo;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Settings.Roboats;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.Specifications.Orders.EdoContainers;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Client;
 using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Complaints;
-using Vodovoz.ViewModels.Dialogs.Counterparties;
+using Vodovoz.ViewModels.Edo;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
@@ -101,11 +108,13 @@ using Vodovoz.Views.Client;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.EntityRepositories.Edo;
 using VodovozBusiness.Nodes;
-using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
+using IOrganizationRepository = Vodovoz.EntityRepositories.Organizations.IOrganizationRepository;
+using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
+using Selection = Gdk.Selection;
 
 namespace Vodovoz
 {
-	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab,
+	public partial class CounterpartyDlg : EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab,
 		IAskSaveOnCloseViewModel, INotifyPropertyChanged
 	{
 		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
@@ -114,7 +123,7 @@ namespace Vodovoz
 		private readonly bool _canSetWorksThroughOrganization =
 			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_organization_from_order_and_counterparty");
 		private readonly bool _canEditClientRefer =
-			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditClientRefer);
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(CounterpartyPermissions.CanEditClientRefer);
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
 		private readonly IEmployeeService _employeeService = ScopeProvider.Scope.Resolve<IEmployeeService>();
 		private readonly IValidationContextFactory _validationContextFactory = new ValidationContextFactory();
@@ -129,6 +138,8 @@ namespace Vodovoz
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private readonly IEmailTypeSettings _emailTypeSettings = ScopeProvider.Scope.Resolve<IEmailTypeSettings>();
 		private readonly IClientsTrueMarkRegistrationCheckService _clientsTrueMarkRegistration = ScopeProvider.Scope.Resolve<IClientsTrueMarkRegistrationCheckService>();
+		private EdoInOrderDocumentActionsViewModel _edoInOrderDocumentActionsViewModel;
+		private IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailSettings _emailSettings;
@@ -150,17 +161,23 @@ namespace Vodovoz
 		private IDeleteEntityService _deleteEntityService;
 		private ICurrentPermissionService _currentPermissionService;
 		private IEdoService _edoService;
+		private IUnitOfWorkFactory _unitOfWorkFactory;
 		private IAttachedFileInformationsViewModelFactory _attachmentsViewModelFactory;
 		private ICounterpartyFileStorageService _counterpartyFileStorageService;
 		private IGeneralSettings _generalSettings;
+		private IOrderRepository _orderRepository;
+		private const int _edoDocumentsPageSize = 100;
 		private IObservableList<EdoDockflowData> _edoEdoDocumentDataNodes = new ObservableList<EdoDockflowData>();
-		private IObservableList<EdoContainer> _edoContainers = new ObservableList<EdoContainer>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
+		private bool _edoDocumentsLoaded = false;
+		private bool _edoDocumentsHasNextPage = false;
+		private int _edoDocumentsCurrentPage = 0;
 		private Organization _vodovozOrganization;
 		private bool _disableClosingDeliveriesMailingInitValue;
+		private EdoDockflowData _selectedEdoDockflowData;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -234,6 +251,11 @@ namespace Vodovoz
 		{
 			get
 			{
+				if(_hasSaveFailed)
+				{
+					return false;
+				}
+
 				_phonesViewModel.RemoveEmpty();
 				emailsView.ViewModel.RemoveEmpty();
 				return base.HasChanges;
@@ -243,7 +265,7 @@ namespace Vodovoz
 
 		#region IAskSaveOnCloseViewModel
 
-		public bool AskSaveOnClose => CanEdit;
+		public bool AskSaveOnClose => !_hasSaveFailed && CanEdit;
 
 		#endregion
 
@@ -325,10 +347,12 @@ namespace Vodovoz
 			_deleteEntityService = _lifetimeScope.Resolve<IDeleteEntityService>();
 			_currentPermissionService = _lifetimeScope.Resolve<ICurrentPermissionService>();
 			_edoService = _lifetimeScope.Resolve<IEdoService>();
+			_unitOfWorkFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
 			_attachmentsViewModelFactory = _lifetimeScope.Resolve<IAttachedFileInformationsViewModelFactory>();
 			_counterpartyFileStorageService = _lifetimeScope.Resolve<ICounterpartyFileStorageService>();
 			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 			_generalSettings = _lifetimeScope.Resolve<IGeneralSettings>();
+			_orderRepository = _lifetimeScope.Resolve<IOrderRepository>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -371,17 +395,17 @@ namespace Vodovoz
 			ConfigureTabEdoContainers();
 
 			//make actions menu
-			var menu = new Gtk.Menu();
+			var menu = new Menu();
 
-			var menuItem = new Gtk.MenuItem("Все заказы контрагента");
+			var menuItem = new MenuItem("Все заказы контрагента");
 			menuItem.Activated += OnAllCounterpartyOrdersActivated;
 			menu.Add(menuItem);
 
-			var menuItemFixedPrices = new Gtk.MenuItem("Фикс. цены для самовывоза");
+			var menuItemFixedPrices = new MenuItem("Фикс. цены для самовывоза");
 			menuItemFixedPrices.Activated += (s, e) => OpenFixedPrices();
 			menu.Add(menuItemFixedPrices);
 
-			var menuComplaint = new Gtk.MenuItem("Рекламации контрагента");
+			var menuComplaint = new MenuItem("Рекламации контрагента");
 			menuComplaint.Activated += OnCounterpartyComplaintsActivated;
 			menu.Add(menuComplaint);
 
@@ -778,7 +802,7 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.DisableDebtMailing, w => w.Active)
 				.InitializeFromSource();
 			ycheckbuttonDisableDebtMailing.Sensitive = 
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(CounterpartyPermissions.CanEditDebtNotification);
 
 			ycheckbuttonDisableClosingDeliveriesMailing.Binding
 				.AddBinding(Entity, e => e.DisableClosingDeliveriesMailing, w => w.Active)
@@ -984,7 +1008,7 @@ namespace Vodovoz
 				.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.INN) && !string.IsNullOrWhiteSpace(e.KPP), w => w.Sensitive)
 				.InitializeFromSource();
 
-			validatedOGRN.ValidationMode = validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			validatedOGRN.ValidationMode = validatedINN.ValidationMode = validatedKPP.ValidationMode = ValidationType.numeric;
 			validatedOGRN.MaxLength = CompanyConstants.PrivateBusinessmanOgrnLength;
 
 			validatedOGRN.Binding
@@ -1216,7 +1240,7 @@ namespace Vodovoz
 		private void ConfigureTabPrices()
 		{
 			supplierPricesWidget.ViewModel =
-				new ViewModels.Client.SupplierPricesWidgetViewModel(
+				new SupplierPricesWidgetViewModel(
 					Entity,
 					UoW,
 					this,
@@ -1335,7 +1359,7 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.NeedSendBillByEdo, w => w.Active)
 				.InitializeFromSource();
 
-			edoValidatedINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			edoValidatedINN.ValidationMode = ValidationType.numeric;
 			edoValidatedINN.Binding
 				.AddFuncBinding(Entity,
 					e => e.PersonType == PersonType.natural && e.ReasonForLeaving == ReasonForLeaving.Resale,
@@ -1410,95 +1434,131 @@ namespace Vodovoz
 				.AddColumn("")
 				.Finish();
 
-			UpdateEdoDocumentDataNodes();
 			treeViewEdoDocumentsContainer.ItemsDataSource = _edoEdoDocumentDataNodes;
-			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_edo_documents");
-			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnButtonEdoDocumentsSendAllUnsentClicked;
-			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoDocumentDataNodes();
+
+			treeViewEdoDocumentsContainer.Binding
+				.AddBinding(this, dlg => dlg.SelectedEdoDockflowData, w => w.SelectedRow)
+				.InitializeFromSource();
+
+			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoDocumentDataNodes(_edoDocumentsCurrentPage);
+			ConfigureEdoDocumentsPagination();
+			ConfigureEdoDocumentActionsPanel();
 		}
 
-		private void OnButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
+		private void ConfigureEdoDocumentActionsPanel()
 		{
-			if(Entity.Id > 0)
-			{
-				var resendEdoDocumentsDialog = new ResendCounterpartyEdoDocumentsViewModel(
-					EntityUoWBuilder.ForOpen(Entity.Id),
-					ServicesConfig.UnitOfWorkFactory,
-					_commonServices,
-					GetOrderIdsWithoutSuccessfullySentUpd(),
-					_edoService);
-				TabParent.AddSlaveTab(this, resendEdoDocumentsDialog);
-			}
-		}
+			_edoInOrderDocumentActionsViewModel = _lifetimeScope.Resolve<EdoInOrderDocumentActionsViewModel>();
+			_edoRequestCreatedEventPublisher = _lifetimeScope.Resolve<IEdoRequestCreatedEventPublisher>();
 
-		private void UpdateEdoContainers(IUnitOfWork uow)
+			edoinorderactionsview.ViewModel = _edoInOrderDocumentActionsViewModel;
+
+			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnYButtonEdoDocumentsSendAllUnsentClicked;
+		}		
+
+		private void ConfigureEdoDocumentsPagination()
 		{
-			if(Entity.Id < 1)
+			ybuttonEdoDocumentsPreviousPage.Clicked += (s, e) =>
 			{
-				return;
-			}
-
-			_edoContainers.Clear();
-
-			var containers = _counterpartyRepository.GetEdoContainersByCounterpartyId(uow, Entity.Id);
-
-			foreach(var item in containers)
-			{
-				if(item.IsIncoming)
+				if(_edoDocumentsCurrentPage == 0)
 				{
-					continue;
+					return;
 				}
-				_edoContainers.Add(item);
-			}
+
+				UpdateEdoDocumentDataNodes(_edoDocumentsCurrentPage - 1);
+			};
+
+			ybuttonEdoDocumentsNextPage.Clicked += (s, e) =>
+			{
+				if(!_edoDocumentsHasNextPage)
+				{
+					return;
+				}
+
+				UpdateEdoDocumentDataNodes(_edoDocumentsCurrentPage + 1);
+			};
+
+			UpdateEdoDocumentsPaginationControls();
 		}
 
-		private void UpdateEdoDocumentDataNodes()
+		private void UpdateEdoDocumentDataNodes(int pageNumber = 0)
 		{
+			var totalStopwatch = Stopwatch.StartNew();
+			var stepStopwatch = Stopwatch.StartNew();
 			_edoEdoDocumentDataNodes.Clear();
 
-			var documents = new List<EdoDockflowData>();
+			var pageStartIndex = pageNumber * _edoDocumentsPageSize;
+			// Источники старого и нового ЭДО разные, поэтому для общей сортировки страницы нужен префикс из каждого источника.
+			var documentsToFetch = pageStartIndex + _edoDocumentsPageSize + 1;
+			IList<EdoDockflowData> newEdoDocuments;
+			IList<EdoDockflowData> oldEdoDocuments;
 
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Отправка документов по ЭДО, диалог заказа"))
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Документы по ЭДО, диалог клиента"))
 			{
-				UpdateEdoContainers(uow);
+				newEdoDocuments = _edoDocflowRepository.GetEdoDocflowDataByClientId(uow, Entity.Id, documentsToFetch);
+				_logger.Info(
+					"Загрузка новых документов ЭДО клиента {CounterpartyId}, страница {Page}, запрошено {Requested}, получено {Count}: {Elapsed}",
+					Entity.Id,
+					pageNumber + 1,
+					documentsToFetch,
+					newEdoDocuments.Count,
+					stepStopwatch.Elapsed);
 
-				documents.AddRange(_edoDocflowRepository.GetEdoDocflowDataByClientId(uow, Entity.Id));
-				documents.AddRange(_edoContainers.Select(x => new EdoDockflowData(x)));
+				stepStopwatch.Restart();
+				oldEdoDocuments = _edoDocflowRepository.GetOldEdoDocflowDataByClientId(uow, Entity.Id, documentsToFetch);
+				_logger.Info(
+					"Загрузка старых документов ЭДО клиента {CounterpartyId}, страница {Page}, запрошено {Requested}, получено {Count}: {Elapsed}",
+					Entity.Id,
+					pageNumber + 1,
+					documentsToFetch,
+					oldEdoDocuments.Count,
+					stepStopwatch.Elapsed);
 			}
 
-			documents = documents.OrderByDescending(x => x.OrderId).ToList();
+			stepStopwatch.Restart();
+			var documents = newEdoDocuments.Concat(oldEdoDocuments).ToList();
 
-			foreach(var document in documents)
+			var pageDocuments = documents
+				.OrderByDescending(x => x.TaxcomDocflowCreationTime ?? x.EdoRequestCreationTime)
+				.Skip(pageStartIndex)
+				.Take(_edoDocumentsPageSize + 1)
+				.ToList();
+			_logger.Info(
+				"Сортировка и выбор страницы документов ЭДО клиента {CounterpartyId}, страница {Page}, всего в памяти {TotalCount}, строк страницы {PageCount}: {Elapsed}",
+				Entity.Id,
+				pageNumber + 1,
+				documents.Count,
+				pageDocuments.Count,
+				stepStopwatch.Elapsed);
+
+			_edoDocumentsCurrentPage = pageNumber;
+			_edoDocumentsHasNextPage = pageDocuments.Count > _edoDocumentsPageSize;
+
+			stepStopwatch.Restart();
+			foreach(var document in pageDocuments.Take(_edoDocumentsPageSize))
 			{
 				_edoEdoDocumentDataNodes.Add(document);
 			}
+			_logger.Info(
+				"Заполнение таблицы документов ЭДО клиента {CounterpartyId}, страница {Page}, строк {RowsCount}: {Elapsed}",
+				Entity.Id,
+				pageNumber + 1,
+				_edoEdoDocumentDataNodes.Count,
+				stepStopwatch.Elapsed);
 
-			SetEdoDocumentsSendAllUnsentButtonSensitive();
+			_edoDocumentsLoaded = true;
+			UpdateEdoDocumentsPaginationControls();
+			_logger.Info(
+				"Полная загрузка страницы документов ЭДО клиента {CounterpartyId}, страница {Page}: {Elapsed}",
+				Entity.Id,
+				pageNumber + 1,
+				totalStopwatch.Elapsed);
 		}
 
-		private void SetEdoDocumentsSendAllUnsentButtonSensitive()
+		private void UpdateEdoDocumentsPaginationControls()
 		{
-
-			ybuttonEdoDocumentsSendAllUnsent.Sensitive =
-				Entity.Id > 0
-				&& GetOrderIdsWithoutSuccessfullySentUpd().Count > 0;
-		}
-
-		private List<int> GetOrderIdsWithoutSuccessfullySentUpd()
-		{
-			var allOrdersIds = _edoContainers.Where(x => EdoContainerSpecification.CreateIsForOrder().IsSatisfiedBy(x)).Select(c => c.Order.Id).Distinct().ToList();
-
-			var orderIdsHavingUpdSentSuccessfully = _edoContainers
-				.Where(c => c.Type == DocumentContainerType.Upd
-					&& !c.IsIncoming
-					&& c.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
-				.Select(c => c.Order.Id)
-				.Distinct()
-				.ToList();
-
-			var orderIdsWithoutSuccessfullySentUpd = allOrdersIds.Except(orderIdsHavingUpdSentSuccessfully).ToList();
-
-			return orderIdsWithoutSuccessfullySentUpd;
+			ybuttonEdoDocumentsPreviousPage.Sensitive = _edoDocumentsCurrentPage > 0;
+			ybuttonEdoDocumentsNextPage.Sensitive = _edoDocumentsHasNextPage;
+			ylabelEdoDocumentsPage.LabelProp = $"Страница {_edoDocumentsCurrentPage + 1}";
 		}
 
 		private void RefreshBulkEmailEventStatus()
@@ -1615,6 +1675,7 @@ namespace Vodovoz
 		}
 
 		private bool _canClose = true;
+		private bool _hasSaveFailed;
 
 		public bool CanClose()
 		{
@@ -1635,6 +1696,11 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			if(_hasSaveFailed)
+			{
+				return false;
+			}
+
 			try
 			{
 				SetSensetivity(false);
@@ -1663,7 +1729,20 @@ namespace Vodovoz
 				}
 
 				_logger.Info("Сохраняем контрагента...");
-				UoW.Save();
+				try
+				{
+					SaveWithPhoneArchiving();
+				}
+				catch(Exception ex)
+				{
+					_logger.Error(ex, "Ошибка сохранения карточки клиента с архивацией телефонов");
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+						"Не удалось завершить сохранение карточки клиента. Карточка будет закрыта. "
+						+ "Откройте её повторно и проверьте данные перед повторным внесением изменений.");
+					return false;
+				}
+				_phonesViewModel.AcceptChanges();
+				treeViewExternalCounterparties.SetItemsSource(_externalCounterpartyRepository.GetPersonalCounterpartyExternalUsersInfo(UoW, Entity.Id));
 				SaveEmailSubscriptions();
 				AddAttachedFilesIfNeeded();
 				UpdateAttachedFilesIfNeeded();
@@ -1675,6 +1754,25 @@ namespace Vodovoz
 			finally
 			{
 				SetSensetivity(true);
+				if(_hasSaveFailed)
+				{
+					OnCloseTab(false, CloseSource.Cancel);
+				}
+			}
+		}
+
+		private void SaveWithPhoneArchiving()
+		{
+			try
+			{
+				_phonesViewModel.PrepareSave();
+				UoW.Save();
+			}
+			catch
+			{
+				_hasSaveFailed = true;
+				UoW.Dispose();
+				throw;
 			}
 		}
 
@@ -1910,6 +2008,10 @@ namespace Vodovoz
 			if(rbnEdoDocuments.Active)
 			{
 				notebook1.CurrentPage = 13;
+				if(!_edoDocumentsLoaded)
+				{
+					UpdateEdoDocumentDataNodes();
+				}
 			}
 		}
 
@@ -1929,7 +2031,7 @@ namespace Vodovoz
 				var response = MessageDialogHelper.RunWarningDialog(
 					"Смена типа контрагента",
 					"При смене контрагента с поставщика на покупателя произойдёт очистка списка цен на поставляемые им номенклатуры. Продолжить?",
-					Gtk.ButtonsType.YesNo
+					ButtonsType.YesNo
 				);
 				if(response)
 				{
@@ -1966,7 +2068,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnEnumPaymentEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		protected void OnEnumPaymentEnumItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			enumDefaultDocumentType.Visible = labelDefaultDocumentType.Visible = (PaymentType)e.SelectedItem == PaymentType.Cashless;
 		}
@@ -1983,7 +2085,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnYentrySignPostFocusInEvent(object o, Gtk.FocusInEventArgs args)
+		protected void OnYentrySignPostFocusInEvent(object o, FocusInEventArgs args)
 		{
 			if(!CanEdit)
 			{
@@ -1999,7 +2101,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnYentrySignBaseOfFocusInEvent(object o, Gtk.FocusInEventArgs args)
+		protected void OnYentrySignBaseOfFocusInEvent(object o, FocusInEventArgs args)
 		{
 			if(!CanEdit)
 			{
@@ -2284,7 +2386,7 @@ namespace Vodovoz
 				$"В лице: {Entity.SignatoryPost}\n" +
 				$"На основании:  {Entity.SignatoryBaseOf}";
 
-			GetClipboard(Gdk.Selection.Clipboard).Text = accountData;
+			GetClipboard(Selection.Clipboard).Text = accountData;
 		}
 
 		protected void OnButtonRequestByInnAndKppClicked(object sender, EventArgs e)
@@ -2454,7 +2556,7 @@ namespace Vodovoz
 			comboboxOpf.Model.GetIterFirst(out iter);
 			do
 			{
-				GLib.Value thisRow = new GLib.Value();
+				Value thisRow = new Value();
 				comboboxOpf.Model.GetValue(iter, 0, ref thisRow);
 				if(((thisRow.Val as string) ?? String.Empty).Length > 0)
 				{
@@ -2476,7 +2578,7 @@ namespace Vodovoz
 			comboboxOpf.Model.GetIterFirst(out iter);
 			do
 			{
-				GLib.Value thisRow = new GLib.Value();
+				Value thisRow = new Value();
 				comboboxOpf.Model.GetValue(iter, 0, ref thisRow);
 				if(((thisRow.Val as string) ?? String.Empty) == value)
 				{
@@ -2543,8 +2645,186 @@ namespace Vodovoz
 			unitOfWork.Save(subscribingEvent);
 		}
 
+		#region ResendEdoDocuments
+
+		public EdoDockflowData SelectedEdoDockflowData
+		{
+			get => _selectedEdoDockflowData;
+			set
+			{
+				if(value == _selectedEdoDockflowData)
+				{
+					return;
+				}
+
+				_selectedEdoDockflowData = value;
+
+				_edoInOrderDocumentActionsViewModel.SelectedDocument = BuildHistoryRowOrNull(value);
+			}
+		}
+
+		private void OnYButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
+		{
+			var newRequests = new List<PrimaryEdoRequest>();
+			var blockedByClosedPeriodCount = 0;
+			using(var resendUow = _unitOfWorkFactory.CreateWithoutRoot("Переотправка документов ЭДО клиента"))
+			{
+				var documentEdoTasks =
+					_edoDocflowRepository.GetClientSavedToPoolDocumentTaskIdsForResend(resendUow, Entity.Id, _orderRepository.GetUndeliveryStatuses())
+					.Cast<OrderEdoTask>();
+
+				var receiptEdoTasks =
+					_edoDocflowRepository.GetClientSavedToPoolReceiptTaskIdsForResend(resendUow, Entity.Id, _orderRepository.GetUndeliveryStatuses())
+					.Cast<OrderEdoTask>();
+
+				var edoTasks = documentEdoTasks.Concat(receiptEdoTasks).ToList();
+
+				var ordersWithoutRequestsIds =
+					_edoDocflowRepository.GetClientOrdersWithoutEdoRequestsForUpdResend(resendUow, Entity.Id).ToList();
+
+				var blockedOrderIds = GetClosedPeriodBlockedOrderIds(resendUow, edoTasks, ordersWithoutRequestsIds);
+				blockedByClosedPeriodCount = blockedOrderIds.Count;
+
+				var newUpdRequests = edoTasks
+					.Select(task => task.FormalEdoRequest.Order.Id)
+					.Where(orderId => !blockedOrderIds.Contains(orderId))
+					.Select(orderId => new PrimaryEdoRequest
+					{
+						Order = new OrderEntity
+						{
+							Id = orderId
+						},
+						Time = DateTime.Now,
+						Source = EdoRequestSource.Manual,
+						DocumentType = EdoDocumentType.UPD
+					});
+
+				foreach (var newRequest in newUpdRequests)
+				{
+					resendUow.Save(newRequest);
+					newRequests.Add(newRequest);
+				}
+
+				foreach(var orderId in ordersWithoutRequestsIds.Where(orderId => !blockedOrderIds.Contains(orderId)))
+				{
+					var newRequest = new PrimaryEdoRequest
+					{
+						Order = new OrderEntity
+						{
+							Id = orderId
+						},
+						Time = DateTime.Now,
+						Source = EdoRequestSource.Manual,
+						DocumentType = EdoDocumentType.UPD
+					};
+
+					resendUow.Save(newRequest);
+					newRequests.Add(newRequest);
+				}
+
+				foreach(var newRequest in newRequests)
+				{
+					_edoRequestCreatedEventPublisher.Publish(
+							resendUow,
+							newRequest.Id,
+							"Переотправка ушедших на сохранение кодов задач")
+						.GetAwaiter()
+						.GetResult();
+				}
+
+				resendUow.Commit();
+			}
+
+			UpdateEdoDocumentDataNodes(_edoDocumentsCurrentPage);
+
+			if(blockedByClosedPeriodCount > 0)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+					$"Не удалось переотправить документы в количестве {blockedByClosedPeriodCount}.\nПричина:\n"
+					+ "Документы в закрытом бухгалтерском периоде. Для переотправки обратитесь в бухгалтерию");
+			}
+			else
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Переотправка выполнена.");
+			}
+		}
+
+		private HashSet<int> GetClosedPeriodBlockedOrderIds(
+			IUnitOfWork uow,
+			List<OrderEdoTask> edoTasks,
+			List<int> ordersWithoutRequestsIds)
+		{
+			if(_commonServices.CurrentPermissionService.ValidatePresetPermission(
+				BookkeeppingPermissions.CanSendEdoDocumentsForPreviousPeriods))
+			{
+				return new HashSet<int>();
+			}
+
+			var closedPeriodRule = _lifetimeScope.Resolve<CanProcessOrSendEdoByClosingAccountingDate>();
+
+			var orderIds = edoTasks
+				.Select(task => task.FormalEdoRequest.Order.Id)
+				.Concat(ordersWithoutRequestsIds)
+				.Distinct()
+				.ToList();
+
+			if(orderIds.Count == 0)
+			{
+				return new HashSet<int>();
+			}
+
+			try
+			{
+				return new HashSet<int>(uow.GetAll<OrderEntity>()
+					.Where(o => orderIds.Contains(o.Id))
+					.ToList()
+					.Where(o => !closedPeriodRule.Check(o.DeliveryDate))
+					.Select(o => o.Id));
+			}
+			catch(System.Exception ex) when (ex is InvalidOperationException || ex is SettingException)
+			{
+				return new HashSet<int>();
+			}
+		}
+
+		private EdoInOrderDocumentHistoryRowViewModel BuildHistoryRowOrNull(EdoDockflowData dockflowData)
+		{
+			if(dockflowData?.TaskId == null || dockflowData.TaskType == null)
+			{
+				return null;
+			}
+
+			var node = new EdoInOrderDocumentNode
+			{
+				TaskId = dockflowData.TaskId.Value,
+				TaskType = dockflowData.TaskType.Value,
+				TaskStatus = dockflowData.EdoTaskStatus ?? EdoTaskStatus.InProgress,
+				TaskUpdStage = dockflowData.TaskUpdStage,
+				TaskReceiptStage = dockflowData.TaskReceiptStage,
+				TaskTenderStage = dockflowData.TaskTenderStage,
+				InformalOrderDocumentType = dockflowData.OrderDocumentType,
+				EdoDocumentStatus = dockflowData.EdoDocumentStatus,
+				CancellationReason = dockflowData.CancellationReason,
+				RequestTime = dockflowData.EdoRequestCreationTime ?? dockflowData.TaxcomDocflowCreationTime ?? default,
+				RequestSource = EdoRequestSource.Manual
+			};
+
+			try
+			{
+				return new EdoInOrderDocumentHistoryRowViewModel(node);
+			}
+			catch
+			{
+				return null;
+			}
+		}
+
+		#endregion ResendEdoDocuments
+
 		public override void Destroy()
 		{
+			ybuttonEdoDocumentsSendAllUnsent.Clicked -= OnYButtonEdoDocumentsSendAllUnsentClicked;
+
 			if(_lifetimeScope != null)
 			{
 				_lifetimeScope.Dispose();

@@ -1,24 +1,25 @@
-﻿using EdoService.Library;
-using QS.Commands;
+﻿using Gamma.Binding.Core;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Core.Domain.Edo;
+using System.Windows.Input;
 
 namespace Vodovoz.ViewModels.Edo
 {
 	public class EdoInOrderDocumentActionsViewModel : WidgetViewModelBase
 	{
-		private readonly IEdoService _edoService;
+		private readonly IEdoDocumentActionsFactory _actionsFactory;
 		private EdoInOrderDocumentHistoryRowViewModel _selectedDocument;
-		private IEnumerable<NamedCommand> _actions = Enumerable.Empty<NamedCommand>();
+		private IEnumerable<BusyCommand> _actions = Enumerable.Empty<BusyCommand>();
 
-		public EdoInOrderDocumentActionsViewModel(IEdoService edoService)
+		public EdoInOrderDocumentActionsViewModel(
+			IEdoDocumentActionsFactory actionsFactory)
 		{
-			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+			_actionsFactory = actionsFactory ?? throw new ArgumentNullException(nameof(actionsFactory));
 		}
+
+		public ICommand EdoInOrderRefreshCommand { get; set; }
 
 		public virtual EdoInOrderDocumentHistoryRowViewModel SelectedDocument
 		{
@@ -27,72 +28,17 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				if(SetField(ref _selectedDocument, value))
 				{
-					CreateActions();
+					Actions = _actionsFactory.CreateActions(
+						_selectedDocument,
+						() => EdoInOrderRefreshCommand?.Execute(null));
 				}
 			}
 		}
 
-		public virtual IEnumerable<NamedCommand> Actions
+		public virtual IEnumerable<BusyCommand> Actions
 		{
 			get => _actions;
 			set => SetField(ref _actions, value);
-		}
-
-		private void CreateActions()
-		{
-			if(_selectedDocument == null)
-			{
-				Actions = Enumerable.Empty<NamedCommand>();
-				return;
-			}
-
-			var newActions = new List<NamedCommand>();
-
-			switch(_selectedDocument.DocumentType)
-			{
-				case EdoInOrderDocumentType.Upd:
-					CreateUpdActions(newActions, SelectedDocument.Document);
-					break;
-				case EdoInOrderDocumentType.Receipt:
-					CreateReceiptActions(newActions, SelectedDocument.Document);
-					break;
-				case EdoInOrderDocumentType.Tender:
-					break;
-				case EdoInOrderDocumentType.SaveCode:
-					break;
-				default:
-					break;
-			}
-
-			Actions = newActions;
-		}
-
-		private void CreateUpdActions(
-			List<NamedCommand> newActions,
-			EdoInOrderDocumentNode document
-			) 
-		{
-			if(document.TaskUpdStage == DocumentEdoTaskStage.New && document.TaskStatus == EdoTaskStatus.Problem)
-			{
-				newActions.Add(new NamedCommand(
-					"Переобработать проблему",
-					() => _edoService.RehandleNewUpdDocumentWithProblem(document.TaskId)
-				));
-			}
-		}
-
-		private void CreateReceiptActions(
-			List<NamedCommand> newActions,
-			EdoInOrderDocumentNode document
-			)
-		{
-			if(document.TaskReceiptStage == EdoReceiptStatus.New && document.TaskStatus == EdoTaskStatus.Problem)
-			{
-				newActions.Add(new NamedCommand(
-					"Переобработать проблему",
-					() => _edoService.RehandleNewReceiptDocumentWithProblem(document.TaskId)
-				));
-			}
 		}
 	}
 }

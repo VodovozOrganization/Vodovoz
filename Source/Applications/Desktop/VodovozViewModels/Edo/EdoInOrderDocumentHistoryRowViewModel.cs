@@ -1,6 +1,7 @@
 ﻿using Gamma.Utilities;
 using QS.ViewModels;
 using System;
+using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
@@ -16,16 +17,22 @@ namespace Vodovoz.ViewModels.Edo
 			Time = documentNode.RequestTime;
 			TimeString = Time.ToString("dd.MM.yyyy HH:mm");
 			Source = documentNode.RequestSource;
-			SourceString = Source.GetEnumTitle();
 			Status = documentNode.TaskStatus;
 			StatusString = Status.GetEnumTitle();
-			CodesQuantity = documentNode.CodesQuantity;
-			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
+			EdoDocumentStatus = documentNode.EdoDocumentStatus;
 			DocumentType = MatchDocumentType(documentNode);
 			DocumentTypeString = DocumentType.GetEnumTitle();
+			SourceString = Source == EdoRequestSource.Manual
+				|| (DocumentType == EdoInOrderDocumentType.Bill && !string.IsNullOrWhiteSpace(documentNode.ManualRequestAuthor))
+					? documentNode.ManualRequestAuthor
+					: Source.GetEnumTitle();
 			DocumentGroupType = MatchDocumentsByGroupType(DocumentType);
 			DocumentGroupTypeString = DocumentGroupType.GetEnumTitle();
+			CodesQuantity = GetCodesQuantity();
+			CodesQuantityString = CodesQuantity?.ToString() ?? "-";
+			CancellationReason = documentNode.CancellationReason;
 		}
+
 		public EdoInOrderDocumentNode Document { get; }
 
 		public virtual EdoInOrderDocumentGroupType DocumentGroupType { get; }
@@ -40,12 +47,31 @@ namespace Vodovoz.ViewModels.Edo
 		public virtual EdoTaskStatus Status { get; }
 		public virtual string StatusString { get; }
 
+		public virtual EdoDocumentStatus? EdoDocumentStatus { get; }
+		public virtual string EdoDocumentStatusString => EdoDocumentStatus?.GetEnumTitle() ?? string.Empty;
+
 		public virtual EdoInOrderDocumentType DocumentType { get; }
 		public virtual string DocumentTypeString { get; }
 
 		public virtual int? CodesQuantity { get; }
 		public virtual string CodesQuantityString { get; }
 
+		public virtual string CancellationReason { get; }
+
+		private int? GetCodesQuantity()
+		{
+			var primaryDocuments = new[]
+			{
+				EdoInOrderDocumentType.Tender
+			};
+
+			if(primaryDocuments.Contains(DocumentType))
+			{
+				return Document.CodesInRequest;
+			}
+
+			return Document.CodesUsedInTask;
+		}
 
 		private EdoInOrderDocumentType MatchDocumentType(EdoInOrderDocumentNode document)
 		{
@@ -81,6 +107,7 @@ namespace Vodovoz.ViewModels.Edo
 			switch(document.InformalOrderDocumentType.Value)
 			{
 				case OrderDocumentType.Bill:
+				case OrderDocumentType.SpecialBill:
 					return EdoInOrderDocumentType.Bill;
 				default:
 					throw new NotSupportedException($"Не поддерживается отправка документа: {document.InformalOrderDocumentType.Value}.");
@@ -96,10 +123,10 @@ namespace Vodovoz.ViewModels.Edo
 				case EdoInOrderDocumentType.Tender:
 				case EdoInOrderDocumentType.SaveCode:
 					return EdoInOrderDocumentGroupType.Primary;
+				case EdoInOrderDocumentType.Bill:
+					return EdoInOrderDocumentGroupType.Bills;
 				case EdoInOrderDocumentType.Withdrawal:
 					return EdoInOrderDocumentGroupType.Withdrawal;
-				case EdoInOrderDocumentType.Bill:
-					return EdoInOrderDocumentGroupType.Bill;
 				default:
 					throw new NotSupportedException($"Не поддерживается отправка документа: {edoInOrderDocumentType}.");
 			}

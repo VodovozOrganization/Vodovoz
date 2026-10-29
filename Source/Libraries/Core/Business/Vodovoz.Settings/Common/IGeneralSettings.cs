@@ -68,6 +68,24 @@ namespace Vodovoz.Settings.Common
 		void SaveDefaultPaymentDeferment(int defaultPaymentDeferment);
 		
 		decimal DefaultVatRate { get; }
+
 		void SaveDefaultVatRate(decimal defaultVatRate);
+
+		/// <summary>
+		/// Наименование параметра, в котором хранится список номенклатур сервисного центра, которые будут использоваться для создания сделок Битрикс
+		/// </summary>
+		string ServiceNomenclaturesForBitrixDealsName { get; }
+
+		/// <summary>
+		/// Список номенклатур сервисного центра, которые будут использоваться для создания сделок Битрикс
+		/// </summary>
+		int[] ServiceNomenclaturesForBitrixDeals { get; }
+
+		/// <summary>
+		/// Обновляет список номенклатур сервисного центра, которые будут использоваться для создания сделок Битрикс
+		/// </summary>
+		/// <param name="nomenclatureIds">Список идентификаторов номенклатур</param>
+		/// <param name="parameterName">Наименование параметра</param>
+		void UpdateServiceNomenclaturesForBitrixDeals(IEnumerable<int> nomenclatureIds, string parameterName);
 	}
 }

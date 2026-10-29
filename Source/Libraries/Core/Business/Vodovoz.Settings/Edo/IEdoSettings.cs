@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Vodovoz.Settings.Edo
 {
@@ -21,7 +22,6 @@ namespace Vodovoz.Settings.Edo
 		bool NewEdoProcessing { get; }
 		int CodePoolCheckCodesDepth { get; }
 		int CodePoolCheckIntervalMinutes { get; }
-		int CodePoolPromoteWithExtraSeconds { get; }
 		
 		/// <summary>
 		/// Максимальное количество попыток подбора валидного кода из пула по одному GTIN
@@ -36,5 +36,35 @@ namespace Vodovoz.Settings.Edo
 		/// после которого будет создана заявка на вывод кодов из оборота
 		/// </summary>
 		int WithdrawalDocflowTimeoutDays { get; }
+
+		/// <summary>
+		/// Интервал в минутах, через который будет запускаться процесс очистки просроченных кодов из пула
+		/// </summary>
+		int ExpiredCodesCleanerIntervalMinutes { get; }
+
+		/// <summary>
+		/// Интервал в часах, через который будет вызываться процесс очистки использованных кодов из пула
+		/// </summary>
+		int UsedCodesCleanerIntervalHours { get; }
+
+		/// <summary>
+		/// Эндпоинт для получения статуса документооборота в Taxcom
+		/// </summary>
+		string TaxcomGetDocflowStatusEndpoint { get; }
+
+		/// <summary>
+		/// Словарь сопоставления ID организации с базовым адресом Taxcom
+		/// </summary>
+		IReadOnlyDictionary<int, string> TaxcomOrganizationBaseAddresses { get; }
+
+		/// <summary>
+		/// Запас дней к проверке срока годности при проверке из пула кодов
+		/// </summary>
+		int CodePoolExpireDateCheckAdditinalDays { get; }
+
+		/// <summary>
+		/// Запас дней к проверке срока годности при проверке в момент обработки кодов в общем
+		/// </summary>
+		int GeneralExpireDateCheckAdditinalDays { get; }
 	}
 }

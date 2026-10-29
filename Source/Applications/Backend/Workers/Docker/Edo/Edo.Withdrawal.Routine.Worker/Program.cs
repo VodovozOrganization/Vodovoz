@@ -13,6 +13,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.Withdrawal.Routine.Worker
 {
@@ -52,14 +54,15 @@ namespace Edo.Withdrawal.Routine.Worker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddEdoWithdrawalRoutine()
+						.AddEdoWithdrawalRoutine(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+						.ConfigureZabbixSenderFromDataBase()
 
 						.AddHostedService<TrueMarkTimedOutDocumentsWithdrawalWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(TrueMarkTimedOutDocumentsWithdrawalWorker))
+
+						.AddHostedService<TrueMarkWithdrawalCancellationWorker>()
 
 						.AddHostedService<TrueMarkDocumentsStatusUpdateWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(TrueMarkDocumentsStatusUpdateWorker))
 						;
 				});
 	}

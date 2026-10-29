@@ -20,7 +20,7 @@ using Vodovoz.Settings.Edo;
 using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services.TrueMark;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
+using TrueMarkCodeErrors = Vodovoz.Core.Domain.Errors.TrueMarkCodeErrors;
 
 namespace Vodovoz.Core.Application.TrueMark
 {
@@ -36,7 +36,7 @@ namespace Vodovoz.Core.Application.TrueMark
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkApiClient _trueMarkApiClient;
 		private readonly OurCodesChecker _ourCodesChecker;
-		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
+		private readonly ITrueMarkCodesChecker _trueMarkCodesChecker;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly ITrueMarkTransportCodeFactory _trueMarkTransportCodeFactory;
 		private readonly ITrueMarkWaterGroupCodeFactory _trueMarkWaterGroupCodeFactory;
@@ -56,7 +56,7 @@ namespace Vodovoz.Core.Application.TrueMark
 			IUnitOfWork uow,
 			ITrueMarkApiClient trueMarkApiClient,
 			OurCodesChecker ourCodesChecker,
-			TrueMarkCodesChecker trueMarkCodesChecker,
+			ITrueMarkCodesChecker trueMarkCodesChecker,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			ITrueMarkTransportCodeFactory trueMarkTransportCodeFactory,
 			ITrueMarkWaterGroupCodeFactory trueMarkWaterGroupCodeFactory,
@@ -295,10 +295,17 @@ namespace Vodovoz.Core.Application.TrueMark
 
 		private Result IsCodeNotExpired(ProductInstanceStatus productInstanceStatus)
 		{
-			if(productInstanceStatus.ExpirationDate >= DateTime.Today)
+			if(productInstanceStatus.ExpirationDate == null)
+			{
+				return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsExpired);
+			}
+
+			var additionalDays = _edoSettings.GeneralExpireDateCheckAdditinalDays;
+			if(productInstanceStatus.ExpirationDate.Value.AddDays(-additionalDays) >= DateTime.Today)
 			{
 				return Result.Success();
 			}
+
 			return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsExpired);
 		}
 
@@ -1119,12 +1126,13 @@ namespace Vodovoz.Core.Application.TrueMark
 			return Result.Success(stagingTrueMarkCode);
 		}
 
-		private async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
+		public async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
 			string scannedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
 			int? orderItemId,
-			CancellationToken cancellationToken = default)
+			CancellationToken cancellationToken = default
+		)
 		{
 			var codes = new List<StagingTrueMarkCode>();
 

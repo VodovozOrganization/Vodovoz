@@ -150,6 +150,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return;
 			}
 
+			if(counterparty.RevenueStatus != RevenueStatus.Active)
+			{
+				return;
+			}
+
 			var employee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 
 			counterparty.ToggleDeliveryOption(employee, true);

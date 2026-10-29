@@ -51,6 +51,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 
 			References(x => x.Car).Column("car_id")
 				.Access.CamelCaseField(Prefix.Underscore);
+			References(x => x.Semitrailer).Column("semitrailer_id")
+				.Access.CamelCaseField(Prefix.Underscore);
 			References(x => x.Shift).Column("delivery_shift_id");
 			References(x => x.Driver).Column("driver_id")
 				.Access.CamelCaseField(Prefix.Underscore);

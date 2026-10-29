@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gamma.GtkWidgets;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews

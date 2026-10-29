@@ -8,12 +8,13 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
 
 namespace Edo.Transfer
 {
-	public class TransferTaskRepository
+	public class TransferTaskRepository : ITransferTaskRepository
 	{
 		private readonly IEdoTransferSettings _transferSettings;
 
@@ -106,6 +107,34 @@ namespace Edo.Transfer
 				.ListAsync<TrueMarkWaterIdentificationCode>();
 
 			return codes;
+		}
+
+		/// <summary>
+		/// Получает минимальную дату доставки заказов, связанных с задачей трансфера.
+		/// </summary>
+		/// <param name="uow">Unit of work.</param>
+		/// <param name="transferTaskId">Код задачи трансфера.</param>
+		/// <param name="cancellationToken">Токен отмены.</param>
+		/// <returns>Минимальная дата доставки связанных заказов.</returns>
+		public async Task<DateTime?> GetMinOrderDeliveryDateForTransferTaskAsync(
+			IUnitOfWork uow,
+			int transferTaskId,
+			CancellationToken cancellationToken)
+		{
+			TransferEdoRequest transferRequestAlias = null;
+			TransferEdoRequestIteration transferIterationAlias = null;
+			OrderEdoTask orderEdoTaskAlias = null;
+			FormalEdoRequest edoRequestAlias = null;
+			OrderEntity orderAlias = null;
+
+			return await uow.Session.QueryOver(() => transferRequestAlias)
+				.JoinAlias(() => transferRequestAlias.Iteration, () => transferIterationAlias)
+				.JoinAlias(() => transferIterationAlias.OrderEdoTask, () => orderEdoTaskAlias)
+				.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.JoinAlias(() => edoRequestAlias.Order, () => orderAlias)
+				.Where(() => transferRequestAlias.TransferEdoTask.Id == transferTaskId)
+				.Select(Projections.Min(Projections.Property(() => orderAlias.DeliveryDate)))
+				.SingleOrDefaultAsync<DateTime?>(cancellationToken);
 		}
 	}
 }

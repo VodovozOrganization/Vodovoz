@@ -31,5 +31,20 @@ namespace Vodovoz.Settings.Edo
 		/// Окончание ночной паузы отправки чеков
 		/// </summary>
 		TimeSpan ReceiptSendPauseEndTime { get; }
+
+		/// <summary>
+		/// Интервал проверки чеков, зависших в очереди.
+		/// </summary>
+		TimeSpan ReceiptQueueNotificationWorkerInterval { get; }
+
+		/// <summary>
+		/// Интервал повторных уведомлений о чеке, зависшем в очереди.
+		/// </summary>
+		TimeSpan ReceiptQueueNotificationRepeatInterval { get; }
+
+		/// <summary>
+		/// Глубина выборки чеков по времени попадания в очередь, в календарных месяцах.
+		/// </summary>
+		int ReceiptQueueNotificationLookbackDays { get; }
 	}
 }

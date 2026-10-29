@@ -27,6 +27,11 @@ namespace Edo.Contracts.Messages.Events
 		/// Информация для создания неформализованного документа по ЭДО
 		/// </summary>
 		public InfoForCreatingEdoInformalOrderDocument DocumentInfo { get; set; }
+
+		/// <summary>
+		/// Id задачи по ЭДО, которая инициировала отправку документа
+		/// </summary>
+		public int EdoTaskId { get; set; }
 	}
 }
 

@@ -35,19 +35,19 @@ namespace Vodovoz.Views.Reports
 				.AddColumn("Тип\nавтомобиля").AddTextRenderer(ev => ev.CarTypeOfUseString)
 				.AddColumn("ФИО последнего\nводителя").AddTextRenderer(ev => ev.DriverFullName)
 				.AddColumn("Прикрепление\nк площадке").AddTextRenderer(ev => ev.GeographicGroups)
-				.AddColumn("Начальная калибровка").AddDateRenderer(ev => ev.CalibrationDate)
-				.AddColumn("Конечная калибровка").AddDateRenderer(ev => ev.NextCalibrationDate)
-				.AddColumn("Начальный баланс").AddNumericRenderer(ev => ev.CurrentBalance).Digits(2)
-				.AddColumn("Актуальный баланс").AddNumericRenderer(ev => ev.ActualBalance).Digits(2)
-				.AddColumn("Подтвержденный\nкилометраж").AddNumericRenderer(ev => ev.ConfirmedDistance).Digits(2)
-				.AddColumn("Пересчитанный\nкилометраж").AddNumericRenderer(ev => ev.RecalculatedDistance).Digits(2)
+				.AddColumn("Начальная\nкалибровка").AddDateRenderer(ev => ev.CalibrationDate)
+				.AddColumn("Конечная\nкалибровка").AddDateRenderer(ev => ev.NextCalibrationDate)
+				.AddColumn("Начальный\nбаланс").AddNumericRenderer(ev => ev.CurrentBalance).Digits(2)
+				.AddColumn("Актуальный\nбаланс").AddNumericRenderer(ev => ev.ActualBalance).Digits(2)
+				.AddColumn("Сумма км по МЛ\nна выполнение\nадресов").AddNumericRenderer(ev => ev.ConfirmedDistance).Digits(2)
+				.AddColumn("Факт по\nодометру").AddNumericRenderer(ev => ev.OdometerFact).Digits(2)
 				.AddColumn("Полезный\nпробег, %").AddTextRenderer(ev => ev.UsefulMileagePercent)
-				.AddColumn("Факт расход").AddNumericRenderer(ev => ev.ConsumptionFact).Digits(2)
-				.AddColumn("План расход").AddNumericRenderer(ev => ev.ConsumptionPlan).Digits(2)
+				.AddColumn("Факт\nрасход").AddNumericRenderer(ev => ev.ConsumptionFact).Digits(2)
+				.AddColumn("План\nрасход").AddNumericRenderer(ev => ev.ConsumptionPlan).Digits(2)
 				.AddColumn("Разница").AddNumericRenderer(ev => ev.DiscrepancyFuel).Digits(2)
 				.AddColumn("Факт расход\nна 100км").AddNumericRenderer(ev => ev.Consumption100KmFact).Digits(2)
 				.AddColumn("План расход\nна 100км").AddNumericRenderer(ev => ev.Consumption100KmPlan).Digits(2)
-				.AddColumn("Разница в %").AddNumericRenderer(ev => ev.DiscrepancyPercent).Digits(2)
+				.AddColumn("Разница\nв %").AddNumericRenderer(ev => ev.DiscrepancyPercent).Digits(2)
 				.AddSetter((cell, node) =>
 				{
 					var discrepancyValue = node.DiscrepancyPercent;
@@ -60,7 +60,7 @@ namespace Vodovoz.Views.Reports
 							: discrepancyValue < 0 && Math.Abs(discrepancyValue) > discrepancyPercentFilter
 								? GdkColors.YellowMustard
 								: GdkColors.DangerBase;
-				})				
+				})
 				.AddColumn("")
 				.RowCells()
 				.AddSetter<CellRenderer>(

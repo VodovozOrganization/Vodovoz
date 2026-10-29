@@ -132,5 +132,35 @@ namespace VodovozBusiness.Nodes
 			EdoDocFlowStatus is null
 			? string.Empty
 			: EdoDocFlowStatus.Value.GetEnumTitle();
+
+		/// <summary>
+		/// Идентификатор задачи ЭДО
+		/// </summary>
+		public int? TaskId { get; set; }
+
+		/// <summary>
+		/// Тип задачи ЭДО
+		/// </summary>
+		public EdoTaskType? TaskType { get; set; }
+
+		/// <summary>
+		/// Стадия отправки УПД
+		/// </summary>
+		public DocumentEdoTaskStage? TaskUpdStage { get; set; }
+
+		/// <summary>
+		/// Стадия отправки чека
+		/// </summary>
+		public EdoReceiptStatus? TaskReceiptStage { get; set; }
+
+		/// <summary>
+		/// Стадия отправки тендера
+		/// </summary>
+		public TenderEdoTaskStage? TaskTenderStage { get; set; }
+
+		/// <summary>
+		/// Причина отмены документооборота
+		/// </summary>
+		public string CancellationReason { get; set; }
 	}
 }

@@ -1,10 +1,11 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
@@ -14,7 +15,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Errors.Goods;
 using Vodovoz.Errors.Stores;
-using Vodovoz.Errors.TrueMark;
 using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Services.TrueMark;
 
@@ -26,17 +26,21 @@ namespace WarehouseApi.Library.Services
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly WarehouseTrueMarkCodePreloader _codePreloader;
+		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
 
 		public CarLoadDocumentTrueMarkCodesProcessingService(
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IGenericRepository<Order> orderRepository,
 			WarehouseTrueMarkCodePreloader codePreloader)
+			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
 		{
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository;
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_codePreloader = codePreloader ?? throw new ArgumentNullException(nameof(codePreloader));
+			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
+				?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCleanupService));
 		}
 
 		public async Task<Result> AddProductCodesToCarLoadDocumentAndDeleteStagingCodes(
@@ -152,17 +156,20 @@ namespace WarehouseApi.Library.Services
 
 		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(IUnitOfWork uow, CarLoadDocument carLoadDocument, IEnumerable<int> cancelledOrdersIds)
 		{
-			var isNotAllCodesAdded = carLoadDocument.Items
+			var ordersWithMissingCodes = carLoadDocument.Items
 				.Where(x =>
 					x.OrderId != null
 					&& !cancelledOrdersIds.Contains(x.OrderId.Value)
 					&& x.Nomenclature.IsAccountableInTrueMark
 					&& x.Nomenclature.Gtin != null)
-				.Any(x => x.TrueMarkCodes.Count < x.Amount);
+				.GroupBy(x => x.OrderId.Value)
+				.Where(g => g.Any(x => x.TrueMarkCodes.Count < x.Amount))
+				.Select(g => g.Key)
+				.ToList();
 
-			if(isNotAllCodesAdded)
+			if(ordersWithMissingCodes.Any())
 			{
-				var error = CarLoadDocumentErrors.CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(carLoadDocument.Id);
+				var error = CarLoadDocumentErrors.CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(carLoadDocument.Id, ordersWithMissingCodes);
 				return Result.Failure(error);
 			}
 
@@ -196,6 +203,19 @@ namespace WarehouseApi.Library.Services
 			CarLoadDocumentItem routeListItem,
 			CancellationToken cancellationToken = default)
 		{
+			foreach(var stagingCode in stagingCodes.Where(x => x.ParentCodeId is null))
+			{
+				var alreadyUsedResult = await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(
+					uow,
+					stagingCode,
+					cancellationToken);
+
+				if(alreadyUsedResult.IsFailure)
+				{
+					return alreadyUsedResult;
+				}
+			}
+
 			var trueMarkAnyCodesResult =
 				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
 					uow,
@@ -210,6 +230,13 @@ namespace WarehouseApi.Library.Services
 
 			foreach(var trueMarkAnyCode in trueMarkAnyCodesResult.Value)
 			{
+				var notUsedResult = EnsureTrueMarkAnyCodeNotUsed(trueMarkAnyCode);
+
+				if(notUsedResult.IsFailure)
+				{
+					return notUsedResult;
+				}
+
 				await AddTrueMarkAnyCodeToCarLoadDocumentItemNoCodeStatusCheck(
 					uow,
 					routeListItem,
@@ -217,6 +244,27 @@ namespace WarehouseApi.Library.Services
 					SourceProductCodeStatus.Accepted,
 					ProductCodeProblem.None,
 					cancellationToken);
+			}
+
+			return Result.Success();
+		}
+
+		private Result EnsureTrueMarkAnyCodeNotUsed(TrueMarkAnyCode trueMarkAnyCode)
+		{
+			IEnumerable<TrueMarkAnyCode> allCodes = trueMarkAnyCode.Match(
+				transportCode => transportCode.GetAllCodes(),
+				groupCode => groupCode.GetAllCodes(),
+				waterCode => new TrueMarkAnyCode[] { waterCode });
+
+			foreach(var code in allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode))
+			{
+				var notUsedResult = _trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(
+					code.TrueMarkWaterIdentificationCode);
+
+				if(notUsedResult.IsFailure)
+				{
+					return notUsedResult;
+				}
 			}
 
 			return Result.Success();
@@ -294,6 +342,18 @@ namespace WarehouseApi.Library.Services
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem)
 		{
+			if(status == SourceProductCodeStatus.Accepted)
+			{
+				var notUsedResult = _trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(
+					trueMarkWaterIdentificationCode);
+
+				if(notUsedResult.IsFailure)
+				{
+					status = SourceProductCodeStatus.Problem;
+					problem = ProductCodeProblem.Duplicate;
+				}
+			}
+
 			var productCode = CreateCarLoadDocumentItemTrueMarkProductCode(
 				carLoadDocumentItem,
 				trueMarkWaterIdentificationCode,
@@ -366,6 +426,10 @@ namespace WarehouseApi.Library.Services
 				return Result.Failure<StagingTrueMarkCode>(error);
 			}
 
+			await _trueMarkCodesPoolCleanupService.RemoveStagingCodeFromPoolIfPresentAsync(
+				stagingTrueMarkCode,
+				cancellationToken);
+
 			await uow.SaveAsync(stagingTrueMarkCode, cancellationToken: cancellationToken);
 
 			return Result.Success(stagingTrueMarkCode);
@@ -432,6 +496,10 @@ namespace WarehouseApi.Library.Services
 				var error = isCodeCanBeAddedResult.Errors.FirstOrDefault();
 				return Result.Failure<StagingTrueMarkCode>(error);
 			}
+
+			await _trueMarkCodesPoolCleanupService.RemoveStagingCodeFromPoolIfPresentAsync(
+				newStagingCode,
+				cancellationToken);
 
 			await uow.SaveAsync(newStagingCode, cancellationToken: cancellationToken);
 

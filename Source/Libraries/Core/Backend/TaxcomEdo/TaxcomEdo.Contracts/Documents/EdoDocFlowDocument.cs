@@ -16,5 +16,9 @@ namespace TaxcomEdo.Contracts.Documents
 		/// Название документа
 		/// </summary>
 		public string TransactionCode { get; set; }
+		/// <summary>
+		/// Код регламента документа
+		/// </summary>
+		public string ReglamentCode { get; set; }
 	}
 }

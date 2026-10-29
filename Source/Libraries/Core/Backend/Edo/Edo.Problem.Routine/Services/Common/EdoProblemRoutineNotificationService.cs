@@ -1,0 +1,49 @@
+﻿using Edo.Problems.Validation;
+using EdoNotifications.Contracts;
+using Notifications.Infrastructure;
+using QS.DomainModel.UoW;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Edo;
+
+namespace Edo.Problem.Routine.Services.Common
+{
+	public class EdoProblemRoutineNotificationService : IEdoProblemRoutineNotificationService
+	{
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly EdoProblemRoutineNotificationFactory _notificationFactory;
+
+		public EdoProblemRoutineNotificationService(
+			INotificationPublisher<EdoNotificationMessage> notificationPublisher,
+			EdoProblemRoutineNotificationFactory notificationFactory)
+		{
+			_notificationPublisher = notificationPublisher
+				?? throw new ArgumentNullException(nameof(notificationPublisher));
+			_notificationFactory = notificationFactory
+				?? throw new ArgumentNullException(nameof(notificationFactory));
+		}
+
+		public Task<bool> NotifyAsync<TSetting>(
+			IUnitOfWork unitOfWork,
+			OrderEdoTask edoTask,
+			IEdoTaskValidator validator,
+			CancellationToken cancellationToken)
+			where TSetting : EdoNotificationSetting
+		{
+			if(unitOfWork == null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWork));
+			}
+
+			var notification = _notificationFactory.Create<TSetting>(
+				edoTask,
+				validator);
+
+			return _notificationPublisher.TryPublishAsync(
+				unitOfWork,
+				notification,
+				cancellationToken);
+		}
+	}
+}

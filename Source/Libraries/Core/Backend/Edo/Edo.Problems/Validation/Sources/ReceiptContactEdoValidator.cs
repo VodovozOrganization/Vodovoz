@@ -3,13 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Edo.Common;
 using Microsoft.Extensions.DependencyInjection;
-using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Problems.Validation.Sources
 {
-	public class ReceiptContactEdoValidator : EdoTaskProblemValidatorSource, IEdoTaskValidator
+	public class ReceiptContactEdoValidator : EdoTaskProblemValidatorSource, IEdoTaskValidator, IReceiptContactProblemSource
 	{
+		public string NotificationName => "Невалидный контакт";
+
 		public override string Name
 		{
 			get => "Receipt.ContactValid";

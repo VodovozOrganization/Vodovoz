@@ -592,6 +592,20 @@ namespace Vodovoz.ViewModels.Logistic
 						.Cast<RouteListItemNode>()
 						.Where(x => x.Order != null);
 
+					var selectedRouteListAddresses = SelectedSourceRouteListAddresses
+						.Cast<RouteListItemNode>()
+						.Where(x => x.RouteListItem != null)
+						.Select(x => x.RouteListItem);
+
+					var isAddressChanged = _routeListItemRepository.RouteListItemWasChanged(unitOfWork, selectedRouteListAddresses);
+
+					if(isAddressChanged)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Warning, "Один из выбранных адресов был кем-то изменен. Переоткройте вкладку");
+
+						return;
+					}
+
 					var ordersIdsWithTransferTypesWithoutRouteList = ordersWithTransferTypesWithoutRouteList
 						.ToDictionary(
 							x => x.OrderId,
@@ -704,7 +718,8 @@ namespace Vodovoz.ViewModels.Logistic
 				Errors.Logistics.RouteListErrors.RouteListItem.TransferRequiresLoadingWhenRouteListEnRoute.Code,
 				Errors.Logistics.RouteListErrors.RouteListItem.TransferNotEnoughtFreeBalance.Code,
 				Errors.Logistics.RouteListErrors.RouteListItem.OrdersWithCreatedUpdNeedToReload.Code,
-				Errors.Logistics.RouteListErrors.RouteListItem.OrderRecentlyCanceled.Code
+				Errors.Logistics.RouteListErrors.RouteListItem.OrderRecentlyCanceled.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.InvalidOrderStatusForTransfer
 			};
 
 			var errorMessages = errors
@@ -770,6 +785,18 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				try
 				{
+					var selectedRouteListAddresses = selectedTargetAddresses
+						.Select(x => x.RouteListItem);
+
+					var isAddressChanged = _routeListItemRepository.RouteListItemWasChanged(unitOfWork, selectedRouteListAddresses);
+
+					if(isAddressChanged)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Warning, "Один из выбранных адресов был кем-то изменен. Переоткройте вкладку");
+
+						return;
+					}
+
 					var result = _routeListTransferService.RevertTransferedAddressesFrom(unitOfWork, TargetRouteListId.Value, SourceRouteListId, 
 						addressesToRevertIds, _wageParameterService);
 

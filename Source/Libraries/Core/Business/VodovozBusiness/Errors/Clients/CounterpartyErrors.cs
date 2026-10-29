@@ -14,6 +14,15 @@ namespace Vodovoz.Errors.Clients
 				"Контрагент не найден");
 
 		/// <summary>
+		/// Найдено более одного контрагента по номеру телефона
+		/// </summary>
+		public static Error MoreThanOneFoundByPhoneNumber =>
+			new Error(
+				typeof(CounterpartyErrors),
+				nameof(MoreThanOneFoundByPhoneNumber),
+				"По указанному номеру телефона найдено более одного контрагента");
+
+		/// <summary>
 		/// Поставки закрыты
 		/// </summary>
 		public static Error DeliveriesClosed =>

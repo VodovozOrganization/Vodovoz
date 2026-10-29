@@ -17,12 +17,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Factories;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
@@ -55,7 +56,9 @@ namespace Vodovoz.ViewModels.ViewModels
 		private IList<Domain.Client.Counterparty> _counterpartiesToSent;
 		private readonly IList<DebtorJournalNode> _debtorJournalNodes;
 		private readonly IEmailRepository _emailRepository;
-		private readonly IBus _messageBus;
+		// На десктопе у диалогов свои UoW, поэтому IPublishEndpoint из DI запрещён: сообщение пишется
+		// в таблицы outbox в транзакции нужного UoW (_outbox.GetPublishEndpoint(uow)), отправляет его бэкенд
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 		private bool _canSend = true;
 		private int _monthsSinceUnsubscribing;
 		private bool _includeOldUnsubscribed;
@@ -71,7 +74,7 @@ namespace Vodovoz.ViewModels.ViewModels
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			Employee author,
 			IEmailRepository emailRepository,
-			IBus messageBus,
+			IUnitOfWorkOutbox<IBus> outbox,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory) : base(navigation)
 		{
 			if(attachedFileInformationsViewModelFactory is null)
@@ -87,7 +90,7 @@ namespace Vodovoz.ViewModels.ViewModels
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_author = author ?? throw new ArgumentNullException(nameof(author));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 			_instanceId = emailRepository.GetCurrentDatabaseId(_uow);
 
 			var itemsSourceQuery = itemsSourceQueryFunction.Invoke(_uow);
@@ -219,7 +222,7 @@ namespace Vodovoz.ViewModels.ViewModels
 			return email;
 		}
 
-		private void SendEmail(string email, string name, StoredEmail storedEmail)
+		private void SendEmail(IUnitOfWork unitOfWork, string email, string name, StoredEmail storedEmail)
 		{
 			var sendEmailMessage = new SendEmailMessage()
 			{
@@ -259,7 +262,7 @@ namespace Vodovoz.ViewModels.ViewModels
 			{
 				emailAttachments.Add(new EmailAttachment
 				{
-					ContentType = MimeMapping.GetMimeMapping(keyValuePair.Key),
+					ContentType = System.Web.MimeMapping.GetMimeMapping(keyValuePair.Key),
 					Filename = keyValuePair.Key,
 					Base64Content = Convert.ToBase64String(keyValuePair.Value)
 				});
@@ -267,7 +270,7 @@ namespace Vodovoz.ViewModels.ViewModels
 
 			sendEmailMessage.Attachments = emailAttachments;
 
-			_messageBus.Publish(sendEmailMessage).GetAwaiter().GetResult();
+			_outbox.GetPublishEndpoint(unitOfWork).Publish(sendEmailMessage).GetAwaiter().GetResult();
 		}
 
 		private string GetUnsubscribeHtmlPart(Guid guid) => $"<br/><br/><a href=\"{GetUnsubscribeLink(guid)}\">Отписаться от рассылки</a>";
@@ -331,8 +334,8 @@ namespace Vodovoz.ViewModels.ViewModels
 
 							try
 							{
+								SendEmail(unitOfWork, email.Address, counterparty.FullName, storedEmail);
 								unitOfWork.Commit();
-								SendEmail(email.Address, counterparty.FullName, storedEmail);
 							}
 							catch(Exception e)
 							{

@@ -4,10 +4,14 @@ using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using NHibernate.Type;
+using NLog;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Extensions;
@@ -18,16 +22,25 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Rules.Edo;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 {
 	public class EdoRepository : IEdoRepository
 	{
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly CanProcessOrSendEdoByClosingAccountingDate _canProcessOrSendEdo;
 
-		public EdoRepository(IUnitOfWorkFactory uowFactory)
+		public EdoRepository(
+			IUnitOfWorkFactory uowFactory,
+			CanProcessOrSendEdoByClosingAccountingDate canProcessOrSendEdo)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_canProcessOrSendEdo = canProcessOrSendEdo ?? throw new ArgumentNullException(nameof(canProcessOrSendEdo));
 		}
 
 		public async Task<IEnumerable<OrganizationEntity>> GetEdoOrganizationsAsync(CancellationToken cancellationToken)
@@ -42,6 +55,25 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			}
 		}
 
+		/// <inheritdoc/>
+		public Task<IList<int>> GetFiscalDocumentIdsForQueueNotification(
+			IUnitOfWork uow,
+			FiscalDocumentStatus status,
+			DateTime statusChangedBefore,
+			DateTime statusChangedNotBefore,
+			DateTime notifiedNotAfter,
+			CancellationToken cancellationToken)
+		{
+			return uow.Session.QueryOver<EdoFiscalDocument>()
+				.Where(x => x.Status == status)
+				.And(x => x.StatusChangeTime == null
+					|| (x.StatusChangeTime < statusChangedBefore
+						&& x.StatusChangeTime >= statusChangedNotBefore
+						&& (x.LastQueueNotificationTime == null || x.LastQueueNotificationTime <= notifiedNotAfter)))
+				.Select(x => x.Id)
+				.ListAsync<int>(cancellationToken);
+		}
+
 		public async Task<IEnumerable<GtinEntity>> GetGtinsAsync(CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
@@ -53,7 +85,18 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				return result;
 			}
 		}
-		
+
+		public async Task<GtinEntity> GetGtinByGtinNumberAsync(string gtinNumber, CancellationToken cancellationToken = default)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var result = await uow.Session.QueryOver<GtinEntity>()
+					.Where(g => g.GtinNumber == gtinNumber)
+					.SingleOrDefaultAsync(cancellationToken);
+				return result;
+			}
+		}
+
 		public async Task<IEnumerable<GroupGtinEntity>> GetGroupGtinsAsync(CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
@@ -131,9 +174,22 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			return edoTasks;
 		}
 
-		
+		public bool HasEdoDocflowDiscrepancyForOrder(IUnitOfWork uow, int orderId)
+		{
+			OrderEdoDocument orderEdoDocumentAlias = null; 
+			FormalEdoRequest edoRequestAlias = null;
 
-		
+			var discrepancies = uow.Session.QueryOver(() => orderEdoDocumentAlias)
+				.JoinEntityAlias(() => edoRequestAlias,
+					() => edoRequestAlias.Task.Id == orderEdoDocumentAlias.DocumentTaskId,
+					JoinType.LeftOuterJoin
+				)
+				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.Select(x => x.DiscrepancyState)
+				.List<EdoDiscrepancyState>();
+
+			return discrepancies.Any(x => x == EdoDiscrepancyState.Active);
+		}
 
 		public IEnumerable<EdoDocflowForOrderNode> GetEdoDocflowsForOrder(IUnitOfWork uow, int orderId)
 		{
@@ -207,6 +263,63 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return edoDocuments.ToList();
 		}
 
+		public OrderEdoDocument GetOrderEdoDocumentByTaskId(IUnitOfWork uow, int taskId)
+		{
+			var orderDocument = uow.Session.QueryOver<OrderEdoDocument>()
+				.Where(x => x.DocumentTaskId == taskId)
+				.SingleOrDefault();
+
+			return orderDocument;
+		}
+
+		public TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId)
+		{
+			TaxcomDocflow taxcomDocflowAlias = null;
+
+			var taxcomDocflow = uow.Session.QueryOver(() => taxcomDocflowAlias)
+				.Where(() => taxcomDocflowAlias.DocflowId == docflowId)
+				.SingleOrDefault();
+
+			return taxcomDocflow;
+		}
+
+		public IList<Guid> GetDocflowIdsStuckInSentOrInProgress(
+			IUnitOfWork uow,
+			string edoAccount,
+			DateTime statusChangedBefore)
+		{
+			var stuckStatuses = new[]
+			{
+				EdoDocFlowStatus.Sent,
+				EdoDocFlowStatus.InProgress
+			};
+
+			var docflowIds =
+				from docflow in uow.Session.Query<TaxcomDocflow>()
+				join action in uow.Session.Query<TaxcomDocflowAction>()
+					on docflow.Id equals action.TaxcomDocflowId
+				join orderDocument in uow.Session.Query<OrderEdoDocument>()
+					on docflow.EdoDocumentId equals orderDocument.Id
+				join task in uow.Session.Query<DocumentEdoTask>()
+					on orderDocument.DocumentTaskId equals task.Id
+				join formalRequest in uow.Session.Query<FormalEdoRequest>()
+					on task.FormalEdoRequest.Id equals formalRequest.Id
+				join order in uow.Session.Query<OrderEntity>()
+					on formalRequest.Order.Id equals order.Id
+				join settings in uow.Session.Query<TaxcomEdoSettings>()
+					on order.Contract.Organization.Id equals settings.OrganizationId
+				where action.Id == uow.Session.Query<TaxcomDocflowAction>()
+						.Where(other => other.TaxcomDocflowId == docflow.Id)
+						.Max(other => (int?)other.Id)
+					&& stuckStatuses.Contains(action.DocFlowState)
+					&& action.Time <= statusChangedBefore
+					&& docflow.DocflowId != null
+					&& settings.EdoAccount == edoAccount
+				select docflow.DocflowId.Value;
+
+			return docflowIds.Distinct().ToList();
+		}
+
 		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
 			IUnitOfWork uow,
 			int timeoutDays,
@@ -257,10 +370,11 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				where
 					task.Status == EdoTaskStatus.InProgress
 					&& orderEdoDocument.CreationTime < thresholdDate
-					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
+					&& (orderEdoDocument.Status == EdoDocumentStatus.Sent
+						|| orderEdoDocument.Status == EdoDocumentStatus.InProgress
+						&& taxcomDocflow.IsReceived)
 					&& orderEdoDocument.AcceptTime == null
-					&& taxcomDocflow.IsReceived
-					&& order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cashless
+					&& order.PaymentType == PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 					&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
@@ -281,6 +395,99 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return orderTasks;
 		}
 
+		public async Task<IList<TimedOutDocFlowGrouppedNode>> GetTimedOutDocFlows(
+			IUnitOfWork unitOfWork,
+			int timeoutDays,
+			CancellationToken cancellationToken)
+		{
+			var thresholdDate = DateTime.Today.AddDays(-timeoutDays);
+
+			var timedOutDocFlowNodes =
+				from task in unitOfWork.Session.Query<DocumentEdoTask>()
+				join orderEdoDocument in unitOfWork.Session.Query<OrderEdoDocument>()
+					on task.Id equals orderEdoDocument.DocumentTaskId
+				join taxcomDocflow in unitOfWork.Session.Query<TaxcomDocflow>()
+					on orderEdoDocument.Id equals taxcomDocflow.EdoDocumentId
+				join formalEdoRequest in unitOfWork.Session.Query<FormalEdoRequest>()
+					on task.FormalEdoRequest.Id equals formalEdoRequest.Id
+				join order in unitOfWork.Session.Query<OrderEntity>()
+					on formalEdoRequest.Order.Id equals order.Id
+				join client in unitOfWork.Session.Query<CounterpartyEntity>()
+					on order.Client.Id equals client.Id
+				join contract in unitOfWork.Session.Query<CounterpartyContractEntity>()
+					on order.Contract.Id equals contract.Id
+				join taxcomSettings in unitOfWork.Session.Query<TaxcomEdoSettings>()
+					on contract.Organization.Id equals taxcomSettings.OrganizationId
+				join organization in unitOfWork.Session.Query<OrganizationEntity>()
+					on contract.Organization.Id equals organization.Id
+				join edoAccount in unitOfWork.Session.Query<CounterpartyEdoAccountEntity>()
+					on new
+					{
+						ClientId = client.Id,
+						OrganizationId = contract.Organization.Id,
+						IsDefault = true
+					}
+					equals new
+					{
+						ClientId = edoAccount.Counterparty.Id,
+						OrganizationId = edoAccount.OrganizationId ?? 0,
+						IsDefault = edoAccount.IsDefault
+					}
+				join wer in unitOfWork.Session.Query<WithdrawalEdoRequest>()
+					on order.Id equals wer.Order.Id into withdrawalEdoRequests
+				from withdrawalEdoRequest in withdrawalEdoRequests.DefaultIfEmpty()
+
+				let updNum =
+					(from docCounter in unitOfWork.Session.Query<DocumentOrganizationCounter>()
+					 where docCounter.Order.Id == order.Id
+						 && docCounter.Organization.Id == organization.Id
+					 orderby docCounter.Id descending
+					 select docCounter.DocumentNumber)
+					.FirstOrDefault()
+
+				where
+					task.Status == EdoTaskStatus.InProgress
+					&& taxcomDocflow.CreationTime < thresholdDate && taxcomDocflow.CreationTime >= thresholdDate.AddDays(-1)
+					&& (orderEdoDocument.Status == EdoDocumentStatus.Sent
+						|| orderEdoDocument.Status == EdoDocumentStatus.InProgress
+						&& taxcomDocflow.IsReceived)
+					&& orderEdoDocument.AcceptTime == null
+					&& order.PaymentType == PaymentType.Cashless
+					&& client.PersonType == PersonType.legal
+					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
+					&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+					&& withdrawalEdoRequest == null
+					&& !taxcomDocflow.IsReminderToAcceptUpdEmailSent
+
+				select new TimedOutDocFlowRow
+				{
+					Client = client,
+					Organization = organization,
+					Order = order,
+					TaxcomDocflow = taxcomDocflow,
+					OurEdoAccount = taxcomSettings.EdoAccount,
+					UpdNum = updNum
+				};
+
+			var result = (await timedOutDocFlowNodes.ToListAsync(cancellationToken))
+				.GroupBy(x => new { ClientId = x.Client.Id, OrganizationId = x.Organization.Id })
+				.Select(g => new TimedOutDocFlowGrouppedNode
+				{
+					Client = g.First().Client,
+					Organization = g.First().Organization,
+					Documents = g.Distinct().Select(x => new TimedOutDocFlowDocumentNode
+					{
+						Order = x.Order,
+						TaxcomDocflow = x.TaxcomDocflow,
+						OurEdoAccount = x.OurEdoAccount,
+						UpdNum = x.UpdNum
+					}).ToList()
+				})
+				.ToList();
+
+			return result;
+		}
+
 		public async Task<IList<int>> GetExistingWithdrawalEdoRequestOrders(IUnitOfWork uow, IEnumerable<int> orderIds, CancellationToken cancellationToken)
 		{
 			var existingOrders = await uow.Session.Query<WithdrawalEdoRequest>()
@@ -295,22 +502,35 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			string problemSourceName,
 			DateTime minCreationTime,
 			CancellationToken cancellationToken,
-			DateTime? maxCreationTime = null 
+			DateTime? maxCreationTime = null
 			)
 			where T : OrderEdoTask
 		{
-			var tasksIdsQuery =
-				from problem in uow.Session.Query<EdoTaskProblem>()
-				join edoTask in uow.Session.Query<T>() on problem.EdoTask.Id equals edoTask.Id
-				join edoRequest in uow.Session.Query<FormalEdoRequest>() on edoTask.FormalEdoRequest.Id equals edoRequest.Id
-				where
-					problem.SourceName == problemSourceName
-					&& problem.State == TaskProblemState.Active
-					&& edoTask.CreationTime >= minCreationTime
-					&& (maxCreationTime == null || edoTask.CreationTime <= maxCreationTime)
-				select edoTask.Id;
+			EdoTaskProblem edoTaskProblem = null;
+			FormalEdoRequest edoRequest = null;
+			OrderEdoTask edoTask = null;
+			OrderEntity orderAlias = null;
 
-			var taskIds = await tasksIdsQuery.Distinct().ToListAsync(cancellationToken);
+			var tasksIdsQuery = uow.Session.QueryOver(() => edoTaskProblem)
+				.JoinAlias(() => edoTaskProblem.EdoTask, () => edoTask)
+				.JoinAlias(() => edoTask.FormalEdoRequest, () => edoRequest)
+				.JoinAlias(() => edoRequest.Order, () => orderAlias)
+				.Where(() => edoTaskProblem.SourceName == problemSourceName)
+				.And(() => edoTaskProblem.State == TaskProblemState.Active)
+				.And(() => edoTask.CreationTime >= minCreationTime)
+				.And(_canProcessOrSendEdo.GetRuleOrderCriterion());
+
+			if(maxCreationTime.HasValue)
+			{
+				tasksIdsQuery.Where(e => e.CreationTime <= maxCreationTime.Value);
+			}
+			
+			tasksIdsQuery.Select(
+				Projections.Distinct(
+					Projections.Property(() => edoTask.Id)));
+			
+			var taskIds = await tasksIdsQuery
+				.ListAsync<int>(cancellationToken);
 
 			if(!taskIds.Any())
 			{
@@ -327,21 +547,232 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return tasks;
 		}
 
+		public async Task<IList<ReceiptContactProblemNode>> GetReceiptContactProblemNodes(
+			IUnitOfWork uow,
+			IEnumerable<string> problemSourceNames,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken)
+		{
+			if(problemSourceNames == null)
+			{
+				throw new ArgumentNullException(nameof(problemSourceNames));
+			}
+			
+			EdoTaskProblem edoTaskProblem = null;
+			FormalEdoRequest edoRequest = null;
+			ReceiptEdoTask edoTask = null;
+			OrderEntity orderAlias = null;
+			EdoTaskProblemRoutineState routineState = null;
+			TrueMarkProductCode productCode = null;
+			EdoTaskItem edoTaskItem = null;
+			ReceiptContactProblemNode result = null;
+
+			var hasCodesSavedToPoolProjection = QueryOver.Of(() => edoTaskItem)
+				.JoinAlias(i => i.ProductCode, () => productCode)
+				.Where(i => i.CustomerEdoTask.Id == edoTask.Id)
+				.And(() => productCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool)
+				.Select(Projections.Conditional(
+					Restrictions.IsNull(Projections.Property(() => edoTaskItem.Id)),
+					Projections.Constant(false),
+					Projections.Constant(true)))
+				.Take(1);
+
+			var query = uow.Session.QueryOver(() => edoTaskProblem)
+				.JoinAlias(() => edoTaskProblem.EdoTask, () => edoTask)
+				.JoinEntityAlias(() => routineState, () => routineState.Problem.Id == edoTaskProblem.Id, JoinType.LeftOuterJoin)
+				.JoinAlias(() => edoTask.FormalEdoRequest, () => edoRequest)
+				.JoinAlias(() => edoRequest.Order, () => orderAlias)
+				.WhereRestrictionOn(() => edoTaskProblem.SourceName).IsInG(problemSourceNames)
+				.And(() => edoTaskProblem.State == TaskProblemState.Active)
+				.And(() => edoTask.CreationTime >= minCreationTime)
+				.And(_canProcessOrSendEdo.GetRuleOrderCriterion())
+				.SelectList(list => list
+					.Select(Projections.Entity(() => edoTask)).WithAlias(() => result.ReceiptTask)
+					.Select(Projections.Entity(() => edoTaskProblem)).WithAlias(() => result.Problem)
+					.Select(Projections.Entity(() => routineState)).WithAlias(() => result.RoutineState)
+					.Select(() => orderAlias.Id).WithAlias(() => result.OrderId)
+					.SelectSubQuery(hasCodesSavedToPoolProjection).WithAlias(() => result.HasCodesSavedToPool)
+				)
+				.TransformUsing(Transformers.AliasToBean<ReceiptContactProblemNode>())
+				;
+
+			return await query.ListAsync<ReceiptContactProblemNode>(cancellationToken);
+		}
+
+		public async Task<IList<CodePoolMissingProblemNode>> GetCodePoolMissingProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int? batchSize,
+			int retryIntervalHours,
+			CancellationToken cancellationToken)
+		{
+			ExceptionEdoTaskProblem edoTaskProblem = null;
+			FormalEdoRequest edoRequest = null;
+			OrderEdoTask edoTask = null;
+			OrderEntity orderAlias = null;
+			EdoTaskProblemRoutineState routineState = null;
+			CodePoolMissingProblemNode result = null;
+			
+			var retryIntervalHoursAgo = DateTime.UtcNow.AddHours(-retryIntervalHours);
+
+			var query = uow.Session.QueryOver(() => edoTaskProblem)
+				.JoinAlias(() => edoTaskProblem.EdoTask, () => edoTask)
+				.JoinAlias(() => edoTask.FormalEdoRequest, () => edoRequest)
+				.JoinAlias(() => edoRequest.Order, () => orderAlias)
+				.JoinEntityAlias(() => routineState, () => routineState.Problem.Id == edoTaskProblem.Id, JoinType.LeftOuterJoin)
+				.Where(() => edoTaskProblem.SourceName == problemSourceName)
+				.And(() => edoTaskProblem.State == TaskProblemState.Active)
+				.And(_canProcessOrSendEdo.GetRuleOrderCriterion())
+				.And(new Disjunction()
+					.Add(Restrictions.IsNull(Projections.Property(() => routineState.Id)))
+					.Add(Restrictions.IsNull(Projections.Property(() => routineState.LastRetryTime)))
+					.Add(Restrictions.Where(() => routineState.LastRetryTime <= retryIntervalHoursAgo))
+					)
+				.SelectList(list => list
+					.Select(Projections.Entity(() => edoTaskProblem)).WithAlias(() => result.Problem)
+					.Select(Projections.Entity(() => edoTask)).WithAlias(() => result.EdoTask)
+					.Select(Projections.Entity(() => routineState)).WithAlias(() => result.RoutineState)
+				)
+				.TransformUsing(Transformers.AliasToBean<CodePoolMissingProblemNode>())
+				;
+				
+			if(batchSize.HasValue)
+			{
+				query.Take(batchSize.Value);
+			}
+				
+			query.OrderBy(
+				Projections.Conditional(
+					Restrictions.IsNull(
+						Projections.Property(() => routineState.Id)),
+					Projections.Constant(0),
+					Projections.ProjectionList()
+						.Create()
+						.Add(Projections.Property(() => routineState.RetryCount))
+						.Add(Projections.Property(() => edoTaskProblem.CreationTime))
+					)
+				);
+
+			return await query.ListAsync<CodePoolMissingProblemNode>(cancellationToken);
+		}
+
+		public async Task<IList<TaxcomSendProblemNode>> GetTaxcomSendProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int? batchSize,
+			TimeSpan[] retryDelays,
+			CancellationToken cancellationToken)
+		{
+			if(retryDelays == null || retryDelays.Length == 0)
+			{
+				throw new ArgumentException("Не заданы задержки между попытками", nameof(retryDelays));
+			}
+
+			var now = DateTime.UtcNow;
+			var retryCount = retryDelays.Length;
+
+			var query = from problem in uow.Session.Query<CustomEdoTaskProblem>()
+						join orderTask in uow.Session.Query<OrderEdoTask>()
+							on problem.EdoTask.Id equals orderTask.Id
+						join orderEdoDocument in uow.Session.Query<OrderEdoDocument>()
+							on orderTask.Id equals orderEdoDocument.DocumentTaskId
+						join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
+							on problem.Id equals routineState.Problem.Id into routineStates
+						from routineState in routineStates.DefaultIfEmpty()
+						where problem.SourceName == problemSourceName
+							&& problem.State == TaskProblemState.Active
+							&& (routineState == null || routineState.RetryCount < retryCount)
+						orderby routineState == null ? 0 : routineState.RetryCount, problem.CreationTime
+						select new
+						{
+							Problem = problem,
+							OrderTask = orderTask,
+							RoutineState = routineState,
+							OrderEdoDocument = orderEdoDocument
+						};
+
+			if(batchSize.HasValue && batchSize.Value > 0)
+			{
+				query = query.Take(batchSize.Value);
+			}
+
+			var rawResult = await query.ToListAsync(cancellationToken);
+
+			var result = new List<TaxcomSendProblemNode>();
+			foreach(var item in rawResult)
+			{
+				var routineState = item.RoutineState;
+
+				if(routineState == null)
+				{
+					result.Add(new TaxcomSendProblemNode
+					{
+						Problem = item.Problem,
+						EdoTask = item.OrderTask,
+						RoutineState = null,
+						OrderEdoDocument = item.OrderEdoDocument
+					});
+					continue;
+				}
+
+				if(!routineState.LastRetryTime.HasValue)
+				{
+					result.Add(new TaxcomSendProblemNode
+					{
+						Problem = item.Problem,
+						EdoTask = item.OrderTask,
+						RoutineState = routineState,
+						OrderEdoDocument = item.OrderEdoDocument
+					});
+					continue;
+				}
+
+				var retryIndex = Math.Min(routineState.RetryCount, retryDelays.Length - 1);
+				var nextRetryTime = routineState.LastRetryTime.Value.Add(retryDelays[retryIndex]);
+
+				if(nextRetryTime <= now)
+				{
+					result.Add(new TaxcomSendProblemNode
+					{
+						Problem = item.Problem,
+						EdoTask = item.OrderTask,
+						RoutineState = routineState,
+						OrderEdoDocument = item.OrderEdoDocument
+					});
+				}
+			}
+
+			if(batchSize.HasValue && batchSize.Value > 0 && result.Count > batchSize.Value)
+			{
+				result = result.Take(batchSize.Value).ToList();
+			}
+
+			return result;
+		}
+
 		public async Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(
 			IUnitOfWork uow,
 			DateTime minFiscalDocumentCreationTime,
 			CancellationToken cancellationToken)
 		{
-			var query =
-				from fiscalDocument in uow.Session.Query<EdoFiscalDocument>()
-				join receiptEdoTask in uow.Session.Query<ReceiptEdoTask>()
-					on fiscalDocument.ReceiptEdoTask.Id equals receiptEdoTask.Id
-				where fiscalDocument.CreationTime >= minFiscalDocumentCreationTime
-					&& fiscalDocument.Status == FiscalDocumentStatus.SendError
-					&& receiptEdoTask.ReceiptStatus == EdoReceiptStatus.Sending
-				select fiscalDocument.ReceiptEdoTask.Id;
+			EdoFiscalDocument fiscalDocument = null;
+			ReceiptEdoTask edoTask = null;
+			FormalEdoRequest edoRequest = null;
+			OrderEntity orderAlias = null;
 
-			return await query.Distinct().ToListAsync(cancellationToken);
+			var query = uow.Session.QueryOver(() => fiscalDocument)
+				.JoinAlias(() => fiscalDocument.ReceiptEdoTask, () => edoTask)
+				.JoinAlias(() => edoTask.FormalEdoRequest, () => edoRequest)
+				.JoinAlias(() => edoRequest.Order, () => orderAlias)
+				.Where(() => fiscalDocument.CreationTime >= minFiscalDocumentCreationTime)
+				.And(() => fiscalDocument.Status == FiscalDocumentStatus.SendError)
+				.And(() => edoTask.ReceiptStatus == EdoReceiptStatus.Sending)
+				.And(_canProcessOrSendEdo.GetRuleOrderCriterion())
+				.Select(
+					Projections.Distinct(
+						Projections.Property(() => edoTask.Id)));
+
+			return await query.ListAsync<int>(cancellationToken);
 		}
 
 		public async Task<IList<OrderEdoTask>> GetProblemEdoTasks(
@@ -350,36 +781,111 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			DateTime minCreationTime,
 			CancellationToken cancellationToken)
 		{
-			var query =
-				from problem in uow.Session.Query<EdoTaskProblem>()
-				where problem.SourceName == problemSourceName
-					&& problem.State == TaskProblemState.Active
-					&& problem.EdoTask.CreationTime >= minCreationTime
-					&& problem.EdoTask is OrderEdoTask
-				select (OrderEdoTask)problem.EdoTask;
+			EdoTaskProblem edoTaskProblem = null;
+			FormalEdoRequest edoRequest = null;
+			OrderEdoTask edoTask = null;
+			OrderEntity orderAlias = null;
+			
+			var query = uow.Session.QueryOver(() => edoTaskProblem)
+				.JoinAlias(() => edoTaskProblem.EdoTask, () => edoTask)
+				.JoinAlias(() => edoTask.FormalEdoRequest, () => edoRequest)
+				.JoinAlias(() => edoRequest.Order, () => orderAlias)
+				.Where(() => edoTaskProblem.SourceName == problemSourceName)
+				.And(() => edoTaskProblem.State == TaskProblemState.Active)
+				.And(() => edoTask.CreationTime >= minCreationTime)
+				.And(_canProcessOrSendEdo.GetRuleOrderCriterion())
+				.Select(
+					Projections.Distinct(
+						Projections.Entity(() => edoTask)
+						)
+					)
+				;
 
 			return await query
-				.Distinct()
-				.ToListAsync(cancellationToken);
+				.ListAsync<OrderEdoTask>(cancellationToken);
+		}
+
+		public async Task<IList<EdoTaskProblemRoutineNode>> GetProblemEdoTasksForResume(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			ReasonForLeaving? reasonForLeaving = null,
+			CancellationToken cancellationToken = default)
+		{
+			ExceptionEdoTaskProblem edoTaskProblem = null;
+			EdoTaskProblemDescriptionSourceEntity problemDescription = null;
+			FormalEdoRequest edoRequest = null;
+			OrderEdoTask edoTask = null;
+			OrderEntity orderAlias = null;
+			CounterpartyEntity counterparty = null;
+			EdoTaskProblemRoutineState routineState = null;
+			EdoTaskProblemRoutineNode result = null;
+
+			var query = uow.Session.QueryOver(() => edoTaskProblem)
+				.JoinEntityAlias(() => problemDescription, () => edoTaskProblem.SourceName == problemDescription.Name)
+				.JoinAlias(() => edoTaskProblem.EdoTask, () => edoTask)
+				.JoinAlias(() => edoTask.FormalEdoRequest, () => edoRequest)
+				.JoinAlias(() => edoRequest.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterparty)
+				.JoinEntityAlias(() => routineState, () => routineState.Problem.Id == edoTaskProblem.Id, JoinType.LeftOuterJoin)
+				.Where(() => edoTaskProblem.SourceName == problemSourceName)
+				.And(() => edoTaskProblem.State == TaskProblemState.Active)
+				.And(() => edoTask.CreationTime >= minCreationTime)
+				.And(_canProcessOrSendEdo.GetRuleOrderCriterion())
+				.And(
+					Restrictions.Or(
+						Restrictions.IsNull(Projections.Property(() => routineState.Id)),
+						Restrictions.Where(() => routineState.RetryCount <= 1)));
+
+			if(reasonForLeaving.HasValue)
+			{
+				query.And(() => counterparty.ReasonForLeaving == reasonForLeaving);
+			}
+			
+			query.SelectList(list => list
+					.Select(Projections.Entity(() => edoTask)).WithAlias(() => result.EdoTask)
+					.Select(Projections.Entity(() => edoTaskProblem)).WithAlias(() => result.Problem)
+					.Select(() => problemDescription.Description).WithAlias(() => result.ProblemDescription)
+					.Select(() => problemDescription.Recommendation).WithAlias(() => result.Recommendation)
+					.Select(Projections.Entity(() => routineState)).WithAlias(() => result.RoutineState)
+					.Select(() => orderAlias.Id).WithAlias(() => result.OrderId)
+					.Select(() => edoTaskProblem.ExceptionMessage).WithAlias(() => result.ExceptionMessage)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoTaskProblemRoutineNode>())
+				;
+
+			return await query
+				.ListAsync<EdoTaskProblemRoutineNode>(cancellationToken);
 		}
 
 		public IEnumerable<EdoInOrderDocumentNode> GetEdoInOrderDocuments(IUnitOfWork uow, int orderId)
 		{
+			var stopwatch = Stopwatch.StartNew();
 			var sql = @"
 select
 	ecr.`time` as :request_time,
 	ecr.id as :request_id,
 	ecr.source as :request_source,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = ecr.author_id) as :manual_request_author,
 	null as :order_document_type,
 	et.id as :task_id,
 	et.`type` as :task_type,
+	et.document_type as :formal_document_type,
 	et.status as :task_status,
 	document_task_stage as :task_upd_stage,
 	receipt_status as :task_receipt_stage,
 	tender_task_stage as :task_tender_stage,
-	(select count(*) from true_mark_product_codes tmpc where tmpc.customer_request_id = ecr.id) as :codes_count
+	(select count(*) from true_mark_product_codes tmpc where tmpc.customer_request_id = ecr.id) as :codes_count_in_request,
+	(select count(*) from true_mark_product_codes tmpc 
+		left join edo_order_task_items eoti on eoti.product_code_id = tmpc.id
+		where eoti.order_edo_task_id = et.id) as :codes_used_in_task,
+	et.cancellation_reason as :cancellation_reason,
+	eod.id as :edo_document_id,
+	eod.status as :edo_document_status,
+	eod.discrepancy_state as :docflow_discrepancy_state
 from edo_customer_requests ecr
 left join edo_tasks et on et.id = ecr.order_task_id
+left join edo_outgoing_documents eod on eod.document_task_id = et.id
 where ecr.order_id = :order_id
 	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
 union all
@@ -387,18 +893,30 @@ select
 	eir.`time` as :request_time,
 	eir.id as :request_id,
 	eir.source as :request_source,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e
+		where e.id = coalesce(eir.author_id, (select o.author_employee_id from orders o
+			where o.id = eir.order_id and eir.source = 'None'
+				and eir.order_document_type in ('Bill', 'SpecialBill')))) as :manual_request_author,
 	eir.order_document_type as :order_document_type,
 	et.id as :task_id,
-	et.`type` as :task_type,
-	et.status as :task_status,
+	coalesce(et.`type`, 'InformalOrderDocument') as :task_type,
+	et.document_type as :formal_document_type,
+	coalesce(et.status, 'Waiting') as :task_status,
 	null as :task_upd_stage,
 	null as :task_receipt_stage,
 	null as :task_tender_stage,
-	null as :codes_count
+	null as :codes_count_in_request,
+	null as :codes_used_in_task,
+	et.cancellation_reason as :cancellation_reason,
+	eod.id as :edo_document_id,
+	eod.status as :edo_document_status,
+	eod.discrepancy_state as :docflow_discrepancy_state
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
+left join edo_outgoing_documents eod on eod.informal_document_task_id = et.id
 where eir.order_id = :order_id
-	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+	and (et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+		or (et.id is null and eir.order_document_type in ('Bill', 'SpecialBill')))
 ;
 ";
 
@@ -407,26 +925,41 @@ where eir.order_id = :order_id
 				.Map("request_time", x => x.RequestTime, NHibernateUtil.DateTime)
 				.Map("request_id", x => x.RequestId, NHibernateUtil.Int32)
 				.Map("request_source", x => x.RequestSource, new EnumStringType<EdoRequestSource>())
+				.Map("manual_request_author", x => x.ManualRequestAuthor, NHibernateUtil.String)
 				.Map("order_document_type", x => x.InformalOrderDocumentType, new EnumStringType<OrderDocumentType>())
 				.Map("task_id", x => x.TaskId, NHibernateUtil.Int32)
 				.Map("task_type", x => x.TaskType, new EnumStringType<EdoTaskType>())
+				.Map("formal_document_type", x => x.FormalDocumentType, new EnumStringType<EdoDocumentType>())
 				.Map("task_status", x => x.TaskStatus, new EnumStringType<EdoTaskStatus>())
 				.Map("task_upd_stage", x => x.TaskUpdStage, new EnumStringType<DocumentEdoTaskStage>())
 				.Map("task_receipt_stage", x => x.TaskReceiptStage, new EnumStringType<EdoReceiptStatus>())
 				.Map("task_tender_stage", x => x.TaskTenderStage, new EnumStringType<TenderEdoTaskStage>())
-				.Map("codes_count", x => x.CodesQuantity, NHibernateUtil.Int32)
+				.Map("codes_count_in_request", x => x.CodesInRequest, NHibernateUtil.Int32)
+				.Map("codes_used_in_task", x => x.CodesUsedInTask, NHibernateUtil.Int32)
+				.Map("cancellation_reason", x => x.CancellationReason, NHibernateUtil.String)
+				.Map("edo_document_id", x => x.DocumentId, NHibernateUtil.Int32)
+				.Map("edo_document_status", x => x.EdoDocumentStatus, new EnumStringType<EdoDocumentStatus>())
+				.Map("docflow_discrepancy_state", x => x.DocflowDiscrepancyState, new EnumStringType<EdoDiscrepancyState>())
 				.SetResultTransformer();
 
 			query.SetParameter("order_id", orderId);
 			var result = query.List<EdoInOrderDocumentNode>();
+			_logger.Info(
+				"ЭДО заказа {OrderId}: EdoRepository.GetEdoInOrderDocuments, строк {Count}: {Elapsed}",
+				orderId,
+				result.Count,
+				stopwatch.Elapsed);
 
 			return result;
 		}
 
 		public IEnumerable<EdoInOrderProblemNode> GetEdoProblemsForOrder(IUnitOfWork uow, int orderId)
 		{
+			var totalStopwatch = Stopwatch.StartNew();
+			var stepStopwatch = Stopwatch.StartNew();
 			OrderEdoTask orderEdoTaskAlias = null;
 			FormalEdoRequest edoRequestAlias = null;
+			InformalEdoRequest informalEdoRequestAlias = null;
 			EdoTaskProblem edoTaskProblemAlias = null;
 			EdoTaskProblemCustomSourceEntity customProblemDescriptionSourceAlias = null;
 			EdoTaskProblemValidatorSourceEntity validatorDescriptionSourceAlias = null;
@@ -439,6 +972,11 @@ where eir.order_id = :order_id
 			var edoTasksProblems = uow.Session.QueryOver(() => edoTaskProblemAlias)
 				.Left.JoinAlias(() => edoTaskProblemAlias.EdoTask, () => orderEdoTaskAlias)
 				.Left.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.JoinEntityAlias(
+					() => informalEdoRequestAlias,
+					() => informalEdoRequestAlias.Task.Id == orderEdoTaskAlias.Id,
+					JoinType.LeftOuterJoin
+				)
 				.JoinEntityAlias(
 					() => customProblemDescriptionSourceAlias,
 					() => customProblemDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
@@ -454,9 +992,9 @@ where eir.order_id = :order_id
 					() => exceptionDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
 					JoinType.LeftOuterJoin
 				)
-				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.Where(() => edoRequestAlias.Order.Id == orderId || informalEdoRequestAlias.Order.Id == orderId)
 				.SelectList(list => list
-					.SelectGroup(() => edoTaskProblemAlias.Id)
+					.SelectGroup(() => edoTaskProblemAlias.Id).WithAlias(() => resultAlias.TaskProblemId)
 					.Select(() => orderEdoTaskAlias.Id).WithAlias(() => resultAlias.OrderTaskId)
 					.Select(() => edoTaskProblemAlias.CreationTime).WithAlias(() => resultAlias.Time)
 					.Select(() => edoTaskProblemAlias.State).WithAlias(() => resultAlias.State)
@@ -498,8 +1036,14 @@ where eir.order_id = :order_id
 				)
 				.TransformUsing(Transformers.AliasToBean<EdoInOrderProblemNode>())
 				.List<EdoInOrderProblemNode>();
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка проблем основных ЭДО-задач, строк {Count}: {Elapsed}",
+				orderId,
+				edoTasksProblems.Count,
+				stepStopwatch.Elapsed);
 
 
+			stepStopwatch.Restart();
 			var edoTransferTasksProblems = uow.Session.QueryOver(() => edoTaskProblemAlias)
 				.Left.JoinAlias(() => edoTaskProblemAlias.EdoTask, () => transferEdoTaskAlias)
 				.JoinEntityAlias(
@@ -535,7 +1079,7 @@ where eir.order_id = :order_id
 				)
 				.Where(() => edoRequestAlias.Order.Id == orderId)
 				.SelectList(list => list
-					.SelectGroup(() => edoTaskProblemAlias.Id)
+					.SelectGroup(() => edoTaskProblemAlias.Id).WithAlias(() => resultAlias.TaskProblemId)
 					.Select(() => transferEdoTaskAlias.Id).WithAlias(() => resultAlias.TransferTaskId)
 					.Select(() => edoTaskProblemAlias.CreationTime).WithAlias(() => resultAlias.Time)
 					.Select(() => edoTaskProblemAlias.State).WithAlias(() => resultAlias.State)
@@ -577,8 +1121,13 @@ where eir.order_id = :order_id
 				)
 				.TransformUsing(Transformers.AliasToBean<EdoInOrderProblemNode>())
 				.List<EdoInOrderProblemNode>();
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка проблем трансферных ЭДО-задач, строк {Count}: {Elapsed}",
+				orderId,
+				edoTransferTasksProblems.Count,
+				stepStopwatch.Elapsed);
 
-			var allProblems =  edoTasksProblems
+			var allProblems = edoTasksProblems
 				.Union(edoTransferTasksProblems)
 				.GroupBy(x => x.TaskProblemId)
 				.ToDictionary(x => x.Key, x => x.First())
@@ -587,6 +1136,11 @@ where eir.order_id = :order_id
 			var problemIds = allProblems.Keys.ToList();
 			if(!problemIds.Any())
 			{
+				_logger.Info(
+					"ЭДО заказа {OrderId}: GetEdoProblemsForOrder без элементов проблем, всего {Count}: {Elapsed}",
+					orderId,
+					allProblems.Count,
+					totalStopwatch.Elapsed);
 				return allProblems.Values;
 			}
 
@@ -615,12 +1169,18 @@ and etpci.edo_task_problem_id in (:problem_ids)
 				.AddScalar("problem_id", NHibernateUtil.Int32)
 				.AddScalar("problem_item", NHibernateUtil.String)
 				.SetParameterList("problem_ids", problemIds);
+			stepStopwatch.Restart();
 			var problemItems = query.List<object[]>()
 				.Select(x => new
 				{
 					ProblemId = (int)x[0],
 					ProblemItem = (string)x[1]
 				});
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка элементов проблем, problemIds {ProblemIdsCount}: {Elapsed}",
+				orderId,
+				problemIds.Count,
+				stepStopwatch.Elapsed);
 
 			;
 			foreach(var problemItemsGroup in problemItems.GroupBy(x => x.ProblemId))
@@ -631,11 +1191,18 @@ and etpci.edo_task_problem_id in (:problem_ids)
 				}
 			}
 
+			_logger.Info(
+				"ЭДО заказа {OrderId}: GetEdoProblemsForOrder всего проблем {Count}: {Elapsed}",
+				orderId,
+				allProblems.Count,
+				totalStopwatch.Elapsed);
 			return allProblems.Values;
 		}
 
 		public IEnumerable<EdoInOrderTransferNode> GetTransferEdoTasksForOrder(IUnitOfWork uow, int orderId)
 		{
+			var totalStopwatch = Stopwatch.StartNew();
+			var stepStopwatch = Stopwatch.StartNew();
 			OrderEdoTask orderEdoTaskAlias = null;
 			FormalEdoRequest edoRequestAlias = null;
 			TransferEdoRequestIteration transferIterationAlias = null;
@@ -690,17 +1257,27 @@ and etpci.edo_task_problem_id in (:problem_ids)
 				.TransformUsing(Transformers.AliasToBean<EdoInOrderTransferNode>())
 				.List<EdoInOrderTransferNode>()
 			;
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка трансферных задач, строк {Count}: {Elapsed}",
+				orderId,
+				transferTasks.Count,
+				stepStopwatch.Elapsed);
 
 			var transferRequestIds = transferTasks.Select(x => x.RequestId);
 			if(!transferRequestIds.Any())
 			{
+				_logger.Info(
+					"ЭДО заказа {OrderId}: GetTransferEdoTasksForOrder без кодов, всего {Count}: {Elapsed}",
+					orderId,
+					transferTasks.Count,
+					totalStopwatch.Elapsed);
 				return transferTasks;
 			}
 
 			var sql = @"
 select
 	eti.transfer_edo_request_id as request_id,
-	IFNULL(result_tmic.raw_code, source_tmic.raw_code) as transfered_code
+	REPLACE(IFNULL(result_tmic.raw_code, source_tmic.raw_code), '\\u001d', '') as transfered_code
 from edo_transfered_items eti 
 left join edo_order_task_items eoti on eoti.id = eti.order_edo_task_item_id  
 left join true_mark_product_codes tmpc on tmpc.id = eoti.product_code_id
@@ -714,12 +1291,17 @@ where eti.transfer_edo_request_id in (:request_ids)
 				.AddScalar("request_id", NHibernateUtil.Int32)
 				.AddScalar("transfered_code", NHibernateUtil.String)
 				.SetParameterList("request_ids", transferRequestIds);
+			stepStopwatch.Restart();
 			var transferedCodes = query.List<object[]>()
 				.Select(x => new
 				{
 					RequestId = (int)x[0],
 					TransferedCode = (string)x[1]
 				});
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка кодов трансферных задач: {Elapsed}",
+				orderId,
+				stepStopwatch.Elapsed);
 
 			var codesDic = transferedCodes
 				.GroupBy(x => x.RequestId)
@@ -732,7 +1314,342 @@ where eti.transfer_edo_request_id in (:request_ids)
 				}
 			}
 
+			_logger.Info(
+				"ЭДО заказа {OrderId}: GetTransferEdoTasksForOrder всего задач {Count}: {Elapsed}",
+				orderId,
+				transferTasks.Count,
+				totalStopwatch.Elapsed);
 			return transferTasks;
+		}
+
+		public IEnumerable<EdoInOrderReceiptNode> GetReceiptsForOrder(IUnitOfWork uow, int orderId)
+		{
+			EdoFiscalDocument edoFiscalDocumentAlias = null;
+			ReceiptEdoTask receiptEdoTaskAlias = null;
+			FormalEdoRequest formalEdoRequestAlias = null;
+			FiscalMoneyPosition fiscalMoneyPositionAlias = null;
+			EdoInOrderReceiptNode resultAlias = null;
+
+			var result = uow.Session.QueryOver(() => edoFiscalDocumentAlias)
+				.Left.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => receiptEdoTaskAlias)
+				.JoinEntityAlias(
+					() => formalEdoRequestAlias,
+					() => formalEdoRequestAlias.Task.Id == receiptEdoTaskAlias.Id,
+					JoinType.LeftOuterJoin
+				)
+				.Left.JoinAlias(() => edoFiscalDocumentAlias.MoneyPositions, () => fiscalMoneyPositionAlias)
+				.Where(() => formalEdoRequestAlias.Order.Id == orderId)
+				.SelectList(list => list
+					.SelectGroup(() => edoFiscalDocumentAlias.Id).WithAlias(() => resultAlias.FiscalDocumentId)
+					.Select(() => receiptEdoTaskAlias.Id).WithAlias(() => resultAlias.OrderEdoTaskId)
+					.Select(() => edoFiscalDocumentAlias.DocumentGuid).WithAlias(() => resultAlias.DocumentGuid)
+					.Select(() => edoFiscalDocumentAlias.DocumentNumber).WithAlias(() => resultAlias.DocumentNumber)
+					.Select(() => edoFiscalDocumentAlias.DocumentType).WithAlias(() => resultAlias.DocumentType)
+					.Select(() => edoFiscalDocumentAlias.CreationTime).WithAlias(() => resultAlias.CreationTime)
+					.Select(() => edoFiscalDocumentAlias.Status).WithAlias(() => resultAlias.DocumentStatus)
+					.Select(() => edoFiscalDocumentAlias.Index).WithAlias(() => resultAlias.Index)
+					.Select(() => edoFiscalDocumentAlias.Contact).WithAlias(() => resultAlias.Contact)
+					.Select(() => edoFiscalDocumentAlias.FiscalNumber).WithAlias(() => resultAlias.FiscalNumber)
+					.Select(() => edoFiscalDocumentAlias.FiscalMark).WithAlias(() => resultAlias.FiscalMark)
+					.Select(() => edoFiscalDocumentAlias.FiscalKktNumber).WithAlias(() => resultAlias.FiscalKktNumber)
+					.Select(() => edoFiscalDocumentAlias.FiscalTime).WithAlias(() => resultAlias.FiscalTime)
+					.Select(() => edoFiscalDocumentAlias.CashierName).WithAlias(() => resultAlias.Cashier)
+					.Select(() => edoFiscalDocumentAlias.ClientInn).WithAlias(() => resultAlias.ClientInn)
+					.Select(() => edoFiscalDocumentAlias.FailureMessage).WithAlias(() => resultAlias.FailureMessage)
+					.SelectSum(() => fiscalMoneyPositionAlias.Sum).WithAlias(() => resultAlias.Sum)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoInOrderReceiptNode>())
+				.List<EdoInOrderReceiptNode>();
+			return result;
+		}
+		
+		public IEnumerable<EdoInOrderTaxcomDocflowNode> GetEdoInOrderDocflows(IUnitOfWork uow, int orderId)
+		{
+			var stopwatch = Stopwatch.StartNew();
+			var sql = @"
+select
+	eod.id as :docflow_id,
+	eod.document_task_id as :task_id,
+	eod.creation_time as :docflow_creation_time,
+	eod.status as :docflow_status,
+	td.creation_time as :taxcom_docflow_send_time,
+	td.docflow_id as :taxcom_docflow_id,
+	tda.`time` as :last_taxcom_status_update,
+	tda.`state` as :taxcom_status,
+	tda.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
+	tda.`error_message` as :taxcom_error_message
+from edo_outgoing_documents eod
+left join edo_customer_requests ecr on ecr.order_task_id = eod.document_task_id
+left join taxcom_docflows td on td.edo_document_id = eod.id
+left join taxcom_docflow_actions tda ON tda.id = (
+    select id
+    from taxcom_docflow_actions
+    where taxcom_docflow_id = td.id
+    order by time desc
+    limit 1
+)
+where ecr.order_id = :order_id
+union all
+select
+	eod.id as :docflow_id,
+	eod.transfer_task_id as :task_id,
+	eod.creation_time as :docflow_creation_time,
+	eod.status as :docflow_status,
+	td.creation_time as :taxcom_docflow_send_time,
+	td.docflow_id as :taxcom_docflow_id,
+	tda.`time` as :last_taxcom_status_update,
+	tda.`state` as :taxcom_status,
+	tda.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
+	tda.`error_message` as :taxcom_error_message
+from edo_outgoing_documents eod
+left join edo_transfer_requests etr on etr.transfer_edo_task_id = eod.transfer_task_id 
+left join edo_transfer_request_iterations etri on etri.id = etr.iteration_id 
+left join edo_customer_requests ecr on ecr.order_task_id = etri.order_edo_task_id
+left join taxcom_docflows td on td.edo_document_id = eod.id
+left join taxcom_docflow_actions tda ON tda.id = (
+    select id
+    from taxcom_docflow_actions
+    where taxcom_docflow_id = td.id
+    order by time desc
+    limit 1
+)
+where ecr.order_id = :order_id
+;
+";
+
+			var query = uow.Session.CreateSQLQuery(sql)
+				.MapParametersToNode<EdoInOrderTaxcomDocflowNode>()
+				.Map("docflow_id", x => x.DocflowId, NHibernateUtil.Int32)
+				.Map("task_id", x => x.TaskId, NHibernateUtil.Int32)
+				.Map("docflow_creation_time", x => x.DocflowCreationTime, NHibernateUtil.DateTime)
+				.Map("docflow_status", x => x.DocflowStatus, new EnumStringType<EdoDocumentStatus>())
+				.Map("taxcom_docflow_send_time", x => x.TaxcomDocflowSendTime, NHibernateUtil.DateTime)
+				.Map("taxcom_docflow_id", x => x.TaxcomDocflowId, NHibernateUtil.Guid)
+				.Map("last_taxcom_status_update", x => x.LastTaxcomStatusUpdateTime, NHibernateUtil.DateTime)
+				.Map("taxcom_status", x => x.TaxcomStatus, new EnumStringType<EdoDocFlowStatus>())
+				.Map("taxcom_true_mark_traceability_status", x => x.TaxcomTraceabilityStatus, new EnumStringType<TrueMarkTraceabilityStatus>())
+				.Map("taxcom_error_message", x => x.TaxcomErrorMessage, NHibernateUtil.String)
+				.SetResultTransformer();
+
+			query.SetParameter("order_id", orderId);
+			var result = query.List<EdoInOrderTaxcomDocflowNode>();
+
+			_logger.Info(
+				"ЭДО заказа {OrderId}: EdoRepository.GetEdoInOrderDocflows, строк {Count}: {Elapsed}",
+				orderId,
+				result.Count,
+				stopwatch.Elapsed
+			);
+
+			return result;
+		}
+
+		public async Task<OrderEdoTask> GetOrderEdoTaskById(
+			IUnitOfWork uow,
+			int taskId,
+			CancellationToken cancellationToken = default)
+		{
+			var task = await uow.Session.Query<OrderEdoTask>()
+				.Fetch(t => t.FormalEdoRequest)
+				.ThenFetch(r => r.Order)
+				.FirstOrDefaultAsync(t => t.Id == taskId, cancellationToken);
+
+			return task;
+		}
+
+		public EdoDocFlowStatus[] GetRecievedEdoDocFlowStatuses()
+		{
+			return new EdoDocFlowStatus[]
+				{
+					EdoDocFlowStatus.Sent,
+					EdoDocFlowStatus.Succeed,
+					EdoDocFlowStatus.Warning,
+					EdoDocFlowStatus.Cancelled,
+					EdoDocFlowStatus.WaitingForCancellation,
+					EdoDocFlowStatus.CompletedWithDivergences,
+					EdoDocFlowStatus.NotAccepted
+				};
+		}
+
+		public EdoDocumentStatus[] GetInProgressOrCompletedStatuses()
+		{
+			return new EdoDocumentStatus[]
+				{
+					EdoDocumentStatus.InProgress,
+					EdoDocumentStatus.Sent,
+					EdoDocumentStatus.Succeed,
+					EdoDocumentStatus.CompletedWithDivergences
+				};
+		}
+
+		public async Task<IList<OrderEdoTask>> GetStaleNewEdoTasks(
+			IUnitOfWork uow,
+			DateTime maxCreationTime,
+			int batchSize,
+			CancellationToken cancellationToken = default)
+		{
+			var documentTasks = await GetStaleNewEdoTasks<DocumentEdoTask>(
+				uow,
+				x => x.Stage == DocumentEdoTaskStage.New && x.DocumentType == EdoDocumentType.UPD,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			var receiptTasks = await GetStaleNewEdoTasks<ReceiptEdoTask>(
+				uow,
+				x => x.ReceiptStatus == EdoReceiptStatus.New,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			var tenderTasks = await GetStaleNewEdoTasks<TenderEdoTask>(
+				uow,
+				x => x.Stage == TenderEdoTaskStage.New,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			var saveCodesTasks = await GetStaleNewEdoTasks<SaveCodesEdoTask>(
+				uow,
+				x => true,
+				maxCreationTime,
+				batchSize,
+				cancellationToken);
+
+			return documentTasks
+				.Cast<OrderEdoTask>()
+				.Concat(receiptTasks)
+				.Concat(tenderTasks)
+				.Concat(saveCodesTasks)
+				.OrderBy(x => x.CreationTime)
+				.Take(batchSize)
+				.ToList();
+		}
+
+		private Task<List<TTask>> GetStaleNewEdoTasks<TTask>(
+			IUnitOfWork uow,
+			Expression<Func<TTask, bool>> initialStagePredicate,
+			DateTime maxCreationTime,
+			int batchSize,
+			CancellationToken cancellationToken)
+			where TTask : OrderEdoTask
+		{
+			return uow.Session.Query<TTask>()
+				.Where(x => x.Status == EdoTaskStatus.New && x.CreationTime <= maxCreationTime)
+				.Where(initialStagePredicate)
+				.Where(_canProcessOrSendEdo.GetRuleExpression<TTask>())
+				.OrderBy(x => x.CreationTime)
+				.Take(batchSize)
+				.ToListAsync(cancellationToken);
+		}
+
+		public bool HasActiveProblemWithSource(IUnitOfWork uow, int taskId, IEnumerable<string> sourceNames)
+		{
+			return uow.GetAll<EdoTaskProblem>()
+				.Any(x => 
+					x.EdoTask.Id == taskId
+					&& x.State == TaskProblemState.Active
+					&& sourceNames.Contains(x.SourceName));
+		}
+
+		public EdoDiscrepancyNode GetEdoDiscrepancy(IUnitOfWork uow, int edoDocumentId)
+		{
+			var sql = $@"
+select
+	o.id as :order_id,
+	o.delivery_date as :delivery_date,
+	o.order_status as :order_status,
+	et.id as :order_task_id,
+	eod.id as :edo_document_id,
+	eod.creation_time as :edo_document_time,
+	eod.status as :document_status,
+	td.docflow_id as :taxcom_docflow_id,
+	tda.state as :taxcom_docflow_status,
+	tda.`time` as :taxcom_status_time,
+	td.cancellation_offer_message as :cancellation_offer_message,
+	td.correction_notice_message  as :correction_notice_message,
+	td.discrepancy_message as :discrepancy_message
+from edo_outgoing_documents eod
+left join edo_tasks et on et.id = eod.document_task_id
+left join edo_customer_requests ecr on ecr.order_task_id = et.id
+left join orders o on o.id = ecr.order_id
+left join
+(
+	SELECT
+		taxcom_docflows.*,
+		(
+			SELECT tda.id
+			FROM taxcom_docflow_actions tda
+			WHERE tda.taxcom_docflow_id = taxcom_docflows.id
+			ORDER BY tda.`time` DESC
+			LIMIT 1
+		) as last_taxcom_action_id
+	FROM taxcom_docflows
+) td ON td.edo_document_id = eod.id
+left join taxcom_docflow_actions tda on tda.id = td.last_taxcom_action_id
+where eod.discrepancy_state = 'Active'
+and eod.id = :document_id
+";
+
+			var query = uow.Session.CreateSQLQuery(sql)
+				.MapParametersToNode<EdoDiscrepancyNode>()
+				.Map("order_id", x => x.OrderId, NHibernateUtil.Int32)
+				.Map("delivery_date", x => x.DeliveryDate, NHibernateUtil.DateTime)
+				.Map("order_status", x => x.OrderStatus, new EnumStringType<OrderStatus>())
+				.Map("order_task_id", x => x.DocumentEdoTaskId, NHibernateUtil.Int32)
+				.Map("edo_document_id", x => x.ErpDocflowId, NHibernateUtil.Int32)
+				.Map("edo_document_time", x => x.ErpDocflowTime, NHibernateUtil.DateTime)
+				.Map("document_status", x => x.ErpDocflowStatus, new EnumStringType<EdoDocumentStatus>())
+				.Map("taxcom_docflow_id", x => x.TaxcomDocflowId, NHibernateUtil.Guid)
+				.Map("taxcom_docflow_status", x => x.TaxcomDocflowStatus, new EnumStringType<EdoDocFlowStatus>())
+				.Map("taxcom_status_time", x => x.TaxcomStatusTime, NHibernateUtil.DateTime)
+				.Map("cancellation_offer_message", x => x.CancellationOfferMessage, NHibernateUtil.String)
+				.Map("correction_notice_message", x => x.CorrectionNoticeMessage, NHibernateUtil.String)
+				.Map("discrepancy_message", x => x.DiscrepancyMessage, NHibernateUtil.String)
+				.SetResultTransformer();
+
+			query.SetParameter("document_id", edoDocumentId);
+			var result = query.UniqueResult<EdoDiscrepancyNode>();
+			return result;
+		}
+
+		public FormalEdoRequest GetLastActualFormalEdoRequest(IUnitOfWork uow, int orderId)
+		{
+			FormalEdoRequest formalEdoRequestAlias = null;
+			EdoTask edoTaskAlias = null;
+
+			var finishedStatuses = new EdoTaskStatus[]
+			{
+				EdoTaskStatus.Completed,
+				EdoTaskStatus.Cancelled,
+				EdoTaskStatus.InCancellation
+			};
+
+			var request = uow.Session.QueryOver(() => formalEdoRequestAlias)
+				.Left.JoinAlias(() => formalEdoRequestAlias.Task, () => edoTaskAlias)
+				.Where(() => formalEdoRequestAlias.Order.Id == orderId)
+				.WhereRestrictionOn(() => edoTaskAlias.Status).Not.IsIn(finishedStatuses)
+				.OrderBy(() => formalEdoRequestAlias.Time).Desc
+				.Take(1)
+				.SingleOrDefault();
+
+			return request;
+		}
+
+		public IEnumerable<string> GetGtinsInOrder(IUnitOfWork uow, int orderId)
+		{
+			GtinEntity gtinAlias = null;
+			NomenclatureEntity nomenclatureAlias = null;
+			OrderItemEntity orderItemAlias = null;
+
+			var gtins = uow.Session.QueryOver(() => gtinAlias)
+				.JoinAlias(() => gtinAlias.Nomenclature, () => nomenclatureAlias)
+				.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Nomenclature == nomenclatureAlias)
+				.Where(() => orderItemAlias.Order.Id == orderId)
+				.Select(x => x.GtinNumber)
+				.List<string>();
+
+			return gtins;
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CustomerNotifications.Contracts;
@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -24,16 +25,19 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly ICashRepository _cashRepository;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly IOrderSaleHandler _saleHandler;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 
 		public OrderOnlinePaymentAcceptanceHandler(
 			INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			ICashRepository cashRepository,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IFastPaymentRepository fastPaymentRepository,
-			IOrderContractUpdater contractUpdater)
+			IOrderContractUpdater contractUpdater,
+			IOrderSaleHandler saleHandler
+			)
 		{
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -41,6 +45,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 
@@ -60,6 +65,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			foreach(var order in orders)
 			{
+				if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType) && order.SelfDelivery)
+				{
+					order.IsSelfDeliveryPaid = true;
+				}
+
 				if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
 					&& order.SelfDelivery
 					&& order.OrderStatus == OrderStatus.WaitForPayment
@@ -67,11 +77,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 				{
 					order.TryCloseSelfDeliveryPayAfterShipmentOrder(
 						uow,
+						_saleHandler,
 						_nomenclatureSettings,
 						_routeListItemRepository,
 						_selfDeliveryRepository,
 						_cashRepository);
-					order.IsSelfDeliveryPaid = true;
 				}
 				
 				if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
@@ -79,8 +89,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					&& order.OrderStatus == OrderStatus.WaitForPayment
 					&& !order.PayAfterShipment)
 				{
-					order.ChangeStatus(OrderStatus.OnLoading);
-					order.IsSelfDeliveryPaid = true;
+					order.ChangeStatus(_saleHandler, OrderStatus.OnLoading);
 					var customerNotificationEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, onlineOrderId: order.OnlineOrder?.Id, orderId: order.Id);
 					_customerNotificationPublisher.TryPublish(uow, customerNotificationEvent);
 				}
@@ -126,6 +135,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 			
 			var selfDeliveryOrderPaymentTypes = new[] { PaymentType.Cash, PaymentType.SmsQR };
 
+			if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType) && order.SelfDelivery)
+			{
+				order.IsSelfDeliveryPaid = true;
+			}
+
 			if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
 				&& order.SelfDelivery
 				&& order.OrderStatus == OrderStatus.WaitForPayment
@@ -133,11 +147,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 			{
 				order.TryCloseSelfDeliveryPayAfterShipmentOrder(
 					uow,
+					_saleHandler,
 					_nomenclatureSettings,
 					_routeListItemRepository,
 					_selfDeliveryRepository,
 					_cashRepository);
-				order.IsSelfDeliveryPaid = true;
 			}
 			
 			if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
@@ -145,8 +159,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				&& order.OrderStatus == OrderStatus.WaitForPayment
 				&& !order.PayAfterShipment)
 			{
-				order.ChangeStatus(OrderStatus.OnLoading);
-				order.IsSelfDeliveryPaid = true;
+				order.ChangeStatus(_saleHandler, OrderStatus.OnLoading);
 				var customerNotificationEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, onlineOrderId: order.OnlineOrder?.Id, orderId: order.Id);
 				_customerNotificationPublisher.TryPublish(uow, customerNotificationEvent);
 			}

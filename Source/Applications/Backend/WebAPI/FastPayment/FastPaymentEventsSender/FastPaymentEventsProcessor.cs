@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TransactionalOutbox.MassTransit;
+using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Settings.Common;
@@ -34,6 +36,9 @@ namespace FastPaymentEventsSender
 		private readonly IGenericRepository<WrongSignatureFromReceivedFastPaymentEvent> _wrongSignatureEventRepository;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IZabbixSender _zabbixSender;
+		// UoW создаётся из фабрики на каждый запуск: письмо пишется в его транзакцию явно и уходит вместе с отметкой об отправке
+		// TODO: брать IUnitOfWork и IPublishEndpoint из DI-scope запуска, тогда IUnitOfWorkOutbox не нужен
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
 		public FastPaymentEventsProcessor(
 			ILogger<FastPaymentEventsProcessor> logger,
@@ -43,7 +48,8 @@ namespace FastPaymentEventsSender
 			IGenericRepository<FastPaymentStatusUpdatedEvent> statusUpdatedEventRepository,
 			IGenericRepository<WrongSignatureFromReceivedFastPaymentEvent> wrongSignatureEventRepository,
 			IEmailSettings emailSettings,
-			IZabbixSender zabbixSender
+			IZabbixSender zabbixSender,
+			IUnitOfWorkOutbox<IBus> outbox
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -54,6 +60,7 @@ namespace FastPaymentEventsSender
 			_wrongSignatureEventRepository = wrongSignatureEventRepository ?? throw new ArgumentNullException(nameof(wrongSignatureEventRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 		
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -88,6 +95,7 @@ namespace FastPaymentEventsSender
 				if(totalRecords >= _criticalEventsCountThreshold)
 				{
 					await _zabbixSender.SendProblemMessageAsync(
+						nameof(FastPaymentEventsProcessor),
 						ZabixSenderMessageType.Problem,
 						"Не обрабатываются события изменения статуса оплаты",
 						stoppingToken);
@@ -106,7 +114,7 @@ namespace FastPaymentEventsSender
 					{
 						/*т.к. теоретически может быть несколько событий по одному быстрому платежу,
 						 то отправляем последнее, а всем остальным проставляем не отправку*/
-						if(i == groupedCount - 1)
+						if(i == groupedCount - 1 && @event.FastPaymentStatus != FastPaymentStatus.Refund)
 						{
 							await notifier.NotifyPaymentStatusChangeAsync(@event);
 						}
@@ -116,15 +124,17 @@ namespace FastPaymentEventsSender
 							@event.HttpCode = 0;
 						}
 						
-						await uow.SaveAsync(@event);
-						await uow.CommitAsync();
+						await uow.SaveAsync(@event, cancellationToken: stoppingToken);
+						await uow.CommitAsync(stoppingToken);
 						i++;
 					}
+					
+					_logger.LogInformation("Осталось уведомлений: {ChangedStatusEventsCount}", --eventsCount);
 				}
 
 				if(totalRecords < _criticalEventsCountThreshold)
 				{
-					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+					await _zabbixSender.SendIsHealthyAsync(nameof(FastPaymentEventsProcessor), stoppingToken);
 				}
 			}
 			catch(Exception ex)
@@ -132,6 +142,7 @@ namespace FastPaymentEventsSender
 				_logger.LogError(ex, "Произошла ошибка при обработке событий изменения статуса оплаты");
 
 				await _zabbixSender.SendProblemMessageAsync(
+					nameof(FastPaymentEventsProcessor),
 					ZabixSenderMessageType.Problem,
 					$"Произошла ошибка при обработке событий изменения статуса оплат {ex}",
 					stoppingToken);
@@ -144,10 +155,9 @@ namespace FastPaymentEventsSender
 			{
 				_logger.LogInformation(_wrongSignatureEventsProcessTitle);
 				using var uow = _unitOfWorkFactory.CreateWithoutRoot(_wrongSignatureEventsProcessTitle);
-				using var scope = _serviceScopeFactory.CreateScope();
 				
 				var events = _wrongSignatureEventRepository.Get(uow, x => x.SentDate == null).ToList();
-				var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+				var publishEndpoint = _outbox.GetPublishEndpoint(uow);
 				var eventsCount = events.Count;
 
 				_logger.LogInformation("Всего событий смены статуса: {WrongSignatureEventsCount}", eventsCount);

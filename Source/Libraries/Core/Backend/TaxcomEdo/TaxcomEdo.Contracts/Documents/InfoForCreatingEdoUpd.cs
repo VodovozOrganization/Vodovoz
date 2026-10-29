@@ -34,6 +34,6 @@ namespace TaxcomEdo.Contracts.Documents
 		public IEnumerable<PaymentInfoForEdo> PaymentsInfoForEdo { get; set; }
 
 		public static InfoForCreatingEdoUpd Create(OrderInfoForEdo orderInfoForEdo, IEnumerable<PaymentInfoForEdo> paymentsInfoForEdo) =>
-			new InfoForCreatingEdoUpd(orderInfoForEdo, paymentsInfoForEdo);
+			new InfoForCreatingEdoUpd(orderInfoForEdo, paymentsInfoForEdo);		
 	}
 }

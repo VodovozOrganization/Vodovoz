@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.Commands;
@@ -35,7 +36,6 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Models;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
@@ -46,10 +46,13 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Services.RouteOptimization;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets.Mango;
 using VodovozBusiness.EntityRepositories.Logistic;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -62,6 +65,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IDriverStopListService _driverStopListService;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly IRouteListSpecialConditionsService _routeListSpecialConditionsService;
@@ -77,6 +81,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly ILogisticRepository _logisticRepository;
+		private readonly IMangoCallButtonViewModelFactory _mangoCallButtonViewModelFactory;
 		private bool _canClose = true;
 		private Employee _oldDriver;
 		private DateTime _previousSelectedDate;
@@ -95,6 +100,7 @@ namespace Vodovoz.ViewModels.Logistic
 			ICurrentPermissionService currentPermissionService,
 			IEmployeeRepository employeeRepository,
 			IRouteListRepository routeListRepository,
+			IDriverStopListService driverStopListService,
 			IRouteListItemRepository routeListItemRepository,
 			IRouteListService routeListService,
 			IRouteListSpecialConditionsService routeListSpecialConditionsService,
@@ -109,7 +115,8 @@ namespace Vodovoz.ViewModels.Logistic
 			RouteGeometryCalculator routeGeometryCalculator,
 			IWageParameterService wageParameterService,
 			IDeliveryRepository deliveryRepository,
-			ILogisticRepository logisticRepository
+			ILogisticRepository logisticRepository,
+			IMangoCallButtonViewModelFactory mangoCallButtonViewModelFactory
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -119,6 +126,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_driverStopListService = driverStopListService ?? throw new ArgumentNullException(nameof(driverStopListService));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
@@ -136,6 +144,9 @@ namespace Vodovoz.ViewModels.Logistic
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_logisticRepository = logisticRepository ?? throw new ArgumentNullException(nameof(logisticRepository));
+			_mangoCallButtonViewModelFactory = mangoCallButtonViewModelFactory ?? throw new ArgumentNullException(nameof(mangoCallButtonViewModelFactory));
+
+			DriverExtensionCallViewModel = _mangoCallButtonViewModelFactory.CreateForRouteListDriver(UoW, Entity);
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -151,13 +162,14 @@ namespace Vodovoz.ViewModels.Logistic
 				Entity.Date = DateTime.Now;
 			}
 
-			CanEditFixedPrice = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanChangeRouteListFixedPrice);
-			CanСreateRoutelistInPastPeriod = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListInPastPeriod);
-			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
-			IsLogistician = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician);
-			IsCashier = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
-			CanReadRouteListProfitability = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanReadRouteListProfitability);
+			CanEditFixedPrice = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.RouteList.CanChangeRouteListFixedPrice);
+			CanСreateRoutelistInPastPeriod = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListInPastPeriod);
+			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
+			IsLogistician = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.IsLogistician);
+			IsCashier = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
+			CanReadRouteListProfitability = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.RouteList.CanReadRouteListProfitability);
 			CanOpenOrder = _currentPermissionService.ValidateEntityPermission(typeof(Order)).CanRead;
+			CanWorkWithSemitrailers = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.CanWorkWithSemitrailers);
 
 			_previousSelectedDate = Entity.Date;
 
@@ -215,6 +227,7 @@ namespace Vodovoz.ViewModels.Logistic
 			ShowPrintTimeCommand = new DelegateCommand(ShowPrintTime);
 
 			CarViewModel = CreateCarViewModel();
+			SemitrailerViewModel = CreateSemitrailerViewModel();
 			DriverViewModel = CreateDriverViewModel();
 			ForwarderViewModel = CreateForwarderViewModel();
 			LogisticianViewModel = CreateLogisticianViewModel();
@@ -253,6 +266,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool IsCashier { get; }
 		public bool CanReadRouteListProfitability { get; }
 		public bool CanOpenOrder { get; }
+		public bool CanWorkWithSemitrailers { get; }
 
 		public bool HasAccessToDriverTerminal => IsLogistician || IsCashier;
 
@@ -284,6 +298,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool CanCopyId => Entity.Id != 0;
 
+		public bool IsSemiTrailerVisible =>
+			Entity.Car?.CarModel?.CarTypeOfUse is CarTypeOfUse.Truck;
+
 		public bool CanRevertToNew => Entity.Status != RouteListStatus.New
 			&& RouteList.NotLoadedRouteListStatuses.Contains(Entity.Status)
 			&& CanSave;
@@ -307,19 +324,40 @@ namespace Vodovoz.ViewModels.Logistic
 		public bool CanChangeIsFixPrice =>
 			CanEditFixedPrice && Entity.Status != RouteListStatus.Closed;
 
+		/// <summary>
+		/// Вью-модель кнопки звонка на добавочный номер водителя маршрутного листа
+		/// </summary>
+		public MangoCallButtonViewModel DriverExtensionCallViewModel { get; }
+
 		#region EEVM
 
 		public IEntityEntryViewModel CarViewModel { get; }
+		public IEntityEntryViewModel SemitrailerViewModel { get; }
 
 		public IEntityEntryViewModel CreateCarViewModel()
 		{
+			var excludedCarTypesOfUse = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+
 			return new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
 				.ForProperty(x => x.Car)
 				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
 				{
-					filter.ExcludedCarTypesOfUse = new CarTypeOfUse[] { CarTypeOfUse.Loader };
+					filter.ExcludedCarTypesOfUse = excludedCarTypesOfUse;
 				})
 				.UseViewModelDialog<CarViewModel>()
+				.Finish();
+		}
+
+		public IEntityEntryViewModel CreateSemitrailerViewModel()
+		{
+			return new CommonEEVMBuilderFactory<RouteList>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.Semitrailer)
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel, CarJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictedCarTypesOfUse = new[] { CarTypeOfUse.Semitrailer };
+					filter.Archive = false;
+				})
+				.UseViewModelDialog<SemitrailerViewModel>()
 				.Finish();
 		}
 
@@ -407,6 +445,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				OnPropertyChanged(nameof(CanChangeDriver));
 				OnPropertyChanged(nameof(CanChangeForwarder));
+				OnPropertyChanged(nameof(IsSemiTrailerVisible));
 			}
 
 			if(e.PropertyName == nameof(Entity.Status))
@@ -497,6 +536,8 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				Entity.Driver = null;
 			}
+
+			_mangoCallButtonViewModelFactory.UpdateForRouteListDriver(DriverExtensionCallViewModel, UoW, Entity);
 		}
 
 		private bool TryAssignDriver(Employee driver)
@@ -513,6 +554,36 @@ namespace Vodovoz.ViewModels.Logistic
 					$"Нельзя добавить сотрудника в МЛ. У данного сотрудника есть отметка в графике водителей",
 					"Предупреждение");
 				return false;
+			}
+
+			if(!_driverStopListService.IsDriverInStopList(UoW, driver, Entity.Id))
+			{
+				return true;
+			}
+
+			Entity.Driver = null;
+			if(!_interactiveService.Question("Выбираемый сотрудник находится в стоп-листе. Вы хотите снять стоп-лист?"))
+			{
+				return false;
+			}
+
+			NavigationManager.OpenViewModel<DriverStopListRemovalViewModel, int>(this, driver.Id)
+				.PageClosed += OnStopListRemovalClosed;
+
+			void OnStopListRemovalClosed(object sender, PageClosedEventArgs args)
+			{
+				if(sender is IPage page)
+				{
+					page.PageClosed -= OnStopListRemovalClosed;
+				}
+
+				if(args.CloseSource != CloseSource.Save)
+				{
+					return;
+				}
+
+				Entity.Driver = driver;
+				_mangoCallButtonViewModelFactory.UpdateForRouteListDriver(DriverExtensionCallViewModel, UoW, Entity);
 			}
 
 			return true;
@@ -731,7 +802,7 @@ namespace Vodovoz.ViewModels.Logistic
 			if(beforeAcceptValidation.IsFailure)
 			{
 				if(!beforeAcceptValidation.Errors.All(error => overfillErrorsCodes.Contains(error.Code))
-					|| !_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanConfirmOverweighted)
+					|| !_currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.RouteList.CanConfirmOverweighted)
 					|| !_interactiveService.Question(
 						"Вы уверены что хотите подтвердить маршрутный лист?\n" +
 						string.Join("\n", overfillErrorsMessages),
@@ -844,6 +915,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				{ "NewStatus", RouteListStatus.EnRoute },
 				{ nameof(IRouteListItemRepository), _routeListItemRepository },
+				{ nameof(IRouteListRepository), _routeListRepository },
 				{ Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
 			};
 

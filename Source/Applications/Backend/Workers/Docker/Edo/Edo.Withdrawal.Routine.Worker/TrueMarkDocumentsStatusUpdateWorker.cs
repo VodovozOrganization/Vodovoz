@@ -49,7 +49,7 @@ namespace Edo.Withdrawal.Routine.Worker
 				_logger.LogError(ex, "Ошибка при выполнении обновления статусов документов ЧЗ");
 			}
 
-			await zabbixSender.SendIsHealthyAsync(stoppingToken);
+			await zabbixSender.SendIsHealthyAsync(nameof(TrueMarkDocumentsStatusUpdateWorker), stoppingToken);
 
 			_logger.LogInformation(
 				"Обновление статусов документов ЧЗ успешно завершена");

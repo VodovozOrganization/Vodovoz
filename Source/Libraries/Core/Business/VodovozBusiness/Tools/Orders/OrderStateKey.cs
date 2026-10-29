@@ -12,7 +12,7 @@ using Vodovoz.Settings.Orders;
 
 namespace Vodovoz.Tools.Orders
 {
-	public class OrderStateKey : ComparerDeliveryPrice
+	public class OrderStateKey : DeliveryDateComparerDeliveryPrice
 	{
 		private readonly IOrderSettings _orderSettings;
 
@@ -40,6 +40,9 @@ namespace Vodovoz.Tools.Orders
 
 		[Display(Name = "Стоимость товаров заказа равна нулю?")]
 		public bool IsPriceOfAllOrderItemsZero { get; set; } = false;
+
+		[Display(Name = "Есть продажа кроме залога?")]
+		public bool HasNonDepositSale { get; set; } = false;
 
 		[Display(Name = "Тип документа 'ТОРГ12 + Счёт-фактура'?")]
 		private bool IsDocTypeTORG12 { get; set; } = false;
@@ -70,10 +73,9 @@ namespace Vodovoz.Tools.Orders
 		public IEnumerable<OrderEquipment> OnlyEquipments =>
 			Order.OrderEquipments.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment);
 
-		public override void InitializeFields(Order order, OrderStatus? requiredStatus = null)
+		public virtual void InitializeFields(Order order, OrderStatus? requiredStatus = null)
 		{
 			Order = order;
-			DeliveryDate = order.DeliveryDate;
 			OrderStatus = requiredStatus ?? Order.OrderStatus;
 
 			var nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
@@ -95,6 +97,11 @@ namespace Vodovoz.Tools.Orders
 			}
 
 			IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.ActualSum) <= 0m;
+
+			HasNonDepositSale = Order.ObservableOrderItems
+				.Where(item => item.Nomenclature.Category != NomenclatureCategory.deposit)
+				.Sum(item => item.ActualSum) > 0m;
+
 			NeedToReturnBottles = Order.BottlesReturn > 0;
 			NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();
 			PaymentType = Order.PaymentType;
@@ -105,7 +112,7 @@ namespace Vodovoz.Tools.Orders
 			HasEShopOrder = Order.EShopOrder.HasValue;
 
 			//для проверки цены доставки
-			CalculateAllWaterCount(Order.OrderItems);
+			Initialize(Order.OrderItems, order.DeliveryDate);
 		}
 
 		private bool HasOrderEquipments(IUnitOfWork uow)

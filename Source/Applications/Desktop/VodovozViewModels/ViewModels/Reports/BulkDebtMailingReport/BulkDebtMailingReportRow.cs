@@ -1,6 +1,6 @@
-﻿using System;
-using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Extensions;
+﻿using Core.Infrastructure;
+using System;
+using Vodovoz.Core.Domain.StoredEmails;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 {

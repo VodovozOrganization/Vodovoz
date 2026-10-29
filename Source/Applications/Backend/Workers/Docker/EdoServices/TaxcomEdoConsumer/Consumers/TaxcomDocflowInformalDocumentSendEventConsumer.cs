@@ -30,7 +30,7 @@ namespace TaxcomEdoConsumer.Consumers
 					"Создаем исходящий документооборот с неформализованным документом типа {EdoDocument}",
 					message.DocumentInfo.MainDocumentId);
 
-				await _edoDocflowHandler.CreateTaxcomDocflowInformalDocument(message);
+				await _edoDocflowHandler.CreateTaxcomDocflowInformalDocument(message, context.CancellationToken);
 			}
 			catch(Exception e)
 			{

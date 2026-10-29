@@ -9,7 +9,7 @@ namespace CustomerNotificationsWorker
 		public CustomerNotificationsConsumerDefinition()
 		{
 			EndpointName = "customer-notifications";
-			ConcurrentMessageLimit = 5;
+			ConcurrentMessageLimit = 50;
 		}
 
 		protected override void ConfigureConsumer(

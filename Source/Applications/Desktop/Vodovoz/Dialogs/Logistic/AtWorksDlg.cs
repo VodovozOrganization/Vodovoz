@@ -32,7 +32,6 @@ using Vodovoz.Models;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Logistic;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -40,6 +39,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using VodovozBusiness.Extensions;
+
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -168,8 +169,9 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void Initialize()
 		{
+			var carTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
-			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
+			enumcheckCarTypeOfUse.AddEnumToHideList(carTypeOfUseForExclude);
 			enumcheckCarTypeOfUse.Binding
 				.AddBinding(_filterViewModel, vm => vm.SelectedCarTypesOfUse, w => w.SelectedValuesList,
 					new EnumsListConverter<CarTypeOfUse>())

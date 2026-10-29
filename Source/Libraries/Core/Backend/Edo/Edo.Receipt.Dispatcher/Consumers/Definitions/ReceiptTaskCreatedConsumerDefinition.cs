@@ -15,12 +15,15 @@ namespace Edo.Receipt.Dispatcher.Consumers.Definitions
 			IConsumerConfigurator<ReceiptTaskCreatedConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
+			
+			endpointConfigurator.PrefetchCount = 1;
+			endpointConfigurator.ConcurrentMessageLimit = 1;
 
 			if(endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
 			{
 				rmq.ExchangeType = ExchangeType.Fanout;
-
 				rmq.Bind<ReceiptTaskCreatedEvent>();
+				rmq.DiscardFaultedMessages();
 			}
 		}
 	}

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Core.Infrastructure;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -11,7 +12,6 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.ViewModels.Edo
 {

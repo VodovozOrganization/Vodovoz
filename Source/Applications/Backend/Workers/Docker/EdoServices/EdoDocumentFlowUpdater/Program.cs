@@ -1,5 +1,7 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
+using Edo.Common;
 using Edo.Docflow.Taxcom;
+using Edo.Problems;
 using EdoDocumentFlowUpdater.Configs;
 using EdoDocumentFlowUpdater.Options;
 using MassTransit;
@@ -18,6 +20,8 @@ using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.FileStorage;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace EdoDocumentFlowUpdater
 {
@@ -49,6 +53,7 @@ namespace EdoDocumentFlowUpdater
 						)
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddCoreDataRepositories()
 						.AddTrackedUoW()
 						.AddInfrastructure(ServiceLifetime.Singleton)
 						.ConfigureOptions<ConfigureS3Options>()
@@ -59,13 +64,16 @@ namespace EdoDocumentFlowUpdater
 							hostContext.Configuration.GetSection(TaxcomEdoDocumentFlowUpdaterOptions.Path))
 						.AddHttpClient()
 						.AddTaxcomClient()
+						.AddEdo()
+						.AddEdoProblemRegistration()
 						
-						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoDocumentFlowUpdater))
+						.ConfigureZabbixSenderFromDataBase()
 						.AddHostedService<TaxcomEdoDocumentFlowUpdater>()
 						
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
 						{
+							busConf.AddVodovozOutbox(OutboxBusNames.Pacs);
 							busConf.ConfigureRabbitMq();
 						});
 

@@ -4,13 +4,13 @@ namespace Vodovoz.Core.Domain.Edo
 {
 	public enum EdoReceiptStatus
 	{
-		[Display(Name = "Новый")]
+		[Display(Name = "Распределение")]
 		New,
-		[Display(Name = "Сохранено в пул")]
+		[Display(Name = "Забор кодов")]
 		SavedToPool,
 		[Display(Name = "Трансфер")]
 		Transfering,
-		[Display(Name = "Отправка")]
+		[Display(Name = "Отправляется")]
 		Sending,
 		[Display(Name = "Отправлен")]
 		Sent,

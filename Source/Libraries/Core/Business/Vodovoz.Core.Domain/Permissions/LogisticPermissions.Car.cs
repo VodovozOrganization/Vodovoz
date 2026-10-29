@@ -7,6 +7,13 @@ namespace Vodovoz.Core.Domain.Permissions
 		public static class Car
 		{
 			/// <summary>
+			/// Редактирование карточки автомобиля
+			/// </summary>
+			[Display(
+				Name = "Может редактировать карточку автомобиля")]
+			public static string CanEditCarCard => "can_edit_car_card";
+
+			/// <summary>
 			/// Изменение модели в автомобиле
 			/// </summary>
 			[Display(

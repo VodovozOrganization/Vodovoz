@@ -119,13 +119,9 @@ namespace YooKassaApi.Client
 
 				using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-				var requestMessage = new HttpRequestMessage(HttpMethod.Post, endpoint)
-				{
-					Content = content
-				};
-				requestMessage.Headers.Add("Idempotence-Key", idempotenceKey);
+				content.Headers.Add("Idempotence-Key", idempotenceKey);
 
-				using var response = await _httpClient.SendAsync(requestMessage, cancellationToken);
+				using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
 
 				return await ProcessResponseAsync<T>(response, endpoint);
 			}

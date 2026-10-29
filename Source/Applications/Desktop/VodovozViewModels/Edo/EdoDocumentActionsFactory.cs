@@ -1,0 +1,436 @@
+﻿using EdoService.Library;
+using Gamma.Binding.Core;
+using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Permissions;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Rules.Edo;
+using Vodovoz.Settings;
+
+namespace Vodovoz.ViewModels.Edo
+{
+	public class EdoDocumentActionsFactory : IEdoDocumentActionsFactory
+	{
+		private readonly IInteractiveService _interactiveService;
+		private readonly IEdoService _edoService;
+		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly CanProcessOrSendEdoByClosingAccountingDate _canProcessOrSendEdo;
+		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly INavigationManager _navigationManager;
+
+		public EdoDocumentActionsFactory(
+			IInteractiveService interactiveService,
+			IEdoService edoService,
+			ICurrentPermissionService currentPermissionService,
+			CanProcessOrSendEdoByClosingAccountingDate canProcessOrSendEdo,
+			IUnitOfWorkFactory uowFactory,
+			INavigationManager navigationManager
+			)
+		{
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_canProcessOrSendEdo = canProcessOrSendEdo ?? throw new ArgumentNullException(nameof(canProcessOrSendEdo));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+		}
+
+		public IEnumerable<BusyCommand> CreateActions(
+			EdoInOrderDocumentHistoryRowViewModel document,
+			Action onActionCompleted)
+		{
+			if(document == null)
+			{
+				return Enumerable.Empty<BusyCommand>();
+			}
+
+			var actions = new List<BusyCommand>();
+			var documentNode = document.Document;
+
+			if(documentNode.TaskStatus == EdoTaskStatus.New && document.DocumentType != EdoInOrderDocumentType.Bill)
+			{
+				if(CanResendNewTask(documentNode))
+				{
+					CreateResendNewTaskAction(actions, documentNode, onActionCompleted);
+				}
+
+				return actions;
+			}
+
+			switch(document.DocumentType)
+			{
+				case EdoInOrderDocumentType.Upd:
+					CreateUpdActions(actions, document.Document, onActionCompleted);
+					break;
+				case EdoInOrderDocumentType.Receipt:
+					CreateReceiptActions(actions, document.Document, onActionCompleted);
+					break;
+				case EdoInOrderDocumentType.SaveCode:
+					CreateSaveCodeActions(actions, document.Document);
+					break;
+				case EdoInOrderDocumentType.Bill:
+					CreateBillActions(actions, documentNode, onActionCompleted);
+					break;
+				case EdoInOrderDocumentType.Tender:
+				default:
+					break;
+			}
+
+			return actions;
+		}
+
+		private void CreateBillActions(List<BusyCommand> actions, EdoInOrderDocumentNode document, Action onActionCompleted)
+		{
+			if(document.TaskId <= 0 || !_currentPermissionService.ValidatePresetPermission("can_resend_edo_documents")
+				|| !_edoService.CanResendBillEdoDocument(document.TaskStatus, document.EdoDocumentStatus))
+			{
+				return;
+			}
+
+			actions.Add(new BusyCommand("Переотправить", () =>
+			{
+				if(IsResendBlockedByClosedPeriod(document.TaskId))
+				{
+					return;
+				}
+
+				var result = _edoService.ResendBillEdoDocument(document.TaskId);
+				ShowResult(result);
+				if(result.IsSuccess)
+				{
+					onActionCompleted?.Invoke();
+				}
+			}));
+		}
+
+		private static bool CanResendNewTask(EdoInOrderDocumentNode document) =>
+			document.TaskType == EdoTaskType.Document && document.FormalDocumentType == EdoDocumentType.UPD
+			|| document.TaskType == EdoTaskType.Receipt
+			|| document.TaskType == EdoTaskType.Tender
+			|| document.TaskType == EdoTaskType.SaveCode;
+
+		private void CreateResendNewTaskAction(
+			List<BusyCommand> actions,
+			EdoInOrderDocumentNode document,
+			Action onActionCompleted)
+		{
+			actions.Add(new BusyCommand(
+				"Переотправить",
+				() =>
+				{
+					if(IsResendBlockedByClosedPeriod(document.TaskId))
+					{
+						return;
+					}
+
+					var result = _edoService.ResendNewEdoTask(document.TaskId);
+					ShowResult(result);
+
+					if(result.IsSuccess)
+					{
+						onActionCompleted?.Invoke();
+					}
+				}));
+		}
+
+		private void CreateUpdActions(
+			List<BusyCommand> actions,
+			EdoInOrderDocumentNode document,
+			Action onActionCompleted)
+		{
+			var hasActiveDiscrepancy = document.DocflowDiscrepancyState == EdoDiscrepancyState.Active;
+
+			if(document.EdoDocumentStatus != EdoDocumentStatus.Succeed && !hasActiveDiscrepancy)
+			{
+				actions.Add(new BusyCommand(
+					"Переотправить",
+					() => ResendUpd(document, onActionCompleted)
+				));
+			}
+
+			if(hasActiveDiscrepancy)
+			{
+				actions.Add(new BusyCommand(
+					"Открыть расхождение",
+					() => _navigationManager.OpenViewModel<EdoDiscrepancyViewModel, int>(null, document.DocumentId, OpenPageOptions.IgnoreHash)
+				));
+			}
+		}
+
+		private void ResendUpd(EdoInOrderDocumentNode document, Action onActionCompleted)
+		{
+			if(IsResendBlockedByClosedPeriod(document.TaskId))
+			{
+				return;
+			}
+
+			if(IsCanResendViaOrderDocumentSendEvent(document))
+			{
+				ResendViaOrderDocumentSendEvent(document, onActionCompleted);
+				return;
+			}
+
+			if(IsDocumentInProgressOrSent(document))
+			{
+				ResendUpdWithCancellation(document, onActionCompleted);
+				return;
+			}
+
+			var hasDocflow = _edoService.HasDocflow(document.TaskId);
+			var hasCancelledDocflow = _edoService.HasCancelledDocflow(document.TaskId);
+
+			if(hasDocflow && !hasCancelledDocflow)
+			{
+				if(!_interactiveService.Question(
+					"Документооборот по данному документу завершён .\n" +
+					"Для переотправки необходимо аннулировать документооборот.\n" +
+					"Начать процесс аннулирования?"))
+				{
+					return;
+				}
+
+				var cancelResult = _edoService.CancelDocflow(document.TaskId);
+				if(cancelResult.IsSuccess)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Info, cancelResult.Value);
+					onActionCompleted?.Invoke();
+				}
+				else
+				{
+					ShowErrorMessage(cancelResult.Errors);
+				}
+
+				return;
+			}
+
+			var result = _edoService.ResendEdoDocumentForOrder(document.TaskId);
+			if(result.IsSuccess)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Info, result.Value);
+				onActionCompleted?.Invoke();
+			}
+			else
+			{
+				ShowErrorMessage(result.Errors);
+			}
+		}
+
+		private bool IsCanResendViaOrderDocumentSendEvent(EdoInOrderDocumentNode document)
+		{
+			return _edoService.CanResendViaEdoRequestCreatedEvent(document.TaskId);
+		}
+
+		private void ResendViaOrderDocumentSendEvent(EdoInOrderDocumentNode document, Action onActionCompleted)
+		{
+			var resendResult = _edoService.TryResendViaOrderDocumentSendEventAsync(document.TaskId)
+				.GetAwaiter()
+				.GetResult();
+
+			ShowResult(resendResult);
+
+			onActionCompleted?.Invoke();
+		}
+
+		private void ResendUpdWithCancellation(EdoInOrderDocumentNode document, Action onActionCompleted)
+		{
+			if(IsResendBlockedByClosedPeriod(document.TaskId))
+			{
+				return;
+			}
+
+			if(!_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanResendEdoDocumentWithCancellation))
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Для переотправки УПД в статусе «В процессе» или «Отправлен» недостаточно прав.");
+				return;
+			}
+
+			if(!_interactiveService.Question(
+				"Текущий документооборот будет отправлен на аннулирование.\n" +
+				"Клиенту будет отправлено предложение об аннулировании.\n" +
+				"УПД будет переотправлен. Продолжить?"))
+			{
+				return;
+			}
+
+			var result = _edoService.ResendEdoDocumentWithCancellation(document.TaskId);
+			ShowResult(result);
+
+			if(result.IsSuccess)
+			{
+				onActionCompleted?.Invoke();
+			}
+		}
+
+
+		private static bool IsDocumentInProgressOrSent(EdoInOrderDocumentNode document)
+		{
+			return document.EdoDocumentStatus == EdoDocumentStatus.InProgress
+				|| document.EdoDocumentStatus == EdoDocumentStatus.Sent;
+		}
+
+		private void CreateReceiptActions(
+			List<BusyCommand> actions,
+			EdoInOrderDocumentNode document,
+			Action onActionCompleted)
+		{
+			CreateResendReceiptAction(actions, document);
+
+			if(document.TaskReceiptStage == EdoReceiptStatus.New && document.TaskStatus == EdoTaskStatus.Problem)
+			{
+				actions.Add(new BusyCommand(
+					"Переобработать проблему",
+					() =>
+					{
+						if(IsResendBlockedByClosedPeriod(document.TaskId))
+						{
+							return;
+						}
+
+						var result = _edoService.RehandleNewReceiptDocumentWithProblem(document.TaskId);
+						if(result.IsSuccess)
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно отправлен на переобработку");
+							onActionCompleted?.Invoke();
+						}
+						else
+						{
+							_interactiveService.ShowMessage(
+								ImportanceLevel.Error,
+								"Не удалось переобработать проблему.\nПричины:\n - " +
+									string.Join("\n - ", result.Errors.Select(x => x.Message)));
+						}
+					}
+				));
+			}
+		}
+
+		private void CreateSaveCodeActions(List<BusyCommand> actions, EdoInOrderDocumentNode document)
+			=> CreateResendDocumentAction(actions, document);
+
+		private void CreateResendDocumentAction(List<BusyCommand> actions, EdoInOrderDocumentNode document)
+		{
+			if(document.TaskType is EdoTaskType.SaveCode)
+			{
+				actions.Add(new BusyCommand(
+					"Переотправить",
+					() =>
+					{
+						if(IsResendBlockedByClosedPeriod(document.TaskId))
+						{
+							return;
+						}
+
+						ShowResult(_edoService.TryResendUpdDocument(document.TaskId));
+					}
+				));
+			}
+		}
+
+		private void CreateResendReceiptAction(List<BusyCommand> actions, EdoInOrderDocumentNode document)
+		{
+			var isReceipt = document.TaskType is EdoTaskType.Receipt;
+			var receiptSavedToPool = document.TaskReceiptStage is EdoReceiptStatus.SavedToPool;
+
+			if(isReceipt && receiptSavedToPool)
+			{
+				actions.Add(new BusyCommand(
+					"Переотправить",
+					() =>
+					{
+						if(IsResendBlockedByClosedPeriod(document.TaskId))
+						{
+							return;
+						}
+
+						ShowResult(_edoService.TryResendReceiptDocument(document.TaskId));
+					}
+				));
+			}
+		}
+
+		private bool IsResendBlockedByClosedPeriod(int taskId)
+		{
+			var accountingDate = GetAccountingDate(taskId);
+
+			try
+			{
+				if(_canProcessOrSendEdo.Check(accountingDate))
+				{
+					return false;
+				}
+			}
+			catch(System.Exception ex) when (ex is InvalidOperationException || ex is SettingException)
+			{
+				return false;
+			}
+
+			if(_currentPermissionService.ValidatePresetPermission(
+				BookkeeppingPermissions.CanSendEdoDocumentsForPreviousPeriods))
+			{
+				_edoService.AllowResendInClosedAccountingPeriod(taskId);
+				return false;
+			}
+
+			_interactiveService.ShowMessage(ImportanceLevel.Error,
+				"Не удалось переотправить документ.\nПричина:\nДокумент в закрытом бухгалтерском периоде. "
+				+ "Для переотправки обратитесь в бухгалтерию");
+			return true;
+		}
+
+		private DateTime? GetAccountingDate(int taskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var task = uow.GetById<EdoTask>(taskId);
+
+				switch (task)
+				{
+					case OrderDocumentEdoTask _:
+					{
+						var request = uow.GetAll<InformalEdoRequest>().FirstOrDefault(x => x.Task.Id == taskId);
+						if(request?.Order != null)
+						{
+							return request.Order.DeliveryDate;
+						}
+
+						break;
+					}
+					case OrderEdoTask orderTask when orderTask.FormalEdoRequest?.Order?.DeliveryDate != null:
+						return orderTask.FormalEdoRequest.Order.DeliveryDate;
+					case ReceiptEdoTask receiptTask when receiptTask.FiscalDocuments.Any():
+						return receiptTask.FiscalDocuments.Max(x => x.FiscalTime ?? x.CheckoutTime);
+				}
+
+				return task?.CreationTime;
+			}
+		}
+
+		private void ShowErrorMessage(IEnumerable<Error> errors)		{
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Error,
+				"Не удалось переотправить документ.\nПричины:\n - " +
+					string.Join("\n - ", errors.Select(x => x.Message)));
+		}
+
+		private void ShowResult(Result<string> result)
+		{
+			if(result.IsFailure)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, result.Errors.First().Message);
+			}
+			else
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Info, result.Value);
+			}
+		}
+	}
+}

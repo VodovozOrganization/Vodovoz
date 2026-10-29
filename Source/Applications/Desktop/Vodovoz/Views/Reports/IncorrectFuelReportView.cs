@@ -34,6 +34,7 @@ namespace Vodovoz.Views.Reports
 			entityentryFuelCard.ViewModel = ViewModel.FuelCardEntityEntryViewModel;
 
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Semitrailer);
 			enumcheckCarTypeOfUse.Binding
 				.AddBinding(ViewModel, vm => vm.CarTypesOfUse, w => w.SelectedValuesList, new EnumsListConverter<CarTypeOfUse>())
 				.InitializeFromSource();

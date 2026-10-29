@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -82,5 +82,29 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<IDictionary<int, IEnumerable<CarVersion>>> GetCarOwnTypesForPeriodByCars(IUnitOfWork uow, IEnumerable<int> carsIds, DateTime startDate, DateTime endDate, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить возможные дубликаты авто по гос номеру, вин номеру или номеру шасси
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="id">Идентификатор авто</param>
+		/// <param name="registrationNumber">Гос номер</param>
+		/// <param name="vin">VIN</param>
+		/// <param name="chassisNumber">Номер шасси</param>
+		/// <returns>Коллекцию с именем дублирующего поля</returns>
+		IEnumerable<string> GetDuplicateFields(
+			IUnitOfWork uow,
+			int id,
+			string registrationNumber,
+			string vin,
+			string chassisNumber);
+
+		/// <summary>
+		/// Проверяет, есть ли у автомобиля ненулевые остатки ТМЦ
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="carId">Идентификатор автомобиля</param>
+		/// <returns>True - за автомобилем числятся ненулевые остатки, иначе - False</returns>
+		bool HasNonZeroBalance(IUnitOfWork uow, int carId);
 	}
 }

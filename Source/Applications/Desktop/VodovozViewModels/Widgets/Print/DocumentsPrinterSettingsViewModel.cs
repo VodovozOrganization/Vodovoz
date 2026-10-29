@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using Core.Infrastructure;
+using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
@@ -7,7 +8,6 @@ using System;
 using System.Linq;
 using Vodovoz.Core.Domain.PrintableDocuments;
 using Vodovoz.Core.Domain.Users.Settings;
-using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Print;
 
 namespace Vodovoz.ViewModels.Widgets.Print

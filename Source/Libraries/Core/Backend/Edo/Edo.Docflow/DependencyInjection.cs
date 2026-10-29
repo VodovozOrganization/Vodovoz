@@ -1,6 +1,8 @@
-﻿using Edo.Docflow.Factories;
+﻿using System;
+using Edo.Docflow.Factories;
 using Edo.Docflow.Handlers;
 using Edo.Transport;
+using Edo.Transport.Factories;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -16,7 +18,9 @@ namespace Edo.Docflow
 		{
 			services.TryAddScoped(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
-			services.TryAddScoped<DocflowHandler>();
+			services.TryAddScoped<DocflowStatusUpdateHandler>();
+			services.TryAddScoped<DocflowSendHandler>();
+			services.TryAddScoped<DocflowCancellationHandler>();
 			services.TryAddScoped<OrderUpdInfoFactory>();
 			services.TryAddScoped<TransferOrderUpdInfoFactory>();
 			services.TryAddScoped<InfoForCreatingEdoEquipmentTransferFactory>();
@@ -24,19 +28,41 @@ namespace Edo.Docflow
 			services.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 			services.TryAddScoped<IInformalOrderDocumentHandlerFactory, InformalOrderDocumentHandlerFactory>();
 			services.TryAddScoped<IInformalOrderDocumentHandler, EquipmentTransferDocumentHandler>();
+			services.AddFaultServices();
 			
 			return services;
 		}
-
-		public static IServiceCollection AddEdoDocflow(this IServiceCollection services)
+		public static IServiceCollection AddEdoDocflow(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoDocflowServices();
 
-			services.AddEdoMassTransit(configureBus: cfg =>
-			{
-				cfg.AddConsumers(Assembly.GetExecutingAssembly());
-			});
+			services.AddEdoMassTransit(
+				configureRabbit: (context, rabbitCfg) =>
+				{
+					// Обязателен, не отключать не сделав отправку сообщений после коммита
+					rabbitCfg.UseInMemoryOutbox();
+				},
+				configureBus: cfg =>
+				{
+					cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
 
+					configureBus?.Invoke(cfg);
+				}
+			);
+
+			services.AddEdoNotifications();
+
+			return services;
+		}
+
+		public static IServiceCollection AddFaultServices(this IServiceCollection services)
+		{
+			services.TryAddScoped<FaultOrderDocumentSendExceptionHandler>();
+			services.TryAddScoped<FaultTransferDocumentSendExceptionHandler>();
+			services.TryAddScoped<IMassTransitExceptionInfoFactory, MassTransitExceptionInfoFactory>();
+			
 			return services;
 		}
 	}

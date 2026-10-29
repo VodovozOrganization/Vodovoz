@@ -36,9 +36,11 @@ namespace Vodovoz.Views.Edo
 		{
 			base.ConfigureWidget();
 
-			if(ViewModel == null)
+			CloseStageView();
+
+			if(ViewModel?.StageViewModel != null)
 			{
-				CloseStageView();
+				ShowStage();
 			}
 		}
 
@@ -75,6 +77,30 @@ namespace Vodovoz.Views.Edo
 					var transferView = new EdoInOrderTransferStageView();
 					transferView.ViewModel = transfer;
 					return transferView;
+				case EdoInOrderReceiptSendStageViewModel receiptSend:
+					var receiptSendView = new EdoInOrderReceiptSendStageView();
+					receiptSendView.ViewModel = receiptSend;
+					return receiptSendView; 
+				case EdoInOrderDocflowsStageViewModel docflows:
+					var docflowsView = new EdoInOrderDocflowsStageView();
+					docflowsView.ViewModel = docflows;
+					return docflowsView;
+				case EdoInOrderDistributionStageViewModel distribution:
+					var distributionView = new EdoInOrderDistributionStageView();
+					distributionView.ViewModel = distribution;
+					return distributionView;
+				case EdoInOrderSavedToPoolStageViewModel savedToPool:
+					var savedToPoolView = new EdoInOrderSavedToPoolStageView();
+					savedToPoolView.ViewModel = savedToPool;
+					return savedToPoolView;
+				case EdoInOrderTenderSendingStageViewModel tenderSending:
+					var tenderSendingView = new EdoInOrderTenderSendingStageView();
+					tenderSendingView.ViewModel = tenderSending;
+					return tenderSendingView;
+				case EdoInOrderTenderManualUploadedStageViewModel tenderManualUploaded:
+					var tenderManualUploadedView = new EdoInOrderTenderManualUploadedStageView();
+					tenderManualUploadedView.ViewModel = tenderManualUploaded;
+					return tenderManualUploadedView;
 				default:
 					throw new NotSupportedException($"Не поддерживаемый тип стадии: {ViewModel.StageViewModel.GetType()}");
 			}
@@ -82,8 +108,14 @@ namespace Vodovoz.Views.Edo
 
 		private void CloseStageView()
 		{
+			if(_stageView == null)
+			{
+				return;
+			}
+
 			yhboxDocumentStage.Remove(_stageView);
-			_stageView?.Destroy();
+			_stageView.Destroy();
+			_stageView = null;
 		}
 	}
 }

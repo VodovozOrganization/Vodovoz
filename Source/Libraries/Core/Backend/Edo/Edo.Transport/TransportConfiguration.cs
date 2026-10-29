@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using System;
 using System.Net.Security;
+using System.Reflection;
 using System.Security.Authentication;
 using Edo.Contracts.Messages.Events;
 using Vodovoz.Settings.Pacs;
@@ -68,7 +69,6 @@ namespace Edo.Transport
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
-
 			
 			cfg.Message<TransferDocumentAcceptedEvent>(x => x.SetEntityName("edo.transfer-document-accepted.publish"));
 			cfg.Publish<TransferDocumentAcceptedEvent>(x =>
@@ -307,20 +307,29 @@ namespace Edo.Transport
 					});
 
 					rabbitCfg.AddEdoTopology(context);
-
 					configureRabbit?.Invoke(context, rabbitCfg);
 
 					rabbitCfg.ConfigureEndpoints(context);
 				});
 			});
 
-			services.AddScoped<MessageService>();
+			services.AddScoped<IEdoRequestCreatedEventPublisher, EdoRequestCreatedEventPublisher>();
+			services.AddScoped<IOrderEdoTaskCreatedEventPublisher, OrderEdoTaskCreatedEventPublisher>();
 
 			return services;
 		}
 
 		public static void AddTaxcomEdoTopology(this IRabbitMqBusFactoryConfigurator cfg)
 		{
+			cfg.Send<TaxcomDocflowInformalDocumentSendEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
+			cfg.Message<TaxcomDocflowInformalDocumentSendEvent>(x => x.SetEntityName($"{TaxcomDocflowInformalDocumentSendEvent.Event}.publish"));
+			cfg.Publish<TaxcomDocflowInformalDocumentSendEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Direct;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
 			cfg.Send<TaxcomDocflowSendEvent>(x => x.UseRoutingKeyFormatter(y => y.Message.EdoAccount));
 			cfg.Message<TaxcomDocflowSendEvent>(x => x.SetEntityName($"{TaxcomDocflowSendEvent.Event}.publish"));
 			cfg.Publish<TaxcomDocflowSendEvent>(x =>

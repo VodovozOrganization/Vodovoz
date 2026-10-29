@@ -26,5 +26,17 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public TimeSpan ReceiptSendPauseEndTime => _settingsController
 			.GetValue<TimeSpan>("edo.receipt.send_pause_end_time");
+
+		/// <inheritdoc/>
+		public TimeSpan ReceiptQueueNotificationWorkerInterval => _settingsController
+			.GetValue<TimeSpan>("edo.receipt.queue_notification_worker_interval");
+
+		/// <inheritdoc/>
+		public TimeSpan ReceiptQueueNotificationRepeatInterval => _settingsController
+			.GetValue<TimeSpan>("edo.receipt.queue_notification_repeat_interval");
+
+		/// <inheritdoc/>
+		public int ReceiptQueueNotificationLookbackDays => _settingsController
+			.GetIntValue("edo.receipt.queue_notification_lookback_days");
 	}
 }

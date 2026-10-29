@@ -77,6 +77,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
 		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
+		private NomenclatureOnlineParameters _aiBotNomenclatureOnlineParameters;
 		private bool _needCheckOnlinePrices;
 		private bool _isMagnetGlassHolderSelected;
 		private bool _isScrewGlassHolderSelected;
@@ -285,6 +286,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			get => _kulerSaleWebSiteNomenclatureOnlineParameters;
 			set => SetField(ref _kulerSaleWebSiteNomenclatureOnlineParameters, value);
+		}
+		
+		public NomenclatureOnlineParameters AiBotNomenclatureOnlineParameters
+		{
+			get => _aiBotNomenclatureOnlineParameters;
+			set => SetField(ref _aiBotNomenclatureOnlineParameters, value);
 		}
 
 		public RobotMiaParameters RobotMiaParameters
@@ -593,6 +600,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 			VodovozWebSiteNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
 				CreateNomenclatureOnlinePrice(price, GoodsOnlineParameterType.ForVodovozWebSite));
+			
+			AiBotNomenclatureOnlineParameters.AddNewNomenclatureOnlinePrice(
+				CreateNomenclatureOnlinePrice(price, GoodsOnlineParameterType.ForAiBot));
 
 			_needCheckOnlinePrices = true;
 		}
@@ -607,20 +617,36 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		public void RemoveNotKulerSalePrices(NomenclaturePrice price)
 		{
-			var mobileAppPrice = price.Id == 0
-				? MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices
-					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price))
-				: MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices
+			NomenclatureOnlinePrice mobileAppPrice = null;
+			NomenclatureOnlinePrice vodovozWebSitePrice = null;
+			NomenclatureOnlinePrice aiBotPrice = null;
+
+			if(price.Id == 0)
+			{
+				mobileAppPrice = MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price));
+
+				vodovozWebSitePrice = VodovozWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price));
+
+				aiBotPrice = AiBotNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price));
+			}
+			else
+			{
+				mobileAppPrice = MobileAppNomenclatureOnlineParameters.NomenclatureOnlinePrices
 					.SingleOrDefault(x => x.NomenclaturePrice.Id == price.Id);
 
-			var vodovozWebSitePrice = price.Id == 0
-				? VodovozWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
-					.SingleOrDefault(x => x.NomenclaturePrice.Equals(price))
-				: VodovozWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
+				vodovozWebSitePrice = VodovozWebSiteNomenclatureOnlineParameters.NomenclatureOnlinePrices
 					.SingleOrDefault(x => x.NomenclaturePrice.Id == price.Id);
+
+				aiBotPrice = AiBotNomenclatureOnlineParameters.NomenclatureOnlinePrices
+					.SingleOrDefault(x => x.NomenclaturePrice.Id == price.Id);
+			}
 
 			MobileAppNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(mobileAppPrice);
 			VodovozWebSiteNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(vodovozWebSitePrice);
+			AiBotNomenclatureOnlineParameters.RemoveNomenclatureOnlinePrice(aiBotPrice);
 
 			UpdateNomenclatureOnlinePricesNodes();
 		}
@@ -829,6 +855,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
 			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
 			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
+			AiBotNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(GoodsOnlineParameterType.ForAiBot);
 
 			RobotMiaParameters = _robotMiaParametersRepository
 				.Get(UoW, x => x.NomenclatureId == Entity.Id)
@@ -889,6 +916,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 							CreateNomenclatureOnlinePrice(
 								alternativeNomenclaturePrice,
 								GoodsOnlineParameterType.ForKulerSaleWebSite));
+					}
+					break;
+				case GoodsOnlineParameterType.ForAiBot:
+					parameters = new AiBotNomenclatureOnlineParameters();
+
+					foreach(var nomenclaturePrice in Entity.NomenclaturePrice)
+					{
+						parameters.AddNewNomenclatureOnlinePrice(
+							CreateNomenclatureOnlinePrice(
+								nomenclaturePrice,
+								GoodsOnlineParameterType.ForAiBot));
 					}
 					break;
 			}
@@ -955,6 +993,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 									KulerSaleWebSiteNomenclatureOnlinePrice = onlinePrice
 								};
 								break;
+							case GoodsOnlineParameterType.ForAiBot:
+								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
+								{
+									AiBotNomenclatureOnlinePrice = onlinePrice
+								};
+								break;
 						}
 
 						var minCount = onlinePrice.NomenclaturePrice.MinCount;
@@ -973,6 +1017,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 								break;
 							case GoodsOnlineParameterType.ForKulerSaleWebSite:
 								nomenclatureOnlinePricesNode.KulerSaleWebSiteNomenclatureOnlinePrice = onlinePrice;
+								break;
+							case GoodsOnlineParameterType.ForAiBot:
+								nomenclatureOnlinePricesNode.AiBotNomenclatureOnlinePrice = onlinePrice;
 								break;
 						}
 					}
@@ -1067,7 +1114,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		private void EditGtins()
 		{
-			_gtinsJornalViewModel = NavigationManager.OpenViewModel<GtinJournalViewModel, Nomenclature>(this, Entity, OpenPageOptions.AsSlave).ViewModel;
+			_gtinsJornalViewModel = NavigationManager
+				.OpenViewModel<GtinJournalViewModel, Nomenclature>(this, Entity, OpenPageOptions.AsSlave)
+				.ViewModel;
 
 			_gtinsJornalViewModel.TabClosed -= OnGtinsJournalClosed;
 			_gtinsJornalViewModel.TabClosed += OnGtinsJournalClosed;
@@ -1075,7 +1124,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		private void EditGroupGtins()
 		{
-			_groupGtinsJornalViewModel = NavigationManager.OpenViewModel<GroupGtinJournalViewModel>(this, OpenPageOptions.AsSlave).ViewModel;
+			_groupGtinsJornalViewModel = NavigationManager
+				.OpenViewModel<GroupGtinJournalViewModel>(this, OpenPageOptions.AsSlave)
+				.ViewModel;
 			_groupGtinsJornalViewModel.Nomenclature = Entity;
 
 			_groupGtinsJornalViewModel.TabClosed -= OnGroupGtinsJournalClosed;

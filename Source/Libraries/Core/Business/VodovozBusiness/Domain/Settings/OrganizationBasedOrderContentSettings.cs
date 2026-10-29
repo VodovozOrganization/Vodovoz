@@ -18,6 +18,11 @@ namespace VodovozBusiness.Domain.Settings
 	/// </summary>
 	public class OrganizationBasedOrderContentSettings : PropertyChangedBase, IOrganizations, IDomainObject, IValidatableObject
 	{
+		/// <summary>
+		/// Номер множества, товары которого продаются от организации Кулер Сервис
+		/// </summary>
+		public const short KulerServiceOrderContentSet = 1;
+
 		private short _orderContentSet;
 		private IObservableList<Organization> _organizations = new ObservableList<Organization>();
 		

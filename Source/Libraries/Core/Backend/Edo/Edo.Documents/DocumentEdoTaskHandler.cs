@@ -31,7 +31,7 @@ namespace Edo.Documents
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly EdoCancellationService _edoCancellationService;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public DocumentEdoTaskHandler(
 			ILogger<DocumentEdoTaskHandler> logger,
@@ -43,7 +43,7 @@ namespace Edo.Documents
 			EdoProblemRegistrar edoProblemRegistrar,
 			EdoCancellationService edoCancellationService,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
-			IBus messageBus
+			IPublishEndpoint publishEndpoint
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -55,7 +55,7 @@ namespace Edo.Documents
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		// handle new
@@ -68,11 +68,15 @@ namespace Edo.Documents
 		{
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
 
-			if(edoTask == null)
+			if(edoTask is null)
 			{
 				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не найдена", documentEdoTaskId);
 				return;
 			}
+
+			edoTask.UpdateWaitingProcessingTaskCreatedEvent(false);
+			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 
 			if(edoTask.Stage != DocumentEdoTaskStage.New)
 			{
@@ -80,7 +84,7 @@ namespace Edo.Documents
 				return;
 			}
 
-			if(edoTask.FormalEdoRequest == null)
+			if(edoTask.FormalEdoRequest is null)
 			{
 				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не имеет связи с ЭДО заявкой", documentEdoTaskId);
 				return;
@@ -130,11 +134,11 @@ namespace Edo.Documents
 				if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 				{
 					var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
-				
+
 					await _edoCancellationService.CancelTask(documentEdoTaskId, reason, false, cancellationToken);
 					return;
 				}
-				
+
 				var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 				var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 				if(!isValid)
@@ -217,10 +221,10 @@ namespace Edo.Documents
 			edoTask.Status = EdoTaskStatus.InProgress;
 
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			var message = new OrderDocumentSendEvent { OrderDocumentId = customerDocument.Id };
-			await _messageBus.Publish(message, cancellationToken);
+			await _publishEndpoint.Publish(message, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		private bool IsFormalDocument(DocumentEdoTask edoTask)
@@ -262,21 +266,21 @@ namespace Edo.Documents
 		public async Task HandleTransfered(int transferIterationId, CancellationToken cancellationToken)
 		{
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
-			if(transferIteration == null)
+			if(transferIteration is null)
 			{
 				_logger.LogInformation("Итерация трансфера Id {TransferIterationId} не найдена", transferIterationId);
 				return;
 			}
 
 			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
-			if(edoTask == null)
+			if(edoTask is null)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
 					"так как задача Id {DocumentEdoTaskId} не найдена", transferIteration.OrderEdoTask.Id);
 				return;
 			}
 
-			if(edoTask.FormalEdoRequest == null)
+			if(edoTask.FormalEdoRequest is null)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
 					"так как задача Id {DocumentEdoTaskId} не связана ни с одной клиенсткой заявкой", 
@@ -284,7 +288,7 @@ namespace Edo.Documents
 				return;
 			}
 
-			if(edoTask.Status == EdoTaskStatus.Completed)
+			if(edoTask.Status is EdoTaskStatus.Completed)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
 					"так как задача Id {DocumentEdoTaskId} уже завершена", edoTask.Id);
@@ -372,15 +376,35 @@ namespace Edo.Documents
 		// Changed to: Sent
 		// [событие от docflow]
 		// (проверяет отправлен ли документ)
-		public async Task HandleSent(int documentEdoTaskId, CancellationToken cancellationToken)
+		public async Task HandleSent(int edoDocumentId, CancellationToken cancellationToken)
 		{
-			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
+			const string sentEvent = "события отправки документа";
+			
+			_logger.LogInformation("Обработка {SentEvent} по документу {EdoDocumentId}", sentEvent, edoDocumentId);
+			
+			var document = await _uow.Session.GetAsync<OrderEdoDocument>(edoDocumentId, cancellationToken);
+			if(document is null)
+			{
+				_logger.LogWarning("Документ №{EdoDocumentId} не найден", edoDocumentId);
+				return;
+			}
+			
+			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
+
+			// Повторное или запоздавшее событие отправки не должно откатить уже принятый документ
+			if(edoTask.Stage == DocumentEdoTaskStage.Completed)
+			{
+				_logger.LogWarning("Задача ЭДО {EdoTaskId} уже завершена, {SentEvent} по документу {EdoDocumentId} пропущено",
+					edoTask.Id, sentEvent, edoDocumentId);
+				return;
+			}
 
 			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 			{
+				_logger.LogWarning("Проблема с составом заказа при обработке {SentEvent} по документу {EdoDocumentId}", sentEvent, edoDocumentId);
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
-				await _edoCancellationService.CancelTask(documentEdoTaskId, reason, false, cancellationToken);
+				await _edoCancellationService.CancelTask(edoTask.Id, reason, false, cancellationToken);
 				return;
 			}
 			
@@ -388,6 +412,8 @@ namespace Edo.Documents
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
+				_logger.LogWarning("Не прошли валидацию {SentEvent} по документу {EdoDocumentId} таске {EdoTaskId}",
+					sentEvent, edoDocumentId, edoTask.Id);
 				return;
 			}
 
@@ -397,6 +423,9 @@ namespace Edo.Documents
 
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
+			_logger.LogInformation(
+				"Закончили обработку {SentEvent} по документу {EdoDocumentId} таске {EdoTaskId}",
+				sentEvent, edoDocumentId, edoTask.Id);
 		}
 
 		private void SentDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
@@ -413,24 +442,30 @@ namespace Edo.Documents
 		public async Task HandleAccepted(int documentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken);
-			if(document == null)
+			if(document is null)
 			{
 				_logger.LogWarning("Документ №{DocumentId} не найден.", documentId);
 				return;
 			}
 
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
-			if(edoTask == null)
+			if(edoTask is null)
 			{
 				_logger.LogWarning("Задача ЭДО №{DocumentEdoTaskId} не найдена.", document.DocumentTaskId);
+				return;
+			}
+
+			if(edoTask.FormalEdoRequest is null)
+			{
+				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не имеет связи с ЭДО заявкой", document.DocumentTaskId);
 				return;
 			}
 
 			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
-				
 				await _edoCancellationService.CancelTask(document.DocumentTaskId, reason, false, cancellationToken);
+
 				return;
 			}
 			
@@ -460,7 +495,7 @@ namespace Edo.Documents
 
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken);
 
-			if(document == null)
+			if(document is null)
 			{
 				_logger.LogError("При обработке отмены документа №{DocumentId} не найден документ.", documentId);
 			}

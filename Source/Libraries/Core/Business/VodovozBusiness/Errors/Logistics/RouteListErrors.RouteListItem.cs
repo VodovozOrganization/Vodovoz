@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Core.Infrastructure;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Extensions;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Errors.Logistics
 {
@@ -101,15 +102,36 @@ namespace Vodovoz.Errors.Logistics
 				$"Адрес #{routeListItemId} \"{routeListItemShortAddress}\" сам перенесен в МЛ №{transferedToRouteListId}." +
 				$" Отмена этого переноса не возможна. Сначала необходимо отменить перенос в МЛ #{transferedToRouteListId}.");
 
-			public static Error InvalidTransferType => new Error(
+			public static Error AlreadySelectedAsNext => new Error(
 				typeof(RouteListItem),
-				nameof(InvalidTransferType),
-				"Не поддерживаемый тип переноса");
+				nameof(AlreadySelectedAsNext),
+				"Данный адрес уже выбран следующим");
+
+			public static Error NextAddressSameAsUncompletedPrevious => new Error(
+					typeof(RouteListItem),
+					nameof(NextAddressSameAsUncompletedPrevious),
+					"Следующий адрес совпадает с предыдущим незавершенным адресом");
+
+			public static Error InvalidTransferType => new Error(
+					typeof(RouteListItem),
+					nameof(InvalidTransferType),
+					"Не поддерживаемый тип переноса");
 
 			public static Error CreateInvalidOrderTransferType(int orderId) => new Error(
 				typeof(RouteListItem),
 				nameof(InvalidTransferType),
 				$"Не поддерживаемый тип переноса заказа #{orderId}");
+
+			public static Error InvalidOrderStatusForTransfer => new Error(
+				typeof(RouteListItem),
+				nameof(InvalidOrderStatusForTransfer),
+				$"Перенести в маршрутный лист можно только заказ в статусе \"{OrderStatus.Accepted.GetEnumDisplayName()}\"");
+
+			public static Error CreateInvalidOrderStatusForTransfer(int orderId, OrderStatus orderStatus) => new Error(
+				typeof(RouteListItem),
+				nameof(InvalidOrderStatusForTransfer),
+				$"Заказ #{orderId} находится в статусе \"{orderStatus.GetEnumDisplayName()}\"." +
+				$" Перенести в маршрутный лист можно только заказ в статусе \"{OrderStatus.Accepted.GetEnumDisplayName()}\". Обновите данные.");
 
 			public static Error OrdersWithCreatedUpdNeedToReload => new Error(
 				typeof(RouteListItem),

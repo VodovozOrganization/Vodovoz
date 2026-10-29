@@ -1,12 +1,16 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
+using Gtk;
 using QS.Views.GtkUI;
 using System;
+using System.ComponentModel;
 using Vodovoz.ViewModels.Edo;
 namespace Vodovoz.Views.Edo
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EdoInOrderTransferStageView : WidgetViewBase<EdoInOrderTransferStageViewModel>
 	{
+		private Widget _stageView;
+
 		public EdoInOrderTransferStageView()
 		{
 			this.Build();
@@ -16,14 +20,12 @@ namespace Vodovoz.Views.Edo
 		{
 			base.ConfigureWidget();
 
+			var monospacedFont = Pango.FontDescription.FromString("Consolas 9");
+
 			ytreeviewTransferTasks.ColumnsConfig = FluentColumnsConfig<EdoInOrderTransferRowViewModel>.Create()
 				.AddColumn("Время")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.TimeString).Editable(false)
-					.XAlign(0.5f)
-				.AddColumn("Попытка")
-					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(x => x.AttemptNumber).Editing(false)
 					.XAlign(0.5f)
 				.AddColumn("Откуда")
 					.HeaderAlignment(0.5f)
@@ -47,10 +49,14 @@ namespace Vodovoz.Views.Edo
 				.InitializeFromSource();
 
 			ytreeviewTransferedCodes.ColumnsConfig = FluentColumnsConfig<string>.Create()
-				.AddColumn("КМ")
+				.AddColumn("Перемещаемые коды")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x).Editable(false)
-					.XAlign(0.5f)
+					.AddSetter((c, node) => {
+						c.Xpad = 5;
+						c.FontDesc = monospacedFont;
+					})
+					.XAlign(0f)
 				.Finish();
 			ytreeviewTransferedCodes.Binding
 				.AddSource(ViewModel)
@@ -72,6 +78,95 @@ namespace Vodovoz.Views.Edo
 				.InitializeFromSource();
 
 			yhboxTransferContent.HeightRequest = 140;
+
+			yhboxTransferTasks.Binding
+				.AddBinding(ViewModel, vm => vm.HasTransfers, w => w.Visible)
+				.InitializeFromSource();
+
+			yhboxTransferContent.Binding
+				.AddBinding(ViewModel, vm => vm.HasTransfers, w => w.Visible)
+				.InitializeFromSource();
+
+			ylabelNoTransfers.Binding
+				.AddSource(ViewModel)
+				.AddFuncBinding(vm => !vm.HasTransfers, w => w.Visible)
+				.AddBinding(vm => vm.NoTransfersMessage, w => w.LabelProp)
+				.InitializeFromSource();
+
+			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+			
+			if(ViewModel.TransferStageViewModel != null)
+			{
+				ShowStage();
+			}
+		}
+
+		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(EdoInOrderTransferStageViewModel.TransferStageViewModel))
+			{
+				ShowStage();
+			}
+		}
+
+		private void ShowStage()
+		{
+			CloseStageView();
+			_stageView = ResolveStageView();
+			if(_stageView != null)
+			{
+				yhboxTransferStage.PackStart(_stageView);
+				_stageView.Show();
+			}
+		}
+
+		private Widget ResolveStageView()
+		{
+			if(ViewModel.TransferStageViewModel == null)
+			{
+				CloseStageView();
+				return null;
+			}
+
+			switch(ViewModel.TransferStageViewModel)
+			{
+				case EdoInOrderDocflowsStageViewModel docflows:
+					var transferView = new EdoInOrderDocflowsStageView();
+					transferView.ViewModel = docflows;
+					return transferView;
+				case EdoInOrderTransferWaitingRequestsStageViewModel waitingRequests:
+					var waitingRequestsView = new EdoInOrderTransferWaitingRequestsStageView();
+					waitingRequestsView.ViewModel = waitingRequests;
+					return waitingRequestsView;
+				case EdoInOrderTransferPreparingStageViewModel preparing:
+					var preparingView = new EdoInOrderTransferPreparingStageView();
+					preparingView.ViewModel = preparing;
+					return preparingView;
+				default:
+					throw new NotSupportedException($"Не поддерживаемый тип стадии: " +
+						$"{ViewModel.TransferStageViewModel.GetType()}");
+			}
+		}
+
+		private void CloseStageView()
+		{
+			if(_stageView == null)
+			{
+				return;
+			}
+
+			yhboxTransferStage.Remove(_stageView);
+			_stageView.Destroy();
+			_stageView = null;
+		}
+
+		protected override void OnDestroyed()
+		{
+			if(ViewModel != null)
+			{
+				ViewModel.PropertyChanged -= ViewModelPropertyChanged;
+			}
+			base.OnDestroyed();
 		}
 	}
 }

@@ -1,10 +1,18 @@
-﻿using QS.Project.DB;
+﻿using System;
+using System.Globalization;
+using QS.Project.DB;
 using Vodovoz.Settings.Mango;
 
 namespace Vodovoz.Settings.Database.Mango
 {
 	public class MangoSettings : IMangoSettings
 	{
+		private const string _deactivationLastRunDateSettingName = "Mango.DriverMangoEmployeeDeactivationLastRunDate";
+		private const string _registrationEnabledSettingName = "Mango.DriverMangoEmployeeRegistrationEnabled";
+		private const string _registrationEnabledChangedAtSettingName = "Mango.DriverMangoEmployeeRegistrationEnabledChangedAt";
+		private const string _registrationSwitchTimeoutSettingName = "Mango.DriverMangoEmployeeRegistrationSwitchTimeout";
+		private const string _dateTimeSettingFormat = "yyyy-MM-dd HH:mm:ss";
+
 		private readonly ISettingsController _settingsController;
 		private readonly IDataBaseInfo _dataBaseInfo;
 
@@ -85,5 +93,129 @@ namespace Vodovoz.Settings.Database.Mango
 		public int GrpcKeepAliveTimeoutMs => _settingsController.GetIntValue("Mango.Grpc.KeepAliveTimeoutMs");
 		public bool GrpcKeepAlivePermitWithoutCalls => _settingsController.GetBoolValue("Mango.Grpc.KeepAlivePermitWithoutCalls");
 		public int GrpcMaxPingWithoutData => _settingsController.GetIntValue("Mango.Grpc.MaxPingWithoutData");
+
+		public string DriversCallsLineNumber
+		{
+			get
+			{
+				if(TestMode)
+				{
+					return _settingsController.GetStringValue("Mango.Test.DriversCallsLineNumber");
+				}
+				return _settingsController.GetStringValue("Mango.Work.DriversCallsLineNumber");
+			}
+		}
+
+		public string VpbxApiUrl
+		{
+			get
+			{
+				if(TestMode)
+				{
+					return _settingsController.GetStringValue("Mango.Test.VpbxApiUrl");
+				}
+				return _settingsController.GetStringValue("Mango.Work.VpbxApiUrl");
+			}
+		}
+
+		public string DriverAccessRoleId
+		{
+			get
+			{
+				if(TestMode)
+				{
+					return _settingsController.GetStringValue("Mango.Test.DriverAccessRoleId");
+				}
+				return _settingsController.GetStringValue("Mango.Work.DriverAccessRoleId");
+			}
+		}
+
+		public string DriverLineId
+		{
+			get
+			{
+				if(TestMode)
+				{
+					return _settingsController.GetStringValue("Mango.Test.DriverLineId");
+				}
+				return _settingsController.GetStringValue("Mango.Work.DriverLineId");
+			}
+		}
+
+		public long DriversGroupId
+		{
+			get
+			{
+				if(TestMode)
+				{
+					return _settingsController.GetValue<long>("Mango.Test.DriversGroupId");
+				}
+				return _settingsController.GetValue<long>("Mango.Work.DriversGroupId");
+			}
+		}
+
+		public int DriverMangoExtensionNumberPoolStart =>
+			_settingsController.GetValue<int>("Mango.DriverMangoExtensionNumberPoolStart");
+
+		public int DriverMangoExtensionNumberPoolEnd =>
+			_settingsController.GetValue<int>("Mango.DriverMangoExtensionNumberPoolEnd");
+
+		public int DriversCallTimeOut =>
+			_settingsController.GetIntValue("Mango.DriversCallTimeOut");
+
+		public string DriverCallForwardingPhoneNumber =>
+			_settingsController.GetStringValue("Mango.DriverCallForwardingPhoneNumber");
+
+		public int DriverPhoneNumberWaitSeconds =>
+			_settingsController.GetIntValue("Mango.DriverPhoneNumberWaitSeconds");
+
+		public int DriverCallForwardingPhoneNumberWaitSeconds =>
+			_settingsController.GetIntValue("Mango.DriverCallForwardingPhoneNumberWaitSeconds");
+
+		public bool DriverMangoEmployeeDeactivationWorkerEnabled =>
+			_settingsController.GetBoolValue("Mango.DriverMangoEmployeeDeactivationWorkerEnabled");
+
+		public TimeSpan DriverMangoEmployeeRegistrationInterval =>
+			_settingsController.GetValue<TimeSpan>("Mango.DriverMangoEmployeeRegistrationInterval");
+
+		public TimeSpan DriverMangoEmployeeDeactivationInterval =>
+			_settingsController.GetValue<TimeSpan>("Mango.DriverMangoEmployeeDeactivationInterval");
+
+		public TimeSpan DriverMangoEmployeeDeactivationRunTime =>
+			_settingsController.GetValue<TimeSpan>("Mango.DriverMangoEmployeeDeactivationRunTime");
+
+		public DateTime DriverMangoEmployeeDeactivationLastRunDate =>
+			_settingsController.GetDateTimeValue(_deactivationLastRunDateSettingName, CultureInfo.InvariantCulture);
+
+		public bool DriverMangoEmployeeRegistrationEnabled =>
+			_settingsController.GetBoolValue(_registrationEnabledSettingName);
+
+		public DateTime DriverMangoEmployeeRegistrationEnabledChangedAt =>
+			_settingsController.GetDateTimeValue(_registrationEnabledChangedAtSettingName, CultureInfo.InvariantCulture);
+
+		public TimeSpan DriverMangoEmployeeRegistrationSwitchTimeout =>
+			_settingsController.GetValue<TimeSpan>(_registrationSwitchTimeoutSettingName);
+
+		public bool IsDriverMangoEmployeeRegistrationActive =>
+			DriverMangoEmployeeRegistrationEnabled
+			&& DriverMangoEmployeeDeactivationLastRunDate > DriverMangoEmployeeRegistrationEnabledChangedAt.Date;
+
+		public void UpdateDriverMangoEmployeeDeactivationLastRunDate(DateTime lastRunDate)
+		{
+			_settingsController.CreateOrUpdateSetting(
+				_deactivationLastRunDateSettingName,
+				lastRunDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+		}
+
+		public void UpdateDriverMangoEmployeeRegistrationEnabled(bool enabled, DateTime changedAt)
+		{
+			_settingsController.CreateOrUpdateSetting(
+				_registrationEnabledSettingName,
+				enabled.ToString());
+
+			_settingsController.CreateOrUpdateSetting(
+				_registrationEnabledChangedAtSettingName,
+				changedAt.ToString(_dateTimeSettingFormat, CultureInfo.InvariantCulture));
+		}
 	}
 }

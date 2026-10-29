@@ -145,6 +145,11 @@ namespace Vodovoz.Views
 				return;
 			}
 
+			if(!ViewModel.ConfirmPaymentsWithoutPayerInnUpload())
+			{
+				return;
+			}
+
 			ViewModel.IsSavingState = true;
 			UpdateProgress("Начинаем сохранение...", 0);
 
@@ -172,7 +177,7 @@ namespace Vodovoz.Views
 							foreach(var paymentItem in payment.Items)
 							{
 								var order = uow.GetById<Order>(paymentItem.Order.Id);
-								order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+								order.UpdateOrderPaymentStatus(OrderPaymentStatus.Paid, order.PaymentType);
 							}
 							ViewModel.CreateOperations(uow, payment);
 						}

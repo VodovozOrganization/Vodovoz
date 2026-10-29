@@ -1,10 +1,11 @@
-using Autofac;
+﻿using Autofac;
 using QS.Dialog.GtkUI;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Report;
 using QS.Report.ViewModels;
 using System;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Orders;
@@ -20,6 +21,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Edo;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Edo.Deviations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Logistic;
@@ -268,13 +270,26 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<EdoProcessJournalViewModel>(null);
 	}
-	
+
+	protected void OnActionEdoDiscrepancyJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoDiscrepancyJournalViewModel>(null);
+	}
+
 	/// <summary>
 	/// Журнал проблем документооборота с клиентами
 	/// </summary>
 	protected void OnActionEdoProblemJournalActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<EdoProblemJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Журнал отклонений документооборота ЭДО
+	/// </summary>
+	protected void OnActionEdoDeviationJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoDeviationJournalViewModel>(null);
 	}
 
 	#endregion Честный знак

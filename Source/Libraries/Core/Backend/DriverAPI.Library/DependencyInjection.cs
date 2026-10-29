@@ -1,5 +1,6 @@
 ﻿using DriverApi.Notifications.Client;
 using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Services;
 using DriverAPI.Library.V6.Services;
 using Edo.Transport;
 using EventsApi.Library;
@@ -7,16 +8,22 @@ using EventsApi.Library.Models;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Osrm;
 using System.Linq;
+using TrueMark.Codes.Pool;
 using Vodovoz;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
+using Vodovoz.Settings.Database.Logistics;
+using Vodovoz.Settings.Logistics;
 using VodovozBusiness.Services.TrueMark;
+using TrueMark.Codes.Pool;
 using DriverComplaintServiceV5 = DriverAPI.Library.V5.Services.DriverComplaintService;
 using DriverMobileAppActionRecordServiceV5 = DriverAPI.Library.V5.Services.DriverMobileAppActionRecordService;
 using EmployeeServiceV5 = DriverAPI.Library.V5.Services.EmployeeService;
@@ -33,8 +40,12 @@ using OrderServiceV5 = DriverAPI.Library.V5.Services.OrderService;
 using RouteListServiceV5 = DriverAPI.Library.V5.Services.RouteListService;
 using SmsPaymentServiceV5 = DriverAPI.Library.V5.Services.SmsPaymentService;
 using TrackPointsServiceV5 = DriverAPI.Library.V5.Services.TrackPointsService;
-using Osrm;
-using Vodovoz.Core.Application;
+using DriverApiLibraryV7 = DriverAPI.Library.V7.Services;
+using Mango.Vpbx.Client;
+using VodovozBusiness.Models.TrueMark;
+using TransactionalOutbox.MassTransit;
+using MassTransit;
+using System;
 
 namespace DriverAPI.Library
 {
@@ -47,8 +58,13 @@ namespace DriverAPI.Library
 		/// Добавление сервисов библиотеки
 		/// </summary>
 		/// <param name="services"></param>
+		/// <param name="configuration"></param>
+		/// <param name="configureBus">Настройка шины в приложении: outbox MassTransit (AddVodovozOutbox)</param>
 		/// <returns></returns>
-		public static IServiceCollection AddDriverApiLibrary(this IServiceCollection services, IConfiguration configuration)
+		public static IServiceCollection AddDriverApiLibrary(
+			this IServiceCollection services,
+			IConfiguration configuration,
+			Action<IBusRegistrationConfigurator> configureBus)
 		{
 			// Конвертеры
 			foreach(var type in typeof(DependencyInjection)
@@ -63,10 +79,15 @@ namespace DriverAPI.Library
 
 			// Хелперы
 			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>()
-				.AddScoped<IActionTimeHelper, ActionTimeHelper>();
+				.AddScoped<IActionTimeHelper, ActionTimeHelper>()
+				.AddScoped<IDriverApiSettings, DriverApiSettings>()
+				.AddTrueMarkCodesCheckDependencies();
+
+			services.AddScoped<IDriverAuthenticationService, DriverAuthenticationService>();
 
 			services.AddVersion5();
 			services.AddVersion6();
+			services.AddVersion7();
 
 			services
 				.AddOsrm()
@@ -77,7 +98,6 @@ namespace DriverAPI.Library
 				.AddDriverApiNotificationsSenders()
 				.AddCoreApplication()
 				.AddInfrastructure()
-				.AddDatabaseSettings()
 				.AddDriverEventsDependencies()
 				.AddFirebaseCloudMessaging(configuration);
 
@@ -86,11 +106,19 @@ namespace DriverAPI.Library
 
 			services
 				.AddMessageTransportSettings()
-				.AddEdoMassTransit();
+				.AddEdoMassTransit(configureBus: configureBus);
+
+			services
+				.AddMangoVpbxClientServices();
 
 			return services;
 		}
 
+		/// <summary>
+		/// Добавление сервисов для версии 5
+		/// </summary>
+		/// <param name="services">Коллекция сервисов</param>
+		/// <returns>Обновленная коллекция сервисов</returns>
 		public static IServiceCollection AddVersion5(this IServiceCollection services)
 		{
 			// DAL обертки
@@ -105,7 +133,7 @@ namespace DriverAPI.Library
 		}
 
 		/// <summary>
-		/// Добавление сервисов для версии 5
+		/// Добавление сервисов для версии 6
 		/// </summary>
 		/// <param name="services">Коллекция сервисов</param>
 		/// <returns>Обновленная коллекция сервисов</returns>
@@ -120,7 +148,25 @@ namespace DriverAPI.Library
 				.AddScoped<ISmsPaymentService, SmsPaymentService>()
 				.AddScoped<IDriverComplaintService, DriverComplaintService>()
 				.AddScoped<IFastPaymentService, FastPaymentService>()
-				.AddTrueMarkCodesCheckDependencies();
+				.AddScoped<ICallsService, CallsService>();
+		}
+
+		/// <summary>
+		/// Добавление сервисов для версии 7
+		/// </summary>
+		/// <param name="services">Коллекция сервисов</param>
+		/// <returns>Обновленная коллекция сервисов</returns>
+		public static IServiceCollection AddVersion7(this IServiceCollection services)
+		{
+			return services.AddScoped<DriverApiLibraryV7.ITrackPointsService, DriverApiLibraryV7.TrackPointsService>()
+				.AddScoped<DriverApiLibraryV7.IDriverMobileAppActionRecordService, DriverApiLibraryV7.DriverMobileAppActionRecordService>()
+				.AddScoped<DriverApiLibraryV7.IRouteListService, DriverApiLibraryV7.RouteListService>()
+				.AddScoped<DriverApiLibraryV7.IOrderService, DriverApiLibraryV7.OrderService>()
+				.AddScoped<DriverApiLibraryV7.IEmployeeService, DriverApiLibraryV7.EmployeeService>()
+				.AddScoped<DriverApiLibraryV7.ISmsPaymentService, DriverApiLibraryV7.SmsPaymentService>()
+				.AddScoped<DriverApiLibraryV7.IDriverComplaintService, DriverApiLibraryV7.DriverComplaintService>()
+				.AddScoped<DriverApiLibraryV7.IFastPaymentService, DriverApiLibraryV7.FastPaymentService>()
+				.AddScoped<DriverApiLibraryV7.ICallsService, DriverApiLibraryV7.CallsService>();
 		}
 
 		/// <summary>
@@ -130,9 +176,12 @@ namespace DriverAPI.Library
 		/// <returns>Обновленная коллекция сервисов</returns>
 		public static IServiceCollection AddTrueMarkCodesCheckDependencies(this IServiceCollection services)
 		{
+			services.AddScoped<TrueMarkCodesPoolFactory>();
+
 			return services
+				.AddCodesPool()
 				.AddScoped<TrueMarkWaterCodeParser>()
-				.AddScoped<TrueMarkCodesChecker>()
+				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>();
 		}
 	}

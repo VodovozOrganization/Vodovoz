@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 
@@ -38,5 +40,41 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="countLastOrders">Количество последних заказов</param>
 		/// <returns>Среднее количество дней между заказами</returns>
 		int? GetOrderFrequency(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders);
+
+		/// <summary>
+		/// Возвращает порцию идентификаторов точек доставки в порядке возрастания.
+		/// </summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="afterId">Последний обработанный идентификатор, не включается в результат.</param>
+		/// <param name="batchSize">Максимальное количество точек.</param>
+		/// <returns>Идентификаторы следующей порции точек доставки.</returns>
+		IList<int> GetDeliveryPointIdsBatch(IUnitOfWork uow, int afterId, int batchSize);
+
+		/// <summary>
+		/// Пересчитывает и сохраняет частоту последних пяти заказов точки доставки.
+		/// Вызывается фоновым обработчиком в отдельной транзакции без блокировки чтения заказов.
+		/// </summary>
+		/// <param name="uow">Единица работы с активной транзакцией.</param>
+		/// <param name="deliveryPointId">Идентификатор точки доставки.</param>
+		/// <returns>Сохранённая частота заказов либо null, если заказов недостаточно.</returns>
+		int? UpdateOrderFrequency(IUnitOfWork uow, int deliveryPointId);
+
+		/// <summary>
+		/// Возвращает общее количество выполненных заказов и идентификатор последнего из них с фильтрами расчёта частоты.
+		/// </summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="deliveryPointId">Идентификатор точки доставки.</param>
+		/// <returns>Количество выполненных заказов и идентификатор последнего из них по дате доставки и идентификатору.</returns>
+		OrderFrequencyState GetOrderFrequencyState(IUnitOfWork uow, int deliveryPointId);
+
+		/// <summary>
+		/// Адреса точек доставки по их Id
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="deliveryPointIds">Id точек доставки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Адреса в разрезе точек доставки</returns>
+		Task<IDictionary<int, string>> GetDeliveryPointsCompiledAddressesAsync(
+			IUnitOfWork uow, IEnumerable<int> deliveryPointIds, CancellationToken cancellationToken);
 	}
 }

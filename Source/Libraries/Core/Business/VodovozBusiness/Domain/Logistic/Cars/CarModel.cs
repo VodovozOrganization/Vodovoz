@@ -111,7 +111,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 				yield return new ValidationResult("Производитель должен быть заполнен", new[] { nameof(CarManufacturer) });
 			}
 
-			if(TeсhInspectInterval == 0)
+			if(TeсhInspectInterval == 0 && CarTypeOfUse != CarTypeOfUse.Semitrailer)
 			{
 				yield return new ValidationResult("Интервал техосмотра должен быть заполнен.", new[] { nameof(TeсhInspectInterval) });
 			}

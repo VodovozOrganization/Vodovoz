@@ -23,23 +23,23 @@ namespace Edo.Transfer.Dispatcher
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<TransferEdoHandler> _logger;
 		private readonly EdoTaskValidator _edoTaskValidator;
-		private readonly TransferTaskRepository _transferTaskRepository;
+		private readonly ITransferTaskRepository _transferTaskRepository;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly TransferDispatcher _transferDispatcher;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public TransferEdoHandler(
 			ILogger<TransferEdoHandler> logger,
 			IUnitOfWork uow,
 			EdoTaskValidator edoTaskValidator,
-			TransferTaskRepository transferTaskRepository,
+			ITransferTaskRepository transferTaskRepository,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			TransferDispatcher transferDispatcher,
 			EdoProblemRegistrar edoProblemRegistrar,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
-			IBus messageBus
+			IPublishEndpoint publishEndpoint
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -50,7 +50,7 @@ namespace Edo.Transfer.Dispatcher
 			_transferDispatcher = transferDispatcher ?? throw new ArgumentNullException(nameof(transferDispatcher));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		public async Task HandleNewTransfer(int transferIterationId, CancellationToken cancellationToken)
@@ -99,12 +99,14 @@ namespace Edo.Transfer.Dispatcher
 			}
 
 			var sentTasks = transferTasks.Where(x => x.TransferStatus == EdoTransferTaskStage.PreparingToSend);
+
+			// В outbox MassTransit пишем по очереди, не параллельно: строки пишутся через одну сессию NHibernate, а она не потокобезопасна
+			foreach(var sentTask in sentTasks)
+			{
+				await _publishEndpoint.Publish(new TransferTaskPrepareToSendEvent { TransferTaskId = sentTask.Id }, cancellationToken);
+			}
+
 			await _uow.CommitAsync(cancellationToken);
-
-			var events = sentTasks.Select(x => new TransferTaskPrepareToSendEvent { TransferTaskId = x.Id });
-			var publishTasks = events.Select(message => _messageBus.Publish(message, cancellationToken));
-
-			await Task.WhenAll(publishTasks);
 		}
 
 		public async Task HandleTransferDocumentAcceptance(int documentId, CancellationToken cancellationToken)
@@ -228,10 +230,13 @@ namespace Edo.Transfer.Dispatcher
 				});
 			}
 
-			await _uow.CommitAsync(cancellationToken);
+			// В outbox MassTransit пишем по очереди, не параллельно: строки пишутся через одну сессию NHibernate, а она не потокобезопасна
+			foreach(var message in messages)
+			{
+				await _publishEndpoint.Publish(message, cancellationToken);
+			}
 
-			var notificationTasks = messages.Select(message => _messageBus.Publish(message, cancellationToken));
-			await Task.WhenAll(notificationTasks);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		public async Task UpdateTransferCompletion(int documentId, CancellationToken cancellationToken)
@@ -315,12 +320,12 @@ namespace Edo.Transfer.Dispatcher
 		{
 			var transferEdoTask = await _uow.Session.GetAsync<TransferEdoTask>(transferTaskId, cancellationToken);
 			await _transferDispatcher.MoveToPrepareToSend(transferEdoTask, cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
-			await _messageBus.Publish(
+			await _publishEndpoint.Publish(
 				new TransferTaskPrepareToSendEvent { TransferTaskId = transferTaskId },
 				cancellationToken
 			);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		public void Dispose()

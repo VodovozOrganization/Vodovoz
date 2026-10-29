@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class PromotionalSet : BusinessObjectBase<PromotionalSet>, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class PromotionalSet : BusinessObjectBase<PromotionalSet>, INamedDomainObject, IValidatableObject, IArchivable
 	{
 		private const int _onlineNameLimit = 45;
 		private string _name;
@@ -187,6 +187,39 @@ namespace Vodovoz.Domain.Orders
 					new[] { nameof(PromotionalSetItems) }
 				);
 			}
+
+			foreach(var promoSetItem in PromotionalSetItems)
+			{
+				var nomenclaturePrice = promoSetItem
+					.Nomenclature
+					?.NomenclaturePrice
+					?.OrderBy(x => x.MinCount)
+					?.FirstOrDefault(x => promoSetItem.Count >= x.MinCount);
+
+				if(nomenclaturePrice == null)
+				{
+					yield return new ValidationResult(
+						$"Не удалось определить цену номенклатуры {promoSetItem.Nomenclature.Name} для количества {promoSetItem.Count}",
+						new[] { nameof(PromotionalSetItems) }
+					);
+
+					continue;
+				}
+
+				var priceWithDiscount = promoSetItem.IsDiscountInMoney
+					? (nomenclaturePrice.Price * promoSetItem.Count) - promoSetItem.DiscountMoney
+					: nomenclaturePrice.Price * (1m - promoSetItem.Discount / 100m);
+
+				if(priceWithDiscount < 1m)
+				{
+					yield return new ValidationResult(
+						$"Номенклатура {promoSetItem.Nomenclature.Name}, цена за {promoSetItem.Count} шт: " +
+						$"без скидки промонабора {nomenclaturePrice.Price:0.00} руб., со скидкой промонабора {priceWithDiscount:0.00} руб. " +
+						"По законодательству мы не имеем права продавать дешевле 1 рубля.",
+						new[] { nameof(PromotionalSetItems) }
+					);
+				}
+			}
 		}
 
 		#endregion
@@ -206,5 +239,21 @@ namespace Vodovoz.Domain.Orders
 		{
 			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order, nomenclatureSettings));
 		}
+		
+		/// <summary>
+		/// Общая стоимость промонабора без учета скидок
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns></returns>
+		public virtual decimal SumWithoutDiscount(bool useAlternativePrice = false) =>
+			PromotionalSetItems.Sum(x => x.SumWithoutDiscount(useAlternativePrice));
+
+		/// <summary>
+		/// Общая стоимость промонабора
+		/// </summary>
+		/// <param name="useAlternativePrice">Брать альтернативную цену</param>
+		/// <returns></returns>
+		public virtual decimal Sum(bool useAlternativePrice = false) =>
+			PromotionalSetItems.Sum(x => x.Sum(useAlternativePrice));
 	}
 }

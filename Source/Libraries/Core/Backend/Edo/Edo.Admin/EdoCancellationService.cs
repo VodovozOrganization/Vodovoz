@@ -1,16 +1,20 @@
 ﻿using Core.Infrastructure;
+using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate.Criterion;
+using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Admin
 {
@@ -20,31 +24,40 @@ namespace Edo.Admin
 		private readonly IUnitOfWork _uow;
 		private readonly IEdoCancellationValidator _edoCancellationValidator;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
-		private readonly IPublishEndpoint _publishEndpoint;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		// UoW передаётся параметром: класс вызывается и с десктопа, где у диалогов свои UoW.
+		// GetPublishEndpoint(uow) пишет сообщение в таблицы outbox в транзакции этого UoW.
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
 		public EdoCancellationService(
 			ILogger<EdoCancellationService> logger,
 			IUnitOfWork uow,
 			IEdoCancellationValidator edoCancellationValidator,
 			EdoProblemRegistrar edoProblemRegistrar,
-			IPublishEndpoint publishEndpoint
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			IUnitOfWorkOutbox<IBus> outbox
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_edoCancellationValidator = edoCancellationValidator ?? throw new ArgumentNullException(nameof(edoCancellationValidator));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
-			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 
 		public async Task CancelTask(
 			int taskId, 
 			string reason,
 			bool needPublish,
-			CancellationToken cancellationToken
+			CancellationToken cancellationToken = default,
+			IUnitOfWork uow = null,
+			bool needCommit = true
 		)
 		{
-			var edoTask = await _uow.Session.GetAsync<EdoTask>(taskId, cancellationToken);
+			var unitOfWork = uow ?? _uow;
+
+			var edoTask = await unitOfWork.Session.GetAsync<EdoTask>(taskId, cancellationToken);
 			if(edoTask == null)
 			{
 				_logger.LogWarning("Задача №{TaskId} не найдена.", taskId);
@@ -59,14 +72,17 @@ namespace Edo.Admin
 
 			if(edoTask.TaskType == EdoTaskType.Transfer)
 			{
-				await CancelTransferTask((TransferEdoTask)edoTask, reason, needPublish, cancellationToken);
+				await CancelTransferTask(unitOfWork, (TransferEdoTask)edoTask, reason, needPublish, cancellationToken);
 			}
 			else
 			{
-				await CancelOrderTask((OrderEdoTask)edoTask, reason, needPublish, cancellationToken);
+				await CancelOrderTask(unitOfWork, (OrderEdoTask)edoTask, reason, needPublish, cancellationToken);
 			}
 
-			await _uow.CommitAsync(cancellationToken);
+			if(needCommit)
+			{
+				await unitOfWork.CommitAsync(cancellationToken);
+			}
 		}
 
 		/// <summary>
@@ -94,28 +110,28 @@ namespace Edo.Admin
 			return isOrderPriceInvalid;
 		}
 
-		private async Task CancelOrderTask(OrderEdoTask edoTask,
+		private async Task CancelOrderTask(
+			IUnitOfWork uow,
+			OrderEdoTask edoTask,
 			string reason,
 			bool needPublish,
 			CancellationToken cancellationToken)
 		{
-			var orderDocument = await _uow.Session.QueryOver<OrderEdoDocument>()
+			var orderDocument = await uow.Session.QueryOver<OrderEdoDocument>()
 				.Where(x => x.DocumentTaskId == edoTask.Id)
 				.SingleOrDefaultAsync(cancellationToken);
 
-			if(orderDocument == null || orderDocument.Status == EdoDocumentStatus.Cancelled)
+			if(orderDocument == null || orderDocument.Status.IsIn(EdoDocumentStatus.Cancelled, EdoDocumentStatus.Error))
 			{
-				edoTask.Status = EdoTaskStatus.Cancelled;
-				edoTask.CancellationReason = reason;
-
-				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+				await RejectProductCodesAsync(uow, edoTask, cancellationToken);
+				edoTask.ProcessTaskCancellation(EdoTaskStatus.Cancelled, reason);
+				
+				await uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 				return;
 			}
 
-			edoTask.Status = EdoTaskStatus.InCancellation;
-			edoTask.CancellationReason = reason;
-
-			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+			edoTask.ProcessTaskCancellation(EdoTaskStatus.InCancellation, reason);
+			await uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 
 			if(needPublish)
 			{
@@ -125,11 +141,13 @@ namespace Edo.Admin
 					Reason = reason
 				};
 
-				await _publishEndpoint.Publish(message, cancellationToken);
+				await _outbox.GetPublishEndpoint(uow).Publish(message, cancellationToken);
 			}
 		}
 		
-		private async Task CancelTransferTask(TransferEdoTask transferEdoTask,
+		private async Task CancelTransferTask(
+			IUnitOfWork uow,
+			TransferEdoTask transferEdoTask,
 			string reason,
 			bool needPublish,
 			CancellationToken cancellationToken)
@@ -143,7 +161,7 @@ namespace Edo.Admin
 				return;
 			}
 
-			var transferDocument = await _uow.Session.QueryOver<TransferEdoDocument>()
+			var transferDocument = await uow.Session.QueryOver<TransferEdoDocument>()
 				.Where(x => x.TransferTaskId == transferEdoTask.Id)
 				.SingleOrDefaultAsync(cancellationToken);
 
@@ -152,14 +170,14 @@ namespace Edo.Admin
 				transferEdoTask.Status = EdoTaskStatus.Cancelled;
 				transferEdoTask.CancellationReason = reason;
 
-				await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
+				await uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 				return;
 			}
 
 			transferEdoTask.Status = EdoTaskStatus.InCancellation;
 			transferEdoTask.CancellationReason = reason;
 
-			await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
+			await uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 
 			if(needPublish)
 			{
@@ -169,7 +187,7 @@ namespace Edo.Admin
 					Reason = reason
 				};
 
-				await _publishEndpoint.Publish(message, cancellationToken);
+				await _outbox.GetPublishEndpoint(uow).Publish(message, cancellationToken);
 			}
 		}
 
@@ -235,8 +253,27 @@ namespace Edo.Admin
 			orderTask.Status = EdoTaskStatus.Cancelled;
 			orderTask.EndTime = DateTime.Now;
 
+			await RejectProductCodesAsync(_uow, orderTask, cancellationToken);
+
 			await _uow.SaveAsync(orderTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
+		}
+
+		private async Task RejectProductCodesAsync(
+			IUnitOfWork unitOfWork,
+			OrderEdoTask orderTask,
+			CancellationToken cancellationToken)
+		{
+			foreach(var item in orderTask.Items)
+			{
+				await _trueMarkWaterCodeService.DeleteRelatedGroupAndTransportCodesAsync(
+					unitOfWork,
+					item.ProductCode.SourceCode,
+					cancellationToken);
+
+				item.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Rejected;
+				item.ProductCode.ResultCode = null;
+			}
 		}
 	}
 }

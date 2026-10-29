@@ -2,5 +2,6 @@
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionServiceTikets' action='ActionServiceTickets'/>
 		<toolitem name='ActionServiceDeliveryRules' action='ActionServiceDeliveryRules'/>
+		<toolitem name='ActionMasterVisitCost' action='ActionMasterVisitCost'/>
 	</toolbar>
 </ui>

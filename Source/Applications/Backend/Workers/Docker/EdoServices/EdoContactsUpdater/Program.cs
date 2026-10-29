@@ -1,26 +1,29 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using Edo.Common;
 using Edo.Transport;
 using EdoContactsUpdater.Configs;
 using EdoContactsUpdater.Converters;
 using EdoContactsUpdater.Worker;
 using EdoService.Library;
+using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
-using MessageTransport;
 using QS.Project.Core;
 using TaxcomEdo.Client;
+using Vodovoz.Core.Application.Employees;
 using Vodovoz.Core.Application.Problems.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Core.Data.NHibernate.Repositories.Edo;
-using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Services;
 using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Services.Edo;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace EdoContactsUpdater
 {
@@ -54,9 +57,9 @@ namespace EdoContactsUpdater
 						.AddEdo()
 						.AddEdoServicesLibrary()
 						.AddTrackedUoW()
+						.AddCoreDataRepositories()
 						.AddMessageTransportSettings()
-						.AddEdoMassTransit()
-
+						.AddEdoMassTransit(configureBus: busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 						.AddInfrastructure(ServiceLifetime.Singleton)
 						.AddStaticHistoryTracker()
 						.AddStaticScopeForEntity()
@@ -66,10 +69,11 @@ namespace EdoContactsUpdater
 						.AddSingleton<IEdoContactStateCodeConverter, EdoContactStateCodeConverter>()
 						.AddHttpClient()
 						.AddTaxcomClient()
-						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoContactsUpdaterService))
-						.ConfigureZabbixSenderFromDataBase(nameof(OrderContactProblemUpdateWorker))
-						.AddScoped<IEdoRepository, EdoRepository>()
+						.AddTaxcomApiClientFactory()
+						.ConfigureZabbixSenderFromDataBase()
 						.AddScoped<IOrderContactProblemUpdateService, OrderContactProblemUpdateService>()
+						.AddScoped<IManualEdoRequestFactory, ManualEdoRequestFactory>()
+						.AddScoped<IEmployeeService, EmployeeService>()
 						;
 					
 					services.AddHostedService<TaxcomEdoContactsUpdaterService>();

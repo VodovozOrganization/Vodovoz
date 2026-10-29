@@ -98,11 +98,6 @@ namespace Vodovoz.EntityRepositories.Goods
 			int[] siteNomenclaturesIds,
 			CancellationToken cancellationToken
 		);
-		IList<NomenclatureOnlineParametersNode> GetActiveNomenclaturesOnlineParametersForSend(
-			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
-		IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(
-			IUnitOfWork uow, IEnumerable<int> onlineParametersIds);
-		IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IEnumerable<INamedDomainObject> GetPromoSetsWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId, bool notArchive = true);
 
 		/// <summary>
@@ -112,5 +107,18 @@ namespace Vodovoz.EntityRepositories.Goods
 		/// <param name="nomenclatureId">ID номенклатуры</param>
 		/// <returns></returns>
 		bool CheckAnyOrderWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId);
+
+		/// <summary>
+		/// Получение ноды с идентификатором и именем номенклатуры
+		/// </summary>
+		/// <param name="unitOfWork">unitOfWork</param>
+		/// <param name="nomenclatureId">Идентификатор номенклатуры</param>
+		/// <param name="notArchive">true - не архивнаяя, false - все</param>
+		/// <returns></returns>
+		INamedDomainObject GetNamedNomenclatureNode(
+			IUnitOfWork unitOfWork,
+			int nomenclatureId,
+			bool notArchive = true
+		);
 	}
 }

@@ -56,6 +56,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			HasMany(x => x.OdometerReadings).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id")
 				.OrderBy("start_date DESC");
 
+			HasMany(x => x.AdditionalFuelTypes)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.KeyColumn("car_id");
+
 			HasManyToMany(x => x.GeographicGroups)
 				.Table("geo_groups_to_entities")
 				.ParentKeyColumn("car_id")

@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
@@ -50,6 +50,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty);
 
 		/// <summary>
+		/// Возвращает заказы контрагента, находящиеся в пути,
+		/// вместе с водителем и его активным добавочным номером Манго
+		/// </summary>
+		/// <param name="uow">Единица работы</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		IList<DriverForwardingOrderNode> GetCounterpartyOrdersOnTheWay(IUnitOfWork uow, int counterpartyId);
+
+		/// <summary>
 		/// Оборудование заказа от клиента
 		/// </summary>
 		/// <returns>Список оборудования от клиенту</returns>
@@ -69,6 +77,18 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		bool HasCounterpartyFirstRealOrder(IUnitOfWork uow, Counterparty counterparty);
 		bool HasCounterpartyOtherFirstRealOrder(IUnitOfWork uow, Counterparty counterparty, int orderId);
+
+		/// <summary>
+		/// Проверяет наличие другого заказа воды 19 л у контрагента в указанных статусах, кроме исключаемой номенклатуры.
+		/// </summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="counterpartyId">Идентификатор контрагента.</param>
+		/// <param name="excludedOrderId">Идентификатор исключаемого текущего заказа.</param>
+		/// <param name="excludedNomenclatureId">Идентификатор номенклатуры, не учитываемой в истории заказов.</param>
+		/// <param name="orderStatuses">Учитываемые статусы заказов.</param>
+		/// <returns>Есть ли другой заказ с положительным количеством воды 19 л, кроме исключаемой номенклатуры.</returns>
+		bool HasAnotherOrderWithWater19L(IUnitOfWork uow, int counterpartyId, int excludedOrderId,
+			int excludedNomenclatureId, IEnumerable<OrderStatus> orderStatuses);
 
 		OrderStatus[] GetGrantedStatusesToCreateSeveralOrders();
 
@@ -149,12 +169,22 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);
 
-		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null);
-		decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null);
+		decimal GetCounterpartyDebt(
+			IUnitOfWork uow, int counterpartyId, int? organizationId = null, bool includeOrdersWithoutOrganization = false);
+		decimal GetCounterpartyWaitingForPaymentOrdersDebt(
+			IUnitOfWork uow, int counterpartyId, int? organizationId = null, bool includeOrdersWithoutOrganization = false);
 		decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(
-			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null);
+			IUnitOfWork uow,
+			int counterpartyId,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false);
 		decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(
-			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null);
+			IUnitOfWork uow,
+			int counterpartyId,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			int? organizationId = null,
+			bool includeOrdersWithoutOrganization = false);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		bool OrderHasSentUPD(IUnitOfWork uow, int orderId);
@@ -193,6 +223,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
 
 		/// <summary>
+		/// Проверяет наличие старого контейнера или неформализованной заявки счета заказа
+		/// </summary>
+		/// <param name="uow">Единица работы</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Наличие счета в старом или новом процессе ЭДО</returns>
+		bool HasEdoBill(IUnitOfWork uow, int orderId);
+
+		/// <summary>
 		/// Получение заказа по идентификатору исходящего ЭДО документа
 		/// </summary>
 		/// <param name="uow"></param>
@@ -216,12 +254,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters);
 		IList<Order> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId);
 		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
-		IEnumerable<OrderDto> GetCounterpartyOrdersFromOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-		IEnumerable<OrderDto> GetCounterpartyOrdersWithoutOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV4(
-			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
-			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		IEnumerable<Order> GetOrdersFromOnlineOrder(IUnitOfWork uow, int onlineOrderId);
 		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();
 		OrderStatus[] GetStatusesForFreeBalanceOperations();
@@ -233,7 +265,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
 		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
 		IQueryable<OksDailyReportOrderDiscountDataNode> GetOrdersDiscountsDataForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
-		IEnumerable<Order> GetOrdersForResendBills(IUnitOfWork uow, int? organizationId = null);
 
 		/// <summary>
 		/// Получить все добавленные коды ЧЗ для указанного заказа с доставкой
@@ -392,6 +423,224 @@ namespace Vodovoz.EntityRepositories.Orders
 		Task<Order> GetEarliestOrder(
 			IUnitOfWork uow,
 			IEnumerable<int> orderIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение добавочного номера Mango водителя, доставляющего заказ с указанным номером
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Добавочный номер Mango водителя</returns>
+		Task<DriverMangoExtensionNumber> GetDriversMangoExtensionNumberByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение идентификаторов заказов контрагента,
+		/// созданных начиная с указанной даты и не находящихся в исключаемых статусах
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		/// <param name="startDate">Дата, начиная с которой ищутся заказы (по дате создания заказа)</param>
+		/// <param name="excludedOrderStatuses">Статусы заказов, исключаемые из выборки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Идентификаторы найденных заказов</returns>
+		Task<IEnumerable<int>> GetOrderIdsByCounterpartyFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение идентификаторов заказов контрагента на указанные точки доставки,
+		/// созданных начиная с указанной даты и не находящихся в исключаемых статусах
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		/// <param name="deliveryPointIds">Идентификаторы точек доставки</param>
+		/// <param name="startDate">Дата, начиная с которой ищутся заказы (по дате создания заказа)</param>
+		/// <param name="excludedOrderStatuses">Статусы заказов, исключаемые из выборки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Идентификаторы найденных заказов</returns>
+		Task<IEnumerable<int>> GetOrderIdsByCounterpartyAndDeliveryPointsFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<int> deliveryPointIds,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Агрегированные данные по выполненным заказам всех активных точек доставки неархивных контрагентов
+		/// для расчета частоты заказов (минимальная и максимальная даты доставки, количество заказов)
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderStatuses">Статусы заказов, считающихся выполненными</param>
+		/// <param name="deliveryScheduleSettings">Настройки графиков доставки для исключения заказов-закрывашек</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Агрегированные данные по заказам в разрезе точек доставки</returns>
+		Task<IList<PlannedOrdersAggregatedNode>> GetDeliveryPointsOrdersAggregatedDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<OrderStatus> orderStatuses,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Агрегированные данные по выполненным самовывозным заказам неархивных контрагентов
+		/// для расчета частоты заказов (минимальная и максимальная даты доставки, количество заказов)
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderStatuses">Статусы заказов, считающихся выполненными</param>
+		/// <param name="deliveryScheduleSettings">Настройки графиков доставки для исключения заказов-закрывашек</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Агрегированные данные по самовывозным заказам в разрезе контрагентов</returns>
+		Task<IList<PlannedOrdersAggregatedNode>> GetSelfDeliveryOrdersAggregatedDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<OrderStatus> orderStatuses,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Id точек доставки, по которым есть заказы с датой доставки, начиная с указанной,
+		/// исключая заказы в указанных статусах
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="deliveryPointIds">Id точек доставки</param>
+		/// <param name="fromDeliveryDate">Дата доставки, начиная с которой ищутся заказы</param>
+		/// <param name="excludeOrderStatuses">Исключаемые статусы заказов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Id точек доставки с найденными заказами</returns>
+		Task<IList<int>> GetDeliveryPointIdsWithUpcomingOrdersAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> deliveryPointIds,
+			DateTime fromDeliveryDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Id контрагентов, по которым есть самовывозные заказы с датой доставки, начиная с указанной,
+		/// исключая заказы в указанных статусах
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyIds">Id контрагентов</param>
+		/// <param name="fromDeliveryDate">Дата доставки, начиная с которой ищутся заказы</param>
+		/// <param name="excludeOrderStatuses">Исключаемые статусы заказов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Id контрагентов с найденными заказами</returns>
+		Task<IList<int>> GetCounterpartyIdsWithUpcomingSelfDeliveryOrdersAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			DateTime fromDeliveryDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Данные выполненных заказов указанных точек доставки с датами доставки из указанного списка.
+		/// Используется для получения последнего выполненного заказа точки доставки
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="deliveryPointIds">Id точек доставки</param>
+		/// <param name="deliveryDates">Даты доставки</param>
+		/// <param name="orderStatuses">Статусы заказов, считающихся выполненными</param>
+		/// <param name="deliveryScheduleSettings">Настройки графиков доставки для исключения заказов-закрывашек</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные заказов</returns>
+		Task<IList<PlannedOrderLastOrderNode>> GetDeliveryPointsLastOrdersDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> deliveryPointIds,
+			IEnumerable<DateTime> deliveryDates,
+			IEnumerable<OrderStatus> orderStatuses,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Данные выполненных самовывозных заказов указанных контрагентов с датами доставки из указанного списка.
+		/// Используется для получения последнего выполненного самовывозного заказа контрагента
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyIds">Id контрагентов</param>
+		/// <param name="deliveryDates">Даты доставки</param>
+		/// <param name="orderStatuses">Статусы заказов, считающихся выполненными</param>
+		/// <param name="deliveryScheduleSettings">Настройки графиков доставки для исключения заказов-закрывашек</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные заказов</returns>
+		Task<IList<PlannedOrderLastOrderNode>> GetSelfDeliveryLastOrdersDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			IEnumerable<DateTime> deliveryDates,
+			IEnumerable<OrderStatus> orderStatuses,
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Данные последних выполненных сервисных заказов неархивных контрагентов.
+		/// Сервисным считается заказ, содержащий хотя бы одну номенклатуру из указанного списка.
+		/// По каждому контрагенту возвращается последний выполненный сервисный заказ,
+		/// если его дата доставки не ранее и не позднее указанных.
+		/// Заказы, по которым уже создана запись последнего сервисного заказа, исключаются
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="serviceNomenclatureIds">Id номенклатур, относящихся к сервисным (санитарная обработка)</param>
+		/// <param name="orderStatuses">Статусы заказов, считающихся выполненными</param>
+		/// <param name="minLastOrderDeliveryDate">Минимальная дата доставки последнего сервисного заказа (включительно)</param>
+		/// <param name="maxLastOrderDeliveryDate">Максимальная дата доставки последнего сервисного заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные последних сервисных заказов в разрезе контрагентов</returns>
+		Task<IList<LastServiceOrderNode>> GetCounterpartiesLastServiceOrdersDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> serviceNomenclatureIds,
+			IEnumerable<OrderStatus> orderStatuses,
+			DateTime minLastOrderDeliveryDate,
+			DateTime maxLastOrderDeliveryDate,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Id контрагентов, у которых есть сервисные заказы с датой доставки, начиная с указанной,
+		/// исключая заказы в указанных статусах.
+		/// Сервисным считается заказ, содержащий хотя бы одну номенклатуру из указанного списка
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyIds">Id контрагентов</param>
+		/// <param name="fromDeliveryDate">Дата доставки, начиная с которой ищутся заказы</param>
+		/// <param name="excludeOrderStatuses">Исключаемые статусы заказов</param>
+		/// <param name="serviceNomenclatureIds">Id номенклатур, относящихся к сервисным (санитарная обработка)</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Id контрагентов с найденными заказами</returns>
+		Task<IList<int>> GetCounterpartyIdsWithUpcomingServiceOrdersAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			DateTime fromDeliveryDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
+			IEnumerable<int> serviceNomenclatureIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Дебиторская задолженность по безналу по контрагентам
+		/// (сумма недоплаченных безналичных заказов минус сумма частичных оплат)
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyIds">Id контрагентов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Задолженность в разрезе контрагентов</returns>
+		Task<IDictionary<int, decimal>> GetCounterpartiesCashlessDebtsAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Данные заказов, созданных начиная с указанной даты и времени,
+		/// исключая заказы в указанных статусах.
+		/// Используется для поиска заказов, созданных клиентами после создания сделок по планируемым заказам
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="fromCreateDate">Дата и время создания заказа, начиная с которой ищутся заказы</param>
+		/// <param name="excludeOrderStatuses">Исключаемые статусы заказов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные созданных заказов</returns>
+		Task<IList<PlannedOrderCreatedOrderNode>> GetOrdersCreatedFromDateAsync(
+			IUnitOfWork uow,
+			DateTime fromCreateDate,
+			IEnumerable<OrderStatus> excludeOrderStatuses,
 			CancellationToken cancellationToken);
 	}
 }

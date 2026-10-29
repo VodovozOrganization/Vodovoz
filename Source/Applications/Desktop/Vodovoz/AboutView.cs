@@ -20,19 +20,10 @@ namespace Vodovoz
 				.AddBinding(ViewModel, vm => vm.Description, w => w.LabelProp)
 				.InitializeFromSource();
 
-			ylabelWikiWebsite.Binding
-				.AddBinding(ViewModel, vm => vm.WikiWebsiteFormatted, w => w.LabelProp)
-				.InitializeFromSource();
-
 			ylabelCopyright.Binding
 				.AddBinding(ViewModel, vm => vm.Copyright, w => w.LabelProp)
 				.InitializeFromSource();
 
-			ylabelWebsite.Binding
-				.AddBinding(ViewModel, vm => vm.WebsiteFormatted, w => w.LabelProp)
-				.InitializeFromSource();
-
-			ybuttonAuthors.BindCommand(ViewModel.OpenAuthorsCommand);
 			ybuttonClose.BindCommand(ViewModel.CloseCommand);
 		}
 	}

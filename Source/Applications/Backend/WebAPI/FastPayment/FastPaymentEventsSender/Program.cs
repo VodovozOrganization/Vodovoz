@@ -24,6 +24,8 @@ using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.Zabbix.Sender;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace FastPaymentEventsSender
 {
@@ -67,10 +69,11 @@ namespace FastPaymentEventsSender
 						.AddHostedService<FastPaymentEventsProcessor>()
 						.AddMessageTransportSettings()
 
-						.ConfigureZabbixSenderFromDataBase(nameof(FastPaymentEventsProcessor))
+						.ConfigureZabbixSenderFromDataBase()
 
 						.AddMassTransit(busConf =>
 						{
+							busConf.AddVodovozOutbox(OutboxBusNames.Email);
 							busConf.ConfigureRabbitMq((rabbitMq, context) =>
 								{
 									rabbitMq.AddSendEmailMessageTopology(context);

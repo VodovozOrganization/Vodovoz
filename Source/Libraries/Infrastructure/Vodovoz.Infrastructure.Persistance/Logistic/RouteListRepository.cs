@@ -1,7 +1,9 @@
-﻿using MoreLinq;
+﻿using FluentNHibernate.Conventions;
+using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
@@ -14,10 +16,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -45,19 +48,30 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
 	internal sealed class RouteListRepository : IRouteListRepository
 	{
+		/// <inheritdoc />
+		public IList<DriverStopListRemoval> GetActiveDriverStopListRemovals(IUnitOfWork uow, int driverId, DateTime at)
+		{
+			return uow.GetAll<DriverStopListRemoval>()
+				.Where(r => r.Driver.Id == driverId && r.DateFrom <= at && r.DateTo > at)
+				.ToList();
+		}
+
 		private readonly ISettingsController _settingsController;
 		private readonly IStockRepository _stockRepository;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IOrganizationSettings _organizationSettings;
 
 		public RouteListRepository(
 			ISettingsController settingsController,
 			IStockRepository stockRepository,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			INomenclatureSettings nomenclatureSettings,
 			IOrganizationSettings organizationSettings)
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
@@ -95,6 +109,23 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			}
 
 			return query.Select(x => x.Id).List<int>();
+		}
+
+		public async Task<bool> HasDriverRouteListsInStatusesAsync(
+			IUnitOfWork uow,
+			int driverId,
+			IReadOnlyCollection<RouteListStatus> statuses,
+			CancellationToken cancellationToken)
+		{
+			if(statuses is null || statuses.Count == 0)
+			{
+				return false;
+			}
+
+			return await uow.Session.Query<RouteList>()
+				.AnyAsync(
+					rl => rl.Driver.Id == driverId && statuses.Contains(rl.Status),
+					cancellationToken);
 		}
 
 		public IList<RouteList> GetRoutesAtDay(IUnitOfWork uow, DateTime dateForRouting, bool showCompleted, int[] onlyInGeographicGroup, int[] onlyWithDeliveryShifts)
@@ -394,7 +425,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					(!r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand)))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
-			
+
 			var isNeedIndividualSetOnLoadSubquery = QueryOver.Of(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
@@ -1183,6 +1214,12 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			return uow.GetById<RouteList>(routeListsId);
 		}
 
+		/// <inheritdoc/>
+		public async Task<RouteList> GetRouteListByIdAsync(IUnitOfWork uow, int routeListsId, CancellationToken cancellationToken) =>
+			await uow.Session.Query<RouteList>()
+			.Where(x => x.Id == routeListsId)
+			.FirstOrDefaultAsync(cancellationToken);
+
 		public IEnumerable<KeyValuePair<string, int>> GetDeliveryItemsToReturn(IUnitOfWork unitOfWork, int routeListsId)
 		{
 			RouteListItem routeListItemAlias = null;
@@ -1860,6 +1897,123 @@ FROM
 					g => g.Key,
 					g => new HashSet<DateTime>(g.Select(x => x.Date.Date))
 				);
+		}
+
+		/// <inheritdoc/>
+		public async Task<DriversSelectedAddress> GetLastSelectedAddressForRouteList(
+			IUnitOfWork uow,
+			int driverId,
+			int routeListId,
+			CancellationToken cancellationToken = default)
+		{
+			var query =
+				from dsa in uow.Session.Query<DriversSelectedAddress>()
+				join rli in uow.Session.Query<RouteListItemEntity>() on dsa.NextAddressId equals rli.Id
+				where dsa.DriverId == driverId && rli.RouteList.Id == routeListId
+				orderby dsa.Id descending
+				select dsa;
+
+			return await query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<bool> IsOrderEverWasSelectedAsNext(
+			IUnitOfWork uow,
+			int orderId,
+			CancellationToken cancellationToken = default)
+		{
+			var query =
+				from dsa in uow.Session.Query<DriversSelectedAddress>()
+				join rli in uow.Session.Query<RouteListItemEntity>() on dsa.NextAddressId equals rli.Id
+				where rli.Order.Id == orderId
+				orderby dsa.Id descending
+				select dsa;
+
+			var isOrderWasSelected = (await query.FirstOrDefaultAsync(cancellationToken)) != null;
+
+			return isOrderWasSelected;
+		}
+
+		/// <inheritdoc/>
+		public async Task<TrackPoint> GetDriverLastCoordinate(
+			IUnitOfWork uow,
+			int routeListId,
+			DateTime startFrom,
+			CancellationToken cancellationToken = default)
+		{
+			var query =
+				from tp in uow.Session.Query<TrackPoint>()
+				join t in uow.Session.Query<Track>() on tp.Track.Id equals t.Id
+				where t.RouteList.Id == routeListId && tp.TimeStamp >= startFrom
+				orderby tp.TimeStamp descending
+				select tp;
+
+			return await query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<RouteListItem> GetEnRouteRouteListItemByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default)
+		{
+			var query =
+				from rli in uow.Session.Query<RouteListItem>()
+				join rl in uow.Session.Query<RouteList>() on rli.RouteList.Id equals rl.Id
+				where rli.Order.Id == orderId
+					&& rli.Status == RouteListItemStatus.EnRoute
+					&& rl.Status == RouteListStatus.EnRoute
+				select rli;
+
+			return await query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		public RouteList GetRouteListByBusySemiTrailer(
+			int semiTrailerId,
+			int excludeRouteListId,
+			IEnumerable<RouteListStatus> statuses)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				return GetRouteListByBusySemiTrailer(
+					uow,
+					semiTrailerId,
+					excludeRouteListId,
+					statuses);
+			}
+		}
+
+		public RouteList GetRouteListByBusySemiTrailer(
+			IUnitOfWork uow,
+			int semiTrailerId,
+			int excludeRouteListId,
+			IEnumerable<RouteListStatus> statuses)
+		{
+			RouteList routeListAlias = null;
+
+			return uow.Session.QueryOver(() => routeListAlias)
+				.Where(rl => rl.Id != excludeRouteListId)
+				.And(rl => rl.Semitrailer.Id == semiTrailerId)
+				.And(Restrictions.In(
+					Projections.Property(() => routeListAlias.Status),
+					statuses.ToArray()))
+				.List()
+				.FirstOrDefault();
+		}
+
+		public RouteList GetRouteListByBusySemiTrailer(
+			int semiTrailerId,
+			IEnumerable<RouteListStatus> statuses)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				RouteList routeListAlias = null;
+
+				return uow.Session.QueryOver(() => routeListAlias)
+					.And(rl => rl.Semitrailer.Id == semiTrailerId)
+					.And(Restrictions.In(
+						Projections.Property(() => routeListAlias.Status),
+						statuses.ToArray()))
+					.List()
+					.FirstOrDefault();
+			}
 		}
 	}
 }

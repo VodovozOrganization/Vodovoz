@@ -16,6 +16,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace ScannedTrueMarkCodesDelayedProcessingWorker
 {
@@ -56,9 +58,9 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 						.AddCoreApplicationServices()
 						.AddRepositories()
 						.AddTrackedUoW()
-						.AddScannedTrueMarkCodesDelayedProcessing()
+						.AddScannedTrueMarkCodesDelayedProcessing(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-						.ConfigureZabbixSenderFromDataBase(nameof(ScannedCodesDelayedProcessingWorker));
+						.ConfigureZabbixSenderFromDataBase();
 
 					services
 						.AddOpenTelemetry()

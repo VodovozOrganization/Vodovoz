@@ -98,12 +98,6 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 				{
 					filter.RestrictFinancialSubtype = FinancialSubType.Expense;
 					filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
-
-					foreach(var includedId in _generalSettings.PaymentWriteOffAllowedFinancialExpenseCategories)
-					{
-						filter.IncludeExpenseCategoryIds.Add(includedId);
-						filter.HideEmptyGroups = true;
-					}
 				})
 				.UseViewModelDialog<FinancialExpenseCategoryViewModel>()
 				.Finish();

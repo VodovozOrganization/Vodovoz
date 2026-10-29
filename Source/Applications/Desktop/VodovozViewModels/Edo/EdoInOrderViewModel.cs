@@ -1,10 +1,14 @@
-﻿using QS.Commands;
+﻿using EdoService.Library;
+using NLog;
+using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.ViewModels;
 using QS.ViewModels.Widgets.Pipeline;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using Vodovoz.Core.Data.Repositories;
@@ -15,10 +19,14 @@ namespace Vodovoz.ViewModels.Edo
 {
 	public class EdoInOrderViewModel : WidgetViewModelBase
 	{
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IEdoRepository _edoRepository;
+		private readonly IEdoService _edoService;
+		private readonly IInteractiveService _interactiveService;
 		private int _orderId;
 		private IUnitOfWork _uow;
 		private bool _loaded;
+		private bool _codesLoaded;
 		private IList<EdoInOrderDocumentTypeViewModel> _documentGroupTypes;
 		private EdoInOrderDocumentTypeViewModel _selectedDocumentType;
 		private IList<EdoInOrderDocumentHistoryRowViewModel> _allDocuments;
@@ -30,7 +38,10 @@ namespace Vodovoz.ViewModels.Edo
 		private EdoInOrderProblemViewModel _selectedProblem;
 		private IEnumerable<EdoInOrderProblemNode> _allProblems;
 		private IEnumerable<EdoInOrderTransferNode> _allTransfers;
-		private bool _hasProblems;
+		private IEnumerable<EdoInOrderReceiptNode> _allReceipts;
+		private IEnumerable<EdoInOrderTaxcomDocflowNode> _allDocflows;
+		private bool _hasActiveProblems;
+		private string _problemMessage;
 		private string _problemDescription;
 		private string _problemRecommendation;
 		private IList<string> _problemItems;
@@ -38,17 +49,21 @@ namespace Vodovoz.ViewModels.Edo
 		public EdoInOrderViewModel(
 			IEdoRepository edoRepository,
 			EdoInOrderDocumentActionsViewModel edoInOrderDocumentActionsViewModel,
-			OrderCodesViewModel orderCodesViewModel
-			)
+			OrderCodesViewModel orderCodesViewModel,
+			IEdoService edoService,
+			IInteractiveService interactiveService)
 		{
 			_documents = new List<EdoInOrderDocumentHistoryRowViewModel>();
 			_edoRepository = edoRepository ?? throw new System.ArgumentNullException(nameof(edoRepository));
 			EdoInOrderDocumentActionsViewModel = edoInOrderDocumentActionsViewModel ?? throw new ArgumentNullException(nameof(edoInOrderDocumentActionsViewModel));
 			OrderCodesViewModel = orderCodesViewModel ?? throw new ArgumentNullException(nameof(orderCodesViewModel));
-
 			_allProblems = new List<EdoInOrderProblemNode>();
+			_problems = new List<EdoInOrderProblemViewModel>();
 
 			RefreshCommnand = new DelegateCommand(Refresh);
+			EdoInOrderDocumentActionsViewModel.EdoInOrderRefreshCommand = RefreshCommnand;
+			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}
 
 		public ICommand RefreshCommnand { get; }
@@ -84,12 +99,19 @@ namespace Vodovoz.ViewModels.Edo
 			get => _selectedDocument;
 			set
 			{
-				if(SetField(ref _selectedDocument, value))
+				if(_selectedDocument == value)
 				{
-					SelectDocument();
-					SelectProblemsByDocument();
-					EdoInOrderDocumentActionsViewModel.SelectedDocument = _selectedDocument;
+					return;
 				}
+				_selectedDocument = value;
+				SelectDocument();
+				SelectProblemsByDocument();
+				EdoInOrderDocumentActionsViewModel.SelectedDocument = _selectedDocument;
+				if(_codesLoaded)
+				{
+					OrderCodesViewModel.LoadForDocument(_orderId, _selectedDocument?.Document.TaskId ?? 0);
+				}
+				OnPropertyChanged(nameof(SelectedDocument));
 			}
 		}
 
@@ -123,10 +145,16 @@ namespace Vodovoz.ViewModels.Edo
 			}
 		}
 
-		public virtual bool HasProblems
+		public virtual bool HasActiveProblems
 		{
-			get => _hasProblems;
-			set => SetField(ref _hasProblems, value);
+			get => _hasActiveProblems;
+			set => SetField(ref _hasActiveProblems, value);
+		}
+
+		public virtual string ProblemMessage
+		{
+			get => _problemMessage;
+			set => SetField(ref _problemMessage, value);
 		}
 
 		public virtual string ProblemDescription
@@ -147,7 +175,6 @@ namespace Vodovoz.ViewModels.Edo
 			set => SetField(ref _problemItems, value);
 		}
 
-
 		public virtual void Setup(IUnitOfWork uow, int orderId)
 		{
 			_orderId = orderId;
@@ -158,20 +185,33 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			if(_loaded)
 			{
+				_logger.Info("ЭДО заказа {OrderId}: повторная активация вкладки без загрузки", _orderId);
 				return;
 			}
 
+			var stopwatch = Stopwatch.StartNew();
+			_logger.Info("ЭДО заказа {OrderId}: начало первой загрузки вкладки", _orderId);
 			Refresh();
 
 			_loaded = true;
+			_logger.Info("ЭДО заказа {OrderId}: первая загрузка вкладки завершена за {Elapsed}", _orderId, stopwatch.Elapsed);
 		}
 
 		private void Refresh()
 		{
+			var totalStopwatch = Stopwatch.StartNew();
+			var stepStopwatch = Stopwatch.StartNew();
+
 			var documents = _edoRepository.GetEdoInOrderDocuments(_uow, _orderId);
 			_allDocuments = documents.Select(x => new EdoInOrderDocumentHistoryRowViewModel(x)).ToList();
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка документов, получено {Count}: {Elapsed}",
+				_orderId,
+				_allDocuments.Count,
+				stepStopwatch.Elapsed);
 
 
+			stepStopwatch.Restart();
 			var documentGroupTypes = Enum.GetValues(typeof(EdoInOrderDocumentGroupType))
 				.Cast<EdoInOrderDocumentGroupType>()
 				.Select(x => new EdoInOrderDocumentTypeViewModel(x))
@@ -191,12 +231,61 @@ namespace Vodovoz.ViewModels.Edo
 				.OrderByDescending(x => x.Quantity)
 				.ThenBy(x => (int)x.DocumentGroupType)
 				.ToList();
+			_logger.Info(
+				"ЭДО заказа {OrderId}: подготовка групп документов, групп {Count}: {Elapsed}",
+				_orderId,
+				DocumentGroupTypes.Count,
+				stepStopwatch.Elapsed);
 
-			OrderCodesViewModel.OrderId = _orderId;
-			OrderCodesViewModel.RefreshCommand.Execute(null);
-
+			stepStopwatch.Restart();
 			_allProblems = _edoRepository.GetEdoProblemsForOrder(_uow, _orderId);
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка проблем, получено {Count}: {Elapsed}",
+				_orderId,
+				_allProblems.Count(),
+				stepStopwatch.Elapsed);
+
+			stepStopwatch.Restart();
 			_allTransfers = _edoRepository.GetTransferEdoTasksForOrder(_uow, _orderId);
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка трансферов, получено {Count}: {Elapsed}",
+				_orderId,
+				_allTransfers.Count(),
+				stepStopwatch.Elapsed);
+
+			stepStopwatch.Restart();
+			_allReceipts = _edoRepository.GetReceiptsForOrder(_uow, _orderId);
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка чеков, получено {Count}: {Elapsed}",
+				_orderId,
+				_allTransfers.Count(),
+				stepStopwatch.Elapsed);
+
+			stepStopwatch.Restart();
+			_allDocflows = _edoRepository.GetEdoInOrderDocflows(_uow, _orderId);
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка документооборотов, получено {Count}: {Elapsed}",
+				_orderId,
+				_allTransfers.Count(),
+				stepStopwatch.Elapsed);
+
+			_logger.Info("ЭДО заказа {OrderId}: полное обновление данных вкладки: {Elapsed}", _orderId, totalStopwatch.Elapsed);
+
+			SelectedDocumentGroupType = DocumentGroupTypes.FirstOrDefault();
+		}
+
+		public virtual void LoadCodes()
+		{
+			if(_codesLoaded)
+			{
+				_logger.Info("ЭДО заказа {OrderId}: повторная активация вкладки кодов ЧЗ без загрузки", _orderId);
+				return;
+			}
+
+			var stopwatch = Stopwatch.StartNew();
+			OrderCodesViewModel.LoadForDocument(_orderId, SelectedDocument?.Document.TaskId ?? 0);
+			_codesLoaded = true;
+			_logger.Info("ЭДО заказа {OrderId}: загрузка кодов ЧЗ: {Elapsed}", _orderId, stopwatch.Elapsed);
 		}
 
 		private void SelectDocumentsByGroup()
@@ -204,12 +293,15 @@ namespace Vodovoz.ViewModels.Edo
 			if(SelectedDocumentGroupType == null)
 			{
 				Documents = new List<EdoInOrderDocumentHistoryRowViewModel>();
+				SelectedDocument = null;
 				return;
 			}
 
 			Documents = _allDocuments
 				.Where(x => x.DocumentGroupType == SelectedDocumentGroupType.DocumentGroupType)
 				.ToList();
+
+			SelectedDocument = Documents.FirstOrDefault();
 		}
 
 		private void SelectDocument()
@@ -225,8 +317,15 @@ namespace Vodovoz.ViewModels.Edo
 			DocumentViewModel = new EdoInOrderDocumentViewModel(
 				SelectedDocument,
 				PipelineViewModel,
-				_allTransfers
-			);
+				_allTransfers,
+				_allReceipts,
+				_allDocflows,
+				_edoService,
+				_interactiveService
+			)
+			{
+				EdoInOrderRefreshCommand = RefreshCommnand
+			};
 		}
 
 		private PipelineViewModel CreateStages(EdoInOrderDocumentHistoryRowViewModel historyRow)
@@ -273,6 +372,14 @@ namespace Vodovoz.ViewModels.Edo
 			foreach(var enumValue in updValues)
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
+
+				if(enumValue == DocumentEdoTaskStage.Completed &&
+					document.TaskUpdStage.Value == DocumentEdoTaskStage.Completed)
+				{
+					pipelineStageViewModel.Status = StageStatus.Completed;
+					stageViewModels.Add(pipelineStageViewModel);
+					continue;
+				}
 
 				if(enumValue == document.TaskUpdStage.Value)
 				{
@@ -326,6 +433,14 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
 
+				if(enumValue == EdoReceiptStatus.Completed && 
+					document.TaskReceiptStage.Value == EdoReceiptStatus.Completed)
+				{
+					pipelineStageViewModel.Status = StageStatus.Completed;
+					stageViewModels.Add(pipelineStageViewModel);
+					continue;
+				}
+
 				if(enumValue == EdoReceiptStatus.SavedToPool)
 				{
 					if(document.TaskReceiptStage.Value == EdoReceiptStatus.SavedToPool)
@@ -336,8 +451,6 @@ namespace Vodovoz.ViewModels.Edo
 					}
 					else
 					{
-						pipelineStageViewModel.Status = StageStatus.NotStarted;
-						stageViewModels.Add(pipelineStageViewModel);
 						continue;
 					}
 				}
@@ -394,6 +507,14 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
 
+				if(enumValue == TenderEdoTaskStage.ManualUploaded &&
+					document.TaskTenderStage.Value == TenderEdoTaskStage.ManualUploaded)
+				{
+					pipelineStageViewModel.Status = StageStatus.Completed;
+					stageViewModels.Add(pipelineStageViewModel);
+					continue;
+				}
+
 				if(enumValue == document.TaskTenderStage.Value)
 				{
 					if(document.TaskStatus == EdoTaskStatus.Problem)
@@ -431,8 +552,10 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			if(_selectedDocument == null)
 			{
-				HasProblems = false;
+				HasActiveProblems = false;
 				Problems = new List<EdoInOrderProblemViewModel>();
+				SelectedProblem = null;
+				ShowProblemDetails();
 				return;
 			}
 
@@ -442,10 +565,10 @@ namespace Vodovoz.ViewModels.Edo
 				;
 
 			Problems = new List<EdoInOrderProblemViewModel>(viewModels);
-			if(viewModels.Any())
+			SelectedProblem = Problems.FirstOrDefault();
+			if(viewModels.Any(x => x.ProblemNode?.State == TaskProblemState.Active))
 			{
-
-				HasProblems = true;
+				HasActiveProblems = true;
 			}
 		}
 
@@ -453,12 +576,14 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			if(SelectedProblem == null)
 			{
-				ProblemDescription = null;
-				ProblemRecommendation = null;
+				ProblemMessage = "";
+				ProblemDescription = "";
+				ProblemRecommendation = "";
 				ProblemItems = new List<string>();
 			}
 			else
 			{
+				ProblemMessage = SelectedProblem.Message;
 				ProblemDescription = SelectedProblem.Description;
 				ProblemRecommendation = SelectedProblem.Recomendation;
 				ProblemItems = SelectedProblem.ProblemItems;

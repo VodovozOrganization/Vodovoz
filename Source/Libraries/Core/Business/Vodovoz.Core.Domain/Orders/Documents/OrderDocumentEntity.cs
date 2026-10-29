@@ -6,7 +6,7 @@ using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.Core.Domain.Orders.Documents
 {
-	public class OrderDocumentEntity : PropertyChangedBase
+	public class OrderDocumentEntity : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		OrderEntity _order;
@@ -73,23 +73,5 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		/// </summary>
 		[Display(Name = "Наименование документа")]
 		public virtual string Name { get; }
-	}
-
-	/// <summary>
-	/// Интерфейс необходим для документов заказа, напротив которых должен быть крыжик
-	/// "Без рекламы" в разделе "Документы" в диалоге заказа.
-	/// </summary>
-	public interface IAdvertisable
-	{
-		bool WithoutAdvertising { get; set; }
-	}
-
-	/// <summary>
-	/// Интерфейс необходим для документов заказа, напротив которых должен быть крыжик
-	/// "Без подписей и печати" в разделе "Документы" в диалоге заказа.
-	/// </summary>
-	public interface ISignableDocument
-	{
-		bool HideSignature { get; set; }
 	}
 }

@@ -1,9 +1,10 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
@@ -12,20 +13,95 @@ namespace Vodovoz.Core.Data.Repositories
 {
 	public interface IEdoRepository
 	{
+		/// <summary>
+		/// Получает документы в указанном статусе с истёкшими сроками либо без времени смены статуса.
+		/// </summary>
+		/// <param name="uow">Единица работы</param>
+		/// <param name="status">Статус фискального документа</param>
+		/// <param name="statusChangedBefore">Исключительная верхняя граница времени смены статуса</param>
+		/// <param name="statusChangedNotBefore">Включительная нижняя граница времени смены статуса; документы без времени выбираются для логирования</param>
+		/// <param name="notifiedNotAfter">Включительная верхняя граница предыдущего уведомления</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Идентификаторы фискальных документов</returns>
+		Task<IList<int>> GetFiscalDocumentIdsForQueueNotification(
+			IUnitOfWork uow,
+			FiscalDocumentStatus status,
+			DateTime statusChangedBefore,
+			DateTime statusChangedNotBefore,
+			DateTime notifiedNotAfter,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить список организаций
+		/// </summary>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список организаций</returns>
 		Task<IEnumerable<OrganizationEntity>> GetEdoOrganizationsAsync(CancellationToken cancellationToken);
-		Task<IEnumerable<GtinEntity>> GetGtinsAsync(CancellationToken cancellationToken);
-		Task<IEnumerable<GroupGtinEntity>> GetGroupGtinsAsync(CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Есть ли сегодня чек на указанную сумму
+		/// </summary>
+		/// <param name="sum">Сумма чека</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат проверки</returns>
 		Task<bool> HasReceiptOnSumToday(decimal sum, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить задачу ЭДО по идентификатору задачи
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Задача ЭДО</returns>
+		Task<OrderEdoTask> GetOrderEdoTaskById(
+			IUnitOfWork uow,
+			int taskId,
+			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получает просроченные новые задачи ЭДО, которые можно повторно запустить
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="maxCreationTime">Максимальное время создания задачи</param>
+		/// <param name="batchSize">Максимальное количество задач</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список задач для повторного запуска</returns>
+		Task<IList<OrderEdoTask>> GetStaleNewEdoTasks(
+			IUnitOfWork uow,
+			DateTime maxCreationTime,
+			int batchSize,
+			CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Получает ЭДО документы заказа по идентификатору заказа
 		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="orderId"></param>
-		/// <returns></returns>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список документов ЭДО</returns>
 		IEnumerable<OrderEdoDocument> GetOrderEdoDocumentsByOrderId(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает задачи ЭДО по идентификатору заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список задач ЭДО</returns>
 		IEnumerable<OrderEdoTask> GetEdoTaskByOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получает задачи ЭДО для указанного заказа в виде узлов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов задач ЭДО</returns>
 		IEnumerable<OrderEdoTaskNode> GetEdoTasksForOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получает задачи ЭДО для указанного заказа в виде узлов с информацией о документообороте
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов документооборота ЭДО</returns>
 		IEnumerable<EdoDocflowForOrderNode> GetEdoDocflowsForOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
@@ -72,6 +148,21 @@ namespace Vodovoz.Core.Data.Repositories
 		) where T : OrderEdoTask;
 
 		/// <summary>
+		/// Возвращает данные для обработки активных проблем контакта при отправке чека
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="problemSourceNames">Имена источников проблем</param>
+		/// <param name="minCreationTime">Минимальное время создания задачи</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные задач, проблем и состояния их обработки</returns>
+		Task<IList<ReceiptContactProblemNode>> GetReceiptContactProblemNodes(
+			IUnitOfWork uow,
+			IEnumerable<string> problemSourceNames,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken
+		);
+
+		/// <summary>
 		/// Возвращает идентификаторы задач ЭДО с ошибкой отправки, которые связаны с документами, созданными после указанного времени
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
@@ -98,11 +189,180 @@ namespace Vodovoz.Core.Data.Repositories
 			CancellationToken cancellationToken
 		);
 
+		/// <summary>
+		/// Получает список документов ЭДО для указанного заказа в виде узлов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов документов ЭДО</returns>
 		IEnumerable<EdoInOrderDocumentNode> GetEdoInOrderDocuments(
 			IUnitOfWork uow,
 			int orderId
 		);
+
+		/// <summary>
+		/// Получает список проблем ЭДО для указанного заказа в виде узлов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов проблем ЭДО</returns>
 		IEnumerable<EdoInOrderProblemNode> GetEdoProblemsForOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получит список задач ЭДО по передаче документов для указанного заказа в виде узлов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов задач ЭДО</returns>
 		IEnumerable<EdoInOrderTransferNode> GetTransferEdoTasksForOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает сгруппированные данные ЭДО, по которым истекло время подтверждения УПД от клиента
+		/// </summary>
+		/// <param name="unitOfWork">UnitOfWork</param>
+		/// <param name="timeoutDays">Количество дней до истечения принятия УПД</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<IList<TimedOutDocFlowGrouppedNode>> GetTimedOutDocFlows(
+			IUnitOfWork unitOfWork,
+			int timeoutDays,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить список чеков для указанного заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов чеков для указанного заказа</returns>
+		IEnumerable<EdoInOrderReceiptNode> GetReceiptsForOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получить список документооборотов по налоговой для указанного заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Список узлов документооборота для указанного заказа</returns>
+		IEnumerable<EdoInOrderTaxcomDocflowNode> GetEdoInOrderDocflows(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получить GTIN по номеру GTIN
+		/// </summary>
+		/// <param name="gtinNumber">Номер GTIN</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Сущность GTIN</returns>
+		Task<GtinEntity> GetGtinByGtinNumberAsync(
+			string gtinNumber,
+			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получить список узлов проблем с отсутствием кодов в пуле
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="batchSize">Размер партии (опционально)</param>
+		/// <param name="retryIntervalHours">Интервал повторной попытки в часах</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Коллекция узлов проблем с отсутствием кодов в пуле</returns>
+		Task<IList<CodePoolMissingProblemNode>> GetCodePoolMissingProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int? batchSize,
+			int retryIntervalHours,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает задачи с активными проблемами для возобновления
+		/// </summary>
+		/// <param name="unitOfWork">UnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="minCreationTime">Минимальное время создания задачи</param>
+		/// <param name="reasonForLeaving">Причина выбытия из документооборота</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		Task<IList<EdoTaskProblemRoutineNode>> GetProblemEdoTasksForResume(
+			IUnitOfWork unitOfWork,
+			string problemSourceName,
+			DateTime minCreationTime,
+			ReasonForLeaving? reasonForLeaving = null,
+			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получить список узлов проблем с отправкой в Такском для указанного источника проблемы
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="batchSize">Размер партии</param>
+		/// <param name="retryDelays">Массив задержек между попытками</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список узлов проблем с отправкой в Такском</returns>
+		Task<IList<TaxcomSendProblemNode>> GetTaxcomSendProblemNodes(
+			IUnitOfWork uow,
+			string problemSourceName,
+			int? batchSize,
+			TimeSpan[] retryDelays,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить документ ЭДО по идентификатору задачи
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Документ ЭДО</returns>
+		OrderEdoDocument GetOrderEdoDocumentByTaskId(IUnitOfWork uow, int taskId);
+
+		/// <summary>
+		/// Получить список статусов ЭДО, которые считаются полученными
+		/// </summary>
+		/// <returns>Массив статусов ЭДО</returns>
+		EdoDocFlowStatus[] GetRecievedEdoDocFlowStatuses();
+
+		// <summary>
+		/// Получить список статусов ЭДО документов, которые считаются полученными
+		/// </summary>
+		/// <returns>Массив статусов ЭДО документов</returns>
+		EdoDocumentStatus[] GetInProgressOrCompletedStatuses();
+
+		/// <summary>
+		/// Получить ДО Такском по идентификатору ДО
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="docflowId">Идентификатор ДО</param>
+		/// <returns>ДО Такском</returns>
+		TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId);
+
+		/// <summary>
+		/// Идентификаторы документооборотов кабинета, которые дольше порога остаются в статусах «Получено оператором» или «В процессе».
+		/// </summary>
+		IList<Guid> GetDocflowIdsStuckInSentOrInProgress(
+			IUnitOfWork uow,
+			string edoAccount,
+			DateTime statusChangedBefore);
+
+		/// <summary>
+		/// Проверяет наличие активной проблемы с указанными источниками для задачи ЭДО
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="taskId">Id задачи ЭДО</param>
+		/// <param name="problemSourceNames">Массив имен источников проблем</param>
+		/// <returns></returns>
+		bool HasActiveProblemWithSource(IUnitOfWork uow, int taskId, IEnumerable<string> problemSourceNames);
+
+		/// <summary>
+		/// Предоставляет данные о расхождении в документообороте ЭДО
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="edoDocumentId">Id документа</param>
+		/// <returns></returns>
+		EdoDiscrepancyNode GetEdoDiscrepancy(IUnitOfWork uow, int edoDocumentId);
+
+		/// <summary>
+		/// Предоставляет последнюю1 актуальную ЭДО заявку для заказа
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="orderId">Id заказа</param>
+		/// <returns></returns>
+		FormalEdoRequest GetLastActualFormalEdoRequest(IUnitOfWork uow, int orderId);
+		bool HasEdoDocflowDiscrepancyForOrder(IUnitOfWork uow, int orderId);
+
+		IEnumerable<string> GetGtinsInOrder(IUnitOfWork uow, int orderId);
 	}
 }

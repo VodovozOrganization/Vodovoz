@@ -1,4 +1,4 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

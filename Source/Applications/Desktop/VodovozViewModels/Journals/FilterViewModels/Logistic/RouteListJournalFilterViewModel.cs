@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+﻿using DynamicData;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.Project.Filter;
@@ -12,6 +13,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Logistic;
+using VodovozBusiness.Extensions;
 using SaleGeoGroup = Vodovoz.Domain.Sale.GeoGroup;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
@@ -81,8 +83,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				}
 			}
 
+			var carTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExclude;
+			var carTypeOfUseForExcludeEnum = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 			var restrictedCarTypeOfUse = EnumHelper.GetValuesList<CarTypeOfUse>().ToList();
-			restrictedCarTypeOfUse.Remove(CarTypeOfUse.Loader);
+			restrictedCarTypeOfUse.Remove(carTypeOfUseForExclude);
+			CarTypeOfUseForExclude = carTypeOfUseForExcludeEnum;
 
 			_restrictedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>();
 			_restrictedCarTypesOfUse = restrictedCarTypeOfUse;
@@ -100,6 +105,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			get => _excludeIds;
 			set => UpdateFilterField(ref _excludeIds, value);
 		}
+
+		public Enum[] CarTypeOfUseForExclude { get; }
 
 		public IList<SaleGeoGroup> GeographicGroups => _geographicGroups ?? (_geographicGroups = UoW.GetAll<SaleGeoGroup>().ToList());
 

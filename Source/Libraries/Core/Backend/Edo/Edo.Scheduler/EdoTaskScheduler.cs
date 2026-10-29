@@ -3,9 +3,11 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 
 namespace Edo.Scheduler.Service
@@ -20,7 +22,7 @@ namespace Edo.Scheduler.Service
 		private readonly BillForPaymentEdoRequestTaskScheduler _billForPaymentEdoRequestTaskScheduler;
 		private readonly EquipmentTransferEdoRequestTaskScheduler _equipmentTransferEdoRequestTaskScheduler;
 		private readonly WithdrawalEdoRequestScheduler _withdrawalEdoRequestScheduler;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public EdoTaskScheduler(
 			ILogger<EdoTaskScheduler> logger,
@@ -31,7 +33,7 @@ namespace Edo.Scheduler.Service
 			BillForPaymentEdoRequestTaskScheduler billForPaymentEdoRequestTaskScheduler,
 			EquipmentTransferEdoRequestTaskScheduler equipmentTransferEdoRequestTaskScheduler,
 			WithdrawalEdoRequestScheduler withdrawalEdoRequestScheduler,
-			IBus messageBus
+			IPublishEndpoint publishEndpoint
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -42,7 +44,7 @@ namespace Edo.Scheduler.Service
 			_billForPaymentEdoRequestTaskScheduler = billForPaymentEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(billForPaymentEdoRequestTaskScheduler));
 			_equipmentTransferEdoRequestTaskScheduler = equipmentTransferEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(equipmentTransferEdoRequestTaskScheduler));
 			_withdrawalEdoRequestScheduler = withdrawalEdoRequestScheduler ?? throw new ArgumentNullException(nameof(withdrawalEdoRequestScheduler));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		public async Task CreateTask(int requestId, CancellationToken cancellationToken)
@@ -58,6 +60,30 @@ namespace Edo.Scheduler.Service
 			if(edoTask != null)
 			{
 				_logger.LogWarning("Для клиентскаой ЭДО заявки Id {CustomerEdoRequestId} уже была создана задача.", requestId);
+				return;
+			}
+			
+			if(request.Order != null && request.Order.IsUndeliveredStatus)
+			{
+				_logger.LogWarning(
+					"Для клиентской ЭДО заявки Id {CustomerEdoRequestId} задача не создается, "
+					+ "так как заказ №{OrderId} находится в статусе {OrderStatus}.",
+					requestId,
+					request.Order.Id,
+					request.Order.OrderStatus);
+				return;
+			}
+
+			if(request.DocumentType == EdoDocumentType.UPD
+				&& request.Order != null
+				&& !request.Order.OrderItems.Any(item =>
+					item.Nomenclature.Category != NomenclatureCategory.deposit
+					&& item.ActualSum > 0m))
+			{
+				_logger.LogInformation(
+					"Заказ без продажи кроме залога. Задачу УПД по ЭДО не создаём. RequestId: {RequestId}. OrderId: {OrderId}",
+					requestId,
+					request.Order.Id);
 				return;
 			}
 
@@ -85,7 +111,6 @@ namespace Edo.Scheduler.Service
 
 			await _uow.SaveAsync(request, cancellationToken: cancellationToken);
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			object message = null;
 			switch(edoTask.TaskType)
@@ -116,8 +141,10 @@ namespace Edo.Scheduler.Service
 
 			if(message != null)
 			{
-				await _messageBus.Publish(message, cancellationToken);
+				await _publishEndpoint.Publish(message, cancellationToken);
 			}
+
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		/// <summary>
@@ -139,23 +166,53 @@ namespace Edo.Scheduler.Service
 			EdoTask edoTask = request.Task;
 			if(edoTask != null)
 			{
+				if(edoTask.Status == EdoTaskStatus.New && edoTask.TaskType == EdoTaskType.InformalOrderDocument)
+				{
+					await _publishEndpoint.Publish(new InformalOrderDocumenTaskCreatedEvent
+					{
+						InformalOrderDocumentTaskId = edoTask.Id
+					}, cancellationToken);
+				}
 				_logger.LogWarning("Для ЭДО заявки Id {InformalEdoRequest} уже была создана задача.", requestId);
+				return;
+			}	
+			
+			if(!request.IsBill && request.Order != null && request.Order.IsUndeliveredStatus)
+			{
+				_logger.LogWarning(
+					"Для ЭДО заявки Id {InformalEdoRequest} задача не создается, "
+					+ "так как заказ №{OrderId} находится в статусе {OrderStatus}.",
+					requestId,
+					request.Order.Id,
+					request.Order.OrderStatus);
 				return;
 			}
 
-			switch(request.OrderDocumentType)
+			if(request.IsBill)
 			{
-				case OrderDocumentType.EquipmentTransfer:
-					edoTask = _equipmentTransferEdoRequestTaskScheduler.CreateTask((EquipmentTransferEdoRequest)request);
-					break;
-				default:
-					throw new InvalidOperationException($"Неизвестный тип заявки " +
-						$"{nameof(InformalEdoRequest)} {request.Type}");
+				if(string.IsNullOrWhiteSpace(request.DocumentSnapshot))
+				{
+					throw new InvalidOperationException($"У заявки счета №{request.Id} отсутствует снимок документа");
+				}
+				var billTask = new OrderDocumentEdoTask { Status = EdoTaskStatus.New };
+				request.Task = billTask;
+				edoTask = billTask;
+			}
+			else
+			{
+				switch(request.OrderDocumentType)
+				{
+					case OrderDocumentType.EquipmentTransfer:
+						edoTask = _equipmentTransferEdoRequestTaskScheduler.CreateTask((EquipmentTransferEdoRequest)request);
+						break;
+					default:
+						throw new InvalidOperationException($"Неизвестный тип заявки " +
+							$"{nameof(InformalEdoRequest)} {request.Type}");
+				}
 			}
 
 			await _uow.SaveAsync(request, cancellationToken: cancellationToken);
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			if(edoTask.TaskType != EdoTaskType.InformalOrderDocument)
 			{
@@ -164,10 +221,8 @@ namespace Edo.Scheduler.Service
 
 			var message = new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = edoTask.Id };
 
-			if(message != null)
-			{
-				await _messageBus.Publish(message, cancellationToken);
-			}
+			await _publishEndpoint.Publish(message, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		public void Dispose()

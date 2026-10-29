@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Core.Infrastructure;
+using System;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Extensions;
 
 namespace Vodovoz.Errors.Orders
 {

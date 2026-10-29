@@ -1,4 +1,5 @@
-﻿using DatabaseServiceWorker.Options;
+﻿using Core.Infrastructure;
+using DatabaseServiceWorker.Options;
 using ExportTo1c.Library.Factories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,7 +15,6 @@ using System.Xml;
 using System.Xml.Linq;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Zabbix.Sender;
@@ -92,7 +92,7 @@ namespace DatabaseServiceWorker.ExportTo1c
 
 				await ExportIfNeeded(cancellationToken);
 
-				await _zabbixSender.SendIsHealthyAsync(cancellationToken);
+				await _zabbixSender.SendIsHealthyAsync(nameof(ExportTo1cWorker), cancellationToken);
 
 				_logger.LogInformation("Экспорт данных 1С из бд в файл завершён.");
 			}
@@ -100,7 +100,7 @@ namespace DatabaseServiceWorker.ExportTo1c
 			{
 				_logger.LogError(e, "Ошибка при экспорте данных 1С из бд в файл");
 
-				await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, "Ошибка экспорта данных для 1c.", cancellationToken);
+				await _zabbixSender.SendProblemMessageAsync(nameof(ExportTo1cWorker), ZabixSenderMessageType.Problem, "Ошибка экспорта данных для 1c.", cancellationToken);
 			}
 			finally
 			{

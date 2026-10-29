@@ -30,6 +30,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -39,7 +40,6 @@ namespace Vodovoz.ReportsParameters
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ISubdivisionRepository _subdivisionRepository;
-
 		private readonly IInteractiveService _interactiveService;
 		private Func<ReportInfo> _selectedReport;
 		private IList<NamedDomainObjectNode> _availableSubdivisionsForOneDayGroupReport;
@@ -67,7 +67,6 @@ namespace Vodovoz.ReportsParameters
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-
 			Build();
 			UoW = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -187,8 +186,9 @@ namespace Vodovoz.ReportsParameters
 			datepickerOneDayGroupReport.DateChanged += OnDatepickerOneDayGroupReportDateChanged;
 
 			// Тип автомобиля
+			var carTypeOfUseForExclude = CarTypeOfUseExtensions.CarTypeOfUseForExcludeAsEnum;
 			enumcheckCarTypeOfUseOneDayGroupReport.EnumType = typeof(CarTypeOfUse);
-			enumcheckCarTypeOfUseOneDayGroupReport.AddEnumToHideList(CarTypeOfUse.Loader);
+			enumcheckCarTypeOfUseOneDayGroupReport.AddEnumToHideList(carTypeOfUseForExclude);
 			SetChekBoxesInActive(new string[]{ CarTypeOfUse.Largus.ToString(), CarTypeOfUse.Minivan.ToString() }, ref enumcheckCarTypeOfUseOneDayGroupReport);
 
 			// Принадлежность автомобиля
