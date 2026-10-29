@@ -2,14 +2,17 @@
 using Edo.InformalOrderDocuments.Factories;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
+using EdoService.Library.Services;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 
@@ -25,13 +28,15 @@ namespace Edo.InformalOrderDocuments.Handlers
 		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly ILogger<OrderDocumentEdoTaskHandler> _logger;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly IBillEdoDocumentFileStorageService _billFileStorageService;
 
 		public OrderDocumentEdoTaskHandler(
 			IUnitOfWork uow,
 			IInformalOrderDocumentHandlerFactory handlerFactory,
 			IPublishEndpoint publishEndpoint,
 			ILogger<OrderDocumentEdoTaskHandler> logger,
-			EdoProblemRegistrar edoProblemRegistrar
+			EdoProblemRegistrar edoProblemRegistrar,
+			IBillEdoDocumentFileStorageService billFileStorageService
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -39,6 +44,7 @@ namespace Edo.InformalOrderDocuments.Handlers
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
+			_billFileStorageService = billFileStorageService ?? throw new ArgumentNullException(nameof(billFileStorageService));
 		}
 
 		/// <summary>
@@ -69,11 +75,38 @@ namespace Edo.InformalOrderDocuments.Handlers
 			}
 
 			// Повторная доставка события: документ по задаче уже создан и отправлен
-			if(edoTask.Status != EdoTaskStatus.New)
+if(edoTask.Status != EdoTaskStatus.New)
+{
+	_logger.LogWarning("Задача ЭДО №{TaskId} уже в статусе {TaskStatus}, повторное событие создания задачи пропущено",
+		edoTask.Id,
+		edoTask.Status);
+	return;
+}
+
+if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.InCancellation)
 			{
-				_logger.LogWarning("Задача ЭДО №{TaskId} уже в статусе {TaskStatus}, повторное событие создания задачи пропущено",
-					edoTask.Id,
-					edoTask.Status);
+				return;
+			}
+
+			if(informalEdoRequest.IsBill)
+			{
+				var snapshot = JsonSerializer.Deserialize<InfoForCreatingEdoInformalOrderDocument>(
+					informalEdoRequest.DocumentSnapshot);
+				if(snapshot?.IsBill != true || snapshot.FileData == null)
+				{
+					throw new InvalidOperationException($"У заявки счета №{informalEdoRequest.Id} отсутствует PDF снимка");
+				}
+
+				if(snapshot.FileData.Image == null)
+				{
+					snapshot.FileData.Image = await _billFileStorageService.GetAsync(snapshot.MainDocumentId, cancellationToken);
+				}
+				if(snapshot.FileData.Image.Length == 0)
+				{
+					throw new InvalidOperationException($"PDF счета заявки №{informalEdoRequest.Id} пустой");
+				}
+
+				await SendDocument(edoTask, snapshot.FileData, cancellationToken);
 				return;
 			}
 
@@ -101,20 +134,7 @@ namespace Edo.InformalOrderDocuments.Handlers
 
 				var result = await handler.ProcessDocumentAsync(order, orderDocument.Id, cancellationToken);
 
-				var edoDocument = CreateInformalDocument(edoTask.Id);
-				edoTask.Status = EdoTaskStatus.InProgress;
-
-				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
-				await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
-
-				var fileDataMessage = new InformalDocumentFileDataSendEvent
-				{
-					DocumentId = edoDocument.Id,
-					FileData = result
-				};
-
-				await _publishEndpoint.Publish(fileDataMessage, cancellationToken);
-				await _uow.CommitAsync(cancellationToken);
+				await SendDocument(edoTask, result, cancellationToken);
 
 			}
 			catch(Exception ex)
@@ -126,6 +146,34 @@ namespace Edo.InformalOrderDocuments.Handlers
 				throw;
 			}
 			
+		}
+
+		private async Task SendDocument(OrderDocumentEdoTask edoTask, OrderDocumentFileData fileData, CancellationToken cancellationToken)
+		{
+			var edoDocument = await _uow.Session.Query<OutgoingInformalEdoDocument>()
+				.Where(x => x.InformalDocumentTaskId == edoTask.Id)
+				.OrderByDescending(x => x.Id)
+				.FirstOrDefaultAsync(cancellationToken);
+
+			if(edoDocument == null)
+			{
+				edoDocument = CreateInformalDocument(edoTask.Id);
+				edoTask.Status = EdoTaskStatus.InProgress;
+				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+				await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
+				await _uow.CommitAsync(cancellationToken);
+			}
+			else if(edoDocument.Status != EdoDocumentStatus.NotStarted)
+			{
+				return;
+			}
+
+			await _publishEndpoint.Publish(new InformalDocumentFileDataSendEvent
+			{
+				DocumentId = edoDocument.Id,
+				FileData = fileData
+			}, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		private OutgoingInformalEdoDocument CreateInformalDocument(int edoTaskId)
@@ -211,6 +259,15 @@ namespace Edo.InformalOrderDocuments.Handlers
 			}
 
 			var documentTask = await _uow.Session.GetAsync<OrderDocumentEdoTask>(document.InformalDocumentTaskId, cancellationToken);
+
+			if(!string.IsNullOrEmpty(documentTask.CancellationReason))
+			{
+				documentTask.ProcessTaskCancellation(EdoTaskStatus.Cancelled, documentTask.CancellationReason);
+				documentTask.EndTime = DateTime.Now;
+				await _uow.SaveAsync(documentTask, cancellationToken: cancellationToken);
+				await _uow.CommitAsync(cancellationToken);
+				return;
+			}
 
 			await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
 				documentTask, cancellationToken, "Документооборот был отменен");

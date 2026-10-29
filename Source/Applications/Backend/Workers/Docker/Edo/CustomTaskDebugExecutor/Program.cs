@@ -36,6 +36,8 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
 using TransactionalOutbox.EntityFrameworkCore;
 using TransactionalOutbox.MassTransit;
+using Vodovoz.Infrastructure.FileStorage;
+using Vodovoz.Infrastructure.FileStorage.Options;
 
 namespace CustomTaskDebugExecutor
 {
@@ -83,6 +85,8 @@ namespace CustomTaskDebugExecutor
 				.AddCoreDataRepositories()
 				.AddCore()
 				.AddTrackedUoW()
+				.ConfigureOptions<ConfigureS3Options>()
+				.AddFileStorage()
 				.AddMessageTransportSettings()
 
 				.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))

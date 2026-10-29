@@ -810,9 +810,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		public bool NeedResendByEdo(IUnitOfWork unitOfWork, Order order)
 		{
-			return _orderRepository
-				.GetEdoContainersByOrderId(unitOfWork, order.Id)
-				.Count(x => x.Type == Domain.Documents.DocumentContainerType.Bill) > 0;
+			return _orderRepository.HasEdoBill(unitOfWork, order.Id);
 		}
 
 

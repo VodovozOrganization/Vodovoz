@@ -167,6 +167,13 @@ namespace Edo.Docflow.Taxcom
 			CancellationToken cancellationToken
 			)
 		{
+			if(@event.LegacyBillDocflowId.HasValue)
+			{
+				await _taxcomApiClient.SendOfferCancellation(
+					@event.LegacyBillDocflowId.Value.ToString(), @event.CancellationReason, cancellationToken);
+				return;
+			}
+
 			var docflow = await _uow.Session.QueryOver<TaxcomDocflow>()
 				.Where(x => x.EdoDocumentId == @event.DocumentId)
 				.Where(x => x.DocflowId != null)

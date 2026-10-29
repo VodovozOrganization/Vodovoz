@@ -223,6 +223,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
 
 		/// <summary>
+		/// Проверяет наличие старого контейнера или неформализованной заявки счета заказа
+		/// </summary>
+		/// <param name="uow">Единица работы</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Наличие счета в старом или новом процессе ЭДО</returns>
+		bool HasEdoBill(IUnitOfWork uow, int orderId);
+
+		/// <summary>
 		/// Получение заказа по идентификатору исходящего ЭДО документа
 		/// </summary>
 		/// <param name="uow"></param>
@@ -257,7 +265,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
 		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
 		IQueryable<OksDailyReportOrderDiscountDataNode> GetOrdersDiscountsDataForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
-		IEnumerable<Order> GetOrdersForResendBills(IUnitOfWork uow, int? organizationId = null);
 
 		/// <summary>
 		/// Получить все добавленные коды ЧЗ для указанного заказа с доставкой
