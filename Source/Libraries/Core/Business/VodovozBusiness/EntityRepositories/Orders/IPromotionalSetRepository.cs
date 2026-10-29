@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Nodes;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
@@ -24,5 +23,19 @@ namespace Vodovoz.EntityRepositories.Orders
 		Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(
 			IUnitOfWork uow, Order currOrder, bool ignoreCurrentOrder = false);
 		bool AddressHasAlreadyBeenUsedForPromoForNewClients(IUnitOfWork uow, DeliveryPoint deliveryPoint);
+		/// <summary>
+		/// Получение данных по промонаборам онлайн заказа
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="onlineOrderId">Идентификатор онлайн заказа</param>
+		/// <returns></returns>
+		IEnumerable<OnlineOrderPromoSetNode> GetOnlineOrderPromoSetsData(IUnitOfWork uow, int onlineOrderId);
+		/// <summary>
+		/// Получение данных по товарам промонаборов онлайн заказа
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="onlineOrderId">Идентификатор онлайн заказа</param>
+		/// <returns></returns>
+		IEnumerable<OnlineOrderPromoSetItemNode> GetOnlineOrderPromoSetItemsData(IUnitOfWork uow, int onlineOrderId);
 	}
 }

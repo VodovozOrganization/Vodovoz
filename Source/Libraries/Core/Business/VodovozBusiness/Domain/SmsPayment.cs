@@ -11,6 +11,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Domain
@@ -91,7 +92,9 @@ namespace Vodovoz.Domain
 			DateTime datePaid,
 			PaymentFrom paymentFrom,
 			INomenclatureSettings nomenclatureSettings,
-			IOrderContractUpdater contractUpdater)
+			IOrderContractUpdater contractUpdater,
+			IOrderSaleHandler saleHandler
+			)
         {
             SmsPaymentStatus = SmsPaymentStatus.Paid;
             
@@ -102,6 +105,7 @@ namespace Vodovoz.Domain
             {
                 Order.TryCloseSelfDeliveryPayAfterShipmentOrder(
                     uow,
+					saleHandler,
 					nomenclatureSettings,
                     ScopeProvider.Scope.Resolve<IRouteListItemRepository>(),
                     ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>(),
@@ -114,7 +118,7 @@ namespace Vodovoz.Domain
                 && Order.OrderStatus == OrderStatus.WaitForPayment
                 && !Order.PayAfterShipment)
             {
-                Order.ChangeStatus(OrderStatus.OnLoading);
+                Order.ChangeStatus(saleHandler, OrderStatus.OnLoading);
                 Order.IsSelfDeliveryPaid = true;
             }
             

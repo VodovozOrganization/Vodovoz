@@ -1,11 +1,12 @@
-﻿using QS.Project.Journal;
+﻿using QS.DomainModel.Entity;
+using QS.Project.Journal;
 using QS.Project.Journal.DataLoader.Hierarchy;
 using System;
 using System.Collections.Generic;
 
 namespace Vodovoz.ViewModels.Goods.ProductGroups
 {
-	public class ProductGroupsJournalNode : JournalNodeBase, IHierarchicalNode<ProductGroupsJournalNode>
+	public class ProductGroupsJournalNode : JournalNodeBase, IHierarchicalNode<ProductGroupsJournalNode>, INamedDomainObject
 	{
 		public override string Title => Name;
 		public int Id { get; set; }

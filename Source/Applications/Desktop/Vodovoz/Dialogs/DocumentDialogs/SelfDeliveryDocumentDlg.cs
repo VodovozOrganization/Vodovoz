@@ -65,6 +65,7 @@ namespace Vodovoz
 		private IBottlesRepository _bottlesRepository;
 		private IStoreDocumentHelper _storeDocumentHelper;
 		private INomenclatureRepository _nomenclatureRepository;
+		private IOrderSaleHandler _saleHandler;
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
 		private IGenericRepository<FormalEdoRequest> _orderEdoRequestRepository;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
@@ -140,6 +141,7 @@ namespace Vodovoz
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 			_orderEdoRequestRepository = _lifetimeScope.Resolve<IGenericRepository<FormalEdoRequest>>();
 			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
+			_saleHandler = _lifetimeScope.Resolve<IOrderSaleHandler>();
 		}
 		
 		private void ConfigureValidationContext(IValidationContextFactory validationContextFactory)
@@ -414,7 +416,14 @@ namespace Vodovoz
 			var routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
 			var selfDeliveryRepository = _lifetimeScope.Resolve<ISelfDeliveryRepository>();
 
-			if(Entity.FullyShiped(UoW, nomenclatureSettings, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker))
+			if(Entity.FullyShiped(
+				UoW,
+				nomenclatureSettings,
+				routeListItemRepository,
+				selfDeliveryRepository,
+				cashRepository,
+				callTaskWorker,
+				_saleHandler))
 			{
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 			}

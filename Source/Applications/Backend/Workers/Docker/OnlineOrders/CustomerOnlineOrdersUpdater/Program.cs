@@ -48,6 +48,7 @@ namespace CustomerOnlineOrdersUpdater
 						.AddConfig(hostContext.Configuration)
 						.AddDependenciesGroup()
 						.AddCoreApplicationOrderServices()
+						.AddCoreDataRepositories()
 
 						.AddStaticScopeForEntity()
 						.AddStaticHistoryTracker()

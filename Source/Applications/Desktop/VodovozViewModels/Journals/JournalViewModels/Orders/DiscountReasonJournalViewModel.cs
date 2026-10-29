@@ -1,21 +1,26 @@
 ﻿using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using Vodovoz.Core.Domain.Interfaces;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.ViewModels.ViewModels.Common;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
 	public class DiscountReasonJournalViewModel
-		 : EntityJournalViewModelBase<DiscountReason, DiscountReasonViewModel, DiscountReasonJournalNode>
+		 : EntityJournalViewModelBase<DiscountReasonBase, DiscountReasonViewModel, DiscountReasonJournalNode>
 	{
-
 		public DiscountReasonJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
@@ -29,12 +34,32 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			UpdateOnChanges(typeof(DiscountReason));
 		}
 
-		protected override IQueryOver<DiscountReason> ItemsQuery(IUnitOfWork unitOfWork)
+		protected override IQueryOver<DiscountReasonBase> ItemsQuery(IUnitOfWork unitOfWork)
 		{
-			DiscountReason drAlias = null;
+			DiscountReasonBase drAlias = null;
 			DiscountReasonJournalNode drNodeAlias = null;
 
 			var query = unitOfWork.Session.QueryOver(() => drAlias);
+			
+			var discountReasonTypeProjection = Projections.Conditional(
+				new[]
+				{
+					new ConditionalProjectionCase(
+						Restrictions.Where(() => drAlias.DiscountReasonType == DiscountReasonType.PromoCode),
+						Projections.Select(() => typeof(PromoCodeDiscount))),
+					new ConditionalProjectionCase(
+						Restrictions.Where(() => drAlias.DiscountReasonType == DiscountReasonType.AutoOrder),
+						Projections.Select(() => typeof(AutoOrderDiscount))),
+					new ConditionalProjectionCase(
+						Restrictions.Where(() => drAlias.DiscountReasonType == DiscountReasonType.FirstOnlineOrderDiscount),
+						Projections.Select(() => typeof(FirstOnlineOrderDiscount)))
+				},
+				Projections.Select(() => typeof(DiscountReason)));
+
+			var nameProjection = Projections.Conditional(
+				Restrictions.Where(() => drAlias.DiscountReasonType == DiscountReasonType.PromoCode),
+				CustomProjections.Concat_WS(" ", Projections.Constant("Промокод"), Projections.Property(() => drAlias.Name)),
+				Projections.Property(() => drAlias.Name));
 
 			query.Where(GetSearchCriterion(
 				() => drAlias.Id,
@@ -42,11 +67,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			return query.SelectList(list => list
 					.Select(dr => dr.Id).WithAlias(() => drNodeAlias.Id)
-					.Select(dr => dr.Name).WithAlias(() => drNodeAlias.Name)
+					.Select(discountReasonTypeProjection).WithAlias(() => drNodeAlias.EntityType)
+					.Select(nameProjection).WithAlias(() => drNodeAlias.Name)
 					.Select(dr => dr.IsArchive).WithAlias(() => drNodeAlias.IsArchive))
 				.OrderBy(dr => dr.IsArchive).Asc
 				.OrderBy(dr => dr.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<DiscountReasonJournalNode>());
+		}
+		
+		protected override void CreateEntityDialog()
+		{
+			NavigationManager.OpenViewModel<DiscountReasonViewModel, IEntityViewModelContext>(
+				this, EntityViewModelContext.Create(typeof(DiscountReason), UnitOfWorkFactory));
+		}
+
+		protected override void EditEntityDialog(DiscountReasonJournalNode node)
+		{
+			NavigationManager.OpenViewModel<DiscountReasonViewModel, IEntityViewModelContext>(
+				this, EntityViewModelContext.Create(node.EntityType, UnitOfWorkFactory, node.Id));
 		}
 	}
 }

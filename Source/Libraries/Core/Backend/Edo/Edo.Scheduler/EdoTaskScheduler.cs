@@ -165,11 +165,18 @@ namespace Edo.Scheduler.Service
 			EdoTask edoTask = request.Task;
 			if(edoTask != null)
 			{
+				if(edoTask.Status == EdoTaskStatus.New && edoTask.TaskType == EdoTaskType.InformalOrderDocument)
+				{
+					await _messageBus.Publish(new InformalOrderDocumenTaskCreatedEvent
+					{
+						InformalOrderDocumentTaskId = edoTask.Id
+					}, cancellationToken);
+				}
 				_logger.LogWarning("Для ЭДО заявки Id {InformalEdoRequest} уже была создана задача.", requestId);
 				return;
 			}	
 			
-			if(request.Order != null && request.Order.IsUndeliveredStatus)
+			if(!request.IsBill && request.Order != null && request.Order.IsUndeliveredStatus)
 			{
 				_logger.LogWarning(
 					"Для ЭДО заявки Id {InformalEdoRequest} задача не создается, "
@@ -180,14 +187,27 @@ namespace Edo.Scheduler.Service
 				return;
 			}
 
-			switch(request.OrderDocumentType)
+			if(request.IsBill)
 			{
-				case OrderDocumentType.EquipmentTransfer:
-					edoTask = _equipmentTransferEdoRequestTaskScheduler.CreateTask((EquipmentTransferEdoRequest)request);
-					break;
-				default:
-					throw new InvalidOperationException($"Неизвестный тип заявки " +
-						$"{nameof(InformalEdoRequest)} {request.Type}");
+				if(string.IsNullOrWhiteSpace(request.DocumentSnapshot))
+				{
+					throw new InvalidOperationException($"У заявки счета №{request.Id} отсутствует снимок документа");
+				}
+				var billTask = new OrderDocumentEdoTask { Status = EdoTaskStatus.New };
+				request.Task = billTask;
+				edoTask = billTask;
+			}
+			else
+			{
+				switch(request.OrderDocumentType)
+				{
+					case OrderDocumentType.EquipmentTransfer:
+						edoTask = _equipmentTransferEdoRequestTaskScheduler.CreateTask((EquipmentTransferEdoRequest)request);
+						break;
+					default:
+						throw new InvalidOperationException($"Неизвестный тип заявки " +
+							$"{nameof(InformalEdoRequest)} {request.Type}");
+				}
 			}
 
 			await _uow.SaveAsync(request, cancellationToken: cancellationToken);

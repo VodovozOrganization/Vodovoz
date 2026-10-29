@@ -856,12 +856,15 @@ select
 	eir.`time` as :request_time,
 	eir.id as :request_id,
 	eir.source as :request_source,
-	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = eir.author_id) as :manual_request_author,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e
+		where e.id = coalesce(eir.author_id, (select o.author_employee_id from orders o
+			where o.id = eir.order_id and eir.source = 'None'
+				and eir.order_document_type in ('Bill', 'SpecialBill')))) as :manual_request_author,
 	eir.order_document_type as :order_document_type,
 	et.id as :task_id,
-	et.`type` as :task_type,
+	coalesce(et.`type`, 'InformalOrderDocument') as :task_type,
 	et.document_type as :formal_document_type,
-	et.status as :task_status,
+	coalesce(et.status, 'Waiting') as :task_status,
 	null as :task_upd_stage,
 	null as :task_receipt_stage,
 	null as :task_tender_stage,
@@ -873,9 +876,10 @@ select
 	eod.discrepancy_state as :docflow_discrepancy_state
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
-left join edo_outgoing_documents eod on eod.document_task_id = et.id
+left join edo_outgoing_documents eod on eod.informal_document_task_id = et.id
 where eir.order_id = :order_id
-	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+	and (et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+		or (et.id is null and eir.order_document_type in ('Bill', 'SpecialBill')))
 ;
 ";
 
@@ -918,6 +922,7 @@ where eir.order_id = :order_id
 			var stepStopwatch = Stopwatch.StartNew();
 			OrderEdoTask orderEdoTaskAlias = null;
 			FormalEdoRequest edoRequestAlias = null;
+			InformalEdoRequest informalEdoRequestAlias = null;
 			EdoTaskProblem edoTaskProblemAlias = null;
 			EdoTaskProblemCustomSourceEntity customProblemDescriptionSourceAlias = null;
 			EdoTaskProblemValidatorSourceEntity validatorDescriptionSourceAlias = null;
@@ -930,6 +935,11 @@ where eir.order_id = :order_id
 			var edoTasksProblems = uow.Session.QueryOver(() => edoTaskProblemAlias)
 				.Left.JoinAlias(() => edoTaskProblemAlias.EdoTask, () => orderEdoTaskAlias)
 				.Left.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.JoinEntityAlias(
+					() => informalEdoRequestAlias,
+					() => informalEdoRequestAlias.Task.Id == orderEdoTaskAlias.Id,
+					JoinType.LeftOuterJoin
+				)
 				.JoinEntityAlias(
 					() => customProblemDescriptionSourceAlias,
 					() => customProblemDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
@@ -945,7 +955,7 @@ where eir.order_id = :order_id
 					() => exceptionDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
 					JoinType.LeftOuterJoin
 				)
-				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.Where(() => edoRequestAlias.Order.Id == orderId || informalEdoRequestAlias.Order.Id == orderId)
 				.SelectList(list => list
 					.SelectGroup(() => edoTaskProblemAlias.Id).WithAlias(() => resultAlias.TaskProblemId)
 					.Select(() => orderEdoTaskAlias.Id).WithAlias(() => resultAlias.OrderTaskId)
