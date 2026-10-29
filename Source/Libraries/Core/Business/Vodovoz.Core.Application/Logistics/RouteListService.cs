@@ -52,7 +52,7 @@ namespace Vodovoz.Core.Application.Logistics
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListSpecialConditionsService _routeListSpecialConditionsService;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IOrderService _orderService;
 		private readonly IOsrmSettings _osrmSettings;
 		private readonly IOsrmClient _osrmClient;
@@ -72,7 +72,7 @@ namespace Vodovoz.Core.Application.Logistics
 			IEmployeeRepository employeeRepository,
 			ITrackRepository trackRepository,
 			IRouteListSpecialConditionsService routeListSpecialConditionsService,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IOrderService orderService,
 			IOsrmSettings osrmSettings,
 			IOsrmClient osrmClient,

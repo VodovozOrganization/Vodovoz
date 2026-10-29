@@ -271,6 +271,38 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return taxcomDocflow;
 		}
 
+		public IList<Guid> GetDocflowIdsStuckInSentOrInProgress(
+			IUnitOfWork uow,
+			string edoAccount,
+			DateTime statusChangedBefore)
+		{
+			var stuckStatuses = new[]
+			{
+				EdoDocFlowStatus.Sent,
+				EdoDocFlowStatus.InProgress
+			};
+
+			var docflowIds =
+				from docflow in uow.Session.Query<TaxcomDocflow>()
+				join orderDocument in uow.Session.Query<OrderEdoDocument>()
+					on docflow.EdoDocumentId equals orderDocument.Id
+				join task in uow.Session.Query<DocumentEdoTask>()
+					on orderDocument.DocumentTaskId equals task.Id
+				join formalRequest in uow.Session.Query<FormalEdoRequest>()
+					on task.FormalEdoRequest.Id equals formalRequest.Id
+				join order in uow.Session.Query<OrderEntity>()
+					on formalRequest.Order.Id equals order.Id
+				join settings in uow.Session.Query<TaxcomEdoSettings>()
+					on order.Contract.Organization.Id equals settings.OrganizationId
+				where stuckStatuses.Contains(docflow.DocFlowState)
+					&& docflow.StateChangeTime <= statusChangedBefore
+					&& docflow.DocflowId != null
+					&& settings.EdoAccount == edoAccount
+				select docflow.DocflowId.Value;
+
+			return docflowIds.Distinct().ToList();
+		}
+
 		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
 			IUnitOfWork uow,
 			int timeoutDays,
@@ -538,9 +570,9 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				.And(() => edoTask.CreationTime >= minCreationTime)
 				.And(_canProcessOrSendEdo.GetRuleOrderCriterion())
 				.SelectList(list => list
-					.Select(() => edoTask).WithAlias(() => result.ReceiptTask)
-					.Select(() => edoTaskProblem).WithAlias(() => result.Problem)
-					.Select(() => routineState).WithAlias(() => result.RoutineState)
+					.Select(Projections.Entity(() => edoTask)).WithAlias(() => result.ReceiptTask)
+					.Select(Projections.Entity(() => edoTaskProblem)).WithAlias(() => result.Problem)
+					.Select(Projections.Entity(() => routineState)).WithAlias(() => result.RoutineState)
 					.Select(() => orderAlias.Id).WithAlias(() => result.OrderId)
 					.SelectSubQuery(hasCodesSavedToPoolProjection).WithAlias(() => result.HasCodesSavedToPool)
 				)
@@ -580,9 +612,9 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 					.Add(Restrictions.Where(() => routineState.LastRetryTime <= retryIntervalHoursAgo))
 					)
 				.SelectList(list => list
-					.Select(() => edoTaskProblem).WithAlias(() => result.Problem)
-					.Select(() => edoTask).WithAlias(() => result.EdoTask)
-					.Select(() => routineState).WithAlias(() => result.RoutineState)
+					.Select(Projections.Entity(() => edoTaskProblem)).WithAlias(() => result.Problem)
+					.Select(Projections.Entity(() => edoTask)).WithAlias(() => result.EdoTask)
+					.Select(Projections.Entity(() => routineState)).WithAlias(() => result.RoutineState)
 				)
 				.TransformUsing(Transformers.AliasToBean<CodePoolMissingProblemNode>())
 				;
@@ -794,11 +826,11 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			}
 			
 			query.SelectList(list => list
-					.Select(() => edoTask).WithAlias(() => result.EdoTask)
-					.Select(() => edoTaskProblem).WithAlias(() => result.Problem)
+					.Select(Projections.Entity(() => edoTask)).WithAlias(() => result.EdoTask)
+					.Select(Projections.Entity(() => edoTaskProblem)).WithAlias(() => result.Problem)
 					.Select(() => problemDescription.Description).WithAlias(() => result.ProblemDescription)
 					.Select(() => problemDescription.Recommendation).WithAlias(() => result.Recommendation)
-					.Select(() => routineState).WithAlias(() => result.RoutineState)
+					.Select(Projections.Entity(() => routineState)).WithAlias(() => result.RoutineState)
 					.Select(() => orderAlias.Id).WithAlias(() => result.OrderId)
 					.Select(() => edoTaskProblem.ExceptionMessage).WithAlias(() => result.ExceptionMessage)
 				)

@@ -6,11 +6,13 @@
 
   <ItemGroup>
     <PackageReference Include="MassTransit" Version="8.0.12" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
-    <ProjectReference Include="..\..\TransactionalOutbox\TransactionalOutbox.csproj" />
+    <ProjectReference Include="..\Notifications.Core\Notifications.Core.csproj" />
+    <ProjectReference Include="..\..\TransactionalOutbox.MassTransit\TransactionalOutbox.MassTransit.csproj" />
   </ItemGroup>
 
 </Project>

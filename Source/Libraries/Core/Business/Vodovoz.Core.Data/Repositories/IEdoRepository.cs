@@ -330,6 +330,14 @@ namespace Vodovoz.Core.Data.Repositories
 		TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId);
 
 		/// <summary>
+		/// Идентификаторы документооборотов кабинета, которые дольше порога остаются в статусах «Получено оператором» или «В процессе».
+		/// </summary>
+		IList<Guid> GetDocflowIdsStuckInSentOrInProgress(
+			IUnitOfWork uow,
+			string edoAccount,
+			DateTime statusChangedBefore);
+
+		/// <summary>
 		/// Проверяет наличие активной проблемы с указанными источниками для задачи ЭДО
 		/// </summary>
 		/// <param name="uow">IUnitOfWork</param>

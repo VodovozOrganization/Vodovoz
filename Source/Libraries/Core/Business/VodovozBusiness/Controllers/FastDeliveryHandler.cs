@@ -29,7 +29,7 @@ namespace Vodovoz.Controllers
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IFastDeliveryValidator _fastDeliveryValidator;
 		private readonly IFastDeliveryOrderAddedNotificationSender _fastDeliveryOrderAddedNotificationSender;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IOrderSaleHandler _saleHandler;
 
 		public FastDeliveryHandler(
@@ -38,7 +38,7 @@ namespace Vodovoz.Controllers
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IFastDeliveryValidator fastDeliveryValidator,
 			IFastDeliveryOrderAddedNotificationSender fastDeliveryOrderAddedNotificationSender,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IOrderSaleHandler saleHandler)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

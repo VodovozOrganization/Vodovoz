@@ -1,4 +1,6 @@
-﻿using Edo.Common;
+﻿using System;
+using MassTransit;
+using Edo.Common;
 using Edo.Problems;
 using Edo.Transfer.Routine;
 using Edo.Transfer.Routine.Options;
@@ -39,10 +41,12 @@ namespace Edo.Transfer.Dispatcher
 			return services;
 		}
 
-		public static IServiceCollection AddEdoTransferRoutine(this IServiceCollection services)
+		public static IServiceCollection AddEdoTransferRoutine(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services
-				.AddEdoMassTransit()
+				.AddEdoMassTransit(configureBus: configureBus)
 				.AddEdoTransferRoutineServices()
 				;
 

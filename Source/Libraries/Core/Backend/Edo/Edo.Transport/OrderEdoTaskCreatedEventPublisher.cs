@@ -4,22 +4,29 @@ using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TransactionalOutbox.Domain;
 using Vodovoz.Core.Domain.Edo;
+using MassTransit;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.Transport
 {
 	/// <summary>
-	/// Кладёт в аутбокс события запуска задач ЭДО заказа. Фактическая отправка в RabbitMQ
-	/// происходит асинхронно, силами OutboxWorker, после коммита транзакции с задачей.
+	/// Кладёт в outbox транзакции UoW события запуска задач ЭДО заказа.
+	/// Отправка в RabbitMQ выполняется после коммита транзакции с задачей службой отправки outbox MassTransit.
 	/// </summary>
 	public class OrderEdoTaskCreatedEventPublisher : IOrderEdoTaskCreatedEventPublisher
 	{
 		private readonly ILogger<OrderEdoTaskCreatedEventPublisher> _logger;
+		// UoW передаётся параметром: класс вызывается и с десктопа, где у диалогов свои UoW.
+		// GetPublishEndpoint(uow) пишет сообщение в таблицы outbox в транзакции этого UoW.
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
-		public OrderEdoTaskCreatedEventPublisher(ILogger<OrderEdoTaskCreatedEventPublisher> logger)
+		public OrderEdoTaskCreatedEventPublisher(
+			ILogger<OrderEdoTaskCreatedEventPublisher> logger,
+			IUnitOfWorkOutbox<IBus> outbox)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 
 		/// <inheritdoc />
@@ -103,13 +110,24 @@ namespace Edo.Transport
 			SaveToOutbox(uow, edoTask, @event, nameof(SaveCodesTaskCreatedEvent));
 		}
 
-		private void SaveToOutbox(IUnitOfWork uow, OrderEdoTask edoTask, object @event, string eventName)
+		private void SaveToOutbox<TEvent>(IUnitOfWork uow, OrderEdoTask edoTask, TEvent @event, string eventName)
+			where TEvent : class
 		{
-			var outboxMessage = new OutboxMessage(@event);
-
 			LogPublishing(edoTask, eventName);
 
-			uow.Save(outboxMessage);
+			SaveToOutbox(uow, @event);
+		}
+
+		/// <summary>
+		/// Сохраняет событие в outbox транзакции <paramref name="uow"/>
+		/// </summary>
+		private void SaveToOutbox<TEvent>(IUnitOfWork uow, TEvent @event)
+			where TEvent : class
+		{
+			_outbox.GetPublishEndpoint(uow)
+				.Publish(@event)
+				.GetAwaiter()
+				.GetResult();
 		}
 
 		private void LogInvalidState(OrderEdoTask edoTask, object state)

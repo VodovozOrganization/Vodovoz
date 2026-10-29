@@ -25,7 +25,7 @@ namespace Edo.Transfer.Sender
 		private readonly ITransferOrderHeaderPreparer _transferOrderHeaderPreparer;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public TransferSendPreparer(
 			ILogger<TransferSendPreparer> logger,
@@ -34,7 +34,7 @@ namespace Edo.Transfer.Sender
 			ITransferOrderHeaderPreparer transferOrderHeaderPreparer,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			EdoProblemRegistrar edoProblemRegistrar,
-			IBus messageBus
+			IPublishEndpoint publishEndpoint
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -43,7 +43,7 @@ namespace Edo.Transfer.Sender
 			_transferOrderHeaderPreparer = transferOrderHeaderPreparer ?? throw new ArgumentNullException(nameof(transferOrderHeaderPreparer));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		public async Task PrepareSendAsync(
@@ -100,14 +100,14 @@ namespace Edo.Transfer.Sender
 			}
 
 			await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			var message = new TransferTaskReadyToSendEvent
 			{
 				TransferTaskId = transferEdoTask.Id
 			};
 
-			await _messageBus.Publish(message, cancellationToken);
+			await _publishEndpoint.Publish(message, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		private async Task CreateTransferOrder(TransferEdoTask transferEdoTask, CancellationToken cancellationToken)

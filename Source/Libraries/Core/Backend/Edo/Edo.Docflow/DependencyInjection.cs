@@ -1,4 +1,5 @@
-﻿using Edo.Docflow.Factories;
+﻿using System;
+using Edo.Docflow.Factories;
 using Edo.Docflow.Handlers;
 using Edo.Transport;
 using Edo.Transport.Factories;
@@ -31,13 +32,13 @@ namespace Edo.Docflow
 			
 			return services;
 		}
-
-		public static IServiceCollection AddEdoDocflow(this IServiceCollection services)
+		public static IServiceCollection AddEdoDocflow(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoDocflowServices();
 
 			services.AddEdoMassTransit(
-
 				configureRabbit: (context, rabbitCfg) =>
 				{
 					// Обязателен, не отключать не сделав отправку сообщений после коммита
@@ -46,9 +47,10 @@ namespace Edo.Docflow
 				configureBus: cfg =>
 				{
 					cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
+
+					configureBus?.Invoke(cfg);
 				}
 			);
-
 
 			services.AddEdoNotifications();
 

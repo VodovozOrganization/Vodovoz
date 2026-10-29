@@ -42,6 +42,7 @@ namespace EmailSend.Library
 					transportSettings);
 				})
 				//Использует виртуальный хост Pacs, используемый в ДВ
+				// После перехода на один vhost RabbitMQ вторая шина IEmailSendBus и этот потребитель удаляются
 				.AddMassTransit<IEmailSendBus>(busConf =>
 				{
 					busConf.AddConsumer<SendEmailMessageConsumer, SendEmailMessageConsumerDefinition>();

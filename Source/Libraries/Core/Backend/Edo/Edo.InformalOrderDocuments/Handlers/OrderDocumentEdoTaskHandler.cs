@@ -74,7 +74,16 @@ namespace Edo.InformalOrderDocuments.Handlers
 				return;
 			}
 
-			if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.InCancellation)
+			// Повторная доставка события: документ по задаче уже создан и отправлен
+if(edoTask.Status != EdoTaskStatus.New)
+{
+	_logger.LogWarning("Задача ЭДО №{TaskId} уже в статусе {TaskStatus}, повторное событие создания задачи пропущено",
+		edoTask.Id,
+		edoTask.Status);
+	return;
+}
+
+if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.InCancellation)
 			{
 				return;
 			}
@@ -164,6 +173,7 @@ namespace Edo.InformalOrderDocuments.Handlers
 				DocumentId = edoDocument.Id,
 				FileData = fileData
 			}, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		private OutgoingInformalEdoDocument CreateInformalDocument(int edoTaskId)

@@ -9,12 +9,19 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		{
 			Table("edo_notification_settings");
 
+			// Класс настройки выбирается по имени класса в колонке, наследники — в папке NotificationSettings
+			DiscriminateSubClassesOnColumn("edo_notification_type");
+
 			Id(x => x.Id)
 				.Column("id")
 				.GeneratedBy.Native();
 
 			Map(x => x.EdoNotificationType)
-				.Column("edo_notification_type");
+				.Column("edo_notification_type")
+				.ReadOnly();
+
+			Map(x => x.Name)
+				.Column("name");
 
 			Map(x => x.Template)
 				.Column("template");

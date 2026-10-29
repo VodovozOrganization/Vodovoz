@@ -49,7 +49,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IEdoOrderContactProvider _edoOrderContactProvider;
 		private readonly ISaveCodesService _saveCodesService;
 		private readonly IOrganizationSettings _organizationSettings;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly EdoCancellationService _edoCancellationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IUnitOfWork _uow;
@@ -77,7 +77,7 @@ namespace Edo.Receipt.Dispatcher
 			IEdoOrderContactProvider edoOrderContactProvider,
 			ISaveCodesService saveCodesService,
 			IOrganizationSettings organizationSettings,
-			IBus messageBus,
+			IPublishEndpoint publishEndpoint,
 			EdoCancellationService edoCancellationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
@@ -98,7 +98,7 @@ namespace Edo.Receipt.Dispatcher
 			_saveCodesService = saveCodesService ?? throw new ArgumentNullException(nameof(saveCodesService));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
@@ -309,17 +309,8 @@ namespace Edo.Receipt.Dispatcher
 			if(!taskValidationResult.IsAllValid && receiptEdoTask.ReceiptStatus == EdoReceiptStatus.New)
 			{
 				await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
+				await _publishEndpoint.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = receiptEdoTask.Id }, cancellationToken);
 				await _uow.CommitAsync(cancellationToken);
-				try
-				{
-					await _messageBus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = receiptEdoTask.Id }, cancellationToken);
-				}
-				catch(Exception ex)
-				{
-					// Сохраненную новую задачу подхватит штатный NewEdoTasksResendWorker.
-					_logger.LogError(ex, "Не удалось повторно запустить задачу чека {TaskId} после проверки кодов. "
-						+ "Задача сохранена на стадии распределения для штатного повторного запуска", receiptEdoTask.Id);
-				}
 				return;
 			}
 
@@ -352,10 +343,10 @@ namespace Edo.Receipt.Dispatcher
 			receiptEdoTask.StartTime = DateTime.Now;
 			receiptEdoTask.CashboxId = receiptEdoTask.FormalEdoRequest.Order.Contract.Organization.CashBoxId;
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			var sendReceiptMessage = new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
-			await _messageBus.Publish(sendReceiptMessage);
+			await _publishEndpoint.Publish(sendReceiptMessage);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 
@@ -461,10 +452,10 @@ namespace Edo.Receipt.Dispatcher
 					TryRecalculateOrderVat(receiptEdoTask);
 
 					await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
-					await _uow.CommitAsync(cancellationToken);
 
 					var receiptTransferMessage = new TransferRequestCreatedEvent { TransferIterationId = iteration.Id };
-					await _messageBus.Publish(receiptTransferMessage);
+					await _publishEndpoint.Publish(receiptTransferMessage);
+					await _uow.CommitAsync(cancellationToken);
 					return;
 				}
 
@@ -517,10 +508,10 @@ namespace Edo.Receipt.Dispatcher
 			TryRecalculateOrderVat(receiptEdoTask);
 			
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 
 			var sendReceiptMessage = new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptEdoTask.Id };
-			await _messageBus.Publish(sendReceiptMessage);
+			await _publishEndpoint.Publish(sendReceiptMessage);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		/// <summary>

@@ -202858,14 +202858,9 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEnumComboBox" id="yenumcmbNotificationType">
+              <widget class="Gamma.GtkWidgets.yLabel" id="ylabelNotificationTypeValue">
                 <property name="MemberName" />
-                <property name="IsTextCombo">True</property>
-                <property name="Items" translatable="yes" />
-                <property name="ShowSpecialStateAll">False</property>
-                <property name="ShowSpecialStateNot">False</property>
-                <property name="UseShortTitle">False</property>
-                <property name="DefaultFirst">False</property>
+                <property name="Xalign">0</property>
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>

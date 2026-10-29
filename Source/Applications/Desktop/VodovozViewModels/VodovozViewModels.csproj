@@ -1491,6 +1491,10 @@
       <Project>{F002AF1D-1958-EF09-F21A-0221E7874DE1}</Project>
       <Name>Notifications.Infrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\TransactionalOutbox.MassTransit\TransactionalOutbox.MassTransit.csproj">
+      <Project>{6B60B368-2365-4735-BAA1-7BC6E3288B38}</Project>
+      <Name>TransactionalOutbox.MassTransit</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\ResourceLocker\ResourceLocker.Library.csproj">
       <Project>{bf89316b-1a47-7797-6a98-7a3fad52b2e0}</Project>
       <Name>ResourceLocker.Library</Name>

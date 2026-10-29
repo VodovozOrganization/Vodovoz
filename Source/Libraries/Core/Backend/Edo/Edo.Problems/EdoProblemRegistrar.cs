@@ -18,14 +18,14 @@ namespace Edo.Problems
 	{
 		private readonly IUnitOfWork _taskUow;
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 
 		public EdoProblemRegistrar(
 			IUnitOfWork taskUow,
 			IUnitOfWorkFactory uowFactory,
 			EdoTaskCustomSourcesPersister customSourcesPersister,
 			EdoTaskExceptionSourcesPersister exceptionSourcesPersister,
-			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher
+			INotificationPublisher<EdoNotificationMessage> notificationPublisher
 			) : base(customSourcesPersister, exceptionSourcesPersister)
 		{
 			_taskUow = taskUow ?? throw new ArgumentNullException(nameof(taskUow));

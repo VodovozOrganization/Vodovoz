@@ -1,5 +1,5 @@
 ﻿using EdoNotifications.Contracts;
-using TransactionalOutbox.Abstractions;
+using Notifications.Core;
 using Vodovoz.Core.Domain.Edo;
 
 namespace EdoNotifications.Application.Providers
@@ -7,7 +7,7 @@ namespace EdoNotifications.Application.Providers
 	/// <summary>
 	/// Провайдер настроек для ЭДО уведомлений
 	/// </summary>
-	public interface IEdoNotificationsSettingsProvider : IOutboxSettingsProvider<EdoNotificationMessage>
+	public interface IEdoNotificationsSettingsProvider : INotificationSettingsProvider<EdoNotificationMessage>
 	{
 		/// <summary>
 		/// Получение настроек для ЭДО уведомлений

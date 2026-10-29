@@ -1,4 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using EdoNotificationsWorker.Services;
 using EdoNotificationsWorker.Services.Bitrix;
 using EdoNotificationsWorker.Services.Email;
 using Email.Infrastructure;
@@ -15,6 +16,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace EdoNotificationsWorker
 {
@@ -51,8 +54,16 @@ namespace EdoNotificationsWorker
 					services.AddMassTransit(x =>
 					{
 						x.AddConsumer<EdoNotificationsConsumer, EdoNotificationsConsumerDefinition>();
+
+						// Outbox MassTransit: письма и записи об уведомлении сохраняются одной транзакцией.
+						// Этот сервис отправляет уведомления, записанные десктопом и бэкендом
+						x.AddVodovozOutbox(OutboxBusNames.Notifications);
+
 						x.ConfigureRabbitMq(services, hostContext.Configuration, "NotificationTransportSettings");
 					});
+
+					// Ключи дедупликации уведомлений общие для всех сервисов и десктопа, чистятся только здесь
+					services.AddHostedService<NotificationDeduplicationKeyCleanupService>();
 
 					services
 						.AddMassTransit<IEmailBus>(busConf =>
@@ -66,6 +77,10 @@ namespace EdoNotificationsWorker
 							},
 							transportSettings);
 						});
+
+					// Вторая шина IEmailBus (vhost email): письма пишутся в таблицы email_* в транзакции UoW через IUnitOfWorkOutbox,
+					// отправляют их email-воркеры. После перехода на один vhost RabbitMQ шина IEmailBus и эта регистрация удаляются
+					services.AddExplicitUnitOfWorkOutbox<IEmailBus>(OutboxBusNames.Email);
 
 					services.AddEmailInfrastructure();
 

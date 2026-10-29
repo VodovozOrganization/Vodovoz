@@ -10,6 +10,8 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using System;
 using System.Text;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
@@ -50,7 +52,9 @@ namespace Edo.Document.Worker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddEdoDocuments()
+						// Outbox MassTransit: сообщения пишутся в UoW, этот сервис отправляет и сообщения,
+						// записанные десктопом и другими приложениями (таблицы pacs_*)
+						.AddEdoDocuments(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						

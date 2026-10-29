@@ -14,6 +14,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.Withdrawal.Worker
 {
@@ -49,7 +51,7 @@ namespace Edo.Withdrawal.Worker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddEdoWithdrawal(hostContext.Configuration)
+						.AddEdoWithdrawal(hostContext.Configuration, busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 					services

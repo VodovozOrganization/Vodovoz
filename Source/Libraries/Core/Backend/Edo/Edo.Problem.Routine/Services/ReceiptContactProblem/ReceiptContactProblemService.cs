@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 {
@@ -18,7 +19,7 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 	public class ReceiptContactProblemService : IReceiptContactProblemService
 	{
 		private readonly ILogger<ReceiptContactProblemService> _logger;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IOptionsMonitor<ReceiptContactProblemWorkerOptions> _options;
 		private readonly IReceiptContactProblemSourceProvider _problemSourceProvider;
 		private readonly IEdoRepository _edoRepository;
@@ -27,7 +28,7 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 
 		public ReceiptContactProblemService(
 			ILogger<ReceiptContactProblemService> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWork unitOfWork,
 			IOptionsMonitor<ReceiptContactProblemWorkerOptions> options,
 			IReceiptContactProblemSourceProvider problemSourceProvider,
 			IEdoRepository edoRepository,
@@ -35,7 +36,7 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 			IReceiptContactProblemNotificationService notificationService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_problemSourceProvider = problemSourceProvider
 				?? throw new ArgumentNullException(nameof(problemSourceProvider));
@@ -54,20 +55,17 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 		/// <returns></returns>
 		public async Task ProcessContactProblems(CancellationToken cancellationToken)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки активных проблем с контактом чека"))
-			{
-				var problemNodes = await _edoRepository.GetReceiptContactProblemNodes(
-					uow,
-					ProblemSourceNames,
-					MinEdoTaskCreationTime,
-					cancellationToken);
+			var problemNodes = await _edoRepository.GetReceiptContactProblemNodes(
+				_unitOfWork,
+				ProblemSourceNames,
+				MinEdoTaskCreationTime,
+				cancellationToken);
 
-				_logger.LogInformation(
-					"Найдено {Count} задач ЭДО с активными проблемами контакта",
-					problemNodes.Count);
+			_logger.LogInformation(
+				"Найдено {Count} задач ЭДО с активными проблемами контакта",
+				problemNodes.Count);
 
-				await ProcessContactProblems(uow, problemNodes, cancellationToken);
-			}
+			await ProcessContactProblems(_unitOfWork, problemNodes, cancellationToken);
 		}
 
 		private async Task ProcessContactProblems(
@@ -180,7 +178,6 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 
 			state.AddAttempt(now);
 			await uow.SaveAsync(state, cancellationToken: cancellationToken);
-			await uow.CommitAsync(cancellationToken);
 
 			try
 			{
@@ -199,6 +196,8 @@ namespace Edo.Problem.Routine.Services.ReceiptContactProblem
 				await uow.CommitAsync(cancellationToken);
 				return new ReceiptContactProblemProcessResult(false, notificationRequested);
 			}
+
+			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
 				"Опубликовано событие повторного запуска задачи ЭДО {EdoTaskId}. Попытка: {RetryCount}",
