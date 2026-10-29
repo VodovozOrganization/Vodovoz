@@ -1497,9 +1497,14 @@ where ecr.order_id = :order_id
 			CancellationToken cancellationToken)
 			where TTask : OrderEdoTask
 		{
+			var taskIdsWithRetriedDeviations = uow.Session.Query<EdoTaskDeviation>()
+				.Where(x => x.State == TaskProblemState.Active && x.RetryTime != null && x.EdoTask != null)
+				.Select(x => x.EdoTask.Id);
+
 			return uow.Session.Query<TTask>()
 				.Where(x => x.Status == EdoTaskStatus.New && x.CreationTime <= maxCreationTime)
 				.Where(initialStagePredicate)
+				.Where(x => !taskIdsWithRetriedDeviations.Contains(x.Id))
 				.Where(_canProcessOrSendEdo.GetRuleExpression<TTask>())
 				.OrderBy(x => x.CreationTime)
 				.Take(batchSize)

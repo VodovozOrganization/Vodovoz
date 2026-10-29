@@ -64,6 +64,10 @@ namespace EdoNotifications.Contracts
 		/// Расхождение в документообороте
 		/// </summary>
 		[Display(Name = "Расхождение в документообороте")]
-		DocflowDiscrepancy = 9
+		DocflowDiscrepancy = 9,
+
+		/// <summary>Отклонение документооборота требует ручного разбора.</summary>
+		[Display(Name = "Отклонение документооборота ЭДО")]
+		DocflowDeviation = 10,
 	}
 }
