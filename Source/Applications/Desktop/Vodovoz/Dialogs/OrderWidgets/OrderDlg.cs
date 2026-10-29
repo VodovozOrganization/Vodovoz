@@ -4719,6 +4719,11 @@ namespace Vodovoz
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
+			_orderCancellationService.PrepareReceiptEdoTaskCancellation(
+				UoW,
+				e.CancellationPermit,
+				$"Отмена заказа №{Entity.Id}");
+
 			Entity.SetUndeliveredStatus(
 				UoW,
 				_routeListService,

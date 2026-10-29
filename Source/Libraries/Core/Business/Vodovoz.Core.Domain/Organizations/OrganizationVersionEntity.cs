@@ -20,9 +20,11 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _jurAddress;
 		private EmployeeEntity _leader;
 		private EmployeeEntity _accountant;
+		private EmployeeEntity _cashier;
 		private OrganizationEntity _organization;
 		private StoredResource _signatureAccountant;
 		private StoredResource _signatureLeader;
+		private StoredResource _signatureCashier;
 
 
 		[Display(Name = "Код")]
@@ -81,6 +83,13 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _accountant, value);
 		}
 
+		[Display(Name = "Кассир")]
+		public virtual EmployeeEntity Cashier
+		{
+			get => _cashier;
+			set => SetField(ref _cashier, value);
+		}
+
 		[Display(Name = "Подпись руководителя")]
 		public virtual StoredResource SignatureLeader
 		{
@@ -93,6 +102,13 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _signatureAccountant;
 			set => SetField(ref _signatureAccountant, value);
+		}
+
+		[Display(Name = "Подпись кассира")]
+		public virtual StoredResource SignatureCashier
+		{
+			get => _signatureCashier;
+			set => SetField(ref _signatureCashier, value);
 		}
 	}
 }

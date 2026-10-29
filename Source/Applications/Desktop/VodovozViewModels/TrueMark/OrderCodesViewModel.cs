@@ -1312,7 +1312,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		{
 			var poolCodes = _trueMarkRepository.GetCodesFromPoolByOrder(uow, OrderId, _edoTaskId);
 			var unscannedReason = _routeListItemRepository.GetUnscannedCodesReason(uow, OrderId);
-			_totalAddedFromPool = poolCodes.Count();
+			_totalAddedFromPool = poolCodes.Count(x => x.SourceCodeStatus != SourceProductCodeStatus.SavedToPool);
 
 			if(poolCodes.Any())
 			{

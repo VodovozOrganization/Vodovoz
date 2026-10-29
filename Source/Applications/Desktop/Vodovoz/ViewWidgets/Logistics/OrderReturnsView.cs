@@ -26,6 +26,7 @@ using System.Threading;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Application.Receipts.Correction;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
@@ -63,6 +64,7 @@ using Vodovoz.ViewModels.Widgets.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Receipts;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -94,6 +96,7 @@ namespace Vodovoz
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
 		private readonly OrderCancellationPermitService _orderCancellationPermitService;
+		private readonly IOrderReceiptCorrectionHandler _orderReceiptCorrectionHandler;
 
 		private List<OrderItemReturnsNode> _itemsToClient;
 
@@ -242,6 +245,7 @@ namespace Vodovoz
 			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			_goodsPriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 			_orderCancellationPermitService = _lifetimeScope.Resolve<OrderCancellationPermitService>();
+			_orderReceiptCorrectionHandler = _lifetimeScope.Resolve<IOrderReceiptCorrectionHandler>();
 			SetOrderItemDiscountReasonsViewModel();
 			CancellationPermit = OrderCancellationPermit.Default();
 		}
@@ -978,11 +982,22 @@ namespace Vodovoz
 
 		public bool CanClose()
 		{
-			var hasReceipts = _orderRepository.OrderHasSentReceipt(UoW, _routeListItem.Order.Id);
+			var preview = _orderReceiptCorrectionHandler.TryGetCorrectionPreview(UoW, _routeListItem.Order);
 
-			IgnoreReceipt = hasReceipts
-				&& _canEditOrderAfterRecieptCreated
-				&& _interactiveService.Question("По данному заказу сформирован кассовый чек. Если внесете изменения, то вам нужно будет сообщить в бухгалтерию о чеке и на склад о пересорте. Продолжить?");
+			if(preview.WillStartProcess)
+			{
+				IgnoreReceipt = _interactiveService.Question(
+					ReceiptCorrectionUserMessages.BuildConfirmationMessage(preview, _routeListItem.Order.Id));
+			}
+			else
+			{
+				var hasReceipts = _orderRepository.OrderHasSentReceipt(UoW, _routeListItem.Order.Id);
+
+				IgnoreReceipt = !hasReceipts
+					|| !_canEditOrderAfterRecieptCreated
+					|| _interactiveService.Question(
+						"По данному заказу сформирован кассовый чек. Если внесете изменения, то вам нужно будет сообщить в бухгалтерию о чеке и на склад о пересорте. Продолжить?");
+			}
 
 			var validationContext = new ValidationContext(_routeListItem.Order, null, new Dictionary<object, object>
 			{
