@@ -87,6 +87,8 @@ namespace Edo.Docflow
 				EdoTaskId = transferTask.Id
 			};
 			await _publishEndpoint.Publish(message);
+			// Данные не менялись, Commit сохраняет сообщение в outbox
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		public async Task SendOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
@@ -144,6 +146,8 @@ namespace Edo.Docflow
 				EdoTaskId = documentTask.Id
 			};
 			await _publishEndpoint.Publish(message);
+			// Данные не менялись, Commit сохраняет сообщение в outbox
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		/// <summary>
@@ -255,6 +259,8 @@ namespace Edo.Docflow
 				};
 
 				await _publishEndpoint.Publish(message, cancellationToken);
+				// Данные не менялись, Commit сохраняет сообщение в outbox
+				await _uow.CommitAsync(cancellationToken);
 
 				_logger.LogInformation($"Отправка неформализованного документа заказа №{orderDocumentId}");
 			}

@@ -17,8 +17,8 @@ using QS.Project.Core;
 using QS.Services;
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.Config;
+using Notifications.Core;
 using Osrm;
-using TransactionalOutbox.Abstractions;
 using Vodovoz;
 using Vodovoz.Core.Application;
 using Vodovoz.Core.Application.Logistics;
@@ -30,6 +30,8 @@ using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace CustomerOrdersApi
 {
@@ -93,13 +95,16 @@ namespace CustomerOrdersApi
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf =>
 				{
+					// Outbox MassTransit (vhost online_orders, таблицы online_orders_*): IPublishEndpoint пишет в UoW запроса.
+					busConf.AddVodovozOutbox(OutboxBusNames.OnlineOrders);
 					busConf.ConfigureRabbitMq();
 				});
 
 			services
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<INotificationPublisher<CustomerNotificationDomainEvent>, NotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-				.AddCustomerNotificationsSettingsProvider();
+				.AddCustomerNotificationsSettingsProvider()
+				.AddNotificationBusNotHosted();
 
 			services
 				.Configure<CourierCoordinatesOptions>(

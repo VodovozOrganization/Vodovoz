@@ -12,6 +12,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
@@ -24,7 +25,9 @@ namespace Edo.Admin
 		private readonly IEdoCancellationValidator _edoCancellationValidator;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
-		private readonly IPublishEndpoint _publishEndpoint;
+		// UoW передаётся параметром: класс вызывается и с десктопа, где у диалогов свои UoW.
+		// GetPublishEndpoint(uow) пишет сообщение в таблицы outbox в транзакции этого UoW.
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
 		public EdoCancellationService(
 			ILogger<EdoCancellationService> logger,
@@ -32,7 +35,7 @@ namespace Edo.Admin
 			IEdoCancellationValidator edoCancellationValidator,
 			EdoProblemRegistrar edoProblemRegistrar,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
-			IPublishEndpoint publishEndpoint
+			IUnitOfWorkOutbox<IBus> outbox
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -40,7 +43,7 @@ namespace Edo.Admin
 			_edoCancellationValidator = edoCancellationValidator ?? throw new ArgumentNullException(nameof(edoCancellationValidator));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
-			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 
 		public async Task CancelTask(
@@ -138,7 +141,7 @@ namespace Edo.Admin
 					Reason = reason
 				};
 
-				await _publishEndpoint.Publish(message, cancellationToken);
+				await _outbox.GetPublishEndpoint(uow).Publish(message, cancellationToken);
 			}
 		}
 		
@@ -184,7 +187,7 @@ namespace Edo.Admin
 					Reason = reason
 				};
 
-				await _publishEndpoint.Publish(message, cancellationToken);
+				await _outbox.GetPublishEndpoint(uow).Publish(message, cancellationToken);
 			}
 		}
 

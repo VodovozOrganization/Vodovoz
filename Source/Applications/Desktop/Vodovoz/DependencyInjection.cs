@@ -8,12 +8,14 @@ using Edo.Contracts.Messages.Events;
 using Edo.Documents;
 using Edo.Problem.Routine;
 using Edo.Transport;
+using EdoNotifications.Contracts;
 using EdoService.Library;
 using ExportTo1c.Library.Factories;
 using Fias.Client;
 using FuelControl.Library;
 using Mailganer.Api.Client;
 using MassTransit;
+using MassTransit.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySqlConnector;
@@ -52,7 +54,8 @@ using RabbitMQ.MailSending;
 using ResourceLocker.Library;
 using System;
 using TaxcomEdo.Client;
-using TransactionalOutbox.Abstractions;
+using Notifications.Core;
+using TransactionalOutbox.MassTransit;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
 using Vodovoz.Additions;
@@ -277,20 +280,19 @@ namespace Vodovoz
 				.AddEdoNotifications()
 				.AddOrderEdoCodePoolMissingProblem()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<INotificationPublisher<CustomerNotificationDomainEvent>, NotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				.AddCustomerNotificationsSettingsProvider()
 				.AddEdoDocumentsServices()
 			;
 
 			services.AddScoped<Comparer.IDiffFormatter, ThemmedDiffFormater>();
-			services.AddScoped<IOutboxNotificationPublisher<AcceptingWaitingForCancellationDocflowEvent>, 
-				DirectOutboxNotificationPublisher<AcceptingWaitingForCancellationDocflowEvent>>();
-			services.AddScoped<IOutboxNotificationPublisher<EdoRequestCreatedEvent>, 
-				DirectOutboxNotificationPublisher<EdoRequestCreatedEvent>>();
-			services.AddScoped<IOutboxSettingsProvider<AcceptingWaitingForCancellationDocflowEvent>, 
-				AcceptingWaitingForCancellationDocflowEventSettingsProvider>();
-			services.AddScoped<IOutboxSettingsProvider<EdoRequestCreatedEvent>, 
-				EdoRequestCreatedEventSettingsProvider>();
+
+			//Outbox MassTransit: публикуемые сообщения сохраняются в транзакцию UoW и отправляются службой отправки после коммита
+			services
+				.AddScoped<IOrderEdoTaskCreatedEventPublisher, OrderEdoTaskCreatedEventPublisher>()
+				.AddNotificationBusNotHosted()
+				// Сообщения шины pacs пишутся в таблицы outbox (pacs_*) в транзакции UoW: _outbox.GetPublishEndpoint(uow)
+				.AddExplicitUnitOfWorkOutbox<IBus>(OutboxBusNames.Pacs);
 
 			services.AddScoped<IEdoRequestCreatedEventPublisher, EdoRequestCreatedEventPublisher>();
 			services.AddStaticHistoryTracker();

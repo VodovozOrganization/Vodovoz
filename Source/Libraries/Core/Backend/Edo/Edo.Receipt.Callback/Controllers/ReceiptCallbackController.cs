@@ -22,19 +22,19 @@ namespace Edo.Receipt.Callback.Controllers
 		private readonly ILogger<ReceiptCallbackController> _logger;
 		private readonly CashboxClientProvider _cashboxClientProvider;
 
-		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IUnitOfWork _uow;
 		private readonly IPublishEndpoint _publishEndpoint;
 
 		public ReceiptCallbackController(
 			ILogger<ReceiptCallbackController> logger,
 			CashboxClientProvider cashboxClientProvider,
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWork uow,
 			IPublishEndpoint publishEndpoint
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_cashboxClientProvider = cashboxClientProvider ?? throw new ArgumentNullException(nameof(cashboxClientProvider));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
@@ -61,67 +61,58 @@ namespace Edo.Receipt.Callback.Controllers
 				return;
 			}
 
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			var document = _uow.Session.QueryOver<EdoFiscalDocument>()
+				.Where(x => x.DocumentGuid == guid)
+				.SingleOrDefault();
+
+			if(document == null)
 			{
-				var document = uow.Session.QueryOver<EdoFiscalDocument>()
-					.Where(x => x.DocumentGuid == guid)
-					.SingleOrDefault();
-
-				if(document == null)
-				{
-					_logger.LogWarning("Чек с GUID {receiptGuid} не найден.", receiptGuid);
-					HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-					return;
-				}
-
-				if(document.Status == FiscalDocumentStatus.Completed)
-				{
-					_logger.LogWarning("Чек с GUID {receiptGuid} уже завершен.", receiptGuid);
-					HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
-					return;
-				}
-
-				var updated = await TryUpdateReceiptInfoFromCashbox(document, cancellationToken);
-				if(!updated)
-				{
-					_logger.LogWarning("Не удалось получить подробную информацию о чеке из кассы, " +
-						"поэтому записываем только имеющиеся номер и марку документа из события завершения чека.");
-
-					var qrParts = qr.Split("&");
-					var fiscalDocNumber = qrParts.First(x => x.StartsWith("i")).Substring(2).TrimStart('0');
-					var fiscalDocMark = qrParts.First(x => x.StartsWith("fp")).Substring(3).TrimStart('0');
-
-					document.FiscalNumber = fiscalDocNumber;
-					document.FiscalMark = fiscalDocMark;
-
-					document.Status = FiscalDocumentStatus.Completed;
-					document.Stage = FiscalDocumentStage.Completed;
-					document.StatusChangeTime = DateTime.Now;
-				}
-
-				await uow.SaveAsync(document, cancellationToken: cancellationToken);
-				await uow.CommitAsync(cancellationToken);
-
-				try
-				{
-					if(document.Status is FiscalDocumentStatus.Completed or FiscalDocumentStatus.Printed
-						&& document.Stage == FiscalDocumentStage.Completed)
-					{
-						await _publishEndpoint.Publish(
-							new ReceiptCompleteEvent
-							{
-								ReceiptEdoTaskId =  document.ReceiptEdoTask.Id
-							},
-							cancellationToken);
-					}
-				}
-				catch(Exception e)
-				{
-					_logger.LogError(e, "Не удалось отправить событие завершения задачи по чеку {FiscalDocument}", document.DocumentGuid);
-				}
-
-				HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+				_logger.LogWarning("Чек с GUID {receiptGuid} не найден.", receiptGuid);
+				HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+				return;
 			}
+
+			if(document.Status == FiscalDocumentStatus.Completed)
+			{
+				_logger.LogWarning("Чек с GUID {receiptGuid} уже завершен.", receiptGuid);
+				HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+				return;
+			}
+
+			var updated = await TryUpdateReceiptInfoFromCashbox(document, cancellationToken);
+			if(!updated)
+			{
+				_logger.LogWarning("Не удалось получить подробную информацию о чеке из кассы, " +
+					"поэтому записываем только имеющиеся номер и марку документа из события завершения чека.");
+
+				var qrParts = qr.Split("&");
+				var fiscalDocNumber = qrParts.First(x => x.StartsWith("i")).Substring(2).TrimStart('0');
+				var fiscalDocMark = qrParts.First(x => x.StartsWith("fp")).Substring(3).TrimStart('0');
+
+				document.FiscalNumber = fiscalDocNumber;
+				document.FiscalMark = fiscalDocMark;
+
+				document.Status = FiscalDocumentStatus.Completed;
+				document.Stage = FiscalDocumentStage.Completed;
+				document.StatusChangeTime = DateTime.Now;
+			}
+
+			await _uow.SaveAsync(document, cancellationToken: cancellationToken);
+
+			if(document.Status is FiscalDocumentStatus.Completed or FiscalDocumentStatus.Printed
+				&& document.Stage == FiscalDocumentStage.Completed)
+			{
+				await _publishEndpoint.Publish(
+					new ReceiptCompleteEvent
+					{
+						ReceiptEdoTaskId =  document.ReceiptEdoTask.Id
+					},
+					cancellationToken);
+			}
+
+			await _uow.CommitAsync(cancellationToken);
+
+			HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
 		}
 
 		private async Task<bool> TryUpdateReceiptInfoFromCashbox(EdoFiscalDocument document, CancellationToken cancellationToken)

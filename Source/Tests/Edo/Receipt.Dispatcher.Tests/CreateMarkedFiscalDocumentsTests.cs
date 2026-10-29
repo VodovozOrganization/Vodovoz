@@ -782,11 +782,11 @@ namespace Receipt.Dispatcher.Tests
 			var registrar = new EdoProblemRegistrar(_unitOfWork, factory,
 				new EdoTaskCustomSourcesPersister(factory, Array.Empty<EdoTaskProblemCustomSource>()),
 				new EdoTaskExceptionSourcesPersister(factory, Array.Empty<EdoTaskProblemExceptionSource>()),
-				Substitute.For<IOutboxNotificationPublisher<EdoNotificationMessage>>());
+				Substitute.For<INotificationPublisher<EdoNotificationMessage>>());
 			var pool = Substitute.For<ITrueMarkCodesPool>();
 			var handler = new Edo.Documents.ForResaleDocumentEdoTaskHandler(_unitOfWork, repository,
 				Substitute.For<ITrueMarkCodesValidator>(), new TransferRequestCreator(Substitute.For<IEdoRepository>()),
-				pool, CreateUpdDocumentBuilderForResale(), registrar, Substitute.For<IBus>(),
+				pool, CreateUpdDocumentBuilderForResale(), registrar, Substitute.For<IPublishEndpoint>(),
 				new UpdTransportCodeService(_unitOfWork, Substitute.For<ITrueMarkWaterCodeService>()));
 			var method = typeof(Edo.Documents.ForResaleDocumentEdoTaskHandler).GetMethod("CreateUpdDocument",
 				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
@@ -1115,7 +1115,7 @@ namespace Receipt.Dispatcher.Tests
 				Substitute.For<IEdoCancellationValidator>(),
 				edoProblemRegistrar,
 				trueMarkWaterCodeService,
-				Substitute.For<IPublishEndpoint>());
+				Substitute.For<TransactionalOutbox.MassTransit.IUnitOfWorkOutbox<IBus>>());
 			_trueMarkCodesPool = Substitute.For<ReceiptTrueMarkCodesPool>(unitOfWork);
 			var saveCodesService = new SaveCodesService(
 				Substitute.For<ILogger<SaveCodesService>>(),
@@ -1167,7 +1167,7 @@ namespace Receipt.Dispatcher.Tests
 			var exceptionSourcesPersister = CreateEdoTaskExceptionSourcesPersisterFixture(unitOfWorkFactory);
 
 			return new EdoProblemRegistrar(unitOfWork, unitOfWorkFactory, customSourcesPersister, exceptionSourcesPersister,
-				Substitute.For<IOutboxNotificationPublisher<EdoNotificationMessage>>());
+				Substitute.For<INotificationPublisher<EdoNotificationMessage>>());
 		}
 
 		private EdoTaskCustomSourcesPersister CreateEdoTaskCustomSourcesPersisterFixture(IUnitOfWorkFactory unitOfWorkFactory)

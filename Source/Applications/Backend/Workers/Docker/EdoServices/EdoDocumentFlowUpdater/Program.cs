@@ -20,6 +20,8 @@ using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.FileStorage;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace EdoDocumentFlowUpdater
 {
@@ -71,6 +73,7 @@ namespace EdoDocumentFlowUpdater
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
 						{
+							busConf.AddVodovozOutbox(OutboxBusNames.Pacs);
 							busConf.ConfigureRabbitMq();
 						});
 

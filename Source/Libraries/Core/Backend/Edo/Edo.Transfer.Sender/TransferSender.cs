@@ -13,16 +13,16 @@ namespace Edo.Transfer.Sender
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<TransferSender> _logger;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public TransferSender(
 			ILogger<TransferSender> logger,
 			IUnitOfWork uow, 
-			IBus messageBus)
+			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		public async Task HandleReadyToSend(int transferTaskId, CancellationToken cancellationToken)
@@ -59,13 +59,13 @@ namespace Edo.Transfer.Sender
 			await _uow.SaveAsync(transferDocument, cancellationToken: cancellationToken);
 			await _uow.SaveAsync(transferTask, cancellationToken: cancellationToken);
 
-			await _uow.CommitAsync(cancellationToken);
-
 			var message = new TransferDocumentSendEvent
 			{
 				TransferDocumentId = transferDocument.Id
 			};
-			await _messageBus.Publish(message, cancellationToken);
+
+			await _publishEndpoint.Publish(message, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		public void Dispose()

@@ -177202,17 +177202,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelWikiWebsite">
-            <property name="MemberName" />
-            <property name="LabelProp" translatable="yes">WikiWebsite</property>
-            <property name="UseMarkup">True</property>
-          </widget>
-          <packing>
-            <property name="Position">3</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
+          <placeholder />
         </child>
         <child>
           <widget class="Gamma.GtkWidgets.yLabel" id="ylabelCopyright">
@@ -177228,17 +177218,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelWebsite">
-            <property name="MemberName" />
-            <property name="LabelProp" translatable="yes">Website</property>
-            <property name="UseMarkup">True</property>
-          </widget>
-          <packing>
-            <property name="Position">5</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
+          <placeholder />
         </child>
         <child>
           <widget class="Gtk.HBox" id="hbox1">
@@ -202878,14 +202858,9 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEnumComboBox" id="yenumcmbNotificationType">
+              <widget class="Gamma.GtkWidgets.yLabel" id="ylabelNotificationTypeValue">
                 <property name="MemberName" />
-                <property name="IsTextCombo">True</property>
-                <property name="Items" translatable="yes" />
-                <property name="ShowSpecialStateAll">False</property>
-                <property name="ShowSpecialStateNot">False</property>
-                <property name="UseShortTitle">False</property>
-                <property name="DefaultFirst">False</property>
+                <property name="Xalign">0</property>
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>

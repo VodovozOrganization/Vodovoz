@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.Transport
 {
@@ -13,21 +15,31 @@ namespace Edo.Transport
 	public class EdoRequestCreatedEventPublisher : IEdoRequestCreatedEventPublisher
 	{
 		private readonly ILogger<EdoRequestCreatedEventPublisher> _logger;
-		private readonly IBus _bus;
+		// UoW передаётся параметром: класс вызывается и с десктопа, где у диалогов свои UoW.
+		// GetPublishEndpoint(uow) пишет сообщение в таблицы outbox в транзакции этого UoW.
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
 		public EdoRequestCreatedEventPublisher(
 			ILogger<EdoRequestCreatedEventPublisher> logger,
-			IBus bus)
+			IUnitOfWorkOutbox<IBus> outbox)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 
 		/// <inheritdoc />
-		public async Task Publish(
+		public Task Publish(
+			IUnitOfWork uow,
 			int requestId,
 			string operation,
-			CancellationToken cancellationToken = default)
+			CancellationToken cancellationToken = default) =>
+			Publish(_outbox.GetPublishEndpoint(uow), requestId, operation, cancellationToken);
+
+		private async Task Publish(
+			IPublishEndpoint publishEndpoint,
+			int requestId,
+			string operation,
+			CancellationToken cancellationToken)
 		{
 			if(string.IsNullOrWhiteSpace(operation))
 			{
@@ -41,7 +53,7 @@ namespace Edo.Transport
 
 			try
 			{
-				await _bus.Publish(new EdoRequestCreatedEvent { Id = requestId }, cancellationToken);
+				await publishEndpoint.Publish(new EdoRequestCreatedEvent { Id = requestId }, cancellationToken);
 				_logger.LogInformation(
 					"Событие создания ЭДО-заявки опубликовано. RequestId: {RequestId}. Operation: {Operation}.",
 					requestId,

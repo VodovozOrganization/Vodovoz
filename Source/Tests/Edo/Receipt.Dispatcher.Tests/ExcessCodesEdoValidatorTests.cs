@@ -22,8 +22,8 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using VodovozInfrastructure.Cryptography;
 using Xunit;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
 
 namespace Receipt.Dispatcher.Tests
 {
@@ -36,7 +36,7 @@ namespace Receipt.Dispatcher.Tests
 		{
 			var services = Substitute.For<IServiceProvider>();
 			services.GetService(typeof(IEdoNotificationMessageFactory))
-				.Returns(new EdoNotificationMessageFactory(new MD5HexHashFromString()));
+				.Returns(new EdoNotificationMessageFactory());
 			return services;
 		}
 
@@ -105,28 +105,28 @@ namespace Receipt.Dispatcher.Tests
 		{
 			var provider = new EdoNotificationsSettingsProvider(Substitute.For<IUnitOfWorkFactory>(),
 				Substitute.For<IGenericRepository<EdoNotificationSetting>>());
-			var factory = new EdoNotificationMessageFactory(new MD5HexHashFromString());
-			var message = factory.Create(EdoNotificationType.ExcessCodes);
+			var factory = new EdoNotificationMessageFactory();
+			var message = factory.Create<ExcessCodesEdoNotificationSetting>();
 			Assert.Throws<InvalidOperationException>(() => provider.GetEdoNotificationSetting(message));
 			Assert.Throws<InvalidOperationException>(() =>
-				provider.GetEdoNotificationSetting(factory.Create(EdoNotificationType.CodeDuplicated)));
+				provider.GetEdoNotificationSetting(factory.Create<CodeDuplicatedEdoNotificationSetting>()));
 		}
 
 		[Fact]
 		public void ExistingNotificationSettingPreservesRecipientsAndTemplate()
 		{
-			var setting = new EdoNotificationSetting
+			var setting = new ExcessCodesEdoNotificationSetting
 			{
-				EdoNotificationType = EdoNotificationType.ExcessCodes, Template = "{ProblemMessage}",
+				Template = "{ProblemMessage}",
 				Emails = "test@example.com", BitrixDialogs = "123", NotificationDisabled = false
 			};
 			var repository = Substitute.For<IGenericRepository<EdoNotificationSetting>>();
 			repository.Get(Arg.Any<IUnitOfWork>(), Arg.Any<Expression<Func<EdoNotificationSetting, bool>>>(), 0)
 				.Returns(new[] { setting });
 			var provider = new EdoNotificationsSettingsProvider(Substitute.For<IUnitOfWorkFactory>(), repository);
-			var message = new EdoNotificationMessageFactory(new MD5HexHashFromString()).Create(EdoNotificationType.ExcessCodes);
+			var message = new EdoNotificationMessageFactory().Create<ExcessCodesEdoNotificationSetting>();
 			Assert.Same(setting, provider.GetEdoNotificationSetting(message));
-			Assert.False(provider.IsDisabled(message));
+			Assert.False(provider.GetSendingSettings(message).IsDisabled);
 		}
 
 		[Theory]
@@ -137,25 +137,26 @@ namespace Receipt.Dispatcher.Tests
 		{
 			var task = CreateTask(receipt, 6);
 			IEdoTaskValidator source = _validator;
-			var messageFactory = new EdoNotificationMessageFactory(new MD5HexHashFromString());
-			var notificationType = EdoNotificationType.ExcessCodes;
+			var messageFactory = new EdoNotificationMessageFactory();
+			var edoNotificationType = nameof(ExcessCodesEdoNotificationSetting);
 			if(anotherSource)
 			{
 				source = Substitute.For<IEdoTaskValidator>();
 				source.Name.Returns("Test.NotificationSource");
 				source.Importance.Returns(EdoProblemImportance.Problem);
 				source.IsApplicable(task).Returns(true);
-				notificationType = EdoNotificationType.CodeDuplicated;
+				edoNotificationType = nameof(CodeDuplicatedEdoNotificationSetting);
 				source.ValidateAsync(task, Arg.Any<IServiceProvider>(), Arg.Any<CancellationToken>())
 					.Returns(_ => Task.FromResult(task.Items.Count > 5
-						? EdoValidationResult.InvalidWithNotification(source, messageFactory.Create(notificationType)) : EdoValidationResult.Valid(source)));
+						? EdoValidationResult.InvalidWithNotification(source, messageFactory.Create<CodeDuplicatedEdoNotificationSetting>())
+						: EdoValidationResult.Valid(source)));
 			}
 			var taskUow = Substitute.For<IUnitOfWork>();
 			var problemUow = Substitute.For<IUnitOfWork>();
 			var factory = Substitute.For<IUnitOfWorkFactory>();
 			factory.CreateWithoutRoot().ReturnsForAnyArgs(problemUow);
 			problemUow.Session.GetAsync<EdoTask>(task.Id, Arg.Any<CancellationToken>()).Returns(task);
-			var publisher = Substitute.For<IOutboxNotificationPublisher<EdoNotificationMessage>>();
+			var publisher = Substitute.For<INotificationPublisher<EdoNotificationMessage>>();
 			var registrar = new EdoProblemRegistrar(taskUow, factory,
 				new EdoTaskCustomSourcesPersister(factory, Array.Empty<EdoTaskProblemCustomSource>()),
 				new EdoTaskExceptionSourcesPersister(factory, Array.Empty<EdoTaskProblemExceptionSource>()),
@@ -168,8 +169,9 @@ namespace Receipt.Dispatcher.Tests
 			Assert.False(await validator.Validate(task, default));
 			Assert.Equal(EdoTaskStatus.Problem, task.Status);
 			Assert.Equal(6, task.Items.Count);
+			// Проблема и уведомление пишутся в отдельный UoW, UoW задачи закрывается без Commit
 			await publisher.Received(1).TryPublishAsync(problemUow,
-				Arg.Is<EdoNotificationMessage>(x => x.EdoNotificationType == notificationType), default);
+				Arg.Is<EdoNotificationMessage>(x => x.EdoNotificationType == edoNotificationType), default);
 			await problemUow.Received(1).CommitAsync(default);
 			taskUow.Received(1).Dispose();
 
@@ -204,7 +206,7 @@ namespace Receipt.Dispatcher.Tests
 			var registrar = new EdoProblemRegistrar(taskUow, factory,
 				new EdoTaskCustomSourcesPersister(factory, Array.Empty<EdoTaskProblemCustomSource>()),
 				new EdoTaskExceptionSourcesPersister(factory, new[] { new Edo.Problems.Exception.Sources.MissingCodeInPool() }),
-				Substitute.For<IOutboxNotificationPublisher<EdoNotificationMessage>>());
+				Substitute.For<INotificationPublisher<EdoNotificationMessage>>());
 			problemUow.ClearReceivedCalls();
 
 			Assert.True(await registrar.TryRegisterExceptionProblem(task,

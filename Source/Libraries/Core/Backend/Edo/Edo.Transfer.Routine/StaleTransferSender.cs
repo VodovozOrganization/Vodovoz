@@ -12,13 +12,13 @@ namespace Edo.Transfer.Routine
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly TransferDispatcher _transferDispatcher;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
-		public StaleTransferSender(IUnitOfWork uow, TransferDispatcher transferDispatcher, IBus messageBus)
+		public StaleTransferSender(IUnitOfWork uow, TransferDispatcher transferDispatcher, IPublishEndpoint publishEndpoint)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_transferDispatcher = transferDispatcher ?? throw new ArgumentNullException(nameof(transferDispatcher));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 
 		}
 
@@ -30,11 +30,13 @@ namespace Edo.Transfer.Routine
 				return;
 			}
 
-			await _uow.CommitAsync(cancellationToken);
+			// В outbox MassTransit пишем по очереди, не параллельно: строки пишутся через одну сессию NHibernate, а она не потокобезопасна
+			foreach(var staleTask in staleTasks)
+			{
+				await _publishEndpoint.Publish(new TransferTaskPrepareToSendEvent { TransferTaskId = staleTask.Id }, cancellationToken);
+			}
 
-			var events = staleTasks.Select(x => new TransferTaskPrepareToSendEvent { TransferTaskId = x.Id });
-			var publishTasks = events.Select(x => _messageBus.Publish(x, cancellationToken));
-			await Task.WhenAll(publishTasks);
+			await _uow.CommitAsync(cancellationToken);
 		}
 	}
 }

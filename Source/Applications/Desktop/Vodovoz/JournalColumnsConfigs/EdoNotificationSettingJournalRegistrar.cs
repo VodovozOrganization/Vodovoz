@@ -1,5 +1,4 @@
-﻿using Core.Infrastructure;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Vodovoz.ViewModels.Journals.JournalNodes.Edo;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Edo;
 
@@ -10,7 +9,7 @@ namespace Vodovoz.JournalColumnsConfigs
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<EdoNotificationSettingJournalNode> config) =>
 			config.AddColumn("Номер").AddNumericRenderer(node => node.Id)
-				.AddColumn("Тип уведомления").AddTextRenderer(node => node.EdoNotificationType.GetEnumDisplayName(false))
+				.AddColumn("Уведомление").AddTextRenderer(node => node.Name)
 				.AddColumn("Шаблон уведомления").AddTextRenderer(node => node.Template)
 				.AddColumn("Emails").AddTextRenderer(node => node.Emails)
 				.AddColumn("Диалоги Битрикс").AddTextRenderer(node => node.BitrixDialogs)

@@ -663,8 +663,9 @@ namespace CustomTaskDebugExecutor
 					IsReceived = state.IsReceived
 				};
 				
-				var publishEndpoint = _serviceProvider.GetRequiredService<IPublishEndpoint>();
-				await publishEndpoint.Publish(docflowUpdatedEvent);
+				// Ручная отправка события без транзакции: напрямую в шину, мимо outbox
+				var bus = _serviceProvider.GetRequiredService<IBus>();
+				await bus.Publish(docflowUpdatedEvent);
 			}
 			catch(Exception ex)
 			{
