@@ -48,6 +48,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		private bool _isCanCreateCounterpartyDebtDetailsReport;
 		private bool _showPhones;
 		private bool _showBottlesManager;
+		private readonly bool _canShowPhonesByPermission;
 
 		public CounterpartyCashlessDebtsReportViewModel(
 			ICommonServices commonServices,
@@ -88,7 +89,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 			GenerateNotPaidOrdersReportCommand = new DelegateCommand(GenerateNotPaidOrdersReport);
 			GenerateCounterpartyDebtDetailsReportCommand = new DelegateCommand(GenerateCounterpartyDebtDetailsReport);
 
-			CanShowPhones = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInReports);
+			_canShowPhonesByPermission = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanGetContactsInReports);
 		}
 
 		#region Properties
@@ -122,16 +123,42 @@ namespace Vodovoz.ViewModels.ReportsParameters.Bookkeeping
 		public bool ShowPhones
 		{
 			get => _showPhones;
-			set => SetField(ref _showPhones, value);
+			set
+			{
+				if(SetField(ref _showPhones, value))
+				{
+					if(value)
+					{
+						ShowBottlesManager = false;
+					}
+
+					OnPropertyChanged(nameof(CanShowPhones));
+					OnPropertyChanged(nameof(CanShowBottlesManager));
+				}
+			}
 		}
 
-		public bool CanShowPhones { get; }
+		public bool CanShowPhones => _canShowPhonesByPermission && !ShowBottlesManager;
 
 		public bool ShowBottlesManager
 		{
 			get => _showBottlesManager;
-			set => SetField(ref _showBottlesManager, value);
+			set
+			{
+				if(SetField(ref _showBottlesManager, value))
+				{
+					if(value)
+					{
+						ShowPhones = false;
+					}
+
+					OnPropertyChanged(nameof(CanShowPhones));
+					OnPropertyChanged(nameof(CanShowBottlesManager));
+				}
+			}
 		}
+
+		public bool CanShowBottlesManager => !ShowPhones;
 
 		public bool IsCanCreateCounterpartyDebtDetailsReport
 		{

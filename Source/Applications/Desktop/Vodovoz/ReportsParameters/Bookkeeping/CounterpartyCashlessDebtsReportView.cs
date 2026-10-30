@@ -35,6 +35,7 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 
 			ycheckbuttonShowBottlesManager.Binding
 				.AddBinding(ViewModel, vm => vm.ShowBottlesManager, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanShowBottlesManager, w => w.Sensitive)
 				.InitializeFromSource();
 
 			var filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);
