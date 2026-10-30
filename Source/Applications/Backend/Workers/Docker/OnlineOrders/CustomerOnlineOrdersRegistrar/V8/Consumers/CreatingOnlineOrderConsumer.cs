@@ -47,7 +47,7 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 			try
 			{
 				var onlineOrderIdWithCode = await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
-				await context.RespondAsync(CreatedOnlineOrderResult.Create(onlineOrderIdWithCode));
+				await context.RespondAsync(onlineOrderIdWithCode);
 			}
 			catch(Exception e)
 			{

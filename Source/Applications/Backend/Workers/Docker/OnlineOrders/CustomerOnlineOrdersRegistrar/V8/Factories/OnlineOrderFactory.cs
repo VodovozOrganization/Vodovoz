@@ -95,6 +95,11 @@ namespace CustomerOnlineOrdersRegistrar.V8.Factories
 				OnlineOrderTimestampType.AutoOrderSettingsTime
 				);
 
+			if(onlineOrder.TemplateSetupStartTime != null)
+			{
+				uow.Save(onlineOrder.TemplateSetupStartTime);
+			}
+
 			return onlineOrder;
 		}
 

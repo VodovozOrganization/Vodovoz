@@ -6,20 +6,30 @@
 	public class CreatedOnlineOrderResult
 	{
 		public CreatedOnlineOrderResult() { }
-		private CreatedOnlineOrderResult((int OnlineOrderId, int Code) data)
+
+		private CreatedOnlineOrderResult(int onlineOrderId, int code, bool isAutoOrderEnabled)
 		{
-			OnlineOrderId = data.OnlineOrderId;
-			Code = data.Code;
+			OnlineOrderId = onlineOrderId;
+			Code = code;
+			IsAutoOrderEnabled = isAutoOrderEnabled;
 		}
+
 		/// <summary>
 		/// Id онлайн заказа
 		/// </summary>
 		public int OnlineOrderId { get; set; }
+
 		/// <summary>
 		/// Http код
 		/// </summary>
 		public int Code { get; set; } = 500;
-		
-		public static CreatedOnlineOrderResult Create((int OnlineOrderId, int Code) data) => new CreatedOnlineOrderResult(data);
+
+		/// <summary>
+		/// Включена настройка автозаказа
+		/// </summary>
+		public bool IsAutoOrderEnabled { get; set; }
+
+		public static CreatedOnlineOrderResult Create(int onlineOrderId, int code, bool isAutoOrderEnabled = false) =>
+			new CreatedOnlineOrderResult(onlineOrderId, code, isAutoOrderEnabled);
 	}
 }

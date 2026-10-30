@@ -1,12 +1,15 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using System;
 
 namespace Vodovoz.Core.Domain.Sale
 {
 	/// <summary>
 	/// ВременнАя метка онлайн заказа
 	/// </summary>
-	public class OnlineOrderTimestamp
+	public class OnlineOrderTimestamp : IDomainObject
 	{
+		public virtual int Id { get; set; }
+
 		/// <summary>
 		/// Дата и время начала действия
 		/// </summary>
@@ -20,7 +23,7 @@ namespace Vodovoz.Core.Domain.Sale
 		/// <summary>
 		/// Тип метки
 		/// </summary>
-		public virtual OnlineOrderTimestampType? OnlineOrderTimestampType { get; set; }
+		public virtual OnlineOrderTimestampType? Type { get; set; }
 
 		public static OnlineOrderTimestamp Create(
 			DateTime startTime,
@@ -31,7 +34,7 @@ namespace Vodovoz.Core.Domain.Sale
 			{
 				StartTime = startTime,
 				TimerSeconds = timerSeconds,
-				OnlineOrderTimestampType = onlineOrderTimestampType
+				Type = onlineOrderTimestampType
 			};
 		}
 	}

@@ -369,7 +369,7 @@ namespace Vodovoz.Domain.Orders
 			get => _hasService;
 			set => SetField(ref _hasService, value);
 		}
-				
+		
 		/// <summary>
 		/// Идентификатор шаблона
 		/// </summary>
@@ -463,7 +463,7 @@ namespace Vodovoz.Domain.Orders
 				return true;
 			}
 
-			var timeToSetupInSeconds = timers.AutoOrderTimeSetupInSeconds(TemplateSetupStartTime.OnlineOrderTimestampType);
+			var timeToSetupInSeconds = timers.AutoOrderTimeSetupInSeconds(TemplateSetupStartTime.Type);
 			
 			return OnlineOrderStatus == OnlineOrderStatus.PendingAutoOrderSettings
 				&& (DateTime.Now - TemplateSetupStartTime.StartTime).TotalSeconds >= timeToSetupInSeconds;

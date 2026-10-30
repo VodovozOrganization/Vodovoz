@@ -55,7 +55,7 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 			_onlineOrderValidatorCreator = onlineOrderValidatorCreator ?? throw new ArgumentNullException(nameof(onlineOrderValidatorCreator));
 		}		
 
-		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderAsync(ICreatingOnlineOrder message, CancellationToken cancellationToken)
+		protected virtual async Task<CreatedOnlineOrderResult> TryRegisterOnlineOrderAsync(ICreatingOnlineOrder message, CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Создание онлайн заказа из ИПЗ {message.Source.GetEnumTitle()}");
 			// Необходимо сделать асинхронным
@@ -98,27 +98,27 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 				if(e.FindExceptionTypeInInner<MySqlException>() is { ErrorCode: MySqlErrorCode.DuplicateKeyEntry })
 				{
 					Logger.LogInformation("Пришел дубль уже зарегистрированного заказа {ExternalOrderId}, пропускаем", message.ExternalOrderId);
-					return (0, 409);
+					return CreatedOnlineOrderResult.Create(0, 409);
 				}
 
-				return (0, 500);
+				return CreatedOnlineOrderResult.Create(0, 500);
 			}
 
 			if(needSpecialProcessingDuplicate != null)
 			{
-				return (onlineOrder.Id, 200);
+				return CreatedOnlineOrderResult.Create(onlineOrder.Id, 200, onlineOrder.IsAutoOrderEnabled);
 			}
 
 			if(validationResult.IsFailure)
 			{
 				Logger.LogInformation("Отправляем онлайн заказ {ExternalOrderId} на ручное...", externalOrderId);
-				return (onlineOrder.Id, 200);
+				return CreatedOnlineOrderResult.Create(onlineOrder.Id, 200, onlineOrder.IsAutoOrderEnabled);
 			}
 
 			if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
 			{
 				Logger.LogInformation("Пришел онлайн заказ {ExternalOrderId} в ожидании оплаты...", externalOrderId);
-				return (onlineOrder.Id, 200);
+				return CreatedOnlineOrderResult.Create(onlineOrder.Id, 200, onlineOrder.IsAutoOrderEnabled);
 			}
 
 			Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId}" +
@@ -167,7 +167,7 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 				}
 			}
 
-			return (onlineOrder.Id, 200);
+			return CreatedOnlineOrderResult.Create(onlineOrder.Id, 200, onlineOrder.IsAutoOrderEnabled);
 		}
 
 		private OnlineOrderDuplicateProcess? NeedSpecialProcessingDuplicate(IUnitOfWork uow, OnlineOrder onlineOrder)

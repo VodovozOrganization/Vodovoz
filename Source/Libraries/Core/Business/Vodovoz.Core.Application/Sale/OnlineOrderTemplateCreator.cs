@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
@@ -79,6 +81,15 @@ namespace Vodovoz.Core.Application.Sale
 			}
 			
 			onlineOrder.Template = template;
+
+			if(template.PaymentType == Domain.Orders.OnlineOrderPaymentType.PaidOnline)
+			{
+				var timers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
+
+				onlineOrder.ToPayTemplate((int)timers.AutoOrderPayTime.TotalSeconds, OnlineOrderTimestampType.AutoOrderPayTime);
+				uow.Save(onlineOrder.TemplatePayStartTime);
+			}
+
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 			
 			//TODO-6115 отправка уведомления с пушем о подключении автозаказа

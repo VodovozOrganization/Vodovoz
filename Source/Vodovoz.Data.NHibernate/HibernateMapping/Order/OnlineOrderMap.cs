@@ -58,6 +58,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.EmployeeWorkWith).Column("employee_work_with_id");
 			References(x => x.OnlineOrderCancellationReason).Column("online_order_cancellation_reason_id");
 			References(x => x.Template).Column("template_id");
+			References(x => x.TemplateSetupStartTime).Column("template_setup_timestamp_id");
+			References(x => x.TemplatePayStartTime).Column("template_pay_timestamp_id");
 
 			HasMany(x => x.Orders)
 				.KeyColumn("online_order_id")
