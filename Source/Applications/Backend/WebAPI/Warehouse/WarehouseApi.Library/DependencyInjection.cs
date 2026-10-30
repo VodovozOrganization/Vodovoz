@@ -47,6 +47,7 @@ namespace WarehouseApi.Library
 				.AddBusiness(configuration)
 				.AddFirebaseCloudMessaging(configuration)
 				.ConfigureBusinessOptions(configuration)
+				.AddScoped<IWarehouseTrueMarkCodePreloader, WarehouseTrueMarkCodePreloader>()
 				.AddScoped<ICarLoadService, CarLoadService>()
 				.AddScoped<IRouteListDailyNumberProvider, RouteListDailyNumberProvider>()
 				.AddScoped<CarLoadDocumentConverter>()

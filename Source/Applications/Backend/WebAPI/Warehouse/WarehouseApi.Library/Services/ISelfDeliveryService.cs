@@ -53,6 +53,6 @@ namespace WarehouseApi.Library.Services
 		/// Заполнение связанных кодов ЧЗ в строках заказа самовывоза
 		/// </summary>
 		/// <param name="selfDeliveryDocument">Документ самовывоза</param>
-		GetSelfDeliveryResponse CreateSelfDeliveryResponse(SelfDeliveryDocument selfDeliveryDocument);
+		Task<GetSelfDeliveryResponse> CreateSelfDeliveryResponse(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken);
 	}
 }

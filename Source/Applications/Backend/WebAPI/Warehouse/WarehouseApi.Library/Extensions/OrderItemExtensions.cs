@@ -1,5 +1,4 @@
-﻿using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Edo;
@@ -8,8 +7,8 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.V1.Dto;
+using WarehouseApi.Library.Services;
 
 namespace WarehouseApi.Library.Extensions
 {
@@ -73,14 +72,12 @@ namespace WarehouseApi.Library.Extensions
 		/// <summary>
 		/// Заполняет связанные коды
 		/// </summary>
-		/// <param name="orderItemDtos"></param>
-		/// <param name="unitOfWork"></param>
-		/// <param name="trueMarkWaterCodeService"></param>
-		/// <param name="trueMarkCodes"></param>
+		/// <param name="orderItemDtos">Строки заказа, в которые нужно добавить связанные коды.</param>
+		/// <param name="codePreloader">Предзагрузчик кодов ЧЗ для получения родительских и дочерних кодов.</param>
+		/// <param name="trueMarkCodes">Коды маркировки ЧЗ, для которых заполняются связанные коды.</param>
 		public static void PopulateRelatedCodes(
 			this IEnumerable<OrderItemDto> orderItemDtos,
-			IUnitOfWork unitOfWork,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			IWarehouseTrueMarkCodePreloader codePreloader,
 			IEnumerable<TrueMarkProductCode> trueMarkCodes)
 		{
 			foreach(var trueMarkProductCode in trueMarkCodes)
@@ -105,15 +102,11 @@ namespace WarehouseApi.Library.Extensions
 					continue;
 				}
 
-				var parentCode = trueMarkWaterCodeService.GetParentGroupCode(unitOfWork, resultCode);
+				var parentCode = codePreloader.GetParentGroupCode(resultCode);
 
 				var trueMarkCodeDtos = new List<TrueMarkCodeDto>();
 
-				var allCodes = parentCode.Match(
-					transportCode => transportCode.GetAllCodes(),
-					groupCode => groupCode.GetAllCodes(),
-					waterCode => new TrueMarkAnyCode[] { waterCode })
-					.ToArray();
+				var allCodes = codePreloader.GetAllCodes(parentCode).ToArray();
 
 				var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
 					&& trueMarkCodes.Any(y =>
