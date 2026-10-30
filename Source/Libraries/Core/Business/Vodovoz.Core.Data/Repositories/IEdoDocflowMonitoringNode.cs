@@ -30,51 +30,47 @@ namespace Vodovoz.Core.Data.Repositories
 		DateTime? DocflowCreationTime { get; set; }
 
 		/// <summary>
-		/// Время последнего действия документооборота у провайдера ЭДО
+		/// Время изменения текущего состояния документооборота у провайдера ЭДО
 		/// </summary>
 		DateTime? LastActionTime { get; set; }
 
 		/// <summary>
-		/// Состояние последнего действия документооборота у провайдера ЭДО
+		/// Текущее состояние документооборота у провайдера ЭДО
 		/// </summary>
 		EdoDocFlowStatus? LastActionState { get; set; }
 
 		/// <summary>
-		/// Признак того, что по документообороту есть хотя бы одно действие,
-		/// кроме заведенного нами <see cref="EdoDocFlowStatus.NotStarted"/>,
-		/// то есть провайдер ЭДО ответил
+		/// Признак текущего состояния, отличного от начального <see cref="EdoDocFlowStatus.NotStarted"/>
 		/// </summary>
 		bool HasProviderAnswer { get; set; }
 
 		/// <summary>
-		/// Время первого действия, означающего получение документа оператором
+		/// Время текущего состояния получения документа оператором
 		/// </summary>
 		DateTime? FirstSentActionTime { get; set; }
 
 		/// <summary>
-		/// Время завершения документооборота
+		/// Время текущего состояния успешного завершения документооборота
 		/// </summary>
 		DateTime? SucceedActionTime { get; set; }
 
 		/// <summary>
-		/// Время перевода документооборота в ожидание аннулирования
+		/// Время текущего состояния ожидания аннулирования
 		/// </summary>
 		DateTime? WaitingCancellationActionTime { get; set; }
 
 		/// <summary>
-		/// Время аннулирования документооборота.
-		/// Аннулирование конечно: по такому документообороту
-		/// не придет ни результат ГИС МТ, ни смена статуса
+		/// Время текущего состояния аннулирования документооборота
 		/// </summary>
 		DateTime? CancelledActionTime { get; set; }
 
 		/// <summary>
-		/// Последний полученный статус прослеживаемости в ГИС МТ
+		/// Статус прослеживаемости в ГИС МТ текущего состояния
 		/// </summary>
 		TrueMarkTraceabilityStatus? TraceabilityStatus { get; set; }
 
 		/// <summary>
-		/// Время получения последнего статуса прослеживаемости в ГИС МТ
+		/// Время текущего состояния с результатом прослеживаемости в ГИС МТ
 		/// </summary>
 		DateTime? TraceabilityActionTime { get; set; }
 	}

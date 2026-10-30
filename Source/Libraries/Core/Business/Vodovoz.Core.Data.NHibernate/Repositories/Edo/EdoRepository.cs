@@ -200,13 +200,7 @@ select
 	eod.edo_type as :edo_type,
 	td.id as :taxcom_document_id,
 	td.docflow_id as :taxcom_docflow_id,
-	(
-		SELECT tda.state 
-		FROM taxcom_docflow_actions tda 
-		WHERE tda.taxcom_docflow_id = td.id
-		ORDER BY tda.`time` DESC
-		LIMIT 1
-	) as :last_taxcom_state
+	td.state as :last_taxcom_state
 from taxcom_docflows td
 left join edo_outgoing_documents eod on eod.id = td.edo_document_id
 left join edo_customer_requests ecr on ecr.order_task_id = eod.document_task_id
@@ -218,13 +212,7 @@ select
 	eod.edo_type as :edo_type,
 	td.id as :taxcom_document_id,
 	td.docflow_id as :taxcom_docflow_id,
-	(
-		SELECT tda.state 
-		FROM taxcom_docflow_actions tda 
-		WHERE tda.taxcom_docflow_id = td.id
-		ORDER BY tda.`time` DESC
-		LIMIT 1
-	) as :last_taxcom_state
+	td.state as :last_taxcom_state
 from taxcom_docflows td
 left join edo_outgoing_documents eod on eod.id = td.edo_document_id
 left join edo_transfer_requests etr on etr.transfer_edo_task_id = eod.transfer_task_id
@@ -296,8 +284,6 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 
 			var docflowIds =
 				from docflow in uow.Session.Query<TaxcomDocflow>()
-				join action in uow.Session.Query<TaxcomDocflowAction>()
-					on docflow.Id equals action.TaxcomDocflowId
 				join orderDocument in uow.Session.Query<OrderEdoDocument>()
 					on docflow.EdoDocumentId equals orderDocument.Id
 				join task in uow.Session.Query<DocumentEdoTask>()
@@ -308,11 +294,8 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 					on formalRequest.Order.Id equals order.Id
 				join settings in uow.Session.Query<TaxcomEdoSettings>()
 					on order.Contract.Organization.Id equals settings.OrganizationId
-				where action.Id == uow.Session.Query<TaxcomDocflowAction>()
-						.Where(other => other.TaxcomDocflowId == docflow.Id)
-						.Max(other => (int?)other.Id)
-					&& stuckStatuses.Contains(action.DocFlowState)
-					&& action.Time <= statusChangedBefore
+				where stuckStatuses.Contains(docflow.DocFlowState)
+					&& docflow.StateChangeTime <= statusChangedBefore
 					&& docflow.DocflowId != null
 					&& settings.EdoAccount == edoAccount
 				select docflow.DocflowId.Value;
@@ -1374,20 +1357,13 @@ select
 	eod.status as :docflow_status,
 	td.creation_time as :taxcom_docflow_send_time,
 	td.docflow_id as :taxcom_docflow_id,
-	tda.`time` as :last_taxcom_status_update,
-	tda.`state` as :taxcom_status,
-	tda.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
-	tda.`error_message` as :taxcom_error_message
+	td.`state_change_time` as :last_taxcom_status_update,
+	td.`state` as :taxcom_status,
+	td.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
+	td.`error_message` as :taxcom_error_message
 from edo_outgoing_documents eod
 left join edo_customer_requests ecr on ecr.order_task_id = eod.document_task_id
 left join taxcom_docflows td on td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda ON tda.id = (
-    select id
-    from taxcom_docflow_actions
-    where taxcom_docflow_id = td.id
-    order by time desc
-    limit 1
-)
 where ecr.order_id = :order_id
 union all
 select
@@ -1397,22 +1373,15 @@ select
 	eod.status as :docflow_status,
 	td.creation_time as :taxcom_docflow_send_time,
 	td.docflow_id as :taxcom_docflow_id,
-	tda.`time` as :last_taxcom_status_update,
-	tda.`state` as :taxcom_status,
-	tda.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
-	tda.`error_message` as :taxcom_error_message
+	td.`state_change_time` as :last_taxcom_status_update,
+	td.`state` as :taxcom_status,
+	td.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
+	td.`error_message` as :taxcom_error_message
 from edo_outgoing_documents eod
 left join edo_transfer_requests etr on etr.transfer_edo_task_id = eod.transfer_task_id 
 left join edo_transfer_request_iterations etri on etri.id = etr.iteration_id 
 left join edo_customer_requests ecr on ecr.order_task_id = etri.order_edo_task_id
 left join taxcom_docflows td on td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda ON tda.id = (
-    select id
-    from taxcom_docflow_actions
-    where taxcom_docflow_id = td.id
-    order by time desc
-    limit 1
-)
 where ecr.order_id = :order_id
 ;
 ";
@@ -1564,8 +1533,8 @@ select
 	eod.creation_time as :edo_document_time,
 	eod.status as :document_status,
 	td.docflow_id as :taxcom_docflow_id,
-	tda.state as :taxcom_docflow_status,
-	tda.`time` as :taxcom_status_time,
+	td.state as :taxcom_docflow_status,
+	td.state_change_time as :taxcom_status_time,
 	td.cancellation_offer_message as :cancellation_offer_message,
 	td.correction_notice_message  as :correction_notice_message,
 	td.discrepancy_message as :discrepancy_message
@@ -1573,20 +1542,7 @@ from edo_outgoing_documents eod
 left join edo_tasks et on et.id = eod.document_task_id
 left join edo_customer_requests ecr on ecr.order_task_id = et.id
 left join orders o on o.id = ecr.order_id
-left join
-(
-	SELECT
-		taxcom_docflows.*,
-		(
-			SELECT tda.id
-			FROM taxcom_docflow_actions tda
-			WHERE tda.taxcom_docflow_id = taxcom_docflows.id
-			ORDER BY tda.`time` DESC
-			LIMIT 1
-		) as last_taxcom_action_id
-	FROM taxcom_docflows
-) td ON td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda on tda.id = td.last_taxcom_action_id
+left join taxcom_docflows td ON td.edo_document_id = eod.id
 where eod.discrepancy_state = 'Active'
 and eod.id = :document_id
 ";

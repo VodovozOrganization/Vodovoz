@@ -35,17 +35,8 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 				from document in documents.DefaultIfEmpty()
 				join docflow in uow.Session.Query<TaxcomDocflow>() on document.Id equals docflow.EdoDocumentId into docflows
 				from docflow in docflows.DefaultIfEmpty()
-				join action in uow.Session.Query<TaxcomDocflowAction>() on docflow.Id equals action.TaxcomDocflowId into actions
-				from action in actions.DefaultIfEmpty()
-
-				let lastActionId = uow.Session.Query<TaxcomDocflowAction>()
-					.Where(x => x.TaxcomDocflowId == docflow.Id)
-					.OrderByDescending(x => x.Id)
-					.Select(x => x.Id)
-					.FirstOrDefault()
 
 				where request.SourceDocumentId == documentId && request.OrderDocumentType == documentType
-					&& (action == null || action.Id == lastActionId)
 				orderby request.Time descending
 				select new EdoDockflowData
 				{
@@ -59,9 +50,9 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 					DocFlowId = docflow == null ? default : docflow.DocflowId,
 					TaxcomDocflowCreationTime = docflow == null ? default(DateTime?) : docflow.CreationTime,
 					IsReceived = docflow != null && docflow.IsReceived,
-					EdoDocFlowStatus = action == null
-						? (task == null ? EdoDocFlowStatus.PreparingToSend : default(EdoDocFlowStatus?)) : action.DocFlowState,
-					ErrorDescription = action == null ? default : action.ErrorMessage
+					EdoDocFlowStatus = docflow == null
+						? (task == null ? EdoDocFlowStatus.PreparingToSend : default(EdoDocFlowStatus?)) : docflow.DocFlowState,
+					ErrorDescription = docflow == null ? default : docflow.ErrorMessage
 				}
 			).ToList();
 		}
@@ -75,18 +66,8 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 				from orderEdoDocument in orderEdoDocuments.DefaultIfEmpty()
 				join td in uow.Session.Query<TaxcomDocflow>() on orderEdoDocument.Id equals td.EdoDocumentId into taxcomDocflows
 				from taxcomDocflow in taxcomDocflows.DefaultIfEmpty()
-				join tda in uow.Session.Query<TaxcomDocflowAction>() on taxcomDocflow.Id equals tda.TaxcomDocflowId into taxcomDocflowActions
-				from taxcomDocflowAction in taxcomDocflowActions.DefaultIfEmpty()
-
-				let lastTaxcomDocflowActionId = (int?)uow.Session.Query<TaxcomDocflowAction>()
-					.Where(x => x.TaxcomDocflowId == taxcomDocflow.Id)
-					.OrderByDescending(x => x.Id)
-					.Select(x => (int?)x.Id)
-					.FirstOrDefault()
-
 				where
 					orderEdoRequest.Order.Id == orderId
-					&& (taxcomDocflowAction == null || taxcomDocflowAction.Id == lastTaxcomDocflowActionId)
 
 				select new EdoDockflowData
 				{
@@ -94,9 +75,9 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 					DocFlowId = taxcomDocflow == null ? default : taxcomDocflow.DocflowId,
 					EdoRequestCreationTime = orderEdoRequest.Time,
 					TaxcomDocflowCreationTime = taxcomDocflow == null ? default(DateTime?) : taxcomDocflow.CreationTime,
-					EdoDocFlowStatus = taxcomDocflowAction == null ? default(EdoDocFlowStatus?) : taxcomDocflowAction.DocFlowState,
+					EdoDocFlowStatus = taxcomDocflow == null ? default(EdoDocFlowStatus?) : taxcomDocflow.DocFlowState,
 					IsReceived = taxcomDocflow != null && taxcomDocflow.IsReceived,
-					ErrorDescription = taxcomDocflowAction == null ? default : taxcomDocflowAction.ErrorMessage,
+					ErrorDescription = taxcomDocflow == null ? default : taxcomDocflow.ErrorMessage,
 					IsNewDockflow = true,
 					EdoDocumentType = orderEdoDocument == null ? default(EdoDocumentType?) : orderEdoDocument.DocumentType,
 					EdoTaskStatus = documentEdoTask == null ? default(EdoTaskStatus?) : documentEdoTask.Status,
@@ -112,18 +93,8 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 				from informalEdoDocument in informalEdoDocuments.DefaultIfEmpty()
 				join td in uow.Session.Query<TaxcomDocflow>() on informalEdoDocument.Id equals td.EdoDocumentId into taxcomDocflows
 				from taxcomDocflow in taxcomDocflows.DefaultIfEmpty()
-				join tda in uow.Session.Query<TaxcomDocflowAction>() on taxcomDocflow.Id equals tda.TaxcomDocflowId into taxcomDocflowActions
-				from taxcomDocflowAction in taxcomDocflowActions.DefaultIfEmpty()
-
-				let lastTaxcomDocflowActionId = (int?)uow.Session.Query<TaxcomDocflowAction>()
-					.Where(x => x.TaxcomDocflowId == taxcomDocflow.Id)
-					.OrderByDescending(x => x.Id)
-					.Select(x => (int?)x.Id)
-					.FirstOrDefault()
-
 				where
 					edoRequest.Order.Id == orderId
-					&& (taxcomDocflowAction == null || taxcomDocflowAction.Id == lastTaxcomDocflowActionId)
 
 				select new EdoDockflowData
 				{
@@ -131,10 +102,10 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 					DocFlowId = taxcomDocflow == null ? default : taxcomDocflow.DocflowId,
 					EdoRequestCreationTime = edoRequest.Time,
 					TaxcomDocflowCreationTime = taxcomDocflow == null ? default(DateTime?) : taxcomDocflow.CreationTime,
-					EdoDocFlowStatus = taxcomDocflowAction == null
-						? (edoTask == null ? EdoDocFlowStatus.PreparingToSend : default(EdoDocFlowStatus?)) : taxcomDocflowAction.DocFlowState,
+					EdoDocFlowStatus = taxcomDocflow == null
+						? (edoTask == null ? EdoDocFlowStatus.PreparingToSend : default(EdoDocFlowStatus?)) : taxcomDocflow.DocFlowState,
 					IsReceived = taxcomDocflow != null && taxcomDocflow.IsReceived,
-					ErrorDescription = taxcomDocflowAction == null ? default : taxcomDocflowAction.ErrorMessage,
+					ErrorDescription = taxcomDocflow == null ? default : taxcomDocflow.ErrorMessage,
 					IsNewDockflow = true,
 					EdoDocumentType = EdoDocumentType.InformalOrderDocument,
 					TaskId = edoTask == null ? default(int?) : edoTask.Id,
@@ -170,9 +141,9 @@ select
 	et.cancellation_reason as :cancellation_reason,
 	ecr.`time` as :edo_request_creation_time,
 	td.creation_time as :taxcom_docflow_creation_time,
-	tda.state as :edo_docflow_status,
+	td.state as :edo_docflow_status,
 	if(td.id is null, 0, td.is_received) as :is_received,
-	tda.error_message as :error_description,
+	td.error_message as :error_description,
 	1 as :is_new_dockflow,
 	eod.document_type as :edo_document_type,
 	et.status as :edo_task_status,
@@ -192,13 +163,6 @@ from (
 join edo_tasks et on et.id = ecr.order_task_id and et.`type` = 'Document'
 left join edo_outgoing_documents eod on eod.document_task_id = et.id and eod.`type` = 'Order'
 left join taxcom_docflows td on td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda on tda.id = (
-	select tda2.id
-	from taxcom_docflow_actions tda2
-	where tda2.taxcom_docflow_id = td.id
-	order by tda2.id desc
-	limit 1
-)
 order by ecr.`time` desc
 ";
 
@@ -222,9 +186,9 @@ select
 	et.cancellation_reason as :cancellation_reason,
 	eir.`time` as :edo_request_creation_time,
 	td.creation_time as :taxcom_docflow_creation_time,
-	tda.state as :edo_docflow_status,
+	td.state as :edo_docflow_status,
 	if(td.id is null, 0, td.is_received) as :is_received,
-	tda.error_message as :error_description,
+	td.error_message as :error_description,
 	1 as :is_new_dockflow,
 	eod.document_type as :edo_document_type,
 	et.status as :edo_task_status,
@@ -245,13 +209,6 @@ from (
 join edo_tasks et on et.id = eir.order_document_task_id and et.`type` = 'InformalOrderDocument'
 left join edo_outgoing_documents eod on eod.informal_document_task_id = et.id and eod.`type` = 'InformalOrderDocument'
 left join taxcom_docflows td on td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda on tda.id = (
-	select tda2.id
-	from taxcom_docflow_actions tda2
-	where tda2.taxcom_docflow_id = td.id
-	order by tda2.id desc
-	limit 1
-)
 order by eir.`time` desc
 ";
 

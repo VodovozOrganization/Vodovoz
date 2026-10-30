@@ -88,8 +88,7 @@ namespace Taxcom.Docflow.Utility
 					{
 						continue;
 					}
-					var lastStatus = docflow.Actions.Last();
-					if(lastStatus.DocFlowState == EdoDocFlowStatus.InProgress)
+					if(docflow.DocFlowState == EdoDocFlowStatus.InProgress)
 					{
 						await SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(item, organization, cancellationToken);
 					}

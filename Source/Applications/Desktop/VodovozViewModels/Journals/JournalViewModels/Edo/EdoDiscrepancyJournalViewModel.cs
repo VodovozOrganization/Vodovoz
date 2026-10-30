@@ -179,26 +179,13 @@ select
 	eod.id as :document_id,
 	et.status as :order_task_status,
 	eod.status as :document_status,
-	tda.state as :taxcom_status
+	td.state as :taxcom_status
 from edo_outgoing_documents eod
 left join edo_tasks et on et.id = eod.document_task_id
 left join edo_customer_requests ecr on ecr.order_task_id = et.id
 left join orders o on o.id = ecr.order_id
 left join document_organization_counters doc on doc.order_id = o.id
-left join
-(
-	SELECT
-		taxcom_docflows.*,
-		(
-			SELECT tda.id
-			FROM taxcom_docflow_actions tda
-			WHERE tda.taxcom_docflow_id = taxcom_docflows.id
-			ORDER BY tda.`time` DESC
-			LIMIT 1
-		) as last_taxcom_action_id
-	FROM taxcom_docflows
-) td ON td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda on tda.id = td.last_taxcom_action_id
+left join taxcom_docflows td ON td.edo_document_id = eod.id
 where eod.discrepancy_state = 'Active'
 group by eod.id
 order by eod.id desc
