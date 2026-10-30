@@ -34,7 +34,10 @@
             <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>247.9pt</Width>
+            <Width>247.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>101.3pt</Width>
@@ -57,9 +60,6 @@
           <TableColumn>
             <Width>72.0pt</Width>
           </TableColumn>
-          <TableColumn>
-            <Width>101.8pt</Width>
-          </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
@@ -69,7 +69,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>='Отчёт о выполнении плана продаж сотрудниками '
+                      <Value>='Отчет по забору тары сотрудниками '
     + Iif(
         Format(CDate({?start_date}), "dd.MM.yy") = Format(CDate({?end_date}), "dd.MM.yy"), 
         ' за ' + Format(CDate({?start_date}), "dd.MM.yy"),
@@ -123,6 +123,25 @@
                   <ReportItems>
                     <Textbox Name="Textbox2">
                       <Value>Клиент</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>Заказ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -265,24 +284,6 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox25">
-                      <Value>Комментарий вод. тел.</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -321,7 +322,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>={client} + Iif({unclosed_rl},'*','') + ' (Заказ №' + {order_id} + ')'</Value>
+                      <Value>={client} + Iif({unclosed_rl},'*','')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -332,6 +333,31 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Left</TextAlign>
+                        <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox84">
+                      <Value>={order_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                        <TextAlign>Center</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
                         <PaddingLeft>3pt</PaddingLeft>
                         <PaddingRight>3pt</PaddingRight>
@@ -512,30 +538,6 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox26">
-                      <Value>={comment_manager}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontWeight>Normal</FontWeight>
-                        <TextAlign>Center</TextAlign>
-                        <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
-                        <PaddingLeft>3pt</PaddingLeft>
-                        <PaddingRight>3pt</PaddingRight>
-                        <PaddingTop>7pt</PaddingTop>
-                        <PaddingBottom>7pt</PaddingBottom>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -566,7 +568,7 @@
                       <Value>Итого:</Value>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>3</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -686,27 +688,6 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1017,7 +998,7 @@
                           <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>3</ColSpan>
+                      <ColSpan>4</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -1118,24 +1099,6 @@
                             <FontWeight>Bold</FontWeight>
                             <VerticalAlign>Middle</VerticalAlign>
                             <Format>#,##0.00</Format>
-                            <TextAlign>Center</TextAlign>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox76">
-                          <Value>
-                          </Value>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                            <VerticalAlign>Middle</VerticalAlign>
                             <TextAlign>Center</TextAlign>
                           </Style>
                         </Textbox>
@@ -1313,7 +1276,8 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
-        <CommandText>SELECT
+        <CommandText>SELECT * FROM (
+SELECT
     o.id AS order_id,
     c.name AS client,
     IFNULL(GROUP_CONCAT(DISTINCT items.nomenclature SEPARATOR ', '), 'Нет заказа воды 19 л.') AS nomenclature,
@@ -1436,7 +1400,11 @@ WHERE (IF(@is_creation_date,
   AND !o.is_contract_closer
   AND (items.nomenclature IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0 OR additions.adds_sum &gt; 0)
   AND !(a.status &lt;=&gt; 'Transfered')
-GROUP BY o.id;</CommandText>
+GROUP BY o.id
+) AS tare_data
+WHERE IF(@exclude_negative_net_tare,
+          IFNULL(tare_data.`bottles_returned`, 0) - IFNULL(tare_data.`count`, 0) &gt;= 0,
+          1);</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -1446,6 +1414,9 @@ GROUP BY o.id;</CommandText>
           </QueryParameter>
           <QueryParameter Name="is_creation_date">
             <Value>=Parameters!is_creation_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="exclude_negative_net_tare">
+            <Value>=Parameters!exclude_negative_net_tare</Value>
           </QueryParameter>
           <QueryParameter Name="order_author_include">
             <Value>={?order_author_include}</Value>
@@ -1571,6 +1542,14 @@ GROUP BY o.id;</CommandText>
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="is_creation_date">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="exclude_negative_net_tare">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

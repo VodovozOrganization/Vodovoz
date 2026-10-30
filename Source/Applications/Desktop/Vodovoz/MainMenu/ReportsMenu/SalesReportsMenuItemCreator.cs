@@ -22,7 +22,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
 		private MenuItem _orderCreationDateMenuItem;
-		private MenuItem _planImplementationMenuItem;
+		private MenuItem _tareCollectionMenuItem;
 		private MenuItem _setBillsMenuItem;
 		private MenuItem _salesReportDetailedItem;
 		private readonly bool _userIsSalesRepresentative;
@@ -52,9 +52,9 @@ namespace Vodovoz.MainMenu.ReportsMenu
 				"Отчет по дате создания заказа", OnOrderCreationDateReportPressed);
 			salesReportsMenu.Add(_orderCreationDateMenuItem);
 
-			_planImplementationMenuItem = _concreteMenuItemCreator.CreateMenuItem(
-				"Отчёт о выполнении плана", OnPlanImplementationReportPressed);
-			salesReportsMenu.Add(_planImplementationMenuItem);
+			_tareCollectionMenuItem = _concreteMenuItemCreator.CreateMenuItem(
+				"Отчет по забору тары", OnTareCollectionReportPressed);
+			salesReportsMenu.Add(_tareCollectionMenuItem);
 
 			_setBillsMenuItem = _concreteMenuItemCreator.CreateMenuItem(
 				"Отчет по выставленным счетам", OnSetBillsReportPressed);
@@ -107,16 +107,16 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		}
 
 		/// <summary>
-		/// Отчёт о выполнении плана
+		/// Отчет по забору тары
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnPlanImplementationReportPressed(object sender, ButtonPressEventArgs e)
+		private void OnTareCollectionReportPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<ReportViewDlg>(
 				null,
 				OpenPageOptions.IgnoreHash,
-				addingRegistrations: builder => builder.RegisterType<PlanImplementationReport>().As<IParametersWidget>());
+				addingRegistrations: builder => builder.RegisterType<TareCollectionReport>().As<IParametersWidget>());
 		}
 
 		/// <summary>
@@ -181,7 +181,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		{
 			_orderCreationDateMenuItem.Visible = !_userIsSalesRepresentative;
 
-			_planImplementationMenuItem.Visible = !_userIsSalesRepresentative;
+			_tareCollectionMenuItem.Visible = !_userIsSalesRepresentative;
 
 			_setBillsMenuItem.Visible = !_userIsSalesRepresentative;
 
