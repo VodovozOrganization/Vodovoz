@@ -21,6 +21,7 @@ namespace Edo.Transfer.Dispatcher
 
 			services.TryAddScoped<TransferSender>();
 			services.TryAddScoped<TransferSendPreparer>();
+			services.TryAddScoped<TransferUpdDocumentBuilder>();
 			services.TryAddScoped<ITransferOrderHeaderPreparer, TransferOrderHeaderPreparer>();
 
 			return services;

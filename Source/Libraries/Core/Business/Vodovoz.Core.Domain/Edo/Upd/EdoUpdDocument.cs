@@ -121,10 +121,10 @@ namespace Vodovoz.Core.Domain.Edo.Upd
 		public virtual ReasonForLeaving ReasonForLeaving { get; set; }
 
 		/// <summary>
-		/// Номер заказа
+		/// Номер клиентского заказа; отсутствует для УПД трансфера.
 		/// </summary>
 		[Display(Name = "Номер заказа")]
-		public virtual int OrderId { get; set; }
+		public virtual int? OrderId { get; set; }
 
 		/// <summary>
 		/// Идентификатор заказа в ИС контрагента

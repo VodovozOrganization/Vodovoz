@@ -19,6 +19,12 @@ namespace Vodovoz.Core.Data.NHibernate.Edo
 
 			Map(x => x.Quantity)
 				.Column("quantity");
+
+			Map(x => x.TransportCode)
+				.Column("transport_code");
+
+			Map(x => x.IdentificationCode)
+				.Column("identification_code");
 		}
 	}
 }

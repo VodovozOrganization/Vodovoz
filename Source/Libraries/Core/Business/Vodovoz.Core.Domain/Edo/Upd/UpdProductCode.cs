@@ -23,6 +23,18 @@ namespace Vodovoz.Core.Domain.Edo.Upd
 		public virtual int Quantity { get; set; }
 
 		/// <summary>
+		/// Значение транспортного кода на момент формирования УПД трансфера.
+		/// </summary>
+		[Display(Name = "Транспортный код")]
+		public virtual string TransportCode { get; set; }
+
+		/// <summary>
+		/// Значение индивидуального или группового кода на момент формирования УПД трансфера.
+		/// </summary>
+		[Display(Name = "Индивидуальный или групповой код")]
+		public virtual string IdentificationCode { get; set; }
+
+		/// <summary>
 		/// Товар в УПД
 		/// </summary>
 		[Display(Name = "Товар в УПД")]

@@ -1,6 +1,7 @@
 ﻿using QS.Extensions.Observable.Collections.List;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Edo.Upd;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -12,6 +13,17 @@ namespace Vodovoz.Core.Domain.Edo
 		private EdoTransferTaskStage _transferStatus;
 		private DateTime? _transferStartTime;
 		private int? _transferOrderId;
+		private EdoUpdDocument _upd;
+
+		/// <summary>
+		/// Сохранённый документ УПД трансфера.
+		/// </summary>
+		[Display(Name = "УПД")]
+		public virtual EdoUpdDocument Upd
+		{
+			get => _upd;
+			set => SetField(ref _upd, value);
+		}
 
 		[Display(Name = "Код организации отправителя")]
 		public virtual int FromOrganizationId

@@ -50,6 +50,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Edo\EdoUpdDocumentViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Edo\EdoUpdFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\Edo\EdoUpdJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Edo\EdoUpdJournalViewModel.cs" />
     <Compile Include="Accounting\Payments\PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel.cs" />
     <Compile Include="Accounting\Payments\PaymentWriteOffViewModel.cs" />
     <Compile Include="BaseParameters\BaseParametersViewModel.cs" />
@@ -178,6 +182,9 @@
     <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.CounterpartyCashlessDebtsReportType.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.ProducedProductionReportMeasurementUnit.cs" />
+    <Compile Include="Services\Edo\EdoUpdDocumentService.cs" />
+    <Compile Include="Services\Edo\EdoUpdJournalFilter.cs" />
+    <Compile Include="Services\Edo\IEdoUpdDocumentService.cs" />
     <Compile Include="Services\Orders\OrderCancellationPermitService.cs" />
     <Compile Include="Services\SalesReport\ISalesReportService.cs" />
     <Compile Include="Services\SalesReport\SalesReportService.cs" />
