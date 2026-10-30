@@ -22,7 +22,7 @@ namespace WarehouseApi.Library.Services
 	/// Обход родителей повторяет <c>TrueMarkCodeRepository.PreloadCodes</c>,
 	/// дополнительно одним проходом забираются вложенные коды.
 	/// </summary>
-	public sealed class WarehouseTrueMarkCodePreloader
+	public sealed class WarehouseTrueMarkCodePreloader : IWarehouseTrueMarkCodePreloader
 	{
 		private readonly IUnitOfWork _uow;
 
@@ -131,10 +131,24 @@ namespace WarehouseApi.Library.Services
 
 		public async Task PreloadCodes(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
 		{
+			ClearCache();
+			AddWaterCodes(codes);
+
+			var transportCodeIds = CreateTransportCodeIds();
+			await PreloadParentGroupCodes(transportCodeIds, cancellationToken);
+			await PreloadParentTransportCodes(transportCodeIds, cancellationToken);
+			await PreloadChildCodes(cancellationToken);
+		}
+
+		private void ClearCache()
+		{
 			_waterGroupCodes.Clear();
 			_transportCodes.Clear();
 			_waterCodes.Clear();
+		}
 
+		private void AddWaterCodes(IEnumerable<TrueMarkWaterIdentificationCode> codes)
+		{
 			foreach(var code in codes)
 			{
 				if(code != null && !_waterCodes.ContainsKey(code.Id))
@@ -142,12 +156,19 @@ namespace WarehouseApi.Library.Services
 					_waterCodes.Add(code.Id, code);
 				}
 			}
+		}
 
-			var transportCodeIds = new HashSet<int>(
+		private HashSet<int> CreateTransportCodeIds()
+		{
+			return new HashSet<int>(
 				_waterCodes.Values.Where(x => x.ParentTransportCodeId.HasValue)
-					.Select(x => x.ParentTransportCodeId.Value)
-			);
+					.Select(x => x.ParentTransportCodeId.Value));
+		}
 
+		private async Task PreloadParentGroupCodes(
+			HashSet<int> transportCodeIds,
+			CancellationToken cancellationToken)
+		{
 			var loadedGroupIds = new HashSet<int>();
 			var groupCodeIds = _waterCodes.Values.Where(x => x.ParentWaterGroupCodeId.HasValue)
 				.Select(x => x.ParentWaterGroupCodeId.Value)
@@ -186,7 +207,12 @@ namespace WarehouseApi.Library.Services
 					}
 				}
 			}
+		}
 
+		private async Task PreloadParentTransportCodes(
+			HashSet<int> transportCodeIds,
+			CancellationToken cancellationToken)
+		{
 			var nextTransportIds = transportCodeIds.ToArray();
 			while(nextTransportIds.Any())
 			{
@@ -211,8 +237,6 @@ namespace WarehouseApi.Library.Services
 
 				nextTransportIds = parentIds.Distinct().ToArray();
 			}
-
-			await PreloadChildCodes(cancellationToken);
 		}
 
 		public TrueMarkAnyCode GetParentGroupCode(TrueMarkAnyCode trueMarkAnyCode)
@@ -320,86 +344,121 @@ namespace WarehouseApi.Library.Services
 
 				if(transportIds.Length > 0)
 				{
-					var childTransports = await _uow.Session.QueryOver<TrueMarkTransportCode>()
-						.WhereRestrictionOn(x => x.ParentTransportCodeId).IsIn(transportIds)
-						.ListAsync(cancellationToken);
-
-					foreach(var childTransport in childTransports)
-					{
-						if(!_transportCodes.ContainsKey(childTransport.Id))
-						{
-							_transportCodes.Add(childTransport.Id, childTransport);
-						}
-
-						if(visitedTransportIds.Add(childTransport.Id))
-						{
-							transportIdsToVisit.Add(childTransport.Id);
-						}
-					}
-
-					var childGroups = await _uow.Session.QueryOver<TrueMarkWaterGroupCode>()
-						.WhereRestrictionOn(x => x.ParentTransportCodeId).IsIn(transportIds)
-						.ListAsync(cancellationToken);
-
-					foreach(var childGroup in childGroups)
-					{
-						if(!_waterGroupCodes.ContainsKey(childGroup.Id))
-						{
-							_waterGroupCodes.Add(childGroup.Id, childGroup);
-						}
-
-						if(visitedGroupIds.Add(childGroup.Id))
-						{
-							groupIdsToVisit.Add(childGroup.Id);
-						}
-					}
-
-					var childWaters = await _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
-						.WhereRestrictionOn(x => x.ParentTransportCodeId).IsIn(transportIds)
-						.ListAsync(cancellationToken);
-
-					foreach(var childWater in childWaters)
-					{
-						if(!_waterCodes.ContainsKey(childWater.Id))
-						{
-							_waterCodes.Add(childWater.Id, childWater);
-						}
-					}
+					await PreloadChildCodesByTransportIds(
+						transportIds,
+						groupIdsToVisit,
+						transportIdsToVisit,
+						visitedGroupIds,
+						visitedTransportIds,
+						cancellationToken);
 				}
 
 				if(groupIds.Length > 0)
 				{
-					var childGroups = await _uow.Session.QueryOver<TrueMarkWaterGroupCode>()
-						.WhereRestrictionOn(x => x.ParentWaterGroupCodeId).IsIn(groupIds)
-						.ListAsync(cancellationToken);
-
-					foreach(var childGroup in childGroups)
-					{
-						if(!_waterGroupCodes.ContainsKey(childGroup.Id))
-						{
-							_waterGroupCodes.Add(childGroup.Id, childGroup);
-						}
-
-						if(visitedGroupIds.Add(childGroup.Id))
-						{
-							groupIdsToVisit.Add(childGroup.Id);
-						}
-					}
-
-					var childWaters = await _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
-						.WhereRestrictionOn(x => x.ParentWaterGroupCodeId).IsIn(groupIds)
-						.ListAsync(cancellationToken);
-
-					foreach(var childWater in childWaters)
-					{
-						if(!_waterCodes.ContainsKey(childWater.Id))
-						{
-							_waterCodes.Add(childWater.Id, childWater);
-						}
-					}
+					await PreloadChildCodesByGroupIds(
+						groupIds,
+						groupIdsToVisit,
+						visitedGroupIds,
+						cancellationToken);
 				}
 			}
 
+			BuildChildLookups();
+		}
+
+		private async Task PreloadChildCodesByTransportIds(
+			int[] transportIds,
+			HashSet<int> groupIdsToVisit,
+			HashSet<int> transportIdsToVisit,
+			HashSet<int> visitedGroupIds,
+			HashSet<int> visitedTransportIds,
+			CancellationToken cancellationToken)
+		{
+			var childTransports = await _uow.Session.QueryOver<TrueMarkTransportCode>()
+				.WhereRestrictionOn(x => x.ParentTransportCodeId).IsIn(transportIds)
+				.ListAsync(cancellationToken);
+
+			foreach(var childTransport in childTransports)
+			{
+				if(!_transportCodes.ContainsKey(childTransport.Id))
+				{
+					_transportCodes.Add(childTransport.Id, childTransport);
+				}
+
+				if(visitedTransportIds.Add(childTransport.Id))
+				{
+					transportIdsToVisit.Add(childTransport.Id);
+				}
+			}
+
+			var childGroups = await _uow.Session.QueryOver<TrueMarkWaterGroupCode>()
+				.WhereRestrictionOn(x => x.ParentTransportCodeId).IsIn(transportIds)
+				.ListAsync(cancellationToken);
+
+			foreach(var childGroup in childGroups)
+			{
+				if(!_waterGroupCodes.ContainsKey(childGroup.Id))
+				{
+					_waterGroupCodes.Add(childGroup.Id, childGroup);
+				}
+
+				if(visitedGroupIds.Add(childGroup.Id))
+				{
+					groupIdsToVisit.Add(childGroup.Id);
+				}
+			}
+
+			var childWaters = await _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+				.WhereRestrictionOn(x => x.ParentTransportCodeId).IsIn(transportIds)
+				.ListAsync(cancellationToken);
+
+			foreach(var childWater in childWaters)
+			{
+				if(!_waterCodes.ContainsKey(childWater.Id))
+				{
+					_waterCodes.Add(childWater.Id, childWater);
+				}
+			}
+		}
+
+		private async Task PreloadChildCodesByGroupIds(
+			int[] groupIds,
+			HashSet<int> groupIdsToVisit,
+			HashSet<int> visitedGroupIds,
+			CancellationToken cancellationToken)
+		{
+			var childGroups = await _uow.Session.QueryOver<TrueMarkWaterGroupCode>()
+				.WhereRestrictionOn(x => x.ParentWaterGroupCodeId).IsIn(groupIds)
+				.ListAsync(cancellationToken);
+
+			foreach(var childGroup in childGroups)
+			{
+				if(!_waterGroupCodes.ContainsKey(childGroup.Id))
+				{
+					_waterGroupCodes.Add(childGroup.Id, childGroup);
+				}
+
+				if(visitedGroupIds.Add(childGroup.Id))
+				{
+					groupIdsToVisit.Add(childGroup.Id);
+				}
+			}
+
+			var childWaters = await _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+				.WhereRestrictionOn(x => x.ParentWaterGroupCodeId).IsIn(groupIds)
+				.ListAsync(cancellationToken);
+
+			foreach(var childWater in childWaters)
+			{
+				if(!_waterCodes.ContainsKey(childWater.Id))
+				{
+					_waterCodes.Add(childWater.Id, childWater);
+				}
+			}
+		}
+
+		private void BuildChildLookups()
+		{
 			_childTransportsByParent = _transportCodes.Values
 				.Where(x => x.ParentTransportCodeId.HasValue)
 				.ToLookup(x => x.ParentTransportCodeId.Value);

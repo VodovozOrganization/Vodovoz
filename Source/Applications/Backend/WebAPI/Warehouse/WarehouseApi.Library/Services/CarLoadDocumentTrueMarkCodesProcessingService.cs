@@ -25,14 +25,14 @@ namespace WarehouseApi.Library.Services
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IGenericRepository<Order> _orderRepository;
-		private readonly WarehouseTrueMarkCodePreloader _codePreloader;
+		private readonly IWarehouseTrueMarkCodePreloader _codePreloader;
 		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
 
 		public CarLoadDocumentTrueMarkCodesProcessingService(
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IGenericRepository<Order> orderRepository,
-			WarehouseTrueMarkCodePreloader codePreloader)
+			IWarehouseTrueMarkCodePreloader codePreloader,
 			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
 		{
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository;

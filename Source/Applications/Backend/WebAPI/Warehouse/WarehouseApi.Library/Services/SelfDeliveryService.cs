@@ -44,7 +44,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
-		private readonly WarehouseTrueMarkCodePreloader _codePreloader;
+		private readonly IWarehouseTrueMarkCodePreloader _codePreloader;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -65,7 +65,7 @@ namespace WarehouseApi.Library.Services
 			IGenericRepository<Subdivision> subdivisionRepository,
 			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
-			WarehouseTrueMarkCodePreloader codePreloader,
+			IWarehouseTrueMarkCodePreloader codePreloader,
 			ICounterpartyEdoAccountController edoAccountController,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,

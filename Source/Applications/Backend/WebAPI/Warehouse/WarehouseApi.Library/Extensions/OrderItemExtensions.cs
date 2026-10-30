@@ -72,12 +72,12 @@ namespace WarehouseApi.Library.Extensions
 		/// <summary>
 		/// Заполняет связанные коды
 		/// </summary>
-		/// <param name="orderItemDtos"></param>
-		/// <param name="codePreloader"></param>
-		/// <param name="trueMarkCodes"></param>
+		/// <param name="orderItemDtos">Строки заказа, в которые нужно добавить связанные коды.</param>
+		/// <param name="codePreloader">Предзагрузчик кодов ЧЗ для получения родительских и дочерних кодов.</param>
+		/// <param name="trueMarkCodes">Коды маркировки ЧЗ, для которых заполняются связанные коды.</param>
 		public static void PopulateRelatedCodes(
 			this IEnumerable<OrderItemDto> orderItemDtos,
-			WarehouseTrueMarkCodePreloader codePreloader,
+			IWarehouseTrueMarkCodePreloader codePreloader,
 			IEnumerable<TrueMarkProductCode> trueMarkCodes)
 		{
 			foreach(var trueMarkProductCode in trueMarkCodes)

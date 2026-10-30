@@ -47,7 +47,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
-		private readonly WarehouseTrueMarkCodePreloader _codePreloader;
+		private readonly IWarehouseTrueMarkCodePreloader _codePreloader;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
 		private readonly ICarLoadDocumentTrueMarkCodesProcessingService _codesProcessingService;
@@ -64,7 +64,7 @@ namespace WarehouseApi.Library.Services
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
-			WarehouseTrueMarkCodePreloader codePreloader,
+			IWarehouseTrueMarkCodePreloader codePreloader,
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
 			ICarLoadDocumentTrueMarkCodesProcessingService codesProcessingService,
