@@ -1766,6 +1766,7 @@ namespace Vodovoz
 			try
 			{
 				_phonesViewModel.PrepareSave();
+
 				UoW.Save();
 			}
 			catch
