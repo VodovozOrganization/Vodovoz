@@ -49,6 +49,17 @@ namespace Vodovoz.Core.Application.Sale
 		}
 		
 		public (SaleItemPriceType PriceType, decimal Price)? GetFixedPriceOrNull(
+			IEnumerable<NomenclatureFixedPrice> deliveryPointFixedPrices,
+			IEnumerable<NomenclatureFixedPrice> counterpartyFixedPrices,
+			IEnumerable<ISaleItem> allSaleItems,
+			ISaleItem saleItem
+		)
+		{
+			var bottlesCount = _goodsCountCalculator.TotalItemCount(saleItem, allSaleItems);
+			return GetFixedPriceOrNull(deliveryPointFixedPrices, counterpartyFixedPrices, saleItem, bottlesCount);
+		}
+		
+		public (SaleItemPriceType PriceType, decimal Price)? GetFixedPriceOrNull(
 			DeliveryPoint deliveryPoint,
 			Counterparty counterparty,
 			IGetFixedPrice saleItem,
@@ -82,6 +93,52 @@ namespace Vodovoz.Core.Application.Sale
 				fixedPrices = deliveryPoint.NomenclatureFixedPrices;
 			}
 
+			return GetFixedPriceOrNull(fixedPrices, saleItem, bottlesCount);
+		}
+		
+		public (SaleItemPriceType PriceType, decimal Price)? GetFixedPriceOrNull(
+			IEnumerable<NomenclatureFixedPrice> deliveryPointFixedPrices,
+			IEnumerable<NomenclatureFixedPrice> counterpartyFixedPrices,
+			IGetFixedPrice saleItem,
+			decimal bottlesCount
+		)
+		{
+			IEnumerable<NomenclatureFixedPrice> fixedPrices;
+
+			if(saleItem.PromoSet != null)
+			{
+				return null;
+			}
+
+			//TODO-5967 и проверка на скидку, ведь может прийти без фиксы, но и без скидки и мы должны взять фиксу в этом случае
+			/*if(!currentProduct.IsFixedPrice)
+			{
+				return null;
+			}*/
+			
+			if(deliveryPointFixedPrices is null || !deliveryPointFixedPrices.Any())
+			{
+				if(counterpartyFixedPrices is null || !counterpartyFixedPrices.Any())
+				{
+					return null;
+				}
+
+				fixedPrices = counterpartyFixedPrices;
+			}
+			else
+			{
+				fixedPrices = deliveryPointFixedPrices;
+			}
+
+			return GetFixedPriceOrNull(fixedPrices, saleItem, bottlesCount);
+		}
+
+		private (SaleItemPriceType PriceType, decimal Price)? GetFixedPriceOrNull(
+			IEnumerable<NomenclatureFixedPrice> fixedPrices,
+			IGetFixedPrice saleItem,
+			decimal bottlesCount
+		)
+		{
 			var influentialNomenclature = saleItem.Nomenclature.DependsOnNomenclature;
 			decimal? fixedPrice = null;
 

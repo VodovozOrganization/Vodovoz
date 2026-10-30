@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using CustomerOrders.Contracts.V8.Sale.Templates;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
@@ -30,6 +30,24 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 						nameof(OnlineOrderPaymentType),
 						onlineOrder.OnlineOrderPaymentType.ToString(),
 						"Данное значение онлайн оплаты не поддерживается для перевода в тип оплаты автозаказа");
+			}
+		}
+
+		public static TemplatePaymentType ToTemplatePaymentType(this OnlineOrderPaymentType source)
+		{
+			switch(source)
+			{
+				case OnlineOrderPaymentType.Cash:
+					return TemplatePaymentType.Cash;
+				case OnlineOrderPaymentType.Terminal:
+					return TemplatePaymentType.Terminal;
+				case OnlineOrderPaymentType.PaidOnline:
+					return TemplatePaymentType.Online;
+				default:
+					throw new ArgumentOutOfRangeException(
+						nameof(OnlineOrderPaymentType),
+						source.ToString(),
+						"Неизвестный тип оплаты онлайн заказа");
 			}
 		}
 	}

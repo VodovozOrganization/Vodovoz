@@ -4,6 +4,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Service;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale;
@@ -31,13 +32,44 @@ namespace Vodovoz.Core.Application.Orders.Services
 			DeliveryPoint deliveryPoint,
 			Counterparty counterparty,
 			ISaleItem currentSaleItem,
-			bool hasPermissionsForAlternativePrice)
+			bool hasPermissionsForAlternativePrice
+			)
 		{
 			var fixedPrice = _fixedPriceGetter.GetFixedPriceOrNull(
 				deliveryPoint,
 				counterparty,
-				currentSaleItem,
-				_goodsCountCalculator.GetTotalWater19LCount(saleItemsWithCurrent, doNotCalculatePresentsDiscount: true));
+				saleItemsWithCurrent,
+				currentSaleItem);
+
+			if(fixedPrice != null)
+			{
+				return fixedPrice.Value;
+			}
+
+			var count = currentSaleItem.PromoSet is null
+				? _goodsCountCalculator.GetTotalWater19LCount(saleItemsWithCurrent, true, true)
+				: currentSaleItem.Count;
+
+			var canApplyAlternativePrice =
+				hasPermissionsForAlternativePrice
+				&& currentSaleItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
+
+			return currentSaleItem.Nomenclature.GetPrice(count, canApplyAlternativePrice);
+		}
+		
+		public (SaleItemPriceType PriceType, decimal Price) CalculateItemPrice(
+			IEnumerable<ISaleItem> saleItemsWithCurrent,
+			IEnumerable<NomenclatureFixedPrice> deliveryPointFixedPrices,
+			IEnumerable<NomenclatureFixedPrice> counterpartyFixedPrices,
+			ISaleItem currentSaleItem,
+			bool hasPermissionsForAlternativePrice
+		)
+		{
+			var fixedPrice = _fixedPriceGetter.GetFixedPriceOrNull(
+				deliveryPointFixedPrices,
+				counterpartyFixedPrices,
+				saleItemsWithCurrent,
+				currentSaleItem);
 
 			if(fixedPrice != null)
 			{

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale;
 using VodovozBusiness.Domain.Service;
@@ -26,6 +27,7 @@ namespace Vodovoz.Domain.Service
 			Counterparty counterparty,
 			ISaleItem currentSaleItem,
 			bool hasPermissionsForAlternativePrice);
+
 		/// <summary>
 		/// Расчет стоимости позиции, когда она еще не добавлена в общий список
 		/// </summary>
@@ -41,6 +43,24 @@ namespace Vodovoz.Domain.Service
 			Counterparty counterparty,
 			IGetFixedPrice newSaleItem,
 			bool hasPermissionsForAlternativePrice);
+
+		/// <summary>
+		/// Расчет стоимости позиции, когда она уже есть в передаваемом списке
+		/// </summary>
+		/// <param name="saleItemsWithCurrent">Все позиции на продажу(включая текущий, расчетный)</param>
+		/// <param name="deliveryPointFixedPrices">Фиксированные цены точки доставки</param>
+		/// <param name="counterpartyFixedPrices">Фиксированные цены клиента</param>
+		/// <param name="currentSaleItem">Позиция, для которой идет расчет</param>
+		/// <param name="hasPermissionsForAlternativePrice">Есть ли права на установки альтернативной цены</param>
+		/// <returns></returns>
+		(SaleItemPriceType PriceType, decimal Price) CalculateItemPrice(
+			IEnumerable<ISaleItem> saleItemsWithCurrent,
+			IEnumerable<NomenclatureFixedPrice> deliveryPointFixedPrices,
+			IEnumerable<NomenclatureFixedPrice> counterpartyFixedPrices,
+			ISaleItem currentSaleItem,
+			bool hasPermissionsForAlternativePrice
+		);
+
 		/// <summary>
 		/// Получение цены по общему количеству товара одной номенклатуры, без фиксы
 		/// </summary>

@@ -7,6 +7,11 @@ namespace VodovozBusiness.Errors.Sale
 		/// <summary>
 		/// Нельзя подключить автозаказ без данных по клиенту
 		/// </summary>
+		public static Error OrderTemplateNotFound => new Error("404", "Автозаказ не найден");
+
+		/// <summary>
+		/// Нельзя подключить автозаказ без данных по клиенту
+		/// </summary>
 		public static Error IsEmptyCounterparty => new Error("400", "Нельзя подключить автозаказ без данных по клиенту");
 
 		/// <summary>

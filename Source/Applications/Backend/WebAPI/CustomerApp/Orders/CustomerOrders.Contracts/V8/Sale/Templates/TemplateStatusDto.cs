@@ -9,18 +9,27 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		/// Ожидание оплаты
 		/// </summary>
 		AwaitingPayment,
+
 		/// <summary>
-		/// Проблема с оплатой
+		/// На обработке у менеджера
 		/// </summary>
-		PaymentProblem,
+		ManualProcessing,
+
 		/// <summary>
 		/// Активен
 		/// </summary>
 		Active,
+
 		/// <summary>
-		/// Приостановлен
+		/// Остановлен
 		/// </summary>
-		Inactive,
+		Paused,
+
+		/// <summary>
+		/// Проблема с оплатой
+		/// </summary>
+		PaymentProblem,
+
 		/// <summary>
 		/// Архивирован
 		/// </summary>

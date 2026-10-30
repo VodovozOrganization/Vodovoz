@@ -12,21 +12,31 @@ namespace Vodovoz.Core.Domain.Sale
 		/// </summary>
 		[Display(Name = "Ожидание оплаты")]
 		AwaitingPayment,
+
 		/// <summary>
-		/// Проблема с оплатой
+		/// На обработке у менеджера
 		/// </summary>
-		[Display(Name = "Проблема с оплатой")]
-		PaymentProblem,
+		[Display(Name = "На обработке у менеджера")]
+		ManualProcessing,
+
 		/// <summary>
 		/// Активен
 		/// </summary>
 		[Display(Name = "Активен")]
 		Active,
+
 		/// <summary>
-		/// Приостановлен
+		/// Остановлен
 		/// </summary>
-		[Display(Name = "Приостановлен")]
-		Inactive,
+		[Display(Name = "Остановлен")]
+		Paused,
+
+		/// <summary>
+		/// Проблема с оплатой
+		/// </summary>
+		[Display(Name = "Проблема с оплатой")]
+		PaymentProblem,
+
 		/// <summary>
 		/// Архивирован
 		/// </summary>

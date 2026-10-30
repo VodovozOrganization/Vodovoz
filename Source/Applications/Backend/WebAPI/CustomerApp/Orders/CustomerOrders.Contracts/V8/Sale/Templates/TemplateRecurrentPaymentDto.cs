@@ -1,6 +1,6 @@
 ﻿namespace CustomerOrders.Contracts.V8.Sale.Templates
 {
-	public class TemplateRecurrentPaymentDto
+	public class TemplateRecurrentPaymentDto : UserCardInfo
 	{
 		/// <summary>
 		/// Токен
@@ -11,15 +11,5 @@
 		/// ID аккаунта
 		/// </summary>
 		public string AccountId { get; set; }
-
-		/// <summary>
-		/// Последние 4 цифры карты
-		/// </summary>
-		public string CardLastFour { get; set; }
-
-		/// <summary>
-		/// Тип карты
-		/// </summary>
-		public string CardType { get; set; }
 	}
 }

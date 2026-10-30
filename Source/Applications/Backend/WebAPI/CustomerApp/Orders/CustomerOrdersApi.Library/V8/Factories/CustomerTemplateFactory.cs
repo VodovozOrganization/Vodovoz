@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CustomerApp.Contracts.Common;
 using CustomerApp.Contracts.Sale;
 using CustomerApp.Contracts.Sale.Templates;
@@ -8,14 +10,17 @@ using CustomerOrders.Contracts.V8.Common;
 using CustomerOrders.Contracts.V8.Orders;
 using CustomerOrders.Contracts.V8.Orders.Items;
 using CustomerOrders.Contracts.V8.Sale.Templates;
+using CustomerOrdersApi.Library.V8.Dto.Templates;
 using CustomerOrdersApi.Library.V8.Extensions;
 using CustomerOrdersApi.Library.V8.Factories.DeliverySchedules;
+using CustomerOrdersApi.Library.V8.Repositories;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 using VodovozBusiness.Extensions;
 using VodovozBusiness.Services.Sale;
 
@@ -25,24 +30,30 @@ namespace CustomerOrdersApi.Library.V8.Factories
 	{
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IGenericRepository<OnlineOrder> _onlineOrderRepository;
+		private readonly ICustomerTemplateRepository _customerTemplateRepository;
 		private readonly IOnlineOrderItemDtoFactory _onlineOrderItemFactory;
 		private readonly ITemplateDeliveryScheduleDescriptionFactory _deliveryScheduleDescriptionFactory;
 		private readonly ITemplateNextDeliveryDateGenerator _deliveryDateGenerator;
+		private readonly ITemplateActionsGenerator _templateActionsGenerator;
 
 		public CustomerTemplateFactory(
 			INomenclatureSettings nomenclatureSettings,
 			IGenericRepository<OnlineOrder> onlineOrderRepository,
+			ICustomerTemplateRepository customerTemplateRepository,
 			IOnlineOrderItemDtoFactory onlineOrderItemFactory,
 			ITemplateDeliveryScheduleDescriptionFactory deliveryScheduleDescriptionFactory,
-			ITemplateNextDeliveryDateGenerator deliveryDateGenerator
+			ITemplateNextDeliveryDateGenerator deliveryDateGenerator,
+			ITemplateActionsGenerator templateActionsGenerator
 			)
 		{
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
+			_customerTemplateRepository = customerTemplateRepository ?? throw new ArgumentNullException(nameof(customerTemplateRepository));
 			_onlineOrderItemFactory = onlineOrderItemFactory ?? throw new ArgumentNullException(nameof(onlineOrderItemFactory));
 			_deliveryScheduleDescriptionFactory =
 				deliveryScheduleDescriptionFactory ?? throw new ArgumentNullException(nameof(deliveryScheduleDescriptionFactory));
 			_deliveryDateGenerator = deliveryDateGenerator ?? throw new ArgumentNullException(nameof(deliveryDateGenerator));
+			_templateActionsGenerator = templateActionsGenerator ?? throw new ArgumentNullException(nameof(templateActionsGenerator));
 		}
 		
 		public CheckOrderTemplateResponse CreateCheckOrderTemplateResponse(
@@ -98,7 +109,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			AddRentPackages(onlineOrder.OnlineRentPackages, response, orderSumDto, ref itemsCount);
 			response.ItemsCount = Math.Round(itemsCount, 2);
 			response.OrderSum = RoundProperties(orderSumDto);
-			response.NextDeliveries = CreateNextDeliveriesInfo(response);
+			response.NextDeliveries = CreateNextDeliveriesInfo(response.Schedule);
 
 			return response;
 		}
@@ -145,6 +156,135 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				);
 			
 			return response;
+		}
+
+		public async Task<OrderTemplateInfoDto> CreateOrderTemplateInfoAsync(
+			IUnitOfWork uow,
+			ExternalSource source,
+			int templateId,
+			CancellationToken cancellationToken
+			)
+		{
+			var templateInfoRawData = await _customerTemplateRepository.GetOrderTemplateInfoAsync(uow, templateId, cancellationToken);
+
+			if(templateInfoRawData?.TemplateInfo is null)
+			{
+				return null;
+			}
+
+			var orderSumDto = new OnlineOrderSumDto();
+			var templateInfo = templateInfoRawData.TemplateInfo;
+			var templateDeliverySchedule = templateInfoRawData.Schedule.ToTemplateDeliveryScheduleDto();
+			var deliveryInterval = templateInfoRawData.DeliveryInterval;
+
+			var schedule = TemplateDeliveryScheduleDetailedDto.Create(
+				templateDeliverySchedule,
+				DeliveryScheduleDto.Create(deliveryInterval.Id, $"{deliveryInterval.From}-{deliveryInterval.To}"),
+				_deliveryScheduleDescriptionFactory.Create(templateInfoRawData.Schedule, deliveryInterval.From, deliveryInterval.To)
+			);
+			
+			templateInfo.Schedule = schedule;
+			templateInfo.SaleItems = ProcessSaleItems(
+				uow,
+				source,
+				templateInfoRawData,
+				orderSumDto);
+			
+			templateInfo.OrderSum = RoundProperties(orderSumDto);
+			
+			//TODO-6121 уточнить по статусам. В доке написаны Paused, AwaitingPayment, ManualProcessing
+			if(templateInfo.Status != TemplateStatusDto.Active)
+			{
+				templateInfo.NextDeliveries = Array.Empty<TemplateNextDeliveriesDto>();
+			}
+			else
+			{
+				templateInfo.NextDeliveries = CreateNextDeliveriesInfo(schedule);
+			}
+			
+			templateInfo.Actions = _templateActionsGenerator.Generate(templateInfoRawData.TemplateInfo.Status);
+			
+			return  templateInfo;
+		}
+
+		private IEnumerable<OnlineOrderItemWithDiscountDetailsDto> ProcessSaleItems(
+			IUnitOfWork uow,
+			ExternalSource source,
+			OrderTemplateInfoRawData templateInfoRawData,
+			OnlineOrderSumDto orderSumDto
+			)
+		{
+			var list = new List<OnlineOrderItemWithDiscountDetailsDto>();
+			
+			AddSaleItems(source, templateInfoRawData, orderSumDto, list);
+			AddPromoSets(source, templateInfoRawData.PromoSets, orderSumDto, list);
+			AddRentPackages(source, templateInfoRawData.RentPackages, orderSumDto, list);
+			
+			return list;
+		}
+
+		private void AddSaleItems(
+			ExternalSource source,
+			OrderTemplateInfoRawData templateInfoRawData,
+			OnlineOrderSumDto orderSumDto,
+			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems
+			)
+		{
+			if(templateInfoRawData.SaleItems is null)
+			{
+				return;
+			}
+
+			var newDetailedItems = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(
+				templateInfoRawData.SaleItems,
+				templateInfoRawData.DeliveryPointFixedPrices,
+				templateInfoRawData.CounterpartyFixedPrices,
+				source.ToGoodsOnlineParameterType()
+				);
+
+			foreach(var detailedItem in newDetailedItems)
+			{
+				detailedItems.Add(detailedItem);
+				UpdateSum(orderSumDto, detailedItem);
+			}
+		}
+		
+		private void AddPromoSets(
+			ExternalSource source,
+			IEnumerable<OnlineOrderTemplatePromoSet> promoSets,
+			OnlineOrderSumDto orderSumDto,
+			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems)
+		{
+			if(promoSets is null)
+			{
+				return;
+			}
+
+			foreach(var promoSet in promoSets)
+			{
+				var detailedItem = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(promoSet);
+				detailedItems.Add(detailedItem);
+				UpdateSum(orderSumDto, detailedItem);
+			}
+		}
+		
+		private void AddRentPackages(
+			ExternalSource source,
+			IEnumerable<OnlineOrderTemplateFreeRentPackage> rentPackages,
+			OnlineOrderSumDto orderSumDto,
+			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems)
+		{
+			if(rentPackages is null)
+			{
+				return;
+			}
+
+			foreach(var rentPackage in rentPackages)
+			{
+				var detailedItem = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(rentPackage);
+				detailedItems.Add(detailedItem);
+				UpdateSum(orderSumDto, detailedItem);
+			}
 		}
 
 		private void AddOnlineOrders(
@@ -220,13 +360,11 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			}
 		}
 
-		private void UpdateSumAndCount(
+		private void UpdateSum(
 			OnlineOrderSumDto orderSumDto,
-			ref decimal itemsCount,
 			OnlineOrderItemWithDiscountDetailsDto detailedItem
 		)
 		{
-			itemsCount += detailedItem.Count;
 			var rawSum = (detailedItem.PriceWithoutDiscount ?? detailedItem.Price) * detailedItem.Count;
 			
 			if(detailedItem.ItemType == SaleItemType.Other
@@ -242,45 +380,55 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			
 			orderSumDto.Discount += rawSum - detailedItem.CurrentSum;
 		}
-		
-		private IEnumerable<TemplateNextDeliveriesDto> CreateNextDeliveriesInfo(CheckOrderTemplateResponse response)
-		{
-			IEnumerable<DateTime> dates = null; 
 
-			if(response.Schedule.Type == CustomerTemplateDeliveryScheduleType.Weekly)
+		private void UpdateSumAndCount(
+			OnlineOrderSumDto orderSumDto,
+			ref decimal itemsCount,
+			OnlineOrderItemWithDiscountDetailsDto detailedItem
+		)
+		{
+			itemsCount += detailedItem.Count;
+			UpdateSum(orderSumDto, detailedItem);
+		}
+		
+		private IEnumerable<TemplateNextDeliveriesDto> CreateNextDeliveriesInfo(TemplateDeliveryScheduleDetailedDto schedule)
+		{
+			IEnumerable<DateTime> dates = null;
+
+			if(schedule.Type == CustomerTemplateDeliveryScheduleType.Weekly)
 			{
 				const string errorMessage = "Для генерации дат следующих доставок автозаказа с недельной периодичностью, {0} должна быть заполнена!";
 				
-				if(!response.Schedule.FirstDeliveryDate.HasValue)
+				if(!schedule.FirstDeliveryDate.HasValue)
 				{
 					throw new InvalidOperationException(string.Format(errorMessage, "дата первой доставки"));
 				}
 				
-				if(!response.Schedule.RepeatEveryWeeks.HasValue)
+				if(!schedule.RepeatEveryWeeks.HasValue)
 				{
 					throw new InvalidOperationException(string.Format(errorMessage, "периодичность"));
 				}
 
 				dates = _deliveryDateGenerator.GetTemplateNextDeliveryDates(
-					response.Schedule.FirstDeliveryDate.Value,
-					response.Schedule.RepeatEveryWeeks.Value
+					schedule.FirstDeliveryDate.Value,
+					schedule.RepeatEveryWeeks.Value
 				);
 			}
-			else if(response.Schedule.Type == CustomerTemplateDeliveryScheduleType.Monthly)
+			else if(schedule.Type == CustomerTemplateDeliveryScheduleType.Monthly)
 			{
 				const string errorMessage = "Для генерации дат следующих доставок автозаказа с месячной периодичностью, {0} должно быть заполнено!";
 				
-				if(!response.Schedule.DayOfMonth.HasValue)
+				if(!schedule.DayOfMonth.HasValue)
 				{
 					throw new InvalidOperationException(string.Format(errorMessage, "число месяца"));
 				}
 				
-				dates = _deliveryDateGenerator.GetTemplateNextDeliveryDates(response.Schedule.DayOfMonth.Value);
+				dates = _deliveryDateGenerator.GetTemplateNextDeliveryDates(schedule.DayOfMonth.Value);
 			}
 			else
 			{
 				throw new InvalidOperationException(
-					$"Неизвестное значение периодичности автозаказа {response.Schedule.Type}." +
+					$"Неизвестное значение периодичности автозаказа {schedule.Type}." +
 					$" Добавьте это значение в условие метода {nameof(CreateNextDeliveriesInfo)}");
 			}
 
@@ -288,7 +436,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				TemplateNextDeliveriesDto.Create(
 					nextDate,
 					nextDate.DayOfWeek,
-					DeliveryScheduleDto.Copy(response.Schedule.DeliveryInterval))
+					DeliveryScheduleDto.Copy(schedule.DeliveryInterval))
 				)
 				.ToList();
 		}

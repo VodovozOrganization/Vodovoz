@@ -36,6 +36,21 @@ namespace VodovozBusiness.Services.Sale
 		/// </summary>
 		/// <param name="deliveryPoint">Точка доставки</param>
 		/// <param name="counterparty">Клиент</param>
+		/// <param name="allSaleItems">Все продаваемые позиции</param>
+		/// <param name="saleItem">Позиция на продажу по которой идет проверка</param>
+		/// <returns></returns>
+		(SaleItemPriceType PriceType, decimal Price)? GetFixedPriceOrNull(
+			IEnumerable<NomenclatureFixedPrice> deliveryPointFixedPrices,
+			IEnumerable<NomenclatureFixedPrice> counterpartyFixedPrices,
+			IEnumerable<ISaleItem> allSaleItems,
+			ISaleItem saleItem
+		);
+
+		/// <summary>
+		/// Получение фиксы
+		/// </summary>
+		/// <param name="deliveryPoint">Точка доставки</param>
+		/// <param name="counterparty">Клиент</param>
 		/// <param name="saleItem">Позиция на продажу</param>
 		/// <param name="bottlesCount">Общее количество бутылей</param>
 		/// <returns></returns>

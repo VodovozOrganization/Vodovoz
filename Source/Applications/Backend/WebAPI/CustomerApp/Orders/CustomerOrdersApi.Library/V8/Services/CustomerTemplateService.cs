@@ -173,5 +173,55 @@ namespace CustomerOrdersApi.Library.V8.Services
 			var response = _customerTemplateFactory.CreateOrderTemplateResponse(uow, onlineOrder, request);
 			return Result.Success(response);
 		}
+
+		public async Task<Result<OrderTemplateInfoDto>> GetOrderTemplateInfoAsync(
+			GetOrderTemplateInfoDto orderTemplateInfo,
+			CancellationToken cancellationToken)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Создание детализации об автозаказе");
+			//TODO-6121 какие делаем здесь проверки?
+			_logger.LogInformation("Проверяем пришедшие параметры запроса");
+			/*var validationResult = _templateControllerRequestValidator.Validate(uow, orderTemplateInfo);
+
+			if(validationResult.IsFailure)
+			{
+				return Result.Failure<OrderTemplateInfoDto>(validationResult.Errors);
+			}*/
+
+			var templateInfo = await _customerTemplateFactory.CreateOrderTemplateInfoAsync(
+				uow,
+				orderTemplateInfo.Source,
+				orderTemplateInfo.OrderTemplateId,
+				cancellationToken);
+
+			if(templateInfo is null)
+			{
+				return Result.Failure<OrderTemplateInfoDto>(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
+			}
+
+			return templateInfo;
+		}
+		
+		public async Task<Result<OrderTemplateInfoDto>> GetOrderTemplatesAsync(
+			GetOrderTemplatesDto getOrderTemplates,
+			CancellationToken cancellationToken)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Выборка списка шаблонов автозаказов клиента");
+			//TODO-6121 какие делаем здесь проверки?
+			_logger.LogInformation("Проверяем пришедшие параметры запроса");
+			/*var validationResult = _templateControllerRequestValidator.Validate(uow, orderTemplateInfo);
+
+			if(validationResult.IsFailure)
+			{
+				return Result.Failure<OrderTemplateInfoDto>(validationResult.Errors);
+			}*/
+
+			var skipElements = (getOrderTemplates.Page - 1) * getOrderTemplates.TemplatesCountOnPage;
+			var orderTemplates =
+				await _customerTemplateRepository.GetOrderTemplatesAsync(
+					uow, getOrderTemplates.ErpCounterpartyId, skipElements, getOrderTemplates.TemplatesCountOnPage);
+
+			return orderTemplates;
+		}
 	}
 }

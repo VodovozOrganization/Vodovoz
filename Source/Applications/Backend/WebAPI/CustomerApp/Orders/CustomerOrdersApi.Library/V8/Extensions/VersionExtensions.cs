@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using CustomerOrders.Contracts.V8.Sale.Templates;
 using CustomerOrdersApi.Library.V8.Factories;
 using CustomerOrdersApi.Library.V8.Services;
@@ -52,6 +52,7 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 				.AddScoped<IRepeatTemplateEveryMonthFactory, RepeatTemplateEveryMonthFactory>()
 				.AddScoped<ICustomerTemplateFactory, CustomerTemplateFactory>()
 				.AddScoped<ICustomerTemplateRepository, CustomerTemplateRepository>()
+				.AddScoped<ITemplateActionsGenerator, TemplateActionsGenerator>()
 				.AddScoped<CommonDeliverySchedulesService>()
 				.AddScoped<CustomerTemplateService>()
 				.AddScoped<OnlineOrderTemplateCreator>()

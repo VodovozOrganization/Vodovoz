@@ -291,7 +291,7 @@ namespace VodovozBusiness.Domain.Sale
 			}
 		}
 		
-		public virtual OnlineOrderTemplateStatus Status => IsActive ? OnlineOrderTemplateStatus.Active : OnlineOrderTemplateStatus.Inactive;
+		public virtual OnlineOrderTemplateStatus Status => IsActive ? OnlineOrderTemplateStatus.Active : OnlineOrderTemplateStatus.Paused;
 
 		public override string ToString()
 		{

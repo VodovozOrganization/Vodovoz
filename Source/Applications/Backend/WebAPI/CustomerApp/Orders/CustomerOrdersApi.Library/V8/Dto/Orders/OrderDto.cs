@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomerOrders.Contracts.V8.Sale.Templates;
 using Vodovoz.Core.Data.InfoMessages;
 using Vodovoz.Core.Domain.Orders;
 
@@ -89,6 +90,11 @@ namespace CustomerOrdersApi.Library.V8.Dto.Orders
 		/// Разрешено отслеживание положение курьера на карте
 		/// </summary>
 		public bool IsCourierTrackingAvailable { get; private set; }
+
+		/// <summary>
+		/// Информация по шаблону автозаказа
+		/// </summary>
+		public OrderTemplateDto OrderTemplate { get; set; }
 
 		/// <summary>
 		/// Обновление значения доступности отслеживания положения курьера на карте

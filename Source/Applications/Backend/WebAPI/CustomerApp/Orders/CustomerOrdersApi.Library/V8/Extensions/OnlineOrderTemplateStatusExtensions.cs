@@ -12,12 +12,14 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 			{
 				case OnlineOrderTemplateStatus.AwaitingPayment:
 					return TemplateStatusDto.AwaitingPayment;
+				case OnlineOrderTemplateStatus.ManualProcessing:
+					return TemplateStatusDto.ManualProcessing;
 				case OnlineOrderTemplateStatus.PaymentProblem:
 					return TemplateStatusDto.PaymentProblem;
 				case OnlineOrderTemplateStatus.Active:
 					return TemplateStatusDto.Active;
-				case OnlineOrderTemplateStatus.Inactive:
-					return TemplateStatusDto.Inactive;
+				case OnlineOrderTemplateStatus.Paused:
+					return TemplateStatusDto.Paused;
 				case OnlineOrderTemplateStatus.Archived:
 					return TemplateStatusDto.Archived;
 				default:
