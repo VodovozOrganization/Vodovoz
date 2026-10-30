@@ -57,7 +57,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>='Отчёт о выполнении плана продаж' 
+                      <Value>='Отчет по забору тары'
     + Iif(
         Format(CDate({?start_date}), "dd.MM.yy") = Format(CDate({?end_date}), "dd.MM.yy"), 
         ' за ' + Format(CDate({?start_date}), "dd.MM.yy"),
@@ -562,9 +562,17 @@ FROM employees e
       AND !o.is_contract_closer
       AND (items.nom_id IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0 OR additions.nom_id IS NOT NULL)
       AND !(a.status &lt;=&gt; 'Transfered')
+      AND (IF(@exclude_negative_net_tare,
+              IFNULL(IF(o.self_delivery, o.returned_tare, a.bottles_returned), 0)
+                  + IFNULL(o.bottles_by_stock_actual_count, 0)
+                  - IFNULL(items.count, 0) &gt;= 0,
+              1))
     GROUP BY o.author_employee_id
 ) AS sold ON sold.employee_id = e.id
-WHERE sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL OR sold.adds_sum &gt; 0
+WHERE (sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL OR sold.adds_sum &gt; 0)
+  AND (IF(@exclude_negative_net_tare,
+          IFNULL(sold.empty_returned, 0) - IFNULL(sold.full_sold, 0) &gt;= 0,
+          1))
 ORDER BY e.last_name</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -575,6 +583,9 @@ ORDER BY e.last_name</CommandText>
           </QueryParameter>
           <QueryParameter Name="is_creation_date">
             <Value>=Parameters!is_creation_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="exclude_negative_net_tare">
+            <Value>=Parameters!exclude_negative_net_tare</Value>
           </QueryParameter>
           <QueryParameter Name="subdivision_include">
             <Value>={?subdivision_include}</Value>
@@ -664,6 +675,14 @@ ORDER BY e.last_name</CommandText>
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="is_creation_date">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="exclude_negative_net_tare">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

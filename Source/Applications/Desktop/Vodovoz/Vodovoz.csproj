@@ -1310,7 +1310,7 @@
     <Compile Include="Infrastructure\Services\GtkTaskCreationInteractive.cs" />
     <Compile Include="ViewWidgets\TaskCreationDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.TaskCreationDialog.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PlanImplementationReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.TareCollectionReport.cs" />
     <Compile Include="Views\WageCalculation\WageDistrictLevelRateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictLevelRateView.cs" />
     <Compile Include="Views\WageCalculation\WageParameterView.cs" />
@@ -1591,7 +1591,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Users.UserView.cs" />
     <Compile Include="Views\Orders\DiscountReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.DiscountReasonView.cs" />
-    <Compile Include="ReportsParameters\Sales\PlanImplementationReport.cs" />
+    <Compile Include="ReportsParameters\Sales\TareCollectionReport.cs" />
     <Compile Include="Views\Employees\EmployeeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.EmployeeView.cs" />
     <Compile Include="Views\Complaints\DriverComplaintReasonView.cs" />
