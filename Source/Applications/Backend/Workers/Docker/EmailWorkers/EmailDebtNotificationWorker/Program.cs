@@ -2,6 +2,7 @@
 using BitrixApi.Library.Services;
 using Email.Infrastructure.Factories;
 using EmailDebtNotificationWorker.Options;
+using EmailDebtNotificationWorker.Services.ChainStoreDelayLetters;
 using EmailDebtNotificationWorker.Services.ClaimLetters;
 using EmailDebtNotificationWorker.Services.ClosingDeliveries;
 using EmailDebtNotificationWorker.Services.Common;
@@ -119,6 +120,11 @@ namespace EmailDebtNotificationWorker
 					services.AddScoped<IEmailBodyGenerator, EmailBodyGenerator>();
 					services.AddScoped<IEmailDebtNotificationService, EmailDebtNotificationService>();
 					services.AddHostedService<EmailDebtNotificationWorker>();
+
+					services
+						.ConfigureOptions<ConfigureChainStoreDelayLettersOptions>()
+						.AddScoped<IChainStoreDelayLettersService, ChainStoreDelayLettersService>()
+						.AddHostedService<ChainStoreDelayLettersWorker>();
 
 					services
 						.ConfigureOptions<ConfigureEmailClaimLettersOptions>()
