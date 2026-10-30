@@ -59,15 +59,21 @@ namespace DriverAPI.Library.V7.Converters
 				var fullBottlesToReturn = routeList.ObservableDeliveryFreeBalanceOperations
 					.Where(x => x.Nomenclature.IsWater19L)
 					.Sum(x => x.Amount);
+				var cashMoney = routeList.Addresses
+					.Where(rla => rla.Status == RouteListItemStatus.Completed
+						&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cash)
+					.Sum(rla => rla.Order.OrderSum);
+				var changeAmount = routeList.Status == RouteListStatus.Closed
+					? routeList.GetCashChangesForOrders().Values.Sum()
+					: 0m;
 
 				result.CompletedRouteList = new CompletedRouteListDto
 				{
 					RouteListId = routeList.Id,
 					RouteListStatus = _routeListStatusConverter.ConvertToAPIRouteListStatus(routeList.Status),
-					CashMoney = routeList.Addresses
-						.Where(rla => rla.Status == RouteListItemStatus.Completed
-							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cash)
-						.Sum(rla => rla.Order.OrderSum),
+					CashMoney = cashMoney,
+					ChangeAmount = changeAmount,
+					MoneyForCashbox = cashMoney + changeAmount,
 					TerminalCardMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
 							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal
