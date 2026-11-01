@@ -31,6 +31,7 @@ using Vodovoz.Core.Application.Validators;
 using Vodovoz.Core.Application.Warehouses;
 using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Interfaces.Sale;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Service;
@@ -161,6 +162,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IAddNomenclatureToSaleValidatorFactory, AddNomenclatureToSaleValidatorFactory>()
 				.AddScoped<OrderAddNomenclatureToSaleValidatorFactory>()
 				.AddScoped<ITemplateNextDeliveryDateGenerator, TemplateNextDeliveryDateGenerator>()
+				.AddScoped<IOnlineOrderTemplateStatusHandler, OnlineOrderTemplateStatusHandler>()
 				.TryAddScoped(sp => PermissionsSettings.CurrentPermissionService)
 				;
 

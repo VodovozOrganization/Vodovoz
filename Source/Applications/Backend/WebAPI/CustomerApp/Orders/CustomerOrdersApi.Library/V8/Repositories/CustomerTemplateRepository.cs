@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,6 @@ using CustomerOrdersApi.Library.V8.Extensions;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -201,13 +201,101 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 			return templateInfoRawData;
 		}
 
-		public Task<OrderTemplateInfoDto> GetOrderTemplatesAsync(
+		public async Task<OrderTemplateCardsRawData> GetOrderTemplateCardsRawDataAsync(
 			IUnitOfWork uow,
-			int erpCounterpartyId,
+			int counterpartyId,
 			int skipElements,
-			int templatesCountOnPage)
+			int templatesCountOnPage,
+			CancellationToken cancellationToken
+			)
 		{
-			throw new NotImplementedException();
+			var query =
+				from template in uow.Session.Query<OnlineOrderTemplate>()
+				join deliveryPoint in uow.Session.Query<DeliveryPoint>()
+					on template.DeliveryPointId equals deliveryPoint.Id
+				join recurrentPayment in uow.Session.Query<OnlineRecurrentPayment>()
+					on template.RecurrentPayment.Id equals recurrentPayment.Id
+				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
+					on template.Schedule.DeliveryScheduleId equals deliverySchedule.Id
+				where template.CounterpartyId == counterpartyId
+					&& template.Status != OnlineOrderTemplateStatus.Archived
+
+				let deliveryInterval = DeliveryScheduleData.Create(
+					deliverySchedule.Id,
+					deliverySchedule.From,
+					deliverySchedule.To
+					)
+				
+				select OrderTemplateCardRawData.Create(
+					new OrderTemplateCardDto
+					{
+						OrderTemplateId = template.Id,
+						Status = template.Status.ToApiTemplateStatus(),
+						DeliveryPointId = deliveryPoint.Id,
+						DeliveryAddress = deliveryPoint.ShortAddress,
+						PaymentMethod = template.PaymentType.ToTemplatePaymentType(),
+					},
+					template.Schedule,
+					deliveryInterval
+					);
+			
+			var templateRawCards = await query
+				.Skip(skipElements)
+				.Take(templatesCountOnPage)
+				.ToListAsync(cancellationToken);
+
+			if(!templateRawCards.Any())
+			{
+				return null;
+			}
+			
+			var templateIds = templateRawCards
+				.Select(x => x.TemplateCard.OrderTemplateId)
+				.ToArray();
+			
+			var saleItems =
+				GetIQueryableOnlineOrderTemplateSaleItems(uow, templateIds)
+					.ToLookup(
+						x => x.TemplateId,
+						y => y.SaleItem
+					);
+			
+			var promoSets =
+				GetIQueryableOnlineOrderTemplatePromoSets(uow, templateIds)
+					.ToLookup(
+						x => x.TemplateId,
+						y => y.PromoSet
+					);
+			
+			var rentPackages = 
+				GetIQueryableOnlineOrderTemplateFreeRentPackages(uow, templateIds)
+					.ToLookup(
+						x => x.TemplateId,
+						y => y.RentPackage
+					);
+			
+			var deliveryPointFixedPrices = 
+				GetIQueryableDeliveryPointFixedPrices(uow, templateIds)
+					.ToLookup(
+						x => x.TemplateId,
+						y => y.FixedPrice
+					);
+
+			var counterpartyFixedPrices = 
+				GetIQueryableCounterpartyFixedPrices(uow, templateIds)
+					.ToLookup(
+						x => x.TemplateId,
+						y => y.FixedPrice
+					);
+
+			return OrderTemplateCardsRawData.Create(
+				templateRawCards,
+				saleItems,
+				promoSets,
+				rentPackages,
+				deliveryPointFixedPrices,
+				counterpartyFixedPrices
+			);
 		}
 
 		private IQueryable<TemplateUpcomingOrderDto> GetIQueryableTemplateUpcomingOrder(IUnitOfWork uow, int templateId)
@@ -232,6 +320,19 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 				select saleItem;
 			return saleItems;
 		}
+		
+		private IQueryable<(int TemplateId, OnlineOrderTemplateSaleItem SaleItem)> GetIQueryableOnlineOrderTemplateSaleItems(
+			IUnitOfWork uow,
+			IEnumerable<int> templateIds
+			)
+		{
+			var saleItems =
+				from saleItem in uow.Session.Query<OnlineOrderTemplateSaleItem>()
+				where templateIds.Contains(saleItem.TemplateId)
+				select ValueTuple.Create(saleItem.TemplateId, saleItem);
+			
+			return saleItems;
+		}
 
 		private IQueryable<OnlineOrderTemplatePromoSet> GetIQueryableOnlineOrderTemplatePromoSets(IUnitOfWork uow, int templateId)
 		{
@@ -239,6 +340,20 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 				from promoSet in uow.Session.Query<OnlineOrderTemplatePromoSet>()
 				where promoSet.TemplateId == templateId
 				select promoSet;
+			
+			return promoSets;
+		}
+		
+		private IQueryable<(int TemplateId, OnlineOrderTemplatePromoSet PromoSet)> GetIQueryableOnlineOrderTemplatePromoSets(
+			IUnitOfWork uow,
+			IEnumerable<int> templateIds
+			)
+		{
+			var promoSets =
+				from promoSet in uow.Session.Query<OnlineOrderTemplatePromoSet>()
+				where templateIds.Contains(promoSet.TemplateId)
+				select ValueTuple.Create(promoSet.TemplateId, promoSet);
+			
 			return promoSets;
 		}
 
@@ -248,35 +363,80 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 				from rentPackage in uow.Session.Query<OnlineOrderTemplateFreeRentPackage>()
 				where rentPackage.TemplateId == templateId
 				select rentPackage;
+			
+			return rentPackages;
+		}
+
+		private IQueryable<(int TemplateId, OnlineOrderTemplateFreeRentPackage RentPackage)> GetIQueryableOnlineOrderTemplateFreeRentPackages(
+			IUnitOfWork uow,
+			IEnumerable<int> templateIds
+			)
+		{
+			var rentPackages =
+				from rentPackage in uow.Session.Query<OnlineOrderTemplateFreeRentPackage>()
+				where templateIds.Contains(rentPackage.TemplateId)
+				select ValueTuple.Create(rentPackage.TemplateId, rentPackage);
+			
 			return rentPackages;
 		}
 		
 		private IQueryable<NomenclatureFixedPrice> GetIQueryableDeliveryPointFixedPrices(IUnitOfWork uow, int templateId)
 		{
 			var fixedPrices =
-				from onlineOrder in uow.Session.Query<OnlineOrder>()
+				from template in uow.Session.Query<OnlineOrderTemplate>()
 				join deliveryPoint in uow.Session.Query<DeliveryPoint>()
-					on onlineOrder.DeliveryPointId equals deliveryPoint.Id
+					on template.DeliveryPointId equals deliveryPoint.Id
 				join fixedPrice in uow.Session.Query<NomenclatureFixedPrice>()
 					on deliveryPoint.Id equals fixedPrice.DeliveryPoint.Id
-				where onlineOrder.Template.Id == templateId
+				where template.Id == templateId
 				select fixedPrice;
 			
 			return  fixedPrices;
 		}
 		
+		private IQueryable<(int TemplateId, NomenclatureFixedPrice FixedPrice)> GetIQueryableDeliveryPointFixedPrices(IUnitOfWork uow, IEnumerable<int> templateIds)
+		{
+			var fixedPrices =
+				from template in uow.Session.Query<OnlineOrderTemplate>()
+				join deliveryPoint in uow.Session.Query<DeliveryPoint>()
+					on template.DeliveryPointId equals deliveryPoint.Id
+				join fixedPrice in uow.Session.Query<NomenclatureFixedPrice>()
+					on deliveryPoint.Id equals fixedPrice.DeliveryPoint.Id
+				where templateIds.Contains(template.Id)
+				select ValueTuple.Create(template.Id, fixedPrice);
+			
+			return fixedPrices;
+		}
+		
 		private IQueryable<NomenclatureFixedPrice> GetIQueryableCounterpartyFixedPrices(IUnitOfWork uow, int templateId)
 		{
 			var fixedPrices =
-				from onlineOrder in uow.Session.Query<OnlineOrder>()
+				from template in uow.Session.Query<OnlineOrderTemplate>()
 				join counterparty in uow.Session.Query<Counterparty>()
-					on onlineOrder.CounterpartyId equals counterparty.Id
+					on template.CounterpartyId equals counterparty.Id
 				join fixedPrice in uow.Session.Query<NomenclatureFixedPrice>()
 					on counterparty.Id equals fixedPrice.Counterparty.Id
-				where onlineOrder.Template.Id == templateId
+				where template.Id == templateId
 				select fixedPrice;
 			
 			return  fixedPrices;
+		}
+		
+		private IQueryable<(int TemplateId, NomenclatureFixedPrice FixedPrice)> GetIQueryableCounterpartyFixedPrices(
+			IUnitOfWork uow,
+			IEnumerable<int> templateIds
+			)
+		{
+			var fixedPrices =
+				from template in uow.Session.Query<OnlineOrderTemplate>()
+				join counterparty in uow.Session.Query<Counterparty>()
+					on template.CounterpartyId equals counterparty.Id
+				join fixedPrice in uow.Session.Query<NomenclatureFixedPrice>()
+					on counterparty.Id equals fixedPrice.Counterparty.Id
+				where templateIds.Contains(template.Id)
+				select ValueTuple.Create(template.Id, fixedPrice);
+			
+			return fixedPrices;
 		}
 	}
 }

@@ -69,11 +69,42 @@ namespace Vodovoz.Core.Application.Sale
 			return dates;
 		}
 
+		public IEnumerable<DateTime> GetResumeDates(DayOfWeek dayOfWeek)
+		{
+			var countDates = _templateSettings.GetNumberNextDeliveriesToDisplay;
+			var dates = new List<DateTime>();
+			var startDate = GetNearestDeliveryDate(dayOfWeek, DateTime.Today);
+			
+			for(var i = 0; i < countDates; i++)
+			{
+				var date = startDate.AddWeeks(i * repeatEveryWeeks);
+				dates.Add(date);
+			}
+			
+			return dates;
+		}
+
 		private DateTime GetNearestDeliveryDate(DateTime firstDateTime, int repeatEveryWeeks)
 		{
 			if(firstDateTime >= DateTime.Today)
 			{
 				return firstDateTime;
+			}
+			
+			var differenceDays = (DateTime.Today - firstDateTime).Days;
+			var frequency = DateTimeExtensions.DaysInWeek() * repeatEveryWeeks;
+			var multiplier = (int)Math.Ceiling(differenceDays / (decimal)frequency);
+			
+			return firstDateTime.AddDays(multiplier * frequency);
+		}
+		
+		private DateTime GetNearestDeliveryDate(DayOfWeek weekDay, DateTime dateTime)
+		{
+			var dayOfWeek = dateTime.DayOfWeek;
+
+			if(dayOfWeek <= weekDay)
+			{
+				
 			}
 			
 			var differenceDays = (DateTime.Today - firstDateTime).Days;

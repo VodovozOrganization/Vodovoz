@@ -79,5 +79,19 @@ namespace VodovozBusiness.Errors.Sale
 			"409",
 			"Автозаказ по этому заказу уже подключён"
 			);
+		
+		/// <summary>
+		/// Шаблон автозаказа нельзя остановить
+		/// </summary>
+		public static Error OrderTemplatePauseUnavailable => new Error(
+			"409",
+			"Автозаказ нельзя остановить"
+			);
+		
+		/// <summary>
+		/// Шаблон не принадлежит клиенту
+		/// </summary>
+		public static Error IsTemplateNotBelongCounterparty =>
+			new Error("400", "Автозаказ не принадлежит клиенту");
 	}
 }

@@ -42,5 +42,16 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 			IUnitOfWork uow,
 			CreateOrderTemplateRequest request
 		);
+		
+		/// <summary>
+		/// Проверка корректности данных запроса получения ближайших дат <see cref="GetOrderTemplateResumeDatesRequest"/>
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="request">Данные запроса</param>
+		/// <returns>Либо успешный результат, либо с ошибкой <see cref="Result"/></returns>
+		Result Validate(
+			IUnitOfWork uow,
+			GetOrderTemplateResumeDatesRequest request
+		);
 	}
 }

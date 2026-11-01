@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerApp.Contracts.Sale.Templates;
@@ -45,15 +46,17 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 		/// Получение списка шаблонов автозаказов клиента, не архивных
 		/// </summary>
 		/// <param name="uow">unit of work</param>
-		/// <param name="erpCounterpartyId">Идентификатор клиента</param>
+		/// <param name="counterpartyId">Идентификатор клиента</param>
 		/// <param name="skipElements">Пропустить количество, если грузится не первая страница</param>
 		/// <param name="templatesCountOnPage">Загружаемое количество(отображаемое на странице)</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<OrderTemplateInfoDto> GetOrderTemplatesAsync(
+		Task<OrderTemplateCardsRawData> GetOrderTemplateCardsRawDataAsync(
 			IUnitOfWork uow,
-			int erpCounterpartyId,
+			int counterpartyId,
 			int skipElements,
-			int templatesCountOnPage
+			int templatesCountOnPage,
+			CancellationToken cancellationToken
 			);
 	}
 }

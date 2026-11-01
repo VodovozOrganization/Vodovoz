@@ -141,6 +141,34 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 			return Result.Success();
 		}
 
+		public Result Validate(IUnitOfWork uow, GetOrderTemplateResumeDatesRequest request)
+		{
+			var templateId = request.OrderTemplateId;
+			var counterpartyId = request.ErpCounterpartyId;
+			var templateExists = _orderTemplateRepository.NotArchiveTemplateExists(uow, templateId);
+
+			//TODO-6121 попговорить по кодам ответа
+			if(!templateExists)
+			{
+				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
+			}
+			
+			var templateFromCounterparty = _orderTemplateRepository.OnlineOrderFromCounterparty(uow, templateId, counterpartyId);
+
+			if(!templateFromCounterparty)
+			{
+				return Result.Failure(OnlineOrderTemplateApiErrors.IsTemplateNotBelongCounterparty);
+			}
+			
+			if(_orderTemplateRepository
+				.GetActiveOnlineOrderTemplatesCount(uow, counterpartyId.Value) > _templateSettings.GetMaximumNumberActiveOnlineOrderTemplates)
+			{
+				return Result.Failure(OnlineOrderErrors.IsOrderTemplatesLimitExceeded);
+			}
+			
+			return Result.Success();
+		}
+
 		private Result ValidateOnlineOrder(IUnitOfWork uow, int onlineOrderId, int? counterpartyId)
 		{
 			var onlineOrderFromCounterparty = _onlineOrderRepository.OnlineOrderFromCounterparty(uow, onlineOrderId, counterpartyId);

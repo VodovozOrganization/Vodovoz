@@ -37,7 +37,7 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		/// <summary>
 		/// Количество позиций
 		/// </summary>
-		public int ItemsCount { get; set; }
+		public decimal ItemsCount { get; set; }
 
 		/// <summary>
 		/// Позиции на продажу
@@ -52,11 +52,11 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		/// <summary>
 		/// Дата следующей доставки
 		/// </summary>
-		public DateTime NextDeliveryDate { get; set; }
+		public DateTime? NextDeliveryDate { get; set; }
 
 		/// <summary>
 		/// Оценочная сумма
 		/// </summary>
-		public int EstimatedSum { get; set; }
+		public decimal EstimatedSum { get; set; }
 	}
 }

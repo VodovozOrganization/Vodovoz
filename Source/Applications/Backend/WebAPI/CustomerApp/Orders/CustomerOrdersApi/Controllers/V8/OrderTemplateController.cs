@@ -209,7 +209,7 @@ namespace CustomerOrdersApi.Controllers.V8
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderTemplatesDto))]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-		public IActionResult GetOrderTemplates(
+		public async Task<IActionResult> GetOrderTemplates(
 			GetOrderTemplatesDto orderTemplatesDto,
 			CancellationToken cancellationToken)
 		{
@@ -223,9 +223,16 @@ namespace CustomerOrdersApi.Controllers.V8
 					orderTemplatesDto.ErpCounterpartyId,
 					orderTemplatesDto.Page);
 				
-				var orderTemplates = _templateService.GetOrderTemplatesAsync(orderTemplatesDto, cancellationToken);
+				var orderTemplatesResult = await _templateService.GetOrderTemplatesAsync(orderTemplatesDto, cancellationToken);
 
-				return Ok(orderTemplates);
+				if(orderTemplatesResult.IsFailure)
+				{
+					var error = orderTemplatesResult.Errors.First();
+					return Problem(error.Message, statusCode: int.Parse(error.Code));
+				}
+
+				var templatesCount = orderTemplatesResult.Value.Count();
+				return Ok(OrderTemplatesDto.Create(templatesCount, orderTemplatesResult.Value));
 			}
 			catch(Exception e)
 			{
@@ -233,6 +240,109 @@ namespace CustomerOrdersApi.Controllers.V8
 					"Ошибка при получении шаблонов автозаказов клиента {CounterpartyId} от {Source}",
 					orderTemplatesDto.ErpCounterpartyId,
 					sourceName);
+
+				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
+			}
+		}
+		
+		/// <summary>
+		/// Приостановка шаблона
+		/// </summary>
+		/// <param name="request">Данные запроса приостановки шаблона <see cref="PauseOrderTemplateRequest"/></param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// 200 со статусом шаблона и номером <see cref="PauseOrderTemplateResponse"/>
+		/// 409 если недоступна смена состояния
+		/// 500 - ошибка
+		/// </returns>
+		[HttpPatch]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PauseOrderTemplateResponse))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> PauseOrderTemplate(
+			PauseOrderTemplateRequest request,
+			CancellationToken cancellationToken)
+		{
+			var sourceName = request.Source.GetEnumDisplayName();
+			
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос от {Source} на приостановку шаблона автозаказа {TemplateId} клиента {CounterpartyId}",
+					sourceName,
+					request.OrderTemplateId,
+					request.ErpCounterpartyId
+					);
+				
+				var orderTemplatesResult = await _templateService.PauseOrderTemplate(request, cancellationToken);
+
+				if(orderTemplatesResult.IsFailure)
+				{
+					var error = orderTemplatesResult.Errors.First();
+					return Problem(error.Message, statusCode: int.Parse(error.Code));
+				}
+				
+				return Ok(orderTemplatesResult.Value);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при запросе от {Source} на приостановку шаблона автозаказа {TemplateId} клиента {CounterpartyId}",
+					sourceName,
+					request.OrderTemplateId,
+					request.ErpCounterpartyId
+					);
+
+				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
+			}
+		}
+		
+		/// <summary>
+		/// Получение ближайших дат доставок автозаказа
+		/// </summary>
+		/// <param name="request">Данные запроса получения ближайших дат доставок автозаказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// 200 со списком шаблонов клиента <see cref="OrderTemplatesDto"/>
+		/// 500 - ошибка
+		/// </returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetOrderTemplateResumeDatesResponse))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> GetOrderTemplateResumeDates(
+			GetOrderTemplateResumeDatesRequest request,
+			CancellationToken cancellationToken)
+		{
+			var sourceName = request.Source.GetEnumDisplayName();
+			
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос от {Source} на получение ближайших дат доставок автозаказа {TemplateId} от клиента {CounterpartyId}",
+					sourceName,
+					request.OrderTemplateId,
+					request.ErpCounterpartyId
+					);
+				
+				var orderTemplatesResult = await _templateService.GetOrderTemplateResumeDatesAsync(request, cancellationToken);
+
+				if(orderTemplatesResult.IsFailure)
+				{
+					var error = orderTemplatesResult.Errors.First();
+					return Problem(error.Message, statusCode: int.Parse(error.Code));
+				}
+
+				return Ok(orderTemplatesResult.Value);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при запросе от {Source} на получение ближайших дат доставок автозаказа {TemplateId} от клиента {CounterpartyId}",
+					sourceName,
+					request.OrderTemplateId,
+					request.ErpCounterpartyId
+					);
 
 				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
 			}

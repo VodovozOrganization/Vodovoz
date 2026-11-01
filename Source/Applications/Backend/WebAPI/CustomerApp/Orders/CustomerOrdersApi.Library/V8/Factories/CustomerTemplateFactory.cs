@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CustomerApp.Contracts.Common;
 using CustomerApp.Contracts.Sale;
 using CustomerApp.Contracts.Sale.Templates;
+using CustomerOrders.Contracts.V8.Carts;
 using CustomerOrders.Contracts.V8.Common;
 using CustomerOrders.Contracts.V8.Orders;
 using CustomerOrders.Contracts.V8.Orders.Items;
@@ -17,6 +18,7 @@ using CustomerOrdersApi.Library.V8.Repositories;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Domain.Orders;
@@ -55,7 +57,9 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			_deliveryDateGenerator = deliveryDateGenerator ?? throw new ArgumentNullException(nameof(deliveryDateGenerator));
 			_templateActionsGenerator = templateActionsGenerator ?? throw new ArgumentNullException(nameof(templateActionsGenerator));
 		}
-		
+
+		#region CreateCheckOrderTemplateResponse
+
 		public CheckOrderTemplateResponse CreateCheckOrderTemplateResponse(
 			IUnitOfWork uow,
 			CheckOrderTemplateRequest request
@@ -113,180 +117,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 
 			return response;
 		}
-
-		public CreateOrderTemplateResponse CreateOrderTemplateResponse(
-			IUnitOfWork uow,
-			OnlineOrder onlineOrder,
-			CreateOrderTemplateRequest request
-			)
-		{
-			if(onlineOrder.Template is null)
-			{
-				throw new InvalidOperationException(
-					"Для формирования ответа по созданному шаблону автозаказа этот шаблон должен быть уже привязан к онлайн заказу!");
-			}
-			
-			var response = new CreateOrderTemplateResponse
-			{
-				OnlineOrderId = onlineOrder.Id,
-				Status = onlineOrder.Template.Status.ToApiTemplateStatus(),
-				OrderSum = onlineOrder.OnlineOrderSum,
-				OrderTemplateId = onlineOrder.Template.Id
-			};
-
-			var timers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
-
-			if(timers is null)
-			{
-				throw new InvalidOperationException("Не настроены таймеры для онлайн заказа");
-			}
-			
-			response.SetPaymentMethod(
-				onlineOrder.ToTemplatePaymentType(),
-				OnlineOrderTimerSetupDto.Create(
-					onlineOrder.Template.CreatedAt,
-					(int)timers.AutoOrderPayTime.TotalSeconds)
-				);
-
-			response.NextDeliveryDate = _deliveryDateGenerator.GetNextDeliveryDate(
-				request.Schedule.Type,
-				request.Schedule.FirstDeliveryDate,
-				request.Schedule.RepeatEveryWeeks,
-				request.Schedule.DayOfMonth
-				);
-			
-			return response;
-		}
-
-		public async Task<OrderTemplateInfoDto> CreateOrderTemplateInfoAsync(
-			IUnitOfWork uow,
-			ExternalSource source,
-			int templateId,
-			CancellationToken cancellationToken
-			)
-		{
-			var templateInfoRawData = await _customerTemplateRepository.GetOrderTemplateInfoAsync(uow, templateId, cancellationToken);
-
-			if(templateInfoRawData?.TemplateInfo is null)
-			{
-				return null;
-			}
-
-			var orderSumDto = new OnlineOrderSumDto();
-			var templateInfo = templateInfoRawData.TemplateInfo;
-			var templateDeliverySchedule = templateInfoRawData.Schedule.ToTemplateDeliveryScheduleDto();
-			var deliveryInterval = templateInfoRawData.DeliveryInterval;
-
-			var schedule = TemplateDeliveryScheduleDetailedDto.Create(
-				templateDeliverySchedule,
-				DeliveryScheduleDto.Create(deliveryInterval.Id, $"{deliveryInterval.From}-{deliveryInterval.To}"),
-				_deliveryScheduleDescriptionFactory.Create(templateInfoRawData.Schedule, deliveryInterval.From, deliveryInterval.To)
-			);
-			
-			templateInfo.Schedule = schedule;
-			templateInfo.SaleItems = ProcessSaleItems(
-				uow,
-				source,
-				templateInfoRawData,
-				orderSumDto);
-			
-			templateInfo.OrderSum = RoundProperties(orderSumDto);
-			
-			//TODO-6121 уточнить по статусам. В доке написаны Paused, AwaitingPayment, ManualProcessing
-			if(templateInfo.Status != TemplateStatusDto.Active)
-			{
-				templateInfo.NextDeliveries = Array.Empty<TemplateNextDeliveriesDto>();
-			}
-			else
-			{
-				templateInfo.NextDeliveries = CreateNextDeliveriesInfo(schedule);
-			}
-			
-			templateInfo.Actions = _templateActionsGenerator.Generate(templateInfoRawData.TemplateInfo.Status);
-			
-			return  templateInfo;
-		}
-
-		private IEnumerable<OnlineOrderItemWithDiscountDetailsDto> ProcessSaleItems(
-			IUnitOfWork uow,
-			ExternalSource source,
-			OrderTemplateInfoRawData templateInfoRawData,
-			OnlineOrderSumDto orderSumDto
-			)
-		{
-			var list = new List<OnlineOrderItemWithDiscountDetailsDto>();
-			
-			AddSaleItems(source, templateInfoRawData, orderSumDto, list);
-			AddPromoSets(source, templateInfoRawData.PromoSets, orderSumDto, list);
-			AddRentPackages(source, templateInfoRawData.RentPackages, orderSumDto, list);
-			
-			return list;
-		}
-
-		private void AddSaleItems(
-			ExternalSource source,
-			OrderTemplateInfoRawData templateInfoRawData,
-			OnlineOrderSumDto orderSumDto,
-			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems
-			)
-		{
-			if(templateInfoRawData.SaleItems is null)
-			{
-				return;
-			}
-
-			var newDetailedItems = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(
-				templateInfoRawData.SaleItems,
-				templateInfoRawData.DeliveryPointFixedPrices,
-				templateInfoRawData.CounterpartyFixedPrices,
-				source.ToGoodsOnlineParameterType()
-				);
-
-			foreach(var detailedItem in newDetailedItems)
-			{
-				detailedItems.Add(detailedItem);
-				UpdateSum(orderSumDto, detailedItem);
-			}
-		}
 		
-		private void AddPromoSets(
-			ExternalSource source,
-			IEnumerable<OnlineOrderTemplatePromoSet> promoSets,
-			OnlineOrderSumDto orderSumDto,
-			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems)
-		{
-			if(promoSets is null)
-			{
-				return;
-			}
-
-			foreach(var promoSet in promoSets)
-			{
-				var detailedItem = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(promoSet);
-				detailedItems.Add(detailedItem);
-				UpdateSum(orderSumDto, detailedItem);
-			}
-		}
-		
-		private void AddRentPackages(
-			ExternalSource source,
-			IEnumerable<OnlineOrderTemplateFreeRentPackage> rentPackages,
-			OnlineOrderSumDto orderSumDto,
-			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems)
-		{
-			if(rentPackages is null)
-			{
-				return;
-			}
-
-			foreach(var rentPackage in rentPackages)
-			{
-				var detailedItem = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(rentPackage);
-				detailedItems.Add(detailedItem);
-				UpdateSum(orderSumDto, detailedItem);
-			}
-		}
-
 		private void AddOnlineOrders(
 			ExternalSource source,
 			IEnumerable<OnlineOrderItem> onlineOrderItems,
@@ -358,6 +189,387 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				response.OnlineOrderItems.Add(detailedItem);
 				UpdateSumAndCount(orderSumDto, ref itemsCount, detailedItem);
 			}
+		}
+
+		#endregion
+
+		public CreateOrderTemplateResponse CreateOrderTemplateResponse(
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			CreateOrderTemplateRequest request
+			)
+		{
+			if(onlineOrder.Template is null)
+			{
+				throw new InvalidOperationException(
+					"Для формирования ответа по созданному шаблону автозаказа этот шаблон должен быть уже привязан к онлайн заказу!");
+			}
+			
+			var response = new CreateOrderTemplateResponse
+			{
+				OnlineOrderId = onlineOrder.Id,
+				Status = onlineOrder.Template.Status.ToApiTemplateStatus(),
+				OrderSum = onlineOrder.OnlineOrderSum,
+				OrderTemplateId = onlineOrder.Template.Id
+			};
+
+			var timers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
+
+			if(timers is null)
+			{
+				throw new InvalidOperationException("Не настроены таймеры для онлайн заказа");
+			}
+			
+			response.SetPaymentMethod(
+				onlineOrder.ToTemplatePaymentType(),
+				OnlineOrderTimerSetupDto.Create(
+					onlineOrder.Template.CreatedAt,
+					(int)timers.AutoOrderPayTime.TotalSeconds)
+				);
+
+			response.NextDeliveryDate = _deliveryDateGenerator.GetNextDeliveryDate(
+				request.Schedule.Type,
+				request.Schedule.FirstDeliveryDate,
+				request.Schedule.RepeatEveryWeeks,
+				request.Schedule.DayOfMonth
+				);
+			
+			return response;
+		}
+
+		# region CreateOrderTemplateInfo
+		
+		public async Task<OrderTemplateInfoDto> CreateOrderTemplateInfoAsync(
+			IUnitOfWork uow,
+			ExternalSource source,
+			int templateId,
+			CancellationToken cancellationToken
+			)
+		{
+			var templateInfoRawData = await _customerTemplateRepository.GetOrderTemplateInfoAsync(uow, templateId, cancellationToken);
+
+			if(templateInfoRawData?.TemplateInfo is null)
+			{
+				return null;
+			}
+
+			var orderSumDto = new OnlineOrderSumDto();
+			var templateInfo = templateInfoRawData.TemplateInfo;
+			var templateDeliverySchedule = templateInfoRawData.Schedule.ToTemplateDeliveryScheduleDto();
+			var deliveryInterval = templateInfoRawData.DeliveryInterval;
+
+			var schedule = TemplateDeliveryScheduleDetailedDto.Create(
+				templateDeliverySchedule,
+				DeliveryScheduleDto.Create(deliveryInterval.Id, $"{deliveryInterval.From}-{deliveryInterval.To}"),
+				_deliveryScheduleDescriptionFactory.Create(templateInfoRawData.Schedule, deliveryInterval.From, deliveryInterval.To)
+			);
+			
+			templateInfo.Schedule = schedule;
+			templateInfo.SaleItems = ProcessSaleItems(
+				uow,
+				source,
+				templateInfoRawData,
+				orderSumDto);
+			
+			templateInfo.OrderSum = RoundProperties(orderSumDto);
+			
+			//TODO-6121 уточнить по статусам. В доке написаны Paused, AwaitingPayment, ManualProcessing
+			if(templateInfo.Status != TemplateStatusDto.Active)
+			{
+				templateInfo.NextDeliveries = Array.Empty<TemplateNextDeliveriesDto>();
+			}
+			else
+			{
+				templateInfo.NextDeliveries = CreateNextDeliveriesInfo(schedule);
+			}
+			
+			templateInfo.Actions = _templateActionsGenerator.Generate(templateInfoRawData.TemplateInfo.Status);
+			
+			return templateInfo;
+		}
+		
+		private IEnumerable<OnlineOrderItemWithDiscountDetailsDto> ProcessSaleItems(
+			IUnitOfWork uow,
+			ExternalSource source,
+			OrderTemplateInfoRawData templateInfoRawData,
+			OnlineOrderSumDto orderSumDto
+			)
+		{
+			var list = new List<OnlineOrderItemWithDiscountDetailsDto>();
+			
+			AddSaleItems(source, templateInfoRawData, orderSumDto, list);
+			AddPromoSets(templateInfoRawData.PromoSets, orderSumDto, list);
+			AddRentPackages(templateInfoRawData.RentPackages, orderSumDto, list);
+			
+			return list;
+		}
+
+		private void AddSaleItems(
+			ExternalSource source,
+			OrderTemplateInfoRawData templateInfoRawData,
+			OnlineOrderSumDto orderSumDto,
+			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems
+			)
+		{
+			if(templateInfoRawData.SaleItems is null)
+			{
+				return;
+			}
+
+			var newDetailedItems = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(
+				templateInfoRawData.SaleItems,
+				templateInfoRawData.DeliveryPointFixedPrices,
+				templateInfoRawData.CounterpartyFixedPrices,
+				source.ToGoodsOnlineParameterType()
+				);
+
+			foreach(var detailedItem in newDetailedItems)
+			{
+				detailedItems.Add(detailedItem);
+				UpdateSum(orderSumDto, detailedItem);
+			}
+		}
+		
+		private void AddPromoSets(
+			IEnumerable<OnlineOrderTemplatePromoSet> promoSets,
+			OnlineOrderSumDto orderSumDto,
+			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems)
+		{
+			if(promoSets is null)
+			{
+				return;
+			}
+
+			foreach(var promoSet in promoSets)
+			{
+				var detailedItem = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(promoSet);
+				detailedItems.Add(detailedItem);
+				UpdateSum(orderSumDto, detailedItem);
+			}
+		}
+		
+		private void AddRentPackages(
+			IEnumerable<OnlineOrderTemplateFreeRentPackage> rentPackages,
+			OnlineOrderSumDto orderSumDto,
+			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems)
+		{
+			if(rentPackages is null)
+			{
+				return;
+			}
+
+			foreach(var rentPackage in rentPackages)
+			{
+				var detailedItem = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(rentPackage);
+				detailedItems.Add(detailedItem);
+				UpdateSum(orderSumDto, detailedItem);
+			}
+		}
+
+		#endregion
+
+		#region CreateOrderTemplateCardsInfo
+
+		public IEnumerable<OrderTemplateCardDto> CreateOrderTemplateCards(
+			ExternalSource source,
+			OrderTemplateCardsRawData rawData
+			)
+		{
+			var processedTemplateCards = new List<OrderTemplateCardDto>();
+			
+			if(rawData is null)
+			{
+				return processedTemplateCards;
+			}
+
+			foreach(var rawTemplateCard in rawData.TemplateCards)
+			{
+				var estimatedSum = 0m;
+				var itemsCount = 0m;
+                var templateCard = rawTemplateCard.TemplateCard;
+                var templateDeliverySchedule = rawTemplateCard.Schedule.ToTemplateDeliveryScheduleDto();
+                var deliveryInterval = rawTemplateCard.DeliveryInterval;
+       
+                var schedule = TemplateDeliveryScheduleDetailedDto.Create(
+                    templateDeliverySchedule,
+                    DeliveryScheduleDto.Create(deliveryInterval.Id, $"{deliveryInterval.From}-{deliveryInterval.To}"),
+                    _deliveryScheduleDescriptionFactory.Create(rawTemplateCard.Schedule, deliveryInterval.From, deliveryInterval.To)
+                );
+                
+				templateCard.Schedule = schedule;
+				templateCard.SaleItems = ProcessSaleItems(
+                    source,
+					templateCard.OrderTemplateId,
+					rawData,
+					ref estimatedSum,
+					ref itemsCount
+					);
+
+				templateCard.ItemsCount = Math.Round(itemsCount, 2);
+				templateCard.EstimatedSum = Math.Round(estimatedSum, 2);
+
+				//TODO-6121 уточнить по статусам. В доке написаны Paused, AwaitingPayment, ManualProcessing
+                if(templateCard.Status != TemplateStatusDto.Active)
+                {
+					templateCard.NextDeliveryDate = null;
+                }
+                else
+				{
+					var nextDeliveryInfo = CreateNextDeliveriesInfo(schedule)
+						.FirstOrDefault();
+					
+					templateCard.NextDeliveryDate = nextDeliveryInfo?.DeliveryDate;
+                }
+                
+				processedTemplateCards.Add(templateCard);
+			}
+			
+			return processedTemplateCards;
+		}
+
+		private IEnumerable<CartItemDto> ProcessSaleItems(
+			ExternalSource source,
+			int templateId,
+			OrderTemplateCardsRawData rawData,
+			ref decimal estimatedSum,
+			ref decimal itemsCount
+		)
+		{
+			var list = new List<CartItemDto>();
+			
+			AddSaleItems(source, templateId, rawData, ref estimatedSum, ref itemsCount, list);
+			AddPromoSets(templateId, rawData, ref estimatedSum, ref itemsCount, list);
+			AddRentPackages(templateId, rawData, ref estimatedSum, ref itemsCount, list);
+			
+			return list;
+		}
+		
+		private void AddSaleItems(
+			ExternalSource source,
+			int templateId,
+			OrderTemplateCardsRawData rawData,
+			ref decimal estimatedSum,
+			ref decimal itemsCount,
+			ICollection<CartItemDto> detailedItems
+		)
+		{
+			if(rawData.SaleItems is null)
+			{
+				return;
+			}
+
+			var newDetailedItems = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(
+				rawData.SaleItems[templateId],
+				rawData.DeliveryPointFixedPrices[templateId],
+				rawData.CounterpartyFixedPrices[templateId],
+				source.ToGoodsOnlineParameterType()
+			);
+
+			foreach(var detailedItem in newDetailedItems)
+			{
+				detailedItems.Add(CartItemDto.Create(detailedItem.ItemType, detailedItem.Count, detailedItem.ErpId));
+				estimatedSum += detailedItem.CurrentSum;
+				itemsCount += detailedItem.Count;
+			}
+		}
+		
+		private void AddPromoSets(
+			int templateId,
+			OrderTemplateCardsRawData rawData,
+			ref decimal estimatedSum,
+			ref decimal itemsCount,
+			ICollection<CartItemDto> detailedItems
+			)
+		{
+			if(rawData.PromoSets is null)
+			{
+				return;
+			}
+
+			foreach(var promoSet in rawData.PromoSets[templateId])
+			{
+				var detailedItem = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(promoSet);
+				detailedItems.Add(CartItemDto.Create(detailedItem.ItemType, detailedItem.Count, detailedItem.ErpId));
+				estimatedSum += detailedItem.CurrentSum;
+				itemsCount += detailedItem.Count;
+			}
+		}
+		
+		private void AddRentPackages(
+			int templateId,
+			OrderTemplateCardsRawData rawData,
+			ref decimal estimatedSum,
+			ref decimal itemsCount,
+			ICollection<CartItemDto> detailedItems
+			)
+		{
+			if(rawData.RentPackages is null)
+			{
+				return;
+			}
+
+			foreach(var rentPackage in rawData.RentPackages[templateId])
+			{
+				var detailedItem = _onlineOrderItemFactory.CreateWithDiscountDetailsDto(rentPackage);
+				detailedItems.Add(CartItemDto.Create(detailedItem.ItemType, detailedItem.Count, detailedItem.ErpId));
+				estimatedSum += detailedItem.CurrentSum;
+				itemsCount += detailedItem.Count;
+			}
+		}
+
+		#endregion
+		
+		public IEnumerable<TemplateNextDeliveriesDto> GetResumeDates(
+			IUnitOfWork uow,
+			OnlineOrderTemplate template,
+			object o)
+		{
+			IEnumerable<DateTime> dates = null;
+			var schedule = template.Schedule.ToTemplateDeliveryScheduleDto();
+
+			if(schedule.Type == CustomerTemplateDeliveryScheduleType.Weekly)
+			{
+				const string errorMessage = "Для генерации дат следующих доставок автозаказа с недельной периодичностью, {0} должна быть заполнена!";
+				
+				if(!schedule.FirstDeliveryDate.HasValue)
+				{
+					throw new InvalidOperationException(string.Format(errorMessage, "дата первой доставки"));
+				}
+				
+				if(!schedule.RepeatEveryWeeks.HasValue)
+				{
+					throw new InvalidOperationException(string.Format(errorMessage, "периодичность"));
+				}
+
+				dates = _deliveryDateGenerator.GetResumeDates(
+					schedule.WeekDay.Value
+				);
+			}
+			else if(schedule.Type == CustomerTemplateDeliveryScheduleType.Monthly)
+			{
+				const string errorMessage = "Для генерации дат следующих доставок автозаказа с месячной периодичностью, {0} должно быть заполнено!";
+				
+				if(!schedule.DayOfMonth.HasValue)
+				{
+					throw new InvalidOperationException(string.Format(errorMessage, "число месяца"));
+				}
+				
+				dates = _deliveryDateGenerator.GetTemplateNextDeliveryDates(schedule.DayOfMonth.Value);
+			}
+			else
+			{
+				throw new InvalidOperationException(
+					$"Неизвестное значение периодичности автозаказа {schedule.Type}." +
+					$" Добавьте это значение в условие метода {nameof(CreateNextDeliveriesInfo)}");
+			}
+
+			return dates.Select(nextDate =>
+					TemplateNextDeliveriesDto.Create(
+						nextDate,
+						nextDate.DayOfWeek,
+						DeliveryScheduleDto.Copy(schedule.DeliveryInterval))
+				)
+				.ToList();
 		}
 
 		private void UpdateSum(

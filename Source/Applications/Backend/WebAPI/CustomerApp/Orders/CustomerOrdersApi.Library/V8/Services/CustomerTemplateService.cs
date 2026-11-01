@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,6 +32,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 		private readonly IRepeatTemplateEveryMonthFactory _repeatEveryMonthFactory;
 		private readonly ICustomerTemplateFactory _customerTemplateFactory;
 		private readonly OnlineOrderTemplateCreator _templateCreator;
+		private readonly IOnlineOrderTemplateStatusHandler _templateStatusHandler;
 
 		public CustomerTemplateService(
 			ILogger<CustomerTemplateService> logger,
@@ -41,7 +43,8 @@ namespace CustomerOrdersApi.Library.V8.Services
 			IRepeatTemplateEveryWeeksFactory repeatEveryWeeksFactory,
 			IRepeatTemplateEveryMonthFactory repeatEveryMonthFactory,
 			ICustomerTemplateFactory customerTemplateFactory,
-			OnlineOrderTemplateCreator templateCreator
+			OnlineOrderTemplateCreator templateCreator,
+			IOnlineOrderTemplateStatusHandler templateStatusHandler
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -53,6 +56,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 			_repeatEveryMonthFactory = repeatEveryMonthFactory ?? throw new ArgumentNullException(nameof(repeatEveryMonthFactory));
 			_customerTemplateFactory = customerTemplateFactory ?? throw new ArgumentNullException(nameof(customerTemplateFactory));
 			_templateCreator = templateCreator ?? throw new ArgumentNullException(nameof(templateCreator));
+			_templateStatusHandler = templateStatusHandler ?? throw new ArgumentNullException(nameof(templateStatusHandler));
 		}
 
 		public Result<GetOrderTemplateScheduleOptionsResponse> GetOrderTemplateScheduleOptions(GetOrderTemplateScheduleOptionsRequest request)
@@ -202,7 +206,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 			return templateInfo;
 		}
 		
-		public async Task<Result<OrderTemplateInfoDto>> GetOrderTemplatesAsync(
+		public async Task<Result<IEnumerable<OrderTemplateCardDto>>> GetOrderTemplatesAsync(
 			GetOrderTemplatesDto getOrderTemplates,
 			CancellationToken cancellationToken)
 		{
@@ -217,11 +221,83 @@ namespace CustomerOrdersApi.Library.V8.Services
 			}*/
 
 			var skipElements = (getOrderTemplates.Page - 1) * getOrderTemplates.TemplatesCountOnPage;
-			var orderTemplates =
-				await _customerTemplateRepository.GetOrderTemplatesAsync(
-					uow, getOrderTemplates.ErpCounterpartyId, skipElements, getOrderTemplates.TemplatesCountOnPage);
+			var rawData =
+				await _customerTemplateRepository.GetOrderTemplateCardsRawDataAsync(
+					uow,
+					getOrderTemplates.ErpCounterpartyId,
+					skipElements,
+					getOrderTemplates.TemplatesCountOnPage,
+					cancellationToken
+				);
 
-			return orderTemplates;
+			var orderTemplates = _customerTemplateFactory.CreateOrderTemplateCards(
+				getOrderTemplates.Source,
+				rawData
+				);
+
+			return Result.Success(orderTemplates);
+		}
+
+		public async Task<Result<PauseOrderTemplateResponse>> PauseOrderTemplate(
+			PauseOrderTemplateRequest request,
+			CancellationToken cancellationToken)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Приостановка шаблона автозаказа");
+			//TODO-6121 какие делаем здесь проверки?
+			_logger.LogInformation("Проверяем пришедшие параметры запроса");
+			/*var validationResult = _templateControllerRequestValidator.Validate(uow, orderTemplateInfo);
+
+			if(validationResult.IsFailure)
+			{
+				return Result.Failure<OrderTemplateInfoDto>(validationResult.Errors);
+			}*/
+
+			var template = uow.GetById<OnlineOrderTemplate>(request.OrderTemplateId);
+
+			if(template is null)
+			{
+				return Result.Failure<PauseOrderTemplateResponse>(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
+			}
+			
+			//проверки состояний
+
+			var result = _templateStatusHandler.PauseTemplate(uow, template, request.ErpCounterpartyId, null);
+
+			if(result.IsFailure)
+			{
+				return Result.Failure<PauseOrderTemplateResponse>(result.Errors);
+			}
+			
+			await uow.CommitAsync(cancellationToken);
+			return Result.Success(PauseOrderTemplateResponse.CreateSuccess(template.Id));
+		}
+
+		public async Task<Result<GetOrderTemplateResumeDatesResponse>> GetOrderTemplateResumeDatesAsync(
+			GetOrderTemplateResumeDatesRequest request,
+			CancellationToken cancellationToken)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Получение ближайших дат шаблона автозаказа");
+			//TODO-6121 какие делаем здесь проверки?
+			_logger.LogInformation("Проверяем пришедшие параметры запроса");
+			var validationResult = _templateControllerRequestValidator.Validate(uow, request);
+
+			if(validationResult.IsFailure)
+			{
+				return Result.Failure<GetOrderTemplateResumeDatesResponse>(validationResult.Errors);
+			}
+			
+			//проверки состояний
+			var template = uow.GetById<OnlineOrderTemplate>(request.OrderTemplateId);
+
+			var dates = _customerTemplateFactory.GetResumeDates(uow, template, null);
+
+			if(result.IsFailure)
+			{
+				return Result.Failure<GetOrderTemplateResumeDatesResponse>(result.Errors);
+			}
+			
+			await uow.CommitAsync(cancellationToken);
+			return Result.Success(GetOrderTemplateResumeDatesResponse.CreateSuccess(template.Id));
 		}
 	}
 }

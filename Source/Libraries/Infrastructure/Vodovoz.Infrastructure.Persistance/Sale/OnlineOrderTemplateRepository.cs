@@ -17,5 +17,27 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				)
 				.Count();
 		}
+		
+		public bool NotArchiveTemplateExists(IUnitOfWork uow, int templateId)
+		{
+			return (
+					from template in uow.Session.Query<OnlineOrderTemplate>()
+					where template.Id == templateId
+						&& template.Status != OnlineOrderTemplateStatus.Archived
+					select template.Id
+				)
+				.Any();
+		}
+
+		public bool OnlineOrderFromCounterparty(IUnitOfWork uow, int templateId, int? counterpartyId)
+		{
+			return (
+					from template in uow.Session.Query<OnlineOrderTemplate>()
+					where template.Id == templateId
+						&& template.CounterpartyId == counterpartyId
+					select template.Id
+				)
+				.Any();
+		}
 	}
 }
