@@ -1,14 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
+using QS.HistoryLog;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
 
 namespace VodovozBusiness.Domain.Sale
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "Промонаборы шаблонов автозаказов",
+		Nominative = "Промонабор шаблона автозаказа",
+		Prepositional = "Промонаборе шаблона автозаказа",
+		PrepositionalPlural = "Промонаборах шаблонов автозаказов"
+	)]
+	[HistoryTrace]
 	public class OnlineOrderTemplatePromoSet : PropertyChangedBase, IDomainObject, ICalculatingTotalMoneyDiscount
 	{
 		private decimal _count;
@@ -20,7 +27,17 @@ namespace VodovozBusiness.Domain.Sale
 		protected OnlineOrderTemplatePromoSet() { }
 
 		public virtual int Id { get; set; }
-		
+
+		/// <summary>
+		/// Идентификатор шаблона автозаказа
+		/// </summary>
+		[Display(Name = "Идентификатор шаблона автозаказа")]
+		public virtual int TemplateId
+		{
+			get => _templateId;
+			set => SetField(ref _templateId, value);
+		}
+
 		/// <summary>
 		/// Цена
 		/// </summary>
@@ -39,16 +56,6 @@ namespace VodovozBusiness.Domain.Sale
 		{
 			get => _count;
 			protected set => SetField(ref _count, value);
-		}
-
-		/// <summary>
-		/// Онлайн заказ
-		/// </summary>
-		[Display(Name = "Онлайн заказ")]
-		public virtual int TemplateId
-		{
-			get => _templateId;
-			set => SetField(ref _templateId, value);
 		}
 
 		/// <summary>

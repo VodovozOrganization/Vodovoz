@@ -100,16 +100,6 @@ namespace Vodovoz.Errors.Orders
 			new Error("408", "Время на оплату заказа истекло. В ближайшее время с Вами свяжется менеджер для оформления заказа");
 		public static Error IsOnlineOrderTimersEmpty =>
 			new Error("500", "Не найдены таймеры для онлайн заказов");
-		/// <summary>
-		/// Автозаказ недоступен для этого заказа
-		/// </summary>
-		public static Error IsOrderTemplateUnavailable =>
-			new Error("400", "Автозаказ недоступен для этого заказа");
-		/// <summary>
-		/// Достигнуто максимальное количество активных автозаказов
-		/// </summary>
-		public static Error IsOrderTemplatesLimitExceeded =>
-			new Error("400", "Достигнуто максимальное количество активных автозаказов");
 
 		public static Error CantUpdateOrder(string errorMessage) =>
 			new Error(

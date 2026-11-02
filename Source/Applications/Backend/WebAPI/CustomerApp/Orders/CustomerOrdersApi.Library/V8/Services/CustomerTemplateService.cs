@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,6 +14,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
@@ -290,14 +291,135 @@ namespace CustomerOrdersApi.Library.V8.Services
 			var template = uow.GetById<OnlineOrderTemplate>(request.OrderTemplateId);
 
 			var dates = _customerTemplateFactory.GetResumeDates(uow, template, null);
-
-			if(result.IsFailure)
-			{
-				return Result.Failure<GetOrderTemplateResumeDatesResponse>(result.Errors);
-			}
 			
 			await uow.CommitAsync(cancellationToken);
-			return Result.Success(GetOrderTemplateResumeDatesResponse.CreateSuccess(template.Id));
+			return Result.Success(GetOrderTemplateResumeDatesResponse.Create(dates));
+		}
+
+		public async Task<Result<ResumeOrderTemplateResponse>> ResumeOrderTemplateAsync(
+			ResumeOrderTemplateRequest request,
+			CancellationToken cancellationToken)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Возобновление шаблона автозаказа");
+			_logger.LogInformation("Проверяем пришедшие параметры запроса");
+
+			var validationResult = _templateControllerRequestValidator.ValidateResumeRequest(uow, request);
+			if(validationResult.IsFailure)
+			{
+				return Result.Failure<ResumeOrderTemplateResponse>(validationResult.Errors);
+			}
+
+			var template = uow.GetById<OnlineOrderTemplate>(request.OrderTemplateId);
+			if(template is null)
+			{
+				return Result.Failure<ResumeOrderTemplateResponse>(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
+			}
+
+			// Если уже Active — idempotent: возвращаем текущие данные
+			if(template.Status == OnlineOrderTemplateStatus.Active)
+			{
+				if(template.Schedule.FirstDeliveryDate == request.NextDeliveryDate)
+				{
+					var newNextDeliveries = _customerTemplateFactory.GetResumeDates(uow, template, null);
+					
+					return Result.Success(
+						ResumeOrderTemplateResponse.Create(
+							template.Id,
+							TemplateStatusDto.Active,
+							template.Schedule.FirstDeliveryDate.Value,
+							newNextDeliveries
+						)
+					);
+				}
+				
+				return Result.Failure<ResumeOrderTemplateResponse>(OnlineOrderTemplateApiErrors.OrderTemplateActionUnavailable);
+			}
+
+			// Смена статуса на Active
+			var statusResult = _templateStatusHandler.ResumeTemplate(uow, template, request.ErpCounterpartyId, null);
+			
+			if(statusResult.IsFailure)
+			{
+				return Result.Failure<ResumeOrderTemplateResponse>(statusResult.Errors);
+			}
+
+			// Weekly: перезаписываем FirstDeliveryDate
+			if(template.Schedule.ScheduleType == TemplateDeliveryScheduleType.Weekly)
+			{
+				template.Schedule = TemplateDeliveryScheduleData.Create(
+					template.Schedule.ScheduleType,
+					template.Schedule.DeliveryScheduleId,
+					template.Schedule.Weekday,
+					template.Schedule.RepeatEveryWeeks,
+					request.NextDeliveryDate,
+					template.Schedule.DayOfMonth);
+			}
+			// Monthly: проверяем что dayOfMonth совпадает
+			else if(template.Schedule.ScheduleType == TemplateDeliveryScheduleType.Monthly)
+			{
+				if(request.NextDeliveryDate.Day != template.Schedule.DayOfMonth.Value)
+				{
+					return Result.Failure<ResumeOrderTemplateResponse>(
+						new Error("400", $"Выбранная дата {request.NextDeliveryDate:dd.MM.yyyy} не соответствует числу месяца {template.Schedule.DayOfMonth}"));
+				}
+			}
+
+			await uow.CommitAsync(cancellationToken);
+
+			var nextDeliveries = _customerTemplateFactory.GetResumeDates(uow, template, null);
+			return Result.Success(ResumeOrderTemplateResponse.Create(
+				template.Id,
+				TemplateStatusDto.Active,
+				request.NextDeliveryDate,
+				nextDeliveries));
+		}
+
+		public async Task<Result<ArchiveOrderTemplateResponse>> ArchiveOrderTemplateAsync(
+			ArchiveOrderTemplateRequest request,
+			CancellationToken cancellationToken)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Архивирование шаблона автозаказа");
+			_logger.LogInformation("Проверяем пришедшие параметры запроса");
+
+			// Валидация
+			var validationResult = _templateControllerRequestValidator.ValidateArchiveRequest(uow, request);
+			if(validationResult.IsFailure)
+			{
+				return Result.Failure<ArchiveOrderTemplateResponse>(validationResult.Errors);
+			}
+
+			var template = uow.GetById<OnlineOrderTemplate>(request.OrderTemplateId);
+			if(template is null)
+			{
+				return Result.Failure<ArchiveOrderTemplateResponse>(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
+			}
+
+			// Если уже архивирован — idempotent: возвращаем текущие данные
+			if(template.Status == OnlineOrderTemplateStatus.Archived)
+			{
+				return Result.Success(ArchiveOrderTemplateResponse.Create(template.Id, TemplateStatusDto.Archived));
+			}
+
+			// Удаление токена рекуррентного платежа
+			if(template.RecurrentPayment != null)
+			{
+				var payment = uow.GetById<OnlineRecurrentPayment>(template.RecurrentPayment.Id);
+				if(payment != null)
+				{
+					uow.Delete(payment);
+				}
+				template.RecurrentPayment = null;
+			}
+
+			// Архивация
+			template.Archive();
+			
+			// Запись события
+			OnlineOrderTemplateStatusChanged.Create(DateTime.Now, null, request.ErpCounterpartyId, OnlineOrderTemplateStatusChangedType.ToArchive);
+
+			await uow.CommitAsync(cancellationToken);
+
+			return Result.Success(ArchiveOrderTemplateResponse.Create(template.Id, TemplateStatusDto.Archived));
 		}
 	}
 }

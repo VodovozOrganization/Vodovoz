@@ -1,4 +1,4 @@
-﻿using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Results;
 
 namespace VodovozBusiness.Errors.Sale
 {
@@ -93,5 +93,42 @@ namespace VodovozBusiness.Errors.Sale
 		/// </summary>
 		public static Error IsTemplateNotBelongCounterparty =>
 			new Error("400", "Автозаказ не принадлежит клиенту");
+		
+		/// <summary>
+		/// Автозаказ недоступен для этого заказа
+		/// </summary>
+		public static Error IsOrderTemplateUnavailable =>
+			new Error("400", "Автозаказ недоступен для этого заказа");
+
+		/// <summary>
+		/// Достигнуто максимальное количество активных автозаказов
+		/// </summary>
+		public static Error OrderTemplatesLimitExceeded(string code) =>
+			new Error(code, "Достигнуто максимальное количество активных автозаказов");
+
+		/// <summary>
+		/// Автозаказ нельзя возобновить
+		/// </summary>
+		public static Error OrderTemplateActionUnavailable => new Error("409", "Автозаказ нельзя возобновить");
+
+		/// <summary>
+		/// Необходимо обновить способ оплаты
+		/// </summary>
+		public static Error OrderTemplatePaymentMethodRequired => new Error("409", "Обновите способ оплаты, чтобы возобновить автозаказ");
+
+		/// <summary>
+		/// Адрес доставки недоступен
+		/// </summary>
+		public static Error OrderTemplateAddressUnavailable => new Error("400", "Доставка по этому адресу недоступна. Удалите автозаказ и подключите новый");
+
+		/// <summary>
+		/// Интервал доставки недоступен
+		/// </summary>
+		public static Error OrderTemplateIntervalUnavailable => new Error("400", "Интервал доставки больше недоступен. Удалите автозаказ и подключите новый");
+
+		/// <summary>
+		/// Автозаказ нельзя архивировать
+		/// </summary>
+		public static Error OrderTemplateArchiveUnavailable => new Error("409", "Автозаказ нельзя архивировать");
 	}
 }

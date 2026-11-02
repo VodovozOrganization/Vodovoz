@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +20,14 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 		/// <param name="onlineOrderId">Идентификатор онлайн заказа</param>
 		/// <returns></returns>
 		ILookup<WeekDayName, DeliveryScheduleDto> GetWeeklyDeliverySchedules(IUnitOfWork uow, int onlineOrderId);
+
+		/// <summary>
+		/// Получение интервалов доставки по дням для точки доставки
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="deliveryPointId">Идентификатор точки доставки</param>
+		/// <returns></returns>
+		ILookup<WeekDayName, DeliveryScheduleDto> GetWeeklyDeliverySchedulesByDeliveryPointId(IUnitOfWork uow, int deliveryPointId);
 
 		/// <summary>
 		/// Получение данных для проверки возможности создания автозаказа из онлайн заказа <see cref="CanCreateTemplateDto"/>

@@ -40,7 +40,9 @@ namespace Vodovoz.Core.Domain.Sale
 		private int? _bottlesReturn;
 		private int? _trifle;
 		private string _comment;
-		private IObservableList<int> _templateProducts = new ObservableList<int>();
+		private IObservableList<int> _templateSaleItems = new ObservableList<int>();
+		private IObservableList<int> _templatePromoSets = new ObservableList<int>();
+		private IObservableList<int> _templateFreeRentPackages = new ObservableList<int>();
 		private TemplateDeliveryScheduleData _schedule;
 		private OnlineOrderTemplateStatus _status;
 		private OnlineRecurrentPayment _recurrentPayment;
@@ -299,10 +301,30 @@ namespace Vodovoz.Core.Domain.Sale
 		/// Список идентификаторов товаров
 		/// </summary>
 		[Display(Name = "Список идентификаторов товаров")]
-		public virtual IObservableList<int> TemplateProducts
+		public virtual IObservableList<int> TemplateSaleItems
 		{
-			get => _templateProducts;
-			set => SetField(ref _templateProducts, value);
+			get => _templateSaleItems;
+			set => SetField(ref _templateSaleItems, value);
+		}
+
+		/// <summary>
+		/// Список идентификаторов промонаборов шаблона
+		/// </summary>
+		[Display(Name = "Список идентификаторов товаров")]
+		public virtual IObservableList<int> TemplatePromoSets
+		{
+			get => _templatePromoSets;
+			set => SetField(ref _templatePromoSets, value);
+		}
+
+		/// <summary>
+		/// Список идентификаторов пакетов аренды шаблона
+		/// </summary>
+		[Display(Name = "Список идентификаторов товаров")]
+		public virtual IObservableList<int> TemplateFreeRentPackages
+		{
+			get => _templateFreeRentPackages;
+			set => SetField(ref _templateFreeRentPackages, value);
 		}
 
 		/// <summary>

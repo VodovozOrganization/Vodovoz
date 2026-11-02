@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using CustomerApp.Contracts.Common;
 using CustomerApp.Contracts.Sale.Templates;
@@ -7,8 +7,10 @@ using CustomerOrdersApi.Library.V8.Repositories;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Extensions;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Sale;
+using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
@@ -163,7 +165,7 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 			if(_orderTemplateRepository
 				.GetActiveOnlineOrderTemplatesCount(uow, counterpartyId.Value) > _templateSettings.GetMaximumNumberActiveOnlineOrderTemplates)
 			{
-				return Result.Failure(OnlineOrderErrors.IsOrderTemplatesLimitExceeded);
+				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplatesLimitExceeded("409"));
 			}
 			
 			return Result.Success();
@@ -180,14 +182,14 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 
 			if(!_onlineOrderRepository.IsAutoOrderEnabled(uow, onlineOrderId))
 			{
-				return Result.Failure(OnlineOrderErrors.IsOrderTemplateUnavailable);
+				return Result.Failure(OnlineOrderTemplateApiErrors.IsOrderTemplateUnavailable);
 			}
 
 			//TODO что считаем активным? Ведь теоретически клиент может с разных устройств настраивать несколько автозаказов?
 			if(_orderTemplateRepository
 				.GetActiveOnlineOrderTemplatesCount(uow, counterpartyId.Value) > _templateSettings.GetMaximumNumberActiveOnlineOrderTemplates)
 			{
-				return Result.Failure(OnlineOrderErrors.IsOrderTemplatesLimitExceeded);
+				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplatesLimitExceeded("400"));
 			}
 			
 			return Result.Success();
@@ -311,6 +313,86 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 			return Result.Success();
 		}
 
+		public Result ValidateResumeRequest(IUnitOfWork uow, ResumeOrderTemplateRequest request)
+		{
+			// 1. Автозаказ существует, принадлежит клиенту, не удалён
+			var templateExists = _orderTemplateRepository.NotArchiveTemplateExists(uow, request.OrderTemplateId);
+			if(!templateExists)
+			{
+				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
+			}
+			
+			var templateFromCounterparty = _orderTemplateRepository.OnlineOrderFromCounterparty(uow, request.OrderTemplateId, request.ErpCounterpartyId);
+			if(!templateFromCounterparty)
+			{
+				return Result.Failure(OnlineOrderTemplateApiErrors.IsTemplateNotBelongCounterparty);
+			}
+
+			// Получаем шаблон для дальнейших проверок
+			var template = uow.GetById<OnlineOrderTemplate>(request.OrderTemplateId);
+
+			// 2. Статус Paused
+			if(template.Status != OnlineOrderTemplateStatus.Paused)
+			{
+				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateActionUnavailable);
+			}
+
+			var activeTemplates = _orderTemplateRepository.GetActiveOnlineOrderTemplatesCount(uow, request.ErpCounterpartyId.Value);
+			// 3. Лимит активных автозаказов
+			if(activeTemplates >= _templateSettings.GetMaximumNumberActiveOnlineOrderTemplates)
+			{
+				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplatesLimitExceeded("409"));
+			}
+
+			// 4. Токен оплаты для PaidOnline
+			if(template.PaymentType == OnlineOrderPaymentType.PaidOnline)
+			{
+				if(template.RecurrentPayment == null || string.IsNullOrWhiteSpace(template.RecurrentPayment.Token))
+				{
+					return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplatePaymentMethodRequired);
+				}
+			}
+
+			// 5. Адрес доставки активен
+			var deliveryPoint = uow.GetById<Vodovoz.Domain.Client.DeliveryPoint>(template.DeliveryPointId);
+			if(deliveryPoint == null || !deliveryPoint.IsActive)
+			{
+				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateAddressUnavailable);
+			}
+
+			// 6. Интервал автозаказа есть в графике района
+			var schedule = template.Schedule;
+			var deliveryScheduleValid = true;
+			ILookup<WeekDayName, DeliveryScheduleDto> scheduleLookup = _customerTemplateRepository.GetWeeklyDeliverySchedulesByDeliveryPointId(uow, template.DeliveryPointId);
+
+			if(schedule.ScheduleType == TemplateDeliveryScheduleType.Weekly)
+			{
+				if(schedule.Weekday.HasValue)
+				{
+					deliveryScheduleValid = scheduleLookup[schedule.Weekday.Value]
+						.Any(x => x.ErpId == schedule.DeliveryScheduleId);
+				}
+				else
+				{
+					deliveryScheduleValid = false;
+				}
+			}
+			else if(schedule.ScheduleType == TemplateDeliveryScheduleType.Monthly)
+			{
+				if(_commonDeliverySchedulesService.ProcessSchedules(scheduleLookup, out var commonDeliverySchedules))
+				{
+					deliveryScheduleValid = commonDeliverySchedules.Any(x => x.ErpId == schedule.DeliveryScheduleId);
+				}
+			}
+
+			if(!deliveryScheduleValid)
+			{
+				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateIntervalUnavailable);
+			}
+
+			return Result.Success();
+		}
+
 		private Result CheckCommonProperties(
 			IUnitOfWork uow,
 			ExternalSource source,
@@ -356,5 +438,39 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 
 			return Result.Success();
 		}
-	}
-}
+
+		public Result ValidateArchiveRequest(IUnitOfWork uow, ArchiveOrderTemplateRequest request)
+		{
+			// 1. Автозаказ существует, принадлежит клиенту, не удалён
+			var templateExists = _orderTemplateRepository.NotArchiveTemplateExists(uow, request.OrderTemplateId);
+			if(!templateExists)
+			{
+				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
+			}
+			
+			var templateFromCounterparty = _orderTemplateRepository.OnlineOrderFromCounterparty(uow, request.OrderTemplateId, request.ErpCounterpartyId);
+			if(!templateFromCounterparty)
+			{
+				return Result.Failure(OnlineOrderTemplateApiErrors.IsTemplateNotBelongCounterparty);
+			}
+
+			// Получаем шаблон для проверки статуса
+			var template = uow.GetById<OnlineOrderTemplate>(request.OrderTemplateId);
+
+			// 2. Статус
+			if(template.Status == OnlineOrderTemplateStatus.Archived)
+			{
+				return Result.Success();
+			}
+
+			if(template.Status != OnlineOrderTemplateStatus.Active
+				&& template.Status != OnlineOrderTemplateStatus.Paused
+				&& template.Status != OnlineOrderTemplateStatus.PaymentProblem)
+			{
+				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateArchiveUnavailable);
+			}
+
+			return Result.Success();
+		}
+
+		private Result CheckCommonProperties(

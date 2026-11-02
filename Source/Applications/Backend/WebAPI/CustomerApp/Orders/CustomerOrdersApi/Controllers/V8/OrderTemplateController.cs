@@ -347,5 +347,113 @@ namespace CustomerOrdersApi.Controllers.V8
 				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
 			}
 		}
+
+		/// <summary>
+		/// Возобновление шаблона автозаказа
+		/// </summary>
+		/// <param name="request">Данные запроса возобновления шаблона <see cref="ResumeOrderTemplateRequest"/></param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// 200 со статусом шаблона и номером <see cref="ResumeOrderTemplateResponse"/>
+		/// 409 если недоступна смена состояния
+		/// 400 если недоступна доставка
+		/// 500 - ошибка
+		/// </returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResumeOrderTemplateResponse))]
+		[ProducesResponseType(StatusCodes.Status409Conflict)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> ResumeOrderTemplate(
+			ResumeOrderTemplateRequest request,
+			CancellationToken cancellationToken)
+		{
+			var sourceName = request.Source.GetEnumDisplayName();
+			
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос от {Source} на возобновление шаблона автозаказа {TemplateId} клиента {CounterpartyId}",
+					sourceName,
+					request.OrderTemplateId,
+					request.ErpCounterpartyId
+					);
+				
+				var result = await _templateService.ResumeOrderTemplateAsync(request, cancellationToken);
+
+				if(result.IsFailure)
+				{
+					var error = result.Errors.First();
+					return Problem(error.Message, statusCode: int.Parse(error.Code));
+				}
+				
+				return Ok(result.Value);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при запросе от {Source} на возобновление шаблона автозаказа {TemplateId} клиента {CounterpartyId}",
+					sourceName,
+					request.OrderTemplateId,
+					request.ErpCounterpartyId
+					);
+
+				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
+			}
+		}
+
+		/// <summary>
+		/// Архивирование шаблона автозаказа
+		/// </summary>
+		/// <param name="request">Данные запроса архивирования <see cref="ArchiveOrderTemplateRequest"/></param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// 200 со статусом шаблона <see cref="ArchiveOrderTemplateResponse"/>
+		/// 409 если недоступна архивация
+		/// 500 - ошибка
+		/// </returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ArchiveOrderTemplateResponse))]
+		[ProducesResponseType(StatusCodes.Status409Conflict)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> ArchiveOrderTemplate(
+			ArchiveOrderTemplateRequest request,
+			CancellationToken cancellationToken)
+		{
+			var sourceName = request.Source.GetEnumDisplayName();
+			
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос от {Source} на архивирование шаблона автозаказа {TemplateId} клиента {CounterpartyId}",
+					sourceName,
+					request.OrderTemplateId,
+					request.ErpCounterpartyId
+					);
+				
+				var result = await _templateService.ArchiveOrderTemplateAsync(request, cancellationToken);
+
+				if(result.IsFailure)
+				{
+					var error = result.Errors.First();
+					return Problem(error.Message, statusCode: int.Parse(error.Code));
+				}
+				
+				return Ok(result.Value);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при запросе от {Source} на архивирование шаблона автозаказа {TemplateId} клиента {CounterpartyId}",
+					sourceName,
+					request.OrderTemplateId,
+					request.ErpCounterpartyId
+					);
+
+				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
+			}
+		}
 	}
 }

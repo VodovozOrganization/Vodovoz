@@ -6,10 +6,10 @@ using Vodovoz.Domain.Goods.Rent;
 namespace VodovozBusiness.Domain.Sale
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Строки бесплатной аренды шаблонов автозаказов",
-		Nominative = "Строка бесплатной аренды шаблона автозаказа",
-		Prepositional = "Строке бесплатной аренды шаблона автозаказа",
-		PrepositionalPlural = "Строках бесплатной аренды шаблонов автозаказов"
+		NominativePlural = "Пакеты бесплатной аренды шаблонов автозаказов",
+		Nominative = "Пакет бесплатной аренды шаблона автозаказа",
+		Prepositional = "Пакете бесплатной аренды шаблона автозаказа",
+		PrepositionalPlural = "Пакетах бесплатной аренды шаблонов автозаказов"
 	)]
 	[HistoryTrace]
 	public class OnlineOrderTemplateFreeRentPackage : PropertyChangedBase, IDomainObject

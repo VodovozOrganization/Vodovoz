@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -40,6 +40,30 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 					on deliveryPoint.Id equals onlineOrder.DeliveryPoint.Id
 				where deliveryScheduleRestriction.WeekDay != WeekDayName.Today
 					&& onlineOrder.Id == onlineOrderId
+				
+				select new
+				{
+					WeekDay = deliveryScheduleRestriction.WeekDay,
+					Schedule = DeliveryScheduleDto.Create(
+						deliverySchedule.Id,
+						$"{deliverySchedule.From:hh\\:mm} - {deliverySchedule.To:hh\\:mm}")
+				};
+
+			return query
+				.ToLookup(x => x.WeekDay, y => y.Schedule);
+		}
+
+		public ILookup<WeekDayName, DeliveryScheduleDto> GetWeeklyDeliverySchedulesByDeliveryPointId(IUnitOfWork uow, int deliveryPointId)
+		{
+			var query = from deliveryScheduleRestriction in uow.Session.Query<DeliveryScheduleRestriction>()
+				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
+					on deliveryScheduleRestriction.DeliverySchedule.Id equals deliverySchedule.Id
+				join district in uow.Session.Query<District>()
+					on deliveryScheduleRestriction.District.Id equals district.Id
+				join deliveryPoint in uow.Session.Query<DeliveryPoint>()
+					on district.Id equals deliveryPoint.District.Id
+				where deliveryScheduleRestriction.WeekDay != WeekDayName.Today
+					&& deliveryPoint.Id == deliveryPointId
 				
 				select new
 				{

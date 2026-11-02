@@ -1,4 +1,4 @@
-﻿using CustomerApp.Contracts.Sale.Templates;
+using CustomerApp.Contracts.Sale.Templates;
 using CustomerOrders.Contracts.V8.Sale.Templates;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
@@ -52,6 +52,28 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 		Result Validate(
 			IUnitOfWork uow,
 			GetOrderTemplateResumeDatesRequest request
+		);
+
+		/// <summary>
+		/// Проверка корректности данных запроса возобновления автозаказа <see cref="ResumeOrderTemplateRequest"/>
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="request">Данные запроса</param>
+		/// <returns>Либо успешный результат, либо с ошибкой <see cref="Result"/></returns>
+		Result ValidateResumeRequest(
+			IUnitOfWork uow,
+			ResumeOrderTemplateRequest request
+		);
+
+		/// <summary>
+		/// Проверка корректности данных запроса архивирования автозаказа <see cref="ArchiveOrderTemplateRequest"/>
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="request">Данные запроса</param>
+		/// <returns>Либо успешный результат, либо с ошибкой <see cref="Result"/></returns>
+		Result ValidateArchiveRequest(
+			IUnitOfWork uow,
+			ArchiveOrderTemplateRequest request
 		);
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Vodovoz.Core.Domain.Sale
 {
@@ -50,6 +50,16 @@ namespace Vodovoz.Core.Domain.Sale
 		/// <summary>
 		/// Приостановка шаблона
 		/// </summary>
-		ToPause
+		ToPause,
+
+		/// <summary>
+		/// Возобновление шаблона
+		/// </summary>
+		ToResume,
+
+		/// <summary>
+		/// Архивирование шаблона
+		/// </summary>
+		ToArchive
 	}
 }
