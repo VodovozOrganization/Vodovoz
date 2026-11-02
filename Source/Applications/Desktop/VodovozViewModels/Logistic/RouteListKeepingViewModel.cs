@@ -105,7 +105,7 @@ namespace Vodovoz
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly OrderCancellationService _orderCancellationService;
 		private readonly OrderCancellationPermitService _orderCancellationPermitService;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IOrderSaleHandler _saleHandler;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IMangoCallButtonViewModelFactory _mangoCallButtonViewModelFactory;
@@ -149,7 +149,7 @@ namespace Vodovoz
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			OrderCancellationService orderCancellationService,
 			OrderCancellationPermitService orderCancellationPermitService,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IMangoCallButtonViewModelFactory mangoCallButtonViewModelFactory,
 			IOrderSaleHandler saleHandler
 			)
@@ -955,7 +955,27 @@ namespace Vodovoz
 					UoW.Save(keyPairValue.Value.Request);
 				}
 
+				var publishedOrderIds = _createdOrderEdoRequests
+					.Where(x => !x.Value.Pushed)
+					.Select(x => x.Key)
+					.ToList();
+
+				foreach(var orderId in publishedOrderIds)
+				{
+					_edoRequestCreatedEventPublisher.Publish(
+							UoW,
+							_createdOrderEdoRequests[orderId].Request.Id,
+							"Создание ЭДО-заявки при сохранении маршрутного листа")
+						.GetAwaiter()
+						.GetResult();
+				}
+
 				UoW.Commit();
+
+				foreach(var orderId in publishedOrderIds)
+				{
+					_createdOrderEdoRequests[orderId] = (true, _createdOrderEdoRequests[orderId].Request);
+				}
 
 				var changedItems = Items
 					.Where(item => item.ChangedDeliverySchedule || item.HasChanged)
@@ -1010,27 +1030,6 @@ namespace Vodovoz
 
 		protected override void AfterSave()
 		{
-			if(_createdOrderEdoRequests.Any())
-			{
-				Task.Run(async() =>
-				{
-					foreach(var keyPairValue in _createdOrderEdoRequests)
-					{
-						var value = keyPairValue.Value;
-
-						if(value.Pushed)
-						{
-							continue;
-						}
-						
-						await _edoRequestCreatedEventPublisher.Publish(
-							value.Request.Id,
-							"Создание ЭДО-заявки при сохранении маршрутного листа");
-						value.Pushed = true;
-					}
-				});
-			}
-
 			if(_cancellationRequestActions.Any())
 			{
 				foreach(var cancellationAction in _cancellationRequestActions)

@@ -8,6 +8,7 @@ using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -24,7 +25,9 @@ namespace Vodovoz.Additions
 	public class AuthorizationService : IAuthorizationService
 	{
 		private readonly ILogger<AuthorizationService> _logger;
-		private readonly IBus _messageBus;
+		// На десктопе у диалогов свои UoW, поэтому IPublishEndpoint из DI запрещён: сообщение пишется
+		// в таблицы outbox в транзакции нужного UoW (_outbox.GetPublishEndpoint(uow)), отправляет его бэкенд
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 		private readonly IPasswordGenerator _passwordGenerator;
 		private readonly IUserRoleSettings _userRoleSettings;
 		private readonly IUserRoleRepository _userRoleRepository;
@@ -42,7 +45,7 @@ namespace Vodovoz.Additions
 			IEmailSettings emailSettings,
 			ISubdivisionSettings subdivisionSettings,
 			ILogger<AuthorizationService> logger,
-			IBus messageBus)
+			IUnitOfWorkOutbox<IBus> outbox)
 		{
 			_passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));
 			_userRoleSettings = userRoleSettings ?? throw new ArgumentNullException(nameof(userRoleSettings));
@@ -57,7 +60,7 @@ namespace Vodovoz.Additions
 			_humanResourcesSubdivisionId = subdivisionSettings.GetHumanResourcesSubdivisionId;
 			_developersSubdivisionId = subdivisionSettings.GetDevelopersSubdivisionId;
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 
 		public bool ResetPassword(string userLogin, string password, string email, string fullName)
@@ -70,10 +73,12 @@ namespace Vodovoz.Additions
 				{
 					user.NeedPasswordChange = true;
 					uow.Save(user);
-					uow.Commit();
 				}
 
-				return SendCredentialsToEmail(userLogin, password, email, fullName, uow);
+				var isEmailQueued = SendCredentialsToEmail(userLogin, password, email, fullName, uow);
+				uow.Commit();
+
+				return isEmailQueued;
 			}
 		}
 
@@ -221,7 +226,7 @@ namespace Vodovoz.Additions
 
 			try
 			{
-				_messageBus.Publish(sendEmailMessage).GetAwaiter().GetResult();
+				_outbox.GetPublishEndpoint(unitOfWork).Publish(sendEmailMessage).GetAwaiter().GetResult();
 				return true;
 			}
 			catch(Exception e)

@@ -38,6 +38,8 @@ using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.ErrorDebugWorker
 {
@@ -149,6 +151,8 @@ namespace Edo.ErrorDebugWorker
 							//cfg.AddConsumer<OrderDocumentSendErrorConsumer, OrderDocumentSendErrorConsumerDefinition>();
 							//cfg.AddConsumer<TransferDocumentSendErrorConsumer, TransferDocumentSendErrorConsumerDefinition>();
 							cfg.AddConsumer<DocflowUpdatedConsumer, DocflowUpdatedConsumerDefinition>();
+
+							cfg.AddVodovozOutbox(OutboxBusNames.Pacs);
 
 							//taxcom
 							//cfg.AddConsumer<OutgoingTaxcomDocflowUpdatedEventConsumer, OutgoingTaxcomDocflowUpdatedEventConsumerDefinition>();

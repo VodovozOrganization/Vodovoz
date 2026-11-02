@@ -984,20 +984,26 @@ namespace Vodovoz.Domain.Sale
 
 			if(dayOfWeekRules.Any())
 			{
-				dayOfWeekRules = dayOfWeekRules
+				var filteredDayOfWeekRules = dayOfWeekRules
 					.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule))
 					.ToList();
-				
-				var dayOfWeekEShopGoodsSum = GetMinEShopGoodsSum(dayOfWeekRules);
 
-				if(OnlineShopGoodsSumFreeDeliverySpecification.Create(eShopGoodsSum)
-					.IsSatisfiedBy(dayOfWeekEShopGoodsSum))
+				if(filteredDayOfWeekRules.Any())
 				{
-					deliveryPrice = 0m;
+					var dayOfWeekEShopGoodsSum = GetMinEShopGoodsSum(filteredDayOfWeekRules);
+
+					if(OnlineShopGoodsSumFreeDeliverySpecification.Create(eShopGoodsSum)
+						.IsSatisfiedBy(dayOfWeekEShopGoodsSum))
+					{
+						deliveryPrice = 0m;
+						return true;
+					}
+
+					deliveryPrice = filteredDayOfWeekRules.Max(x => x.Price);
 					return true;
 				}
 
-				deliveryPrice = dayOfWeekRules.Max(x => x.Price);
+				deliveryPrice = 0;
 				return true;
 			}
 
@@ -1014,20 +1020,26 @@ namespace Vodovoz.Domain.Sale
 
 			if(dayOfWeekRules.Any())
 			{
-				dayOfWeekRules = dayOfWeekRules
+				var filteredDayOfWeekRules = dayOfWeekRules
 					.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule))
 					.ToList();
-				
-				var dayOfWeekEShopGoodsSum = GetMinEShopGoodsSum(dayOfWeekRules);
 
-				if(OnlineShopGoodsSumFreeDeliverySpecification.Create(eShopGoodsSum)
-					.IsSatisfiedBy(dayOfWeekEShopGoodsSum))
+				if(filteredDayOfWeekRules.Any())
 				{
-					deliveryRules = Array.Empty<DistrictRuleItemBase>();
+					var dayOfWeekEShopGoodsSum = GetMinEShopGoodsSum(filteredDayOfWeekRules);
+
+					if(OnlineShopGoodsSumFreeDeliverySpecification.Create(eShopGoodsSum)
+						.IsSatisfiedBy(dayOfWeekEShopGoodsSum))
+					{
+						deliveryRules = Array.Empty<DistrictRuleItemBase>();
+						return true;
+					}
+
+					deliveryRules = filteredDayOfWeekRules;
 					return true;
 				}
-				
-				deliveryRules = dayOfWeekRules;
+
+				deliveryRules = Array.Empty<DistrictRuleItemBase>();
 				return true;
 			}
 

@@ -996,12 +996,12 @@ namespace Vodovoz.ViewModels.TrueMark
 					return;
 				}
 
-				uow.Commit();
-
 				_edoRequestCreatedEventPublisher
-					.Publish(result.Value.EdoRequestId, "Перенос отклоненных кодов из отмененного заказа")
+					.Publish(uow, result.Value.EdoRequestId, "Перенос отклоненных кодов из отмененного заказа")
 					.GetAwaiter()
 					.GetResult();
+
+				uow.Commit();
 
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Info,

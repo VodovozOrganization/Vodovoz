@@ -17,6 +17,8 @@ using VodovozHealthCheck;
 using WarehouseApi.Data;
 using WarehouseApi.HealthChecks;
 using WarehouseApi.Library;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace WarehouseApi
 {
@@ -50,7 +52,7 @@ namespace WarehouseApi
 					typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
 				)
 				.AddDatabaseConnection()
-				.AddWarehouseApiDependencies(Configuration);
+				.AddWarehouseApiDependencies(Configuration, busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs));
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 

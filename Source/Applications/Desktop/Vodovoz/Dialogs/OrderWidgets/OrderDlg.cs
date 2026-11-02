@@ -236,7 +236,7 @@ namespace Vodovoz
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private IGenericRepository<OrderTo1cExport> _exportsOrderTo1cReporitory;
 		private ICashReceiptRepository _cashReceiptRepository;
-		private IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
@@ -746,7 +746,7 @@ namespace Vodovoz
 			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
 			_exportsOrderTo1cReporitory = _lifetimeScope.Resolve<IGenericRepository<OrderTo1cExport>>();
 			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
-			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
+			_customerNotificationPublisher = _lifetimeScope.Resolve<INotificationPublisher<CustomerNotificationDomainEvent>>();
 			_orderOrganizationManager = _lifetimeScope.Resolve<IOrderOrganizationManager>();
 			_orderCancellationPermitService = _lifetimeScope.Resolve<OrderCancellationPermitService>();
 			_discountsController = _lifetimeScope.Resolve<IOrderDiscountsController>();

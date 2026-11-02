@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Bindings;
 using System.Linq;
 using System.Text;
 using Autofac;
 using Core.Infrastructure;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.DomainModel.UoW;

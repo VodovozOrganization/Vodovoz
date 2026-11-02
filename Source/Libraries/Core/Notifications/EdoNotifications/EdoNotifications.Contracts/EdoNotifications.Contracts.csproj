@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\TransactionalOutbox\TransactionalOutbox.csproj" />
+    <ProjectReference Include="..\..\Notifications.Core\Notifications.Core.csproj" />
 	<InternalsVisibleTo Include="EdoNotifications.Application" />
   </ItemGroup>
 

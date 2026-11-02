@@ -29,7 +29,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 		private readonly IUpdDocumentBuilder _updDocumentBuilder;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
-		private readonly IBus _publishEndpoint;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly IUpdTransportCodeService _updTransportCodeService;
 
 		public ForResaleDocumentEdoTaskHandler(
@@ -40,7 +40,7 @@ namespace Edo.Documents
 			ITrueMarkCodesPool trueMarkCodesPool,
 			IUpdDocumentBuilder updDocumentBuilder,
 			EdoProblemRegistrar edoProblemRegistrar,
-			IBus publishEndpoint,
+			IPublishEndpoint publishEndpoint,
 			IUpdTransportCodeService updTransportCodeService
 			)
 		{
@@ -113,9 +113,8 @@ namespace Edo.Documents
 			}
 
 			await _uow.SaveAsync(documentEdoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
-
 			await _publishEndpoint.Publish(message, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		public async Task HandleTransferedForResaleFormalDocument(
@@ -163,9 +162,8 @@ namespace Edo.Documents
 			var message = new OrderDocumentSendEvent { OrderDocumentId = customerDocument.Id };
 
 			await _uow.SaveAsync(documentEdoTask, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
-
 			await _publishEndpoint.Publish(message, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		private async Task<OrderEdoDocument> SendDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)

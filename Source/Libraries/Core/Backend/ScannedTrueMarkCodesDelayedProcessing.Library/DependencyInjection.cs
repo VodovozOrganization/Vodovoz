@@ -8,19 +8,23 @@ using TrueMark.Codes.Pool;
 using Vodovoz.Models.TrueMark;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services.TrueMark;
+using MassTransit;
+using System;
 
 namespace ScannedTrueMarkCodesDelayedProcessing.Library
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddScannedTrueMarkCodesDelayedProcessing(this IServiceCollection services)
+		public static IServiceCollection AddScannedTrueMarkCodesDelayedProcessing(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus)
 		{
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 			services.AddScoped<TrueMarkCodesPoolFactory>();
 
 			services
 				.AddMessageTransportSettings()
-				.AddEdoMassTransit()
+				.AddEdoMassTransit(configureBus: configureBus)
 				.AddCodesPool()
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()

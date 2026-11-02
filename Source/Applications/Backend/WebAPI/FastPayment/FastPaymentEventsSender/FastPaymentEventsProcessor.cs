@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.FastPayments;
@@ -35,6 +36,9 @@ namespace FastPaymentEventsSender
 		private readonly IGenericRepository<WrongSignatureFromReceivedFastPaymentEvent> _wrongSignatureEventRepository;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IZabbixSender _zabbixSender;
+		// UoW создаётся из фабрики на каждый запуск: письмо пишется в его транзакцию явно и уходит вместе с отметкой об отправке
+		// TODO: брать IUnitOfWork и IPublishEndpoint из DI-scope запуска, тогда IUnitOfWorkOutbox не нужен
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
 		public FastPaymentEventsProcessor(
 			ILogger<FastPaymentEventsProcessor> logger,
@@ -44,7 +48,8 @@ namespace FastPaymentEventsSender
 			IGenericRepository<FastPaymentStatusUpdatedEvent> statusUpdatedEventRepository,
 			IGenericRepository<WrongSignatureFromReceivedFastPaymentEvent> wrongSignatureEventRepository,
 			IEmailSettings emailSettings,
-			IZabbixSender zabbixSender
+			IZabbixSender zabbixSender,
+			IUnitOfWorkOutbox<IBus> outbox
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -55,6 +60,7 @@ namespace FastPaymentEventsSender
 			_wrongSignatureEventRepository = wrongSignatureEventRepository ?? throw new ArgumentNullException(nameof(wrongSignatureEventRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 		
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -149,10 +155,9 @@ namespace FastPaymentEventsSender
 			{
 				_logger.LogInformation(_wrongSignatureEventsProcessTitle);
 				using var uow = _unitOfWorkFactory.CreateWithoutRoot(_wrongSignatureEventsProcessTitle);
-				using var scope = _serviceScopeFactory.CreateScope();
 				
 				var events = _wrongSignatureEventRepository.Get(uow, x => x.SentDate == null).ToList();
-				var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+				var publishEndpoint = _outbox.GetPublishEndpoint(uow);
 				var eventsCount = events.Count;
 
 				_logger.LogInformation("Всего событий смены статуса: {WrongSignatureEventsCount}", eventsCount);

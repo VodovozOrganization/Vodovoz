@@ -30,13 +30,13 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gamma.GtkWidgets.yEntry yentryEmails;
 
-		private global::Gamma.Widgets.yEnumComboBox yenumcmbNotificationType;
-
 		private global::Gamma.GtkWidgets.yLabel ylabelBitrixDialogs;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelEmails;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelNotificationType;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelNotificationTypeValue;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelTemplate;
 
@@ -188,14 +188,11 @@ namespace Vodovoz.Views.Edo
 			w13.RightAttach = ((uint)(2));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yenumcmbNotificationType = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumcmbNotificationType.Name = "yenumcmbNotificationType";
-			this.yenumcmbNotificationType.ShowSpecialStateAll = false;
-			this.yenumcmbNotificationType.ShowSpecialStateNot = false;
-			this.yenumcmbNotificationType.UseShortTitle = false;
-			this.yenumcmbNotificationType.DefaultFirst = false;
-			this.table1.Add(this.yenumcmbNotificationType);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcmbNotificationType]));
+			this.ylabelNotificationTypeValue = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelNotificationTypeValue.Name = "ylabelNotificationTypeValue";
+			this.ylabelNotificationTypeValue.Xalign = 0F;
+			this.table1.Add(this.ylabelNotificationTypeValue);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelNotificationTypeValue]));
 			w14.LeftAttach = ((uint)(1));
 			w14.RightAttach = ((uint)(2));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));

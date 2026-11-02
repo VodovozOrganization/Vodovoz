@@ -1,5 +1,4 @@
-﻿using EdoNotifications.Contracts;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.ViewModels.Edo;
 
 namespace Vodovoz.Views.Edo
@@ -14,9 +13,8 @@ namespace Vodovoz.Views.Edo
 
 		private void Configure()
 		{
-			yenumcmbNotificationType.ItemsEnum = typeof(EdoNotificationType);
-			yenumcmbNotificationType.Binding
-				.AddBinding(ViewModel.Entity, e => e.EdoNotificationType, w => w.SelectedItem)
+			ylabelNotificationTypeValue.Binding
+				.AddBinding(ViewModel.Entity, e => e.Name, w => w.LabelProp)
 				.InitializeFromSource();
 
 			yentryEmails.Binding

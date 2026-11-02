@@ -11,11 +11,11 @@ namespace Edo.Problem.Routine.Services.Common
 {
 	public class EdoProblemRoutineNotificationService : IEdoProblemRoutineNotificationService
 	{
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly EdoProblemRoutineNotificationFactory _notificationFactory;
 
 		public EdoProblemRoutineNotificationService(
-			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
+			INotificationPublisher<EdoNotificationMessage> notificationPublisher,
 			EdoProblemRoutineNotificationFactory notificationFactory)
 		{
 			_notificationPublisher = notificationPublisher
@@ -24,21 +24,20 @@ namespace Edo.Problem.Routine.Services.Common
 				?? throw new ArgumentNullException(nameof(notificationFactory));
 		}
 
-		public Task<bool> NotifyAsync(
+		public Task<bool> NotifyAsync<TSetting>(
 			IUnitOfWork unitOfWork,
 			OrderEdoTask edoTask,
-			EdoNotificationType notificationType,
 			IEdoTaskValidator validator,
 			CancellationToken cancellationToken)
+			where TSetting : EdoNotificationSetting
 		{
 			if(unitOfWork == null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWork));
 			}
 
-			var notification = _notificationFactory.Create(
+			var notification = _notificationFactory.Create<TSetting>(
 				edoTask,
-				notificationType,
 				validator);
 
 			return _notificationPublisher.TryPublishAsync(

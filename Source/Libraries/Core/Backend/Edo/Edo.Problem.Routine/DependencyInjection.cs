@@ -1,4 +1,6 @@
-﻿using Edo.Common;
+﻿using System;
+using MassTransit;
+using Edo.Common;
 using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
 using Edo.Problem.Routine.Services.CodeDuplicatedProblem;
@@ -36,7 +38,6 @@ namespace Edo.Problem.Routine
 				.AddEdoNotifications();
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-			services.AddScoped<MessageService>();
 			services.AddScoped<IOrderEdoTaskCreatedEventPublisher, OrderEdoTaskCreatedEventPublisher>();
 			services.AddScoped<INewEdoTasksResendService, NewEdoTasksResendService>();
  			services.AddScoped<EdoProblemRoutineNotificationFactory>();
@@ -60,10 +61,13 @@ namespace Edo.Problem.Routine
 		/// </summary>
 		/// <param name="services">Коллекция сервисов</param>
 		/// <returns>Коллекция сервисов</returns>
-		public static IServiceCollection AddEdoProblemRoutine(this IServiceCollection services)
+		/// <param name="configureBus">Дополнительная настройка шины в приложении, например outbox</param>
+		public static IServiceCollection AddEdoProblemRoutine(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoProblemRoutineServices();
-			services.AddEdoMassTransit();
+			services.AddEdoMassTransit(configureBus: configureBus);
 
 			return services;
 		}

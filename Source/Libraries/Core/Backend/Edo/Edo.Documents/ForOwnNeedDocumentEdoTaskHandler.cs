@@ -28,7 +28,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodesPoolCodeProvider _trueMarkCodesPoolCodeProvider;
 		private readonly IUpdDocumentBuilder _updDocumentBuilder;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly IUpdTransportCodeService _updTransportCodeService;
 
 		public ForOwnNeedDocumentEdoTaskHandler(
@@ -40,7 +40,7 @@ namespace Edo.Documents
 			ITrueMarkCodesPoolCodeProvider trueMarkCodesPoolCodeProvider,
 			IUpdDocumentBuilder updDocumentBuilder,
 			EdoProblemRegistrar edoProblemRegistrar,
-			IBus messageBus,
+			IPublishEndpoint publishEndpoint,
 			IUpdTransportCodeService updTransportCodeService
 			)
 		{
@@ -52,7 +52,7 @@ namespace Edo.Documents
 			_trueMarkCodesPoolCodeProvider = trueMarkCodesPoolCodeProvider ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCodeProvider));
 			_updDocumentBuilder = updDocumentBuilder ?? throw new ArgumentNullException(nameof(updDocumentBuilder));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_updTransportCodeService = updTransportCodeService ?? throw new ArgumentNullException(nameof(updTransportCodeService));
 		}
 
@@ -176,9 +176,8 @@ namespace Edo.Documents
 			}
 
 			await _uow.SaveAsync(documentEdoTask, cancellationToken: cancellationToken);
+			await _publishEndpoint.Publish(message, cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
-
-			await _messageBus.Publish(message, cancellationToken);
 		}
 
 		public async Task HandleTransferedForOwnNeedsFormalDocument(
@@ -200,17 +199,8 @@ namespace Edo.Documents
 				if(documentEdoTask.Stage == DocumentEdoTaskStage.New)
 				{
 					await _uow.SaveAsync(documentEdoTask, cancellationToken: cancellationToken);
+					await _publishEndpoint.Publish(new DocumentTaskCreatedEvent { Id = documentEdoTask.Id }, cancellationToken);
 					await _uow.CommitAsync(cancellationToken);
-					try
-					{
-						await _messageBus.Publish(new DocumentTaskCreatedEvent { Id = documentEdoTask.Id }, cancellationToken);
-					}
-					catch(Exception ex)
-					{
-						// Эту же задачу в статусе Новая подхватит штатный NewEdoTasksResendWorker.
-						_logger.LogError(ex, "Не удалось повторно запустить задачу УПД {TaskId} после проверки кодов. "
-							+ "Задача сохранена на стадии распределения для штатного повторного запуска", documentEdoTask.Id);
-					}
 					return;
 				}
 
@@ -236,9 +226,8 @@ namespace Edo.Documents
 			var message = new OrderDocumentSendEvent { OrderDocumentId = customerDocument.Id };
 
 			await _uow.SaveAsync(documentEdoTask, cancellationToken: cancellationToken);
+			await _publishEndpoint.Publish(message, cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
-
-			await _messageBus.Publish(message, cancellationToken);
 		}
 
 		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(

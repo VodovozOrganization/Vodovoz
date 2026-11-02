@@ -2,8 +2,6 @@
 using Edo.Problem.Routine.Services.Common;
 using Edo.Problems.Validation;
 using Edo.Transport;
-using EdoNotifications.Contracts;
-using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -14,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
 
 namespace Edo.Problem.Routine.Services.OrderStatusProblem
 {
@@ -30,9 +29,8 @@ namespace Edo.Problem.Routine.Services.OrderStatusProblem
 		private readonly IEdoTaskValidator _orderStatusValidator;
 		private readonly IServiceProvider _serviceProvider;
 		private readonly IEdoRepository _edoRepository;
-		private readonly IBus _messageBus;
 		private readonly IEdoProblemRoutineNotificationService _notificationService;
-		private readonly MessageService _messageService;
+		private readonly IOrderEdoTaskCreatedEventPublisher _taskCreatedEventPublisher;
 
 		public OrderStatusProblemService(
 			ILogger<OrderStatusProblemService> logger,
@@ -41,22 +39,20 @@ namespace Edo.Problem.Routine.Services.OrderStatusProblem
 			IEnumerable<IEdoTaskValidator> validators,
 			IServiceProvider serviceProvider,
 			IEdoRepository edoRepository,
-			IBus messageBus,
 			IEdoProblemRoutineNotificationService notificationService,
-			MessageService messageService)
+			IOrderEdoTaskCreatedEventPublisher taskCreatedEventPublisher)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
 
 			_orderStatusValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
 				.FirstOrDefault(v => v.Name == _problemSourceName)
 				?? throw new InvalidOperationException($"Валидатор с именем '{_problemSourceName}' не зарегистрирован");
-			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_taskCreatedEventPublisher = taskCreatedEventPublisher ?? throw new ArgumentNullException(nameof(taskCreatedEventPublisher));
 		}
 
 		private DateTime _minEdoTaskCreationTime => DateTime.Today - _options.CurrentValue.ProblemTimeout;
@@ -141,10 +137,9 @@ namespace Edo.Problem.Routine.Services.OrderStatusProblem
 
 			if(!validationResult.IsValid)
 			{
-				var notificationPublished = await _notificationService.NotifyAsync(
+				var notificationPublished = await _notificationService.NotifyAsync<OrderStatusProblemEdoNotificationSetting>(
 					uow,
 					edoTask,
-					EdoNotificationType.OrderStatusProblem,
 					_orderStatusValidator,
 					cancellationToken);
 
@@ -165,7 +160,8 @@ namespace Edo.Problem.Routine.Services.OrderStatusProblem
 				edoTask.Id,
 				edoTask.FormalEdoRequest.Order.Id);
 
-			await _messageService.PublishTaskCreatedEvent(edoTask, cancellationToken);
+			_taskCreatedEventPublisher.Publish(uow, edoTask, cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 
 			return true;
 		}

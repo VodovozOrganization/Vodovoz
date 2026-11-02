@@ -30,6 +30,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			UpdateOnChanges(typeof(EdoNotificationSetting));
 
+			// Набор настроек задают классы уведомлений: строка добавляется вместе с новым классом (скриптом БД), а не из журнала
+			VisibleCreateAction = false;
+			VisibleDeleteAction = false;
+
 			var canChangeEdoNotificationSettings = currentPermissionService.ValidatePresetPermission(
 				Core.Domain.Permissions.EdoPermissions.CanChangeEdoNotificationSettings);
 
@@ -48,13 +52,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 			itemsQuery.Where(GetSearchCriterion(
 				() => edoNotificationSettingAlias.Id,
-				() => edoNotificationSettingAlias.EdoNotificationType,
+				() => edoNotificationSettingAlias.Name,
 				() => edoNotificationSettingAlias.Template)
 			);
 
 			itemsQuery.SelectList(list => list
 					.Select(() => edoNotificationSettingAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => edoNotificationSettingAlias.EdoNotificationType).WithAlias(() => resultAlias.EdoNotificationType)
+					.Select(() => edoNotificationSettingAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => edoNotificationSettingAlias.Emails).WithAlias(() => resultAlias.Emails)
 					.Select(() => edoNotificationSettingAlias.BitrixDialogs).WithAlias(() => resultAlias.BitrixDialogs)
 					.Select(() => edoNotificationSettingAlias.Template).WithAlias(() => resultAlias.Template)

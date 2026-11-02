@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using MassTransit;
+using TransactionalOutbox.MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Criterion;
@@ -70,7 +71,9 @@ namespace Vodovoz.Representations
 		private readonly IEmailRepository _emailRepository;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IAttachedFileInformationsViewModelFactory _attachedFileInformationsViewModelFactory;
-		private readonly IBus _messageBus;
+		// На десктопе у диалогов свои UoW, поэтому IPublishEndpoint из DI запрещён: сообщение пишется
+		// в таблицы outbox в транзакции нужного UoW (_outbox.GetPublishEndpoint(uow)), отправляет его бэкенд
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 		private readonly Employee _currentEmployee;
 		private readonly bool _canSendBulkEmails;
 		private Task _newTask;
@@ -100,7 +103,7 @@ namespace Vodovoz.Representations
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			IGenericRepository<Nomenclature> nomenclatureRepository,
 			INomenclatureSettings nomenclatureSettings,
-			IBus messageBus)
+			IUnitOfWorkOutbox<IBus> outbox)
 			: base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
 			if(unitOfWorkFactory is null)
@@ -124,7 +127,7 @@ namespace Vodovoz.Representations
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_attachedFileInformationsViewModelFactory = attachedFileInformationsViewModelFactory ?? throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 			_debtorsParameters = debtorsParameters ?? throw new ArgumentNullException(nameof(debtorsParameters));
 			_loggerBulkEmailViewModel = loggerBulkEmailViewModel ?? throw new ArgumentNullException(nameof(loggerBulkEmailViewModel));
 			_rabbitConnectionFactoryLogger = rabbitConnectionFactoryLogger;
@@ -746,7 +749,7 @@ namespace Vodovoz.Representations
 						_attachmentsViewModelFactory,
 						_currentEmployee,
 						_emailRepository,
-						_messageBus,
+						_outbox,
 						_attachedFileInformationsViewModelFactory);
 
 					var bulkEmailView = new BulkEmailView(bulkEmailViewModel);

@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		private readonly OrderCancellationService _orderCancellationService;
 		private readonly OrderCancellationPermitService _orderCancellationPermitService;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IOrderSaleHandler _saleHandler;
 		private IUnitOfWork UoW;
 		
@@ -108,7 +108,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			IRouteListChangesNotificationSender routeListChangesNotificationSender,
 			OrderCancellationService orderCancellationService,
 			OrderCancellationPermitService orderCancellationPermitService,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			INotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IOrderSaleHandler saleHandler,
 			int count = 5)
 		{

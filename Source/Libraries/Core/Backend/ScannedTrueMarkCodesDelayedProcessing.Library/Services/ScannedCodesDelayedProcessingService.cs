@@ -136,16 +136,19 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var newEdoRequests =
 					await CreateEdoRequests(uow, routeListAddress, scannedCodesData.Select(x => x.DriversScannedCode), cancellationToken);
 
-				if(uow.HasChanges)
-				{
-					await uow.CommitAsync(cancellationToken);
-				}
-
+				// События пишутся в outbox транзакции uow и уйдут после Commit вместе с заявками
 				foreach(var newEdoRequest in newEdoRequests)
 				{
 					await _edoRequestCreatedEventPublisher.Publish(
+						uow,
 						newEdoRequest.Id,
-						"Обработка отсканированных кодов ЧЗ");
+						"Обработка отсканированных кодов ЧЗ",
+						cancellationToken);
+				}
+
+				if(uow.HasChanges)
+				{
+					await uow.CommitAsync(cancellationToken);
 				}
 
 				_logger.LogInformation("Обработка отсканированных кодов ЧЗ завершена");
