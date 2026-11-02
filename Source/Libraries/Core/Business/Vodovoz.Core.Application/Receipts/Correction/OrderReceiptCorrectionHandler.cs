@@ -203,6 +203,14 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				return null;
 			}
 
+			if(_receiptCorrectionRepository.HasActiveProcessForOrder(uow, order.Id))
+			{
+				_logger.LogInformation(
+					"Для заказа {OrderId} уже есть незавершённая корректировка чека, вторая пачка не создаётся.",
+					order.Id);
+				return null;
+			}
+
 			var previousSnapshot = _fiscalOrderSnapshotBuilder.BuildPreviousSnapshot(uow, order.Id);
 			if(previousSnapshot?.SourceEdoFiscalDocumentId == null)
 			{
@@ -212,7 +220,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 
 			var currentSnapshot = _fiscalOrderSnapshotBuilder.BuildFromOrder(order);
 			var isFullCancellation = order.OrderStatus == OrderStatus.Canceled
-				|| order.OrderStatus == OrderStatus.DeliveryCanceled;
+				|| order.OrderStatus == OrderStatus.DeliveryCanceled
+				|| order.OrderStatus == OrderStatus.NotDelivered;
 
 			var changeSet = _fiscalChangeDetector.DetectChanges(previousSnapshot, currentSnapshot, isFullCancellation);
 			if(!changeSet.HasChanges)
@@ -276,7 +285,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				|| order.OrderStatus == OrderStatus.UnloadingOnStock
 				|| order.OrderStatus == OrderStatus.Closed
 				|| order.OrderStatus == OrderStatus.Canceled
-				|| order.OrderStatus == OrderStatus.DeliveryCanceled;
+				|| order.OrderStatus == OrderStatus.DeliveryCanceled
+				|| order.OrderStatus == OrderStatus.NotDelivered;
 		}
 
 		private static CashierSignerInfo ResolveCashierSigner(IUnitOfWork uow, int? organizationId)

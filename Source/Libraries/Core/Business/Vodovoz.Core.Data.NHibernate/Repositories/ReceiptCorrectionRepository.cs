@@ -13,90 +13,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 	{
 		public ReceiptCorrectionProcess GetLatestCompletedProcessForOrder(IUnitOfWork uow, int orderId)
 		{
-			HealFinishedCorrectionProcesses(uow, orderId);
-
 			return uow.Session.Query<ReceiptCorrectionProcess>()
 				.Where(x => x.OrderId == orderId && x.Status == ReceiptCorrectionProcessStatus.Completed)
 				.OrderByDescending(x => x.CompletedDate)
 				.ThenByDescending(x => x.Id)
 				.FirstOrDefault();
-		}
-
-		private static void HealFinishedCorrectionProcesses(IUnitOfWork uow, int orderId)
-		{
-			var processes = uow.Session.Query<ReceiptCorrectionProcess>()
-				.Where(x => x.OrderId == orderId
-					&& (x.Status == ReceiptCorrectionProcessStatus.Pending
-						|| x.Status == ReceiptCorrectionProcessStatus.InProgress))
-				.ToList();
-
-			foreach(var process in processes)
-			{
-				if(process.Documents == null || !process.Documents.Any())
-				{
-					continue;
-				}
-
-				var changed = false;
-				foreach(var processDocument in process.Documents)
-				{
-					if(processDocument.Status == ReceiptCorrectionProcessStatus.Completed
-						|| processDocument.Status == ReceiptCorrectionProcessStatus.Failed)
-					{
-						continue;
-					}
-
-					var edoDocument = ResolveProcessEdoDocument(uow, processDocument);
-					if(edoDocument == null || !IsFiscalizationFinished(edoDocument))
-					{
-						continue;
-					}
-
-					processDocument.Status = ReceiptCorrectionProcessStatus.Completed;
-					processDocument.EdoFiscalDocumentId = edoDocument.Id;
-					processDocument.ErrorDescription = null;
-					changed = true;
-				}
-
-				if(!process.Documents.All(x => x.Status == ReceiptCorrectionProcessStatus.Completed))
-				{
-					if(changed)
-					{
-						uow.Save(process);
-					}
-
-					continue;
-				}
-
-				process.Status = ReceiptCorrectionProcessStatus.Completed;
-				process.CompletedDate = process.CompletedDate ?? DateTime.Now;
-				process.ErrorDescription = null;
-				uow.Save(process);
-			}
-		}
-
-		private static EdoFiscalDocument ResolveProcessEdoDocument(
-			IUnitOfWork uow,
-			ReceiptCorrectionProcessDocument processDocument)
-		{
-			if(processDocument.EdoFiscalDocumentId.HasValue)
-			{
-				var byId = uow.GetById<EdoFiscalDocument>(processDocument.EdoFiscalDocumentId.Value);
-				if(byId != null)
-				{
-					return byId;
-				}
-			}
-
-			return uow.Session.Query<EdoFiscalDocument>()
-				.FirstOrDefault(x => x.DocumentGuid == processDocument.DocumentGuid);
-		}
-
-		private static bool IsFiscalizationFinished(EdoFiscalDocument document)
-		{
-			return document.Stage == FiscalDocumentStage.Completed
-				|| document.Status == FiscalDocumentStatus.Completed
-				|| document.Status == FiscalDocumentStatus.Printed;
 		}
 
 		public EdoFiscalDocument GetLatestCompletedSaleDocumentForOrder(IUnitOfWork uow, int orderId)
@@ -137,6 +58,14 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 				.Any(x => x.OrderId == orderId
 					&& x.ChangeFingerprint == changeFingerprint
 					&& x.Status != ReceiptCorrectionProcessStatus.Failed);
+		}
+
+		public bool HasActiveProcessForOrder(IUnitOfWork uow, int orderId)
+		{
+			return uow.Session.Query<ReceiptCorrectionProcess>()
+				.Any(x => x.OrderId == orderId
+					&& (x.Status == ReceiptCorrectionProcessStatus.Pending
+						|| x.Status == ReceiptCorrectionProcessStatus.InProgress));
 		}
 
 		public IList<int> GetActiveProcessIds(IUnitOfWork uow)

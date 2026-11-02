@@ -24,7 +24,8 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 			};
 
 			changeSet.HasOrganizationChange = previous.OrganizationId != current.OrganizationId;
-			changeSet.HasClientChange = previous.CounterpartyId != current.CounterpartyId;
+			changeSet.HasClientChange = previous.CounterpartyId != current.CounterpartyId
+				|| ClientInnDiffers(previous.ClientInn, current.ClientInn);
 			changeSet.HasContractChange = previous.ContractId != current.ContractId;
 			changeSet.HasPaymentTypeChange = previous.PaymentType != current.PaymentType;
 
@@ -65,6 +66,28 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				|| changeSet.HasPieceItemPriceChange;
 
 			return changeSet;
+		}
+
+		private static bool ClientInnDiffers(string previousInn, string currentInn)
+		{
+			var previous = NormalizeInn(previousInn);
+			var current = NormalizeInn(currentInn);
+			if(previous == null || current == null)
+			{
+				return false;
+			}
+
+			return !string.Equals(previous, current, StringComparison.Ordinal);
+		}
+
+		private static string NormalizeInn(string inn)
+		{
+			if(string.IsNullOrWhiteSpace(inn))
+			{
+				return null;
+			}
+
+			return inn.Trim();
 		}
 
 		private static void CompareItems(FiscalOrderSnapshot previous, FiscalOrderSnapshot current, FiscalChangeSet changeSet)

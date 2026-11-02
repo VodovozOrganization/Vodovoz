@@ -29,6 +29,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
+using VodovozBusiness.Services.Receipts;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Cash;
@@ -425,6 +426,8 @@ namespace Vodovoz
 				callTaskWorker,
 				_saleHandler))
 			{
+				_lifetimeScope.Resolve<IOrderReceiptCorrectionHandler>()
+					.TryStartCorrectionProcess(UoW, Entity.Order);
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 			}
 

@@ -54,6 +54,11 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				}
 			}
 
+			if(changeSet.HasQuantityOrAmountDecrease && changeSet.HasQuantityOrAmountIncrease)
+			{
+				return ReceiptCorrectionScenarioType.NomenclatureChange;
+			}
+
 			if(changeSet.HasQuantityOrAmountDecrease)
 			{
 				return ReceiptCorrectionScenarioType.QuantityOrAmountDecrease;

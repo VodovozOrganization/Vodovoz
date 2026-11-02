@@ -16,6 +16,8 @@ namespace Vodovoz.Core.Data.Repositories
 
 		bool ProcessExistsByFingerprint(IUnitOfWork uow, int orderId, string changeFingerprint);
 
+		bool HasActiveProcessForOrder(IUnitOfWork uow, int orderId);
+
 		IList<int> GetActiveProcessIds(IUnitOfWork uow);
 
 		ReceiptCorrectionProcessDocument GetDocumentByGuid(IUnitOfWork uow, Guid documentGuid);

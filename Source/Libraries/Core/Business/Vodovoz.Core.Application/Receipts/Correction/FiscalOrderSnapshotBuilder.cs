@@ -71,6 +71,7 @@ namespace Vodovoz.Core.Application.Receipts.Correction
 				ContractId = order.Contract?.Id,
 				DeliveryDate = order.DeliveryDate,
 				PaymentType = order.PaymentType,
+				ClientInn = string.IsNullOrWhiteSpace(order.Client?.INN) ? null : order.Client.INN.Trim(),
 				Sum = 0
 			};
 
