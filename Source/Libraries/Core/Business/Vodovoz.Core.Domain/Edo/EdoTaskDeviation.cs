@@ -25,6 +25,26 @@ namespace Vodovoz.Core.Domain.Edo
 		private DateTime _detectedTime;
 		private DateTime? _resolvedTime;
 		private EdoDeviationResolveReason? _resolveReason;
+		private DateTime? _retryTime;
+		private DateTime? _notificationTime;
+
+		/// <summary>
+		/// Время постановки повторного действия в очередь или учета уже ожидающего события.
+		/// </summary>
+		public virtual DateTime? RetryTime
+		{
+			get => _retryTime;
+			set => SetField(ref _retryTime, value);
+		}
+
+		/// <summary>
+		/// Время постановки уведомления об отклонении в очередь.
+		/// </summary>
+		public virtual DateTime? NotificationTime
+		{
+			get => _notificationTime;
+			set => SetField(ref _notificationTime, value);
+		}
 
 		/// <summary>
 		/// Код
