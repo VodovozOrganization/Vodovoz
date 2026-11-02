@@ -12,6 +12,10 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
+using Vodovoz.Infrastructure.FileStorage;
+using Vodovoz.Infrastructure.FileStorage.Options;
 
 namespace Edo.InformalOrderDocuments.Worker
 {
@@ -45,8 +49,10 @@ namespace Edo.InformalOrderDocuments.Worker
 						.AddNHibernateConventions()
 						.AddCore()
 						.AddTrackedUoW()
+						.ConfigureOptions<ConfigureS3Options>()
+						.AddFileStorage()
 						.AddMessageTransportSettings()
-						.AddInformalOrderDocumentEdo()
+						.AddInformalOrderDocumentEdo(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;

@@ -5,7 +5,8 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.Domain.Orders.Documents;
+using VodovozBusiness.Nodes;
+using Gamma.Utilities;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 
@@ -88,15 +89,19 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 			ytreeviewOrders.ItemsDataSource = ViewModel.ObservableAvailableOrders;
 
-			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
+			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoDockflowData>.Create()
 				.AddColumn("Код документооборота")
 					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
 				.AddColumn("Отправленные\nдокументы")
-					.AddTextRenderer(x => x.SentDocuments)
+					.AddTextRenderer(x => x.DocumentType)
 				.AddColumn("Статус\nдокументооборота")
-					.AddEnumRenderer(x => x.EdoDocFlowStatus)
+					.AddTextRenderer(x => x.EdoDocFlowStatusString)
+				.AddColumn("Статус задачи\nнового ЭДО")
+					.AddTextRenderer(x => x.EdoTaskStatus.HasValue ? x.EdoTaskStatus.Value.GetEnumTitle() : string.Empty)
+				.AddColumn("Статус документа\nнового ЭДО")
+					.AddTextRenderer(x => x.EdoDocumentStatus.HasValue ? x.EdoDocumentStatus.Value.GetEnumTitle() : string.Empty)
 				.AddColumn("Доставлено\nклиенту?")
-					.AddToggleRenderer(x => x.Received)
+					.AddToggleRenderer(x => x.IsReceived)
 					.Editing(false)
 				.AddColumn("Описание ошибки")
 					.AddTextRenderer(x => x.ErrorDescription)
@@ -104,16 +109,13 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddColumn("")
 				.Finish();
 
-			if(ViewModel.Entity.Id != 0)
-			{
-				CustomizeSendDocumentAgainButton();
-			}
+			CustomizeSendDocumentAgainButton();
 
-			treeViewEdoContainers.ItemsDataSource = ViewModel.EdoContainers;
+			treeViewEdoContainers.ItemsDataSource = ViewModel.EdoDocuments;
 
 			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
 			{
-				ViewModel.UpdateEdoContainers();
+				ViewModel.UpdateEdoDocuments();
 				CustomizeSendDocumentAgainButton();
 			};
 
@@ -136,20 +138,15 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private void UpdateContainersVisibility()
 		{
-			vboxEdo.Visible = ViewModel.CanSendBillByEdo || ViewModel.EdoContainers.Any();
+			vboxEdo.Visible = ViewModel.CanSendBillByEdo || ViewModel.EdoDocuments.Any();
 		}
 
 		private void CustomizeSendDocumentAgainButton()
 		{
-			if(!ViewModel.EdoContainers.Any())
-			{
-				ybuttonSendDocumentAgain.Sensitive = ViewModel.CanSendBillByEdo;
-				ybuttonSendDocumentAgain.Label = "Отправить";
-				return;
-			}
-
-			ybuttonSendDocumentAgain.Sensitive = ViewModel.CanResendEdoBill;
-			ybuttonSendDocumentAgain.Label = "Отправить повторно";
+			ybuttonSendDocumentAgain.NoShowAll = true;
+			ybuttonSendDocumentAgain.Visible = !ViewModel.EdoDocuments.Any();
+			ybuttonSendDocumentAgain.Sensitive = ViewModel.CanSendBillByEdo;
+			ybuttonSendDocumentAgain.Label = "Отправить";
 		}
 
 		private void UpdateAvailableOrders(object sender, EventArgs e)

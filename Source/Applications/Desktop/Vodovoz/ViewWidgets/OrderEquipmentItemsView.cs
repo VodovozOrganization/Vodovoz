@@ -5,6 +5,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using QS.Navigation;
 using Vodovoz.Core.Domain.Goods;
@@ -17,6 +19,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.Core.Domain.Orders;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -25,6 +28,7 @@ namespace Vodovoz.ViewWidgets
 	{
 		private IList<int> _activeFlyersNomenclaturesIds;
 		private IFlyerRepository _flyerRepository;
+		private IOrderSaleHandler _saleHandler;
 		public IUnitOfWork UoW { get; set; }
 
 		public Order Order { get; set; }
@@ -54,12 +58,19 @@ namespace Vodovoz.ViewWidgets
 		/// </summary>
 		int treeAnyGoodsFirstColWidth;
 
-		public void Configure(IUnitOfWork uow, Order order, IFlyerRepository flyerRepository)
+		public void Configure(
+			IUnitOfWork uow,
+			Order order,
+			IFlyerRepository flyerRepository,
+			IOrderSaleHandler saleHandler
+			)
 		{
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			
 			UoW = uow;
 			Order = order;
+			
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			UpdateActiveFlyersNomenclaturesIds();
 
 			buttonDeleteEquipment.Sensitive = false;
@@ -74,6 +85,15 @@ namespace Vodovoz.ViewWidgets
 
 			treeEquipment.ItemsDataSource = Order.ObservableOrderEquipments;
 			treeEquipment.Selection.Changed += TreeEquipment_Selection_Changed;
+			Order.ObservableOrderEquipments.PropertyOfElementChanged += OnOrderEquipmentPropertyOfElementChanged;
+		}
+
+		private void OnOrderEquipmentPropertyOfElementChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(OrderEquipment.Count))
+			{
+				_saleHandler.UpdateRentsCount();
+			}
 		}
 
 		public void UpdateActiveFlyersNomenclaturesIds()
@@ -395,7 +415,8 @@ namespace Vodovoz.ViewWidgets
 
 		void AddNomenclatureToClient(Nomenclature nomenclature)
 		{
-			Order.AddEquipmentNomenclatureToClient(nomenclature, UoW);
+			Order.AddEquipmentNomenclatureToClient(nomenclature);
+			_saleHandler.UpdateRentsCount();
 		}
 
 		protected void OnButtonAddEquipmentFromClientClicked(object sender, EventArgs e)
@@ -441,7 +462,15 @@ namespace Vodovoz.ViewWidgets
 
 		void AddNomenclatureFromClient(Nomenclature nomenclature)
 		{
-			Order.AddEquipmentNomenclatureFromClient(nomenclature, UoW);
+			Order.AddEquipmentNomenclatureFromClient(nomenclature);
+			Order.UpdateDocuments();
+			_saleHandler.UpdateRentsCount();
+		}
+
+		protected override void OnDestroyed()
+		{
+			Order.ObservableOrderEquipments.PropertyOfElementChanged -= OnOrderEquipmentPropertyOfElementChanged;
+			base.OnDestroyed();
 		}
 	}
 }

@@ -112,6 +112,10 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel.Entity, e => e.IncomeChannel, w => w.SelectedItem)
 				.AddBinding(ViewModel, vm => vm.CanEditCarCard, w => w.Sensitive)
 				.InitializeFromSource();
+
+			yentryCarTechnicalCheckup.Binding
+				.AddBinding(ViewModel, vm => vm.LastCarTechnicalCheckupDate, w => w.Text)
+				.InitializeFromSource();
 		}
 	}
 }

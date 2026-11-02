@@ -7,6 +7,7 @@ using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Contracts.Documents;
@@ -86,6 +87,8 @@ namespace Edo.Docflow
 				EdoTaskId = transferTask.Id
 			};
 			await _publishEndpoint.Publish(message);
+			// Данные не менялись, Commit сохраняет сообщение в outbox
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		public async Task SendOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
@@ -143,6 +146,8 @@ namespace Edo.Docflow
 				EdoTaskId = documentTask.Id
 			};
 			await _publishEndpoint.Publish(message);
+			// Данные не менялись, Commit сохраняет сообщение в outbox
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		/// <summary>
@@ -194,6 +199,29 @@ namespace Edo.Docflow
 				return;
 			}
 
+			if(informalEdoRequest.IsBill)
+			{
+				var snapshot = JsonSerializer.Deserialize<InfoForCreatingEdoInformalOrderDocument>(
+					informalEdoRequest.DocumentSnapshot);
+				if(snapshot?.FileData != null && snapshot.FileData.Image == null)
+				{
+					snapshot.FileData.Image = orderDocumentFileData.Image;
+				}
+				if(snapshot?.IsBill != true || snapshot.FileData?.Image == null || snapshot.FileData.Image.Length == 0)
+				{
+					throw new InvalidOperationException($"У заявки счета №{informalEdoRequest.Id} отсутствует PDF снимка");
+				}
+
+				await _publishEndpoint.Publish(new TaxcomDocflowInformalDocumentSendEvent
+				{
+					EdoAccount = snapshot.OrganizationInfoForEdo.TaxcomEdoAccountId,
+					EdoOutgoingDocumentId = document.Id,
+					DocumentInfo = snapshot,
+					EdoTaskId = edoTask.Id
+				}, cancellationToken);
+				return;
+			}
+
 			var order = await _uow.Session.GetAsync<OrderEntity>(orderDocumentFileData.OrderId, cancellationToken);
 			if(order is null)
 			{
@@ -231,6 +259,8 @@ namespace Edo.Docflow
 				};
 
 				await _publishEndpoint.Publish(message, cancellationToken);
+				// Данные не менялись, Commit сохраняет сообщение в outbox
+				await _uow.CommitAsync(cancellationToken);
 
 				_logger.LogInformation($"Отправка неформализованного документа заказа №{orderDocumentId}");
 			}

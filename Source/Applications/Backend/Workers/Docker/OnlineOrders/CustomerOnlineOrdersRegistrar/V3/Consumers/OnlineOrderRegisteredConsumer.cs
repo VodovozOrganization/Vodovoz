@@ -9,18 +9,16 @@ using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 {
 	public class OnlineOrderRegisteredConsumer : OnlineOrderConsumer, IConsumer<OnlineOrderInfoDto>
 	{
-		private readonly IBus _bus;
-
 		public OnlineOrderRegisteredConsumer(
 			ILogger<OnlineOrderRegisteredConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,			
@@ -31,7 +29,7 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator)
+			IOnlineOrderValidatorCreator onlineOrderValidatorCreator)
 				: base(
 					logger,
 					unitOfWorkFactory,
@@ -42,7 +40,7 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 					onlineOrderCancellationReasonSettings,
 					orderService,
 					routeListService,
-					onlineOrderValidator)
+					onlineOrderValidatorCreator)
 		{
 		}
 		
@@ -71,7 +69,8 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 				
 				Logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
 				message.FaultedMessage = true;
-				await _bus.Publish(message, context.CancellationToken);
+				// Данные не менялись: повторная публикация сообщения через контекст потребителя, сразу в брокер
+				await context.Publish(message, context.CancellationToken);
 				return;
 			}
 		}

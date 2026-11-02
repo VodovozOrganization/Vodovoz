@@ -11,6 +11,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
+using TransactionalOutbox.MassTransit;
 
 namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 {
@@ -24,10 +25,11 @@ namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 
 		public SelfdeliveryCancellationService(
 			IInteractiveService interactiveService,
-			IEdoRepository edoRepository, 
+			IEdoRepository edoRepository,
 			ICurrentPermissionService currentPermissionService,
-			IBus messageBus
-		) : base(interactiveService, edoRepository, currentPermissionService, messageBus)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWorkOutbox<IBus> outbox
+		) : base(interactiveService, edoRepository, currentPermissionService, unitOfWorkFactory, outbox)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}

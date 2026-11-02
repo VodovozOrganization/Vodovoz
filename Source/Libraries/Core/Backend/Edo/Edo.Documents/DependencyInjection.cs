@@ -7,6 +7,7 @@ using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
+using System;
 using System.Reflection;
 using Edo.Documents.Consumers.Fault;
 using Edo.Transport.Factories;
@@ -37,7 +38,10 @@ namespace Edo.Documents
 			return services;
 		}
 
-		public static IServiceCollection AddEdoDocuments(this IServiceCollection services)
+		/// <param name="configureBus">Дополнительная настройка шины в приложении, например outbox</param>
+		public static IServiceCollection AddEdoDocuments(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoDocumentsServices();
 
@@ -45,6 +49,8 @@ namespace Edo.Documents
 			{
 				cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
 				cfg.AddConsumer<FaultDocumentTaskCreatedConsumer>();
+
+				configureBus?.Invoke(cfg);
 			});
 
 			return services;

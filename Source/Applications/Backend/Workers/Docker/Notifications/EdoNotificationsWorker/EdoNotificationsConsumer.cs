@@ -1,5 +1,4 @@
-﻿using Core.Infrastructure;
-using EdoNotifications.Application.Providers;
+﻿using EdoNotifications.Application.Providers;
 using EdoNotifications.Contracts;
 using EdoNotificationsWorker.Services.Bitrix;
 using EdoNotificationsWorker.Services.Email;
@@ -57,7 +56,7 @@ namespace EdoNotificationsWorker
 
 			await _edoNotificationBitrixService.NotifyAsync(edoNotificationSetting.BitrixDialogs, resultText, context.CancellationToken);
 
-			var emailSubject = $"Уведомление об ЭДО - {edoNotification.EdoNotificationType.GetEnumDisplayName()}";
+			var emailSubject = $"Уведомление об ЭДО - {edoNotificationSetting.Name}";
 			await _edoNotificationEmailService.NotifyAsync(edoNotificationSetting.Emails, emailSubject, resultText, context.CancellationToken);
 		}
 	}

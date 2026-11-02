@@ -30,6 +30,11 @@ namespace TaxcomEdo.Contracts.Documents
 		public decimal Sum { get; set; }
 
 		/// <summary>
+		/// Документ является счетом на оплату
+		/// </summary>
+		public bool IsBill { get; set; }
+
+		/// <summary>
 		/// Информация о прикрепленном файле <see cref="OrderDocumentFileData"/>
 		/// </summary>
 		public new OrderDocumentFileData FileData { get; set; }

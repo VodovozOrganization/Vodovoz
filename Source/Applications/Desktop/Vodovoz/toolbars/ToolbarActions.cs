@@ -831,8 +831,15 @@ public partial class MainWindow : Window
 
 	void ActionRevision_Activated(object sender, System.EventArgs e)
 	{
-		var page = NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(RevisionReportViewModel));
-		(page.ViewModel.ReportParametersViewModel as RevisionReportViewModel).TdiTab = ((page as TdiPage<RdlViewerViewModel>).TdiTab);
+		var page = NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(
+			null,
+			typeof(RevisionReportViewModel),
+			OpenPageOptions.IgnoreHash);
+
+		if(page is TdiPage<RdlViewerViewModel> tdiPage)
+		{
+			(page.ViewModel.ReportParametersViewModel as RevisionReportViewModel).TdiTab = tdiPage.TdiTab;
+		}
 	}
 
 	void ActionExportTo1c_Activated(object sender, System.EventArgs e)

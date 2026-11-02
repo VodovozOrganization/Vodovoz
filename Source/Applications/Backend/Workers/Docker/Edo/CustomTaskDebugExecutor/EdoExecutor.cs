@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -571,6 +572,35 @@ namespace CustomTaskDebugExecutor
 			await service.MoveToPrepareToSend(id, cancellationToken);
 		}
 		
+		private static async Task<IEnumerable<string>> WithNotAcceptedBuyerTitle(
+			ITaxcomApiClient taxcomApiClient,
+			Guid docflowId,
+			IEnumerable<string> transactionCodes)
+		{
+			var codes = transactionCodes ?? Enumerable.Empty<string>();
+			if(!TaxcomDocflowStateByTransactions.ContainsBuyerTitle(codes))
+			{
+				return codes;
+			}
+
+			try
+			{
+				var raw = await taxcomApiClient.GetDocFlowRawData(docflowId.ToString());
+				if(raw.IsFailure || raw.Value == null)
+				{
+					return codes;
+				}
+
+				return TaxcomDocflowStateByTransactions.WithBuyerTitleResult(
+					codes,
+					BuyerTitleAcceptance.ReadResultCode(raw.Value));
+			}
+			catch(Exception)
+			{
+				return codes;
+			}
+		}
+
 		private async Task UpdateDocflowStatus()
 		{
 			Console.WriteLine();
@@ -609,20 +639,33 @@ namespace CustomTaskDebugExecutor
 				var mainDocument = description.DocFlow.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Definition.Identifiers.ExternalIdentifier)) 
 					?? throw new InvalidOperationException("Не найден главный документ");
 
+				EdoDocFlowStatus? reportedStatus = null;
+				if(Enum.TryParse(description.DocFlow.Status, true, out EdoDocFlowStatus parsedStatus))
+				{
+					reportedStatus = parsedStatus;
+				}
+
+				var transactionCodes = await WithNotAcceptedBuyerTitle(
+					taxcomApiClient,
+					description.DocFlow.Id,
+					description.DocFlow.Documents?.Select(document => document.TransactionCode));
+
+				var state = TaxcomDocflowStateByTransactions.Resolve(
+					reportedStatus,
+					transactionCodes);
 				var docflowUpdatedEvent = new OutgoingTaxcomDocflowUpdatedEvent
 				{
 					DocFlowId = description.DocFlow.Id,
 					EdoAccount = edoAccount,
 					MainDocumentId = mainDocument.Definition.Identifiers.ExternalIdentifier,
-					Status = description.DocFlow.Status,
+					Status = state.Status?.ToString() ?? description.DocFlow.Status,
 					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
+					IsReceived = state.IsReceived
 				};
-
-				var recievedStatuses = _edoRepository.GetRecievedEdoDocFlowStatuses();
-				docflowUpdatedEvent.IsReceived = recievedStatuses.Contains(docflowUpdatedEvent.Status.TryParseAsEnum<EdoDocFlowStatus>().Value);
 				
-				var publishEndpoint = _serviceProvider.GetRequiredService<IPublishEndpoint>();
-				await publishEndpoint.Publish(docflowUpdatedEvent);
+				// Ручная отправка события без транзакции: напрямую в шину, мимо outbox
+				var bus = _serviceProvider.GetRequiredService<IBus>();
+				await bus.Publish(docflowUpdatedEvent);
 			}
 			catch(Exception ex)
 			{

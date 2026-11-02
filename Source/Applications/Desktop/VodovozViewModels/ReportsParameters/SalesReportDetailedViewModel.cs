@@ -724,7 +724,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						filters.OrganizationExclude = organizationFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
 						break;
 
-					case IncludeExcludeEntityFilter<DiscountReason> discountReasonFilter:
+					case IncludeExcludeEntityFilter<DiscountReasonBase> discountReasonFilter:
 						filters.DiscountReasonInclude = discountReasonFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
 						filters.DiscountReasonExclude = discountReasonFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
 						break;

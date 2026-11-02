@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModels.Journals.Mappings.Nomenclatures;
 using Vodovoz.ViewModels.Journals.Mappings.Organizations;
@@ -32,7 +33,8 @@ namespace Vodovoz.ViewModels.Journals.Mappings
 				{ typeof(Subdivision), new SubdivisionToJournalMapping() },
 				{ typeof(ProductGroup), productGroupToJournalMapping },
 				{ typeof(Nomenclature), new NomenclatureToJournalMapping() },
-				{ typeof(Organization), new OrganizationToJournalMapping() }
+				{ typeof(Organization), new OrganizationToJournalMapping() },
+				{ typeof(PromotionalSet), new PromotionalSetToJournalMapping() }
 			};
 
 			Journals = dictionary;

@@ -1,14 +1,15 @@
-﻿using QS.Extensions.Observable.Collections.List;
+﻿using System;
+using QS.Extensions.Observable.Collections.List;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz
 {
 	public class OrderItemReturnsNode
 	{
 		private OrderItem _orderItem;
-		private OrderEquipment _orderEquipment;
 
 		public OrderItemReturnsNode(OrderItem item)
 		{
@@ -20,21 +21,22 @@ namespace Vodovoz
 
 		public OrderItemReturnsNode(OrderEquipment equipment)
 		{
-			_orderEquipment = equipment;
-			DiscountReasons = _orderEquipment.OrderItem?.DiscountReasons ?? new ObservableList<DiscountReason>();
-			IsDiscountReasonsEditable = _orderEquipment.OrderItem != null;
+			OrderEquipment = equipment;
+			DiscountReasons = OrderEquipment.OrderItem?.DiscountReasons ?? new ObservableList<DiscountReasonBase>();
+			IsDiscountReasonsEditable = OrderEquipment.OrderItem != null;
 		}
 
 		public OrderItem OrderItem => _orderItem;
-		public OrderItem EquipmentOrderItem => _orderEquipment?.OrderItem;
+		public OrderEquipment OrderEquipment { get; private set; }
+		public OrderItem EquipmentOrderItem => OrderEquipment?.OrderItem;
 
-		public IObservableList<DiscountReason> DiscountReasons { get; }
+		public IObservableList<DiscountReasonBase> DiscountReasons { get; }
 
 		public string DiscountReasonsNames => string.Join(", ", DiscountReasons.Select(dr => dr.Name));
 
 		public bool IsDiscountReasonsEditable { get; }
 
-		public bool IsEquipment => _orderEquipment != null;
+		public bool IsEquipment => OrderEquipment != null;
 
 		public bool IsSerialEquipment
 		{
@@ -42,8 +44,8 @@ namespace Vodovoz
 			{
 				return
 					IsEquipment
-					&& _orderEquipment.Equipment != null
-					&& _orderEquipment.Equipment.Nomenclature.IsSerial;
+					&& OrderEquipment.Equipment != null
+					&& OrderEquipment.Equipment.Nomenclature.IsSerial;
 			}
 		}
 
@@ -67,30 +69,15 @@ namespace Vodovoz
 				{
 					if(IsSerialEquipment)
 					{
-						return _orderEquipment.Confirmed ? 1 : 0;
+						return OrderEquipment.Confirmed ? 1 : 0;
 					}
 
-					return _orderEquipment.ActualCount ?? 0;
+					return OrderEquipment.ActualCount ?? 0;
 				}
 
 				return _orderItem.ActualCount ?? 0;
 			}
-			set
-			{
-				if(IsEquipment)
-				{
-					if(IsSerialEquipment)
-					{
-						_orderEquipment.ActualCount = value > 0 ? 1 : 0;
-					}
-
-					_orderEquipment.ActualCount = (int?) value;
-				}
-				else
-				{
-					_orderItem.SetActualCountWithPreserveOrRestoreDiscount(value);
-				}
-			}
+			protected set => throw new InvalidOperationException("Нельзя устанавливать фактическое количество из ноды!");
 		}
 
 		public Nomenclature Nomenclature
@@ -101,10 +88,10 @@ namespace Vodovoz
 				{
 					if(IsSerialEquipment)
 					{
-						return _orderEquipment.Equipment.Nomenclature;
+						return OrderEquipment.Equipment.Nomenclature;
 					}
 
-					return _orderEquipment.Nomenclature;
+					return OrderEquipment.Nomenclature;
 				}
 
 				return _orderItem.Nomenclature;
@@ -113,18 +100,18 @@ namespace Vodovoz
 
 		public decimal Count => IsEquipment ? 1 : _orderItem.Count;
 
-		public string Name => IsEquipment ? _orderEquipment.NameString : _orderItem.NomenclatureString;
+		public string Name => IsEquipment ? OrderEquipment.NameString : _orderItem.NomenclatureString;
 
-		public bool HasPrice => !IsEquipment || _orderEquipment.OrderItem != null;
+		public bool HasPrice => !IsEquipment || OrderEquipment.OrderItem != null;
 
 		public string ConfirmedComments
 		{
-			get => IsEquipment ? _orderEquipment.ConfirmedComment : null;
+			get => IsEquipment ? OrderEquipment.ConfirmedComment : null;
 			set
 			{
 				if(IsEquipment)
 				{
-					_orderEquipment.ConfirmedComment = value;
+					OrderEquipment.ConfirmedComment = value;
 				}
 			}
 		}
@@ -135,25 +122,12 @@ namespace Vodovoz
 			{
 				if(IsEquipment)
 				{
-					return _orderEquipment.OrderItem != null ? _orderEquipment.OrderItem.Price : 0;
+					return OrderEquipment.OrderItem != null ? OrderEquipment.OrderItem.Price : 0;
 				}
 
 				return _orderItem.Price;
 			}
-			set
-			{
-				if(IsEquipment)
-				{
-					if(_orderEquipment.OrderItem != null)
-					{
-						_orderEquipment.OrderItem.SetPrice(value);
-					}
-				}
-				else
-				{
-					_orderItem.SetPrice(value);
-				}
-			}
+			protected set => throw new InvalidOperationException($"Нельзя устанавливать цену из ноды! Используйте {nameof(ISaleDiscountController)}");
 		}
 
 		public bool IsDiscountInMoney
@@ -162,17 +136,16 @@ namespace Vodovoz
 			{
 				if(IsEquipment)
 				{
-					return _orderEquipment.OrderItem != null && _orderEquipment.OrderItem.IsDiscountInMoney;
+					return OrderEquipment.OrderItem != null && OrderEquipment.OrderItem.IsDiscountInMoney;
 				}
 
 				return _orderItem.IsDiscountInMoney;
 			}
-
 			set
 			{
 				if(IsEquipment)
 				{
-					_orderEquipment.OrderItem.SetIsDiscountInMoney(_orderEquipment.OrderItem != null && value);
+					OrderEquipment.OrderItem.SetIsDiscountInMoney(OrderEquipment.OrderItem != null && value);
 				}
 				else
 				{
@@ -181,31 +154,16 @@ namespace Vodovoz
 			}
 		}
 
-		public decimal ManualChangingDiscount
+		public decimal GetDiscount
 		{
 			get
 			{
 				if(IsEquipment)
 				{
-					return _orderEquipment.OrderItem != null ? _orderEquipment.OrderItem.ManualChangingDiscount : 0;
+					return OrderEquipment.OrderItem?.GetDiscount ?? 0;
 				}
 
-				return _orderItem.ManualChangingDiscount;
-			}
-
-			set
-			{
-				if(IsEquipment)
-				{
-					if(_orderEquipment.OrderItem != null)
-					{
-						_orderEquipment.OrderItem.SetManualChangingDiscount(value);
-					}
-				}
-				else
-				{
-					_orderItem.SetManualChangingDiscount(value);
-				}
+				return _orderItem.GetDiscount;
 			}
 		}
 
@@ -215,24 +173,10 @@ namespace Vodovoz
 			{
 				if(IsEquipment)
 				{
-					return _orderEquipment.OrderItem != null ? _orderEquipment.OrderItem.Discount : 0m;
+					return OrderEquipment.OrderItem?.Discount ?? 0m;
 				}
 
 				return _orderItem.Discount;
-			}
-			set
-			{
-				if(IsEquipment)
-				{
-					if(_orderEquipment.OrderItem != null)
-					{
-						_orderEquipment.OrderItem.SetDiscount(value);
-					}
-				}
-				else
-				{
-					_orderItem.SetDiscount(value);
-				}
 			}
 		}
 
@@ -242,7 +186,7 @@ namespace Vodovoz
 			{
 				if(IsEquipment)
 				{
-					return _orderEquipment.OrderItem != null ? _orderEquipment.OrderItem.DiscountMoney : 0m;
+					return OrderEquipment.OrderItem?.DiscountMoney ?? 0m;
 				}
 
 				return _orderItem.DiscountMoney;

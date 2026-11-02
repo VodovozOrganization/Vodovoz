@@ -30,6 +30,7 @@
 		<PackageReference Include="System.Drawing.Common" Version="5.0.3" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\TransactionalOutbox.EntityFrameworkCore\TransactionalOutbox.EntityFrameworkCore.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\RabbitMQ.Infrastructure\RabbitMQ.Infrastructure.csproj" />

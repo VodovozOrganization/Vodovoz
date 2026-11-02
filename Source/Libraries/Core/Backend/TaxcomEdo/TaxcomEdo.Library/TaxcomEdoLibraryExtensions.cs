@@ -46,38 +46,15 @@ namespace TaxcomEdo.Library
 						}
 					});
 				
-				configurator
-					.ConfigureTopologyForEdoUpd()
-					.ConfigureTopologyForEdoBill()
-					.ConfigureTopologyForBillWithoutShipmentForDebtEdo()
-					.ConfigureTopologyForBillWithoutShipmentForPaymentEdo()
-					.ConfigureTopologyForBillWithoutShipmentForAdvancePaymentEdo();
+				configurator.ConfigureTopologyForEdoUpd();
 
 				configurator.Publish<InfoForCreatingDocumentEdo>(x => x.Exclude = true);
 				configurator.Publish<InfoForCreatingDocumentEdoWithAttachment>(x => x.Exclude = true);
-				configurator.Publish<InfoForCreatingBillWithoutShipmentEdo>(x => x.Exclude = true);
 
 				configurator.ConfigureEndpoints(context);
 			});
 			
 			return busConf;
-		}
-
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForEdoBill(this IRabbitMqBusFactoryConfigurator configurator)
-		{
-			configurator.Message<InfoForCreatingEdoBill>(x => x.SetEntityName(InfoForCreatingEdoBill.ExchangeAndQueueName));
-
-			configurator.Publish<InfoForCreatingEdoBill>(x =>
-			{
-				x.ExchangeType = ExchangeType.Fanout;
-				x.Durable = true;
-				x.AutoDelete = false;
-				x.BindQueue(
-					InfoForCreatingEdoBill.ExchangeAndQueueName,
-					InfoForCreatingEdoBill.ExchangeAndQueueName);
-			});
-			
-			return configurator;
 		}
 
 		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForEdoUpd(this IRabbitMqBusFactoryConfigurator configurator)
@@ -94,63 +71,6 @@ namespace TaxcomEdo.Library
 					InfoForCreatingEdoUpd.ExchangeAndQueueName);
 			});
 			
-			return configurator;
-		}
-
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForBillWithoutShipmentForDebtEdo(
-			this IRabbitMqBusFactoryConfigurator configurator)
-		{
-			configurator.Message<InfoForCreatingBillWithoutShipmentForDebtEdo>(x =>
-				x.SetEntityName(InfoForCreatingBillWithoutShipmentForDebtEdo.ExchangeAndQueueName));
-
-			configurator.Publish<InfoForCreatingBillWithoutShipmentForDebtEdo>(x =>
-			{
-				x.ExchangeType = ExchangeType.Fanout;
-				x.Durable = true;
-				x.AutoDelete = false;
-				x.BindQueue(
-					InfoForCreatingBillWithoutShipmentForDebtEdo.ExchangeAndQueueName,
-					InfoForCreatingBillWithoutShipmentForDebtEdo.ExchangeAndQueueName);
-			});
-
-			return configurator;
-		}
-		
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForBillWithoutShipmentForPaymentEdo(
-			this IRabbitMqBusFactoryConfigurator configurator)
-		{
-			configurator.Message<InfoForCreatingBillWithoutShipmentForPaymentEdo>(x =>
-				x.SetEntityName(InfoForCreatingBillWithoutShipmentForPaymentEdo.ExchangeAndQueueName));
-
-			configurator.Publish<InfoForCreatingBillWithoutShipmentForPaymentEdo>(x =>
-			{
-				x.ExchangeType = ExchangeType.Fanout;
-				x.Durable = true;
-				x.AutoDelete = false;
-				x.BindQueue(
-					InfoForCreatingBillWithoutShipmentForPaymentEdo.ExchangeAndQueueName,
-					InfoForCreatingBillWithoutShipmentForPaymentEdo.ExchangeAndQueueName);
-			});
-
-			return configurator;
-		}
-		
-		private static IRabbitMqBusFactoryConfigurator ConfigureTopologyForBillWithoutShipmentForAdvancePaymentEdo(
-			this IRabbitMqBusFactoryConfigurator configurator)
-		{
-			configurator.Message<InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo>(x =>
-				x.SetEntityName(InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo.ExchangeAndQueueName));
-
-			configurator.Publish<InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo>(x =>
-			{
-				x.ExchangeType = ExchangeType.Fanout;
-				x.Durable = true;
-				x.AutoDelete = false;
-				x.BindQueue(
-					InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo.ExchangeAndQueueName,
-					InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo.ExchangeAndQueueName);
-			});
-
 			return configurator;
 		}
 	}

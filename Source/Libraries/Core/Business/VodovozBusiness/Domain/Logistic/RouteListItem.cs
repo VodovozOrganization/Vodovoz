@@ -27,6 +27,7 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Domain.Logistic
@@ -639,6 +640,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void UpdateStatusAndCreateTask(
 			IUnitOfWork uow,
+			IOrderSaleHandler saleHandler,
 			RouteListItemStatus status,
 			ICallTaskWorker callTaskWorker,
 			bool isEditAtCashier = false)
@@ -656,27 +658,27 @@ namespace Vodovoz.Domain.Logistic
 			switch(status)
 			{
 				case RouteListItemStatus.Canceled:
-					Order.CancelDelivery(uow, callTaskWorker);
-					SetOrderActualCountsToZeroOnCanceled();
+					Order.CancelDelivery(uow, saleHandler, callTaskWorker);
+					SetOrderActualCountsToZeroOnCanceled(saleHandler);
 					break;
 				case RouteListItemStatus.Completed:
-					Order.ChangeStatusAndCreateTasks(OrderStatus.Shipped, callTaskWorker);
+					Order.ChangeStatusAndCreateTasks(saleHandler, OrderStatus.Shipped, callTaskWorker);
 
 					if(Order.TimeDelivered == null)
 					{
 						Order.TimeDelivered = DateTime.Now;
 					}
-
-					RestoreOrder(status);
+					
+					RestoreOrder(saleHandler, status);
 					_orderService.AutoCancelAutoTransfer(uow, Order);
 					break;
 				case RouteListItemStatus.EnRoute:
-					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
-					RestoreOrder(status);
+					Order.ChangeStatusAndCreateTasks(saleHandler, OrderStatus.OnTheWay, callTaskWorker);
+					RestoreOrder(saleHandler, status);
 					break;
 				case RouteListItemStatus.Overdue:
-					Order.OverdueDelivery(uow, callTaskWorker);
-					SetOrderActualCountsToZeroOnCanceled();
+					Order.OverdueDelivery(uow, saleHandler, callTaskWorker);
+					SetOrderActualCountsToZeroOnCanceled(saleHandler);
 					break;
 			}
 			
@@ -711,6 +713,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void RevertTransferAddress(
 			IUnitOfWork uow,
 			IWageParameterService wageParameterService,
+			IOrderSaleHandler saleHandler,
 			RouteListItem revertedAddress)
 		{
 			SetStatusWithoutOrderChange(uow, revertedAddress.Status);
@@ -719,7 +722,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(RouteList.ClosingFilled)
 			{
-				FirstFillClosing(wageParameterService);
+				FirstFillClosing(wageParameterService, saleHandler);
 			}
 		}
 
@@ -760,7 +763,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Функция вызывается при переходе адреса в закрытие.
 		/// Если адрес в пути, при закрытии МЛ он считается автоматически доставленным.
 		/// </summary>
-		public virtual void FirstFillClosing(IWageParameterService wageParameterService)
+		public virtual void FirstFillClosing(IWageParameterService wageParameterService, IOrderSaleHandler saleHandler)
 		{
 			//В этом месте изменяем статус для подстраховки.
 			if(Status == RouteListItemStatus.EnRoute)
@@ -768,9 +771,11 @@ namespace Vodovoz.Domain.Logistic
 				Status = RouteListItemStatus.Completed;
 			}
 
+			saleHandler.SetSource(Order);
+			
 			foreach(var item in Order.OrderItems)
 			{
-				item.SetActualCount(IsDelivered() ? item.Count : 0);
+				saleHandler.SetActualCount(item, IsDelivered() ? item.Count : 0);
 			}
 
 			foreach(var equip in Order.OrderEquipments)
@@ -798,25 +803,14 @@ namespace Vodovoz.Domain.Logistic
 		/// Обнуляет фактическое количетво
 		/// Использовать если заказ отменен или полностью не доставлен
 		/// </summary>
-		public virtual void SetOrderActualCountsToZeroOnCanceled() => Order.SetActualCountsToZeroOnCanceled();
+		public virtual void SetOrderActualCountsToZeroOnCanceled(IOrderSaleHandler saleHandler) => Order.SetActualCountsToZeroOnCanceled(saleHandler);
 
-		public virtual void RestoreOrder(RouteListItemStatus? status = null)
+		public virtual void RestoreOrder(IOrderSaleHandler saleHandler, RouteListItemStatus? status = null)
 		{
 			var newStatus = status ?? Status;
 
-			foreach(var item in Order.OrderItems)
-			{
-				item.RestoreOriginalDiscountFromRestoreOrder();
-
-				if(newStatus == RouteListItemStatus.EnRoute)
-				{
-					item.SetActualCount(null);
-				}
-				else
-				{
-					item.PreserveActualCount(true);
-				}
-			}
+			saleHandler.SetSource(Order);
+			saleHandler.RestoreSaleItemsDiscountsAndCount(newStatus);
 
 			foreach(var equip in Order.OrderEquipments)
 			{

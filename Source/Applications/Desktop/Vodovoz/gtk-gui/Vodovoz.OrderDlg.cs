@@ -470,8 +470,6 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yHBox hboxEdoContainersBtns;
 
-		private global::Gamma.GtkWidgets.yButton btnUpdateEdoDocFlowStatus;
-
 		private global::Gamma.GtkWidgets.yButton ybuttonSendDocumentAgain;
 
 		private global::Gamma.GtkWidgets.yVBox yvboxDocumentsRightPanel;
@@ -3051,17 +3049,6 @@ namespace Vodovoz
 			this.hboxEdoContainersBtns.Name = "hboxEdoContainersBtns";
 			this.hboxEdoContainersBtns.Spacing = 6;
 			// Container child hboxEdoContainersBtns.Gtk.Box+BoxChild
-			this.btnUpdateEdoDocFlowStatus = new global::Gamma.GtkWidgets.yButton();
-			this.btnUpdateEdoDocFlowStatus.CanFocus = true;
-			this.btnUpdateEdoDocFlowStatus.Name = "btnUpdateEdoDocFlowStatus";
-			this.btnUpdateEdoDocFlowStatus.UseUnderline = true;
-			this.btnUpdateEdoDocFlowStatus.Label = global::Mono.Unix.Catalog.GetString("Обновить статус");
-			this.hboxEdoContainersBtns.Add(this.btnUpdateEdoDocFlowStatus);
-			global::Gtk.Box.BoxChild w243 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.btnUpdateEdoDocFlowStatus]));
-			w243.Position = 0;
-			w243.Expand = false;
-			w243.Fill = false;
-			// Container child hboxEdoContainersBtns.Gtk.Box+BoxChild
 			this.ybuttonSendDocumentAgain = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonSendDocumentAgain.CanFocus = true;
 			this.ybuttonSendDocumentAgain.Name = "ybuttonSendDocumentAgain";
@@ -3069,7 +3056,7 @@ namespace Vodovoz
 			this.ybuttonSendDocumentAgain.Label = global::Mono.Unix.Catalog.GetString("Отправить повторно");
 			this.hboxEdoContainersBtns.Add(this.ybuttonSendDocumentAgain);
 			global::Gtk.Box.BoxChild w244 = ((global::Gtk.Box.BoxChild)(this.hboxEdoContainersBtns[this.ybuttonSendDocumentAgain]));
-			w244.Position = 1;
+			w244.Position = 0;
 			w244.Expand = false;
 			w244.Fill = false;
 			this.vbox9.Add(this.hboxEdoContainersBtns);

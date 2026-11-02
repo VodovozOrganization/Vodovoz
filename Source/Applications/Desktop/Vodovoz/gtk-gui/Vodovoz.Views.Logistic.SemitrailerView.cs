@@ -50,6 +50,12 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yEntry yentryColor;
 
+		private global::Gamma.GtkWidgets.yHBox yhboxCarTechnicalCheckup;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelCarTechnicalCheckup;
+
+		private global::Gamma.GtkWidgets.yEntry yentryCarTechnicalCheckup;
+
 		private global::Gamma.GtkWidgets.yHBox yhboxDocIssuedDate;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDocIssuedDate;
@@ -606,6 +612,34 @@ namespace Vodovoz.Views.Logistic
 			w49.BottomAttach = ((uint)(3));
 			w49.XOptions = ((global::Gtk.AttachOptions)(4));
 			w49.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableCarData.Gtk.Table+TableChild
+			this.yhboxCarTechnicalCheckup = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxCarTechnicalCheckup.Name = "yhboxCarTechnicalCheckup";
+			this.yhboxCarTechnicalCheckup.Spacing = 6;
+			// Container child yhboxCarTechnicalCheckup.Gtk.Box+BoxChild
+			this.ylabelCarTechnicalCheckup = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelCarTechnicalCheckup.Name = "ylabelCarTechnicalCheckup";
+			this.ylabelCarTechnicalCheckup.LabelProp = global::Mono.Unix.Catalog.GetString("Дата следующего ГТО:");
+			this.yhboxCarTechnicalCheckup.Add(this.ylabelCarTechnicalCheckup);
+			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.yhboxCarTechnicalCheckup[this.ylabelCarTechnicalCheckup]));
+			w58.Position = 0;
+			w58.Expand = false;
+			w58.Fill = false;
+			// Container child yhboxCarTechnicalCheckup.Gtk.Box+BoxChild
+			this.yentryCarTechnicalCheckup = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryCarTechnicalCheckup.CanFocus = true;
+			this.yentryCarTechnicalCheckup.Name = "yentryCarTechnicalCheckup";
+			this.yentryCarTechnicalCheckup.IsEditable = false;
+			this.yentryCarTechnicalCheckup.InvisibleChar = '•';
+			this.yhboxCarTechnicalCheckup.Add(this.yentryCarTechnicalCheckup);
+			global::Gtk.Box.BoxChild w59 = ((global::Gtk.Box.BoxChild)(this.yhboxCarTechnicalCheckup[this.yentryCarTechnicalCheckup]));
+			w59.Position = 1;
+			this.tableCarData.Add(this.yhboxCarTechnicalCheckup);
+			global::Gtk.Table.TableChild w60 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.yhboxCarTechnicalCheckup]));
+			w60.TopAttach = ((uint)(7));
+			w60.BottomAttach = ((uint)(8));
+			w60.XOptions = ((global::Gtk.AttachOptions)(4));
+			w60.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvboxContent.Add(this.tableCarData);
 			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.yvboxContent[this.tableCarData]));
 			w50.Position = 2;

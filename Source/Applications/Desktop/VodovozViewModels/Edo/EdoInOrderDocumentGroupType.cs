@@ -8,6 +8,9 @@ namespace Vodovoz.ViewModels.Edo
 		Primary,
 
 		[Display(Name = "Вывод из оборота")]
-		Withdrawal
+		Withdrawal,
+		
+		[Display(Name = "Счета")]
+		Bills
 	}
 }

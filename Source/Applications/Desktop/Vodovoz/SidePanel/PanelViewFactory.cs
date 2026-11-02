@@ -46,7 +46,13 @@ namespace Vodovoz.SidePanel
 					var deliveryPointRepository = ScopeProvider.Scope.Resolve<IDeliveryPointRepository>();
 					var bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
 					var depositRepository = ScopeProvider.Scope.Resolve<IDepositRepository>();
-					return new DeliveryPointPanelView(ServicesConfig.CommonServices, deliveryPointRepository, bottlesRepository, depositRepository, orderRepository);
+					return new DeliveryPointPanelView(
+						ServicesConfig.CommonServices,
+						deliveryPointRepository,
+						bottlesRepository,
+						depositRepository,
+						orderRepository
+						);
 				case PanelViewType.DeliveryPricePanelView:
 					var deliveryPriceCalculator = ScopeProvider.Scope.Resolve<IDeliveryPriceCalculator>();
 					return new DeliveryPricePanelView(deliveryPriceCalculator);

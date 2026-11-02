@@ -11,6 +11,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
+using TransactionalOutbox.MassTransit;
 
 namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 {
@@ -23,19 +24,24 @@ namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEdoRepository _edoRepository;
 		private readonly ICurrentPermissionService _currentPermissionService;
-		private readonly IBus _messageBus;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		// UoW передаётся параметром: класс вызывается и с десктопа, где у диалогов свои UoW.
+		// GetPublishEndpoint(uow) пишет сообщение в таблицы outbox в транзакции этого UoW.
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
 		public OrderCancellationService(
 			IInteractiveService interactiveService,
 			IEdoRepository edoRepository,
 			ICurrentPermissionService currentPermissionService,
-			IBus messageBus
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWorkOutbox<IBus> outbox
 			)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 
 		/// <summary>
@@ -255,11 +261,16 @@ namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 				throw new ArgumentException("Не указана задача ЭДО для отмены");
 			}
 
-            _messageBus.Publish(new RequestTaskCancellationEvent
-            {
-                TaskId = edoTaskId,
-                Reason = reason
-            });
+			// Заказ уже сохранён, событие — отдельной короткой транзакцией
+			_outbox.PublishInNewTransactionAsync(
+					_unitOfWorkFactory,
+					new RequestTaskCancellationEvent
+					{
+						TaskId = edoTaskId,
+						Reason = reason
+					})
+				.GetAwaiter()
+				.GetResult();
 		}
 
         protected virtual void WaitDocflowCancellationMessage()

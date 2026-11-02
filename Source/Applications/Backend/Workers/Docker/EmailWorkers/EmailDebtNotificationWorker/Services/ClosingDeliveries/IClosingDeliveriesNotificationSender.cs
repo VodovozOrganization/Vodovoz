@@ -1,5 +1,4 @@
 ﻿using EmailDebtNotificationWorker.DTO;
-using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,10 +11,9 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 	public interface IClosingDeliveriesNotificationSender
 	{
 		/// <summary>
-		/// Отправка уведомлений о закрытии поставок
+		/// Отправка уведомлений о закрытии поставок. Работает в UoW своего DI-scope и коммитит его
 		/// </summary>
 		Task SendNotifications(
-			IUnitOfWork uow,
 			IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos,
 			CancellationToken cancellationToken);
 	}

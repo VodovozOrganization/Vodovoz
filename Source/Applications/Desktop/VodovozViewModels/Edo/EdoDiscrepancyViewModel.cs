@@ -34,6 +34,7 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Orders;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.Orders;
 
@@ -47,7 +48,7 @@ namespace Vodovoz.ViewModels.Edo
 		private readonly IEdoService _edoService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUpdDocumentBuilder _updDocumentBuilder;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _outboxNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _notificationPublisher;
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IEmployeeService _employeeService;
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
@@ -59,6 +60,7 @@ namespace Vodovoz.ViewModels.Edo
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly IDiffFormatter _diffFormatter;
 		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly IOrderSaleHandler _saleHandler;
 		private readonly EdoDiscrepancyNode _edoDiscrepancy;
 		private DocumentEdoTask _documentEdoTask;
 		private bool _onlyDiffs;
@@ -75,7 +77,7 @@ namespace Vodovoz.ViewModels.Edo
 			IEdoService edoService,
 			IInteractiveService interactiveService,
 			IUpdDocumentBuilder updDocumentBuilder,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> outboxNotificationPublisher,
+			INotificationPublisher<CustomerNotificationDomainEvent> notificationPublisher,
 			IOrderContractUpdater orderContractUpdater,
 			IEmployeeService employeeService,
 			IOrderDailyNumberController orderDailyNumberController,
@@ -87,7 +89,8 @@ namespace Vodovoz.ViewModels.Edo
 			IRouteListChangesNotificationSender routeListChangesNotificationSender,
 			IDiffFormatter diffFormatter,
 			ICurrentPermissionService currentPermissionService,
-			INavigationManager navigationManager
+			INavigationManager navigationManager,
+			IOrderSaleHandler saleHandler
 		) : base(navigationManager)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -95,7 +98,7 @@ namespace Vodovoz.ViewModels.Edo
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_updDocumentBuilder = updDocumentBuilder ?? throw new ArgumentNullException(nameof(updDocumentBuilder));
-			_outboxNotificationPublisher = outboxNotificationPublisher ?? throw new ArgumentNullException(nameof(outboxNotificationPublisher));
+			_notificationPublisher = notificationPublisher ?? throw new ArgumentNullException(nameof(notificationPublisher));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_orderDailyNumberController = orderDailyNumberController ?? throw new ArgumentNullException(nameof(orderDailyNumberController));
@@ -107,6 +110,7 @@ namespace Vodovoz.ViewModels.Edo
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
 			_diffFormatter = diffFormatter ?? throw new ArgumentNullException(nameof(diffFormatter));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			_uow = _unitOfWorkFactory.CreateWithoutRoot();
 
 			if(!_currentPermissionService.ValidatePresetPermission(EdoPermissions.CanWorkWithEdoDiscrepancyJournal))
@@ -297,15 +301,22 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			var order = _cancelOrderUow.Session.Get<Order>(_edoDiscrepancy.OrderId);
 			var currentEmployee = _employeeService.GetEmployeeForCurrentUser(_cancelOrderUow);
+			_saleHandler.SetSource(order);
 
-			order.SetUndeliveredStatus(_cancelOrderUow, _routeListService, _nomenclatureSettings, _callTaskWorker,
-				needCreateDeliveryFreeBalanceOperation: true);
+			order.SetUndeliveredStatus(
+				_cancelOrderUow,
+				_routeListService,
+				_saleHandler,
+				_nomenclatureSettings,
+				_callTaskWorker,
+				needCreateDeliveryFreeBalanceOperation: true
+				);
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_cancelOrderUow, order.Id);
 			if(routeListItem != null)
 			{
 				routeListItem.StatusLastUpdate = DateTime.Now;
-				routeListItem.SetOrderActualCountsToZeroOnCanceled();
+				routeListItem.SetOrderActualCountsToZeroOnCanceled(_saleHandler);
 				_cancelOrderUow.Save(routeListItem);
 
 				var notificationRequest = new NotificationRouteListChangesRequest
@@ -334,7 +345,7 @@ namespace Vodovoz.ViewModels.Edo
 			}
 			else
 			{
-				order.SetActualCountsToZeroOnCanceled();
+				order.SetActualCountsToZeroOnCanceled(_saleHandler);
 			}
 
 			order.SaveEntity(_cancelOrderUow, _orderContractUpdater, currentEmployee, _orderDailyNumberController, _paymentFromBankClientController);
@@ -349,7 +360,7 @@ namespace Vodovoz.ViewModels.Edo
 					e.UndeliveredOrder.NewOrder.Id,
 					e.UndeliveredOrder.UndeliveryDetalization?.Name
 				);
-				_outboxNotificationPublisher.TryPublish(_cancelOrderUow, customerOrderRescheduledEvent);
+				_notificationPublisher.TryPublish(_cancelOrderUow, customerOrderRescheduledEvent);
 			}
 
 			var result = _edoService.CancelOrderWithEdoDiscrepancy(_cancelOrderUow, _edoDiscrepancy, order);

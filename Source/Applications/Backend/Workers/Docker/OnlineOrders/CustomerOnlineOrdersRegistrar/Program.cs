@@ -21,7 +21,7 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Project.Domain;
 using QS.Project.HibernateMapping;
-using TransactionalOutbox.Abstractions;
+using Notifications.Core;
 using Vodovoz;
 using Vodovoz.Core.Application;
 using Vodovoz.Core.Application.Logistics;
@@ -33,6 +33,8 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
 using CustomerNotifications.Application;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace CustomerOnlineOrdersRegistrar
 {
@@ -74,7 +76,9 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddVersion4()
 						.AddVersion5()
 						.AddVersion6()
+						.AddVersion7()
 						.AddCoreApplicationOrderServices()
+						.AddCoreDataRepositories()
 						.AddOsrm()
 
 						.AddScoped<IRouteListService, RouteListService>()
@@ -83,6 +87,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddScoped<IOnlineOrderFactoryV4, OnlineOrderFactoryV4>()
 						.AddScoped<IOnlineOrderFactoryV5, OnlineOrderFactoryV5>()
 						.AddScoped<IOnlineOrderFactoryV6, OnlineOrderFactoryV6>()
+						.AddScoped<V7.Factories.IOnlineOrderFactory, V7.Factories.OnlineOrderFactory>()
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
@@ -92,12 +97,17 @@ namespace CustomerOnlineOrdersRegistrar
 							busConf.AddConsumer<V4.Consumers.CreatingOnlineOrderConsumer, V4.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.AddConsumer<V5.Consumers.CreatingOnlineOrderConsumer, V5.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.AddConsumer<V6.Consumers.CreatingOnlineOrderConsumer, V6.Consumers.CreatingOnlineOrderConsumerDefinition>();
+							busConf.AddConsumer<V7.Consumers.CreatingOnlineOrderConsumer, V7.Consumers.CreatingOnlineOrderConsumerDefinition>();
+							// Outbox MassTransit (vhost online_orders, таблицы online_orders_*).
+							// Повторную доставку отсекает уникальный ключ заказа, ответ уходит после коммита заказа
+							busConf.AddVodovozOutbox(OutboxBusNames.OnlineOrders);
 							busConf.ConfigureRabbitMq();
 						})
 
-						.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+						.AddScoped<INotificationPublisher<CustomerNotificationDomainEvent>, NotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 						.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
 						.AddCustomerNotificationsSettingsProvider()
+						.AddNotificationBusNotHosted()
 						;
 
 					services.AddStaticScopeForEntity();
