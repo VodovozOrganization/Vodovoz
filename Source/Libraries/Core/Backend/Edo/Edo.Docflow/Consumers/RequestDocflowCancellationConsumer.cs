@@ -8,15 +8,10 @@ namespace Edo.Docflow.Consumers
 {
 	public class RequestDocflowCancellationConsumer : IConsumer<RequestDocflowCancellationEvent>
 	{
-		private readonly ILogger<RequestDocflowCancellationConsumer> _logger;
-		private readonly DocflowHandler _docflowHandler;
+		private readonly DocflowCancellationHandler _docflowHandler;
 
-		public RequestDocflowCancellationConsumer(
-			ILogger<RequestDocflowCancellationConsumer> logger,
-			DocflowHandler docflowHandler
-			)
+		public RequestDocflowCancellationConsumer(DocflowCancellationHandler docflowHandler)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_docflowHandler = docflowHandler ?? throw new ArgumentNullException(nameof(docflowHandler));
 		}
 
@@ -26,7 +21,7 @@ namespace Edo.Docflow.Consumers
 				context.Message.TaskId, 
 				context.Message.Reason,
 				context.CancellationToken
-				);
+			);
 		}
 	}
 }

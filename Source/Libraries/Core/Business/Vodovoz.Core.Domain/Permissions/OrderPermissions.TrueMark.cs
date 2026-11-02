@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Permissions
 {
@@ -12,5 +12,15 @@ namespace Vodovoz.Core.Domain.Permissions
 			Description = "Пользователь может переносить отклоненные коды Честного знака из отмененного заказа")]
 		public static string CanReuseRejectedCodesFromCanceledOrder =>
 			"can_reuse_rejected_codes_from_canceled_order";
+
+
+		/// <summary>
+		/// Ввод кода маркировки вручную в заказ
+		/// </summary>
+		[Display(
+			Name = "Ввод кода маркировки вручную в заказ",
+			Description = "Пользователь может вручную вводить коды маркировки в заказ")]
+		public static string CanAddCodesToOrderManually =>
+			"can_add_codes_to_order_manually";
 	}
 }

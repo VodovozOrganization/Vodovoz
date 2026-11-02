@@ -208,7 +208,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new TransferDocumentAcceptedEvent { DocumentId = id }).Wait();
+			_messageBus.Publish(new TransferDocumentAcceptedEvent(id)).Wait();
 		}
 
 		private void SendTransferCompleteDocumentEvent()
@@ -293,7 +293,7 @@ namespace EdoManualEventSender
 				Console.WriteLine("Выход");
 				return;
 			}
-			_messageBus.Publish(new OrderDocumentAcceptedEvent { DocumentId = id }).Wait();
+			_messageBus.Publish(new OrderDocumentAcceptedEvent(id)).Wait();
 		}
 
 		private void SendSaveCodesTaskCreatedEvent()
@@ -391,10 +391,7 @@ namespace EdoManualEventSender
 				return;
 			}
 
-			_messageBus.Publish(new OrderDocumentCancelledEvent
-			{ 
-				DocumentId = id
-			});
+			_messageBus.Publish(new OrderDocumentCancelledEvent(id));
 		}
 	}
 }

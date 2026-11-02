@@ -11,7 +11,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 	public interface IRouteListItemRepository
 	{
 		IList<RouteListItem> GetRouteListItemAtDay(IUnitOfWork uow, DateTime date, RouteListItemStatus? status);
-		RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, Order order);
+		RouteListItem GetRouteListItemForOrder(IUnitOfWork uow, int orderId);
 		IList<RouteListItem> GetRouteListItemsForOrder(IUnitOfWork uow, int orderId);
 		RouteListItem GetTransferredRouteListItemFromRouteListForOrder(IUnitOfWork uow, int routeListId, int orderId);
 		RouteListItem GetTransferredFrom(IUnitOfWork uow, RouteListItem item);

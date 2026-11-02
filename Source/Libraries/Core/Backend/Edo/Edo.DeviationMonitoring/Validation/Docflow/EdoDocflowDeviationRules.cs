@@ -28,9 +28,7 @@ namespace Edo.DeviationMonitoring.Validation.Docflow
 			node.DocflowCreationTime is null ? node.OutgoingDocumentCreationTime : null;
 
 		/// <summary>
-		/// Документооборот заведен, но ни одного ответа провайдера ЭДО по нему нет.
-		/// Проверяется отсутствие любого ответа, а не только последнего:
-		/// действие NotStarted мы заводим сами, ответом оно не является
+		/// Документооборот заведен и остается в начальном состоянии без ответа провайдера ЭДО
 		/// </summary>
 		public static DateTime? GetNoProviderAnswerTime(IEdoDocflowMonitoringNode node)
 		{
@@ -70,7 +68,7 @@ namespace Edo.DeviationMonitoring.Validation.Docflow
 		/// Документооборот аннулирован
 		/// </summary>
 		public static bool IsDocflowCancelled(IEdoDocflowMonitoringNode node) =>
-			node.CancelledActionTime != null;
+			node.LastActionState == EdoDocFlowStatus.Cancelled;
 
 		/// <summary>
 		/// Документооборот завершен, но результат обработки кодов в ГИС МТ не получен

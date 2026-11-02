@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Edo.Contracts.Messages.Events
 {
@@ -35,7 +35,8 @@ namespace Edo.Contracts.Messages.Events
 		public DateTime? StatusChangeTime { get; set; }
 
 		/// <summary>
-		/// Доставлено
+		/// Документ получен клиентом: по статусу документооборота
+		/// или по транзакции извещения о получении, титула покупателя либо уточнения
 		/// </summary>
 		public bool IsReceived { get; set; }
 	}

@@ -9,7 +9,7 @@ using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Commons
 {
-	internal class ThemmedDiffFormater : IDiffFormatter
+	internal class ThemmedDiffFormater : IDiffFormatter, Comparer.IDiffFormatter
 	{
 		private readonly string _pangoInsertFormat = $"<span background=\"{GdkColors.SuccessBase.ToHtmlColor()}\">";
 		private readonly string _pangoDeleteFormat = $"<span background=\"{GdkColors.DangerBase.ToHtmlColor()}\">";

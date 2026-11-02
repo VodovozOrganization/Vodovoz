@@ -330,6 +330,14 @@ namespace Vodovoz.Core.Data.Repositories
 		TaxcomDocflow GetTaxcomDocflowByDocflowId(IUnitOfWork uow, Guid docflowId);
 
 		/// <summary>
+		/// Идентификаторы документооборотов кабинета, которые дольше порога остаются в статусах «Получено оператором» или «В процессе».
+		/// </summary>
+		IList<Guid> GetDocflowIdsStuckInSentOrInProgress(
+			IUnitOfWork uow,
+			string edoAccount,
+			DateTime statusChangedBefore);
+
+		/// <summary>
 		/// Проверяет наличие активной проблемы с указанными источниками для задачи ЭДО
 		/// </summary>
 		/// <param name="uow">IUnitOfWork</param>
@@ -337,5 +345,24 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="problemSourceNames">Массив имен источников проблем</param>
 		/// <returns></returns>
 		bool HasActiveProblemWithSource(IUnitOfWork uow, int taskId, IEnumerable<string> problemSourceNames);
+
+		/// <summary>
+		/// Предоставляет данные о расхождении в документообороте ЭДО
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="edoDocumentId">Id документа</param>
+		/// <returns></returns>
+		EdoDiscrepancyNode GetEdoDiscrepancy(IUnitOfWork uow, int edoDocumentId);
+
+		/// <summary>
+		/// Предоставляет последнюю1 актуальную ЭДО заявку для заказа
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="orderId">Id заказа</param>
+		/// <returns></returns>
+		FormalEdoRequest GetLastActualFormalEdoRequest(IUnitOfWork uow, int orderId);
+		bool HasEdoDocflowDiscrepancyForOrder(IUnitOfWork uow, int orderId);
+
+		IEnumerable<string> GetGtinsInOrder(IUnitOfWork uow, int orderId);
 	}
 }

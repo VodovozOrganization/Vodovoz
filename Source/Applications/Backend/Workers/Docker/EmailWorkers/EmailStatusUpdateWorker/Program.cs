@@ -11,6 +11,8 @@ using RabbitMQ.MailSending;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace EmailStatusUpdateWorker
 {
@@ -53,6 +55,11 @@ namespace EmailStatusUpdateWorker
 						.AddMassTransit(busConf =>
 						{
 							busConf.AddConsumer<EmailStatusUpdateConsumer>();
+
+							// Outbox MassTransit. Этот сервис отправляет
+							// и сообщения email_*, записанные другими приложениями
+							busConf.AddVodovozOutbox(OutboxBusNames.Email);
+
 							busConf.ConfigureRabbitMq((rabbitMq, context) => rabbitMq.AddUpdateEmailStatusTopology(context));
 						});
 				});

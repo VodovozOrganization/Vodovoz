@@ -47,7 +47,7 @@ namespace VodovozBusiness.Services.Edo
 		/// </summary>
 		/// <param name="cancelledTask">Отменённая задача ЭДО</param>
 		/// <returns>Список новых записей кодов маркировки</returns>
-		public static List<TrueMarkProductCode> CreateCodesFromCancelledTask(
+		public static List<TrueMarkProductCode> CreateCodesFromTask(
 			OrderEdoTask cancelledTask)
 		{
 			if(cancelledTask is null)

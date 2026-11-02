@@ -68,10 +68,24 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 
 		public virtual SendEmailMessageBuilder AddFromContact()
 		{
+			var fromEmail = _emailSettings.DocumentEmailSenderAddress;
+			var fromName = _emailSettings.DocumentEmailSenderName;
+
+			if(TryGetKulerServiceBillOrder(out var order))
+			{
+				fromName = "ООО Кулер-Сервис";
+
+				var mailingEmail = order.Contract.Organization.EmailForMailing;
+				if(!string.IsNullOrWhiteSpace(mailingEmail))
+				{
+					fromEmail = mailingEmail.Trim();
+				}
+			}
+
 			_sendEmailMessage.From = new EmailContact
 			{
-				Name = _emailSettings.DocumentEmailSenderName,
-				Email = _emailSettings.DocumentEmailSenderAddress
+				Name = fromName,
+				Email = fromEmail
 			};
 
 			return this;
@@ -107,12 +121,17 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			if(hasSendedEmailsForBill
 			   && document is BillDocumentEntity billDocument)
 			{
-				_template = billDocument.GetResendEmailTemplate();
+				_template = billDocument.GetResendEmailTemplate(_organizationSettings);
 			}
 			else if(hasSendedEmailsForBill
 				&& document is SpecialBillDocumentEntity specialBillDocument)
 			{
-				_template = specialBillDocument.GetResendEmailTemplate();
+				_template = specialBillDocument.GetResendEmailTemplate(_organizationSettings);
+			}
+			else if(_counterpartyEmail.StoredEmail.ManualSending == true
+				&& document is BillDocumentEntity manualBillDocument)
+			{
+				_template = manualBillDocument.GetResendDocumentEmailTemplate(_organizationSettings);
 			}
 			else if(_counterpartyEmail.StoredEmail.ManualSending == true
 				&& document is ICustomResendTemplateEmailableDocument resendableDocument)
@@ -181,6 +200,26 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			};
 
 			return this;
+		}
+
+		private bool TryGetKulerServiceBillOrder(out OrderEntity order)
+		{
+			order = null;
+
+			if(!(_counterpartyEmail.EmailableDocument is OrderDocumentEntity orderDocument))
+			{
+				return false;
+			}
+
+			if(orderDocument.Type != OrderDocumentType.Bill && orderDocument.Type != OrderDocumentType.SpecialBill)
+			{
+				return false;
+			}
+
+			order = orderDocument.Order;
+			var organization = order?.Contract?.Organization;
+
+			return organization?.Id == _organizationSettings.KulerServiceOrganizationId;
 		}
 	}
 }

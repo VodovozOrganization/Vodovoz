@@ -1,5 +1,5 @@
-﻿using EdoDocumentsPreparer.Factories;
-using EdoService.Library.Services;
+﻿using EdoService.Library.Services;
+using EdoService.Library.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Report;
 using Vodovoz.Core.Application.Clients;
@@ -13,9 +13,8 @@ namespace EdoDocumentsPreparer
 		{
 			services
 				.AddScoped<PrintableDocumentSaver>()
-				.AddScoped<IFileDataFactory, FileDataFactory>()
-				.AddScoped<IInfoForCreatingBillWithoutShipmentEdoFactory, InfoForCreatingBillWithoutShipmentEdoFactory>()
-				.AddScoped<IInfoForCreatingEdoBillFactory, InfoForCreatingEdoBillFactory>()
+				.AddScoped<IBillEdoRequestFactory, BillEdoRequestFactory>()
+				.AddScoped<IBillEdoRequestSender, BillEdoRequestSender>()
 				.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>()
 				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
 				

@@ -1,18 +1,23 @@
-﻿using Core.Infrastructure;
+﻿using Comparer;
+using Core.Infrastructure;
 using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
 using DriverApi.Notifications.Client;
 using Edo.Admin;
+using Edo.Contracts.Messages.Events;
+using Edo.Documents;
 using Edo.Problem.Routine;
 using Edo.Transport;
+using EdoNotifications.Contracts;
+using EdoService.Library;
 using ExportTo1c.Library.Factories;
 using Fias.Client;
 using FuelControl.Library;
 using Mailganer.Api.Client;
 using MassTransit;
+using MassTransit.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySqlConnector;
 using Notifications.Infrastructure;
 using Osrm;
@@ -48,10 +53,9 @@ using QSProjectsLib;
 using RabbitMQ.MailSending;
 using ResourceLocker.Library;
 using System;
-using System.Text.Json;
-using Taxcom.Docflow.Utility;
 using TaxcomEdo.Client;
-using TransactionalOutbox.Abstractions;
+using Notifications.Core;
+using TransactionalOutbox.MassTransit;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
 using Vodovoz.Additions;
@@ -101,8 +105,6 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Counterparty;
-using Vodovoz.Settings.Database.Edo;
-using Vodovoz.Settings.Edo;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Trackers;
@@ -114,6 +116,7 @@ using Vodovoz.ViewModels.Journals.Mappings;
 using Vodovoz.ViewModels.Services;
 using Vodovoz.ViewModels.Services.DriverSchedule;
 using Vodovoz.ViewModels.Services.SalesReport;
+using Vodovoz.ViewModels.Services.Warehouse;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 using VodovozInfrastructure;
@@ -272,12 +275,24 @@ namespace Vodovoz
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
 				.AddScoped<ISalesReportService, SalesReportService>()
+				.AddScoped<IMovementDocumentService, MovementDocumentService>()
 				.AddEdoAdminServices()
 				.AddEdoNotifications()
 				.AddOrderEdoCodePoolMissingProblem()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
-				.AddCustomerNotificationsSettingsProvider();
+				.AddScoped<INotificationPublisher<CustomerNotificationDomainEvent>, NotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddCustomerNotificationsSettingsProvider()
+				.AddEdoDocumentsServices()
+			;
+
+			services.AddScoped<Comparer.IDiffFormatter, ThemmedDiffFormater>();
+
+			//Outbox MassTransit: публикуемые сообщения сохраняются в транзакцию UoW и отправляются службой отправки после коммита
+			services
+				.AddScoped<IOrderEdoTaskCreatedEventPublisher, OrderEdoTaskCreatedEventPublisher>()
+				.AddNotificationBusNotHosted()
+				// Сообщения шины pacs пишутся в таблицы outbox (pacs_*) в транзакции UoW: _outbox.GetPublishEndpoint(uow)
+				.AddExplicitUnitOfWorkOutbox<IBus>(OutboxBusNames.Pacs);
 
 			services.AddScoped<IEdoRequestCreatedEventPublisher, EdoRequestCreatedEventPublisher>();
 			services.AddStaticHistoryTracker();

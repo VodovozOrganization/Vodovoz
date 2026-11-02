@@ -16,6 +16,8 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowPhones;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowBottlesManager;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonInfo;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckOrderByDate;
@@ -85,6 +87,18 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child yhboxPeriod.Gtk.Box+BoxChild
+			this.ycheckbuttonShowBottlesManager = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowBottlesManager.CanFocus = true;
+			this.ycheckbuttonShowBottlesManager.Name = "ycheckbuttonShowBottlesManager";
+			this.ycheckbuttonShowBottlesManager.Label = global::Mono.Unix.Catalog.GetString("Показать менеджера\nвместо Организации");
+			this.ycheckbuttonShowBottlesManager.DrawIndicator = true;
+			this.ycheckbuttonShowBottlesManager.UseUnderline = true;
+			this.yhboxPeriod.Add(this.ycheckbuttonShowBottlesManager);
+			global::Gtk.Box.BoxChild wShowBottlesManager = ((global::Gtk.Box.BoxChild)(this.yhboxPeriod[this.ycheckbuttonShowBottlesManager]));
+			wShowBottlesManager.Position = 3;
+			wShowBottlesManager.Expand = false;
+			wShowBottlesManager.Fill = false;
+			// Container child yhboxPeriod.Gtk.Box+BoxChild
 			this.ybuttonInfo = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonInfo.TooltipMarkup = "Справка по работе с отчётом";
 			this.ybuttonInfo.CanFocus = true;
@@ -97,7 +111,7 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 			this.yhboxPeriod.Add(this.ybuttonInfo);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhboxPeriod[this.ybuttonInfo]));
 			w5.PackType = ((global::Gtk.PackType)(1));
-			w5.Position = 3;
+			w5.Position = 4;
 			w5.Expand = false;
 			w5.Fill = false;
 			this.yvboxParameters.Add(this.yhboxPeriod);

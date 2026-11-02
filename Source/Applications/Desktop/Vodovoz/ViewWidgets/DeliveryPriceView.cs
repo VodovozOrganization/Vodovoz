@@ -209,6 +209,12 @@ namespace Vodovoz.ViewWidgets
 
 		private void ShowResults(DeliveryPriceNode deliveryPriceNode)
 		{
+			var showAddressGap = TypeOfAddress != OrderAddressType.Service;
+			hbox1.Visible = showAddressGap;
+			var addressGap = (Gtk.Box.BoxChild)vbox2[hbox1];
+			addressGap.Expand = showAddressGap;
+			addressGap.Fill = showAddressGap;
+
 			yTxtWarehouses.Buffer.Text = deliveryPriceNode.GeographicGroups;
 			GtkScrolledWindow.Visible = deliveryPriceNode.ByDistance;
 			ytreeviewPrices.SetItemsSource(deliveryPriceNode.Prices);

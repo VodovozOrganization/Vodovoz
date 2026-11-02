@@ -1,4 +1,5 @@
 ﻿using EdoNotifications.Contracts;
+using Notifications.Core;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -27,22 +28,24 @@ namespace EdoNotifications.Application.Providers
 
 			using(var uow = _uowFactory.CreateWithoutRoot("Получение настройки уведомлений об ЭДО"))
 			{
-				var setting = _edoNotificationSettingsRepository.Get(uow, x => x.EdoNotificationType == edoNotification.EdoNotificationType).SingleOrDefault();
+				var setting = _edoNotificationSettingsRepository
+					.Get(uow, x => x.EdoNotificationType == edoNotification.EdoNotificationType)
+					.SingleOrDefault();
 
 				if(setting == null)
 				{
 					throw new InvalidOperationException(
-						$"Не найдена настройка для типа события '{edoNotification.EdoNotificationType}'.");
+						$"Не найдена настройка для типа уведомления '{edoNotification.EdoNotificationType}' (edo_notification_settings).");
 				}
 
 				return setting;
 			}
 		}
 
-		public bool IsDuplicateAllowed(EdoNotificationMessage edoNotification)
-			=> GetEdoNotificationSetting(edoNotification)?.AllowDuplicateNotifications ?? false;
-
-		public bool IsDisabled(EdoNotificationMessage edoNotification)
-			=> GetEdoNotificationSetting(edoNotification)?.NotificationDisabled ?? true;
+		public NotificationSendingSettings GetSendingSettings(EdoNotificationMessage edoNotification)
+		{
+			var setting = GetEdoNotificationSetting(edoNotification);
+			return new NotificationSendingSettings(setting.NotificationDisabled, setting.AllowDuplicateNotifications);
+		}
 	}
 }

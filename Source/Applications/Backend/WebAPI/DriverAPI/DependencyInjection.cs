@@ -22,7 +22,7 @@ using QS.Project.DB;
 using QS.Project.Services.Interactive;
 using System;
 using System.Text;
-using TransactionalOutbox.Abstractions;
+using Notifications.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.Cash;
@@ -38,6 +38,8 @@ using Vodovoz.Trackers;
 using VodovozHealthCheck;
 using CustomerNotifications.Application;
 using CustomerNotifications.Application.Builders;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace DriverAPI
 {
@@ -102,7 +104,7 @@ namespace DriverAPI
 				.AddScoped<IInteractiveMessage, ConsoleInteractiveMessage>()
 				.AddScoped<IInteractiveService, ConsoleInteractiveService>()
 
-				.AddDriverApiLibrary(configuration)
+				.AddDriverApiLibrary(configuration, busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())

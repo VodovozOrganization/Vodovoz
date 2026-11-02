@@ -10,8 +10,10 @@ using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Controllers;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders.Documents;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -26,7 +28,7 @@ namespace Vodovoz.Core.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class OrderEntity : PropertyChangedBase, IDomainObject, IBusinessObject
+	public class OrderEntity : PropertyChangedBase, IDomainObject, IBusinessObject, IRecalculateTaxSource
 	{
 		public const string Table = "orders";
 		private int _id;
@@ -682,6 +684,8 @@ namespace Vodovoz.Core.Domain.Orders
 			get => _selfDeliveryGeoGroup;
 			set => SetField(ref _selfDeliveryGeoGroup, value);
 		}
+
+		public virtual IUsnModeOrganization Organization => Contract?.Organization;
 
 		#region Вычисляемые свойства
 

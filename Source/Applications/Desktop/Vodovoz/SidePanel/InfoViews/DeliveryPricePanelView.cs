@@ -47,6 +47,12 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public void Refresh()
 		{
+			var deliveryPointInfo = InfoProvider as IDeliveryPointInfoProvider;
+			var showMasterVisitCost = deliveryPointInfo?.TypeOfAddress == OrderAddressType.Service
+				|| deliveryPointInfo?.HasKulerServiceNomenclature == true;
+			label1.Visible = !showMasterVisitCost;
+			labelMasterVisitCost.Visible = showMasterVisitCost;
+
 			_deliveryPoint = (InfoProvider as IDeliveryPointInfoProvider)?.DeliveryPoint;
 			if(_deliveryPoint == null || string.IsNullOrWhiteSpace(_deliveryPoint?.City)) {
 				return;

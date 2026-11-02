@@ -88,14 +88,14 @@ namespace Receipt.Dispatcher.Tests
 					new IndustryRequisiteCheckApiError()
 				}),
 				new EdoTaskExceptionSourcesPersister(factory, Array.Empty<EdoTaskProblemExceptionSource>()),
-				Substitute.For<IOutboxNotificationPublisher<EdoNotificationMessage>>());
+				Substitute.For<INotificationPublisher<EdoNotificationMessage>>());
 			var taskValidator = new EdoTaskValidator(Substitute.For<ILogger<EdoTaskValidator>>(),
 				new EdoTaskValidatorsProvider(new EdoTaskValidatorsPersister(factory, Array.Empty<IEdoTaskValidator>())),
 				Substitute.For<IServiceProvider>(), registrar);
 			var providerFactory = new EdoTaskItemTrueMarkStatusProviderFactory(_api);
 			var waterCodeService = Substitute.For<ITrueMarkWaterCodeService>();
 			var cancellation = new EdoCancellationService(Substitute.For<ILogger<EdoCancellationService>>(),
-				_uow, Substitute.For<IEdoCancellationValidator>(), registrar, waterCodeService, _bus);
+				_uow, Substitute.For<IEdoCancellationValidator>(), registrar, waterCodeService, CreateOutbox(_bus));
 			var receiptSettings = Substitute.For<IEdoReceiptSettings>();
 			receiptSettings.MaxCodesInReceiptCount.Returns(1000);
 			_receiptHandler = new ForOwnNeedsReceiptEdoTaskHandler(
@@ -119,17 +119,18 @@ namespace Receipt.Dispatcher.Tests
 			var request = task.FormalEdoRequest;
 			var document = (task as ReceiptEdoTask)?.FiscalDocuments.Single();
 			var committed = false;
-			var publishedAfterCommit = false;
+			var publishedBeforeCommit = false;
 			_uow.CommitAsync(Arg.Any<CancellationToken>()).Returns(_ => { committed = true; return Task.CompletedTask; });
+			// Перезапуск пишется в outbox транзакции задачи, то есть до её коммита
 			_bus.Publish(Arg.Any<ReceiptTaskCreatedEvent>(), Arg.Any<CancellationToken>())
-				.Returns(_ => { publishedAfterCommit = committed; return Task.CompletedTask; });
+				.Returns(_ => { publishedBeforeCommit = !committed; return Task.CompletedTask; });
 			_bus.Publish(Arg.Any<TenderTaskCreatedEvent>(), Arg.Any<CancellationToken>())
-				.Returns(_ => { publishedAfterCommit = committed; return Task.CompletedTask; });
+				.Returns(_ => { publishedBeforeCommit = !committed; return Task.CompletedTask; });
 
 			await HandleTransfer(task);
 
 			AssertNew(task);
-			Assert.True(publishedAfterCommit);
+			Assert.True(publishedBeforeCommit);
 			Assert.Same(request, task.FormalEdoRequest);
 			Assert.Same(_code, task.Items.Single().ProductCode.ResultCode);
 			Assert.Empty(task.Problems);
@@ -150,28 +151,27 @@ namespace Receipt.Dispatcher.Tests
 		[Theory]
 		[InlineData(false)]
 		[InlineData(true)]
-		public async Task PublishFailure_LeavesNewTaskForResendWorker(bool tender)
+		public async Task OutboxFailure_DoesNotCommit(bool tender)
 		{
 			var task = CreateTask(tender);
 			_bus.Publish(Arg.Any<ReceiptTaskCreatedEvent>(), Arg.Any<CancellationToken>())
-				.Returns(Task.FromException(new InvalidOperationException("broker")));
+				.Returns(Task.FromException(new InvalidOperationException("outbox")));
 			_bus.Publish(Arg.Any<TenderTaskCreatedEvent>(), Arg.Any<CancellationToken>())
-				.Returns(Task.FromException(new InvalidOperationException("broker")));
-			await HandleTransfer(task);
-			AssertNew(task);
-			Assert.Empty(task.Problems);
-			await _uow.Received(1).CommitAsync(default);
+				.Returns(Task.FromException(new InvalidOperationException("outbox")));
+			// Ошибка записи в outbox — ошибка транзакции: задача не коммитится, сообщение будет обработано повторно
+			await Assert.ThrowsAsync<InvalidOperationException>(() => HandleTransfer(task));
+			await _uow.DidNotReceive().CommitAsync(Arg.Any<CancellationToken>());
 		}
 
 		[Theory]
 		[InlineData(false)]
 		[InlineData(true)]
-		public async Task CommitFailure_DoesNotPublishRestart(bool tender)
+		public async Task CommitFailure_Throws(bool tender)
 		{
 			var task = CreateTask(tender);
 			_uow.CommitAsync(Arg.Any<CancellationToken>()).Returns(Task.FromException(new InvalidOperationException("commit")));
+			// Перезапуск записан в outbox той же транзакции и откатывается вместе с ней
 			await Assert.ThrowsAsync<InvalidOperationException>(() => HandleTransfer(task));
-			Assert.Empty(_bus.ReceivedCalls());
 		}
 
 		[Theory]
@@ -302,6 +302,13 @@ namespace Receipt.Dispatcher.Tests
 			await Validate(task);
 			Assert.Equal(EdoReceiptStatus.Transfering, task.ReceiptStatus);
 			Assert.Equal(EdoTaskStatus.InProgress, task.Status);
+		}
+
+		private static TransactionalOutbox.MassTransit.IUnitOfWorkOutbox<IBus> CreateOutbox(IPublishEndpoint publishEndpoint)
+		{
+			var outbox = Substitute.For<TransactionalOutbox.MassTransit.IUnitOfWorkOutbox<IBus>>();
+			outbox.GetPublishEndpoint(Arg.Any<IUnitOfWork>()).Returns(publishEndpoint);
+			return outbox;
 		}
 
 		private OrderEdoTask CreateTask(bool tender)

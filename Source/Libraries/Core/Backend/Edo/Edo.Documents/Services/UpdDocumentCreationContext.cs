@@ -19,6 +19,11 @@ namespace Edo.Documents.Services
 			public DocumentEdoTask DocumentEdoTask { get; set; }
 
 			/// <summary>
+			/// Заказ
+			/// </summary>
+			public OrderEntity Order { get; set; }
+
+			/// <summary>
 			/// Коллекция кодов маркировки, которые не удалось обработать при создании документа
 			/// </summary>
 			public List<EdoTaskItem> UnprocessedCodes { get; set; }
@@ -36,17 +41,12 @@ namespace Edo.Documents.Services
 			/// <summary>
 			/// Словарь GTIN -> количество кодов маркировки, которые необходимо получить из пула кодов
 			/// </summary>
-			public Dictionary<GtinEntity, int> CodesNeeded { get; set; }
+			public Dictionary<GtinEntity, int> CodesNeeded { get; set; } = new Dictionary<GtinEntity, int>();
 
 			/// <summary>
 			/// Коллекция элементов с кодами маркировки, которые необходимо получить из пула кодов
 			/// </summary>
-			public List<UpdPendingCodeItem> PendingCodeItems { get; set; }
-
-			/// <summary>
-			/// ИНН организации, для которой создается документ
-			/// </summary>
-			public string OrganizationInn { get; set; }
+			public List<UpdPendingCodeItem> PendingCodeItems { get; set; } = new List<UpdPendingCodeItem>();
 		}
 	}
 }

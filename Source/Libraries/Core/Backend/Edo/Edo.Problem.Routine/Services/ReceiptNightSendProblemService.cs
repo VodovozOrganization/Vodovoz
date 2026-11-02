@@ -23,25 +23,25 @@ namespace Edo.Problem.Routine.Services
 	public class ReceiptNightSendProblemService
 	{
 		private readonly ILogger<ReceiptNightSendProblemService> _logger;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IOptionsMonitor<ReceiptNightSendProblemWorkerOptions> _options;
 		private readonly IEdoRepository _edoRepository;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
 
 		public ReceiptNightSendProblemService(
 			ILogger<ReceiptNightSendProblemService> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWork unitOfWork,
 			IOptionsMonitor<ReceiptNightSendProblemWorkerOptions> options,
 			IEdoRepository edoRepository,
-			IBus messageBus,
+			IPublishEndpoint publishEndpoint,
 			IEdoReceiptSettings edoReceiptSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_edoReceiptSettings = edoReceiptSettings ?? throw new ArgumentNullException(nameof(edoReceiptSettings));
 		}
 
@@ -65,16 +65,13 @@ namespace Edo.Problem.Routine.Services
 				return;
 			}
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(ReceiptNightSendProblemService)))
-			{
-				var tasks = await _edoRepository.GetProblemEdoTasks<ReceiptEdoTask>(
-					uow,
-					ReceiptSendPausedByNightTime.SourceName,
-					MinEdoTaskCreationTime,
-					cancellationToken);
+			var tasks = await _edoRepository.GetProblemEdoTasks<ReceiptEdoTask>(
+				_unitOfWork,
+				ReceiptSendPausedByNightTime.SourceName,
+				MinEdoTaskCreationTime,
+				cancellationToken);
 
-				await TryResumeReceiptTasks(uow, tasks, cancellationToken);
-			}
+			await TryResumeReceiptTasks(_unitOfWork, tasks, cancellationToken);
 		}
 
 		private async Task TryResumeReceiptTasks(
@@ -163,11 +160,12 @@ namespace Edo.Problem.Routine.Services
 
 			await uow.SaveAsync(nightProblem, cancellationToken: cancellationToken);
 			await uow.SaveAsync(receiptTask, cancellationToken: cancellationToken);
-			await uow.CommitAsync(cancellationToken);
 
-			await _messageBus.Publish(
+			await _publishEndpoint.Publish(
 				new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptTask.Id },
 				cancellationToken);
+
+			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
 				"Возобновлена отправка чека по задаче ЭДО {EdoTaskId}",

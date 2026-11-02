@@ -21,7 +21,7 @@ namespace Vodovoz.ViewWidgets.Orders
 				.AddBinding(ViewModel, vm => vm.IsEditable, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ytreeviewDiscountReasons.CreateFluentColumnsConfig<DiscountReason>()
+			ytreeviewDiscountReasons.CreateFluentColumnsConfig<DiscountReasonBase>()
 				.AddColumn("Основание скидки")
 					.MinWidth(50)
 					.HeaderAlignment(0.5f)
@@ -29,13 +29,13 @@ namespace Vodovoz.ViewWidgets.Orders
 				.Finish();
 
 			ytreeviewDiscountReasons.HeadersVisible = true;
-			ytreeviewDiscountReasons.ItemsDataSource = ViewModel.OrderItemDiscountReasons;
+			ytreeviewDiscountReasons.ItemsDataSource = ViewModel.SaleItemDiscountReasons;
 			ytreeviewDiscountReasons.Binding
 				.AddSource(ViewModel)
 				.AddBinding(ViewModel, vm => vm.SelectedDiscountReason, w => w.SelectedRow)
 				.InitializeFromSource();
 
-			speciallistcomboboxDiscountReason.SetRenderTextFunc<DiscountReason>(dr => dr.Name);
+			speciallistcomboboxDiscountReason.SetRenderTextFunc<DiscountReasonBase>(dr => dr.Name);
 			speciallistcomboboxDiscountReason.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.AvailableDiscountReasons, w => w.ItemsList)
@@ -44,6 +44,12 @@ namespace Vodovoz.ViewWidgets.Orders
 
 			ybuttonAdd.BindCommand(ViewModel.AddDiscountReasonCommand);
 			ybuttonDelete.BindCommand(ViewModel.DeleteDiscountReasonCommand);
+		}
+
+		protected override void OnDestroyed()
+		{
+			ViewModel.Dispose();
+			base.OnDestroyed();
 		}
 	}
 }

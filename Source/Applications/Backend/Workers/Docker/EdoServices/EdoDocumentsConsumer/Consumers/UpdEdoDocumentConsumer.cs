@@ -1,7 +1,5 @@
-﻿using Edo.Problems;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using TaxcomEdo.Client;
@@ -14,19 +12,13 @@ namespace EdoDocumentsConsumer.Consumers
 	{
 		private readonly ILogger<UpdEdoDocumentConsumer> _logger;
 		private readonly ITaxcomApiClient _taxcomApiClient;
-		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 
 		public UpdEdoDocumentConsumer(
 			ILogger<UpdEdoDocumentConsumer> logger,
-			ITaxcomApiClient taxcomApiClient,
-			IUnitOfWorkFactory uowFactory,
-			EdoProblemRegistrar edoProblemRegistrar)
+			ITaxcomApiClient taxcomApiClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApiClient = taxcomApiClient ?? throw new ArgumentNullException(nameof(taxcomApiClient));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 		}
 
 		public async Task Consume(ConsumeContext<InfoForCreatingEdoUpd> context)

@@ -50,6 +50,11 @@ namespace Edo.Problems.Validation.Sources
 
 		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
+			if(GetEdoRequest(edoTask)?.Source == EdoRequestSource.ClosedPeriodPrivilegedResend)
+			{
+				return Task.FromResult(EdoValidationResult.Valid(this));
+			}
+
 			var closedPeriodRule = serviceProvider.GetRequiredService<CanProcessOrSendEdoByClosingAccountingDate>();
 
 			var accountingDate = GetAccountingDate(edoTask);

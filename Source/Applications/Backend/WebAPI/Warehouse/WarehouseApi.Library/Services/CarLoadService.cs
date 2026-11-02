@@ -1,4 +1,4 @@
-﻿using Edo.Contracts.Messages.Events;
+using Edo.Contracts.Messages.Events;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -54,7 +54,7 @@ namespace WarehouseApi.Library.Services
 		private readonly ICarLoadDocumentTrueMarkCodesProcessingService _codesProcessingService;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly ITrueMarkRepository _trueMarkRepository;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public CarLoadService(
 			ILogger<CarLoadService> logger,
@@ -71,7 +71,7 @@ namespace WarehouseApi.Library.Services
 			ICarLoadDocumentTrueMarkCodesProcessingService codesProcessingService,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			ITrueMarkRepository trueMarkRepository,
-			IBus messageBus)
+			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -87,7 +87,7 @@ namespace WarehouseApi.Library.Services
 			_codesProcessingService = codesProcessingService ?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		public async Task<RequestProcessingResult<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken, CancellationToken cancellationToken)
@@ -713,6 +713,7 @@ namespace WarehouseApi.Library.Services
 
 			try
 			{
+				await PublishEdoRequestCreatedEvents(edoRequests);
 				_uow.Commit();
 			}
 			catch(MySqlException mysqlException) when(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
@@ -733,8 +734,6 @@ namespace WarehouseApi.Library.Services
 				var result = Result.Failure<EndLoadResponse>(error);
 				return RequestProcessingResult.CreateFailure(result, failureResponse);
 			}
-
-			await PublishEdoRequestCreatedEvents(edoRequests);
 
 			var successResponse = new EndLoadResponse
 			{
@@ -962,7 +961,7 @@ namespace WarehouseApi.Library.Services
 
 			try
 			{
-				await _messageBus.Publish(new EdoRequestCreatedEvent { Id = requestId });
+				await _publishEndpoint.Publish(new EdoRequestCreatedEvent { Id = requestId });
 
 				_logger.LogInformation("Событие создания новой заявки на отправку документов ЭДО отправлено успешно");
 			}

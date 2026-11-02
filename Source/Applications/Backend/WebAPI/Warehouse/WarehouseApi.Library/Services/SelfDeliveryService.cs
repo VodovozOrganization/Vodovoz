@@ -55,7 +55,8 @@ namespace WarehouseApi.Library.Services
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IStockRepository _stockRepository;
 		private readonly IBottlesRepository _bottlesRepository;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
+		private readonly IOrderSaleHandler _saleHandler;
 
 		public SelfDeliveryService(
 			ILogger<SelfDeliveryService> logger,
@@ -75,7 +76,8 @@ namespace WarehouseApi.Library.Services
 			ICallTaskWorker callTaskWorker,
 			IStockRepository stockRepository,
 			IBottlesRepository bottlesRepository,
-			IBus messageBus)
+			IPublishEndpoint publishEndpoint,
+			IOrderSaleHandler saleHandler)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -111,8 +113,10 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(stockRepository));
 			_bottlesRepository = bottlesRepository
 				?? throw new ArgumentNullException(nameof(bottlesRepository));
-			_messageBus = messageBus
-				?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint
+				?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_saleHandler = saleHandler
+				?? throw new ArgumentNullException(nameof(saleHandler));
 		}
 
 		public async Task<Result<SelfDeliveryDocument>> CreateDocument(
@@ -390,7 +394,8 @@ namespace WarehouseApi.Library.Services
 				_routeListItemRepository,
 				_selfDeliveryRepository,
 				_cashRepository,
-				_callTaskWorker);
+				_callTaskWorker,
+				_saleHandler);
 
 			if(!isFullyShiped)
 			{
@@ -404,6 +409,7 @@ namespace WarehouseApi.Library.Services
 
 			try
 			{
+				await SendEdoRequestCreatedEvent(edoRequest.Id);
 				await _unitOfWork.CommitAsync(cancellationToken);
 			}
 			catch(MySqlException mysqlException) when(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
@@ -418,8 +424,6 @@ namespace WarehouseApi.Library.Services
 				var error = new Error("Database.Commit.Error", e.Message);
 				return Result.Failure<SelfDeliveryDocument>(error);
 			}
-
-			await SendEdoRequestCreatedEvent(edoRequest.Id);
 
 			return await Task.FromResult(selfDeliveryDocument);
 		}
@@ -509,7 +513,7 @@ namespace WarehouseApi.Library.Services
 
 			try
 			{
-				await _messageBus.Publish(new EdoRequestCreatedEvent { Id = requestId });
+				await _publishEndpoint.Publish(new EdoRequestCreatedEvent { Id = requestId });
 			}
 			catch(Exception ex)
 			{

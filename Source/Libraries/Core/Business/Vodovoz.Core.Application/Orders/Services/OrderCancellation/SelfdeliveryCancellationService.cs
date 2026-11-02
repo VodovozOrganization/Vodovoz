@@ -3,6 +3,7 @@ using Edo.Contracts.Messages.Events;
 using MassTransit;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Services;
 using System;
 using System.Linq;
 using Vodovoz.Core.Data.Repositories;
@@ -10,6 +11,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
+using TransactionalOutbox.MassTransit;
 
 namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 {
@@ -23,9 +25,11 @@ namespace Vodovoz.Core.Application.Orders.Services.OrderCancellation
 
 		public SelfdeliveryCancellationService(
 			IInteractiveService interactiveService,
-			IEdoRepository edoRepository, 
-			IBus messageBus
-		) : base(interactiveService, edoRepository, messageBus)
+			IEdoRepository edoRepository,
+			ICurrentPermissionService currentPermissionService,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWorkOutbox<IBus> outbox
+		) : base(interactiveService, edoRepository, currentPermissionService, unitOfWorkFactory, outbox)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 		}

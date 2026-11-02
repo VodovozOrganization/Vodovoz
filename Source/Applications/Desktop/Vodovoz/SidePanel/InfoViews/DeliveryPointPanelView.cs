@@ -20,6 +20,7 @@ using Vodovoz.Factories;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Mango;
+using VodovozBusiness.Controllers;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -35,6 +36,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IPermissionResult _deliveryPointPermissionResult;
 		private readonly IPermissionResult _orderPermissionResult;
 		private readonly ICommonServices _commonServices;
+		private IOrderSaleHandler _saleHandler;
 
 		DeliveryPoint DeliveryPoint { get; set; }
 		private bool _textviewcommentBufferChanged = false;
@@ -45,7 +47,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			IDeliveryPointRepository deliveryPointRepository,
 			IBottlesRepository bottlesRepository,
 			IDepositRepository depositRepository,
-			IOrderRepository orderRepository)
+			IOrderRepository orderRepository
+			)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
@@ -54,10 +57,16 @@ namespace Vodovoz.SidePanel.InfoViews
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
 			Build();
+			ResolveDependencies();
 			_deliveryPointPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
 			_orderPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
 			_deliveryPointViewModelFactory = new DeliveryPointViewModelFactory(_lifetimeScope);
 			Configure();
+		}
+
+		private void ResolveDependencies()
+		{
+			_saleHandler = _lifetimeScope.Resolve<IOrderSaleHandler>();
 		}
 
 		void Configure()
@@ -255,6 +264,9 @@ namespace Vodovoz.SidePanel.InfoViews
 				var order = ytreeLastOrders.GetSelectedObject() as Order;
 				orderDlg.FillOrderItems(order);
 				orderDlg.Entity.ObservablePromotionalSets.Clear();
+				orderDlg.Entity.ClearPromoSetReferences();
+				_saleHandler.SetSource(orderDlg.Entity);
+				_saleHandler.Recalculate();
 			}
 		}
 

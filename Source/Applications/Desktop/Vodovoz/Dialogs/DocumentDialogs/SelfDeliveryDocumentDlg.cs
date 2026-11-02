@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Core.Infrastructure;
 using Edo.Transport;
 using Gamma.ColumnConfig;
@@ -66,6 +66,7 @@ namespace Vodovoz
 		private IBottlesRepository _bottlesRepository;
 		private IStoreDocumentHelper _storeDocumentHelper;
 		private INomenclatureRepository _nomenclatureRepository;
+		private IOrderSaleHandler _saleHandler;
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
 		private IGenericRepository<FormalEdoRequest> _orderEdoRequestRepository;
 		private ITrueMarkRepository _trueMarkRepository;
@@ -143,6 +144,7 @@ namespace Vodovoz
 			_orderEdoRequestRepository = _lifetimeScope.Resolve<IGenericRepository<FormalEdoRequest>>();
 			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 			_trueMarkRepository = _lifetimeScope.Resolve<ITrueMarkRepository>();
+			_saleHandler = _lifetimeScope.Resolve<IOrderSaleHandler>();
 		}
 		
 		private void ConfigureValidationContext(IValidationContextFactory validationContextFactory)
@@ -423,23 +425,30 @@ namespace Vodovoz
 			var routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
 			var selfDeliveryRepository = _lifetimeScope.Resolve<ISelfDeliveryRepository>();
 
-			if(Entity.FullyShiped(UoW, nomenclatureSettings, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker))
+			if(Entity.FullyShiped(
+				UoW,
+				nomenclatureSettings,
+				routeListItemRepository,
+				selfDeliveryRepository,
+				cashRepository,
+				callTaskWorker,
+				_saleHandler))
 			{
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 			}
 
 			var edoRequest = CreateEdoRequest();
-			
-			logger.Info("Сохраняем документ самовывоза...");
-			UoWGeneric.Save();
 
 			if(edoRequest != null)
 			{
 				_edoRequestCreatedEventPublisher
-					.Publish(edoRequest.Id, "Создание ЭДО-заявки по документу самовывоза")
+					.Publish(UoW, edoRequest.Id, "Создание ЭДО-заявки по документу самовывоза")
 					.GetAwaiter()
 					.GetResult();
 			}
+
+			logger.Info("Сохраняем документ самовывоза...");
+			UoWGeneric.Save();
 
 			//FIXME Необходимо проверить правильность этого кода, так как если заказ именялся то уведомление на его придет и без кода.
 			//А если в каком то месте нужно получать уведомления об изменениях текущего объекта, то логично чтобы этот объект на него и подписался.

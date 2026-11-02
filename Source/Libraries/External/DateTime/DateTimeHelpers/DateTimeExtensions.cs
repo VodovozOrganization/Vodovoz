@@ -176,7 +176,27 @@ namespace DateTimeHelpers
 					return "-";
 			}
 		}
-		
+
+		public static string GetMonthToRussianText(int month)
+		{
+			switch(month)
+			{
+				case 1: return "январь";
+				case 2: return "февраль";
+				case 3: return "март";
+				case 4: return "апрель";
+				case 5: return "май";
+				case 6: return "июнь";
+				case 7: return "июль";
+				case 8: return "август";
+				case 9: return "сентябрь";
+				case 10: return "октябрь";
+				case 11: return "ноябрь";
+				case 12: return "декабрь";
+				default: return "";
+			}
+		}
+
 		public static string ToEdoShortDateString(this DateTime dateTime) => $"{dateTime:yyyy.MM.dd}";
 		public static string ToEdoShortTimeString(this DateTime dateTime) => $"{dateTime:HH.mm.ss}";
 

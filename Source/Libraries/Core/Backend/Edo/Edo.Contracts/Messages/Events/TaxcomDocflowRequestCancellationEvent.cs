@@ -1,7 +1,7 @@
 ﻿namespace Edo.Contracts.Messages.Events
 {
 	/// <summary>
-	/// Событие для запроса аннулирования УПД по ЭДО
+	/// Событие для запроса аннулирования документа по ЭДО
 	/// </summary>
 	public class TaxcomDocflowRequestCancellationEvent
 	{
@@ -16,6 +16,11 @@
 		/// Id ЭДО документа
 		/// </summary>
 		public int DocumentId { get; set; }
+
+		/// <summary>
+		/// Идентификатор документооборота старого счета, у которого нет документа нового ЭДО.
+		/// </summary>
+		public System.Guid? LegacyBillDocflowId { get; set; }
 
 		/// <summary>
 		/// Причина аннулирования

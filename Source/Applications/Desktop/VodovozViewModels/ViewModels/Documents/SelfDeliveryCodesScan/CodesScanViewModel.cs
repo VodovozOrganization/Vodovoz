@@ -643,7 +643,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 			if(parsedCode == null)
 			{
-				parsedCode = _trueMarkWaterCodeParser.ParseCodeFromSelfDelivery(rawCode);
+				parsedCode = _trueMarkWaterCodeParser.ParseCodeFromManual(rawCode);
 			}
 
 			result = parsedCode;

@@ -82,7 +82,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private IQueryOver<OrderRating> RatingsQuery(IUnitOfWork uow)
 		{
 			OrderRating ratingAlias = null;
-			OrderRatingReason orderRatingReasonAlias = null;
 			Order orderAlias = null;
 			OnlineOrder onlineOrderAlias = null;
 			Employee processedByEmployeeAlias = null;
@@ -91,7 +90,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			var query = uow.Session.QueryOver(() => ratingAlias)
 				.Left.JoinAlias(r => r.OnlineOrder, () => onlineOrderAlias)
 				.Left.JoinAlias(r => r.Order, () => orderAlias)
-				.Left.JoinAlias(r => r.OrderRatingReasons, () => orderRatingReasonAlias)
 				.Left.JoinAlias(r => r.ProcessedByEmployee, () => processedByEmployeeAlias);
 			
 			var processedByEmployeeProjection = Projections.SqlFunction(
@@ -146,7 +144,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			{
 				query.Where(
 					Restrictions.Like(
-						Projections.Property(() => orderRatingReasonAlias.Name),
+						OrderRatingProjections.GetOrderRatingReasons(),
 						_filterViewModel.OrderRatingReason,
 						MatchMode.Anywhere));
 			}
@@ -176,7 +174,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			#endregion
 			
 			query.SelectList(list => list
-					.SelectGroup(r => r.Id).WithAlias(() => resultAlias.Id)
+					.Select(r => r.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(() => onlineOrderAlias.Id).WithAlias(() => resultAlias.OnlineOrderId)
 					.Select(processedByEmployeeProjection).WithAlias(() => resultAlias.ProcessedByEmployee)

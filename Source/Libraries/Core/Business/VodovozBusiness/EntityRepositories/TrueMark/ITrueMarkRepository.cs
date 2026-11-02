@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -230,6 +230,9 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<int?> GetOrderIdByStagingCode(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
+
+
+		IEnumerable<ManualTrueMarkProductCode> GetManualCodesByOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
 		/// Возвращает коды товара адреса маршрутного листа

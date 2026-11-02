@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
@@ -139,7 +139,7 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure<OrderDto>(OrderErrors.NotFound);
 			}
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder.Id);
 
 			if(routeListItem is null)
 			{
@@ -182,7 +182,7 @@ namespace DriverAPI.Library.V6.Services
 			{
 				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderSmsPaymentStatus(vodovozOrder.Id);
 				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id, vodovozOrder.OnlinePaymentNumber);
-				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
+				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder.Id);
 				var order = await _orderConverter.ConvertToAPIOrder(
 					vodovozOrder,
 					routeListItem,

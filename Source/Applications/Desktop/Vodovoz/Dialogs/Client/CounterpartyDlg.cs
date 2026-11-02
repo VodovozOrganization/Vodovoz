@@ -2722,14 +2722,17 @@ namespace Vodovoz
 					newRequests.Add(newRequest);
 				}
 
-				resendUow.Commit();
-			}
+				foreach(var newRequest in newRequests)
+				{
+					_edoRequestCreatedEventPublisher.Publish(
+							resendUow,
+							newRequest.Id,
+							"Переотправка ушедших на сохранение кодов задач")
+						.GetAwaiter()
+						.GetResult();
+				}
 
-			foreach(var newRequest in newRequests)
-			{
-				_edoRequestCreatedEventPublisher.Publish(
-					newRequest.Id,
-					"Переотправка ушедших на сохранение кодов задач");
+				resendUow.Commit();
 			}
 
 			UpdateEdoDocumentDataNodes(_edoDocumentsCurrentPage);

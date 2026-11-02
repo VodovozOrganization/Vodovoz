@@ -33,6 +33,7 @@ using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.ViewModels.Cash
 {
@@ -48,6 +49,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly ISelfDeliveryCashOrganisationDistributor _selfDeliveryCashOrganisationDistributor;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly IOrderSaleHandler _saleHandler;
 		private readonly IPermissionResult _entityPermissionResult;
 		private FinancialIncomeCategory _financialIncomeCategory;
 		private IEntityEntryViewModel _orderViewModel;
@@ -68,7 +70,8 @@ namespace Vodovoz.ViewModels.Cash
 			IReportViewOpener reportViewOpener,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IFinancialIncomeCategoriesRepository financialIncomeCategoriesRepository,
-			IReportInfoFactory reportInfoFactory
+			IReportInfoFactory reportInfoFactory,
+			IOrderSaleHandler saleHandler
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -108,6 +111,7 @@ namespace Vodovoz.ViewModels.Cash
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings
 				?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
 			_entityPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Income));
 			CanEditRectroactively =
 				_entityExtendedPermissionValidator.Validate(
@@ -321,7 +325,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		protected override bool BeforeSave()
 		{
-			Entity.AcceptSelfDeliveryPaid(_callTaskWorker);
+			Entity.AcceptSelfDeliveryPaid(_callTaskWorker, _saleHandler);
 
 			if(UoW.IsNew)
 			{

@@ -11,6 +11,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.V5.Factories
 {
@@ -23,13 +24,13 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 		}
 		
-		public OnlineOrder CreateOnlineOrder(
+		public OnlineOrderV1 CreateOnlineOrder(
 			IUnitOfWork uow,
 			ICreatingOnlineOrder creatingOnlineOrder,
 			int fastDeliveryScheduleId,
 			int selfDeliveryDiscountReasonId)
 		{
-			var onlineOrder = new OnlineOrder
+			var onlineOrder = new OnlineOrderV1
 			{
 				Source = creatingOnlineOrder.Source,
 				CounterpartyId = creatingOnlineOrder.CounterpartyErpId,
@@ -79,7 +80,7 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 			return onlineOrder;
 		}
 
-		private void UpdateOnlineComment(OnlineOrder onlineOrder, string onlineOrderComment)
+		private void UpdateOnlineComment(OnlineOrderV1 onlineOrder, string onlineOrderComment)
 		{
 			if(!string.IsNullOrWhiteSpace(onlineOrderComment)
 				&& onlineOrderComment.Length > OnlineOrder.CommentMaxLength)
@@ -93,7 +94,7 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 
 		private void AddOrderItems(
 			IUnitOfWork uow,
-			OnlineOrder onlineOrder,
+			OnlineOrderV1 onlineOrder,
 			int selfDeliveryDiscountReasonId,
 			IEnumerable<OnlineOrderItemDto> onlineOrderItemsDtos)
 		{
@@ -106,22 +107,18 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 			{
 				var nomenclature = uow.GetById<Nomenclature>(onlineOrderItemDto.NomenclatureId);
 
-				DiscountReason applicableDiscountReason = null;
+				DiscountReasonBase applicableDiscountReason = null;
 				
 				if(onlineOrderItemDto.DiscountReasonId.HasValue)
 				{
-					applicableDiscountReason = uow.GetById<DiscountReason>(onlineOrderItemDto.DiscountReasonId.Value);
+					applicableDiscountReason = uow.GetById<DiscountReasonBase>(onlineOrderItemDto.DiscountReasonId.Value);
 				}
 				else if(onlineOrder.IsSelfDelivery
 				        && !onlineOrderItemDto.PromoSetId.HasValue
 				        && nomenclature != null)
 				{
-					var discountReason = uow.GetById<DiscountReason>(selfDeliveryDiscountReasonId);
-
-					if(_discountController.IsApplicableDiscount(discountReason, nomenclature))
-					{
-						applicableDiscountReason = discountReason;
-					}
+					var discountReason = uow.GetById<DiscountReasonBase>(selfDeliveryDiscountReasonId);
+					applicableDiscountReason = discountReason;
 				}
 				
 				PromotionalSet promoSet = null;
@@ -149,7 +146,7 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 			}
 		}
 
-		private void AddRentPackages(IUnitOfWork uow, OnlineOrder onlineOrder, IList<OnlineRentPackageDto> onlineRentPackagesDtos)
+		private void AddRentPackages(IUnitOfWork uow, OnlineOrderV1 onlineOrder, IList<OnlineRentPackageDto> onlineRentPackagesDtos)
 		{
 			if(onlineRentPackagesDtos is null)
 			{
@@ -171,7 +168,7 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 			}
 		}
 		
-		private void InitializeOnlineOrderReferences(IUnitOfWork uow, OnlineOrder onlineOrder, ICreatingOnlineOrder creatingOnlineOrder)
+		private void InitializeOnlineOrderReferences(IUnitOfWork uow, OnlineOrderV1 onlineOrder, ICreatingOnlineOrder creatingOnlineOrder)
 		{
 			if(creatingOnlineOrder.CounterpartyErpId.HasValue)
 			{
