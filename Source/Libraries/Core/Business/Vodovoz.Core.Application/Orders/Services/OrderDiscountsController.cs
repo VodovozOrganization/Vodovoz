@@ -176,8 +176,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 			saleItem.SetDiscount(
 				DiscountValue.Create(
 					saleItem.DiscountData.IsDiscountMoney,
-					saleItem.OriginalDiscountMoney ?? 0,
-					saleItem.OriginalDiscount ?? 0));
+					saleItem.OriginalDiscount ?? 0,
+					saleItem.OriginalDiscountMoney ?? 0)
+				);
 
 			saleItem.DiscountReasons.Clear();
 			foreach(var reason in saleItem.OriginalDiscountReasons)

@@ -6,5 +6,10 @@
 	public class InformalOrderDocumentCancelledEvent
 	{
 		public int DocumentId { get; set; }
+
+		public InformalOrderDocumentCancelledEvent(int documentId)
+		{
+			DocumentId = documentId;
+		}
 	}
 }

@@ -417,11 +417,21 @@ namespace Vodovoz.Domain.Employees
 					new[] { nameof(LoginForNewUser) });
 			}
 
-			if(Status == EmployeeStatus.IsFired &&
+			if(Status is EmployeeStatus.IsFired &&
 				!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_fire_employees"))
 			{
 				yield return new ValidationResult($"Недостаточно прав для увольнения сотрудников",
 					new[] { nameof(Status) });
+			}
+
+			if(Status is EmployeeStatus.IsFired)
+			{
+				if(employeeRepository.HasNonZeroBalance(UoW, Id))
+				{
+					yield return new ValidationResult(
+						"Нельзя уволить сотрудника. За ним числятся ненулевые остатки. Переместите/спишите остатки.",
+						new[] { nameof(Status) });
+				}
 			}
 
 			if(!String.IsNullOrEmpty(LoginForNewUser))

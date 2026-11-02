@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vodovoz.Core.Application.Extensions;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Interfaces.Sale;
@@ -49,24 +49,18 @@ namespace Vodovoz.Core.Application.Sale
 			var saleItem = context
 				.ContextDataToCommonRecalculateDiscount()
 				.SaleItem;
-			
-			if(!SetPriceWithoutRecalculate(saleItem, price))
+
+			if(SetPriceWithoutRecalculate(saleItem, price))
 			{
-				return false;
+				RecalculateDiscounts(context);
 			}
-				
-			RecalculateDiscounts(context);
+
 			return true;
 		}
 		
 		internal virtual void SetPriceForNewSaleItem(IDataContext context, decimal price)
 		{
-			var saleItem = context
-				.ContextDataToCommonRecalculateDiscount()
-				.SaleItem;
-			
-			SetPriceWithoutRecalculate(saleItem, price);
-			RecalculateDiscountsForNewItem(context);
+			SetPrice(context, price);
 		}
 		
 		protected virtual bool SetPriceWithoutRecalculate(IPrice saleItem, decimal price)

@@ -1,4 +1,4 @@
-﻿using DeliveryRulesService.Middleware;
+using DeliveryRulesService.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -24,6 +24,7 @@ namespace DeliveryRulesService
 		{
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
+			services.Configure<ResponseLoggingOptions>(Configuration.GetSection("ResponseLogging"));
 			services.AddDeliveryRulesService(Configuration);
 		}
 

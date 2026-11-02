@@ -78,7 +78,7 @@ namespace DriverAPI.HealthChecks
 			
 			var result = await HttpResponseHelper.SendRequestAsync<RouteListDto>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/v6/GetRouteList?routeListId={routeListId}",
+				$"{_baseAddress}/api/v7/GetRouteList?routeListId={routeListId}",
 				_httpClientFactory,
 				accessToken: _token,
 				cancellationToken: cancellationToken);
@@ -94,7 +94,7 @@ namespace DriverAPI.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<OrderQrPaymentStatusResponse>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/v6/GetOrderQRPaymentStatus?orderId={orderId}",
+				$"{_baseAddress}/api/v7/GetOrderQRPaymentStatus?orderId={orderId}",
 				_httpClientFactory,
 				accessToken: _token,
 				cancellationToken: cancellationToken);
@@ -117,7 +117,7 @@ namespace DriverAPI.HealthChecks
 
 			var tokenResponse = await HttpResponseHelper.SendRequestAsync<TokenResponse>(
 				HttpMethod.Post,
-				$"{_baseAddress}/api/v6/Authenticate",
+				$"{_baseAddress}/api/v7/Authenticate",
 				_httpClientFactory,
 				loginRequestDto.ToJsonContent(),
 				cancellationToken);

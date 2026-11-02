@@ -18,8 +18,6 @@ namespace Vodovoz.Core.Application.Sale
 		/// <inheritdoc/>
 		public virtual void CalculateTax(IRecalculateTax saleItem)
 		{
-			//TODO-5967 погонять без методов инициализации хибернэйта
-
 			if(saleItem.RecalculateTaxSource is null || saleItem.Nomenclature is null)
 			{
 				return;
@@ -48,31 +46,5 @@ namespace Vodovoz.Core.Application.Sale
 			
 			saleItem.IncludeNDS = Math.Round(saleItem.ActualSum * saleItem.ValueAddedTax.Value / (1 + saleItem.ValueAddedTax.Value), 2);
 		}
-
-		//protected abstract bool NeedRecalculateTax(IRecalculateTax taxesItem);
-		//protected abstract void TryInitializeSource(IRecalculateTax taxesItem);
-		
-		/*protected void TryInitializeSource(object saleItemSource)
-		{
-			if(!NHibernateUtil.IsInitialized(saleItemSource))
-			{
-				NHibernateUtil.Initialize(saleItemSource);
-			}
-		}
-		
-		private bool NeedUseTax(IUnitOfWork uow, IRecalculateTax saleItem)
-		{
-			TryInitializeSource(saleItem);
-
-			bool canUseVAT = true;
-
-			if(saleItem.RecalculateTaxSource != null)
-			{
-				canUseVAT = _vatRateProvider.GetActualRate(uow, saleItem) != 0m;
-			}
-
-			return canUseVAT;
-		}
-		*/
 	}
 }

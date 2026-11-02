@@ -209,7 +209,7 @@ namespace DeliveryRulesService.V2.Controllers
 
 			if(district != null)
 			{
-				_logger.LogInformation($"Район получен {district.DistrictName}");
+				_logger.LogInformation("Район получен {DistrictName}", district.DistrictName);
 
 				var response = new DeliveryRulesDTO
 				{
@@ -397,8 +397,7 @@ namespace DeliveryRulesService.V2.Controllers
 
 				if(district != null)
 				{
-					_logger.LogInformation($"Район получен {district.DistrictName}");
-
+					_logger.LogInformation("Район получен {DistrictName}", district.DistrictName);
 					return FillDeliveryInfoDTO(district);
 				}
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Settings.Edo;
 
 namespace TrueMark.Codes.Pool
 {
@@ -20,10 +21,15 @@ namespace TrueMark.Codes.Pool
 		private const string _poolTableName = "true_mark_codes_pool_new";
 
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IEdoSettings _edoSettings;
 
-		public TrueMarkCodesPoolManager(IUnitOfWorkFactory uowFactory)
+		public TrueMarkCodesPoolManager(
+			IUnitOfWorkFactory uowFactory,
+			IEdoSettings edoSettings
+		)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 		}
 
 		public async Task<IEnumerable<int>> SelectCodesForCheckAsync(int count, CancellationToken cancellationToken)
@@ -75,12 +81,16 @@ namespace TrueMark.Codes.Pool
 			{
 				uow.OpenTransaction();
 
+				var additionalDays = _edoSettings.CodePoolExpireDateCheckAdditinalDays;
+
 				var sql = $@"
 					DELETE FROM {_poolTableName}
 					WHERE expiration_date IS NOT NULL 
-						AND expiration_date < NOW()
+						AND DATE_SUB(expiration_date, INTERVAL :additionalDays DAY) < NOW()
 					;";
 				var query = uow.Session.CreateSQLQuery(sql);
+				query.SetParameter("additionalDays", additionalDays);
+
 				var deletedCount = await query.ExecuteUpdateAsync(cancellationToken);
 
 				await uow.CommitAsync(cancellationToken);

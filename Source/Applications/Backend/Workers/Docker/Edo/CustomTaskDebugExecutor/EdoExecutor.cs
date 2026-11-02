@@ -477,8 +477,8 @@ namespace CustomTaskDebugExecutor
 				return;
 			}
 
-			var service = _serviceProvider.GetRequiredService<DocflowHandler>();
-			await service.HandleTransferDocument(id, cancellationToken);
+			var service = _serviceProvider.GetRequiredService<DocflowSendHandler>();
+			await service.SendTransferDocument(id, cancellationToken);
 		}
 
 		private async Task ReceiveOrderDocumentSendEvent(CancellationToken cancellationToken)
@@ -495,8 +495,8 @@ namespace CustomTaskDebugExecutor
 				return;
 			}
 
-			var service = _serviceProvider.GetRequiredService<DocflowHandler>();
-			await service.HandleOrderDocument(id, cancellationToken);
+			var service = _serviceProvider.GetRequiredService<DocflowSendHandler>();
+			await service.SendOrderDocument(id, cancellationToken);
 		}
 
 		private async Task ReceiveTransferRequestCreatedEvent(CancellationToken cancellationToken)

@@ -45,7 +45,7 @@ namespace CustomerOrdersApi.Library.V6.Repositories
 		/// <param name="counterpartyId">Идентификатор контрагента</param>
 		/// <param name="ratingAvailableFrom">Дата, начиная с которой доступна оценка заказа</param>
 		/// <param name="orderStatuses">Необязательный список допустимых внешних статусов заказа для фильтрации.
-		/// Если не указан — возвращаются заказы во всех статусах</param>
+		/// Если не указан - возвращаются заказы во всех статусах</param>
 		/// <returns>Коллекция DTO заказов</returns>
 		IEnumerable<OrderDto> GetCounterpartyOnlineOrdersWithoutOrder(
 			IUnitOfWork uow,

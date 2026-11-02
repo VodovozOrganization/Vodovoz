@@ -211,9 +211,6 @@ namespace Vodovoz.Models.Orders
 				CopyDependentOrderEquipment(orderItem);
 			}
 
-			//TODO-5967 проверить правильность пересчета цены
-			//_resultOrder.RecalculateItemsPrice();
-
 			return this;
 		}
 
@@ -241,9 +238,6 @@ namespace Vodovoz.Models.Orders
 				CopyOrderItem(orderItem, withDiscounts, withPrices, isCopiedFromUndelivery);
 				CopyDependentOrderEquipment(orderItem);
 			}
-
-			//TODO-5967 проверить правильность пересчета цены
-			//_resultOrder.RecalculateItemsPrice();
 
 			return this;
 		}
@@ -402,7 +396,6 @@ namespace Vodovoz.Models.Orders
 				CopyOrderEquipment(orderEquipment);
 			}
 			
-			//TODO-5967 возможно стоит вынести пересчет выше, в вызываемый класс
 			_saleHandler.UpdateRentsCount();
 		}
 
@@ -457,7 +450,7 @@ namespace Vodovoz.Models.Orders
 
 		private void CopyOrderEquipment(OrderEquipment orderEquipment)
 		{
-			var newOrderEquipment = OrderEquipment.CreateNewFromOther(_copiedOrder, orderEquipment);
+			var newOrderEquipment = OrderEquipment.CreateNewFromOther(_resultOrder, orderEquipment);
 			_resultOrder.ObservableOrderEquipments.Add(newOrderEquipment);
 		}
 	}

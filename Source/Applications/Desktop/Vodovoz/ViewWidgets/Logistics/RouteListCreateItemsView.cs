@@ -1,5 +1,6 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using Gtk;
 using NHibernate.Criterion;
 using QS.Dialog;
@@ -425,6 +426,13 @@ namespace Vodovoz
 
 				if(order == null)
 				{
+					continue;
+				}
+				
+				if(order.OrderStatus != OrderStatus.Accepted)
+				{
+					ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						$"Заказ №{order.Id} не добавлен, т.к. находится в статусе \"{order.OrderStatus.GetEnumTitle()}\". Обновите журнал заказов.");
 					continue;
 				}
 

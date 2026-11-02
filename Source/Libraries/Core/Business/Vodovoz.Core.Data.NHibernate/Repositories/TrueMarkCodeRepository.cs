@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories
@@ -190,6 +191,24 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 					.ListAsync(cancellationToken);
 
 			return result;
+		}
+
+		public TrueMarkWaterIdentificationCode FindSameInstanceCode(ITrueMarkWaterCode code)
+		{
+			return _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+				.Where(x => x.Gtin == code.Gtin)
+				.Where(x => x.SerialNumber == code.SerialNumber)
+				.Where(x => x.CheckCode == code.CheckCode)
+				.SingleOrDefault();
+		}
+
+		public TrueMarkWaterIdentificationCode FindSameGroupCode(ITrueMarkWaterCode code)
+		{
+			return _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+				.Where(x => x.Gtin == code.Gtin)
+				.Where(x => x.SerialNumber == code.SerialNumber)
+				.Where(x => x.CheckCode == code.CheckCode)
+				.SingleOrDefault();
 		}
 	}
 }

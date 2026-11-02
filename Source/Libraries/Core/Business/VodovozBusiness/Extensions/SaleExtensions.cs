@@ -1,6 +1,7 @@
 ﻿using System;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 
 namespace VodovozBusiness.Extensions
 {
@@ -27,7 +28,29 @@ namespace VodovozBusiness.Extensions
 			return discountItem;
 		}
 		
+		public static IPreserveDiscount ToPreserveDiscount(this INomenclatureCount saleItem)
+		{
+			if(!(saleItem is IPreserveDiscount discountItem))
+			{
+				throw new InvalidOperationException(
+					$"{saleItem.GetType()} должен реализовывать {nameof(IPreserveDiscount)}, чтобы пересчитать скидку");
+			}
+			
+			return discountItem;
+		}
+		
 		public static IApplyDiscountReasonItem ToApplyDiscountReasonItem(this ISaleItem saleItem)
+		{
+			if(!(saleItem is IApplyDiscountReasonItem discountItem))
+			{
+				throw new InvalidOperationException(
+					$"{saleItem.GetType()} должен реализовывать {nameof(IApplyDiscountReasonItem)}, чтобы пересчитать скидку");
+			}
+			
+			return discountItem;
+		}
+		
+		public static IApplyDiscountReasonItem ToApplyDiscountReasonItem(this INomenclatureCount saleItem)
 		{
 			if(!(saleItem is IApplyDiscountReasonItem discountItem))
 			{

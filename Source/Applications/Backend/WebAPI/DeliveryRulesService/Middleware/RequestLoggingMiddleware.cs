@@ -1,24 +1,30 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IO;
 using Microsoft.Net.Http.Headers;
-using System.Diagnostics;
+using System;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DeliveryRulesService.Middleware
 {
 	internal class RequestLoggingMiddleware
 	{
+		private readonly IOptionsMonitor<ResponseLoggingOptions> _responseLoggingOptions;
 		private readonly ILogger _logger;
 		private readonly RecyclableMemoryStreamManager _recyclableMemoryStreamManager;
 		private readonly RequestDelegate _next;
 
-		public RequestLoggingMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
+		public RequestLoggingMiddleware(RequestDelegate next, ILoggerFactory loggerFactory,
+			IOptionsMonitor<ResponseLoggingOptions> responseLoggingOptions)
 		{
 			_logger = loggerFactory.CreateLogger<RequestLoggingMiddleware>();
 			_recyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
 			_next = next;
+			_responseLoggingOptions = responseLoggingOptions;
 		}
 
 		public async Task Invoke(HttpContext context)
@@ -46,17 +52,61 @@ namespace DeliveryRulesService.Middleware
 								   "Host: {RequestHost} " +
 								   "Path: {RequestPath} " +
 								   "QueryString: {RequestQueryString} " +
+								   "RequestId: {RequestId} " +
 								   "Request Body: {RequestBody}",
 								   context.Request.Scheme,
 								   userAgent,
 								   context.Request.Host,
 								   context.Request.Path,
 								   context.Request.QueryString,
+								   context.TraceIdentifier,
 								   ReadStreamInChunks(requestStream));
 
 			context.Request.Body.Position = 0;
 
-			await _next?.Invoke(context);
+			if(_responseLoggingOptions.CurrentValue.Paths?.Any(path =>
+				!string.IsNullOrWhiteSpace(path)
+				&& string.Equals(context.Request.Path.Value?.TrimEnd('/'), path.TrimEnd('/'), StringComparison.OrdinalIgnoreCase)) == true)
+			{
+				await LogResponse(context);
+				return;
+			}
+
+			await _next.Invoke(context);
+		}
+
+		private async Task LogResponse(HttpContext context)
+		{
+			var originalBody = context.Response.Body;
+			await using var responseStream = _recyclableMemoryStreamManager.GetStream();
+			context.Response.Body = responseStream;
+
+			try
+			{
+				await _next.Invoke(context);
+				var responseBody = ReadStreamInChunks(responseStream);
+				responseStream.Position = 0;
+				await responseStream.CopyToAsync(originalBody);
+
+				_logger.LogInformation(
+					"Http Response Information: RequestId: {RequestId} Path: {RequestPath} " +
+					"StatusCode: {StatusCode} Response Body: {ResponseBody}",
+					context.TraceIdentifier,
+					context.Request.Path,
+					context.Response.StatusCode,
+					responseBody);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex,
+					"Ошибка обработки или передачи ответа: RequestId: {RequestId} Path: {RequestPath}",
+					context.TraceIdentifier, context.Request.Path);
+				throw;
+			}
+			finally
+			{
+				context.Response.Body = originalBody;
+			}
 		}
 
 		private static string ReadStreamInChunks(Stream stream)
@@ -66,7 +116,7 @@ namespace DeliveryRulesService.Middleware
 			stream.Seek(0, SeekOrigin.Begin);
 
 			using var textWriter = new StringWriter();
-			using var reader = new StreamReader(stream);
+			using var reader = new StreamReader(stream, Encoding.UTF8, true, readChunkBufferLength, leaveOpen: true);
 
 			var readChunk = new char[readChunkBufferLength];
 			int readChunkLength;

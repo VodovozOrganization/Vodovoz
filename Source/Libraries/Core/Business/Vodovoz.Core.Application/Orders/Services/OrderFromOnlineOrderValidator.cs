@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Infrastructure;
@@ -128,9 +128,18 @@ namespace Vodovoz.Core.Application.Orders.Services
 				}
 			}
 			
-			if(OnlineOrder.DeliveryDate < DateTime.Today && OnlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
+			var now = DateTime.Now;
+			if(OnlineOrder.DeliveryDate < now.Date && OnlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
 			{
 				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDeliveryDate);
+			}
+			else if(OnlineOrder.OnlineOrderStatus == OnlineOrderStatus.New
+				&& !OnlineOrder.IsSelfDelivery
+				&& !OnlineOrder.IsFastDelivery
+				&& OnlineOrder.DeliverySchedule != null
+				&& OnlineOrder.DeliveryDate.Date.Add(OnlineOrder.DeliverySchedule.To) <= now)
+			{
+				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.DeliveryIntervalExpired);
 			}
 
 			if(!string.IsNullOrEmpty(OnlineOrder.ContactPhone))

@@ -228,6 +228,11 @@ namespace Vodovoz.Core.Application.Logistics
 				return Result.Failure<string>(RouteListErrors.RouteListItem.CreateInvalidOrderTransferType(order.Id));
 			}
 
+			if(order.OrderStatus != OrderStatus.Accepted)
+			{
+				return Result.Failure<string>(RouteListErrors.RouteListItem.CreateInvalidOrderStatusForTransfer(order.Id, order.OrderStatus));
+			}
+
 			var deliveryPointId = order?.DeliveryPoint?.Id;
 			if(deliveryPointId != null)
 			{

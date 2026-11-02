@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Common;
@@ -44,6 +44,12 @@ namespace VodovozBusiness.Controllers
 		/// <param name="saleItem">Продаваемая позиция</param>
 		/// <param name="priceData">Данные цены(тип и стоимость)</param>
 		void SetPrice(ISaleItem saleItem, (SaleItemPriceType PriceType, decimal Price) priceData);
+		/// <summary>
+		/// Установка цены для новой позиции на продажу
+		/// </summary>
+		/// <param name="newItem">Новая позиция</param>
+		/// <param name="priceData">Данные цены</param>
+		void SetPriceForNewSaleItem(ISaleItem newItem, (SaleItemPriceType PriceType, decimal Price) priceData);
 
 		#region MyRegion
 

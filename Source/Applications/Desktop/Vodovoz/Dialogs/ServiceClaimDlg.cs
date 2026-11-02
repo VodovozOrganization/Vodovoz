@@ -74,6 +74,8 @@ namespace Vodovoz
 
 		public OrderAddressType? TypeOfAddress => null;
 
+		public bool HasKulerServiceNomenclature => false;
+
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 
 		bool isEditable = true;

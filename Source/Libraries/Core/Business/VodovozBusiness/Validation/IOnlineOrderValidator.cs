@@ -9,7 +9,7 @@ namespace Vodovoz.Validation
 	public interface IOnlineOrderValidator
 	{
 		/// <summary>
-		/// Проверка оналйн заказа на соответствие
+		/// Проверка онлайн заказа на соответствие
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="checkPerformedOrders">Проверять оформленные заказы из онлайна</param>

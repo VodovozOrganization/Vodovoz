@@ -7,6 +7,7 @@ using NHibernate.Multi;
 using NHibernate.Transform;
 using NHibernate.Util;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
@@ -20,7 +21,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
@@ -77,6 +77,8 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private BalanceSummaryReport _balanceSummaryReport;
 		private ActiveStoragesBalanceSummaryReport _activeStoragesBalanceSummaryReport;
 		private bool _isCreatedWithReserveData = false;
+		private ArchivedMode _archivedMode = ArchivedMode.OnlyActive;
+
 
 		public WarehousesBalanceSummaryViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -202,6 +204,58 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public bool Sensitivity => !GroupingActiveStorage;
 		
 		public StorageType? ActiveSelectedStorageType { get; private set; }
+
+		[PropertyChangedAlso(
+			nameof(IsOnlyActiveSelected),
+			nameof(IsOnlyArchivedSelected),
+			nameof(IsAllSelected))]
+		public ArchivedMode ArchivedMode
+		{
+			get => _archivedMode;
+			set
+			{
+				if(SetField(ref _archivedMode, value))
+				{
+					UpdateStorageParameters();
+				}
+			}
+		}
+
+		public bool IsOnlyActiveSelected
+		{
+			get => ArchivedMode == ArchivedMode.OnlyActive;
+			set 
+			{ 
+				if(value)
+				{
+					ArchivedMode = ArchivedMode.OnlyActive;
+				}
+			}
+		}
+
+		public bool IsOnlyArchivedSelected
+		{
+			get => ArchivedMode == ArchivedMode.OnlyArchived;
+			set
+			{
+				if(value)
+				{
+					ArchivedMode = ArchivedMode.OnlyArchived;
+				}
+			}
+		}
+
+		public bool IsAllSelected
+		{
+			get => ArchivedMode == ArchivedMode.All;
+			set
+			{
+				if(value)
+				{
+					ArchivedMode = ArchivedMode.All;
+				}
+			}
+		}
 
 		#endregion
 
@@ -1674,9 +1728,21 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private void UpdateStorageParameters()
 		{
-			StoragesViewModel.CurrentParameterSet.UpdateParameters();
-			StoragesViewModel.CurrentParameterSet = null;
-			StoragesViewModel.CurrentParameterSet = StoragesViewModel.ReportFilter.ParameterSets.First();
+			var storagesViewModel = StoragesViewModel;
+
+			if(storagesViewModel?.ReportFilter?.ParameterSets == null
+				|| !storagesViewModel.ReportFilter.ParameterSets.Any())
+			{
+				return;
+			}
+
+			foreach(var parameterSet in storagesViewModel.ReportFilter.ParameterSets)
+			{
+				parameterSet.UpdateParameters();
+			}
+
+			storagesViewModel.CurrentParameterSet = null;
+			storagesViewModel.CurrentParameterSet = storagesViewModel.ReportFilter.ParameterSets.First();
 		}
 
 		private void AddRow(BalanceSummaryReport report, BalanceSummaryRow row)
@@ -1870,7 +1936,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					filters =>
 					{
 						SelectableEntityParameter<Warehouse> resultAlias = null;
-						var query = UoW.Session.QueryOver<Warehouse>().Where(x => !x.IsArchive);
+						var query = UoW.Session.QueryOver<Warehouse>();
+						ApplyArchivedModeToWarehousesQuery(query);
+
 						if(filters != null && EnumerableExtensions.Any(filters))
 						{
 							foreach(var f in filters)
@@ -1899,6 +1967,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					{
 						SelectableEntityParameter<Employee> resultAlias = null;
 						var query = UoW.Session.QueryOver<Employee>();
+						ApplyArchivedModeToEmployeesQuery(query);
 
 						if(GroupingActiveStorage)
 						{
@@ -1946,8 +2015,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						CarVersion carVersionAlias = null;
 
 						var query = UoW.Session.QueryOver(() => carAlias)
-							.JoinAlias(c => c.CarModel, () => carModelAlias)
-							.Where(x => !x.IsArchive);
+							.JoinAlias(c => c.CarModel, () => carModelAlias);
+
+						ApplyArchivedModeToCarsQuery(query);
 
 						var customName = CustomProjections.Concat(
 							Projections.Property(() => carModelAlias.Name),
@@ -2012,6 +2082,69 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			return new SelectableParameterReportFilterViewModel(_storagesFilter);
 		}
 
+		private void ApplyArchivedModeToWarehousesQuery(IQueryOver<Warehouse, Warehouse> query)
+		{
+			switch(ArchivedMode)
+			{
+				case ArchivedMode.OnlyActive:
+					query.Where(x => !x.IsArchive);
+					break;
+				case ArchivedMode.OnlyArchived:
+					query.Where(x => x.IsArchive);
+					break;
+				case ArchivedMode.All:
+					break;
+			}
+		}
+
+		private void ApplyArchivedModeToEmployeesQuery(IQueryOver<Employee, Employee> query)
+		{
+			switch(ArchivedMode)
+			{
+				case ArchivedMode.OnlyActive:
+					query.Where(e => e.Status != EmployeeStatus.IsFired);
+					break;
+				case ArchivedMode.OnlyArchived:
+					query.Where(e => e.Status == EmployeeStatus.IsFired);
+					break;
+				case ArchivedMode.All:
+					break;
+			}
+		}
+
+		private void ApplyArchivedModeToCarsQuery(IQueryOver<Car, Car> query)
+		{
+			switch(ArchivedMode)
+			{
+				case ArchivedMode.OnlyActive:
+					query.Where(x => !x.IsArchive);
+					break;
+				case ArchivedMode.OnlyArchived:
+					query.Where(x => x.IsArchive);
+					break;
+				case ArchivedMode.All:
+					break;
+			}
+		}
+
 		#endregion
+	}
+
+	public enum ArchivedMode
+	{
+		/// <summary>
+		/// Исключить архивные/уволенные
+		/// </summary>
+		OnlyActive,
+
+		/// <summary>
+		/// Включить только архивные/уволенные
+		/// </summary>
+		OnlyArchived,
+
+		/// <summary>
+		/// Отображать всё
+		/// </summary>
+		All
 	}
 }

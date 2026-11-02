@@ -1,5 +1,6 @@
 ﻿using DriverApi.Notifications.Client;
 using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Services;
 using DriverAPI.Library.V6.Services;
 using Edo.Transport;
 using EventsApi.Library;
@@ -73,6 +74,8 @@ namespace DriverAPI.Library
 				.AddScoped<IActionTimeHelper, ActionTimeHelper>()
 				.AddScoped<IDriverApiSettings, DriverApiSettings>()
 				.AddTrueMarkCodesCheckDependencies();
+
+			services.AddScoped<IDriverAuthenticationService, DriverAuthenticationService>();
 
 			services.AddVersion5();
 			services.AddVersion6();

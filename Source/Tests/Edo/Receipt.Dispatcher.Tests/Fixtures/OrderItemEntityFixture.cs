@@ -10,6 +10,7 @@ namespace Receipt.Dispatcher.Tests.Fixtures
 		}
 
 		public void SetCount(decimal count) => Count = count;
+		public void SetActualCount(decimal count) => ActualCount = count;
 		public void SetPrice(decimal price) => Price = price;
 		public void SetMoneyDiscount(decimal discountMoney) => DiscountMoney = discountMoney;
 	}

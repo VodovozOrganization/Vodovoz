@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V7;
+﻿using DriverApi.Contracts.V7;
 using DriverApi.Contracts.V7.Requests;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V7.Services;
@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic.Drivers;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 
 namespace DriverAPI.Controllers.V7
 {
@@ -118,9 +119,11 @@ namespace DriverAPI.Controllers.V7
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ProblemDetails))]
 		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromServices] IUnitOfWork unitOfWork, [FromBody] CompletedOrderRequest completedOrderRequestModel, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken} | Тело запроса: {@RequestBody}",
@@ -137,15 +140,14 @@ namespace DriverAPI.Controllers.V7
 			if(!_completeOrderDeliveryInProgress.TryAdd($"{user.UserName}:{completedOrderRequestModel.OrderId}", true))
 			{
 				_logger.LogWarning("Запрос на завершение заказа {OrderId} уже в процессе обработки", completedOrderRequestModel.OrderId);
-				HttpContext.Response.StatusCode = StatusCodes.Status409Conflict;
-				return NoContent();
+				return Problem("Запрос на завершение заказа уже обрабатывается", statusCode: StatusCodes.Status409Conflict);
 			}
 
 			Activity.Current?.AddTag("OrderId", completedOrderRequestModel.OrderId);
 
 			var resultMessage = "OK";
 
-			var localActionTime = completedOrderRequestModel.ActionTimeUtc.ToLocalTime();
+			var localActionTime = (await GetActionTimeUtcAsync(completedOrderRequestModel.ActionTimeUtc)).ToLocalTime();
 
 			var timeCheckResult = _actionTimeHelper.CheckRequestTime(recievedTime, localActionTime);
 
@@ -299,7 +301,7 @@ namespace DriverAPI.Controllers.V7
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeService.GetByAPILogin(user.UserName);
 
-			var localActionTime = completedOrderRequestModel.ActionTimeUtc.ToLocalTime();
+			var localActionTime = (await GetActionTimeUtcAsync(completedOrderRequestModel.ActionTimeUtc)).ToLocalTime();
 
 			var timeCheckResult = _actionTimeHelper.CheckRequestTime(recievedTime, localActionTime);
 
@@ -350,6 +352,7 @@ namespace DriverAPI.Controllers.V7
 		/// </summary>
 		/// <param name="changeOrderPaymentTypeRequestModel">Модель данных входящего запроса</param>
 		[HttpPost]
+		[Idempotent]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -360,7 +363,7 @@ namespace DriverAPI.Controllers.V7
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;
 
-			var localActionTime = changeOrderPaymentTypeRequestModel.ActionTimeUtc.ToLocalTime();
+			var localActionTime = (await GetActionTimeUtcAsync(changeOrderPaymentTypeRequestModel.ActionTimeUtc)).ToLocalTime();
 
 			_logger.LogInformation("Смена типа оплаты заказа: {OrderId} на {PaymentType}" +
 				" на стороне мобильного приложения в {ActionTime} пользователем {Username} в {RecievedTime} | User token: {AccessToken}",

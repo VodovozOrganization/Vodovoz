@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Client;
@@ -18,6 +17,7 @@ using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 
@@ -54,7 +54,14 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		private string _transporterBill;
 		private decimal? _tranporterSum;
 		private Counterparty _transporterCounterparty;
-		
+
+		private Organization _cargoSender;
+		private Organization _cargoReceiver;
+		private Organization _payer;
+		private Car _car;
+		private Car _semitrailer;
+		private Employee _driver;
+
 		public MovementDocument()
 		{
 			MovementDocumentTypeByStorage = MovementDocumentTypeByStorage.ToWarehouse;
@@ -115,6 +122,49 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		{
 			get => _transporterCounterparty;
 			set => SetField(ref _transporterCounterparty, value);
+		}
+
+		private bool _needPrintTtn;
+		public virtual bool NeedPrintTtn
+		{
+			get => _needPrintTtn;
+			set => SetField(ref _needPrintTtn, value, () => NeedPrintTtn);
+		}
+
+		public virtual Organization CargoSender
+		{
+			get => _cargoSender;
+			set => SetField(ref _cargoSender, value, () => CargoSender);
+		}
+
+		public virtual Organization CargoReceiver
+		{
+			get => _cargoReceiver;
+			set => SetField(ref _cargoReceiver, value, () => CargoReceiver);
+		}
+
+		public virtual Organization Payer
+		{
+			get => _payer;
+			set => SetField(ref _payer, value, () => Payer);
+		}
+
+		public virtual Car Car
+		{
+			get => _car;
+			set => SetField(ref _car, value, () => Car);
+		}
+
+		public virtual Car Semitrailer
+		{
+			get => _semitrailer;
+			set => SetField(ref _semitrailer, value, () => Semitrailer);
+		}
+
+		public virtual Employee Driver
+		{
+			get => _driver;
+			set => SetField(ref _driver, value, () => Driver);
 		}
 
 		#region Send

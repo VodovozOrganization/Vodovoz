@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>8.5in</PageHeight>
   <PageWidth>11in</PageWidth>
   <Width>7.5in</Width>
@@ -502,8 +500,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -552,8 +549,7 @@
                             <BorderColor />
                             <BorderWidth />
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -572,8 +568,7 @@
                             <BorderColor />
                             <BorderWidth />
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -592,8 +587,7 @@
                             <BorderColor />
                             <BorderWidth />
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -612,16 +606,14 @@
                             <BorderColor />
                             <BorderWidth />
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox30">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -753,8 +745,7 @@
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
@@ -767,8 +758,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox31">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>None</Default>
@@ -788,8 +778,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox32">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>None</Default>
@@ -809,8 +798,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox33">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>None</Default>
@@ -830,8 +818,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox34">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>None</Default>
@@ -851,8 +838,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox57">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>None</Default>
@@ -872,8 +858,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox58">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>None</Default>
@@ -894,7 +879,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox64">
-                          <Value>=Iif({expense_advance_desc}=null, "Аванс к МЛ №"+{rl_id}+" не выдавался", {expense_advance_desc}+":")</Value>
+                          <Value>=Iif({expense_advance_desc}=null, "Аванс к МЛ №"+{rl_id}+" не выдавался", {expense_advance_desc})</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -905,8 +890,8 @@
                             <BorderWidth />
                             <TextAlign>Right</TextAlign>
                             <VerticalAlign>Top</VerticalAlign>
-                            <PaddingBottom >=Len({expense_advance_desc}) / 6 + "pt"</PaddingBottom>
-                            <PaddingTop >=Len({expense_advance_desc}) / 6 + "pt"</PaddingTop>
+                            <PaddingBottom>=Len({expense_advance_desc}) / 10 + "pt"</PaddingBottom>
+                            <PaddingTop>=Len({expense_advance_desc}) / 10 + "pt"</PaddingTop>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>
@@ -916,7 +901,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox39">
-                          <Value>={expense_advance}</Value>
+                          <Value>=Iif({expense_advance} = null, "", Format({expense_advance}, "#,##0"))</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -927,8 +912,8 @@
                             <BorderWidth />
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Top</VerticalAlign>
-                            <Format>#,##0</Format>
                           </Style>
+                          <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -961,8 +946,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -982,8 +966,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1003,8 +986,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1024,8 +1006,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1158,8 +1139,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1364,18 +1344,29 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.date,
+    route_lists.id AS rl_id,
     CONCAT(employees.last_name, ' ', employees.name) AS driver,
     wages_movement_operations.money AS wage_from_operations,
-    cash_expense.money AS expense_advance,
-    cash_expense.description AS expense_advance_desc,
-    entries.*
+    advances.advance_issued,
+    advances.advance_returned,
+    advances.expense_advance,
+    advances.expense_advance_desc,
+    entries.entry_name,
+    entries.entry_address,
+    entries.entry_price,
+    entries.entry_count,
+    entries.entry_payment_type,
+    entries.entry_sum,
+    entries.entry_wage,
+    entries.entry_profit,
+    entries.entry_nomenclatures
 FROM
     route_lists
-        RIGHT JOIN
+        LEFT JOIN
     (
         SELECT
             route_list_addresses.route_list_id AS rl_id,
@@ -1402,6 +1393,8 @@ FROM
             IFNULL(nomenclature.short_name, nomenclature.name) AS entry_nomenclatures
         FROM
             route_list_addresses
+                INNER JOIN
+            route_lists entry_rl ON entry_rl.id = route_list_addresses.route_list_id
                 LEFT JOIN
             orders ON orders.id = route_list_addresses.order_id
                 LEFT JOIN
@@ -1414,10 +1407,11 @@ FROM
             nomenclature ON nomenclature.id = order_items.nomenclature_id
                 LEFT JOIN
             measurement_units mu ON nomenclature.unit_id = mu.id
-                LEFT JOIN
-            order_equipment ON order_equipment.order_id = orders.id
         WHERE
-            NOT (
+            entry_rl.date &gt;= @start_date
+          AND entry_rl.date &lt; date_add(@end_date, INTERVAL 1 DAY)
+          AND entry_rl.driver_id = @driver_id
+          AND NOT (
                 #Исключатся недовозы и отмены 
                 (orders.order_status IN ('NotDelivered', 'Canceled', 'DeliveryCanceled'))
                     OR
@@ -1445,11 +1439,54 @@ FROM
         LEFT JOIN
     wages_movement_operations ON wages_movement_operations.id = route_lists.driver_wages_movement_operations_id
         LEFT JOIN
-    cash_expense ON cash_expense.route_list_id = route_lists.id
+    (
+        SELECT
+            expenses.route_list_id,
+            SUM(expenses.money) AS advance_issued,
+            SUM(expenses.returned_money + expenses.reported_money) AS advance_returned,
+            NULLIF(SUM(GREATEST(expenses.money - expenses.returned_money - expenses.reported_money, 0)), 0) AS expense_advance,
+            GROUP_CONCAT(
+                CONCAT_WS('\n',
+                    CONCAT('Выдано ', FORMAT(expenses.money, 2), ': ', expenses.description_full),
+                    IF(expenses.returned_money &gt; 0,
+                       CONCAT('Возвращено ', FORMAT(expenses.returned_money, 2), ': ', expenses.description_title),
+                       NULL),
+                    IF(expenses.reported_money &gt; 0,
+                       CONCAT('Авансовый отчет ', FORMAT(expenses.reported_money, 2), ': ', expenses.description_title),
+                       NULL)
+                )
+                ORDER BY expenses.id
+                SEPARATOR '\n'
+            ) AS expense_advance_desc
+        FROM
+        (
+            SELECT
+                cash_expense.id,
+                cash_expense.route_list_id,
+                cash_expense.money,
+                IFNULL(NULLIF(REPLACE(cash_expense.description, '\r', ''), ''), CONCAT('Расходный ордер №', cash_expense.id)) AS description_full,
+                SUBSTRING_INDEX(
+                    IFNULL(NULLIF(REPLACE(cash_expense.description, '\r', ''), ''), CONCAT('Расходный ордер №', cash_expense.id)),
+                    '\n', 1) AS description_title,
+                IFNULL(SUM(IF(cash_advance_closing.income_id IS NOT NULL, cash_advance_closing.money, 0)), 0) AS returned_money,
+                IFNULL(SUM(IF(cash_advance_closing.advance_report_id IS NOT NULL, cash_advance_closing.money, 0)), 0) AS reported_money
+            FROM
+                cash_expense
+                INNER JOIN route_lists expense_rl ON expense_rl.id = cash_expense.route_list_id
+				LEFT JOIN cash_advance_closing ON cash_advance_closing.expense_id = cash_expense.id
+            WHERE
+                expense_rl.date &gt;= @start_date
+              AND expense_rl.date &lt; date_add(@end_date, INTERVAL 1 DAY)
+              AND expense_rl.driver_id = @driver_id
+            GROUP BY cash_expense.id, cash_expense.route_list_id, cash_expense.money, cash_expense.description
+        ) AS expenses
+        GROUP BY expenses.route_list_id
+    ) AS advances ON advances.route_list_id = route_lists.id
 WHERE
     route_lists.date &gt;= @start_date
   AND route_lists.date &lt; date_add(@end_date, INTERVAL 1 DAY)
   AND route_lists.driver_id = @driver_id
+  AND (entries.rl_id IS NOT NULL OR advances.route_list_id IS NOT NULL)
 ORDER BY route_lists.date, route_lists.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -1466,7 +1503,7 @@ ORDER BY route_lists.date, route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1515,6 +1552,14 @@ ORDER BY route_lists.date, route_lists.id;</CommandText>
           <DataField>expense_advance</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="advance_issued">
+          <DataField>advance_issued</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="advance_returned">
+          <DataField>advance_returned</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
         <Field Name="entry_nomenclatures">
           <DataField>entry_nomenclatures</DataField>
           <TypeName>System.String</TypeName>
@@ -1534,16 +1579,19 @@ ORDER BY route_lists.date, route_lists.id;</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
-	cash_expense.route_list_id,
-	IFNULL(cash_expense.money, 0) AS expense_advance
+	route_lists.id AS route_list_id,
+	IFNULL(GREATEST(cash_expense.money - IFNULL(SUM(cash_advance_closing.money), 0), 0), 0) AS expense_advance
 FROM
 	route_lists
 LEFT JOIN
 	cash_expense ON cash_expense.route_list_id = route_lists.id
+LEFT JOIN
+	cash_advance_closing ON cash_advance_closing.expense_id = cash_expense.id
 WHERE
 	route_lists.date &gt;= @start_date
 	AND route_lists.date &lt; date_add(@end_date, INTERVAL 1 DAY)
-	AND route_lists.driver_id = @driver_id;</CommandText>
+	AND route_lists.driver_id = @driver_id
+GROUP BY route_lists.id, cash_expense.id, cash_expense.money;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -1635,7 +1683,7 @@ and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1646,8 +1694,7 @@ and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -1659,8 +1706,7 @@ and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="driver_id">
       <DataType>Integer</DataType>
@@ -1672,8 +1718,7 @@ and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="account_part_undelivery">
       <DataType>Boolean</DataType>

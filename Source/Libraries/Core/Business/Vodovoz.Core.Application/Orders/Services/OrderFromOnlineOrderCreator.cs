@@ -349,18 +349,18 @@ namespace Vodovoz.Core.Application.Orders.Services
 					continue;
 				}
 
-				for(var i = 0; i < onlineOrderPromoSet.Count; i++)
-				{
-					var newOrderItems =
-						_saleItemsFromPromoSetCreator.Create(uow, onlineOrderPromoSet, order.HasPermissionsForAlternativePrice);
+				var newOrderItemsList =
+					_saleItemsFromPromoSetCreator.Create(uow, onlineOrderPromoSet, order.HasPermissionsForAlternativePrice);
 
+				foreach(var newOrderItems in newOrderItemsList)
+				{
 					foreach(var newOrderItem in newOrderItems)
 					{
 						_saleHandler.AddNomenclature(uow, newOrderItem);
 					}
-					
+
 					order.ObservablePromotionalSets.Add(promoSet);
-					
+
 					if(promoSet.PromotionalSetForNewClients)
 					{
 						addedPromoSetsForNewClients.Add(promoSet.Id, true);

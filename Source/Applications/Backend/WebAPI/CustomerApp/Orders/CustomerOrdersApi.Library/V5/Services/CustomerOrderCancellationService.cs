@@ -1,4 +1,4 @@
-using CustomerOrdersApi.Library.V5.Dto.Orders.CancelOrder;
+﻿using CustomerOrdersApi.Library.V5.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.V5.Factories;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
@@ -94,10 +94,12 @@ namespace CustomerOrdersApi.Library.V5.Services
 			{
 				if(onlineOrder is not null
 					&& onlineOrder.OnlineOrderStatus is not OnlineOrderStatus.Canceled
-					&& onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline)
-				{
-					return Result.Success();
-				}
+					&& (onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline
+						|| (onlineOrder.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline
+							&& onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+							&& onlineOrder.EmployeeWorkWith is null)
+					)
+				)
 				
 				return Result.Failure(OrderErrors.NotFound);
 			}
@@ -203,7 +205,12 @@ namespace CustomerOrdersApi.Library.V5.Services
 			{
 				if(onlineOrder is not null
 					&& onlineOrder.OnlineOrderStatus is not OnlineOrderStatus.Canceled
-					&& onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline)
+					&& (onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline
+						|| (onlineOrder.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline
+							&& onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+							&& onlineOrder.EmployeeWorkWith is null)
+					)
+				)
 				{
 					await CancelOnlineOrder(uow, onlineOrder, cancellationToken);
 					await uow.CommitAsync(cancellationToken);
@@ -426,7 +433,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 				"Отмена заказа {OrderId} из маршрутного листа",
 				order.Id);
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order.Id);
 
 			if(routeListItem is null)
 			{

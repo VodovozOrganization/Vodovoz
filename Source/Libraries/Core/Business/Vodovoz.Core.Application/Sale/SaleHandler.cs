@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -114,10 +114,15 @@ namespace Vodovoz.Core.Application.Sale
 			}
 
 			Recalculate();
+			var discountItem = saleItem.ToApplyDiscountReasonItem();
+			RecalculateDiscounts(CommonRecalculateDiscount.CreateDataContext(discountItem));
 			return true;
 		}
 		
-		public virtual void SetPrice(ISaleItem saleItem, (SaleItemPriceType PriceType, decimal Price) priceData)
+		public virtual void SetPrice(
+			ISaleItem saleItem,
+			(SaleItemPriceType PriceType, decimal Price) priceData
+			)
 		{
 			var priceByTotalCount = GoodsPriceCalculator
 				.CalculateItemPrice(
@@ -134,10 +139,11 @@ namespace Vodovoz.Core.Application.Sale
 				CommonRecalculateDiscount.CreateDataContext(discountItem),
 				priceData.Price);
 		}
-
+		
 		public virtual void SetPriceForNewSaleItem(
 			ISaleItem newItem,
-			(SaleItemPriceType PriceType, decimal Price) priceData)
+			(SaleItemPriceType PriceType, decimal Price) priceData
+			)
 		{
 			var priceByTotalCount = GoodsPriceCalculator
 				.CalculateItemPrice(
@@ -146,7 +152,7 @@ namespace Vodovoz.Core.Application.Sale
 					Source.Counterparty,
 					newItem,
 					Source.HasPermissionsForAlternativePrice);
-
+			
 			var discountItem = newItem.ToApplyDiscountReasonItem();
 			UpdatePriceType(newItem, priceData, priceByTotalCount, SaleItemSpecification.Create(priceByTotalCount));
 			
@@ -154,7 +160,7 @@ namespace Vodovoz.Core.Application.Sale
 				CommonRecalculateDiscount.CreateDataContext(discountItem),
 				priceData.Price);
 		}
-
+		
 		public virtual void RecalculatePrice(ISaleItem saleItem)
 		{
 			if(saleItem.IsUserPrice || saleItem.PromoSet != null)
@@ -176,7 +182,6 @@ namespace Vodovoz.Core.Application.Sale
 
 		protected virtual void RecalculateItemsPrice()
 		{
-			//TODO-5967 проверить работу метода, т.к. в заказе могут добавляться или исключаться позиции по вызовам событий
 			foreach(var saleItem in Source.SaleItems.ToList())
 			{
 				if(saleItem.Nomenclature.Category == NomenclatureCategory.water)
@@ -200,75 +205,44 @@ namespace Vodovoz.Core.Application.Sale
 			(SaleItemPriceType PriceType, decimal Price) calculatedPriceData,
 			ISpecificationTwoArgs specification)
 		{
-			//TODO-5967 проверить алгоритм установки булевых параметров. Также пользователь может вернуть цену у позиции, где есть фикса, поэтому нужно проработать и этот вариант
-			
-			/*if(specification.IsSatisfiedBy(saleItem, receivedPriceData))
+			switch(receivedPriceData.PriceType)
+			{
+				case SaleItemPriceType.Fixed:
+					saleItem.IsFixedPrice = true;
+					saleItem.IsUserPrice = false;
+					saleItem.IsAlternativePrice = false;
+					break;
+				case SaleItemPriceType.User:
+					CheckUserPrice(saleItem, receivedPriceData, specification);
+					break;
+				case SaleItemPriceType.Alternative:
+					saleItem.IsAlternativePrice = true;
+					saleItem.IsUserPrice = false;
+					saleItem.IsFixedPrice = false;
+					break;
+				default:
+					CheckUserPrice(saleItem, receivedPriceData, specification);
+					break;
+			}
+		}
+
+		private static void CheckUserPrice(
+			ISaleItem saleItem,
+			(SaleItemPriceType PriceType, decimal Price) receivedPriceData,
+			ISpecificationTwoArgs specification
+			)
+		{
+			if(specification.IsSatisfiedBy(saleItem, receivedPriceData))
 			{
 				saleItem.IsUserPrice = true;
 				saleItem.IsFixedPrice = false;
 				saleItem.IsAlternativePrice = false;
-				return;
 			}
-			
-			switch(receivedPriceData.PriceType)
+			else
 			{
-				case SaleItemPriceType.Fixed:
-					saleItem.IsFixedPrice = true;
-					saleItem.IsUserPrice = false;
-					saleItem.IsAlternativePrice = false;
-					break;
-				case SaleItemPriceType.User:
-					if(calculatedPriceData.PriceType == SaleItemPriceType.Fixed)
-					{
-						
-					}
-					saleItem.IsUserPrice = false;
-					saleItem.IsFixedPrice = false;
-					saleItem.IsAlternativePrice = false;
-					break;
-				case SaleItemPriceType.Alternative:
-					saleItem.IsAlternativePrice = true;
-					saleItem.IsUserPrice = false;
-					saleItem.IsFixedPrice = false;
-					break;
-				default:
-					saleItem.IsAlternativePrice = false;
-					saleItem.IsUserPrice = false;
-					saleItem.IsFixedPrice = false;
-					break;
-			}*/
-			
-			switch(receivedPriceData.PriceType)
-			{
-				case SaleItemPriceType.Fixed:
-					saleItem.IsFixedPrice = true;
-					saleItem.IsUserPrice = false;
-					saleItem.IsAlternativePrice = false;
-					break;
-				case SaleItemPriceType.User:
-					if(specification.IsSatisfiedBy(saleItem, receivedPriceData))
-					{
-						saleItem.IsUserPrice = true;
-						saleItem.IsFixedPrice = false;
-						saleItem.IsAlternativePrice = false;
-					}
-					else
-					{
-						saleItem.IsUserPrice = false;
-						saleItem.IsFixedPrice = false;
-						saleItem.IsAlternativePrice = false;
-					}
-					break;
-				case SaleItemPriceType.Alternative:
-					saleItem.IsAlternativePrice = true;
-					saleItem.IsUserPrice = false;
-					saleItem.IsFixedPrice = false;
-					break;
-				default:
-					saleItem.IsAlternativePrice = false;
-					saleItem.IsUserPrice = false;
-					saleItem.IsFixedPrice = false;
-					break;
+				saleItem.IsUserPrice = false;
+				saleItem.IsFixedPrice = false;
+				saleItem.IsAlternativePrice = false;
 			}
 		}
 

@@ -56,5 +56,15 @@ namespace Vodovoz.Settings.Edo
 		/// Словарь сопоставления ID организации с базовым адресом Taxcom
 		/// </summary>
 		IReadOnlyDictionary<int, string> TaxcomOrganizationBaseAddresses { get; }
+
+		/// <summary>
+		/// Запас дней к проверке срока годности при проверке из пула кодов
+		/// </summary>
+		int CodePoolExpireDateCheckAdditinalDays { get; }
+
+		/// <summary>
+		/// Запас дней к проверке срока годности при проверке в момент обработки кодов в общем
+		/// </summary>
+		int GeneralExpireDateCheckAdditinalDays { get; }
 	}
 }

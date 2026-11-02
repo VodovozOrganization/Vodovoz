@@ -6,5 +6,10 @@
 	public class InformalOrderDocumentProblemEvent
 	{
 		public int DocumentId { get; set; }
+
+		public InformalOrderDocumentProblemEvent(int documentId)
+		{
+			DocumentId = documentId;
+		}
 	}
 }

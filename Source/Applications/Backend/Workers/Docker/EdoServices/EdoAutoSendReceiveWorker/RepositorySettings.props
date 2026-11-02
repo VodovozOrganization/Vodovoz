@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo-services.auto-send-receive-worker</ContainerRepository>
+  </PropertyGroup>
+</Project>

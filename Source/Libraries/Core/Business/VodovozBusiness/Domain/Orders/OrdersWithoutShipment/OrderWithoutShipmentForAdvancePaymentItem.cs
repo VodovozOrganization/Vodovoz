@@ -285,15 +285,13 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		internal static OrderWithoutShipmentForAdvancePaymentItem Create(
 			OrderWithoutShipmentForAdvancePayment orderWithoutShipment,
 			decimal count,
-			Nomenclature nomenclature,
-			(SaleItemPriceType PriceType, decimal Price) priceData
+			Nomenclature nomenclature
 		)
 		{
 			return new OrderWithoutShipmentForAdvancePaymentItem {
 				OrderWithoutDeliveryForAdvancePayment = orderWithoutShipment,
 				Count = count,
-				Nomenclature = nomenclature,
-				Price = priceData.Price
+				Nomenclature = nomenclature
 			};
 		}
 	}

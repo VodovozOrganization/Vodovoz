@@ -1,6 +1,4 @@
-﻿using CustomerOrdersApi.Library.V4.Dto.Orders;
-
-namespace CustomerOrdersApi.Library.V5.Dto.Orders
+﻿namespace CustomerOrdersApi.Library.V5.Dto.Orders
 {
 	/// <summary>
 	/// Постраничное представление заказов клиента

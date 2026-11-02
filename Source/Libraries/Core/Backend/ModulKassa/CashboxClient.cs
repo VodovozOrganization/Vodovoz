@@ -23,6 +23,11 @@ namespace ModulKassa
 
 		public int Id { get; }
 
+		/// <summary>
+		/// Название кассы из настроек подключения.
+		/// </summary>
+		public string RetailPointName { get; }
+
 		public CashboxClient(ILogger<CashboxClient> logger, CashboxSetting setting)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -34,6 +39,7 @@ namespace ModulKassa
 			}
 
 			Id = setting.CashBoxId;
+			RetailPointName = setting.RetailPointName;
 
 			_httpClient = CreateHttpClient();
 		}

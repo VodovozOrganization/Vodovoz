@@ -23,7 +23,7 @@ namespace Vodovoz.Core.Application.Orders.Delivery
 
 			foreach(var cartItem in cartItems)
 			{
-				switch (cartItem)
+				switch(cartItem)
 				{
 					case IPromoSetCartItem promoSetCartItem:
 						CalculatePromoSetWaterCount(promoSetCartItem);
@@ -41,14 +41,18 @@ namespace Vodovoz.Core.Application.Orders.Delivery
 			
 			if(promoSet.BottlesCountForCalculatingDeliveryPrice.HasValue)
 			{
-				NotDisposableWater19LCount = promoSet.BottlesCountForCalculatingDeliveryPrice.Value * cartItem.Count;
+				NotDisposableWater19LCount += promoSet.BottlesCountForCalculatingDeliveryPrice.Value * cartItem.Count;
 				return;
 			}
 			
 			foreach(var promoSetItem in promoSet.PromotionalSetItems)
 			{
-				promoSetItem.Count *= (int)cartItem.Count;
-				CalculateWaterCount(promoSetItem);
+				var nomenclatureCartItem = NomenclatureCartItem.Create(
+					promoSetItem.Nomenclature,
+					promoSetItem.Count * cartItem.Count
+				);
+				
+				CalculateWaterCount(nomenclatureCartItem);
 			}
 		}
 		

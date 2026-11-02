@@ -13,6 +13,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Cash
 
 		public VatRate GetActualVatRateFromOrganization(IUnitOfWork uow, int organizationId, DateTime? date)
 		{
+			if(date == null)
+			{
+				date = DateTime.Now;
+			}
+			
 			var query =
 				from vatVersion in uow.Session.Query<VatRateVersion>()
 				join vatRate in uow.Session.Query<VatRate>()
@@ -28,6 +33,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Cash
 		
 		public VatRate GetActualVatRateFromNomenclature(IUnitOfWork uow, int nomenclatureId, DateTime? date)
 		{
+			if(date == null)
+			{
+				date = DateTime.Now;
+			}
+			
 			var query =
 				from vatVersion in uow.Session.Query<VatRateVersion>()
 				join vatRate in uow.Session.Query<VatRate>()

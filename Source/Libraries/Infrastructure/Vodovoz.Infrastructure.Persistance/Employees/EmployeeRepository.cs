@@ -19,6 +19,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Settings.Employee;
@@ -435,6 +436,24 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 				select driver;
 
 			return await query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		public bool HasNonZeroBalance(IUnitOfWork uow, int employeeId)
+		{
+			EmployeeBulkGoodsAccountingOperation bulkAlias = null;
+			EmployeeInstanceGoodsAccountingOperation instanceAlias = null;
+
+			var bulkSum = uow.Session.QueryOver(() => bulkAlias)
+				.Where(() => bulkAlias.Employee.Id == employeeId)
+				.Select(Projections.Sum(() => bulkAlias.Amount))
+				.SingleOrDefault<decimal?>() ?? 0;
+
+			var instanceSum = uow.Session.QueryOver(() => instanceAlias)
+				.Where(() => instanceAlias.Employee.Id == employeeId)
+				.Select(Projections.Sum(() => instanceAlias.Amount))
+				.SingleOrDefault<decimal?>() ?? 0;
+
+			return bulkSum != 0 || instanceSum != 0;
 		}
 	}
 }

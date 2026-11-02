@@ -42,6 +42,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectDeliveryDate),
 				"Дата доставки не может быть раньше сегодняшнего дня");
 		
+		public static Error DeliveryIntervalExpired =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(DeliveryIntervalExpired),
+				"Выбранный интервал доставки уже закончился. Требуется ручная обработка онлайн-заказа");
+
 		public static Error IsEmptyDistrictFromDeliveryPoint =>
 			new Error(
 				typeof(OnlineOrderErrors),
@@ -182,6 +188,14 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(IncorrectPricePromoSetInOnlineOrder),
 				$"{promoSet} пришел с неправильно установленной ценой" +
+				$"\nДолжно быть {price}, а передано {onlinePromoSetPrice}");
+		
+		public static Error IncorrectPriceWithDiscountsPromoSetInOnlineOrder(
+			string promoSet, decimal price, decimal onlinePromoSetPrice) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncorrectPriceWithDiscountsPromoSetInOnlineOrder),
+				$"{promoSet} пришел с неправильно установленной ценой или скидками" +
 				$"\nДолжно быть {price}, а передано {onlinePromoSetPrice}");
 		
 		public static Error NotApplicableDiscountToNomenclatureOnlineOrder(string nomenclature) =>

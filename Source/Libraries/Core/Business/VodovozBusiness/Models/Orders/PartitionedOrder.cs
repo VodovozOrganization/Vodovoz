@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -231,9 +231,8 @@ namespace Vodovoz.Models.Orders
 			OrderItem orderItem,
 			bool withDiscounts = false)
 		{
-			//TODO-5967 нужно проверить алгоритм установки булевых
-			var priceData = (SaleItemPriceType.General, orderItem.Price);
-			var newOrderItem = _saleItemFactory.Create(
+			var newOrderItem = OrderItem.CreateForSale(
+				_saleHandler,
 				_resultOrder,
 				NewOrderSaleItem.Create(orderItem.Nomenclature, orderItem.Count, priceData)
 			);

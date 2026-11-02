@@ -982,20 +982,30 @@ namespace Vodovoz.Domain.Sale
 			WeekDayName weekDayName,
 			ref decimal deliveryPrice)
 		{
-			var dayOfWeekRules = GetSuitableDayOfWeekRules(comparerDeliveryPrice, weekDayName);
+			var dayOfWeekRules = GetSuitableDayOfWeekRules(weekDayName);
 
 			if(dayOfWeekRules.Any())
 			{
-				var dayOfWeekEShopGoodsSum = GetMinEShopGoodsSum(dayOfWeekRules);
+				var filteredDayOfWeekRules = dayOfWeekRules
+					.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule))
+					.ToList();
 
-				if(OnlineShopGoodsSumFreeDeliverySpecification.Create(eShopGoodsSum)
-					.IsSatisfiedBy(dayOfWeekEShopGoodsSum))
+				if(filteredDayOfWeekRules.Any())
 				{
-					deliveryPrice = 0m;
+					var dayOfWeekEShopGoodsSum = GetMinEShopGoodsSum(filteredDayOfWeekRules);
+
+					if(OnlineShopGoodsSumFreeDeliverySpecification.Create(eShopGoodsSum)
+						.IsSatisfiedBy(dayOfWeekEShopGoodsSum))
+					{
+						deliveryPrice = 0m;
+						return true;
+					}
+
+					deliveryPrice = filteredDayOfWeekRules.Max(x => x.Price);
 					return true;
 				}
 
-				deliveryPrice = dayOfWeekRules.Max(x => x.Price);
+				deliveryPrice = 0;
 				return true;
 			}
 
@@ -1008,30 +1018,39 @@ namespace Vodovoz.Domain.Sale
 			WeekDayName weekDayName,
 			ref IEnumerable<DistrictRuleItemBase> deliveryRules)
 		{
-			var dayOfWeekRules = GetSuitableDayOfWeekRules(comparerDeliveryPrice, weekDayName);
+			var dayOfWeekRules = GetSuitableDayOfWeekRules(weekDayName);
 
 			if(dayOfWeekRules.Any())
 			{
-				var dayOfWeekEShopGoodsSum = GetMinEShopGoodsSum(dayOfWeekRules);
+				var filteredDayOfWeekRules = dayOfWeekRules
+					.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule))
+					.ToList();
 
-				if(OnlineShopGoodsSumFreeDeliverySpecification.Create(eShopGoodsSum)
-					.IsSatisfiedBy(dayOfWeekEShopGoodsSum))
+				if(filteredDayOfWeekRules.Any())
 				{
-					deliveryRules = Array.Empty<DistrictRuleItemBase>();;
+					var dayOfWeekEShopGoodsSum = GetMinEShopGoodsSum(filteredDayOfWeekRules);
+
+					if(OnlineShopGoodsSumFreeDeliverySpecification.Create(eShopGoodsSum)
+						.IsSatisfiedBy(dayOfWeekEShopGoodsSum))
+					{
+						deliveryRules = Array.Empty<DistrictRuleItemBase>();
+						return true;
+					}
+
+					deliveryRules = filteredDayOfWeekRules;
 					return true;
 				}
-				
-				deliveryRules = dayOfWeekRules;
+
+				deliveryRules = Array.Empty<DistrictRuleItemBase>();
 				return true;
 			}
 
 			return false;
 		}
 		
-		private List<WeekDayDistrictRuleItem> GetSuitableDayOfWeekRules(ComparerDeliveryPrice comparerDeliveryPrice, WeekDayName weekDayName)
+		private List<WeekDayDistrictRuleItem> GetSuitableDayOfWeekRules(WeekDayName weekDayName)
 		{
 			return GetWeekDayRuleItemCollectionByWeekDayName(weekDayName)
-				.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule))
 				.ToList();
 		}
 		

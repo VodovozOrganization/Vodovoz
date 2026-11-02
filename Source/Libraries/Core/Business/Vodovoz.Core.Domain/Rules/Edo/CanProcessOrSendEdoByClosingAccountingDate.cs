@@ -87,6 +87,21 @@ namespace Vodovoz.Core.Domain.Rules.Edo
 			return order.DeliveryDate >= closestDate;
 		}
 
+		/// <summary>
+		/// Проверка правила по дате доставки
+		/// </summary>
+		/// <param name="deliveryDate">Дата доставки заказа (null — дата неизвестна, проверка пропускается)</param>
+		/// <returns>True — отправка разрешена</returns>
+		public bool Check(DateTime? deliveryDate)
+		{
+			if(!deliveryDate.HasValue)
+			{
+				return true;
+			}
+
+			return deliveryDate.Value >= GetCheckingDate();
+		}
+
 		private DateTime GetCheckingDate()
 		{
 			var today = DateTime.Today;

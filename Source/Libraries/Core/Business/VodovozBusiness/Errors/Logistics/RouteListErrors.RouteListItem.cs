@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Errors.Logistics
 {
@@ -120,6 +121,17 @@ namespace Vodovoz.Errors.Logistics
 				typeof(RouteListItem),
 				nameof(InvalidTransferType),
 				$"Не поддерживаемый тип переноса заказа #{orderId}");
+
+			public static Error InvalidOrderStatusForTransfer => new Error(
+				typeof(RouteListItem),
+				nameof(InvalidOrderStatusForTransfer),
+				$"Перенести в маршрутный лист можно только заказ в статусе \"{OrderStatus.Accepted.GetEnumDisplayName()}\"");
+
+			public static Error CreateInvalidOrderStatusForTransfer(int orderId, OrderStatus orderStatus) => new Error(
+				typeof(RouteListItem),
+				nameof(InvalidOrderStatusForTransfer),
+				$"Заказ #{orderId} находится в статусе \"{orderStatus.GetEnumDisplayName()}\"." +
+				$" Перенести в маршрутный лист можно только заказ в статусе \"{OrderStatus.Accepted.GetEnumDisplayName()}\". Обновите данные.");
 
 			public static Error OrdersWithCreatedUpdNeedToReload => new Error(
 				typeof(RouteListItem),

@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using TransactionalOutbox.Abstractions;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
 

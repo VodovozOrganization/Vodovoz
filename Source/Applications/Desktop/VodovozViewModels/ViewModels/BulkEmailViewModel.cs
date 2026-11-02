@@ -259,7 +259,7 @@ namespace Vodovoz.ViewModels.ViewModels
 			{
 				emailAttachments.Add(new EmailAttachment
 				{
-					ContentType = MimeMapping.GetMimeMapping(keyValuePair.Key),
+					ContentType = System.Web.MimeMapping.GetMimeMapping(keyValuePair.Key),
 					Filename = keyValuePair.Key,
 					Base64Content = Convert.ToBase64String(keyValuePair.Value)
 				});

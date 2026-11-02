@@ -1,14 +1,15 @@
-﻿using Edo.Common;
-using Edo.Problems.Custom;
-using Edo.Problems.Exception;
-using Edo.Problems.Validation;
-using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using Edo.Common;
+using Edo.Problems.Custom;
+using Edo.Problems.Exception;
+using Edo.Problems.Validation;
+using EdoNotifications.Contracts;
+using Notifications.Infrastructure;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Problems
@@ -17,16 +18,19 @@ namespace Edo.Problems
 	{
 		private readonly IUnitOfWork _taskUow;
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 
 		public EdoProblemRegistrar(
 			IUnitOfWork taskUow,
 			IUnitOfWorkFactory uowFactory,
 			EdoTaskCustomSourcesPersister customSourcesPersister,
-			EdoTaskExceptionSourcesPersister exceptionSourcesPersister
+			EdoTaskExceptionSourcesPersister exceptionSourcesPersister,
+			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher
 			) : base(customSourcesPersister, exceptionSourcesPersister)
 		{
 			_taskUow = taskUow ?? throw new ArgumentNullException(nameof(taskUow));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_notificationPublisher = notificationPublisher ?? throw new ArgumentNullException(nameof(notificationPublisher));
 		}
 
 		public async Task RegisterCustomProblem<TCustomSource>(
@@ -230,6 +234,17 @@ namespace Edo.Problems
 
 				var problem = await GetExceptionProblemAndActivate(uow, task, exception.Message, source, cancellationToken, true);
 
+				var solvedValidationSources = new HashSet<string>(edoTask.Problems
+					.OfType<ValidationEdoTaskProblem>()
+					.Where(x => x.State == TaskProblemState.Solved)
+					.Select(x => x.SourceName));
+				foreach(var validationProblem in task.Problems.OfType<ValidationEdoTaskProblem>()
+					.Where(x => x.State != TaskProblemState.Solved && solvedValidationSources.Contains(x.SourceName)))
+				{
+					validationProblem.State = TaskProblemState.Solved;
+					await uow.SaveAsync(validationProblem, cancellationToken: cancellationToken);
+				}
+
 				// Удаляем старые строки задачи, которые не относятся к обновленной проблеме
 				// и добавляем новые строки задачи, которые относятся к проблеме
 				foreach(var existsItem in problem.TaskItems.ToList())
@@ -331,6 +346,11 @@ namespace Edo.Problems
 				}
 
 				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
+
+				if(validationResult.Notification != null)
+				{
+					await _notificationPublisher.TryPublishAsync(uow, validationResult.Notification, cancellationToken);
+				}
 			}
 
 			if(isAllValid)

@@ -1,7 +1,8 @@
-﻿using CustomerOrders.Abstractions.V8.Sale;
+using CustomerOrders.Abstractions.V8.Sale;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace VodovozBusiness.Controllers
 {
@@ -16,6 +17,38 @@ namespace VodovozBusiness.Controllers
 		Result IsApplicableDiscount(
 			DiscountReasonBase addingDiscount,
 			IApplicablePromotion saleItem
+		);
+		
+		/// <summary>
+		/// Расчет детализации скидки в деньгах по основаниям скидки, включая персональную скидку
+		/// Подходит для случаев, когда надо раскрыть информацию по скидкам из заказа или онлайн заказа
+		/// </summary>
+		/// <param name="saleItem">Продаваемая позиция</param>
+		/// <returns>Скидка в деньгах</returns>
+		(decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+			ICalculatingTotalMoneyDiscount saleItem
+		);
+		
+		/// <summary>
+		/// Расчет детализации скидки в деньгах по основаниям скидки, включая персональную скидку
+		/// Подходит для случаев, когда надо раскрыть информацию по скидкам из заказа или онлайн заказа
+		/// </summary>
+		/// <param name="onlinePromoSet">Онлайн промонабор</param>
+		/// <returns>Скидка в деньгах</returns>
+		(decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+			OnlineOrderPromoSet onlinePromoSet
+		);
+		
+		/// <summary>
+		/// Расчет детализации скидки в деньгах по основаниям скидки, включая персональную скидку
+		/// Подходит для случаев, когда надо раскрыть информацию по скидкам из заказа или онлайн заказа
+		/// </summary>
+		/// <param name="promoSetItems">Товары из промонабора</param>
+		/// <param name="orderItemsQueue">Позиции заказа с промонабором</param>
+		/// <returns>Скидка в деньгах</returns>
+		(decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+			IEnumerable<PromotionalSetItem> promoSetItems,
+			Queue<OrderItem> orderItemsQueue
 		);
 
 		/// <summary>

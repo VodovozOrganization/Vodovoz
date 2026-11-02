@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Application.Validators;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Application.Validators;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Goods;
@@ -115,6 +115,22 @@ namespace Vodovoz.Core.Application.Sale
 					Source.HasPermissionsForAlternativePrice
 				)
 			);
+		}
+
+		public override bool SetCount(INomenclatureCount saleItem, decimal count)
+		{
+			if(!_saleItemHandler.SetCount(saleItem, count))
+			{
+				return false;
+			}
+
+			Recalculate();
+			var discountItem = saleItem.ToPreserveDiscount();
+			_saleItemHandler.RecalculateDiscounts(
+				OrderRecalculateDiscount.CreateDataContext(discountItem, Order.IsUndeliveredStatus));
+			UpdateRentsCount();
+			
+			return true;
 		}
 
 		public virtual void SetActualCount(IOrderSaleItem saleItem, decimal? newValue)
@@ -238,10 +254,10 @@ namespace Vodovoz.Core.Application.Sale
 
 			foreach(var saleItem in orderRentalItems)
 			{
-				/*if(!SaleItems.Contains(saleItem))
+				if(!Order.OrderItems.Contains(saleItem))
 				{
 					continue;
-				}*/
+				}
 
 				switch(saleItem.OrderItemRentSubType)
 				{

@@ -3,5 +3,10 @@
 	public class OrderDocumentProblemEvent
 	{
 		public int DocumentId { get; set; }
+
+		public OrderDocumentProblemEvent(int documentId)
+		{
+			DocumentId = documentId;
+		}
 	}
 }

@@ -46,6 +46,12 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Ручной (принудительный) запуск
 		/// </summary>
 		[Display(Name = "Вручную")]
-		Manual
+		Manual,
+
+		/// <summary>
+		/// Переотправка пользователем, которому разрешён закрытый бухгалтерский период
+		/// </summary>
+		[Display(Name = "Переотправка в закрытом периоде")]
+		ClosedPeriodPrivilegedResend
 	}
 }

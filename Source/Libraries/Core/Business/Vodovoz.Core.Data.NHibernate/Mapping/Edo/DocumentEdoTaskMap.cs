@@ -26,6 +26,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			HasMany(x => x.UpdInventPositions)
 				.KeyColumn("document_edo_task_id")
 				.Cascade.AllDeleteOrphan();
+
+			References(x => x.Upd)
+				.Column("upd_document_id")
+				.Cascade.AllDeleteOrphan();
 		}
 	}
 }

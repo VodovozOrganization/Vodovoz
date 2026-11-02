@@ -7,7 +7,7 @@ using Vodovoz.Domain.Orders;
 namespace VodovozBusiness.Services.Orders
 {
 	/// <summary>
-	/// Контракт обработчика принятия онлайн оплаты
+	/// Обработчик принятия онлайн оплаты
 	/// </summary>
 	public interface IOrderOnlinePaymentAcceptanceHandler
 	{

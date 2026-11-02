@@ -94,7 +94,12 @@ namespace CustomerOrdersApi.Library.V6.Services
 			{
 				if(onlineOrder is not null
 					&& onlineOrder.OnlineOrderStatus is not OnlineOrderStatus.Canceled
-					&& onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline)
+					&& (onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline
+						|| (onlineOrder.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline
+							&& onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+							&& onlineOrder.EmployeeWorkWith is null)
+						)
+					)
 				{
 					return Result.Success();
 				}
@@ -203,7 +208,12 @@ namespace CustomerOrdersApi.Library.V6.Services
 			{
 				if(onlineOrder is not null
 					&& onlineOrder.OnlineOrderStatus is not OnlineOrderStatus.Canceled
-					&& onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline)
+					&& (onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline
+						|| (onlineOrder.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline
+							&& onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+							&& onlineOrder.EmployeeWorkWith is null)
+						)
+					)
 				{
 					await CancelOnlineOrder(uow, onlineOrder, cancellationToken);
 					await uow.CommitAsync(cancellationToken);
@@ -426,7 +436,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 				"Отмена заказа {OrderId} из маршрутного листа",
 				order.Id);
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order.Id);
 
 			if(routeListItem is null)
 			{

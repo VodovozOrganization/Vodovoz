@@ -580,7 +580,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		private void InitializeHasPromoCodeDurationTime()
 		{
-			HasPromoCodeDurationTime = Entity is PromoCodeDiscount promoCode && promoCode.HasOrderMinSum;
+			HasPromoCodeDurationTime = Entity is PromoCodeDiscount promoCode && promoCode.HasPromoCodeDurationTime;
 		}
 
 		private new void Save()

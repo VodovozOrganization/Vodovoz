@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -82,11 +82,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 					ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsArchivedOnlineOrderPromoSet(promoSet.Title));
 				}
 
-				var checkOnlineOrderSum = CheckOnlineOrderSum.Create(onlinePromoSet.Count, onlinePromoSet.Price, 0);
+				var checkOnlineOrderSum = CheckOnlineOrderSum.Create(onlinePromoSet.Count, 0, 0);
 				
 				CheckPromoSetForNewClientsCount(1, (int)onlinePromoSet.Count, promoSet);
-				ValidatePrice(onlinePromoSet);
-				ValidateDiscounts(onlinePromoSet);
+				ValidatePrice(onlinePromoSet, checkOnlineOrderSum);
+				ValidateDiscounts(onlinePromoSet, checkOnlineOrderSum);
 				CalculatedOrderItemPrices.Add(checkOnlineOrderSum);
 			}
 		}
@@ -127,7 +127,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 		}
 
-		private void ValidateDiscounts(OnlineOrderPromoSet onlinePromoSet)
+		private void ValidateDiscounts(OnlineOrderPromoSet onlinePromoSet, CheckOnlineOrderSum checkSum)
 		{
 			var applicablePromotion = ApplicablePromotion.Create(onlinePromoSet);
 			var notApplicableDiscountReasonsBuilder = new StringBuilder();
@@ -140,6 +140,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 						.Append(discountReason)
 						.Append(',')
 						.Append(' ');
+				}
+				else
+				{
+					checkSum.DiscountMoney += discountReason.ValueType == DiscountUnits.money
+						? discountReason.Value
+						: checkSum.CalculateDiscountMoney(discountReason.Value);
 				}
 			}
 
@@ -155,21 +161,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 		}
 
-		private void ValidatePrice(OnlineOrderPromoSet onlinePromoSet)
+		private void ValidatePrice(OnlineOrderPromoSet onlinePromoSet, CheckOnlineOrderSum checkSum)
 		{
 			var price = onlinePromoSet.PromoSet.Sum();
+			checkSum.Price = price;
 			
-			var applicablePromotion = ApplicablePromotion.Create(onlinePromoSet);
-			var applicableDiscountReasons = onlinePromoSet.DiscountReasons
-				.Where(x => _discountController.IsApplicableDiscount(x, applicablePromotion).IsSuccess)
-				.ToList();
-
-			var discounts = applicableDiscountReasons
-				.Select(discountReason => _discountController.CalculateMoneyDiscount(price, discountReason))
-				.Sum();
-			
-			price -= discounts;
-
 			if(price != onlinePromoSet.Price)
 			{
 				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectPricePromoSetInOnlineOrder(

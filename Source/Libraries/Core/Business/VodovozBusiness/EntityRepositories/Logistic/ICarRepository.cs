@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -98,5 +98,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 			string registrationNumber,
 			string vin,
 			string chassisNumber);
+
+		/// <summary>
+		/// Проверяет, есть ли у автомобиля ненулевые остатки ТМЦ
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="carId">Идентификатор автомобиля</param>
+		/// <returns>True - за автомобилем числятся ненулевые остатки, иначе - False</returns>
+		bool HasNonZeroBalance(IUnitOfWork uow, int carId);
 	}
 }

@@ -270,7 +270,12 @@ public partial class MainWindow
 	{
 		NavigationManager.OpenViewModel<EdoProcessJournalViewModel>(null);
 	}
-	
+
+	protected void OnActionEdoDiscrepancyJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoDiscrepancyJournalViewModel>(null);
+	}
+
 	/// <summary>
 	/// Журнал проблем документооборота с клиентами
 	/// </summary>

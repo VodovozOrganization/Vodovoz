@@ -295,10 +295,17 @@ namespace Vodovoz.Core.Application.TrueMark
 
 		private Result IsCodeNotExpired(ProductInstanceStatus productInstanceStatus)
 		{
-			if(productInstanceStatus.ExpirationDate >= DateTime.Today)
+			if(productInstanceStatus.ExpirationDate == null)
+			{
+				return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsExpired);
+			}
+
+			var additionalDays = _edoSettings.GeneralExpireDateCheckAdditinalDays;
+			if(productInstanceStatus.ExpirationDate.Value.AddDays(-additionalDays) >= DateTime.Today)
 			{
 				return Result.Success();
 			}
+
 			return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsExpired);
 		}
 
@@ -1119,12 +1126,13 @@ namespace Vodovoz.Core.Application.TrueMark
 			return Result.Success(stagingTrueMarkCode);
 		}
 
-		private async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
+		public async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
 			string scannedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
 			int? orderItemId,
-			CancellationToken cancellationToken = default)
+			CancellationToken cancellationToken = default
+		)
 		{
 			var codes = new List<StagingTrueMarkCode>();
 

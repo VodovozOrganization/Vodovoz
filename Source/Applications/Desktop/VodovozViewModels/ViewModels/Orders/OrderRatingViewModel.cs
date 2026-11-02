@@ -156,15 +156,18 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		{
 			Action openOnlineOrderAction = null;
 
-			if(Entity.OnlineOrder.As<OnlineOrderV2>() != null)
+			if(Entity.OnlineOrder != null)
 			{
-				openOnlineOrderAction = () => NavigationManager.OpenViewModel<OnlineOrderV2ViewModel, IEntityViewModelContext>(
-					this, EntityViewModelContext.Create(typeof(OnlineOrderV2), UnitOfWorkFactory, Entity.OnlineOrder.Id));
-			}
-			else if(Entity.OnlineOrder.As<OnlineOrderV1>() != null)
-			{
-				openOnlineOrderAction = () => NavigationManager.OpenViewModel<OnlineOrderV1ViewModel, IEntityViewModelContext>(
-					this, EntityViewModelContext.Create(typeof(OnlineOrderV1), UnitOfWorkFactory, Entity.OnlineOrder.Id));
+				if(Entity.OnlineOrder.As<OnlineOrderV2>() != null)
+				{
+					openOnlineOrderAction = () => NavigationManager.OpenViewModel<OnlineOrderV2ViewModel, IEntityViewModelContext>(
+						this, EntityViewModelContext.Create(typeof(OnlineOrderV2), UnitOfWorkFactory, Entity.OnlineOrder.Id));
+				}
+				else if(Entity.OnlineOrder.As<OnlineOrderV1>() != null)
+				{
+					openOnlineOrderAction = () => NavigationManager.OpenViewModel<OnlineOrderV1ViewModel, IEntityViewModelContext>(
+						this, EntityViewModelContext.Create(typeof(OnlineOrderV1), UnitOfWorkFactory, Entity.OnlineOrder.Id));
+				}
 			}
 			else
 			{

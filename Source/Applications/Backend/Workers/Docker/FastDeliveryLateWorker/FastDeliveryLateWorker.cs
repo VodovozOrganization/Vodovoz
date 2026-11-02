@@ -19,7 +19,6 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Zabbix.Sender;
-using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 
 namespace FastDeliveryLateWorker
@@ -29,20 +28,17 @@ namespace FastDeliveryLateWorker
 		private readonly ILogger<FastDeliveryLateWorker> _logger;
 		private readonly IOptions<FastDeliveryLateOptions> _options;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
-		private readonly IOrderDiscountsController _discountsController;
 		private bool _workInProgress;
 
 		public FastDeliveryLateWorker(
 			ILogger<FastDeliveryLateWorker> logger,
 			IOptions<FastDeliveryLateOptions> options,
-			IServiceScopeFactory serviceScopeFactory,
-			IOrderDiscountsController discountsController
+			IServiceScopeFactory serviceScopeFactory
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_serviceScopeFactory = serviceScopeFactory;
-			_discountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
 		}
 
 		protected override void OnStartService()
@@ -157,9 +153,10 @@ namespace FastDeliveryLateWorker
 
 				var nomenclatureSettings = serviceProvider.GetRequiredService<INomenclatureSettings>();
 				var orderSettings = serviceProvider.GetRequiredService<IOrderSettings>();
+				var discountsController = serviceProvider.GetRequiredService<IOrderDiscountsController>();
 
 				var fastDeliveryOrderItem = lateOrder.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == nomenclatureSettings.FastDeliveryNomenclatureId);
-				_discountsController.SilentSetCustomDiscount(
+				discountsController.SilentSetCustomDiscount(
 					new DiscountReason { Id = orderSettings.FastDeliveryLateDiscountReasonId },
 					fastDeliveryOrderItem,
 					DiscountValue.Create(false, 100m, 100m)

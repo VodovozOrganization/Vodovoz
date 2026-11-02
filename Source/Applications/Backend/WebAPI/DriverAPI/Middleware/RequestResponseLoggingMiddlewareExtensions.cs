@@ -8,5 +8,13 @@ namespace DriverAPI.Middleware
 		{
 			return builder.UseMiddleware<RequestResponseLoggingMiddleware>();
 		}
+
+		/// <summary>
+		/// Должен быть зарегистрирован после <c>UseAuthentication</c>, т.к. лимит считается по пользователю
+		/// </summary>
+		public static IApplicationBuilder UsePerUserConcurrencyLimit(this IApplicationBuilder builder)
+		{
+			return builder.UseMiddleware<PerUserConcurrencyLimitMiddleware>();
+		}
 	}
 }

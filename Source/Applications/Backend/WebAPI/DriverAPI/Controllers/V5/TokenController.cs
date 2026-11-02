@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DriverAPI.Library.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +25,7 @@ namespace DriverAPI.Controllers.V5
 	public class TokenController : VersionedController
 	{
 		private readonly IConfiguration _configuration;
+		private readonly IDriverAuthenticationService _driverAuthenticationService;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly double _tokenLifetime;
 		private readonly string _securityKey;
@@ -35,14 +37,17 @@ namespace DriverAPI.Controllers.V5
 		/// <param name="logger"></param>
 		/// <param name="configuration"></param>
 		/// <param name="userManager"></param>
+		/// <param name="driverAuthenticationService">Сервис проверки доступа сотрудника.</param>
 
 		public TokenController(
 			ILogger<TokenController> logger,
 			IConfiguration configuration,
-			UserManager<IdentityUser> userManager) : base(logger)
+			UserManager<IdentityUser> userManager,
+			IDriverAuthenticationService driverAuthenticationService) : base(logger)
 		{
 			_configuration = configuration;
 			_userManager = userManager;
+			_driverAuthenticationService = driverAuthenticationService ?? throw new ArgumentNullException(nameof(driverAuthenticationService));
 
 			_tokenLifetime = _configuration.GetValue<double>("Security:Token:Lifetime");
 			_securityKey = _configuration.GetValue<string>("Security:Token:Key");
@@ -63,6 +68,13 @@ namespace DriverAPI.Controllers.V5
 		{
 			if(await IsValidCredentials(loginRequestModel.Username, loginRequestModel.Password))
 			{
+				var accessResult = _driverAuthenticationService.ValidateEmployeeAccess(loginRequestModel.Username);
+
+				if(accessResult.IsFailure)
+				{
+					return Problem(accessResult.Errors.First().Message, statusCode: StatusCodes.Status403Forbidden);
+				}
+
 				return Ok(await GenerateToken(loginRequestModel.Username));
 			}
 

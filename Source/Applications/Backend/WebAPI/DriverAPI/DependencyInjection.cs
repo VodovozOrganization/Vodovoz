@@ -27,9 +27,11 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Infrastructure.WebApi.Caching.Garnet;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Presentation.WebApi.BuildVersion;
+using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Trackers;
@@ -175,6 +177,14 @@ namespace DriverAPI
 			});
 
 			services.ConfigureHealthCheckService<DriverApiHealthCheck, ServiceInfoProvider>();
+
+			services
+				.AddWebApiGarnetConnection()
+				.AddGarnetIdempotencyStore()
+				.AddIdempotency("DriverApi", settings => new IdempotencyTimings(
+					settings.DriverApiResponseLifetime,
+					settings.DriverApiMarkerLifetime,
+					settings.DriverApiReplayWaitTimeout));
 
 			services.AddHttpClient();
 

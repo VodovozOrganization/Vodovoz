@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
@@ -648,22 +648,13 @@ namespace Edo.Receipt.Dispatcher
 
 			} while(currentProcessingPositions.Any());
 
-			// Очистка неиспользованных кодов (в пул не сохраняем — только для перепродажи)
-			foreach(var unprocessedCode in unprocessedCodes)
+			// Очистка неиспользованных элементов без исходного скана
+			foreach(var unprocessedCode in unprocessedCodes.Where(x => x.ProductCode.SourceCode == null))
 			{
 				receiptEdoTask.Items.Remove(unprocessedCode);
 				await _uow.DeleteAsync(unprocessedCode, cancellationToken);
 			}
 
-			// Удаление из задачи не используемых групповых кодов
-			foreach(var groupCodeWithTaskItems in groupCodesWithTaskItems)
-			{
-				foreach(var groupCodeTaskItem in groupCodeWithTaskItems.Value)
-				{
-					receiptEdoTask.Items.Remove(groupCodeTaskItem);
-					await _uow.DeleteAsync(groupCodeTaskItem, cancellationToken);
-				}
-			}
 		}
 
 		/// <summary>
@@ -696,8 +687,7 @@ namespace Edo.Receipt.Dispatcher
 				.ToList()
 				;
 
-			// исключили из обрабатываемого списка все коды, которые содержатся в группах
-			// они не подходят для индивидуальной обработки, потому что не имеют CheckCode
+			// Неполные группы после проверки состава вернутся в индивидуальную обработку.
 			unprocessedTaskItems.RemoveAll(x => codesThatContainedInGroup.Contains(x));
 
 			var groupped = codesThatContainedInGroup
@@ -724,12 +714,17 @@ namespace Edo.Receipt.Dispatcher
 
 			foreach(var parentCode in parentCodes)
 			{
-				result.Add(parentCode, codesThatContainedInGroup
-					.Where(ctcig => parentCode
-						.GetAllCodes()
-						.Where(x => x.IsTrueMarkWaterIdentificationCode)
-						.Select(x => x.TrueMarkWaterIdentificationCode)
-						.Any(x => x.Id == ctcig.ProductCode.SourceCode.Id)));
+				var groupCodeIds = new HashSet<int>(parentCode.GetAllCodes()
+					.Where(x => x.IsTrueMarkWaterIdentificationCode)
+					.Select(x => x.TrueMarkWaterIdentificationCode.Id));
+				var groupItems = codesThatContainedInGroup
+					.Where(x => groupCodeIds.Contains(x.ProductCode.SourceCode.Id)).ToList();
+				if(!groupCodeIds.SetEquals(groupItems.Select(x => x.ProductCode.SourceCode.Id)))
+				{
+					unprocessedTaskItems.AddRange(groupItems);
+					continue;
+				}
+				result.Add(parentCode, groupItems);
 			}
 
 			// нашли все групповые коды
@@ -824,7 +819,7 @@ namespace Edo.Receipt.Dispatcher
 			var resultCodes = unprocessedCodes
 				.Where(x => x.ProductCode.Problem == ProductCodeProblem.None)
 				.Where(x => x.ProductCode.ResultCode != null)
-				.Where(x => x.ProductCode.ResultCode.CheckCode != null);
+				.Where(x => !string.IsNullOrEmpty(x.ProductCode.ResultCode.CheckCode));
 
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
@@ -846,7 +841,7 @@ namespace Edo.Receipt.Dispatcher
 				.Where(x => x.ProductCode.SourceCode.IsInvalid == false)
 				.Where(x => x.ProductCode.ResultCode == null)
 				.Where(x => x.ProductCode.SourceCodeStatus != SourceProductCodeStatus.SavedToPool)
-				.Where(x => x.ProductCode.SourceCode.CheckCode != null);
+				.Where(x => !string.IsNullOrEmpty(x.ProductCode.SourceCode.CheckCode));
 
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{

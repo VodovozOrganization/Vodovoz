@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.Organizations
 				() => CanEdit
 			);
 			
-			RegexForEmailForMailing = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z";
+			RegexForEmailForMailing = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(vodovoz-spb\.ru|kuler-service\.ru)\z";
 		}
 
 		public OrganizationVersionsViewModel OrganizationVersionsViewModel { get; }

@@ -10,5 +10,10 @@ namespace Vodovoz.Settings.Accounting
 		/// </summary>
 		/// <returns></returns>
 		IEnumerable<DateTime> GetAccountingPeriodClosingDates();
+
+		/// <summary>
+		/// Сохранение четырёх дат закрытия бухгалтерского периода в параметр accounting_period_closing_dates
+		/// </summary>
+		void UpdateAccountingPeriodClosingDates(DateTime firstQuarter, DateTime secondQuarter, DateTime thirdQuarter, DateTime fourthQuarter);
 	}
 }

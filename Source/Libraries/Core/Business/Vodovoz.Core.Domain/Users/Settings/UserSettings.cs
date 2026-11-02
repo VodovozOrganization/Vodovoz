@@ -58,6 +58,7 @@ namespace Vodovoz.Core.Domain.Users.Settings
 		private string _salesBySubdivisionsAnalitycsReportSubdivisionsString;
 		private string _carIsNotAtLineReportIncludedEventTypeIdsString;
 		private string _carIsNotAtLineReportExcludedEventTypeIdsString;
+		private string _completedAddressesReportFilterSelectionJson;
 
 		private IObservableList<CashSubdivisionSortingSettings> _cashSubdivisionSortingSettings = new ObservableList<CashSubdivisionSortingSettings>();
 		private IObservableList<DocumentPrinterSetting> _documentPrinterSettings = new ObservableList<DocumentPrinterSetting>();
@@ -332,6 +333,16 @@ namespace Vodovoz.Core.Domain.Users.Settings
 		}
 
 		/// <summary>
+		/// Удаляет пробельные символы (пробелы, переносы строк и т.д.) по краям учетных данных API управления топливом
+		/// </summary>
+		public virtual void TrimFuelControlApiAuthData()
+		{
+			FuelControlApiLogin = FuelControlApiLogin?.Trim();
+			FuelControlApiPassword = FuelControlApiPassword?.Trim();
+			FuelControlApiKey = FuelControlApiKey?.Trim();
+		}
+
+		/// <summary>
 		/// Статус рекламации
 		/// </summary>
 		[Display(Name = "Статус рекламации")]
@@ -457,6 +468,16 @@ namespace Vodovoz.Core.Domain.Users.Settings
 				.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
 				.Select(x => int.Parse(x));
 			set => CarIsNotAtLineReportExcludedEventTypeIdsString = string.Join(", ", value);
+		}
+
+		/// <summary>
+		/// Сохранённый выбор фильтров «Водители» и «Районы» отчета по выполненным адресам и районам (JSON)
+		/// </summary>
+		[Display(Name = "Сохранённый выбор фильтров отчета по выполненным адресам и районам")]
+		public virtual string CompletedAddressesReportFilterSelectionJson
+		{
+			get => _completedAddressesReportFilterSelectionJson;
+			set => SetField(ref _completedAddressesReportFilterSelectionJson, value);
 		}
 
 		/// <summary>

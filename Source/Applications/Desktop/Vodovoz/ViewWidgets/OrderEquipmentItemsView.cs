@@ -5,6 +5,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using QS.Navigation;
 using Vodovoz.Core.Domain.Goods;
@@ -83,6 +85,15 @@ namespace Vodovoz.ViewWidgets
 
 			treeEquipment.ItemsDataSource = Order.ObservableOrderEquipments;
 			treeEquipment.Selection.Changed += TreeEquipment_Selection_Changed;
+			Order.ObservableOrderEquipments.PropertyOfElementChanged += OnOrderEquipmentPropertyOfElementChanged;
+		}
+
+		private void OnOrderEquipmentPropertyOfElementChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(OrderEquipment.Count))
+			{
+				_saleHandler.UpdateRentsCount();
+			}
 		}
 
 		public void UpdateActiveFlyersNomenclaturesIds()
@@ -454,6 +465,12 @@ namespace Vodovoz.ViewWidgets
 			Order.AddEquipmentNomenclatureFromClient(nomenclature);
 			Order.UpdateDocuments();
 			_saleHandler.UpdateRentsCount();
+		}
+
+		protected override void OnDestroyed()
+		{
+			Order.ObservableOrderEquipments.PropertyOfElementChanged -= OnOrderEquipmentPropertyOfElementChanged;
+			base.OnDestroyed();
 		}
 	}
 }

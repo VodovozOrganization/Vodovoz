@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Edo.Admin;
 using Edo.Common;
 using Edo.Common.Services;
@@ -910,28 +910,13 @@ namespace Edo.Receipt.Dispatcher
 
 			} while(currentProcessingPositions.Any());
 
-			// Сохранение остатков в пул
-			foreach(var unprocessedCode in unprocessedCodes)
+			// Очистка неиспользованных элементов без исходного скана
+			foreach(var unprocessedCode in unprocessedCodes.Where(x => x.ProductCode.SourceCode == null))
 			{
-				if(unprocessedCode.ProductCode.SourceCode != null
-					&& unprocessedCode.ProductCode.Problem == ProductCodeProblem.None)
-				{
-					await _saveCodesService.SaveCodeToPool(unprocessedCode.ProductCode, cancellationToken);
-				}
-
 				receiptEdoTask.Items.Remove(unprocessedCode);
 				await _uow.DeleteAsync(unprocessedCode, cancellationToken);
 			}
 
-			// Удаление из задачи не используемых групповых кодов
-			foreach(var groupCodeWithTaskItems in groupCodesWithTaskItems)
-			{
-				foreach(var groupCodeTaskItem in groupCodeWithTaskItems.Value)
-				{
-					receiptEdoTask.Items.Remove(groupCodeTaskItem);
-					await _uow.DeleteAsync(groupCodeTaskItem, cancellationToken);
-				}
-			}
 		}
 
 		/// <summary>
@@ -964,8 +949,7 @@ namespace Edo.Receipt.Dispatcher
 				.ToList()
 				;
 
-			// исключили из обрабатываемого списка все коды, которые содержатся в группах
-			// они не подходят для индивидуальной обработки, потому что не имеют CheckCode
+			// Неполные группы после проверки состава вернутся в индивидуальную обработку.
 			unprocessedTaskItems.RemoveAll(x => codesThatContainedInGroup.Contains(x));
 
 			var groupped = codesThatContainedInGroup
@@ -992,12 +976,17 @@ namespace Edo.Receipt.Dispatcher
 
 			foreach(var parentCode in parentCodes)
 			{
-				result.Add(parentCode, codesThatContainedInGroup
-					.Where(ctcig => parentCode
-						.GetAllCodes()
-						.Where(x => x.IsTrueMarkWaterIdentificationCode)
-						.Select(x => x.TrueMarkWaterIdentificationCode)
-						.Any(x => x.Id == ctcig.ProductCode.SourceCode.Id)));
+				var groupCodeIds = new HashSet<int>(parentCode.GetAllCodes()
+					.Where(x => x.IsTrueMarkWaterIdentificationCode)
+					.Select(x => x.TrueMarkWaterIdentificationCode.Id));
+				var groupItems = codesThatContainedInGroup
+					.Where(x => groupCodeIds.Contains(x.ProductCode.SourceCode.Id)).ToList();
+				if(!groupCodeIds.SetEquals(groupItems.Select(x => x.ProductCode.SourceCode.Id)))
+				{
+					unprocessedTaskItems.AddRange(groupItems);
+					continue;
+				}
+				result.Add(parentCode, groupItems);
 			}
 
 			// нашли все групповые коды
@@ -1099,7 +1088,7 @@ namespace Edo.Receipt.Dispatcher
 			var resultCodes = unprocessedCodes
 				.Where(x => x.ProductCode.Problem == ProductCodeProblem.None)
 				.Where(x => x.ProductCode.ResultCode != null)
-				.Where(x => x.ProductCode.ResultCode.CheckCode != null);
+				.Where(x => !string.IsNullOrEmpty(x.ProductCode.ResultCode.CheckCode));
 
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
@@ -1121,7 +1110,7 @@ namespace Edo.Receipt.Dispatcher
 					&& x.ProductCode.SourceCode.IsInvalid == false
 					&& x.ProductCode.ResultCode == null
 					&& x.ProductCode.SourceCodeStatus != SourceProductCodeStatus.SavedToPool
-					&& x.ProductCode.SourceCode.CheckCode != null);
+					&& !string.IsNullOrEmpty(x.ProductCode.SourceCode.CheckCode));
 			
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
@@ -1147,9 +1136,12 @@ namespace Edo.Receipt.Dispatcher
 			var ddCodes = unprocessedCodes
 				.Where(x => x.ProductCode.SourceCode != null
 					&& x.ProductCode.SourceCode.IsInvalid == false
-					&& x.ProductCode.ResultCode == null
-					&& (x.ProductCode.Problem.IsIn(ProductCodeProblem.Defect, ProductCodeProblem.Duplicate)
-						|| x.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool));
+					&& (x.ProductCode.ResultCode == null
+						&& (x.ProductCode.Problem.IsIn(ProductCodeProblem.Defect, ProductCodeProblem.Duplicate)
+							|| x.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool)
+						|| x.ProductCode.SourceCode.ParentWaterGroupCodeId != null
+							&& string.IsNullOrEmpty(x.ProductCode.SourceCode.CheckCode)
+							&& (x.ProductCode.ResultCode == null || x.ProductCode.ResultCode.Id == x.ProductCode.SourceCode.Id)));
 
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{

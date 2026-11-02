@@ -1,10 +1,14 @@
-﻿using Core.Infrastructure;
+﻿using Comparer;
+using Core.Infrastructure;
 using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
 using DriverApi.Notifications.Client;
 using Edo.Admin;
+using Edo.Contracts.Messages.Events;
+using Edo.Documents;
 using Edo.Problem.Routine;
 using Edo.Transport;
+using EdoService.Library;
 using ExportTo1c.Library.Factories;
 using Fias.Client;
 using FuelControl.Library;
@@ -12,7 +16,6 @@ using Mailganer.Api.Client;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySqlConnector;
 using Notifications.Infrastructure;
 using Osrm;
@@ -48,8 +51,6 @@ using QSProjectsLib;
 using RabbitMQ.MailSending;
 using ResourceLocker.Library;
 using System;
-using System.Text.Json;
-using Taxcom.Docflow.Utility;
 using TaxcomEdo.Client;
 using TransactionalOutbox.Abstractions;
 using TrueMark.Codes.Pool;
@@ -101,8 +102,6 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Counterparty;
-using Vodovoz.Settings.Database.Edo;
-using Vodovoz.Settings.Edo;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Trackers;
@@ -114,6 +113,7 @@ using Vodovoz.ViewModels.Journals.Mappings;
 using Vodovoz.ViewModels.Services;
 using Vodovoz.ViewModels.Services.DriverSchedule;
 using Vodovoz.ViewModels.Services.SalesReport;
+using Vodovoz.ViewModels.Services.Warehouse;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 using VodovozInfrastructure;
@@ -272,12 +272,25 @@ namespace Vodovoz
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
 				.AddScoped<ISalesReportService, SalesReportService>()
+				.AddScoped<IMovementDocumentService, MovementDocumentService>()
 				.AddEdoAdminServices()
 				.AddEdoNotifications()
 				.AddOrderEdoCodePoolMissingProblem()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
 				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
-				.AddCustomerNotificationsSettingsProvider();
+				.AddCustomerNotificationsSettingsProvider()
+				.AddEdoDocumentsServices()
+			;
+
+			services.AddScoped<Comparer.IDiffFormatter, ThemmedDiffFormater>();
+			services.AddScoped<IOutboxNotificationPublisher<AcceptingWaitingForCancellationDocflowEvent>, 
+				DirectOutboxNotificationPublisher<AcceptingWaitingForCancellationDocflowEvent>>();
+			services.AddScoped<IOutboxNotificationPublisher<EdoRequestCreatedEvent>, 
+				DirectOutboxNotificationPublisher<EdoRequestCreatedEvent>>();
+			services.AddScoped<IOutboxSettingsProvider<AcceptingWaitingForCancellationDocflowEvent>, 
+				AcceptingWaitingForCancellationDocflowEventSettingsProvider>();
+			services.AddScoped<IOutboxSettingsProvider<EdoRequestCreatedEvent>, 
+				EdoRequestCreatedEventSettingsProvider>();
 
 			services.AddScoped<IEdoRequestCreatedEventPublisher, EdoRequestCreatedEventPublisher>();
 			services.AddStaticHistoryTracker();
