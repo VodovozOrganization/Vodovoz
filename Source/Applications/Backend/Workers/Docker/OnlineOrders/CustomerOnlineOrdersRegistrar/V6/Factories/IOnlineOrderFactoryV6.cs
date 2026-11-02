@@ -1,6 +1,6 @@
 ﻿using CustomerOrdersApi.Library.V6.Dto.Orders;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.V6.Factories
 {
@@ -14,7 +14,7 @@ namespace CustomerOnlineOrdersRegistrar.V6.Factories
 		/// <param name="fastDeliveryScheduleId">Id графика доставки</param>
 		/// <param name="selfDeliveryDiscountReasonId">Id основания скидки на самовывоз</param>
 		/// <returns>Онлайн заказ</returns>
-		OnlineOrder CreateOnlineOrder(
+		OnlineOrderV1 CreateOnlineOrder(
 			IUnitOfWork uow, ICreatingOnlineOrder creatingOnlineOrder, int fastDeliveryScheduleId, int selfDeliveryDiscountReasonId);
 	}
 }

@@ -3338,17 +3338,17 @@ WHERE
        AND
        (
        		(
-	       		0 IN (@DiscountReason_include)
+	       		0 IN (@DiscountReasonBase_include)
 				OR EXISTS (
 					SELECT 1 FROM discount_reasons_order_items dri
 					WHERE dri.order_item_id = oi.id
-					AND dri.discount_reason_id IN (@DiscountReason_include))
+					AND dri.discount_reason_id IN (@DiscountReasonBase_include))
 			)
        		AND NOT EXISTS
        		(
 	       		SELECT 1 FROM discount_reasons_order_items dri
 	       		WHERE dri.order_item_id = oi.id
-	       		AND dri.discount_reason_id IN (@DiscountReason_exclude)
+	       		AND dri.discount_reason_id IN (@DiscountReasonBase_exclude)
        		)
        )
        AND (
@@ -3478,11 +3478,11 @@ WHERE
           <QueryParameter Name="NomenclatureCategory_exclude">
             <Value>={?NomenclatureCategory_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="DiscountReason_include">
-            <Value>={?DiscountReason_include}</Value>
+          <QueryParameter Name="DiscountReasonBase_include">
+            <Value>={?DiscountReasonBase_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="DiscountReason_exclude">
-            <Value>={?DiscountReason_exclude}</Value>
+          <QueryParameter Name="DiscountReasonBase_exclude">
+            <Value>={?DiscountReasonBase_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="Organization_include">
             <Value>={?Organization_include}</Value>
@@ -3902,14 +3902,14 @@ WHERE
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="DiscountReason_include">
+    <ReportParameter Name="DiscountReasonBase_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="DiscountReason_exclude">
+    <ReportParameter Name="DiscountReasonBase_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

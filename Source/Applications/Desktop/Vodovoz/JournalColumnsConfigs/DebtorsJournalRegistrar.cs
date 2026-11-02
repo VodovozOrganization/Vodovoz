@@ -16,6 +16,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Кол-во точек доставки").AddTextRenderer(node => node.CountOfDeliveryPoint.ToString())
 				.AddColumn("ОПФ").AddTextRenderer(node => node.OPF.GetEnumTitle())
 				.AddColumn("Последний заказ по адресу").AddTextRenderer(node => node.LastOrderDate.HasValue ? node.LastOrderDate.Value.ToString("dd / MM / yyyy") : string.Empty)
+				.AddColumn("Сумма заказа").AddNumericRenderer(node => node.LastOrderSum).Digits(2)
 				.AddColumn("Частота заказа").AddTextRenderer(node => node.OrderFrequencyDays.HasValue ? node.OrderFrequencyDays.ToString() : string.Empty)
 				.AddColumn("Дата планируемого заказа").AddTextRenderer(node => node.PlannedOrderDate.HasValue ? node.PlannedOrderDate.Value.ToString("dd / MM / yyyy") : string.Empty)
 				.AddColumn("Кол-во отгруженных в последнюю реализацию бутылей").AddNumericRenderer(node => node.LastOrderBottles)

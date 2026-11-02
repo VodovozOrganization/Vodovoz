@@ -8,7 +8,11 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Service;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Sale;
 
 namespace VodovozBusinessTests.Domain.Logistic
 {
@@ -16,33 +20,37 @@ namespace VodovozBusinessTests.Domain.Logistic
 	public class RouteListItemTests
 	{
 		private static IOrderContractUpdater _contractUpdater;
+		private static IOrderSaleHandler _saleHandler;
 		
 		[SetUp]
 		private void Init()
 		{
 			_contractUpdater = Substitute.For<IOrderContractUpdater>();
+			_saleHandler = Substitute.For<IOrderSaleHandler>();
 		}
 		
 		private static Order ForfeitWaterAndEmptyBottles(Order order, int waterCount, int forfeitCount, int emptyBottlesCount = 0)
 		{
 			var uow = Substitute.For<IUnitOfWork>();
-			Nomenclature forfeitNomenclature = Substitute.For<Nomenclature>();
+			var priceCalculator = Substitute.For<IGoodsPriceCalculator>();
+			
+			var forfeitNomenclature = Substitute.For<Nomenclature>();
 			forfeitNomenclature.Category.Returns(NomenclatureCategory.bottle);
 			forfeitNomenclature.Id.Returns(33);
 
-			Nomenclature emptyBottleNomenclature = Substitute.For<Nomenclature>();
+			var emptyBottleNomenclature = Substitute.For<Nomenclature>();
 			emptyBottleNomenclature.Category.Returns(NomenclatureCategory.bottle);
 
-			Nomenclature waterNomenclature = Substitute.For<Nomenclature>();
+			var waterNomenclature = Substitute.For<Nomenclature>();
 			waterNomenclature.Category.Returns(NomenclatureCategory.water);
 			waterNomenclature.IsDisposableTare.Returns(false);
 
-			order.AddNomenclature(uow, _contractUpdater, forfeitNomenclature);
-			order.OrderItems.LastOrDefault().SetActualCount(forfeitCount);
-			order.AddNomenclature(uow, _contractUpdater, emptyBottleNomenclature);
-			order.OrderItems.LastOrDefault().SetActualCount(emptyBottlesCount);
-			order.AddNomenclature(uow, _contractUpdater, waterNomenclature);
-			order.OrderItems.LastOrDefault().SetActualCount(waterCount);
+			order.AddNomenclature(uow, _contractUpdater, _saleHandler, priceCalculator, NewOrderSaleItem.Create(forfeitNomenclature, 1));
+			_saleHandler.SetActualCount(order.OrderItems.LastOrDefault(), forfeitCount);
+			order.AddNomenclature(uow, _contractUpdater, _saleHandler, priceCalculator, NewOrderSaleItem.Create(emptyBottleNomenclature, 1));
+			_saleHandler.SetActualCount(order.OrderItems.LastOrDefault(), emptyBottlesCount);
+			order.AddNomenclature(uow, _contractUpdater, _saleHandler, priceCalculator, NewOrderSaleItem.Create(waterNomenclature, 1));
+			_saleHandler.SetActualCount(order.OrderItems.LastOrDefault(), waterCount);
 
 			return order;
 		}

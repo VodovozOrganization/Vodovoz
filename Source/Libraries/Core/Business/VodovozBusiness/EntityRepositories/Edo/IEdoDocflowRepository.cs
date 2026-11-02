@@ -20,6 +20,16 @@ namespace VodovozBusiness.EntityRepositories.Edo
 		IList<EdoDockflowData> GetEdoDocflowDataByOrderId(IUnitOfWork uow, int orderId);
 
 		/// <summary>
+		/// Получить историю новых заявок счета без отгрузки, включая заявки без задачи и документа
+		/// </summary>
+		/// <param name="uow">Единица работы</param>
+		/// <param name="documentId">Идентификатор счета без отгрузки</param>
+		/// <param name="documentType">Тип счета без отгрузки</param>
+		/// <returns>История заявок и их документооборотов</returns>
+		IList<EdoDockflowData> GetEdoDocflowDataByOrderWithoutShipmentId(
+			IUnitOfWork uow, int documentId, Vodovoz.Core.Domain.Orders.OrderDocumentType documentType);
+
+		/// <summary>
 		/// Получить данные документооборота по номеру клиента
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>

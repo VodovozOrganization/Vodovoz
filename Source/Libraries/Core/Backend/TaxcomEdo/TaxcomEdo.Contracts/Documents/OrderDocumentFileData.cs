@@ -17,9 +17,21 @@ namespace TaxcomEdo.Contracts.Documents
 		public DateTime DocumentDate { get; set; }
 
 		/// <summary>
+		/// Номер счета; для остальных документов заказа не заполняется
+		/// </summary>
+		public string BillNumber { get; set; }
+
+		/// <summary>
+		/// Сохраненное имя файла счета
+		/// </summary>
+		public string FileName { get; set; }
+
+		/// <summary>
 		/// Имя файла <see cref="FileData.Name"/>
 		/// </summary>
-		public override string Name => $"Документ заказа №{OrderId} от {DocumentDate:d}.pdf";
+		public override string Name => FileName ?? (string.IsNullOrEmpty(BillNumber)
+			? $"Документ заказа №{OrderId} от {DocumentDate:d}.pdf"
+			: $"Счёт №{BillNumber} от {DocumentDate:d}.pdf");
 	}
 }
 

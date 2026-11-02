@@ -283,6 +283,8 @@ namespace Vodovoz.ViewModels.Users
 
 		public override bool Save(bool close)
 		{
+			Entity.TrimFuelControlApiAuthData();
+
 			ShowNotifyIfWarehousesListChanged();
 
 			if(IsNeedToConfigurePrinterSettings())
@@ -348,6 +350,8 @@ namespace Vodovoz.ViewModels.Users
 			{
 				return;
 			}
+
+			Entity.TrimFuelControlApiAuthData();
 
 			Entity.FuelControlApiSessionId = string.Empty;
 			Entity.FuelControlApiSessionExpirationDate = null;

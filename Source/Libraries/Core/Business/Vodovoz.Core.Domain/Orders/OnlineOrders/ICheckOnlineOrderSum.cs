@@ -6,10 +6,6 @@
 	public interface ICheckOnlineOrderSum
 	{
 		/// <summary>
-		/// Идентификатор номенклатуры
-		/// </summary>
-		int NomenclatureId { get; }
-		/// <summary>
 		/// Стоимость
 		/// </summary>
 		decimal Price { get; }

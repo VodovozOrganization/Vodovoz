@@ -19,6 +19,8 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.Receipt.Dispatcher.Worker
 {
@@ -55,7 +57,7 @@ namespace Edo.Receipt.Dispatcher.Worker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddEdoReceiptDispatcher()
+						.AddEdoReceiptDispatcher(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 						.AddEdoProblemRoutineServices()
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))

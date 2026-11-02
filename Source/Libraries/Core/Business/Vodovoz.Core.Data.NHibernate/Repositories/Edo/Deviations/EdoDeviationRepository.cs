@@ -430,13 +430,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			var documents = await GetDocumentRowsAsync(uow, taskIds, cancellationToken);
 			var documentIds = documents.Select(x => x.DocumentId).ToArray();
 			var docflows = await GetDocflowRowsAsync(uow, documentIds, cancellationToken);
-			var docflowIds = docflows.Select(x => x.DocflowId).ToArray();
 
 			EdoTaskMonitoringNodeBuilder.FillDocflows(
 				nodes,
 				documents,
-				docflows,
-				await GetActionRowsAsync(uow, docflowIds, cancellationToken));
+				docflows);
 
 			EdoTaskMonitoringNodeBuilder.FillFiscalDocuments(
 				nodes,
@@ -678,34 +676,10 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 					{
 						DocflowId = x.Id,
 						DocumentId = x.EdoDocumentId,
-						CreationTime = x.CreationTime
-					})
-					.ToListAsync(cancellationToken);
-
-				rows.AddRange(batch);
-			}
-
-			return rows;
-		}
-
-		private static async Task<IReadOnlyCollection<ActionRow>> GetActionRowsAsync(
-			IUnitOfWork uow,
-			IReadOnlyCollection<int> docflowIds,
-			CancellationToken cancellationToken)
-		{
-			var rows = new List<ActionRow>();
-
-			foreach(var idsBatch in SplitToBatches(docflowIds))
-			{
-				var batch = await uow.Session.Query<TaxcomDocflowAction>()
-					.Where(x => x.TaxcomDocflowId != null && idsBatch.Contains(x.TaxcomDocflowId.Value))
-					.Select(x => new ActionRow
-					{
-						ActionId = x.Id,
-						DocflowId = x.TaxcomDocflowId.Value,
-						Time = x.Time,
-						State = x.DocFlowState,
-						TraceabilityStatus = x.TrueMarkTraceabilityStatus
+						CreationTime = x.CreationTime,
+						DocFlowState = x.DocFlowState,
+						StateChangeTime = x.StateChangeTime,
+						TrueMarkTraceabilityStatus = x.TrueMarkTraceabilityStatus
 					})
 					.ToListAsync(cancellationToken);
 
@@ -746,33 +720,16 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 
 		private static IQueryable<int> GetDocumentIdsWithFinishedDocflow(IUnitOfWork uow)
 		{
-			var finishedDocflowIds = uow.Session.Query<TaxcomDocflowAction>()
-				.Where(x => x.TaxcomDocflowId != null)
-				.Where(x => x.DocFlowState == EdoDocFlowStatus.Succeed)
-				.Select(x => x.TaxcomDocflowId.Value);
-
 			return uow.Session.Query<TaxcomDocflow>()
-				.Where(x => finishedDocflowIds.Contains(x.Id))
+				.Where(x => x.DocFlowState == EdoDocFlowStatus.Succeed)
 				.Select(x => x.EdoDocumentId);
 		}
 
 		private static IQueryable<int> GetDocumentIdsWithAcceptedTraceability(IUnitOfWork uow)
 		{
-			var rejectedDocflowIds = uow.Session.Query<TaxcomDocflowAction>()
-				.Where(x => x.TaxcomDocflowId != null)
-				.Where(x => x.TrueMarkTraceabilityStatus != null)
-				.Where(x => TrueMarkTraceabilityStatuses.Rejected.Contains(x.TrueMarkTraceabilityStatus.Value))
-				.Select(x => x.TaxcomDocflowId.Value);
-
-			var acceptedDocflowIds = uow.Session.Query<TaxcomDocflowAction>()
-				.Where(x => x.TaxcomDocflowId != null)
+			return uow.Session.Query<TaxcomDocflow>()
 				.Where(x => x.TrueMarkTraceabilityStatus != null)
 				.Where(x => !TrueMarkTraceabilityStatuses.Rejected.Contains(x.TrueMarkTraceabilityStatus.Value))
-				.Where(x => !rejectedDocflowIds.Contains(x.TaxcomDocflowId.Value))
-				.Select(x => x.TaxcomDocflowId.Value);
-
-			return uow.Session.Query<TaxcomDocflow>()
-				.Where(x => acceptedDocflowIds.Contains(x.Id))
 				.Select(x => x.EdoDocumentId);
 		}
 
@@ -802,13 +759,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			var documents = await GetTransferDocumentRowsAsync(uow, taskIds, cancellationToken);
 			var documentIds = documents.Select(x => x.DocumentId).ToArray();
 			var docflows = await GetDocflowRowsAsync(uow, documentIds, cancellationToken);
-			var docflowIds = docflows.Select(x => x.DocflowId).ToArray();
 
 			EdoTaskMonitoringNodeBuilder.FillDocflows(
 				nodes,
 				documents,
-				docflows,
-				await GetActionRowsAsync(uow, docflowIds, cancellationToken));
+				docflows);
 		}
 
 		private static async Task<IReadOnlyDictionary<int, DateTime>> GetCodesNotMovedProblemTimesAsync(

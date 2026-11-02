@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using TransactionalOutbox.Abstractions;
-using TransactionalOutbox.Contracts;
+using Notifications.Core;
 
 namespace Notifications.Infrastructure
 {
@@ -10,28 +9,31 @@ namespace Notifications.Infrastructure
 	{
 		/// <summary>
 		/// Регистрирует публикатор пуш-уведомлений с резервной отправкой СМС 
-		/// <see cref="MappingOutboxNotificationWithSmsFallbackPublisher{TDomainEvent}"/>.
+		/// <see cref="SmsFallbackNotificationPublisher{TDomainEvent}"/>.
 		/// <para>
 		/// Вызывающий код должен дополнительно зарегистрировать:
 		/// <see cref="IIntegrationEventBuilder{TDomainEvent, TIntegrationEvent}"/>,
-		/// <see cref="IOutboxSettingsProvider{TEvent}"/>,
+		/// <see cref="INotificationSettingsProvider{TEvent}"/>,
 		/// <see cref="ISmsNotificationSendingPolicy"/>
 		/// и создатели смс уведомлений <see cref="ISmsNotificationCreator{TDomainEvent}"/>
 		/// </para>
 		/// </summary>
 		/// <typeparam name="TDomainEvent">Тип доменного события</typeparam>
 		/// <typeparam name="TIntegrationEvent">Тип интеграционного события</typeparam>
-		public static IServiceCollection AddMappingOutboxNotificationWithSmsFallbackPublisher<TDomainEvent, TIntegrationEvent>(
+		public static IServiceCollection AddNotificationPublisherWithSmsFallback<TDomainEvent, TIntegrationEvent>(
 			this IServiceCollection services)
-			where TDomainEvent : IIdempotentOutboxMessage
+			where TDomainEvent : IDeduplicatedNotification
+			where TIntegrationEvent : class
 		{
-			services.AddScoped<MappingOutboxNotificationPublisher<TDomainEvent, TIntegrationEvent>>();
+			services.AddScoped<NotificationPublisher<TDomainEvent, TIntegrationEvent>>();
 
-			services.AddScoped<IOutboxNotificationPublisher<TDomainEvent>>(
-				sp => new MappingOutboxNotificationWithSmsFallbackPublisher<TDomainEvent>(
-					sp.GetRequiredService<ILogger<MappingOutboxNotificationWithSmsFallbackPublisher<TDomainEvent>>>(),
-					sp.GetRequiredService<MappingOutboxNotificationPublisher<TDomainEvent, TIntegrationEvent>>(),
-					sp.GetRequiredService<IOutboxSettingsProvider<TDomainEvent>>(),
+			services.AddNotificationBusNotHosted();
+
+			services.AddScoped<INotificationPublisher<TDomainEvent>>(
+				sp => new SmsFallbackNotificationPublisher<TDomainEvent>(
+					sp.GetRequiredService<ILogger<SmsFallbackNotificationPublisher<TDomainEvent>>>(),
+					sp.GetRequiredService<NotificationPublisher<TDomainEvent, TIntegrationEvent>>(),
+					sp.GetRequiredService<INotificationSettingsProvider<TDomainEvent>>(),
 					sp.GetRequiredService<ISmsNotificationSendingPolicy>(),
 					sp.GetRequiredService<IEnumerable<ISmsNotificationCreator<TDomainEvent>>>()));
 

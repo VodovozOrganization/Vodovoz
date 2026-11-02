@@ -24,10 +24,11 @@ namespace EdoService.Library
 				.AddScoped<IAuthorizationService, TaxcomAuthorizationService>()
 				.AddScoped<IContactStateConverter, ContactStateConverter>()
 				.AddScoped<IInformalEdoRequestFactory, EquipmentTransferEdoRequestFactory>()
+				.AddScoped<IBillEdoRequestFactory, BillEdoRequestFactory>()
+				.AddScoped<IBillEdoRequestSender, BillEdoRequestSender>()
 				.AddScoped<EdoTaskCustomSourcesPersister>()
 				.AddScoped<EdoTaskExceptionSourcesPersister>()
 				.AddScoped<EdoProblemRegistrar>()
-				.AddScoped<MessageService>()
 				.TryAddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>()
 				;
 

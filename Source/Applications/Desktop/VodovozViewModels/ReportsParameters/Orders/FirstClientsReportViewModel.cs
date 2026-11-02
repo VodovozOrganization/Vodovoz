@@ -23,8 +23,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 	{
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private IEnumerable<DiscountReason> _discountReasons;
-		private DiscountReason _discountReason;
+		private IEnumerable<DiscountReasonBase> _discountReasons;
+		private DiscountReasonBase _discountReason;
 		private OrderStatus? _orderStatus;
 		private PaymentType? _paymentType;
 		private District _district;
@@ -77,13 +77,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Orders
 			set => SetField(ref _endDate, value);
 		}
 
-		public virtual IEnumerable<DiscountReason> DiscountReasons
+		public virtual IEnumerable<DiscountReasonBase> DiscountReasons
 		{
 			get => _discountReasons;
 			set => SetField(ref _discountReasons, value);
 		}
 
-		public virtual DiscountReason DiscountReason
+		public virtual DiscountReasonBase DiscountReason
 		{
 			get => _discountReason;
 			set => SetField(ref _discountReason, value);

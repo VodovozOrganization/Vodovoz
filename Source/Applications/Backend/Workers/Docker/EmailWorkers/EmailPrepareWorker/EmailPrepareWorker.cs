@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
@@ -34,7 +35,9 @@ namespace EmailPrepareWorker
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IHostApplicationLifetime _hostApplicationLifetime;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
-		private readonly IBus _messageBus;
+		// UoW создаётся из фабрики на каждый проход: письмо пишется в его транзакцию явно и уходит вместе со статусом
+		// TODO: брать IUnitOfWork и IPublishEndpoint из DI-scope прохода, тогда IUnitOfWorkOutbox не нужен
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
 		private bool _initialized = false;
 
@@ -45,13 +48,13 @@ namespace EmailPrepareWorker
 			IServiceScopeFactory serviceScopeFactory,
 			IHostApplicationLifetime hostApplicationLifetime,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
-			IBus messageBus)
+			IUnitOfWorkOutbox<IBus> outbox)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_hostApplicationLifetime = hostApplicationLifetime;
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 
 			var assemblyVersion = Assembly.GetEntryAssembly().GetName().Version;
@@ -196,7 +199,7 @@ namespace EmailPrepareWorker
 
 					var message = emailSendMessagePreparer.PrepareMessage(emailSendMessageBuilder, mySqlConnectionStringBuilder.ConnectionString);
 
-					await _messageBus.Publish(message);
+					await _outbox.GetPublishEndpoint(unitOfWork).Publish(message);
 
 					counterpartyEmail.StoredEmail.State = StoredEmailStates.WaitingToSend;
 					unitOfWork.Save(counterpartyEmail.StoredEmail);

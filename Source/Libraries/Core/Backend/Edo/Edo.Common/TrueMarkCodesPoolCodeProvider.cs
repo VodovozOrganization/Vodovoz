@@ -450,16 +450,8 @@ namespace Edo.Common
 				codes.Count);
 		}
 
-		private async Task<bool> IsCodeAlreadyUsedAsResultCodeAsync(int identificationCodeId, CancellationToken cancellationToken)
-		{
-			return await _uow.Session.Query<TrueMarkProductCode>()
-				.AnyAsync(
-					x => x.ResultCode != null
-						&& x.ResultCode.Id == identificationCodeId
-						&& (x.SourceCodeStatus == SourceProductCodeStatus.Accepted
-							|| x.SourceCodeStatus == SourceProductCodeStatus.Changed),
-					cancellationToken);
-		}
+		private Task<bool> IsCodeAlreadyUsedAsResultCodeAsync(int identificationCodeId, CancellationToken cancellationToken) =>
+			_trueMarkCodeRepository.IsWaterCodeUsedAsResultCodeAsync(identificationCodeId, cancellationToken);
 
 		private async Task<Result<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>>> BuildResult(
 			ITrueMarkCodesPool codesPool,

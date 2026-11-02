@@ -78,10 +78,6 @@ namespace Vodovoz.ViewModels
 
 			Copyright = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright;
 
-			WikiWebsite = wikiSettings.Url;
-
-			Website = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyAppWebsiteAttribute>()?.Link;
-
 			CloseCommand = new DelegateCommand(Close);
 		}
 
@@ -92,12 +88,6 @@ namespace Vodovoz.ViewModels
 		public string Version { get; }
 		public string Description { get; }
 		public string Copyright { get; }
-
-		public string WikiWebsite { get; }
-		public string WikiWebsiteFormatted => $"База знаний по работе с программой: <a href=\"{WikiWebsite}\">{WikiWebsite}</a>";
-
-		public string Website { get; }
-		public string WebsiteFormatted => $"<a href=\"{Website}\">{Website}</a>";
 
 		public string BuildTimeFormattedDate { get; }
 

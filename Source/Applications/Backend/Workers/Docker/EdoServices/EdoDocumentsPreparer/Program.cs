@@ -13,8 +13,12 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Infrastructure.FileStorage;
+using Vodovoz.Infrastructure.FileStorage.Options;
 using Vodovoz.Zabbix.Sender;
 using DriverApi.Notifications.Client;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace EdoDocumentsPreparer
 {
@@ -52,12 +56,18 @@ namespace EdoDocumentsPreparer
 						.AddBusiness(hostContext.Configuration)
 						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
+						.ConfigureOptions<ConfigureS3Options>()
+						.AddFileStorage()
 						.AddHostedService<EdoDocumentsPreparerWorker>()
 						.AddPreparerDependencyGroup()
 						.ConfigurePreparer(hostContext.Configuration)
 
 						.AddMessageTransportSettings()
-						.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
+						.AddMassTransit(busConf =>
+						{
+							busConf.AddVodovozOutbox(OutboxBusNames.Taxcom);
+							busConf.ConfigureRabbitMq();
+						})
 						.ConfigureZabbixSenderFromDataBase();
 						;
 

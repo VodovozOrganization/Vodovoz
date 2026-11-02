@@ -1,0 +1,92 @@
+﻿using System.Collections.Generic;
+using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Interfaces;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Orders;
+using VodovozBusiness.Nodes;
+
+namespace VodovozBusiness.Controllers
+{
+	public interface ISaleDiscountController : IDiscountController
+	{
+		/// <summary>
+		/// Добавляет скидку из выбранного основания скидки для позиции на продажу, если она не была установлена ранее
+		/// </summary>
+		/// <param name="reason">Основание скидки</param>
+		/// <param name="saleItem">Позиция на продажу</param>
+		/// <param name="isNotCheckPromoSetOrFixedPrice">Можно добавить скидку независимо от наличия промонабора или фиксы</param>
+		/// <returns>Результат операции</returns>
+		Result AddDiscountFromDiscountReason(
+			DiscountReasonBase reason,
+			IApplyDiscountReasonItem saleItem,
+			bool isNotCheckPromoSetOrFixedPrice = false
+		);
+		
+		/// <summary>
+		/// Установка индивидуальной скидки(при изменении параметров скидки в ДВ)
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="saleItem">Позиция на продажу, к которой применяется скидка</param>
+		/// <param name="receivedDiscountValue">Установленное значение скидки</param>
+		/// <returns><see cref="Result"/></returns>
+		Result SetCustomDiscount(
+			IUnitOfWork uow,
+			IApplyDiscountReasonItem saleItem,
+			IDiscountValue receivedDiscountValue
+		);
+
+		/// <summary>
+		/// Удаление скидки из позиции
+		/// </summary>
+		/// <param name="discountReasonId">Идентификатор скидки</param>
+		/// <param name="saleItem">Продаваемая позиция</param>
+		void RemoveDiscount(int discountReasonId, IApplyDiscountReasonItem saleItem);
+
+		/// <summary>
+		/// Пересчет скидок
+		/// </summary>
+		/// <param name="context">Данные для пересчета скидки</param>
+		void RecalculateDiscount(IDataContext context);
+
+		/// <summary>
+		/// Проверяет, что скидка может быть добавлена, т.е. сумма всех добавленных скидок не превышает цену товара
+		/// </summary>
+		/// <param name="discountValue">Значение скидки</param>
+		/// <param name="saleItem">Позиция на которую применяется скидка</param>
+		/// <returns>Результат проверки</returns>
+		bool IsDiscountValueCanBeAdded(IDiscountValue discountValue, IApplyDiscountReasonItem saleItem);
+
+		/// <summary>
+		/// Подсчет итоговой скидки для позиций промонабора
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="onlinePromoSet">Онлайн промонабор</param>
+		/// <param name="canUseAlternativePrices">Можно ли использовать альтернативные цены</param>
+		/// <returns></returns>
+		IDictionary<int, PromoSetItemTotalDiscount> CalculatePromoSetItemsTotalDiscount(
+			IUnitOfWork uow,
+			IApplicablePromotion onlinePromoSet,
+			bool canUseAlternativePrices = false
+		);
+
+		/// <summary>
+		/// Подсчет итоговой скидки для позиций промонабора, разбивая общую скидку по всем позициям(для заказа, где промонабор добавляется товарами)
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="onlinePromoSet">Онлайн промонабор</param>
+		/// <param name="canUseAlternativePrices">Можно ли использовать альтернативные цены</param>
+		/// <returns></returns>
+		IReadOnlyList<IDictionary<int, PromoSetItemTotalDiscount>> CalculatePromoSetTotalDiscountBySaleItems(
+			IUnitOfWork uow,
+			IApplicablePromotion onlinePromoSet,
+			bool canUseAlternativePrices = false
+		);
+
+		/// <summary>
+		/// Удаление скидок из позиций на продажу
+		/// </summary>
+		/// <param name="saleItems">Продаваемые позиции</param>
+		void ClearDiscounts(IEnumerable<IApplyDiscountReasonItem> saleItems);
+	}
+}

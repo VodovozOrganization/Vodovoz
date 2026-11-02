@@ -69,7 +69,7 @@ namespace Vodovoz.RobotMia.Api.Services
 					{
 						Id = nomenclature.Id,
 						ShortName = nomenclature.ShortName,
-						Price = nomenclature.GetPrice(1),
+						Price = nomenclature.GetPrice(1).Price,
 						CanSale = parameters.First(x => x.NomenclatureId == nomenclature.Id).GoodsOnlineAvailability == GoodsOnlineAvailability.ShowAndSale,
 						SlangWords = parameters.First(x => x.NomenclatureId == nomenclature.Id).SlangWords.Select(s => s.Word)
 					});
@@ -90,7 +90,7 @@ namespace Vodovoz.RobotMia.Api.Services
 			{
 				Id = nomenclature.First().Id,
 				ShortName = nomenclature.First().ShortName,
-				Price = nomenclature.First().GetPrice(1),
+				Price = nomenclature.First().GetPrice(1).Price,
 				CanSale = false,
 				SlangWords = new List<string>()
 			});

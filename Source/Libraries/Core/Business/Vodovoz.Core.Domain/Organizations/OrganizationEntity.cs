@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		Nominative = "организация")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class OrganizationEntity : AccountOwnerBase, INamedDomainObject, IValidatableObject
+	public class OrganizationEntity : AccountOwnerBase, INamedDomainObject, IValidatableObject, IUsnModeOrganization
 	{
 		private const string _vodovozEmailPattern = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z";
 

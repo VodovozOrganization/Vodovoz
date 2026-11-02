@@ -6,16 +6,13 @@ namespace Vodovoz.Core.Application.Orders
 	/// <inheritdoc/>
 	public class CheckOnlineOrderSum : ICheckOnlineOrderSum
 	{
-		protected CheckOnlineOrderSum(int nomenclatureId, decimal count, decimal price, decimal discount)
+		protected CheckOnlineOrderSum(decimal count, decimal price, decimal discount)
 		{
-			NomenclatureId = nomenclatureId;
 			Count = count;
 			Price = price;
 			DiscountMoney = discount;
 		}
 		
-		/// <inheritdoc/>
-		public int NomenclatureId { get; set; }
 		/// <inheritdoc/>
 		public decimal Price { get; set; }
 		/// <inheritdoc/>
@@ -32,7 +29,7 @@ namespace Vodovoz.Core.Application.Orders
 		public decimal CalculateDiscountMoney(decimal percentDiscount) =>
 			Price * Count * percentDiscount / 100;
 		
-		public static CheckOnlineOrderSum Create(int nomenclatureId, decimal count, decimal price, decimal discount) =>
-			new CheckOnlineOrderSum(nomenclatureId, count, price, discount);
+		public static CheckOnlineOrderSum Create(decimal count, decimal price, decimal discount) =>
+			new CheckOnlineOrderSum(count, price, discount);
 	}
 }

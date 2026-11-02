@@ -200,13 +200,7 @@ select
 	eod.edo_type as :edo_type,
 	td.id as :taxcom_document_id,
 	td.docflow_id as :taxcom_docflow_id,
-	(
-		SELECT tda.state 
-		FROM taxcom_docflow_actions tda 
-		WHERE tda.taxcom_docflow_id = td.id
-		ORDER BY tda.`time` DESC
-		LIMIT 1
-	) as :last_taxcom_state
+	td.state as :last_taxcom_state
 from taxcom_docflows td
 left join edo_outgoing_documents eod on eod.id = td.edo_document_id
 left join edo_customer_requests ecr on ecr.order_task_id = eod.document_task_id
@@ -218,13 +212,7 @@ select
 	eod.edo_type as :edo_type,
 	td.id as :taxcom_document_id,
 	td.docflow_id as :taxcom_docflow_id,
-	(
-		SELECT tda.state 
-		FROM taxcom_docflow_actions tda 
-		WHERE tda.taxcom_docflow_id = td.id
-		ORDER BY tda.`time` DESC
-		LIMIT 1
-	) as :last_taxcom_state
+	td.state as :last_taxcom_state
 from taxcom_docflows td
 left join edo_outgoing_documents eod on eod.id = td.edo_document_id
 left join edo_transfer_requests etr on etr.transfer_edo_task_id = eod.transfer_task_id
@@ -281,6 +269,38 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				.SingleOrDefault();
 
 			return taxcomDocflow;
+		}
+
+		public IList<Guid> GetDocflowIdsStuckInSentOrInProgress(
+			IUnitOfWork uow,
+			string edoAccount,
+			DateTime statusChangedBefore)
+		{
+			var stuckStatuses = new[]
+			{
+				EdoDocFlowStatus.Sent,
+				EdoDocFlowStatus.InProgress
+			};
+
+			var docflowIds =
+				from docflow in uow.Session.Query<TaxcomDocflow>()
+				join orderDocument in uow.Session.Query<OrderEdoDocument>()
+					on docflow.EdoDocumentId equals orderDocument.Id
+				join task in uow.Session.Query<DocumentEdoTask>()
+					on orderDocument.DocumentTaskId equals task.Id
+				join formalRequest in uow.Session.Query<FormalEdoRequest>()
+					on task.FormalEdoRequest.Id equals formalRequest.Id
+				join order in uow.Session.Query<OrderEntity>()
+					on formalRequest.Order.Id equals order.Id
+				join settings in uow.Session.Query<TaxcomEdoSettings>()
+					on order.Contract.Organization.Id equals settings.OrganizationId
+				where stuckStatuses.Contains(docflow.DocFlowState)
+					&& docflow.StateChangeTime <= statusChangedBefore
+					&& docflow.DocflowId != null
+					&& settings.EdoAccount == edoAccount
+				select docflow.DocflowId.Value;
+
+			return docflowIds.Distinct().ToList();
 		}
 
 		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
@@ -550,9 +570,9 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				.And(() => edoTask.CreationTime >= minCreationTime)
 				.And(_canProcessOrSendEdo.GetRuleOrderCriterion())
 				.SelectList(list => list
-					.Select(() => edoTask).WithAlias(() => result.ReceiptTask)
-					.Select(() => edoTaskProblem).WithAlias(() => result.Problem)
-					.Select(() => routineState).WithAlias(() => result.RoutineState)
+					.Select(Projections.Entity(() => edoTask)).WithAlias(() => result.ReceiptTask)
+					.Select(Projections.Entity(() => edoTaskProblem)).WithAlias(() => result.Problem)
+					.Select(Projections.Entity(() => routineState)).WithAlias(() => result.RoutineState)
 					.Select(() => orderAlias.Id).WithAlias(() => result.OrderId)
 					.SelectSubQuery(hasCodesSavedToPoolProjection).WithAlias(() => result.HasCodesSavedToPool)
 				)
@@ -592,9 +612,9 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 					.Add(Restrictions.Where(() => routineState.LastRetryTime <= retryIntervalHoursAgo))
 					)
 				.SelectList(list => list
-					.Select(() => edoTaskProblem).WithAlias(() => result.Problem)
-					.Select(() => edoTask).WithAlias(() => result.EdoTask)
-					.Select(() => routineState).WithAlias(() => result.RoutineState)
+					.Select(Projections.Entity(() => edoTaskProblem)).WithAlias(() => result.Problem)
+					.Select(Projections.Entity(() => edoTask)).WithAlias(() => result.EdoTask)
+					.Select(Projections.Entity(() => routineState)).WithAlias(() => result.RoutineState)
 				)
 				.TransformUsing(Transformers.AliasToBean<CodePoolMissingProblemNode>())
 				;
@@ -806,11 +826,11 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			}
 			
 			query.SelectList(list => list
-					.Select(() => edoTask).WithAlias(() => result.EdoTask)
-					.Select(() => edoTaskProblem).WithAlias(() => result.Problem)
+					.Select(Projections.Entity(() => edoTask)).WithAlias(() => result.EdoTask)
+					.Select(Projections.Entity(() => edoTaskProblem)).WithAlias(() => result.Problem)
 					.Select(() => problemDescription.Description).WithAlias(() => result.ProblemDescription)
 					.Select(() => problemDescription.Recommendation).WithAlias(() => result.Recommendation)
-					.Select(() => routineState).WithAlias(() => result.RoutineState)
+					.Select(Projections.Entity(() => routineState)).WithAlias(() => result.RoutineState)
 					.Select(() => orderAlias.Id).WithAlias(() => result.OrderId)
 					.Select(() => edoTaskProblem.ExceptionMessage).WithAlias(() => result.ExceptionMessage)
 				)
@@ -856,12 +876,15 @@ select
 	eir.`time` as :request_time,
 	eir.id as :request_id,
 	eir.source as :request_source,
-	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e where e.id = eir.author_id) as :manual_request_author,
+	(select GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) from employees e
+		where e.id = coalesce(eir.author_id, (select o.author_employee_id from orders o
+			where o.id = eir.order_id and eir.source = 'None'
+				and eir.order_document_type in ('Bill', 'SpecialBill')))) as :manual_request_author,
 	eir.order_document_type as :order_document_type,
 	et.id as :task_id,
-	et.`type` as :task_type,
+	coalesce(et.`type`, 'InformalOrderDocument') as :task_type,
 	et.document_type as :formal_document_type,
-	et.status as :task_status,
+	coalesce(et.status, 'Waiting') as :task_status,
 	null as :task_upd_stage,
 	null as :task_receipt_stage,
 	null as :task_tender_stage,
@@ -873,9 +896,10 @@ select
 	eod.discrepancy_state as :docflow_discrepancy_state
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
-left join edo_outgoing_documents eod on eod.document_task_id = et.id
+left join edo_outgoing_documents eod on eod.informal_document_task_id = et.id
 where eir.order_id = :order_id
-	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+	and (et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+		or (et.id is null and eir.order_document_type in ('Bill', 'SpecialBill')))
 ;
 ";
 
@@ -918,6 +942,7 @@ where eir.order_id = :order_id
 			var stepStopwatch = Stopwatch.StartNew();
 			OrderEdoTask orderEdoTaskAlias = null;
 			FormalEdoRequest edoRequestAlias = null;
+			InformalEdoRequest informalEdoRequestAlias = null;
 			EdoTaskProblem edoTaskProblemAlias = null;
 			EdoTaskProblemCustomSourceEntity customProblemDescriptionSourceAlias = null;
 			EdoTaskProblemValidatorSourceEntity validatorDescriptionSourceAlias = null;
@@ -930,6 +955,11 @@ where eir.order_id = :order_id
 			var edoTasksProblems = uow.Session.QueryOver(() => edoTaskProblemAlias)
 				.Left.JoinAlias(() => edoTaskProblemAlias.EdoTask, () => orderEdoTaskAlias)
 				.Left.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.JoinEntityAlias(
+					() => informalEdoRequestAlias,
+					() => informalEdoRequestAlias.Task.Id == orderEdoTaskAlias.Id,
+					JoinType.LeftOuterJoin
+				)
 				.JoinEntityAlias(
 					() => customProblemDescriptionSourceAlias,
 					() => customProblemDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
@@ -945,7 +975,7 @@ where eir.order_id = :order_id
 					() => exceptionDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
 					JoinType.LeftOuterJoin
 				)
-				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.Where(() => edoRequestAlias.Order.Id == orderId || informalEdoRequestAlias.Order.Id == orderId)
 				.SelectList(list => list
 					.SelectGroup(() => edoTaskProblemAlias.Id).WithAlias(() => resultAlias.TaskProblemId)
 					.Select(() => orderEdoTaskAlias.Id).WithAlias(() => resultAlias.OrderTaskId)
@@ -1327,20 +1357,13 @@ select
 	eod.status as :docflow_status,
 	td.creation_time as :taxcom_docflow_send_time,
 	td.docflow_id as :taxcom_docflow_id,
-	tda.`time` as :last_taxcom_status_update,
-	tda.`state` as :taxcom_status,
-	tda.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
-	tda.`error_message` as :taxcom_error_message
+	td.`state_change_time` as :last_taxcom_status_update,
+	td.`state` as :taxcom_status,
+	td.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
+	td.`error_message` as :taxcom_error_message
 from edo_outgoing_documents eod
 left join edo_customer_requests ecr on ecr.order_task_id = eod.document_task_id
 left join taxcom_docflows td on td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda ON tda.id = (
-    select id
-    from taxcom_docflow_actions
-    where taxcom_docflow_id = td.id
-    order by time desc
-    limit 1
-)
 where ecr.order_id = :order_id
 union all
 select
@@ -1350,22 +1373,15 @@ select
 	eod.status as :docflow_status,
 	td.creation_time as :taxcom_docflow_send_time,
 	td.docflow_id as :taxcom_docflow_id,
-	tda.`time` as :last_taxcom_status_update,
-	tda.`state` as :taxcom_status,
-	tda.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
-	tda.`error_message` as :taxcom_error_message
+	td.`state_change_time` as :last_taxcom_status_update,
+	td.`state` as :taxcom_status,
+	td.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
+	td.`error_message` as :taxcom_error_message
 from edo_outgoing_documents eod
 left join edo_transfer_requests etr on etr.transfer_edo_task_id = eod.transfer_task_id 
 left join edo_transfer_request_iterations etri on etri.id = etr.iteration_id 
 left join edo_customer_requests ecr on ecr.order_task_id = etri.order_edo_task_id
 left join taxcom_docflows td on td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda ON tda.id = (
-    select id
-    from taxcom_docflow_actions
-    where taxcom_docflow_id = td.id
-    order by time desc
-    limit 1
-)
 where ecr.order_id = :order_id
 ;
 ";
@@ -1517,8 +1533,8 @@ select
 	eod.creation_time as :edo_document_time,
 	eod.status as :document_status,
 	td.docflow_id as :taxcom_docflow_id,
-	tda.state as :taxcom_docflow_status,
-	tda.`time` as :taxcom_status_time,
+	td.state as :taxcom_docflow_status,
+	td.state_change_time as :taxcom_status_time,
 	td.cancellation_offer_message as :cancellation_offer_message,
 	td.correction_notice_message  as :correction_notice_message,
 	td.discrepancy_message as :discrepancy_message
@@ -1526,20 +1542,7 @@ from edo_outgoing_documents eod
 left join edo_tasks et on et.id = eod.document_task_id
 left join edo_customer_requests ecr on ecr.order_task_id = et.id
 left join orders o on o.id = ecr.order_id
-left join
-(
-	SELECT
-		taxcom_docflows.*,
-		(
-			SELECT tda.id
-			FROM taxcom_docflow_actions tda
-			WHERE tda.taxcom_docflow_id = taxcom_docflows.id
-			ORDER BY tda.`time` DESC
-			LIMIT 1
-		) as last_taxcom_action_id
-	FROM taxcom_docflows
-) td ON td.edo_document_id = eod.id
-left join taxcom_docflow_actions tda on tda.id = td.last_taxcom_action_id
+left join taxcom_docflows td ON td.edo_document_id = eod.id
 where eod.discrepancy_state = 'Active'
 and eod.id = :document_id
 ";
