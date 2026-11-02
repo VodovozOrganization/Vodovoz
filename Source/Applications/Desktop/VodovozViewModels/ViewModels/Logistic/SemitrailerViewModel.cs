@@ -16,6 +16,7 @@ using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
@@ -27,6 +28,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly CarVersionsManagementViewModel _carVersionsManagementViewModel;
 		private readonly IServiceProvider _serviceProvider;
 		private readonly ICarRepository _carRepository;
+		private readonly ICarEventRepository _carEventRepository;
+		private readonly ICarEventSettings _carEventSettings;
 
 		public SemitrailerViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -37,7 +40,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CarVersionsManagementViewModel carVersionsManagementViewModel,
 			IAdditionalFuelTypeManagementViewModelFactory additionalFuelTypeManagementViewModelFactory,
 			IServiceProvider serviceProvider,
-			ICarRepository carRepository)
+			ICarRepository carRepository,
+			ICarEventRepository carEventRepository,
+			ICarEventSettings carEventSettings)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager == null)
@@ -79,6 +84,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CloseCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
+			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
+
+			ConfigureCarTechnicalCheckupInfo();
 		}
 
 		public bool CanEdit { get; private set; }
@@ -121,6 +130,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public IEntityEntryViewModel CarModelViewModel { get; }
 
+		public string LastCarTechnicalCheckupDate { get; private set; }
+
 		public CarVersionsViewModel CarVersionsViewModel { get; }
 		public CarVersionEditingViewModel CarVersionEditingViewModel { get; }
 		
@@ -161,6 +172,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			
 			CanChangeCompositionCompanyTransportPark =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(CarPermissions.CanChangeCompositionCompanyTransportPark);
+		}
+
+		private void ConfigureCarTechnicalCheckupInfo()
+		{
+			var lastCarTechnicalCheckupEvent =
+				_carEventRepository.GetLastCarTechnicalCheckupEvent(UoW, Entity.Id, _carEventSettings.CarTechnicalCheckupEventTypeId);
+
+			LastCarTechnicalCheckupDate =
+				lastCarTechnicalCheckupEvent?.CarTechnicalCheckupEndingDate?.ToString("dd.MM.yyyy");
 		}
 
 		private void UpdateArchivingDate()
