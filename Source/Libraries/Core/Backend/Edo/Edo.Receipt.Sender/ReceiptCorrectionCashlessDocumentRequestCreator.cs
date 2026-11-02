@@ -121,9 +121,10 @@ namespace Edo.Receipt.Sender
 			return request.Id;
 		}
 
-		public Task PublishAsync(int requestId, CancellationToken cancellationToken)
+		public Task PublishAsync(IUnitOfWork uow, int requestId, CancellationToken cancellationToken)
 		{
 			return _edoRequestCreatedEventPublisher.Publish(
+				uow,
 				requestId,
 				"Смена оплаты на безнал: заявка после зануления чека",
 				cancellationToken);

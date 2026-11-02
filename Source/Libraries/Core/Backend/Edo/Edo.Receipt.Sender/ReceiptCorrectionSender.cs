@@ -165,8 +165,8 @@ namespace Edo.Receipt.Sender
 				{
 					var finishedRequestId = await FinishCorrectionProcess(uow, process, reconcileWhenFailed: true, cancellationToken);
 					await MarkCorrectionReceiptTask(uow, process, cancellationToken);
+					await PublishCashlessDocumentRequest(uow, finishedRequestId, cancellationToken);
 					await SaveProcess(uow, process, cancellationToken);
-					await PublishCashlessDocumentRequest(finishedRequestId, cancellationToken);
 					return;
 				}
 
@@ -188,8 +188,8 @@ namespace Edo.Receipt.Sender
 					TryFinishProcess(process);
 					var finishedRequestId = await FinishCorrectionProcess(uow, process, reconcileWhenFailed: true, cancellationToken);
 					await MarkCorrectionReceiptTask(uow, process, cancellationToken);
+					await PublishCashlessDocumentRequest(uow, finishedRequestId, cancellationToken);
 					await SaveProcess(uow, process, cancellationToken);
-					await PublishCashlessDocumentRequest(finishedRequestId, cancellationToken);
 					return;
 				}
 
@@ -220,6 +220,7 @@ namespace Edo.Receipt.Sender
 					reconcileWhenFailed: false,
 					cancellationToken);
 				await MarkCorrectionReceiptTask(uow, process, cancellationToken);
+				await PublishCashlessDocumentRequest(uow, cashlessRequestId, cancellationToken);
 				await SaveProcess(uow, process, cancellationToken);
 				if(transferIterationId.HasValue)
 				{
@@ -228,8 +229,6 @@ namespace Edo.Receipt.Sender
 						TransferIterationId = transferIterationId.Value
 					});
 				}
-
-				await PublishCashlessDocumentRequest(cashlessRequestId, cancellationToken);
 			}
 		}
 
@@ -676,7 +675,7 @@ namespace Edo.Receipt.Sender
 			return null;
 		}
 
-		private async Task PublishCashlessDocumentRequest(int? requestId, CancellationToken cancellationToken)
+		private async Task PublishCashlessDocumentRequest(IUnitOfWork uow, int? requestId, CancellationToken cancellationToken)
 		{
 			if(!requestId.HasValue)
 			{
@@ -685,7 +684,7 @@ namespace Edo.Receipt.Sender
 
 			try
 			{
-				await _cashlessDocumentRequestCreator.PublishAsync(requestId.Value, cancellationToken);
+				await _cashlessDocumentRequestCreator.PublishAsync(uow, requestId.Value, cancellationToken);
 			}
 			catch(Exception ex)
 			{
