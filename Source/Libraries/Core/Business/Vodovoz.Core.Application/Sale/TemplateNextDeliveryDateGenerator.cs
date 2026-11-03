@@ -26,8 +26,8 @@ namespace Vodovoz.Core.Application.Sale
 			if(scheduleType == CustomerTemplateDeliveryScheduleType.Monthly)
 			{
 				var year = DateTime.Today.Year;
-				var month = GetMonth(dayOfMonth.Value);
-				return new DateTime(year, month, dayOfMonth.Value);
+				var nextDate = GetNearestDeliveryDate(dayOfMonth.Value);
+				return nextDate;
 			}
 			
 			return GetNearestDeliveryDate(firstDateTime.Value, repeatEveryWeeks.Value);
@@ -55,17 +55,38 @@ namespace Vodovoz.Core.Application.Sale
 		{
 			var countDates = _templateSettings.GetNumberNextDeliveriesToDisplay;
 			var dates = new List<DateTime>();
-			var month = GetMonth(dayOfMonth);
-			var year = DateTime.Today.Year;
+			var firstDate = GetNearestDeliveryDate(dayOfMonth);
+			var month = firstDate.Month;
+			var year = firstDate.Year;
 
-			for(var i = 0; i < countDates; i++)
+			dates.Add(firstDate);
+			month++;
+
+			for(var i = 1; i < countDates; i++)
 			{
-				//TODO сделать проверки по дате месяца, если ее нет то сдвигать по логике задачи
-				var date = new DateTime(year, month, dayOfMonth);
-				dates.Add(date);
-				month++;
+				if(month > 12)
+				{
+					month = 1;
+					year++;
+				}
+
+				var firstDayInMonth = new DateTime(year, month, 1);
+				DateTime nextDate;
+
+				if(firstDayInMonth.GetDaysInMonth() > dayOfMonth)
+				{
+					nextDate = new DateTime(year, month, dayOfMonth);
+					month++;
+				}
+				else
+				{
+					//если нет такого числа в месяце, сдвигаем вправо
+					nextDate = new DateTime(year, month + 1, 1);
+				}
+
+				dates.Add(nextDate);
 			}
-			
+
 			return dates;
 		}
 
@@ -83,11 +104,38 @@ namespace Vodovoz.Core.Application.Sale
 			return firstDateTime.AddDays(multiplier * frequency);
 		}
 		
-		private int GetMonth(int dayOfMonth)
+		private DateTime GetNearestDeliveryDate(int dayOfMonth)
 		{
-			return DateTime.Today.Day >= dayOfMonth
-				? DateTime.Today.Month
-				: DateTime.Today.AddMonths(1).Month;
+			var today = DateTime.Today;
+			
+			if(DateTime.Today.Day >= dayOfMonth)
+			{
+				var firstDayInMonth = new DateTime(today.Year, today.Month, 1);
+				var nextMonth = 0;
+				var year = 0;
+
+				if(today.Month == 12)
+				{
+					nextMonth = 1;
+					year = today.Year + 1;
+				}
+				else
+				{
+					nextMonth = today.Month + 1;
+					year = today.Year;
+				}
+				
+				if(firstDayInMonth.GetDaysInMonth() < dayOfMonth)
+				{
+					return new DateTime(year, nextMonth, 1);
+				}
+				else
+				{
+					return new DateTime(year, nextMonth, dayOfMonth);
+				}
+			}
+
+			return new DateTime(today.Year, today.Month, dayOfMonth);
 		}
 	}
 }
