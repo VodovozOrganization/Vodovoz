@@ -7,6 +7,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Data.NHibernate.IntegrationTests.Domain;
 using Vodovoz.Testing.Database;
 using Xunit;
@@ -522,6 +524,52 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 				}
 
 				Assert.Equal(5, production.Database.Count("edo_transfer_order_codes", $"transfer_order_id = {orderId}"));
+			}
+		}
+
+		/// <summary>
+		/// F-19. Продовый маппинг со ссылками на номенклатуру и коды, как в TransferSendPreparer: идентификаторы записаны в строки,
+		/// а после загрузки ссылка на заказ указывает на родителя.
+		/// </summary>
+		[DatabaseTheory, BothModes]
+		public async Task BulkSqlInsert_WhenProductionItemsHaveReferences_WritesReferenceIds(InsertMode mode)
+		{
+			using(var production = new ProductionMappingDatabase())
+			{
+				var orderId = production.CreateTransferOrder();
+
+				using(var uow = production.UnitOfWorkFactory.CreateWithoutRoot("Продовый маппинг"))
+				{
+					var order = uow.GetById<TransferOrder>(orderId);
+					var items = new[]
+					{
+						new TransferOrderTrueMarkCode
+						{
+							TransferOrder = order,
+							Quantity = 1,
+							Nomenclature = uow.Session.Load<NomenclatureEntity>(10),
+							IndividualCode = uow.Session.Load<TrueMarkWaterIdentificationCode>(20)
+						},
+						new TransferOrderTrueMarkCode
+						{
+							TransferOrder = order,
+							Quantity = 40,
+							Nomenclature = uow.Session.Load<NomenclatureEntity>(10),
+							GroupCode = uow.Session.Load<TrueMarkWaterGroupCode>(30)
+						}
+					};
+
+					await Insert(mode, order.Items, uow, items);
+					uow.Commit();
+
+					Assert.Equal(2, order.Items.Count);
+					Assert.All(order.Items, item => Assert.Same(order, item.TransferOrder));
+				}
+
+				Assert.Equal(1, production.Database.Count("edo_transfer_order_codes",
+					$"transfer_order_id = {orderId} AND quantity = 1 AND nomenclature_id = 10 AND individual_code_id = 20 AND group_code_id IS NULL"));
+				Assert.Equal(1, production.Database.Count("edo_transfer_order_codes",
+					$"transfer_order_id = {orderId} AND quantity = 40 AND nomenclature_id = 10 AND group_code_id = 30 AND individual_code_id IS NULL"));
 			}
 		}
 

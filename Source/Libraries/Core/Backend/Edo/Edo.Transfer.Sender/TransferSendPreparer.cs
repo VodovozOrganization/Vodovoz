@@ -10,6 +10,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
@@ -197,6 +198,9 @@ namespace Edo.Transfer.Sender
 			
 			await _uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
 
+			var newItems = new List<TransferOrderTrueMarkCode>();
+			var addedGroupCodeIds = new HashSet<int>();
+
 			foreach(var transferEdoRequest in transferEdoTask.TransferEdoRequests)
 			{
 				foreach(var transferedItem in transferEdoRequest.TransferedItems)
@@ -239,21 +243,17 @@ namespace Edo.Transfer.Sender
 								$"{transferEdoRequest.Iteration.OrderEdoTask.TaskType} не поддерживается.");
 					}
 					var isGroupCodeItem = transferOrderTrueMarkCode.GroupCode != null;
-					if(isGroupCodeItem)
+					if(isGroupCodeItem && !addedGroupCodeIds.Add(transferOrderTrueMarkCode.GroupCode.Id))
 					{
-						var groupCodeItems = transferOrder.Items
-							.Where(x => x.GroupCode != null);
-						if(groupCodeItems.Any(x => x.GroupCode.Id == transferOrderTrueMarkCode.GroupCode.Id))
-						{
-							continue;
-						}
+						continue;
 					}
 
 					transferOrderTrueMarkCode.TransferOrder = transferOrder;
-					transferOrder.Items.Add(transferOrderTrueMarkCode);
-					await _uow.SaveAsync(transferOrderTrueMarkCode, cancellationToken: cancellationToken);
+					newItems.Add(transferOrderTrueMarkCode);
 				}
 			}
+
+			await transferOrder.Items.BulkSqlInsertAsync(_uow, newItems, cancellationToken: cancellationToken);
 
 			transferEdoTask.TransferOrderId = transferOrder.Id;
 			transferEdoTask.Upd = await _updDocumentBuilder.BuildAsync(transferOrder, cancellationToken);
