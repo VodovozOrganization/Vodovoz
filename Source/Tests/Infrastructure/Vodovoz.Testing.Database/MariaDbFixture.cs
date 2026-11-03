@@ -32,7 +32,7 @@ namespace Vodovoz.Testing.Database
 
 		public IUnitOfWorkFactory UnitOfWorkFactory { get; private set; }
 
-		public Task InitializeAsync()
+		public virtual Task InitializeAsync()
 		{
 			if(!IsServerExpected)
 			{
@@ -41,6 +41,7 @@ namespace Vodovoz.Testing.Database
 
 			Database = TestDatabase.Create(DatabaseName);
 			Configuration = BuildConfiguration();
+			ConfigureNHibernate(Configuration);
 
 			using(var connection = Database.OpenConnection())
 			{
@@ -48,18 +49,28 @@ namespace Vodovoz.Testing.Database
 			}
 
 			SessionFactory = Configuration.BuildSessionFactory();
-			UnitOfWorkFactory = new NotTrackedUnitOfWorkFactory(new DefaultSessionProvider(SessionFactory));
+			UnitOfWorkFactory = CreateUnitOfWorkFactory(SessionFactory);
 
 			return Task.CompletedTask;
 		}
 
-		public Task DisposeAsync()
+		public virtual Task DisposeAsync()
 		{
 			SessionFactory?.Dispose();
 			Database?.Dispose();
 
 			return Task.CompletedTask;
 		}
+
+		/// <summary>
+		/// Дополнительная настройка NHibernate перед созданием схемы, например слушатели событий
+		/// </summary>
+		protected virtual void ConfigureNHibernate(Configuration configuration)
+		{
+		}
+
+		protected virtual IUnitOfWorkFactory CreateUnitOfWorkFactory(ISessionFactory sessionFactory) =>
+			new NotTrackedUnitOfWorkFactory(new DefaultSessionProvider(sessionFactory));
 
 		private static bool IsServerExpected => MariaDbServer.IsCi || MariaDbServer.UnavailableReason == null;
 
