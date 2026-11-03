@@ -11,6 +11,28 @@ namespace Vodovoz.Core.Data.Repositories
 	/// </summary>
 	public interface IEdoDeviationRepository
 	{
+		/// <summary>Возвращает код последнего исходящего документа задачи заказа.</summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="taskId">Код задачи.</param>
+		/// <param name="cancellationToken">Токен отмены.</param>
+		/// <returns>Код документа или пустое значение.</returns>
+		Task<int?> GetOrderDocumentIdAsync(IUnitOfWork uow, int taskId, CancellationToken cancellationToken);
+
+		/// <summary>Возвращает код последнего исходящего документа задачи трансфера.</summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="taskId">Код задачи.</param>
+		/// <param name="cancellationToken">Токен отмены.</param>
+		/// <returns>Код документа или пустое значение.</returns>
+		Task<int?> GetTransferDocumentIdAsync(IUnitOfWork uow, int taskId, CancellationToken cancellationToken);
+
+		/// <summary>Возвращает коды итераций трансфера задачи с указанным статусом.</summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="taskId">Код задачи заказа.</param>
+		/// <param name="status">Статус итерации.</param>
+		/// <param name="cancellationToken">Токен отмены.</param>
+		/// <returns>Коды итераций.</returns>
+		Task<IList<int>> GetTransferIterationIdsAsync(IUnitOfWork uow, int taskId,
+			Vodovoz.Core.Domain.Edo.TransferEdoRequestIterationStatus status, CancellationToken cancellationToken);
 		/// <summary>
 		/// Возвращает заявки ЭДО на отправку документов заказа, по которым не создана задача
 		/// и нет незакрытого отклонения

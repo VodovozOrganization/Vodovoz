@@ -24,6 +24,7 @@ namespace Edo.DeviationMonitoring.Options
 			options.ResolvingWorkerInterval = _edoDeviationSettings.ResolvingWorkerInterval;
 			options.BatchSize = _edoDeviationSettings.BatchSize;
 			options.GisMtTrackingStartDate = _edoDeviationSettings.GisMtTrackingStartDate;
+			options.ProcessingStartDate = _edoDeviationSettings.ProcessingStartDate;
 
 			if(options.RegistrationWorkerInterval <= TimeSpan.Zero)
 			{

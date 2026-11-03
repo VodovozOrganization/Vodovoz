@@ -16,6 +16,30 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 	/// <inheritdoc cref="IEdoDeviationRepository"/>
 	public class EdoDeviationRepository : IEdoDeviationRepository
 	{
+		/// <inheritdoc/>
+		public Task<int?> GetOrderDocumentIdAsync(IUnitOfWork uow, int taskId, CancellationToken cancellationToken) =>
+			uow.Session.Query<OrderEdoDocument>()
+				.Where(x => x.DocumentTaskId == taskId)
+				.OrderByDescending(x => x.Id)
+				.Select(x => (int?)x.Id)
+				.FirstOrDefaultAsync(cancellationToken);
+
+		/// <inheritdoc/>
+		public Task<int?> GetTransferDocumentIdAsync(IUnitOfWork uow, int taskId, CancellationToken cancellationToken) =>
+			uow.Session.Query<TransferEdoDocument>()
+				.Where(x => x.TransferTaskId == taskId)
+				.OrderByDescending(x => x.Id)
+				.Select(x => (int?)x.Id)
+				.FirstOrDefaultAsync(cancellationToken);
+
+		/// <inheritdoc/>
+		public async Task<IList<int>> GetTransferIterationIdsAsync(IUnitOfWork uow, int taskId,
+			TransferEdoRequestIterationStatus status, CancellationToken cancellationToken) =>
+			await uow.Session.Query<TransferEdoRequestIteration>()
+				.Where(x => x.OrderEdoTask.Id == taskId && x.Status == status)
+				.Select(x => x.Id)
+				.ToListAsync(cancellationToken);
+
 		/// <summary>
 		/// Размер пачки идентификаторов в одном запросе.
 		/// Ограничивает количество параметров запроса при выборке по списку кодов
