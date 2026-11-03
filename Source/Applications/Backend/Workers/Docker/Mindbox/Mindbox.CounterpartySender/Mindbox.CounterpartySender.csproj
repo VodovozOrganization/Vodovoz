@@ -1,12 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
-		<UserSecretsId>dotnet-MindboxCounterpartySender-6D6C6D8C-4C3F-4B8C-9F0B-2A0B5F4C7E11</UserSecretsId>
+		<UserSecretsId>dotnet-Mindbox.CounterpartySender-6D6C6D8C-4C3F-4B8C-9F0B-2A0B5F4C7E11</UserSecretsId>
 		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..\..\..</DockerfileContext>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
 		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
@@ -14,6 +17,9 @@
 
 	<ItemGroup>
 		<None Update="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="appsettings.Development.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

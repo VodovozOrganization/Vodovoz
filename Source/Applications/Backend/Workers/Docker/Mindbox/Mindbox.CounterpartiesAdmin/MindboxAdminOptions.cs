@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Vodovoz.Domain.Client.Mindbox;
+using Vodovoz.Core.Domain.Clients.Mindbox;
 
 namespace Mindbox.CounterpartiesAdmin
 {

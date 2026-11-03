@@ -1,7 +1,7 @@
-﻿using System;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
+using System;
 
-namespace Vodovoz.Domain.Client.Mindbox
+namespace Vodovoz.Core.Domain.Clients.Mindbox
 {
 	/// <summary>
 	/// Состояние и очередь отправки контрагента в Mindbox
@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Client.Mindbox
 		/// <summary>
 		/// Контрагент, которого нужно отправить в Mindbox
 		/// </summary>
-		public virtual Counterparty Counterparty { get; set; }
+		public virtual CounterpartyEntity Counterparty { get; set; }
 
 		/// <summary>
 		/// Ключ идемпотентности операции
@@ -30,7 +30,7 @@ namespace Vodovoz.Domain.Client.Mindbox
 		/// <summary>
 		/// Статус отправки
 		/// </summary>
-		public virtual MindboxCounterpartyOutboxStatus Status { get; set; }
+		public virtual MindboxCounterpartyOutboxStatus Status { get; set; } = MindboxCounterpartyOutboxStatus.Unknown;
 
 		/// <summary>
 		/// Количество выполненных попыток отправки

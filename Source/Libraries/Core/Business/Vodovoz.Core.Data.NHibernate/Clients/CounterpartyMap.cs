@@ -21,6 +21,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.IsArchive)
 				.Column("is_archive");
 
+			Map(x => x.MindboxStatus)
+				.Column("mindbox_status");
+
 			Map(x => x.Name)
 				.Column("name");
 

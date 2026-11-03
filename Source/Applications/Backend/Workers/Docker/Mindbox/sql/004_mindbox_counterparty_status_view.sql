@@ -5,13 +5,13 @@ SELECT
   c.`name` AS `counterparty_name`,
   c.`create_date` AS `create_date`,
   s.`id` AS `outbox_id`,
-  s.`status` AS `status`,
+  COALESCE(s.`status`, 'Unknown') AS `status`,
   CASE
     WHEN s.`id` IS NULL THEN 'Не отправлялся'
-    WHEN s.`status` = 0 THEN 'В очереди'
-    WHEN s.`status` = 1 THEN 'Отправлен'
-    WHEN s.`status` = 2 THEN 'Ошибка данных'
-    WHEN s.`status` = 3 THEN 'Ошибка'
+    WHEN s.`status` = 'Queued' THEN 'В очереди'
+    WHEN s.`status` = 'Sent' THEN 'Отправлен'
+    WHEN s.`status` = 'DataError' THEN 'Ошибка данных'
+    WHEN s.`status` = 'Error' THEN 'Ошибка'
     ELSE 'Неизвестно'
   END AS `status_name`,
   s.`attempts` AS `attempts`,

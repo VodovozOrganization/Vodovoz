@@ -15,7 +15,7 @@ namespace Mindbox.Library.Mapping
 		public const string PhysicalCounterpartyForm = "Physical";
 		public const string LegalCounterpartyForm = "Legal";
 
-		public static string GetCounterpartyForm(Counterparty counterparty)
+		public static string GetCounterpartyForm(CounterpartyEntity counterparty)
 		{
 			if(counterparty == null)
 			{
@@ -30,7 +30,7 @@ namespace Mindbox.Library.Mapping
 		/// <summary>
 		/// Для физического лица приоритет у телефона, который является логином в мобильном приложении.
 		/// </summary>
-		public static string GetMobilePhone(IUnitOfWork unitOfWork, Counterparty counterparty)
+		public static string GetMobilePhone(IUnitOfWork unitOfWork, CounterpartyEntity counterparty)
 		{
 			if(counterparty == null)
 			{
@@ -63,7 +63,7 @@ namespace Mindbox.Library.Mapping
 		/// <summary>
 		/// Возвращает первый корректный e-mail контрагента
 		/// </summary>
-		public static string GetEmail(Counterparty counterparty)
+		public static string GetEmail(CounterpartyEntity counterparty)
 		{
 			if(counterparty == null)
 			{
@@ -80,7 +80,7 @@ namespace Mindbox.Library.Mapping
 		/// <summary>
 		/// Для юридического лица — полное название, для физического fullName не заполняется.
 		/// </summary>
-		public static string GetFullName(Counterparty counterparty)
+		public static string GetFullName(CounterpartyEntity counterparty)
 		{
 			if(counterparty == null)
 			{

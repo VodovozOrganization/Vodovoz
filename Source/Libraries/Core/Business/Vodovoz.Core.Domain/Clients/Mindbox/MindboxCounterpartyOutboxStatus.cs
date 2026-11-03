@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Client.Mindbox
+namespace Vodovoz.Core.Domain.Clients.Mindbox
 {
 	/// <summary>
 	/// Статус отправки контрагента в Mindbox
@@ -8,27 +8,33 @@ namespace Vodovoz.Domain.Client.Mindbox
 	public enum MindboxCounterpartyOutboxStatus
 	{
 		/// <summary>
+		/// Неизвестно (статус ещё не определён)
+		/// </summary>
+		[Display(Name = "Неизвестно")]
+		Unknown = 0,
+
+		/// <summary>
 		/// В очереди
 		/// </summary>
 		[Display(Name = "В очереди")]
-		Queued = 0,
+		Queued = 1,
 
 		/// <summary>
 		/// Отправлен
 		/// </summary>
 		[Display(Name = "Отправлен")]
-		Sent = 1,
+		Sent = 2,
 
 		/// <summary>
 		/// Ошибка данных, повтор не поможет
 		/// </summary>
 		[Display(Name = "Ошибка данных")]
-		DataError = 2,
+		DataError = 3,
 
 		/// <summary>
 		/// Ошибка, исчерпаны повторы или глобальная ошибка
 		/// </summary>
 		[Display(Name = "Ошибка")]
-		Error = 3
+		Error = 4
 	}
 }

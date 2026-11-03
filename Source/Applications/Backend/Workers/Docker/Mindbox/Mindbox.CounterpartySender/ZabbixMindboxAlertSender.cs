@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Mindbox.Library.Services;
 using Vodovoz.Zabbix.Sender;
 
-namespace MindboxCounterpartySender
+namespace Mindbox.CounterpartySender
 {
 	/// <summary>
 	/// Отправляет алерты по ошибкам Mindbox в Zabbix и лог
@@ -31,7 +31,7 @@ namespace MindboxCounterpartySender
 			try
 			{
 				await _zabbixSender.SendProblemMessageAsync(
-					nameof(MindboxCounterpartySender),
+					nameof(Mindbox.CounterpartySender),
 					ZabixSenderMessageType.Problem,
 					message,
 					cancellationToken);

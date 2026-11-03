@@ -7,8 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients.Mindbox;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Client.Mindbox;
 using Vodovoz.Settings.Database.Mindbox;
 
 namespace Mindbox.CounterpartiesAdmin
@@ -139,8 +139,22 @@ namespace Mindbox.CounterpartiesAdmin
 
 		private void ResetForResend(MindboxCounterpartyOutboxMessage message)
 		{
+			// Новый transactionId нужен только если прежний запрос гарантированно не был принят Mindbox:
+			// ошибка данных, HTTP 400 или transactionId ещё не задан. В остальных случаях
+			// повторяем с тем же transactionId, чтобы Mindbox не создал дубликат.
+			var shouldGenerateNewTransactionId =
+				message.Status == MindboxCounterpartyOutboxStatus.DataError
+				|| message.LastHttpStatusCode == 400
+				|| message.TransactionId == Guid.Empty;
+
 			message.Status = MindboxCounterpartyOutboxStatus.Queued;
-			message.TransactionId = Guid.NewGuid();
+			message.Counterparty.MindboxStatus = MindboxCounterpartyOutboxStatus.Queued;
+
+			if(shouldGenerateNewTransactionId)
+			{
+				message.TransactionId = Guid.NewGuid();
+			}
+
 			message.Attempts = 0;
 			message.LastAttemptAt = null;
 			message.LastError = null;
@@ -212,6 +226,8 @@ namespace Mindbox.CounterpartiesAdmin
 					return "Ошибка данных";
 				case MindboxCounterpartyOutboxStatus.Error:
 					return "Ошибка";
+				case MindboxCounterpartyOutboxStatus.Unknown:
+					return "Неизвестно";
 				default:
 					return "В очереди";
 			}

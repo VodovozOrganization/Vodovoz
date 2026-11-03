@@ -12,7 +12,7 @@ using Mindbox.Library;
 using Mindbox.Library.Services;
 using Vodovoz.Zabbix.Sender;
 
-namespace MindboxCounterpartySender
+namespace Mindbox.CounterpartySender
 {
 	public class Program
 	{
@@ -52,7 +52,7 @@ namespace MindboxCounterpartySender
 
 					services.AddScoped<IMindboxAlertSender, ZabbixMindboxAlertSender>();
 
-					services.AddHostedService<MindboxCounterpartySenderWorker>();
+					services.AddHostedService<CounterpartySenderWorker>();
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddStaticHistoryTracker();

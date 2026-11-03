@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Domain.Client.Mindbox;
 using Mindbox.Library.Mapping;
 using Vodovoz.Settings.Database.Mindbox;
+using Vodovoz.Core.Domain.Clients.Mindbox;
 
 namespace Mindbox.Library.Services
 {
@@ -209,7 +209,7 @@ namespace Mindbox.Library.Services
 
 			var counterparty = message.Counterparty;
 
-			if(counterparty == null)
+			if(counterparty is null)
 			{
 				message.Attempts++;
 				message.LastAttemptAt = now;
@@ -255,7 +255,7 @@ namespace Mindbox.Library.Services
 
 			if(result.IsSuccess)
 			{
-				message.Status = MindboxCounterpartyOutboxStatus.Sent;
+				SetStatus(message, MindboxCounterpartyOutboxStatus.Sent);
 				message.SentAt = now;
 				message.NextAttemptAt = null;
 
@@ -278,7 +278,7 @@ namespace Mindbox.Library.Services
 			switch(result.Outcome)
 			{
 				case MindboxSendOutcome.ValidationError:
-					message.Status = MindboxCounterpartyOutboxStatus.DataError;
+					SetStatus(message, MindboxCounterpartyOutboxStatus.DataError);
 					message.NextAttemptAt = null;
 
 					_logger.LogWarning(
@@ -295,7 +295,7 @@ namespace Mindbox.Library.Services
 
 					return;
 				case MindboxSendOutcome.ProtocolError:
-					message.Status = MindboxCounterpartyOutboxStatus.Error;
+					SetStatus(message, MindboxCounterpartyOutboxStatus.Error);
 					message.NextAttemptAt = null;
 
 					_logger.LogError(
@@ -321,7 +321,7 @@ namespace Mindbox.Library.Services
 					// Эти ошибки не повторяем: повтор вернёт тот же ответ.
 					// Текущий контрагент уходит в «Ошибка», очередь ставится на паузу,
 					// чтобы не отправлять остальные запросы в заведомо неисправный Mindbox.
-					message.Status = MindboxCounterpartyOutboxStatus.Error;
+					SetStatus(message, MindboxCounterpartyOutboxStatus.Error);
 					message.NextAttemptAt = null;
 
 					var pauseReason = $"HTTP {result.HttpStatusCode} {result.Status}";
@@ -356,7 +356,7 @@ namespace Mindbox.Library.Services
 
 					if(nextAttemptAt == null)
 					{
-						message.Status = MindboxCounterpartyOutboxStatus.Error;
+						SetStatus(message, MindboxCounterpartyOutboxStatus.Error);
 						message.NextAttemptAt = null;
 
 						_logger.LogError(
@@ -377,7 +377,7 @@ namespace Mindbox.Library.Services
 					}
 					else
 					{
-						message.Status = MindboxCounterpartyOutboxStatus.Queued;
+						SetStatus(message, MindboxCounterpartyOutboxStatus.Queued);
 						message.NextAttemptAt = nextAttemptAt;
 
 						_logger.LogWarning(
@@ -402,12 +402,24 @@ namespace Mindbox.Library.Services
 			}
 		}
 
+		private static void SetStatus(
+			MindboxCounterpartyOutboxMessage message,
+			MindboxCounterpartyOutboxStatus status)
+		{
+			message.Status = status;
+
+			if(message.Counterparty != null)
+			{
+				message.Counterparty.MindboxStatus = status;
+			}
+		}
+
 		private static void SetError(
 			MindboxCounterpartyOutboxMessage message,
 			string error,
 			MindboxOperationResult result)
 		{
-			message.Status = MindboxCounterpartyOutboxStatus.Error;
+			SetStatus(message, MindboxCounterpartyOutboxStatus.Error);
 			message.NextAttemptAt = null;
 			message.LastError = Truncate(error, MaxErrorLength);
 

@@ -1,25 +1,25 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Mindbox.Library.Services;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace MindboxCounterpartySender
+namespace Mindbox.CounterpartySender
 {
 	/// <summary>
 	/// Добавляет новых контрагентов в очередь и отправляет её в Mindbox
 	/// </summary>
-	public class MindboxCounterpartySenderWorker : BackgroundService
+	public class CounterpartySenderWorker : BackgroundService
 	{
 		private const int DelaySeconds = 10;
 
-		private readonly ILogger<MindboxCounterpartySenderWorker> _logger;
+		private readonly ILogger<CounterpartySenderWorker> _logger;
 		private readonly IServiceScopeFactory _scopeFactory;
 
-		public MindboxCounterpartySenderWorker(
-			ILogger<MindboxCounterpartySenderWorker> logger,
+		public CounterpartySenderWorker(
+			ILogger<CounterpartySenderWorker> logger,
 			IServiceScopeFactory scopeFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -35,23 +35,21 @@ namespace MindboxCounterpartySender
 			{
 				try
 				{
-					using(var scope = _scopeFactory.CreateScope())
+					using var scope = _scopeFactory.CreateScope();
+					var enqueuer = scope.ServiceProvider.GetRequiredService<IMindboxCounterpartyEnqueuer>();
+					var enqueued = await enqueuer.EnqueueNewCounterpartiesAsync(stoppingToken);
+
+					if(enqueued > 0)
 					{
-						var enqueuer = scope.ServiceProvider.GetRequiredService<IMindboxCounterpartyEnqueuer>();
-						var enqueued = await enqueuer.EnqueueNewCounterpartiesAsync(stoppingToken);
+						_logger.LogInformation("Добавлено в очередь Mindbox: {Count}", enqueued);
+					}
 
-						if(enqueued > 0)
-						{
-							_logger.LogInformation("Добавлено в очередь Mindbox: {Count}", enqueued);
-						}
+					var processor = scope.ServiceProvider.GetRequiredService<IMindboxCounterpartyOutboxProcessor>();
+					var processed = await processor.ProcessAsync(stoppingToken);
 
-						var processor = scope.ServiceProvider.GetRequiredService<IMindboxCounterpartyOutboxProcessor>();
-						var processed = await processor.ProcessAsync(stoppingToken);
-
-						if(processed > 0)
-						{
-							_logger.LogInformation("Обработано сообщений очереди Mindbox: {Count}", processed);
-						}
+					if(processed > 0)
+					{
+						_logger.LogInformation("Обработано сообщений очереди Mindbox: {Count}", processed);
 					}
 				}
 				catch(OperationCanceledException)

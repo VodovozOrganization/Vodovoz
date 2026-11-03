@@ -4,8 +4,8 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients.Mindbox;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Client.Mindbox;
 using Vodovoz.Settings.Database.Mindbox;
 
 namespace Mindbox.Library.Services
@@ -77,6 +77,8 @@ namespace Mindbox.Library.Services
 						CreatedAt = now,
 						RetryUntil = retryUntil
 					};
+
+					counterparty.MindboxStatus = MindboxCounterpartyOutboxStatus.Queued;
 
 					unitOfWork.Save(message);
 				}

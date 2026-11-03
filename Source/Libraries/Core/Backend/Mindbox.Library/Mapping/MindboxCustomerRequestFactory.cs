@@ -1,23 +1,15 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using Mindbox.Library.Contracts;
+using QS.DomainModel.UoW;
+using System;
 using System.Globalization;
 using System.Linq;
-using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
-using Mindbox.Library.Contracts;
 using Vodovoz.Settings.Database.Mindbox;
 
 namespace Mindbox.Library.Mapping
 {
-	/// <summary>
-	/// Формирует тело запроса на создание/обновление клиента в Mindbox
-	/// </summary>
-	public interface IMindboxCustomerRequestFactory
-	{
-		MindboxCustomerRequest Create(IUnitOfWork unitOfWork, Counterparty counterparty);
-	}
-
 	/// <inheritdoc />
 	public sealed class MindboxCustomerRequestFactory : IMindboxCustomerRequestFactory
 	{
@@ -33,7 +25,7 @@ namespace Mindbox.Library.Mapping
 		}
 
 		/// <inheritdoc />
-		public MindboxCustomerRequest Create(IUnitOfWork unitOfWork, Counterparty counterparty)
+		public MindboxCustomerRequest Create(IUnitOfWork unitOfWork, CounterpartyEntity counterparty)
 		{
 			if(counterparty == null)
 			{
@@ -99,7 +91,7 @@ namespace Mindbox.Library.Mapping
 			return creationSource?.ExternalCounterpartyId.ToString("D");
 		}
 
-		private void LogSkippedContacts(Counterparty counterparty, MindboxCustomer customer)
+		private void LogSkippedContacts(CounterpartyEntity counterparty, MindboxCustomer customer)
 		{
 			if(customer.MobilePhone == null)
 			{

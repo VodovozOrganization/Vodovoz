@@ -11,6 +11,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.IsArchive).Column("is_archive");
+			Map(x => x.MindboxStatus).Column("mindbox_status");
 			Map(x => x.Name).Column("name");
 			Map(x => x.FullName).Column("full_name");
 			Map(x => x.TypeOfOwnership).Column("type_of_ownership");
