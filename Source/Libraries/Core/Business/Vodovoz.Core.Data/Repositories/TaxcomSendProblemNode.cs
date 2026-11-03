@@ -2,6 +2,9 @@
 
 namespace Vodovoz.Core.Data.Repositories
 {
+	/// <summary>
+	/// Задача и документ ЭДО с проблемой отправки в Такском.
+	/// </summary>
 	public class TaxcomSendProblemNode
 	{
 		/// <summary>
@@ -12,7 +15,7 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <summary>
 		/// ЭДО задача
 		/// </summary>
-		public virtual OrderEdoTask EdoTask { get; set; }
+		public virtual EdoTask EdoTask { get; set; }
 
 		/// <summary>
 		/// Состояние повторной обработки проблемы
@@ -20,8 +23,8 @@ namespace Vodovoz.Core.Data.Repositories
 		public virtual EdoTaskProblemRoutineState RoutineState { get; set; }
 
 		/// <summary>
-		/// Документ заказа для ЭДО
+		/// Исходящий документ заказа или трансфера
 		/// </summary>
-		public virtual OrderEdoDocument OrderEdoDocument { get; set; }
+		public virtual OutgoingEdoDocument EdoDocument { get; set; }
 	}
 }

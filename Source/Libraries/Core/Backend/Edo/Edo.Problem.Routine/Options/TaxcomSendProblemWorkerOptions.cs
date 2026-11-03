@@ -15,9 +15,9 @@ namespace Edo.Problem.Routine.Options
 		public int BatchSize { get; set; }
 
 		/// <summary>
-		/// Максимальное количество попыток (всего 3)
+		/// Количество повторных попыток, определяемое массивом задержек
 		/// </summary>
-		public int MaxAttempts { get; set; }
+		public int MaxAttempts => RetryDelays.Length;
 
 		/// <summary>
 		/// Задержки между попытками: 1 час, 1 день, 3 дня

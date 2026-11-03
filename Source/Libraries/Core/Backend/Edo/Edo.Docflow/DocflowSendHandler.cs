@@ -15,6 +15,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Rules.Edo;
 
 namespace Edo.Docflow
 {
@@ -70,6 +71,14 @@ namespace Edo.Docflow
 			if(transferTask is null)
 			{
 				_logger.LogWarning("Задача для документа {documentId} не найдена", transferDocumentId);
+				return;
+			}
+
+			if(TransferEdoTaskCancellationRule.IsCancelledOrCancelling(transferTask.Status))
+			{
+				_logger.LogInformation(
+					"Отправка документа {DocumentId} пропущена: задача трансфера {TransferTaskId} имеет статус {Status}",
+					transferDocumentId, transferTask.Id, transferTask.Status);
 				return;
 			}
 
