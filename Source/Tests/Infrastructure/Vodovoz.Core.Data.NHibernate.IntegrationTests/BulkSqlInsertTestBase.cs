@@ -264,8 +264,11 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 
 		protected static void AssertRolledBack(IUnitOfWork uow)
 		{
+			// После завершения транзакции NHibernate не отдаёт её из сессии. Что откат был, тесты проверяют ещё и по данным в БД
+			var transaction = uow.Session.GetCurrentTransaction();
+
 			Assert.False(IsTransactionActive(uow));
-			Assert.True(uow.Session.GetCurrentTransaction()?.WasRolledBack == true);
+			Assert.True(transaction == null || transaction.WasRolledBack);
 		}
 
 		protected long ScalarFromOtherConnection(string sql, IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
