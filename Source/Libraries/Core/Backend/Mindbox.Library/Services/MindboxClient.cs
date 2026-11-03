@@ -63,22 +63,24 @@ namespace Mindbox.Library.Services
 				throw new ArgumentNullException(nameof(request));
 			}
 
-			string erpId = null;
+			string externalId = null;
 
 			try
 			{
-				erpId = request.Customer?.Ids?.ErpId;
-				var url = BuildOperationUrl(transactionId);
+				externalId = request.Customer?.Ids?.ExternalId;
+				var url = BuildOperationUrl(transactionId, request.DeviceUuid);
 				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
 
 				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
 				using(var httpRequest = CreateRequest(url, content))
 				{
 					_logger.LogDebug(
-						"Отправка клиента в Mindbox: erpId={ErpId}, transactionId={TransactionId}, operation={Operation}",
-						erpId,
+						"Отправка клиента в Mindbox: externalId={ExternalId}, transactionId={TransactionId}, operation={Operation}, pointOfContact={PointOfContact}, deviceUUID={DeviceUuid}",
+						externalId,
 						transactionId,
-						_settings.CreateCustomerOperation);
+						_settings.CreateCustomerOperation,
+						request.PointOfContact,
+						request.DeviceUuid);
 
 					var stopwatch = Stopwatch.StartNew();
 
@@ -91,7 +93,7 @@ namespace Mindbox.Library.Services
 
 							var result = MapResponse((int)response.StatusCode, rawResponse, stopwatch.ElapsedMilliseconds);
 
-							LogResult(erpId, transactionId, result);
+							LogResult(externalId, transactionId, result);
 
 							return result;
 						}
@@ -110,7 +112,7 @@ namespace Mindbox.Library.Services
 							"Превышено время ожидания ответа Mindbox",
 							stopwatch.ElapsedMilliseconds);
 
-						LogResult(erpId, transactionId, result);
+						LogResult(externalId, transactionId, result);
 
 						return result;
 					}
@@ -124,7 +126,7 @@ namespace Mindbox.Library.Services
 							ex.Message,
 							stopwatch.ElapsedMilliseconds);
 
-						LogResult(erpId, transactionId, result);
+						LogResult(externalId, transactionId, result);
 
 						return result;
 					}
@@ -138,8 +140,8 @@ namespace Mindbox.Library.Services
 			{
 				_logger.LogError(
 					ex,
-					"Ошибка подготовки запроса в Mindbox: erpId={ErpId}, transactionId={TransactionId}",
-					erpId,
+					"Ошибка подготовки запроса в Mindbox: externalId={ExternalId}, transactionId={TransactionId}",
+					externalId,
 					transactionId);
 
 				return MindboxOperationResult.Failure(
@@ -166,7 +168,7 @@ namespace Mindbox.Library.Services
 			return request;
 		}
 
-		private string BuildOperationUrl(Guid transactionId)
+		private string BuildOperationUrl(Guid transactionId, string deviceUuid)
 		{
 			var baseUrl = _settings.BaseUrl.TrimEnd('/');
 			var operationType = string.IsNullOrWhiteSpace(_settings.CreateCustomerOperationType)
@@ -179,10 +181,16 @@ namespace Mindbox.Library.Services
 					$"Некорректный тип операции Mindbox: {_settings.CreateCustomerOperationType}. Ожидается sync или async.");
 			}
 
-			return $"{baseUrl}/v3/operations/{operationType}"
+			var url = $"{baseUrl}/v3/operations/{operationType}"
 				+ $"?endpointId={Uri.EscapeDataString(_settings.EndpointId)}"
-				+ $"&operation={Uri.EscapeDataString(_settings.CreateCustomerOperation)}"
-				+ $"&transactionId={transactionId:D}";
+				+ $"&operation={Uri.EscapeDataString(_settings.CreateCustomerOperation)}";
+
+			if(!string.IsNullOrWhiteSpace(deviceUuid))
+			{
+				url += $"&deviceUUID={Uri.EscapeDataString(deviceUuid)}";
+			}
+
+			return url + $"&transactionId={transactionId:D}";
 		}
 
 		private static MindboxOperationResult MapResponse(int httpStatusCode, string rawResponse, long durationMs)
@@ -288,11 +296,11 @@ namespace Mindbox.Library.Services
 			}
 		}
 
-		private void LogResult(string erpId, Guid transactionId, MindboxOperationResult result)
+		private void LogResult(string externalId, Guid transactionId, MindboxOperationResult result)
 		{
 			_logger.LogDebug(
-				"Ответ Mindbox: erpId={ErpId}, transactionId={TransactionId}, operation={Operation}, httpCode={HttpCode}, status={Status}, errorId={ErrorId}, durationMs={DurationMs}, outcome={Outcome}",
-				erpId,
+				"Ответ Mindbox: externalId={ExternalId}, transactionId={TransactionId}, operation={Operation}, httpCode={HttpCode}, status={Status}, errorId={ErrorId}, durationMs={DurationMs}, outcome={Outcome}",
+				externalId,
 				transactionId,
 				_settings.CreateCustomerOperation,
 				result.HttpStatusCode,

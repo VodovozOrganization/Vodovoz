@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Mindbox.Library.Contracts;
+using Vodovoz.Settings.Database.Mindbox;
 
 namespace Mindbox.Library.Mapping
 {
@@ -20,10 +21,14 @@ namespace Mindbox.Library.Mapping
 	/// <inheritdoc />
 	public sealed class MindboxCustomerRequestFactory : IMindboxCustomerRequestFactory
 	{
+		private readonly IMindboxSettings _settings;
 		private readonly ILogger<MindboxCustomerRequestFactory> _logger;
 
-		public MindboxCustomerRequestFactory(ILogger<MindboxCustomerRequestFactory> logger)
+		public MindboxCustomerRequestFactory(
+			IMindboxSettings settings,
+			ILogger<MindboxCustomerRequestFactory> logger)
 		{
+			_settings = settings ?? throw new ArgumentNullException(nameof(settings));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
@@ -36,12 +41,15 @@ namespace Mindbox.Library.Mapping
 			}
 
 			var counterpartyForm = MindboxCounterpartyMapping.GetCounterpartyForm(counterparty);
+			var creationSource = MindboxCounterpartyMapping.GetCreationSource(unitOfWork, counterparty.Id);
+			var pointOfContact = GetPointOfContact(creationSource);
+			var deviceUuid = GetDeviceUuid(creationSource);
 
 			var customer = new MindboxCustomer
 			{
 				Ids = new MindboxCustomerIds
 				{
-					ErpId = counterparty.Id.ToString(CultureInfo.InvariantCulture)
+					ExternalId = counterparty.Id.ToString(CultureInfo.InvariantCulture)
 				},
 				MobilePhone = MindboxCounterpartyMapping.GetMobilePhone(unitOfWork, counterparty),
 				Email = MindboxCounterpartyMapping.GetEmail(counterparty),
@@ -70,8 +78,25 @@ namespace Mindbox.Library.Mapping
 
 			return new MindboxCustomerRequest
 			{
-				Customer = customer
+				Customer = customer,
+				PointOfContact = pointOfContact,
+				DeviceUuid = deviceUuid
 			};
+		}
+
+		private string GetPointOfContact(ExternalCounterparty creationSource)
+		{
+			if(creationSource == null)
+			{
+				return _settings.PointOfContactErp;
+			}
+
+			return ((int)creationSource.CounterpartyFrom).ToString(CultureInfo.InvariantCulture);
+		}
+
+		private static string GetDeviceUuid(ExternalCounterparty creationSource)
+		{
+			return creationSource?.ExternalCounterpartyId.ToString("D");
 		}
 
 		private void LogSkippedContacts(Counterparty counterparty, MindboxCustomer customer)

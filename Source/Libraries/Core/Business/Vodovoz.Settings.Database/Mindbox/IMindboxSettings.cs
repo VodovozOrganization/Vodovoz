@@ -36,6 +36,11 @@
 		string CreateCustomerOperationType { get; }
 
 		/// <summary>
+		/// Идентификатор точки контакта для контрагентов, созданных в ERP
+		/// </summary>
+		string PointOfContactErp { get; }
+
+		/// <summary>
 		/// Таймаут запросов к Mindbox в секундах
 		/// </summary>
 		int TimeoutSeconds { get; }

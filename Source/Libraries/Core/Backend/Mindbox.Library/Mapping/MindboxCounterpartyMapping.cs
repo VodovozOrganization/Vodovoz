@@ -92,6 +92,28 @@ namespace Mindbox.Library.Mapping
 				: counterparty.FullName;
 		}
 
+		/// <summary>
+		/// Возвращает первого внешнего клиента (ИПЗ), привязанного к контрагенту через телефон.
+		/// Используется для определения точки контакта и deviceUUID.
+		/// </summary>
+		public static ExternalCounterparty GetCreationSource(IUnitOfWork unitOfWork, int counterpartyId)
+		{
+			if(unitOfWork == null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWork));
+			}
+
+			var query = from phone in unitOfWork.Session.Query<Phone>()
+				join externalCounterparty in unitOfWork.Session.Query<ExternalCounterparty>()
+					on phone.Id equals externalCounterparty.Phone.Id
+				where phone.Counterparty.Id == counterpartyId
+					&& !externalCounterparty.IsArchive
+				orderby externalCounterparty.Id
+				select externalCounterparty;
+
+			return query.FirstOrDefault();
+		}
+
 		private static string GetMobileAppPhone(IUnitOfWork unitOfWork, int counterpartyId)
 		{
 			var query = from phone in unitOfWork.Session.Query<Phone>()

@@ -14,6 +14,7 @@ namespace Vodovoz.Settings.Database.Mindbox
 		private const string EndpointIdSetting = "Mindbox.EndpointId";
 		private const string CreateCustomerOperationSetting = "Mindbox.CreateCustomerOperation";
 		private const string CreateCustomerOperationTypeSetting = "Mindbox.CreateCustomerOperationType";
+		private const string PointOfContactErpSetting = "Mindbox.PointOfContactErp";
 		private const string TimeoutSecondsSetting = "Mindbox.TimeoutSeconds";
 		private const string SendBatchSizeSetting = "Mindbox.SendBatchSize";
 		private const string EnqueueBatchSizeSetting = "Mindbox.EnqueueBatchSize";
@@ -54,7 +55,7 @@ namespace Vodovoz.Settings.Database.Mindbox
 		}
 
 		/// <inheritdoc />
-		public string BaseUrl => GetOptionalString(BaseUrlSetting, "https://api.mindbox.ru");
+		public string BaseUrl => GetOptionalString(BaseUrlSetting, "https://api.s.mindbox.ru");
 
 		/// <inheritdoc />
 		public string SecretKey => GetRequiredString(SecretKeySetting);
@@ -68,6 +69,10 @@ namespace Vodovoz.Settings.Database.Mindbox
 		/// <inheritdoc />
 		public string CreateCustomerOperationType =>
 			GetOptionalString(CreateCustomerOperationTypeSetting, "sync");
+
+		/// <inheritdoc />
+		public string PointOfContactErp =>
+			GetOptionalString(PointOfContactErpSetting, "1");
 
 		/// <inheritdoc />
 		public int TimeoutSeconds => GetOptionalInt(TimeoutSecondsSetting, 10);

@@ -7,7 +7,7 @@ namespace Mindbox.Library.Contracts
 	/// </summary>
 	public sealed class MindboxCustomerIds
 	{
-		[JsonPropertyName("erpId")]
-		public string ErpId { get; set; }
+		[JsonPropertyName("externalid")]
+		public string ExternalId { get; set; }
 	}
 }

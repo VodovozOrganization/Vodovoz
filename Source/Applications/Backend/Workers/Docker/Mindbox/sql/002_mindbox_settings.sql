@@ -4,7 +4,7 @@ SELECT 'Mindbox.IsEnabled', 'false', '00:05:00', 'Включить отправ�
 WHERE NOT EXISTS (SELECT 1 FROM `base_parameters` WHERE `name` = 'Mindbox.IsEnabled');
 
 INSERT INTO `base_parameters` (`name`, `str_value`, `cache_timeout`, `description`)
-SELECT 'Mindbox.BaseUrl', 'https://api.mindbox.ru', '00:05:00', 'Базовый адрес API Mindbox'
+SELECT 'Mindbox.BaseUrl', 'https://api.s.mindbox.ru', '00:05:00', 'Базовый адрес API Mindbox'
 WHERE NOT EXISTS (SELECT 1 FROM `base_parameters` WHERE `name` = 'Mindbox.BaseUrl');
 
 INSERT INTO `base_parameters` (`name`, `str_value`, `cache_timeout`, `description`)
@@ -22,6 +22,10 @@ WHERE NOT EXISTS (SELECT 1 FROM `base_parameters` WHERE `name` = 'Mindbox.Create
 INSERT INTO `base_parameters` (`name`, `str_value`, `cache_timeout`, `description`)
 SELECT 'Mindbox.CreateCustomerOperationType', 'sync', '00:05:00', 'Тип операции создания клиента: sync или async'
 WHERE NOT EXISTS (SELECT 1 FROM `base_parameters` WHERE `name` = 'Mindbox.CreateCustomerOperationType');
+
+INSERT INTO `base_parameters` (`name`, `str_value`, `cache_timeout`, `description`)
+SELECT 'Mindbox.PointOfContactErp', '1', '00:05:00', 'Идентификатор точки контакта для контрагентов, созданных в ERP'
+WHERE NOT EXISTS (SELECT 1 FROM `base_parameters` WHERE `name` = 'Mindbox.PointOfContactErp');
 
 INSERT INTO `base_parameters` (`name`, `str_value`, `cache_timeout`, `description`)
 SELECT 'Mindbox.TimeoutSeconds', '10', '00:05:00', 'Таймаут ответа Mindbox, секунды'
