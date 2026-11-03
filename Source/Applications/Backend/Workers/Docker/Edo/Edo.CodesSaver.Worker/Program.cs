@@ -12,6 +12,8 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.CodesSaver.Worker
 {
@@ -48,7 +50,7 @@ namespace Edo.CodesSaver.Worker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddCodesSaver()
+						.AddCodesSaver(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						;

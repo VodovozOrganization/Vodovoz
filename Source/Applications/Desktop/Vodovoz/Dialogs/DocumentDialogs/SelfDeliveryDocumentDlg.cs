@@ -429,17 +429,17 @@ namespace Vodovoz
 			}
 
 			var edoRequest = CreateEdoRequest();
-			
-			logger.Info("Сохраняем документ самовывоза...");
-			UoWGeneric.Save();
 
 			if(edoRequest != null)
 			{
 				_edoRequestCreatedEventPublisher
-					.Publish(edoRequest.Id, "Создание ЭДО-заявки по документу самовывоза")
+					.Publish(UoW, edoRequest.Id, "Создание ЭДО-заявки по документу самовывоза")
 					.GetAwaiter()
 					.GetResult();
 			}
+
+			logger.Info("Сохраняем документ самовывоза...");
+			UoWGeneric.Save();
 
 			//FIXME Необходимо проверить правильность этого кода, так как если заказ именялся то уведомление на его придет и без кода.
 			//А если в каком то месте нужно получать уведомления об изменениях текущего объекта, то логично чтобы этот объект на него и подписался.

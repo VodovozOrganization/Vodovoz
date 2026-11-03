@@ -9,13 +9,15 @@ using Edo.Contracts.Messages.Events;
 using ModulKassa;
 using System.Linq;
 using EdoNotifications.Contracts;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
-using TransactionalOutbox.Domain;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
 
 namespace Edo.Receipt.Sender
 {
@@ -27,10 +29,12 @@ namespace Edo.Receipt.Sender
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IEdoNotificationMessageFactory _messageFactory;
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _publisher;
+		private readonly INotificationPublisher<EdoNotificationMessage> _publisher;
 		private readonly IOptions<ReceiptQueueNotificationOptions> _options;
 		private readonly ILogger<ReceiptQueueNotificationService> _logger;
 		private readonly CashboxClientProvider _cashboxClientProvider;
+		// UoW создаётся из фабрики на каждый чек, поэтому событие пишется в его транзакцию явно
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
 		/// <summary>
 		/// Конструктор.
@@ -42,14 +46,16 @@ namespace Edo.Receipt.Sender
 		/// <param name="options">Интервалы уведомлений</param>
 		/// <param name="logger">Журнал событий</param>
 		/// <param name="cashboxClientProvider">Клиенты МодульКассы</param>
+		/// <param name="outbox">Outbox основной шины</param>
 		public ReceiptQueueNotificationService(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEdoRepository edoRepository,
 			IEdoNotificationMessageFactory messageFactory,
-			IOutboxNotificationPublisher<EdoNotificationMessage> publisher,
+			INotificationPublisher<EdoNotificationMessage> publisher,
 			IOptions<ReceiptQueueNotificationOptions> options,
 			ILogger<ReceiptQueueNotificationService> logger,
-			CashboxClientProvider cashboxClientProvider)
+			CashboxClientProvider cashboxClientProvider,
+			IUnitOfWorkOutbox<IBus> outbox)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
@@ -58,6 +64,7 @@ namespace Edo.Receipt.Sender
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_cashboxClientProvider = cashboxClientProvider ?? throw new ArgumentNullException(nameof(cashboxClientProvider));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 
 		/// <summary>
@@ -142,8 +149,8 @@ namespace Edo.Receipt.Sender
 								&& task.FiscalDocuments.All(x => x.Stage == FiscalDocumentStage.Completed
 									&& (x.Status == FiscalDocumentStatus.Printed || x.Status == FiscalDocumentStatus.Completed)))
 							{
-								await uow.SaveAsync(new OutboxMessage(
-									new ReceiptCompleteEvent { ReceiptEdoTaskId = task.Id }), cancellationToken: cancellationToken);
+								await _outbox.GetPublishEndpoint(uow).Publish(
+									new ReceiptCompleteEvent { ReceiptEdoTaskId = task.Id }, cancellationToken);
 							}
 							await uow.CommitAsync(cancellationToken);
 							_logger.LogInformation("Обновлён чек {FiscalDocumentId}, статус {FiscalStatus}. Уведомление об очереди пропущено",
@@ -151,8 +158,7 @@ namespace Edo.Receipt.Sender
 							continue;
 						}
 
-						var message = _messageFactory.Create(
-							EdoNotificationType.ReceiptQueueStalled,
+						var message = _messageFactory.Create<ReceiptQueueStalledEdoNotificationSetting>(
 							("FiscalDocumentId", document.Id.ToString(CultureInfo.InvariantCulture)),
 							("DocumentNumber", document.DocumentNumber ?? string.Empty),
 							("EdoTaskId", task.Id.ToString(CultureInfo.InvariantCulture)),

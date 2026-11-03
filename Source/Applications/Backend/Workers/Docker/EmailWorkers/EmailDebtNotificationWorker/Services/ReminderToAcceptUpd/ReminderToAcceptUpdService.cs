@@ -13,41 +13,45 @@ namespace EmailDebtNotificationWorker.Services.ReminderToAcceptUpd
 {
 	public class ReminderToAcceptUpdService : IReminderToAcceptUpdService
 	{
+		// UoW и IPublishEndpoint из одного DI-scope (прохода воркера): письма сохраняются в outbox при коммите этого UoW
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IEdoRepository _edoRepository;
 		private readonly ITaxcomApiClient _taxcomApiClient;
 		private readonly IReminderToAcceptUpdEmailPreparer _reminderToAcceptUpdEmailPreparer;
 		private readonly ILogger<ReminderToAcceptUpdService> _logger;
-		private readonly IBus _bus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public ReminderToAcceptUpdService(
+			IUnitOfWork unitOfWork,
 			IEdoRepository edoRepository,
 			ITaxcomApiClient taxcomApiClient,
 			IReminderToAcceptUpdEmailPreparer reminderToAcceptUpdEmailPreparer,
 			ILogger<ReminderToAcceptUpdService> logger,
-			IBus bus)
+			IPublishEndpoint publishEndpoint)
 		{
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_taxcomApiClient = taxcomApiClient ?? throw new ArgumentNullException(nameof(taxcomApiClient));
 			_reminderToAcceptUpdEmailPreparer = reminderToAcceptUpdEmailPreparer ?? throw new ArgumentNullException(nameof(reminderToAcceptUpdEmailPreparer));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
-		public async Task RemindToAcceptUpd(IUnitOfWork unitOfWork, int timeoutDays, CancellationToken cancellationToken)
+		public async Task RemindToAcceptUpd(int timeoutDays, CancellationToken cancellationToken)
 		{
-			var timedOutDocFlowNodes = (await _edoRepository.GetTimedOutDocFlows(unitOfWork, timeoutDays, cancellationToken))
+			var timedOutDocFlowNodes = (await _edoRepository.GetTimedOutDocFlows(_unitOfWork, timeoutDays, cancellationToken))
 				.ToList();
 
 			var checkedTimedOutDocFlowNodes = await CheckDocFlowStatusInTaxcom(timedOutDocFlowNodes);
 
-			var reminderEmails = await _reminderToAcceptUpdEmailPreparer.PrepareReminderToAcceptUpdEmails(unitOfWork, checkedTimedOutDocFlowNodes, cancellationToken);
+			var reminderEmails = await _reminderToAcceptUpdEmailPreparer.PrepareReminderToAcceptUpdEmails(_unitOfWork, checkedTimedOutDocFlowNodes, cancellationToken);
 
 			foreach(var sendEmailMessage in reminderEmails)
 			{
-				await _bus.Publish(sendEmailMessage, cancellationToken);
+				await _publishEndpoint.Publish(sendEmailMessage, cancellationToken);
 			}
 
-			await unitOfWork.CommitAsync(cancellationToken: cancellationToken);
+			await _unitOfWork.CommitAsync(cancellationToken: cancellationToken);
 		}
 
 		private async Task<List<TimedOutDocFlowGrouppedNode>> CheckDocFlowStatusInTaxcom(List<TimedOutDocFlowGrouppedNode> timedOutDocFlowNodes)

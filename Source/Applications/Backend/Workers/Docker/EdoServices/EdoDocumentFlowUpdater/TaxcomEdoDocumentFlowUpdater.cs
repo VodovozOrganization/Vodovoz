@@ -32,12 +32,12 @@ using Vodovoz.Zabbix.Sender;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
 using IOrganizationRepository = Vodovoz.EntityRepositories.Organizations.IOrganizationRepository;
+using TransactionalOutbox.MassTransit;
 
 namespace EdoDocumentFlowUpdater
 {
 	public class TaxcomEdoDocumentFlowUpdater : BackgroundService
 	{
-		private const string _postDateConfirmation = "PostDateConfirmation";
 		private const string _trueMarkAccepted = "TracingAccepted";
 		private const string _trueMarkRejected = "TracingRejected";
 		private const string _trueMarkCancellationAccepted = "TracingCancellationAccepted";
@@ -56,9 +56,13 @@ namespace EdoDocumentFlowUpdater
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly string _serviceName;
 		private readonly IEdoContainerFileStorageService _edoContainerFileStorageService;
-		private readonly IPublishEndpoint _publishEndpoint;
+		// Воркер — синглтон: IPublishEndpoint из DI был бы из корневого scope, который никто не коммитит.
+		// Каждое событие сохраняется в outbox своей короткой транзакцией (PublishInNewTransactionAsync)
+		// TODO: создавать DI-scope на каждое событие и брать из него IUnitOfWork и IPublishEndpoint, тогда IUnitOfWorkOutbox не нужен
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
 		private TaxcomEdoDocflowLastProcessTime _lastEventsProcessTime;
+		private readonly Dictionary<Guid, DateTime> _buyerTitleCheckedAt = new Dictionary<Guid, DateTime>();
 
 		public TaxcomEdoDocumentFlowUpdater(
 			ILogger<TaxcomEdoDocumentFlowUpdater> logger,
@@ -72,7 +76,7 @@ namespace EdoDocumentFlowUpdater
 			ISettingsController settingController,
 			IZabbixSender zabbixSender,
 			IEdoContainerFileStorageService edoContainerFileStorageService,
-			IPublishEndpoint publishEndpoint,
+			IUnitOfWorkOutbox<IBus> outbox,
 			IEdoRepository edoRepository,
 			EdoProblemRegistrar edoProblemRegistrar)
 		{
@@ -84,7 +88,7 @@ namespace EdoDocumentFlowUpdater
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_edoContainerFileStorageService =
 				edoContainerFileStorageService ?? throw new ArgumentNullException(nameof(edoContainerFileStorageService));
-			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
@@ -126,6 +130,7 @@ namespace EdoDocumentFlowUpdater
 				{
 					await DelayAsync(cancellationToken);
 					await ProcessOutgoingDocuments(cancellationToken);
+					await ProcessStuckDocflowsBuyerTitles(cancellationToken);
 					await CancellationDocFlows(cancellationToken);
 					await ProcessIngoingDocuments(cancellationToken);
 					await ProcessWaitingForCancellationDocuments(cancellationToken);
@@ -358,11 +363,11 @@ namespace EdoDocumentFlowUpdater
 
 				if(container != null)
 				{
-					await TryUpdateEdoContainer(cancellationToken, container, docflowUpdate, mainDocument, taxcomApiClient, uow);
+					await TryUpdateEdoContainer(cancellationToken, container, docflowUpdate, mainDocument, taxcomApiClient, uow, false);
 				}
 				else
 				{
-					await SendOutgoingTaxcomDocflowUpdatedEvent(docflowUpdate, mainDocument, cancellationToken);
+					await SendOutgoingTaxcomDocflowUpdatedEvent(docflowUpdate, mainDocument, taxcomApiClient, false, cancellationToken);
 				}
 
 				await UpdateDocflowServiceDocumentMessage(uow, docflowUpdate, taxcomApiClient, cancellationToken);
@@ -376,9 +381,196 @@ namespace EdoDocumentFlowUpdater
 			return lastProcessEventTimeResult;
 		}
 
+		private async Task ProcessStuckDocflowsBuyerTitles(CancellationToken cancellationToken)
+		{
+			try
+			{
+				using var uow = _unitOfWorkFactory.CreateWithoutRoot(
+					"Сервис проверки титулов покупателя у зависших документооборотов");
+
+				await ProcessBuyerTitlesOfDocflowsStuckInSentOrInProgress(uow, cancellationToken);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка при проверке титулов покупателя у зависших документооборотов");
+
+				await _zabbixSender.SendProblemMessageAsync(_serviceName, ZabixSenderMessageType.Problem,
+					$"Ошибка при проверке титулов покупателя у зависших документооборотов: {e}", cancellationToken);
+			}
+		}
+
+		private async Task ProcessBuyerTitlesOfDocflowsStuckInSentOrInProgress(
+			IUnitOfWork uow,
+			CancellationToken cancellationToken)
+		{
+			var maxMinutes = _documentFlowUpdaterOptions.MaxMinutesInSentOrInProgress;
+			if(maxMinutes <= 0)
+			{
+				maxMinutes = 10;
+			}
+
+			var statusChangedBefore = DateTime.Now.AddMinutes(-maxMinutes);
+			var docflowIds = _edoRepository.GetDocflowIdsStuckInSentOrInProgress(
+				uow,
+				_documentFlowUpdaterOptions.EdoAccount,
+				statusChangedBefore);
+
+			var stuckIds = new HashSet<Guid>(docflowIds);
+			var finishedIds = _buyerTitleCheckedAt.Keys.Where(id => !stuckIds.Contains(id)).ToList();
+			foreach(var finishedId in finishedIds)
+			{
+				_buyerTitleCheckedAt.Remove(finishedId);
+			}
+
+			var dueIds = docflowIds
+				.Where(id => !_buyerTitleCheckedAt.TryGetValue(id, out var checkedAt) || checkedAt <= statusChangedBefore)
+				.ToList();
+			if(dueIds.Count == 0)
+			{
+				return;
+			}
+
+			_logger.LogInformation(
+				"Проверяем титул покупателя у документооборотов, которые дольше {Minutes} мин. в статусе «Получено оператором» или «В процессе»: {Count}",
+				maxMinutes,
+				dueIds.Count);
+
+			using var scope = _serviceScopeFactory.CreateScope();
+			var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClient>();
+			foreach(var docflowId in dueIds)
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				_buyerTitleCheckedAt[docflowId] = DateTime.Now;
+
+				try
+				{
+					await ProcessStuckDocflowBuyerTitle(uow, taxcomApiClient, docflowId, cancellationToken);
+				}
+				catch(Exception exception)
+				{
+					_logger.LogWarning(
+						exception,
+						"Не удалось проверить титул покупателя по документообороту {DocflowId}",
+						docflowId);
+				}
+			}
+		}
+
+		private async Task ProcessStuckDocflowBuyerTitle(
+			IUnitOfWork uow,
+			ITaxcomApiClient taxcomApiClient,
+			Guid docflowId,
+			CancellationToken cancellationToken)
+		{
+			var description = await taxcomApiClient.GetDocflowStatus(
+				docflowId.ToString(),
+				_documentFlowUpdaterOptions.EdoAccount);
+			var reportedDocflow = description?.DocFlow;
+			if(reportedDocflow == null)
+			{
+				_logger.LogWarning("Такском не вернул документооборот {DocflowId}", docflowId);
+				return;
+			}
+
+			var documents = reportedDocflow.Documents?
+				.Select(document => new EdoDocFlowDocument
+				{
+					ExternalIdentifier = document.Definition?.Identifiers?.ExternalIdentifier,
+					TransactionCode = document.TransactionCode,
+					ReglamentCode = document.ReglamentCode,
+					InternalId = Guid.TryParse(document.Definition?.Identifiers?.InternalId, out var internalId)
+						? internalId
+						: (Guid?)null
+				})
+				.ToList();
+			var mainDocument = documents?.FirstOrDefault(document => !string.IsNullOrWhiteSpace(document.ExternalIdentifier));
+			if(mainDocument == null)
+			{
+				_logger.LogWarning("Документооборот {DocflowId} без главного документа", docflowId);
+				return;
+			}
+
+			var reportedStatus = reportedDocflow.Status.TryParseAsEnum<EdoDocFlowStatus>();
+			var stillStuck = reportedStatus == EdoDocFlowStatus.Sent || reportedStatus == EdoDocFlowStatus.InProgress;
+			var readBuyerTitle = TaxcomDocflowStateByTransactions.ContainsBuyerTitle(
+				documents.Select(document => document.TransactionCode));
+			if(stillStuck && !readBuyerTitle)
+			{
+				return;
+			}
+
+			var statusChangedAt = string.IsNullOrWhiteSpace(reportedDocflow.StatusChangeDateTimeString)
+				? DateTime.Now
+				: reportedDocflow.StatusChangeDateTime;
+			var docflow = new EdoDocFlow
+			{
+				Id = docflowId,
+				Status = reportedDocflow.Status,
+				StatusChangeDateTime = statusChangedAt,
+				Documents = documents
+			};
+
+			var container = _orderRepository.GetEdoContainerByMainDocumentId(uow, mainDocument.ExternalIdentifier);
+			if(container != null)
+			{
+				await TryUpdateEdoContainer(
+					cancellationToken,
+					container,
+					docflow,
+					mainDocument,
+					taxcomApiClient,
+					uow,
+					readBuyerTitle);
+				return;
+			}
+
+			await SendOutgoingTaxcomDocflowUpdatedEvent(
+				docflow,
+				mainDocument,
+				taxcomApiClient,
+				readBuyerTitle,
+				cancellationToken);
+		}
+
+		private async Task<IEnumerable<string>> TransactionCodesWithBuyerTitleResult(
+			ITaxcomApiClient taxcomApiClient,
+			Guid? docflowId,
+			IEnumerable<string> transactionCodes,
+			CancellationToken cancellationToken)
+		{
+			var codes = transactionCodes ?? Enumerable.Empty<string>();
+			if(!docflowId.HasValue || !TaxcomDocflowStateByTransactions.ContainsBuyerTitle(codes))
+			{
+				return codes;
+			}
+
+			try
+			{
+				var raw = await taxcomApiClient.GetDocFlowRawData(docflowId.Value.ToString(), cancellationToken);
+				if(raw.IsFailure || raw.Value == null)
+				{
+					return codes;
+				}
+
+				return TaxcomDocflowStateByTransactions.WithBuyerTitleResult(
+					codes,
+					BuyerTitleAcceptance.ReadResultCode(raw.Value));
+			}
+			catch(Exception exception)
+			{
+				_logger.LogWarning(
+					exception,
+					"Не удалось прочитать итог титула покупателя по документообороту {DocflowId}",
+					docflowId);
+				return codes;
+			}
+		}
+
 		private async Task SendOutgoingTaxcomDocflowUpdatedEvent(
 			EdoDocFlow docflow,
 			EdoDocFlowDocument mainDocument,
+			ITaxcomApiClient taxcomApiClient,
+			bool readBuyerTitle,
 			CancellationToken cancellationToken)
 		{
 			if(mainDocument is null)
@@ -387,23 +579,36 @@ namespace EdoDocumentFlowUpdater
 				return;
 			}
 
-			var isReceived = docflow.Documents
-				.FirstOrDefault(x => x.TransactionCode == _postDateConfirmation) != null;
+			var transactionCodes = docflow.Documents?.Select(document => document.TransactionCode);
+			if(readBuyerTitle)
+			{
+				transactionCodes = await TransactionCodesWithBuyerTitleResult(
+					taxcomApiClient,
+					docflow.Id,
+					transactionCodes,
+					cancellationToken);
+			}
+
+			var state = TaxcomDocflowStateByTransactions.Resolve(
+				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>(),
+				transactionCodes);
 
 			var @event = new OutgoingTaxcomDocflowUpdatedEvent
 			{
 				DocFlowId = docflow.Id,
 				MainDocumentId = mainDocument.ExternalIdentifier,
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
-				Status = docflow.Status,
+				Status = state.Status?.ToString() ?? docflow.Status,
 				StatusChangeDateTime = docflow.StatusChangeDateTime,
 				ErrorDescription = docflow.ErrorDescription,
-				IsReceived = isReceived
+				IsReceived = state.IsReceived
 			};
 
 			UpdateTrueMarkTraceabilityInfo(docflow, @event);
 
-			await _publishEndpoint.Publish(@event, cancellationToken);
+			// Не в транзакции пакета: метка обработанных событий сохраняется отдельно (в finally),
+			// и при сбое коммита пакета событие потерялось бы
+			await _outbox.PublishInNewTransactionAsync(_unitOfWorkFactory, @event, cancellationToken);
 		}
 
 		private static void UpdateTrueMarkTraceabilityInfo(EdoDocFlow docflow, OutgoingTaxcomDocflowUpdatedEvent @event)
@@ -619,7 +824,7 @@ namespace EdoDocumentFlowUpdater
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
 			};
 			
-			await _publishEndpoint.Publish(@event, cancellationToken);
+			await _outbox.PublishInNewTransactionAsync(_unitOfWorkFactory, @event, cancellationToken);
 		}
 
 		private async Task SendAcceptingWaitingForCancellationDocflowEvent(
@@ -631,7 +836,7 @@ namespace EdoDocumentFlowUpdater
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
 			};
 
-			await _publishEndpoint.Publish(@event, cancellationToken);
+			await _outbox.PublishInNewTransactionAsync(_unitOfWorkFactory, @event, cancellationToken);
 		}
 
 		private async Task TryUpdateEdoContainer(
@@ -640,21 +845,33 @@ namespace EdoDocumentFlowUpdater
 			EdoDocFlow docflow,
 			EdoDocFlowDocument mainDocument,
 			ITaxcomApiClient taxcomApiClient,
-			IUnitOfWork uow)
+			IUnitOfWork uow,
+			bool readBuyerTitle)
 		{
 			if(container is null)
 			{
 				return;
 			}
 			
-			var containerReceived =
-				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value is EdoDocFlowStatus.Sent;
+			var transactionCodes = docflow.Documents?.Select(document => document.TransactionCode);
+			if(readBuyerTitle)
+			{
+				transactionCodes = await TransactionCodesWithBuyerTitleResult(
+					taxcomApiClient,
+					docflow.Id,
+					transactionCodes,
+					cancellationToken);
+			}
+
+			var state = TaxcomDocflowStateByTransactions.Resolve(
+				docflow.Status.TryParseAsEnum<EdoDocFlowStatus>(),
+				transactionCodes);
 
 			container.DocFlowId = docflow.Id;
-			container.Received = containerReceived;
+			container.Received = state.IsReceived;
 			container.InternalId = mainDocument.InternalId;
 			container.ErrorDescription = docflow.ErrorDescription;
-			container.EdoDocFlowStatus = docflow.Status.TryParseAsEnum<EdoDocFlowStatus>().Value;
+			container.EdoDocFlowStatus = state.Status ?? EdoDocFlowStatus.Unknown;
 
 			if(container.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
 			{

@@ -19,6 +19,7 @@ namespace Edo.Problem.Routine.Services
 
 		/// <summary>
 		/// Публикует событие повторного запуска задачи.
+		/// Событие сохраняется в outbox и уходит после коммита UoW вызывающим кодом.
 		/// </summary>
 		/// <param name="receiptTask">Задача ЭДО на отправку чека.</param>
 		/// <param name="cancellationToken">Токен отмены.</param>

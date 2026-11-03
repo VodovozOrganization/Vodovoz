@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Edo.Admin;
 using Edo.Common;
 using Edo.Problems;
@@ -26,11 +27,13 @@ namespace Edo.Documents
 			return services;
 		}
 
-		public static IServiceCollection AddTenderEdo(this IServiceCollection services)
+		public static IServiceCollection AddTenderEdo(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddTenderEdoServices();
 
-			services.AddEdoMassTransit(configureBus: cfg => { cfg.AddConsumers(Assembly.GetExecutingAssembly()); });
+			services.AddEdoMassTransit(configureBus: cfg => { cfg.AddConsumers(Assembly.GetExecutingAssembly()); configureBus?.Invoke(cfg); });
 
 			return services;
 		}

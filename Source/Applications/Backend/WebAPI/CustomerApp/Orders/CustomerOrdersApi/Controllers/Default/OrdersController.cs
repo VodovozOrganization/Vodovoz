@@ -1,4 +1,4 @@
-using CustomerOrdersApi.Library.Default.Dto.Orders;
+﻿using CustomerOrdersApi.Library.Default.Dto.Orders;
 using CustomerOrdersApi.Library.Default.Services;
 using Gamma.Utilities;
 using MassTransit;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using VodovozHealthCheck.Helpers;
+using QS.DomainModel.UoW;
 
 namespace CustomerOrdersApi.Controllers.Default
 {
@@ -14,15 +15,18 @@ namespace CustomerOrdersApi.Controllers.Default
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
 		private readonly IPublishEndpoint _publishEndpoint;
+		private readonly IUnitOfWork _unitOfWork;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersService customerOrdersService,
-			IPublishEndpoint publishEndpoint
+			IPublishEndpoint publishEndpoint,
+			IUnitOfWork unitOfWork
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
 		[HttpPost]
@@ -54,6 +58,7 @@ namespace CustomerOrdersApi.Controllers.Default
 				if(!isDryRun)
 				{
 					await _publishEndpoint.Publish(onlineOrderInfoDto);
+					await _unitOfWork.CommitAsync();
 				}
 
 				return Accepted();

@@ -19,8 +19,6 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 {
 	public class OnlineOrderRegisteredConsumer : OnlineOrderConsumer, IConsumer<OnlineOrderInfoDto>
 	{
-		private readonly IBus _bus;
-
 		public OnlineOrderRegisteredConsumer(
 			ILogger<OnlineOrderRegisteredConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,			
@@ -71,7 +69,8 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 				
 				Logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
 				message.FaultedMessage = true;
-				await _bus.Publish(message, context.CancellationToken);
+				// Данные не менялись: повторная публикация сообщения через контекст потребителя, сразу в брокер
+				await context.Publish(message, context.CancellationToken);
 				return;
 			}
 		}

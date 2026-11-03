@@ -18,6 +18,7 @@ namespace Taxcom.Docflow.Utility
 		private readonly IUnitOfWork _uow;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ITaxcomApiFactory _taxcomApiFactory;
+		// IBus напрямую, без outbox: утилита разработчика (используется в CustomTaskDebugExecutor), данные в БД не меняет
 		private readonly IBus _messageBus;
 
 		public DocflowStatusesService(
@@ -87,8 +88,7 @@ namespace Taxcom.Docflow.Utility
 					{
 						continue;
 					}
-					var lastStatus = docflow.Actions.Last();
-					if(lastStatus.DocFlowState == EdoDocFlowStatus.InProgress)
+					if(docflow.DocFlowState == EdoDocFlowStatus.InProgress)
 					{
 						await SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(item, organization, cancellationToken);
 					}

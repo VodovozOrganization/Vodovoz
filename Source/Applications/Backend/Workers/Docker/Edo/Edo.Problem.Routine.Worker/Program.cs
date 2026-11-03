@@ -10,6 +10,8 @@ using System;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Zabbix.Sender;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.Problem.Routine.Worker
 {
@@ -44,7 +46,7 @@ namespace Edo.Problem.Routine.Worker
 						.AddNHibernateConventions()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddEdoProblemRoutine()
+						.AddEdoProblemRoutine(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 						.AddOrderEdoCodePoolMissingProblem()
 						.ConfigureZabbixSenderFromDataBase()
 						;

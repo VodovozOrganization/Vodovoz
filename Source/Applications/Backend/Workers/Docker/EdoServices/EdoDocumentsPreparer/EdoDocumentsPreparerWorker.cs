@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Library.Options;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Application.Documents;
 using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Clients;
@@ -54,7 +55,7 @@ namespace EdoDocumentsPreparer
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
 		private readonly IBillEdoRequestFactory _billEdoRequestFactory;
 		private readonly IBillEdoRequestSender _billEdoRequestSender;
-		private readonly IPublishEndpoint _publishEndpoint;
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 		private readonly IHostApplicationLifetime _applicationLifetime;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly DateTime _startDate;
@@ -74,7 +75,7 @@ namespace EdoDocumentsPreparer
 			PrintableDocumentSaver printableDocumentSaver,
 			IBillEdoRequestFactory billEdoRequestFactory,
 			IBillEdoRequestSender billEdoRequestSender,
-			IPublishEndpoint publishEndpoint,
+			IUnitOfWorkOutbox<IBus> outbox,
 			IHostApplicationLifetime applicationLifetime,
 			ICounterpartyEdoAccountController edoAccountController)
 		{
@@ -91,7 +92,7 @@ namespace EdoDocumentsPreparer
 			_printableDocumentSaver = printableDocumentSaver ?? throw new ArgumentNullException(nameof(printableDocumentSaver));
 			_billEdoRequestFactory = billEdoRequestFactory ?? throw new ArgumentNullException(nameof(billEdoRequestFactory));
 			_billEdoRequestSender = billEdoRequestSender ?? throw new ArgumentNullException(nameof(billEdoRequestSender));
-			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 			_applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_startDate = DateTime.Now;
@@ -353,7 +354,7 @@ namespace EdoDocumentsPreparer
 			try
 			{
 				_logger.LogInformation("Отправляем данные по {Document} {OrderId} в очередь", document, order.Id);
-				await _publishEndpoint.Publish(updInfo);
+				await _outbox.PublishInNewTransactionAsync(_unitOfWorkFactory, updInfo);
 			}
 			catch(Exception e)
 			{

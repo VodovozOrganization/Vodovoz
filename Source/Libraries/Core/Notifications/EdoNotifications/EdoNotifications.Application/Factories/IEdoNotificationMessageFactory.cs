@@ -1,11 +1,11 @@
 ﻿using EdoNotifications.Contracts;
+using Vodovoz.Core.Domain.Edo;
 
 namespace EdoNotifications.Application.Factories
 {
 	/// <summary>
-	/// Фабрика для создания ЭДО-уведомлений. Вычисляет ключ дедупликации
-	/// с использованием DI-сервиса хэширования, гарантируя единообразие
-	/// его вычисления для всех создаваемых сообщений.
+	/// Фабрика для создания ЭДО-уведомлений: подставляет тип по классу настройки
+	/// и вычисляет ключ дедупликации одинаково для всех сообщений.
 	/// </summary>
 	public interface IEdoNotificationMessageFactory
 	{
@@ -13,10 +13,10 @@ namespace EdoNotifications.Application.Factories
 		/// Создаёт ЭДО-уведомление с динамическим набором параметров для шаблона
 		/// и вычисленным ключом дедупликации.
 		/// </summary>
-		/// <param name="edoNotificationType">Тип ЭДО уведомления</param>
+		/// <typeparam name="TSetting">Класс настройки уведомления, например CodeDuplicatedEdoNotificationSetting.
+		/// Как добавить новое уведомление — см. <see cref="EdoNotificationSetting"/></typeparam>
 		/// <param name="templateParams">Параметры шаблона в виде пар ключ-значение</param>
-		EdoNotificationMessage Create(
-			EdoNotificationType edoNotificationType,
-			params (string Key, string Value)[] templateParams);
+		EdoNotificationMessage Create<TSetting>(params (string Key, string Value)[] templateParams)
+			where TSetting : EdoNotificationSetting;
 	}
 }

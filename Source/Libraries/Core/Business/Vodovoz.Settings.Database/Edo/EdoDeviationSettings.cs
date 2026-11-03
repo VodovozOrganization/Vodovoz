@@ -32,5 +32,9 @@ namespace Vodovoz.Settings.Database.Edo
 		/// <inheritdoc/>
 		public DateTime GisMtTrackingStartDate => _settingsController
 			.GetValue<DateTime>("edo.deviation.gis-mt-tracking-start-date");
+
+		/// <inheritdoc/>
+		public DateTime? ProcessingStartDate => _settingsController
+			.GetValue<DateTime>("edo.deviation.processing-start-date");
 	}
 }

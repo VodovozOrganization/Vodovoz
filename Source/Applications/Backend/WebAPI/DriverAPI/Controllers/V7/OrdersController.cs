@@ -170,15 +170,17 @@ namespace DriverAPI.Controllers.V7
 					completedOrderRequestModel,
 					cancellationToken);
 
-				await unitOfWork.CommitAsync();
-
 				if(result is Result<int>)
 				{
 					var resultWithMessage = (Result<int>)result;
+
 					await _edoRequestCreatedEventPublisher.Publish(
+						unitOfWork,
 						resultWithMessage.Value,
 						"Завершение доставки заказа через приложение водителя");
 				}
+
+				await unitOfWork.CommitAsync();
 
 				return MapResult(
 					result,

@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TransactionalOutbox.MassTransit;
 
 namespace EdoNotificationsWorker.Services.Email
 {
@@ -15,20 +16,23 @@ namespace EdoNotificationsWorker.Services.Email
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmailMessageFactory _emailMessageFactory;
 		private readonly IOptionsSnapshot<EdoNotificationsOptions> _options;
-		private readonly IBus _bus;
+		// IUnitOfWorkOutbox: письма идут во вторую шину приложения (IEmailBus, другой vhost RabbitMQ — email).
+		// IPublishEndpoint из DI связан только с основной шиной,
+		// поэтому сообщение пишется в таблицы outbox этой шины через IUnitOfWorkOutbox в транзакции UoW. При переходе на один vhost заменить на IPublishEndpoint из DI
+		private readonly IUnitOfWorkOutbox<IEmailBus> _emailOutbox;
 		private readonly ILogger<EdoNotificationEmailService> _logger;
 
 		public EdoNotificationEmailService(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmailMessageFactory emailMessageFactory,
 			IOptionsSnapshot<EdoNotificationsOptions> options,
-			IEmailBus emailBus,
+			IUnitOfWorkOutbox<IEmailBus> emailOutbox,
 			ILogger<EdoNotificationEmailService> logger)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_emailMessageFactory = emailMessageFactory ?? throw new ArgumentNullException(nameof(emailMessageFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
-			_bus = emailBus ?? throw new ArgumentNullException(nameof(emailBus));
+			_emailOutbox = emailOutbox ?? throw new ArgumentNullException(nameof(emailOutbox));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
@@ -82,9 +86,9 @@ namespace EdoNotificationsWorker.Services.Email
 					storedEmail.Subject,
 					message);
 
+				// Письмо и запись о нём сохраняются одной транзакцией при Commit (таблицы email_*), отправляют email-воркеры
+				await _emailOutbox.GetPublishEndpoint(unitOfWork).Publish(sendEmailMessage, cancellationToken);
 				await unitOfWork.CommitAsync(cancellationToken);
-
-				await _bus.Publish(sendEmailMessage, cancellationToken);
 			}
 			catch(Exception ex)
 			{

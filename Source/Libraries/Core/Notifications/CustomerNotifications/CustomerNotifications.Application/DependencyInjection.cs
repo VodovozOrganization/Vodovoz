@@ -4,7 +4,7 @@ using CustomerNotifications.Application.SmsNotificationCreators;
 using CustomerNotifications.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Notifications.Infrastructure;
-using TransactionalOutbox.Abstractions;
+using Notifications.Core;
 using VodovozBusiness.Services.Logistics;
 
 public static class DependencyInjection
@@ -14,7 +14,7 @@ public static class DependencyInjection
 	{
 		services.AddSingleton<ICustomerNotificationsSettingsProvider, CustomerNotificationsSettingsProvider>();
 
-		services.AddScoped<IOutboxSettingsProvider<CustomerNotificationDomainEvent>>(
+		services.AddScoped<INotificationSettingsProvider<CustomerNotificationDomainEvent>>(
 			sp => sp.GetRequiredService<ICustomerNotificationsSettingsProvider>());
 
 		return services;
@@ -38,6 +38,6 @@ public static class DependencyInjection
 				CustomerNotificationsIntegrationEventBuilder>();
 
 		return services
-			.AddMappingOutboxNotificationWithSmsFallbackPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>();
+			.AddNotificationPublisherWithSmsFallback<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>();
 	}
 }

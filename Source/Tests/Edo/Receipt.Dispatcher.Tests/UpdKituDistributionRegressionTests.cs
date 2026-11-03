@@ -25,7 +25,6 @@ using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using VodovozInfrastructure.Cryptography;
 using Xunit;
 
 namespace Receipt.Dispatcher.Tests
@@ -84,7 +83,7 @@ namespace Receipt.Dispatcher.Tests
 			var f = new Scenario(50, 0, Enumerable.Range(1, 100), true);
 			((OrderItemEntityFixture)f.Task.FormalEdoRequest.Order.OrderItems.Single()).SetActualCount(47);
 			var services = Substitute.For<IServiceProvider>();
-			var factory = new EdoNotificationMessageFactory(Substitute.For<IMD5HexHashFromString>());
+			var factory = new EdoNotificationMessageFactory();
 			services.GetService(typeof(IEdoNotificationMessageFactory)).Returns(factory);
 			var validator = new ExcessCodesEdoValidator();
 			Assert.True(validator.IsApplicable(f.Task));

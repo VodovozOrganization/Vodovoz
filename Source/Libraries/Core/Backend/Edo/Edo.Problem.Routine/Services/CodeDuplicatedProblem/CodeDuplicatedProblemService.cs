@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
 
 namespace Edo.Problem.Routine.Services.CodeDuplicatedProblem
 {
@@ -23,29 +24,32 @@ namespace Edo.Problem.Routine.Services.CodeDuplicatedProblem
 		private const string _problemSourceName = "CodeDuplicatedException";
 
 		private readonly ILogger<CodeDuplicatedProblemService> _logger;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IEdoNotificationMessageFactory _edoNotificationMessageFactory;
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _edoNotificationPublisher;
-		private readonly IBus _messageBus;
+		private readonly INotificationPublisher<EdoNotificationMessage> _edoNotificationPublisher;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public CodeDuplicatedProblemService(
 			ILogger<CodeDuplicatedProblemService> logger,
+			IUnitOfWork unitOfWork,
 			IEdoRepository edoRepository,
 			IEdoNotificationMessageFactory edoNotificationMessageFactory,
-			IOutboxNotificationPublisher<EdoNotificationMessage> edoNotificationPublisher,
-			IBus messageBus)
+			INotificationPublisher<EdoNotificationMessage> edoNotificationPublisher,
+			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_edoNotificationMessageFactory = edoNotificationMessageFactory ?? throw new ArgumentNullException(nameof(edoNotificationMessageFactory));
 			_edoNotificationPublisher = edoNotificationPublisher ?? throw new ArgumentNullException(nameof(edoNotificationPublisher));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
-		public async Task ProcessProblemTasksAsync(IUnitOfWork unitOfWork, DateTime minEdoTaskCreationTime, CancellationToken cancellationToken)
+		public async Task ProcessProblemTasksAsync(DateTime minEdoTaskCreationTime, CancellationToken cancellationToken)
 		{
 			var problemNodes = await _edoRepository.GetProblemEdoTasksForResume(
-				unitOfWork,
+				_unitOfWork,
 				_problemSourceName,
 				minEdoTaskCreationTime,
 				ReasonForLeaving.Resale,
@@ -62,19 +66,18 @@ namespace Edo.Problem.Routine.Services.CodeDuplicatedProblem
 				}
 				else
 				{
-					await NotifyAsync(unitOfWork, problemNode, cancellationToken);
+					await NotifyAsync(_unitOfWork, problemNode, cancellationToken);
 				}
 
-				await SaveProblemRoutineStateAsync(unitOfWork, problemNode, cancellationToken);
+				await SaveProblemRoutineStateAsync(_unitOfWork, problemNode, cancellationToken);
 
-				await unitOfWork.CommitAsync(cancellationToken);
+				await _unitOfWork.CommitAsync(cancellationToken);
 			}
 		}
 
 		private async Task NotifyAsync(IUnitOfWork unitOfWork, EdoTaskProblemRoutineNode problemNode, CancellationToken cancellationToken)
 		{
-			var edoNotificationMessage = _edoNotificationMessageFactory.Create(
-				EdoNotificationType.CodeDuplicated,
+			var edoNotificationMessage = _edoNotificationMessageFactory.Create<CodeDuplicatedEdoNotificationSetting>(
 				("OrderId", problemNode.OrderId.ToString()),
 				("EdoTaskId", problemNode.EdoTask.Id.ToString()),
 				("EdoTaskType", problemNode.EdoTask.TaskType.GetEnumDisplayName()),
@@ -143,7 +146,7 @@ namespace Edo.Problem.Routine.Services.CodeDuplicatedProblem
 				edoTask.Stage,
 				nameof(DocumentTaskCreatedEvent));
 
-			await _messageBus.Publish(new DocumentTaskCreatedEvent { Id = edoTask.Id }, cancellationToken);
+			await _publishEndpoint.Publish(new DocumentTaskCreatedEvent { Id = edoTask.Id }, cancellationToken);
 		}
 
 		private async Task PublishTenderResumeEvent(TenderEdoTask edoTask, CancellationToken cancellationToken)
@@ -163,7 +166,7 @@ namespace Edo.Problem.Routine.Services.CodeDuplicatedProblem
 				edoTask.Stage,
 				nameof(TenderTaskCreatedEvent));
 
-			await _messageBus.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
+			await _publishEndpoint.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
 		}
 
 		private async Task PublishReceiptResumeEvent(ReceiptEdoTask edoTask, CancellationToken cancellationToken)
@@ -183,7 +186,7 @@ namespace Edo.Problem.Routine.Services.CodeDuplicatedProblem
 				edoTask.ReceiptStatus,
 				nameof(ReceiptTaskCreatedEvent));
 
-			await _messageBus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id }, cancellationToken);
+			await _publishEndpoint.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id }, cancellationToken);
 		}
 	}
 }
