@@ -4,9 +4,7 @@ using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz.Domain.Cash
@@ -15,17 +13,14 @@ namespace Vodovoz.Domain.Cash
 	{
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IRouteListItemCashDistributionDocumentRepository _routeListItemCashDistributionDocumentRepository;
-		private readonly IOrderRepository _orderRepository;
 
 		public RouteListCashOrganisationDistributor(
 			IOrganizationRepository organizationRepository,
-			IRouteListItemCashDistributionDocumentRepository routeListItemCashDistributionDocumentRepository,
-			IOrderRepository orderRepository)
+			IRouteListItemCashDistributionDocumentRepository routeListItemCashDistributionDocumentRepository)
 		{
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_routeListItemCashDistributionDocumentRepository =
 				routeListItemCashDistributionDocumentRepository ?? throw new ArgumentNullException(nameof(routeListItemCashDistributionDocumentRepository));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
 		public void DistributeIncomeCash(IUnitOfWork uow, RouteList routeList, Income income, decimal amount)
@@ -58,7 +53,7 @@ namespace Vodovoz.Domain.Cash
 							? address.TotalCash - addressDistributedSum
 							: amount;
 
-						var newOperation = CreateOrganisationCashMovementOperation(uow, address, income.Organisation);
+						var newOperation = CreateOrganisationCashMovementOperation(uow, address);
 						newOperation.Amount = sum;
 						var doc =
 							CreateRouteListItemCashDistributionDocument(newOperation, address, income);
@@ -154,7 +149,7 @@ namespace Vodovoz.Domain.Cash
 						? -amount
 						: -addressDistributedSum;
 
-					var newOperation = CreateOrganisationCashMovementOperation(uow, address, expense.Organisation);
+					var newOperation = CreateOrganisationCashMovementOperation(uow, address);
 					newOperation.Amount = sum;
 					var routeListItemCashdistributionDoc =
 						CreateRouteListItemCashDistributionDocument(newOperation, address, expense);
@@ -200,17 +195,12 @@ namespace Vodovoz.Domain.Cash
 
 		private OrganisationCashMovementOperation CreateOrganisationCashMovementOperation(
 			IUnitOfWork uow,
-			RouteListItem address,
-			Organization organization = null)
+			RouteListItem address)
 		{
-			var hasReceipt = _orderRepository.OrderHasSentReceipt(uow, address.Order.Id);
-
 			return new OrganisationCashMovementOperation
 			{
 				OperationTime = DateTime.Now,
-				Organisation = hasReceipt
-					? address.Order.Contract.Organization
-					: organization ?? _organizationRepository.GetCommonOrganisation(uow)
+				Organisation = address.Order.Contract?.Organization ?? _organizationRepository.GetCommonOrganisation(uow)
 			};
 		}
 

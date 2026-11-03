@@ -8,7 +8,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Settings.Cash;
@@ -22,7 +21,6 @@ namespace VodovozBusiness.Services.Cash
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ICashRepository _cashRepository;
-		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IRouteListCashOrganisationDistributor _routeListCashOrganisationDistributor;
 
@@ -30,7 +28,6 @@ namespace VodovozBusiness.Services.Cash
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IOrganizationRepository organizationRepository,
 			ICashRepository cashRepository,
-			IOrderRepository orderRepository,
 			IOrganizationSettings organizationSettings,
 			IRouteListCashOrganisationDistributor routeListCashOrganisationDistributor)
 		{
@@ -40,8 +37,6 @@ namespace VodovozBusiness.Services.Cash
 				organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_cashRepository =
 				cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
-			_orderRepository =
-				orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationSettings =
 				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_routeListCashOrganisationDistributor =
@@ -323,7 +318,7 @@ namespace VodovozBusiness.Services.Cash
 			IUnitOfWork uow,
 			RouteList routeList)
 		{
-			var ordersCash = GetRouteListOrdersCashByOrganizations(uow, routeList);
+			var ordersCash = GetRouteListOrdersCashByOrganizations(routeList);
 
 			var cashIncomesExpensesByOrganization =
 				_cashRepository.GetRouteListDriversCashIncomesExpensesByOrganizationNodes(uow, routeList.Id);
@@ -344,12 +339,9 @@ namespace VodovozBusiness.Services.Cash
 			return debtsByOrganizations;
 		}
 
-		private List<RouteListDebtByOrganizationNode> GetRouteListOrdersCashByOrganizations(IUnitOfWork uow, RouteList routeList)
+		private List<RouteListDebtByOrganizationNode> GetRouteListOrdersCashByOrganizations(RouteList routeList)
 		{
-			var commonCashDistributionOrganisation = GetCommonCashDistributionOrganisation(uow);
-
-			var ordersCashRaw =
-				routeList.Addresses
+			return routeList.Addresses
 				.Where(item =>
 					item.Status == RouteListItemStatus.Completed
 					|| (item.Status == RouteListItemStatus.EnRoute
@@ -358,29 +350,13 @@ namespace VodovozBusiness.Services.Cash
 							|| routeList.Status == RouteListStatus.Closed)))
 				.Where(item => item.Order.PaymentType == PaymentType.Cash)
 				.Where(item => item.Order.Contract != null && item.Order.Contract.Organization != null)
-				.Select(item => new
+				.Select(item => new RouteListDebtByOrganizationNode
 				{
-					OrderId = item.Order.Id,
-					ContractOrganizationId = item.Order.Contract.Organization.Id,
-					ContractOrganizationName = item.Order.Contract.Organization.Name,
+					OrganizationId = item.Order.Contract.Organization.Id,
+					OrganizationName = item.Order.Contract.Organization.Name,
 					OrdersCashSum = item.TotalCash
-				});
-
-			// Если по заказу нет чека,то считаем, что данный заказ на дефолтную организацию, независимо от организации в договоре заказа
-			var ordersCash = ordersCashRaw
-				.Select(x =>
-				{
-					var hasSentReceipt = _orderRepository.OrderHasSentReceipt(uow, x.OrderId);
-
-					return new RouteListDebtByOrganizationNode
-					{
-						OrganizationId = hasSentReceipt ? x.ContractOrganizationId : commonCashDistributionOrganisation.Id,
-						OrganizationName = hasSentReceipt ? x.ContractOrganizationName : commonCashDistributionOrganisation.Name,
-						OrdersCashSum = x.OrdersCashSum
-					};
 				})
 				.ToList();
-			return ordersCash;
 		}
 	}
 }
