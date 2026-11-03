@@ -1,6 +1,7 @@
 using NHibernate;
 using MySqlConnector;
 using QS.DomainModel.UoW;
+using QS.Project.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -15,8 +16,8 @@ using Xunit;
 namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 {
 	/// <summary>
-	/// Группа H: если у дочерней сущности есть [HistoryTrace], массовая вставка пишет историю в том же формате, что QS
-	/// для обычного Save, но в той же транзакции, что и сами строки.
+	/// Группа H: если у дочерней сущности есть [HistoryTrace], массовая вставка попадает в историю тем же способом,
+	/// что и обычный Save: через трекер QS, после коммита, отдельным соединением и в том же формате.
 	/// </summary>
 	[Collection(BulkSqlInsertHistoryCollection.Name)]
 	public class BulkSqlInsertHistoryTests : IDisposable
@@ -180,6 +181,12 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			Assert.Equal(0, Count(ChangesTable));
 		}
 
+		/// <summary>
+		/// Команды к таблицам истории через сессию UoW. Трекер пишет отдельным соединением, поэтому их быть не должно
+		/// </summary>
+		private static int HistoryCommandsInSession() =>
+			SqlLog.Inserts(ChangeSetsTable) + SqlLog.Inserts(EntitiesTable) + SqlLog.Inserts(ChangesTable);
+
 		private static bool IsInsertInto(DbCommand command, string table) =>
 			command.CommandText.TrimStart().StartsWith($"INSERT INTO {table}", StringComparison.OrdinalIgnoreCase);
 
@@ -336,10 +343,10 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// H-07. История не видна другому соединению до коммита, а после коммита видна вместе со строками.
+		/// H-07. До коммита истории нигде нет, а после коммита она есть вместе со строками.
 		/// </summary>
 		[DatabaseTheory, BothModes]
-		public async Task BulkSqlInsert_BeforeCommit_HistoryInvisibleToOtherConnection(InsertMode mode)
+		public async Task BulkSqlInsert_BeforeCommit_HistoryNotWritten(InsertMode mode)
 		{
 			var parentId = CreateParent();
 			var uow = NewUow();
@@ -358,39 +365,21 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// H-08. История пишется в соединении и транзакции сессии UoW, а не отдельным соединением, как обычный трекер.
+		/// H-08. История идёт через трекер, а не через сессию UoW: ни при вызове, ни при коммите в сессии нет команд к таблицам истории.
 		/// </summary>
 		[DatabaseTheory, BothModes]
-		public async Task BulkSqlInsert_WhenWritingHistory_UsesSessionConnectionAndTransaction(InsertMode mode)
+		public async Task BulkSqlInsert_WhenHistoryWritten_GoesThroughTrackerNotSession(InsertMode mode)
 		{
 			var parentId = CreateParent();
 			var uow = NewUow();
 			var parent = uow.GetById<HistoryParent>(parentId);
-			uow.OpenTransaction();
-			var sessionConnection = uow.Session.Connection;
-			DbTransaction sessionTransaction;
-
-			using(var probe = sessionConnection.CreateCommand())
-			{
-				uow.Session.GetCurrentTransaction().Enlist(probe);
-				sessionTransaction = probe.Transaction;
-			}
-
 			SqlLog.Clear();
 
 			await Insert(mode, parent.Items, uow, NewChildren(3));
+			uow.Commit();
 
-			var historyCommands = SqlLog.Commands
-				.Where(x => x.Text.TrimStart().StartsWith("INSERT INTO history_", StringComparison.OrdinalIgnoreCase)
-					&& !x.Text.TrimStart().StartsWith("INSERT INTO history_test", StringComparison.OrdinalIgnoreCase))
-				.ToList();
-
-			Assert.NotEmpty(historyCommands);
-			Assert.All(historyCommands, command =>
-			{
-				Assert.Same(sessionConnection, command.Connection);
-				Assert.Same(sessionTransaction, command.Transaction);
-			});
+			Assert.Equal(0, HistoryCommandsInSession());
+			Assert.Equal(3, Count(EntitiesTable));
 		}
 
 		/// <summary>
@@ -448,39 +437,49 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// H-12. Ошибка при записи самой истории: как и любая ошибка вставки, откатывает всё, включая уже вставленные строки.
+		/// H-12. Сбой записи истории после коммита ведёт себя как у обычного Save: Commit бросает исключение,
+		/// строки уже закоммичены, истории нет. Таблица истории на время теста переименована.
 		/// </summary>
 		[DatabaseTheory, BothModes]
-		public async Task BulkSqlInsert_WhenHistoryWriteFails_RollsBackRowsAndThrows(InsertMode mode)
+		public async Task BulkSqlInsert_WhenHistoryWriteFails_BehavesLikeSave(InsertMode mode)
 		{
-			var parentId = CreateParent();
-			var uow = NewUow();
-			var parent = uow.GetById<HistoryParent>(parentId);
-			var failure = new InvalidOperationException("Сбой записи истории");
+			var saveParentId = CreateParent();
+			var bulkParentId = CreateParent();
+			Database.Execute($"RENAME TABLE {ChangesTable} TO {ChangesTable}_off");
 
-			SqlLog.BeforeCommand = command =>
+			try
 			{
-				if(IsInsertInto(command, ChangesTable))
+				using(var saveUow = _fixture.UnitOfWorkFactory.CreateWithoutRoot(ActionTitle))
 				{
-					throw failure;
+					var saved = NewChild("обычный");
+					saved.Parent = saveUow.GetById<HistoryParent>(saveParentId);
+					saveUow.Save(saved);
+
+					Assert.ThrowsAny<Exception>(() => saveUow.Commit());
 				}
-			};
 
-			var exception = await Assert.ThrowsAsync<BulkSqlInsertException>(() => Insert(mode, parent.Items, uow, NewChildren(3)));
+				var uow = NewUow();
+				var parent = uow.GetById<HistoryParent>(bulkParentId);
 
-			SqlLog.BeforeCommand = null;
+				await Insert(mode, parent.Items, uow, NewChildren(3));
 
-			Assert.NotNull(exception.InnerException);
-			Assert.Contains("откат", exception.Message, StringComparison.OrdinalIgnoreCase);
-			AssertNothingWritten(parentId);
-			Assert.Equal(0, Count(ChangeSetsTable));
+				Assert.ThrowsAny<Exception>(() => uow.Commit());
+			}
+			finally
+			{
+				Database.Execute($"RENAME TABLE {ChangesTable}_off TO {ChangesTable}");
+			}
+
+			Assert.Equal(1, Count(ChildrenTable, $"parent_id = {saveParentId}"));
+			Assert.Equal(3, Count(ChildrenTable, $"parent_id = {bulkParentId}"));
+			Assert.Equal(0, Count(EntitiesTable));
 		}
 
 		/// <summary>
-		/// H-13. Отмена токена при записи истории: откат, тип исключения не меняется.
+		/// H-13. Отмена токена во время вставки строк: откат, истории нет ни сразу, ни после коммита.
 		/// </summary>
 		[DatabaseFact]
-		public async Task BulkSqlInsertAsync_WhenCancelledDuringHistoryWrite_RollsBackAndKeepsExceptionType()
+		public async Task BulkSqlInsertAsync_WhenCancelledDuringInsert_NoHistory()
 		{
 			var parentId = CreateParent();
 			var uow = NewUow();
@@ -490,7 +489,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			{
 				SqlLog.BeforeCommand = command =>
 				{
-					if(IsInsertInto(command, EntitiesTable))
+					if(IsInsertInto(command, ChildrenTable))
 					{
 						cancellation.Cancel();
 					}
@@ -501,16 +500,18 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			}
 
 			SqlLog.BeforeCommand = null;
+			uow.Commit();
 
 			AssertNothingWritten(parentId);
 			Assert.Equal(0, Count(ChangeSetsTable));
 		}
 
 		/// <summary>
-		/// H-14. История тоже пишется пачками: число команд растёт с числом пачек, а не с числом строк.
+		/// H-14. История не ломает пакетность вставки: 2000 строк идут теми же пачками, ни одного отдельного INSERT на строку,
+		/// а записей истории ровно 2000.
 		/// </summary>
 		[DatabaseTheory, BothModes]
-		public async Task BulkSqlInsert_WhenManyRows_WritesHistoryInBatches(InsertMode mode)
+		public async Task BulkSqlInsert_WhenManyRows_KeepsInsertBatches(InsertMode mode)
 		{
 			const int count = 2000;
 
@@ -522,9 +523,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 
 			await Insert(mode, parent.Items, uow, NewChildren(count), 500);
 
-			var historyCommands = SqlLog.Inserts(ChangeSetsTable) + SqlLog.Inserts(EntitiesTable) + SqlLog.Inserts(ChangesTable);
-
-			Assert.InRange(historyCommands, 3, count / 20);
+			Assert.Equal(4, SqlLog.Inserts(ChildrenTable));
 
 			uow.Commit();
 
@@ -655,10 +654,10 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// H-21. Обычный Save в том же UoW: у него своя история через трекер, у массовой вставки своя, дублей нет.
+		/// H-21. Обычный Save в том же UoW: один набор изменений на коммит, в нём и обычная запись, и массовая вставка, дублей нет.
 		/// </summary>
 		[DatabaseTheory, BothModes]
-		public async Task BulkSqlInsert_WithOrdinarySaveInSameUow_NoDuplicates(InsertMode mode)
+		public async Task BulkSqlInsert_WithOrdinarySaveInSameUow_OneChangeSetWithoutDuplicates(InsertMode mode)
 		{
 			var parentId = CreateParent();
 			var uow = NewUow();
@@ -671,21 +670,41 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			uow.Commit();
 
 			Assert.Equal(4, Count(ChildrenTable, $"parent_id = {parentId}"));
+			Assert.Equal(1, Count(ChangeSetsTable));
 			Assert.Equal(4, Count(EntitiesTable, $"entity_class = '{nameof(HistoryChild)}'"));
 			Assert.Equal(ChildIds(parentId), Query($"SELECT entity_id FROM {EntitiesTable} ORDER BY entity_id").Select(int.Parse));
 		}
 
 		/// <summary>
-		/// H-22. Два вызова в одном UoW: по набору изменений на вызов.
+		/// H-22. Два вызова до одного коммита: один набор изменений, как у обычного Save.
 		/// </summary>
 		[DatabaseTheory, BothModes]
-		public async Task BulkSqlInsert_WhenCalledTwice_WritesChangeSetPerCall(InsertMode mode)
+		public async Task BulkSqlInsert_WhenCalledTwiceBeforeCommit_WritesOneChangeSet(InsertMode mode)
 		{
 			var parentId = CreateParent();
 			var uow = NewUow();
 			var parent = uow.GetById<HistoryParent>(parentId);
 
 			await Insert(mode, parent.Items, uow, NewChildren(2, "первый"));
+			await Insert(mode, parent.Items, uow, NewChildren(3, "второй"));
+			uow.Commit();
+
+			Assert.Equal(1, Count(ChangeSetsTable));
+			Assert.Equal(5, Count(EntitiesTable));
+		}
+
+		/// <summary>
+		/// H-22. Два коммита в одном UoW: по набору изменений на коммит, записи не повторяются.
+		/// </summary>
+		[DatabaseTheory, BothModes]
+		public async Task BulkSqlInsert_WhenCommittedTwice_WritesChangeSetPerCommit(InsertMode mode)
+		{
+			var parentId = CreateParent();
+			var uow = NewUow();
+			var parent = uow.GetById<HistoryParent>(parentId);
+
+			await Insert(mode, parent.Items, uow, NewChildren(2, "первый"));
+			uow.Commit();
 			await Insert(mode, parent.Items, uow, NewChildren(3, "второй"));
 			uow.Commit();
 
@@ -744,6 +763,110 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 
 			Assert.Equal(3, Count(ChildrenTable, $"parent_id = {parentId}"));
 			Assert.Equal(0, Count(EntitiesTable));
+		}
+
+		/// <summary>
+		/// H-25. История включена, а текущий пользователь не задан: исключение до записи.
+		/// Иначе строки закоммитились бы, а трекер упал бы уже после коммита.
+		/// </summary>
+		[DatabaseTheory, BothModes]
+		public async Task BulkSqlInsert_WhenHistoryEnabledAndNoCurrentUser_ThrowsBeforeWrite(InsertMode mode)
+		{
+			var parentId = CreateParent();
+			var uow = NewUow();
+			uow.OpenTransaction();
+			var parent = uow.GetById<HistoryParent>(parentId);
+			var currentUser = UserRepository.GetCurrentUserId;
+			UserRepository.GetCurrentUserId = null;
+			SqlLog.Clear();
+
+			try
+			{
+				await Assert.ThrowsAsync<InvalidOperationException>(() => Insert(mode, parent.Items, uow, NewChildren(2)));
+			}
+			finally
+			{
+				UserRepository.GetCurrentUserId = currentUser;
+			}
+
+			Assert.Equal(0, SqlLog.Writes());
+			Assert.True(uow.Session.GetCurrentTransaction()?.IsActive == true);
+		}
+
+		/// <summary>
+		/// H-25. Текущий пользователь не задан, но истории нет: сущность без атрибута или UoW без трекера вставляются как обычно.
+		/// </summary>
+		[DatabaseTheory, BothModes]
+		public async Task BulkSqlInsert_WhenNoCurrentUserAndNoHistoryNeeded_Inserts(InsertMode mode)
+		{
+			var parentId = CreateParent();
+			var currentUser = UserRepository.GetCurrentUserId;
+			UserRepository.GetCurrentUserId = null;
+
+			try
+			{
+				var uow = NewUow();
+				var parent = uow.GetById<HistoryParent>(parentId);
+				await Insert(mode, parent.NoHistoryItems, uow, new[] { new NoHistoryChild { Name = "без истории" } });
+				uow.Commit();
+
+				using(var untracked = _fixture.UntrackedUnitOfWorkFactory.CreateWithoutRoot(ActionTitle))
+				{
+					var untrackedParent = untracked.GetById<HistoryParent>(parentId);
+					await Insert(mode, untrackedParent.Items, untracked, NewChildren(1));
+					untracked.Commit();
+				}
+			}
+			finally
+			{
+				UserRepository.GetCurrentUserId = currentUser;
+			}
+
+			Assert.Equal(1, Count("history_test_no_history_children", $"parent_id = {parentId}"));
+			Assert.Equal(1, Count(ChildrenTable, $"parent_id = {parentId}"));
+			Assert.Equal(0, Count(EntitiesTable));
+		}
+
+		/// <summary>
+		/// H-26. Больше 10 000 записей: трекер пишет несколькими пакетами, записей ровно столько, сколько строк.
+		/// </summary>
+		[DatabaseFact]
+		public async Task BulkSqlInsert_WhenMoreThanTrackerBatch_WritesAllRecords()
+		{
+			const int count = 10001;
+
+			var parentId = CreateParent();
+			var uow = NewUow();
+			var parent = uow.GetById<HistoryParent>(parentId);
+
+			await Insert(InsertMode.Async, parent.Items, uow, NewChildren(count));
+			uow.Commit();
+
+			Assert.Equal(count, Count(EntitiesTable));
+			Assert.Equal(1, Count(ChangeSetsTable));
+		}
+
+		/// <summary>
+		/// H-27. Сам коммит упал из-за другой сущности: истории нет.
+		/// </summary>
+		[DatabaseTheory, BothModes]
+		public async Task BulkSqlInsert_WhenCommitFails_NoHistory(InsertMode mode)
+		{
+			var parentId = CreateParent();
+			CreateTag("занято");
+			var freeTagId = CreateTag("свободно");
+			var uow = NewUow();
+			var parent = uow.GetById<HistoryParent>(parentId);
+			var tag = uow.GetById<BulkTag>(freeTagId);
+
+			await Insert(mode, parent.Items, uow, NewChildren(3));
+
+			tag.Name = "занято";
+			uow.Save(tag);
+
+			Assert.ThrowsAny<Exception>(() => uow.Commit());
+			AssertNothingWritten(parentId);
+			Assert.Equal(0, Count(ChangeSetsTable));
 		}
 
 		/// <summary>
