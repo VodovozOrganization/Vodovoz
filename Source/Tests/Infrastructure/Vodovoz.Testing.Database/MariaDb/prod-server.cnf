@@ -1,0 +1,57 @@
+# Настройки тестового сервера MariaDB, влияющие на поведение SQL.
+# Сняты с основного рабочего сервера 30.10.2026: 11.2.5-MariaDB-log, Linux.
+# Обновляется одним коммитом вместе с MariaDbVersion при обновлении прода.
+# Память, логи, репликация, пути и пароли сюда не переносятся.
+
+[mysqld]
+sql_mode = STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+standard_compliant_cte = ON
+max_statement_time = 0
+
+transaction_isolation = REPEATABLE-READ
+autocommit = ON
+completion_type = NO_CHAIN
+innodb_snapshot_isolation = OFF
+innodb_lock_wait_timeout = 50
+lock_wait_timeout = 86400
+innodb_rollback_on_timeout = OFF
+
+innodb_autoinc_lock_mode = 1
+auto_increment_increment = 1
+auto_increment_offset = 1
+
+character_set_server = utf8mb4
+collation_server = utf8mb4_general_ci
+old_mode = UTF8_IS_UTF8MB3
+
+# На проде 0 (Linux). На Windows значение 0 недопустимо, поэтому 1. Известное отличие, см. [verify-warning].
+lower_case_table_names = 1
+
+explicit_defaults_for_timestamp = ON
+# На проде time_zone = SYSTEM, system_time_zone = MSK. Здесь явно, чтобы не зависеть от пояса агента сборки.
+default_time_zone = '+03:00'
+mysql56_temporal_format = ON
+lc_time_names = en_US
+default_week_format = 0
+
+max_allowed_packet = 134217728
+group_concat_max_len = 4096
+
+default_storage_engine = InnoDB
+innodb_strict_mode = ON
+innodb_default_row_format = dynamic
+
+div_precision_increment = 4
+
+# Переменные с нужным значением по умолчанию: их нельзя задать при старте, но значение сверяется.
+[verify]
+time_zone = +03:00
+foreign_key_checks = ON
+unique_checks = ON
+check_constraint_checks = ON
+sql_auto_is_null = OFF
+sql_safe_updates = OFF
+
+# Известные отличия от прода: при расхождении только предупреждение.
+[verify-warning]
+lower_case_table_names = 0
