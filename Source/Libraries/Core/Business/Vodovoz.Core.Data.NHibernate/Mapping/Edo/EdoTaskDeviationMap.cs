@@ -49,6 +49,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			Map(x => x.ResolveReason)
 				.Column("resolve_reason");
+
+			Map(x => x.RetryTime)
+				.Column("retry_time");
+			
+			Map(x => x.NotificationTime)
+				.Column("notification_time");
 		}
 	}
 }
