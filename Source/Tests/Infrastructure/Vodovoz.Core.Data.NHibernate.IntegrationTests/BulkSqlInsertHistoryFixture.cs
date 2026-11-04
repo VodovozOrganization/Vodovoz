@@ -79,6 +79,14 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 
 		public void EnableHistoryTracker() => SingleUowEventsTracker.RegisterSingleUowListnerFactory(_trackerFactory);
 
+		public override async Task InitializeAsync()
+		{
+			await base.InitializeAsync();
+
+			// В маппинге QS длина значений не задана, и схема из него дает varchar(255), а значение поля истории бывает длиннее
+			Database?.Execute("ALTER TABLE history_changes MODIFY old_value TEXT NULL, MODIFY new_value TEXT NULL");
+		}
+
 		public override async Task DisposeAsync()
 		{
 			if(_trackerFactory != null)

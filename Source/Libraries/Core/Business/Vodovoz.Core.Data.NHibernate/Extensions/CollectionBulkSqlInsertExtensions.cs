@@ -2,6 +2,7 @@
 using NHibernate.Collection;
 using NHibernate.Dialect;
 using NHibernate.Engine;
+using NHibernate.Event;
 using NHibernate.Id;
 using NHibernate.Persister.Collection;
 using NHibernate.Persister.Entity;
@@ -9,7 +10,10 @@ using NHibernate.Proxy;
 using NHibernate.SqlCommand;
 using NHibernate.SqlTypes;
 using NHibernate.Type;
+using QS.DomainModel.Tracking;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
+using QS.Project.Repositories;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -63,9 +67,14 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 	/// После этого UoW нужно закрыть: uow.Commit() молча ничего не сделает;</item>
 	/// <item>отмена токена после начала записи тоже откатывает транзакцию, но остается <see cref="OperationCanceledException"/>.</item>
 	/// </list>
+	/// <para>История изменений: после загрузки строк метод поднимает те же события PostInsert, что и NHibernate при обычном Save,
+	/// поэтому для сущностей с [HistoryTrace] историю записывает трекер QS: после коммита, отдельным соединением, одним набором изменений
+	/// на коммит вместе с остальными изменениями этого UoW. Если история в приложении не включена, ее нет, как и при обычном Save.
+	/// Если история включена, а текущий пользователь не задан, до начала записи бросается <see cref="InvalidOperationException"/>,
+	/// иначе трекер упал бы уже после коммита строк.</para>
 	/// <para>Важно:</para>
 	/// <list type="bullet">
-	/// <item>События NHibernate (PostInsert, история изменений [HistoryTrace]), каскады и SessionScopeEntitySaved для новых строк не срабатывают.</item>
+	/// <item>Каскады и SessionScopeEntitySaved для новых строк не срабатывают.</item>
 	/// <item>Переданные объекты не меняются и остаются транзиентными, после вставки работать нужно с элементами коллекции.</item>
 	/// <item>Повторная передача тех же объектов вставит строки еще раз: метод не отличает дубль от намеренной копии, за это отвечает вызывающий код.</item>
 	/// </list>
@@ -140,6 +149,9 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 
 				context.SetStage("сверка количества");
 				context.SynchronizeCollection(items, orderedIds);
+
+				context.SetStage("передача записей в трекер истории");
+				context.RaisePostInsertEvents();
 			}
 			catch(OperationCanceledException)
 			{
@@ -221,6 +233,9 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 
 				context.SetStage("сверка количества");
 				context.SynchronizeCollection(items, orderedIds);
+
+				context.SetStage("передача записей в трекер истории");
+				context.RaisePostInsertEvents();
 			}
 			catch(OperationCanceledException)
 			{
@@ -255,6 +270,8 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 		{
 			private static readonly PropertyInfo _uowTransactionProperty =
 				typeof(UnitOfWorkBase).GetProperty("transaction", BindingFlags.Instance | BindingFlags.NonPublic);
+			private static readonly FieldInfo _postInsertListenersField =
+				typeof(SingleUowEventsTracker).GetField("postInsertListeners", BindingFlags.Instance | BindingFlags.NonPublic);
 
 			private readonly ICollection<TItem> _collection;
 			private readonly IPersistentCollection _persistentCollection;
@@ -265,7 +282,9 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 			private readonly int _batchSize;
 			private readonly object _key;
 			private readonly Dictionary<AbstractEntityPersister, InsertPlan> _plans = new Dictionary<AbstractEntityPersister, InsertPlan>();
+			private readonly HibernateTracker _historyTracker;
 			private HashSet<TItem> _existingItems;
+			private IList<TItem> _loadedNewItems;
 			private string _stage;
 
 			private BulkInsertContext(
@@ -290,6 +309,7 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 				ParentLockMode = parentLockMode;
 				_newItems = newItems;
 				_batchSize = batchSize;
+				_historyTracker = FindHistoryTracker(uow);
 			}
 
 			public ISession Session { get; }
@@ -383,6 +403,7 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 					collection, persistentCollection, uow, collectionPersister, owner, key, parentLockMode, items, batchSize);
 
 				context.ValidateItems();
+				context.EnsureCurrentUserForHistory();
 				context.EnsureNoForeignTransaction();
 
 				return context;
@@ -481,14 +502,14 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 
 			public void SynchronizeCollection(IEnumerable<TItem> itemsFromDatabase, IList<object> orderedIds)
 			{
-				var loadedNewItems = itemsFromDatabase.Where(item => !_existingItems.Contains(item)).Distinct(ReferenceComparer.Instance).Cast<TItem>().ToList();
+				_loadedNewItems = itemsFromDatabase.Where(item => !_existingItems.Contains(item)).Distinct(ReferenceComparer.Instance).Cast<TItem>().ToList();
 
-				if(loadedNewItems.Count != _newItems.Count)
+				if(_loadedNewItems.Count != _newItems.Count)
 				{
-					throw new CountMismatchException($"Вставлено {_newItems.Count} строк, а загружено новых {loadedNewItems.Count}");
+					throw new CountMismatchException($"Вставлено {_newItems.Count} строк, а загружено новых {_loadedNewItems.Count}");
 				}
 
-				foreach(var item in loadedNewItems)
+				foreach(var item in _loadedNewItems)
 				{
 					_collection.Add(item);
 				}
@@ -506,12 +527,42 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 			}
 
 			/// <summary>
+			/// Поднимает для вставленных строк те же события PostInsert, что и NHibernate при обычном Save.
+			/// Значения берутся из загруженных сущностей, поэтому содержат и то, что заполнила БД
+			/// </summary>
+			public void RaisePostInsertEvents()
+			{
+				var listeners = _sessionImplementor.Listeners.PostInsertEventListeners;
+
+				if(listeners.Length == 0)
+				{
+					return;
+				}
+
+				var eventSource = (IEventSource)_sessionImplementor;
+
+				foreach(var item in _loadedNewItems)
+				{
+					var persister = _sessionImplementor.GetEntityPersister(null, item);
+					var postInsertEvent = new PostInsertEvent(item, persister.GetIdentifier(item), persister.GetPropertyValues(item), persister, eventSource);
+
+					foreach(var listener in listeners)
+					{
+						listener.OnPostInsert(postInsertEvent);
+					}
+				}
+			}
+
+			/// <summary>
 			/// Откатывает транзакцию UoW. Возвращает ошибку отката, чтобы она не подменила исходное исключение
 			/// </summary>
 			public Exception Rollback()
 			{
 				try
 				{
+					// Строки откатываются, поэтому записи истории о них в трекере оставлять нельзя
+					_historyTracker?.Reset();
+
 					var transaction = Session.GetCurrentTransaction();
 
 					if(transaction?.IsActive == true)
@@ -531,6 +582,9 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 			{
 				try
 				{
+					// Строки откатываются, поэтому записи истории о них в трекере оставлять нельзя
+					_historyTracker?.Reset();
+
 					var transaction = Session.GetCurrentTransaction();
 
 					if(transaction?.IsActive == true)
@@ -710,6 +764,40 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 
 					plan.ValidateItem(item, _key);
 				}
+			}
+
+			/// <summary>
+			/// Трекер истории этого UoW. Если его нет, история в приложении не включена, как и для обычного Save.
+			/// У <see cref="SingleUowEventsTracker"/> нет способа узнать подключенных слушателей
+			/// </summary>
+			private static HibernateTracker FindHistoryTracker(IUnitOfWork uow)
+			{
+				var eventsTracker = (uow as UnitOfWorkBase)?.EventsTracker;
+
+				if(eventsTracker == null)
+				{
+					return null;
+				}
+
+				var listeners = (IEnumerable<IUowPostInsertEventListener>)_postInsertListenersField.GetValue(eventsTracker);
+
+				return listeners.OfType<HibernateTracker>().FirstOrDefault();
+			}
+
+			/// <summary>
+			/// Трекер берет текущего пользователя уже после коммита строк, поэтому его отсутствие нужно обнаружить до записи
+			/// </summary>
+			private void EnsureCurrentUserForHistory()
+			{
+				if(_historyTracker == null
+					|| UserRepository.GetCurrentUserId != null
+					|| !_plans.Keys.Any(persister => HibernateTracker.NeedTrace(persister.MappedClass)))
+				{
+					return;
+				}
+
+				throw new InvalidOperationException(
+					"История изменений включена, но текущий пользователь не задан (UserRepository.GetCurrentUserId). Без него историю записать нельзя");
 			}
 
 			/// <summary>
