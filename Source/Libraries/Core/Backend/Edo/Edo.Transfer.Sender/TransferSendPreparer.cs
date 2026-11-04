@@ -90,11 +90,21 @@ namespace Edo.Transfer.Sender
 
 			try
 			{
-				if(!await CreateTransferOrder(transferEdoTask, cancellationToken))
+				var isCreated = await CreateTransferOrder(transferEdoTask, cancellationToken);
+
+				if(!isCreated)
 				{
+					// Проблема зарегистрирована, а UoW задачи уже закрыт регистратором
 					return;
 				}
+
 				transferEdoTask.TransferStatus = EdoTransferTaskStage.ReadyToSend;
+			}
+			catch(BulkSqlInsertException ex)
+			{
+				// Массовая вставка уже откатила всю транзакцию UoW, продолжать на нем нельзя
+				_logger.LogError(ex, "Ошибка массовой вставки кодов заказа по задаче на трансфер Id {TransferEdoTaskId}", transferEdoTaskId);
+				throw;
 			}
 			catch(EdoProblemException ex)
 			{
@@ -103,6 +113,7 @@ namespace Edo.Transfer.Sender
 				{
 					throw;
 				}
+
 				return;
 			}
 			catch(Exception ex)
@@ -112,6 +123,7 @@ namespace Edo.Transfer.Sender
 				{
 					throw;
 				}
+
 				return;
 			}
 
@@ -126,6 +138,10 @@ namespace Edo.Transfer.Sender
 			await _uow.CommitAsync(cancellationToken);
 		}
 
+		/// <summary>
+		/// Создает заказ по перемещению с кодами
+		/// </summary>
+		/// <returns>false, если зарегистрирована проблема: UoW задачи при этом уже закрыт и работать с ним нельзя</returns>
 		private async Task<bool> CreateTransferOrder(TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
 		{
 			if(transferEdoTask.Upd != null)
