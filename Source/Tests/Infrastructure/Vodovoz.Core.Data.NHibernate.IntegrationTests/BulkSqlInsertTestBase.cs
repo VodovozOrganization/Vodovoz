@@ -6,54 +6,15 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Data.NHibernate.IntegrationTests.Domain;
 using Vodovoz.Testing.Database;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 {
-	public enum InsertMode
-	{
-		Sync,
-		Async
-	}
-
-	/// <summary>
-	/// Запускает тест для обоих методов: BulkSqlInsert и BulkSqlInsertAsync.
-	/// </summary>
-	public sealed class BothModesAttribute : DataAttribute
-	{
-		public override IEnumerable<object[]> GetData(MethodInfo testMethod)
-		{
-			yield return new object[] { InsertMode.Sync };
-			yield return new object[] { InsertMode.Async };
-		}
-	}
-
-	/// <summary>
-	/// Общая база и схема из тестовых маппингов.
-	/// </summary>
-	public class BulkSqlInsertFixture : MariaDbFixture
-	{
-		protected override string DatabaseName => "bulk";
-
-		protected override Assembly[] MappingAssemblies => new[] { typeof(BulkParentMap).Assembly };
-	}
-
-	/// <summary>
-	/// Тесты с БД идут последовательно: журнал SQL и глобальные настройки сервера общие.
-	/// </summary>
-	[CollectionDefinition(Name, DisableParallelization = true)]
-	public class BulkSqlInsertCollection : ICollectionFixture<BulkSqlInsertFixture>
-	{
-		public const string Name = "BulkSqlInsert";
-	}
-
 	/// <summary>
 	/// Общее для тестов с БД: подготовка данных, вызов метода, проверка «ничего не изменилось».
 	/// </summary>

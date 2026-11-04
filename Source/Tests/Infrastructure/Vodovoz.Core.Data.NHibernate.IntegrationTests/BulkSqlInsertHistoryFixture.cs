@@ -15,7 +15,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.IntegrationTests.Domain;
 using Vodovoz.Testing.Database;
-using Xunit;
 
 namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 {
@@ -99,14 +98,5 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 
 			await base.DisposeAsync();
 		}
-	}
-
-	/// <summary>
-	/// Тесты истории идут последовательно: журнал SQL и текущий пользователь общие.
-	/// </summary>
-	[CollectionDefinition(Name, DisableParallelization = true)]
-	public class BulkSqlInsertHistoryCollection : ICollectionFixture<BulkSqlInsertHistoryFixture>
-	{
-		public const string Name = "BulkSqlInsertHistory";
 	}
 }
