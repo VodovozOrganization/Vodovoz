@@ -78,14 +78,13 @@ namespace Transfer.Sender.Tests
 		}
 
 		/// <summary>
-		/// Ошибка массовой вставки проходит до верха: проблема не регистрируется, сохранения, события и коммита нет.
+		/// Ошибка массовой вставки идет общим путем: источника проблемы для нее нет, поэтому она проходит до верха без сохранения, события и коммита.
 		/// </summary>
 		[Fact]
 		public async Task PrepareSendAsync_WhenBulkSqlInsertFailed_RethrowsWithoutContinuing()
 		{
 			var failure = new BulkSqlInsertException("Ошибка массовой вставки");
 			CreateTransferOrderThrows(failure);
-			_registrar.RegisterAnyException = true;
 
 			var exception = await Assert.ThrowsAsync<BulkSqlInsertException>(() => _preparer.PrepareSendAsync(_taskId, CancellationToken.None));
 

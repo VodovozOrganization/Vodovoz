@@ -100,12 +100,6 @@ namespace Edo.Transfer.Sender
 
 				transferEdoTask.TransferStatus = EdoTransferTaskStage.ReadyToSend;
 			}
-			catch(BulkSqlInsertException ex)
-			{
-				// Массовая вставка уже откатила всю транзакцию UoW, продолжать на нем нельзя
-				_logger.LogError(ex, "Ошибка массовой вставки кодов заказа по задаче на трансфер Id {TransferEdoTaskId}", transferEdoTaskId);
-				throw;
-			}
 			catch(EdoProblemException ex)
 			{
 				var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(transferEdoTask, ex, cancellationToken);
