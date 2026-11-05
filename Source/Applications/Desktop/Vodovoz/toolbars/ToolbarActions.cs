@@ -190,6 +190,7 @@ public partial class MainWindow : Window
 	//Честный знак
 	Action ActionCodesPool;
 	Action ActionEdoProcessJournal;
+	Action ActionEdoUpdJournal;
 	Action ActionEdoDiscrepancyJournal;
 	Action ActionEdoProblemJournal;
 	Action ActionEdoDeviationJournal;
@@ -315,6 +316,7 @@ public partial class MainWindow : Window
 		//Честный знак
 		ActionCodesPool = new Action("ActionCodesPool", "Пул кодов маркировки", null, "table");
 		ActionEdoProcessJournal = new Action("ActionEdoProcessJournal", "Документооброт с клиентами", null, "table");
+		ActionEdoUpdJournal = new Action("ActionEdoUpdJournal", "Журнал ЭДО УПД", null, "table");
 		ActionEdoDiscrepancyJournal = new Action("ActionEdoDiscrepancyJournal", "Журнал расхождений документооборота", null, "table");
 		ActionEdoProblemJournal = new Action("ActionEdoProblemJournal", "Журнал проблем документооборота с клиентами", null, "table");
 		ActionEdoDeviationJournal = new Action("ActionEdoDeviationJournal", "Журнал отклонений документооборота ЭДО", null, "table");
@@ -442,6 +444,7 @@ public partial class MainWindow : Window
 		//Честный знак
 		w1.Add(ActionCodesPool, null);
 		w1.Add(ActionEdoProcessJournal, null);
+		w1.Add(ActionEdoUpdJournal, null);
 		w1.Add(ActionEdoDiscrepancyJournal, null);
 		w1.Add(ActionEdoProblemJournal, null);
 		w1.Add(ActionEdoDeviationJournal, null);
@@ -565,6 +568,7 @@ public partial class MainWindow : Window
 		//Честный знак
 		ActionCodesPool.Activated += OnActionCodesPoolActivated;
 		ActionEdoProcessJournal.Activated += OnActionEdoProcessJournalActivated;
+		ActionEdoUpdJournal.Activated += OnActionEdoUpdJournalActivated;
 		ActionEdoDiscrepancyJournal.Activated += OnActionEdoDiscrepancyJournalActivated;
 		ActionEdoProblemJournal.Activated += OnActionEdoProblemJournalActivated;
 		ActionEdoDeviationJournal.Activated += OnActionEdoDeviationJournalActivated;

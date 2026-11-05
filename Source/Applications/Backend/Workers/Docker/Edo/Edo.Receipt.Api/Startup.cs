@@ -11,6 +11,8 @@ using ModulKassa;
 using NLog.Web;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace Edo.Receipt.Api
 {
@@ -51,7 +53,8 @@ namespace Edo.Receipt.Api
 				.AddMessageTransportSettings()
 				;
 
-			services.AddReceiptCallback();
+			// Outbox MassTransit: событие сохраняется вместе с чеком при коммите UoW запроса
+			services.AddReceiptCallback(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs));
 
 			services.Configure<CashboxesSetting>(Configuration);
 

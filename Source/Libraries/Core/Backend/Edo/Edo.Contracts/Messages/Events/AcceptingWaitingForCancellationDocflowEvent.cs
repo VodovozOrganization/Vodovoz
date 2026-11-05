@@ -1,12 +1,9 @@
-﻿using TransactionalOutbox.Contracts;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
-
-namespace Edo.Contracts.Messages.Events
+﻿namespace Edo.Contracts.Messages.Events
 {
 	/// <summary>
 	/// Событие для подписания входящего документооборота
 	/// </summary>
-	public class AcceptingWaitingForCancellationDocflowEvent : IIdempotentOutboxMessage
+	public class AcceptingWaitingForCancellationDocflowEvent
 	{
 		public const string Event = "accepting-waiting-for-cancellation-docflow-event";
 
@@ -19,18 +16,5 @@ namespace Edo.Contracts.Messages.Events
 		/// Id документооборота
 		/// </summary>
 		public string DocFlowId { get; set; }
-
-		public int GetAggregateId()
-		{
-			return DocFlowId.GetHashCode();
-		}
-
-		public string GetDeduplicationKey()
-		{
-			return $"Event={Event}" +
-			$"AggregateId={GetAggregateId()}" +
-			$"EdoAccount={EdoAccount}" +
-			$":{nameof(AcceptingWaitingForCancellationDocflowEvent)}";
-		}
 	}
 }

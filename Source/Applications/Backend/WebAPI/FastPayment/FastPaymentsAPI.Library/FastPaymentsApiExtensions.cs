@@ -8,7 +8,7 @@ using FastPaymentsAPI.Library.Settings;
 using FastPaymentsAPI.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Notifications.Infrastructure;
-using TransactionalOutbox.Abstractions;
+using Notifications.Core;
 using Vodovoz.Core.Application;
 using Vodovoz.Core.Data.NHibernate.Repositories.Cash;
 using Vodovoz.Core.Data.Repositories.Cash;
@@ -74,10 +74,10 @@ namespace FastPaymentsAPI.Library
 
 				// Уведомления клиентов
 
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, MappingOutboxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<INotificationPublisher<CustomerNotificationDomainEvent>, NotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-				.AddCustomerNotificationsSettingsProvider();
-			;
+				.AddCustomerNotificationsSettingsProvider()
+				.AddNotificationBusNotHosted();
 
 			return services;
 		}

@@ -1,9 +1,7 @@
 ﻿using QS.DomainModel.Entity;
-using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Domain.Documents
 {
@@ -23,7 +21,6 @@ namespace Vodovoz.Core.Domain.Documents
 		private int? _orderId;
 		private bool _isIndividualSetForOrder;
 		private NomenclatureEntity _nomenclature;
-		private IObservableList<CarLoadDocumentItemTrueMarkProductCode> _trueMarkCodes = new ObservableList<CarLoadDocumentItemTrueMarkProductCode>();
 
 		/// <summary>
 		/// Идентификатор<br/>
@@ -98,16 +95,6 @@ namespace Vodovoz.Core.Domain.Documents
 			get => _nomenclature;
 			//Нельзя устанавливать, см. логику в CarLoadDocumentItem.cs
 			protected set => SetField(ref _nomenclature, value);
-		}
-
-		/// <summary>
-		/// Коды ЧЗ товаров, которые относятся к строке талона погрузки
-		/// </summary>
-		[Display(Name = "Коды ЧЗ товаров")]
-		public virtual IObservableList<CarLoadDocumentItemTrueMarkProductCode> TrueMarkCodes
-		{
-			get => _trueMarkCodes;
-			set => SetField(ref _trueMarkCodes, value);
 		}
 	}
 }

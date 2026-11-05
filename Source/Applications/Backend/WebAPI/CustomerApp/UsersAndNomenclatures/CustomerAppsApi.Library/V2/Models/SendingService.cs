@@ -121,7 +121,8 @@ namespace CustomerAppsApi.Library.V2.Models
 
 			if(!isDryRun)
 			{
-				_publishEndpoint.Publish(sendEmailMessage);
+				_publishEndpoint.Publish(sendEmailMessage).GetAwaiter().GetResult();
+				_unitOfWork.Commit();
 			}
 
 			return Result.Success();
@@ -147,7 +148,6 @@ namespace CustomerAppsApi.Library.V2.Models
 			{
 				_unitOfWork.Save(authorizationCodeEmail.StoredEmail);
 				_unitOfWork.Save(authorizationCodeEmail);
-				_unitOfWork.Commit();
 			}
 		}
 	}

@@ -95,6 +95,12 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		/// Напоминание о необходимости принятия УПД
 		/// </summary>
 		[Display(Name = "Напоминание о необходимости принятия УПД")]
-		ReminderToAcceptUpd
+		ReminderToAcceptUpd,
+
+		/// <summary>
+		/// Напоминание об оплате сетям и тендерным клиентам
+		/// </summary>
+		[Display(Name = "Напоминание об оплате (сети/тендеры)")]
+		ChainStoreDelayLetter
 	}
 }

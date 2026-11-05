@@ -21,6 +21,12 @@ namespace EmailSend.Library.Handlers
 		private readonly ILogger<SendEmailMessageHandler> _logger;
 		private readonly IEmailMessageFactory _emailMessageFactory;
 		private readonly IEmailSendService _emailSendService;
+		// IBus напрямую, без outbox: обработчик не работает с БД, он только отправляет письмо через Mailganer
+		// и публикует его статус. Если брокер недоступен, статус не дойдёт (ошибка пишется в лог),
+		// а повторная доставка сообщения может отправить письмо дважды.
+		// Outbox и защиту от повторов удобнее сделать после перехода на один vhost: исчезнет вторая шина IEmailSendBus,
+		// а старый обработчик без MassTransit (класс EmailSendWorker) удаляется после релиза — см. пометку в EmailSendWorker/Program.cs.
+		// Тогда останутся один потребитель и одна шина: AddVodovozOutbox(OutboxBusNames.Email) и IPublishEndpoint вместо IBus
 		private readonly IBus _messageBus;
 
 		public SendEmailMessageHandler(
@@ -71,7 +77,7 @@ namespace EmailSend.Library.Handlers
 						email.To,
 						message.Payload.Id);
 
-					PublishStoredEmailStatusUpdateMessage(
+					await PublishStoredEmailStatusUpdateMessage(
 						message.Payload.Id,
 						MailEventType.sent,
 						string.Empty);
@@ -86,7 +92,7 @@ namespace EmailSend.Library.Handlers
 						message.Payload.Id,
 						sendMessageResult.GetErrorsString());
 
-					PublishStoredEmailStatusUpdateMessage(
+					await PublishStoredEmailStatusUpdateMessage(
 						message.Payload.Id,
 						MailEventType.bounce,
 						errors);
@@ -136,7 +142,7 @@ namespace EmailSend.Library.Handlers
 			return Result.Failure(new Error(string.Empty, $"SendWorker unable to send message to MailGaner. MessagePayloadId: {messagePayloadId}"));
 		}
 
-		private void PublishStoredEmailStatusUpdateMessage(
+		private Task PublishStoredEmailStatusUpdateMessage(
 			int messagePayloadId,
 			MailEventType mailEventType,
 			string errorInfo)
@@ -149,10 +155,13 @@ namespace EmailSend.Library.Handlers
 				RecievedAt = DateTime.Now
 			};
 
-			PublishStoredEmailStatusUpdateMessage(statusUpdateMessage);
+			return PublishStoredEmailStatusUpdateMessage(statusUpdateMessage);
 		}
 
-		private void PublishStoredEmailStatusUpdateMessage(UpdateStoredEmailStatusMessage message)
+		/// <remarks>
+		/// Ошибка публикации не пробрасывается: письмо уже отправлено, повтор обработки отправил бы его ещё раз
+		/// </remarks>
+		private async Task PublishStoredEmailStatusUpdateMessage(UpdateStoredEmailStatusMessage message)
 		{
 			try
 			{
@@ -161,7 +170,7 @@ namespace EmailSend.Library.Handlers
 					message.EventPayload.Id,
 					message.Status);
 
-				_messageBus.Publish(message);
+				await _messageBus.Publish(message);
 
 				_logger.LogInformation(
 					"Email status update message published successfully. MessagePayloadId: {MessagePayloadId}, Status: {Status}",

@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using TaxcomEdo.Client;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Rules.Edo;
 
 namespace Edo.Docflow.Taxcom
 {
@@ -35,21 +36,35 @@ namespace Edo.Docflow.Taxcom
 
 		public async Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event, CancellationToken cancellationToken)
 		{
+			var task = await _uow.Session.GetAsync<EdoTask>(@event.EdoTaskId, cancellationToken);
+			if(task?.TaskType == EdoTaskType.Transfer
+				&& TransferEdoTaskCancellationRule.IsCancelledOrCancelling(task.Status))
+			{
+				_logger.LogInformation(
+					"Отправка документа {DocumentId} пропущена: задача трансфера {TransferTaskId} имеет статус {Status}",
+					@event.EdoOutgoingDocumentId, task.Id, task.Status);
+				return;
+			}
+
+			if(await IsDocumentAlreadySentAsync(@event.EdoOutgoingDocumentId, cancellationToken))
+			{
+				_logger.LogWarning(
+					"Документ ЭДО {EdoDocumentId} уже отправлен в Такском, повторное событие отправки пропущено",
+					@event.EdoOutgoingDocumentId);
+				return;
+			}
+
 			var now = DateTime.Now;
-			
+
 			var taxcomDocflow = new TaxcomDocflow
 			{
 				CreationTime = now,
 				MainDocumentId = @event.UpdInfo.DocumentId.ToString(),
 				DocflowId = null,
 				EdoDocumentId = @event.EdoOutgoingDocumentId,
-			};
-			
-			taxcomDocflow.Actions.Add(new TaxcomDocflowAction
-			{
 				DocFlowState = EdoDocFlowStatus.NotStarted,
-				Time = now
-			});
+				StateChangeTime = now
+			};
 			
 			await _uow.SaveAsync(taxcomDocflow, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
@@ -61,15 +76,11 @@ namespace Edo.Docflow.Taxcom
 				var error = result.Errors.First();
 				var customErrorMessage = $"{error.Code}: {error.Message}";
 
-				var newAction = new TaxcomDocflowAction
-				{
-					DocFlowState = EdoDocFlowStatus.Error,
-					Time = DateTime.Now,
-					TaxcomDocflowId = taxcomDocflow.Id,
-					ErrorMessage = $"Не удалось отправить УПД на сервер Такском: {customErrorMessage}"
-				};
+				taxcomDocflow.DocFlowState = EdoDocFlowStatus.Error;
+				taxcomDocflow.StateChangeTime = DateTime.Now;
+				taxcomDocflow.ErrorMessage = $"Не удалось отправить УПД на сервер Такском: {customErrorMessage}";
 				
-				await _uow.SaveAsync(newAction, cancellationToken: cancellationToken);
+				await _uow.SaveAsync(taxcomDocflow, cancellationToken: cancellationToken);
 				await _uow.CommitAsync(cancellationToken);				
 
 				await _edoProblemRegistrar.RegisterCustomProblem<TaxcomDocumentSendingFail>(@event.EdoTaskId, cancellationToken, customErrorMessage);
@@ -85,21 +96,25 @@ namespace Edo.Docflow.Taxcom
 
 		public async Task CreateTaxcomDocflowInformalDocument(TaxcomDocflowInformalDocumentSendEvent @event, CancellationToken cancellationToken)
 		{
+			if(await IsDocumentAlreadySentAsync(@event.EdoOutgoingDocumentId, cancellationToken))
+			{
+				_logger.LogWarning(
+					"Неформализованный документ ЭДО {EdoDocumentId} уже отправлен в Такском, повторное событие отправки пропущено",
+					@event.EdoOutgoingDocumentId);
+				return;
+			}
+
 			var now = DateTime.Now;
-			
+
 			var taxcomDocflow = new TaxcomDocflow
 			{
 				CreationTime = now,
 				MainDocumentId = @event.DocumentInfo.MainDocumentId.ToString(),
 				DocflowId = null,
 				EdoDocumentId = @event.EdoOutgoingDocumentId,
-			};
-			
-			taxcomDocflow.Actions.Add(new TaxcomDocflowAction
-			{
 				DocFlowState = EdoDocFlowStatus.NotStarted,
-				Time = now
-			});
+				StateChangeTime = now
+			};
 			
 			await _uow.SaveAsync(taxcomDocflow, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
@@ -111,26 +126,49 @@ namespace Edo.Docflow.Taxcom
 				var error = result.Errors.First();
 				var customErrorMessage = $"{error.Code}: {error.Message}";
 
-				var newAction = new TaxcomDocflowAction
-				{
-					DocFlowState = EdoDocFlowStatus.Error,
-					Time = DateTime.Now,
-					TaxcomDocflowId = taxcomDocflow.Id,
-					ErrorMessage = $"Не удалось отправить неформализованный документ заказа на сервер Такском: {customErrorMessage}"
-				};
+				taxcomDocflow.DocFlowState = EdoDocFlowStatus.Error;
+				taxcomDocflow.StateChangeTime = DateTime.Now;
+				taxcomDocflow.ErrorMessage = $"Не удалось отправить неформализованный документ заказа на сервер Такском: {customErrorMessage}";
 
-				await _uow.SaveAsync(newAction, cancellationToken: cancellationToken);
+				await _uow.SaveAsync(taxcomDocflow, cancellationToken: cancellationToken);
 				await _uow.CommitAsync(cancellationToken);
 
 				await _edoProblemRegistrar.RegisterCustomProblem<TaxcomDocumentSendingFail>(@event.EdoTaskId, cancellationToken, customErrorMessage);
 			}
 		}
 
+		/// <summary>
+		/// Документ уже отправлен в Такском: у этого документа (EdoOutgoingDocumentId) есть документооборот,
+		/// последняя попытка которого не завершилась ошибкой. Так повторная доставка события отправки
+		/// не отправляет тот же документ клиенту второй раз.
+		/// Не блокирует:
+		/// <list type="bullet">
+		/// <item>переотправку после ошибки (рутина проблем Такском) — последняя попытка с ошибкой;</item>
+		/// <item>ручную переотправку из десктопа — она создаёт новую заявку, задачу и новый документ
+		/// (старый аннулируется), у нового документа документооборотов ещё нет.</item>
+		/// </list>
+		/// </summary>
+		private async Task<bool> IsDocumentAlreadySentAsync(int edoDocumentId, CancellationToken cancellationToken)
+		{
+			var docflows = await _uow.Session.QueryOver<TaxcomDocflow>()
+				.Where(x => x.EdoDocumentId == edoDocumentId)
+				.ListAsync(cancellationToken);
+
+			return docflows.Any(x => x.DocFlowState != EdoDocFlowStatus.Error);
+		}
+
 		public async Task SendOfferCancellation(
-			TaxcomDocflowRequestCancellationEvent @event, 
+			TaxcomDocflowRequestCancellationEvent @event,
 			CancellationToken cancellationToken
 			)
 		{
+			if(@event.LegacyBillDocflowId.HasValue)
+			{
+				await _taxcomApiClient.SendOfferCancellation(
+					@event.LegacyBillDocflowId.Value.ToString(), @event.CancellationReason, cancellationToken);
+				return;
+			}
+
 			var docflow = await _uow.Session.QueryOver<TaxcomDocflow>()
 				.Where(x => x.EdoDocumentId == @event.DocumentId)
 				.Where(x => x.DocflowId != null)
@@ -165,8 +203,7 @@ namespace Edo.Docflow.Taxcom
 		public async Task<EdoDocflowUpdatedEvent> UpdateOutgoingTaxcomDocFlow(
 			OutgoingTaxcomDocflowUpdatedEvent @event, CancellationToken cancellationToken = default)
 		{
-			var taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
-				.SingleOrDefault(x => x.MainDocumentId == @event.MainDocumentId);
+			var taxcomDocflow = FindTaxcomDocflow(@event.DocFlowId, @event.MainDocumentId);
 
 			if(taxcomDocflow is null)
 			{
@@ -177,7 +214,6 @@ namespace Edo.Docflow.Taxcom
 			}
 
 			taxcomDocflow.DocflowId = @event.DocFlowId;
-			var lastAction = taxcomDocflow.Actions.LastOrDefault();
 			var newStatus = @event.Status.TryParseAsEnum<EdoDocFlowStatus>();
 			var newTraceabilityStatus = @event.TrueMarkTraceabilityStatus.TryParseAsEnum<TrueMarkTraceabilityStatus>();
 
@@ -188,32 +224,31 @@ namespace Edo.Docflow.Taxcom
 
 			EdoDocflowUpdatedEvent edoDocflowUpdatedEvent = null;
 
-			if(lastAction is null
-				|| lastAction.DocFlowState != newStatus.Value
-				|| lastAction.TrueMarkTraceabilityStatus != newTraceabilityStatus)
-			{
-				var newAction = new TaxcomDocflowAction
-				{
-					DocFlowState = newStatus.Value,
-					Time = @event.StatusChangeDateTime,
-					TaxcomDocflowId = taxcomDocflow.Id,
-					ErrorMessage = @event.ErrorDescription,
-					TrueMarkTraceabilityStatus = newTraceabilityStatus
-				};
+			var statusChanged = taxcomDocflow.DocFlowState != newStatus.Value
+				|| taxcomDocflow.TrueMarkTraceabilityStatus != newTraceabilityStatus;
+			var receiveChanged = taxcomDocflow.IsReceived != @event.IsReceived;
 
-				taxcomDocflow.Actions.Add(newAction);
+			if(statusChanged || receiveChanged)
+			{
+				if(statusChanged)
+				{
+					taxcomDocflow.DocFlowState = newStatus.Value;
+					taxcomDocflow.StateChangeTime = @event.StatusChangeDateTime;
+					taxcomDocflow.ErrorMessage = @event.ErrorDescription;
+					taxcomDocflow.TrueMarkTraceabilityStatus = newTraceabilityStatus;
+				}
 				taxcomDocflow.IsReceived = @event.IsReceived;
 
 				edoDocflowUpdatedEvent = new EdoDocflowUpdatedEvent
 				{
 					EdoDocumentId = taxcomDocflow.EdoDocumentId,
 					DocFlowId = @event.DocFlowId,
-					DocFlowStatus = newAction.DocFlowState.ToString(),
-					TrueMarkTraceabilityStatus = newAction.TrueMarkTraceabilityStatus?.ToString(),
+					DocFlowStatus = taxcomDocflow.DocFlowState.ToString(),
+					TrueMarkTraceabilityStatus = taxcomDocflow.TrueMarkTraceabilityStatus?.ToString(),
 					IsReceived = @event.IsReceived
 				};
 
-				if(newAction.DocFlowState == EdoDocFlowStatus.Succeed)
+				if(taxcomDocflow.DocFlowState == EdoDocFlowStatus.Succeed)
 				{
 					edoDocflowUpdatedEvent.StatusChangeTime = @event.StatusChangeDateTime;
 					//TODO если нужно сохранять файлы по завершению документооборота,
@@ -243,23 +278,19 @@ namespace Edo.Docflow.Taxcom
 		public async Task AcceptIngoingTaxcomEdoDocFlowWaitingForSignature(
 			AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent @event, CancellationToken cancellationToken = default)
 		{
-			var taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
-				.SingleOrDefault(x => x.MainDocumentId == @event.MainDocumentId);
+			var taxcomDocflow = FindTaxcomDocflow(@event.DocFlowId, @event.MainDocumentId)
+				?? _uow.Session.Query<TaxcomDocflow>()
+					.Where(x => x.MainDocumentId == @event.MainDocumentId)
+					.OrderByDescending(x => x.CreationTime).ThenByDescending(x => x.Id)
+					.FirstOrDefault();
 
 			if(taxcomDocflow is null)
 			{
-				_logger.LogWarning("Не нашли отправку с таким документом {ExternalIdentifier}. Попробуем найти по ДО {DocflowId}",
+				_logger.LogWarning("Не нашли отправку для документа {ExternalIdentifier} и документооборота {DocflowId}",
 					@event.MainDocumentId,
 					@event.DocFlowId);
 				
-				taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
-					.SingleOrDefault(x => x.DocflowId == @event.DocFlowId);
-
-				if(taxcomDocflow is null)
-				{
-					_logger.LogWarning("Не нашли отправку с таким ДО {DocflowId}", @event.DocFlowId);
-					return;
-				}
+				return;
 			}
 			
 			if(taxcomDocflow.AcceptingIngoingDocflowTime.HasValue
@@ -291,6 +322,26 @@ namespace Edo.Docflow.Taxcom
 			}
 		}
 		
+		private TaxcomDocflow FindTaxcomDocflow(Guid? docflowId, string mainDocumentId)
+		{
+			if(docflowId.HasValue)
+			{
+				var knownDocflow = _uow.Session.Query<TaxcomDocflow>()
+					.Where(x => x.DocflowId == docflowId)
+					.OrderByDescending(x => x.CreationTime).ThenByDescending(x => x.Id)
+					.FirstOrDefault();
+				if(knownDocflow != null)
+				{
+					return knownDocflow;
+				}
+			}
+
+			return _uow.Session.Query<TaxcomDocflow>()
+				.Where(x => x.MainDocumentId == mainDocumentId && x.DocflowId == null)
+				.OrderByDescending(x => x.CreationTime).ThenByDescending(x => x.Id)
+				.FirstOrDefault();
+		}
+
 		private async Task SaveTaxcomDocflow(TaxcomDocflow taxcomDocflow)
 		{
 			_logger.LogInformation(

@@ -285,7 +285,7 @@ namespace Vodovoz.ViewModels.AdministrationTools.OrdersLoadTesting
 				SetAccessibleProperty(orderItem, nameof(OrderItem.Order), order);
 				SetAccessibleProperty(orderItem, nameof(OrderItem.Nomenclature), nomenclature);
 				SetAccessibleProperty(orderItem, nameof(OrderItem.Count), (decimal)bottlesCount);
-				SetAccessibleProperty(orderItem, nameof(OrderItem.Price), price);
+				SetAccessibleProperty(orderItem, nameof(OrderItem.Price), price.Price);
 				// Без ObservableOrderItems.Add — иначе UpdateDocuments → запрос flyers на том же соединении.
 				order.OrderItems.Add(orderItem);
 

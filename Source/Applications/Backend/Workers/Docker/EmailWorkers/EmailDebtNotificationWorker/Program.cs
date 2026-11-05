@@ -2,6 +2,7 @@
 using BitrixApi.Library.Services;
 using Email.Infrastructure.Factories;
 using EmailDebtNotificationWorker.Options;
+using EmailDebtNotificationWorker.Services.ChainStoreDelayLetters;
 using EmailDebtNotificationWorker.Services.ClaimLetters;
 using EmailDebtNotificationWorker.Services.ClosingDeliveries;
 using EmailDebtNotificationWorker.Services.Common;
@@ -36,6 +37,8 @@ using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Services.Orders;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
 using Email.Infrastructure;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace EmailDebtNotificationWorker
 {
@@ -97,6 +100,8 @@ namespace EmailDebtNotificationWorker
 							var transportSettings = new ConfigTransportSettings();
 							hostContext.Configuration.Bind("MessageBroker", transportSettings);
 
+							busConf.AddVodovozOutbox(OutboxBusNames.Email);
+
 							busConf.ConfigureRabbitMq((rabbitMq, context) =>
 							{
 								rabbitMq.AddSendEmailMessageTopology(context);
@@ -115,6 +120,11 @@ namespace EmailDebtNotificationWorker
 					services.AddScoped<IEmailBodyGenerator, EmailBodyGenerator>();
 					services.AddScoped<IEmailDebtNotificationService, EmailDebtNotificationService>();
 					services.AddHostedService<EmailDebtNotificationWorker>();
+
+					services
+						.ConfigureOptions<ConfigureChainStoreDelayLettersOptions>()
+						.AddScoped<IChainStoreDelayLettersService, ChainStoreDelayLettersService>()
+						.AddHostedService<ChainStoreDelayLettersWorker>();
 
 					services
 						.ConfigureOptions<ConfigureEmailClaimLettersOptions>()

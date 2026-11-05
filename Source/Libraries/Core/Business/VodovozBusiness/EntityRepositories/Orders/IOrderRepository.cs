@@ -223,6 +223,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
 
 		/// <summary>
+		/// Проверяет наличие старого контейнера или неформализованной заявки счета заказа
+		/// </summary>
+		/// <param name="uow">Единица работы</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <returns>Наличие счета в старом или новом процессе ЭДО</returns>
+		bool HasEdoBill(IUnitOfWork uow, int orderId);
+
+		/// <summary>
 		/// Получение заказа по идентификатору исходящего ЭДО документа
 		/// </summary>
 		/// <param name="uow"></param>
@@ -257,7 +265,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
 		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
 		IQueryable<OksDailyReportOrderDiscountDataNode> GetOrdersDiscountsDataForPeriod(IUnitOfWork uow, DateTime startDate, DateTime endDate);
-		IEnumerable<Order> GetOrdersForResendBills(IUnitOfWork uow, int? organizationId = null);
 
 		/// <summary>
 		/// Получить все добавленные коды ЧЗ для указанного заказа с доставкой
@@ -585,6 +592,36 @@ namespace Vodovoz.EntityRepositories.Orders
 			IEnumerable<OrderStatus> orderStatuses,
 			DateTime minLastOrderDeliveryDate,
 			DateTime maxLastOrderDeliveryDate,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Заказы сетей и тендерных клиентов в окне уведомления по правилам отчета "Отсрочка сети"
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="today">Сегодняшняя дата</param>
+		/// <param name="daysToPaymentDate">За сколько дней до расчетной даты платежа заказ попадает в окно</param>
+		/// <param name="counterpartyFromTenderId">Id источника "Тендер" клиента</param>
+		/// <param name="organizationId">Id организации договора заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Заказы с суммой, оплаченной суммой, отсрочкой клиента, автором, адресом и телефоном</returns>
+		Task<IList<ChainStoreDelayOrderNode>> GetChainStoreDelayOrdersAsync(
+			IUnitOfWork uow,
+			DateTime today,
+			int daysToPaymentDate,
+			int counterpartyFromTenderId,
+			int organizationId,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Текущие статусы оплаты заказов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderIds">Id заказов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Статусы оплаты по Id заказа</returns>
+		Task<IDictionary<int, OrderPaymentStatus>> GetOrdersPaymentStatusesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> orderIds,
 			CancellationToken cancellationToken);
 
 		/// <summary>

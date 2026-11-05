@@ -34,7 +34,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
 		private readonly ICustomerOrderTransferService _orderTransferLogicService;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _outboxNotificationPublisher;
+		private readonly INotificationPublisher<CustomerNotificationDomainEvent> _notificationPublisher;
 
 		public UnPaidOnlineOrderHandler(
 			ILogger<UnPaidOnlineOrderHandler> logger,
@@ -46,7 +46,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderService orderService,
 			IRouteListService routeListService,
 			ICustomerOrderTransferService orderTransferLogicService,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> outboxNotificationPublisher
+			INotificationPublisher<CustomerNotificationDomainEvent> notificationPublisher
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -59,7 +59,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderTransferLogicService = orderTransferLogicService ?? throw new ArgumentNullException(nameof(orderTransferLogicService));
-			_outboxNotificationPublisher = outboxNotificationPublisher ?? throw new ArgumentNullException(nameof(outboxNotificationPublisher));
+			_notificationPublisher = notificationPublisher ?? throw new ArgumentNullException(nameof(notificationPublisher));
 		}
 
 		public async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IUnitOfWork uow, CancellationToken cancellationToken)
@@ -507,7 +507,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			var customerOrderAwaitingPaymentEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderAwaitingPayment, onlineOrder.Source, onlineOrder.Id);
 
-			return await _outboxNotificationPublisher.TryPublishAsync(unitOfWork, customerOrderAwaitingPaymentEvent, cancellationToken);
+			return await _notificationPublisher.TryPublishAsync(unitOfWork, customerOrderAwaitingPaymentEvent, cancellationToken);
 		}
 
 		private async Task<bool> TryNotifyCustomerAboutOrderPaidAsync(IUnitOfWork uow, UpdateOnlineOrderFromChangeRequest data, CancellationToken cancellationToken)
@@ -521,7 +521,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			if(needCustomerOrderPaidNotification)
 			{
 				var customerOrderPaidEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderPaid, data.Source, data.OnlineOrderId.Value);
-				return await _outboxNotificationPublisher.TryPublishAsync(uow, customerOrderPaidEvent, cancellationToken);
+				return await _notificationPublisher.TryPublishAsync(uow, customerOrderPaidEvent, cancellationToken);
 			}
 
 			return false;

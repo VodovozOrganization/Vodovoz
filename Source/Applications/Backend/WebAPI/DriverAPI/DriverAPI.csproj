@@ -66,6 +66,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Libraries\Core\TransactionalOutbox.EntityFrameworkCore\TransactionalOutbox.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\DriverAPI.Library\DriverAPI.Library.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\EventsApi.Library\EventsApi.Library.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />

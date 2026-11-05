@@ -1,4 +1,5 @@
-﻿using Edo.Problems;
+﻿using System;
+using Edo.Problems;
 using Edo.Transfer.Sender;
 using Edo.Transport;
 using MassTransit;
@@ -20,18 +21,23 @@ namespace Edo.Transfer.Dispatcher
 
 			services.TryAddScoped<TransferSender>();
 			services.TryAddScoped<TransferSendPreparer>();
+			services.TryAddScoped<TransferUpdDocumentBuilder>();
 			services.TryAddScoped<ITransferOrderHeaderPreparer, TransferOrderHeaderPreparer>();
 
 			return services;
 		}
 
-		public static IServiceCollection AddEdoTransferSender(this IServiceCollection services)
+		public static IServiceCollection AddEdoTransferSender(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoTransferSenderServices();
 
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
 				cfg.AddConsumers(x => !x.ToString().Contains("Fault"), Assembly.GetExecutingAssembly());
+
+				configureBus?.Invoke(cfg);
 			});
 
 			return services;

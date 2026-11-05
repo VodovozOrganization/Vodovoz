@@ -60,6 +60,22 @@ namespace BitrixNotificationsSend.Client
 			CancellationToken cancellationToken);
 
 		/// <summary>
+		/// Пакетное создание сделок в Битрикс24 по отсрочке сети
+		/// </summary>
+		/// <param name="chainStoreDelayDeals">
+		/// Данные по отправкам сделок,
+		/// не более <see cref="BitrixApiLimits.MaxBatchCommandsCount"/> за один вызов
+		/// </param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// Результат отправки с ключами команд созданных сделок, идентификаторами созданных сделок,
+		/// ошибками по отдельным сделкам и данными об операционном бюджете Битрикс24
+		/// </returns>
+		Task<Result<BitrixBatchResult>> SendChainStoreDelayDeals(
+			IEnumerable<ChainStoreDelayDealDto> chainStoreDelayDeals,
+			CancellationToken cancellationToken);
+
+		/// <summary>
 		/// Пакетное обновление сделок в Битрикс24 по недовозам.
 		/// </summary>
 		/// <param name="undeliveredOrders">
@@ -90,6 +106,22 @@ namespace BitrixNotificationsSend.Client
 		/// </returns>
 		Task<Result<BitrixBatchResult>> UpdatePlannedOrderDeals(
 			IEnumerable<PlannedOrderDealUpdateDto> plannedOrderDealUpdates,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Пакетное закрытие сделок по отсрочке сети в Битрикс24
+		/// </summary>
+		/// <param name="chainStoreDelayDeals">
+		/// Данные для закрытия сделок,
+		/// не более <see cref="BitrixApiLimits.MaxBatchCommandsCount"/> за один вызов
+		/// </param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// Результат отправки с ключами команд закрытых сделок, ошибками по отдельным сделкам
+		/// и данными об операционном бюджете Битрикс24
+		/// </returns>
+		Task<Result<BitrixBatchResult>> CloseChainStoreDelayDeals(
+			IEnumerable<ChainStoreDelayDealCloseDto> chainStoreDelayDeals,
 			CancellationToken cancellationToken);
 
 		/// <summary>

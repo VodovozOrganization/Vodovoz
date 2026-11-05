@@ -414,6 +414,11 @@
     <EmbeddedResource Include="icons\toolbar\true_mark.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Views\Edo\EdoUpdDocumentView.cs" />
+    <Compile Include="Filters\GtkViews\EdoUpdFilterView.cs" />
+    <Compile Include="JournalColumnsConfigs\EdoUpdJournalRegistrar.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoUpdDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoUpdFilterView.cs" />
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
     <Compile Include="Additions\EventsQrPlacer.cs" />
@@ -795,6 +800,7 @@
     <Compile Include="Views\Reports\ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Views\Users\UserRoleView.cs" />
     <Compile Include="Views\Warehouse\TtnDataView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.TtnDataView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderItemReturnsNode.cs" />
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.ChangedType.cs" />
@@ -2719,9 +2725,13 @@
       <Project>{bf89316b-1a47-7797-6a98-7a3fad52b2e0}</Project>
       <Name>ResourceLocker.Library</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\TransactionalOutbox\TransactionalOutbox.csproj">
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\Notifications.Core\Notifications.Core.csproj">
       <Project>{A3919E7C-5F5B-7AFA-49F4-D4FCE627ABC0}</Project>
-      <Name>TransactionalOutbox</Name>
+      <Name>Notifications.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\TransactionalOutbox.MassTransit\TransactionalOutbox.MassTransit.csproj">
+      <Project>{6B60B368-2365-4735-BAA1-7BC6E3288B38}</Project>
+      <Name>TransactionalOutbox.MassTransit</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Vodovoz.Trackers\Vodovoz.Trackers.csproj">
       <Project>{7ac1f7e4-7cab-8fea-ae2c-f6e09cb92a69}</Project>

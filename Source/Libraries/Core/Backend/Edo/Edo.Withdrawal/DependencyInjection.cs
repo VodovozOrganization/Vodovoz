@@ -1,4 +1,5 @@
-﻿using Edo.Common;
+﻿using System;
+using Edo.Common;
 using Edo.Problems;
 using Edo.Transport;
 using Edo.Withdrawal.Consumers;
@@ -29,11 +30,15 @@ namespace Edo.Withdrawal
 			return services;
 		}
 
-		public static IServiceCollection AddEdoWithdrawal(this IServiceCollection services, IConfiguration configuration)
+		public static IServiceCollection AddEdoWithdrawal(
+			this IServiceCollection services, IConfiguration configuration,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddEdoMassTransit(configureBus: cfg =>
 			{
 				cfg.AddConsumer<WithdrawalTaskCreatedConsumer, WithdrawalTaskCreatedConsumerDefinition>();
+
+				configureBus?.Invoke(cfg);
 			});
 
 			services

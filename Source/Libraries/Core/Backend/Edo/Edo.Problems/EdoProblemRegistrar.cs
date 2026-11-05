@@ -18,14 +18,14 @@ namespace Edo.Problems
 	{
 		private readonly IUnitOfWork _taskUow;
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 
 		public EdoProblemRegistrar(
 			IUnitOfWork taskUow,
 			IUnitOfWorkFactory uowFactory,
 			EdoTaskCustomSourcesPersister customSourcesPersister,
 			EdoTaskExceptionSourcesPersister exceptionSourcesPersister,
-			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher
+			INotificationPublisher<EdoNotificationMessage> notificationPublisher
 			) : base(customSourcesPersister, exceptionSourcesPersister)
 		{
 			_taskUow = taskUow ?? throw new ArgumentNullException(nameof(taskUow));
@@ -93,9 +93,12 @@ namespace Edo.Problems
 					problem.TaskItems.Add(taskItem);
 				}
 
-				task.Status = source.Importance == EdoProblemImportance.Problem
-					? EdoTaskStatus.Problem
-					: EdoTaskStatus.Waiting;
+				if(source.ShouldUpdateTaskStatus(task))
+				{
+					task.Status = source.Importance is EdoProblemImportance.Problem
+						? EdoTaskStatus.Problem
+						: EdoTaskStatus.Waiting;
+				}
 
 				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
 				await uow.SaveAsync(task, cancellationToken: cancellationToken);

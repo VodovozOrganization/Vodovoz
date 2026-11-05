@@ -80,9 +80,8 @@ namespace Edo.Docflow
 			// чтобы ответ Такском не был принят за расхождение
 			document.CancellationRequestTime = DateTime.Now;
 			await _uow.SaveAsync(document, cancellationToken: cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
-
 			await _publishEndpoint.Publish(message, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		private async Task CancelTransferDocflow(TransferEdoTask transferEdoTask, string reason, CancellationToken cancellationToken)
@@ -115,6 +114,8 @@ namespace Edo.Docflow
 			};
 
 			await _publishEndpoint.Publish(message, cancellationToken);
+			// Данные не менялись, Commit сохраняет сообщение в outbox
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		public void Dispose()

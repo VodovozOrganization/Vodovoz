@@ -25,6 +25,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Errors.Stores;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
@@ -42,6 +43,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly IGenericRepository<Warehouse> _warehouseRepository;
 		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
@@ -53,8 +55,8 @@ namespace WarehouseApi.Library.Services
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IStockRepository _stockRepository;
 		private readonly IBottlesRepository _bottlesRepository;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly IOrderSaleHandler _saleHandler;
-		private readonly IBus _messageBus;
 
 		public SelfDeliveryService(
 			ILogger<SelfDeliveryService> logger,
@@ -62,6 +64,7 @@ namespace WarehouseApi.Library.Services
 			IGenericRepository<Order> orderRepository,
 			IGenericRepository<Warehouse> warehouseRepository,
 			IGenericRepository<Subdivision> subdivisionRepository,
+			ITrueMarkRepository trueMarkRepository,
 			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ICounterpartyEdoAccountController edoAccountController,
@@ -73,8 +76,8 @@ namespace WarehouseApi.Library.Services
 			ICallTaskWorker callTaskWorker,
 			IStockRepository stockRepository,
 			IBottlesRepository bottlesRepository,
-			IOrderSaleHandler saleHandler,
-			IBus messageBus)
+			IPublishEndpoint publishEndpoint,
+			IOrderSaleHandler saleHandler)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -86,6 +89,8 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_subdivisionRepository = subdivisionRepository
 				?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_trueMarkRepository = trueMarkRepository
+				?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_codesProcessingService = codesProcessingService
 				?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService
@@ -108,10 +113,10 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(stockRepository));
 			_bottlesRepository = bottlesRepository
 				?? throw new ArgumentNullException(nameof(bottlesRepository));
+			_publishEndpoint = publishEndpoint
+				?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_saleHandler = saleHandler
 				?? throw new ArgumentNullException(nameof(saleHandler));
-			_messageBus = messageBus
-				?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		public async Task<Result<SelfDeliveryDocument>> CreateDocument(
@@ -188,7 +193,8 @@ namespace WarehouseApi.Library.Services
 			var isCheckAllCodesScanned = _codesProcessingService.IsAllTrueMarkProductCodesMustBeAdded(selfDeliveryDocument, _edoAccountController);
 
 			var addCodesResult =
-				await AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(selfDeliveryDocument, stagingCodes, isCheckAllCodesScanned);
+				await AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(
+					selfDeliveryDocument, stagingCodes, isCheckAllCodesScanned, cancellationToken);
 
 			if(addCodesResult.IsFailure)
 			{
@@ -197,7 +203,8 @@ namespace WarehouseApi.Library.Services
 
 			if(isCheckAllCodesScanned)
 			{
-				var isAllCodesAddedResult = _codesProcessingService.IsAllTrueMarkProductCodesAdded(selfDeliveryDocument);
+				var isAllCodesAddedResult = await _codesProcessingService.IsAllTrueMarkProductCodesAddedAsync(
+					_unitOfWork, selfDeliveryDocument, cancellationToken);
 				if(isAllCodesAddedResult.IsFailure)
 				{
 					return Result.Failure<SelfDeliveryDocument>(isAllCodesAddedResult.Errors);
@@ -322,7 +329,8 @@ namespace WarehouseApi.Library.Services
 		private async Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(
 			SelfDeliveryDocument document,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
-			bool isCheckAllCodesScanned)
+			bool isCheckAllCodesScanned,
+			CancellationToken cancellationToken)
 		{
 			if(isCheckAllCodesScanned)
 			{
@@ -351,7 +359,8 @@ namespace WarehouseApi.Library.Services
 				var addingCodesResult = await _codesProcessingService.AddProductCodesToSelfDeliveryDocumentItem(
 					_unitOfWork,
 					item,
-					itemStagingCodes);
+					itemStagingCodes,
+					cancellationToken);
 
 				if(addingCodesResult.IsFailure)
 				{
@@ -393,13 +402,14 @@ namespace WarehouseApi.Library.Services
 				return Result.Failure<SelfDeliveryDocument>(SelfDeliveryDocumentErrors.IsNotFullyShiped);
 			}
 
-			var edoRequest = CreateEdoRequest(selfDeliveryDocument);
+			var edoRequest = await CreateEdoRequestAsync(selfDeliveryDocument, cancellationToken);
 
 			await _unitOfWork.SaveAsync(selfDeliveryDocument, cancellationToken: cancellationToken);
 			await _unitOfWork.SaveAsync(edoRequest, cancellationToken: cancellationToken);
 
 			try
 			{
+				await SendEdoRequestCreatedEvent(edoRequest.Id);
 				await _unitOfWork.CommitAsync(cancellationToken);
 			}
 			catch(MySqlException mysqlException) when(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
@@ -414,8 +424,6 @@ namespace WarehouseApi.Library.Services
 				var error = new Error("Database.Commit.Error", e.Message);
 				return Result.Failure<SelfDeliveryDocument>(error);
 			}
-
-			await SendEdoRequestCreatedEvent(edoRequest.Id);
 
 			return await Task.FromResult(selfDeliveryDocument);
 		}
@@ -472,10 +480,14 @@ namespace WarehouseApi.Library.Services
 			return warehouseGeoGroupId;
 		}
 
-		private PrimaryEdoRequest CreateEdoRequest(SelfDeliveryDocument selfDeliveryDocument)
+		private async Task<PrimaryEdoRequest> CreateEdoRequestAsync(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
-			var codes = selfDeliveryDocument.Items
-				.SelectMany(x => x.TrueMarkProductCodes)
+			var codes = (await _trueMarkRepository.GetSelfDeliveryDocumentItemsProductCodesAsync(
+					_unitOfWork,
+					selfDeliveryDocument.Items.Select(x => x.Id),
+					cancellationToken))
+				.ToLookup(x => x.SelfDeliveryDocumentItemId.Value)
+				.SelectMany(x => x.OrderBy(c => c.Id))
 				.ToList();
 
 			var edoRequest = new PrimaryEdoRequest
@@ -501,7 +513,7 @@ namespace WarehouseApi.Library.Services
 
 			try
 			{
-				await _messageBus.Publish(new EdoRequestCreatedEvent { Id = requestId });
+				await _publishEndpoint.Publish(new EdoRequestCreatedEvent { Id = requestId });
 			}
 			catch(Exception ex)
 			{
@@ -513,8 +525,16 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		public GetSelfDeliveryResponse CreateSelfDeliveryResponse(SelfDeliveryDocument selfDeliveryDocument)
+		public async Task<GetSelfDeliveryResponse> CreateSelfDeliveryResponseAsync(
+			SelfDeliveryDocument selfDeliveryDocument,
+			CancellationToken cancellationToken)
 		{
+			var productCodesByItemId = (await _trueMarkRepository.GetSelfDeliveryDocumentItemsProductCodesAsync(
+					_unitOfWork,
+					selfDeliveryDocument.Items.Select(x => x.Id),
+					cancellationToken))
+				.ToLookup(x => x.SelfDeliveryDocumentItemId.Value);
+
 			var nomenclatures =
 				selfDeliveryDocument.Order.OrderItems
 				.Select(x => x.Nomenclature)
@@ -523,11 +543,11 @@ namespace WarehouseApi.Library.Services
 			var response = new GetSelfDeliveryResponse
 			{
 				SelfDeliveryDocumentId = selfDeliveryDocument.Id,
-				Order = selfDeliveryDocument.Order.ToApiDtoV1(nomenclatures, selfDeliveryDocument)
+				Order = selfDeliveryDocument.Order.ToApiDtoV1(nomenclatures, selfDeliveryDocument, productCodesByItemId)
 			};
 
 			response.Order.Items
-				.PopulateRelatedCodes(_unitOfWork, _trueMarkWaterCodeService, selfDeliveryDocument.Items.SelectMany(x => x.TrueMarkProductCodes));
+				.PopulateRelatedCodes(_unitOfWork, _trueMarkWaterCodeService, productCodesByItemId.SelectMany(x => x));
 
 			response.Order.Items.ForEach(item =>
 				item.Codes.ForEach((code, i) =>

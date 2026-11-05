@@ -79,10 +79,11 @@ namespace EmailDebtNotificationWorker
 
 				var closingDeliveriesService = scope.ServiceProvider.GetRequiredService<IClosingDeliveriesService>();
 				var orderWithoutShipmentForDebtPreparer = scope.ServiceProvider.GetRequiredService<IOrderWithoutShipmentForDebtPreparer>();
-				var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
 				var closingDeliveriesNotificationSender = scope.ServiceProvider.GetRequiredService<IClosingDeliveriesNotificationSender>();
 
-				using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot(nameof(EmailClosingDeliveriesWorker));
+				// UoW этого прохода воркера (scope создан выше на один вызов). Тот же UoW получают сервисы этого scope,
+				// в том числе отправитель писем: письма сохраняются в outbox при коммите этого UoW
+				var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
 				var counterpartiesWithClosingDeliveries = await closingDeliveriesService.CloseDeliveriesForDebtorsAsync(unitOfWork, cancellationToken: stoppingToken);
 
@@ -111,7 +112,7 @@ namespace EmailDebtNotificationWorker
 
 				_logger.LogInformation("Отправка писем контрагентам.");
 
-				await closingDeliveriesNotificationSender.SendNotifications(unitOfWork, notificationInfos, stoppingToken);
+				await closingDeliveriesNotificationSender.SendNotifications(notificationInfos, stoppingToken);
 
 				await unitOfWork.CommitAsync(stoppingToken);
 

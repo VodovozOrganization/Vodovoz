@@ -10,6 +10,13 @@ namespace Edo.Problems.Custom
 		public abstract override string Recommendation { get; }
 		public abstract override EdoProblemImportance Importance { get; }
 
+		/// <summary>
+		/// Определяет, нужно ли изменять статус задачи при регистрации проблемы.
+		/// </summary>
+		/// <param name="edoTask">Задача ЭДО.</param>
+		/// <returns>Признак необходимости изменения статуса.</returns>
+		public virtual bool ShouldUpdateTaskStatus(EdoTask edoTask) => true;
+
 		public virtual string GetTemplatedMessage(EdoTask edoTask)
 		{
 			return Message;

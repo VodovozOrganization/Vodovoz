@@ -17,5 +17,13 @@ namespace Vodovoz.EntityRepositories.Store
 		/// <param name="order">Заказ по которому необходимо найти отгрузку товаров</param>
 		/// <param name="notSavedDoc">Не сохранённый документ для включения в расчёт</param>
 		Dictionary<int, decimal> OrderNomenclaturesUnloaded(IUnitOfWork uow, Order order, SelfDeliveryDocument notSavedDoc);
+
+		/// <summary>
+		/// Документы самовывоза по идентификаторам их строк
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="selfDeliveryDocumentItemIds">Идентификаторы строк документов самовывоза</param>
+		/// <returns>Документ самовывоза по идентификатору строки</returns>
+		IDictionary<int, SelfDeliveryDocument> GetSelfDeliveryDocumentsByItemIds(IUnitOfWork uow, IEnumerable<int> selfDeliveryDocumentItemIds);
 	}
 }

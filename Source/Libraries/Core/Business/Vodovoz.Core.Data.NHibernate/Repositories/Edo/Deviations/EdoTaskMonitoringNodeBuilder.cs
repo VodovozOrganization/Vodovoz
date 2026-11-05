@@ -153,17 +153,15 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 		}
 
 		/// <summary>
-		/// Заполняет состояние документооборотов и действий по ним у провайдера ЭДО
+		/// Заполняет текущее состояние документооборотов у провайдера ЭДО
 		/// </summary>
 		/// <param name="nodes">Строки мониторинга задач ЭДО</param>
 		/// <param name="documents">Документы</param>
 		/// <param name="docflows">Документообороты</param>
-		/// <param name="actions">Действия</param>
 		public static void FillDocflows(
 			IReadOnlyCollection<IEdoDocflowMonitoringNode> nodes,
 			IReadOnlyCollection<DocumentRow> documents,
-			IReadOnlyCollection<DocflowRow> docflows,
-			IReadOnlyCollection<ActionRow> actions)
+			IReadOnlyCollection<DocflowRow> docflows)
 		{
 			var documentsByTask = documents
 				.GroupBy(x => x.TaskId)
@@ -172,10 +170,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			var docflowsByDocument = docflows
 				.GroupBy(x => x.DocumentId)
 				.ToDictionary(x => x.Key, x => x.OrderByDescending(d => d.DocflowId).First());
-
-			var actionsByDocflow = actions
-				.GroupBy(x => x.DocflowId)
-				.ToDictionary(x => x.Key, x => (IReadOnlyCollection<ActionRow>)x.ToList());
 
 			foreach(var node in nodes)
 			{
@@ -194,10 +188,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 
 				node.DocflowCreationTime = docflow.CreationTime;
 
-				if(actionsByDocflow.TryGetValue(docflow.DocflowId, out var docflowActions))
-				{
-					FillActions(node, docflowActions);
-				}
+				FillDocflowState(node, docflow);
 			}
 		}
 
@@ -228,59 +219,17 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo.Deviations
 			}
 		}
 
-		private static void FillActions(IEdoDocflowMonitoringNode node, IReadOnlyCollection<ActionRow> actions)
+		private static void FillDocflowState(IEdoDocflowMonitoringNode node, DocflowRow docflow)
 		{
-			var lastAction = actions
-				.OrderByDescending(x => x.ActionId)
-				.First();
-
-			node.LastActionTime = lastAction.Time;
-			node.LastActionState = lastAction.State;
-
-			// действие NotStarted заводим мы сами при создании документооборота,
-			// ответом провайдера ЭДО оно не является
-			node.HasProviderAnswer = actions.Any(x => x.State != EdoDocFlowStatus.NotStarted);
-
-			var sentActions = actions.Where(x => _sentDocflowStates.Contains(x.State)).ToList();
-			if(sentActions.Any())
-			{
-				node.FirstSentActionTime = sentActions.Min(x => x.Time);
-			}
-
-			var succeedActions = actions.Where(x => x.State == EdoDocFlowStatus.Succeed).ToList();
-			if(succeedActions.Any())
-			{
-				node.SucceedActionTime = succeedActions.Min(x => x.Time);
-			}
-
-			var cancellationActions = actions
-				.Where(x => x.State == EdoDocFlowStatus.WaitingForCancellation)
-				.ToList();
-
-			if(cancellationActions.Any())
-			{
-				node.WaitingCancellationActionTime = cancellationActions.Min(x => x.Time);
-			}
-
-			var cancelledActions = actions
-				.Where(x => x.State == EdoDocFlowStatus.Cancelled)
-				.ToList();
-
-			if(cancelledActions.Any())
-			{
-				node.CancelledActionTime = cancelledActions.Min(x => x.Time);
-			}
-
-			var traceabilityAction = actions
-				.Where(x => x.TraceabilityStatus != null)
-				.OrderByDescending(x => x.ActionId)
-				.FirstOrDefault();
-
-			if(traceabilityAction != null)
-			{
-				node.TraceabilityStatus = traceabilityAction.TraceabilityStatus;
-				node.TraceabilityActionTime = traceabilityAction.Time;
-			}
+			node.LastActionTime = docflow.StateChangeTime;
+			node.LastActionState = docflow.DocFlowState;
+			node.HasProviderAnswer = docflow.DocFlowState != EdoDocFlowStatus.NotStarted;
+			node.FirstSentActionTime = _sentDocflowStates.Contains(docflow.DocFlowState) ? docflow.StateChangeTime : null;
+			node.SucceedActionTime = docflow.DocFlowState == EdoDocFlowStatus.Succeed ? docflow.StateChangeTime : null;
+			node.WaitingCancellationActionTime = docflow.DocFlowState == EdoDocFlowStatus.WaitingForCancellation ? docflow.StateChangeTime : null;
+			node.CancelledActionTime = docflow.DocFlowState == EdoDocFlowStatus.Cancelled ? docflow.StateChangeTime : null;
+			node.TraceabilityStatus = docflow.TrueMarkTraceabilityStatus;
+			node.TraceabilityActionTime = docflow.TrueMarkTraceabilityStatus.HasValue ? docflow.StateChangeTime : null;
 		}
 
 		private static bool IsTransferFinished(
