@@ -95,7 +95,7 @@ namespace Edo.Problems
 
 				if(source.ShouldUpdateTaskStatus(task))
 				{
-					task.Status = source.Importance == EdoProblemImportance.Problem
+					task.Status = source.Importance is EdoProblemImportance.Problem
 						? EdoTaskStatus.Problem
 						: EdoTaskStatus.Waiting;
 				}
