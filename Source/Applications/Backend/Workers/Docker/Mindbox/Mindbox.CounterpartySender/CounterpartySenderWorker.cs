@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 namespace Mindbox.CounterpartySender
 {
 	/// <summary>
-	/// Добавляет новых контрагентов в очередь и отправляет её в Mindbox
+	/// Публикует новых контрагентов в outbox Mindbox.
+	/// Отправку сообщений в Mindbox выполняет потребитель MassTransit.
 	/// </summary>
 	public class CounterpartySenderWorker : BackgroundService
 	{
@@ -43,14 +44,6 @@ namespace Mindbox.CounterpartySender
 					{
 						_logger.LogInformation("Добавлено в очередь Mindbox: {Count}", enqueued);
 					}
-
-					var processor = scope.ServiceProvider.GetRequiredService<IMindboxCounterpartyOutboxProcessor>();
-					var processed = await processor.ProcessAsync(stoppingToken);
-
-					if(processed > 0)
-					{
-						_logger.LogInformation("Обработано сообщений очереди Mindbox: {Count}", processed);
-					}
 				}
 				catch(OperationCanceledException)
 				{
@@ -58,7 +51,7 @@ namespace Mindbox.CounterpartySender
 				}
 				catch(Exception ex)
 				{
-					_logger.LogError(ex, "Ошибка обработки очереди контрагентов Mindbox");
+					_logger.LogError(ex, "Ошибка постановки контрагентов в очередь Mindbox");
 				}
 
 				try

@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MassTransit;
+using Microsoft.Extensions.Logging;
+using Mindbox.Library.Contracts;
 using QS.DomainModel.UoW;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Domain.Clients.Mindbox;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Database.Mindbox;
@@ -14,42 +17,32 @@ namespace Mindbox.Library.Services
 	public sealed class MindboxCounterpartyEnqueuer : IMindboxCounterpartyEnqueuer
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 		private readonly IMindboxSettings _settings;
 		private readonly ILogger<MindboxCounterpartyEnqueuer> _logger;
 
 		public MindboxCounterpartyEnqueuer(
 			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWorkOutbox<IBus> outbox,
 			IMindboxSettings settings,
 			ILogger<MindboxCounterpartyEnqueuer> logger)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 			_settings = settings ?? throw new ArgumentNullException(nameof(settings));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		/// <inheritdoc />
-		public Task<int> EnqueueNewCounterpartiesAsync(CancellationToken cancellationToken)
+		public async Task<int> EnqueueNewCounterpartiesAsync(CancellationToken cancellationToken)
 		{
 			if(!_settings.IsEnabled)
-			{
-				return Task.FromResult(0);
-			}
-
-			return Task.Run(() => Enqueue(cancellationToken), cancellationToken);
-		}
-
-		private int Enqueue(CancellationToken cancellationToken)
-		{
-			if(cancellationToken.IsCancellationRequested)
 			{
 				return 0;
 			}
 
-			var lastCounterpartyId = _settings.LastEnqueuedCounterpartyId;
-
-			if(lastCounterpartyId < 0)
+			if(cancellationToken.IsCancellationRequested)
 			{
-				InitializeLastCounterpartyId();
 				return 0;
 			}
 
@@ -57,73 +50,63 @@ namespace Mindbox.Library.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Постановка контрагентов в очередь Mindbox"))
 			{
-				var counterparties = GetCounterparties(unitOfWork, lastCounterpartyId, batchSize);
+				var counterparties = GetCounterparties(unitOfWork, batchSize);
 
 				if(counterparties.Count == 0)
 				{
 					return 0;
 				}
 
-				var now = DateTime.UtcNow;
-				var retryUntil = now.AddHours(Math.Max(1, _settings.RetryMaxHours));
+				var publishEndpoint = _outbox.GetPublishEndpoint(unitOfWork);
 
 				foreach(var counterparty in counterparties)
 				{
-					var message = new MindboxCounterpartyOutboxMessage
+					var transactionId = counterparty.MindboxTransactionId;
+
+					if(transactionId == Guid.Empty)
 					{
-						Counterparty = counterparty,
-						TransactionId = Guid.NewGuid(),
-						Status = MindboxCounterpartyOutboxStatus.Queued,
-						CreatedAt = now,
-						RetryUntil = retryUntil
-					};
+						transactionId = Guid.NewGuid();
+						counterparty.MindboxTransactionId = transactionId;
+					}
 
 					counterparty.MindboxStatus = MindboxCounterpartyOutboxStatus.Queued;
 
-					unitOfWork.Save(message);
+					unitOfWork.Save(counterparty);
+
+					await publishEndpoint.Publish(
+						new MindboxCounterpartySendMessage
+						{
+							CounterpartyId = counterparty.Id,
+							TransactionId = transactionId
+						},
+						cancellationToken)
+						.ConfigureAwait(false);
 				}
 
-				unitOfWork.Commit();
-
-				lastCounterpartyId = counterparties.Max(counterparty => counterparty.Id);
-
-				_settings.SetLastEnqueuedCounterpartyId(lastCounterpartyId);
+				await unitOfWork.CommitAsync(cancellationToken).ConfigureAwait(false);
 
 				_logger.LogInformation(
-					"В очередь Mindbox добавлено контрагентов: {Count}, последний Id: {LastCounterpartyId}",
-					counterparties.Count,
-					lastCounterpartyId);
+					"Опубликовано в outbox Mindbox контрагентов: {Count}",
+					counterparties.Count);
 
 				return counterparties.Count;
 			}
 		}
 
-		private void InitializeLastCounterpartyId()
-		{
-			_settings.SetLastEnqueuedCounterpartyId(0);
-
-			_logger.LogInformation(
-				"Инициализирован указатель очереди Mindbox: 0. Все существующие контрагенты будут добавлены в очередь.");
-		}
-
-		private static System.Collections.Generic.IList<Counterparty> GetCounterparties(
+		private static IList<Counterparty> GetCounterparties(
 			IUnitOfWork unitOfWork,
-			int lastCounterpartyId,
 			int batchSize)
 		{
 			const string sql = @"
 SELECT c.*
 FROM counterparty c
-LEFT JOIN mindbox_counterparty_outbox o ON o.counterparty_id = c.id
-WHERE c.id > :lastCounterpartyId
-  AND o.id IS NULL
+WHERE c.mindbox_status = 'Unknown'
 ORDER BY c.id
 LIMIT :batchSize";
 
 			return unitOfWork.Session
 				.CreateSQLQuery(sql)
 				.AddEntity(typeof(Counterparty))
-				.SetInt32("lastCounterpartyId", lastCounterpartyId)
 				.SetInt32("batchSize", batchSize)
 				.List<Counterparty>();
 		}

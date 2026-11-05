@@ -1,5 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
+using NHibernate.Type;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.Mindbox;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
@@ -22,7 +24,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 				.Column("is_archive");
 
 			Map(x => x.MindboxStatus)
-				.Column("mindbox_status");
+				.Column("mindbox_status")
+				.CustomType<EnumStringType<MindboxCounterpartyOutboxStatus>>();
+
+			Map(x => x.MindboxTransactionId)
+				.Column("mindbox_transaction_id");
 
 			Map(x => x.Name)
 				.Column("name");

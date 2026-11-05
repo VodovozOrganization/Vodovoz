@@ -9,9 +9,12 @@
 
 	<ItemGroup>
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="MassTransit" Version="8.0.12" />
+		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
 		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
 	</ItemGroup>
 
@@ -25,10 +28,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport.MassTransit\MessageTransport.MassTransit.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Mindbox.Library\Mindbox.Library.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\TransactionalOutbox.EntityFrameworkCore\TransactionalOutbox.EntityFrameworkCore.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\TransactionalOutbox.MassTransit\TransactionalOutbox.MassTransit.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />

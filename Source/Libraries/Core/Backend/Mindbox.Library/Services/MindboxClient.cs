@@ -235,7 +235,7 @@ namespace Mindbox.Library.Services
 			{
 				case 400:
 					return MindboxOperationResult.Failure(
-						MindboxSendOutcome.ProtocolError,
+						MindboxSendOutcome.ValidationError,
 						httpStatusCode,
 						status,
 						errorMessage,

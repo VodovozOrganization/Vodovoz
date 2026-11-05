@@ -1,4 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
+using NHibernate.Type;
+using Vodovoz.Core.Domain.Clients.Mindbox;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
@@ -11,7 +13,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.IsArchive).Column("is_archive");
-			Map(x => x.MindboxStatus).Column("mindbox_status");
+			Map(x => x.MindboxStatus).Column("mindbox_status").CustomType<EnumStringType<MindboxCounterpartyOutboxStatus>>();
+			Map(x => x.MindboxTransactionId).Column("mindbox_transaction_id");
 			Map(x => x.Name).Column("name");
 			Map(x => x.FullName).Column("full_name");
 			Map(x => x.TypeOfOwnership).Column("type_of_ownership");

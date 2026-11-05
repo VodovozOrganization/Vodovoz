@@ -7,11 +7,14 @@ using Edo.DeviationMonitoring.Options;
 using Edo.Transport;
 using EdoNotifications.Application.Factories;
 using EdoNotifications.Contracts;
+using MassTransit;
 using Microsoft.Extensions.Options;
 using NHibernate.Proxy;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
-using TransactionalOutbox.Domain;
+using System.Security.Cryptography;
+using System.Text;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
@@ -23,7 +26,8 @@ namespace Edo.DeviationMonitoring
 		private readonly IEdoDeviationRepository _repository;
 		private readonly IOrderEdoTaskCreatedEventPublisher _taskPublisher;
 		private readonly IEdoNotificationMessageFactory _messageFactory;
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 		private readonly EdoDeviationMonitoringOptions _options;
 
 		/// <summary>Создает обработчик автоматических действий по отклонениям.</summary>
@@ -31,17 +35,20 @@ namespace Edo.DeviationMonitoring
 		/// <param name="taskPublisher">Публикация событий запуска существующих задач.</param>
 		/// <param name="messageFactory">Фабрика ЭДО-уведомлений.</param>
 		/// <param name="notificationPublisher">Публикация уведомлений через аутбокс.</param>
+		/// <param name="outbox">Аутбокс шины для публикации событий возобновления.</param>
 		/// <param name="options">Настройки мониторинга.</param>
 		public EdoDeviationProcessingService(IEdoDeviationRepository repository,
 			IOrderEdoTaskCreatedEventPublisher taskPublisher,
 			IEdoNotificationMessageFactory messageFactory,
-			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
+			INotificationPublisher<EdoNotificationMessage> notificationPublisher,
+			IUnitOfWorkOutbox<IBus> outbox,
 			IOptionsSnapshot<EdoDeviationMonitoringOptions> options)
 		{
 			_repository = repository ?? throw new ArgumentNullException(nameof(repository));
 			_taskPublisher = taskPublisher ?? throw new ArgumentNullException(nameof(taskPublisher));
 			_messageFactory = messageFactory ?? throw new ArgumentNullException(nameof(messageFactory));
 			_notificationPublisher = notificationPublisher ?? throw new ArgumentNullException(nameof(notificationPublisher));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 			_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 		}
 
@@ -188,8 +195,20 @@ namespace Edo.DeviationMonitoring
 			? (EdoTask)proxy.HibernateLazyInitializer.GetImplementation()
 			: task;
 
-		private static Task EnqueueAsync(IUnitOfWork uow, EdoTaskDeviation deviation, object message,
+		private Task EnqueueAsync(IUnitOfWork uow, EdoTaskDeviation deviation, object message,
 			string actionKey, CancellationToken cancellationToken) =>
-			uow.SaveAsync(new OutboxMessage(message, $"EdoDeviation:{deviation.Id}:{actionKey}"), cancellationToken: cancellationToken);
+			_outbox.GetPublishEndpoint(uow)
+				.Publish(
+					message,
+					context => context.MessageId = CreateMessageId($"EdoDeviation:{deviation.Id}:{actionKey}"),
+					cancellationToken);
+
+		private static Guid CreateMessageId(string idempotencyKey)
+		{
+			using(var md5 = MD5.Create())
+			{
+				return new Guid(md5.ComputeHash(Encoding.UTF8.GetBytes(idempotencyKey)));
+			}
+		}
 	}
 }

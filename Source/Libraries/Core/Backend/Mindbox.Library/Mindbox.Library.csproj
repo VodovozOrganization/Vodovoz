@@ -6,6 +6,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="MassTransit" Version="8.0.12" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
 		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
@@ -15,5 +16,6 @@
 		<ProjectReference Include="..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
 		<ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
 		<ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+		<ProjectReference Include="..\..\TransactionalOutbox.MassTransit\TransactionalOutbox.MassTransit.csproj" />
 	</ItemGroup>
 </Project>

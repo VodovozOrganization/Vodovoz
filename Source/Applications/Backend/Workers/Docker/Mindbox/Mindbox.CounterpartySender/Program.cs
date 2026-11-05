@@ -1,15 +1,20 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using MassTransit;
+using MessageTransport.MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Mindbox.Library;
+using Mindbox.Library.Services;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Services;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
-using Mindbox.Library;
-using Mindbox.Library.Services;
 using Vodovoz.Zabbix.Sender;
 
 namespace Mindbox.CounterpartySender
@@ -18,7 +23,12 @@ namespace Mindbox.CounterpartySender
 	{
 		public static void Main(string[] args)
 		{
-			CreateHostBuilder(args).Build().Run();
+			var host = CreateHostBuilder(args).Build();
+
+			// Инициализирует статический UserRepository.GetCurrentUserId для истории изменений
+			host.Services.GetRequiredService<IUserService>();
+
+			host.Run();
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args)
@@ -51,6 +61,16 @@ namespace Mindbox.CounterpartySender
 						.AddMindbox();
 
 					services.AddScoped<IMindboxAlertSender, ZabbixMindboxAlertSender>();
+
+					services.AddMassTransit(busConf =>
+					{
+						busConf.AddConsumer<MindboxCounterpartySendConsumer, MindboxCounterpartySendConsumerDefinition>();
+
+						// Outbox MassTransit: публикация в online_orders_* и отправка в vhost online_orders
+						busConf.AddVodovozOutbox(OutboxBusNames.OnlineOrders);
+
+						busConf.ConfigureRabbitMq(services, hostContext.Configuration, "MessageTransport");
+					});
 
 					services.AddHostedService<CounterpartySenderWorker>();
 

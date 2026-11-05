@@ -21,7 +21,6 @@ namespace Mindbox.Library
 			services.AddScoped<IMindboxClient, MindboxClient>();
 			services.AddScoped<IMindboxAlertSender, LoggingMindboxAlertSender>();
 			services.AddScoped<IMindboxCounterpartyEnqueuer, MindboxCounterpartyEnqueuer>();
-			services.AddScoped<IMindboxCounterpartyOutboxProcessor, MindboxCounterpartyOutboxProcessor>();
 
 			return services;
 		}

@@ -75,6 +75,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private PersonType _personType;
 		private bool _isArchive;
 		private MindboxCounterpartyOutboxStatus _mindboxStatus = MindboxCounterpartyOutboxStatus.Unknown;
+		private Guid _mindboxTransactionId;
 		private string _ringUpPhone;
 		private DefaultDocumentType? _defaultDocumentType;
 		private bool _newBottlesNeeded;
@@ -419,6 +420,17 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _mindboxStatus;
 			set => SetField(ref _mindboxStatus, value);
+		}
+
+		/// <summary>
+		/// Ключ идемпотентности последней отправки контрагента в Mindbox.
+		/// Переиспользуется при повторах, чтобы Mindbox не создал дубликат.
+		/// </summary>
+		[IgnoreHistoryTrace]
+		public virtual Guid MindboxTransactionId
+		{
+			get => _mindboxTransactionId;
+			set => SetField(ref _mindboxTransactionId, value);
 		}
 
 		/// <summary>

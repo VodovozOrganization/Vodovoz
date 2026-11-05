@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -39,6 +40,9 @@ namespace Mindbox.CounterpartiesAdmin
 			}
 
 			var host = CreateHostBuilder(args).Build();
+
+			// Инициализирует статический UserRepository.GetCurrentUserId для истории изменений
+			host.Services.GetRequiredService<IUserService>();
 
 			using(var scope = host.Services.CreateScope())
 			{
@@ -102,7 +106,7 @@ namespace Mindbox.CounterpartiesAdmin
 			Console.WriteLine("  resend --status DataError,Error");
 			Console.WriteLine("  resend --all-errors");
 			Console.WriteLine();
-			Console.WriteLine("При повторной отправке генерируется новый transactionId и сбрасывается счетчик попыток.");
+			Console.WriteLine("При повторной отправке transactionId сохраняется, новый создается только после ошибки данных.");
 		}
 	}
 }
