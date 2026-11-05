@@ -24,6 +24,8 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 
 namespace EmailPrepareWorker
 {
@@ -52,6 +54,8 @@ namespace EmailPrepareWorker
 						{
 							var transportSettings = new ConfigTransportSettings();
 							hostContext.Configuration.Bind("MessageBroker", transportSettings);
+
+							busConf.AddVodovozOutbox(OutboxBusNames.Email);
 
 							busConf.ConfigureRabbitMq((rabbitMq, context) =>
 							{

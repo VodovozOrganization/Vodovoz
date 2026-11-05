@@ -1,6 +1,5 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 {
@@ -10,13 +9,13 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			Nominative = "код ЧЗ товара строки талона погрузки")]
 	public class CarLoadDocumentItemTrueMarkProductCode : TrueMarkProductCode
 	{
-		private CarLoadDocumentItemEntity _carLoadDocumentItem;
+		private int? _carLoadDocumentItemId;
 
-		[Display(Name = "Строка талона погрузки")]
-		public virtual CarLoadDocumentItemEntity CarLoadDocumentItem
+		[Display(Name = "Id строки талона погрузки")]
+		public virtual int? CarLoadDocumentItemId
 		{
-			get => _carLoadDocumentItem;
-			set => SetField(ref _carLoadDocumentItem, value);
+			get => _carLoadDocumentItemId;
+			set => SetField(ref _carLoadDocumentItemId, value);
 		}
 	}
 }

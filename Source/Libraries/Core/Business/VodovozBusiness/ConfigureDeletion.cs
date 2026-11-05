@@ -942,8 +942,7 @@ namespace Vodovoz
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation)
-				.AddClearDependence<SelfDeliveryDocumentItemTrueMarkProductCode>(x => x.SelfDeliveryDocumentItem);
+				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentReturned>()
 				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);

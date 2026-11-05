@@ -18,6 +18,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
+using Vodovoz.Core.Domain.Rules.Edo;
 
 namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 {
@@ -25,34 +27,50 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 	{
 		private const string _problemSourceName = "Custom.TaxcomDocumentSendingFail";
 		private readonly ILogger<TaxcomSendProblemService> _logger;
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IEdoRepository _edoRepository;
-		private readonly IBus _bus;
+		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly TaxcomSendProblemWorkerOptions _options;
 
 		public TaxcomSendProblemService(
 			ILogger<TaxcomSendProblemService> logger,
-			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
+			INotificationPublisher<EdoNotificationMessage> notificationPublisher,
 			IEdoNotificationMessageFactory notificationMessageFactory,
-			IUnitOfWorkFactory unitOfWorkFactory,
+			IUnitOfWork unitOfWork,
 			IEdoRepository edoRepository,
 			IOptions<TaxcomSendProblemWorkerOptions> options,
-			IBus bus)
+			IPublishEndpoint publishEndpoint)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_notificationPublisher = notificationPublisher ?? throw new ArgumentNullException(nameof(notificationPublisher));
 			_notificationMessageFactory = notificationMessageFactory ?? throw new ArgumentNullException(nameof(notificationMessageFactory));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 		}
 
 		public async Task TryResumeOrderDocumentSendAsync(int orderDocumentId, CancellationToken cancellationToken)
 		{			
-			await _bus.Publish(new OrderDocumentSendEvent { OrderDocumentId = orderDocumentId });
+			await _publishEndpoint.Publish(new OrderDocumentSendEvent { OrderDocumentId = orderDocumentId }, cancellationToken);
+		}
+
+		private async Task TryResumeDocumentSendAsync(OutgoingEdoDocument document, CancellationToken cancellationToken)
+		{
+			switch(document.Type)
+			{
+				case OutgoingEdoDocumentType.Order:
+					await TryResumeOrderDocumentSendAsync(document.Id, cancellationToken);
+					break;
+				case OutgoingEdoDocumentType.Transfer:
+					await _publishEndpoint.Publish(
+						new TransferDocumentSendEvent { TransferDocumentId = document.Id }, cancellationToken);
+					break;
+				default:
+					throw new NotSupportedException($"Не поддерживается повторная отправка документа типа {document.Type}");
+			}
 		}
 
 		public async Task ProcessProblemTasks(CancellationToken cancellationToken)
@@ -61,75 +79,75 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
-				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+				_logger.LogInformation("Начинаем поиск проблем ЭДО с ошибкой отправки в Такском");
+
+				var problemNodes = await _edoRepository.GetTaxcomSendProblemNodes(
+					_unitOfWork,
+					_problemSourceName,
+					_options.BatchSize,
+					_options.RetryDelays,
+					TransferEdoTaskCancellationRule.CancellationStatuses,
+					cancellationToken);
+
+				if(!problemNodes.Any())
 				{
-					_logger.LogInformation("Начинаем поиск проблем ЭДО с ошибкой отправки в Такском");
-
-					var problemNodes = await _edoRepository.GetTaxcomSendProblemNodes(
-						uow,
-						_problemSourceName,
-						_options.BatchSize,
-						_options.RetryDelays,
-						cancellationToken);
-
-					if(!problemNodes.Any())
-					{
-						_logger.LogDebug("Нет активных проблем ЭДО с ошибкой отправки для обработки");
-						return;
-					}
-
-					_logger.LogInformation("Найдено {Count} активных проблем ЭДО с ошибкой отправки", problemNodes.Count);
-
-					var processedCount = 0;
-					var failedCount = 0;
-					var notificationsToSend = new List<TaxcomSendProblemNotificationData>();
-
-					foreach(var problemNode in problemNodes)
-					{
-						try
-						{
-							cancellationToken.ThrowIfCancellationRequested();
-
-							var result = await ProcessProblem(uow, problemNode, cancellationToken);
-
-							if(result.Processed)
-							{
-								processedCount++;
-							}
-
-							if(result.ShouldNotify)
-							{
-								notificationsToSend.Add(result.NotificationData);
-							}
-						}
-						catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
-						{
-							throw;
-						}
-						catch(Exception ex)
-						{
-							failedCount++;
-							_logger.LogError(ex,
-								"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: ошибка при обработке",
-								problemNode.Problem.Id,
-								problemNode.EdoTask?.Id ?? 0);
-						}
-					}
-
-					if(notificationsToSend.Any())
-					{
-						await SendGroupNotificationsAsync(uow, notificationsToSend, cancellationToken);
-					}
-
-					await uow.CommitAsync(cancellationToken);
-
-					_logger.LogInformation(
-						"Обработка проблем ЭДО с ошибкой отправки завершена: " +
-						"Обработано {ProcessedCount}, Ошибок {FailedCount}, Уведомлений {NotifiedCount}",
-						processedCount,
-						failedCount,
-						notificationsToSend.Count);
+					_logger.LogDebug("Нет активных проблем ЭДО с ошибкой отправки для обработки");
+					return;
 				}
+
+				_logger.LogInformation("Найдено {Count} активных проблем ЭДО с ошибкой отправки", problemNodes.Count);
+
+				var processedCount = 0;
+				var failedCount = 0;
+				var notificationsToSend = new List<TaxcomSendProblemNotificationData>();
+
+				foreach(var problemNode in problemNodes)
+				{
+					try
+					{
+						cancellationToken.ThrowIfCancellationRequested();
+
+						var result = await ProcessProblem(_unitOfWork, problemNode, cancellationToken);
+
+						if(result.Processed)
+						{
+							processedCount++;
+						}
+
+						if(result.ShouldNotify)
+						{
+							notificationsToSend.Add(result.NotificationData);
+						}
+					}
+					catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+					{
+						throw;
+					}
+					catch(Exception ex)
+					{
+						failedCount++;
+						_logger.LogError(ex,
+							"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: ошибка при обработке",
+							problemNode.Problem.Id,
+							problemNode.EdoTask?.Id ?? 0);
+						throw;
+					}
+				}
+
+				if(notificationsToSend.Any())
+				{
+					await SendGroupNotificationsAsync(_unitOfWork, notificationsToSend, cancellationToken);
+				}
+
+				// События возобновления сохраняются в outbox вместе с состоянием попыток и уходят после коммита
+				await _unitOfWork.CommitAsync(cancellationToken);
+
+				_logger.LogInformation(
+					"Обработка проблем ЭДО с ошибкой отправки завершена: " +
+					"Обработано {ProcessedCount}, Ошибок {FailedCount}, Уведомлений {NotifiedCount}",
+					processedCount,
+					failedCount,
+					notificationsToSend.Count);
 			}
 			catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
 			{
@@ -151,7 +169,12 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 		{
 			var problem = problemNode.Problem;
 			var edoTask = problemNode.EdoTask;
-			var orderDocumentId = problemNode.OrderEdoDocument.Id;
+			if(edoTask.TaskType == EdoTaskType.Transfer && TransferEdoTaskCancellationRule.IsCancelledOrCancelling(edoTask.Status))
+			{
+				return TaxcomSendProblemProcessResult.Empty;
+			}
+
+			var document = problemNode.EdoDocument;
 			var state = problemNode.RoutineState ?? new EdoTaskProblemRoutineState { Problem = problem };
 			var now = DateTime.Now;
 
@@ -167,37 +190,25 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 				return TaxcomSendProblemProcessResult.Empty;
 			}
 
+			await TryResumeDocumentSendAsync(document, cancellationToken);
+
 			state.RetryCount++;
 			state.LastRetryTime = now;
 			await uow.SaveAsync(state, cancellationToken: cancellationToken);
 
-			try
+			if(TaxcomSendProblemProcessingPolicy.ShouldRequestNotification(state, _options.MaxAttempts))
 			{
-				await TryResumeOrderDocumentSendAsync(orderDocumentId, cancellationToken);
-
-				if(TaxcomSendProblemProcessingPolicy.ShouldRequestNotification(state, _options.MaxAttempts))
-				{
-					return await PrepareNotificationData(uow, problem, edoTask, state.RetryCount, cancellationToken);
-				}
-
-				return new TaxcomSendProblemProcessResult(true, false, null);
+				return await PrepareNotificationData(uow, problem, edoTask, document.Id, state.RetryCount, cancellationToken);
 			}
-			catch(Exception ex)
-			{
-				_logger.LogWarning(ex,
-					"Проблема {ProblemId}, задача ЭДО {EdoTaskId}: ошибка при обработке, попытка #{RetryCount}",
-					problem.Id,
-					edoTask?.Id ?? 0,
-					state.RetryCount);
 
-				return new TaxcomSendProblemProcessResult(false, false, null);
-			}
+			return new TaxcomSendProblemProcessResult(true, false, null);
 		}
 
 		private async Task<TaxcomSendProblemProcessResult> PrepareNotificationData(
 			IUnitOfWork uow,
 			CustomEdoTaskProblem problem,
-			OrderEdoTask edoTask,
+			EdoTask edoTask,
+			int edoDocumentId,
 			int retryCount,
 			CancellationToken cancellationToken)
 		{
@@ -207,12 +218,25 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 				edoTask?.Id ?? 0,
 				_options.MaxAttempts);
 
-			var orderId = edoTask?.FormalEdoRequest?.Order?.Id ?? 0;
-			var mainDocumentId = edoTask?.FormalEdoRequest?.Order?.Id.ToString() ?? "Неизвестный заказ";
+			string taskDescription;
+			string mainDocumentId;
+			if(edoTask is TransferEdoTask transferTask)
+			{
+				taskDescription = $"Трансфер №{transferTask.Id}, " +
+					$"заказ перемещения №{transferTask.TransferOrderId?.ToString() ?? "не указан"}";
+				mainDocumentId = edoDocumentId.ToString();
+			}
+			else
+			{
+				var orderTask = (OrderEdoTask)edoTask;
+				var orderId = orderTask?.FormalEdoRequest?.Order?.Id ?? 0;
+				taskDescription = $"Заказ №{orderId}";
+				mainDocumentId = orderTask?.FormalEdoRequest?.Order?.Id.ToString() ?? "Неизвестный заказ";
+			}
 			var errorMessage = problem.CustomMessage ?? "Неизвестная ошибка отправки в Такском";
 
 			var notificationData = new TaxcomSendProblemNotificationData(
-				orderId: orderId,
+				taskDescription: taskDescription,
 				mainDocumentId: mainDocumentId,
 				errorMessage: errorMessage,
 				problemId: problem.Id,
@@ -242,7 +266,7 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 
 				foreach(var notification in notifications)
 				{
-					messageBuilder.AppendLine($"- Заказ №{notification.OrderId}, " +
+					messageBuilder.AppendLine($"- {notification.TaskDescription}, " +
 						$"документ: {notification.MainDocumentId}, " +
 						$"попыток: {notification.RetryCount}, " +
 						$"ошибка: {notification.ErrorMessage}");
@@ -250,8 +274,7 @@ namespace Edo.Problem.Routine.Services.TaxcomSendProblem
 
 				var message = messageBuilder.ToString();
 
-				var notificationMessage = _notificationMessageFactory.Create(
-					EdoNotificationType.TaxcomSendProblem,
+				var notificationMessage = _notificationMessageFactory.Create<TaxcomSendProblemEdoNotificationSetting>(
 					("Message", message));
 
 				var published = await _notificationPublisher.TryPublishAsync(uow, notificationMessage, cancellationToken);

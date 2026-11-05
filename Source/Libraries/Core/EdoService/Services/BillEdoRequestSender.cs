@@ -1,13 +1,15 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Contracts.Messages.Events;
+using MassTransit;
 using NHibernate;
+using TransactionalOutbox.MassTransit;
 using NLog;
 using TaxcomEdo.Contracts.Documents;
-using TransactionalOutbox.Domain;
+
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
@@ -22,16 +24,18 @@ namespace EdoService.Library.Services
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IBillEdoDocumentFileStorageService _fileStorageService;
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
 		/// <summary>
 		/// Создает отправитель заявок счетов
 		/// </summary>
 		/// <param name="uowFactory">Фабрика единиц работы</param>
 		/// <param name="fileStorageService">Хранилище PDF счетов</param>
-		public BillEdoRequestSender(IUnitOfWorkFactory uowFactory, IBillEdoDocumentFileStorageService fileStorageService)
+		public BillEdoRequestSender(IUnitOfWorkFactory uowFactory, IBillEdoDocumentFileStorageService fileStorageService, IUnitOfWorkOutbox<IBus> outbox)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_fileStorageService = fileStorageService ?? throw new ArgumentNullException(nameof(fileStorageService));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 
 		/// <summary>
@@ -78,9 +82,9 @@ namespace EdoService.Library.Services
 					request.Order = uow.Session.Load<OrderEntity>(request.Order.Id);
 				}
 				await uow.SaveAsync(request, cancellationToken: cancellationToken);
-				await uow.SaveAsync(
-					new OutboxMessage(new InformalEdoRequestCreatedEvent { InformalRequestId = request.Id }),
-					cancellationToken: cancellationToken);
+				await _outbox.GetPublishEndpoint(uow).Publish(
+					new InformalEdoRequestCreatedEvent { InformalRequestId = request.Id },
+					cancellationToken);
 				await uow.CommitAsync(cancellationToken);
 				return request.Id;
 			}

@@ -16,6 +16,7 @@ using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Data.Repositories.Goods;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
 
 namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 {
@@ -23,22 +24,22 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 	{
 		private readonly string _problemSourceName;
 		private readonly ILogger<CodePoolMissingProblemService> _logger;
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEdoRepository _edoRepository;
 		private readonly INomenclatureRepository _nomenclatureRepository;
-		private readonly MessageService _messageService;
+		private readonly IOrderEdoTaskCreatedEventPublisher _taskCreatedEventPublisher;
 		private readonly CodePoolMissingProblemWorkerOptions _options;
 
 		public CodePoolMissingProblemService(
 			ILogger<CodePoolMissingProblemService> logger,
-			IOutboxNotificationPublisher<EdoNotificationMessage> notificationPublisher,
+			INotificationPublisher<EdoNotificationMessage> notificationPublisher,
 			IEdoNotificationMessageFactory notificationMessageFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEdoRepository edoRepository,
 			INomenclatureRepository nomenclatureRepository,
-			MessageService messageService,
+			IOrderEdoTaskCreatedEventPublisher taskCreatedEventPublisher,
 			IOptions<CodePoolMissingProblemWorkerOptions> options
 			)
 		{
@@ -48,7 +49,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_taskCreatedEventPublisher = taskCreatedEventPublisher ?? throw new ArgumentNullException(nameof(taskCreatedEventPublisher));
 			_options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 
 			_problemSourceName = nameof(EdoCodePoolMissingCodeException);
@@ -56,7 +57,12 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 
 		public async Task TryResumeTaskAsync(OrderEdoTask edoTask, CancellationToken cancellationToken)
 		{
-			await _messageService.PublishTaskCreatedEvent(edoTask, cancellationToken);
+			// Данные не меняются — Commit нужен, чтобы событие сохранилось в outbox
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Публикация события о создании задачи ЭДО"))
+			{
+				_taskCreatedEventPublisher.Publish(uow, edoTask, cancellationToken);
+				await uow.CommitAsync(cancellationToken);
+			}
 		}
 
 		public async Task ProcessProblemTasks(CancellationToken cancellationToken)
@@ -192,7 +198,9 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 
 			try
 			{
-				await TryResumeTaskAsync(edoTask, cancellationToken);
+				// Событие и отметка о попытке сохраняются одним коммитом пакета. Если коммит не пройдёт,
+				// не сохранится ни то, ни другое, и следующий запуск снова отправит событие, а не будет ждать его обработки
+				_taskCreatedEventPublisher.Publish(uow, edoTask, cancellationToken);
 			}
 			catch(Exception e)
 			{
@@ -304,8 +312,7 @@ namespace Edo.Problem.Routine.Services.CodePoolMissingProblem
 
 				var message = messageBuilder.ToString();
 
-				var notification = _notificationMessageFactory.Create(
-					EdoNotificationType.CodePoolMissingProblem,
+				var notification = _notificationMessageFactory.Create<CodePoolMissingProblemEdoNotificationSetting>(
 					("Message", message));
 
 				var published = await _notificationPublisher.TryPublishAsync(uow, notification, cancellationToken);

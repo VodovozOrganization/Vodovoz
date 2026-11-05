@@ -289,6 +289,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Vodovoz.SmsInformerWorker/Vodovoz.SmsInformerWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Warehouse/WarehouseApi/WarehouseApi.csproj")
 				DockerPublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
+				DockerPublishBuild("${APP_PATH}/Frontend/MaintenancePage/MaintenancePage.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/IIS/RoboatsCallsWorker/RoboatsCallsWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/PushNotificationsWorker/PushNotificationsWorker.csproj")				
@@ -303,7 +304,6 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Mango.Service/Mango.Service.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Sms.Internal.Service/Sms.Internal.Service.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailganerEventsDistributorApi/MailganerEventsDistributorApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/OutboxWorker/OutboxWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Notifications/CustomerNotificationsWorker/CustomerNotificationsWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Notifications/EdoNotificationsWorker/EdoNotificationsWorker.csproj")
 				

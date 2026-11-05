@@ -27,7 +27,7 @@ namespace EdoServices.Tests
 
 		private readonly IUnitOfWork _uow;
 		private readonly IEdoNotificationMessageFactory _notificationMessageFactory;
-		private readonly IOutboxNotificationPublisher<EdoNotificationMessage> _notificationPublisher;
+		private readonly INotificationPublisher<EdoNotificationMessage> _notificationPublisher;
 		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly DocflowStatusUpdateHandler _handler;
 
@@ -35,7 +35,7 @@ namespace EdoServices.Tests
 		{
 			_uow = Substitute.For<IUnitOfWork>();
 			_notificationMessageFactory = Substitute.For<IEdoNotificationMessageFactory>();
-			_notificationPublisher = Substitute.For<IOutboxNotificationPublisher<EdoNotificationMessage>>();
+			_notificationPublisher = Substitute.For<INotificationPublisher<EdoNotificationMessage>>();
 			_publishEndpoint = Substitute.For<IPublishEndpoint>();
 
 			var edoRequest = new PrimaryEdoRequest

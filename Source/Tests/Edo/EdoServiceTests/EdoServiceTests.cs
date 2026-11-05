@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Infrastructure;
-using TransactionalOutbox.Domain;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Organizations;
 using Edo.Admin;
@@ -58,7 +57,7 @@ namespace EdoServices.Tests
 		private readonly IOrderEdoTaskCreatedEventPublisher _orderEdoTaskCreatedEventPublisher;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 		private readonly IBus _bus;
-		private readonly MessageService _messageService;
+		private readonly TransactionalOutbox.MassTransit.IUnitOfWorkOutbox<IBus> _outbox;
 		private readonly EdoCancellationService _edoCancellationService;
 		private readonly IEdoCancellationValidator _edoCancellationValidator;
 		private readonly IPublishEndpoint _publishEndpoint;
@@ -88,8 +87,11 @@ namespace EdoServices.Tests
 
 			_edoRequestCreatedEventPublisher = Substitute.For<IEdoRequestCreatedEventPublisher>();
 			_bus = Substitute.For<IBus>();
+			_outbox = Substitute.For<TransactionalOutbox.MassTransit.IUnitOfWorkOutbox<IBus>>();
+			_outbox.GetPublishEndpoint(Arg.Any<IUnitOfWork>()).Returns(_bus);
 			_orderEdoTaskCreatedEventPublisher = new OrderEdoTaskCreatedEventPublisher(
-				Substitute.For<ILogger<OrderEdoTaskCreatedEventPublisher>>());
+				Substitute.For<ILogger<OrderEdoTaskCreatedEventPublisher>>(),
+				_outbox);
 			_requestFactories = Enumerable.Empty<IInformalEdoRequestFactory>();
 			_manualEdoRequestFactory = Substitute.For<IManualEdoRequestFactory>();
 
@@ -108,23 +110,20 @@ namespace EdoServices.Tests
 				_uowFactory,
 				_customSourcesPersister,
 				_exceptionSourcesPersister,
-				Substitute.For<Notifications.Infrastructure.IOutboxNotificationPublisher<EdoNotifications.Contracts.EdoNotificationMessage>>()
-			);
-
-			_messageService = new MessageService(
-				Substitute.For<ILogger<MessageService>>(),
-				_bus
+				Substitute.For<Notifications.Infrastructure.INotificationPublisher<EdoNotifications.Contracts.EdoNotificationMessage>>()
 			);
 
 			_edoCancellationValidator = Substitute.For<IEdoCancellationValidator>();
 			_publishEndpoint = Substitute.For<IPublishEndpoint>();
+			var cancellationOutbox = Substitute.For<TransactionalOutbox.MassTransit.IUnitOfWorkOutbox<IBus>>();
+			cancellationOutbox.GetPublishEndpoint(Arg.Any<IUnitOfWork>()).Returns(_publishEndpoint);
 			_edoCancellationService = new EdoCancellationService(
 				Substitute.For<ILogger<EdoCancellationService>>(),
 				_uow,
 				_edoCancellationValidator,
 				_problemRegistrar,
 				Substitute.For<ITrueMarkWaterCodeService>(),
-				_publishEndpoint
+				cancellationOutbox
 				);
 			_userService = Substitute.For<IUserService>();
 
@@ -138,7 +137,6 @@ namespace EdoServices.Tests
 				_orderRepository,
 				_organizationRepository,
 				_edoRepository,
-				_messageService,
 				_userService,
 				_employeeService,
 				_edoCancellationService,
@@ -150,7 +148,7 @@ namespace EdoServices.Tests
 				_orderEdoTaskCreatedEventPublisher,
 				_requestFactories,
 				_manualEdoRequestFactory,
-				_bus
+				_outbox
 			);
 		}
 
@@ -792,6 +790,7 @@ namespace EdoServices.Tests
 			Assert.Equal(SourceProductCodeStatus.New, createdCode.SourceCodeStatus);
 			context.Uow.Received().Save(resendRequest);
 			_edoRequestCreatedEventPublisher.Received(1).Publish(
+				context.Uow,
 				resendRequest.Id,
 				"Ручная переотправка документов ЭДО");
 		}
@@ -884,8 +883,8 @@ namespace EdoServices.Tests
 			{
 				context.Uow.Session.Flush();
 				context.Uow.Save(newRequest);
+				_edoRequestCreatedEventPublisher.Publish(context.Uow, 456, "Ручная переотправка документов ЭДО");
 				context.Uow.Commit();
-				_edoRequestCreatedEventPublisher.Publish(456, "Ручная переотправка документов ЭДО");
 			});
 
 			_uow.Session.GetAsync<OrderEdoDocument>(204, Arg.Any<CancellationToken>())
@@ -964,7 +963,7 @@ namespace EdoServices.Tests
 			if(concurrentRequest)
 			{
 				_manualEdoRequestFactory.DidNotReceiveWithAnyArgs().Create(default, default, default);
-				_edoRequestCreatedEventPublisher.DidNotReceiveWithAnyArgs().Publish(default, default);
+				_edoRequestCreatedEventPublisher.DidNotReceiveWithAnyArgs().Publish(default, default, default);
 			}
 		}
 
@@ -998,7 +997,7 @@ namespace EdoServices.Tests
 			context.Uow.Session.Received(1).Flush();
 			context.Uow.DidNotReceive().Commit();
 			context.Uow.Received().Dispose();
-			_edoRequestCreatedEventPublisher.DidNotReceiveWithAnyArgs().Publish(default, default);
+			_edoRequestCreatedEventPublisher.DidNotReceiveWithAnyArgs().Publish(default, default, default);
 		}
 
 		private (IUnitOfWork Uow, DocumentEdoTask Task, OrderEntity Order) SetupResendWithCancellationContext(
@@ -1216,7 +1215,6 @@ namespace EdoServices.Tests
 				}
 			};
 
-			_uowFactory.CreateWithoutRoot(Arg.Any<string>()).ReturnsForAnyArgs(_uow);
 			_edoRepository.GetStaleNewEdoTasks(
 				Arg.Any<IUnitOfWork>(),
 				Arg.Any<DateTime>(),
@@ -1253,7 +1251,6 @@ namespace EdoServices.Tests
 				DocumentType = EdoDocumentType.Bill
 			};
 
-			_uowFactory.CreateWithoutRoot(Arg.Any<string>()).ReturnsForAnyArgs(_uow);
 			_edoRepository.GetStaleNewEdoTasks(
 				Arg.Any<IUnitOfWork>(),
 				Arg.Any<DateTime>(),
@@ -1345,8 +1342,8 @@ namespace EdoServices.Tests
 			Assert.Null(context.Document.CancellationRequestTime);
 			Assert.Equal(EdoTaskStatus.Cancelled, context.Task.Status);
 			context.Uow.Session.Received(1).Refresh(context.Document, LockMode.Upgrade);
-			context.Uow.DidNotReceive().Save(Arg.Is<OutboxMessage>(x =>
-				x.Type == typeof(AcceptingWaitingForCancellationDocflowEvent).FullName));
+			_bus.DidNotReceive().Publish(
+				Arg.Any<AcceptingWaitingForCancellationDocflowEvent>(), Arg.Any<CancellationToken>());
 			context.Uow.Received(1).Commit();
 		}
 
@@ -1362,8 +1359,8 @@ namespace EdoServices.Tests
 			// Аннулирование зафиксирует обработчик статусов, когда его подтвердит Такском
 			Assert.Equal(EdoDocumentStatus.WaitingForCancellation, context.Document.Status);
 			Assert.NotNull(context.Document.CancellationRequestTime);
-			context.Uow.Received(1).Save(Arg.Is<OutboxMessage>(x =>
-				x.Type == typeof(AcceptingWaitingForCancellationDocflowEvent).FullName));
+			_bus.Received(1).Publish(
+				Arg.Any<AcceptingWaitingForCancellationDocflowEvent>(), Arg.Any<CancellationToken>());
 			context.Uow.Received(1).Commit();
 		}
 

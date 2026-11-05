@@ -1,7 +1,10 @@
 ﻿using Edo.DeviationMonitoring.Options;
 using Edo.DeviationMonitoring.Validation;
+using Edo.Transport;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Data.NHibernate;
@@ -17,7 +20,9 @@ namespace Edo.DeviationMonitoring
 		/// </summary>
 		/// <param name="services">Коллекция сервисов</param>
 		/// <returns>Коллекция сервисов</returns>
-		public static IServiceCollection AddEdoDeviationMonitoring(this IServiceCollection services)
+		public static IServiceCollection AddEdoDeviationMonitoring(
+			this IServiceCollection services,
+			Action<IBusRegistrationConfigurator> configureBus = null)
 		{
 			services.AddCoreDataRepositories();
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -32,6 +37,10 @@ namespace Edo.DeviationMonitoring
 			services.TryAddScoped<EdoDeviationValidatorsProvider>();
 			services.TryAddScoped<IEdoDeviationRegistrationService, EdoDeviationRegistrationService>();
 			services.TryAddScoped<IEdoDeviationResolvingService, EdoDeviationResolvingService>();
+			services.TryAddScoped<IEdoDeviationProcessingService, EdoDeviationProcessingService>();
+			services.TryAddScoped<IOrderEdoTaskCreatedEventPublisher, OrderEdoTaskCreatedEventPublisher>();
+			services.AddEdoNotifications();
+			services.AddEdoMassTransit(configureBus: configureBus);
 
 			return services;
 		}

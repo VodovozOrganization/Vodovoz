@@ -27,6 +27,8 @@ using Vodovoz.Core.Application.Services.Subdivisions;
 using Vodovoz.Core.Application.TrueMark;
 using Vodovoz.Core.Application.Users;
 using Vodovoz.Core.Application.Warehouses;
+using Vodovoz.Core.Data.NHibernate.Repositories.Cash;
+using Vodovoz.Core.Data.Repositories.Cash;
 using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Interfaces.Sale;
 using Vodovoz.Core.Domain.Users;
@@ -176,6 +178,7 @@ namespace Vodovoz.Core.Application
 			services.TryAddScoped<SaleItemWithTaxHandler>();
 			services.TryAddScoped<ISaleItemTaxHandler, SaleItemTaxHandler>();
 			services.TryAddScoped<IVatRateProvider, VatRateFromDbProvider>();
+			services.TryAddScoped<IVatRateRepository, VatRateRepository>();
 			
 			return services;
 		}

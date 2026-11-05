@@ -5,16 +5,28 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net.Http;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Unicode;
 using System.Threading;
 using System.Threading.Tasks;
-using TransactionalOutbox.Serialization;
 using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerNotificationsWorker
 {
 	public class CustomerNotificationsConsumer : IConsumer<CustomerNotificationIntegrationEvent>
 	{
+		// Формат JSON тела запроса к API мобильного приложения и сайта: camelCase, перечисления строками, без null.
+		private static readonly JsonSerializerOptions _requestJsonOptions = new JsonSerializerOptions
+		{
+			Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+			Converters = { new JsonStringEnumConverter() },
+			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+			DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+		};
+
 		private readonly IOptionsSnapshot<NotifierOptions> _options;
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly int _httpClientTimeoutInSeconds;
@@ -56,17 +68,15 @@ namespace CustomerNotificationsWorker
 
 			var source = customerEvent.EventSource;
 
-			var serializerOptions = OutboxJsonSerializerOptions.Instance;
-
 			string requestJson;
 
 			if(source == Source.VodovozWebSite)
 			{
-				requestJson = JsonSerializer.Serialize(customerEvent.WebSitePayload, serializerOptions);
+				requestJson = JsonSerializer.Serialize(customerEvent.WebSitePayload, _requestJsonOptions);
 			}
 			else
 			{
-				requestJson = JsonSerializer.Serialize(customerEvent.Payload, serializerOptions);
+				requestJson = JsonSerializer.Serialize(customerEvent.Payload, _requestJsonOptions);
 			}
 
 			var uri = GetUriString(source.Value);

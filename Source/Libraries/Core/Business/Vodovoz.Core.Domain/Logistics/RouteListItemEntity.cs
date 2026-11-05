@@ -1,10 +1,8 @@
 ﻿using QS.DomainModel.Entity;
-using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Domain.Logistics
 {
@@ -18,7 +16,6 @@ namespace Vodovoz.Core.Domain.Logistics
 		private DateTime _version;
 		private RouteListEntity _routeList;
 		private string _unscannedCodesReason;
-		private IObservableList<RouteListItemTrueMarkProductCode> _trueMarkCodes = new ObservableList<RouteListItemTrueMarkProductCode>();
 		private OrderEntity _order;
 
 		public virtual int Id
@@ -55,16 +52,6 @@ namespace Vodovoz.Core.Domain.Logistics
 			set => SetField(ref _unscannedCodesReason, value);
 		}
 
-		/// <summary>
-		/// Коды ЧЗ товаров
-		/// </summary>
-		[Display(Name = "Коды ЧЗ товаров")]
-		public virtual IObservableList<RouteListItemTrueMarkProductCode> TrueMarkCodes
-		{
-			get => _trueMarkCodes;
-			set => SetField(ref _trueMarkCodes, value);
-		}
-		
 		[Display(Name = "Заказ")]
 		public virtual OrderEntity Order
 		{

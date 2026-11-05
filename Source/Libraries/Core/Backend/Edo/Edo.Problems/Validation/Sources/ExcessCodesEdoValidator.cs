@@ -8,6 +8,7 @@ using EdoNotifications.Application.Factories;
 using EdoNotifications.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
 
 namespace Edo.Problems.Validation.Sources
 {
@@ -73,8 +74,7 @@ namespace Edo.Problems.Validation.Sources
 		private EdoNotificationMessage CreateNotification(EdoTask task, IEdoNotificationMessageFactory messageFactory)
 		{
 			var orderTask = (OrderEdoTask)task;
-			return messageFactory.Create(
-				EdoNotificationType.ExcessCodes,
+			return messageFactory.Create<ExcessCodesEdoNotificationSetting>(
 				("OrderId", orderTask.FormalEdoRequest.Order.Id.ToString(CultureInfo.InvariantCulture)),
 				("EdoTaskId", orderTask.Id.ToString(CultureInfo.InvariantCulture)),
 				("ProblemMessage", GetTemplatedMessage(task)),

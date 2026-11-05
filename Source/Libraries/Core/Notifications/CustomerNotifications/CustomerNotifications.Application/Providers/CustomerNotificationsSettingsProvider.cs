@@ -1,9 +1,9 @@
 ﻿using CustomerNotifications.Contracts;
+using Notifications.Core;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace CustomerNotifications.Application.Providers
 {
@@ -16,7 +16,7 @@ namespace CustomerNotifications.Application.Providers
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
-		private OnlineOrderNotificationSetting GetSetting(CustomerNotificationDomainEvent notificationDomainEvent)
+		public OnlineOrderNotificationSetting GetSetting(CustomerNotificationDomainEvent notificationDomainEvent)
 		{
 			if(notificationDomainEvent == null)
 			{
@@ -38,19 +38,10 @@ namespace CustomerNotifications.Application.Providers
 			}
 		}
 
-		public bool IsDuplicateAllowed(CustomerNotificationDomainEvent notificationDomainEvent)
-			=> GetSetting(notificationDomainEvent)?.AllowDuplicateNotifications ?? false;
-
-		public bool IsDisabled(CustomerNotificationDomainEvent notificationDomainEvent)
-			=> GetSetting(notificationDomainEvent)?.NotificationDisabled ?? true;
-
-		public string GetNotificationText(CustomerNotificationDomainEvent notificationDomainEvent)
-			=> GetSetting(notificationDomainEvent).NotificationText;
-
-		public CustomerNotificationPushType GetCustomerPushType(CustomerNotificationDomainEvent notificationDomainEvent)
-			=> GetSetting(notificationDomainEvent).PushType;
-
-		public CustomerNotificationTargetType GetCustomerPushTarget(CustomerNotificationDomainEvent notificationDomainEvent)
-			=> GetSetting(notificationDomainEvent).PushTarget;
+		public NotificationSendingSettings GetSendingSettings(CustomerNotificationDomainEvent notificationDomainEvent)
+		{
+			var setting = GetSetting(notificationDomainEvent);
+			return new NotificationSendingSettings(setting.NotificationDisabled, setting.AllowDuplicateNotifications);
+		}
 	}
 }

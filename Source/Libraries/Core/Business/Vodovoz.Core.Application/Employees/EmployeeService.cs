@@ -13,6 +13,7 @@ using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
+using TransactionalOutbox.MassTransit;
 
 namespace Vodovoz.Core.Application.Employees
 {
@@ -20,13 +21,15 @@ namespace Vodovoz.Core.Application.Employees
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IUserService _userService;
-		private readonly IBus _messageBus;
+		// На десктопе у диалогов свои UoW, поэтому IPublishEndpoint из DI запрещён: сообщение пишется
+		// в таблицы outbox в транзакции нужного UoW (_outbox.GetPublishEndpoint(uow)), отправляет его бэкенд
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 
-		public EmployeeService(IUnitOfWorkFactory uowFactory, IUserService userService, IBus messageBus)
+		public EmployeeService(IUnitOfWorkFactory uowFactory, IUserService userService, IUnitOfWorkOutbox<IBus> outbox)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 
 		public Employee GetEmployee(int employeeId)
@@ -129,9 +132,16 @@ namespace Vodovoz.Core.Application.Employees
 			SendMessageToEmail(message).GetAwaiter().GetResult();
 		}
 
+		/// <summary>
+		/// Письмо сохраняется в outbox в отдельной транзакции, чтобы не коммитить чужой UoW
+		/// </summary>
 		private async Task SendMessageToEmail(SendEmailMessage message)
 		{
-			await _messageBus.Publish(message);
+			using(var uow = _uowFactory.CreateWithoutRoot("Отправка письма сотруднику"))
+			{
+				await _outbox.GetPublishEndpoint(uow).Publish(message);
+				await uow.CommitAsync();
+			}
 		}
 	}
 }

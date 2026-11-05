@@ -151,6 +151,7 @@ namespace Edo.Withdrawal.Routine.Services
 				}
 
 				await _edoRequestCreatedEventPublisher.Publish(
+					uow,
 					request.ResendEdoRequest.Id,
 					"Переотправка документов ЭДО после отмены вывода кодов из оборота в ЧЗ",
 					cancellationToken);

@@ -550,10 +550,10 @@
     <None Include="$(MSBuildThisFileDirectory)\Reports\Sales\OrderCreationDateReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="$(MSBuildThisFileDirectory)\Reports\Sales\PlanImplementationByEmployeeReport.rdl">
+    <None Include="$(MSBuildThisFileDirectory)\Reports\Sales\TareCollectionByEmployeeReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="$(MSBuildThisFileDirectory)\Reports\Sales\PlanImplementationFullReport.rdl">
+    <None Include="$(MSBuildThisFileDirectory)\Reports\Sales\TareCollectionFullReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="$(MSBuildThisFileDirectory)\Reports\Sales\SalaryRatesReport.rdl">

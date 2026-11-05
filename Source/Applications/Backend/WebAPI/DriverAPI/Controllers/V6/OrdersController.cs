@@ -77,14 +77,14 @@ namespace DriverAPI.Controllers.V6
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderDto))]
-		public IActionResult GetOrder(int orderId)
+		public async Task<IActionResult> GetOrder(int orderId, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("(OrderId: {OrderId}) User token: {AccessToken}",
 				orderId,
 				Request.Headers[HeaderNames.Authorization]);
 
 			return MapResult(
-				_orderService.GetOrder(orderId),
+				await _orderService.GetOrder(orderId, cancellationToken),
 				result =>
 				{
 					if(result.IsSuccess)
@@ -168,15 +168,17 @@ namespace DriverAPI.Controllers.V6
 					completedOrderRequestModel,
 					cancellationToken);
 
-				await unitOfWork.CommitAsync();
-
 				if(result is Result<int>)
 				{
 					var resultWithMessage = (Result<int>)result;
+
 					await _edoRequestCreatedEventPublisher.Publish(
+						unitOfWork,
 						resultWithMessage.Value,
 						"Завершение доставки заказа через приложение водителя");
 				}
+
+				await unitOfWork.CommitAsync();
 
 				return MapResult(
 					result,

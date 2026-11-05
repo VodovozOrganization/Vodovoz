@@ -15,6 +15,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Rules.Edo;
 
 namespace Edo.Docflow
 {
@@ -73,6 +74,14 @@ namespace Edo.Docflow
 				return;
 			}
 
+			if(TransferEdoTaskCancellationRule.IsCancelledOrCancelling(transferTask.Status))
+			{
+				_logger.LogInformation(
+					"Отправка документа {DocumentId} пропущена: задача трансфера {TransferTaskId} имеет статус {Status}",
+					transferDocumentId, transferTask.Id, transferTask.Status);
+				return;
+			}
+
 			if(transferTask.Upd == null)
 			{
 				_logger.LogWarning("В задаче на трансфер Id {TransferTaskId} отсутствует сохранённый УПД", transferTask.Id);
@@ -89,6 +98,8 @@ namespace Edo.Docflow
 				EdoTaskId = transferTask.Id
 			};
 			await _publishEndpoint.Publish(message);
+			// Данные не менялись, Commit сохраняет сообщение в outbox
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		public async Task SendOrderDocument(int orderDocumentId, CancellationToken cancellationToken)
@@ -146,6 +157,8 @@ namespace Edo.Docflow
 				EdoTaskId = documentTask.Id
 			};
 			await _publishEndpoint.Publish(message);
+			// Данные не менялись, Commit сохраняет сообщение в outbox
+			await _uow.CommitAsync(cancellationToken);
 		}
 
 		/// <summary>
@@ -257,6 +270,8 @@ namespace Edo.Docflow
 				};
 
 				await _publishEndpoint.Publish(message, cancellationToken);
+				// Данные не менялись, Commit сохраняет сообщение в outbox
+				await _uow.CommitAsync(cancellationToken);
 
 				_logger.LogInformation($"Отправка неформализованного документа заказа №{orderDocumentId}");
 			}
