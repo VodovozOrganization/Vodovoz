@@ -1,5 +1,6 @@
 ﻿using CustomerOrders.Contracts.V8.Orders.Items;
 using System.Collections.Generic;
+using CustomerOrders.Contracts.V8.Sale.Templates;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -26,7 +27,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		/// <param name="counterpartyPointFixedPrices">Фиксированные цены клиента</param>
 		/// <param name="parameterType">Тип онлайн параметра по источнику заказа <see cref="GoodsOnlineParameterType"/></param>
 		/// <returns></returns>
-		IEnumerable<OnlineOrderItemWithDiscountDetailsDto> CreateWithDiscountDetailsDto(
+		IEnumerable<TemplateSaleItemWithDiscountDetailsDto> CreateWithDiscountDetailsDto(
 			IEnumerable<ISaleItem> allSaleItems,
 			IEnumerable<NomenclatureFixedPrice> deliveryPointFixedPrices,
 			IEnumerable<NomenclatureFixedPrice> counterpartyPointFixedPrices,
@@ -67,13 +68,13 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		/// </summary>
 		/// <param name="onlinePromoSet">Промонабор из онлайн заказа</param>
 		/// <returns></returns>
-		OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(OnlineOrderTemplatePromoSet onlinePromoSet);
+		TemplateSaleItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(OnlineOrderTemplatePromoSet onlinePromoSet);
 
 		/// <summary>
 		/// Создание дто строки на продажу с детализацией скидок из пакета аренды
 		/// </summary>
 		/// <param name="templateRentPackage">Пакет аренды</param>
 		/// <returns></returns>
-		OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(OnlineOrderTemplateFreeRentPackage templateRentPackage);
+		TemplateSaleItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(OnlineOrderTemplateFreeRentPackage templateRentPackage);
 	}
 }

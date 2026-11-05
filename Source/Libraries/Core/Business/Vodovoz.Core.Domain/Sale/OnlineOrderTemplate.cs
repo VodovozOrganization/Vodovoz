@@ -373,6 +373,13 @@ namespace Vodovoz.Core.Domain.Sale
 			OnlineOrderPaymentType.Cash,
 			OnlineOrderPaymentType.Terminal
 		};
+
+		public static OnlineOrderTemplateStatus[] CanArchive { get; } =
+		{
+			OnlineOrderTemplateStatus.Active,
+			OnlineOrderTemplateStatus.Paused,
+			OnlineOrderTemplateStatus.PaymentProblem
+		};
 		
 		public static OnlineOrderTemplate Create(
 			Source source,

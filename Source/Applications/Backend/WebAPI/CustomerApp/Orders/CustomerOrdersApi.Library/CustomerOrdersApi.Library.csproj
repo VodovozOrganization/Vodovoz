@@ -20,6 +20,7 @@
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />
+      <ProjectReference Include="..\CustomerOrders.Abstractions\CustomerOrders.Abstractions.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,4 +1,4 @@
-﻿using Vodovoz.Core.Domain.Clients;
+﻿using CustomerApp.Contracts.Common;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders
 {
@@ -10,7 +10,7 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		/// <summary>
 		/// Источник запроса
 		/// </summary>
-		public Source Source { get; set; }
+		public ExternalSource Source { get; set; }
 		/// <summary>
 		/// Контрольная сумма оценки, для проверки валидности отправителя
 		/// </summary>

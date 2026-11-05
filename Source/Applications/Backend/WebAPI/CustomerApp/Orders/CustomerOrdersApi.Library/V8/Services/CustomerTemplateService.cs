@@ -180,23 +180,23 @@ namespace CustomerOrdersApi.Library.V8.Services
 		}
 
 		public async Task<Result<OrderTemplateInfoDto>> GetOrderTemplateInfoAsync(
-			GetOrderTemplateInfoDto orderTemplateInfo,
+			GetOrderTemplateInfoDto request,
 			CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Создание детализации об автозаказе");
-			//TODO-6121 какие делаем здесь проверки?
+			
 			_logger.LogInformation("Проверяем пришедшие параметры запроса");
-			/*var validationResult = _templateControllerRequestValidator.Validate(uow, orderTemplateInfo);
+			var validationResult = _templateControllerRequestValidator.Validate(uow, request);
 
 			if(validationResult.IsFailure)
 			{
 				return Result.Failure<OrderTemplateInfoDto>(validationResult.Errors);
-			}*/
+			}
 
 			var templateInfo = await _customerTemplateFactory.CreateOrderTemplateInfoAsync(
 				uow,
-				orderTemplateInfo.Source,
-				orderTemplateInfo.OrderTemplateId,
+				request.Source,
+				request.OrderTemplateId,
 				cancellationToken);
 
 			if(templateInfo is null)
@@ -244,14 +244,14 @@ namespace CustomerOrdersApi.Library.V8.Services
 			CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Приостановка шаблона автозаказа");
-			//TODO-6121 какие делаем здесь проверки?
+
 			_logger.LogInformation("Проверяем пришедшие параметры запроса");
-			/*var validationResult = _templateControllerRequestValidator.Validate(uow, orderTemplateInfo);
+			var validationResult = _templateControllerRequestValidator.Validate(uow, request);
 
 			if(validationResult.IsFailure)
 			{
-				return Result.Failure<OrderTemplateInfoDto>(validationResult.Errors);
-			}*/
+				return Result.Failure<PauseOrderTemplateResponse>(validationResult.Errors);
+			}
 
 			var template = uow.GetById<OnlineOrderTemplate>(request.OrderTemplateId);
 
@@ -278,7 +278,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 			CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Получение ближайших дат шаблона автозаказа");
-			//TODO-6121 какие делаем здесь проверки?
+
 			_logger.LogInformation("Проверяем пришедшие параметры запроса");
 			var validationResult = _templateControllerRequestValidator.Validate(uow, request);
 
@@ -288,9 +288,14 @@ namespace CustomerOrdersApi.Library.V8.Services
 			}
 			
 			//проверки состояний
-			var template = uow.GetById<OnlineOrderTemplate>(request.OrderTemplateId);
+			var deliveryScheduleData = _customerTemplateRepository.GetOrderTemplateDeliverySchedule(uow, request.OrderTemplateId);
 
-			var dates = _customerTemplateFactory.GetResumeDates(uow, template, null);
+			if(deliveryScheduleData is null)
+			{
+				return Result.Failure<GetOrderTemplateResumeDatesResponse>(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
+			}
+
+			var dates = _customerTemplateFactory.GetResumeDates(uow, deliveryScheduleData.Value, request.RequestTime);
 			
 			await uow.CommitAsync(cancellationToken);
 			return Result.Success(GetOrderTemplateResumeDatesResponse.Create(dates));
@@ -303,24 +308,29 @@ namespace CustomerOrdersApi.Library.V8.Services
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Возобновление шаблона автозаказа");
 			_logger.LogInformation("Проверяем пришедшие параметры запроса");
 
-			var validationResult = _templateControllerRequestValidator.ValidateResumeRequest(uow, request);
+			var validationResult = _templateControllerRequestValidator.Validate(uow, request);
 			if(validationResult.IsFailure)
 			{
 				return Result.Failure<ResumeOrderTemplateResponse>(validationResult.Errors);
 			}
 
-			var template = uow.GetById<OnlineOrderTemplate>(request.OrderTemplateId);
-			if(template is null)
+			var templateDataForResume = _customerTemplateRepository.GetTemplateDataForResume(uow, request.OrderTemplateId);
+			if(templateDataForResume is null)
 			{
 				return Result.Failure<ResumeOrderTemplateResponse>(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
 			}
 
+			var template = templateDataForResume.Template;
 			// Если уже Active — idempotent: возвращаем текущие данные
 			if(template.Status == OnlineOrderTemplateStatus.Active)
 			{
 				if(template.Schedule.FirstDeliveryDate == request.NextDeliveryDate)
 				{
-					var newNextDeliveries = _customerTemplateFactory.GetResumeDates(uow, template, null);
+					var newNextDeliveries = _customerTemplateFactory.GetResumeDates(
+						uow,
+						(template.Schedule, templateDataForResume.DeliveryInterval),
+						request.RequestTime
+						);
 					
 					return Result.Success(
 						ResumeOrderTemplateResponse.Create(
@@ -336,7 +346,12 @@ namespace CustomerOrdersApi.Library.V8.Services
 			}
 
 			// Смена статуса на Active
-			var statusResult = _templateStatusHandler.ResumeTemplate(uow, template, request.ErpCounterpartyId, null);
+			var statusResult = _templateStatusHandler.ResumeTemplate(
+				uow,
+				template,
+				request.ErpCounterpartyId,
+				null
+				);
 			
 			if(statusResult.IsFailure)
 			{
@@ -366,7 +381,12 @@ namespace CustomerOrdersApi.Library.V8.Services
 
 			await uow.CommitAsync(cancellationToken);
 
-			var nextDeliveries = _customerTemplateFactory.GetResumeDates(uow, template, null);
+			var nextDeliveries = _customerTemplateFactory.GetResumeDates(
+				uow,
+				(template.Schedule, templateDataForResume.DeliveryInterval),
+				request.RequestTime
+				);
+			
 			return Result.Success(ResumeOrderTemplateResponse.Create(
 				template.Id,
 				TemplateStatusDto.Active,
@@ -394,28 +414,17 @@ namespace CustomerOrdersApi.Library.V8.Services
 				return Result.Failure<ArchiveOrderTemplateResponse>(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
 			}
 
-			// Если уже архивирован — idempotent: возвращаем текущие данные
-			if(template.Status == OnlineOrderTemplateStatus.Archived)
-			{
-				return Result.Success(ArchiveOrderTemplateResponse.Create(template.Id, TemplateStatusDto.Archived));
-			}
-
-			// Удаление токена рекуррентного платежа
-			if(template.RecurrentPayment != null)
-			{
-				var payment = uow.GetById<OnlineRecurrentPayment>(template.RecurrentPayment.Id);
-				if(payment != null)
-				{
-					uow.Delete(payment);
-				}
-				template.RecurrentPayment = null;
-			}
-
-			// Архивация
-			template.Archive();
+			var statusResult = _templateStatusHandler.ArchiveTemplate(
+				uow,
+				template,
+				request.ErpCounterpartyId,
+				null
+			);
 			
-			// Запись события
-			OnlineOrderTemplateStatusChanged.Create(DateTime.Now, null, request.ErpCounterpartyId, OnlineOrderTemplateStatusChangedType.ToArchive);
+			if(statusResult.IsFailure)
+			{
+				return Result.Failure<ArchiveOrderTemplateResponse>(statusResult.Errors);
+			}
 
 			await uow.CommitAsync(cancellationToken);
 

@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Models.Orders;
 
 namespace VodovozBusiness.Extensions
@@ -43,6 +44,19 @@ namespace VodovozBusiness.Extensions
 				default:
 					return ExternalOrderStatus.OrderPerformed;
 			}
+		}
+
+		public static IApplicablePromotion ToApplicablePromotion(this OnlineOrderPromoSet onlinePromoSet)
+		{
+			return new ApplicablePromotion
+			{
+				Price = onlinePromoSet.Price,
+				Count = onlinePromoSet.Count,
+				IsFixedPrice = false,
+				Nomenclature = null,
+				PromoSet = onlinePromoSet.PromoSet,
+				DiscountReasons = onlinePromoSet.DiscountReasons
+			};
 		}
 	}
 }

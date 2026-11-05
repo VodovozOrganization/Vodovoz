@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerApp.Contracts.Common;
 using CustomerOrders.Contracts.V8.Sale.Templates;
 using CustomerOrdersApi.Library.V8.Dto.Templates;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 
@@ -62,15 +62,15 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		);
 
 		/// <summary>
-		/// 
+		/// Получение списка дат следующих поставок
 		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="template"></param>
-		/// <param name="o"></param>
+		/// <param name="uow">unit of work</param>
+		/// <param name="deliveryScheduleData">Шаблон автозаказа</param>
+		/// <param name="requestTime">Дата и время запроса</param>
 		/// <returns></returns>
 		IEnumerable<TemplateNextDeliveriesDto> GetResumeDates(
 			IUnitOfWork uow,
-			OnlineOrderTemplate template,
-			object o);
+			(TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval) deliveryScheduleData,
+			DateTime requestTime);
 	}
 }

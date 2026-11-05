@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using CustomerApp.Contracts.Common;
 using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders
@@ -14,7 +14,7 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		/// <summary>
 		/// Источник заказа
 		/// </summary>
-		Source Source { get; set; }
+		ExternalSource Source { get; set; }
 
 		/// <summary>
 		/// Номер онлайн заказа из ИПЗ

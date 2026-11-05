@@ -7,7 +7,7 @@ namespace CustomerOrdersApi.Library.V8.Dto.Orders.OrderItem
 	/// <summary>
 	/// Товар онлайн заказа
 	/// </summary>
-	public class OnlineOrderItemDto : OnlineOrderItemBaseDto, IOrderedCartItem
+	public class OnlineOrderItemDto : OnlineOrderItemWithGiftBaseDto, IOrderedCartItem
 	{
 		/// <inheritdoc/>
 		public IEnumerable<int> DiscountIds { get; set; }

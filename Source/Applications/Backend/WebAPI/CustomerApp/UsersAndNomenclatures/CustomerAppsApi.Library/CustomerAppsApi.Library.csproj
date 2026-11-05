@@ -14,6 +14,7 @@
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
+		<ProjectReference Include="..\..\CustomerApp.Contracts\CustomerApp.Contracts.csproj" />
 	</ItemGroup>
 
 </Project>

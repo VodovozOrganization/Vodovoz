@@ -66,5 +66,22 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 			int templatesCountOnPage,
 			CancellationToken cancellationToken
 			);
+
+		/// <summary>
+		/// Получение информации о доставке шаблона
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="templateId">Идентификатор шаблона автозаказа</param>
+		/// <returns></returns>
+		(TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval)?
+			GetOrderTemplateDeliverySchedule(IUnitOfWork uow, int templateId);
+
+		/// <summary>
+		/// Получение информации о шаблоне для его возобновления
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="templateId">Идентификатор шаблона автозаказа</param>
+		/// <returns></returns>
+		OrderTemplateDataForResume GetTemplateDataForResume(IUnitOfWork uow, int templateId);
 	}
 }

@@ -2,6 +2,7 @@
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Infrastructure;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
 using CustomerOrdersApi.Library.V7.Dto.Orders.Promotions.Discounts;
 using CustomerOrdersApi.Library.V7.Services;
@@ -29,7 +30,7 @@ namespace CustomerOrdersApi.Controllers.V7
 		[HttpGet]
 		public IActionResult ApplyPromoCodeToOrder([FromBody] ApplyPromoCodeDto applyPromoCodeDto)
 		{
-			var sourceName = applyPromoCodeDto.Source.GetEnumTitle();
+			var sourceName = applyPromoCodeDto.Source.GetEnumDisplayName();
 			
 			try
 			{

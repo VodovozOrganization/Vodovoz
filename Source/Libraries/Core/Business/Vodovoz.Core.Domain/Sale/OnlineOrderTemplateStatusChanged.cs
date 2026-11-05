@@ -8,6 +8,11 @@ namespace Vodovoz.Core.Domain.Sale
 	public class OnlineOrderTemplateStatusChanged
 	{
 		/// <summary>
+		/// Идентификатор шаблона
+		/// </summary>
+		public int TemplateId { get; set; }
+
+		/// <summary>
 		/// Дата и время события смены статуса
 		/// </summary>
 		public DateTime CreatedOn { get; set; }
@@ -30,6 +35,7 @@ namespace Vodovoz.Core.Domain.Sale
 		public OnlineOrderTemplateStatusChangedType Type { get; set; }
 
 		public static OnlineOrderTemplateStatusChanged Create(
+			int templateId,
 			DateTime createdOn,
 			int? employeeId,
 			int? counterpartyId,
@@ -37,6 +43,7 @@ namespace Vodovoz.Core.Domain.Sale
 		{
 			return new OnlineOrderTemplateStatusChanged
 			{
+				TemplateId = templateId,
 				CreatedOn = createdOn,
 				EmployeeId = employeeId,
 				CounterpartyId = counterpartyId,

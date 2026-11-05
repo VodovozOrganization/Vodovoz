@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 using CustomerApp.Contracts.Common;
 
 namespace CustomerOrders.Contracts.V8.Sale.Templates
@@ -32,5 +33,8 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		/// Ближайшая дата доставки
 		/// </summary>
 		public DateTime NextDeliveryDate { get; set; }
+
+		[JsonIgnore]
+		public DateTime RequestTime { get; } = DateTime.Now;
 	}
 }

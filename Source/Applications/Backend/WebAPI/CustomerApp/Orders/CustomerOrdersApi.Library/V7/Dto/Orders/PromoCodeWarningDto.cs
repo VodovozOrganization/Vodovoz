@@ -1,5 +1,4 @@
-﻿using CustomerOrders.Abstractions;
-using System;
+﻿using System;
 using CustomerApp.Contracts.Common;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders

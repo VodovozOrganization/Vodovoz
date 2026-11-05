@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CustomerApp.Contracts.Sale;
+using CustomerOrders.Contracts.V8.Sale.Templates;
 using CustomerOrdersApi.Library.V8.Services;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods;
@@ -59,7 +60,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			};
 		}
 		
-		public IEnumerable<OnlineOrderItemWithDiscountDetailsDto> CreateWithDiscountDetailsDto(
+		public IEnumerable<TemplateSaleItemWithDiscountDetailsDto> CreateWithDiscountDetailsDto(
 			IEnumerable<ISaleItem> allSaleItems,
 			IEnumerable<NomenclatureFixedPrice> deliveryPointFixedPrices,
 			IEnumerable<NomenclatureFixedPrice> counterpartyPointFixedPrices,
@@ -98,13 +99,13 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		}
 		
 		//TODO-6121 доработать логику по скидкам
-		public OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(OnlineOrderTemplatePromoSet onlinePromoSet)
+		public TemplateSaleItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(OnlineOrderTemplatePromoSet onlinePromoSet)
 		{
 			var currentPrice = onlinePromoSet.PromoSet.Sum();
 			var priceWithoutDiscount = onlinePromoSet.PromoSet.SumWithoutDiscount();
 			var currentSum = Math.Round(currentPrice * onlinePromoSet.Count, 2);
 			
-			return new OnlineOrderItemWithDiscountDetailsDto
+			return new TemplateSaleItemWithDiscountDetailsDto
 			{
 				ErpId = onlinePromoSet.PromoSet.Id,
 				Count = onlinePromoSet.Count,
@@ -166,10 +167,10 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			};
 		}
 		
-		public OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(OnlineOrderTemplateFreeRentPackage templateRentPackage)
+		public TemplateSaleItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(OnlineOrderTemplateFreeRentPackage templateRentPackage)
 		{
 			var rentPackage = templateRentPackage.FreeRentPackage;
-			return new OnlineOrderItemWithDiscountDetailsDto
+			return new TemplateSaleItemWithDiscountDetailsDto
 			{
 				ErpId = templateRentPackage.Id,
 				Count = templateRentPackage.Count,
@@ -183,7 +184,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			};
 		}
 		
-		private OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(
+		private TemplateSaleItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(
 			IEnumerable<ISaleItem> allSaleItems,
 			ISaleItem saleItem,
 			IEnumerable<NomenclatureFixedPrice> deliveryPointFixedPrices,
@@ -213,7 +214,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				: Math.Round(priceData.Price * saleItem.Count - totalDiscountsData.TotalDiscount / saleItem.Count, 2);
 			var currentSum = Math.Round(priceData.Price * saleItem.Count - totalDiscountsData.TotalDiscount, 2);
 			
-			return new OnlineOrderItemWithDiscountDetailsDto
+			return new TemplateSaleItemWithDiscountDetailsDto
 			{
 				ErpId = saleItem.Nomenclature.Id,
 				Count = saleItem.Count,
@@ -222,8 +223,6 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				PriceWithoutDiscount = onlinePrice?.PriceWithoutDiscount,
 				CurrentSum = currentSum,
 				IsFixedPrice = saleItem.IsFixedPrice,
-				//TODO-6121 уточнить у Кости, нужен ли здесь параметр подарка. Ведь автозаказ не будет повторяться из UI
-				GiftItem = false,
 				ItemType = saleItem.Nomenclature.Category.ToSaleItemType(),
 				Discounts = new List<IDiscountAmount>(totalDiscountsData.DiscountDetails.Values)
 			};

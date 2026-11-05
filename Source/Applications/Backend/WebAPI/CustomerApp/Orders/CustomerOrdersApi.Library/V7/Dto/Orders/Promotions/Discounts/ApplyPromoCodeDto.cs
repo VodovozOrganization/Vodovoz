@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using CustomerApp.Contracts.Common;
-using CustomerOrders.Abstractions;
 using CustomerOrders.Abstractions.V7.Carts;
 using CustomerOrders.Abstractions.V7.Sale;
 using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;

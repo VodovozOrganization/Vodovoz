@@ -1,4 +1,4 @@
-using CustomerOrders.Abstractions.V7.Sale;
+﻿using CustomerOrders.Abstractions.V7.Sale;
 using CustomerOrders.Contracts.V7.Orders.Items;
 using CustomerOrdersApi.Library.V7.Extensions;
 using System;
@@ -111,7 +111,7 @@ namespace CustomerOrdersApi.Library.V7.Factories
 		public OnlineOrderItemWithDiscountDetailsDto CreateWithDiscountDetailsDto(OnlineOrderPromoSet onlinePromoSet)
 		{
 			var promoSet = onlinePromoSet.PromoSet;
-			var discountData = _discountController.CalculateTotalDiscountDetails(onlinePromoSet);
+			var discountData = _discountHandler.CalculateTotalDiscountDetails(onlinePromoSet);
 			var price = onlinePromoSet.Price;
 			var count = onlinePromoSet.Count;
 			var totalSumWithoutDiscount = price * count;

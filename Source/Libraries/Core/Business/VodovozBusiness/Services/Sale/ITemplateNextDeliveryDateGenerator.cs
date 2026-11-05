@@ -38,14 +38,27 @@ namespace VodovozBusiness.Services.Sale
 		/// <param name="dayOfMonth">Число месяца</param>
 		/// <returns></returns>
 		IEnumerable<DateTime> GetTemplateNextDeliveryDates(int dayOfMonth);
-		
+
 		/// <summary>
-		/// Получить ближайшие даты
+		/// Получить ближайшие даты по дню недели несмотря на периодичность
 		/// </summary>
-		/// <param name="dayOfWeek"></param>
+		/// <param name="dayOfWeek">День недели поставок из шаблона</param>
+		/// <param name="requestTime">Дата и время запроса</param>
 		/// <returns></returns>
 		IEnumerable<DateTime> GetResumeDates(
-			DayOfWeek dayOfWeek
+			DayOfWeek dayOfWeek,
+			DateTime requestTime
+		);
+		
+		/// <summary>
+		/// Получить ближайшие даты по дню недели несмотря на периодичность
+		/// </summary>
+		/// <param name="dayOfMonth">Число месяца из шаблона</param>
+		/// <param name="requestTime">Дата и время запроса</param>
+		/// <returns></returns>
+		IEnumerable<DateTime> GetResumeDates(
+			int dayOfMonth,
+			DateTime requestTime
 		);
 	}
 }

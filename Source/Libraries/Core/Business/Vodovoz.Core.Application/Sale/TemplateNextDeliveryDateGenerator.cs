@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CustomerOrders.Contracts.V8.Sale.Templates;
 using DateTimeHelpers;
@@ -25,9 +25,8 @@ namespace Vodovoz.Core.Application.Sale
 		{
 			if(scheduleType == CustomerTemplateDeliveryScheduleType.Monthly)
 			{
-				var year = DateTime.Today.Year;
-				var month = GetMonth(dayOfMonth.Value);
-				return new DateTime(year, month, dayOfMonth.Value);
+				var nextDate = GetNearestDeliveryDate(dayOfMonth.Value);
+				return nextDate;
 			}
 			
 			return GetNearestDeliveryDate(firstDateTime.Value, repeatEveryWeeks.Value);
@@ -55,32 +54,95 @@ namespace Vodovoz.Core.Application.Sale
 		{
 			var countDates = _templateSettings.GetNumberNextDeliveriesToDisplay;
 			var dates = new List<DateTime>();
-			var month = GetMonth(dayOfMonth);
-			var year = DateTime.Today.Year;
+			var firstDate = GetNearestDeliveryDate(dayOfMonth);
+			var month = firstDate.Month;
+			var year = firstDate.Year;
 
+			dates.Add(firstDate);
+			month++;
+
+			for(var i = 1; i < countDates; i++)
+			{
+				if(month > 12)
+				{
+					month = 1;
+					year++;
+				}
+
+				var firstDayInMonth = new DateTime(year, month, 1);
+				DateTime nextDate;
+
+				if(firstDayInMonth.GetDaysInMonth() > dayOfMonth)
+				{
+					nextDate = new DateTime(year, month, dayOfMonth);
+					month++;
+				}
+				else
+				{
+					//если нет такого числа в месяце, сдвигаем вправо
+					nextDate = new DateTime(year, month + 1, 1);
+				}
+
+				dates.Add(nextDate);
+			}
+
+			return dates;
+		}
+
+		public IEnumerable<DateTime> GetResumeDates(DayOfWeek dayOfWeek, DateTime requestTime)
+		{
+			var countDates = _templateSettings.GetNumberNextDeliveriesToDisplayByWeekly;
+			var dates = new List<DateTime>();
+			var startDate = GetNearestDeliveryDate(dayOfWeek, requestTime);
+			
 			for(var i = 0; i < countDates; i++)
 			{
-				//TODO сделать проверки по дате месяца, если ее нет то сдвигать по логике задачи
-				var date = new DateTime(year, month, dayOfMonth);
+				var date = startDate.AddWeeks(i);
 				dates.Add(date);
-				month++;
 			}
 			
 			return dates;
 		}
 
-		public IEnumerable<DateTime> GetResumeDates(DayOfWeek dayOfWeek)
+		public IEnumerable<DateTime> GetResumeDates(
+			int dayOfMonth,
+			DateTime requestTime
+			)
 		{
-			var countDates = _templateSettings.GetNumberNextDeliveriesToDisplay;
+			var countDates = _templateSettings.GetNumberNextDeliveriesToDisplayByMonthly;
 			var dates = new List<DateTime>();
-			var startDate = GetNearestDeliveryDate(dayOfWeek, DateTime.Today);
-			
-			for(var i = 0; i < countDates; i++)
+			var firstDate = GetNearestDeliveryDate(dayOfMonth, requestTime);
+			var month = firstDate.Month;
+			var year = firstDate.Year;
+
+			dates.Add(firstDate);
+			month++;
+
+			for(var i = 1; i < countDates; i++)
 			{
-				var date = startDate.AddWeeks(i * repeatEveryWeeks);
-				dates.Add(date);
+				if(month > 12)
+				{
+					month = 1;
+					year++;
+				}
+
+				var firstDayInMonth = new DateTime(year, month, 1);
+				DateTime nextDate;
+
+				if(firstDayInMonth.GetDaysInMonth() > dayOfMonth)
+				{
+					nextDate = new DateTime(year, month, dayOfMonth);
+					month++;
+				}
+				else
+				{
+					//если нет такого числа в месяце, сдвигаем вправо
+					nextDate = new DateTime(year, month + 1, 1);
+				}
+
+				dates.Add(nextDate);
 			}
-			
+
 			return dates;
 		}
 
@@ -98,27 +160,100 @@ namespace Vodovoz.Core.Application.Sale
 			return firstDateTime.AddDays(multiplier * frequency);
 		}
 		
-		private DateTime GetNearestDeliveryDate(DayOfWeek weekDay, DateTime dateTime)
+		private DateTime GetNearestDeliveryDate(
+			DayOfWeek templateWeekDay,
+			DateTime requestTime
+			)
 		{
-			var dayOfWeek = dateTime.DayOfWeek;
+			var today = DateTime.Today;
 
-			if(dayOfWeek <= weekDay)
+			var possibleDate = today.AddDays(
+				requestTime.TimeOfDay < TimeSpan.FromHours(11)
+					? _templateSettings.GetAddDaysToDeliveryDateBefore11Hours
+					: _templateSettings.GetAddDaysToDeliveryDateAfter11Hours
+				);
+
+			var possibleDay = possibleDate.DayOfWeek;
+
+			if(possibleDay <= templateWeekDay)
 			{
+				var addDays = templateWeekDay - possibleDay;
 				
+				var startDate = possibleDate.AddDays(addDays);
+				return startDate;
 			}
-			
-			var differenceDays = (DateTime.Today - firstDateTime).Days;
-			var frequency = DateTimeExtensions.DaysInWeek() * repeatEveryWeeks;
-			var multiplier = (int)Math.Ceiling(differenceDays / (decimal)frequency);
-			
-			return firstDateTime.AddDays(multiplier * frequency);
+
+			return possibleDate.AddDays(DateTimeExtensions.DaysInWeek() - (int)possibleDay + (int)templateWeekDay);
 		}
 		
-		private int GetMonth(int dayOfMonth)
+		private DateTime GetNearestDeliveryDate(int dayOfMonth)
 		{
-			return DateTime.Today.Day >= dayOfMonth
-				? DateTime.Today.Month
-				: DateTime.Today.AddMonths(1).Month;
+			var today = DateTime.Today;
+
+			if(DateTime.Today.Day >= dayOfMonth)
+			{
+				var firstDayInMonth = new DateTime(today.Year, today.Month, 1);
+				var nextMonth = 0;
+				var year = 0;
+
+				if(today.Month == 12)
+				{
+					nextMonth = 1;
+					year = today.Year + 1;
+				}
+				else
+				{
+					nextMonth = today.Month + 1;
+					year = today.Year;
+				}
+
+				if(firstDayInMonth.GetDaysInMonth() < dayOfMonth)
+				{
+					return new DateTime(year, nextMonth, 1);
+				}
+
+				return new DateTime(year, nextMonth, dayOfMonth);
+			}
+
+			return new DateTime(today.Year, today.Month, dayOfMonth);
+		}
+		
+		private DateTime GetNearestDeliveryDate(int dayOfMonth, DateTime requestTime)
+		{
+			//учет времени
+			//успевает в сборку: при запросе до 11:00 — не раньше сегодня + 2 дня, после 11:00 — сегодня + 3 дня
+			var addDays = requestTime.TimeOfDay < TimeSpan.FromHours(11)
+				? _templateSettings.GetAddDaysToDeliveryDateBefore11Hours
+				: _templateSettings.GetAddDaysToDeliveryDateAfter11Hours;
+			
+			var startDate = DateTime.Today.AddDays(addDays);
+
+			if(startDate.Day > dayOfMonth)
+			{
+				var firstDayInMonth = new DateTime(startDate.Year, startDate.Month, 1);
+				var nextMonth = 0;
+				var year = 0;
+
+				if(startDate.Month == 12)
+				{
+					nextMonth = 1;
+					year = startDate.Year + 1;
+				}
+				else
+				{
+					nextMonth = startDate.Month + 1;
+					year = startDate.Year;
+				}
+	
+				if(firstDayInMonth.GetDaysInMonth() < dayOfMonth)
+				{
+					return new DateTime(year, nextMonth, 1);
+				}
+				
+				return new DateTime(year, nextMonth, dayOfMonth);
+			}
+
+			return new DateTime(startDate.Year, startDate.Month, dayOfMonth);
 		}
 	}
 }

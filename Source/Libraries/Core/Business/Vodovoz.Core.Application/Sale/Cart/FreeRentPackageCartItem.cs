@@ -2,7 +2,7 @@ using CustomerApp.Contracts.Sale;
 using Vodovoz.Domain.Goods.Rent;
 using VodovozBusiness.Domain.Orders.Cart;
 
-namespace DeliveryRulesService.V2.DTO.Cart
+namespace Vodovoz.Core.Application.Sale.Cart
 {
 	public class FreeRentPackageCartItem : IFreeRentPackageCartItem
 	{

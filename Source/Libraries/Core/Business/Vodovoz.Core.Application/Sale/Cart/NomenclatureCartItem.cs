@@ -3,7 +3,7 @@ using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Domain.Goods;
 using VodovozBusiness.Domain.Orders.Cart;
 
-namespace DeliveryRulesService.V2.DTO.Cart
+namespace Vodovoz.Core.Application.Sale.Cart
 {
 	public class NomenclatureCartItem : INomenclatureCartItem
 	{

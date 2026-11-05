@@ -36,6 +36,7 @@
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
       <ProjectReference Include="..\..\..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
+      <ProjectReference Include="..\..\CustomerApp.Contracts\CustomerApp.Contracts.csproj" />
       <ProjectReference Include="..\CustomerOrdersApi.Library\CustomerOrdersApi.Library.csproj" />
     </ItemGroup>
 

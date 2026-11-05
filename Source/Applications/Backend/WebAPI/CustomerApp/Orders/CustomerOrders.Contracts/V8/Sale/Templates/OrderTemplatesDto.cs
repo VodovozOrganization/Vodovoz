@@ -10,11 +10,6 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		public int TemplatesCount { get; set; }
 
 		/// <summary>
-		/// Можно создавать автозаказы
-		/// </summary>
-		public bool CanCreateOrderTemplate { get; set; }
-
-		/// <summary>
 		/// Краткая инфа по шаблонам автозаказов
 		/// </summary>
 		public IEnumerable<OrderTemplateCardDto> OrderTemplates { get; set; }

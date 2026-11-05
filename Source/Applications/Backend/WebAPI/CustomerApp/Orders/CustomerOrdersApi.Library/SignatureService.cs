@@ -1,5 +1,4 @@
 ﻿using CustomerApp.Contracts.Common;
-using CustomerOrders.Abstractions;
 using CustomerOrdersApi.Library.Config;
 
 namespace CustomerOrdersApi.Library

@@ -8,7 +8,7 @@ namespace CustomerOrders.Contracts.V8.Orders.Items
 	/// <summary>
 	/// Товар онлайн заказа
 	/// </summary>
-	public class OnlineOrderItemWithDiscountDetailsDto : OnlineOrderItemBaseDto, IOrderedCartItemWithDiscountDetails
+	public class OnlineOrderItemWithDiscountDetailsDto : OnlineOrderItemWithGiftBaseDto, IOrderedCartItemWithDiscountDetails
 	{
 		/// <inheritdoc/>
 		public IList<IDiscountAmount> Discounts { get; set; }

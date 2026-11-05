@@ -322,6 +322,52 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 			);
 		}
 
+		public (TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval)?
+			GetOrderTemplateDeliverySchedule(
+				IUnitOfWork uow,
+				int templateId
+				)
+		{
+			var query =
+				from template in uow.Session.Query<OnlineOrderTemplate>()
+				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
+					on template.Schedule.DeliveryScheduleId equals deliverySchedule.Id
+				where template.Id == templateId
+				
+				let deliveryInterval = DeliveryScheduleData.Create(
+					deliverySchedule.Id,
+					deliverySchedule.From,
+					deliverySchedule.To
+				)
+				
+				select ValueTuple.Create(template.Schedule, deliveryInterval);
+			
+			return query.FirstOrDefault();
+		}
+
+		public OrderTemplateDataForResume GetTemplateDataForResume(IUnitOfWork uow, int templateId)
+		{
+			var query =
+				from template in uow.Session.Query<OnlineOrderTemplate>()
+				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
+					on template.Schedule.DeliveryScheduleId equals deliverySchedule.Id
+				where template.Id == templateId
+				
+				let deliveryInterval = DeliveryScheduleData.Create(
+					deliverySchedule.Id,
+					deliverySchedule.From,
+					deliverySchedule.To
+				)
+				
+				select new OrderTemplateDataForResume
+				{
+					Template = template,
+					DeliveryInterval = deliveryInterval
+				};
+			
+			return query.FirstOrDefault();
+		}
+
 		private IQueryable<TemplateUpcomingOrderDto> GetIQueryableTemplateUpcomingOrder(IUnitOfWork uow, int templateId)
 		{
 			var upcomingOrder =

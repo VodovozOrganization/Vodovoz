@@ -273,7 +273,6 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			
 			templateInfo.OrderSum = RoundProperties(orderSumDto);
 			
-			//TODO-6121 уточнить по статусам. В доке написаны Paused, AwaitingPayment, ManualProcessing
 			if(templateInfo.Status != TemplateStatusDto.Active)
 			{
 				templateInfo.NextDeliveries = Array.Empty<TemplateNextDeliveriesDto>();
@@ -288,14 +287,14 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			return templateInfo;
 		}
 		
-		private IEnumerable<OnlineOrderItemWithDiscountDetailsDto> ProcessSaleItems(
+		private IEnumerable<TemplateSaleItemWithDiscountDetailsDto> ProcessSaleItems(
 			IUnitOfWork uow,
 			ExternalSource source,
 			OrderTemplateInfoRawData templateInfoRawData,
 			OnlineOrderSumDto orderSumDto
 			)
 		{
-			var list = new List<OnlineOrderItemWithDiscountDetailsDto>();
+			var list = new List<TemplateSaleItemWithDiscountDetailsDto>();
 			
 			AddSaleItems(source, templateInfoRawData, orderSumDto, list);
 			AddPromoSets(templateInfoRawData.PromoSets, orderSumDto, list);
@@ -308,7 +307,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 			ExternalSource source,
 			OrderTemplateInfoRawData templateInfoRawData,
 			OnlineOrderSumDto orderSumDto,
-			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems
+			ICollection<TemplateSaleItemWithDiscountDetailsDto> detailedItems
 			)
 		{
 			if(templateInfoRawData.SaleItems is null)
@@ -333,7 +332,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		private void AddPromoSets(
 			IEnumerable<OnlineOrderTemplatePromoSet> promoSets,
 			OnlineOrderSumDto orderSumDto,
-			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems)
+			ICollection<TemplateSaleItemWithDiscountDetailsDto> detailedItems)
 		{
 			if(promoSets is null)
 			{
@@ -351,7 +350,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		private void AddRentPackages(
 			IEnumerable<OnlineOrderTemplateFreeRentPackage> rentPackages,
 			OnlineOrderSumDto orderSumDto,
-			ICollection<OnlineOrderItemWithDiscountDetailsDto> detailedItems)
+			ICollection<TemplateSaleItemWithDiscountDetailsDto> detailedItems)
 		{
 			if(rentPackages is null)
 			{
@@ -521,11 +520,11 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		
 		public IEnumerable<TemplateNextDeliveriesDto> GetResumeDates(
 			IUnitOfWork uow,
-			OnlineOrderTemplate template,
-			object o)
+			(TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval) deliveryScheduleData,
+			DateTime requestTime)
 		{
 			IEnumerable<DateTime> dates = null;
-			var schedule = template.Schedule.ToTemplateDeliveryScheduleDto();
+			var schedule = deliveryScheduleData.DeliverySchedule.ToTemplateDeliveryScheduleDto();
 
 			if(schedule.Type == CustomerTemplateDeliveryScheduleType.Weekly)
 			{
@@ -542,7 +541,8 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				}
 
 				dates = _deliveryDateGenerator.GetResumeDates(
-					schedule.WeekDay.Value
+					schedule.WeekDay.Value,
+					requestTime
 				);
 			}
 			else if(schedule.Type == CustomerTemplateDeliveryScheduleType.Monthly)
@@ -554,7 +554,10 @@ namespace CustomerOrdersApi.Library.V8.Factories
 					throw new InvalidOperationException(string.Format(errorMessage, "число месяца"));
 				}
 				
-				dates = _deliveryDateGenerator.GetTemplateNextDeliveryDates(schedule.DayOfMonth.Value);
+				dates = _deliveryDateGenerator.GetResumeDates(
+					schedule.DayOfMonth.Value,
+					requestTime
+				);
 			}
 			else
 			{
@@ -567,14 +570,17 @@ namespace CustomerOrdersApi.Library.V8.Factories
 					TemplateNextDeliveriesDto.Create(
 						nextDate,
 						nextDate.DayOfWeek,
-						DeliveryScheduleDto.Copy(schedule.DeliveryInterval))
+						DeliveryScheduleDto.Create(
+							deliveryScheduleData.DeliveryInterval.Id,
+							$"{deliveryScheduleData.DeliveryInterval.From} - {deliveryScheduleData.DeliveryInterval.To}")
+						)
 				)
 				.ToList();
 		}
 
 		private void UpdateSum(
 			OnlineOrderSumDto orderSumDto,
-			OnlineOrderItemWithDiscountDetailsDto detailedItem
+			OnlineOrderItemBaseDto detailedItem
 		)
 		{
 			var rawSum = (detailedItem.PriceWithoutDiscount ?? detailedItem.Price) * detailedItem.Count;

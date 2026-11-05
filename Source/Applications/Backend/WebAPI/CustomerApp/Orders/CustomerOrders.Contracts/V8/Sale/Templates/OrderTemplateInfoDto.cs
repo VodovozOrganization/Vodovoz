@@ -57,7 +57,7 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		/// <summary>
 		/// Продаваемые позиции
 		/// </summary>
-		public IEnumerable<OnlineOrderItemWithDiscountDetailsDto> SaleItems { get; set; }
+		public IEnumerable<TemplateSaleItemWithDiscountDetailsDto> SaleItems { get; set; }
 
 		/// <summary>
 		/// Сумма заказа

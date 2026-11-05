@@ -22,6 +22,22 @@ namespace Vodovoz.Settings.Database.Sale
 			_settingsController.GetValue<int>("OnlineOrderTemplate.NumberNextDeliveriesToDisplay");
 
 		/// <inheritdoc/>
+		public int GetNumberNextDeliveriesToDisplayByWeekly =>
+			_settingsController.GetValue<int>("OnlineOrderTemplate.NumberNextDeliveriesByWeekly");
+
+		/// <inheritdoc/>
+		public int GetNumberNextDeliveriesToDisplayByMonthly =>
+			_settingsController.GetValue<int>("OnlineOrderTemplate.NumberNextDeliveriesByMonthly");
+
+		/// <inheritdoc/>
+		public int GetAddDaysToDeliveryDateBefore11Hours =>
+			_settingsController.GetValue<int>("OnlineOrderTemplate.AddDaysToDeliveryDateBefore11Hours");
+
+		/// <inheritdoc/>
+		public int GetAddDaysToDeliveryDateAfter11Hours =>
+			_settingsController.GetValue<int>("OnlineOrderTemplate.AddDaysToDeliveryDateAfter11Hours");
+
+		/// <inheritdoc/>
 		public int RepeatEveryWeeksMin =>
 			_settingsController.GetValue<int>("OnlineOrderTemplate.RepeatEveryWeeksMin");
 

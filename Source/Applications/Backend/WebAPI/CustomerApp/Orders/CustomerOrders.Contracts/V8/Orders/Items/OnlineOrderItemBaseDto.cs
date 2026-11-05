@@ -1,5 +1,4 @@
 ﻿using CustomerApp.Contracts.Sale;
-using CustomerOrders.Abstractions.V8.Sale;
 
 namespace CustomerOrders.Contracts.V8.Orders.Items
 {
@@ -40,9 +39,5 @@ namespace CustomerOrders.Contracts.V8.Orders.Items
 		/// Фикса
 		/// </summary>
 		public bool IsFixedPrice { get; set; }
-		/// <summary>
-		/// Подарок
-		/// </summary>
-		public bool GiftItem { get; set; }
 	}
 }

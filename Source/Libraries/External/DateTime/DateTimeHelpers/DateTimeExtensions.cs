@@ -18,6 +18,11 @@ namespace DateTimeHelpers
 		{
 			return _calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
 		}
+		
+		public static int GetDaysInMonth(this DateTime dateTime)
+		{
+			return _calendar.GetDaysInMonth(dateTime.Year, dateTime.Month);
+		}
 
 		public static DateTime LatestDayTime(this DateTime dateTime)
 		{

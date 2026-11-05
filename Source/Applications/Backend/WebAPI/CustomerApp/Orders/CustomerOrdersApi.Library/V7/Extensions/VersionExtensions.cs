@@ -56,7 +56,7 @@ namespace CustomerOrdersApi.Library.V7.Extensions
 			{
 				case Dto.Orders.RequestsForCall.RequestForCallType.General:
 					return RequestForCall.Create(
-						source.Source,
+						source.Source.ToSource(),
 						source.ContactName,
 						source.PhoneNumber,
 						nomenclature,
@@ -64,7 +64,7 @@ namespace CustomerOrdersApi.Library.V7.Extensions
 					);
 				case Dto.Orders.RequestsForCall.RequestForCallType.Service:
 					return ServiceRequestForCall.Create(
-						source.Source,
+						source.Source.ToSource(),
 						source.ContactName,
 						source.PhoneNumber,
 						nomenclature,

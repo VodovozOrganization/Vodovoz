@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CustomerApp.Contracts.Sale;
+using Vodovoz.Core.Application.Sale.Cart;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Tools.Orders;
 using VodovozBusiness.Domain.Orders.Cart;

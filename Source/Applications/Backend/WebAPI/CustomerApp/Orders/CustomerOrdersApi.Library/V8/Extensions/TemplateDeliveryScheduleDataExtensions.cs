@@ -15,7 +15,7 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 				DayOfMonth = source.DayOfMonth,
 				FirstDeliveryDate = source.FirstDeliveryDate,
 				Type = source.ScheduleType.ToCustomerTemplateDeliveryScheduleType(),
-				DeliveryScheduleId = source.DeliveryScheduleId,
+				DeliveryScheduleId = source.DeliveryScheduleId
 			};
 		}
 	}

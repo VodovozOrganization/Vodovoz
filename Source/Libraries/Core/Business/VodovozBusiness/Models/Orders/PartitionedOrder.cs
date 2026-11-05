@@ -231,8 +231,8 @@ namespace Vodovoz.Models.Orders
 			OrderItem orderItem,
 			bool withDiscounts = false)
 		{
-			var newOrderItem = OrderItem.CreateForSale(
-				_saleHandler,
+			var priceData = (SaleItemPriceType.General, orderItem.Price);
+			var newOrderItem = _saleItemFactory.Create(
 				_resultOrder,
 				NewOrderSaleItem.Create(orderItem.Nomenclature, orderItem.Count, priceData)
 			);

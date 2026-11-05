@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using CustomerApp.Contracts.Common;
 using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V7.Dto.Orders
@@ -14,7 +14,7 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		/// Источник заказа
 		/// </summary>
 		[JsonConverter(typeof(JsonStringEnumConverter))]
-		public Source Source { get; set; }
+		public ExternalSource Source { get; set; }
 		
 		/// <summary>
 		/// Номер онлайн заказа из ИПЗ

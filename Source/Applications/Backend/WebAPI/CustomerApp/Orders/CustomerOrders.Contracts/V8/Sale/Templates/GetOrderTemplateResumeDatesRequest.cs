@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using CustomerApp.Contracts.Common;
 
 namespace CustomerOrders.Contracts.V8.Sale.Templates
@@ -27,5 +28,11 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		/// Идентификатор шаблона автозаказа
 		/// </summary>
 		public int OrderTemplateId { get; set; }
+		
+		/// <summary>
+		/// Дата и время запроса
+		/// </summary>
+		[JsonIgnore]
+		public DateTime RequestTime { get; } = DateTime.Now;
 	}
 }

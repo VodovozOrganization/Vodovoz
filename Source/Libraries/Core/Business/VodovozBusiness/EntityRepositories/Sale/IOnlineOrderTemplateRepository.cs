@@ -27,6 +27,6 @@ namespace VodovozBusiness.EntityRepositories.Sale
 		/// <param name="templateId">Идентификатор шаблона</param>
 		/// <param name="counterpartyId">Идентификатор клиента</param>
 		/// <returns></returns>
-		bool OnlineOrderFromCounterparty(IUnitOfWork uow, int templateId, int? counterpartyId);
+		bool OnlineOrderTemplateFromCounterparty(IUnitOfWork uow, int templateId, int? counterpartyId);
 	}
 }

@@ -29,7 +29,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.Any();
 		}
 
-		public bool OnlineOrderFromCounterparty(IUnitOfWork uow, int templateId, int? counterpartyId)
+		public bool OnlineOrderTemplateFromCounterparty(IUnitOfWork uow, int templateId, int? counterpartyId)
 		{
 			return (
 					from template in uow.Session.Query<OnlineOrderTemplate>()

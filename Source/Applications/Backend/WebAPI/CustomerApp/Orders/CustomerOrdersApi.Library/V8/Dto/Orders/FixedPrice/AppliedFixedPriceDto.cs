@@ -2,7 +2,6 @@
 using CustomerOrders.Abstractions.Common;
 using CustomerOrders.Abstractions.V8.Sale;
 using CustomerOrders.Contracts.V8.Sale;
-using CustomerOrdersApi.Library.V8.Dto.Orders.Promotions;
 using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.V8.Dto.Orders.FixedPrice

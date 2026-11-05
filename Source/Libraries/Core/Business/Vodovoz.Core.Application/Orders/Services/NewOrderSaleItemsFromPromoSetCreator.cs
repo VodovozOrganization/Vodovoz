@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Extensions;
 using VodovozBusiness.Factories;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -51,7 +52,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			//то мы должны просчитать скидки для всез товаров, входящих во все промики
 			var newSaleItemsList = new List<List<NewOrderSaleItem>>();
 			
-			var promoSaleItem = _applicablePromotionFactory.CreateApplicablePromotion(onlineOrderPromoSet);
+			var promoSaleItem = onlineOrderPromoSet.ToApplicablePromotion();
 			var allPromoSetItemsDiscounts = _discountsController.CalculatePromoSetTotalDiscountBySaleItems(
 				uow,
 				promoSaleItem,

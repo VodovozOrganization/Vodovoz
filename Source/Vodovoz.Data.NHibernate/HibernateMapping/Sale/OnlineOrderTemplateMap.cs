@@ -45,7 +45,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Sale
 			References(x => x.RecurrentPayment)
 				.Column("recurrent_payment_id");
 			
-			HasMany(x => x.TemplateProducts)
+			HasMany(x => x.TemplateSaleItems)
 				.Table("online_orders_templates_products")
 				.KeyColumn("template_id")
 				.Element("id")

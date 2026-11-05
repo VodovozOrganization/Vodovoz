@@ -427,7 +427,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 		{
 			var negativeRating = _orderSettings.GetOrderRatingForMandatoryProcessing;
 			var orderRating = OrderRating.Create(
-				orderRatingInfo.Source,
+				orderRatingInfo.Source.ToSource(),
 				orderRatingInfo.Rating,
 				orderRatingInfo.Comment,
 				orderRatingInfo.OnlineOrderId,

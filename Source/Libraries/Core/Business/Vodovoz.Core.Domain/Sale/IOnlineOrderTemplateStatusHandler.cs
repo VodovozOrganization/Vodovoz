@@ -33,5 +33,18 @@ namespace Vodovoz.Core.Domain.Sale
 			int? customerId,
 			int? employeeId);
 
+		/// <summary>
+		/// Архивация шаблона
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="template">Шаблон автозаказа</param>
+		/// <param name="customerId">Идентификатор клиента, если действие совершил клиент. Иначе null</param>
+		/// <param name="employeeId">Идентификатор сотрудника, если действие совершил сотрудник. Иначе null</param>
+		/// <returns></returns>
+		Result ArchiveTemplate(
+			IUnitOfWork uow,
+			OnlineOrderTemplate template,
+			int? customerId,
+			int? employeeId);
 	}
 }

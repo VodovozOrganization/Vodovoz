@@ -2,7 +2,7 @@ using CustomerApp.Contracts.Sale;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders.Cart;
 
-namespace DeliveryRulesService.V2.DTO.Cart
+namespace Vodovoz.Core.Application.Sale.Cart
 {
 	public class PromoSetCartItem : IPromoSetCartItem
 	{
