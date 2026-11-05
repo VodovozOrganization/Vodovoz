@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Nomenclature;
 using Xunit;
 
 namespace Transfer.Sender.Tests
@@ -53,6 +55,10 @@ namespace Transfer.Sender.Tests
 				_uow,
 				_transferTaskRepository,
 				Substitute.For<ITransferOrderHeaderPreparer>(),
+				new TransferUpdDocumentBuilder(
+					Substitute.For<ITrueMarkCodeRepository>(),
+					Substitute.For<IEdoTransferSettings>(),
+					Substitute.For<INomenclatureSettings>()),
 				Substitute.For<ITrueMarkCodeRepository>(),
 				_registrar,
 				_publishEndpoint);
