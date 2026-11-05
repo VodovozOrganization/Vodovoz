@@ -28,12 +28,6 @@ namespace Vodovoz.Core.Data.NHibernate.Logistic
 
 			References(x => x.Order)
 				.Column("order_id");
-
-			HasMany(x => x.TrueMarkCodes)
-				.Cascade.AllDeleteOrphan()
-				.Inverse()
-				.LazyLoad()
-				.KeyColumn("route_list_item_id");
 		}
 	}
 }

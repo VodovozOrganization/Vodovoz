@@ -23,6 +23,17 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			_routeListRepository = routeListRepository ?? throw new System.ArgumentNullException(nameof(routeListRepository));
 		}
 
+		/// <inheritdoc/>
+		public IDictionary<int, int> GetCarLoadDocumentIdsByItemIds(IUnitOfWork uow, IEnumerable<int> carLoadDocumentItemIds)
+		{
+			var ids = carLoadDocumentItemIds.Distinct().ToList();
+
+			return uow.Session.Query<CarLoadDocumentItem>()
+				.Where(x => ids.Contains(x.Id))
+				.Select(x => new { x.Id, DocumentId = x.Document.Id })
+				.ToDictionary(x => x.Id, x => x.DocumentId);
+		}
+
 		public decimal LoadedTerminalAmount(IUnitOfWork uow, int routelistId, int terminalId)
 		{
 			CarLoadDocument carLoadDocumentAlias = null;
