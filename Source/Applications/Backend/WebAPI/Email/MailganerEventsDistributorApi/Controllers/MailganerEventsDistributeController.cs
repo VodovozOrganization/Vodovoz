@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using MailganerEventsDistributorApi.DataAccess;
 using MailganerEventsDistributorApi.DTO;
 using Mailjet.Api.Abstractions.Events;
@@ -7,7 +7,6 @@ using MassTransit.DependencyInjection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using System;
@@ -23,25 +22,20 @@ namespace MailganerEventsDistributorApi.Controllers
 		private readonly IInstanceData _instanceData;
 		private readonly IPublishEndpoint _publishEndpoint;
 		// Вторая шина приложения (IEmailDevBus, тестовый vhost RabbitMQ email_host_test) для событий тестовых баз.
-		// Публикует напрямую, без outbox: таблицы outbox тестового vhost'а никто не отправляет. При переходе на один vhost пересмотреть
 		private readonly IPublishEndpoint _devPublishEndpoint;
-		private readonly IUnitOfWork _unitOfWork;
 
-		/// <param name="publishEndpoint">Основная шина (vhost email_host): через outbox, сообщения сохраняются при коммите UoW запроса</param>
-		/// <param name="devPublishEndpoint">Вторая шина (тестовый vhost email_host_test): напрямую, без outbox</param>
-		/// <param name="unitOfWork">UoW запроса: в его транзакцию пишутся сообщения основной шины</param>
+		/// <param name="publishEndpoint">Основная шина (vhost email_host)</param>
+		/// <param name="devPublishEndpoint">Вторая шина (тестовый vhost email_host_test)</param>
 		public MailganerEventsDistributeController(
 			ILogger<MailganerEventsDistributeController> logger,
 			IInstanceData instanceData,
 			IPublishEndpoint publishEndpoint,
-			Bind<IEmailDevBus, IPublishEndpoint> devPublishEndpoint,
-			IUnitOfWork unitOfWork)
+			Bind<IEmailDevBus, IPublishEndpoint> devPublishEndpoint)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_instanceData = instanceData ?? throw new ArgumentNullException(nameof(instanceData));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_devPublishEndpoint = (devPublishEndpoint ?? throw new ArgumentNullException(nameof(devPublishEndpoint))).Value;
-			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
 		[HttpPost]
@@ -60,10 +54,6 @@ namespace MailganerEventsDistributorApi.Controllers
 
 				await NotifyEmailUpdated(message);
 			}
-
-			// События пачки сохраняются в outbox одной транзакцией и уходят после коммита.
-			// Если сохранить не удалось, Mailganer получит ошибку и повторит запрос
-			await _unitOfWork.CommitAsync();
 
 			return Ok();
 		}
