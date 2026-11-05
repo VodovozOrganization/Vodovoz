@@ -13,6 +13,8 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
 using TransactionalOutbox.EntityFrameworkCore;
 using TransactionalOutbox.MassTransit;
+using System.Text;
+using System;
 
 namespace Edo.Transfer.Sender.Worker
 {
@@ -20,6 +22,8 @@ namespace Edo.Transfer.Sender.Worker
 	{
 		public static void Main(string[] args)
 		{
+			Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 			CreateHostBuilder(args).Build().Run();
 		}
 
