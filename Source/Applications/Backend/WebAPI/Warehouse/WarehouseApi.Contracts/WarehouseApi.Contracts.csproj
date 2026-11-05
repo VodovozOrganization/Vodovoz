@@ -8,6 +8,7 @@
   <PropertyGroup>
      <GenerateDocumentationFile>true</GenerateDocumentationFile>
      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+     <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
 
   <ItemGroup>
