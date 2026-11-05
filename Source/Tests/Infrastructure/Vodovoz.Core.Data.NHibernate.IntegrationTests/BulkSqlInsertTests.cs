@@ -498,17 +498,17 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// F-19. Smoke на продовом маппинге TransferOrder.Items: вставлено и загружено N, коммит без лишних команд.
+		/// F-19. Smoke на маппинге приложения в локальной базе TransferOrder.Items: вставлено и загружено N, коммит без лишних команд.
 		/// Таблицы созданы только нужные, ссылки на остальные сущности в этих строках пустые.
 		/// </summary>
 		[DatabaseTheory, BothModes]
-		public async Task BulkSqlInsert_WhenProductionTransferOrderMapping_InsertsAndLoads(InsertMode mode)
+		public async Task BulkSqlInsert_WhenLocalTransferOrderMapping_InsertsAndLoads(InsertMode mode)
 		{
-			using(var production = new ProductionMappingDatabase())
+			using(var local = new LocalMappingDatabase())
 			{
-				var orderId = production.CreateTransferOrder();
+				var orderId = local.CreateTransferOrder();
 
-				using(var uow = production.UnitOfWorkFactory.CreateWithoutRoot("Продовый маппинг"))
+				using(var uow = local.UnitOfWorkFactory.CreateWithoutRoot("Локальная база"))
 				{
 					var order = uow.GetById<TransferOrder>(orderId);
 					var items = Enumerable.Range(1, 5).Select(i => new TransferOrderTrueMarkCode { Quantity = i }).ToList();
@@ -524,22 +524,22 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 					Assert.Equal(0, SqlLog.Writes());
 				}
 
-				Assert.Equal(5, production.Database.Count("edo_transfer_order_codes", $"transfer_order_id = {orderId}"));
+				Assert.Equal(5, local.Database.Count("edo_transfer_order_codes", $"transfer_order_id = {orderId}"));
 			}
 		}
 
 		/// <summary>
-		/// F-19. Продовый маппинг со ссылками на номенклатуру и коды, как в TransferSendPreparer: идентификаторы записаны в строки,
+		/// F-19. Маппинг приложения в локальной базе со ссылками на номенклатуру и коды, как в TransferSendPreparer: идентификаторы записаны в строки,
 		/// а после загрузки ссылка на заказ указывает на родителя.
 		/// </summary>
 		[DatabaseTheory, BothModes]
-		public async Task BulkSqlInsert_WhenProductionItemsHaveReferences_WritesReferenceIds(InsertMode mode)
+		public async Task BulkSqlInsert_WhenLocalItemsHaveReferences_WritesReferenceIds(InsertMode mode)
 		{
-			using(var production = new ProductionMappingDatabase())
+			using(var local = new LocalMappingDatabase())
 			{
-				var orderId = production.CreateTransferOrder();
+				var orderId = local.CreateTransferOrder();
 
-				using(var uow = production.UnitOfWorkFactory.CreateWithoutRoot("Продовый маппинг"))
+				using(var uow = local.UnitOfWorkFactory.CreateWithoutRoot("Локальная база"))
 				{
 					var order = uow.GetById<TransferOrder>(orderId);
 					var items = new[]
@@ -567,25 +567,25 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 					Assert.All(order.Items, item => Assert.Same(order, item.TransferOrder));
 				}
 
-				Assert.Equal(1, production.Database.Count("edo_transfer_order_codes",
+				Assert.Equal(1, local.Database.Count("edo_transfer_order_codes",
 					$"transfer_order_id = {orderId} AND quantity = 1 AND nomenclature_id = 10 AND individual_code_id = 20 AND group_code_id IS NULL"));
-				Assert.Equal(1, production.Database.Count("edo_transfer_order_codes",
+				Assert.Equal(1, local.Database.Count("edo_transfer_order_codes",
 					$"transfer_order_id = {orderId} AND quantity = 40 AND nomenclature_id = 10 AND group_code_id = 30 AND individual_code_id IS NULL"));
 			}
 		}
 
 		/// <summary>
-		/// F-19. Продовый маппинг UpdInventPosition.Codes, как в TransferSendPreparer: коллекция не-inverse, у кода нет ссылки на позицию.
+		/// F-19. Маппинг приложения в локальной базе UpdInventPosition.Codes, как в TransferSendPreparer: коллекция не-inverse, у кода нет ссылки на позицию.
 		/// Внешний ключ записан сразу, а коммит не даёт лишних команд.
 		/// </summary>
 		[DatabaseTheory, BothModes]
-		public async Task BulkSqlInsert_WhenProductionUpdPositionCodes_WritesKeyWithoutUpdates(InsertMode mode)
+		public async Task BulkSqlInsert_WhenLocalUpdPositionCodes_WritesKeyWithoutUpdates(InsertMode mode)
 		{
-			using(var production = new ProductionMappingDatabase())
+			using(var local = new LocalMappingDatabase())
 			{
-				production.CreateUpdTables();
+				local.CreateUpdTables();
 
-				using(var uow = production.UnitOfWorkFactory.CreateWithoutRoot("Продовый маппинг"))
+				using(var uow = local.UnitOfWorkFactory.CreateWithoutRoot("Локальная база"))
 				{
 					var firstPosition = new UpdInventPosition { Name = "первая" };
 					var secondPosition = new UpdInventPosition { Name = "вторая" };
@@ -608,8 +608,8 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 					Assert.Equal(0, SqlLog.Writes());
 
 					var table = "edo_upd_document_invent_position_codes";
-					Assert.Equal(3, production.Database.Count(table, $"edo_upd_document_invent_position_id = {firstPosition.Id}"));
-					Assert.Equal(2, production.Database.Count(table, $"edo_upd_document_invent_position_id = {secondPosition.Id}"));
+					Assert.Equal(3, local.Database.Count(table, $"edo_upd_document_invent_position_id = {firstPosition.Id}"));
+					Assert.Equal(2, local.Database.Count(table, $"edo_upd_document_invent_position_id = {secondPosition.Id}"));
 				}
 			}
 		}

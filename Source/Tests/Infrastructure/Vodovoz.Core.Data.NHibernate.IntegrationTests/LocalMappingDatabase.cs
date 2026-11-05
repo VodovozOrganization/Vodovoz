@@ -15,17 +15,17 @@ using NhEnvironment = NHibernate.Cfg.Environment;
 namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 {
 	/// <summary>
-	/// База для smoke-теста на продовых маппингах (F-19). Схема всех сущностей не нужна:
+	/// База для smoke-теста на маппингах приложения (F-19). Схема всех сущностей не нужна:
 	/// таблицы заказа и его кодов создаются вручную, без внешних ключей на остальные таблицы.
 	/// </summary>
-	public sealed class ProductionMappingDatabase : IDisposable
+	public sealed class LocalMappingDatabase : IDisposable
 	{
 		private readonly ISessionFactory _sessionFactory;
 		private readonly Configuration _configuration;
 
-		public ProductionMappingDatabase()
+		public LocalMappingDatabase()
 		{
-			Database = TestDatabase.Create("bulk_production");
+			Database = TestDatabase.Create("bulk_local");
 
 			Database.Execute(@"CREATE TABLE edo_transfer_orders (
 				id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -76,7 +76,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// Создаёт организацию с версией и настройками ЭДО. Таблицы берутся из схемы продового маппинга, только нужные для загрузки организации
+		/// Создаёт организацию с версией и настройками ЭДО. Таблицы берутся из схемы маппинга приложения, только нужные для загрузки организации
 		/// </summary>
 		public int CreateOrganization(string jurAddress, string edoAccount)
 		{
@@ -96,7 +96,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// Создаёт таблицы УПД из схемы продового маппинга
+		/// Создаёт таблицы УПД из схемы маппинга приложения
 		/// </summary>
 		public void CreateUpdTables()
 		{

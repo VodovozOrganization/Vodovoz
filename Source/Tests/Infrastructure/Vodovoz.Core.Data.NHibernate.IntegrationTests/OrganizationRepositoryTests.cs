@@ -17,7 +17,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		[DatabaseFact]
 		public async Task GetOrganizationByIdAsync_WhenLoadedInUow_LazyFieldsAvailable()
 		{
-			using(var database = new ProductionMappingDatabase())
+			using(var database = new LocalMappingDatabase())
 			{
 				var organizationId = database.CreateOrganization("Юридический адрес", "Аккаунт ЭДО");
 				var repository = new OrganizationRepository(database.UnitOfWorkFactory);
