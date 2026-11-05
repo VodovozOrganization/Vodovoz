@@ -627,6 +627,7 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			string problemSourceName,
 			int? batchSize,
 			TimeSpan[] retryDelays,
+			IEnumerable<EdoTaskStatus> excludedTransferTaskStatuses,
 			CancellationToken cancellationToken)
 		{
 			if(retryDelays == null || retryDelays.Length == 0)
@@ -634,27 +635,34 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				throw new ArgumentException("Не заданы задержки между попытками", nameof(retryDelays));
 			}
 
-			var now = DateTime.UtcNow;
+			var now = DateTime.Now;
 			var retryCount = retryDelays.Length;
 
 			var query = from problem in uow.Session.Query<CustomEdoTaskProblem>()
-						join orderTask in uow.Session.Query<OrderEdoTask>()
-							on problem.EdoTask.Id equals orderTask.Id
+						join edoTask in uow.Session.Query<EdoTask>()
+							on problem.EdoTask.Id equals edoTask.Id
 						join orderEdoDocument in uow.Session.Query<OrderEdoDocument>()
-							on orderTask.Id equals orderEdoDocument.DocumentTaskId
+							on edoTask.Id equals orderEdoDocument.DocumentTaskId into orderDocuments
+						from orderEdoDocument in orderDocuments.DefaultIfEmpty()
+						join transferEdoDocument in uow.Session.Query<TransferEdoDocument>()
+							on edoTask.Id equals transferEdoDocument.TransferTaskId into transferDocuments
+						from transferEdoDocument in transferDocuments.DefaultIfEmpty()
 						join routineState in uow.Session.Query<EdoTaskProblemRoutineState>()
 							on problem.Id equals routineState.Problem.Id into routineStates
 						from routineState in routineStates.DefaultIfEmpty()
 						where problem.SourceName == problemSourceName
 							&& problem.State == TaskProblemState.Active
+							&& (orderEdoDocument != null || transferEdoDocument != null)
+							&& (transferEdoDocument == null || !excludedTransferTaskStatuses.Contains(edoTask.Status))
 							&& (routineState == null || routineState.RetryCount < retryCount)
 						orderby routineState == null ? 0 : routineState.RetryCount, problem.CreationTime
 						select new
 						{
 							Problem = problem,
-							OrderTask = orderTask,
+							EdoTask = edoTask,
 							RoutineState = routineState,
-							OrderEdoDocument = orderEdoDocument
+							OrderEdoDocument = orderEdoDocument,
+							TransferEdoDocument = transferEdoDocument
 						};
 
 			if(batchSize.HasValue && batchSize.Value > 0)
@@ -663,49 +671,27 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			}
 
 			var rawResult = await query.ToListAsync(cancellationToken);
-
 			var result = new List<TaxcomSendProblemNode>();
 			foreach(var item in rawResult)
 			{
 				var routineState = item.RoutineState;
-
-				if(routineState == null)
+				if(routineState?.LastRetryTime != null)
 				{
-					result.Add(new TaxcomSendProblemNode
+					var retryIndex = Math.Min(routineState.RetryCount, retryDelays.Length - 1);
+					var nextRetryTime = routineState.LastRetryTime.Value.Add(retryDelays[retryIndex]);
+					if(nextRetryTime > now)
 					{
-						Problem = item.Problem,
-						EdoTask = item.OrderTask,
-						RoutineState = null,
-						OrderEdoDocument = item.OrderEdoDocument
-					});
-					continue;
+						continue;
+					}
 				}
 
-				if(!routineState.LastRetryTime.HasValue)
+				result.Add(new TaxcomSendProblemNode
 				{
-					result.Add(new TaxcomSendProblemNode
-					{
-						Problem = item.Problem,
-						EdoTask = item.OrderTask,
-						RoutineState = routineState,
-						OrderEdoDocument = item.OrderEdoDocument
-					});
-					continue;
-				}
-
-				var retryIndex = Math.Min(routineState.RetryCount, retryDelays.Length - 1);
-				var nextRetryTime = routineState.LastRetryTime.Value.Add(retryDelays[retryIndex]);
-
-				if(nextRetryTime <= now)
-				{
-					result.Add(new TaxcomSendProblemNode
-					{
-						Problem = item.Problem,
-						EdoTask = item.OrderTask,
-						RoutineState = routineState,
-						OrderEdoDocument = item.OrderEdoDocument
-					});
-				}
+					Problem = item.Problem,
+					EdoTask = item.EdoTask,
+					RoutineState = routineState,
+					EdoDocument = (OutgoingEdoDocument)item.OrderEdoDocument ?? item.TransferEdoDocument
+				});
 			}
 
 			if(batchSize.HasValue && batchSize.Value > 0 && result.Count > batchSize.Value)

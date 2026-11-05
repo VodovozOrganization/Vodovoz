@@ -1,4 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Edo.Transport;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,7 +48,8 @@ namespace Edo.DeviationMonitoring.Routine.Worker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddEdoDeviationMonitoring(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
+						.AddEdoMassTransit(configureBus: busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
+						.AddEdoDeviationMonitoring()
 						.ConfigureZabbixSenderFromDataBase()
 						;
 

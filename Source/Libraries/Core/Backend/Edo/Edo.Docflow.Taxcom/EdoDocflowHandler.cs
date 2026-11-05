@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using TaxcomEdo.Client;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Rules.Edo;
 
 namespace Edo.Docflow.Taxcom
 {
@@ -35,6 +36,16 @@ namespace Edo.Docflow.Taxcom
 
 		public async Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event, CancellationToken cancellationToken)
 		{
+			var task = await _uow.Session.GetAsync<EdoTask>(@event.EdoTaskId, cancellationToken);
+			if(task?.TaskType == EdoTaskType.Transfer
+				&& TransferEdoTaskCancellationRule.IsCancelledOrCancelling(task.Status))
+			{
+				_logger.LogInformation(
+					"Отправка документа {DocumentId} пропущена: задача трансфера {TransferTaskId} имеет статус {Status}",
+					@event.EdoOutgoingDocumentId, task.Id, task.Status);
+				return;
+			}
+
 			if(await IsDocumentAlreadySentAsync(@event.EdoOutgoingDocumentId, cancellationToken))
 			{
 				_logger.LogWarning(

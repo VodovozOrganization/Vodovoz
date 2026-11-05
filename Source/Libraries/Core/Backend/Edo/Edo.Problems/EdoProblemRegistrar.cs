@@ -93,9 +93,12 @@ namespace Edo.Problems
 					problem.TaskItems.Add(taskItem);
 				}
 
-				task.Status = source.Importance == EdoProblemImportance.Problem
-					? EdoTaskStatus.Problem
-					: EdoTaskStatus.Waiting;
+				if(source.ShouldUpdateTaskStatus(task))
+				{
+					task.Status = source.Importance is EdoProblemImportance.Problem
+						? EdoTaskStatus.Problem
+						: EdoTaskStatus.Waiting;
+				}
 
 				await uow.SaveAsync(problem, cancellationToken: cancellationToken);
 				await uow.SaveAsync(task, cancellationToken: cancellationToken);

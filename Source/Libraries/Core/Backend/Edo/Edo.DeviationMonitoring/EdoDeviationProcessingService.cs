@@ -34,6 +34,7 @@ namespace Edo.DeviationMonitoring
 		/// <param name="taskPublisher">Публикация событий запуска существующих задач.</param>
 		/// <param name="messageFactory">Фабрика ЭДО-уведомлений.</param>
 		/// <param name="notificationPublisher">Публикация уведомлений через аутбокс.</param>
+		/// <param name="outbox">Публикация событий в транзакции единицы работы.</param>
 		/// <param name="options">Настройки мониторинга.</param>
 		public EdoDeviationProcessingService(IEdoDeviationRepository repository,
 			IOrderEdoTaskCreatedEventPublisher taskPublisher,
@@ -144,7 +145,8 @@ namespace Edo.DeviationMonitoring
 			switch(deviation.DeviationSource.DeviationType)
 			{
 				case EdoDeviationType.TaskNotCreated:
-					await EnqueueAsync(uow, new EdoRequestCreatedEvent { Id = deviation.EdoRequest.Id }, cancellationToken);
+					await EnqueueAsync(uow,
+						new EdoRequestCreatedEvent { Id = deviation.EdoRequest.Id }, cancellationToken);
 					break;
 				case EdoDeviationType.TaskNotStarted:
 					var task = (OrderEdoTask)GetTaskImplementation(deviation.EdoTask);
@@ -160,8 +162,7 @@ namespace Edo.DeviationMonitoring
 						TransferEdoRequestIterationStatus.InProgress, cancellationToken);
 					foreach(var id in iterationIds)
 					{
-						await EnqueueAsync(uow, new TransferRequestCreatedEvent { TransferIterationId = id },
-							cancellationToken);
+						await EnqueueAsync(uow, new TransferRequestCreatedEvent { TransferIterationId = id }, cancellationToken);
 					}
 					break;
 				case EdoDeviationType.DocumentNotSentToProvider:
@@ -193,6 +194,6 @@ namespace Edo.DeviationMonitoring
 			: task;
 
 		private Task EnqueueAsync(IUnitOfWork uow, object message, CancellationToken cancellationToken) =>
-			_outbox.GetPublishEndpoint(uow).Publish(message, cancellationToken);
+			_outbox.GetPublishEndpoint(uow).Publish(message, message.GetType(), cancellationToken);
 	}
 }

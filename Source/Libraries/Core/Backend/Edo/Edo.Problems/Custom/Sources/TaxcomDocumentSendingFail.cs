@@ -1,5 +1,7 @@
 ﻿using Vodovoz.Core.Domain.Edo;
 
+using Vodovoz.Core.Domain.Rules.Edo;
+
 namespace Edo.Problems.Custom.Sources
 {
 	/// <summary>
@@ -12,5 +14,10 @@ namespace Edo.Problems.Custom.Sources
 		public override string Description => "Не удалось отправить документ в Такском";
 		public override string Recommendation => "Проверьте доступность сервера Такском, наличие подписи и повторите отправку";
 		public override EdoProblemImportance Importance => EdoProblemImportance.Problem;
+
+		/// <inheritdoc />
+		public override bool ShouldUpdateTaskStatus(EdoTask edoTask) =>
+			edoTask.TaskType != EdoTaskType.Transfer
+			|| !TransferEdoTaskCancellationRule.IsCancelledOrCancelling(edoTask.Status);
 	}
 }
