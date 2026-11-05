@@ -665,7 +665,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var request = CreateOrderRequest(UoW, rli, rli.RouteListItem.TrueMarkCodes);
+			var request = CreateOrderRequest(UoW, rli, _trueMarkRepository.GetRouteListItemProductCodes(UoW, rli.RouteListItem.Id));
 			UpdateCreatedEdoRequests(request, addressStatus);
 		}
 
@@ -827,7 +827,7 @@ namespace Vodovoz
 					var request = requestData.Request;
 					request.ProductCodes.Clear();
 
-					foreach(var code in routeListItem.TrueMarkCodes)
+					foreach(var code in _trueMarkRepository.GetRouteListItemProductCodes(UoW, routeListItem.Id))
 					{
 						request.ProductCodes.Add(code);
 					}
@@ -1140,7 +1140,7 @@ namespace Vodovoz
 		private PrimaryEdoRequest CreateOrderRequest(
 			IUnitOfWork uow,
 			RouteListKeepingItemNode item,
-			IObservableList<RouteListItemTrueMarkProductCode> codes)
+			IEnumerable<RouteListItemTrueMarkProductCode> codes)
 		{
 			return new PrimaryEdoRequest
 			{

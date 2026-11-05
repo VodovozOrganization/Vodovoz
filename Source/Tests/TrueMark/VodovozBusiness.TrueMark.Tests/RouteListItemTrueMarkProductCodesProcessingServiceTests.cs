@@ -10,6 +10,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
@@ -25,6 +26,7 @@ namespace VodovozBusiness.TrueMark.Tests
 	public class RouteListItemTrueMarkProductCodesProcessingServiceTests
 	{
 		private const int _orderId = 1;
+		private const int _routeListItemId = 4;
 		private const int _orderItemId = 2;
 		private const int _reusedIdentificationCodeId = 3;
 		private const string _gtin = "04602009723186";
@@ -60,7 +62,6 @@ namespace VodovozBusiness.TrueMark.Tests
 
 			_service = new RouteListItemTrueMarkProductCodesProcessingService(
 				Substitute.For<IOrderRepository>(),
-				Substitute.For<IGenericRepository<RouteListItemEntity>>(),
 				Substitute.For<IGenericRepository<StagingTrueMarkCode>>(),
 				Substitute.For<ITrueMarkWaterCodeService>(),
 				Substitute.For<ITrueMarkCodesPoolCleanupService>(),
@@ -87,14 +88,18 @@ namespace VodovozBusiness.TrueMark.Tests
 				_orderItemId,
 				driverIdentificationCode,
 				SourceProductCodeStatus.Accepted,
-				ProductCodeProblem.None);
+				ProductCodeProblem.None,
+				new HashSet<(string Gtin, string SerialNumber)>());
 
 			await _trueMarkCodesPool
 				.Received(1)
 				.PutCodeAsync(_reusedIdentificationCodeId, Arg.Any<CancellationToken>());
 			Assert.Null(reusedProductCode.ResultCode);
 			Assert.Equal(SourceProductCodeStatus.SavedToPool, reusedProductCode.SourceCodeStatus);
-			Assert.Same(driverIdentificationCode, routeListItem.TrueMarkCodes.Single().SourceCode);
+			_uow.Received(1).Save(
+				Arg.Is<RouteListItemTrueMarkProductCode>(x =>
+					ReferenceEquals(x.SourceCode, driverIdentificationCode) && x.RouteListItemId == routeListItem.Id),
+				Arg.Any<bool>());
 		}
 
 		/// <summary>
@@ -118,14 +123,18 @@ namespace VodovozBusiness.TrueMark.Tests
 				_orderItemId,
 				driverIdentificationCode,
 				SourceProductCodeStatus.New,
-				ProductCodeProblem.None);
+				ProductCodeProblem.None,
+				new HashSet<(string Gtin, string SerialNumber)>());
 
 			await _trueMarkCodesPool
 				.Received(1)
 				.PutCodeAsync(_reusedIdentificationCodeId, Arg.Any<CancellationToken>());
 			Assert.Null(reusedProductCode.ResultCode);
 			Assert.Equal(SourceProductCodeStatus.SavedToPool, reusedProductCode.SourceCodeStatus);
-			Assert.Same(driverIdentificationCode, routeListItem.TrueMarkCodes.Single().SourceCode);
+			_uow.Received(1).Save(
+				Arg.Is<RouteListItemTrueMarkProductCode>(x =>
+					ReferenceEquals(x.SourceCode, driverIdentificationCode) && x.RouteListItemId == routeListItem.Id),
+				Arg.Any<bool>());
 		}
 
 		/// <summary>
@@ -144,12 +153,16 @@ namespace VodovozBusiness.TrueMark.Tests
 				_orderItemId,
 				driverIdentificationCode,
 				SourceProductCodeStatus.Accepted,
-				ProductCodeProblem.None);
+				ProductCodeProblem.None,
+				new HashSet<(string Gtin, string SerialNumber)>());
 
 			await _trueMarkCodesPool
 				.DidNotReceive()
 				.PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
-			Assert.Same(driverIdentificationCode, routeListItem.TrueMarkCodes.Single().SourceCode);
+			_uow.Received(1).Save(
+				Arg.Is<RouteListItemTrueMarkProductCode>(x =>
+					ReferenceEquals(x.SourceCode, driverIdentificationCode) && x.RouteListItemId == routeListItem.Id),
+				Arg.Any<bool>());
 		}
 
 		/// <summary>
@@ -175,7 +188,8 @@ namespace VodovozBusiness.TrueMark.Tests
 				_orderItemId,
 				CreateDriverIdentificationCode(),
 				SourceProductCodeStatus.Accepted,
-				ProductCodeProblem.None);
+				ProductCodeProblem.None,
+				new HashSet<(string Gtin, string SerialNumber)>());
 
 			await _trueMarkCodesPool
 				.DidNotReceive()
@@ -203,7 +217,8 @@ namespace VodovozBusiness.TrueMark.Tests
 				_orderItemId,
 				CreateDriverIdentificationCode(),
 				status,
-				problem);
+				problem,
+				new HashSet<(string Gtin, string SerialNumber)>());
 
 			_trueMarkRepository
 				.DidNotReceive()
@@ -216,6 +231,35 @@ namespace VodovozBusiness.TrueMark.Tests
 			await _trueMarkCodesPool
 				.DidNotReceive()
 				.PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
+		}
+
+		/// <summary>
+		/// Проверяет, что код с ключом из набора не добавляется повторно,
+		/// а новый ключ попадает в набор.
+		/// </summary>
+		[Fact]
+		public async Task DriverCode_AddedOnlyOnce_AndKeyAddedToSet()
+		{
+			var routeListItem = CreateRouteListItem();
+			var driverIdentificationCode = CreateDriverIdentificationCode();
+			var addedCodeKeys = new HashSet<(string Gtin, string SerialNumber)>();
+
+			for(var i = 0; i < 2; i++)
+			{
+				await _service.AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
+					_uow,
+					routeListItem,
+					_orderItemId,
+					driverIdentificationCode,
+					SourceProductCodeStatus.New,
+					ProductCodeProblem.None,
+					addedCodeKeys);
+			}
+
+			Assert.Contains((_gtin, "driver-code"), addedCodeKeys);
+			_uow.Received(1).Save(
+				Arg.Is<RouteListItemTrueMarkProductCode>(x => ReferenceEquals(x.SourceCode, driverIdentificationCode)),
+				Arg.Any<bool>());
 		}
 
 		private static AutoTrueMarkProductCode CreateReusedProductCode()
@@ -261,6 +305,7 @@ namespace VodovozBusiness.TrueMark.Tests
 		private static RouteListItemEntity CreateRouteListItem() =>
 			new RouteListItemEntity
 			{
+				Id = _routeListItemId,
 				Order = new OrderEntity
 				{
 					Id = _orderId
