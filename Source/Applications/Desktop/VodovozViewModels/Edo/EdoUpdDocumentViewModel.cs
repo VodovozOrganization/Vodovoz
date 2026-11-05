@@ -71,7 +71,20 @@ namespace Vodovoz.ViewModels.Edo
 				.CompareObject(x => x.InventPositions, position)
 				.CompareObject(x => x.Payments, payment).Build();
 			return comparer.Compare(document, new EdoUpdDocument())
-				.Select(field => new UpdCompareViewModel(field, false)).ToList();
+				.Select(field =>
+				{
+					var node = new UpdCompareViewModel(field, false);
+					if(field.PropertyName == nameof(EdoUpdDocument.Guid))
+					{
+						node.Name = "Идентификатор сохраненного УПД";
+					}
+					if(field.PropertyName == nameof(EdoUpdDocument.Shipper)
+						&& (document.Shipper == null || !field.HasDiff))
+					{
+						node.SentValue = "он же";
+					}
+					return node;
+				}).ToList();
 		}
 
 		/// <summary>Освобождает контекст просмотра документа.</summary>
