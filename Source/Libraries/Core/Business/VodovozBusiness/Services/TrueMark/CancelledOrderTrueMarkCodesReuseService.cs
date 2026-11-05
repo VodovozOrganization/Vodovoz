@@ -168,7 +168,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			var orderId = usedProductCodes
-				.Select(GetProductCodeOrderId)
+				.Select(x => GetProductCodeOrderId(uow, x))
 				.Where(x => x > 0)
 				.FirstOrDefault();
 
@@ -178,16 +178,18 @@ namespace VodovozBusiness.Services.TrueMark
 
 		}
 
-		private static int GetProductCodeOrderId(TrueMarkProductCode productCode)
+		private int GetProductCodeOrderId(IUnitOfWork uow, TrueMarkProductCode productCode)
 		{
 			switch(productCode)
 			{
 				case RouteListItemTrueMarkProductCode routeListProductCode:
-					return routeListProductCode.RouteListItem?.Order?.Id ?? 0;
+					return _trueMarkRepository.GetOrderIdByTrueMarkProductCode(uow, routeListProductCode) ?? 0;
 				case CarLoadDocumentItemTrueMarkProductCode carLoadProductCode:
-					return carLoadProductCode.CarLoadDocumentItem?.OrderId ?? 0;
+					return _trueMarkRepository.GetOrderIdByTrueMarkProductCode(uow, carLoadProductCode) ?? 0;
 				case SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryProductCode:
-					return selfDeliveryProductCode.SelfDeliveryDocumentItem?.Document?.Order?.Id ?? 0;
+					return selfDeliveryProductCode.SelfDeliveryDocumentItemId is null
+						? 0
+						: _trueMarkRepository.GetOrderIdByTrueMarkProductCode(uow, selfDeliveryProductCode) ?? 0;
 				default:
 					return productCode.CustomerEdoRequest?.Order?.Id ?? 0;
 			}

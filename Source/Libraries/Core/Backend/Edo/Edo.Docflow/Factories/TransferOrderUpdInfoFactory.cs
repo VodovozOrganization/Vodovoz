@@ -1,281 +1,159 @@
 using Edo.Contracts.Messages.Dto;
-using NHibernate;
-using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Core.Data.Repositories.Document;
-using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Organizations;
-using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Settings.Edo;
-using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Core.Domain.Edo.Upd;
 
 namespace Edo.Docflow.Factories
 {
-	public class TransferOrderUpdInfoFactory : IDisposable
+	/// <summary>
+	/// Подготавливает данные отправки трансфера из сохранённого документа УПД.
+	/// </summary>
+	public class TransferOrderUpdInfoFactory
 	{
-		private const string _dateFormatString = "dd.MM.yyyy";
-		private readonly IUnitOfWork _uow;
-		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
-		private readonly IEdoTransferSettings _edoTransferSettings;
-		private readonly INomenclatureSettings _nomenclatureSettings;
-		private readonly IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository;
-
-		public TransferOrderUpdInfoFactory(
-			IUnitOfWork uow,
-			ITrueMarkCodeRepository trueMarkCodeRepository,
-			IEdoTransferSettings edoTransferSettings,
-			INomenclatureSettings nomenclatureSettings,
-			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository)
+		/// <summary>
+		/// Преобразует сохранённые значения УПД трансфера в данные для Такском.
+		/// </summary>
+		/// <param name="transferTask">Задача трансфера с сохранённым УПД.</param>
+		/// <param name="cancellationToken">Токен отмены.</param>
+		/// <returns>Данные сохранённого УПД для отправки.</returns>
+		public Task<UniversalTransferDocumentInfo> CreateUniversalTransferDocumentInfo(
+			TransferEdoTask transferTask, CancellationToken cancellationToken)
 		{
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
-			_edoTransferSettings = edoTransferSettings ?? throw new ArgumentNullException(nameof(edoTransferSettings));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
-			_documentOrganizationCounterRepository = documentOrganizationCounterRepository ?? throw new ArgumentNullException(nameof(documentOrganizationCounterRepository));
+			var upd = transferTask.Upd;
+			if(upd == null)
+			{
+				throw new NotSupportedException($"В задаче трансфера {transferTask.Id} отсутствует сохранённый УПД.");
+			}
+
+			var products = upd.InventPositions.Select(position =>
+				CreateProductInfo(position, position.Codes.Select(code => new ProductCodeInfo
+				{
+					TransportCode = code.TransportCode,
+					IsGroup = string.IsNullOrEmpty(code.TransportCode) && code.GroupCode != null,
+					IndividualOrGroupCode = string.IsNullOrEmpty(code.TransportCode) ? code.IdentificationCode : null
+				}).ToList())).ToList();
+
+			return Task.FromResult(CreateDocumentInfo(upd, products, new List<UpdAdditionalInfo>()));
 		}
 
-		public async Task<UniversalTransferDocumentInfo> CreateUniversalTransferDocumentInfo(
-			TransferOrder transferOrder,
-			CancellationToken cancellationToken
-			)
+		private static UniversalTransferDocumentInfo CreateDocumentInfo(
+			EdoUpdDocument upd, IEnumerable<ProductInfo> products, IEnumerable<UpdAdditionalInfo> additionalInformation)
 		{
-			if(transferOrder is null)
-			{
-				throw new ArgumentNullException(nameof(transferOrder));
-			}
-
-			if(transferOrder.Seller is null)
-			{
-				throw new InvalidOperationException("В заказе перемещения товаров не указан продавец");
-			}
-
-			if(transferOrder.Customer is null)
-			{
-				throw new InvalidOperationException("В заказе перемещения товаров не указан покупатель");
-			}
-
-			if(transferOrder.TransferDocument is null && transferOrder.Date >= new DateTime(2026, 1, 1))
-			{
-				throw new InvalidOperationException("В заказе перемещения товаров не указан счетчик документов УПД для 2026 года и позже");
-			}
-
-			if(transferOrder.Date == default)
-			{
-				throw new InvalidOperationException("В заказе перемещения товаров не указана дата");
-			}
-
-			if(transferOrder.Id == 0)
-			{
-				throw new InvalidOperationException("При заполнении данных в УПД необходимо, чтобы заказ перемещения товаров был предварительно сохранен");
-			}
-
-			var transferOrderCodes = await _uow.Session.QueryOver<TransferOrderTrueMarkCode>()
-				.Fetch(SelectMode.Fetch, x => x.Nomenclature)
-				.Fetch(SelectMode.Fetch, x => x.Nomenclature.Unit)
-				.Fetch(SelectMode.Fetch, x => x.IndividualCode)
-				.Fetch(SelectMode.Fetch, x => x.IndividualCode.Tag1260CodeCheckResult)
-				.Fetch(SelectMode.Fetch, x => x.GroupCode)
-				.Where(x => x.TransferOrder.Id == transferOrder.Id)
-				.ListAsync(cancellationToken);
-
-			var preloadCodes = transferOrderCodes
-				.Where(x => x.IndividualCode != null)
-				.Select(x => x.IndividualCode);
-			await _trueMarkCodeRepository.PreloadCodes(preloadCodes, cancellationToken);
-
-			return await ConvertTransferOrderToUniversalTransferDocumentInfo(transferOrder, cancellationToken);
-		}
-
-		private async Task<UniversalTransferDocumentInfo> ConvertTransferOrderToUniversalTransferDocumentInfo(
-			TransferOrder transferOrder,
-			CancellationToken cancellationToken
-			)
-		{
-			var products = await GetProducts(transferOrder, cancellationToken);
-			
 			var document = new UniversalTransferDocumentInfo
 			{
-				DocumentId = Guid.NewGuid(),
-				StringNumber = DocumentNumberBuilder.Build(transferOrder, transferOrder.TransferDocument),
-				Sum = products.Sum(x => x.Sum),
-				Date = transferOrder.Date,
-				Seller = GetSellerInfo(transferOrder),
-				Customer = GetCustomerInfo(transferOrder),
-				Consignee = GetConsigneeInfo(transferOrder),
-				DocumentConfirmingShipment = GetDocumentConfirmingShipmentInfo(transferOrder),
-				BasisShipment = GetBasisShipmentInfo(transferOrder),
-				Payments = GetPayments(transferOrder),
+				DocumentId = upd.Guid,
+				StringNumber = upd.Number,
+				Sum = upd.Sum,
+				Date = upd.Date,
+				Seller = new SellerInfo
+				{
+					Organization = GetOrganizationInfo(upd.Seller)
+				},
+				Shipper = new ShipperInfo
+				{
+					Organization = GetOrganizationInfo(upd.Shipper)
+				},
+				Customer = new CustomerInfo
+				{
+					Organization = GetOrganizationInfo(upd.Customer)
+				},
+				Consignee = new ConsigneeInfo
+				{
+					Organization = GetOrganizationInfo(upd.Consignee),
+					CargoReceiver = upd.SpecialConsignee
+				},
+				DocumentConfirmingShipment = new DocumentConfirmingShipmentInfo
+				{
+					Document = upd.ShippingDocument,
+					Number = upd.ShippingDocumentNumber,
+					Date = upd.ShippingDocumentDate
+				},
+				GovContract = upd.GovContract,
+				BasisShipment = new BasisShipmentInfo
+				{
+					Document = upd.ShippingReasonDocument,
+					Number = upd.ShippingReasonDocumentNumber,
+					Date = upd.ShippingReasonDocumentDate
+				},
+				Payments = upd.Payments.Select(x => new PaymentInfo
+				{
+					PaymentNum = x.PaymentNum,
+					PaymentDate = x.PaymentDate
+				}),
 				Products = products,
-				AdditionalInformation = GettAdditionalInformation(transferOrder)
+				AdditionalInformation = additionalInformation
 			};
 
 			return document;
 		}
-		
-		private SellerInfo GetSellerInfo(TransferOrder transferOrder) =>
-			new SellerInfo { Organization = GetOrganizationInfo(transferOrder.Seller) };
 
-		private CustomerInfo GetCustomerInfo(TransferOrder transferOrder) =>
-			new CustomerInfo { Organization = GetOrganizationInfo(transferOrder.Customer) };
-
-		private ConsigneeInfo GetConsigneeInfo(TransferOrder transferOrder) =>
-			new ConsigneeInfo { Organization = GetOrganizationInfo(transferOrder.Customer) };
-
-		private DocumentConfirmingShipmentInfo GetDocumentConfirmingShipmentInfo(TransferOrder transferOrder) =>
-			new DocumentConfirmingShipmentInfo
-			{
-				Number = transferOrder.Id.ToString(),
-				Date = transferOrder.Date.ToString(_dateFormatString)
-			};
-
-		private BasisShipmentInfo GetBasisShipmentInfo(TransferOrder transferOrder) =>
-			new BasisShipmentInfo
-			{
-				Number = transferOrder.Id.ToString(),
-				Date = transferOrder.Date.ToString(_dateFormatString)
-			};
-
-		private IEnumerable<PaymentInfo> GetPayments(TransferOrder transferOrder) =>
-			new List<PaymentInfo>();
-
-		private IEnumerable<UpdAdditionalInfo> GettAdditionalInformation(TransferOrder transferOrder) =>
-			new List<UpdAdditionalInfo>();
-
-		private OrganizationInfo GetOrganizationInfo(OrganizationEntity organization)
+		private static OrganizationInfo GetOrganizationInfo(UpdOrganization organization)
 		{
-			var oganizationInfo = new OrganizationInfo
+			if(organization == null)
+			{
+				return null;
+			}
+
+			var organizationInfo = new OrganizationInfo
 			{
 				Name = organization.Name,
 				Address = new AddressInfo
 				{
-					Address = organization.ActiveOrganizationVersion.JurAddress,
+					CountryCode = organization.CountryCode,
+					CountryName = organization.CountryName,
+					Address = organization.Address
 				},
-				Inn = organization.INN,
-				Kpp = organization.KPP,
-				OGRN = organization.OGRN,
-				OGRNDate = organization.OGRNDate,
-				EdoAccountId = organization.TaxcomEdoSettings.EdoAccount,
+				Inn = organization.Inn,
+				Kpp = organization.Kpp,
+				OGRN = organization.Ogrn,
+				OGRNDate = organization.OgrnDate,
+				EdoAccountId = organization.EdoAccountId,
+				IsWithoutVat = organization.IsWithoutVat
 			};
 
-			return oganizationInfo;
+			return organizationInfo;
 		}
 
-		private async Task<IEnumerable<ProductInfo>> GetProducts(TransferOrder transferOrder, CancellationToken cancellationToken)
+		/// <summary>Преобразует товарную позицию и подготовленные коды.</summary>
+		/// <param name="inventPosition">Сохранённая товарная позиция.</param>
+		/// <param name="codes">Коды в представлении соответствующего сценария.</param>
+		/// <returns>Товарная позиция для отправки.</returns>
+		private static ProductInfo CreateProductInfo(UpdInventPosition inventPosition, IEnumerable<ProductCodeInfo> codes)
 		{
-			var products = new List<ProductInfo>();
-
-			var itemsByNomenclature = transferOrder.Items.GroupBy(x => x.Nomenclature);
-
-			foreach(var codesByNomenclature in itemsByNomenclature)
+			var product = new ProductInfo
 			{
-				var nomenclature = codesByNomenclature.Key;
+				Name = inventPosition.Name,
+				IsService = inventPosition.IsService,
+				UnitName = inventPosition.UnitName,
+				OKEI = inventPosition.OKEI,
+				Code = inventPosition.NomenclatureId.ToString(),
+				Count = inventPosition.Count,
+				Price = inventPosition.Price,
+				IncludeVat = inventPosition.IncludeVat,
+				ValueAddedTax = inventPosition.ValueAddedTax,
+				DiscountMoney = inventPosition.DiscountMoney,
+				TrueMarkCodes = codes
+			};
 
-				var quantity = codesByNomenclature.Sum(x => x.Quantity);
+			var economicLifeFacts = new List<ProductEconomicLifeFactsInfo>();
 
-				var productCodes = new List<ProductCodeInfo>();
-
-				foreach(var code in codesByNomenclature)
+			if(inventPosition.SpecialCustomerNomenclatureId.HasValue)
+			{
+				economicLifeFacts.Add(new ProductEconomicLifeFactsInfo
 				{
-					var productCode = new ProductCodeInfo();
-
-					TrueMarkTransportCode transportCode = null;
-
-					if(code.GroupCode != null)
-					{
-						transportCode = await _trueMarkCodeRepository.FindParentTransportCode(code.GroupCode, cancellationToken);
-						if(transportCode != null)
-						{
-							productCode.TransportCode = transportCode.RawCode;
-						}
-						else
-						{
-							productCode.IndividualOrGroupCode = code.GroupCode.IdentificationCode;
-							productCode.IsGroup = true;
-						}
-					}
-					else
-					{
-						transportCode = await _trueMarkCodeRepository.FindParentTransportCode(code.IndividualCode, cancellationToken);
-						if(transportCode != null)
-						{
-							productCode.TransportCode = transportCode.RawCode;
-						}
-						else
-						{
-							productCode.IndividualOrGroupCode = code.IndividualCode.IdentificationCode;
-							productCode.IsGroup = false;
-						}
-					}
-
-					productCodes.Add(productCode);
-				}
-
-				var purchasePrice = nomenclature.GetPurchasePriceOnDate(DateTime.Now);
-				var costPrice = nomenclature.GetCostPriceOnDate(DateTime.Now);
-				var newestPrice = purchasePrice?.StartDate > costPrice?.StartDate 
-					? purchasePrice?.PurchasePrice 
-					: costPrice?.CostPrice;
-				var additionalPercent = _edoTransferSettings.AdditionalPurchasePricePrecentForTransfer;
-				var price = 0m;
-
-				if(newestPrice == null || newestPrice == 0m)
-				{
-					price = nomenclature.GetPrice(quantity).Price;
-					price *= 1 - ((decimal)additionalPercent) / 100;
-				}
-				else
-				{
-					price = newestPrice.Value;
-					price *= 1 + ((decimal)additionalPercent) / 100;
-				}
-
-				var sum = price * quantity;
-				
-				var vatRateVersion = nomenclature.GetEffectiveVatRateVersion(transferOrder.Seller, transferOrder.Date);
-				
-				if(vatRateVersion == null)
-				{
-					throw new InvalidOperationException($"У товара #{nomenclature.Id} отсутствует версия " +
-						$"НДС на дату трансфера заказа #{transferOrder.Date}");
-				}
-				
-				var includeVat = vatRateVersion.VatRate.VatRateValue != 0 
-					? Math.Round(sum * vatRateVersion.VatRate.VatNumericValue / (1 + vatRateVersion.VatRate.VatNumericValue), 2) 
-					: 0;
-				var valueAddedTax = vatRateVersion.VatRate.VatRateValue != 0 
-					? vatRateVersion.VatRate.VatNumericValue 
-					: (decimal?)null;
-
-				var product = new ProductInfo
-				{
-					Name = nomenclature.OfficialName,
-					IsService = nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId,
-					UnitName = nomenclature.Unit.Name,
-					OKEI = nomenclature.Unit.OKEI,
-					Code = nomenclature.Id.ToString(),
-					Count = quantity,
-					Price = price,
-					IncludeVat = includeVat,
-					ValueAddedTax = valueAddedTax,
-					DiscountMoney = 0,
-					TrueMarkCodes = productCodes
-				};
-
-				products.Add(product);
+					Id = "код_материала",
+					Value = inventPosition.SpecialCustomerNomenclatureId.Value.ToString()
+				});
 			}
 
-			return products;
+			product.EconomicLifeFacts = economicLifeFacts;
+
+			return product;
 		}
 
-		public void Dispose()
-		{
-			_uow.Dispose();
-		}
 	}
 }

@@ -119,7 +119,7 @@ namespace Edo.Problems.Validation.Sources
 			var scannedRouteListCodes =
 				(from routeListItem in unitOfWork.Session.Query<RouteListItemEntity>()
 					join productCode in unitOfWork.Session.Query<RouteListItemTrueMarkProductCode>()
-						on routeListItem.Id equals productCode.RouteListItem.Id
+						on (int?)routeListItem.Id equals productCode.RouteListItemId
 					where routeListItem.Order.Id == orderEdoRequest.Order.Id
 					      && productCode.SourceCodeStatus == SourceProductCodeStatus.Accepted
 					group productCode by productCode.ResultCode.Gtin
@@ -137,7 +137,7 @@ namespace Edo.Problems.Validation.Sources
 					join document in unitOfWork.Session.Query<SelfDeliveryDocumentEntity>() on item.Document.Id equals document.Id
 					where document.Order.Id == orderEdoRequest.Order.Id
 					join productCode in unitOfWork.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
-						on item.Id equals productCode.SelfDeliveryDocumentItem.Id
+						on (int?)item.Id equals productCode.SelfDeliveryDocumentItemId
 					group productCode by productCode.ResultCode.Gtin
 					into grouped
 					select new ScannedNomenclatureGtinDto

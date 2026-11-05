@@ -676,26 +676,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			return _gtinsInOrder.Contains(gtin);
 		}
 
-		private async Task AddCodeToSelfDeliveryDocumentItemAsync(
-			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
-			CancellationToken cancellationToken)
-		{
-			await _unitOfWork.SaveAsync(trueMarkWaterIdentificationCode, cancellationToken: cancellationToken);
-			
-			var productCode = new SelfDeliveryDocumentItemTrueMarkProductCode
-			{
-				CreationTime = DateTime.Now,
-				SourceCode = trueMarkWaterIdentificationCode,
-				ResultCode = trueMarkWaterIdentificationCode,
-				Problem = ProductCodeProblem.None,
-				SourceCodeStatus = SourceProductCodeStatus.Accepted,
-				SelfDeliveryDocumentItem = selfDeliveryDocumentItem
-			};
-
-			selfDeliveryDocumentItem.TrueMarkProductCodes.Add(productCode);
-		}
-
 		private string ReplaceCodeSpecSymbols(string code) => code.Replace("", "\\u001d");
 
 		private string GetNomenclatureNameByGtin(string gtin) =>
@@ -874,47 +854,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			OnPropertyChanged(() => IsAllCodesScanned);
 		}
 
-		private async Task DistributeCodeOnNextSelfDeliveryItemAsync(List<TrueMarkWaterIdentificationCode> codes,
-			CancellationToken cancellationToken)
-		{
-			foreach(var code in codes)
-			{
-				await DistributeCodeOnNextSelfDeliveryItemAsync(code, cancellationToken);
-			}
-		}
-
-		private async Task DistributeCodeOnNextSelfDeliveryItemAsync(TrueMarkWaterIdentificationCode code,
-			CancellationToken cancellationToken)
-		{
-			SelfDeliveryDocumentItemEntity nextSelfDeliveryItemToDistributeByGtin;
-
-			nextSelfDeliveryItemToDistributeByGtin = GetNextNotScannedDocumentItem(code);
-
-			if(nextSelfDeliveryItemToDistributeByGtin == null)
-			{
-				return;
-			}
-
-			await AddCodeToSelfDeliveryDocumentItemAsync(nextSelfDeliveryItemToDistributeByGtin, code, cancellationToken);
-
-			var nomenclatureName = nextSelfDeliveryItemToDistributeByGtin.Nomenclature.Name;
-
-			CodesScanProgressRows.First(x => x.NomenclatureName == nomenclatureName && x.LeftToScan > 0).LeftToScan--;
-		}
-
-		private SelfDeliveryDocumentItemEntity GetNextNotScannedDocumentItem(TrueMarkWaterIdentificationCode code)
-		{
-			var documentItem = _selfDeliveryDocument.Items?
-				.Where(x => x.Nomenclature.IsAccountableInTrueMark)
-				.FirstOrDefault(s =>
-					s.Nomenclature.Gtins.Select(g => g.GtinNumber).Contains(code.Gtin)
-					&& s.TrueMarkProductCodes.Count < s.Amount
-					&& s.TrueMarkProductCodes.All(c =>
-						!c.SourceCode.RawCode.Contains(code.RawCode) && !code.RawCode.Contains(c.SourceCode.RawCode)));
-
-			return documentItem;
-		}
-
 		public void CheckCode(string rawCode)
 		{
 			if(rawCode.Length < 20)
@@ -1025,7 +964,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		}
 
 		public Result IsAllTrueMarkProductCodesAdded() =>
-			_codesProcessingService.IsAllTrueMarkProductCodesAdded(_selfDeliveryDocument);
+			_codesProcessingService.IsAllTrueMarkProductCodesAdded(_unitOfWork, _selfDeliveryDocument);
 
 		public string GetCodesForClipboardCopy() =>
 			string.Join(", ", CodeScanRows.OrderBy(x => x.RowNumber).Select(x => $"\"{x.RawCode}\""));

@@ -15,6 +15,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Rules.Edo;
 
 namespace Edo.Docflow
 {
@@ -73,15 +74,25 @@ namespace Edo.Docflow
 				return;
 			}
 
-			var transferOrder = await _uow.Session.QueryOver<TransferOrder>()
-				.Where(x => x.Id == transferTask.TransferOrderId)
-				.SingleOrDefaultAsync(cancellationToken);
+			if(TransferEdoTaskCancellationRule.IsCancelledOrCancelling(transferTask.Status))
+			{
+				_logger.LogInformation(
+					"Отправка документа {DocumentId} пропущена: задача трансфера {TransferTaskId} имеет статус {Status}",
+					transferDocumentId, transferTask.Id, transferTask.Status);
+				return;
+			}
 
-			var updInfo = await _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(transferOrder, cancellationToken);
+			if(transferTask.Upd == null)
+			{
+				_logger.LogWarning("В задаче на трансфер Id {TransferTaskId} отсутствует сохранённый УПД", transferTask.Id);
+				return;
+			}
+
+			var updInfo = await _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(transferTask, cancellationToken);
 
 			var message = new TaxcomDocflowSendEvent
 			{
-				EdoAccount = transferOrder.Seller.TaxcomEdoSettings.EdoAccount,
+				EdoAccount = transferTask.Upd.Seller.EdoAccountId,
 				EdoOutgoingDocumentId = document.Id,
 				UpdInfo = updInfo,
 				EdoTaskId = transferTask.Id

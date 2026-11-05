@@ -1,6 +1,5 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 {
@@ -10,13 +9,13 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			Nominative = "код ЧЗ товара строки документа самовывоза")]
 	public class SelfDeliveryDocumentItemTrueMarkProductCode : TrueMarkProductCode
 	{
-		private SelfDeliveryDocumentItemEntity _selfDeliveryDocumentItem;
+		private int? _selfDeliveryDocumentItemId;
 
-		[Display(Name = "Строка документа самовывоза")]
-		public virtual SelfDeliveryDocumentItemEntity SelfDeliveryDocumentItem
+		[Display(Name = "Id строки документа самовывоза")]
+		public virtual int? SelfDeliveryDocumentItemId
 		{
-			get => _selfDeliveryDocumentItem;
-			set => SetField(ref _selfDeliveryDocumentItem, value);
+			get => _selfDeliveryDocumentItemId;
+			set => SetField(ref _selfDeliveryDocumentItemId, value);
 		}
 	}
 }

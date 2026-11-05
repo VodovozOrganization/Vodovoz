@@ -1,4 +1,6 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Edo.Transport;
+using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,6 +9,8 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using System;
 using System.Text;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Zabbix.Sender;
 
@@ -43,6 +47,8 @@ namespace Edo.DeviationMonitoring.Routine.Worker
 						.AddNHibernateConventions()
 						.AddCore()
 						.AddTrackedUoW()
+						.AddMessageTransportSettings()
+						.AddEdoMassTransit(configureBus: busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
 						.AddEdoDeviationMonitoring()
 						.ConfigureZabbixSenderFromDataBase()
 						;

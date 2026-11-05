@@ -33,7 +33,9 @@ namespace Vodovoz.Core.Data.NHibernate.Edo
 				.Column("count");
 
 			Map(x => x.Price)
-				.Column("price");
+				.Column("price")
+				.Precision(19)
+				.Scale(6);
 
 			Map(x => x.IncludeVat)
 				.Column("include_vat");

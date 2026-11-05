@@ -12,11 +12,10 @@ using Microsoft.Extensions.Options;
 using NHibernate.Proxy;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
-using System.Security.Cryptography;
-using System.Text;
 using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.NotificationSettings;
 
 namespace Edo.DeviationMonitoring
 {
@@ -35,7 +34,7 @@ namespace Edo.DeviationMonitoring
 		/// <param name="taskPublisher">Публикация событий запуска существующих задач.</param>
 		/// <param name="messageFactory">Фабрика ЭДО-уведомлений.</param>
 		/// <param name="notificationPublisher">Публикация уведомлений через аутбокс.</param>
-		/// <param name="outbox">Аутбокс шины для публикации событий возобновления.</param>
+		/// <param name="outbox">Публикация событий в транзакции единицы работы.</param>
 		/// <param name="options">Настройки мониторинга.</param>
 		public EdoDeviationProcessingService(IEdoDeviationRepository repository,
 			IOrderEdoTaskCreatedEventPublisher taskPublisher,
@@ -125,7 +124,7 @@ namespace Edo.DeviationMonitoring
 					throw new ArgumentOutOfRangeException(nameof(deviation), "Неизвестный тип отклонения ЭДО");
 			}
 
-			var message = _messageFactory.Create(EdoNotificationType.DocflowDeviation,
+			var message = _messageFactory.Create<DocflowDeviationEdoNotificationSetting>(
 				("DeviationId", deviation.Id.ToString(CultureInfo.InvariantCulture)),
 				("DeviationType", deviation.DeviationSource.DeviationType.ToString()),
 				("Message", deviation.DeviationSource.ErrorMessage),
@@ -146,8 +145,8 @@ namespace Edo.DeviationMonitoring
 			switch(deviation.DeviationSource.DeviationType)
 			{
 				case EdoDeviationType.TaskNotCreated:
-					await EnqueueAsync(uow, deviation,
-						new EdoRequestCreatedEvent { Id = deviation.EdoRequest.Id }, "request", cancellationToken);
+					await EnqueueAsync(uow,
+						new EdoRequestCreatedEvent { Id = deviation.EdoRequest.Id }, cancellationToken);
 					break;
 				case EdoDeviationType.TaskNotStarted:
 					var task = (OrderEdoTask)GetTaskImplementation(deviation.EdoTask);
@@ -163,30 +162,29 @@ namespace Edo.DeviationMonitoring
 						TransferEdoRequestIterationStatus.InProgress, cancellationToken);
 					foreach(var id in iterationIds)
 					{
-						await EnqueueAsync(uow, deviation, new TransferRequestCreatedEvent { TransferIterationId = id },
-							$"iteration:{id}", cancellationToken);
+						await EnqueueAsync(uow, new TransferRequestCreatedEvent { TransferIterationId = id }, cancellationToken);
 					}
 					break;
 				case EdoDeviationType.DocumentNotSentToProvider:
 					var documentId = await _repository.GetOrderDocumentIdAsync(uow, deviation.EdoTask.Id, cancellationToken);
-					await EnqueueAsync(uow, deviation, new OrderDocumentSendEvent
+					await EnqueueAsync(uow, new OrderDocumentSendEvent
 					{
 						OrderDocumentId = documentId ?? throw new InvalidOperationException("Не найден исходящий документ задачи ЭДО")
-					}, "document", cancellationToken);
+					}, cancellationToken);
 					break;
 				case EdoDeviationType.TransferDocumentNotCreated:
 					var transferTask = (TransferEdoTask)GetTaskImplementation(deviation.EdoTask);
 					object transferEvent = transferTask.TransferStatus == EdoTransferTaskStage.ReadyToSend
 						? (object)new TransferTaskReadyToSendEvent { TransferTaskId = transferTask.Id }
 						: new TransferTaskPrepareToSendEvent { TransferTaskId = transferTask.Id };
-					await EnqueueAsync(uow, deviation, transferEvent, "prepare-transfer", cancellationToken);
+					await EnqueueAsync(uow, transferEvent, cancellationToken);
 					break;
 				case EdoDeviationType.TransferDocumentNotSentToProvider:
 					var transferDocumentId = await _repository.GetTransferDocumentIdAsync(uow, deviation.EdoTask.Id, cancellationToken);
-					await EnqueueAsync(uow, deviation, new TransferDocumentSendEvent
+					await EnqueueAsync(uow, new TransferDocumentSendEvent
 					{
 						TransferDocumentId = transferDocumentId ?? throw new InvalidOperationException("Не найден исходящий документ трансфера")
-					}, "transfer-document", cancellationToken);
+					}, cancellationToken);
 					break;
 			}
 		}
@@ -195,20 +193,7 @@ namespace Edo.DeviationMonitoring
 			? (EdoTask)proxy.HibernateLazyInitializer.GetImplementation()
 			: task;
 
-		private Task EnqueueAsync(IUnitOfWork uow, EdoTaskDeviation deviation, object message,
-			string actionKey, CancellationToken cancellationToken) =>
-			_outbox.GetPublishEndpoint(uow)
-				.Publish(
-					message,
-					context => context.MessageId = CreateMessageId($"EdoDeviation:{deviation.Id}:{actionKey}"),
-					cancellationToken);
-
-		private static Guid CreateMessageId(string idempotencyKey)
-		{
-			using(var md5 = MD5.Create())
-			{
-				return new Guid(md5.ComputeHash(Encoding.UTF8.GetBytes(idempotencyKey)));
-			}
-		}
+		private Task EnqueueAsync(IUnitOfWork uow, object message, CancellationToken cancellationToken) =>
+			_outbox.GetPublishEndpoint(uow).Publish(message, message.GetType(), cancellationToken);
 	}
 }

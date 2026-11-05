@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 					from subdivision in subdivisions.DefaultIfEmpty()
 					join gg in unitOfWork.Session.Query<GeoGroup>() on subdivision.GeographicGroup.Id equals gg.Id into geoGroups
 					from geoGroup in geoGroups.DefaultIfEmpty()
-					join sc in unitOfWork.Session.Query<RouteListItemTrueMarkProductCode>() on routeListItem.Id equals sc.RouteListItem.Id into scannedCodes
+					join sc in unitOfWork.Session.Query<RouteListItemTrueMarkProductCode>() on (int?)routeListItem.Id equals sc.RouteListItemId into scannedCodes
 					from scannedCode in scannedCodes.DefaultIfEmpty()
 					join ic in unitOfWork.Session.Query<TrueMarkWaterIdentificationCode>() on scannedCode.SourceCode.Id equals ic.Id into identificationCodes
 					from identificationCode in identificationCodes.DefaultIfEmpty()

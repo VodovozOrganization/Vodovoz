@@ -77,6 +77,11 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.EmailForClaimLetters, w => w.Text)
 				.InitializeFromSource();
 
+			validatedentryEmailForChainStoreNotifications.CustomRegex = ViewModel.RegexForEmailForMailing;
+			validatedentryEmailForChainStoreNotifications.Binding
+				.AddBinding(ViewModel.Entity, e => e.EmailForChainStoreNotifications, w => w.Text)
+				.InitializeFromSource();
+
 			validatedentryEmailForInformationLetters.CustomRegex = ViewModel.RegexForEmailForMailing;
 			validatedentryEmailForInformationLetters.Binding
 				.AddBinding(ViewModel.Entity, e => e.EmailForInformationLetters, w => w.Text)

@@ -292,6 +292,7 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="problemSourceName">Имя источника проблемы</param>
 		/// <param name="batchSize">Размер партии</param>
 		/// <param name="retryDelays">Массив задержек между попытками</param>
+		/// <param name="excludedTransferTaskStatuses">Статусы трансферов, исключаемые из обработки</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список узлов проблем с отправкой в Такском</returns>
 		Task<IList<TaxcomSendProblemNode>> GetTaxcomSendProblemNodes(
@@ -299,6 +300,7 @@ namespace Vodovoz.Core.Data.Repositories
 			string problemSourceName,
 			int? batchSize,
 			TimeSpan[] retryDelays,
+			IEnumerable<EdoTaskStatus> excludedTransferTaskStatuses,
 			CancellationToken cancellationToken);
 
 		/// <summary>

@@ -271,6 +271,11 @@ public partial class MainWindow
 		NavigationManager.OpenViewModel<EdoProcessJournalViewModel>(null);
 	}
 
+	protected void OnActionEdoUpdJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoUpdJournalViewModel>(null);
+	}
+
 	protected void OnActionEdoDiscrepancyJournalActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<EdoDiscrepancyJournalViewModel>(null);
