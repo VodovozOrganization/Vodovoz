@@ -24,13 +24,6 @@ namespace Vodovoz.Core.Data.Repositories
 		OrganizationEntity GetOrganizationById(int id);
 		
 		/// <summary>
-		/// Получить организацию по ID асинхронно
-		/// </summary>
-		/// <param name="id">ID</param>
-		/// <returns>Организация</returns>
-		Task<OrganizationEntity> GetOrganizationByIdAsync(int id);
-
-		/// <summary>
 		/// Получить организацию по ID в сессии переданного UoW.
 		/// Ленивые поля организации доступны, пока этот UoW открыт
 		/// </summary>

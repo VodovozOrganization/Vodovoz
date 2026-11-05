@@ -1,4 +1,3 @@
-using NHibernate;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Repositories.Organizations;
@@ -31,24 +30,6 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 					Assert.Equal("Юридический адрес", organization.ActiveOrganizationVersion.JurAddress);
 					Assert.Equal("Аккаунт ЭДО", organization.TaxcomEdoSettings.EdoAccount);
 				}
-			}
-		}
-
-		/// <summary>
-		/// Метод без UoW возвращает организацию с уже закрытой сессией: ленивые поля читать нельзя.
-		/// Из-за этого формирование УПД трансфера падало с LazyInitializationException.
-		/// </summary>
-		[DatabaseFact]
-		public async Task GetOrganizationByIdAsync_WhenLoadedWithoutUow_LazyVersionsUnavailable()
-		{
-			using(var database = new ProductionMappingDatabase())
-			{
-				var organizationId = database.CreateOrganization("Юридический адрес", "Аккаунт ЭДО");
-				var repository = new OrganizationRepository(database.UnitOfWorkFactory);
-
-				var organization = await repository.GetOrganizationByIdAsync(organizationId);
-
-				Assert.Throws<LazyInitializationException>(() => organization.ActiveOrganizationVersion);
 			}
 		}
 	}

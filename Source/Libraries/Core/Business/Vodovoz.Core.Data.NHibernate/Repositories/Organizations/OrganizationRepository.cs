@@ -37,14 +37,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Organizations
 			}
 		}
 
-		public async Task<OrganizationEntity> GetOrganizationByIdAsync(int id)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				return await uow.Session.GetAsync<OrganizationEntity>(id);
-			}
-		}
-
 		public async Task<OrganizationEntity> GetOrganizationByIdAsync(IUnitOfWork uow, int id, CancellationToken cancellationToken)
 		{
 			return await uow.Session.GetAsync<OrganizationEntity>(id, cancellationToken);
