@@ -1,9 +1,12 @@
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate;
+using NHibernate.Cfg;
+using NHibernate.Dialect;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using System;
+using System.Linq;
 using Vodovoz.Core.Data.NHibernate.Mapping.Edo;
 using Vodovoz.Core.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Testing.Database;
@@ -18,6 +21,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 	public sealed class ProductionMappingDatabase : IDisposable
 	{
 		private readonly ISessionFactory _sessionFactory;
+		private readonly Configuration _configuration;
 
 		public ProductionMappingDatabase()
 		{
@@ -37,7 +41,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 				individual_code_id INT NULL,
 				group_code_id INT NULL)");
 
-			var configuration = Fluently.Configure()
+			_configuration = Fluently.Configure()
 				.Database(MySQLConfiguration.Standard
 					.Dialect<MySQL57SpatialExtendedDialect>()
 					.ConnectionString(Database.ConnectionString)
@@ -53,7 +57,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 				.ExposeConfiguration(x => x.SetProperty(NhEnvironment.BatchStrategy, typeof(AffectedRowsBatcherFactory).AssemblyQualifiedName))
 				.BuildConfiguration();
 
-			_sessionFactory = configuration.BuildSessionFactory();
+			_sessionFactory = _configuration.BuildSessionFactory();
 			UnitOfWorkFactory = new NotTrackedUnitOfWorkFactory(new DefaultSessionProvider(_sessionFactory));
 		}
 
@@ -69,6 +73,26 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			{
 				return (int)TestDatabase.Scalar(connection, System.Data.IsolationLevel.ReadCommitted, "SELECT MAX(id) FROM edo_transfer_orders");
 			}
+		}
+
+		/// <summary>
+		/// Создаёт организацию с версией и настройками ЭДО. Таблицы берутся из схемы продового маппинга, только нужные для загрузки организации
+		/// </summary>
+		public int CreateOrganization(string jurAddress, string edoAccount)
+		{
+			var tables = new[] { "organizations", "organization_versions", "taxcom_edo_settings", "accounts", "banks", "bank_regions", "banks_cor_accounts" };
+			var script = _configuration.GenerateSchemaCreationScript(Dialect.GetDialect(_configuration.Properties));
+
+			foreach(var statement in script.Where(x => tables.Any(table => x.StartsWith($"create table {table} ", StringComparison.OrdinalIgnoreCase))))
+			{
+				Database.Execute(statement);
+			}
+
+			Database.Execute("INSERT INTO organizations (id, name) VALUES (1, 'Организация')");
+			Database.Execute($"INSERT INTO organization_versions (organization_id, jur_address, start_date) VALUES (1, '{jurAddress}', '2000-01-01')");
+			Database.Execute($"INSERT INTO taxcom_edo_settings (organization_id, edo_account) VALUES (1, '{edoAccount}')");
+
+			return 1;
 		}
 
 		public void Dispose()

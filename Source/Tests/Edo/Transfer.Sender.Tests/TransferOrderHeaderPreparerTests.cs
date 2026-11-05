@@ -49,8 +49,9 @@ namespace Transfer.Sender.Tests
 				.GetMaxDocumentOrganizationCounterOnYearAsync(uow, transferDate, seller, Arg.Any<CancellationToken>())
 				.Returns(new DocumentOrganizationCounter { Counter = 7 });
 
-			uow.GetById<OrganizationEntity>(seller.Id).Returns(seller);
-			uow.GetById<OrganizationEntity>(customer.Id).Returns(customer);
+			var organizationRepository = Substitute.For<IOrganizationRepository>();
+			organizationRepository.GetOrganizationByIdAsync(uow, seller.Id, Arg.Any<CancellationToken>()).Returns(seller);
+			organizationRepository.GetOrganizationByIdAsync(uow, customer.Id, Arg.Any<CancellationToken>()).Returns(customer);
 
 			var preparer = new TransferOrderHeaderPreparer(
 				uow,

@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Organizations;
@@ -42,6 +43,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Organizations
 			{
 				return await uow.Session.GetAsync<OrganizationEntity>(id);
 			}
+		}
+
+		public async Task<OrganizationEntity> GetOrganizationByIdAsync(IUnitOfWork uow, int id, CancellationToken cancellationToken)
+		{
+			return await uow.Session.GetAsync<OrganizationEntity>(id, cancellationToken);
 		}
 	}
 }
