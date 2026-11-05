@@ -95,6 +95,22 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			return 1;
 		}
 
+		/// <summary>
+		/// Создаёт таблицы УПД из схемы продового маппинга
+		/// </summary>
+		public void CreateUpdTables()
+		{
+			var script = _configuration.GenerateSchemaCreationScript(Dialect.GetDialect(_configuration.Properties));
+
+			foreach(var statement in script.Where(x => x.StartsWith("create table edo_upd_", StringComparison.OrdinalIgnoreCase)))
+			{
+				Database.Execute(statement);
+			}
+
+			// Схема из маппинга дает для Guid колонку binary(16), а драйвер передает его строкой
+			Database.Execute("ALTER TABLE edo_upd_documents MODIFY guid CHAR(36) NULL");
+		}
+
 		public void Dispose()
 		{
 			_sessionFactory.Dispose();

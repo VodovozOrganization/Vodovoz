@@ -13,6 +13,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.Upd;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark;
 
@@ -267,7 +268,31 @@ namespace Edo.Transfer.Sender
 
 			transferEdoTask.TransferOrderId = transferOrder.Id;
 			transferEdoTask.Upd = await _updDocumentBuilder.BuildAsync(transferOrder, cancellationToken);
+			await SaveUpdWithCodes(transferEdoTask.Upd, cancellationToken);
 			return true;
+		}
+
+		/// <summary>
+		/// Сохраняет УПД и его позиции, а коды позиций вставляет массово: кодов в трансфере много,
+		/// а каскадное сохранение дает отдельные INSERT и UPDATE внешнего ключа на каждый код
+		/// </summary>
+		private async Task SaveUpdWithCodes(EdoUpdDocument upd, CancellationToken cancellationToken)
+		{
+			var positionsCodes = upd.InventPositions
+				.Select(position => (Position: position, Codes: position.Codes))
+				.ToList();
+
+			foreach(var positionCodes in positionsCodes)
+			{
+				positionCodes.Position.Codes = new List<UpdProductCode>();
+			}
+
+			await _uow.SaveAsync(upd, cancellationToken: cancellationToken);
+
+			foreach(var positionCodes in positionsCodes)
+			{
+				await positionCodes.Position.Codes.BulkSqlInsertAsync(_uow, positionCodes.Codes, cancellationToken: cancellationToken);
+			}
 		}
 		
 

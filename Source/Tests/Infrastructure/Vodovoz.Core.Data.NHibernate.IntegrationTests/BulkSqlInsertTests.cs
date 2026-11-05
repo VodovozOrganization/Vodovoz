@@ -7,6 +7,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.Upd;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Data.NHibernate.IntegrationTests.Domain;
@@ -572,6 +573,51 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 					$"transfer_order_id = {orderId} AND quantity = 40 AND nomenclature_id = 10 AND group_code_id = 30 AND individual_code_id IS NULL"));
 			}
 		}
+
+		/// <summary>
+		/// F-19. Продовый маппинг UpdInventPosition.Codes, как в TransferSendPreparer: коллекция не-inverse, у кода нет ссылки на позицию.
+		/// Внешний ключ записан сразу, а коммит не даёт лишних команд.
+		/// </summary>
+		[DatabaseTheory, BothModes]
+		public async Task BulkSqlInsert_WhenProductionUpdPositionCodes_WritesKeyWithoutUpdates(InsertMode mode)
+		{
+			using(var production = new ProductionMappingDatabase())
+			{
+				production.CreateUpdTables();
+
+				using(var uow = production.UnitOfWorkFactory.CreateWithoutRoot("Продовый маппинг"))
+				{
+					var firstPosition = new UpdInventPosition { Name = "первая" };
+					var secondPosition = new UpdInventPosition { Name = "вторая" };
+					var document = new EdoUpdDocument
+					{
+						Guid = Guid.NewGuid(),
+						InventPositions = new List<UpdInventPosition> { firstPosition, secondPosition }
+					};
+					uow.Save(document);
+
+					await Insert(mode, firstPosition.Codes, uow, NewUpdCodes(3));
+					await Insert(mode, secondPosition.Codes, uow, NewUpdCodes(2));
+
+					Assert.Equal(3, firstPosition.Codes.Count);
+					Assert.Equal(2, secondPosition.Codes.Count);
+
+					SqlLog.Clear();
+					uow.Commit();
+
+					Assert.Equal(0, SqlLog.Writes());
+
+					var table = "edo_upd_document_invent_position_codes";
+					Assert.Equal(3, production.Database.Count(table, $"edo_upd_document_invent_position_id = {firstPosition.Id}"));
+					Assert.Equal(2, production.Database.Count(table, $"edo_upd_document_invent_position_id = {secondPosition.Id}"));
+				}
+			}
+		}
+
+		private static List<UpdProductCode> NewUpdCodes(int count) =>
+			Enumerable.Range(1, count)
+				.Select(i => new UpdProductCode { Quantity = 1, IdentificationCode = $"код-{i}", TransportCode = string.Empty })
+				.ToList();
 
 		/// <summary>
 		/// F-20. Те же объекты во втором вызове: исключения нет, вставлены два набора. Дубли контролирует вызывающий код.
