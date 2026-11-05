@@ -52,6 +52,7 @@ namespace BitrixNotificationsSend.Library.Services
 		private readonly IBitrixNotificationsSendSettings _bitrixNotificationsSendSettings;
 		private readonly IBitrixDealsClient _bitrixDealsClient;
 		private readonly IBitrixBatchesSendService _bitrixBatchesSendService;
+		private readonly IBitrixDealsStagesReadService _bitrixDealsStagesReadService;
 		private readonly IGenericRepository<PlannedOrder> _plannedOrderRepository;
 
 		public PlannedOrdersDealsCreateService(
@@ -65,6 +66,7 @@ namespace BitrixNotificationsSend.Library.Services
 			IBitrixNotificationsSendSettings bitrixNotificationsSendSettings,
 			IBitrixDealsClient bitrixDealsClient,
 			IBitrixBatchesSendService bitrixBatchesSendService,
+			IBitrixDealsStagesReadService bitrixDealsStagesReadService,
 			IGenericRepository<PlannedOrder> plannedOrderRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -77,6 +79,7 @@ namespace BitrixNotificationsSend.Library.Services
 			_bitrixNotificationsSendSettings = bitrixNotificationsSendSettings ?? throw new ArgumentNullException(nameof(bitrixNotificationsSendSettings));
 			_bitrixDealsClient = bitrixDealsClient ?? throw new ArgumentNullException(nameof(bitrixDealsClient));
 			_bitrixBatchesSendService = bitrixBatchesSendService ?? throw new ArgumentNullException(nameof(bitrixBatchesSendService));
+			_bitrixDealsStagesReadService = bitrixDealsStagesReadService ?? throw new ArgumentNullException(nameof(bitrixDealsStagesReadService));
 			_plannedOrderRepository = plannedOrderRepository ?? throw new ArgumentNullException(nameof(plannedOrderRepository));
 		}
 

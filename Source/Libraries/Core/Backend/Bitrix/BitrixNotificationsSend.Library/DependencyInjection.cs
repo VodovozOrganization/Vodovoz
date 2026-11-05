@@ -15,6 +15,7 @@ namespace BitrixNotificationsSend.Library
 			services.ConfigureOptions<ConfigurePlannedOrdersDealsCreateOptions>();
 			services.ConfigureOptions<ConfigureLastServiceOrdersDealsCreateOptions>();
 			services.ConfigureOptions<ConfigureUndeliveredOrdersDealsCreateOptions>();
+			services.ConfigureOptions<ConfigureChainStoreDelayDealsCreateOptions>();
 
 			services.AddBitrixNotificationsSendClient();
 
@@ -23,7 +24,10 @@ namespace BitrixNotificationsSend.Library
 			services.AddTransient<LastServiceOrdersDealsCreateService>();
 			services.AddTransient<IUndeliveredOrdersDealsCreateService, UndeliveredOrdersDealsCreateService>();
 			services.AddTransient<IBitrixBatchesSendService, BitrixBatchesSendService>();
+			services.AddTransient<IBitrixDealsStagesReadService, BitrixDealsStagesReadService>();
 			services.AddTransient<ILastServiceOrderDtoFactory, LastServiceOrderDtoFactory>();
+			services.AddTransient<IChainStoreDelayBitrixDealFactory, ChainStoreDelayBitrixDealFactory>();
+			services.AddTransient<IChainStoreDelayDealsCreateService, ChainStoreDelayDealsCreateService>();
 
 			return services;
 		}

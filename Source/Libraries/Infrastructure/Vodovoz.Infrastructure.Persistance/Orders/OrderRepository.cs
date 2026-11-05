@@ -3183,6 +3183,101 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.ToListAsync(cancellationToken);
 		}
 
+		public async Task<IList<ChainStoreDelayOrderNode>> GetChainStoreDelayOrdersAsync(
+			IUnitOfWork uow,
+			DateTime today,
+			int daysToPaymentDate,
+			int counterpartyFromTenderId,
+			int organizationId,
+			CancellationToken cancellationToken)
+		{
+			var undeliveryStatuses = GetUndeliveryStatuses();
+			var todayDate = today.Date;
+			var maxEstimatedPaymentDate = todayDate.AddDays(daysToPaymentDate);
+
+			var query =
+				from order in uow.Session.Query<VodovozOrder>()
+				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
+				join employee in uow.Session.Query<Employee>() on order.Author.Id equals employee.Id into employees
+				from author in employees.DefaultIfEmpty()
+				join deliveryPoint in uow.Session.Query<DeliveryPoint>() on order.DeliveryPoint.Id equals deliveryPoint.Id into deliveryPoints
+				from orderDeliveryPoint in deliveryPoints.DefaultIfEmpty()
+				join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id into phones
+				from contactPhone in phones.DefaultIfEmpty()
+
+				let itemsSum =
+					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
+							   where orderItem.Order.Id == order.Id
+							   select orderItem.ActualSum)
+							   .Sum() ?? 0
+
+				let orderSum = order.OrderCashSum != 0 ? order.OrderCashSum : itemsSum
+
+				let paidSum =
+					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
+							   join cashlessMovementOperation in uow.Session.Query<CashlessMovementOperation>()
+									on paymentItem.CashlessMovementOperation.Id equals cashlessMovementOperation.Id
+							   where paymentItem.Order.Id == order.Id
+									&& cashlessMovementOperation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+							   select cashlessMovementOperation.Expense)
+							   .Sum() ?? 0
+
+				where
+					order.DeliveryDate != null
+					&& order.DeliveryDate < todayDate
+					&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) > todayDate
+					&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) <= maxEstimatedPaymentDate
+					&& (order.OrderPaymentStatus == OrderPaymentStatus.UnPaid || order.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
+					&& (counterparty.IsChainStore || counterparty.CameFrom.Id == counterpartyFromTenderId)
+					&& order.PaymentType == PaymentType.Cashless
+					&& !undeliveryStatuses.Contains(order.OrderStatus)
+					&& (order.OrderStatus != OrderStatus.WaitForPayment || (order.PayAfterShipment && order.SelfDelivery))
+					&& order.Contract.Organization.Id == organizationId
+					&& orderSum > 0
+
+				select new ChainStoreDelayOrderNode
+				{
+					OrderId = order.Id,
+					CounterpartyId = counterparty.Id,
+					CounterpartyName = counterparty.Name,
+					CounterpartyInn = counterparty.INN,
+					DeliveryDate = order.DeliveryDate.Value,
+					DelayDaysForBuyers = counterparty.DelayDaysForBuyers,
+					IsSelfDelivery = order.SelfDelivery,
+					DeliveryPointShortAddress = orderDeliveryPoint.ShortAddress,
+					AuthorLastName = author.LastName,
+					AuthorName = author.Name,
+					AuthorPatronymic = author.Patronymic,
+					ContactPhoneNumber = contactPhone.Number,
+					OrderPaymentStatus = order.OrderPaymentStatus,
+					OrderSum = orderSum,
+					PaidSum = paidSum
+				};
+
+			return await query
+				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<IDictionary<int, OrderPaymentStatus>> GetOrdersPaymentStatusesAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> orderIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = orderIds.Distinct().ToArray();
+
+			if(ids.Length == 0)
+			{
+				return new Dictionary<int, OrderPaymentStatus>();
+			}
+
+			var statuses = await uow.Session.Query<VodovozOrder>()
+				.Where(o => ids.Contains(o.Id))
+				.Select(o => new { o.Id, o.OrderPaymentStatus })
+				.ToListAsync(cancellationToken);
+
+			return statuses.ToDictionary(x => x.Id, x => x.OrderPaymentStatus);
+		}
+
 		public async Task<IList<int>> GetCounterpartyIdsWithUpcomingServiceOrdersAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,

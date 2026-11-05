@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -51,5 +52,23 @@ namespace EmailDebtNotificationWorker.Services.Common.Generators
 		/// <param name="timedOutDocFlowGrouppedNode">Сгрппированная информация ко клиентам, по которым есть непринятый УПД в ЭДO</param>
 		/// <returns>Тело письма с напоминанием о необходимости принятия УПД</returns>
 		string GenerateReminderToAcceptUpdEmailBody(TimedOutDocFlowGrouppedNode timedOutDocFlowGrouppedNode);
+
+		/// <summary>
+		/// Создает и возвращает тело письма-напоминания об оплате по заказу сети или тендерного клиента
+		/// </summary>
+		/// <param name="contractNumber">Номер договора</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="estimatedPaymentDate">Расчётная дата платежа</param>
+		/// <param name="contactPhone">Контактный телефон</param>
+		/// <param name="senderEmail">Адрес электронной почты отправителя</param>
+		/// <param name="unsubscribeUrl">Ссылка для отписки</param>
+		/// <returns>Тело письма-напоминания об оплате</returns>
+		string GenerateChainStoreDelayLetterBody(
+			string contractNumber,
+			int orderId,
+			DateTime estimatedPaymentDate,
+			string contactPhone,
+			string senderEmail,
+			string unsubscribeUrl);
 	}
 }
