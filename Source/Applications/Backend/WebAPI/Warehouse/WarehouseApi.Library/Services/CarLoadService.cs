@@ -47,6 +47,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly IWarehouseTrueMarkCodePreloader _codePreloader;
 		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 		private readonly CarLoadDocumentProcessingErrorsChecker _documentErrorsChecker;
 		private readonly ICarLoadDocumentTrueMarkCodesProcessingService _codesProcessingService;
@@ -63,6 +64,7 @@ namespace WarehouseApi.Library.Services
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			IWarehouseTrueMarkCodePreloader codePreloader,
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
 			ICarLoadDocumentTrueMarkCodesProcessingService codesProcessingService,
@@ -78,6 +80,7 @@ namespace WarehouseApi.Library.Services
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_codePreloader = codePreloader ?? throw new ArgumentNullException(nameof(codePreloader));
 			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
 			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
 			_codesProcessingService = codesProcessingService ?? throw new ArgumentNullException(nameof(codesProcessingService));
@@ -201,6 +204,8 @@ namespace WarehouseApi.Library.Services
 				.Value
 				.FirstOrDefault();
 
+			await _codePreloader.PreloadSelfDelivery(order, selfDeliveryDocument, cancellationToken);
+
 			var nomenclatures = order.OrderItems
 				.Select(x => x.Nomenclature)
 				.ToArray();
@@ -210,7 +215,7 @@ namespace WarehouseApi.Library.Services
 			if(selfDeliveryDocument != null)
 			{
 				orderDto.Items
-					.PopulateRelatedCodes(_uow, _trueMarkWaterCodeService, selfDeliveryDocument.Items.SelectMany(x => x.TrueMarkProductCodes));
+					.PopulateRelatedCodes(_codePreloader, selfDeliveryDocument.Items.SelectMany(x => x.TrueMarkProductCodes));
 			}
 
 			orderDto.Items.ForEach(item =>
@@ -239,6 +244,8 @@ namespace WarehouseApi.Library.Services
 				return RequestProcessingResult.CreateFailure(result, response);
 			}
 			
+			await _codePreloader.PreloadCarLoadDocumentItems(documentOrderItems, cancellationToken);
+
 			var carLoadDocumentItemsStagingCodes = await GetCarLoadDocumentOrderItemsStagingCodes(
 				documentOrderItems.Select(x => x.Id),
 				cancellationToken);
@@ -269,7 +276,7 @@ namespace WarehouseApi.Library.Services
 							continue;
 						}
 
-						var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkProductCode.ResultCode);
+						var parentCode = _codePreloader.GetParentGroupCode(trueMarkProductCode.ResultCode);
 
 						if(codeToAddInfo is null)
 						{
@@ -278,11 +285,7 @@ namespace WarehouseApi.Library.Services
 
 						var trueMarkCodes = new List<TrueMarkCodeDto>();
 
-						var allCodes = parentCode.Match(
-							transportCode => transportCode.GetAllCodes(),
-							groupCode => groupCode.GetAllCodes(),
-							waterCode => new TrueMarkAnyCode[] { waterCode })
-							.ToArray();
+						var allCodes = _codePreloader.GetAllCodes(parentCode).ToArray();
 
 						var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
 							&& documentOrderItem.TrueMarkCodes.Any(y =>

@@ -86,7 +86,7 @@ namespace WarehouseApi.Controllers.V1
 					_selfDeliveryService.SetTareToReturn(employee, request.TareToReturn))
 				.BindAsync(selfDeliveryDocument => EndLoad(selfDeliveryDocument, cancellationToken))
 				.MatchAsync<SelfDeliveryDocument, IActionResult>(
-					selfDeliveryDocument => Ok(_selfDeliveryService.CreateSelfDeliveryResponse(selfDeliveryDocument)),
+					async selfDeliveryDocument => Ok(await _selfDeliveryService.CreateSelfDeliveryResponse(selfDeliveryDocument, cancellationToken)),
 					errors => Problem(
 						string.Join(", ", errors.Select(e => e.Message)),
 						statusCode: StatusCodes.Status400BadRequest));
