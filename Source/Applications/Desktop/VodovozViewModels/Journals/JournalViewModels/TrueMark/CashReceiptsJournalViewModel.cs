@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using DateTimeHelpers;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate;
@@ -31,6 +31,9 @@ using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.ViewModels.Reports.TrueMark;
+using Edo.Contracts.Messages.Events;
+using MassTransit;
+using TransactionalOutbox.MassTransit;
 using CashReceiptPermissions = Vodovoz.Core.Domain.Permissions.OrderPermissions.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
@@ -43,6 +46,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private readonly ReceiptManualController _receiptManualController;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
 		private readonly bool _canResendDuplicateReceipts;
 
 		private CashReceiptJournalFilterViewModel _filter;
@@ -59,7 +63,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			ReceiptManualController receiptManualController,
 			IFileDialogService fileDialogService,
 			IOrganizationSettings organizationSettings,
-			INavigationManager navigation = null)
+			INavigationManager navigation = null,
+			IUnitOfWorkOutbox<IBus> outbox = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
 			if(filter is null)
@@ -73,6 +78,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_outbox = outbox;
 
 			var permissionService = _commonServices.CurrentPermissionService;
 
@@ -187,6 +193,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			CreateNodeManualSendAction();
 			CreateNodeRefreshFiscalDocAction();
 			CreateNodeRequeueFiscalDocAction();
+			CreateNodeTriggerFailedReprocessingAction();
 			CreateProductCodesScanningReportAction();
 			CreateExportAction();
 		}
@@ -526,6 +533,58 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		{
 			var requeueFiscalDocAction = GetRequeueFiscalDocAction();
 			NodeActionsList.Add(requeueFiscalDocAction);
+		}
+
+		/// <summary>
+		/// Создает действие для кнопки внепланового запуска проверки и переотправки чеков с ошибкой
+		/// </summary>
+		private void CreateNodeTriggerFailedReprocessingAction()
+		{
+			var triggerAction = new JournalAction(
+				"Проверить и переотправить чеки с ошибкой",
+				(selected) => true,
+				(selected) => true,
+				(selected) => TriggerFailedReprocessing()
+			);
+			NodeActionsList.Add(triggerAction);
+		}
+
+		/// <summary>
+		/// Инициирует отправку команды на внеплановую переобработку чеков через Outbox шины сообщений
+		/// </summary>
+		private void TriggerFailedReprocessing()
+		{
+			if(_outbox == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Шина сообщений (Outbox) недоступна для отправки команды.");
+				return;
+			}
+
+			try
+			{
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Внеплановый запуск переобработки чеков с ошибками"))
+				{
+					_outbox.GetPublishEndpoint(uow).Publish(new ReceiptFailedReprocessingRequestedEvent
+					{
+						Initiator = _commonServices.UserService.GetCurrentUser().Name,
+						RequestedAt = DateTime.Now
+					}).GetAwaiter().GetResult();
+
+					uow.Commit();
+				}
+
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"Команда на внеплановую проверку и переотправку чеков с ошибкой успешно отправлена в очередь обработки.");
+			}
+			catch(Exception ex)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					$"Не удалось инициировать внеплановую проверку чеков: {ex.Message}");
+			}
 		}
 
 		private JournalAction GetRefreshFiscalDocAction()

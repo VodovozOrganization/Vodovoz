@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
-using QS.DomainModel.UoW;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
@@ -49,7 +48,8 @@ namespace Edo.Common
 			ITrueMarkCodesPool codesPool,
 			GtinEntity gtin,
 			string organizationInn,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken,
+			DateTime? addingTimeNotAfter = null)
 		{
 			if(codesPool is null)
 			{
@@ -61,14 +61,15 @@ namespace Edo.Common
 				throw new ArgumentNullException(nameof(gtin));
 			}
 
-			return await TakeValidCodeAsync(codesPool, new[] { gtin }, organizationInn, cancellationToken);
+			return await TakeValidCodeAsync(codesPool, new[] { gtin }, organizationInn, cancellationToken, addingTimeNotAfter);
 		}
 
 		public async Task<TrueMarkWaterIdentificationCode> TakeValidCodeAsync(
 			ITrueMarkCodesPool codesPool,
 			IEnumerable<GtinEntity> gtins,
 			string organizationInn,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken,
+			DateTime? addingTimeNotAfter = null)
 		{
 			if(codesPool is null)
 			{
@@ -84,8 +85,9 @@ namespace Edo.Common
 			var checkedGtins = new List<string>();
 
 			_logger.LogInformation(
-				"Начат подбор валидного кода из пула. Организация: {OrganizationInn}.",
-				organizationInn);
+				"Начат подбор валидного кода из пула. Организация: {OrganizationInn}. Ограничение по дате: {AddingTimeNotAfter}",
+				organizationInn,
+				addingTimeNotAfter);
 
 			foreach(var gtin in gtins)
 			{
@@ -97,7 +99,7 @@ namespace Edo.Common
 
 					try
 					{
-						codeId = await codesPool.TakeCode(gtin.GtinNumber, cancellationToken);
+						codeId = await codesPool.TakeCode(gtin.GtinNumber, cancellationToken, addingTimeNotAfter);
 					}
 					catch(EdoCodePoolMissingCodeException)
 					{

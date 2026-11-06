@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using MassTransit;
 using Edo.Common;
 using Edo.Problem.Routine.Options;
@@ -10,10 +10,13 @@ using Edo.Problem.Routine.Services.NewEdoTasksResend;
 using Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem;
 using Edo.Problem.Routine.Services.OrderStatusProblem;
 using Edo.Problem.Routine.Services.ReceiptContactProblem;
+using Edo.Problem.Routine.Services.ReceiptFailedProblem;
 using Edo.Problem.Routine.Services.TaxcomSendProblem;
 using Edo.Problems;
 using Edo.Transport;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using ModulKassa;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
@@ -51,6 +54,7 @@ namespace Edo.Problem.Routine
 				.AddCodeDuplicatedProblem()
 				.AddReceiptContactProblem()
 				.AddTaxcomSendProblem()
+				.AddReceiptFailedReprocessingProblem()
 				;
 
 			return services;
@@ -135,6 +139,22 @@ namespace Edo.Problem.Routine
 			services
 				.ConfigureOptions<ConfigureTaxcomSendProblemWorkerOptions>()
 				.AddScoped<ITaxcomSendProblemService, TaxcomSendProblemService>();
+
+			return services;
+		}
+
+		public static IServiceCollection AddReceiptFailedReprocessingProblem(this IServiceCollection services)
+		{
+			services.AddModulKassa();
+			services.AddHttpClient();
+			services.TryAddScoped<TrueMark.Codes.Pool.ReceiptTrueMarkCodesPool>();
+			services.TryAddScoped<Edo.Receipt.Sender.FiscalDocumentFactory>();
+			services.TryAddScoped<TrueMark.Library.Tag1260Checker>();
+			services.TryAddScoped<Vodovoz.Core.Domain.Rules.Edo.CanProcessOrSendEdoByClosingAccountingDate>();
+
+			services
+				.ConfigureOptions<ConfigureReceiptFailedReprocessingOptions>()
+				.TryAddScoped<IReceiptFailedReprocessingService, ReceiptFailedReprocessingService>();
 
 			return services;
 		}

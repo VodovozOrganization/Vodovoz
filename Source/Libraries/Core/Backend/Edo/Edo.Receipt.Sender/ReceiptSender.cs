@@ -294,6 +294,13 @@ namespace Edo.Receipt.Sender
 				return;
 			}
 
+			if(problemSourceType == typeof(ReceiptFiscalizationFailed))
+			{
+				await _edoProblemRegistrar.RegisterCustomProblem<ReceiptFiscalizationFailed>(
+					edoTask, cancellationToken, disposeTaskUow: disposeTaskUow);
+				return;
+			}
+
 			await _edoProblemRegistrar.RegisterCustomProblem<ReceiptSendingFailed>(
 				edoTask, cancellationToken, disposeTaskUow: disposeTaskUow);
 		}
@@ -304,6 +311,7 @@ namespace Edo.Receipt.Sender
 			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendDocumentStatusNotFound>(edoTask);
 			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendSslError>(edoTask);
 			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendTransportError>(edoTask);
+			_edoProblemRegistrar.SolveCustomProblem<ReceiptFiscalizationFailed>(edoTask);
 			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendingFailed>(edoTask);
 			// Историческое имя проблемы до переименования
 			_edoProblemRegistrar.SolveCustomProblem(edoTask, "Custom.NotAllReceiptsWasSended");

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Edo.Admin;
 using Edo.Common;
 using Edo.Problems;
@@ -20,11 +20,13 @@ namespace Edo.Receipt.Sender
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot());
 
 			services.AddModulKassa();
+			services.AddHttpClient();
 
 			services.TryAddScoped<FiscalDocumentFactory>();
 			services.TryAddScoped<ReceiptSendingFailedNotificationService>();
 			services.TryAddScoped<IReceiptQueueNotificationService, ReceiptQueueNotificationService>();
 			services.TryAddScoped<ReceiptSender>();
+			services.TryAddScoped<TrueMark.Library.Tag1260Checker>();
 
 			services
 	.AddEdo()

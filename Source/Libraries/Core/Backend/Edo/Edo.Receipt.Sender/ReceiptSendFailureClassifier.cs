@@ -16,6 +16,13 @@ namespace Edo.Receipt.Sender
 				return typeof(ReceiptSendingFailed);
 			}
 
+			if(failureMessage.IndexOf("MarkingCheckViolated", StringComparison.OrdinalIgnoreCase) >= 0
+				|| failureMessage.IndexOf("Ожидание фискализации превысило", StringComparison.OrdinalIgnoreCase) >= 0
+				|| failureMessage.IndexOf("FAILED", StringComparison.OrdinalIgnoreCase) >= 0)
+			{
+				return typeof(ReceiptFiscalizationFailed);
+			}
+
 			if(failureMessage.IndexOf("HTTP Code: 400", StringComparison.OrdinalIgnoreCase) >= 0
 				|| failureMessage.IndexOf("400 BadRequest", StringComparison.OrdinalIgnoreCase) >= 0)
 			{

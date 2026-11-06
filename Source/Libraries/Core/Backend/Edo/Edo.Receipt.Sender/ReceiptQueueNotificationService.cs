@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using EdoNotifications.Application.Factories;
 using Edo.Receipt;
 using Edo.Contracts.Messages.Events;
@@ -35,6 +37,7 @@ namespace Edo.Receipt.Sender
 		private readonly CashboxClientProvider _cashboxClientProvider;
 		// UoW создаётся из фабрики на каждый чек, поэтому событие пишется в его транзакцию явно
 		private readonly IUnitOfWorkOutbox<IBus> _outbox;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 
 		/// <summary>
 		/// Конструктор.
@@ -47,6 +50,7 @@ namespace Edo.Receipt.Sender
 		/// <param name="logger">Журнал событий</param>
 		/// <param name="cashboxClientProvider">Клиенты МодульКассы</param>
 		/// <param name="outbox">Outbox основной шины</param>
+		/// <param name="edoProblemRegistrar">Регистратор проблем ЭДО</param>
 		public ReceiptQueueNotificationService(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEdoRepository edoRepository,
@@ -55,7 +59,8 @@ namespace Edo.Receipt.Sender
 			IOptions<ReceiptQueueNotificationOptions> options,
 			ILogger<ReceiptQueueNotificationService> logger,
 			CashboxClientProvider cashboxClientProvider,
-			IUnitOfWorkOutbox<IBus> outbox)
+			IUnitOfWorkOutbox<IBus> outbox,
+			EdoProblemRegistrar edoProblemRegistrar = null)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
@@ -65,6 +70,7 @@ namespace Edo.Receipt.Sender
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_cashboxClientProvider = cashboxClientProvider ?? throw new ArgumentNullException(nameof(cashboxClientProvider));
 			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
+			_edoProblemRegistrar = edoProblemRegistrar;
 		}
 
 		/// <summary>
@@ -143,8 +149,23 @@ namespace Edo.Receipt.Sender
 								document.StatusChangeTime = DateTime.Parse(currentState.TimeStatusChangedString);
 							}
 							
-							document.FailureMessage = currentState.FailureInfo?.Message;
+							document.FailureMessage = currentState.FailureInfo?.Message ?? currentState.Message;
 							await uow.SaveAsync(document, cancellationToken: cancellationToken);
+
+							if(status == FiscalDocumentStatus.Failed && task.Status != EdoTaskStatus.Completed)
+							{
+								task.Status = EdoTaskStatus.Problem;
+								await uow.SaveAsync(task, cancellationToken: cancellationToken);
+								if(_edoProblemRegistrar != null)
+								{
+									await _edoProblemRegistrar.RegisterCustomProblem<ReceiptFiscalizationFailed>(
+										task.Id,
+										cancellationToken,
+										customMessage: document.FailureMessage,
+										disposeTaskUow: false);
+								}
+							}
+
 							if(task.Status != EdoTaskStatus.Completed && document.Stage == FiscalDocumentStage.Completed
 								&& task.FiscalDocuments.All(x => x.Stage == FiscalDocumentStage.Completed
 									&& (x.Status == FiscalDocumentStatus.Printed || x.Status == FiscalDocumentStatus.Completed)))

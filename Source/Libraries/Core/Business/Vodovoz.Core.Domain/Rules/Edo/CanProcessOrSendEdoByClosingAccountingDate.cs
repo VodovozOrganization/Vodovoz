@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -92,7 +92,7 @@ namespace Vodovoz.Core.Domain.Rules.Edo
 		/// </summary>
 		/// <param name="deliveryDate">Дата доставки заказа (null — дата неизвестна, проверка пропускается)</param>
 		/// <returns>True — отправка разрешена</returns>
-		public bool Check(DateTime? deliveryDate)
+		public virtual bool Check(DateTime? deliveryDate)
 		{
 			if(!deliveryDate.HasValue)
 			{

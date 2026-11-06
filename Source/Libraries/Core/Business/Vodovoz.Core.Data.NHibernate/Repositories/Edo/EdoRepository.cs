@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
@@ -72,6 +72,24 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 						&& (x.LastQueueNotificationTime == null || x.LastQueueNotificationTime <= notifiedNotAfter)))
 				.Select(x => x.Id)
 				.ListAsync<int>(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public Task<IList<EdoFiscalDocument>> GetFailedFiscalDocumentsForReprocessing(
+			IUnitOfWork uow,
+			DateTime statusChangedBefore,
+			DateTime statusChangedNotBefore,
+			CancellationToken cancellationToken)
+		{
+			ReceiptEdoTask taskAlias = null;
+			return uow.Session.QueryOver<EdoFiscalDocument>()
+				.JoinAlias(x => x.ReceiptEdoTask, () => taskAlias)
+				.Where(x => x.Status == FiscalDocumentStatus.Failed)
+				.And(x => (x.StatusChangeTime <= statusChangedBefore && x.StatusChangeTime >= statusChangedNotBefore)
+					|| (x.StatusChangeTime == null && x.CreationTime <= statusChangedBefore && x.CreationTime >= statusChangedNotBefore))
+				.And(() => taskAlias.Status != EdoTaskStatus.Completed)
+				.And(() => taskAlias.Status != EdoTaskStatus.Cancelled)
+				.ListAsync(cancellationToken);
 		}
 
 		public async Task<IEnumerable<GtinEntity>> GetGtinsAsync(CancellationToken cancellationToken)

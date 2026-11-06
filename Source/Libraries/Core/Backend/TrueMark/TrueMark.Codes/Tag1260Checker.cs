@@ -1,4 +1,4 @@
-﻿using Grpc.Core.Logging;
+using Grpc.Core.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +25,8 @@ namespace TrueMark.Library
 			Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
 			PropertyNameCaseInsensitive = true
 		};
+
+		protected Tag1260Checker() { }
 
 		public Tag1260Checker(
 			IHttpClientFactory httpClientFactory
@@ -143,7 +145,7 @@ namespace TrueMark.Library
 			return resultList;
 		}
 
-		public async Task<CodeCheckResponse> CheckCodesForTag1260Async(
+		public virtual async Task<CodeCheckResponse> CheckCodesForTag1260Async(
 			IEnumerable<string> sourceCodes,
 			Guid headerApiKey,
 			CancellationToken cancellationToken

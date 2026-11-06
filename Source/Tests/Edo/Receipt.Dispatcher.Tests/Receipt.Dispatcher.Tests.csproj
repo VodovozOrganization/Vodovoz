@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Documents\Edo.Documents.csproj" />
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Receipt.Dispatcher\Edo.Receipt.Dispatcher.csproj" />
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Tender\Edo.Tender.csproj" />
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj" />
   </ItemGroup>
 
 </Project>
