@@ -25,7 +25,11 @@ namespace Mindbox.Library.Services
 		{
 			endpointConfigurator.UseMessageRetry(retryConfigurator =>
 			{
-				retryConfigurator.Intervals(MindboxRetrySchedule.ParseIntervals(_settings.RetryScheduleMinutes));
+				retryConfigurator.Intervals(
+					MindboxRetrySchedule.BuildIntervals(
+						_settings.RetryScheduleMinutes,
+						_settings.RetryIntervalMinutes,
+						_settings.RetryMaxHours));
 				retryConfigurator.Handle<MindboxTransientException>();
 				retryConfigurator.Ignore<OperationCanceledException>();
 			});

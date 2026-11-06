@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Contacts;
@@ -6,7 +7,7 @@ using Vodovoz.Core.Domain.Contacts;
 namespace Mindbox.Library.Mapping
 {
 	/// <summary>
-	/// Проверка и маскирование контактных данных для Mindbox
+	/// Проверка, нормализация и маскирование контактных данных для Mindbox
 	/// </summary>
 	public static class MindboxContactValidator
 	{
@@ -19,6 +20,13 @@ namespace Mindbox.Library.Mapping
 			EmailEntity.EmailRegEx,
 			RegexOptions.Compiled,
 			TimeSpan.FromSeconds(1));
+
+		private static readonly Regex _whitespaceRegex = new Regex(
+			@"\s+",
+			RegexOptions.Compiled,
+			TimeSpan.FromSeconds(1));
+
+		private static readonly CultureInfo _russianCulture = CultureInfo.GetCultureInfo("ru-RU");
 
 		/// <summary>
 		/// Приводит телефон к формату +7XXXXXXXXXX.
@@ -47,18 +55,55 @@ namespace Mindbox.Library.Mapping
 		}
 
 		/// <summary>
+		/// Нормализует e-mail: убирает пробелы по краям и приводит к нижнему регистру.
+		/// </summary>
+		public static string NormalizeEmail(string email)
+		{
+			return string.IsNullOrWhiteSpace(email)
+				? null
+				: email.Trim().ToLowerInvariant();
+		}
+
+		/// <summary>
+		/// Нормализует имя/фамилию/отчество: убирает лишние пробелы и приводит к виду "Иван".
+		/// </summary>
+		public static string NormalizeName(string name)
+		{
+			if(string.IsNullOrWhiteSpace(name))
+			{
+				return null;
+			}
+
+			var normalized = _whitespaceRegex.Replace(name.Trim(), " ").ToLowerInvariant();
+
+			return _russianCulture.TextInfo.ToTitleCase(normalized);
+		}
+
+		/// <summary>
+		/// Нормализует полное название: убирает лишние пробелы, регистр не меняет.
+		/// </summary>
+		public static string NormalizeFullName(string fullName)
+		{
+			return string.IsNullOrWhiteSpace(fullName)
+				? null
+				: _whitespaceRegex.Replace(fullName.Trim(), " ");
+		}
+
+		/// <summary>
 		/// Проверяет формат e-mail
 		/// </summary>
 		public static bool IsValidEmail(string email)
 		{
-			if(string.IsNullOrWhiteSpace(email))
+			var normalizedEmail = NormalizeEmail(email);
+
+			if(normalizedEmail is null)
 			{
 				return false;
 			}
 
 			try
 			{
-				return _emailRegex.IsMatch(email);
+				return _emailRegex.IsMatch(normalizedEmail);
 			}
 			catch(RegexMatchTimeoutException)
 			{

@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace Mindbox.Library.Services
 {
 	/// <summary>
-	/// Расписание повторных попыток отправки в Mindbox из настройки Mindbox.RetryScheduleMinutes.
+	/// Расписание повторных попыток отправки в Mindbox из настроек:
+	/// базовые интервалы + повтор раз в N минут в течение заданного времени.
 	/// </summary>
 	public static class MindboxRetrySchedule
 	{
@@ -32,17 +33,40 @@ namespace Mindbox.Library.Services
 				: _defaultSchedule;
 		}
 
-		public static TimeSpan[] ParseIntervals(string value)
+		/// <summary>
+		/// Базовые интервалы + интервалы "раз в N минут" на заданное число часов.
+		/// </summary>
+		public static TimeSpan[] BuildIntervals(
+			string scheduleMinutes,
+			int retryIntervalMinutes,
+			int retryMaxHours)
 		{
-			var minutes = ParseMinutes(value);
-			var intervals = new TimeSpan[minutes.Length];
+			var minutes = new List<int>(ParseMinutes(scheduleMinutes));
 
-			for(var i = 0; i < minutes.Length; i++)
+			var intervalMinutes = retryIntervalMinutes > 0 ? retryIntervalMinutes : 60;
+			var maxHours = retryMaxHours > 0 ? retryMaxHours : 24;
+
+			for(var hour = 0; hour < maxHours; hour++)
+			{
+				minutes.Add(intervalMinutes);
+			}
+
+			var intervals = new TimeSpan[minutes.Count];
+
+			for(var i = 0; i < minutes.Count; i++)
 			{
 				intervals[i] = TimeSpan.FromMinutes(minutes[i]);
 			}
 
 			return intervals;
+		}
+
+		public static int GetMaxAttempts(
+			string scheduleMinutes,
+			int retryIntervalMinutes,
+			int retryMaxHours)
+		{
+			return BuildIntervals(scheduleMinutes, retryIntervalMinutes, retryMaxHours).Length;
 		}
 	}
 }

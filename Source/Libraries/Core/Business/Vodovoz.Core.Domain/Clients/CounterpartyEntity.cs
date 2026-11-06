@@ -1,4 +1,4 @@
-﻿using QS.Banks.Domain;
+using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vodovoz.Core.Domain.Clients.Mindbox;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
@@ -74,8 +73,6 @@ namespace Vodovoz.Core.Domain.Clients
 		private PaymentType _paymentMethod;
 		private PersonType _personType;
 		private bool _isArchive;
-		private MindboxCounterpartyOutboxStatus _mindboxStatus = MindboxCounterpartyOutboxStatus.Unknown;
-		private Guid _mindboxTransactionId;
 		private string _ringUpPhone;
 		private DefaultDocumentType? _defaultDocumentType;
 		private bool _newBottlesNeeded;
@@ -408,29 +405,6 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
-		}
-
-		/// <summary>
-		/// Статус отправки контрагента в Mindbox.
-		/// По умолчанию <see cref="MindboxCounterpartyOutboxStatus.Unknown"/>.
-		/// </summary>
-		[Display(Name = "Статус отправки в Mindbox")]
-		[IgnoreHistoryTrace]
-		public virtual MindboxCounterpartyOutboxStatus MindboxStatus
-		{
-			get => _mindboxStatus;
-			set => SetField(ref _mindboxStatus, value);
-		}
-
-		/// <summary>
-		/// Ключ идемпотентности последней отправки контрагента в Mindbox.
-		/// Переиспользуется при повторах, чтобы Mindbox не создал дубликат.
-		/// </summary>
-		[IgnoreHistoryTrace]
-		public virtual Guid MindboxTransactionId
-		{
-			get => _mindboxTransactionId;
-			set => SetField(ref _mindboxTransactionId, value);
 		}
 
 		/// <summary>

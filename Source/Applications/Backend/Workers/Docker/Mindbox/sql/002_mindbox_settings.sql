@@ -1,4 +1,4 @@
-﻿-- Настройки интеграции с Mindbox
+-- Настройки интеграции с Mindbox
 INSERT INTO `base_parameters` (`name`, `str_value`, `cache_timeout`, `description`)
 SELECT 'Mindbox.IsEnabled', 'false', '00:05:00', 'Включить отправку контрагентов в Mindbox'
 WHERE NOT EXISTS (SELECT 1 FROM `base_parameters` WHERE `name` = 'Mindbox.IsEnabled');
@@ -12,11 +12,11 @@ SELECT 'Mindbox.SecretKey', '', '00:05:00', 'Секретный ключ про�
 WHERE NOT EXISTS (SELECT 1 FROM `base_parameters` WHERE `name` = 'Mindbox.SecretKey');
 
 INSERT INTO `base_parameters` (`name`, `str_value`, `cache_timeout`, `description`)
-SELECT 'Mindbox.EndpointId', '', '00:05:00', 'Идентификатор точки доступа Mindbox'
+SELECT 'Mindbox.EndpointId', 'vodovoz-spb.Erp', '00:05:00', 'Идентификатор точки доступа Mindbox'
 WHERE NOT EXISTS (SELECT 1 FROM `base_parameters` WHERE `name` = 'Mindbox.EndpointId');
 
 INSERT INTO `base_parameters` (`name`, `str_value`, `cache_timeout`, `description`)
-SELECT 'Mindbox.CreateCustomerOperation', '', '00:05:00', 'Системное имя операции создания клиента'
+SELECT 'Mindbox.CreateCustomerOperation', 'RegisterCustomer', '00:05:00', 'Системное имя операции создания клиента'
 WHERE NOT EXISTS (SELECT 1 FROM `base_parameters` WHERE `name` = 'Mindbox.CreateCustomerOperation');
 
 INSERT INTO `base_parameters` (`name`, `str_value`, `cache_timeout`, `description`)
@@ -66,3 +66,20 @@ WHERE NOT EXISTS (SELECT 1 FROM `base_parameters` WHERE `name` = 'Mindbox.Unavai
 INSERT INTO `base_parameters` (`name`, `str_value`, `cache_timeout`, `description`)
 SELECT 'Mindbox.LastEnqueuedCounterpartyId', '0', '00:01:00', 'Последний контрагент, добавленный в очередь Mindbox'
 WHERE NOT EXISTS (SELECT 1 FROM `base_parameters` WHERE `name` = 'Mindbox.LastEnqueuedCounterpartyId');
+
+-- Если настройки уже были созданы пустыми предыдущей версией, заполняем значения по умолчанию.
+UPDATE `base_parameters`
+SET `str_value` = 'https://api.s.mindbox.ru'
+WHERE `name` = 'Mindbox.BaseUrl' AND (`str_value` IS NULL OR `str_value` = '');
+
+UPDATE `base_parameters`
+SET `str_value` = 'vodovoz-spb.Erp'
+WHERE `name` = 'Mindbox.EndpointId' AND (`str_value` IS NULL OR `str_value` = '');
+
+UPDATE `base_parameters`
+SET `str_value` = 'RegisterCustomer'
+WHERE `name` = 'Mindbox.CreateCustomerOperation' AND (`str_value` IS NULL OR `str_value` = '');
+
+UPDATE `base_parameters`
+SET `str_value` = 'sync'
+WHERE `name` = 'Mindbox.CreateCustomerOperationType' AND (`str_value` IS NULL OR `str_value` = '');

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
@@ -17,7 +17,7 @@ namespace Mindbox.Library.Mapping
 
 		public static string GetCounterpartyForm(CounterpartyEntity counterparty)
 		{
-			if(counterparty == null)
+			if(counterparty is null)
 			{
 				throw new ArgumentNullException(nameof(counterparty));
 			}
@@ -32,7 +32,7 @@ namespace Mindbox.Library.Mapping
 		/// </summary>
 		public static string GetMobilePhone(IUnitOfWork unitOfWork, CounterpartyEntity counterparty)
 		{
-			if(counterparty == null)
+			if(counterparty is null)
 			{
 				throw new ArgumentNullException(nameof(counterparty));
 			}
@@ -65,7 +65,7 @@ namespace Mindbox.Library.Mapping
 		/// </summary>
 		public static string GetEmail(CounterpartyEntity counterparty)
 		{
-			if(counterparty == null)
+			if(counterparty is null)
 			{
 				throw new ArgumentNullException(nameof(counterparty));
 			}
@@ -73,7 +73,7 @@ namespace Mindbox.Library.Mapping
 			return counterparty.Emails?
 				.Where(e => !string.IsNullOrWhiteSpace(e.Address))
 				.OrderBy(e => e.Id)
-				.Select(e => e.Address)
+				.Select(e => MindboxContactValidator.NormalizeEmail(e.Address))
 				.FirstOrDefault(MindboxContactValidator.IsValidEmail);
 		}
 
@@ -82,14 +82,15 @@ namespace Mindbox.Library.Mapping
 		/// </summary>
 		public static string GetFullName(CounterpartyEntity counterparty)
 		{
-			if(counterparty == null)
+			if(counterparty is null)
 			{
 				throw new ArgumentNullException(nameof(counterparty));
 			}
 
-			return string.IsNullOrWhiteSpace(counterparty.FullName)
-				? counterparty.Name
-				: counterparty.FullName;
+			return MindboxContactValidator.NormalizeFullName(
+				string.IsNullOrWhiteSpace(counterparty.FullName)
+					? counterparty.Name
+					: counterparty.FullName);
 		}
 
 		/// <summary>
@@ -98,7 +99,7 @@ namespace Mindbox.Library.Mapping
 		/// </summary>
 		public static ExternalCounterparty GetCreationSource(IUnitOfWork unitOfWork, int counterpartyId)
 		{
-			if(unitOfWork == null)
+			if(unitOfWork is null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWork));
 			}

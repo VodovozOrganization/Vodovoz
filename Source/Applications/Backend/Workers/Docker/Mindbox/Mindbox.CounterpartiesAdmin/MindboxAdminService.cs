@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -31,47 +31,64 @@ namespace Mindbox.CounterpartiesAdmin
 		/// <inheritdoc />
 		public Task<int> ReportAsync(MindboxAdminOptions options, CancellationToken cancellationToken)
 		{
-			if(options == null)
+			if(options is null)
 			{
 				throw new ArgumentNullException(nameof(options));
 			}
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Отчет по статусам Mindbox"))
 			{
-				var counterparties = GetCounterparties(unitOfWork, options.Statuses);
+				var rows = GetRowsByStatuses(unitOfWork, options.Statuses);
 
 				if(!string.IsNullOrWhiteSpace(options.OutputFile))
 				{
-					WriteCsv(counterparties, options.OutputFile);
+					WriteCsv(rows, options.OutputFile);
 				}
 				else
 				{
-					WriteConsole(counterparties);
+					WriteConsole(rows);
 				}
 
-				_logger.LogInformation("Отчет Mindbox сформирован, записей: {Count}", counterparties.Count);
+				_logger.LogInformation("Отчет Mindbox сформирован, записей: {Count}", rows.Count);
 
-				return Task.FromResult(counterparties.Count);
+				return Task.FromResult(rows.Count);
 			}
 		}
 
 		/// <inheritdoc />
 		public Task<int> ResendAsync(MindboxAdminOptions options, CancellationToken cancellationToken)
 		{
-			if(options == null)
+			if(options is null)
 			{
 				throw new ArgumentNullException(nameof(options));
 			}
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Повторная отправка в Mindbox"))
 			{
-				var counterparties = GetCounterpartiesForResend(unitOfWork, options);
+				var items = GetItemsForResend(unitOfWork, options);
 				var resendCount = 0;
 
-				foreach(var counterparty in counterparties)
+				foreach(var item in items)
 				{
-					ResetForResend(counterparty);
-					unitOfWork.Save(counterparty);
+					var isNewState = item.State is null;
+					var state = item.State ?? new MindboxCounterpartyState
+					{
+						CounterpartyId = item.Counterparty.Id,
+						CreatedAt = DateTime.UtcNow
+					};
+
+					ResetForResend(state);
+
+					if(isNewState)
+					{
+						// Id задаётся вручную (counterparty_id), поэтому нужен явный Insert.
+						unitOfWork.Session.Save(state);
+					}
+					else
+					{
+						unitOfWork.Save(state);
+					}
+
 					resendCount++;
 				}
 
@@ -85,21 +102,26 @@ namespace Mindbox.CounterpartiesAdmin
 			}
 		}
 
-		private static IList<CounterpartyEntity> GetCounterparties(
+		private static IList<ReportRow> GetRowsByStatuses(
 			IUnitOfWork unitOfWork,
 			IEnumerable<MindboxCounterpartyOutboxStatus> statuses)
 		{
 			var statusArray = statuses.Cast<object>().ToArray();
 
-			return unitOfWork.Session.QueryOver<CounterpartyEntity>()
-				.WhereRestrictionOn(counterparty => counterparty.MindboxStatus)
+			if(statusArray.Length == 0)
+			{
+				return new List<ReportRow>();
+			}
+
+			var states = unitOfWork.Session.QueryOver<MindboxCounterpartyState>()
+				.WhereRestrictionOn(state => state.Status)
 				.IsIn(statusArray)
-				.OrderBy(counterparty => counterparty.Id)
+				.OrderBy(state => state.CounterpartyId)
 				.Asc
 				.List();
-		}
 
-		private static IList<CounterpartyEntity> GetCounterpartiesForResend(
+			return ToRows(unitOfWork, states);
+		}		private static IList<CounterpartyWithState> GetItemsForResend(
 			IUnitOfWork unitOfWork,
 			MindboxAdminOptions options)
 		{
@@ -107,46 +129,128 @@ namespace Mindbox.CounterpartiesAdmin
 			{
 				var ids = options.CounterpartyIds.Distinct().ToArray();
 
-				return unitOfWork.Session.QueryOver<CounterpartyEntity>()
+				var counterparties = unitOfWork.Session.QueryOver<CounterpartyEntity>()
 					.WhereRestrictionOn(counterparty => counterparty.Id)
 					.IsIn(ids)
 					.List();
+
+				var states = unitOfWork.Session.QueryOver<MindboxCounterpartyState>()
+					.WhereRestrictionOn(state => state.CounterpartyId)
+					.IsIn(ids)
+					.List()
+					.ToDictionary(state => state.CounterpartyId);
+
+				return counterparties
+					.Select(counterparty => new CounterpartyWithState
+					{
+						Counterparty = counterparty,
+						State = states.TryGetValue(counterparty.Id, out var state) ? state : null
+					})
+					.ToList();
 			}
 
-			return GetCounterparties(unitOfWork, options.Statuses);
-		}
+			var statesByStatuses = unitOfWork.Session.QueryOver<MindboxCounterpartyState>()
+				.WhereRestrictionOn(state => state.Status)
+				.IsIn(options.Statuses.Cast<object>().ToArray())
+				.List();
 
-		private static void ResetForResend(CounterpartyEntity counterparty)
-		{
-			// Новый transactionId нужен только если прежний запрос гарантированно не был принят Mindbox:
-			// ошибка данных или transactionId ещё не задан. В остальных случаях повторяем с тем же
-			// transactionId, чтобы Mindbox не создал дубликат.
-			var shouldGenerateNewTransactionId =
-				counterparty.MindboxStatus == MindboxCounterpartyOutboxStatus.DataError
-				|| counterparty.MindboxTransactionId == Guid.Empty;
+			var counterpartyIds = statesByStatuses
+				.Select(state => state.CounterpartyId)
+				.ToArray();
 
-			if(shouldGenerateNewTransactionId)
+			if(counterpartyIds.Length == 0)
 			{
-				counterparty.MindboxTransactionId = Guid.NewGuid();
+				return new List<CounterpartyWithState>();
 			}
 
-			// Unknown — признак того, что контрагента нужно поставить в очередь.
-			// Воркер увидит его в следующем проходе и опубликует сообщение в outbox.
-			counterparty.MindboxStatus = MindboxCounterpartyOutboxStatus.Unknown;
+			var counterpartiesById = unitOfWork.Session.QueryOver<CounterpartyEntity>()
+				.WhereRestrictionOn(counterparty => counterparty.Id)
+				.IsIn(counterpartyIds)
+				.List()
+				.ToDictionary(counterparty => counterparty.Id);
+
+			return statesByStatuses
+				.Where(state => counterpartiesById.ContainsKey(state.CounterpartyId))
+				.Select(state => new CounterpartyWithState
+				{
+					Counterparty = counterpartiesById[state.CounterpartyId],
+					State = state
+				})
+				.ToList();
 		}
 
-		private static void WriteConsole(IList<CounterpartyEntity> counterparties)
+		private static IList<ReportRow> ToRows(
+			IUnitOfWork unitOfWork,
+			IList<MindboxCounterpartyState> states)
 		{
-			Console.WriteLine("erpId\tКонтрагент\tСтатус\ttransactionId");
+			var counterpartyIds = states
+				.Select(state => state.CounterpartyId)
+				.ToArray();
 
-			foreach(var counterparty in counterparties)
+			if(counterpartyIds.Length == 0)
+			{
+				return new List<ReportRow>();
+			}
+
+			var counterpartiesById = unitOfWork.Session.QueryOver<CounterpartyEntity>()
+				.WhereRestrictionOn(counterparty => counterparty.Id)
+				.IsIn(counterpartyIds)
+				.List()
+				.ToDictionary(counterparty => counterparty.Id);
+
+			return states
+				.Where(state => counterpartiesById.ContainsKey(state.CounterpartyId))
+				.Select(state => new ReportRow
+				{
+					Counterparty = counterpartiesById[state.CounterpartyId],
+					State = state
+				})
+				.ToList();
+		}
+
+		private static void ResetForResend(MindboxCounterpartyState state)
+		{
+			var now = DateTime.UtcNow;
+
+			// Новый transactionId нужен, если прежний запрос точно не был принят Mindbox:
+			// ошибка данных или ключ ещё не задан. В остальных случаях повторяем с тем же
+			// ключом, чтобы Mindbox не создал дубликат.
+			if(state.Status == MindboxCounterpartyOutboxStatus.DataError
+				|| !state.TransactionId.HasValue
+				|| state.TransactionId.Value == Guid.Empty)
+			{
+				state.TransactionId = Guid.NewGuid();
+			}
+
+			state.Status = MindboxCounterpartyOutboxStatus.Unknown;
+			state.Attempts = 0;
+			state.LastAttemptAt = null;
+			state.LastError = null;
+			state.LastHttpStatusCode = null;
+			state.LastMindboxStatus = null;
+			state.LastErrorId = null;
+			state.LastAttemptDurationMs = null;
+			state.SentAt = null;
+			state.UpdatedAt = now;
+
+			if(!state.CreatedAt.HasValue)
+			{
+				state.CreatedAt = now;
+			}
+		}
+
+		private static void WriteConsole(IList<ReportRow> rows)
+		{
+			Console.WriteLine("erpId\tКонтрагент\tСтатус\tПопыток\tПоследняя попытка\tОшибка\ttransactionId");
+
+			foreach(var row in rows)
 			{
 				Console.WriteLine(
-					$"{counterparty.Id}\t{counterparty.Name}\t{GetStatusName(counterparty.MindboxStatus)}\t{counterparty.MindboxTransactionId}");
+					$"{row.Counterparty.Id}\t{row.Counterparty.Name}\t{GetStatusName(row.State.Status)}\t{row.State.Attempts}\t{FormatDate(row.State.LastAttemptAt)}\t{row.State.LastError}\t{row.State.TransactionId?.ToString()}");
 			}
 		}
 
-		private static void WriteCsv(IList<CounterpartyEntity> counterparties, string outputFile)
+		private static void WriteCsv(IList<ReportRow> rows, string outputFile)
 		{
 			var directory = Path.GetDirectoryName(outputFile);
 
@@ -157,16 +261,22 @@ namespace Mindbox.CounterpartiesAdmin
 
 			using(var writer = new StreamWriter(outputFile, false, _utf8WithBom))
 			{
-				writer.Write("erpId;counterpartyName;status;transactionId\n");
+				writer.Write("erpId;counterpartyName;status;attempts;lastAttemptAt;lastError;lastHttpStatusCode;lastMindboxStatus;lastErrorId;transactionId\n");
 
-				foreach(var counterparty in counterparties)
+				foreach(var row in rows)
 				{
 					var values = new[]
 					{
-						counterparty.Id.ToString(),
-						counterparty.Name,
-						GetStatusName(counterparty.MindboxStatus),
-						counterparty.MindboxTransactionId.ToString()
+						row.Counterparty.Id.ToString(),
+						row.Counterparty.Name,
+						GetStatusName(row.State.Status),
+						row.State.Attempts.ToString(),
+						FormatDate(row.State.LastAttemptAt),
+						row.State.LastError,
+						row.State.LastHttpStatusCode?.ToString(),
+						row.State.LastMindboxStatus,
+						row.State.LastErrorId,
+						row.State.TransactionId?.ToString() ?? string.Empty
 					};
 
 					writer.Write(string.Join(";", values.Select(Escape)));
@@ -174,6 +284,9 @@ namespace Mindbox.CounterpartiesAdmin
 				}
 			}
 		}
+
+		private static string FormatDate(DateTime? date) =>
+			date.HasValue ? date.Value.ToString("yyyy-MM-dd HH:mm:ss") : string.Empty;
 
 		private static string GetStatusName(MindboxCounterpartyOutboxStatus status)
 		{
@@ -208,6 +321,18 @@ namespace Mindbox.CounterpartiesAdmin
 			}
 
 			return $"\"{value.Replace("\"", "\"\"")}\"";
+		}
+
+		private sealed class ReportRow
+		{
+			public CounterpartyEntity Counterparty { get; set; }
+			public MindboxCounterpartyState State { get; set; }
+		}
+
+		private sealed class CounterpartyWithState
+		{
+			public CounterpartyEntity Counterparty { get; set; }
+			public MindboxCounterpartyState State { get; set; }
 		}
 	}
 }

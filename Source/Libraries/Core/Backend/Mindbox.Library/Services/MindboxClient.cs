@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -36,7 +36,7 @@ namespace Mindbox.Library.Services
 			IMindboxSettings settings,
 			ILogger<MindboxClient> logger)
 		{
-			if(httpClientFactory == null)
+			if(httpClientFactory is null)
 			{
 				throw new ArgumentNullException(nameof(httpClientFactory));
 			}
@@ -58,7 +58,7 @@ namespace Mindbox.Library.Services
 			Guid transactionId,
 			CancellationToken cancellationToken)
 		{
-			if(request == null)
+			if(request is null)
 			{
 				throw new ArgumentNullException(nameof(request));
 			}
@@ -235,7 +235,7 @@ namespace Mindbox.Library.Services
 			{
 				case 400:
 					return MindboxOperationResult.Failure(
-						MindboxSendOutcome.ValidationError,
+						MindboxSendOutcome.ProtocolError,
 						httpStatusCode,
 						status,
 						errorMessage,
@@ -329,7 +329,7 @@ namespace Mindbox.Library.Services
 
 		private static string BuildErrorMessage(MindboxResponse response, int httpStatusCode)
 		{
-			if(response == null)
+			if(response is null)
 			{
 				return $"Mindbox вернул HTTP {httpStatusCode}";
 			}

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Mindbox.Library.Mapping;
 using Mindbox.Library.Services;
 
@@ -21,6 +21,7 @@ namespace Mindbox.Library
 			services.AddScoped<IMindboxClient, MindboxClient>();
 			services.AddScoped<IMindboxAlertSender, LoggingMindboxAlertSender>();
 			services.AddScoped<IMindboxCounterpartyEnqueuer, MindboxCounterpartyEnqueuer>();
+			services.AddScoped<IMindboxCounterpartySendService, MindboxCounterpartySendService>();
 
 			return services;
 		}

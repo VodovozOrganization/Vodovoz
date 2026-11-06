@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,7 +28,7 @@ namespace Mindbox.CounterpartiesAdmin
 
 			var options = MindboxAdminOptions.Parse(args, out var error);
 
-			if(options == null)
+			if(options is null)
 			{
 				if(!string.IsNullOrWhiteSpace(error))
 				{

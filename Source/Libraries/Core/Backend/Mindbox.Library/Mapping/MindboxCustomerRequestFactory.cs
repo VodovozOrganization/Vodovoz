@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Mindbox.Library.Contracts;
 using QS.DomainModel.UoW;
 using System;
@@ -27,7 +27,7 @@ namespace Mindbox.Library.Mapping
 		/// <inheritdoc />
 		public MindboxCustomerRequest Create(IUnitOfWork unitOfWork, CounterpartyEntity counterparty)
 		{
-			if(counterparty == null)
+			if(counterparty is null)
 			{
 				throw new ArgumentNullException(nameof(counterparty));
 			}
@@ -53,9 +53,9 @@ namespace Mindbox.Library.Mapping
 
 			if(counterparty.PersonType == PersonType.natural)
 			{
-				customer.LastName = counterparty.Surname;
-				customer.FirstName = counterparty.FirstName;
-				customer.MiddleName = counterparty.Patronymic;
+				customer.LastName = MindboxContactValidator.NormalizeName(counterparty.Surname);
+				customer.FirstName = MindboxContactValidator.NormalizeName(counterparty.FirstName);
+				customer.MiddleName = MindboxContactValidator.NormalizeName(counterparty.Patronymic);
 				customer.FullName = null;
 			}
 			else
@@ -78,7 +78,7 @@ namespace Mindbox.Library.Mapping
 
 		private string GetPointOfContact(ExternalCounterparty creationSource)
 		{
-			if(creationSource == null)
+			if(creationSource is null)
 			{
 				return _settings.PointOfContactErp;
 			}
@@ -88,12 +88,17 @@ namespace Mindbox.Library.Mapping
 
 		private static string GetDeviceUuid(ExternalCounterparty creationSource)
 		{
-			return creationSource?.ExternalCounterpartyId.ToString("D");
+			if(creationSource is null || creationSource.ExternalCounterpartyId == Guid.Empty)
+			{
+				return null;
+			}
+
+			return creationSource.ExternalCounterpartyId.ToString("D");
 		}
 
 		private void LogSkippedContacts(CounterpartyEntity counterparty, MindboxCustomer customer)
 		{
-			if(customer.MobilePhone == null)
+			if(customer.MobilePhone is null)
 			{
 				var phone = counterparty.Phones?
 					.Where(p => !string.IsNullOrWhiteSpace(p.DigitsNumber))
@@ -109,7 +114,7 @@ namespace Mindbox.Library.Mapping
 				}
 			}
 
-			if(customer.Email == null)
+			if(customer.Email is null)
 			{
 				var email = counterparty.Emails?
 					.Where(e => !string.IsNullOrWhiteSpace(e.Address))

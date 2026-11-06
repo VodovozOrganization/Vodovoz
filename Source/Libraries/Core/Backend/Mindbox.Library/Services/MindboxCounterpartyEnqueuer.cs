@@ -1,9 +1,12 @@
-﻿using MassTransit;
+using MassTransit;
 using Microsoft.Extensions.Logging;
 using Mindbox.Library.Contracts;
+using NHibernate;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TransactionalOutbox.MassTransit;
@@ -57,27 +60,48 @@ namespace Mindbox.Library.Services
 					return 0;
 				}
 
+				var now = DateTime.UtcNow;
+				var states = GetStates(unitOfWork, counterparties);
 				var publishEndpoint = _outbox.GetPublishEndpoint(unitOfWork);
 
 				foreach(var counterparty in counterparties)
 				{
-					var transactionId = counterparty.MindboxTransactionId;
+					var isNewState = !states.TryGetValue(counterparty.Id, out var state);
 
-					if(transactionId == Guid.Empty)
+					if(isNewState)
 					{
-						transactionId = Guid.NewGuid();
-						counterparty.MindboxTransactionId = transactionId;
+						state = new MindboxCounterpartyState
+						{
+							CounterpartyId = counterparty.Id,
+							CreatedAt = now
+						};
+
+						states[counterparty.Id] = state;
 					}
 
-					counterparty.MindboxStatus = MindboxCounterpartyOutboxStatus.Queued;
+					if(!state.TransactionId.HasValue || state.TransactionId.Value == Guid.Empty)
+					{
+						state.TransactionId = Guid.NewGuid();
+					}
 
-					unitOfWork.Save(counterparty);
+					state.Status = MindboxCounterpartyOutboxStatus.Queued;
+					state.UpdatedAt = now;
+
+					if(isNewState)
+					{
+						// Id задаётся вручную (counterparty_id), поэтому нужен явный Insert.
+						unitOfWork.Session.Save(state);
+					}
+					else
+					{
+						unitOfWork.Save(state);
+					}
 
 					await publishEndpoint.Publish(
 						new MindboxCounterpartySendMessage
 						{
 							CounterpartyId = counterparty.Id,
-							TransactionId = transactionId
+							TransactionId = state.TransactionId.Value
 						},
 						cancellationToken)
 						.ConfigureAwait(false);
@@ -97,18 +121,57 @@ namespace Mindbox.Library.Services
 			IUnitOfWork unitOfWork,
 			int batchSize)
 		{
-			const string sql = @"
-SELECT c.*
-FROM counterparty c
-WHERE c.mindbox_status = 'Unknown'
-ORDER BY c.id
-LIMIT :batchSize";
+			Counterparty counterpartyAlias = null;
+			MindboxCounterpartyState stateAlias = null;
+
+			var stateForCounterparty = QueryOver.Of<MindboxCounterpartyState>(() => stateAlias)
+				.Where(state => state.CounterpartyId == counterpartyAlias.Id)
+				.Select(state => state.CounterpartyId);
+
+			var withoutState = unitOfWork.Session
+				.QueryOver<Counterparty>(() => counterpartyAlias)
+				.WithSubquery.WhereNotExists(stateForCounterparty)
+				.OrderBy(counterparty => counterparty.Id).Asc
+				.Take(batchSize)
+				.List();
+
+			Counterparty counterpartyWithUnknownStateAlias = null;
+			MindboxCounterpartyState unknownStateAlias = null;
+
+			var unknownStateForCounterparty = QueryOver.Of<MindboxCounterpartyState>(() => unknownStateAlias)
+				.Where(state => state.CounterpartyId == counterpartyWithUnknownStateAlias.Id)
+				.And(state => state.Status == MindboxCounterpartyOutboxStatus.Unknown)
+				.Select(state => state.CounterpartyId);
+
+			var withUnknownState = unitOfWork.Session
+				.QueryOver<Counterparty>(() => counterpartyWithUnknownStateAlias)
+				.WithSubquery.WhereExists(unknownStateForCounterparty)
+				.OrderBy(counterparty => counterparty.Id).Asc
+				.Take(batchSize)
+				.List();
+
+			return withoutState
+				.Concat(withUnknownState)
+				.OrderBy(counterparty => counterparty.Id)
+				.Take(batchSize)
+				.ToList();
+		}
+
+		private static IDictionary<int, MindboxCounterpartyState> GetStates(
+			IUnitOfWork unitOfWork,
+			IList<Counterparty> counterparties)
+		{
+			var counterpartyIds = counterparties
+				.Select(counterparty => counterparty.Id)
+				.Cast<object>()
+				.ToArray();
 
 			return unitOfWork.Session
-				.CreateSQLQuery(sql)
-				.AddEntity(typeof(Counterparty))
-				.SetInt32("batchSize", batchSize)
-				.List<Counterparty>();
+				.QueryOver<MindboxCounterpartyState>()
+				.WhereRestrictionOn(state => state.CounterpartyId)
+				.IsIn(counterpartyIds)
+				.List()
+				.ToDictionary(state => state.CounterpartyId);
 		}
 	}
 }
