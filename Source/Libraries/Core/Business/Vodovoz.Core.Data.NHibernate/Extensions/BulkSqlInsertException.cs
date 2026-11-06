@@ -4,7 +4,8 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 {
 	/// <summary>
 	/// Ошибка массовой вставки после начала работы с БД.
-	/// Транзакция UoW при этом принудительно откатывается вместе с остальными изменениями этого UoW.
+	/// UoW при этом закрывается, его транзакция откатывается вместе с остальными изменениями этого UoW.
+	/// Работать с этим UoW дальше нельзя.
 	/// </summary>
 	public class BulkSqlInsertException : Exception
 	{

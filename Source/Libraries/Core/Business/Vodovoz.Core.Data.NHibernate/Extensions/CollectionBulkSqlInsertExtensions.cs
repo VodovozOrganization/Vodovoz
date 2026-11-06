@@ -41,10 +41,10 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 	/// <item>проверки до начала записи бросают стандартные исключения: <see cref="ArgumentNullException"/>, <see cref="ArgumentOutOfRangeException"/>,
 	/// <see cref="ArgumentException"/>, <see cref="InvalidOperationException"/>, <see cref="NotSupportedException"/>, <see cref="TransientObjectException"/>.
 	/// Транзакция при этом не откатывается, а незаписанные изменения сессии не уходят в БД;</item>
-	/// <item>любая ошибка начиная с Flush и расхождение количества после всех вставок: транзакция UoW принудительно откатывается
-	/// вместе с остальными изменениями этого UoW и бросается <see cref="BulkSqlInsertException"/> с исходным исключением внутри.
-	/// После этого UoW нужно закрыть: uow.Commit() молча ничего не сделает;</item>
-	/// <item>отмена токена после начала записи тоже откатывает транзакцию, но остается <see cref="OperationCanceledException"/>.</item>
+	/// <item>любая ошибка начиная с Flush и расхождение количества после всех вставок: метод закрывает UoW (uow.Dispose()),
+	/// его транзакция откатывается вместе с остальными изменениями этого UoW, и бросается <see cref="BulkSqlInsertException"/>
+	/// с исходным исключением внутри. UoW закрывается, работать с ним дальше нельзя;</item>
+	/// <item>отмена токена после начала записи тоже закрывает UoW, но остается <see cref="OperationCanceledException"/>.</item>
 	/// </list>
 	/// <para>История изменений: после загрузки строк метод поднимает те же события PostInsert, что и NHibernate при обычном Save,
 	/// поэтому для сущностей с [HistoryTrace] историю записывает трекер QS: после коммита, отдельным соединением, одним набором изменений
@@ -133,13 +133,13 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 			}
 			catch(OperationCanceledException)
 			{
-				context.Rollback();
+				context.CloseUnitOfWork();
 				throw;
 			}
 			catch(Exception ex)
 			{
-				var rollbackError = context.Rollback();
-				throw context.CreateFailure(ex, rollbackError);
+				context.CloseUnitOfWork();
+				throw context.CreateFailure(ex);
 			}
 		}
 
@@ -151,7 +151,7 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 		/// <param name="uow">UoW, в сессии которого находится родитель</param>
 		/// <param name="newItems">Новые, еще не сохраненные элементы</param>
 		/// <param name="batchSize">Максимальное количество строк в одном INSERT. Фактическая пачка может быть меньше из-за лимитов БД</param>
-		/// <param name="cancellationToken">Токен отмены. Отмена после начала записи откатывает транзакцию UoW</param>
+		/// <param name="cancellationToken">Токен отмены. Отмена после начала записи закрывает UoW и откатывает его транзакцию</param>
 		public static async Task BulkSqlInsertAsync<TItem>(
 			this ICollection<TItem> collection,
 			IUnitOfWork uow,
@@ -217,19 +217,19 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 			}
 			catch(OperationCanceledException)
 			{
-				await context.RollbackAsync();
+				context.CloseUnitOfWork();
 				throw;
 			}
 			catch(Exception ex)
 			{
-				var rollbackError = await context.RollbackAsync();
+				context.CloseUnitOfWork();
 
 				if(cancellationToken.IsCancellationRequested)
 				{
 					throw new OperationCanceledException(cancellationToken);
 				}
 
-				throw context.CreateFailure(ex, rollbackError);
+				throw context.CreateFailure(ex);
 			}
 		}
 	}

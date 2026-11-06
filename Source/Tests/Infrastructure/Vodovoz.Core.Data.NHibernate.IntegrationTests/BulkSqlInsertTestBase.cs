@@ -206,7 +206,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// Проверяет отказ массовой вставки после начала работы с БД: тип, вложенное исключение, текст и откат транзакции.
+		/// Проверяет отказ массовой вставки после начала работы с БД: тип, вложенное исключение, текст и закрытие UoW.
 		/// </summary>
 		protected static void AssertFailedWithRollback(BulkSqlInsertException exception, IUnitOfWork uow, Type innerType = null)
 		{
@@ -220,16 +220,18 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			}
 
 			Assert.Contains("откат", exception.Message, StringComparison.OrdinalIgnoreCase);
-			AssertRolledBack(uow);
+			Assert.Contains("UoW закрыт", exception.Message, StringComparison.OrdinalIgnoreCase);
+			AssertUowClosed(uow);
 		}
 
-		protected static void AssertRolledBack(IUnitOfWork uow)
+		/// <summary>
+		/// После ошибки записи метод закрывает UoW: сессия закрыта, транзакция откатывается вместе с ней.
+		/// Что строк нет, тесты проверяют ещё и по данным в БД
+		/// </summary>
+		protected static void AssertUowClosed(IUnitOfWork uow)
 		{
-			// После завершения транзакции NHibernate не отдаёт её из сессии. Что откат был, тесты проверяют ещё и по данным в БД
-			var transaction = uow.Session.GetCurrentTransaction();
-
-			Assert.False(IsTransactionActive(uow));
-			Assert.True(transaction == null || transaction.WasRolledBack);
+			Assert.False(uow.IsAlive);
+			Assert.False(uow.Session.IsOpen);
 		}
 
 		protected long ScalarFromOtherConnection(string sql, IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)

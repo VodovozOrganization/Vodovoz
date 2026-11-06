@@ -13,7 +13,7 @@ using Xunit;
 namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 {
 	/// <summary>
-	/// Группа E: загружено ровно столько, сколько вставлено; при любой ошибке после начала работы с БД транзакция откачена.
+	/// Группа E: загружено ровно столько, сколько вставлено; при любой ошибке после начала работы с БД UoW закрыт, транзакция откачена.
 	/// Триггеров нет: расхождение моделируется фильтром сессии, вмешательством перед командой и подменой числа строк.
 	/// </summary>
 	public class BulkSqlInsertIntegrityTests : BulkSqlInsertTestBase
@@ -172,6 +172,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			Assert.NotNull(exception.InnerException);
 			Assert.IsNotType<TransactionException>(exception.InnerException);
 			Assert.Contains("откат", exception.Message, StringComparison.OrdinalIgnoreCase);
+			AssertUowClosed(uow);
 			Assert.Equal(0, CountChildren(parentId));
 		}
 
@@ -200,7 +201,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// E-06. Токен отменён во время вставки: транзакция откачена, тип исключения остаётся OperationCanceledException.
+		/// E-06. Токен отменён во время вставки: UoW закрыт, транзакция откачена, тип исключения остаётся OperationCanceledException.
 		/// </summary>
 		[DatabaseFact]
 		public async Task BulkSqlInsertAsync_WhenTokenCancelledDuringInsert_RollsBackAndKeepsExceptionType()
@@ -225,7 +226,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 					() => Insert(InsertMode.Async, parent.Items, uow, NewChildren(4), 2, cancellation.Token));
 			}
 
-			AssertRolledBack(uow);
+			AssertUowClosed(uow);
 			Assert.Equal(0, CountChildren(parentId));
 		}
 
@@ -280,6 +281,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 				{
 					var failure = Assert.IsType<BulkSqlInsertException>(exception);
 					Assert.Contains("batchSize", failure.Message);
+					AssertUowClosed(uow);
 					Assert.Equal(0, CountChildren(parentId));
 				}
 			}
@@ -315,7 +317,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			var exception = await Assert.ThrowsAsync<BulkSqlInsertException>(() => second);
 
 			Assert.IsType<StaleObjectStateException>(exception.InnerException);
-			AssertRolledBack(secondUow);
+			AssertUowClosed(secondUow);
 			Assert.Equal(1, CountChildren(parentId, "bulk_versioned_parent_children"));
 			Assert.Equal(1, Database.Count("bulk_versioned_parent_children", "name = 'первый'"));
 			Assert.Equal(1, Database.Count("bulk_versioned_parents", $"id = {parentId} AND version = 2"));

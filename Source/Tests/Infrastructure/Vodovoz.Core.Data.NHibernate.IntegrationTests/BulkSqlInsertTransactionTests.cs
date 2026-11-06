@@ -199,7 +199,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// G-07. Два вызова в одном UoW, второй падает: нет строк ни первого, ни второго.
+		/// G-07. Два вызова в одном UoW, второй падает: UoW закрыт, нет строк ни первого, ни второго.
 		/// </summary>
 		[DatabaseTheory, BothModes]
 		public async Task BulkSqlInsert_WhenSecondCallFails_NoRowsFromEither(InsertMode mode)
@@ -214,8 +214,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			await Insert(mode, parent.Items, uow, NewChildren(2, "первый"));
 			await Assert.ThrowsAsync<BulkSqlInsertException>(() => Insert(mode, parent.Items, uow, failing, 1));
 
-			uow.Commit();
-
+			AssertUowClosed(uow);
 			Assert.Equal(0, CountChildren(parentId));
 		}
 

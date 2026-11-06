@@ -18,7 +18,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Vodovoz.Core.Data.NHibernate.Extensions
 {
@@ -312,70 +311,31 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 		}
 
 		/// <summary>
-		/// Откатывает транзакцию UoW. Возвращает ошибку отката, чтобы она не подменила исходное исключение
+		/// Закрывает UoW после ошибки записи. Его транзакция откатывается при закрытии вместе с остальными изменениями этого UoW,
+		/// а трекер истории закрывается вместе с UoW и записи о невставленных строках не сохранит.
+		/// Ошибка закрытия не должна подменить исходное исключение: при обрыве соединения БД откатывает транзакцию сама
 		/// </summary>
-		public Exception Rollback()
+		public void CloseUnitOfWork()
 		{
 			try
 			{
-				// Строки откатываются, поэтому записи истории о них в трекере оставлять нельзя
-				_historyTracker?.Reset();
-
-				var transaction = Session.GetCurrentTransaction();
-
-				if(transaction?.IsActive == true)
-				{
-					transaction.Rollback();
-				}
-
-				return null;
+				_uow.Dispose();
 			}
-			catch(Exception ex)
+			catch(Exception)
 			{
-				return ex;
+				// Исходная ошибка важнее: незакоммиченная транзакция не переживет закрытие соединения
 			}
 		}
 
-		public async Task<Exception> RollbackAsync()
-		{
-			try
-			{
-				// Строки откатываются, поэтому записи истории о них в трекере оставлять нельзя
-				_historyTracker?.Reset();
-
-				var transaction = Session.GetCurrentTransaction();
-
-				if(transaction?.IsActive == true)
-				{
-					// Токен вызывающего кода здесь не передается: отмена не должна мешать откату
-					await transaction.RollbackAsync(CancellationToken.None);
-				}
-
-				return null;
-			}
-			catch(Exception ex)
-			{
-				return ex;
-			}
-		}
-
-		public BulkSqlInsertException CreateFailure(Exception error, Exception rollbackError)
+		public BulkSqlInsertException CreateFailure(Exception error)
 		{
 			var message = new StringBuilder()
 				.Append($"Массовая вставка в коллекцию {_collectionPersister.Role} (родитель {_key}, строк {_newItems.Count}, batchSize {_batchSize}) ")
-				.Append($"не выполнена на этапе «{_stage}»: {error.Message}. ");
+				.Append($"не выполнена на этапе «{_stage}»: {error.Message}. ")
+				.Append("UoW закрыт, его транзакция откатывается вместе с остальными изменениями этого UoW. Работать с этим UoW дальше нельзя.")
+				.ToString();
 
-			if(rollbackError == null)
-			{
-				message.Append("Транзакция UoW принудительно откатывается из-за ошибки массовой вставки вместе с остальными изменениями этого UoW.");
-			}
-			else
-			{
-				message.Append($"Транзакцию UoW нужно принудительно откатить из-за ошибки массовой вставки, но откат не удался: {rollbackError.Message}. ")
-					.Append("При обрыве соединения БД откатывает транзакцию сама.");
-			}
-
-			return new BulkSqlInsertException(message.ToString(), error is CountMismatchException ? null : error);
+			return new BulkSqlInsertException(message, error is CountMismatchException ? null : error);
 		}
 
 		private static void ValidateItemsList(IList<TItem> items)

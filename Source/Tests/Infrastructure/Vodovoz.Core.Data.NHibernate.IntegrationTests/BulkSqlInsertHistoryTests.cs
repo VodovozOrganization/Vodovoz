@@ -401,7 +401,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// H-10. Количество не совпало: откат, нет ни строк, ни истории.
+		/// H-10. Количество не совпало: UoW закрыт, нет ни строк, ни истории.
 		/// </summary>
 		[DatabaseTheory, BothModes]
 		public async Task BulkSqlInsert_WhenCountMismatch_NoRowsAndNoHistory(InsertMode mode)
@@ -413,12 +413,13 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 
 			await Assert.ThrowsAsync<BulkSqlInsertException>(() => Insert(mode, parent.Items, uow, NewChildren(3)));
 
+			Assert.False(uow.IsAlive);
 			AssertNothingWritten(parentId);
 			Assert.Equal(0, Count(ChangeSetsTable));
 		}
 
 		/// <summary>
-		/// H-11. Ошибка БД во второй пачке строк: откат, нет ни строк, ни истории.
+		/// H-11. Ошибка БД во второй пачке строк: UoW закрыт, нет ни строк, ни истории.
 		/// </summary>
 		[DatabaseTheory, BothModes]
 		public async Task BulkSqlInsert_WhenDatabaseError_NoRowsAndNoHistory(InsertMode mode)
@@ -432,6 +433,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 
 			await Assert.ThrowsAsync<BulkSqlInsertException>(() => Insert(mode, parent.Items, uow, items, 2));
 
+			Assert.False(uow.IsAlive);
 			AssertNothingWritten(parentId);
 			Assert.Equal(0, Count(ChangeSetsTable));
 		}
@@ -476,7 +478,7 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// H-13. Отмена токена во время вставки строк: откат, истории нет ни сразу, ни после коммита.
+		/// H-13. Отмена токена во время вставки строк: UoW закрыт, нет ни строк, ни истории.
 		/// </summary>
 		[DatabaseFact]
 		public async Task BulkSqlInsertAsync_WhenCancelledDuringInsert_NoHistory()
@@ -500,8 +502,8 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			}
 
 			SqlLog.BeforeCommand = null;
-			uow.Commit();
 
+			Assert.False(uow.IsAlive);
 			AssertNothingWritten(parentId);
 			Assert.Equal(0, Count(ChangeSetsTable));
 		}
