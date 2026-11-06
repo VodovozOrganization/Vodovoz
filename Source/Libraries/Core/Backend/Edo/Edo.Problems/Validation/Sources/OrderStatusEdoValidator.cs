@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
@@ -53,7 +54,17 @@ namespace Edo.Problems.Validation.Sources
 		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
 			var orderEdoRequest = GetEdoRequest(edoTask);
-			
+
+			var receiptTask = edoTask as ReceiptEdoTask;
+
+			if(receiptTask != null
+				&& receiptTask.FiscalDocuments != null
+				&& receiptTask.FiscalDocuments.Any()
+				&& receiptTask.FiscalDocuments.All(x => x != null && x.DocumentType == FiscalDocumentType.Return))
+			{
+				return Task.FromResult(EdoValidationResult.Valid(this));
+			}
+
 			if(orderEdoRequest.Order.IsUndeliveredStatus)
 			{
 				return Task.FromResult(EdoValidationResult.Invalid(this));
