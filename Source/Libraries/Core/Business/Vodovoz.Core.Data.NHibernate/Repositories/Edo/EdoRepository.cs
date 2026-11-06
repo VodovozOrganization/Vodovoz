@@ -834,7 +834,8 @@ select
 	et.cancellation_reason as :cancellation_reason,
 	eod.id as :edo_document_id,
 	eod.status as :edo_document_status,
-	eod.discrepancy_state as :docflow_discrepancy_state
+	eod.discrepancy_state as :docflow_discrepancy_state,
+	eod.edo_account as :edo_account
 from edo_customer_requests ecr
 left join edo_tasks et on et.id = ecr.order_task_id
 left join edo_outgoing_documents eod on eod.document_task_id = et.id
@@ -862,7 +863,8 @@ select
 	et.cancellation_reason as :cancellation_reason,
 	eod.id as :edo_document_id,
 	eod.status as :edo_document_status,
-	eod.discrepancy_state as :docflow_discrepancy_state
+	eod.discrepancy_state as :docflow_discrepancy_state,
+	eod.edo_account as :edo_account
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
 left join edo_outgoing_documents eod on eod.informal_document_task_id = et.id
@@ -892,6 +894,7 @@ where eir.order_id = :order_id
 				.Map("edo_document_id", x => x.DocumentId, NHibernateUtil.Int32)
 				.Map("edo_document_status", x => x.EdoDocumentStatus, new EnumStringType<EdoDocumentStatus>())
 				.Map("docflow_discrepancy_state", x => x.DocflowDiscrepancyState, new EnumStringType<EdoDiscrepancyState>())
+				.Map("edo_account", x => x.EdoAccount, NHibernateUtil.String)
 				.SetResultTransformer();
 
 			query.SetParameter("order_id", orderId);
@@ -1329,7 +1332,8 @@ select
 	td.`state_change_time` as :last_taxcom_status_update,
 	td.`state` as :taxcom_status,
 	td.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
-	td.`error_message` as :taxcom_error_message
+	td.`error_message` as :taxcom_error_message,
+	eod.edo_account as :edo_account
 from edo_outgoing_documents eod
 left join edo_customer_requests ecr on ecr.order_task_id = eod.document_task_id
 left join taxcom_docflows td on td.edo_document_id = eod.id
@@ -1345,7 +1349,8 @@ select
 	td.`state_change_time` as :last_taxcom_status_update,
 	td.`state` as :taxcom_status,
 	td.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
-	td.`error_message` as :taxcom_error_message
+	td.`error_message` as :taxcom_error_message,
+	eod.edo_account as :edo_account
 from edo_outgoing_documents eod
 left join edo_transfer_requests etr on etr.transfer_edo_task_id = eod.transfer_task_id 
 left join edo_transfer_request_iterations etri on etri.id = etr.iteration_id 
@@ -1367,6 +1372,7 @@ where ecr.order_id = :order_id
 				.Map("taxcom_status", x => x.TaxcomStatus, new EnumStringType<EdoDocFlowStatus>())
 				.Map("taxcom_true_mark_traceability_status", x => x.TaxcomTraceabilityStatus, new EnumStringType<TrueMarkTraceabilityStatus>())
 				.Map("taxcom_error_message", x => x.TaxcomErrorMessage, NHibernateUtil.String)
+				.Map("edo_account", x => x.EdoAccount, NHibernateUtil.String)
 				.SetResultTransformer();
 
 			query.SetParameter("order_id", orderId);
