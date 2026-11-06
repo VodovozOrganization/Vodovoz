@@ -283,7 +283,8 @@ namespace Edo.Documents
 				DocumentType = edoTask.DocumentType,
 				Status = EdoDocumentStatus.NotStarted,
 				EdoType = EdoType.Taxcom,
-				Type = OutgoingEdoDocumentType.Order
+				Type = OutgoingEdoDocumentType.Order,
+				EdoAccount = edoTask.Upd?.Customer?.EdoAccountId
 			};
 
 			await _uow.SaveAsync(customerEdoDocument, cancellationToken: cancellationToken);

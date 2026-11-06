@@ -106,7 +106,7 @@ if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.
 					throw new InvalidOperationException($"PDF счета заявки №{informalEdoRequest.Id} пустой");
 				}
 
-				await SendDocument(edoTask, snapshot.FileData, cancellationToken);
+				await SendDocument(edoTask, snapshot.FileData, snapshot.CounterpartyInfoForEdo?.TaxcomEdoAccountId, cancellationToken);
 				return;
 			}
 
@@ -134,7 +134,7 @@ if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.
 
 				var result = await handler.ProcessDocumentAsync(order, orderDocument.Id, cancellationToken);
 
-				await SendDocument(edoTask, result, cancellationToken);
+				await SendDocument(edoTask, result, null, cancellationToken);
 
 			}
 			catch(Exception ex)
@@ -148,7 +148,11 @@ if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.
 			
 		}
 
-		private async Task SendDocument(OrderDocumentEdoTask edoTask, OrderDocumentFileData fileData, CancellationToken cancellationToken)
+		private async Task SendDocument(
+			OrderDocumentEdoTask edoTask,
+			OrderDocumentFileData fileData,
+			string edoAccount,
+			CancellationToken cancellationToken)
 		{
 			var edoDocument = await _uow.Session.Query<OutgoingInformalEdoDocument>()
 				.Where(x => x.InformalDocumentTaskId == edoTask.Id)
@@ -157,7 +161,7 @@ if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.
 
 			if(edoDocument == null)
 			{
-				edoDocument = CreateInformalDocument(edoTask.Id);
+				edoDocument = CreateInformalDocument(edoTask.Id, edoAccount);
 				edoTask.Status = EdoTaskStatus.InProgress;
 				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 				await _uow.SaveAsync(edoDocument, cancellationToken: cancellationToken);
@@ -166,6 +170,10 @@ if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.
 			else if(edoDocument.Status != EdoDocumentStatus.NotStarted)
 			{
 				return;
+			}
+			else if(string.IsNullOrWhiteSpace(edoDocument.EdoAccount))
+			{
+				edoDocument.EdoAccount = edoAccount;
 			}
 
 			await _publishEndpoint.Publish(new InformalDocumentFileDataSendEvent
@@ -176,7 +184,7 @@ if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.
 			await _uow.CommitAsync(cancellationToken);
 		}
 
-		private OutgoingInformalEdoDocument CreateInformalDocument(int edoTaskId)
+		private OutgoingInformalEdoDocument CreateInformalDocument(int edoTaskId, string edoAccount)
 		{
 			var edoDocument = new OutgoingInformalEdoDocument
 			{
@@ -184,7 +192,8 @@ if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.
 				Status = EdoDocumentStatus.NotStarted,
 				EdoType = EdoType.Taxcom,
 				DocumentType = EdoDocumentType.InformalOrderDocument,
-				Type = OutgoingEdoDocumentType.InformalOrderDocument
+				Type = OutgoingEdoDocumentType.InformalOrderDocument,
+				EdoAccount = edoAccount
 			};
 
 			return edoDocument;

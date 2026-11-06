@@ -45,6 +45,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			Map(x => x.CancellationRequestTime)
 				.Column("cancellation_request_time");
+
+			Map(x => x.EdoAccount)
+				.Column("edo_account");
 		}
 	}
 }

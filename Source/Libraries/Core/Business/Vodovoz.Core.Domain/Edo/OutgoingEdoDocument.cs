@@ -16,6 +16,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private DateTime? _acceptTime;
 		private EdoDiscrepancyState _discrepancyState;
 		private DateTime? _cancellationRequestTime;
+		private string _edoAccount;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -89,6 +90,17 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _cancellationRequestTime;
 			set => SetField(ref _cancellationRequestTime, value);
+		}
+
+		/// <summary>
+		/// ЭДО-аккаунт, через который отправлен документ.
+		/// Сохраняется, чтобы повторные отправки шли через тот же аккаунт.
+		/// </summary>
+		[Display(Name = "ЭДО аккаунт")]
+		public virtual string EdoAccount
+		{
+			get => _edoAccount;
+			set => SetField(ref _edoAccount, value);
 		}
 	}
 }

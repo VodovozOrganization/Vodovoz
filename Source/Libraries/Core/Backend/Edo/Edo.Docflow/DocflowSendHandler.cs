@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
@@ -29,6 +30,7 @@ namespace Edo.Docflow
 		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly IUnitOfWork _uow;
 		private readonly IInformalOrderDocumentHandlerFactory _documentHandlerFactory;
+		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountEntityController;
 
 		public DocflowSendHandler(
 			ILogger<DocflowSendHandler> logger,
@@ -38,7 +40,8 @@ namespace Edo.Docflow
 			IPaymentRepository paymentRepository,
 			IEdoRepository edoRepository,
 			IInformalOrderDocumentHandlerFactory informalOrderDocumentHandlerFactory,
-			IPublishEndpoint publishEndpoint
+			IPublishEndpoint publishEndpoint,
+			ICounterpartyEdoAccountEntityController counterpartyEdoAccountEntityController
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -49,6 +52,8 @@ namespace Edo.Docflow
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_documentHandlerFactory = informalOrderDocumentHandlerFactory ?? throw new ArgumentNullException(nameof(informalOrderDocumentHandlerFactory));
+			_counterpartyEdoAccountEntityController = counterpartyEdoAccountEntityController
+				?? throw new ArgumentNullException(nameof(counterpartyEdoAccountEntityController));
 		}
 
 		public async Task SendTransferDocument(int transferDocumentId, CancellationToken cancellationToken)
@@ -88,9 +93,14 @@ namespace Edo.Docflow
 
 			var updInfo = await _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(transferOrder, cancellationToken);
 
+			if(string.IsNullOrWhiteSpace(document.EdoAccount))
+			{
+				document.EdoAccount = updInfo.Customer?.Organization?.EdoAccountId;
+			}
+
 			var message = new TaxcomDocflowSendEvent
 			{
-				EdoAccount = transferOrder.Seller.TaxcomEdoSettings.EdoAccount,
+				EdoAccount = transferOrder.Seller.TaxcomEdoSettings?.EdoAccount,
 				EdoOutgoingDocumentId = document.Id,
 				UpdInfo = updInfo,
 				EdoTaskId = transferTask.Id
@@ -147,9 +157,14 @@ namespace Edo.Docflow
 					throw new InvalidOperationException($"Неизвестный тип заявки {documentTask.FormalEdoRequest.Type}");
 			}
 
+			if(string.IsNullOrWhiteSpace(document.EdoAccount))
+			{
+				document.EdoAccount = updInfo.Customer?.Organization?.EdoAccountId;
+			}
+
 			var message = new TaxcomDocflowSendEvent
 			{
-				EdoAccount = sender.TaxcomEdoSettings.EdoAccount,
+				EdoAccount = sender.TaxcomEdoSettings?.EdoAccount,
 				EdoOutgoingDocumentId = document.Id,
 				UpdInfo = updInfo,
 				EdoTaskId = documentTask.Id
@@ -221,9 +236,14 @@ namespace Edo.Docflow
 					throw new InvalidOperationException($"У заявки счета №{informalEdoRequest.Id} отсутствует PDF снимка");
 				}
 
+				if(string.IsNullOrWhiteSpace(document.EdoAccount))
+				{
+					document.EdoAccount = snapshot.CounterpartyInfoForEdo?.TaxcomEdoAccountId;
+				}
+
 				await _publishEndpoint.Publish(new TaxcomDocflowInformalDocumentSendEvent
 				{
-					EdoAccount = snapshot.OrganizationInfoForEdo.TaxcomEdoAccountId,
+					EdoAccount = snapshot.OrganizationInfoForEdo?.TaxcomEdoAccountId,
 					EdoOutgoingDocumentId = document.Id,
 					DocumentInfo = snapshot,
 					EdoTaskId = edoTask.Id
@@ -258,6 +278,15 @@ namespace Edo.Docflow
 
 				var handler = _documentHandlerFactory.GetHandler(informalDocument.Type);
 				var documentInfo = await handler.ProcessDocument(order, orderDocumentFileData, informalDocument.Id, cancellationToken);
+
+				if(string.IsNullOrWhiteSpace(document.EdoAccount))
+				{
+					var counterpartyEdoAccount =
+						_counterpartyEdoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(
+							order.Client,
+							order.Contract?.Organization?.Id);
+					document.EdoAccount = counterpartyEdoAccount?.PersonalAccountIdInEdo;
+				}
 
 				var message = new TaxcomDocflowInformalDocumentSendEvent
 				{
