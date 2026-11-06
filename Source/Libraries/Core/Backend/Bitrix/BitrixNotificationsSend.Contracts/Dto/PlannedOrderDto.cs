@@ -18,7 +18,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// Id вороки в битриксе, в которую будет помещена сделка
 		/// </summary>
 		[JsonPropertyName("CATEGORY_ID")]
-		public int CategoryId => 321;
+		public int CategoryId => 12;
 
 		/// <summary>
 		/// Стадия сделки в битриксе
@@ -54,31 +54,31 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Наименование контрагента
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1662373256")]
+		[JsonPropertyName("UF_CRM_DEAL_1662373256")]
 		public string CounterpartyName { get; set; }
 
 		/// <summary>
 		/// ИНН контрагента
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1729861318237")]
+		[JsonPropertyName("UF_CRM_DEAL_1729861318237")]
 		public string CounterpartyInn { get; set; }
 
 		/// <summary>
 		/// Номер для связи, указанный в последнем выполненном заказе
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1580981695580")]
+		[JsonPropertyName("UF_CRM_DEAL_1580981695580")]
 		public string PhoneNumber { get; set; }
 
 		/// <summary>
 		/// Адрес электронной почты
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1658917933")]
+		[JsonPropertyName("UF_CRM_DEAL_1658917933")]
 		public string EmailAddress { get; set; }
 
 		/// <summary>
 		/// Адрес точки доставки, пусто - для самовывоза
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5DA85CF9E13B9")]
+		[JsonPropertyName("UF_CRM_DEAL_5DA85CF9E13B9")]
 		public string DeliveryPointAddress { get; set; }
 
 		/// <summary>
@@ -92,7 +92,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// "Да" - если самовывоз
 		/// "Нет" - если доставка на точку доставки
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1777379840190")]
+		[JsonPropertyName("UF_CRM_DEAL_1777379840190")]
 		public int SelfDelivery =>
 			IsSelfDelivery
 			? 1
@@ -107,20 +107,20 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Дата доставки последнего выполненного заказа
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5E006F67E6DAC")]
+		[JsonPropertyName("UF_CRM_DEAL_5E006F67E6DAC")]
 		public string LastOrderDeliveryDateString =>
 			LastOrderDeliveryDate.ToString("yyyy-MM-dd");
 
 		/// <summary>
 		/// Номер последнего выполненного заказа
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1580980679082")]
+		[JsonPropertyName("UF_CRM_DEAL_1580980679082")]
 		public int? LastOrderId { get; set; }
 
 		/// <summary>
 		/// ФИО закрепленного за клиентом менеджера по продажам
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1662373348")]
+		[JsonPropertyName("UF_CRM_DEAL_1662373348")]
 		public string SalesManagerName { get; set; }
 
 		/// <summary>
@@ -132,14 +132,14 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Дата планируемого заказа
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5ED7643476A24")]
+		[JsonPropertyName("UF_CRM_DEAL_5ED7643476A24")]
 		public string PlannedOrderString =>
 			PlannedOrderDate.ToString("yyyy-MM-dd");
 
 		/// <summary>
 		/// Количество бутылей в последнем выполненном заказе
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1661426633939")]
+		[JsonPropertyName("UF_CRM_DEAL_1661426633939")]
 		public int LastOrderBottlesCount { get; set; }
 
 		/// <summary>
@@ -151,7 +151,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Долг по бутылям по адресу, null - для самовывоза
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1696873817133")]
+		[JsonPropertyName("UF_CRM_DEAL_1696873817133")]
 		public string BottlesDebtByAddressString =>
 			BottlesDebtByAddress.HasValue
 			? BottlesDebtByAddress.Value.ToString()
@@ -166,7 +166,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Долг по бутылям по клиенту
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1777380183821")]
+		[JsonPropertyName("UF_CRM_DEAL_1777380183821")]
 		public string BottlesDebtByCounterpartyString =>
 			BottlesDebtByCounterparty.ToString();
 
@@ -179,7 +179,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Отсрочка по оплате для контрагента в днях, 0 - для физических лиц
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1759475455713")]
+		[JsonPropertyName("UF_CRM_DEAL_1759475455713")]
 		public string DelayDaysForCounterpartyString =>
 			DelayDaysForCounterparty.ToString();
 
@@ -192,7 +192,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Общая дебиторская задолженность, 0 - для физических лиц
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1759474068097")]
+		[JsonPropertyName("UF_CRM_DEAL_1759474068097")]
 		public string DebtorDebtString =>
 			DebtorDebt.ToString();
 	}
