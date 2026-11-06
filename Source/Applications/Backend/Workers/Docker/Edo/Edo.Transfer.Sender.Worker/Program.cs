@@ -7,14 +7,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
+using System;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
-using TransactionalOutbox.EntityFrameworkCore;
-using TransactionalOutbox.MassTransit;
-using System.Text;
-using System;
 
 namespace Edo.Transfer.Sender.Worker
 {

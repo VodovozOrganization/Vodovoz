@@ -35,12 +35,6 @@ namespace Vodovoz.Core.Domain.Edo.Upd
 		public virtual string IdentificationCode { get; set; }
 
 		/// <summary>
-		/// Товар в УПД
-		/// </summary>
-		[Display(Name = "Товар в УПД")]
-		public virtual UpdInventPosition InventPosition { get; set; }
-
-		/// <summary>
 		/// Индивидуальный код
 		/// </summary>
 		[Display(Name = "Индивидуальный код")]
