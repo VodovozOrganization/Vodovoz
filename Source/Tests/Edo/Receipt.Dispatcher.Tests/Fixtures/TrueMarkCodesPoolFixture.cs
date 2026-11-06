@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
@@ -22,7 +23,7 @@ namespace Receipt.Dispatcher.Tests.Fixtures
 			return _autoIncrementId++;
 		}
 
-		public override Task<int> TakeCode(string gtin, CancellationToken cancellationToken)
+		public override Task<int> TakeCode(string gtin, CancellationToken cancellationToken, DateTime? addingTimeNotAfter = null)
 		{
 			return Task.FromResult(_autoIncrementId++);
 		}

@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using DateTimeHelpers;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate;
@@ -31,6 +31,9 @@ using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.ViewModels.Reports.TrueMark;
+using Edo.Contracts.Messages.Events;
+using MassTransit;
+using TransactionalOutbox.MassTransit;
 using CashReceiptPermissions = Vodovoz.Core.Domain.Permissions.OrderPermissions.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
@@ -43,7 +46,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private readonly ReceiptManualController _receiptManualController;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IUnitOfWorkOutbox<IBus> _outbox;
+		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly bool _canResendDuplicateReceipts;
+		private readonly bool _canReprocessFailedReceipts;
 
 		private CashReceiptJournalFilterViewModel _filter;
 		private Timer _autoRefreshTimer;
@@ -59,6 +65,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			ReceiptManualController receiptManualController,
 			IFileDialogService fileDialogService,
 			IOrganizationSettings organizationSettings,
+			IUnitOfWorkOutbox<IBus> outbox,
+			IGuiDispatcher guiDispatcher,
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
@@ -73,6 +81,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
+			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
 			var permissionService = _commonServices.CurrentPermissionService;
 
@@ -91,6 +101,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 
 			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission(CashReceiptPermissions.CanResendDuplicateReceipts);
+			_canReprocessFailedReceipts =
+				permissionService.ValidatePresetPermission(CashReceiptPermissions.CanReprocessFailedReceipts)
+				|| _canResendDuplicateReceipts;
 
 			if(!filter.StartDate.HasValue)
 			{
@@ -187,6 +200,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			CreateNodeManualSendAction();
 			CreateNodeRefreshFiscalDocAction();
 			CreateNodeRequeueFiscalDocAction();
+			CreateNodeFailedReprocessingAction();
 			CreateProductCodesScanningReportAction();
 			CreateExportAction();
 		}
@@ -526,6 +540,72 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		{
 			var requeueFiscalDocAction = GetRequeueFiscalDocAction();
 			NodeActionsList.Add(requeueFiscalDocAction);
+		}
+
+		/// <summary>
+		/// Создает действие для кнопки внепланового запуска проверки и переотправки чеков с ошибкой
+		/// </summary>
+		private void CreateNodeFailedReprocessingAction()
+		{
+			var failedReprocessingAction = new JournalAction(
+				"Проверить и переотправить чеки с ошибкой",
+				(selected) => _canReprocessFailedReceipts,
+				(selected) => true,
+				async (selected) => await RequestFailedReprocessingAsync()
+			);
+			NodeActionsList.Add(failedReprocessingAction);
+		}
+
+		/// <summary>
+		/// Инициирует отправку команды на внеплановую переобработку чеков через Outbox шины сообщений
+		/// </summary>
+		private async Task RequestFailedReprocessingAsync()
+		{
+			if(!_canReprocessFailedReceipts)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"У вас нет прав для запуска повторной фискализации чеков.");
+				return;
+			}
+
+			if(!_commonServices.InteractiveService.Question(
+				"Вы уверены, что хотите запустить внеплановую проверку и повторную фискализацию чеков с ошибками?\n\n" +
+				"Система проверит фактические статусы в МодульКассе, при необходимости заменит коды маркировки из пула и отправит документы на повторную фискализацию.",
+				"Внеплановая переобработка чеков"))
+			{
+				return;
+			}
+
+			try
+			{
+				var currentUser = _commonServices.UserService.GetCurrentUser();
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Внеплановый запуск переобработки чеков с ошибками"))
+				{
+					await _outbox.GetPublishEndpoint(uow).Publish(new ReceiptFailedReprocessingRequestedEvent
+					{
+						Initiator = currentUser?.Name ?? "Неизвестный пользователь",
+						RequestedAt = DateTime.Now
+					});
+
+					await uow.CommitAsync();
+				}
+
+				ShowInteractiveMessage(
+					ImportanceLevel.Info,
+					"Запрос отправлен в очередь обработки. Если переобработка уже выполняется другим процессом, повторный запрос будет пропущен.");
+			}
+			catch(Exception ex)
+			{
+				ShowInteractiveMessage(
+					ImportanceLevel.Error,
+					$"Не удалось инициировать внеплановую проверку чеков: {ex.Message}");
+			}
+		}
+
+		private void ShowInteractiveMessage(ImportanceLevel level, string message)
+		{
+			_guiDispatcher.RunInGuiTread(() => _commonServices.InteractiveService.ShowMessage(level, message));
 		}
 
 		private JournalAction GetRefreshFiscalDocAction()

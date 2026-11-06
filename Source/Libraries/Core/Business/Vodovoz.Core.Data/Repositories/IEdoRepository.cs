@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -16,7 +16,7 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <summary>
 		/// Получает документы в указанном статусе с истёкшими сроками либо без времени смены статуса.
 		/// </summary>
-		/// <param name="uow">Единица работы</param>
+		/// <param name="uow">Сессия базы данных (Unit of Work)</param>
 		/// <param name="status">Статус фискального документа</param>
 		/// <param name="statusChangedBefore">Исключительная верхняя граница времени смены статуса</param>
 		/// <param name="statusChangedNotBefore">Включительная нижняя граница времени смены статуса; документы без времени выбираются для логирования</param>
@@ -29,6 +29,21 @@ namespace Vodovoz.Core.Data.Repositories
 			DateTime statusChangedBefore,
 			DateTime statusChangedNotBefore,
 			DateTime notifiedNotAfter,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получает идентификаторы документов со статусом ошибки фискализации (Failed)
+		/// за указанный период для повторной обработки.
+		/// </summary>
+		/// <param name="uow">Сессия базы данных (Unit of Work)</param>
+		/// <param name="statusChangedBefore">Верхняя граница времени смены статуса (старше X часов)</param>
+		/// <param name="statusChangedNotBefore">Нижняя граница времени смены статуса / чека (за последние Y дней с учетом закрытого периода)</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список идентификаторов фискальных документов</returns>
+		Task<IList<int>> GetFailedFiscalDocumentIdsForReprocessing(
+			IUnitOfWork uow,
+			DateTime statusChangedBefore,
+			DateTime statusChangedNotBefore,
 			CancellationToken cancellationToken);
 
 		/// <summary>
