@@ -54,6 +54,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport
 				worksheet.Cell(1, 10).Value = "Дата планируемого заказа";
 				worksheet.Cell(1, 11).Value = "Долг по таре\n(по адресу) бутылей";
 				worksheet.Cell(1, 12).Value = "Кол-во отгруженных\nв последнюю реализацию\nбутылей";
+				worksheet.Cell(1, 13).Value = "Менеджер по продажам";
 
 				var rows = _report.Rows;
 
@@ -71,16 +72,17 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport
 					worksheet.Cell(i + 2, 10).Value = rows[i].PlannedOrderDate;
 					worksheet.Cell(i + 2, 11).Value = rows[i].DebtByAddress;
 					worksheet.Cell(i + 2, 12).Value = rows[i].LastOrderBottles;
+					worksheet.Cell(i + 2, 13).Value = rows[i].SalesManagerName;
 				}
 
-				worksheet.Range(1, 1, rows.Count + 2, 12).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+				worksheet.Range(1, 1, rows.Count + 2, 13).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
 				worksheet.Cell(rows.Count + 2, 10).Value = "Итого:";
 				worksheet.Cell(rows.Count + 2, 11).Value = rows.Sum(x => x.DebtByAddress);
 				worksheet.Cell(rows.Count + 2, 12).Value = rows.Sum(x => x.LastOrderBottles);
-				worksheet.Columns(1, 12).AdjustToContents(1, rows.Count + 2);
+				worksheet.Columns(1, 13).AdjustToContents(1, rows.Count + 2);
 
-				for(int c = 1; c <= 12; c++)
+				for(int c = 1; c <= 13; c++)
 				{
 					for(int r = 1; r <= rows.Count + 1; r++)
 					{
