@@ -29,13 +29,6 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 
 			References(x => x.Document)
 				.Column("car_load_document_id");
-
-			HasMany(x => x.TrueMarkCodes)
-				.Cascade
-				.AllDeleteOrphan()
-				.Inverse()
-				.LazyLoad()
-				.KeyColumn("car_load_document_item_id");
 		}
 	}
 }

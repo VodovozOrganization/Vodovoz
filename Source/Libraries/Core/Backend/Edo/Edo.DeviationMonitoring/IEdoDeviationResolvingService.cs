@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 namespace Edo.DeviationMonitoring
 {
 	/// <summary>
-	/// Сервис снятия отклонений документооборота ЭДО
+	/// Сервис проверки актуальности и обработки отклонений документооборота ЭДО
 	/// </summary>
 	public interface IEdoDeviationResolvingService
 	{
 		/// <summary>
-		/// Выполняет один проход снятия потерявших актуальность отклонений
+		/// Снимает потерявшие актуальность отклонения и передает актуальные сервису автоматических действий
 		/// </summary>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат прохода</returns>

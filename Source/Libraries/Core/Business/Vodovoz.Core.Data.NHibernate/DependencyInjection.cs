@@ -78,7 +78,7 @@ namespace Vodovoz.Core.Data.NHibernate
 
 			foreach(var type in settingsTypes)
 			{
-				services.AddScoped(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
+				services.TryAddScoped(type.GetInterfaces().First(i => i.Name == $"I{type.Name}"), type);
 			}
 
 

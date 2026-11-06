@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using TaxcomEdo.Client;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Rules.Edo;
 
 namespace Edo.Docflow.Taxcom
 {
@@ -35,6 +36,16 @@ namespace Edo.Docflow.Taxcom
 
 		public async Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event, CancellationToken cancellationToken)
 		{
+			var task = await _uow.Session.GetAsync<EdoTask>(@event.EdoTaskId, cancellationToken);
+			if(task?.TaskType == EdoTaskType.Transfer
+				&& TransferEdoTaskCancellationRule.IsCancelledOrCancelling(task.Status))
+			{
+				_logger.LogInformation(
+					"Отправка документа {DocumentId} пропущена: задача трансфера {TransferTaskId} имеет статус {Status}",
+					@event.EdoOutgoingDocumentId, task.Id, task.Status);
+				return;
+			}
+
 			if(await IsDocumentAlreadySentAsync(@event.EdoOutgoingDocumentId, cancellationToken))
 			{
 				_logger.LogWarning(
@@ -192,8 +203,7 @@ namespace Edo.Docflow.Taxcom
 		public async Task<EdoDocflowUpdatedEvent> UpdateOutgoingTaxcomDocFlow(
 			OutgoingTaxcomDocflowUpdatedEvent @event, CancellationToken cancellationToken = default)
 		{
-			var taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
-				.SingleOrDefault(x => x.MainDocumentId == @event.MainDocumentId);
+			var taxcomDocflow = FindTaxcomDocflow(@event.DocFlowId, @event.MainDocumentId);
 
 			if(taxcomDocflow is null)
 			{
@@ -268,23 +278,19 @@ namespace Edo.Docflow.Taxcom
 		public async Task AcceptIngoingTaxcomEdoDocFlowWaitingForSignature(
 			AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent @event, CancellationToken cancellationToken = default)
 		{
-			var taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
-				.SingleOrDefault(x => x.MainDocumentId == @event.MainDocumentId);
+			var taxcomDocflow = FindTaxcomDocflow(@event.DocFlowId, @event.MainDocumentId)
+				?? _uow.Session.Query<TaxcomDocflow>()
+					.Where(x => x.MainDocumentId == @event.MainDocumentId)
+					.OrderByDescending(x => x.CreationTime).ThenByDescending(x => x.Id)
+					.FirstOrDefault();
 
 			if(taxcomDocflow is null)
 			{
-				_logger.LogWarning("Не нашли отправку с таким документом {ExternalIdentifier}. Попробуем найти по ДО {DocflowId}",
+				_logger.LogWarning("Не нашли отправку для документа {ExternalIdentifier} и документооборота {DocflowId}",
 					@event.MainDocumentId,
 					@event.DocFlowId);
 				
-				taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
-					.SingleOrDefault(x => x.DocflowId == @event.DocFlowId);
-
-				if(taxcomDocflow is null)
-				{
-					_logger.LogWarning("Не нашли отправку с таким ДО {DocflowId}", @event.DocFlowId);
-					return;
-				}
+				return;
 			}
 			
 			if(taxcomDocflow.AcceptingIngoingDocflowTime.HasValue
@@ -316,6 +322,26 @@ namespace Edo.Docflow.Taxcom
 			}
 		}
 		
+		private TaxcomDocflow FindTaxcomDocflow(Guid? docflowId, string mainDocumentId)
+		{
+			if(docflowId.HasValue)
+			{
+				var knownDocflow = _uow.Session.Query<TaxcomDocflow>()
+					.Where(x => x.DocflowId == docflowId)
+					.OrderByDescending(x => x.CreationTime).ThenByDescending(x => x.Id)
+					.FirstOrDefault();
+				if(knownDocflow != null)
+				{
+					return knownDocflow;
+				}
+			}
+
+			return _uow.Session.Query<TaxcomDocflow>()
+				.Where(x => x.MainDocumentId == mainDocumentId && x.DocflowId == null)
+				.OrderByDescending(x => x.CreationTime).ThenByDescending(x => x.Id)
+				.FirstOrDefault();
+		}
+
 		private async Task SaveTaxcomDocflow(TaxcomDocflow taxcomDocflow)
 		{
 			_logger.LogInformation(

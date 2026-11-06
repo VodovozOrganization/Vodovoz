@@ -71,6 +71,25 @@ namespace BitrixNotificationsSend.Client
 			return await SendBatch(commands, cancellationToken);
 		}
 
+		public async Task<Result<BitrixBatchResult>> CloseChainStoreDelayDeals(
+			IEnumerable<ChainStoreDelayDealCloseDto> chainStoreDelayDeals,
+			CancellationToken cancellationToken)
+		{
+			var commands = new Dictionary<string, string>();
+
+			foreach(var chainStoreDelayDeal in chainStoreDelayDeals)
+			{
+				commands.Add(
+					chainStoreDelayDeal.DealCommandKey,
+					BitrixCommandBuilder.CreateCommand(
+						_dealUpdateMethod,
+						chainStoreDelayDeal,
+						$"id={chainStoreDelayDeal.BitrixDealId}"));
+			}
+
+			return await SendBatch(commands, cancellationToken);
+		}
+
 		public async Task<Result<BitrixDealsStagesResult>> GetDealsStages(
 			IEnumerable<long> dealIds,
 			CancellationToken cancellationToken)
@@ -120,6 +139,20 @@ namespace BitrixNotificationsSend.Client
 			foreach(var undeliveredOrder in undeliveredOrders)
 			{
 				commands.Add(undeliveredOrder.DealCommandKey, BitrixCommandBuilder.CreateCommand(_dealAddMethod, undeliveredOrder));
+			}
+
+			return await SendBatch(commands, cancellationToken);
+		}
+
+		public async Task<Result<BitrixBatchResult>> SendChainStoreDelayDeals(
+			IEnumerable<ChainStoreDelayDealDto> chainStoreDelayDeals,
+			CancellationToken cancellationToken)
+		{
+			var commands = new Dictionary<string, string>();
+
+			foreach(var chainStoreDelayDeal in chainStoreDelayDeals)
+			{
+				commands.Add(chainStoreDelayDeal.DealCommandKey, BitrixCommandBuilder.CreateCommand(_dealAddMethod, chainStoreDelayDeal));
 			}
 
 			return await SendBatch(commands, cancellationToken);

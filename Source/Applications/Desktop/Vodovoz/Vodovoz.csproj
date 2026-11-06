@@ -414,6 +414,11 @@
     <EmbeddedResource Include="icons\toolbar\true_mark.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Views\Edo\EdoUpdDocumentView.cs" />
+    <Compile Include="Filters\GtkViews\EdoUpdFilterView.cs" />
+    <Compile Include="JournalColumnsConfigs\EdoUpdJournalRegistrar.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoUpdDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EdoUpdFilterView.cs" />
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
     <Compile Include="Additions\AuthorizationService.cs" />
     <Compile Include="Additions\EventsQrPlacer.cs" />

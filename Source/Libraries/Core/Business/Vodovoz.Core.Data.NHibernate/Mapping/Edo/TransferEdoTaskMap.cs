@@ -24,6 +24,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.TransferOrderId)
 				.Column("transfer_order_id");
 
+			References(x => x.Upd)
+				.Column("upd_document_id")
+				.Cascade.AllDeleteOrphan();
+
 			HasMany(x => x.TransferEdoRequests)
 				.KeyColumn("transfer_edo_task_id")
 				.Cascade.AllDeleteOrphan()

@@ -120,6 +120,52 @@ namespace Vodovoz.Settings.Notifications
 		DateTime UndeliveredOrdersMinLastEditedTime { get; }
 
 		/// <summary>
+		/// Включена ли выгрузка сделок по отсрочке сети в Битрикс24
+		/// </summary>
+		bool ChainStoreDelayDealsSendEnabled { get; }
+
+		/// <summary>
+		/// Интервал работы воркера создания сделок по отсрочке сети в Битрикс24
+		/// </summary>
+		TimeSpan ChainStoreDelayDealsSendInterval { get; }
+
+		/// <summary>
+		/// Время начала интервала для создания сделок по отсрочке сети в Битрикс24
+		/// </summary>
+		TimeSpan ChainStoreDelayDealsSendTimeFrom { get; }
+
+		/// <summary>
+		/// Время окончания интервала для создания сделок по отсрочке сети в Битрикс24
+		/// </summary>
+		TimeSpan ChainStoreDelayDealsSendTimeTo { get; }
+
+		/// <summary>
+		/// За сколько дней до расчётной даты платежа заказ попадает в выгрузку сделок по отсрочке сети
+		/// </summary>
+		int ChainStoreDelayDealsDaysToPaymentDate { get; }
+
+		/// <summary>
+		/// Идентификатор воронки сделок по отсрочке сети в Битрикс24
+		/// </summary>
+		int ChainStoreDelayDealsCategoryId { get; }
+
+		/// <summary>
+		/// Идентификатор стадии, в которой создаются сделки по отсрочке сети в Битрикс24
+		/// </summary>
+		string ChainStoreDelayDealsStageId { get; }
+
+		/// <summary>
+		/// Идентификатор стадии сделки по отсрочке сети в Битрикс24,
+		/// в которую переводится сделка при оплате заказа
+		/// </summary>
+		string ChainStoreDelayDealsClosedStageId { get; }
+
+		/// <summary>
+		/// Идентификаторы завершённых стадий сделок по отсрочке сети в Битрикс24
+		/// </summary>
+		string[] ChainStoreDelayDealsFinalStageIds { get; }
+
+		/// <summary>
 		/// Идентификатор начальной стадии сделки по плановому заказу в Битрикс24
 		/// </summary>
 		string PlannedOrdersNewStageId { get; }

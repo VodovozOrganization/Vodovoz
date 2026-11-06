@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Весёлый водовоз — Временные технические работы</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #0099ff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .wrapper {
+      max-width: 640px;
+      width: 100%;
+      position: relative;
+    }
+
+    .logo {
+      display: block;
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      margin: 0 auto 24px;
+      border-radius: 16px;
+    }
+
+    h1 {
+      font-size: clamp(26px, 5vw, 36px);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .subtitle {
+      font-size: clamp(18px, 3.5vw, 22px);
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 24px;
+      color: #e0f2fe;
+    }
+
+    .greeting {
+      font-size: clamp(16px, 3vw, 18px);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .description {
+      font-size: clamp(15px, 2.8vw, 17px);
+      line-height: 1.45;
+      color: #f0f9ff;
+      margin-bottom: 24px;
+    }
+
+    .contacts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 14px;
+      padding: 12px 18px;
+      text-decoration: none;
+      color: #ffffff;
+      font-size: clamp(15px, 3vw, 17px);
+      font-weight: 600;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .contact-item.centered {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .contact-item.centered strong {
+      margin-left: 8px;
+    }
+
+    .contact-item:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .contact-item span.icon {
+      font-size: 20px;
+      margin-right: 12px;
+    }
+
+    .contact-item strong {
+      color: #ffeb3b;
+      margin-left: auto;
+      font-weight: 800;
+    }
+
+    .notice {
+      font-size: clamp(14px, 2.5vw, 16px);
+      line-height: 1.45;
+      color: #e0f2fe;
+      margin-bottom: 12px;
+    }
+
+    .gratitude {
+      font-size: clamp(15px, 2.8vw, 17px);
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    @media (max-width: 480px) {
+      .contact-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .contact-item strong {
+        margin-left: 0;
+      }
+      .contact-item.centered {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .contact-item.centered strong {
+        margin-left: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <img class="logo" src="/logo.jpg" alt="Весёлый водовоз">
+    <h1>Сайт временно отдыхает, а мы — нет!</h1>
+    
+    <div class="subtitle">Принимаем заказы через мессенджеры, звонки и мобильное приложение!</div>
+
+    <div class="greeting">Уважаемые клиенты «Весёлого водовоза»!</div>
+    
+    <p class="description">
+      Сегодня мы столкнулись с масштабным техническим сбоем: сайт временно не работает. Технические специалисты уже в процессе решения вопроса, делаем всё возможное, чтобы вернуть сервисы к жизни как можно быстрее.<br><br>
+      Чтобы вы не остались без воды, наша служба приёма заказов полностью перешла в ручной режим:
+    </p>
+
+    <div class="contacts-list">
+      <a href="tel:+78123170000" class="contact-item centered">
+        <span class="icon">📞</span>
+        <span>Позвонить нам:</span>
+        <strong>+7 (812) 317-00-00</strong>
+      </a>
+
+      <a href="https://t.me/+79313170000" class="contact-item centered" target="_blank" rel="noopener noreferrer">
+        <span class="icon">💬</span>
+        <span>Написать в Telegram</span>
+      </a>
+      <a href="https://vk.ru/im?sel=-4260558" class="contact-item centered" target="_blank" rel="noopener noreferrer">
+        <span class="icon">💬</span>
+        <span>Написать в ВК</span>
+      </a>
+
+      <a href="https://max.ru/u/f9LHodD0cOKkL6aR10BHN4SkoegYivDxaG_CnRe4GAQ0dEkXG8mwkzaZs40" class="contact-item centered" target="_blank" rel="noopener noreferrer">
+        <span class="icon">💬</span>
+        <span>Написать в МАХ</span>
+      </a>
+    </div>
+<p class="notice">Ссылки для скачивания мобильного приложения:</p>
+    <div class="contacts-list">
+      <a href="https://clck.ru/33UMMQ" class="contact-item centered">
+        <span>AppStore</span>
+        
+      </a>
+
+      <a href="https://clck.ru/33UMPi" class="contact-item centered" target="_blank" rel="noopener noreferrer">
+        <span>GooglePlay</span>
+        
+      </a>
+
+      <a href="https://clck.ru/3QQAAg" class="contact-item centered" target="_blank" rel="noopener noreferrer">
+        <span>RuStore</span>
+        
+      </a>
+
+	<p class="notice">Все ранее оформленные заказы уже собираются и доставляются по графику.</p>
+    <p class="gratitude">Будем держать вас в курсе. Спасибо за ваше терпение и поддержку!</p>
+    </div>
+  </div>
+
+
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Core.Infrastructure;
 using Edo.Transport;
 using Gamma.ColumnConfig;
@@ -39,6 +39,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Employee;
@@ -69,6 +70,7 @@ namespace Vodovoz
 		private IOrderSaleHandler _saleHandler;
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
 		private IGenericRepository<FormalEdoRequest> _orderEdoRequestRepository;
+		private ITrueMarkRepository _trueMarkRepository;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher =
 			ScopeProvider.Scope.Resolve<IEdoRequestCreatedEventPublisher>();
@@ -142,6 +144,7 @@ namespace Vodovoz
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 			_orderEdoRequestRepository = _lifetimeScope.Resolve<IGenericRepository<FormalEdoRequest>>();
 			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
+			_trueMarkRepository = _lifetimeScope.Resolve<ITrueMarkRepository>();
 			_saleHandler = _lifetimeScope.Resolve<IOrderSaleHandler>();
 		}
 		
@@ -204,6 +207,7 @@ namespace Vodovoz
 			Entity.UpdateStockAmount(UoW, _stockRepository);
 			Entity.UpdateAlreadyUnloaded(UoW, _nomenclatureRepository, _bottlesRepository);
 			selfdeliverydocumentitemsview1.DocumentUoW = UoWGeneric;
+			selfdeliverydocumentitemsview1.SetTrueMarkRepository(_trueMarkRepository);
 			//bottlereceptionview1.UoW = UoW;
 			UpdateWidgets();
 			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
@@ -392,6 +396,19 @@ namespace Vodovoz
 				return false;
 			}
 
+			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
+			Entity.LastEditedTime = DateTime.Now;
+
+			if(Entity.LastEditorId == null)
+			{
+				MessageDialogHelper.RunErrorDialog(
+					"Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, " +
+					"так как некого указывать в качестве кладовщика.");
+				return false;
+			}
+
+			Entity.UpdateOperations(UoW);
+
 			var addingProductCodesResult = AddProductCodesAndCheckIsAllCodesAddedIfNeed();
 
 			if(addingProductCodesResult.IsFailure)
@@ -400,14 +417,6 @@ namespace Vodovoz
 				return false;
 			}
 
-			Entity.LastEditorId = _employeeRepository.GetEmployeeForCurrentUser(UoW)?.Id;
-			Entity.LastEditedTime = DateTime.Now;
-			if(Entity.LastEditorId == null) {
-				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
-				return false;
-			}
-
-			Entity.UpdateOperations(UoW);
 			Entity.UpdateReceptions(UoW, GoodsReceptionList, _nomenclatureRepository, _bottlesRepository);
 
 			var employeeSettings = _lifetimeScope.Resolve<IEmployeeSettings>();
@@ -507,9 +516,7 @@ namespace Vodovoz
 
 		private PrimaryEdoRequest CreateEdoRequest()
 		{
-			var codes = Entity.Items
-				.SelectMany(x => x.TrueMarkProductCodes)
-				.ToList();
+			var codes = _trueMarkRepository.GetSelfDeliveryDocumentItemsProductCodes(UoW, Entity.Items.Select(x => x.Id));
 
 			var edoRequest = new PrimaryEdoRequest
 			{

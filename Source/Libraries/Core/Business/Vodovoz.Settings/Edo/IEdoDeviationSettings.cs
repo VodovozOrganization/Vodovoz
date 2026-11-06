@@ -31,5 +31,8 @@ namespace Vodovoz.Settings.Edo
 		/// Дата, с которой отслеживается результат обработки кодов в ГИС МТ
 		/// </summary>
 		DateTime GisMtTrackingStartDate { get; }
+
+		/// <summary>Нижняя граница времени обнаружения отклонений для автоматической обработки. Пустое значение отключает действия.</summary>
+		DateTime? ProcessingStartDate { get; }
 	}
 }
