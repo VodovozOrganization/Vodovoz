@@ -6,16 +6,12 @@ using NHibernate.Event;
 using NHibernate.Persister.Collection;
 using NHibernate.Persister.Entity;
 using NHibernate.Type;
-using QS.DomainModel.Tracking;
 using QS.DomainModel.UoW;
-using QS.HistoryLog;
-using QS.Project.Repositories;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 
@@ -25,8 +21,6 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 		where TItem : class
 	{
 		private const int _maxParametersPerCommand = 65535;
-		private static readonly FieldInfo _postInsertListenersField =
-			typeof(SingleUowEventsTracker).GetField("postInsertListeners", BindingFlags.Instance | BindingFlags.NonPublic);
 
 		private readonly ICollection<TItem> _collection;
 		private readonly IPersistentCollection _persistentCollection;
@@ -37,7 +31,6 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 		private readonly int _batchSize;
 		private readonly object _key;
 		private readonly Dictionary<AbstractEntityPersister, InsertPlan> _plans = new Dictionary<AbstractEntityPersister, InsertPlan>();
-		private readonly HibernateTracker _historyTracker;
 		private HashSet<TItem> _existingItems;
 		private IList<TItem> _loadedNewItems;
 		private string _stage;
@@ -64,7 +57,6 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 			ParentLockMode = parentLockMode;
 			_newItems = newItems;
 			_batchSize = batchSize;
-			_historyTracker = FindHistoryTracker(uow);
 		}
 
 		public ISession Session { get; }
@@ -158,7 +150,6 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 				collection, persistentCollection, uow, collectionPersister, owner, key, parentLockMode, items, batchSize);
 
 			context.ValidateItems();
-			context.EnsureCurrentUserForHistory();
 			EnsureNoAmbientTransaction();
 
 			return context;
@@ -480,40 +471,6 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 
 				plan.ValidateItem(item, _key);
 			}
-		}
-
-		/// <summary>
-		/// Трекер истории этого UoW. Если его нет, история в приложении не включена, как и для обычного Save.
-		/// У <see cref="SingleUowEventsTracker"/> нет способа узнать подключенных слушателей
-		/// </summary>
-		private static HibernateTracker FindHistoryTracker(IUnitOfWork uow)
-		{
-			var eventsTracker = (uow as UnitOfWorkBase)?.EventsTracker;
-
-			if(eventsTracker == null)
-			{
-				return null;
-			}
-
-			var listeners = (IEnumerable<IUowPostInsertEventListener>)_postInsertListenersField.GetValue(eventsTracker);
-
-			return listeners.OfType<HibernateTracker>().FirstOrDefault();
-		}
-
-		/// <summary>
-		/// Трекер берет текущего пользователя уже после коммита строк, поэтому его отсутствие нужно обнаружить до записи
-		/// </summary>
-		private void EnsureCurrentUserForHistory()
-		{
-			if(_historyTracker == null
-				|| UserRepository.GetCurrentUserId != null
-				|| !_plans.Keys.Any(persister => HibernateTracker.NeedTrace(persister.MappedClass)))
-			{
-				return;
-			}
-
-			throw new InvalidOperationException(
-				"История изменений включена, но текущий пользователь не задан (UserRepository.GetCurrentUserId). Без него историю записать нельзя");
 		}
 
 		/// <summary>

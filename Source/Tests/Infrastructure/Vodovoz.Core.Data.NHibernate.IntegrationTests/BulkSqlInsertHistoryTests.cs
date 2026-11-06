@@ -768,11 +768,11 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// H-25. История включена, а текущий пользователь не задан: исключение до записи.
-		/// Иначе строки закоммитились бы, а трекер упал бы уже после коммита.
+		/// H-25. История включена, а текущий пользователь не задан: трекер QS падает на событиях PostInsert, ещё до коммита.
+		/// Метод закрывает UoW, строки не коммитятся и истории нет.
 		/// </summary>
 		[DatabaseTheory, BothModes]
-		public async Task BulkSqlInsert_WhenHistoryEnabledAndNoCurrentUser_ThrowsBeforeWrite(InsertMode mode)
+		public async Task BulkSqlInsert_WhenHistoryEnabledAndNoCurrentUser_ThrowsAndCommitsNothing(InsertMode mode)
 		{
 			var parentId = CreateParent();
 			var uow = NewUow();
@@ -780,19 +780,52 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 			var parent = uow.GetById<HistoryParent>(parentId);
 			var currentUser = UserRepository.GetCurrentUserId;
 			UserRepository.GetCurrentUserId = null;
-			SqlLog.Clear();
+			BulkSqlInsertException exception;
 
 			try
 			{
-				await Assert.ThrowsAsync<InvalidOperationException>(() => Insert(mode, parent.Items, uow, NewChildren(2)));
+				exception = await Assert.ThrowsAsync<BulkSqlInsertException>(() => Insert(mode, parent.Items, uow, NewChildren(2)));
 			}
 			finally
 			{
 				UserRepository.GetCurrentUserId = currentUser;
 			}
 
-			Assert.Equal(0, SqlLog.Writes());
-			Assert.True(uow.Session.GetCurrentTransaction()?.IsActive == true);
+			Assert.IsType<InvalidOperationException>(exception.InnerException);
+			Assert.False(uow.IsAlive);
+			AssertNothingWritten(parentId);
+			Assert.Equal(0, Count(ChangeSetsTable));
+		}
+
+		/// <summary>
+		/// H-25. Так же ведёт себя обычный Save: без текущего пользователя трекер QS падает до коммита, строка не коммитится.
+		/// </summary>
+		[DatabaseFact]
+		public void Save_WhenHistoryEnabledAndNoCurrentUser_ThrowsAndCommitsNothing()
+		{
+			var parentId = CreateParent();
+			var uow = NewUow();
+			var child = NewChild("обычный");
+			child.Parent = uow.GetById<HistoryParent>(parentId);
+			var currentUser = UserRepository.GetCurrentUserId;
+			UserRepository.GetCurrentUserId = null;
+
+			try
+			{
+				// С Native Id строка вставляется сразу при Save, поэтому трекер падает уже на нём, а не на Commit
+				Assert.Throws<InvalidOperationException>(() =>
+				{
+					uow.Save(child);
+					uow.Commit();
+				});
+			}
+			finally
+			{
+				UserRepository.GetCurrentUserId = currentUser;
+			}
+
+			AssertNothingWritten(parentId);
+			Assert.Equal(0, Count(ChangeSetsTable));
 		}
 
 		/// <summary>
