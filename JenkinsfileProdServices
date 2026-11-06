@@ -10,6 +10,7 @@ SDK_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet-sdk-docker"
 RUNTIME_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet-runtime-docker"
 DOCKER_REGISTRY_CREDENTIALS_ID = "docker-registry-credentials"
 REFERENCE_REPOSITORY_MOUNT_PATH = "/reference-repository"
+NUGET_PACKAGES_CACHE_VOLUME = "jenkins-nuget-packages-cache"
 CONTAINERS_PER_NODE = 2
 PIPELINE_CONTAINER_LABEL_KEY = "vodovoz.pipeline"
 PIPELINE_CONTAINER_CREATED_LABEL_KEY = "vodovoz.created_at_epoch"
@@ -164,12 +165,16 @@ try {
 									cid = sh(
 										script: """
 											docker run -d \
+											--network host \
 											--pull always \
 											--name ${containerName} \
 											--label ${PIPELINE_CONTAINER_LABEL_KEY}=${pipelineContainerLabel} \
 											--label ${PIPELINE_CONTAINER_CREATED_LABEL_KEY}=${containerCreatedAtEpoch} \
 											-v /var/run/docker.sock:/var/run/docker.sock \
 											-v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro \
+											-v ${NUGET_PACKAGES_CACHE_VOLUME}:/root/.nuget/packages \
+											-e NUGET_PACKAGES=/root/.nuget/packages \
+											-e NUGET_CERT_REVOCATION_MODE=offline \
 											-v ${workspaceDir}:/work \
 											-w /work \
 											${SDK_CONTAINER_IMAGE} \
@@ -227,7 +232,9 @@ try {
 
 											// Публикуем артефакты .NET и готовим Dockerfile рядом с output.
 											sh "docker exec ${cid} sh -c 'mkdir -p \"${publishDir}\"'"
-											sh "docker exec ${cid} sh -c 'dotnet publish \"${projectPath}\" -c Release -r linux-x64 --self-contained false -o \"${publishDir}\" /maxcpucount:${maxCpuCountPerContainer}'"
+											retry(3) {
+												sh "docker exec ${cid} sh -c 'dotnet publish \"${projectPath}\" -c Release -r linux-x64 --self-contained false -o \"${publishDir}\" /maxcpucount:${maxCpuCountPerContainer}'"
+											}
 
 											sh """
 												docker exec ${cid} sh -c 'cat > "${publishDir}/Dockerfile" <<EOF
