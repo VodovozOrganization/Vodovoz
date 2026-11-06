@@ -74,6 +74,9 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 			set => SetField(ref _kulerSaleWebSiteFreeRentPackageOnlineParameters, value);
 		}
 		
+		/// <summary>
+		/// Параметры для ИИ бота
+		/// </summary>
 		public FreeRentPackageOnlineParameters AiBotFreeRentPackageOnlineParameters
 		{
 			get => _aiBotFreeRentPackageOnlineParameters;
