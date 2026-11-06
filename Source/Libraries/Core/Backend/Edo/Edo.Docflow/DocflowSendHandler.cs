@@ -87,11 +87,13 @@ namespace Edo.Docflow
 				return;
 			}
 
-			var transferOrder = await _uow.Session.QueryOver<TransferOrder>()
-				.Where(x => x.Id == transferTask.TransferOrderId)
-				.SingleOrDefaultAsync(cancellationToken);
+			if(transferTask.Upd == null)
+			{
+				_logger.LogWarning("В задаче на трансфер Id {TransferTaskId} отсутствует сохранённый УПД", transferTask.Id);
+				return;
+			}
 
-			var updInfo = await _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(transferOrder, cancellationToken);
+			var updInfo = await _transferOrderUpdInfoFactory.CreateUniversalTransferDocumentInfo(transferTask, cancellationToken);
 
 			if(string.IsNullOrWhiteSpace(document.EdoAccount))
 			{
@@ -100,7 +102,7 @@ namespace Edo.Docflow
 
 			var message = new TaxcomDocflowSendEvent
 			{
-				EdoAccount = transferOrder.Seller.TaxcomEdoSettings?.EdoAccount,
+				EdoAccount = transferTask.Upd.Seller.EdoAccountId,
 				EdoOutgoingDocumentId = document.Id,
 				UpdInfo = updInfo,
 				EdoTaskId = transferTask.Id

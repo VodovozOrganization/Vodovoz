@@ -35,7 +35,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Номер созданного клиентом заказа
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5EE206A6AD2DB")]
+		[JsonPropertyName("UF_CRM_DEAL_5EE206A6AD2DB")]
 		public int? CreatedOrderId { get; set; }
 
 		/// <summary>
@@ -47,7 +47,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Дата доставки созданного клиентом заказа, заменяет в сделке дату планируемого заказа
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5ED7643476A24")]
+		[JsonPropertyName("UF_CRM_DEAL_5ED7643476A24")]
 		public string CreatedOrderDeliveryDateString =>
 			CreatedOrderDeliveryDate?.ToString("yyyy-MM-dd");
 	}

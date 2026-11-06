@@ -904,6 +904,7 @@ namespace Vodovoz.Representations
 			Order orderFromAnotherDPAlias = null;
 			Email emailAlias = null;
 			Phone phoneAlias = null;
+			Employee salesManagerAlias = null;
 			NomenclatureFixedPrice nomenclatureFixedPriceAlias = null;
 
 			int hideSuspendedCounterpartyId = _debtorsParameters.GetSuspendedCounterpartyId;
@@ -1007,6 +1008,16 @@ namespace Vodovoz.Representations
 			var emailSubquery = QueryOver.Of(() => emailAlias)
 				.Where(() => emailAlias.Counterparty.Id == orderAlias.Client.Id)
 				.Select(CustomProjections.GroupConcat(() => emailAlias.Address, separator: ";\n"));
+
+			var salesManagerNameProjection = Projections.Conditional(
+				Restrictions.IsNotNull(Projections.Property(() => salesManagerAlias.LastName)),
+				Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1, ' ', ?2, ' ', ?3)"),
+					NHibernateUtil.String,
+					Projections.Property(() => salesManagerAlias.LastName),
+					Projections.Property(() => salesManagerAlias.Name),
+					Projections.Property(() => salesManagerAlias.Patronymic)),
+				Projections.Constant(string.Empty));
 
 			#region LastOrder
 
@@ -1277,6 +1288,7 @@ namespace Vodovoz.Representations
 			var resultQuery = ordersQuery
 				.Left.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => counterpartyAlias.SalesManager, () => salesManagerAlias)
 				.Left.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias)
 				.SelectList(list => list
 					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.ClientId)
@@ -1297,6 +1309,7 @@ namespace Vodovoz.Representations
 					.Select(phoneProjection).WithAlias(() => resultAlias.Phones)
 					.SelectSubQuery(emailSubquery).WithAlias(() => resultAlias.Emails)
 					.Select(fixedPriceProjection).WithAlias(() => resultAlias.FixPrice)
+					.Select(salesManagerNameProjection).WithAlias(() => resultAlias.SalesManagerName)
 				)
 				.SetTimeout(300)
 				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
