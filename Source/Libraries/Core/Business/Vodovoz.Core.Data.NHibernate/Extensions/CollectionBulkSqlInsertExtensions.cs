@@ -26,7 +26,9 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 	/// <para>Транзакция:</para>
 	/// <list type="bullet">
 	/// <item>если у UoW нет открытой транзакции, метод открывает ее через <see cref="IUnitOfWork.OpenTransaction"/>. Строки без транзакции не вставляются никогда;</item>
-	/// <item>транзакция, открытая в обход UoW (на сессии, на соединении или TransactionScope), дает <see cref="InvalidOperationException"/>:
+	/// <item>транзакция, открытая на сессии через session.BeginTransaction(), допустима: UoW получает от NHibernate ту же транзакцию,
+	/// и uow.Commit() ее коммитит;</item>
+	/// <item>транзакция, открытая в обход NHibernate (на соединении или TransactionScope), дает <see cref="InvalidOperationException"/>:
 	/// uow.Commit() такую транзакцию не закоммитит;</item>
 	/// <item>метод сам не коммитит. Строки видны другим сессиям только после общего uow.Commit().</item>
 	/// </list>

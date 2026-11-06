@@ -288,22 +288,45 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// G-10. Транзакция открыта на сессии в обход UoW: uow.Commit() её не закоммитит, и вставка молча пропала бы.
+		/// G-10. Транзакция открыта на сессии в обход UoW: метод вставляет в неё же, а uow.Commit() коммитит строки.
 		/// </summary>
 		[DatabaseTheory, BothModes]
-		public async Task BulkSqlInsert_WhenTransactionBypassesUow_ThrowsInvalidOperationException(InsertMode mode)
+		public async Task BulkSqlInsert_WhenTransactionOpenedOnSession_UowCommitsRows(InsertMode mode)
 		{
 			var parentId = CreateParent();
 			var uow = NewUow();
 			var parent = uow.GetById<BulkParent>(parentId);
 			_ = parent.Items.Count;
-			uow.Session.BeginTransaction();
-			var items = NewChildren(2);
-			var state = Snapshot(uow, parent.Items, items, ChildrenTable, parentId);
+			var sessionTransaction = uow.Session.BeginTransaction();
 
-			await Assert.ThrowsAsync<InvalidOperationException>(() => Insert(mode, parent.Items, uow, items));
+			await Insert(mode, parent.Items, uow, NewChildren(2));
 
-			state.AssertNothingChanged();
+			Assert.Same(sessionTransaction, uow.Session.GetCurrentTransaction());
+			Assert.Equal(0, CountChildren(parentId));
+
+			uow.Commit();
+
+			Assert.True(sessionTransaction.WasCommitted);
+			Assert.Equal(2, CountChildren(parentId));
+		}
+
+		/// <summary>
+		/// G-11. Транзакция открыта на сессии в обход UoW: NHibernate отдаёт UoW ту же транзакцию, и uow.Commit() её коммитит.
+		/// </summary>
+		[DatabaseFact]
+		public void Save_WhenTransactionOpenedOnSession_UowCommitsSameTransaction()
+		{
+			var uow = NewUow();
+			var sessionTransaction = uow.Session.BeginTransaction();
+
+			uow.Save(new BulkParent { Code = 100, Name = "через сессию" });
+
+			Assert.Same(sessionTransaction, uow.Session.GetCurrentTransaction());
+
+			uow.Commit();
+
+			Assert.True(sessionTransaction.WasCommitted);
+			Assert.Equal(1, Database.Count("bulk_parents", "name = 'через сессию'"));
 		}
 
 		private static long ServerConnections(MySqlConnector.MySqlConnection monitor) =>

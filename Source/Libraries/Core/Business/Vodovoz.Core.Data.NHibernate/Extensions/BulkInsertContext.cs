@@ -25,8 +25,6 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 		where TItem : class
 	{
 		private const int _maxParametersPerCommand = 65535;
-		private static readonly PropertyInfo _uowTransactionProperty =
-			typeof(UnitOfWorkBase).GetProperty("transaction", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo _postInsertListenersField =
 			typeof(SingleUowEventsTracker).GetField("postInsertListeners", BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -161,7 +159,7 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 
 			context.ValidateItems();
 			context.EnsureCurrentUserForHistory();
-			context.EnsureNoForeignTransaction();
+			EnsureNoAmbientTransaction();
 
 			return context;
 		}
@@ -519,28 +517,15 @@ namespace Vodovoz.Core.Data.NHibernate.Extensions
 		}
 
 		/// <summary>
-		/// Транзакция должна быть транзакцией UoW или ее должен открыть сам UoW: иначе uow.Commit() ее не закоммитит
+		/// Вставка должна идти в транзакции UoW. Транзакцию, открытую на сессии, UoW подхватывает сам:
+		/// NHibernate отдает ему ту же транзакцию, и uow.Commit() ее коммитит. TransactionScope UoW не коммитит
 		/// </summary>
-		private void EnsureNoForeignTransaction()
+		private static void EnsureNoAmbientTransaction()
 		{
 			if(System.Transactions.Transaction.Current != null)
 			{
 				throw new InvalidOperationException(
 					"Массовая вставка не работает внутри TransactionScope: вставка должна идти в транзакции UoW");
-			}
-
-			var sessionTransaction = Session.GetCurrentTransaction();
-
-			if(sessionTransaction?.IsActive != true || !(_uow is UnitOfWorkBase))
-			{
-				return;
-			}
-
-			// У IUnitOfWork нет способа узнать его транзакцию, а без этой проверки вставка молча пропадет при Dispose
-			if(!ReferenceEquals(_uowTransactionProperty.GetValue(_uow), sessionTransaction))
-			{
-				throw new InvalidOperationException(
-					"Транзакция сессии открыта в обход UoW, uow.Commit() ее не закоммитит. Откройте транзакцию через UoW");
 			}
 		}
 
