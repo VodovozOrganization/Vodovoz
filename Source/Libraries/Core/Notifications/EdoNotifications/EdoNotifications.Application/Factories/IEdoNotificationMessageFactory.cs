@@ -18,5 +18,12 @@ namespace EdoNotifications.Application.Factories
 		/// <param name="templateParams">Параметры шаблона в виде пар ключ-значение</param>
 		EdoNotificationMessage Create<TSetting>(params (string Key, string Value)[] templateParams)
 			where TSetting : EdoNotificationSetting;
+
+		/// <summary>
+		/// Создает ЭДО-уведомление по типу уведомления. Используется для уведомлений,
+		/// у которых нет отдельного класса настройки.
+		/// </summary>
+		EdoNotificationMessage Create(EdoNotificationType notificationType,
+			params (string Key, string Value)[] templateParams);
 	}
 }

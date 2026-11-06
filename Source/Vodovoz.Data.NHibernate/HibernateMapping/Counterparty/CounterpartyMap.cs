@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
