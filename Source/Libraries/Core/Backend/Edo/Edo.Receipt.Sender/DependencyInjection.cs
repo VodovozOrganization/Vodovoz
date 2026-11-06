@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Edo.Admin;
 using Edo.Common;
 using Edo.Problems;

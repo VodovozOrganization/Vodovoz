@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -102,7 +102,7 @@ namespace Vodovoz.Core.Domain.Rules.Edo
 			return deliveryDate.Value >= GetCheckingDate();
 		}
 
-		private DateTime GetCheckingDate()
+		public virtual DateTime GetCheckingDate()
 		{
 			var today = DateTime.Today;
 			var accountingClosingDates = _accountingSettings.GetAccountingPeriodClosingDates();

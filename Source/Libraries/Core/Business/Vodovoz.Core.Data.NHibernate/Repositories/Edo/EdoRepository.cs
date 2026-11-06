@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
@@ -71,6 +71,40 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 						&& x.StatusChangeTime >= statusChangedNotBefore
 						&& (x.LastQueueNotificationTime == null || x.LastQueueNotificationTime <= notifiedNotAfter)))
 				.Select(x => x.Id)
+				.ListAsync<int>(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public Task<IList<int>> GetFailedFiscalDocumentIdsForReprocessing(
+			IUnitOfWork uow,
+			DateTime statusChangedBefore,
+			DateTime statusChangedNotBefore,
+			CancellationToken cancellationToken)
+		{
+			ReceiptEdoTask taskAlias = null;
+			FormalEdoRequest formalRequestAlias = null;
+			OrderEntity orderAlias = null;
+			EdoFiscalDocument edoFiscalDocument = null;
+
+			var checkingDate = _canProcessOrSendEdo.GetCheckingDate();
+			var minDate = checkingDate > statusChangedNotBefore.Date ? checkingDate : statusChangedNotBefore.Date;
+
+			return uow.Session.QueryOver(() => edoFiscalDocument)
+				.JoinAlias(x => x.ReceiptEdoTask, () => taskAlias)
+				.Left.JoinAlias(() => taskAlias.FormalEdoRequest, () => formalRequestAlias)
+				.Left.JoinAlias(() => formalRequestAlias.Order, () => orderAlias)
+				.Where(() => edoFiscalDocument.Status == FiscalDocumentStatus.Failed)
+				.And(() => (edoFiscalDocument.StatusChangeTime <= statusChangedBefore && edoFiscalDocument.StatusChangeTime >= statusChangedNotBefore)
+					|| (edoFiscalDocument.StatusChangeTime == null && edoFiscalDocument.CreationTime <= statusChangedBefore && edoFiscalDocument.CreationTime >= statusChangedNotBefore))
+				.And(() => edoFiscalDocument.CheckoutTime >= statusChangedNotBefore)
+				.And(() => taskAlias.Status != EdoTaskStatus.Completed)
+				.And(() => taskAlias.Status != EdoTaskStatus.Cancelled)
+				.And(Restrictions.Disjunction()
+					.Add(Restrictions.Where(() => orderAlias.DeliveryDate >= minDate))
+					.Add(Restrictions.And(
+						Restrictions.IsNull(Projections.Property(() => orderAlias.DeliveryDate)),
+						Restrictions.Where(() => edoFiscalDocument.CheckoutTime >= minDate))))
+				.Select(Projections.Property(() => edoFiscalDocument.Id))
 				.ListAsync<int>(cancellationToken);
 		}
 

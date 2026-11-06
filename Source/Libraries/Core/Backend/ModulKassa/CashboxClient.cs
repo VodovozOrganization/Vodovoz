@@ -28,6 +28,8 @@ namespace ModulKassa
 		/// </summary>
 		public string RetailPointName { get; }
 
+		protected CashboxClient() { }
+
 		public CashboxClient(ILogger<CashboxClient> logger, CashboxSetting setting)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -117,7 +119,7 @@ namespace ModulKassa
 			}
 		}
 
-		public async Task<FiscalizationResult> SendFiscalDocument(FiscalDocument doc, CancellationToken cancellationToken)
+		public virtual async Task<FiscalizationResult> SendFiscalDocument(FiscalDocument doc, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -156,7 +158,7 @@ namespace ModulKassa
 			return await CheckFiscalDocument(doc.Id, cancellationToken);
 		}
 
-		public async Task<FiscalizationResult> CheckFiscalDocument(string fiscalDocumentId, CancellationToken cancellationToken)
+		public virtual async Task<FiscalizationResult> CheckFiscalDocument(string fiscalDocumentId, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -186,7 +188,7 @@ namespace ModulKassa
 			}
 		}
 
-		public async Task<FiscalizationResult> RequeueFiscalDocument(string fiscalDocumentId, CancellationToken cancellationToken)
+		public virtual async Task<FiscalizationResult> RequeueFiscalDocument(string fiscalDocumentId, CancellationToken cancellationToken)
 		{
 			try
 			{

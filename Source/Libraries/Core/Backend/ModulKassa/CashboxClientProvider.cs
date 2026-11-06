@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -15,6 +15,8 @@ namespace ModulKassa
 		private readonly IDisposable _settingsMonitorListener;
 
 		private Dictionary<int, CashboxClientContainer> _cashboxes = new Dictionary<int, CashboxClientContainer>();
+
+		protected CashboxClientProvider() { }
 
 		public CashboxClientProvider(
 			ILoggerFactory loggerFactory,
@@ -73,7 +75,7 @@ namespace ModulKassa
 
 
 
-		public async Task<CashboxClient> GetCashboxAsync(int cashboxId, CancellationToken cancellationToken)
+		public virtual async Task<CashboxClient> GetCashboxAsync(int cashboxId, CancellationToken cancellationToken)
 		{
 			if(!_cashboxes.TryGetValue(cashboxId, out CashboxClientContainer cashboxContainer))
 			{
