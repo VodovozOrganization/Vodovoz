@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using System;
 using Vodovoz.Settings.Database.Mindbox;
 
@@ -16,7 +16,7 @@ namespace Mindbox.Library.Services
 		{
 			_settings = settings ?? throw new ArgumentNullException(nameof(settings));
 			EndpointName = "mindbox-counterparty-send";
-			ConcurrentMessageLimit = 4;
+			ConcurrentMessageLimit = 10;
 		}
 
 		protected override void ConfigureConsumer(
