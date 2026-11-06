@@ -14,6 +14,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
+using VodovozBusiness.Domain.Goods.Rent;
 
 namespace Vodovoz.ViewModels.ViewModels.Rent
 {
@@ -23,6 +24,7 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		private FreeRentPackageOnlineParameters _kulerSaleWebSiteFreeRentPackageOnlineParameters;
 		private FreeRentPackageOnlineParameters _vodovozWebSiteFreeRentPackageOnlineParameters;
 		private FreeRentPackageOnlineParameters _mobileAppFreeRentPackageOnlineParameters;
+		private FreeRentPackageOnlineParameters _aiBotFreeRentPackageOnlineParameters;
 		private ILifetimeScope _lifetimeScope;
 		private int _currentPage;
 		private bool _informationTabActive;
@@ -70,6 +72,12 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 		{
 			get => _kulerSaleWebSiteFreeRentPackageOnlineParameters;
 			set => SetField(ref _kulerSaleWebSiteFreeRentPackageOnlineParameters, value);
+		}
+		
+		public FreeRentPackageOnlineParameters AiBotFreeRentPackageOnlineParameters
+		{
+			get => _aiBotFreeRentPackageOnlineParameters;
+			set => SetField(ref _aiBotFreeRentPackageOnlineParameters, value);
 		}
 
 		public bool InformationTabActive
@@ -126,6 +134,7 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 			MobileAppFreeRentPackageOnlineParameters = GetPackageOnlineParameters(GoodsOnlineParameterType.ForMobileApp);
 			VodovozWebSiteFreeRentPackageOnlineParameters = GetPackageOnlineParameters(GoodsOnlineParameterType.ForVodovozWebSite);
 			KulerSaleWebSiteFreeRentPackageOnlineParameters = GetPackageOnlineParameters(GoodsOnlineParameterType.ForKulerSaleWebSite);
+			AiBotFreeRentPackageOnlineParameters = GetPackageOnlineParameters(GoodsOnlineParameterType.ForAiBot);
 		}
 
 		private FreeRentPackageOnlineParameters GetPackageOnlineParameters(GoodsOnlineParameterType parameterType)
@@ -148,6 +157,9 @@ namespace Vodovoz.ViewModels.ViewModels.Rent
 					break;
 				case GoodsOnlineParameterType.ForKulerSaleWebSite:
 					parameters = new KulerSaleWebSiteFreeRentPackageOnlineParameters();
+					break;
+				case GoodsOnlineParameterType.ForAiBot:
+					parameters = new AiBotFreeRentPackageOnlineParameters();
 					break;
 			}
 
