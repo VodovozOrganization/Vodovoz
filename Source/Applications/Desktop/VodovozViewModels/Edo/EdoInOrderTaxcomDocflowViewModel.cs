@@ -17,6 +17,7 @@ namespace Vodovoz.ViewModels.Edo
 			LastUpdateTime = docflowNode.LastTaxcomStatusUpdateTime?.ToString("dd.MM.yyyy HH:mm");
 			TrueMarkTraceabilityStatus = docflowNode.TaxcomTraceabilityStatus?.GetEnumTitle();
 			ErrorMessage = docflowNode.TaxcomErrorMessage;
+			EdoAccount = docflowNode.EdoAccount;
 		}
 
 		public EdoInOrderTaxcomDocflowNode DocflowNode { get; }
@@ -27,5 +28,6 @@ namespace Vodovoz.ViewModels.Edo
 		public string LastUpdateTime{ get; set; }
 		public string TrueMarkTraceabilityStatus { get; set; }
 		public string ErrorMessage { get; set; }
+		public string EdoAccount { get; set; }
 	}
 }

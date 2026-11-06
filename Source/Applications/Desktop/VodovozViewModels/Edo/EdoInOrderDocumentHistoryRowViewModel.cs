@@ -58,6 +58,8 @@ namespace Vodovoz.ViewModels.Edo
 
 		public virtual string CancellationReason { get; }
 
+		public virtual string EdoAccount => Document.EdoAccount;
+
 		private int? GetCodesQuantity()
 		{
 			var primaryDocuments = new[]

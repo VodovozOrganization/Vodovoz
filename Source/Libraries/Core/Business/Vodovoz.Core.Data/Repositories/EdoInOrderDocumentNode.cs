@@ -54,5 +54,10 @@ namespace Vodovoz.Core.Data.Repositories
 		/// Причина отмены
 		/// </summary>
 		public string CancellationReason { get; set; }
+
+		/// <summary>
+		/// ЭДО-аккаунт, через который отправлен документ
+		/// </summary>
+		public string EdoAccount { get; set; }
 	}
 }
