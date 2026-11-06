@@ -51,8 +51,8 @@ namespace Transfer.Sender.Tests
 				.Returns(new DocumentOrganizationCounter { Counter = 7 });
 
 			var organizationRepository = Substitute.For<IOrganizationRepository>();
-			organizationRepository.GetOrganizationByIdAsync(seller.Id).Returns(seller);
-			organizationRepository.GetOrganizationByIdAsync(customer.Id).Returns(customer);
+			organizationRepository.GetOrganizationByIdAsync(uow, seller.Id, Arg.Any<CancellationToken>()).Returns(seller);
+			organizationRepository.GetOrganizationByIdAsync(uow, customer.Id, Arg.Any<CancellationToken>()).Returns(customer);
 
 			var preparer = new TransferOrderHeaderPreparer(
 				uow,

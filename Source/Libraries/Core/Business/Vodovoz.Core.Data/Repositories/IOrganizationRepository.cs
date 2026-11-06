@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Core.Data.Repositories
@@ -22,10 +24,13 @@ namespace Vodovoz.Core.Data.Repositories
 		OrganizationEntity GetOrganizationById(int id);
 		
 		/// <summary>
-		/// Получить организацию по ID асинхронно
+		/// Получить организацию по ID в сессии переданного UoW.
+		/// Ленивые поля организации доступны, пока этот UoW открыт
 		/// </summary>
+		/// <param name="uow">UoW, в сессии которого загружается организация</param>
 		/// <param name="id">ID</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Организация</returns>
-		Task<OrganizationEntity> GetOrganizationByIdAsync(int id);
+		Task<OrganizationEntity> GetOrganizationByIdAsync(IUnitOfWork uow, int id, CancellationToken cancellationToken);
 	}
 }
