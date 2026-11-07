@@ -79,6 +79,7 @@ namespace CustomerAppsApi
 				.AddHttpClient()
 				.AddVersion1()
 				.AddVersion2()
+				.AddVersion3()
 				.AddVersioning()
 				.AddSwaggerGen(opt =>
 					opt.CustomSchemaIds(type => type.FullName))
