@@ -26,6 +26,9 @@ namespace Vodovoz
 	[HistoryTrace]
 	public class Subdivision : SubdivisionEntity, IValidatableObject, IArchivable
 	{
+		private const int _maxNameLength = 45;
+		private const int _maxShortNameLength = 45;
+
 		private SalesPlan _defaultSalesPlan;
 		private Employee _chief;
 		private Subdivision _parentSubdivision;
@@ -230,6 +233,13 @@ namespace Vodovoz
 					new[] { this.GetPropertyName(o => o.Name) });
 			}
 
+			if(Name?.Length > _maxNameLength)
+			{
+				yield return new ValidationResult(
+					$"Название подразделения не может превышать {_maxNameLength} символов",
+					new[] { this.GetPropertyName(o => o.Name) });
+			}
+
 			if(ParentSubdivision != null && ParentSubdivision.IsChildOf(this))
 			{
 				yield return new ValidationResult(
@@ -253,9 +263,11 @@ namespace Vodovoz
 				);
 			}
 
-			if(ShortName?.Length > 20)
+			if(ShortName?.Length > _maxShortNameLength)
 			{
-				yield return new ValidationResult("Сокращенное наименование не может превышать 20 символов");
+				yield return new ValidationResult(
+					$"Сокращенное наименование не может превышать {_maxShortNameLength} символов",
+					new[] { this.GetPropertyName(o => o.ShortName) });
 			}
 		}
 

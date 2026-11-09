@@ -9,12 +9,13 @@ namespace VodovozBusinessTests.Domain.Subdivisions
 	[TestFixture(TestOf = typeof(Subdivision))]
 	public class SubdivisionTests
 	{
-		private const string _cfoParentError = "У ЦФО не может быть вышестоящего подразделения.";
-		private const string _departmentParentError = "Укажите вышестоящее подразделение уровня «ЦФО» для отдела.";
-		private const string _sectorParentError = "Укажите вышестоящее подразделение уровня «Отдел» для сектора.";
+		private const string _cfoParentError = "У ЦФО не может быть вышестоящего подразделения";
+		private const string _departmentParentError = "Укажите вышестоящее подразделение уровня \"ЦФО\" для отдела";
+		private const string _sectorParentError = "Укажите вышестоящее подразделение уровня \"Отдел\" для сектора";
 		private const string _emptyNameError = "Название подразделения должно быть заполнено.";
 		private const string _shortNameNotSetError = "Укажите сокращённое название отдела.";
-		private const string _shortNameLengthError = "Сокращенное наименование не может превышать 20 символов";
+		private const string _nameLengthError = "Название подразделения не может превышать 45 символов";
+		private const string _shortNameLengthError = "Сокращенное наименование не может превышать 45 символов";
 
 		#region Test cases
 
@@ -90,11 +91,11 @@ namespace VodovozBusinessTests.Domain.Subdivisions
 			Assert.That(errors, Is.EqualTo(new[] { _shortNameNotSetError }));
 		}
 
-		[Test(Description = "Если краткое наименование не длиннее 20 символов, то ошибок нет")]
+		[Test(Description = "Если краткое наименование не длиннее 45 символов, то ошибок нет")]
 		[TestCase(0)]
-		[TestCase(19)]
-		[TestCase(20)]
-		public void Validate_ShortNameUpTo20Chars_NoErrors(int length)
+		[TestCase(44)]
+		[TestCase(45)]
+		public void Validate_ShortNameUpToMaxLength_NoErrors(int length)
 		{
 			//arrange
 			var subdivision = CreateValidDepartment();
@@ -105,16 +106,42 @@ namespace VodovozBusinessTests.Domain.Subdivisions
 			Assert.That(errors, Is.Empty);
 		}
 
-		[Test(Description = "Если краткое наименование длиннее 20 символов, то ошибка длины")]
-		public void Validate_ShortNameLongerThan20Chars_ReturnsLengthError()
+		[Test(Description = "Если краткое наименование длиннее 45 символов, то ошибка длины")]
+		public void Validate_ShortNameLongerThanMaxLength_ReturnsLengthError()
 		{
 			//arrange
 			var subdivision = CreateValidDepartment();
-			subdivision.ShortName = new string('а', 21);
+			subdivision.ShortName = new string('а', 46);
 			//act
 			var errors = GetErrors(subdivision);
 			//assert
 			Assert.That(errors, Is.EqualTo(new[] { _shortNameLengthError }));
+		}
+
+		[Test(Description = "Если название не длиннее 45 символов, то ошибок нет")]
+		[TestCase(44)]
+		[TestCase(45)]
+		public void Validate_NameUpToMaxLength_NoErrors(int length)
+		{
+			//arrange
+			var subdivision = CreateValidDepartment();
+			subdivision.Name = new string('а', length);
+			//act
+			var errors = GetErrors(subdivision);
+			//assert
+			Assert.That(errors, Is.Empty);
+		}
+
+		[Test(Description = "Если название длиннее 45 символов, то ошибка длины")]
+		public void Validate_NameLongerThanMaxLength_ReturnsLengthError()
+		{
+			//arrange
+			var subdivision = CreateValidDepartment();
+			subdivision.Name = new string('а', 46);
+			//act
+			var errors = GetErrors(subdivision);
+			//assert
+			Assert.That(errors, Is.EqualTo(new[] { _nameLengthError }));
 		}
 
 		#endregion Test cases
