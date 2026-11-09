@@ -10,6 +10,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
 using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
@@ -65,7 +66,7 @@ namespace Vodovoz.ViewModels.Organizations
 				() => CanEdit
 			);
 			
-			RegexForEmailForMailing = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(vodovoz-spb\.ru|kuler-service\.ru)\z";
+			RegexForEmailForMailing = OrganizationEntity.EmailRegexPattern;
 		}
 
 		public OrganizationVersionsViewModel OrganizationVersionsViewModel { get; }
