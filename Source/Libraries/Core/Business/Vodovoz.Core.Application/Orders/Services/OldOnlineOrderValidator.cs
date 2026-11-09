@@ -2,6 +2,7 @@
 using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
@@ -21,7 +22,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IFreeLoaderChecker freeLoaderChecker,
 			IOrderOrganizationManager orderOrganizationManager,
 			IOrderSettings orderSettings,
-			IOrderRepository orderRepository
+			IOrderRepository orderRepository,
+			IDeliveryRulesSettings deliveryRulesSettings
 			)
 			: base(
 				goodsPriceCalculator,
@@ -32,7 +34,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				freeLoaderChecker,
 				orderOrganizationManager,
 				orderSettings,
-				orderRepository)
+				orderRepository,
+				deliveryRulesSettings)
 		{
 		}
 	}

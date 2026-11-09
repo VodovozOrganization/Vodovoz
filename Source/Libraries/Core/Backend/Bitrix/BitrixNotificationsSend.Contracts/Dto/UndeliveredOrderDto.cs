@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
 
 namespace BitrixNotificationsSend.Contracts.Dto
@@ -9,16 +9,16 @@ namespace BitrixNotificationsSend.Contracts.Dto
 	public class UndeliveredOrderDto
 	{
 		/// <summary>
-		/// Id воронки "ЛО: Спасение недовозов".
+		/// Id воронки "ЛО: Спасение недовозов"
 		/// </summary>
 		[JsonPropertyName("CATEGORY_ID")]
-		public int CategoryId => 325;
+		public int CategoryId => 56;
 
 		/// <summary>
 		/// Начальная стадия сделки в воронке.
 		/// </summary>
 		[JsonPropertyName("STAGE_ID")]
-		public string StageId => "C325:NEW";
+		public string StageId => "C56:NEW";
 
 		/// <summary>
 		/// Название сделки.
@@ -53,7 +53,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Номер заказа для Битрикс24.
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1590590364997")]
+		[JsonPropertyName("UF_CRM_DEAL_1590590364997")]
 		public int? OrderIdValue =>
 			int.TryParse(OrderId, out var orderId)
 				? (int?)orderId
@@ -62,13 +62,13 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Наименование клиента.
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1662373256")]
+		[JsonPropertyName("UF_CRM_DEAL_1662373256")]
 		public string CounterpartyName { get; set; }
 
 		/// <summary>
 		/// Адрес доставки.
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5E006F6809EDF")]
+		[JsonPropertyName("UF_CRM_DEAL_5E006F6809EDF")]
 		public string DeliveryAddress { get; set; }
 
 		/// <summary>
@@ -80,44 +80,44 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Дата заказа для Битрикс24.
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5ED7643476A24")]
+		[JsonPropertyName("UF_CRM_DEAL_5ED7643476A24")]
 		public string DeliveryDateString =>
 			DeliveryDate?.ToString("yyyy-MM-dd");
 
 		/// <summary>
 		/// Интервал доставки.
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1618414046622")]
+		[JsonPropertyName("UF_CRM_DEAL_1618414046622")]
 		public string DeliveryInterval { get; set; }
 
 		/// <summary>
 		/// ФИО водителя.
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1666873517")]
+		[JsonPropertyName("UF_CRM_DEAL_1666873517")]
 		public string DriverName { get; set; }
 
 		/// <summary>
 		/// Маршрутный лист.
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1652267372594")]
+		[JsonPropertyName("UF_CRM_DEAL_1652267372594")]
 		public string RouteListId { get; set; }
 
 		/// <summary>
 		/// Вид недовоза.
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1781877313207")]
+		[JsonPropertyName("UF_CRM_DEAL_1781877313207")]
 		public string TypeOfUndelivery { get; set; }
 
 		/// <summary>
 		/// Детализация недовоза.
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1781877804915")]
+		[JsonPropertyName("UF_CRM_DEAL_1781877804915")]
 		public string SpecificationOfUndelivery { get; set; }
 
 		/// <summary>
 		/// Комментарий о причине недовоза.
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5F524065B5DF9")]
+		[JsonPropertyName("UF_CRM_DEAL_5F524065B5DF9")]
 		public string Comment { get; set; }
 
 		/// <summary>
@@ -129,7 +129,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Номер нового заказа для Битрикс24.
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5EE206A6AD2DB")]
+		[JsonPropertyName("UF_CRM_DEAL_5EE206A6AD2DB")]
 		public int? NewOrderIdValue =>
 			int.TryParse(NewOrderId, out var newOrderId)
 				? (int?)newOrderId

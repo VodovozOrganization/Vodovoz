@@ -349,9 +349,10 @@ namespace CustomerOrdersApi.Library.V7.Services
 					return Result.Success<(Order, OnlineOrder)>((null, onlineOrder));
 				}
 
-				_logger.LogWarning("Онлайн заказ {OnlineOrderId} имеет тип оплаты PaidOnline, но не связан с активным заказом",
+				_logger.LogInformation(
+					"Онлайн заказ {OnlineOrderId} имеет тип оплаты PaidOnline, но не связан с активным заказом",
 					onlineOrderId.Value);
-				return Result.Failure<(Order, OnlineOrder)>(OnlineOrderErrors.IsOnlineOrderDoesNotHaveALinkedOrder);
+				return Result.Success<(Order, OnlineOrder)>((null, onlineOrder));
 			}
 
 			return Result.Failure<(Order, OnlineOrder)>(OrderErrors.NotFound);
