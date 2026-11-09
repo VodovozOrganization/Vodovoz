@@ -49,9 +49,8 @@ namespace Edo.Transfer.Sender
 				throw new InvalidOperationException("Невозможно определить дату УПД трансфера: у связанных заказов отсутствует дата доставки.");
 			}
 
-			// Организации нужны в сессии задачи: при формировании УПД читаются их ленивые поля
-			var seller = await _organizationRepository.GetOrganizationByIdAsync(_uow, transferEdoTask.FromOrganizationId, cancellationToken);
-			var customer = await _organizationRepository.GetOrganizationByIdAsync(_uow, transferEdoTask.ToOrganizationId, cancellationToken);
+			var seller = _uow.GetById<OrganizationEntity>(transferEdoTask.FromOrganizationId);
+			var customer = _uow.GetById<OrganizationEntity>(transferEdoTask.ToOrganizationId);
 			var transferDocumentCounter = await CreateDocumentOrganizationCounterAsync(transferDate.Value, seller, cancellationToken);
 
 			return TransferOrder.Create(transferDate.Value, seller, customer, transferDocumentCounter);
