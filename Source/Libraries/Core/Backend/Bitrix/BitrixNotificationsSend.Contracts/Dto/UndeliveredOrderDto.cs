@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
 
 namespace BitrixNotificationsSend.Contracts.Dto
@@ -9,7 +9,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 	public class UndeliveredOrderDto
 	{
 		/// <summary>
-		/// Id воронки "Недовозы"
+		/// Id воронки "ЛО: Спасение недовозов"
 		/// </summary>
 		[JsonPropertyName("CATEGORY_ID")]
 		public int CategoryId => 56;
