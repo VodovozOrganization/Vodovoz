@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using NHibernate.Linq;
 using Notifications.Core;
 using QS.DomainModel.UoW;
@@ -63,7 +63,7 @@ namespace Notifications.Infrastructure
 				return false;
 			}
 
-			var message = await _messageBuilder.BuildAsync(domainEvent, cancellationToken);
+			var message = await _messageBuilder.BuildAsync(unitOfWork, domainEvent, cancellationToken);
 
 			if(message == null)
 			{
