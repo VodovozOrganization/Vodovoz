@@ -19,6 +19,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Edo.Deviations;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -67,7 +68,9 @@ namespace Vodovoz.JournalColumnsConfigs
 			TreeViewColumnsConfigFactory.Register<SubdivisionsJournalViewModel>(
 				(vm) => FluentColumnsConfig<SubdivisionJournalNode>.Create()
 					.SetTreeModel(() => new RecursiveTreeModel<SubdivisionJournalNode>(vm.Items.Cast<SubdivisionJournalNode>(), vm.RecuresiveConfig))
-					.AddColumn("Название").AddTextRenderer(node => node.Name).AddSetter((cell, node) =>
+					.AddColumn("Название")
+						.AddPixbufRenderer(node => node.Level == SubdivisionLevel.Sector ? _emptyImg : _folderImg)
+						.AddTextRenderer(node => node.Name).AddSetter((cell, node) =>
 					{
 						var color = GdkColors.PrimaryText;
 						if(node.IsArchive)
@@ -88,6 +91,16 @@ namespace Vodovoz.JournalColumnsConfigs
 						cell.ForegroundGdk = color;
 					})
 					.AddColumn("Код").AddNumericRenderer(node => node.Id).AddSetter((cell, node) =>
+					{
+						var color = GdkColors.PrimaryText;
+						if(node.IsArchive)
+						{
+							color = GdkColors.InsensitiveText;
+						}
+
+						cell.ForegroundGdk = color;
+					})
+					.AddColumn("Уровень").AddTextRenderer(node => node.Level.GetEnumTitle()).AddSetter((cell, node) =>
 					{
 						var color = GdkColors.PrimaryText;
 						if(node.IsArchive)
