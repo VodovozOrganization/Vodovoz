@@ -1,8 +1,7 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
@@ -19,7 +18,6 @@ namespace Edo.Transfer.Sender
 		private readonly IUnitOfWork _uow;
 		private readonly ITransferTaskRepository _transferTaskRepository;
 		private readonly IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository;
-		private readonly IOrganizationRepository _organizationRepository;
 
 		/// <summary>
 		/// Конструктор.
@@ -27,17 +25,14 @@ namespace Edo.Transfer.Sender
 		/// <param name="uow">Контекст работы с данными.</param>
 		/// <param name="transferTaskRepository">Репозиторий задач трансфера.</param>
 		/// <param name="documentOrganizationCounterRepository">Репозиторий счетчиков документов организаций.</param>
-		/// <param name="organizationRepository">Репозиторий организаций.</param>
 		public TransferOrderHeaderPreparer(
 			IUnitOfWork uow,
 			ITransferTaskRepository transferTaskRepository,
-			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository,
-			IOrganizationRepository organizationRepository)
+			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_transferTaskRepository = transferTaskRepository ?? throw new ArgumentNullException(nameof(transferTaskRepository));
 			_documentOrganizationCounterRepository = documentOrganizationCounterRepository ?? throw new ArgumentNullException(nameof(documentOrganizationCounterRepository));
-			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 		}
 
 		/// <inheritdoc/>
@@ -54,8 +49,8 @@ namespace Edo.Transfer.Sender
 				throw new InvalidOperationException("Невозможно определить дату УПД трансфера: у связанных заказов отсутствует дата доставки.");
 			}
 
-			var seller = await _organizationRepository.GetOrganizationByIdAsync(transferEdoTask.FromOrganizationId);
-			var customer = await _organizationRepository.GetOrganizationByIdAsync(transferEdoTask.ToOrganizationId);
+			var seller = _uow.GetById<OrganizationEntity>(transferEdoTask.FromOrganizationId);
+			var customer = _uow.GetById<OrganizationEntity>(transferEdoTask.ToOrganizationId);
 			var transferDocumentCounter = await CreateDocumentOrganizationCounterAsync(transferDate.Value, seller, cancellationToken);
 
 			return TransferOrder.Create(transferDate.Value, seller, customer, transferDocumentCounter);
