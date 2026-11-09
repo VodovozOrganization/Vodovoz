@@ -24,6 +24,17 @@ namespace Vodovoz.Settings.Database.Mindbox
 		private const string PauseMinutesSetting = "Mindbox.PauseMinutes";
 		private const string TransientErrorsBeforePauseSetting = "Mindbox.TransientErrorsBeforePause";
 		private const string UnavailableAlertMinutesSetting = "Mindbox.UnavailableAlertMinutes";
+		private const string BonusCalculationEnabledSetting = "Mindbox.BonusCalculationEnabled";
+		private const string CalculateProductListOperationSetting = "Mindbox.CalculateProductListOperation";
+		private const string BonusItemIdNameSetting = "Mindbox.BonusItemIdName";
+		private const string BonusBalanceSystemNameSetting = "Mindbox.BonusBalanceSystemName";
+		private const string BonusBatchSizeSetting = "Mindbox.BonusBatchSize";
+		private const string BonusMaxParallelBatchesSetting = "Mindbox.BonusMaxParallelBatches";
+		private const string BonusBatchTimeoutSecondsSetting = "Mindbox.BonusBatchTimeoutSeconds";
+		private const string BonusTotalTimeoutMillisecondsSetting = "Mindbox.BonusTotalTimeoutMilliseconds";
+		private const string BonusErrorsBeforePauseSetting = "Mindbox.BonusErrorsBeforePause";
+		private const string BonusPauseMinutesSetting = "Mindbox.BonusPauseMinutes";
+		private const string BonusCacheSecondsSetting = "Mindbox.BonusCacheSeconds";
 		private const string LastEnqueuedCounterpartyIdSetting = "Mindbox.LastEnqueuedCounterpartyId";
 
 		private readonly ISettingsController _settingsController;
@@ -104,6 +115,43 @@ namespace Vodovoz.Settings.Database.Mindbox
 		public int UnavailableAlertMinutes => GetOptionalInt(UnavailableAlertMinutesSetting, 15);
 
 		/// <inheritdoc />
+		public bool BonusCalculationEnabled =>
+			GetOptionalBool(BonusCalculationEnabledSetting, false);
+
+		/// <inheritdoc />
+		public string CalculateProductListOperation =>
+			GetOptionalString(CalculateProductListOperationSetting, "CalculateProductList");
+
+		/// <inheritdoc />
+		public string BonusItemIdName =>
+			GetOptionalString(BonusItemIdNameSetting, "itemErpId");
+
+		/// <inheritdoc />
+		public string BonusBalanceSystemName =>
+			GetOptionalString(BonusBalanceSystemNameSetting, string.Empty);
+
+		/// <inheritdoc />
+		public int BonusBatchSize => GetOptionalInt(BonusBatchSizeSetting, 100);
+
+		/// <inheritdoc />
+		public int BonusMaxParallelBatches => GetOptionalInt(BonusMaxParallelBatchesSetting, 5);
+
+		/// <inheritdoc />
+		public int BonusBatchTimeoutSeconds => GetOptionalInt(BonusBatchTimeoutSecondsSetting, 2);
+
+		/// <inheritdoc />
+		public int BonusTotalTimeoutMilliseconds => GetOptionalInt(BonusTotalTimeoutMillisecondsSetting, 2500);
+
+		/// <inheritdoc />
+		public int BonusErrorsBeforePause => GetOptionalInt(BonusErrorsBeforePauseSetting, 5);
+
+		/// <inheritdoc />
+		public int BonusPauseMinutes => GetOptionalInt(BonusPauseMinutesSetting, 1);
+
+		/// <inheritdoc />
+		public int BonusCacheSeconds => GetOptionalInt(BonusCacheSecondsSetting, 0);
+
+		/// <inheritdoc />
 		public int LastEnqueuedCounterpartyId =>
 			GetOptionalInt(LastEnqueuedCounterpartyIdSetting, -1);
 
@@ -136,6 +184,23 @@ namespace Vodovoz.Settings.Database.Mindbox
 			try
 			{
 				return _settingsController.GetStringValue(settingName);
+			}
+			catch(SettingException)
+			{
+				return defaultValue;
+			}
+		}
+
+		private bool GetOptionalBool(string settingName, bool defaultValue)
+		{
+			if(!_settingsController.ContainsSetting(settingName))
+			{
+				return defaultValue;
+			}
+
+			try
+			{
+				return _settingsController.GetBoolValue(settingName);
 			}
 			catch(SettingException)
 			{

@@ -54,6 +54,7 @@ consumer обработает их даже при выключенной нас
 1. `sql/002_mindbox_settings.sql`
 2. `sql/006_mindbox_point_of_contact.sql`
 3. `sql/010_mindbox_counterparty_state.sql`
+4. `sql/013_mindbox_bonus_settings.sql`
 
 Если ранее уже применялись `007`, `008`, `009` (статус и transactionId лежали в `counterparty`):
 
@@ -61,8 +62,12 @@ consumer обработает их даже при выключенной нас
 2. `sql/006_mindbox_point_of_contact.sql`
 3. `sql/010_mindbox_counterparty_state.sql`
 4. `sql/011_mindbox_migrate_status_to_state.sql`
+5. `sql/013_mindbox_bonus_settings.sql`
 
 `007`–`009` — устаревшие скрипты промежуточной версии, на чистой базе их применять не нужно.
+
+`013_mindbox_bonus_settings.sql` идемпотентен и добавляет только новые настройки расчёта бонусов. Его можно применять
+на любой уже настроенной базе после `002`.
 
 Если таблица `mindbox_counterparty_state` уже создавалась предыдущей версией `010` (signed int и `transaction_id NOT NULL`), после `010` выполните `sql/012_mindbox_state_types.sql` — он приводит типы к `unsigned int(10)` и делает `transaction_id` nullable.
 
@@ -86,8 +91,40 @@ consumer обработает их даже при выключенной нас
 | `Mindbox.UnavailableAlertMinutes` | `15` |
 | `Mindbox.EnqueueBatchSize` | `1000` |
 | `Mindbox.SendBatchSize` | `50` |
+| `Mindbox.BonusCalculationEnabled` | `false` / `true` — расчёт бонусов в ценах МП |
+| `Mindbox.CalculateProductListOperation` | `CalculateProductList` |
+| `Mindbox.BonusItemIdName` | `itemErpId` |
+| `Mindbox.BonusBalanceSystemName` | системное имя балльного счёта из Mindbox |
+| `Mindbox.BonusBatchSize` | `100` |
+| `Mindbox.BonusMaxParallelBatches` | `5` |
+| `Mindbox.BonusBatchTimeoutSeconds` | `2` |
+| `Mindbox.BonusTotalTimeoutMilliseconds` | `2500` |
+| `Mindbox.BonusErrorsBeforePause` | `5` |
+| `Mindbox.BonusPauseMinutes` | `1` |
+| `Mindbox.BonusCacheSeconds` | `0` — кеш выключен |
 
 Тестовый и боевой контуры — отдельные базы ERP со своими `EndpointId`, операцией и ключом. Тестовый ключ Mindbox действует 12 часов.
+
+## Расчёт бонусов в ценах МП
+
+Метод `GET /api/v3/SaleItem/GetSaleItemsPricesAndStocks` при `source = 54` (мобильное приложение) и включённом
+`Mindbox.BonusCalculationEnabled` дополняет каждую позицию полем `bonusAmount` — сколько бонусов начисляется за 1 шт.
+по базовой цене (цена из `prices[]` с минимальным `minCount`).
+
+V2-метод `/api/v2/SaleItem/GetSaleItemsPricesAndStocks` не изменяется и поле `bonusAmount` не содержит.
+Для V3 продублирован слой V2 (DTO, репозиторий, конвертер, фабрика, сервис), а в `SaleItemService` добавлен расчёт бонусов.
+
+- Вызывается операция `CalculateProductList` (sync), ключ товара собирается тем же `MindboxItemIdBuilder`, что и в каталоге:
+  `product_{erpId}`, `promoset_{erpId}`, `rentpackage_{erpId}`.
+- Позиции отправляются пачками по `Mindbox.BonusBatchSize`, одновременно не более `Mindbox.BonusMaxParallelBatches`.
+- Общий лимит ожидания — `Mindbox.BonusTotalTimeoutMilliseconds`. Неответившие и ошибочные пачки получают `null`,
+  остальные позиции рассчитываются.
+- Ошибки Mindbox не ломают метод: ответ 200 с ценами и остатками возвращается всегда.
+- После `Mindbox.BonusErrorsBeforePause` подряд идущих 5xx/429/таймаутов вызовы приостанавливаются на
+  `Mindbox.BonusPauseMinutes`; после паузы выполняется один пробный вызов.
+- При `Mindbox.BonusCacheSeconds > 0` последний успешный ответ кешируется по связке «ключ товара + базовая цена».
+- Тела запросов/ответов и секретный ключ в лог не пишутся; логируются количество позиций и пачек, успешные пачки,
+  время ожидания и параметры ошибок.
 
 ## Что развернуть
 

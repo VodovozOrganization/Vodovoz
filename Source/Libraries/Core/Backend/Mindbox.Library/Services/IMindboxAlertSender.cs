@@ -8,6 +8,12 @@ namespace Mindbox.Library.Services
 	/// </summary>
 	public interface IMindboxAlertSender
 	{
+		/// <summary>
+		/// Отправляет алерт об ошибке интеграции
+		/// </summary>
+		/// <param name="message">Текст алерта</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Задача отправки алерта</returns>
 		Task AlertAsync(string message, CancellationToken cancellationToken);
 	}
 }

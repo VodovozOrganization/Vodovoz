@@ -86,6 +86,61 @@
 		int UnavailableAlertMinutes { get; }
 
 		/// <summary>
+		/// Признак включённости расчёта бонусов в Mindbox
+		/// </summary>
+		bool BonusCalculationEnabled { get; }
+
+		/// <summary>
+		/// Название операции расчёта цен в каталоге и на карточке продукта
+		/// </summary>
+		string CalculateProductListOperation { get; }
+
+		/// <summary>
+		/// Имя идентификатора товара в запросе к Mindbox
+		/// </summary>
+		string BonusItemIdName { get; }
+
+		/// <summary>
+		/// Системное имя балльного счёта, по которому берутся бонусы
+		/// </summary>
+		string BonusBalanceSystemName { get; }
+
+		/// <summary>
+		/// Размер пачки позиций при расчёте бонусов
+		/// </summary>
+		int BonusBatchSize { get; }
+
+		/// <summary>
+		/// Максимальное количество одновременно отправляемых пачек
+		/// </summary>
+		int BonusMaxParallelBatches { get; }
+
+		/// <summary>
+		/// Таймаут одной пачки при расчёте бонусов в секундах
+		/// </summary>
+		int BonusBatchTimeoutSeconds { get; }
+
+		/// <summary>
+		/// Общий лимит ожидания Mindbox при расчёте бонусов в миллисекундах
+		/// </summary>
+		int BonusTotalTimeoutMilliseconds { get; }
+
+		/// <summary>
+		/// Количество подряд идущих ошибок до паузы при расчёте бонусов
+		/// </summary>
+		int BonusErrorsBeforePause { get; }
+
+		/// <summary>
+		/// Длительность паузы при расчёте бонусов в минутах
+		/// </summary>
+		int BonusPauseMinutes { get; }
+
+		/// <summary>
+		/// Время хранения ответа Mindbox в кеше в секундах. 0 — кеш выключен
+		/// </summary>
+		int BonusCacheSeconds { get; }
+
+		/// <summary>
 		/// Идентификатор последнего поставленного в очередь контрагента
 		/// </summary>
 		int LastEnqueuedCounterpartyId { get; }

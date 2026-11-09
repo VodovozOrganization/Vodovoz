@@ -155,6 +155,104 @@ namespace Mindbox.Library.Services
 			}
 		}
 
+		/// <inheritdoc />
+		public async Task<MindboxOperationResult> CalculateProductListAsync(
+			MindboxCalculateProductListRequest request,
+			CancellationToken cancellationToken)
+		{
+			if(request is null)
+			{
+				throw new ArgumentNullException(nameof(request));
+			}
+
+			var stopwatch = Stopwatch.StartNew();
+
+			try
+			{
+				var url = BuildCalculateProductListUrl();
+				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+
+				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
+				using(var httpRequest = CreateRequest(url, content))
+				{
+					try
+					{
+						using(var response = await _httpClient.SendAsync(httpRequest, cancellationToken))
+						{
+							var rawResponse = await response.Content.ReadAsStringAsync();
+							stopwatch.Stop();
+
+							var result = MapResponse((int)response.StatusCode, rawResponse, stopwatch.ElapsedMilliseconds);
+
+							LogResult(null, Guid.Empty, result, _settings.CalculateProductListOperation);
+
+							return result;
+						}
+					}
+					catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+					{
+						throw;
+					}
+					catch(TaskCanceledException)
+					{
+						stopwatch.Stop();
+
+						var result = MindboxOperationResult.Transient(
+							0,
+							"Timeout",
+							"Превышено время ожидания ответа Mindbox",
+							stopwatch.ElapsedMilliseconds);
+
+						LogResult(null, Guid.Empty, result, _settings.CalculateProductListOperation);
+
+						return result;
+					}
+					catch(HttpRequestException ex)
+					{
+						stopwatch.Stop();
+
+						var result = MindboxOperationResult.Transient(
+							0,
+							"ConnectionError",
+							ex.Message,
+							stopwatch.ElapsedMilliseconds);
+
+						LogResult(null, Guid.Empty, result, _settings.CalculateProductListOperation);
+
+						return result;
+					}
+				}
+			}
+			catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+			{
+				throw;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка подготовки запроса CalculateProductList в Mindbox");
+
+				return MindboxOperationResult.Failure(
+					MindboxSendOutcome.ProtocolError,
+					0,
+					"RequestError",
+					ex.Message,
+					null,
+					stopwatch.ElapsedMilliseconds,
+					null);
+			}
+		}
+
+		private string BuildCalculateProductListUrl()
+		{
+			var baseUrl = _settings.BaseUrl.TrimEnd('/');
+
+			return $"{baseUrl}/v3/operations/sync"
+				+ $"?endpointId={Uri.EscapeDataString(_settings.EndpointId)}"
+				+ $"&operation={Uri.EscapeDataString(_settings.CalculateProductListOperation)}";
+		}
+
 		private HttpRequestMessage CreateRequest(string url, HttpContent content)
 		{
 			var request = new HttpRequestMessage(HttpMethod.Post, url)
@@ -296,13 +394,17 @@ namespace Mindbox.Library.Services
 			}
 		}
 
-		private void LogResult(string externalId, Guid transactionId, MindboxOperationResult result)
+		private void LogResult(
+			string externalId,
+			Guid transactionId,
+			MindboxOperationResult result,
+			string operation = null)
 		{
 			_logger.LogDebug(
 				"Ответ Mindbox: externalId={ExternalId}, transactionId={TransactionId}, operation={Operation}, httpCode={HttpCode}, status={Status}, errorId={ErrorId}, durationMs={DurationMs}, outcome={Outcome}",
 				externalId,
 				transactionId,
-				_settings.CreateCustomerOperation,
+				operation ?? _settings.CreateCustomerOperation,
 				result.HttpStatusCode,
 				result.Status,
 				result.ErrorId,

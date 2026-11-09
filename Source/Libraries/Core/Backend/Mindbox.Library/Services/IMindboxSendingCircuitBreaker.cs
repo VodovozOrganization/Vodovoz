@@ -8,11 +8,6 @@ namespace Mindbox.Library.Services
 	public interface IMindboxSendingCircuitBreaker
 	{
 		/// <summary>
-		/// Признак паузы на текущий момент
-		/// </summary>
-		bool IsPaused(DateTime now);
-
-		/// <summary>
 		/// Дата окончания паузы
 		/// </summary>
 		DateTime? PausedUntil { get; }
@@ -28,22 +23,37 @@ namespace Mindbox.Library.Services
 		DateTime? UnavailableSince { get; }
 
 		/// <summary>
-		/// Возвращает true один раз, когда Mindbox недоступен дольше указанного времени
+		/// Проверяет, приостановлена ли отправка очереди
 		/// </summary>
+		/// <param name="now">Текущее время</param>
+		/// <returns><c>true</c>, если отправка приостановлена; иначе <c>false</c></returns>
+		bool IsPaused(DateTime now);
+
+		/// <summary>
+		/// Возвращает <c>true</c> один раз, когда Mindbox недоступен дольше указанного времени
+		/// </summary>
+		/// <param name="now">Текущее время</param>
+		/// <param name="duration">Порог недоступности, после которого нужно отправить алерт</param>
+		/// <returns><c>true</c>, если алерт о недоступности нужно отправить сейчас; иначе <c>false</c></returns>
 		bool TryMarkUnavailableAlertSent(DateTime now, TimeSpan duration);
 
 		/// <summary>
-		/// Поставить очередь на паузу
+		/// Ставит очередь на паузу
 		/// </summary>
+		/// <param name="now">Текущее время</param>
+		/// <param name="duration">Длительность паузы</param>
+		/// <param name="reason">Причина паузы</param>
 		void Pause(DateTime now, TimeSpan duration, string reason);
 
 		/// <summary>
-		/// Учесть временную ошибку; после нескольких подряд очередь ставится на паузу
+		/// Учитывает временную ошибку; после нескольких ошибок подряд очередь ставится на паузу
 		/// </summary>
+		/// <param name="now">Текущее время</param>
+		/// <param name="reason">Причина ошибки</param>
 		void RegisterTransientFailure(DateTime now, string reason);
 
 		/// <summary>
-		/// Сбросить паузу и счетчик временных ошибок
+		/// Сбрасывает паузу и счётчик временных ошибок
 		/// </summary>
 		void Reset();
 	}

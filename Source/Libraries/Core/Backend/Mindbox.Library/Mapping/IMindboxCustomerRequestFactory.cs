@@ -9,6 +9,12 @@ namespace Mindbox.Library.Mapping
 	/// </summary>
 	public interface IMindboxCustomerRequestFactory
 	{
+		/// <summary>
+		/// Создаёт тело запроса с данными контрагента
+		/// </summary>
+		/// <param name="unitOfWork">Unit of work для доступа к связанным сущностям контрагента</param>
+		/// <param name="counterparty">Контрагент, данные которого отправляются в Mindbox</param>
+		/// <returns>Тело запроса на создание/обновление клиента</returns>
 		MindboxCustomerRequest Create(IUnitOfWork unitOfWork, CounterpartyEntity counterparty);
 	}
 }

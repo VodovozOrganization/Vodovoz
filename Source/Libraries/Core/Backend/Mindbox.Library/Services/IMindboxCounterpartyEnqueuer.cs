@@ -11,6 +11,7 @@ namespace Mindbox.Library.Services
 		/// <summary>
 		/// Добавляет в очередь контрагентов, созданных после последнего обработанного
 		/// </summary>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Количество добавленных контрагентов</returns>
 		Task<int> EnqueueNewCounterpartiesAsync(CancellationToken cancellationToken);
 	}
