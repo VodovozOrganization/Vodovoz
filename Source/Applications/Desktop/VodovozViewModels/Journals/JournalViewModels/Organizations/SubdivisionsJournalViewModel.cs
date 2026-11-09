@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Cash;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
@@ -147,6 +148,10 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 							&& (!string.IsNullOrWhiteSpace(searchString) || _filterViewModel.IncludedSubdivisionsIds.Length > 0)))
 				   && (_filterViewModel.ShowArchieved || !subdivision.IsArchive)
 				   && !_filterViewModel.ExcludedSubdivisionsIds.Contains(subdivision.Id)
+				   && (_filterViewModel.RestrictLevels.Length == 0 || _filterViewModel.RestrictLevels.Contains(subdivision.Level))
+				   && (_filterViewModel.RestrictSelectLevels.Length == 0
+					|| (string.IsNullOrWhiteSpace(searchString) && _filterViewModel.IncludedSubdivisionsIds.Length == 0)
+					|| _filterViewModel.RestrictSelectLevels.Contains(subdivision.Level))
 				   && (_filterViewModel.SubdivisionType == null
 					|| subdivision.SubdivisionType == _filterViewModel.SubdivisionType)
 					&& (!_filterViewModel.OnlyCashSubdivisions
@@ -163,7 +168,8 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 				   ChiefName = chiefFIO,
 				   ParentId = subdivision.ParentSubdivision.Id,
 				   Children = children.ToList(),
-				   IsArchive = subdivision.IsArchive
+				   IsArchive = subdivision.IsArchive,
+				   Level = subdivision.Level
 			   })
 				: Enumerable.Empty<SubdivisionJournalNode>().AsQueryable();
 		}
@@ -181,7 +187,9 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		private void CreateSelectAction()
 		{
 			var selectAction = new JournalAction("Выбрать",
-				(selected) => selected.Any(),
+				(selected) => selected.Any()
+					&& (_filterViewModel.RestrictSelectLevels.Length == 0
+						|| selected.OfType<SubdivisionJournalNode>().All(x => _filterViewModel.RestrictSelectLevels.Contains(x.Level))),
 				(selected) => SelectionMode != JournalSelectionMode.None,
 				(selected) => OnItemsSelected(selected)
 			);
