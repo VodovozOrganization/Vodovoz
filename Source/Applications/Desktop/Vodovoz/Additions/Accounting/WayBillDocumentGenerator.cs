@@ -375,6 +375,11 @@ namespace Vodovoz.Additions.Accounting
 
 		private GeoGroupVersion GetActualGeoGroupVersion(Employee employee, DateTime generationDate)
 		{
+			if(employee.Subdivision.GeographicGroup is null)
+			{
+				throw new SubdivisionGeoGroupNotSetException($"У подразделения водителя {employee.FullName} не указано местоположение");
+			}
+
 			var geoGroupVersion = employee.Subdivision.GeographicGroup.GetVersionOrNull(generationDate);
 			if(geoGroupVersion == null)
 			{

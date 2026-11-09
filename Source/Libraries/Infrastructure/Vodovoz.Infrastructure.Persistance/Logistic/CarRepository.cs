@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.Transform;
@@ -113,6 +113,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					CarRegNumber = car.RegistrationNumber,
 					DriverGeography =
 						car.Driver != null && car.Driver.Subdivision != null
+						&& car.Driver.Subdivision.GetGeographicGroup() != null
 						? car.Driver.Subdivision.GetGeographicGroup().Name
 						: "",
 					InsuranceType = insuranceType,
@@ -157,6 +158,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					CarRegNumber = car.RegistrationNumber,
 					DriverGeography =
 						car.Driver != null && car.Driver.Subdivision != null
+						&& car.Driver.Subdivision.GetGeographicGroup() != null
 						? car.Driver.Subdivision.GetGeographicGroup().Name
 						: "",
 					LastOdometerReading = car.OdometerReadings.OrderByDescending(r => r.StartDate).FirstOrDefault(),
@@ -199,6 +201,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					CarRegNumber = car.RegistrationNumber,
 					DriverGeography =
 						car.Driver != null && car.Driver.Subdivision != null
+						&& car.Driver.Subdivision.GetGeographicGroup() != null
 						? car.Driver.Subdivision.GetGeographicGroup().Name
 						: "",
 					LastCarTechnicalCheckupEvent = lastTechnicalCheckup
