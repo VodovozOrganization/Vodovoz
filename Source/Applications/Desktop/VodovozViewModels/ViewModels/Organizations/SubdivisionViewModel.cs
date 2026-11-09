@@ -9,8 +9,10 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
@@ -98,7 +100,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			ParentSubdivisionViewModel = new CommonEEVMBuilderFactory<Subdivision>(this, Entity, UoW, NavigationManager, scope)
 				.ForProperty(x => x.ParentSubdivision)
 				.UseViewModelDialog<SubdivisionViewModel>()
-				.UseViewModelJournal<SubdivisionsJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(ConfigureParentSubdivisionFilter)
 				.Finish();
 
 			DefaultSalesPlanViewModel = new CommonEEVMBuilderFactory<Subdivision>(this, Entity, UoW, NavigationManager, scope)
@@ -117,6 +119,8 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 
 			ConfigureEntityChangingRelations();
 			CreateCommands();
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 
 			SubscribeUpdateOnChanges();
 
@@ -175,12 +179,55 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 				() => GeographicGroup
 			);
 
-			SetPropertyChangeRelation(e => e.ParentSubdivision,
+			SetPropertyChangeRelation(e => e.Level,
+				() => CanChangeParentSubdivision,
 				() => GeographicGroupVisible
 			);
+		}
 
-			Entity.ObservableChildSubdivisions.ElementAdded += (aList, aIdx) => OnPropertyChanged(() => GeographicGroupVisible);
-			Entity.ObservableChildSubdivisions.ElementRemoved += (aList, aIdx, aObject) => OnPropertyChanged(() => GeographicGroupVisible);
+		/// <summary>
+		/// Задание уровня и вышестоящего подразделения новой карточки
+		/// </summary>
+		/// <param name="level">Уровень нового подразделения</param>
+		/// <param name="parentSubdivisionId">Id вышестоящего подразделения, null - не задано</param>
+		public void InitializeNew(SubdivisionLevel level, int? parentSubdivisionId)
+		{
+			if(!UoW.IsNew)
+			{
+				throw new InvalidOperationException("Уровень и вышестоящее подразделение задаются только у новой карточки подразделения");
+			}
+
+			Entity.Level = level;
+
+			if(parentSubdivisionId.HasValue)
+			{
+				Entity.ParentSubdivision = UoW.GetById<Subdivision>(parentSubdivisionId.Value);
+			}
+		}
+
+		private void ConfigureParentSubdivisionFilter(SubdivisionFilterViewModel filter)
+		{
+			switch(Entity.Level)
+			{
+				case SubdivisionLevel.Department:
+					filter.RestrictLevels = new[] { SubdivisionLevel.Cfo };
+					filter.RestrictSelectLevels = new[] { SubdivisionLevel.Cfo };
+					break;
+				case SubdivisionLevel.Sector:
+					filter.RestrictLevels = new[] { SubdivisionLevel.Cfo, SubdivisionLevel.Department };
+					filter.RestrictSelectLevels = new[] { SubdivisionLevel.Department };
+					break;
+				default:
+					return;
+			}
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Subdivision.ParentSubdivision))
+			{
+				Entity.CopyGeographicGroupFromParentDepartment();
+			}
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;
@@ -192,7 +239,15 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 			CommonServices.UserService.GetCurrentUser().IsAdmin
 			&& !Entity.ChildSubdivisions.Any();
 
-		public bool GeographicGroupVisible => Entity.ParentSubdivision != null && Entity.ChildSubdivisions.Any();
+		/// <summary>
+		/// Можно ли менять вышестоящее подразделение
+		/// </summary>
+		public bool CanChangeParentSubdivision => CanEdit && Entity.Level != SubdivisionLevel.Cfo;
+
+		/// <summary>
+		/// Видимость выбора обслуживаемой части города
+		/// </summary>
+		public bool GeographicGroupVisible => Entity.Level == SubdivisionLevel.Department;
 
 		public virtual GeoGroup GeographicGroup
 		{
@@ -378,6 +433,7 @@ namespace Vodovoz.ViewModels.ViewModels.Organizations
 				_subdivisionsJournalViewModel.OnSelectResult -= OnSourceSubdivisionToCopyPermissionsSelected;
 			}
 
+			Entity.PropertyChanged -= OnEntityPropertyChanged;
 			UnsubscribeUpdateOnChanges();
 			base.Dispose();
 		}

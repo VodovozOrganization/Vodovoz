@@ -198,6 +198,19 @@ namespace Vodovoz
 			}
 		}
 
+		/// <summary>
+		/// Копирование обслуживаемой части города вышестоящего отдела в сектор
+		/// </summary>
+		public virtual void CopyGeographicGroupFromParentDepartment()
+		{
+			if(Level != SubdivisionLevel.Sector || ParentSubdivision?.Level != SubdivisionLevel.Department)
+			{
+				return;
+			}
+
+			GeographicGroup = ParentSubdivision.GeographicGroup;
+		}
+
 		public virtual void AddDocumentType(TypeOfEntity typeOfEntity)
 		{
 			if(ObservableDocumentTypes.Contains(typeOfEntity))

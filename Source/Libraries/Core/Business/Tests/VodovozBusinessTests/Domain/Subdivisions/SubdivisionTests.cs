@@ -3,6 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using Vodovoz;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 
 namespace VodovozBusinessTests.Domain.Subdivisions
 {
@@ -142,6 +143,61 @@ namespace VodovozBusinessTests.Domain.Subdivisions
 			var errors = GetErrors(subdivision);
 			//assert
 			Assert.That(errors, Is.EqualTo(new[] { _nameLengthError }));
+		}
+
+		[Test(Description = "Если сектор под отделом с частью города, то у сектора часть города отдела")]
+		public void CopyGeographicGroupFromParentDepartment_SectorUnderDepartmentWithGeoGroup_CopiesDepartmentGeoGroup()
+		{
+			//arrange
+			var north = new GeoGroup { Id = 1, Name = "Север" };
+			var south = new GeoGroup { Id = 2, Name = "Юг" };
+			var department = CreateSubdivision(SubdivisionLevel.Department);
+			department.GeographicGroup = north;
+			var sector = CreateSubdivision(SubdivisionLevel.Sector, department);
+			sector.GeographicGroup = south;
+			//act
+			sector.CopyGeographicGroupFromParentDepartment();
+			//assert
+			Assert.That(sector.GeographicGroup, Is.SameAs(north));
+		}
+
+		[Test(Description = "Если сектор под отделом без части города, то у сектора часть города очищается")]
+		public void CopyGeographicGroupFromParentDepartment_SectorUnderDepartmentWithoutGeoGroup_ClearsSectorGeoGroup()
+		{
+			//arrange
+			var south = new GeoGroup { Id = 2, Name = "Юг" };
+			var department = CreateSubdivision(SubdivisionLevel.Department);
+			var sector = CreateSubdivision(SubdivisionLevel.Sector, department);
+			sector.GeographicGroup = south;
+			//act
+			sector.CopyGeographicGroupFromParentDepartment();
+			//assert
+			Assert.That(sector.GeographicGroup, Is.Null);
+		}
+
+		[Test(Description = "Если вышестоящее не отдел или подразделение не сектор, то часть города не меняется")]
+		[TestCase(SubdivisionLevel.Sector, SubdivisionLevel.Cfo)]
+		[TestCase(SubdivisionLevel.Sector, null)]
+		[TestCase(SubdivisionLevel.Department, SubdivisionLevel.Cfo)]
+		public void CopyGeographicGroupFromParentDepartment_ParentIsNotDepartment_KeepsGeoGroup(
+			SubdivisionLevel level, SubdivisionLevel? parentLevel)
+		{
+			//arrange
+			var north = new GeoGroup { Id = 1, Name = "Север" };
+			var south = new GeoGroup { Id = 2, Name = "Юг" };
+			var parent = CreateParent(parentLevel);
+
+			if(parent != null)
+			{
+				parent.GeographicGroup = north;
+			}
+
+			var subdivision = CreateSubdivision(level, parent);
+			subdivision.GeographicGroup = south;
+			//act
+			subdivision.CopyGeographicGroupFromParentDepartment();
+			//assert
+			Assert.That(subdivision.GeographicGroup, Is.SameAs(south));
 		}
 
 		#endregion Test cases
