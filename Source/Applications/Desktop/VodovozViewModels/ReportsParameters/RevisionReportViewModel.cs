@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using fyiReporting.RDL;
 using iTextSharp.text.pdf;
 using Mailganer.Api.Client;
@@ -18,6 +18,7 @@ using System.Data.Bindings;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -488,11 +489,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 
 			if(!string.IsNullOrWhiteSpace(Organization.Email) 
-				&& !Organization.Email.EndsWith("@vodovoz-spb.ru")
-				&& !Organization.Email.EndsWith("@kuler-service.ru")
+				&& !OrganizationEntity.AllowedMailDomains.Any(domain => Organization.Email.EndsWith($"@{domain}"))
 				&& string.IsNullOrWhiteSpace(Organization.EmailForMailing))
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Адрес электронной почты организации должен быть в домене @vodovoz-spb.ru");
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Адрес электронной почты организации должен быть в домене {string.Join(" или ", OrganizationEntity.AllowedMailDomains.Select(d => $"@{d}"))}");
 				return false;
 			}
 
