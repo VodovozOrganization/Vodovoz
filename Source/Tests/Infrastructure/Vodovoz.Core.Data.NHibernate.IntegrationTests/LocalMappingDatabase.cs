@@ -76,26 +76,6 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 		}
 
 		/// <summary>
-		/// Создаёт организацию с версией и настройками ЭДО. Таблицы берутся из схемы маппинга приложения, только нужные для загрузки организации
-		/// </summary>
-		public int CreateOrganization(string jurAddress, string edoAccount)
-		{
-			var tables = new[] { "organizations", "organization_versions", "taxcom_edo_settings", "accounts", "banks", "bank_regions", "banks_cor_accounts" };
-			var script = _configuration.GenerateSchemaCreationScript(Dialect.GetDialect(_configuration.Properties));
-
-			foreach(var statement in script.Where(x => tables.Any(table => x.StartsWith($"create table {table} ", StringComparison.OrdinalIgnoreCase))))
-			{
-				Database.Execute(statement);
-			}
-
-			Database.Execute("INSERT INTO organizations (id, name) VALUES (1, 'Организация')");
-			Database.Execute($"INSERT INTO organization_versions (organization_id, jur_address, start_date) VALUES (1, '{jurAddress}', '2000-01-01')");
-			Database.Execute($"INSERT INTO taxcom_edo_settings (organization_id, edo_account) VALUES (1, '{edoAccount}')");
-
-			return 1;
-		}
-
-		/// <summary>
 		/// Создаёт таблицы УПД из схемы маппинга приложения
 		/// </summary>
 		public void CreateUpdTables()
