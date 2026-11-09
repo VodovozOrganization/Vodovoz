@@ -125,11 +125,6 @@ namespace Vodovoz
 
 		#region Геттеры и методы
 
-		/// <summary>
-		/// Уровень в иерархии
-		/// </summary>
-		public virtual int GetLevel => ParentSubdivision == null ? 0 : ParentSubdivision.GetLevel + 1;
-
 		public virtual bool HasChildSubdivisions => ChildSubdivisions.Any();
 
 		/// <summary>
