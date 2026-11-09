@@ -1,4 +1,4 @@
-﻿using QS.Banks.Domain;
+using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
@@ -26,7 +26,14 @@ namespace Vodovoz.Core.Domain.Organizations
 	[HistoryTrace]
 	public class OrganizationEntity : AccountOwnerBase, INamedDomainObject, IValidatableObject, IUsnModeOrganization
 	{
-		private const string _vodovozEmailPattern = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z";
+		public static readonly string[] AllowedMailDomains =
+		{
+			"vodovoz-spb.ru",
+			"kuler-service.ru"
+		};
+
+		public static readonly string EmailRegexPattern =
+			$@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{{|}}~-]+@({string.Join("|", AllowedMailDomains.Select(Regex.Escape))})\z";
 
 		private int _id;
 		private string _name;
@@ -525,26 +532,26 @@ namespace Vodovoz.Core.Domain.Organizations
 			}
 
 			if(!string.IsNullOrWhiteSpace(EmailForMailing) 
-				&& !Regex.IsMatch(EmailForMailing, _vodovozEmailPattern))
+				&& !Regex.IsMatch(EmailForMailing, EmailRegexPattern))
 			{
 				yield return new ValidationResult(
-					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
+					$"E-mail для рассылки должен быть в домене {string.Join(" или ", AllowedMailDomains.Select(d => $"@{d}"))}.",
 					new[] { nameof(EmailForMailing) });
 			}
 
 			if(!string.IsNullOrWhiteSpace(ClosingDeliveriesNotificationEmailFrom)
-					&& !Regex.IsMatch(ClosingDeliveriesNotificationEmailFrom, _vodovozEmailPattern))
+					&& !Regex.IsMatch(ClosingDeliveriesNotificationEmailFrom, EmailRegexPattern))
 			{
 				yield return new ValidationResult(
-					"E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок, быть в домене @vodovoz-spb.ru.",
+					$"E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок, должен быть в домене {string.Join(" или ", AllowedMailDomains.Select(d => $"@{d}"))}.",
 					new[] { nameof(ClosingDeliveriesNotificationEmailFrom) });
 			}
 
 			if(!string.IsNullOrWhiteSpace(EmailForChainStoreNotifications)
-				&& !Regex.IsMatch(EmailForChainStoreNotifications, _vodovozEmailPattern))
+				&& !Regex.IsMatch(EmailForChainStoreNotifications, EmailRegexPattern))
 			{
 				yield return new ValidationResult(
-					"E-mail для отправки уведомлений сетям/тендерам должен быть в домене @vodovoz-spb.ru.",
+					$"E-mail для отправки уведомлений сетям/тендерам должен быть в домене {string.Join(" или ", AllowedMailDomains.Select(d => $"@{d}"))}.",
 					new[] { nameof(EmailForChainStoreNotifications) });
 			}
 
