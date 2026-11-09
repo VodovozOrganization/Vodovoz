@@ -489,6 +489,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			if(!string.IsNullOrWhiteSpace(Organization.Email) 
 				&& !Organization.Email.EndsWith("@vodovoz-spb.ru")
+				&& !Organization.Email.EndsWith("@kuler-service.ru")
 				&& string.IsNullOrWhiteSpace(Organization.EmailForMailing))
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Адрес электронной почты организации должен быть в домене @vodovoz-spb.ru");

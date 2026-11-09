@@ -26,7 +26,7 @@ namespace Vodovoz.Core.Domain.Organizations
 	[HistoryTrace]
 	public class OrganizationEntity : AccountOwnerBase, INamedDomainObject, IValidatableObject, IUsnModeOrganization
 	{
-		private const string _vodovozEmailPattern = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z";
+		private const string _vodovozEmailPattern = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(vodovoz-spb\.ru|kuler-service\.ru)\z";
 
 		private int _id;
 		private string _name;
@@ -528,7 +528,7 @@ namespace Vodovoz.Core.Domain.Organizations
 				&& !Regex.IsMatch(EmailForMailing, _vodovozEmailPattern))
 			{
 				yield return new ValidationResult(
-					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
+					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru или @kuler-service.ru.",
 					new[] { nameof(EmailForMailing) });
 			}
 
@@ -536,7 +536,7 @@ namespace Vodovoz.Core.Domain.Organizations
 					&& !Regex.IsMatch(ClosingDeliveriesNotificationEmailFrom, _vodovozEmailPattern))
 			{
 				yield return new ValidationResult(
-					"E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок, быть в домене @vodovoz-spb.ru.",
+					"E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок, должен быть в домене @vodovoz-spb.ru или @kuler-service.ru",
 					new[] { nameof(ClosingDeliveriesNotificationEmailFrom) });
 			}
 
@@ -544,7 +544,7 @@ namespace Vodovoz.Core.Domain.Organizations
 				&& !Regex.IsMatch(EmailForChainStoreNotifications, _vodovozEmailPattern))
 			{
 				yield return new ValidationResult(
-					"E-mail для отправки уведомлений сетям/тендерам должен быть в домене @vodovoz-spb.ru.",
+					"E-mail для отправки уведомлений сетям/тендерам должен быть в домене @vodovoz-spb.ru или @kuler-service.ru.",
 					new[] { nameof(EmailForChainStoreNotifications) });
 			}
 
