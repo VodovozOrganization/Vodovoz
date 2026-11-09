@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Core.Infrastructure;
+using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Core.Infrastructure;
-using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
@@ -13,7 +13,7 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Extensions;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Validation;
@@ -35,7 +35,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IFreeLoaderChecker freeLoaderChecker,
 			IOrderOrganizationManager orderOrganizationManager,
 			IOrderSettings orderSettings,
-			IOrderRepository orderRepository
+			IOrderRepository orderRepository,
+			IDeliveryRulesSettings deliveryRulesSettings
 			)
 		{
 			PriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
@@ -47,6 +48,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			OrderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
 			OrderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			DeliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 		}
 
 		protected IGoodsPriceCalculator PriceCalculator { get; }
@@ -58,7 +60,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		protected IOrderOrganizationManager OrderOrganizationManager { get; }
 		protected IOrderSettings OrderSettings { get; }
 		protected IOrderRepository OrderRepository { get; }
-		
+		protected IDeliveryRulesSettings DeliveryRulesSettings { get; }
 		protected virtual OnlineOrder OnlineOrder { get; set; }
 		protected List<Error> ValidationResults { get; set; }
 		protected List<ICheckOnlineOrderSum> CalculatedOrderItemPrices { get; set; }
@@ -124,6 +126,24 @@ namespace Vodovoz.Core.Application.Orders.Services
 				if(OnlineOrder.DeliverySchedule is null)
 				{
 					ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsEmptyDeliverySchedule);
+				}
+				else
+				{
+					if(OnlineOrder.DeliverySchedule.Id == DeliveryRulesSettings.FastDeliveryScheduleId)
+					{
+						if(!OnlineOrder.IsFastDelivery)
+						{
+							ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.HasFastDeliveryScheduleButIsFastDeliveryNotSet);
+						}
+					}
+
+					if(OnlineOrder.DeliverySchedule.Id != DeliveryRulesSettings.FastDeliveryScheduleId)
+					{
+						if(OnlineOrder.IsFastDelivery)
+						{
+							ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.HasIsFastDeliveryButFastDeliveryScheduleNotSet);
+						}
+					}
 				}
 			}
 			
