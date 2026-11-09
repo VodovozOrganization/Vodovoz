@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using CustomerNotifications.Application.Providers;
 using CustomerNotifications.Application.Templates;
 using CustomerNotifications.Contracts;
@@ -23,25 +23,28 @@ namespace CustomerNotifications.Application.Builders
 		private readonly ICustomerNotificationsSettingsProvider _customerNotificationSettingsProvider;
 		private readonly IGenericRepository<RouteListItem> _routeListItemRepository;
 		private readonly IGenericRepository<Order> _orderRepository;
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
 		public CustomerNotificationsIntegrationEventBuilder(
 			ICustomerNotificationsSettingsProvider customerNotificationSettingsProvider,
 			IGenericRepository<RouteListItem> routeListItemRepository,
 			IGenericRepository<UndeliveredOrder> undeliveredOrdersRepository,
-			IGenericRepository<Order> orderRepository,
-			IUnitOfWorkFactory unitOfWorkFactory)
+			IGenericRepository<Order> orderRepository)
 		{
 			_customerNotificationSettingsProvider = customerNotificationSettingsProvider ?? throw new ArgumentNullException(nameof(customerNotificationSettingsProvider));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
 		public async Task<CustomerNotificationIntegrationEvent> BuildAsync(
+			IUnitOfWork unitOfWork,
 			CustomerNotificationDomainEvent domainEvent,
 			CancellationToken cancellationToken = default)
 		{
+			if(unitOfWork == null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWork));
+			}
+
 			if(domainEvent == null)
 			{
 				throw new ArgumentNullException(nameof(domainEvent));
@@ -66,87 +69,84 @@ namespace CustomerNotifications.Application.Builders
 			OnlineOrder onlineOrder = null;
 			Order order = null;
 
-			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(nameof(CustomerNotificationsIntegrationEventBuilder)))
+			if(domainEvent.OnlineOrderId != null)
 			{
-				if(domainEvent.OnlineOrderId != null)
-				{
-					onlineOrder = unitOfWork.GetById<OnlineOrder>(domainEvent.OnlineOrderId.Value);
+				onlineOrder = unitOfWork.GetById<OnlineOrder>(domainEvent.OnlineOrderId.Value);
 
-					if(onlineOrder == null)
+				if(onlineOrder == null)
+				{
+					throw new InvalidOperationException($"Онлайн заказ с Id {domainEvent.OnlineOrderId} не найден.");
+				}
+			}
+
+			if(domainEvent.OrderId != null)
+			{
+				order = unitOfWork.GetById<Order>(domainEvent.OrderId.Value);
+
+				if(order == null)
+				{
+					throw new InvalidOperationException($"Заказ с Id {domainEvent.OrderId} не найден.");
+				}
+			}
+
+			var deliveryScheduleFrom = onlineOrder?.DeliverySchedule?.DeliveryTime ?? order?.DeliverySchedule?.DeliveryTime;
+
+			notificationText = notificationText
+				.Replace(NotificationTemplates.OrderId, (domainEvent.OnlineOrderId ?? domainEvent.OrderId).ToString())
+				.Replace(NotificationTemplates.DeliveryScheduleFrom, deliveryScheduleFrom ?? "[интервал в заказе не выбран]");
+
+			if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.DeliveryCompleted)
+			{
+				notificationText = await ApplyDeliveryCompletedAsync(unitOfWork, domainEvent, onlineOrder, order, notificationText, cancellationToken);
+			}
+			else if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.OrderRescheduled)
+			{
+				notificationText = await ApplyOrderRescheduledAsync(unitOfWork, domainEvent, notificationText, cancellationToken);
+			}
+
+			var integrationEvent = new CustomerNotificationIntegrationEvent
+			{
+				EventSource = domainEvent.EventSource
+			};
+
+			// Временный костыль для сайта
+			if(domainEvent.EventSource == Source.VodovozWebSite)
+			{
+				if(onlineOrder != null)
+				{
+					var webSiteData = new WebSiteMessage
 					{
-						throw new InvalidOperationException($"Онлайн заказ с Id {domainEvent.OnlineOrderId} не найден.");
-					}
-				}
-
-				if(domainEvent.OrderId != null)
-				{
-					order = unitOfWork.GetById<Order>(domainEvent.OrderId.Value);
-
-					if(order == null)
-					{
-						throw new InvalidOperationException($"Заказ с Id {domainEvent.OrderId} не найден.");
-					}
-				}
-
-				var deliveryScheduleFrom = onlineOrder?.DeliverySchedule?.DeliveryTime ?? order?.DeliverySchedule?.DeliveryTime;
-
-				notificationText = notificationText
-					.Replace(NotificationTemplates.OrderId, (domainEvent.OnlineOrderId ?? domainEvent.OrderId).ToString())
-					.Replace(NotificationTemplates.DeliveryScheduleFrom, deliveryScheduleFrom ?? "[интервал в заказе не выбран]");
-
-				if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.DeliveryCompleted)
-				{
-					notificationText = await ApplyDeliveryCompletedAsync(unitOfWork, domainEvent, onlineOrder, order, notificationText, cancellationToken);
-				}
-				else if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.OrderRescheduled)
-				{
-					notificationText = await ApplyOrderRescheduledAsync(unitOfWork, domainEvent, notificationText, cancellationToken);
-				}
-
-				var integrationEvent = new CustomerNotificationIntegrationEvent
-				{
-					EventSource = domainEvent.EventSource
-				};
-
-				// Временный костыль для сайта
-				if(domainEvent.EventSource == Source.VodovozWebSite)
-				{
-					if(onlineOrder != null)
-					{
-						var webSiteData = new WebSiteMessage
-						{
-							ExternalOrderId = onlineOrder.ExternalOrderId,
-							OnlineOrderId = onlineOrder.Id,
-							DeliveryDate = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryDate : (DateTime?)null,
-							DeliveryScheduleId = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryScheduleId : null,
-							OrderStatus = onlineOrder.GetExternalOrderStatus(),
-							PushText = notificationText
-						};
-
-						integrationEvent.WebSitePayload = webSiteData;
-					}
-				}
-				else
-				{
-					var moblieAppData = new CustomerNotificationMessage
-					{
-						CounterpartyErpId = onlineOrder?.CounterpartyId ?? order?.Client?.Id ?? 0,
-						Type = setting.PushType,
-						Target = setting.PushTarget,
-						Title = domainEvent.CustomerNotificationEventType.GetEnumDisplayName(),
-						Text = notificationText,
-						Params = new Dictionary<string, string>
-						{
-							["onlineOrderId"] = onlineOrder?.Id.ToString(),
-							["orderId"] = order?.Id.ToString()
-						}
+						ExternalOrderId = onlineOrder.ExternalOrderId,
+						OnlineOrderId = onlineOrder.Id,
+						DeliveryDate = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryDate : (DateTime?)null,
+						DeliveryScheduleId = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryScheduleId : null,
+						OrderStatus = onlineOrder.GetExternalOrderStatus(),
+						PushText = notificationText
 					};
 
-					integrationEvent.Payload = moblieAppData;
+					integrationEvent.WebSitePayload = webSiteData;
 				}
-
-				return integrationEvent;
 			}
+			else
+			{
+				var moblieAppData = new CustomerNotificationMessage
+				{
+					CounterpartyErpId = onlineOrder?.CounterpartyId ?? order?.Client?.Id ?? 0,
+					Type = setting.PushType,
+					Target = setting.PushTarget,
+					Title = domainEvent.CustomerNotificationEventType.GetEnumDisplayName(),
+					Text = notificationText,
+					Params = new Dictionary<string, string>
+					{
+						["onlineOrderId"] = onlineOrder?.Id.ToString(),
+						["orderId"] = order?.Id.ToString()
+					}
+				};
+
+				integrationEvent.Payload = moblieAppData;
+			}
+
+			return integrationEvent;
 		}
 
 		private async Task<string> ApplyDeliveryCompletedAsync(
