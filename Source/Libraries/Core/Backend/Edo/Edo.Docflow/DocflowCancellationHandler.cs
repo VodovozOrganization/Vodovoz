@@ -71,7 +71,7 @@ namespace Edo.Docflow
 
 			var message = new TaxcomDocflowRequestCancellationEvent
 			{
-				EdoAccount = documentEdoTask.FormalEdoRequest.Order.Contract.Organization.TaxcomEdoSettings.EdoAccount,
+				EdoAccount = documentEdoTask.FormalEdoRequest?.Order?.Contract?.Organization?.TaxcomEdoSettings?.EdoAccount,
 				DocumentId = document.Id,
 				CancellationReason = reason
 			};
@@ -108,7 +108,7 @@ namespace Edo.Docflow
 
 			var message = new TaxcomDocflowRequestCancellationEvent
 			{
-				EdoAccount = transferOrder.Seller.TaxcomEdoSettings.EdoAccount,
+				EdoAccount = transferOrder.Seller.TaxcomEdoSettings?.EdoAccount,
 				DocumentId = document.Id,
 				CancellationReason = reason
 			};

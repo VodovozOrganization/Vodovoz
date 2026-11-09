@@ -44,13 +44,22 @@ namespace Edo.Transfer.Sender
 				return;
 			}
 
+			TransferOrder transferOrder = null;
+			if(transferTask.TransferOrderId.HasValue)
+			{
+				transferOrder = await _uow.Session.GetAsync<TransferOrder>(
+					transferTask.TransferOrderId.Value,
+					cancellationToken);
+			}
+
 			transferDocument = new TransferEdoDocument
 			{
 				TransferTaskId = transferTaskId,
 				DocumentType = EdoDocumentType.UPD,
 				EdoType = EdoType.Taxcom,
 				SendTime = DateTime.Now,
-				Status = EdoDocumentStatus.NotStarted
+				Status = EdoDocumentStatus.NotStarted,
+				EdoAccount = transferOrder?.Customer?.TaxcomEdoSettings?.EdoAccount
 			};
 
 			transferTask.TransferStatus = EdoTransferTaskStage.InProgress;

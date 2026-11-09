@@ -16,5 +16,6 @@ namespace Vodovoz.Core.Data.Repositories
 		public DateTime? LastTaxcomStatusUpdateTime { get; set; }
 		public TrueMarkTraceabilityStatus? TaxcomTraceabilityStatus { get; set; }
 		public string TaxcomErrorMessage { get; set; }
+		public string EdoAccount { get; set; }
 	}
 }
