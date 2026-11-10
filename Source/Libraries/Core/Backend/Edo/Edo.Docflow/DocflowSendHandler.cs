@@ -1,4 +1,4 @@
-﻿using Edo.Contracts.Messages.Dto;
+using Edo.Contracts.Messages.Dto;
 using Edo.Contracts.Messages.Events;
 using Edo.Docflow.Factories;
 using MassTransit;
@@ -230,6 +230,7 @@ namespace Edo.Docflow
 					DocumentInfo = snapshot,
 					EdoTaskId = edoTask.Id
 				}, cancellationToken);
+				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
