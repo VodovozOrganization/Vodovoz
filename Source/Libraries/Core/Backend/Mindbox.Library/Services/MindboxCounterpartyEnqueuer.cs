@@ -132,6 +132,17 @@ namespace Mindbox.Library.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Постановка контрагента в очередь Mindbox"))
 			{
+				var counterparty = unitOfWork.GetById<Counterparty>(counterpartyId);
+
+				if(counterparty is null)
+				{
+					_logger.LogWarning(
+						"Контрагент {CounterpartyId} не найден, постановка в очередь Mindbox пропущена",
+						counterpartyId);
+
+					return;
+				}
+
 				var state = unitOfWork.Session.Get<MindboxCounterpartyState>(counterpartyId);
 
 				if(state?.Status == MindboxCounterpartyOutboxStatus.Sent)

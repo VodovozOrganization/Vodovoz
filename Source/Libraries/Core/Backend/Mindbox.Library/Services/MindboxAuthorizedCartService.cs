@@ -18,7 +18,7 @@ namespace Mindbox.Library.Services
 		private const string CalculatedStatus = "Calculated";
 		private const string SpentBonusPointsType = "spentBonusPoints";
 		private const string DiscountType = "discount";
-		private const string BonusPointsLocation = "/order/bonusPoints";
+		private const string BonusPointsLocation = "order/bonusPoints";
 
 		private readonly IMindboxClient _client;
 		private readonly IMindboxSettings _settings;
@@ -182,8 +182,7 @@ namespace Mindbox.Library.Services
 					requestedAmount);
 			}
 
-			if(!string.IsNullOrWhiteSpace(response.Status)
-				&& !string.Equals(response.Status, SuccessStatus, StringComparison.OrdinalIgnoreCase))
+			if(!string.Equals(response.Status, SuccessStatus, StringComparison.OrdinalIgnoreCase))
 			{
 				return FailParse(
 					operation,
@@ -203,14 +202,14 @@ namespace Mindbox.Library.Services
 					erpCounterpartyId,
 					externalOrderId);
 
-				return FailParse(
-					operation,
+				return MindboxAuthorizedCartResult.Failure(
 					$"Статус обработки заказа CalculateAuthorizedCart: {response.Order.ProcessingStatus}",
-					erpCounterpartyId,
-					externalOrderId,
-					requestedAmount,
+					operation.HttpStatusCode,
 					response.Status,
-					response.Order.ProcessingStatus);
+					response.Order.ProcessingStatus,
+					operation.ErrorId,
+					operation.Outcome,
+					operation.DurationMs);
 			}
 
 			var bonusInfo = response.Order.TotalBonusPointsInfo;
@@ -461,8 +460,18 @@ namespace Mindbox.Library.Services
 			}
 
 			return response.ValidationMessages.Any(message =>
-				message?.Location != null
-				&& message.Location.IndexOf(BonusPointsLocation, StringComparison.OrdinalIgnoreCase) >= 0);
+			{
+				if(message?.Location is null)
+				{
+					return false;
+				}
+
+				var normalizedLocation = message.Location
+					.Replace('.', '/')
+					.TrimStart('/');
+
+				return normalizedLocation.IndexOf(BonusPointsLocation, StringComparison.OrdinalIgnoreCase) >= 0;
+			});
 		}
 
 		private static int GetRequestedAmount(MindboxAuthorizedCartRequest request)

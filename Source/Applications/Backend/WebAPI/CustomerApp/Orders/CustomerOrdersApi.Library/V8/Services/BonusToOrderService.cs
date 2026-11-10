@@ -146,6 +146,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 		{
 			if(request.BonusesToWriteOff is null
 				|| request.BonusesToWriteOff < 0
+				|| request.BonusesToWriteOff > int.MaxValue
 				|| decimal.Truncate(request.BonusesToWriteOff.Value) != request.BonusesToWriteOff.Value)
 			{
 				throw new BonusToOrderValidationException("Некорректная сумма списания");
@@ -159,6 +160,11 @@ namespace CustomerOrdersApi.Library.V8.Services
 			if(request.ErpCounterpartyId is null || request.ErpCounterpartyId <= 0)
 			{
 				throw new BonusToOrderValidationException("Не передан клиент");
+			}
+
+			if(request.ExternalOrderId == Guid.Empty)
+			{
+				throw new BonusToOrderValidationException("Не передан идентификатор заказа");
 			}
 		}
 

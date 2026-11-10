@@ -44,6 +44,17 @@ namespace CustomerOrdersApi.Controllers.V8
 			[FromBody] ApplyBonusToOrderRequest applyBonusToOrder,
 			CancellationToken cancellationToken)
 		{
+			if(applyBonusToOrder is null)
+			{
+				_logger.LogWarning("Поступил пустой запрос расчёта бонусов");
+
+				return BadRequest(new ProblemDetails
+				{
+					Status = StatusCodes.Status400BadRequest,
+					Detail = "Некорректный запрос"
+				});
+			}
+
 			try
 			{
 				_logger.LogInformation(
