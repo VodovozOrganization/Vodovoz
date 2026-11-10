@@ -174,7 +174,7 @@ dotnet run --project $admin -- resend --all-errors
 
 ## Расчёт бонусов при оформлении заказа
 
-`GET /api/v8/ApplyBonusToOrder` принимает корзину из последнего ответа Apply-методов и сумму списания, вызывает
+`POST /api/v8/ApplyBonusToOrder` принимает корзину из последнего ответа Apply-методов и сумму списания, вызывает
 операцию Mindbox `CalculateAuthorizedCart` и возвращает баланс, доступное списание, начисление и позиции заказа
 с полем `bonusesWrittenOff`. Метод ничего не сохраняет и не пересчитывает цены и скидки ERP.
 

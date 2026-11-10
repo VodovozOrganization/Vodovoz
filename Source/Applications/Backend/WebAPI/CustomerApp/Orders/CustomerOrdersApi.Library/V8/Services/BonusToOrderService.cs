@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
+using CustomerOrdersApi.Library.V8.Dto.Orders.OrderItem;
 using CustomerOrdersApi.Library.V8.Dto.Sale;
 using Mindbox.Library.Contracts;
 using Mindbox.Library.Mapping;
