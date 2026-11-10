@@ -156,6 +156,11 @@ namespace Mindbox.Library.Services
 					requestedAmount);
 			}
 
+			_logger.LogDebug(
+				"CalculateAuthorizedCart response parsed: erpCounterpartyId={ErpCounterpartyId}, externalOrderId={ExternalOrderId}",
+				erpCounterpartyId,
+				externalOrderId);
+
 			MindboxAuthorizedCartResponse response;
 
 			try
@@ -212,14 +217,27 @@ namespace Mindbox.Library.Services
 					operation.DurationMs);
 			}
 
-			var bonusInfo = response.Order.TotalBonusPointsInfo;
+			var bonusInfo = response.Order.TotalBonusPointsInfo
+				?? ResolveBonusInfo(response.Order.BonusPointsInfoPerBalanceType);
 
-			if(bonusInfo is null
-				|| !string.Equals(bonusInfo.Status, SuccessStatus, StringComparison.OrdinalIgnoreCase))
+			if(bonusInfo is null)
 			{
 				return FailParse(
 					operation,
-					$"Статус бонусов CalculateAuthorizedCart: {bonusInfo?.Status}",
+					"В ответе CalculateAuthorizedCart нет totalBonusPointsInfo",
+					erpCounterpartyId,
+					externalOrderId,
+					requestedAmount,
+					response.Status,
+					response.Order.ProcessingStatus);
+			}
+
+			if(!string.IsNullOrWhiteSpace(bonusInfo.Status)
+				&& !string.Equals(bonusInfo.Status, SuccessStatus, StringComparison.OrdinalIgnoreCase))
+			{
+				return FailParse(
+					operation,
+					$"Статус бонусов CalculateAuthorizedCart: {bonusInfo.Status}",
 					erpCounterpartyId,
 					externalOrderId,
 					requestedAmount,
@@ -293,13 +311,14 @@ namespace Mindbox.Library.Services
 			}
 
 			var linesSum = bonusesByLineNumber.Values.Sum();
+			var spentAmount = ConvertToBonusPoints(bonusInfo.SpentAmountForCurrentOrder);
 
-			if(linesSum != bonusInfo.SpentAmountForCurrentOrder)
+			if(linesSum != spentAmount)
 			{
 				_logger.LogError(
 					"CalculateAuthorizedCart: сумма списания по позициям {LinesSum} не равна spentAmountForCurrentOrder {SpentAmount}, erpCounterpartyId={ErpCounterpartyId}, externalOrderId={ExternalOrderId}",
 					linesSum,
-					bonusInfo.SpentAmountForCurrentOrder,
+					spentAmount,
 					erpCounterpartyId,
 					externalOrderId);
 
@@ -316,9 +335,11 @@ namespace Mindbox.Library.Services
 			var bonusesToEarn = GetEarnedAmount(response.Order.BonusPointsChanges);
 
 			return MindboxAuthorizedCartResult.Success(
-				bonusInfo.Balance?.Available,
-				bonusInfo.AvailableAmountForCurrentOrder,
-				bonusInfo.SpentAmountForCurrentOrder,
+				bonusInfo.Balance is null
+					? (int?)null
+					: ConvertToBonusPoints(bonusInfo.Balance.Available),
+				ConvertToBonusPoints(bonusInfo.AvailableAmountForCurrentOrder),
+				spentAmount,
 				bonusesToEarn,
 				bonusesByLineNumber,
 				operation.HttpStatusCode,
@@ -481,6 +502,34 @@ namespace Mindbox.Library.Services
 				: 0;
 		}
 
+		private MindboxAuthorizedCartTotalBonusPointsInfo ResolveBonusInfo(
+			IEnumerable<MindboxAuthorizedCartTotalBonusPointsInfo> bonusInfos)
+		{
+			var infos = bonusInfos?.Where(info => info != null).ToList();
+
+			if(infos is null || infos.Count == 0)
+			{
+				return null;
+			}
+
+			var balanceSystemName = _settings.BonusBalanceSystemName;
+
+			if(!string.IsNullOrWhiteSpace(balanceSystemName))
+			{
+				var matchingInfo = infos.FirstOrDefault(info =>
+					info.BalanceType?.Ids != null
+					&& info.BalanceType.Ids.TryGetValue("systemName", out var systemName)
+					&& string.Equals(systemName, balanceSystemName, StringComparison.Ordinal));
+
+				if(matchingInfo != null)
+				{
+					return matchingInfo;
+				}
+			}
+
+			return infos[0];
+		}
+
 		private int GetEarnedAmount(IEnumerable<MindboxAuthorizedCartBonusPointsChange> changes)
 		{
 			if(changes is null)
@@ -499,7 +548,7 @@ namespace Mindbox.Library.Services
 
 			if(string.IsNullOrWhiteSpace(balanceSystemName))
 			{
-				return changesList[0].EarnedAmount;
+				return ConvertToBonusPoints(changesList[0].EarnedAmount);
 			}
 
 			foreach(var change in changesList)
@@ -508,7 +557,7 @@ namespace Mindbox.Library.Services
 					&& change.BalanceType.Ids.TryGetValue("systemName", out var systemName)
 					&& string.Equals(systemName, balanceSystemName, StringComparison.Ordinal))
 				{
-					return change.EarnedAmount;
+					return ConvertToBonusPoints(change.EarnedAmount);
 				}
 			}
 

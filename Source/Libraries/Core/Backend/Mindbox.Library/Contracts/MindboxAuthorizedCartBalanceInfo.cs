@@ -11,18 +11,18 @@ namespace Mindbox.Library.Contracts
 		/// Всего бонусов
 		/// </summary>
 		[JsonPropertyName("total")]
-		public int Total { get; set; }
+		public decimal Total { get; set; }
 
 		/// <summary>
 		/// Доступно бонусов
 		/// </summary>
 		[JsonPropertyName("available")]
-		public int Available { get; set; }
+		public decimal Available { get; set; }
 
 		/// <summary>
 		/// Заблокировано бонусов
 		/// </summary>
 		[JsonPropertyName("blocked")]
-		public int Blocked { get; set; }
+		public decimal Blocked { get; set; }
 	}
 }

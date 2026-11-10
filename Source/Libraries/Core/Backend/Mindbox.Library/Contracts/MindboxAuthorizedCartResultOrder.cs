@@ -27,6 +27,12 @@ namespace Mindbox.Library.Contracts
 		public MindboxAuthorizedCartTotalBonusPointsInfo TotalBonusPointsInfo { get; set; }
 
 		/// <summary>
+		/// Информация по бонусам в разрезе балльных счетов
+		/// </summary>
+		[JsonPropertyName("bonusPointsInfoPerBalanceType")]
+		public List<MindboxAuthorizedCartTotalBonusPointsInfo> BonusPointsInfoPerBalanceType { get; set; }
+
+		/// <summary>
 		/// Изменения бонусов по балльным счетам
 		/// </summary>
 		[JsonPropertyName("bonusPointsChanges")]

@@ -77,10 +77,12 @@ namespace CustomerOrdersApi.Library.V8.Services
 			if(request.Source != Source.MobileApp || !IsBonusProgramEnabled(erpCounterpartyId))
 			{
 				_logger.LogInformation(
-					"ApplyBonusToOrder: Mindbox не вызывается, клиент не участник программы. erpCounterpartyId={ErpCounterpartyId}, externalOrderId={ExternalOrderId}, source={Source}",
+					"ApplyBonusToOrder: Mindbox не вызывается, клиент не участник программы. erpCounterpartyId={ErpCounterpartyId}, externalOrderId={ExternalOrderId}, source={Source}, bonusProgramMode={BonusProgramMode}, bonusProgramClientIds={BonusProgramClientIds}",
 					erpCounterpartyId,
 					request.ExternalOrderId,
-					request.Source);
+					request.Source,
+					_mindboxSettings.BonusProgramMode,
+					_mindboxSettings.BonusProgramClientIds);
 
 				return BuildResponse(
 					requestItems,

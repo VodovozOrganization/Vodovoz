@@ -11,13 +11,13 @@ namespace Mindbox.Library.Contracts
 		/// Начислено бонусов
 		/// </summary>
 		[JsonPropertyName("earnedAmount")]
-		public int EarnedAmount { get; set; }
+		public decimal EarnedAmount { get; set; }
 
 		/// <summary>
 		/// Списано бонусов
 		/// </summary>
 		[JsonPropertyName("spentAmount")]
-		public int SpentAmount { get; set; }
+		public decimal SpentAmount { get; set; }
 
 		/// <summary>
 		/// Балльный счёт

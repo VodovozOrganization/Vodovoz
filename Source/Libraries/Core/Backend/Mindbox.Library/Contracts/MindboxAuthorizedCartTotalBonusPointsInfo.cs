@@ -17,18 +17,24 @@ namespace Mindbox.Library.Contracts
 		/// Сколько бонусов можно списать в заказе
 		/// </summary>
 		[JsonPropertyName("availableAmountForCurrentOrder")]
-		public int AvailableAmountForCurrentOrder { get; set; }
+		public decimal AvailableAmountForCurrentOrder { get; set; }
 
 		/// <summary>
 		/// Сколько бонусов списано в заказе
 		/// </summary>
 		[JsonPropertyName("spentAmountForCurrentOrder")]
-		public int SpentAmountForCurrentOrder { get; set; }
+		public decimal SpentAmountForCurrentOrder { get; set; }
 
 		/// <summary>
 		/// Баланс балльного счёта
 		/// </summary>
 		[JsonPropertyName("balance")]
 		public MindboxAuthorizedCartBalanceInfo Balance { get; set; }
+
+		/// <summary>
+		/// Балльный счёт
+		/// </summary>
+		[JsonPropertyName("balanceType")]
+		public MindboxAuthorizedCartResponseBalanceType BalanceType { get; set; }
 	}
 }
