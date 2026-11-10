@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -9,7 +9,7 @@ namespace Vodovoz.Presentation.WebApi.SwaggerGen
 	{
 		public void Apply(OpenApiOperation operation, OperationFilterContext context)
 		{
-			operation.Responses.Add(StatusCodes.Status500InternalServerError.ToString(), new OpenApiResponse
+			operation.Responses[StatusCodes.Status500InternalServerError.ToString()] = new OpenApiResponse
 			{
 				Content =
 				{
@@ -18,9 +18,9 @@ namespace Vodovoz.Presentation.WebApi.SwaggerGen
 						Schema = context.SchemaGenerator.GenerateSchema(typeof(ProblemDetails), context.SchemaRepository)
 					}
 				}
-			});
+			};
 
-			operation.Responses.Add(StatusCodes.Status400BadRequest.ToString(), new OpenApiResponse
+			operation.Responses[StatusCodes.Status400BadRequest.ToString()] = new OpenApiResponse
 			{
 				Content =
 				{
@@ -29,9 +29,9 @@ namespace Vodovoz.Presentation.WebApi.SwaggerGen
 						Schema = context.SchemaGenerator.GenerateSchema(typeof(ProblemDetails), context.SchemaRepository)
 					}
 				}
-			});
+			};
 
-			operation.Responses.Add(StatusCodes.Status403Forbidden.ToString(), new OpenApiResponse
+			operation.Responses[StatusCodes.Status403Forbidden.ToString()] = new OpenApiResponse
 			{
 				Content =
 				{
@@ -40,9 +40,9 @@ namespace Vodovoz.Presentation.WebApi.SwaggerGen
 						Schema = context.SchemaGenerator.GenerateSchema(typeof(ProblemDetails), context.SchemaRepository)
 					}
 				}
-			});
+			};
 
-			operation.Responses.Add(StatusCodes.Status404NotFound.ToString(), new OpenApiResponse
+			operation.Responses[StatusCodes.Status404NotFound.ToString()] = new OpenApiResponse
 			{
 				Content =
 				{
@@ -51,7 +51,7 @@ namespace Vodovoz.Presentation.WebApi.SwaggerGen
 						Schema = context.SchemaGenerator.GenerateSchema(typeof(ProblemDetails), context.SchemaRepository)
 					}
 				}
-			});
+			};
 		}
 	}
 }
