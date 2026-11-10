@@ -25,17 +25,23 @@ namespace Edo.Docflow.Consumers
 
 		public async Task Consume(ConsumeContext<InformalDocumentFileDataSendEvent> context)
 		{
+			var message = context.Message;
 			try
 			{
 				_logger.LogInformation(
-					$"Получено событие {nameof(InformalDocumentFileDataSendEvent)}, DocumentId: {context.Message.FileData}");
+					"Обрабатываем событие {EventName}, OrderId: {OrderId}",
+					nameof(InformalDocumentFileDataSendEvent),
+					message.FileData.OrderId);
 
-				await _docflowHandler.SendInformalOrderDocument(context.Message.DocumentId, context.Message.FileData, context.CancellationToken);
+				await _docflowHandler.SendInformalOrderDocument(message.DocumentId, message.FileData, context.CancellationToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(
-					ex, $"Обнаружена ошибка при обработке события {nameof(InformalDocumentFileDataSendEvent)}, DocumentId: {context.Message.FileData}");
+					ex,
+					"Ошибка при обработке события {EventName}, OrderId: {OrderId}",
+					nameof(InformalDocumentFileDataSendEvent),
+					message.FileData.OrderId);
 				throw;
 			}
 		}
