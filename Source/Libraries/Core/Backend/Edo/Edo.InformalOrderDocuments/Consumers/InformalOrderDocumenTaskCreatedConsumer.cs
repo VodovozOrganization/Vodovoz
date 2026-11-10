@@ -26,16 +26,23 @@ namespace Edo.InformalOrderDocuments.Consumers
 
 		public async Task Consume(ConsumeContext<InformalOrderDocumenTaskCreatedEvent> context)
 		{
+			var message = context.Message;
 			try
 			{
 				_logger.LogInformation(
-					$"Получено событие {nameof(InformalOrderDocumenTaskCreatedEvent)}, DocumentId: {context.Message.InformalOrderDocumentTaskId}");
+					"Обрабатываем событие {EventName}, InformalOrderDocumentTaskId: {TaskId}",
+					nameof(InformalOrderDocumenTaskCreatedEvent),
+					message.InformalOrderDocumentTaskId);
+
 				await _orderDocumentEdoTaskHandler.HandleNew(context.Message.InformalOrderDocumentTaskId, context.CancellationToken);
 			}
 			catch (Exception ex)
 			{
 				_logger.LogError(
-					ex, $"Обнаружена ошибка при обработке события {nameof(InformalOrderDocumenTaskCreatedEvent)}, DocumentId: {context.Message.InformalOrderDocumentTaskId}");
+					ex,
+					"Ошибка при обработке события {EventName}, InformalOrderDocumentTaskId: {TaskId}",
+					nameof(InformalOrderDocumenTaskCreatedEvent),
+					message.InformalOrderDocumentTaskId);
 				throw;
 			}
 		}
