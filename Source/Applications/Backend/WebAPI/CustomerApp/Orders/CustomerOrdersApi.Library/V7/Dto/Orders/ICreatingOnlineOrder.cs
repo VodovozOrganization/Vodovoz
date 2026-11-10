@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
 using Vodovoz.Core.Domain.Clients;
@@ -125,10 +125,6 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		/// Не приезжать раньше интервала
 		/// </summary>
 		bool DontArriveBeforeInterval { get; set; }
-		/// <summary>
-		/// Сколько бонусов списать
-		/// </summary>
-		int? BonusesToWriteOff { get; set; }
 
 		/// <summary>
 		/// Список товаров

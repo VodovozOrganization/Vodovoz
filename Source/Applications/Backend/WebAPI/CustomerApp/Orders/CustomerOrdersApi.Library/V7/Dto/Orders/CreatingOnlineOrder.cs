@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
@@ -125,10 +125,6 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 		/// Не приезжать раньше интервала
 		/// </summary>
 		public bool DontArriveBeforeInterval { get; set; }
-		/// <summary>
-		/// Сколько бонусов списать
-		/// </summary>
-		public int? BonusesToWriteOff { get; set; }
 
 		/// <summary>
 		/// Список товаров

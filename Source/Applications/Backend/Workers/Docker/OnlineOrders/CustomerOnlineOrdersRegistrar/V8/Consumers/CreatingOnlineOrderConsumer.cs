@@ -1,0 +1,74 @@
+using System;
+using System.Threading.Tasks;
+using CustomerOnlineOrdersRegistrar.V8.Factories;
+using CustomerOrdersApi.Library.V8.Dto.Orders;
+using MassTransit;
+using Microsoft.Extensions.Logging;
+using Mindbox.Library.Services;
+using QS.DomainModel.UoW;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Database.Mindbox;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.OnlineOrders;
+using VodovozBusiness.Factories;
+using VodovozBusiness.Services.Orders;
+
+namespace CustomerOnlineOrdersRegistrar.V8.Consumers
+{
+	public class CreatingOnlineOrderConsumer : OnlineOrderConsumer, IConsumer<CreatingOnlineOrder>
+	{
+		public CreatingOnlineOrderConsumer(
+			ILogger<CreatingOnlineOrderConsumer> logger,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IOnlineOrderFactory onlineOrderFactory,
+			IDeliveryRulesSettings deliveryRulesSettings,
+			IOnlineOrderRepository onlineOrderRepository,
+			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
+			IOrderService orderService,
+			IRouteListService routeListService,
+			IOnlineOrderValidatorCreator onlineOrderValidatorCreator,
+			IMindboxAuthorizedLoyaltyOrderService mindboxLoyaltyOrderService,
+			IMindboxSettings mindboxSettings,
+			INomenclatureSettings nomenclatureSettings)
+			: base(
+				logger,
+				unitOfWorkFactory,
+				onlineOrderFactory,
+				deliveryRulesSettings,
+				onlineOrderRepository,
+				onlineOrderCancellationReasonSettings,
+				orderService,
+				routeListService,
+				onlineOrderValidatorCreator,
+				mindboxLoyaltyOrderService,
+				mindboxSettings,
+				nomenclatureSettings)
+		{
+		}
+		
+		public async Task Consume(ConsumeContext<CreatingOnlineOrder> context)
+		{
+			var message = context.Message;
+			Logger.LogInformation("Пришел онлайн заказ {ExternalOrderId}, регистрируем...", message.ExternalOrderId);
+			
+			try
+			{
+				var onlineOrderIdWithCode = await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
+				await context.RespondAsync(CreatedOnlineOrderResult.Create(
+					onlineOrderIdWithCode.OnlineOrderId,
+					onlineOrderIdWithCode.Code,
+					LastBonusesWrittenOff,
+					LastBonusesToEarn,
+					LastErrorCode));
+			}
+			catch(Exception e)
+			{
+				//TODO: проверить работу вброса ошибки
+				Logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
+				throw;
+			}
+		}
+	}
+}

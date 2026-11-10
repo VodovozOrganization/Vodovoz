@@ -14,10 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Presentation.WebApi.Messages;
-using V7CreatingOnlineOrder = CustomerOrdersApi.Library.V7.Dto.Orders.CreatingOnlineOrder;
-using V7CreatedOnlineOrderResult = CustomerOrdersApi.Library.V7.Dto.Orders.CreatedOnlineOrderResult;
-using V7ICustomerOrdersService = CustomerOrdersApi.Library.V7.Services.ICustomerOrdersService;
-using V8CreatedOnlineOrder = CustomerOrdersApi.Library.V8.Dto.Orders.CreatedOnlineOrder;
 
 namespace CustomerOrdersApi.Controllers.V8
 {
@@ -25,26 +21,23 @@ namespace CustomerOrdersApi.Controllers.V8
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
-		private readonly V7ICustomerOrdersService _v7CustomerOrdersService;
 		private readonly ICustomerOrderCancellationService _orderCancellationService;
-		private readonly IRequestClient<V7CreatingOnlineOrder> _requestClient;
+		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersService customerOrdersService,
-			V7ICustomerOrdersService v7CustomerOrdersService,
 			ICustomerOrderCancellationService orderCancellationService,
-			IRequestClient<V7CreatingOnlineOrder> requestClient
+			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
-			_v7CustomerOrdersService = v7CustomerOrdersService ?? throw new ArgumentNullException(nameof(v7CustomerOrdersService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
 			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateOrderAsync(V7CreatingOnlineOrder creatingOnlineOrder)
+		public async Task<IActionResult> CreateOrderAsync(CreatingOnlineOrder creatingOnlineOrder)
 		{
 			var sourceName = creatingOnlineOrder.Source.GetEnumTitle();
 			
@@ -56,22 +49,17 @@ namespace CustomerOrdersApi.Controllers.V8
 					creatingOnlineOrder.ExternalOrderId,
 					creatingOnlineOrder.Signature);
 				
-				if(!_v7CustomerOrdersService.ValidateOrderSignature(creatingOnlineOrder, out var generatedSignature))
+				if(!_customerOrdersService.ValidateOrderSignature(creatingOnlineOrder, out var generatedSignature))
 				{
 					return InvalidSignature(creatingOnlineOrder.Signature, generatedSignature);
 				}
 
 				_logger.LogInformation("Подпись валидна, отправляем в очередь");
-				var response = await _requestClient.GetResponse<V7CreatedOnlineOrderResult>(creatingOnlineOrder);
+				var response = await _requestClient.GetResponse<CreatedOnlineOrderResult>(creatingOnlineOrder);
 
 				return response.Message.Code switch
 				{
-					200 => Ok(new V8CreatedOnlineOrder
-					{
-						OnlineOrderId = response.Message.OnlineOrderId,
-						BonusesWrittenOff = response.Message.BonusesWrittenOff,
-						BonusesToEarn = response.Message.BonusesToEarn
-					}),
+					200 => Ok(CreatedOnlineOrder.Create(response.Message)),
 					400 => BonusProblem(response.Message.ErrorCode, "Некорректная сумма списания бонусов"),
 					409 when response.Message.ErrorCode == "BonusesChanged" =>
 						BonusProblem(response.Message.ErrorCode, "Сумма бонусов изменилась. Проверьте заказ и оформите ещё раз"),

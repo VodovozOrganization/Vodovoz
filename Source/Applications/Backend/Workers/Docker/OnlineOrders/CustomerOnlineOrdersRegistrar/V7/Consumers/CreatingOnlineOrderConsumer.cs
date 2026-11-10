@@ -1,16 +1,13 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.V7.Factories;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using Mindbox.Library.Services;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Settings.Database.Mindbox;
 using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.OnlineOrders;
 using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
@@ -28,10 +25,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
 			IRouteListService routeListService,
-			IOnlineOrderValidatorCreator onlineOrderValidatorCreator,
-			IMindboxAuthorizedLoyaltyOrderService mindboxLoyaltyOrderService,
-			IMindboxSettings mindboxSettings,
-			INomenclatureSettings nomenclatureSettings)
+			IOnlineOrderValidatorCreator onlineOrderValidatorCreator)
 			: base(
 				logger,
 				unitOfWorkFactory,
@@ -41,10 +35,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 				onlineOrderCancellationReasonSettings,
 				orderService,
 				routeListService,
-				onlineOrderValidatorCreator,
-				mindboxLoyaltyOrderService,
-				mindboxSettings,
-				nomenclatureSettings)
+				onlineOrderValidatorCreator)
 		{
 		}
 		
@@ -56,12 +47,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 			try
 			{
 				var onlineOrderIdWithCode = await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
-				await context.RespondAsync(CreatedOnlineOrderResult.Create(
-					onlineOrderIdWithCode.OnlineOrderId,
-					onlineOrderIdWithCode.Code,
-					LastBonusesWrittenOff,
-					LastBonusesToEarn,
-					LastErrorCode));
+				await context.RespondAsync(CreatedOnlineOrderResult.Create(onlineOrderIdWithCode));
 			}
 			catch(Exception e)
 			{
