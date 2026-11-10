@@ -17,6 +17,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Taxcom.Docflow.Utility;
@@ -25,6 +26,10 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Organizations;
 using Core.Infrastructure;
+using EdoService.Library.Services;
+using MoreLinq.Extensions;
+using TaxcomEdo.Contracts.Documents;
+using Vodovoz.Core.Domain.Edo;
 
 namespace CustomTaskDebugExecutor
 {
@@ -131,14 +136,18 @@ namespace CustomTaskDebugExecutor
 			Console.WriteLine("    Событие создания задачи на отправку ЭДО неформализованного документа клиенту");
 			Console.WriteLine();
 			
-			Console.WriteLine("23. Обновить статус ДО");
+			Console.WriteLine("23. SendInformalOrderDocument (отправка неформализованного документа заказа)");
+			Console.WriteLine("    Событие отправки ЭДО неформализованного документа клиенту. Функционал работает пока только для счетов!!!");
+			Console.WriteLine();
+			
+			Console.WriteLine("24. Обновить статус ДО");
 			Console.WriteLine();
 
-			Console.WriteLine("24. OrderDocflowCompletedEvent (отправка события о том, что документооборот УПД по заказу успешно завершён) - [Edo.Documents]");
+			Console.WriteLine("25. OrderDocflowCompletedEvent (отправка события о том, что документооборот УПД по заказу успешно завершён) - [Edo.Documents]");
 			Console.WriteLine("    Событие для создания заявки на вывод из оборота кодов в ЧЗ");
 			Console.WriteLine();
 
-			Console.WriteLine("25. WithdrawalEdoRequestCreatedEvent (отправка события о том, что создана заявка на вывод кодов из оборота) - [Edo.Scheduler]");
+			Console.WriteLine("26. WithdrawalEdoRequestCreatedEvent (отправка события о том, что создана заявка на вывод кодов из оборота) - [Edo.Scheduler]");
 			Console.WriteLine("    Событие для создания задачи на вывод из оборота кодов в ЧЗ");
 			Console.WriteLine();
 
@@ -214,12 +223,15 @@ namespace CustomTaskDebugExecutor
 					await ReceiveInformalDocumentTaskCreatedEvent(cancellationToken);
 					break;
 				case 23:
-					await UpdateDocflowStatus();
+					await SendInformalOrderDocument(cancellationToken);
 					break;
 				case 24:
-					await ReceiveOrderDocflowCompletedEvent(cancellationToken);
+					await UpdateDocflowStatus();
 					break;
 				case 25:
+					await ReceiveOrderDocflowCompletedEvent(cancellationToken);
+					break;
+				case 26:
 					await ReceiveWithdrawalEdoRequestCreatedEvent(cancellationToken);
 					break;
 				default:
@@ -598,6 +610,73 @@ namespace CustomTaskDebugExecutor
 			catch(Exception)
 			{
 				return codes;
+			}
+		}
+		
+		private async Task SendInformalOrderDocument(CancellationToken cancellationToken)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id задачи не формализованного документа (edo_tasks)");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var taskId = int.Parse(Console.ReadLine());
+
+			if(taskId <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+			
+			using var uow = _serviceProvider.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot();
+			
+			var task = await uow.Session.GetAsync<EdoTask>(taskId, cancellationToken);
+
+			if(task is null)
+			{
+				throw new InvalidOperationException($"Не найдена задача №{taskId}");
+			}
+			
+			var informalEdoRequest = uow
+				.GetAll<InformalEdoRequest>()
+				.FirstOrDefault(x => x.Task.Id == task.Id);
+
+			if(informalEdoRequest is null)
+			{
+				throw new InvalidOperationException($"Не найдена заявка под номер задачи {taskId}");
+			}
+			
+			if(informalEdoRequest.IsBill)
+			{
+				var snapshot = JsonSerializer.Deserialize<InfoForCreatingEdoInformalOrderDocument>(
+					informalEdoRequest.DocumentSnapshot);
+				if(snapshot?.IsBill != true || snapshot.FileData == null)
+				{
+					throw new InvalidOperationException($"У заявки счета №{informalEdoRequest.Id} отсутствует PDF снимка");
+				}
+
+				var billFileStorageService = _serviceProvider.GetRequiredService<IBillEdoDocumentFileStorageService>();
+				var docflowSendHandler = _serviceProvider.GetRequiredService<DocflowSendHandler>();
+
+				if(snapshot.FileData.Image == null)
+				{
+					snapshot.FileData.Image = await billFileStorageService.GetAsync(snapshot.MainDocumentId, cancellationToken);
+				}
+				
+				if(snapshot.FileData.Image.Length == 0)
+				{
+					throw new InvalidOperationException($"PDF счета заявки №{informalEdoRequest.Id} пустой");
+				}
+				
+				var document = uow
+					.GetAll<OutgoingInformalEdoDocument>()
+					.FirstOrDefault(x => x.InformalDocumentTaskId == task.Id);
+				
+				if(document is null)
+				{
+					throw new InvalidOperationException($"Не найден документ привязанный к таске {taskId}");
+				}
+				
+				await docflowSendHandler.SendInformalOrderDocument(document.Id, snapshot.FileData, cancellationToken);
 			}
 		}
 

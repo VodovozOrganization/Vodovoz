@@ -114,7 +114,7 @@ namespace Edo.Docflow
 			var isNotValidStatus = _edoRepository.GetInProgressOrCompletedStatuses().Contains(document.Status); 
 			if(isNotValidStatus)
 			{
-				_logger.LogError("Документ {documentId} уже в работе, повторно отправить нельзя.");
+				_logger.LogError("Документ {documentId} уже в работе, повторно отправить нельзя.", orderDocumentId);
 				return;
 			}
 
@@ -164,8 +164,9 @@ namespace Edo.Docflow
 		/// <summary>
 		/// Обработка неформализованного документа заказа 
 		/// </summary>
-		/// <param name="orderDocumentId"></param>
-		/// <param name="cancellationToken"></param>
+		/// <param name="orderDocumentId">Идентификатор не формализованного ЭДО документа</param>
+		/// <param name="orderDocumentFileData">Данные отправляемого документа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		public async Task SendInformalOrderDocument(
 			int orderDocumentId,
@@ -176,20 +177,20 @@ namespace Edo.Docflow
 			var document = await _uow.Session.GetAsync<OutgoingInformalEdoDocument>(orderDocumentId, cancellationToken);
 			if(document is null)
 			{
-				_logger.LogWarning($"Документ {orderDocumentId} не найден");
+				_logger.LogWarning("Документ {InformalDocumentId} не найден", orderDocumentId);
 				return;
 			}
 
 			var isNotValidStatus = _edoRepository.GetInProgressOrCompletedStatuses().Contains(document.Status);
 			if(isNotValidStatus)
 			{
-				_logger.LogError($"Документ {orderDocumentId} уже в работе, повторно отправить нельзя.");
+				_logger.LogError("Документ {InformalDocumentId} уже в работе, повторно отправить нельзя.", orderDocumentId);
 				return;
 			}
 
 			if(orderDocumentFileData.Image is null || orderDocumentFileData.Image.Length == 0)
 			{
-				_logger.LogWarning($"Файл документа {orderDocumentId} пустой.");
+				_logger.LogWarning("Файл документа {InformalDocumentId} пустой.", orderDocumentId);
 				return;
 			}
 
@@ -199,14 +200,21 @@ namespace Edo.Docflow
 
 			if(informalEdoRequest is null)
 			{
-				_logger.LogWarning($"Заявка на неформальный ЭДО для задачи с идентификатором {document.InformalDocumentTaskId} не найдена.");
+				_logger.LogWarning(
+					"Не найдена заявка на ЭДО для не формализованного документа {InformalDocumentId} задачи {EdoTaskId}",
+					orderDocumentId,
+					document.InformalDocumentTaskId);
+				
 				return;
 			}
 
 			var edoTask = informalEdoRequest.Task;
+
 			if(edoTask is null)
 			{
-				_logger.LogWarning($"Задача ЭДО акта №{document.InformalDocumentTaskId} не найдена");
+				_logger.LogWarning(
+					"Задача ЭДО {EdoTaskId} не найдена",
+					document.InformalDocumentTaskId);
 				return;
 			}
 
@@ -214,37 +222,43 @@ namespace Edo.Docflow
 			{
 				var snapshot = JsonSerializer.Deserialize<InfoForCreatingEdoInformalOrderDocument>(
 					informalEdoRequest.DocumentSnapshot);
+
 				if(snapshot?.FileData != null && snapshot.FileData.Image == null)
 				{
 					snapshot.FileData.Image = orderDocumentFileData.Image;
 				}
+
 				if(snapshot?.IsBill != true || snapshot.FileData?.Image == null || snapshot.FileData.Image.Length == 0)
 				{
 					throw new InvalidOperationException($"У заявки счета №{informalEdoRequest.Id} отсутствует PDF снимка");
 				}
 
-				await _publishEndpoint.Publish(new TaxcomDocflowInformalDocumentSendEvent
-				{
-					EdoAccount = snapshot.OrganizationInfoForEdo.TaxcomEdoAccountId,
-					EdoOutgoingDocumentId = document.Id,
-					DocumentInfo = snapshot,
-					EdoTaskId = edoTask.Id
-				}, cancellationToken);
+				await _publishEndpoint.Publish(
+					new TaxcomDocflowInformalDocumentSendEvent
+					{
+						EdoAccount = snapshot.OrganizationInfoForEdo.TaxcomEdoAccountId,
+						EdoOutgoingDocumentId = document.Id,
+						DocumentInfo = snapshot,
+						EdoTaskId = edoTask.Id
+					},
+					cancellationToken);
+				// Данные не менялись, Commit сохраняет сообщение в outbox
 				await _uow.CommitAsync(cancellationToken);
+				
 				return;
 			}
 
 			var order = await _uow.Session.GetAsync<OrderEntity>(orderDocumentFileData.OrderId, cancellationToken);
 			if(order is null)
 			{
-				_logger.LogWarning($"Заказ №{orderDocumentFileData.OrderId} не найден");
+				_logger.LogWarning("Заказ №{OrderId} не найден", orderDocumentFileData.OrderId);
 				return;
 			}
 
 			var sender = order.Contract.Organization;
 			if(sender.TaxcomEdoSettings is null)
 			{
-				_logger.LogWarning($"Настройки ЭДО Такском не найдены для организации отправителя {sender.Id}");
+				_logger.LogWarning("Настройки ЭДО Такском не найдены для организации отправителя {SenderId}", sender.Id);
 				return;
 			}
 
@@ -255,7 +269,11 @@ namespace Edo.Docflow
 
 				if(informalDocument is null)
 				{
-					_logger.LogWarning($"Документ заказа {informalEdoRequest.OrderDocumentType} для заказа {order.Id} не найден");
+					_logger.LogWarning(
+						"Документ заказа {OrderDocumentType} для заказа {OrderId} не найден",
+						informalEdoRequest.OrderDocumentType,
+						order.Id);
+
 					return;
 				}
 
@@ -274,15 +292,19 @@ namespace Edo.Docflow
 				// Данные не менялись, Commit сохраняет сообщение в outbox
 				await _uow.CommitAsync(cancellationToken);
 
-				_logger.LogInformation($"Отправка неформализованного документа заказа №{orderDocumentId}");
+				_logger.LogInformation("Отправка не формализованного документа заказа №{InformalDocumentId}", orderDocumentId);
 			}
 			catch(NotSupportedException ex)
 			{
-				_logger.LogWarning(ex, $"Неподдерживаемый тип документа: {informalEdoRequest.OrderDocumentType}");
+				_logger.LogWarning(ex, "Неподдерживаемый тип документа: {OrderDocumentType}", informalEdoRequest.OrderDocumentType);
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, $"Ошибка при отправке неформализованного документа заказа №{orderDocumentId}");
+				_logger.LogError(
+					ex,
+					"Ошибка при отправке не формализованного документа заказа №{InformalDocumentId}",
+					orderDocumentId);
+
 				throw;
 			}
 		}

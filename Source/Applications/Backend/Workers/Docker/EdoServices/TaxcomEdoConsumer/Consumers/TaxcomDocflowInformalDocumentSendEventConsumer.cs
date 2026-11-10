@@ -27,16 +27,20 @@ namespace TaxcomEdoConsumer.Consumers
 			try
 			{
 				_logger.LogInformation(
-					"Создаем исходящий документооборот с неформализованным документом типа {EdoDocument}",
-					message.DocumentInfo.MainDocumentId);
+					"Создаем исходящий документооборот с не формализованным документом {EdoDocument} {MainDocumentId}",
+					message.EdoOutgoingDocumentId,
+					message.DocumentInfo.MainDocumentId
+					);
 
 				await _edoDocflowHandler.CreateTaxcomDocflowInformalDocument(message, context.CancellationToken);
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e,
-					"Ошибка при создании исходящего документооборота с неформализованным документом типа{EdoDocument}",
-					message.DocumentInfo.MainDocumentId);
+					"Ошибка при создании исходящего документооборота с не формализованным документом {EdoDocument} {MainDocumentId}",
+					message.DocumentInfo.MainDocumentId,
+					message.DocumentInfo.MainDocumentId
+					);
 			}
 		}
 	}
