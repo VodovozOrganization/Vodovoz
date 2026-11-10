@@ -37,5 +37,19 @@ namespace Mindbox.Library.Services
 		Task<MindboxOperationResult> CalculateProductListAsync(
 			MindboxCalculateProductListRequest request,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Рассчитывает баланс, доступное списание и начисление бонусов для заказа
+		/// операцией CalculateAuthorizedCart
+		/// </summary>
+		/// <param name="request">Тело запроса с клиентом, позициями заказа и суммой списания</param>
+		/// <param name="cancellationToken">Токен отмены запроса</param>
+		/// <returns>
+		/// Результат вызова Mindbox: признак успеха, категория ошибки, HTTP-код,
+		/// длительность и сырой ответ для разбора вызывающим кодом
+		/// </returns>
+		Task<MindboxOperationResult> CalculateAuthorizedCartAsync(
+			MindboxAuthorizedCartRequest request,
+			CancellationToken cancellationToken);
 	}
 }

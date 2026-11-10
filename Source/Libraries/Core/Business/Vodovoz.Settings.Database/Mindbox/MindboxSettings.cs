@@ -36,6 +36,10 @@ namespace Vodovoz.Settings.Database.Mindbox
 		private const string BonusPauseMinutesSetting = "Mindbox.BonusPauseMinutes";
 		private const string BonusCacheSecondsSetting = "Mindbox.BonusCacheSeconds";
 		private const string LastEnqueuedCounterpartyIdSetting = "Mindbox.LastEnqueuedCounterpartyId";
+		private const string CalculateAuthorizedCartOperationSetting = "Mindbox.CalculateAuthorizedCartOperation";
+		private const string AuthorizedCartTimeoutSecondsSetting = "Mindbox.AuthorizedCartTimeoutSeconds";
+		private const string BonusProgramModeSetting = "Mindbox.BonusProgramMode";
+		private const string BonusProgramClientIdsSetting = "Mindbox.BonusProgramClientIds";
 
 		private readonly ISettingsController _settingsController;
 
@@ -154,6 +158,22 @@ namespace Vodovoz.Settings.Database.Mindbox
 		/// <inheritdoc />
 		public int LastEnqueuedCounterpartyId =>
 			GetOptionalInt(LastEnqueuedCounterpartyIdSetting, -1);
+
+		/// <inheritdoc />
+		public string CalculateAuthorizedCartOperation =>
+			GetOptionalString(CalculateAuthorizedCartOperationSetting, "CalculateAuthorizedCart");
+
+		/// <inheritdoc />
+		public int AuthorizedCartTimeoutSeconds =>
+			GetOptionalInt(AuthorizedCartTimeoutSecondsSetting, 3);
+
+		/// <inheritdoc />
+		public string BonusProgramMode =>
+			GetOptionalString(BonusProgramModeSetting, "Disabled");
+
+		/// <inheritdoc />
+		public string BonusProgramClientIds =>
+			GetOptionalString(BonusProgramClientIdsSetting, string.Empty);
 
 		/// <inheritdoc />
 		public void SetLastEnqueuedCounterpartyId(int counterpartyId)

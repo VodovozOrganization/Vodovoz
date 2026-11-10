@@ -253,6 +253,110 @@ namespace Mindbox.Library.Services
 				+ $"&operation={Uri.EscapeDataString(_settings.CalculateProductListOperation)}";
 		}
 
+		/// <inheritdoc />
+		public async Task<MindboxOperationResult> CalculateAuthorizedCartAsync(
+			MindboxAuthorizedCartRequest request,
+			CancellationToken cancellationToken)
+		{
+			if(request is null)
+			{
+				throw new ArgumentNullException(nameof(request));
+			}
+
+			var stopwatch = Stopwatch.StartNew();
+			var timeoutSeconds = _settings.AuthorizedCartTimeoutSeconds > 0
+				? _settings.AuthorizedCartTimeoutSeconds
+				: 3;
+
+			try
+			{
+				var url = BuildAuthorizedCartUrl();
+				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+
+				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
+				using(var httpRequest = CreateRequest(url, content))
+				using(var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+				{
+					timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeoutSeconds));
+
+					try
+					{
+						using(var response = await _httpClient.SendAsync(httpRequest, timeoutCts.Token))
+						{
+							var rawResponse = await response.Content.ReadAsStringAsync();
+							stopwatch.Stop();
+
+							var result = MapResponse((int)response.StatusCode, rawResponse, stopwatch.ElapsedMilliseconds);
+
+							LogResult(null, Guid.Empty, result, _settings.CalculateAuthorizedCartOperation);
+
+							return result;
+						}
+					}
+					catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+					{
+						throw;
+					}
+					catch(OperationCanceledException)
+					{
+						stopwatch.Stop();
+
+						var result = MindboxOperationResult.Transient(
+							0,
+							"Timeout",
+							"Превышено время ожидания ответа Mindbox",
+							stopwatch.ElapsedMilliseconds);
+
+						LogResult(null, Guid.Empty, result, _settings.CalculateAuthorizedCartOperation);
+
+						return result;
+					}
+					catch(HttpRequestException ex)
+					{
+						stopwatch.Stop();
+
+						var result = MindboxOperationResult.Transient(
+							0,
+							"ConnectionError",
+							ex.Message,
+							stopwatch.ElapsedMilliseconds);
+
+						LogResult(null, Guid.Empty, result, _settings.CalculateAuthorizedCartOperation);
+
+						return result;
+					}
+				}
+			}
+			catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+			{
+				throw;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка подготовки запроса CalculateAuthorizedCart в Mindbox");
+
+				return MindboxOperationResult.Failure(
+					MindboxSendOutcome.ProtocolError,
+					0,
+					"RequestError",
+					ex.Message,
+					null,
+					stopwatch.ElapsedMilliseconds,
+					null);
+			}
+		}
+
+		private string BuildAuthorizedCartUrl()
+		{
+			var baseUrl = _settings.BaseUrl.TrimEnd('/');
+
+			return $"{baseUrl}/v3/operations/sync"
+				+ $"?endpointId={Uri.EscapeDataString(_settings.EndpointId)}"
+				+ $"&operation={Uri.EscapeDataString(_settings.CalculateAuthorizedCartOperation)}";
+		}
+
 		private HttpRequestMessage CreateRequest(string url, HttpContent content)
 		{
 			var request = new HttpRequestMessage(HttpMethod.Post, url)

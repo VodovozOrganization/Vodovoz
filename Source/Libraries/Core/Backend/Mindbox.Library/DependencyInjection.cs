@@ -25,6 +25,7 @@ namespace Mindbox.Library
 			services.AddScoped<IMindboxCounterpartyEnqueuer, MindboxCounterpartyEnqueuer>();
 			services.AddScoped<IMindboxCounterpartySendService, MindboxCounterpartySendService>();
 			services.AddScoped<IMindboxBonusService, MindboxBonusService>();
+			services.AddScoped<IMindboxAuthorizedCartService, MindboxAuthorizedCartService>();
 
 			return services;
 		}

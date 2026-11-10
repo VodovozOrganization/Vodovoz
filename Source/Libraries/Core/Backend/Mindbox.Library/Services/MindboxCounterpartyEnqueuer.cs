@@ -117,6 +117,76 @@ namespace Mindbox.Library.Services
 			}
 		}
 
+		/// <inheritdoc />
+		public async Task EnqueueCounterpartyAsync(int counterpartyId, CancellationToken cancellationToken)
+		{
+			if(!_settings.IsEnabled)
+			{
+				return;
+			}
+
+			if(cancellationToken.IsCancellationRequested)
+			{
+				return;
+			}
+
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Постановка контрагента в очередь Mindbox"))
+			{
+				var state = unitOfWork.Session.Get<MindboxCounterpartyState>(counterpartyId);
+
+				if(state?.Status == MindboxCounterpartyOutboxStatus.Sent)
+				{
+					return;
+				}
+
+				var now = DateTime.UtcNow;
+				var isNewState = state is null;
+
+				if(isNewState)
+				{
+					state = new MindboxCounterpartyState
+					{
+						CounterpartyId = counterpartyId,
+						CreatedAt = now
+					};
+				}
+
+				if(!state.TransactionId.HasValue || state.TransactionId.Value == Guid.Empty)
+				{
+					state.TransactionId = Guid.NewGuid();
+				}
+
+				state.Status = MindboxCounterpartyOutboxStatus.Queued;
+				state.UpdatedAt = now;
+
+				if(isNewState)
+				{
+					// Id задаётся вручную (counterparty_id), поэтому нужен явный Insert.
+					unitOfWork.Session.Save(state);
+				}
+				else
+				{
+					unitOfWork.Save(state);
+				}
+
+				await _outbox.GetPublishEndpoint(unitOfWork)
+					.Publish(
+						new MindboxCounterpartySendMessage
+						{
+							CounterpartyId = counterpartyId,
+							TransactionId = state.TransactionId.Value
+						},
+						cancellationToken)
+					.ConfigureAwait(false);
+
+				await unitOfWork.CommitAsync(cancellationToken).ConfigureAwait(false);
+
+				_logger.LogInformation(
+					"Контрагент {CounterpartyId} поставлен в очередь Mindbox",
+					counterpartyId);
+			}
+		}
+
 		private static IList<Counterparty> GetCounterparties(
 			IUnitOfWork unitOfWork,
 			int batchSize)

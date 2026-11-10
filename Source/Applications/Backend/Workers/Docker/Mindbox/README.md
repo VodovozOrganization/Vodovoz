@@ -55,6 +55,7 @@ consumer обработает их даже при выключенной нас
 2. `sql/006_mindbox_point_of_contact.sql`
 3. `sql/010_mindbox_counterparty_state.sql`
 4. `sql/013_mindbox_bonus_settings.sql`
+5. `sql/014_mindbox_authorized_cart_settings.sql`
 
 Если ранее уже применялись `007`, `008`, `009` (статус и transactionId лежали в `counterparty`):
 
@@ -63,6 +64,7 @@ consumer обработает их даже при выключенной нас
 3. `sql/010_mindbox_counterparty_state.sql`
 4. `sql/011_mindbox_migrate_status_to_state.sql`
 5. `sql/013_mindbox_bonus_settings.sql`
+6. `sql/014_mindbox_authorized_cart_settings.sql`
 
 `007`–`009` — устаревшие скрипты промежуточной версии, на чистой базе их применять не нужно.
 
@@ -102,6 +104,10 @@ consumer обработает их даже при выключенной нас
 | `Mindbox.BonusErrorsBeforePause` | `5` |
 | `Mindbox.BonusPauseMinutes` | `1` |
 | `Mindbox.BonusCacheSeconds` | `0` — кеш выключен |
+| `Mindbox.CalculateAuthorizedCartOperation` | `CalculateAuthorizedCart` — операция расчёта бонусов в заказе |
+| `Mindbox.AuthorizedCartTimeoutSeconds` | `3` — таймаут CalculateAuthorizedCart |
+| `Mindbox.BonusProgramMode` | `Disabled` / `Clients` / `All` — фича-флаг бонусной программы |
+| `Mindbox.BonusProgramClientIds` | список id клиентов ERP через запятую для режима `Clients` |
 
 Тестовый и боевой контуры — отдельные базы ERP со своими `EndpointId`, операцией и ключом. Тестовый ключ Mindbox действует 12 часов.
 
@@ -165,3 +171,26 @@ dotnet run --project $admin -- resend --all-errors
 ## Замечание по безопасности
 
 `appsettings.Development.json` содержит тестовые креды. Не использовать этот файл в production; боевые значения передавать через переменные окружения/секреты.
+
+## Расчёт бонусов при оформлении заказа
+
+`GET /api/v8/ApplyBonusToOrder` принимает корзину из последнего ответа Apply-методов и сумму списания, вызывает
+операцию Mindbox `CalculateAuthorizedCart` и возвращает баланс, доступное списание, начисление и позиции заказа
+с полем `bonusesWrittenOff`. Метод ничего не сохраняет и не пересчитывает цены и скидки ERP.
+
+- Mindbox вызывается только при `source = 54`, включённом фича-флаге `Mindbox.BonusProgramMode` и статусе
+  контрагента `Sent` в `mindbox_counterparty_state`.
+- Если контрагент ещё не отправлялся (`Unknown` или нет записи), он ставится в очередь отправки, а метод возвращает
+  `CustomerNotRegistered` без вызова Mindbox.
+- Таймаут запроса — `Mindbox.AuthorizedCartTimeoutSeconds` (по умолчанию 3 секунды). После
+  `Mindbox.BonusErrorsBeforePause` ошибок 5xx/429/таймаутов подряд Mindbox не вызывается
+  `Mindbox.BonusPauseMinutes` минут.
+- Позиции платной доставки и доставки за час не отправляются в `lines`, их сумма уходит в `deliveryCost`,
+  списание бонусов на них равно 0.
+- Ключ позиции собирает `MindboxItemIdBuilder`: `product_{erpId}`, `promoset_{erpId}`, `rentpackage_{erpId}`.
+- Сбой Mindbox не является ошибкой метода: возвращается 200 с `isAvailable = false` и
+  `unavailableReason = ServiceUnavailable`.
+
+Для включения программы задайте `Mindbox.BonusProgramMode` (`All` или `Clients` со списком
+`Mindbox.BonusProgramClientIds`), системное имя балльного счёта в `Mindbox.BonusBalanceSystemName`, а также
+актуальные `Mindbox.EndpointId` и `Mindbox.SecretKey` для теста и прода.

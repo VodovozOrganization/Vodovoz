@@ -146,6 +146,26 @@
 		int LastEnqueuedCounterpartyId { get; }
 
 		/// <summary>
+		/// Название операции расчёта бонусов при оформлении заказа
+		/// </summary>
+		string CalculateAuthorizedCartOperation { get; }
+
+		/// <summary>
+		/// Таймаут запроса CalculateAuthorizedCart в секундах
+		/// </summary>
+		int AuthorizedCartTimeoutSeconds { get; }
+
+		/// <summary>
+		/// Режим бонусной программы: Disabled, Clients, All
+		/// </summary>
+		string BonusProgramMode { get; }
+
+		/// <summary>
+		/// Список идентификаторов клиентов бонусной программы через запятую
+		/// </summary>
+		string BonusProgramClientIds { get; }
+
+		/// <summary>
 		/// Устанавливает идентификатор последнего поставленного в очередь контрагента
 		/// </summary>
 		/// <param name="counterpartyId">Идентификатор контрагента</param>

@@ -115,6 +115,15 @@ namespace CustomerOrdersApi.Library
 			return services;
 		}
 
+		public static IServiceCollection AddVersion8(this IServiceCollection services)
+		{
+			services
+				.AddScoped<V8.Services.IBonusToOrderService, V8.Services.BonusToOrderService>()
+				.AddDefault();
+
+			return services;
+		}
+
 		public static IServiceCollection AddDefault(this IServiceCollection services)
 		{
 			services
