@@ -322,17 +322,5 @@ namespace Mindbox.CounterpartiesAdmin
 
 			return $"\"{value.Replace("\"", "\"\"")}\"";
 		}
-
-		private sealed class ReportRow
-		{
-			public CounterpartyEntity Counterparty { get; set; }
-			public MindboxCounterpartyState State { get; set; }
-		}
-
-		private sealed class CounterpartyWithState
-		{
-			public CounterpartyEntity Counterparty { get; set; }
-			public MindboxCounterpartyState State { get; set; }
-		}
 	}
 }

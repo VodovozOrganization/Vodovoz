@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.Mindbox;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -70,6 +71,17 @@ namespace Vodovoz.Domain.Orders
 		private IList<OnlineOrderOperatorComments> _operatorComments = new List<OnlineOrderOperatorComments>();
 		private DateTime? _nextCallDateChanged;
 		private bool _hasService;
+		private long? _mindboxOrderId;
+		private Guid? _mindboxTransactionId;
+		private int _bonusesWrittenOff;
+		private int? _bonusesToEarn;
+		private MindboxCounterpartyOutboxStatus _mindboxStatus = MindboxCounterpartyOutboxStatus.Unknown;
+		private string _mindboxLastError;
+		private DateTime? _mindboxLastAttemptAt;
+		private int _mindboxAttempts;
+		private int? _mindboxLastHttpStatusCode;
+		private string _mindboxLastStatus;
+		private string _mindboxLastErrorId;
 
 		public virtual int Id { get; set; }
 		
@@ -361,6 +373,83 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _hasService;
 			set => SetField(ref _hasService, value);
+		}
+
+		[Display(Name = "ID заказа в Mindbox")]
+		public virtual long? MindboxOrderId
+		{
+			get => _mindboxOrderId;
+			set => SetField(ref _mindboxOrderId, value);
+		}
+
+		[Display(Name = "Ключ идемпотентности Mindbox")]
+		public virtual Guid? MindboxTransactionId
+		{
+			get => _mindboxTransactionId;
+			set => SetField(ref _mindboxTransactionId, value);
+		}
+
+		[Display(Name = "Списано бонусов")]
+		public virtual int BonusesWrittenOff
+		{
+			get => _bonusesWrittenOff;
+			set => SetField(ref _bonusesWrittenOff, value);
+		}
+
+		[Display(Name = "Бонусов к начислению")]
+		public virtual int? BonusesToEarn
+		{
+			get => _bonusesToEarn;
+			set => SetField(ref _bonusesToEarn, value);
+		}
+
+		[Display(Name = "Статус отправки в Mindbox")]
+		public virtual MindboxCounterpartyOutboxStatus MindboxStatus
+		{
+			get => _mindboxStatus;
+			set => SetField(ref _mindboxStatus, value);
+		}
+
+		[Display(Name = "Последняя ошибка Mindbox")]
+		public virtual string MindboxLastError
+		{
+			get => _mindboxLastError;
+			set => SetField(ref _mindboxLastError, value);
+		}
+
+		[Display(Name = "Дата последней попытки Mindbox")]
+		public virtual DateTime? MindboxLastAttemptAt
+		{
+			get => _mindboxLastAttemptAt;
+			set => SetField(ref _mindboxLastAttemptAt, value);
+		}
+
+		[Display(Name = "Количество попыток Mindbox")]
+		public virtual int MindboxAttempts
+		{
+			get => _mindboxAttempts;
+			set => SetField(ref _mindboxAttempts, value);
+		}
+
+		[Display(Name = "HTTP-код последнего ответа Mindbox")]
+		public virtual int? MindboxLastHttpStatusCode
+		{
+			get => _mindboxLastHttpStatusCode;
+			set => SetField(ref _mindboxLastHttpStatusCode, value);
+		}
+
+		[Display(Name = "Статус последнего ответа Mindbox")]
+		public virtual string MindboxLastStatus
+		{
+			get => _mindboxLastStatus;
+			set => SetField(ref _mindboxLastStatus, value);
+		}
+
+		[Display(Name = "ID последней ошибки Mindbox")]
+		public virtual string MindboxLastErrorId
+		{
+			get => _mindboxLastErrorId;
+			set => SetField(ref _mindboxLastErrorId, value);
 		}
 
 		/// <summary>

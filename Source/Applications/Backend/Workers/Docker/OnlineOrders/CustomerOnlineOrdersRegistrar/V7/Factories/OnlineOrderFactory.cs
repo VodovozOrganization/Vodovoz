@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
@@ -64,6 +64,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 				OnlinePaymentSource = creatingOnlineOrder.OnlinePaymentSource,
 				OnlinePayment = creatingOnlineOrder.OnlinePayment,
 				OnlineOrderSum = creatingOnlineOrder.OrderSum,
+				BonusesWrittenOff = creatingOnlineOrder.BonusesToWriteOff ?? 0,
 				DontArriveBeforeInterval = creatingOnlineOrder.DontArriveBeforeInterval
 			};
 
@@ -170,6 +171,8 @@ namespace CustomerOnlineOrdersRegistrar.V7.Factories
 				onlineOrderItemDto.GiftItem
 				);
 
+			onlineOrderItem.BonusesWrittenOff = onlineOrderItemDto.BonusesWrittenOff ?? 0;
+			onlineOrderItem.CurrentSum = onlineOrderItemDto.CurrentSum;
 			onlineOrder.OnlineOrderItems.Add(onlineOrderItem);
 		}
 

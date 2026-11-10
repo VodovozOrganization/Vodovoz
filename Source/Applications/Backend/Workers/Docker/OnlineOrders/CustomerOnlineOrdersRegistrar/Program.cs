@@ -1,4 +1,4 @@
-﻿using Autofac.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
 using CustomerOnlineOrdersRegistrar.V3.Factories;
@@ -12,6 +12,7 @@ using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Mindbox.Library;
 using NLog.Extensions.Logging;
 using Notifications.Infrastructure;
 using Osrm;
@@ -80,6 +81,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddCoreApplicationOrderServices()
 						.AddCoreDataRepositories()
 						.AddOsrm()
+						.AddMindbox()
 
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()

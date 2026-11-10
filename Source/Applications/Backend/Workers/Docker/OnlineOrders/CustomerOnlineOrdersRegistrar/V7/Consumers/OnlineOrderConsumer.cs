@@ -1,15 +1,24 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using CustomerOrdersApi.Library.V7.Dto.Orders;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
+using Mindbox.Library.Contracts;
+using Mindbox.Library.Mapping;
+using Mindbox.Library.Services;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Database.Mindbox;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.OnlineOrders;
 using VodovozBusiness.Services.Orders;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Linq;
 using CustomerOnlineOrdersRegistrar.V7.Factories;
 using MySqlConnector;
 using QS.Utilities.Debug;
@@ -28,8 +37,14 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
 		private readonly IOnlineOrderValidatorCreator _onlineOrderValidatorCreator;
+		private readonly IMindboxAuthorizedLoyaltyOrderService _mindboxLoyaltyOrderService;
+		private readonly IMindboxSettings _mindboxSettings;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 
 		protected ILogger<OnlineOrderConsumer> Logger { get; }
+		protected string LastErrorCode { get; private set; }
+		protected int LastBonusesWrittenOff { get; private set; }
+		protected int? LastBonusesToEarn { get; private set; }
 
 		protected OnlineOrderConsumer(
 			ILogger<OnlineOrderConsumer> logger,
@@ -40,7 +55,10 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
 			IRouteListService routeListService,
-			IOnlineOrderValidatorCreator onlineOrderValidatorCreator
+			IOnlineOrderValidatorCreator onlineOrderValidatorCreator,
+			IMindboxAuthorizedLoyaltyOrderService mindboxLoyaltyOrderService,
+			IMindboxSettings mindboxSettings,
+			INomenclatureSettings nomenclatureSettings
 			)
 		{
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -53,6 +71,9 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_onlineOrderValidatorCreator = onlineOrderValidatorCreator ?? throw new ArgumentNullException(nameof(onlineOrderValidatorCreator));
+			_mindboxLoyaltyOrderService = mindboxLoyaltyOrderService ?? throw new ArgumentNullException(nameof(mindboxLoyaltyOrderService));
+			_mindboxSettings = mindboxSettings ?? throw new ArgumentNullException(nameof(mindboxSettings));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}		
 
 		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderAsync(ICreatingOnlineOrder message, CancellationToken cancellationToken)
@@ -64,6 +85,22 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 				message,
 				_deliveryRulesSettings.FastDeliveryScheduleId
 			);
+
+			var requestedBonuses = message.BonusesToWriteOff ?? 0;
+			var itemsBonuses = message.OnlineOrderItems?.Sum(item => item.BonusesWrittenOff ?? 0) ?? 0;
+
+			if(requestedBonuses < 0
+				|| itemsBonuses != requestedBonuses
+				|| (message.OnlineOrderItems?.Any(item => IsDeliveryItem(item.ErpId) && (item.BonusesWrittenOff ?? 0) != 0) ?? false))
+			{
+				LastErrorCode = "BonusesInvalid";
+				return (0, 400);
+			}
+
+			if(requestedBonuses > 0)
+			{
+				onlineOrder.MindboxTransactionId = Guid.NewGuid();
+			}
 
 			var validationResult = _onlineOrderValidatorCreator
 				.Create(onlineOrder)
@@ -107,6 +144,55 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 			if(needSpecialProcessingDuplicate != null)
 			{
 				return (onlineOrder.Id, 200);
+			}
+
+			if(requestedBonuses > 0)
+			{
+				if(!CanApplyBonuses(uow, message))
+				{
+					LastErrorCode = "BonusesChanged";
+					return (0, 409);
+				}
+
+				var mindboxResult = await CreateMindboxOrderAsync(uow, onlineOrder, message, cancellationToken);
+
+				if(!mindboxResult.IsSuccess)
+				{
+					try
+					{
+						uow.Session.Delete(onlineOrder);
+						await uow.CommitAsync(cancellationToken);
+					}
+					catch(Exception e)
+					{
+						Logger.LogError(e, "Не удалось удалить онлайн заказ {OnlineOrderId} после ошибки Mindbox", onlineOrder.Id);
+					}
+
+					LastErrorCode = mindboxResult.Outcome == MindboxLoyaltyOrderOutcome.BonusesChanged
+						? "BonusesChanged"
+						: "BonusServiceUnavailable";
+
+					LastBonusesWrittenOff = 0;
+					LastBonusesToEarn = null;
+
+					return (0, mindboxResult.Outcome == MindboxLoyaltyOrderOutcome.BonusesChanged ? 409 : 503);
+				}
+
+				onlineOrder.MindboxOrderId = mindboxResult.MindboxOrderId;
+				onlineOrder.BonusesWrittenOff = mindboxResult.BonusesWrittenOff;
+				onlineOrder.BonusesToEarn = mindboxResult.BonusesToEarn;
+				onlineOrder.MindboxStatus = Vodovoz.Core.Domain.Clients.Mindbox.MindboxCounterpartyOutboxStatus.Sent;
+				onlineOrder.MindboxLastAttemptAt = DateTime.UtcNow;
+				onlineOrder.MindboxAttempts++;
+				onlineOrder.MindboxLastHttpStatusCode = mindboxResult.HttpStatusCode;
+				onlineOrder.MindboxLastStatus = mindboxResult.Status;
+				onlineOrder.MindboxLastErrorId = mindboxResult.ErrorId;
+
+				LastBonusesWrittenOff = mindboxResult.BonusesWrittenOff;
+				LastBonusesToEarn = mindboxResult.BonusesToEarn;
+
+				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+				await uow.CommitAsync(cancellationToken);
 			}
 
 			if(validationResult.IsFailure)
@@ -168,6 +254,159 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 			}
 
 			return (onlineOrder.Id, 200);
+		}
+
+		private async Task<MindboxLoyaltyOrderResult> CreateMindboxOrderAsync(
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			ICreatingOnlineOrder message,
+			CancellationToken cancellationToken)
+		{
+			var lines = new List<MindboxLoyaltyOrderLine>();
+			var lineNumber = 0;
+
+			foreach(var item in onlineOrder.OnlineOrderItems.Where(item => !IsDeliveryItem(item.NomenclatureId)).OrderBy(item => item.Id))
+			{
+				var product = item.PromoSet is not null
+					? MindboxItemIdBuilder.Build(item.PromoSet)
+					: item.Nomenclature is not null
+						? MindboxItemIdBuilder.Build(item.Nomenclature)
+						: null;
+
+				if(product is null)
+				{
+					continue;
+				}
+
+				lineNumber++;
+
+				lines.Add(new MindboxLoyaltyOrderLine
+				{
+					LineId = item.Id.ToString(),
+					LineNumber = lineNumber,
+					Product = new MindboxProduct
+					{
+						Ids = new Dictionary<string, string>(StringComparer.Ordinal)
+						{
+							[_mindboxSettings.BonusItemIdName] = product
+						}
+					},
+					Quantity = item.Count,
+					QuantityType = "int",
+					BasePricePerItem = item.Count == 0
+						? 0
+						: Math.Round((item.CurrentSum + item.BonusesWrittenOff) / item.Count, 2),
+					Status = new MindboxLoyaltyOrderLineStatus
+					{
+						Ids = new MindboxLoyaltyOrderLineStatusIds
+						{
+							ExternalId = onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+								&& onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.UnPaid
+									? "WaitingForPayment"
+									: "Created"
+						}
+					}
+				});
+			}
+
+			var deliveryCost = onlineOrder.OnlineOrderItems
+				.Where(item => IsDeliveryItem(item.NomenclatureId))
+				.Sum(item => item.CurrentSum);
+
+			var balanceTypeIds = new Dictionary<string, string>(StringComparer.Ordinal);
+
+			if(!string.IsNullOrWhiteSpace(_mindboxSettings.BonusBalanceSystemName))
+			{
+				balanceTypeIds["systemName"] = _mindboxSettings.BonusBalanceSystemName;
+			}
+
+			var request = new MindboxLoyaltyOrderRequest
+			{
+				Customer = new MindboxLoyaltyOrderCustomer
+				{
+					Ids = new Dictionary<string, string>(StringComparer.Ordinal)
+					{
+						["externalid"] = message.ErpCounterpartyId.Value.ToString()
+					}
+				},
+				Order = new MindboxLoyaltyOrder
+				{
+					Ids = new Dictionary<string, string>(StringComparer.Ordinal)
+					{
+						[_mindboxSettings.MindboxOrderIdName] = onlineOrder.Id.ToString()
+					},
+					DeliveryCost = deliveryCost,
+					TotalPrice = onlineOrder.OnlineOrderSum,
+					BonusPoints = new List<MindboxAuthorizedCartBonusPoint>
+					{
+						new()
+						{
+							Amount = message.BonusesToWriteOff ?? 0,
+							BalanceType = new MindboxAuthorizedCartBalanceType
+							{
+								Ids = balanceTypeIds
+							}
+						}
+					},
+					Lines = lines
+				}
+			};
+
+			return await _mindboxLoyaltyOrderService.CreateAsync(
+				request,
+				onlineOrder.Id,
+				onlineOrder.ExternalOrderId,
+				message.ErpCounterpartyId.Value,
+				onlineOrder.MindboxTransactionId.Value,
+				cancellationToken);
+		}
+
+		private bool CanApplyBonuses(IUnitOfWork uow, ICreatingOnlineOrder message)
+		{
+			if(message.Source != Vodovoz.Core.Domain.Clients.Source.MobileApp
+				|| !IsBonusProgramEnabled(message.ErpCounterpartyId ?? 0))
+			{
+				return false;
+			}
+
+			var state = uow.Session.Get<Vodovoz.Core.Domain.Clients.Mindbox.MindboxCounterpartyState>(
+				message.ErpCounterpartyId ?? 0);
+
+			return state?.Status == Vodovoz.Core.Domain.Clients.Mindbox.MindboxCounterpartyOutboxStatus.Sent;
+		}
+
+		private bool IsBonusProgramEnabled(int counterpartyId)
+		{
+			var mode = _mindboxSettings.BonusProgramMode?.Trim();
+
+			if(string.Equals(mode, "All", StringComparison.OrdinalIgnoreCase))
+			{
+				return true;
+			}
+
+			if(!string.Equals(mode, "Clients", StringComparison.OrdinalIgnoreCase))
+			{
+				return false;
+			}
+
+			return (_mindboxSettings.BonusProgramClientIds ?? string.Empty)
+				.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(value => int.TryParse(value, out var id) ? id : (int?)null)
+				.Where(id => id.HasValue)
+				.Select(id => id.Value)
+				.Contains(counterpartyId);
+		}
+
+		private bool IsDeliveryItem(int? nomenclatureId)
+		{
+			if(nomenclatureId is null)
+			{
+				return false;
+			}
+
+			return nomenclatureId == _nomenclatureSettings.PaidDeliveryNomenclatureId
+				|| nomenclatureId == _nomenclatureSettings.FastDeliveryNomenclatureId
+				|| _nomenclatureSettings.PaidDeliveriesNomenclaturesIds?.Contains(nomenclatureId.Value) == true;
 		}
 
 		private OnlineOrderDuplicateProcess? NeedSpecialProcessingDuplicate(IUnitOfWork uow, OnlineOrder onlineOrder)

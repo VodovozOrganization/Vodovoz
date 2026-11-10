@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 
 namespace Vodovoz.Settings.Database.Mindbox
@@ -38,6 +38,9 @@ namespace Vodovoz.Settings.Database.Mindbox
 		private const string LastEnqueuedCounterpartyIdSetting = "Mindbox.LastEnqueuedCounterpartyId";
 		private const string CalculateAuthorizedCartOperationSetting = "Mindbox.CalculateAuthorizedCartOperation";
 		private const string AuthorizedCartTimeoutSecondsSetting = "Mindbox.AuthorizedCartTimeoutSeconds";
+		private const string CreateAuthorizedLoyaltyOrderOperationSetting = "Mindbox.CreateAuthorizedLoyaltyOrderOperation";
+		private const string AuthorizedLoyaltyOrderTimeoutSecondsSetting = "Mindbox.AuthorizedLoyaltyOrderTimeoutSeconds";
+		private const string MindboxOrderIdNameSetting = "Mindbox.MindboxOrderIdName";
 		private const string BonusProgramModeSetting = "Mindbox.BonusProgramMode";
 		private const string BonusProgramClientIdsSetting = "Mindbox.BonusProgramClientIds";
 
@@ -164,8 +167,20 @@ namespace Vodovoz.Settings.Database.Mindbox
 			GetOptionalString(CalculateAuthorizedCartOperationSetting, "CalculateAuthorizedCart");
 
 		/// <inheritdoc />
+		public string CreateAuthorizedLoyaltyOrderOperation =>
+			GetOptionalString(CreateAuthorizedLoyaltyOrderOperationSetting, "CreateAuthorizedLoyaltyOrder");
+
+		/// <inheritdoc />
 		public int AuthorizedCartTimeoutSeconds =>
 			GetOptionalInt(AuthorizedCartTimeoutSecondsSetting, 3);
+
+		/// <inheritdoc />
+		public int AuthorizedLoyaltyOrderTimeoutSeconds =>
+			GetOptionalInt(AuthorizedLoyaltyOrderTimeoutSecondsSetting, 10);
+
+		/// <inheritdoc />
+		public string MindboxOrderIdName =>
+			GetOptionalString(MindboxOrderIdNameSetting, "externalID");
 
 		/// <inheritdoc />
 		public string BonusProgramMode =>

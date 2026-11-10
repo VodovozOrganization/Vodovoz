@@ -125,6 +125,10 @@ namespace CustomerOrdersApi.Library.V8.Dto.Orders
 		/// Не приезжать раньше интервала
 		/// </summary>
 		public bool DontArriveBeforeInterval { get; set; }
+		/// <summary>
+		/// Сколько бонусов списать
+		/// </summary>
+		public int? BonusesToWriteOff { get; set; }
 
 		/// <summary>
 		/// Список товаров

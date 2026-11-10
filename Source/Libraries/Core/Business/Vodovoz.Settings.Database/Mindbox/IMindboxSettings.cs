@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Settings.Database.Mindbox
+namespace Vodovoz.Settings.Database.Mindbox
 {
 	/// <summary>
 	/// Настройки интеграции с Mindbox, хранящиеся в base_parameters
@@ -151,9 +151,24 @@
 		string CalculateAuthorizedCartOperation { get; }
 
 		/// <summary>
+		/// Название операции создания заказа с бонусами
+		/// </summary>
+		string CreateAuthorizedLoyaltyOrderOperation { get; }
+
+		/// <summary>
 		/// Таймаут запроса CalculateAuthorizedCart в секундах
 		/// </summary>
 		int AuthorizedCartTimeoutSeconds { get; }
+
+		/// <summary>
+		/// Таймаут запроса CreateAuthorizedLoyaltyOrder в секундах
+		/// </summary>
+		int AuthorizedLoyaltyOrderTimeoutSeconds { get; }
+
+		/// <summary>
+		/// Имя идентификатора заказа в Mindbox: externalID или erptestOrderID
+		/// </summary>
+		string MindboxOrderIdName { get; }
 
 		/// <summary>
 		/// Режим бонусной программы: Disabled, Clients, All

@@ -3,22 +3,6 @@ using System.Collections.Generic;
 namespace Mindbox.Library.Services
 {
 	/// <summary>
-	/// Результат расчёта бонусов заказа в Mindbox
-	/// </summary>
-	public enum MindboxAuthorizedCartOutcome
-	{
-		/// <summary>
-		/// Расчёт выполнен
-		/// </summary>
-		Success = 0,
-
-		/// <summary>
-		/// Расчёт временно недоступен
-		/// </summary>
-		ServiceUnavailable = 1
-	}
-
-	/// <summary>
 	/// Результат операции CalculateAuthorizedCart
 	/// </summary>
 	public sealed class MindboxAuthorizedCartResult

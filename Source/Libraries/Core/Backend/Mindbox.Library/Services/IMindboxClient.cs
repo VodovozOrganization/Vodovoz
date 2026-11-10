@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Mindbox.Library.Contracts;
@@ -50,6 +50,14 @@ namespace Mindbox.Library.Services
 		/// </returns>
 		Task<MindboxOperationResult> CalculateAuthorizedCartAsync(
 			MindboxAuthorizedCartRequest request,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Создаёт заказ с бонусами операцией CreateAuthorizedLoyaltyOrder
+		/// </summary>
+		Task<MindboxOperationResult> CreateAuthorizedLoyaltyOrderAsync(
+			MindboxLoyaltyOrderRequest request,
+			Guid transactionId,
 			CancellationToken cancellationToken);
 	}
 }

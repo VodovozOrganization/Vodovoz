@@ -1,4 +1,4 @@
-﻿namespace CustomerOrdersApi.Library.V7.Dto.Orders
+namespace CustomerOrdersApi.Library.V7.Dto.Orders
 {
 	/// <summary>
 	/// Результат создания онлайн заказа
@@ -19,7 +19,39 @@
 		/// Http код
 		/// </summary>
 		public int Code { get; set; } = 500;
-		
+
+		/// <summary>
+		/// Списано бонусов
+		/// </summary>
+		public int BonusesWrittenOff { get; set; }
+
+		/// <summary>
+		/// Бонусов к начислению
+		/// </summary>
+		public int? BonusesToEarn { get; set; }
+
+		/// <summary>
+		/// Код ошибки бонусов
+		/// </summary>
+		public string ErrorCode { get; set; }
+
 		public static CreatedOnlineOrderResult Create((int OnlineOrderId, int Code) data) => new CreatedOnlineOrderResult(data);
+
+		public static CreatedOnlineOrderResult Create(
+			int onlineOrderId,
+			int code,
+			int bonusesWrittenOff = 0,
+			int? bonusesToEarn = null,
+			string errorCode = null)
+		{
+			return new CreatedOnlineOrderResult
+			{
+				OnlineOrderId = onlineOrderId,
+				Code = code,
+				BonusesWrittenOff = bonusesWrittenOff,
+				BonusesToEarn = bonusesToEarn,
+				ErrorCode = errorCode
+			};
+		}
 	}
 }
