@@ -14,126 +14,126 @@ namespace CustomerOrdersApi.Library.V8.Dto.Orders
 		/// <summary>
 		/// Источник заказа
 		/// </summary>
-		Source Source { get; set; }
+		Source Source { get; }
 
 		/// <summary>
 		/// Номер онлайн заказа из ИПЗ
 		/// </summary>
-		Guid ExternalOrderId { get; set; }
+		Guid ExternalOrderId { get; }
 
 		/// <summary>
 		/// Id контрагента в ДВ
 		/// </summary>
-		int? ErpCounterpartyId { get; set; }
+		int? ErpCounterpartyId { get; }
 
 		/// <summary>
 		/// Контрольная сумма заказа, для проверки валидности отправителя
 		/// </summary>
-		string Signature { get; set; }
+		string Signature { get; }
 
 		/// <summary>
 		/// Id клиента в ИПЗ
 		/// </summary>
-		Guid? ExternalCounterpartyId { get; set; }
+		Guid? ExternalCounterpartyId { get; }
 
 		/// <summary>
 		/// Id точки доставки в ДВ
 		/// </summary>
-		int? DeliveryPointId { get; set; }
+		int? DeliveryPointId { get; }
 
 		/// <summary>
 		/// Самовывоз?
 		/// </summary>
-		bool IsSelfDelivery { get; set; }
+		bool IsSelfDelivery { get; }
 
 		/// <summary>
 		/// Id гео группы в ДВ для самовывоза
 		/// </summary>
-		int? SelfDeliveryGeoGroupId { get; set; }
+		int? SelfDeliveryGeoGroupId { get; }
 
 		/// <summary>
 		/// Форма оплаты
 		/// </summary>
-		OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
+		OnlineOrderPaymentType OnlineOrderPaymentType { get; }
 
 		/// <summary>
 		/// Статус оплаты
 		/// </summary>
-		OnlineOrderPaymentStatus OnlineOrderPaymentStatus { get; set; }
+		OnlineOrderPaymentStatus OnlineOrderPaymentStatus { get; }
 
 		/// <summary>
 		/// Номер оплаты
 		/// </summary>
-		int? OnlinePayment { get; set; }
+		int? OnlinePayment { get; }
 
 		/// <summary>
 		/// Источник оплаты
 		/// </summary>
-		OnlinePaymentSource? OnlinePaymentSource { get; set; }
+		OnlinePaymentSource? OnlinePaymentSource { get; }
 
 		/// <summary>
 		/// Нужно подтверждение по телефону?
 		/// </summary>
-		bool IsNeedConfirmationByCall { get; set; }
+		bool IsNeedConfirmationByCall { get; }
 
 		/// <summary>
 		/// Дата доставки
 		/// </summary>
-		DateTime DeliveryDate { get; set; }
+		DateTime DeliveryDate { get; }
 
 		/// <summary>
 		/// Id времени доставки из ДВ
 		/// </summary>
-		int? DeliveryScheduleId { get; set; }
+		int? DeliveryScheduleId { get; }
 
 		/// <summary>
 		/// Отзвон за
 		/// </summary>
-		int? CallBeforeArrivalMinutes { get; set; }
+		int? CallBeforeArrivalMinutes { get; }
 
 		/// <summary>
 		/// Доставка за час?
 		/// </summary>
-		bool IsFastDelivery { get; set; }
+		bool IsFastDelivery { get; }
 
 		/// <summary>
 		/// Номер для связи
 		/// </summary>
-		string ContactPhone { get; set; }
+		string ContactPhone { get; }
 
 		/// <summary>
 		/// Комментарий к заказу
 		/// </summary>
-		string OnlineOrderComment { get; set; }
+		string OnlineOrderComment { get; }
 
 		/// <summary>
 		/// Сдача с
 		/// </summary>
-		int? Trifle { get; set; }
+		int? Trifle { get; }
 
 		/// <summary>
 		/// Бутылей на возврат
 		/// </summary>
-		int? BottlesReturn { get; set; }
+		int? BottlesReturn { get; }
 
 		/// <summary>
 		/// Сумма онлайн заказа
 		/// </summary>
-		decimal OrderSum { get; set; }
+		decimal OrderSum { get; }
 
 		/// <summary>
 		/// Не приезжать раньше интервала
 		/// </summary>
-		bool DontArriveBeforeInterval { get; set; }
+		bool DontArriveBeforeInterval { get; }
 						
 		/// <summary>
 		/// Автозаказ подключен
 		/// </summary>
-		public bool IsAutoOrderEnabled { get; set; }
+		bool IsAutoOrderEnabled { get; }
 
 		/// <summary>
 		/// Список товаров
 		/// </summary>
-		IList<OnlineOrderItemDto> OnlineOrderItems { get; set; }
+		IList<OnlineOrderItemDto> OnlineOrderItems { get; }
 	}
 }

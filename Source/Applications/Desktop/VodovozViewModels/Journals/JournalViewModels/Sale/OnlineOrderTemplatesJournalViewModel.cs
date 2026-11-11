@@ -57,11 +57,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			var query = uow.Session.QueryOver(() => templateAlias)
 				.JoinEntityAlias(() => counterpartyAlias, () => templateAlias.CounterpartyId == counterpartyAlias.Id)
 				.JoinEntityAlias(() => deliveryPointAlias, () => templateAlias.DeliveryPointId == deliveryPointAlias.Id)
-				.JoinEntityAlias(() => deliveryScheduleAlias, () => templateAlias.DeliveryScheduleId == deliveryScheduleAlias.Id)
+				.JoinEntityAlias(() => deliveryScheduleAlias, () => templateAlias.Schedule.DeliveryScheduleId == deliveryScheduleAlias.Id)
 				.JoinEntityAlias(() => weekdayAlias, () => templateAlias.Id == weekdayAlias.TemplateId);
 
 			var lastOnlineOrderFromTemplate = QueryOver.Of<OnlineOrder>()
-				.Where(o => o.TemplateId == templateAlias.Id)
+				.Where(o => o.Template.Id == templateAlias.Id)
 				.OrderBy(o => o.DeliveryDate).Desc
 				.Select(o => o.Id)
 				.Take(1);
@@ -124,7 +124,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 				.Select(CustomProjections.GroupConcat(() => weekdayAlias.Weekday, separator: "\n")).WithAlias(() => resultAlias.WeekdaysFromDB)
 				.Select(t => t.IsSelfDelivery).WithAlias(() => resultAlias.IsSelfDelivery)
 				.Select(t => t.ContactPhone).WithAlias(() => resultAlias.ContactPhone)
-				.Select(t => t.DeliveryFrequency).WithAlias(() => resultAlias.DeliveryFrequency)
 				.Select(t => t.PaymentType).WithAlias(() => resultAlias.PaymentType)
 				.Select(t => t.IsActive).WithAlias(() => resultAlias.IsActive)
 				.SelectSubQuery(lastOnlineOrderFromTemplate).WithAlias(() => resultAlias.LastOnlineOrderIdFromTemplate)
@@ -192,7 +191,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 					foreach(OnlineOrderTemplatesJournalNode node in selected)
 					{
 						var template = UoW.GetById<OnlineOrderTemplate>(node.Id);
-						template.UpdateStateByPaymentType(!template.IsActive, template.IsArchive);
 						UoW.Save(template);
 						changed++;
 					}
@@ -230,7 +228,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 						if(!node.IsArchive)
 						{
 							var template = UoW.GetById<OnlineOrderTemplate>(node.Id);
-							template.UpdateStateByPaymentType(false, true);
 							UoW.Save(template);
 							changed++;
 						}
