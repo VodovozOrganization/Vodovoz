@@ -37,8 +37,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 	/// </summary>
 	public class ReceiptFailedDocumentReprocessingProcessor : IReceiptFailedDocumentReprocessingProcessor
 	{
-		private const int _maxPoolCodeSelectionAttempts = 5;
-
 		private readonly ILogger<ReceiptFailedDocumentReprocessingProcessor> _logger;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IUnitOfWorkFactory _uowFactory;
@@ -51,8 +49,11 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
 		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
-		private readonly ReceiptTrueMarkCodesPool _trueMarkCodesPool;
+		private ReceiptTrueMarkCodesPool _trueMarkCodesPool;
 		private FiscalIndustryRequisiteRegulatoryDocument _regulatoryDocument;
+
+		private ReceiptTrueMarkCodesPool CodesPool =>
+			_trueMarkCodesPool ?? (_trueMarkCodesPool = new ReceiptTrueMarkCodesPool(_unitOfWork));
 
 		/// <summary>
 		/// Конструктор процессора переобработки документа
@@ -69,8 +70,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			Tag1260Checker tag1260Checker,
 			IEdoReceiptSettings edoReceiptSettings,
 			IPublishEndpoint publishEndpoint,
-			EdoProblemRegistrar edoProblemRegistrar,
-			ReceiptTrueMarkCodesPool trueMarkCodesPool)
+			EdoProblemRegistrar edoProblemRegistrar)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -84,7 +84,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			_edoReceiptSettings = edoReceiptSettings ?? throw new ArgumentNullException(nameof(edoReceiptSettings));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
-			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 		}
 
 		/// <inheritdoc/>
@@ -148,14 +147,9 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 
 				if(allCompleted)
 				{
-					// При подтверждении фискализации всех документов задачи снимаем проблемы с задачи
-					_edoProblemRegistrar.SolveCustomProblem<ReceiptFiscalizationFailed>(receiptEdoTask);
-					_edoProblemRegistrar.SolveCustomProblem<ReceiptSendingFailed>(receiptEdoTask);
-
 					await CompleteReceiptAsync(receiptEdoTask, cancellationToken);
 
-					// Публикация в Transactional Outbox выполняется строго ДО CommitAsync,
-					// чтобы данные и строки outbox сохранились атомарно в единой транзакции NHibernate
+					// Публикация в Transactional Outbox выполняется до CommitAsync, чтобы данные и строки outbox сохранились атомарно в единой транзакции NHibernate
 					await _publishEndpoint.Publish(
 						new ReceiptCompleteEvent { ReceiptEdoTaskId = receiptEdoTask.Id },
 						cancellationToken);
@@ -217,9 +211,10 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			{
 				_logger.LogWarning(
 					"Документ {DocId} не может быть повторно отправлен автоматически: {Reason}",
-					fiscalDocumentId, eligibility.Reason);
+					fiscalDocumentId, eligibility.BlockReason);
 
-				await HandleFailureInCleanSessionAsync(fiscalDocumentId, receiptEdoTask.Id, eligibility.Reason, cancellationToken);
+				await HandleFailureInCleanSessionAsync(fiscalDocumentId, receiptEdoTask.Id, eligibility.BlockReason, cancellationToken);
+				await IncrementReprocessingRetryCountAsync(receiptEdoTask.Id, cancellationToken);
 				return FiscalDocumentReprocessingResult.Error();
 			}
 
@@ -267,6 +262,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 
 				_logger.LogWarning(ex, "Для документа {DocId} не удалось подобрать код из пула: {Message}", fiscalDocumentId, ex.Message);
 				await HandleFailureInCleanSessionAsync(fiscalDocumentId, receiptEdoTask.Id, ex.Message, cancellationToken);
+				await IncrementReprocessingRetryCountAsync(receiptEdoTask.Id, cancellationToken);
 				return FiscalDocumentReprocessingResult.Error();
 			}
 			catch(Tag1260CdnUnavailableException ex)
@@ -302,6 +298,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 
 				_logger.LogWarning(ex, "Ошибка подготовки кодов/реквизитов для документа {DocId}: {Message}", fiscalDocumentId, ex.Message);
 				await HandleFailureInCleanSessionAsync(fiscalDocumentId, receiptEdoTask.Id, ex.Message, cancellationToken);
+				await IncrementReprocessingRetryCountAsync(receiptEdoTask.Id, cancellationToken);
 				return FiscalDocumentReprocessingResult.Error();
 			}
 
@@ -476,25 +473,8 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 
 				var codeInfo = checkResponse.Codes?.FirstOrDefault(c => c.Cis == cis);
 
-				if(codeInfo != null && codeInfo.ExpireDate == default)
-				{
-					_logger.LogInformation(
-						"Для кода маркировки {Cis} позиции \"{PosName}\" дата окончания срока годности не указана в ответе ЧЗ (default). Код допускается к продаже",
-						cis, pos.Name);
-				}
-
 				// Проверка разрешительного режима, валидности и остаточного срока годности (с учетом nullable/default даты)
-				var isNotExpired = codeInfo != null && (codeInfo.ExpireDate == default || codeInfo.ExpireDate > DateTime.Now);
-				var canSell = codeInfo != null
-					&& codeInfo.ErrorCode == 0
-					&& codeInfo.Found
-					&& codeInfo.Valid
-					&& codeInfo.Verified
-					&& isNotExpired
-					&& codeInfo.Realizable
-					&& codeInfo.Utilised
-					&& !codeInfo.IsBlocked
-					&& !codeInfo.Sold;
+				var canSell = CanSellByTag1260(codeInfo);
 
 				if(canSell)
 				{
@@ -542,10 +522,11 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					"Требуется ручной разбор фин. отделом / складом.");
 			}
 
-			// Цикл подбора кодов из пула с валидацией по тегу 1260 и разрешительному режиму в ЧЗ
+			// Цикл подбора кодов из пула с валидацией по тегу 1260 и разрешительному режиму в ЧЗ (до 5 попыток)
+			const int maxAttempts = 5;
 			var positionsRemaining = new List<PositionCodeReplacementContext>(positionsNeedingNewCodes);
 
-			for(var attempt = 1; attempt <= _maxPoolCodeSelectionAttempts && positionsRemaining.Count > 0; attempt++)
+			for(var attempt = 1; attempt <= maxAttempts && positionsRemaining.Count > 0; attempt++)
 			{
 				// Подбираем код из пула для каждой позиции, еще не прошедшей проверку
 				foreach(var item in positionsRemaining)
@@ -554,13 +535,13 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 
 					_logger.LogInformation(
 						"Подбор кода из пула для позиции \"{PosName}\" (GTIN: {GTIN}, попытка {Attempt} из {MaxAttempts})",
-						item.Position.Name, gtin, attempt, _maxPoolCodeSelectionAttempts);
+						item.Position.Name, gtin, attempt, maxAttempts);
 
 					var gtinEntity = await _edoRepository.GetGtinByGtinNumberAsync(gtin, cancellationToken)
 						?? new GtinEntity { GtinNumber = gtin };
 
 					var newCode = await _trueMarkCodesPoolCodeProvider.TakeValidCodeAsync(
-						_trueMarkCodesPool,
+						CodesPool,
 						gtinEntity,
 						organizationInn,
 						cancellationToken,
@@ -575,15 +556,15 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					.Distinct()
 					.ToList();
 
-				var cdnResponse = await _tag1260Checker.CheckCodesForTag1260Async(
+				var tag1260Result = await _tag1260Checker.CheckCodesForTag1260Async(
 					candidatesToCheck,
 					cashBoxToken.Value,
 					cancellationToken);
 
-				if(cdnResponse == null || cdnResponse.Code != 0)
+				if(tag1260Result == null || tag1260Result.Code != 0)
 				{
 					throw new InvalidOperationException(
-						$"Честный Знак вернул ошибку при проверке тега 1260 для кодов из пула: Code={cdnResponse?.Code}, Description={cdnResponse?.Description}");
+						$"Честный Знак вернул ошибку при проверке тега 1260 для кодов из пула: Code={tag1260Result?.Code}, Description={tag1260Result?.Description}");
 				}
 
 				var positionsToRetry = new List<PositionCodeReplacementContext>();
@@ -591,21 +572,9 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 				foreach(var item in positionsRemaining)
 				{
 					var cis = item.NewCode.FormatForCheck1260;
-					var codeInfo = cdnResponse.Codes?.FirstOrDefault(c => c.Cis == cis);
+					var codeInfo = tag1260Result.Codes?.FirstOrDefault(c => c.Cis == cis);
 
-					var isNotExpired = codeInfo != null && (codeInfo.ExpireDate == default || codeInfo.ExpireDate > DateTime.Now);
-					var canSell = codeInfo != null
-						&& codeInfo.ErrorCode == 0
-						&& codeInfo.Found
-						&& codeInfo.Valid
-						&& codeInfo.Verified
-						&& isNotExpired
-						&& codeInfo.Realizable
-						&& codeInfo.Utilised
-						&& !codeInfo.IsBlocked
-						&& !codeInfo.Sold;
-
-					if(canSell)
+					if(CanSellByTag1260(codeInfo))
 					{
 						_logger.LogInformation(
 							"Код из пула {NewCodeId} для позиции {PosName} успешно прошел проверку разрешительного режима (попытка {Attempt})",
@@ -615,7 +584,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 						item.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 						await _unitOfWork.SaveAsync(item.ProductCode, cancellationToken: cancellationToken);
 
-						item.Position.IndustryRequisiteData = $"UUID={cdnResponse.ReqId}&Time={NormalizeReqTimestamp(cdnResponse.ReqTimestamp)}";
+						item.Position.IndustryRequisiteData = $"UUID={tag1260Result.ReqId}&Time={NormalizeReqTimestamp(tag1260Result.ReqTimestamp)}";
 						item.Position.RegulatoryDocument = regulatoryDocument;
 						await _unitOfWork.SaveAsync(item.Position, cancellationToken: cancellationToken);
 					}
@@ -623,7 +592,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					{
 						_logger.LogWarning(
 							"Код из пула {NewCodeId} ({Cis}) для позиции \"{PosName}\" не прошел проверку разрешительного режима ЧЗ (ErrorCode: {ErrorCode}, Realizable: {Realizable}, Sold: {Sold}, Blocked: {Blocked}). Попытка {Attempt} из {MaxAttempts}",
-							item.NewCode.Id, cis, item.Position.Name, codeInfo?.ErrorCode, codeInfo?.Realizable, codeInfo?.Sold, codeInfo?.IsBlocked, attempt, _maxPoolCodeSelectionAttempts);
+							item.NewCode.Id, cis, item.Position.Name, codeInfo?.ErrorCode, codeInfo?.Realizable, codeInfo?.Sold, codeInfo?.IsBlocked, attempt, maxAttempts);
 
 						positionsToRetry.Add(item);
 					}
@@ -635,7 +604,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			if(positionsRemaining.Count > 0)
 			{
 				throw new EdoCodePoolMissingCodeException(
-					$"Не удалось подобрать из пула коды, проходящие проверку тега 1260 в Честном Знаке за {_maxPoolCodeSelectionAttempts} попыток (не прошли {positionsRemaining.Count} поз.)");
+					$"Не удалось подобрать из пула коды, проходящие проверку тега 1260 в Честном Знаке за {maxAttempts} попыток (не прошли {positionsRemaining.Count} поз.)");
 			}
 
 			return positionsNeedingNewCodes.Count;
@@ -728,27 +697,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					cancellationToken,
 					customMessage: failureMessage,
 					disposeTaskUow: false);
-
-				// Обновляем время последней попытки в RoutineState активной проблемы
-				using(var uow = _uowFactory.CreateWithoutRoot())
-				{
-					var task = uow.GetById<ReceiptEdoTask>(receiptEdoTaskId);
-					var problem = task?.Problems?.FirstOrDefault(p =>
-						p.State == TaskProblemState.Active
-						&& p.SourceName != null
-						&& p.SourceName.IndexOf(nameof(ReceiptFiscalizationFailed), StringComparison.OrdinalIgnoreCase) >= 0);
-
-					if(problem != null)
-					{
-						var routineState = problem.RoutineStates.FirstOrDefault();
-						if(routineState != null)
-						{
-							routineState.LastRetryTime = DateTime.Now;
-							await uow.SaveAsync(routineState, cancellationToken: cancellationToken);
-							await uow.CommitAsync(cancellationToken);
-						}
-					}
-				}
 			}
 			catch(Exception ex)
 			{
@@ -946,6 +894,24 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			}
 
 			return false;
+		}
+
+		/// <summary>
+		/// Проверяет, допускается ли код маркировки к розничной продаже по разрешительному режиму (тег 1260)
+		/// </summary>
+		private bool CanSellByTag1260(TrueMark.Contracts.CodeCheckInfo codeInfo)
+		{
+			var isNotExpired = codeInfo != null && (codeInfo.ExpireDate == default || codeInfo.ExpireDate > DateTime.Now);
+			return codeInfo != null
+				&& codeInfo.ErrorCode == 0
+				&& codeInfo.Found
+				&& codeInfo.Valid
+				&& codeInfo.Verified
+				&& isNotExpired
+				&& codeInfo.Realizable
+				&& codeInfo.Utilised
+				&& !codeInfo.IsBlocked
+				&& !codeInfo.Sold;
 		}
 	}
 }

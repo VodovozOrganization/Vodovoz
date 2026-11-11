@@ -154,7 +154,6 @@ namespace Edo.Problem.Routine
 			services.AddHttpClient();
 			services.TryAddScoped<FiscalDocumentFactory>();
 			services.TryAddScoped<Tag1260Checker>();
-			services.TryAddScoped<ReceiptTrueMarkCodesPool>();
 			services.TryAddScoped<CanProcessOrSendEdoByClosingAccountingDate>();
 			services.TryAddSingleton<IReceiptReprocessingLockCoordinator, ReceiptReprocessingLockCoordinator>();
 

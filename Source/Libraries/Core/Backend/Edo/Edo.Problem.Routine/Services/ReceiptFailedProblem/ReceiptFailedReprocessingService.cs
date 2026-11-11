@@ -71,8 +71,8 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 				var uow = queryScope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 				failedDocumentIds = await _edoRepository.GetFailedFiscalDocumentIdsForReprocessing(
 					uow,
-					statusChangedBefore: failedOlderThan,
-					statusChangedNotBefore: effectiveStartDate,
+					startDate: effectiveStartDate,
+					endDate: failedOlderThan,
 					cancellationToken: cancellationToken);
 			}
 
@@ -85,6 +85,8 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			}
 
 			_logger.LogInformation("Найдено {Count} документов со статусом Failed для переобработки", failedDocumentIds.Count);
+
+			var delayBetweenDocumentsMs = _options.CurrentValue.DelayBetweenDocumentsMs;
 
 			foreach(var docId in failedDocumentIds)
 			{
@@ -113,6 +115,8 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					_logger.LogError(ex, "Непредвиденная ошибка при обработке документа {DocId}", docId);
 					executionResult.ErrorCount++;
 				}
+
+				await Task.Delay(delayBetweenDocumentsMs, cancellationToken);
 			}
 
 			_logger.LogInformation(

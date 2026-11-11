@@ -1,4 +1,4 @@
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using DateTimeHelpers;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using NHibernate;
@@ -101,9 +101,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 
 			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission(CashReceiptPermissions.CanResendDuplicateReceipts);
-			_canReprocessFailedReceipts =
-				permissionService.ValidatePresetPermission(CashReceiptPermissions.CanReprocessFailedReceipts)
-				|| _canResendDuplicateReceipts;
+			_canReprocessFailedReceipts = permissionService.ValidatePresetPermission(CashReceiptPermissions.CanReprocessFailedReceipts);
 
 			if(!filter.StartDate.HasValue)
 			{

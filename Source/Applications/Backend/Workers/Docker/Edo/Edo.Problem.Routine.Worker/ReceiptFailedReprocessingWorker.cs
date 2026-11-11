@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,11 +61,11 @@ namespace Edo.Problem.Routine.Worker
 					"Ожидание до следующего планового запуска переобработки чеков со статусом Failed: через {Delay:hh\\:mm\\:ss}",
 					delay);
 
-				// Отправляем heartbeat Zabbix каждую минуту во время длительного ожидания планового запуска
+				// Отправляем heartbeat Zabbix каждый час во время длительного ожидания планового запуска
 				while(DateTime.UtcNow < targetTime && !stoppingToken.IsCancellationRequested)
 				{
 					var remaining = targetTime - DateTime.UtcNow;
-					var sleepChunk = remaining > TimeSpan.FromMinutes(1) ? TimeSpan.FromMinutes(1) : remaining;
+					var sleepChunk = remaining > TimeSpan.FromHours(1) ? TimeSpan.FromHours(1) : remaining;
 
 					if(sleepChunk > TimeSpan.Zero)
 					{
@@ -95,45 +96,40 @@ namespace Edo.Problem.Routine.Worker
 		private TimeSpan GetDelayToNextScheduledRun()
 		{
 			var scheduleHours = _options.CurrentValue.ScheduleRunHours;
-			if(scheduleHours != null && scheduleHours.Length > 0)
+			var validHours = scheduleHours?
+				.Where(hour => hour >= 0 && hour < 24)
+				.Distinct()
+				.OrderBy(hour => hour)
+				.ToList();
+
+			if(validHours == null || validHours.Count == 0)
 			{
-				var validHours = scheduleHours
-					.Where(hour => hour >= 0 && hour < 24)
-					.Distinct()
-					.OrderBy(hour => hour)
-					.ToList();
-
-				if(validHours.Count > 0)
-				{
-					var moscowTimeZone = GetMoscowTimeZone();
-					var nowMoscow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, moscowTimeZone);
-
-					var nextRunTimes = validHours
-						.Select(hour => nowMoscow.Date.AddHours(hour))
-						.Where(runTime => runTime > nowMoscow)
-						.OrderBy(runTime => runTime)
-						.ToList();
-
-					DateTime nextRun;
-					if(nextRunTimes.Count > 0)
-					{
-						nextRun = nextRunTimes[0];
-					}
-					else
-					{
-						var firstHourTomorrow = validHours.Min();
-						nextRun = nowMoscow.Date.AddDays(1).AddHours(firstHourTomorrow);
-					}
-
-					var delay = nextRun - nowMoscow;
-					return delay > TimeSpan.Zero ? delay : TimeSpan.FromMinutes(1);
-				}
+				_logger.LogError("В конфигурации ReceiptFailedReprocessing:ScheduleRunHours не заданы корректные часы планового запуска (от 0 до 23). Используются часы по умолчанию: 10:00 и 17:00 МСК");
+				validHours = new List<int> { 10, 17 };
 			}
 
-			// Если часы не заданы или некорректны, используем периодический интервал
-			return _options.CurrentValue.WorkerInterval > TimeSpan.Zero
-				? _options.CurrentValue.WorkerInterval
-				: TimeSpan.FromHours(8);
+			var moscowTimeZone = GetMoscowTimeZone();
+			var nowMoscow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, moscowTimeZone);
+
+			var nextRunTimes = validHours
+				.Select(hour => nowMoscow.Date.AddHours(hour))
+				.Where(runTime => runTime > nowMoscow)
+				.OrderBy(runTime => runTime)
+				.ToList();
+
+			DateTime nextRun;
+			if(nextRunTimes.Count > 0)
+			{
+				nextRun = nextRunTimes[0];
+			}
+			else
+			{
+				var firstHourTomorrow = validHours.Min();
+				nextRun = nowMoscow.Date.AddDays(1).AddHours(firstHourTomorrow);
+			}
+
+			var delay = nextRun - nowMoscow;
+			return delay > TimeSpan.Zero ? delay : TimeSpan.FromMinutes(1);
 		}
 
 		/// <summary>

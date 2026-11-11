@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using QS.DomainModel.UoW;
 using System;
 
@@ -12,13 +12,13 @@ namespace TrueMark.Codes.Pool
 
 		protected override IQuery GetSelectCodeQuery(string gtin, DateTime? addingTimeNotAfter = null)
 		{
-			var dateFilter = addingTimeNotAfter.HasValue ? " AND pool.adding_time <= :adding_time" : string.Empty;
+			var addingTimeFilter = addingTimeNotAfter.HasValue ? " AND pool.adding_time <= :adding_time" : string.Empty;
 			var sql = $@"
 				SELECT pool.id
 				FROM {_poolTableName} pool
 				WHERE pool.gtin = :gtin
 					AND pool.has_check_code = 1
-					AND pool.expiration_date > NOW(){dateFilter}
+					AND pool.expiration_date > NOW(){addingTimeFilter}
 				LIMIT 1
 				FOR UPDATE SKIP LOCKED";
 
@@ -35,13 +35,13 @@ namespace TrueMark.Codes.Pool
 
 		protected override IQuery GetSelectCodesQuery(string gtin, int count, DateTime? addingTimeNotAfter = null)
 		{
-			var dateFilter = addingTimeNotAfter.HasValue ? " AND pool.adding_time <= :adding_time" : string.Empty;
+			var addingTimeFilter = addingTimeNotAfter.HasValue ? " AND pool.adding_time <= :adding_time" : string.Empty;
 			var sql = $@"
 				SELECT pool.id
 				FROM {_poolTableName} pool
 				WHERE pool.gtin = :gtin
 					AND pool.has_check_code = 1
-					AND pool.expiration_date > NOW(){dateFilter}
+					AND pool.expiration_date > NOW(){addingTimeFilter}
 				LIMIT :count
 				FOR UPDATE SKIP LOCKED";
 

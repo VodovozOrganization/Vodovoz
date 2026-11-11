@@ -1,4 +1,4 @@
-namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
+﻿namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 {
 	/// <summary>
 	/// Результат проверки допустимости автоматической повторной фискализации чека
@@ -13,12 +13,12 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 		/// <summary>
 		/// Причина блокировки автоматической переотправки (если заблокирована)
 		/// </summary>
-		public string Reason { get; }
+		public string BlockReason { get; }
 
-		private ReceiptReprocessingEligibility(bool isEligible, string reason = null)
+		private ReceiptReprocessingEligibility(bool isEligible, string blockReason = null)
 		{
 			IsEligible = isEligible;
-			Reason = reason;
+			BlockReason = blockReason;
 		}
 
 		/// <summary>

@@ -106,22 +106,29 @@ namespace TrueMark.Library
 
 			foreach(var cdnHost in result.Hosts)
 			{
-				var cdnHealth = await GetAvgTimeMsAsync(cdnHost.Host, cancellationToken);
-
-				if(cdnHealth != null && cdnHealth.Code == 0 && cdnHealth.AvgTimeMs < 1000)
+				try
 				{
-					lock(_cdnCacheLock)
+					var cdnHealth = await GetAvgTimeMsAsync(cdnHost.Host, cancellationToken);
+
+					if(cdnHealth != null && cdnHealth.Code == 0 && cdnHealth.AvgTimeMs < 1000)
 					{
-						_cachedCdnHost = cdnHost.Host;
-						_cachedCdnHostExpiration = DateTime.UtcNow.Add(_cdnCacheTtl);
+						lock(_cdnCacheLock)
+						{
+							_cachedCdnHost = cdnHost.Host;
+							_cachedCdnHostExpiration = DateTime.UtcNow.Add(_cdnCacheTtl);
+						}
+						return cdnHost.Host;
 					}
-					return cdnHost.Host;
-				}
 
-				if(cdnHealth != null)
+					if(cdnHealth != null)
+					{
+						cdnHealth.Host = cdnHost.Host;
+						cdnHealths.Add(cdnHealth);
+					}
+				}
+				catch(Exception)
 				{
-					cdnHealth.Host = cdnHost.Host;
-					cdnHealths.Add(cdnHealth);
+					continue;
 				}
 			}
 
@@ -146,18 +153,25 @@ namespace TrueMark.Library
 
 		private async Task<CdnHealth> GetAvgTimeMsAsync(string cdnHost, CancellationToken cancellationToken)
 		{
-			var uri = $"{cdnHost}/api/v4/true-api/cdn/health/check";
+			try
+			{
+				var uri = $"{cdnHost}/api/v4/true-api/cdn/health/check";
 
-			var response = await _httpClient.GetAsync(uri, cancellationToken);
-			if(!response.IsSuccessStatusCode)
+				var response = await _httpClient.GetAsync(uri, cancellationToken);
+				if(!response.IsSuccessStatusCode)
+				{
+					return null;
+				}
+
+				var responseBody = await response.Content.ReadAsStreamAsync();
+				var result = await JsonSerializer.DeserializeAsync<CdnHealth>(responseBody, _serializeOptions, cancellationToken);
+
+				return result;
+			}
+			catch(Exception)
 			{
 				return null;
 			}
-
-			var responseBody = await response.Content.ReadAsStreamAsync();
-			var result = await JsonSerializer.DeserializeAsync<CdnHealth>(responseBody, _serializeOptions, cancellationToken);
-
-			return result;
 		}
 
 		public async Task<IEnumerable<CodeCheckResponse>> CheckCodesWithLimitsForTag1260Async(
@@ -225,8 +239,7 @@ namespace TrueMark.Library
 			CancellationToken cancellationToken
 			)
 		{
-			var codesList = sourceCodes as IList<string> ?? sourceCodes.ToList();
-			if(!codesList.Any())
+			if(sourceCodes == null || !sourceCodes.Any())
 			{
 				return new CodeCheckResponse
 				{
@@ -236,50 +249,6 @@ namespace TrueMark.Library
 				};
 			}
 
-			if(codesList.Count <= 100)
-			{
-				return await CheckSingleBatchForTag1260Async(codesList, headerApiKey, cancellationToken);
-			}
-
-			// Если кодов больше 100, разбиваем на батчи по 100 кодов (лимит True API)
-			var combinedResponse = new CodeCheckResponse
-			{
-				Code = 0,
-				Description = "ok",
-				Codes = new List<CodeCheckInfo>()
-			};
-
-			for(int i = 0; i < codesList.Count; i += 100)
-			{
-				var batch = codesList.Skip(i).Take(100).ToList();
-				var batchResponse = await CheckSingleBatchForTag1260Async(batch, headerApiKey, cancellationToken);
-
-				if(batchResponse == null || batchResponse.Code != 0)
-				{
-					return batchResponse;
-				}
-
-				if(batchResponse.Codes != null)
-				{
-					foreach(var code in batchResponse.Codes)
-					{
-						combinedResponse.Codes.Add(code);
-					}
-				}
-
-				combinedResponse.ReqId = batchResponse.ReqId;
-				combinedResponse.ReqTimestamp = batchResponse.ReqTimestamp;
-			}
-
-			return combinedResponse;
-		}
-
-		private async Task<CodeCheckResponse> CheckSingleBatchForTag1260Async(
-			IEnumerable<string> sourceCodes,
-			Guid headerApiKey,
-			CancellationToken cancellationToken
-			)
-		{
 			SetHttpClientHeaderApiKey(headerApiKey);
 
 			var cdn = await GetCdnAsync(cancellationToken);

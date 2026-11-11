@@ -1,8 +1,7 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using ModulKassa.DTO;
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Settings.Edo;
 
@@ -24,9 +23,9 @@ namespace Edo.Receipt.Sender
 				Id = GetDocumentGuid(edoFiscalDocument),
 				DocNum = edoFiscalDocument.DocumentNumber,
 				DocType = GetDocType(edoFiscalDocument.DocumentType),
-				CheckoutDateTime = FormatCashboxDateTime(edoFiscalDocument.CheckoutTime),
+				CheckoutDateTime = edoFiscalDocument.CheckoutTime.ToString("O"),
 				Email = edoFiscalDocument.Contact,
-				ClientINN = NormalizeClientInn(edoFiscalDocument.ClientInn),
+				ClientINN = edoFiscalDocument.ClientInn,
 				CashierName = edoFiscalDocument.CashierName,
 				PrintReceipt = edoFiscalDocument.PrintReceipt,
 				ResponseURL = GetResponseUrl(edoFiscalDocument),
@@ -42,62 +41,6 @@ namespace Edo.Receipt.Sender
 			document.MoneyPositions.AddRange(moneyPositions);
 
 			return document;
-		}
-
-		private static readonly TimeZoneInfo _moscowTimeZone = GetMoscowTimeZone();
-
-		private static TimeZoneInfo GetMoscowTimeZone()
-		{
-			try
-			{
-				return TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
-			}
-			catch(TimeZoneNotFoundException)
-			{
-				try
-				{
-					return TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
-				}
-				catch
-				{
-					return TimeZoneInfo.CreateCustomTimeZone("Europe/Moscow", TimeSpan.FromHours(3), "MSK", "MSK");
-				}
-			}
-		}
-
-		private static string FormatCashboxDateTime(DateTime value)
-		{
-			DateTime moscowTime;
-			if(value.Kind == DateTimeKind.Utc)
-			{
-				moscowTime = TimeZoneInfo.ConvertTimeFromUtc(value, _moscowTimeZone);
-			}
-			else if(value.Kind == DateTimeKind.Local)
-			{
-				moscowTime = TimeZoneInfo.ConvertTime(value, _moscowTimeZone);
-			}
-			else
-			{
-				// Unspecified — в БД Водовоза даты уже хранятся по московскому времени
-				moscowTime = value;
-			}
-
-			// Передаем дату со смещением +00:00.
-			// С одной стороны, наличие смещения строго требуется парсером API v2 МодульКассы (OffsetDateTime),
-			// предотвращая 500 Internal Server Error.
-			// С другой стороны, смещение +00:00 предотвращает вычитание 3 часов сервером кассы,
-			// благодаря чему в личном кабинете отображается реальное исходное время (20:40:40, а не 17:40:40).
-			return moscowTime.ToString("yyyy-MM-dd'T'HH:mm:ss+00:00");
-		}
-
-		private static string NormalizeClientInn(string clientInn)
-		{
-			if(string.IsNullOrWhiteSpace(clientInn))
-			{
-				return null;
-			}
-
-			return clientInn.Trim();
 		}
 
 		private string GetDocType(FiscalDocumentType fiscalDocumentType)
@@ -138,27 +81,6 @@ namespace Edo.Receipt.Sender
 			return edoFiscalDocument.DocumentGuid.ToString();
 		}
 
-		private static readonly Regex _timeParamRegex = new Regex(@"(?:^|&)Time=(\d+)", RegexOptions.Compiled);
-
-		public static string NormalizeDocData(string docData)
-		{
-			if(string.IsNullOrEmpty(docData))
-			{
-				return docData;
-			}
-
-			return _timeParamRegex.Replace(docData, m =>
-			{
-				var digits = m.Groups[1].Value;
-				if(long.TryParse(digits, out var timestamp) && timestamp > 100_000_000_000L)
-				{
-					var seconds = timestamp / 1000;
-					return m.Value.Replace(digits, seconds.ToString());
-				}
-				return m.Value;
-			});
-		}
-
 		private InventPosition CreateInventPosition(FiscalInventPosition fiscalInventPosition)
 		{
 			var inventPosition = new InventPosition
@@ -172,26 +94,21 @@ namespace Edo.Receipt.Sender
 
 			if(fiscalInventPosition.EdoTaskItem != null)
 			{
-				var productCode = fiscalInventPosition.EdoTaskItem.ProductCode;
-				var markCode = productCode?.ResultCode ?? productCode?.SourceCode;
-				if(markCode != null)
-				{
-					inventPosition.ProductMark = markCode.FormatForCheck1260;
-				}
+				inventPosition.ProductMark = fiscalInventPosition.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260;
 			}
 			else if(fiscalInventPosition.GroupCode != null)
 			{
 				inventPosition.ProductMark = fiscalInventPosition.GroupCode.FormatForCheck1260;
 			}
 
-			if(!inventPosition.ProductMark.IsNullOrWhiteSpace() && fiscalInventPosition.RegulatoryDocument != null)
+			if(!inventPosition.ProductMark.IsNullOrWhiteSpace())
 			{
 				inventPosition.IndustryRequisite = new IndustryRequisite
 				{
 					FoivId = fiscalInventPosition.RegulatoryDocument.FoivId,
 					DocNumber = fiscalInventPosition.RegulatoryDocument.DocNumber,
 					DocDateTime = fiscalInventPosition.RegulatoryDocument.DocDateTime,
-					DocData = NormalizeDocData(fiscalInventPosition.IndustryRequisiteData)
+					DocData = fiscalInventPosition.IndustryRequisiteData
 				};
 			}
 

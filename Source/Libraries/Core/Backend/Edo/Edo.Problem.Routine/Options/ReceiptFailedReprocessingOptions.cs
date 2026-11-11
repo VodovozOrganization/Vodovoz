@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Edo.Problem.Routine.Options
@@ -29,9 +29,9 @@ namespace Edo.Problem.Routine.Options
 		public int MaxReprocessingAttempts { get; set; }
 
 		/// <summary>
-		/// Интервал запуска воркера
+		/// Задержка между отправкой документов в кассу в миллисекундах
 		/// </summary>
-		public TimeSpan WorkerInterval { get; set; }
+		public int DelayBetweenDocumentsMs { get; set; }
 
 		/// <summary>
 		/// Часы планового запуска по московскому времени
