@@ -444,6 +444,99 @@ namespace Mindbox.Library.Services
 			}
 		}
 
+		/// <inheritdoc />
+		public async Task<MindboxOperationResult> UpdateOrderLinesStatusAsync(
+			MindboxOrderLinesStatusRequest request,
+			Guid transactionId,
+			CancellationToken cancellationToken)
+		{
+			if(request is null)
+			{
+				throw new ArgumentNullException(nameof(request));
+			}
+
+			var stopwatch = Stopwatch.StartNew();
+
+			try
+			{
+				var url = BuildOrderLinesStatusUrl(transactionId);
+				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+
+				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
+				using(var httpRequest = CreateRequest(url, content))
+				using(var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+				{
+					timeoutCts.CancelAfter(TimeSpan.FromSeconds(10));
+
+					try
+					{
+						using(var response = await _httpClient.SendAsync(httpRequest, timeoutCts.Token))
+						{
+							var rawResponse = await response.Content.ReadAsStringAsync();
+							stopwatch.Stop();
+
+							var result = MapResponse((int)response.StatusCode, rawResponse, stopwatch.ElapsedMilliseconds);
+
+							LogResult(null, transactionId, result, _settings.UpdateOrderLinesStatusOperation);
+
+							return result;
+						}
+					}
+					catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+					{
+						throw;
+					}
+					catch(OperationCanceledException)
+					{
+						stopwatch.Stop();
+
+						return MindboxOperationResult.Transient(
+							0,
+							"Timeout",
+							"Превышено время ожидания ответа Mindbox",
+							stopwatch.ElapsedMilliseconds);
+					}
+					catch(HttpRequestException ex)
+					{
+						stopwatch.Stop();
+
+						return MindboxOperationResult.Transient(
+							0,
+							"ConnectionError",
+							ex.Message,
+							stopwatch.ElapsedMilliseconds);
+					}
+				}
+			}
+			catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+			{
+				throw;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка подготовки запроса изменения статуса позиций Mindbox");
+
+				return MindboxOperationResult.Failure(
+					MindboxSendOutcome.ProtocolError,
+					0,
+					"RequestError",
+					ex.Message,
+					null,
+					stopwatch.ElapsedMilliseconds,
+					null);
+			}
+		}
+
+		private string BuildOrderLinesStatusUrl(Guid transactionId)
+		{
+			var baseUrl = _settings.BaseUrl.TrimEnd('/');
+
+			return $"{baseUrl}/v3/operations/sync"
+				+ $"?endpointId={Uri.EscapeDataString(_settings.EndpointId)}"
+				+ $"&operation={Uri.EscapeDataString(_settings.UpdateOrderLinesStatusOperation)}"
+				+ $"&transactionId={transactionId:D}";
+		}
+
 		private string BuildLoyaltyOrderUrl(Guid transactionId)
 		{
 			var baseUrl = _settings.BaseUrl.TrimEnd('/');

@@ -82,6 +82,11 @@ namespace Vodovoz.Domain.Orders
 		private int? _mindboxLastHttpStatusCode;
 		private string _mindboxLastStatus;
 		private string _mindboxLastErrorId;
+		private string _mindboxSnapshot;
+		private DateTime? _mindboxSnapshotUpdatedAt;
+		private DateTime? _mindboxLastChangeAt;
+		private DateTime? _mindboxSyncRequestedAt;
+		private bool _bonusesAvailable;
 
 		public virtual int Id { get; set; }
 		
@@ -450,6 +455,41 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _mindboxLastErrorId;
 			set => SetField(ref _mindboxLastErrorId, value);
+		}
+
+		[Display(Name = "Снимок состава и статусов Mindbox")]
+		public virtual string MindboxSnapshot
+		{
+			get => _mindboxSnapshot;
+			set => SetField(ref _mindboxSnapshot, value);
+		}
+
+		[Display(Name = "Дата обновления снимка Mindbox")]
+		public virtual DateTime? MindboxSnapshotUpdatedAt
+		{
+			get => _mindboxSnapshotUpdatedAt;
+			set => SetField(ref _mindboxSnapshotUpdatedAt, value);
+		}
+
+		[Display(Name = "Дата последнего изменения для Mindbox")]
+		public virtual DateTime? MindboxLastChangeAt
+		{
+			get => _mindboxLastChangeAt;
+			set => SetField(ref _mindboxLastChangeAt, value);
+		}
+
+		[Display(Name = "Дата постановки в очередь Mindbox")]
+		public virtual DateTime? MindboxSyncRequestedAt
+		{
+			get => _mindboxSyncRequestedAt;
+			set => SetField(ref _mindboxSyncRequestedAt, value);
+		}
+
+		[Display(Name = "Бонусы доступны клиенту")]
+		public virtual bool BonusesAvailable
+		{
+			get => _bonusesAvailable;
+			set => SetField(ref _bonusesAvailable, value);
 		}
 
 		/// <summary>

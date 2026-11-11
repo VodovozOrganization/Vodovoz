@@ -156,6 +156,16 @@ namespace Vodovoz.Settings.Database.Mindbox
 		string CreateAuthorizedLoyaltyOrderOperation { get; }
 
 		/// <summary>
+		/// Название операции изменения статуса позиций заказа
+		/// </summary>
+		string UpdateOrderLinesStatusOperation { get; }
+
+		/// <summary>
+		/// JSON-маппинг статусов заказа ERP в статусы позиций Mindbox
+		/// </summary>
+		string OrderLineStatusMapping { get; }
+
+		/// <summary>
 		/// Таймаут запроса CalculateAuthorizedCart в секундах
 		/// </summary>
 		int AuthorizedCartTimeoutSeconds { get; }

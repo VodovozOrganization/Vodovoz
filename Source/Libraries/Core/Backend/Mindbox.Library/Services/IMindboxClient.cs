@@ -59,5 +59,17 @@ namespace Mindbox.Library.Services
 			MindboxLoyaltyOrderRequest request,
 			Guid transactionId,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Изменяет статус позиций заказа операцией 118
+		/// </summary>
+		/// <param name="request">Тело запроса со статусом позиций</param>
+		/// <param name="transactionId">Идентификатор транзакции для идемпотентности</param>
+		/// <param name="cancellationToken">Токен отмены запроса</param>
+		/// <returns>Результат вызова Mindbox</returns>
+		Task<MindboxOperationResult> UpdateOrderLinesStatusAsync(
+			MindboxOrderLinesStatusRequest request,
+			Guid transactionId,
+			CancellationToken cancellationToken);
 	}
 }

@@ -27,6 +27,9 @@ namespace Mindbox.Library
 			services.AddScoped<IMindboxBonusService, MindboxBonusService>();
 			services.AddScoped<IMindboxAuthorizedCartService, MindboxAuthorizedCartService>();
 			services.AddScoped<IMindboxAuthorizedLoyaltyOrderService, MindboxAuthorizedLoyaltyOrderService>();
+			services.AddScoped<IMindboxOnlineOrderStateBuilder, MindboxOnlineOrderStateBuilder>();
+			services.AddScoped<IMindboxOnlineOrderSyncProcessor, MindboxOnlineOrderSyncProcessor>();
+			services.AddScoped<IMindboxOnlineOrderEnqueuer, MindboxOnlineOrderEnqueuer>();
 
 			return services;
 		}

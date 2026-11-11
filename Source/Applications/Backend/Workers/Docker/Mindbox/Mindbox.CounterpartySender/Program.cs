@@ -1,4 +1,4 @@
-﻿using Autofac.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using MassTransit;
 using MessageTransport.MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,10 +61,12 @@ namespace Mindbox.CounterpartySender
 						.AddMindbox();
 
 					services.AddScoped<IMindboxAlertSender, ZabbixMindboxAlertSender>();
+					services.AddScoped<Vodovoz.Settings.Nomenclature.INomenclatureSettings, Vodovoz.Settings.Database.Nomenclature.NomenclatureSettings>();
 
 					services.AddMassTransit(busConf =>
 					{
 						busConf.AddConsumer<MindboxCounterpartySendConsumer, MindboxCounterpartySendConsumerDefinition>();
+						busConf.AddConsumer<MindboxOnlineOrderSyncConsumer, MindboxOnlineOrderSyncConsumerDefinition>();
 
 						// Outbox MassTransit: публикация в online_orders_* и отправка в vhost online_orders
 						busConf.AddVodovozOutbox(OutboxBusNames.OnlineOrders);
@@ -73,6 +75,7 @@ namespace Mindbox.CounterpartySender
 					});
 
 					services.AddHostedService<CounterpartySenderWorker>();
+					services.AddHostedService<OnlineOrderSyncWorker>();
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 					services.AddStaticHistoryTracker();

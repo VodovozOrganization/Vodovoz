@@ -52,6 +52,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.MindboxLastHttpStatusCode).Column("mindbox_last_http_status_code");
 			Map(x => x.MindboxLastStatus).Column("mindbox_last_status");
 			Map(x => x.MindboxLastErrorId).Column("mindbox_last_error_id");
+			Map(x => x.MindboxSnapshot).Column("mindbox_snapshot").Length(65535);
+			Map(x => x.MindboxSnapshotUpdatedAt).Column("mindbox_snapshot_updated_at");
+			Map(x => x.MindboxLastChangeAt).Column("mindbox_last_change_at");
+			Map(x => x.MindboxSyncRequestedAt).Column("mindbox_sync_requested_at");
+			Map(x => x.BonusesAvailable).Column("bonuses_available").Not.Nullable();
 			Map(x => x.OrderVersion)
 				.Column(OnlineOrder.OrderVersionColumn)
 				.Not.Update()
