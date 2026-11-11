@@ -218,8 +218,9 @@ namespace Mindbox.Library.Services
 			}
 
 			var change = GetBonusChange(response.Order.BonusPointsChanges);
+			var spentAmount = change is null ? 0 : Math.Abs(ToBonusPoints(change.SpentAmount));
 
-			if(change is null || ToBonusPoints(change.SpentAmount) != requestedAmount)
+			if(change is null || spentAmount != requestedAmount)
 			{
 				_logger.LogWarning(
 					"CreateAuthorizedLoyaltyOrder: списано {Spent}, запрошено {Requested}. {Details}",
@@ -253,7 +254,7 @@ namespace Mindbox.Library.Services
 
 			return MindboxLoyaltyOrderResult.Success(
 				response.Order.Ids?.MindboxId,
-				ToBonusPoints(change.SpentAmount),
+				spentAmount,
 				ToBonusPoints(change.EarnedAmount),
 				operation.HttpStatusCode,
 				response.Status,

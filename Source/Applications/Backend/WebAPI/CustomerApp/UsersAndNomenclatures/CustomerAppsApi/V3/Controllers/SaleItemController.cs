@@ -21,6 +21,7 @@ namespace CustomerAppsApi.V3.Controllers
 	{
 		private readonly ISaleItemService _saleItemService;
 		private readonly PricesFrequencyRequestsHandler _pricesFrequencyRequestsHandler;
+		private readonly NomenclaturesFrequencyRequestsHandler _nomenclaturesFrequencyRequestsHandler;
 
 		/// <summary>
 		/// Конструктор
@@ -28,16 +29,20 @@ namespace CustomerAppsApi.V3.Controllers
 		/// <param name="logger">Логгер</param>
 		/// <param name="saleItemService">Сервис цен, остатков и бонусов</param>
 		/// <param name="pricesFrequencyRequestsHandler">Ограничитель частоты запросов цен</param>
+		/// <param name="nomenclaturesFrequencyRequestsHandler">Ограничитель частоты запросов номенклатур</param>
 		/// <exception cref="ArgumentNullException">Одна из зависимостей равна <c>null</c></exception>
 		public SaleItemController(
 			ILogger<SaleItemController> logger,
 			ISaleItemService saleItemService,
-			PricesFrequencyRequestsHandler pricesFrequencyRequestsHandler)
+			PricesFrequencyRequestsHandler pricesFrequencyRequestsHandler,
+			NomenclaturesFrequencyRequestsHandler nomenclaturesFrequencyRequestsHandler)
 			: base(logger)
 		{
 			_saleItemService = saleItemService ?? throw new ArgumentNullException(nameof(saleItemService));
 			_pricesFrequencyRequestsHandler =
 				pricesFrequencyRequestsHandler ?? throw new ArgumentNullException(nameof(pricesFrequencyRequestsHandler));
+			_nomenclaturesFrequencyRequestsHandler =
+				nomenclaturesFrequencyRequestsHandler ?? throw new ArgumentNullException(nameof(nomenclaturesFrequencyRequestsHandler));
 		}
 
 		/// <summary>
@@ -89,6 +94,57 @@ namespace CustomerAppsApi.V3.Controllers
 					sourceName);
 
 				return new SaleItemsPricesAndStockDto
+				{
+					ErrorMessage = e.Message
+				};
+			}
+		}
+
+		/// <summary>
+		/// Возвращает номенклатуры продаваемых товаров/услуг для источника запроса
+		/// </summary>
+		/// <param name="source">Источник запроса (ИПЗ)</param>
+		/// <param name="cancellationToken">Токен отмены запроса</param>
+		/// <returns>Список номенклатур</returns>
+		[HttpGet]
+		public async Task<SaleItemsDto> GetSaleItems([FromQuery] Source source, CancellationToken cancellationToken)
+		{
+			var sourceName = source.GetEnumTitle();
+
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос на выборку номенклатур от источника {Source}",
+					sourceName);
+
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+				var canRequest = isDryRun || _nomenclaturesFrequencyRequestsHandler.CanRequest(source, sourceName);
+
+				if(!canRequest)
+				{
+					return new SaleItemsDto
+					{
+						ErrorMessage = "Превышен интервал обращений"
+					};
+				}
+
+				var saleItems = await _saleItemService.GetSaleItemsAsync(source, cancellationToken);
+
+				if(!isDryRun)
+				{
+					_nomenclaturesFrequencyRequestsHandler.TryUpdate(source);
+				}
+
+				return saleItems;
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка при получении номенклатур для источника {Source}",
+					sourceName);
+
+				return new SaleItemsDto
 				{
 					ErrorMessage = e.Message
 				};

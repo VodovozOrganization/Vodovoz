@@ -4,7 +4,7 @@ ALTER TABLE `online_orders`
   ADD COLUMN `mindbox_transaction_id` char(36) NULL,
   ADD COLUMN `bonuses_written_off` int NOT NULL DEFAULT 0,
   ADD COLUMN `bonuses_to_earn` int NULL,
-  ADD COLUMN `mindbox_status` int NOT NULL DEFAULT 0,
+  ADD COLUMN `mindbox_status` ENUM('Unknown', 'Queued', 'Sent', 'DataError', 'Error') NOT NULL DEFAULT 'Unknown',
   ADD COLUMN `mindbox_last_error` varchar(2000) NULL,
   ADD COLUMN `mindbox_last_attempt_at` datetime(6) NULL,
   ADD COLUMN `mindbox_attempts` int NOT NULL DEFAULT 0,

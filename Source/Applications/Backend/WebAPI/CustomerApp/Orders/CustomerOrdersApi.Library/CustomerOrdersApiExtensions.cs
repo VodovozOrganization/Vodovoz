@@ -176,6 +176,7 @@ namespace CustomerOrdersApi.Library
 				AddTopologyV5(configurator);
 				AddTopologyV6(configurator);
 				AddTopologyV7(configurator);
+				AddTopologyV8(configurator);
 
 				configurator.ConfigureEndpoints(context);
 			});
@@ -250,6 +251,17 @@ namespace CustomerOrdersApi.Library
 		{
 			configurator.Message<V7.Dto.Orders.CreatingOnlineOrder>(x => x.SetEntityName(V7.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
 			configurator.Publish<V7.Dto.Orders.CreatingOnlineOrder>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+		}
+
+		private static void AddTopologyV8(IRabbitMqBusFactoryConfigurator configurator)
+		{
+			configurator.Message<V8.Dto.Orders.CreatingOnlineOrder>(x => x.SetEntityName(V8.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
+			configurator.Publish<V8.Dto.Orders.CreatingOnlineOrder>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;

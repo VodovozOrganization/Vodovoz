@@ -45,7 +45,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.MindboxTransactionId).Column("mindbox_transaction_id");
 			Map(x => x.BonusesWrittenOff).Column("bonuses_written_off");
 			Map(x => x.BonusesToEarn).Column("bonuses_to_earn");
-			Map(x => x.MindboxStatus).Column("mindbox_status");
+			Map(x => x.MindboxStatus).Column("mindbox_status").Not.Nullable();
 			Map(x => x.MindboxLastError).Column("mindbox_last_error");
 			Map(x => x.MindboxLastAttemptAt).Column("mindbox_last_attempt_at");
 			Map(x => x.MindboxAttempts).Column("mindbox_attempts");
