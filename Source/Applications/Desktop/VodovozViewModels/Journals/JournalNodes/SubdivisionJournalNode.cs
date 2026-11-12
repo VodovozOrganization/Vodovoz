@@ -17,6 +17,9 @@ namespace Vodovoz.Journals.JournalNodes
 		public virtual int? ParentId { get; set; }
 		public IList<SubdivisionJournalNode> Children { get; set; } = new List<SubdivisionJournalNode>();
 		public bool IsArchive { get; set; }
+		/// <summary>
+		/// Уровень подразделения
+		/// </summary>
 		public SubdivisionLevel Level { get; set; }
 	}
 }

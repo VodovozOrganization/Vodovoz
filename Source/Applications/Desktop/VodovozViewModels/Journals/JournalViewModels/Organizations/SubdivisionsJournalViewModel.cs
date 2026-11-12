@@ -31,14 +31,14 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 	public class SubdivisionsJournalViewModel
 		: JournalViewModelBase
 	{
+		private const string _hasChildSubdivisionsMessage =
+			"Нельзя удалить подразделение, у которого есть дочерние. Сначала перенесите или удалите дочерние подразделения.";
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly SubdivisionFilterViewModel _filterViewModel;
 		private readonly ILifetimeScope _scope;
 		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
-		private const string _hasChildSubdivisionsMessage =
-			"Нельзя удалить подразделение, у которого есть дочерние. Сначала перенесите или удалите дочерние подразделения.";
 		private HierarchicalChunkLinqLoader<Subdivision, SubdivisionJournalNode> _hierarchicalChunkLinqLoader;
 		private Dictionary<Type, IPermissionResult> _domainObjectsPermissions = new Dictionary<Type, IPermissionResult>();
 
@@ -269,12 +269,10 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 
 			foreach(var level in new[] { SubdivisionLevel.Cfo, SubdivisionLevel.Department, SubdivisionLevel.Sector })
 			{
-				var currentLevel = level;
-
-				var addChildAction = new JournalAction(currentLevel.GetEnumTitle(),
+				var addChildAction = new JournalAction(level.GetEnumTitle(),
 					(selected) => _domainObjectsPermissions[typeof(Subdivision)].CanCreate,
 					(selected) => true,
-					(selected) => CreateSubdivision(currentLevel, selected));
+					(selected) => CreateSubdivision(level, selected));
 
 				addParentAction.ChildActionsList.Add(addChildAction);
 			}
