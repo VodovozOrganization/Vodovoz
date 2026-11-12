@@ -51,19 +51,19 @@ namespace Mindbox.Library.Mapping
 				}
 			};
 
+			customer.FullName = MindboxCounterpartyMapping.GetFullName(counterparty);
+
 			if(counterparty.PersonType == PersonType.natural)
 			{
 				customer.LastName = MindboxContactValidator.NormalizeName(counterparty.Surname);
 				customer.FirstName = MindboxContactValidator.NormalizeName(counterparty.FirstName);
 				customer.MiddleName = MindboxContactValidator.NormalizeName(counterparty.Patronymic);
-				customer.FullName = null;
 			}
 			else
 			{
 				customer.LastName = null;
 				customer.FirstName = null;
 				customer.MiddleName = null;
-				customer.FullName = MindboxCounterpartyMapping.GetFullName(counterparty);
 			}
 
 			LogSkippedContacts(counterparty, customer);

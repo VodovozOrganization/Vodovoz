@@ -21,13 +21,14 @@ namespace Mindbox.Library.Services
 			_settings = settings ?? throw new ArgumentNullException(nameof(settings));
 			EndpointName = "mindbox-online-order-sync";
 			ConcurrentMessageLimit = 1;
-			PrefetchCount = 1;
 		}
 
 		protected override void ConfigureConsumer(
 			IReceiveEndpointConfigurator endpointConfigurator,
 			IConsumerConfigurator<MindboxOnlineOrderSyncConsumer> consumerConfigurator)
 		{
+			endpointConfigurator.PrefetchCount = 1;
+
 			endpointConfigurator.UseMessageRetry(retryConfigurator =>
 			{
 				retryConfigurator.Intervals(

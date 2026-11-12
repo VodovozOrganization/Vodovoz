@@ -48,7 +48,8 @@ namespace Mindbox.Library.Services
 		/// <inheritdoc />
 		public async Task SyncAsync(int onlineOrderId, Guid transactionId, CancellationToken cancellationToken)
 		{
-			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Синхронизация онлайн-заказа с Mindbox");
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Синхронизация онлайн-заказа с Mindbox"))
+			{
 			var onlineOrder = unitOfWork.GetById<OnlineOrder>(onlineOrderId);
 
 			if(onlineOrder is null)
@@ -117,6 +118,7 @@ namespace Mindbox.Library.Services
 			onlineOrder.MindboxLastAttemptAt = now;
 			Save(unitOfWork, onlineOrder);
 			await unitOfWork.CommitAsync(cancellationToken).ConfigureAwait(false);
+			}
 		}
 
 		private async Task SendCreateAsync(

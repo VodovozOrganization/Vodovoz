@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Mindbox.Library.Services;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients.Mindbox;
 using Vodovoz.Domain.Orders;
@@ -47,11 +48,13 @@ namespace Mindbox.CounterpartySender
 			{
 				try
 				{
-					using var scope = _scopeFactory.CreateScope();
+					using(var scope = _scopeFactory.CreateScope())
+					{
 					var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
 					var enqueuer = scope.ServiceProvider.GetRequiredService<IMindboxOnlineOrderEnqueuer>();
 
-					using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Постановка онлайн-заказов в очередь Mindbox");
+					using(var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Постановка онлайн-заказов в очередь Mindbox"))
+					{
 					var orders = unitOfWork.Session.Query<OnlineOrder>()
 						.Where(order => order.MindboxStatus == MindboxCounterpartyOutboxStatus.Sent)
 						.OrderBy(order => order.Id)
@@ -70,6 +73,8 @@ namespace Mindbox.CounterpartySender
 					if(orders.Count > 0)
 					{
 						await unitOfWork.CommitAsync(stoppingToken).ConfigureAwait(false);
+					}
+					}
 					}
 				}
 				catch(OperationCanceledException)
