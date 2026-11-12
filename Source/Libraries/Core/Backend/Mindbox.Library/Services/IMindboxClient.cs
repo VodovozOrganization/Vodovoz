@@ -71,5 +71,15 @@ namespace Mindbox.Library.Services
 			MindboxOrderLinesStatusRequest request,
 			Guid transactionId,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получает информацию о заказе из Mindbox операцией GetOrderInfo
+		/// </summary>
+		/// <param name="request">Запрос с идентификатором заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат вызова Mindbox</returns>
+		Task<MindboxOperationResult> GetOrderInfoAsync(
+			MindboxGetOrderInfoRequest request,
+			CancellationToken cancellationToken);
 	}
 }

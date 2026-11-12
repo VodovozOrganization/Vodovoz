@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V8.Dto.Orders;
 using CustomerOrdersApi.Library.V8.Extensions;
@@ -10,6 +11,7 @@ using CustomerOrdersApi.Library.V8.Factories;
 using CustomerOrdersApi.Library.V8.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Mindbox.Library.Services;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -41,6 +43,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 		private readonly ICourierTrackingService _courierTrackingService;
 		private readonly IOptionsSnapshot<SignatureOptions> _signatureOptions;
 		private readonly IOptionsMonitor<CourierCoordinatesOptions> _courierCoordinatesOptions;
+		private readonly IMindboxOrderBonusesService _mindboxOrderBonusesService;
 
 		public CustomerOrdersService(
 			ILogger<CustomerOrdersService> logger,
@@ -56,7 +59,8 @@ namespace CustomerOrdersApi.Library.V8.Services
 			IUnPaidOnlineOrderHandler unPaidOnlineOrderHandler,
 			ICourierTrackingService courierTrackingService,
 			IOptionsSnapshot<SignatureOptions> signatureOptions,
-			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions)
+			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions,
+			IMindboxOrderBonusesService mindboxOrderBonusesService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -72,6 +76,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 			_courierTrackingService = courierTrackingService ?? throw new ArgumentNullException(nameof(courierTrackingService));
 			_signatureOptions = signatureOptions ?? throw new ArgumentNullException(nameof(signatureOptions));
 			_courierCoordinatesOptions = courierCoordinatesOptions ?? throw new ArgumentNullException(nameof(courierCoordinatesOptions));
+			_mindboxOrderBonusesService = mindboxOrderBonusesService ?? throw new ArgumentNullException(nameof(mindboxOrderBonusesService));
 		}
 
 		#region ValidateSignature
@@ -199,6 +204,11 @@ namespace CustomerOrdersApi.Library.V8.Services
 			{
 				var order = uow.GetById<Order>(getDetailedOrderInfoDto.OrderId.Value);
 
+				if(onlineOrder is null)
+				{
+					onlineOrder = order?.OnlineOrder;
+				}
+
 				orderRating = _genericRatingRepository.Get(
 						uow,
 						x => x.Order.Id == order.Id)
@@ -208,7 +218,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 				var isOrderWasSelectedAsNext =
 					driverPositionData.EstablishedRoute || await _routeListRepository.IsOrderEverWasSelectedAsNext(uow, order.Id, cancellationToken);
 
-				return await _customerOrderFactory.CreateDetailedOrderInfo(
+				var orderInfo = await _customerOrderFactory.CreateDetailedOrderInfo(
 					uow,
 					order,
 					orderRating,
@@ -220,6 +230,14 @@ namespace CustomerOrdersApi.Library.V8.Services
 					driverPositionData.CoordinatesLastUpdateTime,
 					cancellationToken
 					);
+
+				await FillOrderBonusesAsync(
+					orderInfo,
+					onlineOrder,
+					GetOrderLineIds(onlineOrder, order),
+					cancellationToken);
+
+				return orderInfo;
 			}
 
 			orderRating = _genericRatingRepository.Get(
@@ -227,7 +245,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 					x => x.OnlineOrder.Id == onlineOrder.Id)
 				.FirstOrDefault();
 
-			return await _customerOrderFactory.CreateDetailedOrderInfo(
+			var onlineOrderInfo = await _customerOrderFactory.CreateDetailedOrderInfo(
 				uow,
 				onlineOrder,
 				orderRating,
@@ -236,6 +254,87 @@ namespace CustomerOrdersApi.Library.V8.Services
 				ratingAvailableFrom,
 				cancellationToken
 			);
+
+			await FillOrderBonusesAsync(onlineOrderInfo, onlineOrder, null, cancellationToken);
+
+			return onlineOrderInfo;
+		}
+
+		private static IReadOnlyCollection<string> GetOrderLineIds(OnlineOrder onlineOrder, Order order)
+		{
+			if(onlineOrder is null || order is null || string.IsNullOrWhiteSpace(onlineOrder.MindboxSnapshot))
+			{
+				return null;
+			}
+
+			MindboxOnlineOrderState snapshot;
+
+			try
+			{
+				snapshot = JsonSerializer.Deserialize<MindboxOnlineOrderState>(onlineOrder.MindboxSnapshot);
+			}
+			catch(JsonException)
+			{
+				return null;
+			}
+
+			if(snapshot?.Lines is null || order.OrderItems is null)
+			{
+				return null;
+			}
+
+			var result = new HashSet<string>(StringComparer.Ordinal);
+
+			foreach(var orderItem in order.OrderItems)
+			{
+				var addedLineId = $"o{orderItem.Id}";
+
+				foreach(var line in snapshot.Lines)
+				{
+					if(string.Equals(line.LineId, addedLineId, StringComparison.Ordinal)
+						|| (orderItem.Nomenclature != null
+							&& string.Equals(line.ProductId, $"product_{orderItem.Nomenclature.Id}", StringComparison.Ordinal))
+						|| (orderItem.PromoSet != null
+							&& string.Equals(line.ProductId, $"promoset_{orderItem.PromoSet.Id}", StringComparison.Ordinal)))
+					{
+						result.Add(line.LineId);
+					}
+				}
+			}
+
+			return result.Count == 0 ? null : result;
+		}
+
+		private async Task FillOrderBonusesAsync(
+			DetailedOrderInfoDto orderInfo,
+			OnlineOrder onlineOrder,
+			IReadOnlyCollection<string> lineIds,
+			CancellationToken cancellationToken)
+		{
+			if(orderInfo is null || onlineOrder is null)
+			{
+				return;
+			}
+
+			var bonuses = await _mindboxOrderBonusesService
+				.GetAsync(onlineOrder, lineIds, cancellationToken)
+				.ConfigureAwait(false);
+
+			if(bonuses is null)
+			{
+				orderInfo.OrderBonuses = null;
+				return;
+			}
+
+			orderInfo.OrderBonuses = new OrderBonusesDto
+			{
+				IsAvailable = bonuses.IsAvailable,
+				WrittenOff = bonuses.WrittenOff,
+				Earned = bonuses.Earned,
+				EarnStatus = bonuses.EarnStatus.HasValue
+					? (OrderBonusesEarnStatus)(int)bonuses.EarnStatus.Value
+					: (OrderBonusesEarnStatus?)null
+			};
 		}
 
 		public async Task<OrdersDto> GetOrders(GetOrdersDto getOrdersDto, CancellationToken cancellationToken)

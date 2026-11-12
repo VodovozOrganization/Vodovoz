@@ -30,6 +30,7 @@ namespace Mindbox.Library
 			services.AddScoped<IMindboxOnlineOrderStateBuilder, MindboxOnlineOrderStateBuilder>();
 			services.AddScoped<IMindboxOnlineOrderSyncProcessor, MindboxOnlineOrderSyncProcessor>();
 			services.AddScoped<IMindboxOnlineOrderEnqueuer, MindboxOnlineOrderEnqueuer>();
+			services.AddScoped<IMindboxOrderBonusesService, MindboxOrderBonusesService>();
 
 			return services;
 		}

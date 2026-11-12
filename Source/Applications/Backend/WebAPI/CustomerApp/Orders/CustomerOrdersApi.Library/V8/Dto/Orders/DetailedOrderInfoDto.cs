@@ -63,5 +63,10 @@ namespace CustomerOrdersApi.Library.V8.Dto.Orders
 		/// Товары/услуги заказа
 		/// </summary>
 		public IList<OnlineOrderItemWithDiscountDetailsDto> OrderItems { get; set; }
+
+		/// <summary>
+		/// Бонусы по заказу
+		/// </summary>
+		public OrderBonusesDto OrderBonuses { get; set; }
 	}
 }

@@ -161,6 +161,11 @@ namespace Vodovoz.Settings.Database.Mindbox
 		string UpdateOrderLinesStatusOperation { get; }
 
 		/// <summary>
+		/// Название операции получения информации о заказе
+		/// </summary>
+		string GetOrderInfoOperation { get; }
+
+		/// <summary>
 		/// JSON-маппинг статусов заказа ERP в статусы позиций Mindbox
 		/// </summary>
 		string OrderLineStatusMapping { get; }

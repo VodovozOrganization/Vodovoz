@@ -42,6 +42,7 @@ namespace Vodovoz.Settings.Database.Mindbox
 		private const string AuthorizedLoyaltyOrderTimeoutSecondsSetting = "Mindbox.AuthorizedLoyaltyOrderTimeoutSeconds";
 		private const string MindboxOrderIdNameSetting = "Mindbox.MindboxOrderIdName";
 		private const string UpdateOrderLinesStatusOperationSetting = "Mindbox.UpdateOrderLinesStatusOperation";
+		private const string GetOrderInfoOperationSetting = "Mindbox.GetOrderInfoOperation";
 		private const string OrderLineStatusMappingSetting = "Mindbox.OrderLineStatusMapping";
 		private const string BonusProgramModeSetting = "Mindbox.BonusProgramMode";
 		private const string BonusProgramClientIdsSetting = "Mindbox.BonusProgramClientIds";
@@ -187,6 +188,10 @@ namespace Vodovoz.Settings.Database.Mindbox
 		/// <inheritdoc />
 		public string UpdateOrderLinesStatusOperation =>
 			GetOptionalString(UpdateOrderLinesStatusOperationSetting, "UpdateOrderLinesStatus");
+
+		/// <inheritdoc />
+		public string GetOrderInfoOperation =>
+			GetOptionalString(GetOrderInfoOperationSetting, "GetOrderInfo");
 
 		/// <inheritdoc />
 		public string OrderLineStatusMapping =>
