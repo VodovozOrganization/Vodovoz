@@ -1,4 +1,4 @@
-﻿using CustomerNotifications.Contracts;
+using CustomerNotifications.Contracts;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
@@ -749,7 +749,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			if(acceptResult.Value)
 			{
 				// Уведомление клиента сохраняется в outbox тем же коммитом, что и принятие заказа
-				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, onlineOrder.Source, onlineOrder.Id, order.Id);
 				await _customerNotificationPublisher.TryPublishAsync(uow, customerCourierAssignedEvent, cancellationToken);
 			}
 

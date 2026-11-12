@@ -1,4 +1,5 @@
 using Notifications.Core;
+using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace Notifications.Infrastructure
 	/// </summary>
 	public sealed class SameEventBuilder<TEvent> : IIntegrationEventBuilder<TEvent, TEvent>
 	{
-		public Task<TEvent> BuildAsync(TEvent domainEvent, CancellationToken cancellationToken = default) =>
+		public Task<TEvent> BuildAsync(IUnitOfWork unitOfWork, TEvent domainEvent, CancellationToken cancellationToken = default) =>
 			Task.FromResult(domainEvent);
 	}
 }
