@@ -12,6 +12,7 @@ namespace CustomerOrdersApi.Library.V8.Dto.Orders.RequestsForCall
 		/// Обычная
 		/// </summary>
 		General,
+
 		/// <summary>
 		/// Сервисная
 		/// </summary>

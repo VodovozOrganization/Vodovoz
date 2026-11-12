@@ -29,6 +29,16 @@ namespace CustomerOrdersApi.Controllers.V8
 			_discountService = discountService ?? throw new ArgumentNullException(nameof(discountService));
 		}
 
+		/// <summary>
+		/// Применение промокода к товарам корзины
+		/// </summary>
+		/// <param name="applyPromoCodeDto">Данные запроса <see cref="ApplyPromoCodeDto"/></param>
+		/// <returns>
+		/// В контролируемых случаях ответ в виде <see cref="AppliedPromoCodeDto"/>
+		/// При ошибках <see cref="ProblemDetails"/>
+		/// 200 - ответ со списком товаров корзины с примененными скидками
+		/// 500 - ошибка
+		/// </returns>
 		[HttpGet]
 		public IActionResult ApplyPromoCodeToOrder([FromBody] ApplyPromoCodeDto applyPromoCodeDto)
 		{

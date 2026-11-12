@@ -55,16 +55,6 @@ namespace CustomerOrdersApi.Library.V8.Services
 		);
 		
 		/// <summary>
-		/// Расчет детализации скидки в деньгах по основаниям скидки, включая персональную скидку
-		/// Подходит для случаев, когда надо раскрыть информацию по скидкам из заказа или онлайн заказа
-		/// </summary>
-		/// <param name="saleItem">Продаваемая позиция</param>
-		/// <returns>Скидка в деньгах</returns>
-		(decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
-			ICalculatingTotalMoneyDiscount saleItem
-		);
-		
-		/// <summary>
 		/// Применение/снятие скидки за автозаказ
 		/// </summary>
 		/// <param name="uow">unit of work</param>

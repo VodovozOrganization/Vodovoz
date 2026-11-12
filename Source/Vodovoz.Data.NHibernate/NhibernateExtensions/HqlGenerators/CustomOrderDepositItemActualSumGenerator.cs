@@ -1,12 +1,12 @@
-﻿using NHibernate.Hql.Ast;
+﻿using System.Linq.Expressions;
+using System.Reflection;
+using NHibernate.Hql.Ast;
 using NHibernate.Linq.Functions;
 using NHibernate.Linq.Visitors;
 using NHibernate.Util;
-using System.Linq.Expressions;
-using System.Reflection;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Data.NHibernate.NhibernateExtensions
+namespace Vodovoz.Data.NHibernate.NhibernateExtensions.HqlGenerators
 {
 	public class CustomOrderDepositItemActualSumGenerator : BaseHqlGeneratorForProperty
 	{

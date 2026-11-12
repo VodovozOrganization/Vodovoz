@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -18,6 +19,7 @@ using CustomerOrdersApi.Library.V8.Repositories;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Nomenclature;
@@ -260,7 +262,9 @@ namespace CustomerOrdersApi.Library.V8.Factories
 
 			var schedule = TemplateDeliveryScheduleDetailedDto.Create(
 				templateDeliverySchedule,
-				DeliveryScheduleDto.Create(deliveryInterval.Id, $"{deliveryInterval.From}-{deliveryInterval.To}"),
+				DeliveryScheduleDto.Create(
+					deliveryInterval.Id,
+					IntervalName.CustomerOrdersApiIntervalName(deliveryInterval.From, deliveryInterval.To)),
 				_deliveryScheduleDescriptionFactory.Create(templateInfoRawData.Schedule, deliveryInterval.From, deliveryInterval.To)
 			);
 			
@@ -391,7 +395,9 @@ namespace CustomerOrdersApi.Library.V8.Factories
        
                 var schedule = TemplateDeliveryScheduleDetailedDto.Create(
                     templateDeliverySchedule,
-                    DeliveryScheduleDto.Create(deliveryInterval.Id, $"{deliveryInterval.From}-{deliveryInterval.To}"),
+                    DeliveryScheduleDto.Create(
+						deliveryInterval.Id,
+						IntervalName.CustomerOrdersApiIntervalName(deliveryInterval.From, deliveryInterval.To)),
                     _deliveryScheduleDescriptionFactory.Create(rawTemplateCard.Schedule, deliveryInterval.From, deliveryInterval.To)
                 );
                 
@@ -407,7 +413,6 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				templateCard.ItemsCount = Math.Round(itemsCount, 2);
 				templateCard.EstimatedSum = Math.Round(estimatedSum, 2);
 
-				//TODO-6121 уточнить по статусам. В доке написаны Paused, AwaitingPayment, ManualProcessing
                 if(templateCard.Status != TemplateStatusDto.Active)
                 {
 					templateCard.NextDeliveryDate = null;
@@ -518,12 +523,12 @@ namespace CustomerOrdersApi.Library.V8.Factories
 
 		#endregion
 		
-		public IEnumerable<TemplateNextDeliveriesDto> GetResumeDates(
+		public Result<IEnumerable<TemplateNextDeliveriesDto>> GetDatesForResumeTemplate(
 			IUnitOfWork uow,
-			(TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval) deliveryScheduleData,
+			(TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval, int DeliveryPointId) deliveryScheduleData,
 			DateTime requestTime)
 		{
-			IEnumerable<DateTime> dates = null;
+			Result<IEnumerable<DateTime>> datesResult = null;
 			var schedule = deliveryScheduleData.DeliverySchedule.ToTemplateDeliveryScheduleDto();
 
 			if(schedule.Type == CustomerTemplateDeliveryScheduleType.Weekly)
@@ -540,9 +545,12 @@ namespace CustomerOrdersApi.Library.V8.Factories
 					throw new InvalidOperationException(string.Format(errorMessage, "периодичность"));
 				}
 
-				dates = _deliveryDateGenerator.GetResumeDates(
+				datesResult = _deliveryDateGenerator.GetDatesForResumeTemplate(
+					uow,
 					schedule.WeekDay.Value,
-					requestTime
+					requestTime,
+					deliveryScheduleData.DeliveryPointId,
+					deliveryScheduleData.DeliveryInterval.Id
 				);
 			}
 			else if(schedule.Type == CustomerTemplateDeliveryScheduleType.Monthly)
@@ -554,10 +562,76 @@ namespace CustomerOrdersApi.Library.V8.Factories
 					throw new InvalidOperationException(string.Format(errorMessage, "число месяца"));
 				}
 				
-				dates = _deliveryDateGenerator.GetResumeDates(
+				datesResult = _deliveryDateGenerator.GetDatesForResumeTemplate(
+					uow,
 					schedule.DayOfMonth.Value,
-					requestTime
+					requestTime,
+					deliveryScheduleData.DeliveryPointId,
+					deliveryScheduleData.DeliveryInterval.Id
 				);
+			}
+			else
+			{
+				throw new InvalidOperationException(
+					$"Неизвестное значение периодичности автозаказа {schedule.Type}." +
+					$" Добавьте это значение в условие метода {nameof(CreateNextDeliveriesInfo)}");
+			}
+
+			if(datesResult.IsFailure)
+			{
+				return Result.Failure<IEnumerable<TemplateNextDeliveriesDto>>(datesResult.Errors);
+			}
+
+			return datesResult.Value.Select(nextDate =>
+					TemplateNextDeliveriesDto.Create(
+						nextDate,
+						nextDate.DayOfWeek,
+						DeliveryScheduleDto.Create(
+							deliveryScheduleData.DeliveryInterval.Id,
+							IntervalName.CustomerOrdersApiIntervalName(
+								deliveryScheduleData.DeliveryInterval.From,
+								deliveryScheduleData.DeliveryInterval.To))
+						)
+				)
+				.ToList();
+		}
+
+		public IEnumerable<TemplateNextDeliveriesDto> GetResumedTemplateDates(
+			(TemplateDeliveryScheduleData Schedule, DeliveryScheduleData DeliveryInterval) deliveryScheduleData
+			)
+		{
+			IEnumerable<DateTime> dates = null;
+			var schedule = deliveryScheduleData.Schedule.ToTemplateDeliveryScheduleDto();
+
+			if(schedule.Type == CustomerTemplateDeliveryScheduleType.Weekly)
+			{
+				const string errorMessage = "Для генерации дат следующих доставок автозаказа с недельной периодичностью, {0} должна быть заполнена!";
+				
+				if(!schedule.FirstDeliveryDate.HasValue)
+				{
+					throw new InvalidOperationException(string.Format(errorMessage, "дата первой доставки"));
+				}
+				
+				if(!schedule.RepeatEveryWeeks.HasValue)
+				{
+					throw new InvalidOperationException(string.Format(errorMessage, "периодичность"));
+				}
+
+				dates = _deliveryDateGenerator.GetTemplateNextDeliveryDates(
+					schedule.FirstDeliveryDate.Value,
+					schedule.RepeatEveryWeeks.Value
+				);
+			}
+			else if(schedule.Type == CustomerTemplateDeliveryScheduleType.Monthly)
+			{
+				const string errorMessage = "Для генерации дат следующих доставок автозаказа с месячной периодичностью, {0} должно быть заполнено!";
+				
+				if(!schedule.DayOfMonth.HasValue)
+				{
+					throw new InvalidOperationException(string.Format(errorMessage, "число месяца"));
+				}
+				
+				dates = _deliveryDateGenerator.GetTemplateNextDeliveryDates(schedule.DayOfMonth.Value);
 			}
 			else
 			{
@@ -572,8 +646,9 @@ namespace CustomerOrdersApi.Library.V8.Factories
 						nextDate.DayOfWeek,
 						DeliveryScheduleDto.Create(
 							deliveryScheduleData.DeliveryInterval.Id,
-							$"{deliveryScheduleData.DeliveryInterval.From} - {deliveryScheduleData.DeliveryInterval.To}")
-						)
+							IntervalName.CustomerOrdersApiIntervalName(
+								deliveryScheduleData.DeliveryInterval.From,
+								deliveryScheduleData.DeliveryInterval.To)))
 				)
 				.ToList();
 		}

@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order

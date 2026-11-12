@@ -163,6 +163,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<OrderAddNomenclatureToSaleValidatorFactory>()
 				.AddScoped<ITemplateNextDeliveryDateGenerator, TemplateNextDeliveryDateGenerator>()
 				.AddScoped<IOnlineOrderTemplateStatusHandler, OnlineOrderTemplateStatusHandler>()
+				.AddScoped<DeliveryScheduleChecker>()
 				.TryAddScoped(sp => PermissionsSettings.CurrentPermissionService)
 				;
 

@@ -40,9 +40,9 @@ namespace Vodovoz.Core.Domain.Sale
 		private int? _bottlesReturn;
 		private int? _trifle;
 		private string _comment;
-		private IObservableList<int> _templateSaleItems = new ObservableList<int>();
-		private IObservableList<int> _templatePromoSets = new ObservableList<int>();
-		private IObservableList<int> _templateFreeRentPackages = new ObservableList<int>();
+		private IObservableList<int> _saleItems = new ObservableList<int>();
+		private IObservableList<int> _promoSets = new ObservableList<int>();
+		private IObservableList<int> _freeRentPackages = new ObservableList<int>();
 		private TemplateDeliveryScheduleData _schedule;
 		private OnlineOrderTemplateStatus _status;
 		private OnlineRecurrentPayment _recurrentPayment;
@@ -301,30 +301,30 @@ namespace Vodovoz.Core.Domain.Sale
 		/// Список идентификаторов товаров
 		/// </summary>
 		[Display(Name = "Список идентификаторов товаров")]
-		public virtual IObservableList<int> TemplateSaleItems
+		public virtual IObservableList<int> SaleItems
 		{
-			get => _templateSaleItems;
-			set => SetField(ref _templateSaleItems, value);
+			get => _saleItems;
+			set => SetField(ref _saleItems, value);
 		}
 
 		/// <summary>
 		/// Список идентификаторов промонаборов шаблона
 		/// </summary>
 		[Display(Name = "Список идентификаторов товаров")]
-		public virtual IObservableList<int> TemplatePromoSets
+		public virtual IObservableList<int> PromoSets
 		{
-			get => _templatePromoSets;
-			set => SetField(ref _templatePromoSets, value);
+			get => _promoSets;
+			set => SetField(ref _promoSets, value);
 		}
 
 		/// <summary>
 		/// Список идентификаторов пакетов аренды шаблона
 		/// </summary>
 		[Display(Name = "Список идентификаторов товаров")]
-		public virtual IObservableList<int> TemplateFreeRentPackages
+		public virtual IObservableList<int> FreeRentPackages
 		{
-			get => _templateFreeRentPackages;
-			set => SetField(ref _templateFreeRentPackages, value);
+			get => _freeRentPackages;
+			set => SetField(ref _freeRentPackages, value);
 		}
 
 		/// <summary>
@@ -363,6 +363,34 @@ namespace Vodovoz.Core.Domain.Sale
 			return $"{TemplateTitle} №{Id}";
 		}
 
+		public virtual void Resume(DateTime nextDeliveryDate)
+		{
+			if(Status != OnlineOrderTemplateStatus.Paused)
+			{
+				throw new InvalidOperationException("Нельзя возобновлять автозаказ не в остановленном статусе! Проверьте логику");
+			}
+			
+			Status = OnlineOrderTemplateStatus.Active;
+			Schedule.FirstDeliveryDate = nextDeliveryDate;
+		}
+		
+		public virtual bool NeedAdvancePayment()
+		{
+			return !PostPayments.Contains(PaymentType);
+		}
+
+		public virtual bool HasPaymentProblem()
+		{
+			if(Status == OnlineOrderTemplateStatus.PaymentProblem
+				|| (NeedAdvancePayment()
+					&& (RecurrentPayment is null || string.IsNullOrWhiteSpace(RecurrentPayment.Token))))
+			{
+				return true;
+			}
+			
+			return false;
+		}
+
 		public virtual void Archive()
 		{
 			Status = OnlineOrderTemplateStatus.Archived;
@@ -380,7 +408,7 @@ namespace Vodovoz.Core.Domain.Sale
 			OnlineOrderTemplateStatus.Paused,
 			OnlineOrderTemplateStatus.PaymentProblem
 		};
-		
+
 		public static OnlineOrderTemplate Create(
 			Source source,
 			int authorId,
@@ -533,7 +561,7 @@ namespace Vodovoz.Core.Domain.Sale
 		public virtual DateTime? FirstDeliveryDate
 		{
 			get => _firstDeliveryDate;
-			protected set => SetField(ref _firstDeliveryDate, value);
+			set => SetField(ref _firstDeliveryDate, value);
 		}
 
 		/// <summary>

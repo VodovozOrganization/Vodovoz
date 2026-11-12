@@ -31,6 +31,14 @@ namespace CustomerOrdersApi.Controllers.V8
 				.Value;
 		}
 		
+		/// <summary>
+		/// Оценка заказа
+		/// </summary>
+		/// <param name="orderRatingInfo">Данные запроса <see cref="OrderRatingInfoForCreateDto"/></param>
+		/// <returns>
+		/// 200 - успех, без тела
+		/// 500 - ошибка <see cref="ProblemDetails"/>
+		/// </returns>
 		[HttpPost]
 		public IActionResult CreateOrderRating(OrderRatingInfoForCreateDto orderRatingInfo)
 		{
@@ -63,6 +71,14 @@ namespace CustomerOrdersApi.Controllers.V8
 			}
 		}
 		
+		/// <summary>
+		/// Получение причин оценки заказа
+		/// </summary>
+		/// <param name="source">Источник запроса</param>
+		/// <returns>
+		/// 200 - успех, список причин оценок <see cref="OrderRatingReasonDto"/>
+		/// 500 - ошибка <see cref="ProblemDetails"/>
+		/// </returns>
 		[HttpGet]
 		public IActionResult GetOrderRatingReasons(Source source)
 		{

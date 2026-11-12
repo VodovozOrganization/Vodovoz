@@ -75,11 +75,6 @@ namespace Vodovoz.Errors.Orders
 		public static Error OrderMustBeNull =>
 			new Error("400", "У онлайн заказа не должно быть реального заказа");
 		
-		public static Error IsEmptyOnlineOrder =>
-			new Error(
-				typeof(OnlineOrderErrors),
-				nameof(IsEmptyOnlineOrder),
-				"Не найден онлайн заказ");
 		public static Error OnlineOrderNotFound(string code = null) =>
 			new Error(code ?? "400", "Онлайн заказ не найден");
 		public static Error IsOrderNotBelongCounterparty =>
@@ -387,5 +382,11 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(CourierCoordinatesAreMissing),
 				"Координаты курьера отсутствуют");
+
+		public static Error NomenclatureIsOutOfStock(int nomenclatureId, string nomenclatureName) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(NomenclatureIsOutOfStock),
+				$"Номенклатура {nomenclatureId} {nomenclatureName} отсутствует на остатках складов");
 	}
 }

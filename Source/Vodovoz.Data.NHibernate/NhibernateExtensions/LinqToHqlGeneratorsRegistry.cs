@@ -1,5 +1,6 @@
-﻿using NHibernate.Linq.Functions;
+using NHibernate.Linq.Functions;
 using NHibernate.Spatial.Linq.Functions;
+using Vodovoz.Data.NHibernate.NhibernateExtensions.HqlGenerators;
 
 namespace Vodovoz.Data.NHibernate.NhibernateExtensions
 {
@@ -10,6 +11,7 @@ namespace Vodovoz.Data.NHibernate.NhibernateExtensions
 			this.Merge(new CustomOrderItemActualSumGenerator());
 			this.Merge(new CustomOrderDepositItemActualSumGenerator());
 			this.Merge(new CustomAddDaysMethodGenerator());
+			this.Merge(new CustomOrderTemplateCardSortingPriorityGenerator());
 		}
 	}
 }

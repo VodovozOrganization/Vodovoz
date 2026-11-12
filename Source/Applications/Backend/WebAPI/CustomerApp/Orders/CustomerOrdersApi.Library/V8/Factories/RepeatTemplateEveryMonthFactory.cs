@@ -12,11 +12,11 @@ namespace CustomerOrdersApi.Library.V8.Factories
 	public class RepeatTemplateEveryMonthFactory : IRepeatTemplateEveryMonthFactory
 	{
 		private readonly IOnlineOrderTemplateSettings _templateSettings;
-		private readonly CommonDeliverySchedulesService _commonDeliverySchedulesService;
+		private readonly ICommonDeliverySchedulesService _commonDeliverySchedulesService;
 
 		public RepeatTemplateEveryMonthFactory(
 			IOnlineOrderTemplateSettings templateSettings,
-			CommonDeliverySchedulesService commonDeliverySchedulesService
+			ICommonDeliverySchedulesService commonDeliverySchedulesService
 			)
 		{
 			_templateSettings = templateSettings ?? throw new ArgumentNullException(nameof(templateSettings));

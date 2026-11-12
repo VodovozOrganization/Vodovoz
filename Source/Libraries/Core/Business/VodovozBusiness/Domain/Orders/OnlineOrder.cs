@@ -645,18 +645,27 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		private void UpdateDeliverySchedule(DeliverySchedule deliverySchedule, int? deliveryScheduleId)
-		{
-			DeliveryScheduleId = deliveryScheduleId;
-			DeliverySchedule = deliverySchedule;
-		}
-		
-		private void ClearPaymentData()
+		public virtual void ClearPaymentData()
 		{
 			OnlinePayment = null;
 			OnlinePaymentSource = null;
 		}
 		
+		/// <summary>
+		/// Очистка временных меток
+		/// </summary>
+		public virtual void ClearTimestamps()
+		{
+			TemplateSetupStartTime = null;
+			TemplatePayStartTime = null;
+		}
+
+		private void UpdateDeliverySchedule(DeliverySchedule deliverySchedule, int? deliveryScheduleId)
+		{
+			DeliveryScheduleId = deliveryScheduleId;
+			DeliverySchedule = deliverySchedule;
+		}
+
 		private void ClearPaymentDataWithReason()
 		{
 			ClearPaymentData();

@@ -22,6 +22,7 @@ namespace VodovozBusiness.Domain.Sale
 		private decimal _price;
 		private int _templateId;
 		private PromotionalSet _promoSet;
+		private PersonalDiscount _personalDiscount;
 		private IObservableList<DiscountReasonBase> _discountReasons = new ObservableList<DiscountReasonBase>();
 
 		protected OnlineOrderTemplatePromoSet() { }
@@ -79,6 +80,16 @@ namespace VodovozBusiness.Domain.Sale
 		}
 		
 		/// <summary>
+		/// Персональная скидка
+		/// </summary>
+		[Display(Name = "Персональная скидка")]
+		public virtual PersonalDiscount PersonalDiscount
+		{
+			get => _personalDiscount;
+			set => SetField(ref _personalDiscount, value);
+		}
+		
+		/// <summary>
 		/// Название промонабора
 		/// </summary>
 		public virtual string PromoSetName => PromoSet?.Name;
@@ -89,14 +100,12 @@ namespace VodovozBusiness.Domain.Sale
 		/// <inheritdoc/>
 		IEnumerable<DiscountReasonBase> IDiscountReasons.DiscountReasons => DiscountReasons;
 
-		/// <inheritdoc/>
-		public virtual PersonalDiscount PersonalDiscount => null;
-
 		public static OnlineOrderTemplatePromoSet Create(
 			int templateId,
 			decimal count,
 			decimal price,
 			PromotionalSet promoSet,
+			PersonalDiscount personalDiscount,
 			IList<DiscountReasonBase> discountReasons = null
 		)
 		{
@@ -105,7 +114,8 @@ namespace VodovozBusiness.Domain.Sale
 				Count = count,
 				Price = price,
 				TemplateId = templateId,
-				PromoSet = promoSet
+				PromoSet = promoSet,
+				PersonalDiscount = personalDiscount,
 			};
 
 			if(discountReasons == null || !discountReasons.Any())

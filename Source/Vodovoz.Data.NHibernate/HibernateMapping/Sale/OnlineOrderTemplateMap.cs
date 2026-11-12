@@ -45,10 +45,25 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Sale
 			References(x => x.RecurrentPayment)
 				.Column("recurrent_payment_id");
 			
-			HasMany(x => x.TemplateSaleItems)
-				.Table("online_orders_templates_products")
+			HasMany(x => x.SaleItems)
+				.Table("online_order_templates_sale_items")
 				.KeyColumn("template_id")
 				.Element("id")
+				.Inverse()
+				;
+
+			HasMany(x => x.PromoSets)
+				.Table("online_orders_templates_promo_sets")
+				.KeyColumn("template_id")
+				.Element("id")
+				.Inverse()
+				;
+
+			HasMany(x => x.FreeRentPackages)
+				.Table("online_orders_templates_free_rent_packages")
+				.KeyColumn("template_id")
+				.Element("id")
+				.Inverse()
 				;
 		}
 	}

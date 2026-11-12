@@ -36,6 +36,17 @@ namespace CustomerOrdersApi.Controllers.V8
 			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
 		}
 
+		/// <summary>
+		/// Создание онлайн заказа
+		/// </summary>
+		/// <param name="creatingOnlineOrder">Данные для создания онлайн заказа <see cref="CreatingOnlineOrder"/></param>
+		/// <returns>
+		/// В случае успешного ответа или обработанных ошибок ответ в виде <see cref="CreatedOnlineOrderResult"/>
+		/// При необработанных - <see cref="ProblemDetails"/>
+		/// 200 с идентификатором созданного онлайн заказа
+		/// 409 - при условии, что онлайн заказ уже создан
+		/// 500 - ошибка
+		/// </returns>
 		[HttpPost]
 		public async Task<IActionResult> CreateOrderAsync(CreatingOnlineOrder creatingOnlineOrder)
 		{
@@ -78,7 +89,7 @@ namespace CustomerOrdersApi.Controllers.V8
 		/// <summary>
 		/// Получение детальной информации о заказе
 		/// </summary>
-		/// <param name="getDetailedOrderInfoDto">Данные для получения деталей заказа</param>
+		/// <param name="getDetailedOrderInfoDto">Данные для получения деталей заказа <see cref="GetDetailedOrderInfoDto"/></param>
 		/// <param name="cancellationToken">Токен для отмены операции</param>
 		/// <returns>Детальная информация о заказе <see cref="DetailedOrderInfoDto"/></returns>
 		[HttpGet]
@@ -122,6 +133,17 @@ namespace CustomerOrdersApi.Controllers.V8
 			}
 		}
 		
+		/// <summary>
+		/// Получение списка заказов
+		/// </summary>
+		/// <param name="getOrdersDto">Данные для получения <see cref="GetOrdersDto"/></param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// В случае успешного ответа <see cref="OrdersDto"/>
+		/// Ошибки - <see cref="ProblemDetails"/>
+		/// 200 - список заказов в количестве переданном в запросе и общим количеством заказов клиента
+		/// 500 - ошибка
+		/// </returns>
 		[HttpGet]
 		public async Task<IActionResult> GetOrders([FromBody] GetOrdersDto getOrdersDto, CancellationToken cancellationToken)
 		{
@@ -163,7 +185,7 @@ namespace CustomerOrdersApi.Controllers.V8
 		/// <summary>
 		/// Получение текущих активных заказов клиента
 		/// </summary>
-		/// <param name="getCounterpartyOrdersDto">Данные для получения заказов клиента</param>
+		/// <param name="getCounterpartyOrdersDto">Данные для получения заказов клиента <see cref="GetCounterpartyOrdersDto"/></param>
 		/// <param name="cancellationToken">Токен для отмены операции</param>
 		/// <returns>Активные заказы клиента <see cref="ActiveOrdersDto"/> со статусами <c>OrderPerformed</c> и <c>OrderDelivering</c></returns>
 		[HttpGet]
@@ -198,7 +220,7 @@ namespace CustomerOrdersApi.Controllers.V8
 				return Problem();
 			}
 		}
-
+		
 		[HttpGet]
 		public IActionResult GetAvailablePaymentMethods([FromBody] GetAvailablePaymentMethodsDto getAvailablePaymentMethods)
 		{
@@ -229,6 +251,12 @@ namespace CustomerOrdersApi.Controllers.V8
 			}
 		}
 		
+		/// <summary>
+		/// Запрос изменения онлайн заказа. Например, при успешной оплате, смене даты/времени доставки, смене типа оплаты ит.д.
+		/// </summary>
+		/// <param name="changingOrderDto">Данные запроса <see cref="ChangingOrderDto"/></param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
 		[HttpPost]
 		public async Task<IActionResult> ChangeOrder(ChangingOrderDto changingOrderDto, CancellationToken cancellationToken)
 		{
@@ -262,6 +290,12 @@ namespace CustomerOrdersApi.Controllers.V8
 			}
 		}
 
+		/// <summary>
+		/// Отмена онлайн заказа
+		/// </summary>
+		/// <param name="cancelOrderDto">Данные запроса <see cref="CancelOrderDto"/></param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
 		[HttpPost]
 		public async Task<IActionResult> CancelOrderAsync(CancelOrderDto cancelOrderDto, CancellationToken cancellationToken)
 		{

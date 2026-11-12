@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomerApp.Contracts.Sale;
-using CustomerOrdersApi.Library.V8.Dto.Orders;
-using CustomerOrdersApi.Library.V8.Dto.Orders.OrderItem;
+using CustomerOrdersApi.Library.V7.Dto.Orders;
+using CustomerOrdersApi.Library.V7.Dto.Orders.OrderItem;
+using CustomerOrdersApi.Library.V7.Extensions;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -16,16 +16,16 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Domain.Orders;
 
-namespace CustomerOnlineOrdersRegistrar.V8.Factories
+namespace CustomerOnlineOrdersRegistrar.V7.Factories
 {
-	public class OnlineOrderFactory : IOnlineOrderFactory
+	public class CustomerOnlineOrderFactory : ICustomerOnlineOrderFactory
 	{
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
 		private readonly IGenericRepository<PromotionalSet> _promotionalSetRepository;
 		private readonly IGenericRepository<FreeRentPackage> _freeRentPackageRepository;
 		private readonly IGenericRepository<DiscountReasonBase> _discountReasonRepository;
 
-		public OnlineOrderFactory(
+		public CustomerOnlineOrderFactory(
 			IGenericRepository<Nomenclature> nomenclatureRepository,
 			IGenericRepository<PromotionalSet> promotionalSetRepository,
 			IGenericRepository<FreeRentPackage> freeRentPackageRepository,
@@ -46,7 +46,7 @@ namespace CustomerOnlineOrdersRegistrar.V8.Factories
 		{
 			var onlineOrder = new OnlineOrderV2
 			{
-				Source = creatingOnlineOrder.Source,
+				Source = creatingOnlineOrder.Source.ToSource(),
 				CounterpartyId = creatingOnlineOrder.ErpCounterpartyId,
 				ExternalCounterpartyId = creatingOnlineOrder.ExternalCounterpartyId,
 				ExternalOrderId = creatingOnlineOrder.ExternalOrderId,
@@ -75,30 +75,20 @@ namespace CustomerOnlineOrdersRegistrar.V8.Factories
 				onlineOrder.IsFastDelivery = true;
 			}
 
+			if(onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.UnPaid
+				&& onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline)
+			{
+				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.WaitingForPayment;
+			}
+			else
+			{
+				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.New;
+			}
+
 			UpdateOnlineComment(onlineOrder, creatingOnlineOrder.OnlineOrderComment);
 			InitializeOnlineOrderReferences(uow, onlineOrder, creatingOnlineOrder);
 			CreateAndAddItems(uow, onlineOrder, creatingOnlineOrder.OnlineOrderItems);
-
-			var now = DateTime.Now;
-			var onlineOrderTimers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
-
-			if(onlineOrderTimers is null)
-			{
-				throw new InvalidOperationException($"Не найдены временные метки для онлайн заказа, проверьте {nameof(OnlineOrderTimers)}");
-			}
-			
-			onlineOrder.Created = now;
-			onlineOrder.SetStatus(
-				creatingOnlineOrder.IsAutoOrderEnabled,
-				(int)onlineOrderTimers.AutoOrderSettingsTime.TotalSeconds,
-				now,
-				OnlineOrderTimestampType.AutoOrderSettingsTime
-				);
-
-			if(onlineOrder.TemplateSetupStartTime != null)
-			{
-				uow.Save(onlineOrder.TemplateSetupStartTime);
-			}
+			onlineOrder.Created = DateTime.Now;
 
 			return onlineOrder;
 		}

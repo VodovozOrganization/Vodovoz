@@ -1,4 +1,9 @@
-﻿using QS.DomainModel.UoW;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Sale;
+using VodovozBusiness.Nodes;
 
 namespace VodovozBusiness.EntityRepositories.Sale
 {
@@ -28,5 +33,18 @@ namespace VodovozBusiness.EntityRepositories.Sale
 		/// <param name="counterpartyId">Идентификатор клиента</param>
 		/// <returns></returns>
 		bool OnlineOrderTemplateFromCounterparty(IUnitOfWork uow, int templateId, int? counterpartyId);
+
+		[Obsolete]
+		IEnumerable<OnlineOrderTemplate> GetActiveOnlineOrdersTemplatesForCreateOrders(IUnitOfWork uow, DateTime dateTime);
+		
+		/// <summary>
+		/// Получение данных шаблонов автозаказов
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="templatesIds">Список идентификаторов шаблонов</param>
+		/// <returns></returns>
+		Task<OnlineOrdersTemplatesData> GetOnlineOrdersTemplatesDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> templatesIds);
 	}
 }

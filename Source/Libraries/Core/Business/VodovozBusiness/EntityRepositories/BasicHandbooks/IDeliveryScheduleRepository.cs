@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -25,5 +26,15 @@ namespace Vodovoz.EntityRepositories.BasicHandbooks
 		/// <param name="deliveryScheduleId">Идентификатор графика доставки</param>
 		/// <returns></returns>
 		bool Exists(IUnitOfWork uow, int deliveryScheduleId);
+
+		/// <summary>
+		/// График доставки доступен
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="weekDay">День недели</param>
+		/// <param name="deliveryPointId">Идентификатор ТД</param>
+		/// <param name="deliveryScheduleId">Идентификатор интервала доставки</param>
+		/// <returns></returns>
+		bool Available(IUnitOfWork uow, DayOfWeek weekDay, int deliveryPointId, int deliveryScheduleId);
 	}
 }

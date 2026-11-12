@@ -91,8 +91,8 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddScoped<IOnlineOrderFactoryV4, OnlineOrderFactoryV4>()
 						.AddScoped<IOnlineOrderFactoryV5, OnlineOrderFactoryV5>()
 						.AddScoped<IOnlineOrderFactoryV6, OnlineOrderFactoryV6>()
-						.AddScoped<V7.Factories.IOnlineOrderFactory, V7.Factories.OnlineOrderFactory>()
-						.AddScoped<V8.Factories.IOnlineOrderFactory, V8.Factories.OnlineOrderFactory>()
+						.AddScoped<V7.Factories.ICustomerOnlineOrderFactory, V7.Factories.CustomerOnlineOrderFactory>()
+						.AddScoped<V8.Factories.ICustomerOnlineOrderFactory, V8.Factories.CustomerOnlineOrderFactory>()
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>

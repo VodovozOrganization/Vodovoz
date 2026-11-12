@@ -1,12 +1,12 @@
-﻿using NHibernate.Hql.Ast;
-using NHibernate.Linq.Functions;
-using NHibernate.Linq.Visitors;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Reflection;
+using NHibernate.Hql.Ast;
+using NHibernate.Linq.Functions;
+using NHibernate.Linq.Visitors;
 
-namespace Vodovoz.Data.NHibernate.NhibernateExtensions
+namespace Vodovoz.Data.NHibernate.NhibernateExtensions.HqlGenerators
 {
 	public class CustomAddDaysMethodGenerator : BaseHqlGeneratorForMethod
 	{

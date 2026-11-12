@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using CustomerOrders.Abstractions.V8.Sale;
+using CustomerOrders.Contracts.V8.Sale;
 using CustomerOrders.Contracts.V8.Sale.Templates;
 using CustomerOrdersApi.Library.V8.Factories;
 using CustomerOrdersApi.Library.V8.Services;
@@ -16,7 +18,9 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale.RequestsForCall;
+using VodovozBusiness.Services.Sale;
 
 namespace CustomerOrdersApi.Library.V8.Extensions
 {
@@ -53,9 +57,9 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 				.AddScoped<ICustomerTemplateFactory, CustomerTemplateFactory>()
 				.AddScoped<ICustomerTemplateRepository, CustomerTemplateRepository>()
 				.AddScoped<ITemplateActionsGenerator, TemplateActionsGenerator>()
-				.AddScoped<CommonDeliverySchedulesService>()
+				.AddScoped<ICommonDeliverySchedulesService, CommonDeliverySchedulesService>()
 				.AddScoped<CustomerTemplateService>()
-				.AddScoped<OnlineOrderTemplateCreator>()
+				.AddScoped<IOnlineOrderTemplateCreator, OnlineOrderTemplateCreator>()
 				.AddCommonDependencies()
 				.AddPaymentRefundServices()
 				;
@@ -153,6 +157,15 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 			services.AddScoped<Services.PaymentRefund.IPaymentRefundService, Services.PaymentRefund.FastPaymentsRefundService>();
 
 			return services;
+		}
+		
+		public static IDiscountAmount ToDiscountAmount(this IDiscountNameAndAmount discountValue)
+		{
+			return DiscountAmount.Create(
+				discountValue.Id,
+				discountValue.Name,
+				discountValue.Amount
+			);
 		}
 	}
 }

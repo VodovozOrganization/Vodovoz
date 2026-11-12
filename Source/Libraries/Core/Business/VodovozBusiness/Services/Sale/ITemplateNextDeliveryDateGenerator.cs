@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using CustomerOrders.Contracts.V8.Sale.Templates;
+using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Results;
 
 namespace VodovozBusiness.Services.Sale
 {
@@ -40,25 +42,37 @@ namespace VodovozBusiness.Services.Sale
 		IEnumerable<DateTime> GetTemplateNextDeliveryDates(int dayOfMonth);
 
 		/// <summary>
-		/// Получить ближайшие даты по дню недели несмотря на периодичность
+		/// Получить ближайшие даты по дню недели несмотря на периодичность. Для эндпойнта GetOrderTemplateResumeDates
 		/// </summary>
+		/// <param name="uow">unit of work</param>
 		/// <param name="dayOfWeek">День недели поставок из шаблона</param>
 		/// <param name="requestTime">Дата и время запроса</param>
+		/// <param name="deliveryPointId">Идентификатор ТД</param>
+		/// <param name="deliveryScheduleId">Идентификатор интервала доставки</param>
 		/// <returns></returns>
-		IEnumerable<DateTime> GetResumeDates(
+		Result<IEnumerable<DateTime>> GetDatesForResumeTemplate(
+			IUnitOfWork uow,
 			DayOfWeek dayOfWeek,
-			DateTime requestTime
+			DateTime requestTime,
+			int deliveryPointId,
+			int deliveryScheduleId
 		);
 		
 		/// <summary>
-		/// Получить ближайшие даты по дню недели несмотря на периодичность
+		/// Получить ближайшие даты при месячной периодичности. Для эндпойнта GetOrderTemplateResumeDates
 		/// </summary>
+		/// <param name="uow">unit of work</param>
 		/// <param name="dayOfMonth">Число месяца из шаблона</param>
 		/// <param name="requestTime">Дата и время запроса</param>
+		/// <param name="deliveryPointId">Идентификатор ТД</param>
+		/// <param name="deliveryScheduleId">Идентификатор интервала доставки</param>
 		/// <returns></returns>
-		IEnumerable<DateTime> GetResumeDates(
+		Result<IEnumerable<DateTime>> GetDatesForResumeTemplate(
+			IUnitOfWork uow,
 			int dayOfMonth,
-			DateTime requestTime
+			DateTime requestTime,
+			int deliveryPointId,
+			int deliveryScheduleId
 		);
 	}
 }

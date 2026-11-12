@@ -32,9 +32,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Sale
 			References(x => x.Nomenclature)
 				.Column("nomenclature_id");
 			
-			References(x => x.PromoSet)
-				.Column("promo_set_id");
-			
 			References(x => x.PersonalDiscount)
 				.Column("personal_discount_id");
 

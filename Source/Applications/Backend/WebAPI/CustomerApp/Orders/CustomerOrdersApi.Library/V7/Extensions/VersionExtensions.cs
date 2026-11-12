@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel;
+using CustomerOrders.Abstractions.V7.Sale;
+using CustomerOrders.Contracts.V7.Sale;
 using CustomerOrdersApi.Library.V7.Factories;
 using CustomerOrdersApi.Library.V7.Services;
 using MassTransit;
@@ -7,6 +9,7 @@ using RabbitMQ.Client;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale.RequestsForCall;
 
 namespace CustomerOrdersApi.Library.V7.Extensions
@@ -113,6 +116,15 @@ namespace CustomerOrdersApi.Library.V7.Extensions
 			services.AddScoped<Services.PaymentRefund.IPaymentRefundService, Services.PaymentRefund.FastPaymentsRefundService>();
 
 			return services;
+		}
+
+		public static IDiscountAmount ToDiscountAmount(this IDiscountNameAndAmount discountValue)
+		{
+			return DiscountAmount.Create(
+				discountValue.Id,
+				discountValue.Name,
+				discountValue.Amount
+				);
 		}
 	}
 }

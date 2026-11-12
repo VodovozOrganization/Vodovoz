@@ -8,17 +8,17 @@ using CustomerOrders.Contracts.V8.Sale.Templates;
 using CustomerOrdersApi.Library.V8.Extensions;
 using CustomerOrdersApi.Library.V8.Factories;
 using CustomerOrdersApi.Library.V8.Repositories;
+using CustomerOrdersApi.Library.V8.Services.Comparers;
 using CustomerOrdersApi.Library.V8.Services.Validators;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Errors.Sale;
+using VodovozBusiness.Services.Sale;
 
 namespace CustomerOrdersApi.Library.V8.Services
 {
@@ -32,7 +32,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 		private readonly IRepeatTemplateEveryWeeksFactory _repeatEveryWeeksFactory;
 		private readonly IRepeatTemplateEveryMonthFactory _repeatEveryMonthFactory;
 		private readonly ICustomerTemplateFactory _customerTemplateFactory;
-		private readonly OnlineOrderTemplateCreator _templateCreator;
+		private readonly IOnlineOrderTemplateCreator _templateCreator;
 		private readonly IOnlineOrderTemplateStatusHandler _templateStatusHandler;
 
 		public CustomerTemplateService(
@@ -44,7 +44,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 			IRepeatTemplateEveryWeeksFactory repeatEveryWeeksFactory,
 			IRepeatTemplateEveryMonthFactory repeatEveryMonthFactory,
 			ICustomerTemplateFactory customerTemplateFactory,
-			OnlineOrderTemplateCreator templateCreator,
+			IOnlineOrderTemplateCreator templateCreator,
 			IOnlineOrderTemplateStatusHandler templateStatusHandler
 			)
 		{
@@ -212,14 +212,6 @@ namespace CustomerOrdersApi.Library.V8.Services
 			CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Выборка списка шаблонов автозаказов клиента");
-			//TODO-6121 какие делаем здесь проверки?
-			_logger.LogInformation("Проверяем пришедшие параметры запроса");
-			/*var validationResult = _templateControllerRequestValidator.Validate(uow, orderTemplateInfo);
-
-			if(validationResult.IsFailure)
-			{
-				return Result.Failure<OrderTemplateInfoDto>(validationResult.Errors);
-			}*/
 
 			var skipElements = (getOrderTemplates.Page - 1) * getOrderTemplates.TemplatesCountOnPage;
 			var rawData =
@@ -235,6 +227,10 @@ namespace CustomerOrdersApi.Library.V8.Services
 				getOrderTemplates.Source,
 				rawData
 				);
+			
+			orderTemplates = orderTemplates
+				.OrderBy(o => o, new OrderTemplateCardDtoComparer())
+				.ToArray();
 
 			return Result.Success(orderTemplates);
 		}
@@ -262,7 +258,12 @@ namespace CustomerOrdersApi.Library.V8.Services
 			
 			//проверки состояний
 
-			var result = _templateStatusHandler.PauseTemplate(uow, template, request.ErpCounterpartyId, null);
+			var result = await _templateStatusHandler.PauseTemplateAsync(
+				uow,
+				template,
+				request.ErpCounterpartyId,
+				null,
+				cancellationToken);
 
 			if(result.IsFailure)
 			{
@@ -295,10 +296,16 @@ namespace CustomerOrdersApi.Library.V8.Services
 				return Result.Failure<GetOrderTemplateResumeDatesResponse>(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
 			}
 
-			var dates = _customerTemplateFactory.GetResumeDates(uow, deliveryScheduleData.Value, request.RequestTime);
+			var datesResult = _customerTemplateFactory
+				.GetDatesForResumeTemplate(uow, deliveryScheduleData.Value, request.RequestTime);
+
+			if(datesResult.IsFailure)
+			{
+				return Result.Failure<GetOrderTemplateResumeDatesResponse>(datesResult.Errors);
+			}
 			
 			await uow.CommitAsync(cancellationToken);
-			return Result.Success(GetOrderTemplateResumeDatesResponse.Create(dates));
+			return Result.Success(GetOrderTemplateResumeDatesResponse.Create(datesResult.Value));
 		}
 
 		public async Task<Result<ResumeOrderTemplateResponse>> ResumeOrderTemplateAsync(
@@ -321,17 +328,34 @@ namespace CustomerOrdersApi.Library.V8.Services
 			}
 
 			var template = templateDataForResume.Template;
-			// Если уже Active — idempotent: возвращаем текущие данные
+			var availableDatesResult = _customerTemplateFactory.GetDatesForResumeTemplate(
+				uow,
+				(template.Schedule, templateDataForResume.DeliveryInterval, template.DeliveryPointId),
+				request.RequestTime
+			);
+
+			if(availableDatesResult.IsFailure)
+			{
+				return Result.Failure<ResumeOrderTemplateResponse>(availableDatesResult.Errors);
+			}
+
+			var foundDateFromResult = availableDatesResult
+				.Value
+				.FirstOrDefault(x => x.DeliveryDate == request.NextDeliveryDate);
+
+			if(foundDateFromResult is null)
+			{
+				return Result.Failure<ResumeOrderTemplateResponse>(OnlineOrderTemplateApiErrors.OrderTemplateDateUnavailable);
+			}
+
 			if(template.Status == OnlineOrderTemplateStatus.Active)
 			{
 				if(template.Schedule.FirstDeliveryDate == request.NextDeliveryDate)
 				{
-					var newNextDeliveries = _customerTemplateFactory.GetResumeDates(
-						uow,
-						(template.Schedule, templateDataForResume.DeliveryInterval),
-						request.RequestTime
-						);
-					
+					var newNextDeliveries = _customerTemplateFactory.GetResumedTemplateDates(
+						(template.Schedule, templateDataForResume.DeliveryInterval)
+					);
+
 					return Result.Success(
 						ResumeOrderTemplateResponse.Create(
 							template.Id,
@@ -345,12 +369,13 @@ namespace CustomerOrdersApi.Library.V8.Services
 				return Result.Failure<ResumeOrderTemplateResponse>(OnlineOrderTemplateApiErrors.OrderTemplateActionUnavailable);
 			}
 
-			// Смена статуса на Active
-			var statusResult = _templateStatusHandler.ResumeTemplate(
+			var statusResult = await _templateStatusHandler.ResumeTemplateAsync(
 				uow,
 				template,
+				request.NextDeliveryDate,
 				request.ErpCounterpartyId,
-				null
+				null,
+				cancellationToken
 				);
 			
 			if(statusResult.IsFailure)
@@ -358,35 +383,12 @@ namespace CustomerOrdersApi.Library.V8.Services
 				return Result.Failure<ResumeOrderTemplateResponse>(statusResult.Errors);
 			}
 
-			// Weekly: перезаписываем FirstDeliveryDate
-			if(template.Schedule.ScheduleType == TemplateDeliveryScheduleType.Weekly)
-			{
-				template.Schedule = TemplateDeliveryScheduleData.Create(
-					template.Schedule.ScheduleType,
-					template.Schedule.DeliveryScheduleId,
-					template.Schedule.Weekday,
-					template.Schedule.RepeatEveryWeeks,
-					request.NextDeliveryDate,
-					template.Schedule.DayOfMonth);
-			}
-			// Monthly: проверяем что dayOfMonth совпадает
-			else if(template.Schedule.ScheduleType == TemplateDeliveryScheduleType.Monthly)
-			{
-				if(request.NextDeliveryDate.Day != template.Schedule.DayOfMonth.Value)
-				{
-					return Result.Failure<ResumeOrderTemplateResponse>(
-						new Error("400", $"Выбранная дата {request.NextDeliveryDate:dd.MM.yyyy} не соответствует числу месяца {template.Schedule.DayOfMonth}"));
-				}
-			}
-
 			await uow.CommitAsync(cancellationToken);
 
-			var nextDeliveries = _customerTemplateFactory.GetResumeDates(
-				uow,
-				(template.Schedule, templateDataForResume.DeliveryInterval),
-				request.RequestTime
+			var nextDeliveries = _customerTemplateFactory.GetResumedTemplateDates(
+				(template.Schedule, templateDataForResume.DeliveryInterval)
 				);
-			
+
 			return Result.Success(ResumeOrderTemplateResponse.Create(
 				template.Id,
 				TemplateStatusDto.Active,
@@ -414,11 +416,12 @@ namespace CustomerOrdersApi.Library.V8.Services
 				return Result.Failure<ArchiveOrderTemplateResponse>(OnlineOrderTemplateApiErrors.OrderTemplateNotFound);
 			}
 
-			var statusResult = _templateStatusHandler.ArchiveTemplate(
+			var statusResult = await _templateStatusHandler.ArchiveTemplateAsync(
 				uow,
 				template,
 				request.ErpCounterpartyId,
-				null
+				null,
+				cancellationToken
 			);
 			
 			if(statusResult.IsFailure)

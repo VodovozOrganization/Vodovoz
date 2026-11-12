@@ -10,6 +10,7 @@ using CustomerOrders.Contracts.V8.Sale;
 using CustomerOrders.Contracts.V8.Sale.Templates;
 using CustomerOrdersApi.Library.V8.Dto.Templates;
 using CustomerOrdersApi.Library.V8.Extensions;
+using CustomerOrdersApi.Library.V8.Services.Comparers;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Payments;
@@ -21,6 +22,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale;
+using VodovozBusiness.Sorting;
 
 namespace CustomerOrdersApi.Library.V8.Repositories
 {
@@ -46,7 +48,7 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 					WeekDay = deliveryScheduleRestriction.WeekDay,
 					Schedule = DeliveryScheduleDto.Create(
 						deliverySchedule.Id,
-						$"{deliverySchedule.From:hh\\:mm} - {deliverySchedule.To:hh\\:mm}")
+						IntervalName.CustomerOrdersApiIntervalName(deliverySchedule.From, deliverySchedule.To))
 				};
 
 			return query
@@ -70,7 +72,7 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 					WeekDay = deliveryScheduleRestriction.WeekDay,
 					Schedule = DeliveryScheduleDto.Create(
 						deliverySchedule.Id,
-						$"{deliverySchedule.From:hh\\:mm} - {deliverySchedule.To:hh\\:mm}")
+						IntervalName.CustomerOrdersApiIntervalName(deliverySchedule.From, deliverySchedule.To))
 				};
 
 			return query
@@ -147,7 +149,8 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 				join deliveryPoint in uow.Session.Query<DeliveryPoint>()
 					on template.DeliveryPointId equals deliveryPoint.Id
 				join recurrentPayment in uow.Session.Query<OnlineRecurrentPayment>()
-					on template.RecurrentPayment.Id equals recurrentPayment.Id
+					on template.RecurrentPayment.Id equals recurrentPayment.Id into recurrentPayments
+				from recurrentPayment in recurrentPayments.DefaultIfEmpty()
 				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
 					on template.Schedule.DeliveryScheduleId equals deliverySchedule.Id
 				where template.Id == templateId
@@ -238,17 +241,13 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 				join deliveryPoint in uow.Session.Query<DeliveryPoint>()
 					on template.DeliveryPointId equals deliveryPoint.Id
 				join recurrentPayment in uow.Session.Query<OnlineRecurrentPayment>()
-					on template.RecurrentPayment.Id equals recurrentPayment.Id
+					on template.RecurrentPayment.Id equals recurrentPayment.Id into recurrentPayments
+				from templateRecurrentPayment in recurrentPayments.DefaultIfEmpty()
 				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
 					on template.Schedule.DeliveryScheduleId equals deliverySchedule.Id
 				where template.CounterpartyId == counterpartyId
 					&& template.Status != OnlineOrderTemplateStatus.Archived
-
-				let deliveryInterval = DeliveryScheduleData.Create(
-					deliverySchedule.Id,
-					deliverySchedule.From,
-					deliverySchedule.To
-					)
+				orderby OrderTemplateCardSortingPriority.GetByStatus(template.Status)
 				
 				select OrderTemplateCardRawData.Create(
 					new OrderTemplateCardDto
@@ -260,8 +259,12 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 						PaymentMethod = template.PaymentType.ToTemplatePaymentType(),
 					},
 					template.Schedule,
-					deliveryInterval
-					);
+					DeliveryScheduleData.Create(
+						deliverySchedule.Id,
+						deliverySchedule.From,
+						deliverySchedule.To
+					)
+				);
 			
 			var templateRawCards = await query
 				.Skip(skipElements)
@@ -322,7 +325,7 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 			);
 		}
 
-		public (TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval)?
+		public (TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval, int DeliveryPointId)?
 			GetOrderTemplateDeliverySchedule(
 				IUnitOfWork uow,
 				int templateId
@@ -340,7 +343,7 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 					deliverySchedule.To
 				)
 				
-				select ValueTuple.Create(template.Schedule, deliveryInterval);
+				select ValueTuple.Create(template.Schedule, deliveryInterval, template.DeliveryPointId);
 			
 			return query.FirstOrDefault();
 		}

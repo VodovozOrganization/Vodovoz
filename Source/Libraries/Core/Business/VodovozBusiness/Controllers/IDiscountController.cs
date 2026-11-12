@@ -1,4 +1,3 @@
-using CustomerOrders.Abstractions.V8.Sale;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
@@ -25,7 +24,7 @@ namespace VodovozBusiness.Controllers
 		/// </summary>
 		/// <param name="saleItem">Продаваемая позиция</param>
 		/// <returns>Скидка в деньгах</returns>
-		(decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+		(decimal TotalDiscount, IDictionary<int, IDiscountNameAndAmount> DiscountDetails) CalculateTotalDiscountDetails(
 			ICalculatingTotalMoneyDiscount saleItem
 		);
 		
@@ -35,7 +34,7 @@ namespace VodovozBusiness.Controllers
 		/// </summary>
 		/// <param name="onlinePromoSet">Онлайн промонабор</param>
 		/// <returns>Скидка в деньгах</returns>
-		(decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+		(decimal TotalDiscount, IDictionary<int, IDiscountNameAndAmount> DiscountDetails) CalculateTotalDiscountDetails(
 			OnlineOrderPromoSet onlinePromoSet
 		);
 		
@@ -46,7 +45,7 @@ namespace VodovozBusiness.Controllers
 		/// <param name="promoSetItems">Товары из промонабора</param>
 		/// <param name="orderItemsQueue">Позиции заказа с промонабором</param>
 		/// <returns>Скидка в деньгах</returns>
-		(decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+		(decimal TotalDiscount, IDictionary<int, IDiscountNameAndAmount> DiscountDetails) CalculateTotalDiscountDetails(
 			IEnumerable<PromotionalSetItem> promoSetItems,
 			Queue<OrderItem> orderItemsQueue
 		);

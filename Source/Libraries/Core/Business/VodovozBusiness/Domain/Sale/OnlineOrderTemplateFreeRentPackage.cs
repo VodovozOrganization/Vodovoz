@@ -21,8 +21,14 @@ namespace VodovozBusiness.Domain.Sale
 
 		protected OnlineOrderTemplateFreeRentPackage() { }
 		
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
 		public virtual int Id { get; set; }
 		
+		/// <summary>
+		/// Идентификатор шаблона
+		/// </summary>
 		[Display(Name = "Идентификатор шаблона")]
 		public virtual int TemplateId
 		{
@@ -30,6 +36,9 @@ namespace VodovozBusiness.Domain.Sale
 			set => SetField(ref _templateId, value);
 		}
 		
+		/// <summary>
+		/// Бесплатный пакет аренды
+		/// </summary>
 		[Display(Name = "Пакет аренды")]
 		public virtual FreeRentPackage FreeRentPackage
 		{
@@ -37,6 +46,9 @@ namespace VodovozBusiness.Domain.Sale
 			set => SetField(ref _freeRentPackage, value);
 		}
 		
+		/// <summary>
+		/// Цена
+		/// </summary>
 		[Display(Name = "Цена")]
 		public virtual decimal Price
 		{
@@ -44,6 +56,9 @@ namespace VodovozBusiness.Domain.Sale
 			set => SetField(ref _price, value);
 		}
 		
+		/// <summary>
+		/// Количество
+		/// </summary>
 		[Display(Name = "Количество")]
 		public virtual int Count
 		{
@@ -54,13 +69,13 @@ namespace VodovozBusiness.Domain.Sale
 		[Display(Name = "Цена аренды из ДВ")]
 		public virtual decimal FreeRentPackagePriceFromProgram { get; set; }
 
-		public virtual decimal Sum => Count * Price;
+		public virtual decimal CurrentRawPrice => Count * Price;
 
 		public static OnlineOrderTemplateFreeRentPackage Create(
+			int templateId,
 			int count,
 			decimal price,
-			FreeRentPackage rentPackage,
-			int templateId)
+			FreeRentPackage rentPackage)
 		{
 			return new OnlineOrderTemplateFreeRentPackage
 			{

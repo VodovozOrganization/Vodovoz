@@ -52,7 +52,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 				foreach(var onlineOrder in pendingAutoOrderSettingsOrders)
 				{
-					TransferToManualProcessing(onlineOrder, onlineOrderTimers);
+					await TransferToManualProcessingAsync(uow, onlineOrder, onlineOrderTimers, cancellationToken);
 					await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 				}
 
@@ -65,32 +65,43 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 		}
 
-		private void TransferToManualProcessing(OnlineOrder onlineOrder, OnlineOrderTimers orderTimers)
+		private async Task TransferToManualProcessingAsync(
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			OnlineOrderTimers orderTimers,
+			CancellationToken cancellationToken
+			)
 		{
-			if(TryMoveToManualProcessingWithoutTemplate(onlineOrder, orderTimers))
+			if(await TryMoveToManualProcessingWithoutTemplateAsync(uow, onlineOrder, orderTimers, cancellationToken))
 			{
 				_logger.LogInformation("Переводим на ручное онлайн заказ №{PendingAutoOrderSettingsOrderId}", onlineOrder.Id);
+				await uow.CommitAsync(cancellationToken);
 			}
 		}
 		
-		private bool TryMoveToManualProcessingWithoutTemplate(
+		private async Task<bool> TryMoveToManualProcessingWithoutTemplateAsync(
+			IUnitOfWork uow,
 			OnlineOrder onlineOrder,
-			OnlineOrderTimers orderTimers)
+			OnlineOrderTimers orderTimers,
+			CancellationToken cancellationToken
+			)
 		{
-			if(onlineOrder.Template != null && onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
-			{
-				_logger.LogWarning(
-					"Почему-то заказ с шаблоном, но остался в статусе {OnlineOrderStatus}! Переводим на ручное",
-					onlineOrder.OnlineOrderStatus
-					);
-				
-				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.New;
-				return true;
-			}
+			var timeToTransfer = orderTimers.TimeForTransferAutoOrderToManualProcessingFromSettings;
 			
-			if((DateTime.Now - onlineOrder.Created).TotalSeconds >= orderTimers.TimeForTransferAutoOrderToManualProcessingFromSettings.TotalSeconds)
+			if((DateTime.Now - onlineOrder.Created).TotalSeconds >= timeToTransfer.TotalSeconds)
 			{
 				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.New;
+
+				if(onlineOrder.Template != null)
+				{
+					_logger.LogInformation(
+						"Почему-то онлайн заказ остался в настройке автозаказа, хотя он уже прикреплен к нему");
+					
+					var template = onlineOrder.Template;
+					await uow.SaveAsync(template, cancellationToken: cancellationToken);
+				}
+				
+				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 				return true;
 			}
 			

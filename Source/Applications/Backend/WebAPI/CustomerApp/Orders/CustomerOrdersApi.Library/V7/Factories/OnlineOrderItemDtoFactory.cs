@@ -39,7 +39,8 @@ namespace CustomerOrdersApi.Library.V7.Factories
 				Discounts = new List<IDiscountAmount>(_discountHandler
 					.CalculateTotalDiscountDetails(saleItem as ICalculatingTotalMoneyDiscount)
 					.DiscountDetails
-					.Values)
+					.Values
+					.Select(x => x.ToDiscountAmount()))
 			};
 		}
 		
@@ -132,7 +133,8 @@ namespace CustomerOrdersApi.Library.V7.Factories
 				ItemType = SaleItemType.PromoSet,
 				Discounts = new List<IDiscountAmount>(discountData
 					.DiscountDetails
-					.Values)
+					.Values
+					.Select(x => x.ToDiscountAmount()))
 			};
 		}
 		

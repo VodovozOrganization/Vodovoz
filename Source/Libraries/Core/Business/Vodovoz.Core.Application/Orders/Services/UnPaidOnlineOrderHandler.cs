@@ -89,8 +89,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 				foreach(var onlineOrder in waitingForPaymentOnlineOrders)
 				{
-					TransferToManualProcessing(onlineOrder, onlineOrderTimers);
-					await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+					TransferToManualProcessing(uow, onlineOrder, onlineOrderTimers);
 				}
 
 				_logger.LogInformation("Сохраняем обработанные заказы");
@@ -268,28 +267,41 @@ namespace Vodovoz.Core.Application.Orders.Services
 			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 			return Result.Success();
 		}
-
-		private void TryUpdateTemplate(
+		
+		public async Task ProcessPostPaymentOnlineOrderWithTemplate(
 			IUnitOfWork uow,
 			OnlineOrder onlineOrder,
-			TemplateRecurrentPaymentData recurrentPayment)
+			CancellationToken cancellationToken
+		)
 		{
-			var onlineOrderV2 = onlineOrder.As<OnlineOrderV2>();
-			var template = onlineOrder.Template;
-			
-			if(onlineOrderV2 is null
-				|| !onlineOrderV2.IsAutoOrderEnabled
-				|| template is null
-			)
+			if(onlineOrder.Template is null)
 			{
+				throw new InvalidOperationException("Нельзя использовать этот метод для обработки онлайн заказа без шаблона!");
+			}
+			
+			onlineOrder.ClearTimestamps();
+			
+			var validationResult = _onlineOrderValidatorCreator
+				.Create(onlineOrder)
+				.Validate(uow, true);
+
+			if(validationResult.IsFailure)
+			{
+				_logger.LogInformation(
+					"Не прошли валидацию онлайн заказа {OnlineOrderId}. На ручное...",
+					onlineOrder.Id);
+					
+				await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 				return;
 			}
-
-			if(string.IsNullOrWhiteSpace(recurrentPayment.Token))
-			{
 				
-			}
-			
+			_logger.LogInformation("Проводим заказ на основе онлайн заказа {OnlineOrderId}", onlineOrder.Id);
+			await _orderService.TryCreateOrderFromOnlineOrderAndAcceptAsync(
+				uow,
+				onlineOrder,
+				_routeListService,
+				cancellationToken
+			);
 		}
 
 		private Result ValidateRecurrentPayment(
@@ -508,14 +520,65 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 
 		private void TransferToManualProcessing(
+			IUnitOfWork uow,
 			OnlineOrder onlineOrder,
 			OnlineOrderTimers orderTimers)
 		{
 			const string message = "Заказ не был оплачен в отведенный срок";
 			
-			if(onlineOrder.TryMoveToManualProcessingWithoutPaymentByUnPaidReason(orderTimers, message))
+			var timeToTransferInSeconds = 0d;
+			var timeStamp = onlineOrder.Created;
+			
+			if(onlineOrder.IsFastDelivery)
 			{
+				timeToTransferInSeconds = orderTimers.TimeForTransferToManualProcessingWithFastDelivery.TotalSeconds;
+			}
+			else
+			{
+				if(onlineOrder.Template != null)
+				{
+					if(onlineOrder.Template.Status == OnlineOrderTemplateStatus.AwaitingPayment)
+					{
+						timeToTransferInSeconds = orderTimers.TimeForTransferAutoOrderToManualProcessingFromPaying.TotalSeconds;
+
+						if(onlineOrder.TemplatePayStartTime != null)
+						{
+							timeStamp = onlineOrder.TemplatePayStartTime.StartTime;
+						}
+					}
+				}
+				else
+				{
+					timeToTransferInSeconds = orderTimers.TimeForTransferToManualProcessingWithoutFastDelivery.TotalSeconds;
+				}
+			}
+			
+			if((DateTime.Now - timeStamp).TotalSeconds >= timeToTransferInSeconds)
+			{
+				if(onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid)
+				{
+					onlineOrder.ClearPaymentData();
+				}
+
+				if(onlineOrder.Template != null)
+				{
+					var template = onlineOrder.Template;
+					if(template.Status == OnlineOrderTemplateStatus.AwaitingPayment
+						&& template.HasPaymentProblem())
+					{
+						template.Status = OnlineOrderTemplateStatus.PaymentProblem;
+						uow.Save(template);
+					}
+				}
+				
+				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.New;
+				var currentUnPaidReason = onlineOrder.UnPaidReason;
+				onlineOrder.UnPaidReason = string.IsNullOrWhiteSpace(currentUnPaidReason)
+					? $"\n{message}"
+					: $"\n{message}. Причина: {currentUnPaidReason}";
+				
 				_logger.LogInformation("Переводим на ручное онлайн заказ №{WaitingForPaymentOrderId}", onlineOrder.Id);
+				uow.SaveAsync(onlineOrder);
 			}
 		}
 		

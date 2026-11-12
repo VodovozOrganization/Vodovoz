@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -177,6 +177,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			}
 		}
 
+		//TODO-5696 переделать логику под новые реалии приостановки и возобновления автозакзов
 		private void CreateActiveInactiveAction()
 		{
 			var canUpdate = _permissionResult.CanUpdate;
@@ -204,6 +205,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 			NodeActionsList.Add(activeInactiveAction);
 		}
 
+		//TODO-5696 переделать логику под новые реалии архивации автозаказов
 		private void CreateArchiveAction()
 		{
 			var canUpdate = _permissionResult.CanUpdate;

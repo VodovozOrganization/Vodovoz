@@ -19,7 +19,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 		public CreatingOnlineOrderConsumer(
 			ILogger<CreatingOnlineOrderConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IOnlineOrderFactory onlineOrderFactory,
+			ICustomerOnlineOrderFactory onlineOrderFactory,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,

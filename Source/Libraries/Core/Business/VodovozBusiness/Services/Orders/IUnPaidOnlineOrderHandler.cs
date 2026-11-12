@@ -25,5 +25,18 @@ namespace VodovozBusiness.Services.Orders
 		/// Отправляет уведомление клиенту о заказе, ожидающем оплаты.
 		/// </summary>
 		Task SendWaitingForPaymentNotificationsAsync(IUnitOfWork uow, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Обработка онлайн заказа с постоплатой после создания шаблона
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="onlineOrder">Онлайн заказ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task ProcessPostPaymentOnlineOrderWithTemplate(
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			CancellationToken cancellationToken
+		);
 	}
 }

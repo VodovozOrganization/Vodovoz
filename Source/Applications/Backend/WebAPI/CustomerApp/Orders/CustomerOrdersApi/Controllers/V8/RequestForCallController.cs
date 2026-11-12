@@ -1,5 +1,4 @@
 ﻿using System;
-using CustomerOrdersApi.Library.V8.Dto.Orders;
 using CustomerOrdersApi.Library.V8.Dto.Orders.RequestsForCall;
 using CustomerOrdersApi.Library.V8.Services;
 using Gamma.Utilities;
@@ -20,6 +19,14 @@ namespace CustomerOrdersApi.Controllers.V8
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
 		}
 		
+		/// <summary>
+		/// Создание заявки на звонок
+		/// </summary>
+		/// <param name="creatingInfoDto">Данные запроса <see cref="CreatingRequestForCallDto"/></param>
+		/// <returns>
+		/// 200 - успех, пустое тело
+		/// 500 - ошибка <see cref="ProblemDetails"/>
+		/// </returns>
 		[HttpPost]
 		public IActionResult CreateRequestForCall(CreatingRequestForCallDto creatingInfoDto)
 		{

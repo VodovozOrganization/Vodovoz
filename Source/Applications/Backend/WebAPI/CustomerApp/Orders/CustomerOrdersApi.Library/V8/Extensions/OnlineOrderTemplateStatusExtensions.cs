@@ -27,5 +27,27 @@ namespace CustomerOrdersApi.Library.V8.Extensions
 						$"Неизвестный статус шаблона автозаказа {source.ToString()}. Проверьте настройку расширения ${nameof(ToApiTemplateStatus)}");
 			}
 		}
+		
+		public static OnlineOrderTemplateStatus ToTemplateStatus(this TemplateStatusDto source)
+		{
+			switch(source)
+			{
+				case TemplateStatusDto.AwaitingPayment:
+					return OnlineOrderTemplateStatus.AwaitingPayment;
+				case TemplateStatusDto.ManualProcessing:
+					return OnlineOrderTemplateStatus.ManualProcessing;
+				case TemplateStatusDto.PaymentProblem:
+					return OnlineOrderTemplateStatus.PaymentProblem;
+				case TemplateStatusDto.Active:
+					return OnlineOrderTemplateStatus.Active;
+				case TemplateStatusDto.Paused:
+					return OnlineOrderTemplateStatus.Paused;
+				case TemplateStatusDto.Archived:
+					return OnlineOrderTemplateStatus.Archived;
+				default:
+					throw new IndexOutOfRangeException(
+						$"Неизвестный статус шаблона автозаказа {source.ToString()}. Проверьте настройку расширения ${nameof(ToTemplateStatus)}");
+			}
+		}
 	}
 }

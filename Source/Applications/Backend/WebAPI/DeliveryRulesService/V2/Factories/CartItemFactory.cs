@@ -1,8 +1,8 @@
 ﻿using System;
 using CustomerApp.Contracts.Sale;
 using DeliveryRulesService.V2.DTO;
-using DeliveryRulesService.V2.DTO.Cart;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Application.Sale.Cart;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Orders;

@@ -8,17 +8,9 @@ namespace CustomerOrdersApi.Library.V8.Services
 	/// <summary>
 	/// Класс для получения общих графиков доставки из всех дней
 	/// </summary>
-	public class CommonDeliverySchedulesService
+	public class CommonDeliverySchedulesService : ICommonDeliverySchedulesService
 	{
-		/// <summary>
-		/// Обработка списка интервалов доставки по дням, для получения общих значений
-		/// </summary>
-		/// <param name="scheduleLookup"></param>
-		/// <param name="commonSchedules"></param>
-		/// <returns>
-		/// Если доставка производится не во все дни или во всех интервалах нет общих значений - false и пустой список интервалов
-		/// Иначе true и список общих интервалов
-		/// </returns>
+		/// <inheritdoc/>
 		public bool ProcessSchedules(
 			ILookup<WeekDayName, DeliveryScheduleDto> scheduleLookup,
 			out IList<DeliveryScheduleDto> commonSchedules

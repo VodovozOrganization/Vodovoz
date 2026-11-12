@@ -4,7 +4,7 @@ using VodovozBusiness.Domain.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.V8.Factories
 {
-	public interface IOnlineOrderFactory
+	public interface ICustomerOnlineOrderFactory
 	{
 		/// <summary>
 		/// Создание онлайн заказа на основе данных из ИПЗ

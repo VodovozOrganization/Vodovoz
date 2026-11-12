@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Sale;
 using VodovozBusiness.Errors.Sale;
@@ -13,19 +17,25 @@ namespace Vodovoz.Core.Application.Sale
 	public class OnlineOrderTemplateStatusHandler : IOnlineOrderTemplateStatusHandler
 	{
 		private readonly ILogger<OnlineOrderTemplateStatusHandler> _logger;
+		private readonly IGenericRepository<OnlineOrderTemplateStatusChanged> _templateStatusChangedRepository;
 
 		public OnlineOrderTemplateStatusHandler(
-			ILogger<OnlineOrderTemplateStatusHandler> logger
+			ILogger<OnlineOrderTemplateStatusHandler> logger,
+			IGenericRepository<OnlineOrderTemplateStatusChanged> templateStatusChangedRepository
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_templateStatusChangedRepository =
+				templateStatusChangedRepository ?? throw new ArgumentNullException(nameof(templateStatusChangedRepository));
 		}
 		
-		public Result PauseTemplate(
+		public async Task<Result> PauseTemplateAsync(
 			IUnitOfWork uow,
 			OnlineOrderTemplate template,
 			int? customerId,
-			int? employeeId)
+			int? employeeId,
+			CancellationToken cancellationToken
+			)
 		{
 			if(template.Status == OnlineOrderTemplateStatus.Paused)
 			{
@@ -46,21 +56,30 @@ namespace Vodovoz.Core.Application.Sale
 			}
 			
 			template.Status = OnlineOrderTemplateStatus.Paused;
-			uow.Save(template);
-			
-			//TODO-6121 уточнить, какие данные храним. Или всегда последнюю попытку, или все
-			var changed = OnlineOrderTemplateStatusChanged.Create(
-				template.Id, DateTime.Now, employeeId, customerId, OnlineOrderTemplateStatusChangedType.ToPause);
-			uow.Save(changed);
+			await uow.SaveAsync(template, cancellationToken: cancellationToken);
+
+			var changed = await TryUpdateTemplateStatusChanged(
+				uow,
+				template.Id,
+				customerId,
+				employeeId,
+				OnlineOrderTemplateStatusChangedType.ToPause,
+				cancellationToken
+				);
+
+			await uow.SaveAsync(changed, cancellationToken: cancellationToken);
 
 			return Result.Success();
 		}
 
-		public Result ResumeTemplate(
+		public async Task<Result> ResumeTemplateAsync(
 			IUnitOfWork uow,
 			OnlineOrderTemplate template,
+			DateTime nextDeliveryDate,
 			int? customerId,
-			int? employeeId)
+			int? employeeId,
+			CancellationToken cancellationToken
+			)
 		{
 			if(template.Status == OnlineOrderTemplateStatus.Active)
 			{
@@ -79,18 +98,31 @@ namespace Vodovoz.Core.Application.Sale
 				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplatePauseUnavailable);
 			}
 			
-			template.Status = OnlineOrderTemplateStatus.Active;
-			uow.Save(template);
+			template.Resume(nextDeliveryDate);
+			await uow.SaveAsync(template.Schedule, cancellationToken: cancellationToken);
+			await uow.SaveAsync(template, cancellationToken: cancellationToken);
 			
-			//TODO-6121 уточнить, какие данные храним. Или всегда последнюю попытку, или все
-			var changed = OnlineOrderTemplateStatusChanged.Create(
-				template.Id, DateTime.Now, employeeId, customerId, OnlineOrderTemplateStatusChangedType.ToResume);
-			uow.Save(changed);
+			var changed = await TryUpdateTemplateStatusChanged(
+				uow,
+				template.Id,
+				customerId,
+				employeeId,
+				OnlineOrderTemplateStatusChangedType.ToResume,
+				cancellationToken
+				);
+
+			await uow.SaveAsync(changed, cancellationToken: cancellationToken);
 
 			return Result.Success();
 		}
 
-		public Result ArchiveTemplate(IUnitOfWork uow, OnlineOrderTemplate template, int? customerId, int? employeeId)
+		public async Task<Result> ArchiveTemplateAsync(
+			IUnitOfWork uow,
+			OnlineOrderTemplate template,
+			int? customerId,
+			int? employeeId,
+			CancellationToken cancellationToken
+			)
 		{
 			if(template.Status == OnlineOrderTemplateStatus.Archived)
 			{
@@ -117,18 +149,24 @@ namespace Vodovoz.Core.Application.Sale
 				
 				if(payment != null)
 				{
-					uow.Delete(payment);
+					await uow.DeleteAsync(payment, cancellationToken: cancellationToken);
 				}
 				
 				template.RecurrentPayment = null;
 			}
 			
 			template.Status = OnlineOrderTemplateStatus.Archived;
-			uow.Save(template);
+			await uow.SaveAsync(template, cancellationToken: cancellationToken);
 			
-			var changed = OnlineOrderTemplateStatusChanged.Create(
-				template.Id, DateTime.Now, null, customerId, OnlineOrderTemplateStatusChangedType.ToArchive);
-			uow.Save(changed);
+			var changed = await TryUpdateTemplateStatusChanged(
+				uow,
+				template.Id,
+				customerId,
+				employeeId,
+				OnlineOrderTemplateStatusChangedType.ToArchive,
+				cancellationToken);
+
+			await uow.SaveAsync(changed, cancellationToken: cancellationToken);
 			
 			return Result.Success();
 		}
@@ -139,5 +177,47 @@ namespace Vodovoz.Core.Application.Sale
 				: employeeId.HasValue
 					? $"сотрудник id {employeeId.Value}"
 					: "неизвестный";
+		
+		private async Task<OnlineOrderTemplateStatusChanged> TryUpdateTemplateStatusChanged(
+			IUnitOfWork uow,
+			int templateId,
+			int? customerId,
+			int? employeeId,
+			OnlineOrderTemplateStatusChangedType statusChangedType,
+			CancellationToken cancellationToken
+		)
+		{
+			var changed = await GetStatusChangedEventAsync(uow, templateId, statusChangedType, cancellationToken);
+
+			if(changed is null)
+			{
+				changed = OnlineOrderTemplateStatusChanged.Create(
+					templateId, DateTime.Now, employeeId, customerId, statusChangedType
+				);
+			}
+			else
+			{
+				changed.Update(customerId, employeeId);
+			}
+
+			return changed;
+		}
+		
+		private async Task<OnlineOrderTemplateStatusChanged> GetStatusChangedEventAsync(
+			IUnitOfWork uow,
+			int templateId,
+			OnlineOrderTemplateStatusChangedType statusChangedType,
+			CancellationToken cancellationToken
+		)
+		{
+			var changed = await _templateStatusChangedRepository.GetAsync(
+					uow,
+					x => x.TemplateId == templateId
+						&& x.Type == statusChangedType,
+					cancellationToken: cancellationToken)
+				;
+			
+			return changed.Value.FirstOrDefault();
+		}
 	}
 }

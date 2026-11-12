@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomerApp.Contracts.Common;
-using CustomerOrders.Abstractions;
 using CustomerOrders.Abstractions.V8.Carts;
 using CustomerOrders.Abstractions.V8.Sale;
 using CustomerOrders.Contracts.V8.Orders.Items;
 using CustomerOrders.Contracts.V8.Sale;
+using CustomerOrdersApi.Library.V8.Extensions;
 using CustomerOrdersApi.Library.V8.Factories;
 using CustomerOrdersApi.Library.V8.Services.Validators;
 using Microsoft.Extensions.Logging;
@@ -163,61 +163,6 @@ namespace CustomerOrdersApi.Library.V8.Services
 			}
 			
 			return cartItemsWithDiscountDetails;
-		}
-
-		/// <inheritdoc/>
-		public virtual (decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
-			ICalculatingTotalMoneyDiscount saleItem
-		)
-		{
-			if(saleItem is null)
-			{
-				throw new ArgumentNullException(
-					nameof(saleItem),
-					$"Продаваемая позиция должна реализовывать интерфейс {nameof(ICalculatingTotalMoneyDiscount)}");
-			}
-
-			var currentSumWithoutDiscount = saleItem.CurrentRawPrice;
-			var discountAmounts = new Dictionary<int, IDiscountAmount>();
-			var totalDiscountMoney = 0m;
-
-			foreach(var discountReason in saleItem.DiscountReasons)
-			{
-				var discountMoney = CalculateMoneyDiscount(currentSumWithoutDiscount, discountReason);
-				totalDiscountMoney += discountMoney;
-
-				IDiscountAmount discountAmount;
-
-				if(currentSumWithoutDiscount >= totalDiscountMoney)
-				{
-					discountAmount = DiscountAmount.Create(discountReason.Id, discountReason.ToString(), discountMoney);
-				}
-				else
-				{
-					var difference = totalDiscountMoney - currentSumWithoutDiscount;
-					discountAmount = DiscountAmount.Create(
-						discountReason.Id,
-						discountReason.ToString(),
-						difference >= discountMoney ? 0m : discountMoney - difference);
-					totalDiscountMoney = currentSumWithoutDiscount;
-				}
-
-				discountAmounts.Add(discountAmount.Id, discountAmount);
-			}
-
-			if(saleItem.PersonalDiscount != null)
-			{
-				totalDiscountMoney += saleItem.PersonalDiscount.DiscountValue.DiscountMoney;
-
-				var personalDiscountAmount = DiscountAmount.Create(
-					saleItem.PersonalDiscount.DiscountReason.Id,
-					saleItem.PersonalDiscount.DiscountReason.ToString(),
-					saleItem.PersonalDiscount.DiscountValue.DiscountMoney);
-
-				discountAmounts.Add(personalDiscountAmount.Id, personalDiscountAmount);
-			}
-
-			return (totalDiscountMoney, discountAmounts);
 		}
 		
 		public Result<IEnumerable<IOrderedCartItemWithDiscountDetails>> ProcessAutoOrderDiscount(
@@ -460,7 +405,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 			//т.к. добавляемый промокод отсутствует в изначальном списке скидок, то пробегаемся по оставшимся и добавляем
 			foreach(var keyPairValue in totalDiscountDetails.DiscountDetails)
 			{
-				receivedCartItem.Discounts.Add(keyPairValue.Value);
+				receivedCartItem.Discounts.Add(keyPairValue.Value.ToDiscountAmount());
 			}
 		}
 	}

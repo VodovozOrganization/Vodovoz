@@ -73,7 +73,7 @@ namespace CustomerOrdersApi.Library.V8.Repositories
 		/// <param name="uow">unit of work</param>
 		/// <param name="templateId">Идентификатор шаблона автозаказа</param>
 		/// <returns></returns>
-		(TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval)?
+		(TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval, int DeliveryPointId)?
 			GetOrderTemplateDeliverySchedule(IUnitOfWork uow, int templateId);
 
 		/// <summary>

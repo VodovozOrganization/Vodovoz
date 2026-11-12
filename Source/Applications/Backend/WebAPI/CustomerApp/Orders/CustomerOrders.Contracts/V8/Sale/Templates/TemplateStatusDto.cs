@@ -2,18 +2,26 @@
 
 namespace CustomerOrders.Contracts.V8.Sale.Templates
 {
+	/// <summary>
+	/// Статус шаблона автозаказа
+	/// </summary>
 	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum TemplateStatusDto
 	{
 		/// <summary>
-		/// Ожидание оплаты
+		/// Проблема с оплатой
 		/// </summary>
-		AwaitingPayment,
+		PaymentProblem,
 
 		/// <summary>
 		/// На обработке у менеджера
 		/// </summary>
 		ManualProcessing,
+
+		/// <summary>
+		/// Ожидание оплаты
+		/// </summary>
+		AwaitingPayment,
 
 		/// <summary>
 		/// Активен
@@ -24,11 +32,6 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		/// Остановлен
 		/// </summary>
 		Paused,
-
-		/// <summary>
-		/// Проблема с оплатой
-		/// </summary>
-		PaymentProblem,
 
 		/// <summary>
 		/// Архивирован

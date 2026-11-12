@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomerOrders.Abstractions.V8.Sale;
-using CustomerOrders.Contracts.V8.Sale;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Goods;
@@ -54,7 +52,7 @@ namespace Vodovoz.Core.Application.Sale
 		}
 
 		/// <inheritdoc/>
-		public virtual (decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+		public virtual (decimal TotalDiscount, IDictionary<int, IDiscountNameAndAmount> DiscountDetails) CalculateTotalDiscountDetails(
 			ICalculatingTotalMoneyDiscount saleItem
 		)
 		{
@@ -66,7 +64,7 @@ namespace Vodovoz.Core.Application.Sale
 			}
 			
 			var currentSumWithoutDiscount = saleItem.CurrentRawPrice;
-			var discountAmounts = new Dictionary<int, IDiscountAmount>();
+			var discountAmounts = new Dictionary<int, IDiscountNameAndAmount>();
 			var totalDiscountMoney = 0m;
 
 			foreach(var discountReason in saleItem.DiscountReasons)
@@ -100,12 +98,12 @@ namespace Vodovoz.Core.Application.Sale
 		}
 		
 		/// <inheritdoc/>
-		public virtual (decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+		public virtual (decimal TotalDiscount, IDictionary<int, IDiscountNameAndAmount> DiscountDetails) CalculateTotalDiscountDetails(
 			OnlineOrderPromoSet onlinePromoSet
 		)
 		{
 			var currentSumWithoutDiscount = onlinePromoSet.Price * onlinePromoSet.Count;
-			var discountAmounts = new Dictionary<int, IDiscountAmount>();
+			var discountAmounts = new Dictionary<int, IDiscountNameAndAmount>();
 			var totalDiscountMoney = 0m;
 
 			foreach(var discountReason in onlinePromoSet.DiscountReasons)
@@ -121,12 +119,12 @@ namespace Vodovoz.Core.Application.Sale
 		}
 		
 		/// <inheritdoc/>
-		public virtual (decimal TotalDiscount, IDictionary<int, IDiscountAmount> DiscountDetails) CalculateTotalDiscountDetails(
+		public virtual (decimal TotalDiscount, IDictionary<int, IDiscountNameAndAmount> DiscountDetails) CalculateTotalDiscountDetails(
 			IEnumerable<PromotionalSetItem> promoSetItems,
 			Queue<OrderItem> orderItemsQueue
 		)
 		{
-			var discountAmounts = new Dictionary<int, IDiscountAmount>();
+			var discountAmounts = new Dictionary<int, IDiscountNameAndAmount>();
 			var totalDiscountMoney = 0m;
 
 			foreach(var promoSetItem in promoSetItems)
@@ -286,22 +284,22 @@ namespace Vodovoz.Core.Application.Sale
 					(int)discountReason.DiscountReasonType == (int)notApplicableDiscount.DiscountType));
 		}
 		
-		private IDiscountAmount CalculateDiscountAmount(
+		private IDiscountNameAndAmount CalculateDiscountAmount(
 			decimal currentSum,
 			DiscountReasonBase discountReason,
 			decimal discountMoney,
 			ref decimal totalDiscountMoney)
 		{
-			IDiscountAmount discountAmount;
+			IDiscountNameAndAmount discountAmount;
 
 			if(currentSum > totalDiscountMoney)
 			{
-				discountAmount = DiscountAmount.Create(discountReason.Id, discountReason.ToString(), discountMoney);
+				discountAmount = DiscountNameAndAmount.Create(discountReason.Id, discountReason.ToString(), discountMoney);
 			}
 			else
 			{
 				var difference = totalDiscountMoney - currentSum;
-				discountAmount = DiscountAmount.Create(
+				discountAmount = DiscountNameAndAmount.Create(
 					discountReason.Id,
 					discountReason.ToString(),
 					difference >= discountMoney ? 0m : discountMoney - difference);

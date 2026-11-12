@@ -56,7 +56,8 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				Discounts = new List<IDiscountAmount>(_discountController
 					.CalculateTotalDiscountDetails(saleItem as ICalculatingTotalMoneyDiscount)
 					.DiscountDetails
-					.Values)
+					.Values
+					.Select(x => x.ToDiscountAmount()))
 			};
 		}
 		
@@ -94,7 +95,8 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				Discounts =  new List<IDiscountAmount>(_discountController
 					.CalculateTotalDiscountDetails(onlinePromoSet)
 					.DiscountDetails
-					.Values)
+					.Values
+					.Select(x => x.ToDiscountAmount()))
 			};
 		}
 		
@@ -118,7 +120,8 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				Discounts =  new List<IDiscountAmount>(_discountController
 					.CalculateTotalDiscountDetails(onlinePromoSet)
 					.DiscountDetails
-					.Values)
+					.Values
+					.Select(x => x.ToDiscountAmount()))
 			};
 		}
 		
@@ -224,7 +227,11 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				CurrentSum = currentSum,
 				IsFixedPrice = saleItem.IsFixedPrice,
 				ItemType = saleItem.Nomenclature.Category.ToSaleItemType(),
-				Discounts = new List<IDiscountAmount>(totalDiscountsData.DiscountDetails.Values)
+				Discounts = new List<IDiscountAmount>(
+					totalDiscountsData
+						.DiscountDetails
+						.Values
+						.Select(x => x.ToDiscountAmount()))
 			};
 		}
 	}

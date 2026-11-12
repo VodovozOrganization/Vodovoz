@@ -35,7 +35,7 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
 		private readonly IOnlineOrderTemplateRepository _orderTemplateRepository;
 		private readonly ICustomerTemplateRepository _customerTemplateRepository;
-		private readonly CommonDeliverySchedulesService _commonDeliverySchedulesService;
+		private readonly ICommonDeliverySchedulesService _commonDeliverySchedulesService;
 
 		public TemplateControllerRequestValidator(
 			ILogger<TemplateControllerRequestValidator> logger,
@@ -46,7 +46,7 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 			IDeliveryScheduleRepository deliveryScheduleRepository,
 			IOnlineOrderTemplateRepository orderTemplateRepository,
 			ICustomerTemplateRepository customerTemplateRepository,
-			CommonDeliverySchedulesService commonDeliverySchedulesService
+			ICommonDeliverySchedulesService commonDeliverySchedulesService
 		)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -184,7 +184,7 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 			}
 
 			if(_orderTemplateRepository
-					.GetActiveOnlineOrderTemplatesCount(uow, counterpartyId.Value) > _templateSettings.GetMaximumNumberActiveOnlineOrderTemplates)
+				.GetActiveOnlineOrderTemplatesCount(uow, counterpartyId.Value) > _templateSettings.GetMaximumNumberActiveOnlineOrderTemplates)
 			{
 				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplatesLimitExceeded("409"));
 			}
@@ -215,7 +215,6 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 
 		public Result Validate(IUnitOfWork uow, ResumeOrderTemplateRequest request)
 		{
-			// 1. Автозаказ существует, принадлежит клиенту, не удалён
 			var templateExists = _orderTemplateRepository.NotArchiveTemplateExists(uow, request.OrderTemplateId);
 			if(!templateExists)
 			{
@@ -229,67 +228,33 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 				return Result.Failure(OnlineOrderTemplateApiErrors.IsTemplateNotBelongCounterparty);
 			}
 
-			// Получаем шаблон для дальнейших проверок
 			var template = uow.GetById<OnlineOrderTemplate>(request.OrderTemplateId);
 
-			// 2. Статус Paused
 			if(template.Status != OnlineOrderTemplateStatus.Paused)
 			{
 				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateActionUnavailable);
 			}
 
 			var activeTemplates = _orderTemplateRepository.GetActiveOnlineOrderTemplatesCount(uow, request.ErpCounterpartyId.Value);
-			// 3. Лимит активных автозаказов
 			if(activeTemplates >= _templateSettings.GetMaximumNumberActiveOnlineOrderTemplates)
 			{
 				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplatesLimitExceeded("409"));
 			}
 
-			// 4. Токен оплаты для PaidOnline
 			if(template.PaymentType == OnlineOrderPaymentType.PaidOnline)
 			{
-				if(template.RecurrentPayment == null || string.IsNullOrWhiteSpace(template.RecurrentPayment.Token))
+				if(template.Status == OnlineOrderTemplateStatus.PaymentProblem
+					|| template.RecurrentPayment == null
+					|| string.IsNullOrWhiteSpace(template.RecurrentPayment.Token))
 				{
 					return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplatePaymentMethodRequired);
 				}
 			}
 
-			// 5. Адрес доставки активен
-			var deliveryPoint = uow.GetById<Vodovoz.Domain.Client.DeliveryPoint>(template.DeliveryPointId);
-			if(deliveryPoint == null || !deliveryPoint.IsActive)
+			var deliveryPoint = uow.GetById<DeliveryPoint>(template.DeliveryPointId);
+			if(deliveryPoint is not { IsActive: true })
 			{
 				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateAddressUnavailable);
-			}
-
-			// 6. Интервал автозаказа есть в графике района
-			var schedule = template.Schedule;
-			var deliveryScheduleValid = true;
-			ILookup<WeekDayName, DeliveryScheduleDto> scheduleLookup =
-				_customerTemplateRepository.GetWeeklyDeliverySchedulesByDeliveryPointId(uow, template.DeliveryPointId);
-
-			if(schedule.ScheduleType == TemplateDeliveryScheduleType.Weekly)
-			{
-				if(schedule.Weekday.HasValue)
-				{
-					deliveryScheduleValid = scheduleLookup[schedule.Weekday.Value]
-						.Any(x => x.ErpId == schedule.DeliveryScheduleId);
-				}
-				else
-				{
-					deliveryScheduleValid = false;
-				}
-			}
-			else if(schedule.ScheduleType == TemplateDeliveryScheduleType.Monthly)
-			{
-				if(_commonDeliverySchedulesService.ProcessSchedules(scheduleLookup, out var commonDeliverySchedules))
-				{
-					deliveryScheduleValid = commonDeliverySchedules.Any(x => x.ErpId == schedule.DeliveryScheduleId);
-				}
-			}
-
-			if(!deliveryScheduleValid)
-			{
-				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateIntervalUnavailable);
 			}
 
 			return Result.Success();
@@ -390,7 +355,6 @@ namespace CustomerOrdersApi.Library.V8.Services.Validators
 				return Result.Failure(OnlineOrderTemplateApiErrors.IsOrderTemplateUnavailable);
 			}
 
-			//TODO что считаем активным? Ведь теоретически клиент может с разных устройств настраивать несколько автозаказов?
 			if(_orderTemplateRepository
 					.GetActiveOnlineOrderTemplatesCount(uow, counterpartyId.Value) > _templateSettings.GetMaximumNumberActiveOnlineOrderTemplates)
 			{

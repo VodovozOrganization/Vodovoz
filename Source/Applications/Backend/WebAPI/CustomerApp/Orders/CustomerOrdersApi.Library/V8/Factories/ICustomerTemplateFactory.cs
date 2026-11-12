@@ -6,6 +6,7 @@ using CustomerApp.Contracts.Common;
 using CustomerOrders.Contracts.V8.Sale.Templates;
 using CustomerOrdersApi.Library.V8.Dto.Templates;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 
@@ -62,15 +63,26 @@ namespace CustomerOrdersApi.Library.V8.Factories
 		);
 
 		/// <summary>
-		/// Получение списка дат следующих поставок
+		/// Получение списка дат следующих поставок перед возобновлением автозаказа
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="deliveryScheduleData">Шаблон автозаказа</param>
 		/// <param name="requestTime">Дата и время запроса</param>
 		/// <returns></returns>
-		IEnumerable<TemplateNextDeliveriesDto> GetResumeDates(
+		Result<IEnumerable<TemplateNextDeliveriesDto>> GetDatesForResumeTemplate(
 			IUnitOfWork uow,
-			(TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval) deliveryScheduleData,
+			(TemplateDeliveryScheduleData DeliverySchedule, DeliveryScheduleData DeliveryInterval, int DeliveryPointId) deliveryScheduleData,
 			DateTime requestTime);
+
+		/// <summary>
+		/// Получение списка дат следующих поставок после возобновления автозаказа
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="deliveryScheduleData">Шаблон автозаказа</param>
+		/// <param name="requestTime">Дата и время запроса</param>
+		/// <returns></returns>
+		IEnumerable<TemplateNextDeliveriesDto> GetResumedTemplateDates(
+			(TemplateDeliveryScheduleData Schedule, DeliveryScheduleData DeliveryInterval) deliveryScheduleData
+		);
 	}
 }

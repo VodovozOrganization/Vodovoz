@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CustomerOrders.Contracts.V8.Sale.Templates;
 using DateTimeHelpers;
+using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Settings.Sale;
+using VodovozBusiness.Errors.Sale;
 using VodovozBusiness.Services.Sale;
 
 namespace Vodovoz.Core.Application.Sale
@@ -10,10 +14,15 @@ namespace Vodovoz.Core.Application.Sale
 	public class TemplateNextDeliveryDateGenerator : ITemplateNextDeliveryDateGenerator
 	{
 		private readonly IOnlineOrderTemplateSettings _templateSettings;
+		private readonly DeliveryScheduleChecker _deliveryScheduleChecker;
 
-		public TemplateNextDeliveryDateGenerator(IOnlineOrderTemplateSettings templateSettings)
+		public TemplateNextDeliveryDateGenerator(
+			IOnlineOrderTemplateSettings templateSettings,
+			DeliveryScheduleChecker deliveryScheduleChecker
+			)
 		{
 			_templateSettings = templateSettings ?? throw new ArgumentNullException(nameof(templateSettings));
+			_deliveryScheduleChecker = deliveryScheduleChecker ?? throw new ArgumentNullException(nameof(deliveryScheduleChecker));
 		}
 
 		public DateTime GetNextDeliveryDate(
@@ -89,11 +98,24 @@ namespace Vodovoz.Core.Application.Sale
 			return dates;
 		}
 
-		public IEnumerable<DateTime> GetResumeDates(DayOfWeek dayOfWeek, DateTime requestTime)
+		public Result<IEnumerable<DateTime>> GetDatesForResumeTemplate(
+			IUnitOfWork uow,
+			DayOfWeek dayOfWeek,
+			DateTime requestTime,
+			int deliveryPointId,
+			int deliveryScheduleId
+			)
 		{
 			var countDates = _templateSettings.GetNumberNextDeliveriesToDisplayByWeekly;
 			var dates = new List<DateTime>();
-			var startDate = GetNearestDeliveryDate(dayOfWeek, requestTime);
+			var startDateResult = GetNearestDeliveryDate(uow, dayOfWeek, requestTime, deliveryPointId, deliveryScheduleId);
+
+			if(startDateResult.IsFailure)
+			{
+				return Result.Failure<IEnumerable<DateTime>>(startDateResult.Errors);
+			}
+
+			var startDate = startDateResult.Value;
 			
 			for(var i = 0; i < countDates; i++)
 			{
@@ -101,17 +123,26 @@ namespace Vodovoz.Core.Application.Sale
 				dates.Add(date);
 			}
 			
-			return dates;
+			return Result.Success(dates.AsEnumerable());
 		}
 
-		public IEnumerable<DateTime> GetResumeDates(
+		public Result<IEnumerable<DateTime>> GetDatesForResumeTemplate(
+			IUnitOfWork uow,
 			int dayOfMonth,
-			DateTime requestTime
+			DateTime requestTime,
+			int deliveryPointId,
+			int deliveryScheduleId
 			)
 		{
 			var countDates = _templateSettings.GetNumberNextDeliveriesToDisplayByMonthly;
 			var dates = new List<DateTime>();
 			var firstDate = GetNearestDeliveryDate(dayOfMonth, requestTime);
+
+			if(!_deliveryScheduleChecker.IsDeliveryIntervalAvailable(uow, firstDate.DayOfWeek, deliveryPointId, deliveryScheduleId))
+			{
+				return dates;
+			}
+			
 			var month = firstDate.Month;
 			var year = firstDate.Year;
 
@@ -160,9 +191,12 @@ namespace Vodovoz.Core.Application.Sale
 			return firstDateTime.AddDays(multiplier * frequency);
 		}
 		
-		private DateTime GetNearestDeliveryDate(
+		private Result<DateTime> GetNearestDeliveryDate(
+			IUnitOfWork uow,
 			DayOfWeek templateWeekDay,
-			DateTime requestTime
+			DateTime requestTime,
+			int deliveryPointId,
+			int deliveryScheduleId
 			)
 		{
 			var today = DateTime.Today;
@@ -174,16 +208,21 @@ namespace Vodovoz.Core.Application.Sale
 				);
 
 			var possibleDay = possibleDate.DayOfWeek;
+			DateTime foundDate;
 
 			if(possibleDay <= templateWeekDay)
 			{
 				var addDays = templateWeekDay - possibleDay;
-				
-				var startDate = possibleDate.AddDays(addDays);
-				return startDate;
+				foundDate = possibleDate.AddDays(addDays);
+			}
+			else
+			{
+				foundDate = possibleDate.AddDays(DateTimeExtensions.DaysInWeek() - (int)possibleDay + (int)templateWeekDay);
 			}
 
-			return possibleDate.AddDays(DateTimeExtensions.DaysInWeek() - (int)possibleDay + (int)templateWeekDay);
+			return _deliveryScheduleChecker.IsDeliveryIntervalAvailable(uow, templateWeekDay, deliveryPointId, deliveryScheduleId)
+				? Result.Success(foundDate)
+				: Result.Failure<DateTime>(OnlineOrderTemplateApiErrors.OrderTemplateIntervalUnavailable);
 		}
 		
 		private DateTime GetNearestDeliveryDate(int dayOfMonth)
@@ -218,7 +257,10 @@ namespace Vodovoz.Core.Application.Sale
 			return new DateTime(today.Year, today.Month, dayOfMonth);
 		}
 		
-		private DateTime GetNearestDeliveryDate(int dayOfMonth, DateTime requestTime)
+		private DateTime GetNearestDeliveryDate(
+			int dayOfMonth,
+			DateTime requestTime
+			)
 		{
 			//учет времени
 			//успевает в сборку: при запросе до 11:00 — не раньше сегодня + 2 дня, после 11:00 — сегодня + 3 дня

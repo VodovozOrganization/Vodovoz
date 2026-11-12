@@ -21,7 +21,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 	public abstract class OnlineOrderConsumer
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IOnlineOrderFactory _onlineOrderFactory;
+		private readonly ICustomerOnlineOrderFactory _onlineOrderFactory;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IOnlineOrderCancellationReasonSettings _onlineOrderCancellationReasonSettings;
@@ -34,7 +34,7 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 		protected OnlineOrderConsumer(
 			ILogger<OnlineOrderConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IOnlineOrderFactory onlineOrderFactory,
+			ICustomerOnlineOrderFactory onlineOrderFactory,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,

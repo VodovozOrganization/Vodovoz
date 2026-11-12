@@ -39,7 +39,6 @@ namespace CustomerOrdersApi.Controllers.V8
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetOrderTemplateScheduleOptionsResponse))]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
 		[HttpGet]
 		public IActionResult GetOrderTemplateScheduleOptions(GetOrderTemplateScheduleOptionsRequest request)
 		{
@@ -114,8 +113,7 @@ namespace CustomerOrdersApi.Controllers.V8
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CreateOrderTemplateResponse))]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-		[HttpGet]
+		[HttpPost]
 		public async Task<IActionResult> CreateOrderTemplate(
 			CreateOrderTemplateRequest request,
 			CancellationToken cancellationToken
@@ -183,7 +181,7 @@ namespace CustomerOrdersApi.Controllers.V8
 					return Problem(error.Message, statusCode: int.Parse(error.Code));
 				}
 
-				return Ok(result);
+				return Ok(result.Value);
 			}
 			catch(Exception e)
 			{
@@ -255,7 +253,7 @@ namespace CustomerOrdersApi.Controllers.V8
 		/// 409 если недоступна смена состояния
 		/// 500 - ошибка
 		/// </returns>
-		[HttpPatch]
+		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PauseOrderTemplateResponse))]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -330,6 +328,14 @@ namespace CustomerOrdersApi.Controllers.V8
 				if(orderTemplatesResult.IsFailure)
 				{
 					var error = orderTemplatesResult.Errors.First();
+					
+					_logger.LogWarning(
+						"Не получили ближайшие даты доставок автозаказа {TemplateId} от клиента {CounterpartyId}. Причина {ErrorMessage}",
+						request.OrderTemplateId,
+						request.ErpCounterpartyId,
+						error.Message
+						);
+					
 					return Problem(error.Message, statusCode: int.Parse(error.Code));
 				}
 
@@ -363,7 +369,6 @@ namespace CustomerOrdersApi.Controllers.V8
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResumeOrderTemplateResponse))]
 		[ProducesResponseType(StatusCodes.Status409Conflict)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		public async Task<IActionResult> ResumeOrderTemplate(
 			ResumeOrderTemplateRequest request,

@@ -19,13 +19,12 @@ namespace VodovozBusiness.Domain.Sale
 		PrepositionalPlural = "Продаваемых позициях автозаказов с ИПЗ"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderTemplateSaleItem : PropertyChangedBase, IDomainObject, ISaleItem
+	public class OnlineOrderTemplateSaleItem : PropertyChangedBase, IDomainObject, ISaleItem, ICalculatingTotalMoneyDiscount
 	{
 		private decimal _price;
 		private int _templateId;
 		private decimal _count;
 		private Nomenclature _nomenclature;
-		private PromotionalSet _promoSet;
 		private PersonalDiscount _personalDiscount;
 		private IObservableList<DiscountReasonBase> _discountReasons = new ObservableList<DiscountReasonBase>();
 
@@ -76,16 +75,6 @@ namespace VodovozBusiness.Domain.Sale
 		}
 
 		/// <summary>
-		/// Промонабор
-		/// </summary>
-		[Display(Name = "Промонабор")]
-		public virtual PromotionalSet PromoSet
-		{
-			get => _promoSet;
-			set => SetField(ref _promoSet, value);
-		}
-
-		/// <summary>
 		/// Список оснований скидок
 		/// </summary>
 		[Display(Name = "Список оснований скидок")]
@@ -109,7 +98,9 @@ namespace VodovozBusiness.Domain.Sale
 		
 		public virtual bool IsFixedPrice { get; set; }
 
-		public virtual decimal Sum => Math.Round(Price * Count, 2);
+		public virtual PromotionalSet PromoSet => null;
+
+		public virtual decimal CurrentRawPrice => Price * Count;
 
 		public static OnlineOrderTemplateSaleItem Create(
 			int templateId,
@@ -122,7 +113,6 @@ namespace VodovozBusiness.Domain.Sale
 				Count = newSaleItem.Count,
 				Price = newSaleItem.PriceData.Price,
 				Nomenclature = newSaleItem.Nomenclature,
-				PromoSet = newSaleItem.PromoSet,
 				TemplateId = templateId,
 				PersonalDiscount = personalDiscount
 			};
