@@ -81,5 +81,15 @@ namespace Mindbox.Library.Services
 		Task<MindboxOperationResult> GetOrderInfoAsync(
 			MindboxGetOrderInfoRequest request,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получает историю баланса клиента операцией GetBalanceHistory
+		/// </summary>
+		/// <param name="request">Запрос с идентификатором клиента</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат вызова Mindbox</returns>
+		Task<MindboxOperationResult> GetBalanceHistoryAsync(
+			MindboxGetBalanceHistoryRequest request,
+			CancellationToken cancellationToken);
 	}
 }

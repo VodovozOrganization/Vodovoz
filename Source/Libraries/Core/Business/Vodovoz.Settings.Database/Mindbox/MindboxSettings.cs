@@ -43,6 +43,7 @@ namespace Vodovoz.Settings.Database.Mindbox
 		private const string MindboxOrderIdNameSetting = "Mindbox.MindboxOrderIdName";
 		private const string UpdateOrderLinesStatusOperationSetting = "Mindbox.UpdateOrderLinesStatusOperation";
 		private const string GetOrderInfoOperationSetting = "Mindbox.GetOrderInfoOperation";
+		private const string GetBalanceHistoryOperationSetting = "Mindbox.GetBalanceHistoryOperation";
 		private const string OrderLineStatusMappingSetting = "Mindbox.OrderLineStatusMapping";
 		private const string BonusProgramModeSetting = "Mindbox.BonusProgramMode";
 		private const string BonusProgramClientIdsSetting = "Mindbox.BonusProgramClientIds";
@@ -192,6 +193,10 @@ namespace Vodovoz.Settings.Database.Mindbox
 		/// <inheritdoc />
 		public string GetOrderInfoOperation =>
 			GetOptionalString(GetOrderInfoOperationSetting, "GetOrderInfo");
+
+		/// <inheritdoc />
+		public string GetBalanceHistoryOperation =>
+			GetOptionalString(GetBalanceHistoryOperationSetting, "GetBalanceHistory");
 
 		/// <inheritdoc />
 		public string OrderLineStatusMapping =>

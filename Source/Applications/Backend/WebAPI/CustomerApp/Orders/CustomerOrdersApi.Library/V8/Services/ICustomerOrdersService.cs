@@ -44,6 +44,24 @@ namespace CustomerOrdersApi.Library.V8.Services
 		bool ValidateCounterpartyOrdersSignature(GetOrdersDto getOrdersDto, out string generatedSignature);
 
 		/// <summary>
+		/// Проверка контрольной суммы запроса профиля клиента
+		/// </summary>
+		/// <param name="getProfileInfoDto">Информация для получения профиля</param>
+		/// <param name="generatedSignature">Сгенерированная контрольная сумма Erp</param>
+		/// <returns><c>true</c> — подпись верна</returns>
+		bool ValidateProfileInfoSignature(GetProfileInfoDto getProfileInfoDto, out string generatedSignature);
+
+		/// <summary>
+		/// Получение профиля клиента с бонусным счётом
+		/// </summary>
+		/// <param name="getProfileInfoDto">Информация для получения профиля</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Код ответа, сообщение об ошибке и профиль</returns>
+		Task<(int HttpCode, string Message, ProfileInfoDto Profile)> GetProfileInfo(
+			GetProfileInfoDto getProfileInfoDto,
+			CancellationToken cancellationToken);
+
+		/// <summary>
 		/// Проверка контрольной суммы запроса заявки на звонок
 		/// </summary>
 		/// <param name="creatingInfoDto">Информация для создания заявки на звонок</param>

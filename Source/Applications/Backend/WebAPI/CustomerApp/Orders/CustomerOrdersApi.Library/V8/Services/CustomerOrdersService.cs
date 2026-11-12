@@ -12,7 +12,10 @@ using CustomerOrdersApi.Library.V8.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Mindbox.Library.Services;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.Mindbox;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -22,6 +25,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Database.Mindbox;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
@@ -44,6 +48,8 @@ namespace CustomerOrdersApi.Library.V8.Services
 		private readonly IOptionsSnapshot<SignatureOptions> _signatureOptions;
 		private readonly IOptionsMonitor<CourierCoordinatesOptions> _courierCoordinatesOptions;
 		private readonly IMindboxOrderBonusesService _mindboxOrderBonusesService;
+		private readonly IMindboxBalanceService _mindboxBalanceService;
+		private readonly IMindboxSettings _mindboxSettings;
 
 		public CustomerOrdersService(
 			ILogger<CustomerOrdersService> logger,
@@ -60,7 +66,9 @@ namespace CustomerOrdersApi.Library.V8.Services
 			ICourierTrackingService courierTrackingService,
 			IOptionsSnapshot<SignatureOptions> signatureOptions,
 			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions,
-			IMindboxOrderBonusesService mindboxOrderBonusesService)
+			IMindboxOrderBonusesService mindboxOrderBonusesService,
+			IMindboxBalanceService mindboxBalanceService,
+			IMindboxSettings mindboxSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -77,6 +85,8 @@ namespace CustomerOrdersApi.Library.V8.Services
 			_signatureOptions = signatureOptions ?? throw new ArgumentNullException(nameof(signatureOptions));
 			_courierCoordinatesOptions = courierCoordinatesOptions ?? throw new ArgumentNullException(nameof(courierCoordinatesOptions));
 			_mindboxOrderBonusesService = mindboxOrderBonusesService ?? throw new ArgumentNullException(nameof(mindboxOrderBonusesService));
+			_mindboxBalanceService = mindboxBalanceService ?? throw new ArgumentNullException(nameof(mindboxBalanceService));
+			_mindboxSettings = mindboxSettings ?? throw new ArgumentNullException(nameof(mindboxSettings));
 		}
 
 		#region ValidateSignature
@@ -146,6 +156,88 @@ namespace CustomerOrdersApi.Library.V8.Services
 					Sign = sourceSign
 				},
 				out generatedSignature);
+		}
+
+		/// <inheritdoc />
+		public bool ValidateProfileInfoSignature(GetProfileInfoDto getProfileInfoDto, out string generatedSignature)
+		{
+			var sourceSign = GetSourceSign(getProfileInfoDto.Source, _signatureOptions.Value);
+
+			return _signatureManager.Validate(
+				getProfileInfoDto.Signature,
+				new ProfileInfoSignatureParams
+				{
+					CounterpartyId = getProfileInfoDto.ErpCounterpartyId.ToString(),
+					ShopId = (int)getProfileInfoDto.Source,
+					Sign = sourceSign
+				},
+				out generatedSignature);
+		}
+
+		/// <inheritdoc />
+		public async Task<(int HttpCode, string Message, ProfileInfoDto Profile)> GetProfileInfo(
+			GetProfileInfoDto getProfileInfoDto,
+			CancellationToken cancellationToken)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Получение профиля клиента");
+
+			var counterparty = uow.GetById<Counterparty>(getProfileInfoDto.ErpCounterpartyId);
+
+			if(counterparty is null)
+			{
+				return (400, "Контрагент не найден", null);
+			}
+
+			var externalCounterpartyBelongs = uow.Session.Query<ExternalCounterparty>()
+				.Any(external =>
+					external.ExternalCounterpartyId == getProfileInfoDto.ExternalCounterpartyId
+					&& !external.IsArchive
+					&& external.Phone != null
+					&& external.Phone.Counterparty != null
+					&& external.Phone.Counterparty.Id == getProfileInfoDto.ErpCounterpartyId);
+
+			if(!externalCounterpartyBelongs)
+			{
+				return (400, "Контрагент не найден", null);
+			}
+
+			if(getProfileInfoDto.Source != Source.MobileApp || !_mindboxSettings.IsEnabled)
+			{
+				return (200, null, new ProfileInfoDto());
+			}
+
+			var state = uow.GetById<MindboxCounterpartyState>(getProfileInfoDto.ErpCounterpartyId);
+
+			if(state?.Status != MindboxCounterpartyOutboxStatus.Sent)
+			{
+				return (200, null, new ProfileInfoDto { Bonuses = ProfileBonusesDto.Zero() });
+			}
+
+			var balance = await _mindboxBalanceService
+				.GetAsync(getProfileInfoDto.ErpCounterpartyId, cancellationToken)
+				.ConfigureAwait(false);
+
+			if(!balance.IsAvailable)
+			{
+				return (200, null, new ProfileInfoDto { Bonuses = ProfileBonusesDto.Unavailable() });
+			}
+
+			return (200, null, new ProfileInfoDto
+			{
+				Bonuses = new ProfileBonusesDto
+				{
+					IsAvailable = true,
+					Balance = balance.Balance,
+					Pending = balance.Pending,
+					Expiring = balance.ExpiringAmount.HasValue && balance.ExpiringDate.HasValue
+						? new ProfileBonusesExpiringDto
+						{
+							Amount = balance.ExpiringAmount.Value,
+							Date = balance.ExpiringDate.Value
+						}
+						: null
+				}
+			});
 		}
 
 		public bool ValidateOnlineOrderPaymentStatusUpdatedSignature(
