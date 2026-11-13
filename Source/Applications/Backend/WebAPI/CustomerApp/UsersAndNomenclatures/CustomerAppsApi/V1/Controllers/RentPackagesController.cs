@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using CustomerAppsApi.Library.V1.Dto;
 using CustomerAppsApi.Library.V1.Models;
 using CustomerAppsApi.Library.V1.Services;
@@ -11,6 +11,7 @@ using VodovozHealthCheck.Helpers;
 namespace CustomerAppsApi.V1.Controllers
 {
 	[ApiController]
+	[ApiExplorerSettings(GroupName = "v1")]
 	[Route("/api/")]
 	public class RentPackagesController : ControllerBase
 	{

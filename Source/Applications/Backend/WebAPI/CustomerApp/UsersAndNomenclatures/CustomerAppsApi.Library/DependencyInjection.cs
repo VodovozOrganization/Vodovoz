@@ -92,6 +92,25 @@ namespace CustomerAppsApi.Library
 			return services;
 		}
 
+		/// <summary>
+		/// Добавление зависимостей для третьей версии
+		/// </summary>
+		/// <param name="services">Список зависимостей</param>
+		/// <returns></returns>
+		public static IServiceCollection AddVersion3(this IServiceCollection services)
+		{
+			services
+				.AddScoped<V3.Repositories.ISaleItemRepository, V3.Repositories.SaleItemRepository>()
+				.AddScoped<V3.Factories.ISaleItemFactory, V3.Factories.SaleItemFactory>()
+				.AddScoped<V3.Converters.ISourceConverter, V3.Converters.SourceConverter>()
+				.AddScoped<V3.Services.ISaleItemService, V3.Services.SaleItemService>()
+				.AddSingleton<V3.Services.PricesFrequencyRequestsHandler>()
+				.AddSingleton<V3.Services.NomenclaturesFrequencyRequestsHandler>()
+				;
+
+			return services;
+		}
+
 		private static IServiceCollection AddCommonDependencies(this IServiceCollection services)
 		{
 			services

@@ -17,6 +17,7 @@ using QS.Project.Core;
 using QS.Services;
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.Config;
+using Mindbox.Library;
 using Notifications.Core;
 using Osrm;
 using Vodovoz;
@@ -77,6 +78,8 @@ namespace CustomerOrdersApi
 				.AddVersion5()
 				.AddVersion6()
 				.AddVersion7()
+				.AddVersion8()
+				.AddMindbox()
 				.AddVersioning()
 				.AddOsrm()
 				.AddSwaggerGen(opt =>

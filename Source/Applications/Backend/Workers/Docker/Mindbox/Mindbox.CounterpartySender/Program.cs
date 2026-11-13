@@ -1,0 +1,85 @@
+using Autofac.Extensions.DependencyInjection;
+using MassTransit;
+using MessageTransport.MassTransit;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Mindbox.Library;
+using Mindbox.Library.Services;
+using NLog.Extensions.Logging;
+using QS.HistoryLog;
+using QS.Project.Core;
+using QS.Services;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Zabbix.Sender;
+
+namespace Mindbox.CounterpartySender
+{
+	public class Program
+	{
+		public static void Main(string[] args)
+		{
+			var host = CreateHostBuilder(args).Build();
+
+			// Инициализирует статический UserRepository.GetCurrentUserId для истории изменений
+			host.Services.GetRequiredService<IUserService>();
+
+			host.Run();
+		}
+
+		public static IHostBuilder CreateHostBuilder(string[] args)
+		{
+			return Host.CreateDefaultBuilder(args)
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+				.ConfigureServices((hostContext, services) =>
+				{
+					services.AddLogging(logging =>
+						{
+							logging.ClearProviders();
+							logging.AddNLog();
+							logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
+						})
+
+						.AddMappingAssemblies(
+							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+							typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
+							typeof(QS.Banks.Domain.Bank).Assembly,
+							typeof(QS.HistoryLog.HistoryMain).Assembly,
+							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+							typeof(QS.Attachments.Domain.Attachment).Assembly,
+							typeof(EmployeeWithLoginMap).Assembly,
+							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly)
+						.AddDatabaseConnection()
+						.ConfigureZabbixSenderFromDataBase()
+						.AddCore()
+						.AddInfrastructure()
+						.AddTrackedUoW()
+						.AddMindbox();
+
+					services.AddScoped<IMindboxAlertSender, ZabbixMindboxAlertSender>();
+					services.AddScoped<Vodovoz.Settings.Nomenclature.INomenclatureSettings, Vodovoz.Settings.Database.Nomenclature.NomenclatureSettings>();
+
+					services.AddMassTransit(busConf =>
+					{
+						busConf.AddConsumer<MindboxCounterpartySendConsumer, MindboxCounterpartySendConsumerDefinition>();
+						busConf.AddConsumer<MindboxOnlineOrderSyncConsumer, MindboxOnlineOrderSyncConsumerDefinition>();
+
+						// Outbox MassTransit: публикация в online_orders_* и отправка в vhost online_orders
+						busConf.AddVodovozOutbox(OutboxBusNames.OnlineOrders);
+
+						busConf.ConfigureRabbitMq(services, hostContext.Configuration, "MessageTransport");
+					});
+
+					services.AddHostedService<CounterpartySenderWorker>();
+					services.AddHostedService<OnlineOrderSyncWorker>();
+
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+					services.AddStaticHistoryTracker();
+				});
+		}
+	}
+}

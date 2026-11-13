@@ -1,4 +1,4 @@
-﻿using QS.Banks.Domain;
+using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
