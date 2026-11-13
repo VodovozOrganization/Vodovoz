@@ -21,6 +21,17 @@ namespace DriverApi.Contracts.V5
 		/// Наличные деньги
 		/// </summary>
 		public decimal CashMoney { get; set; }
+
+		/// <summary>
+		/// Сумма сдачи по наличным заказам
+		/// </summary>
+		public decimal ChangeAmount { get; set; }
+
+		/// <summary>
+		/// Итоговая сумма наличных для кассы
+		/// </summary>
+		public decimal MoneyForCashbox { get; set; }
+
 		public decimal TerminalCardMoney { get; set; }
 		public decimal TerminalQRMoney { get; set; }
 		public int TerminalOrdersCount { get; set; }
