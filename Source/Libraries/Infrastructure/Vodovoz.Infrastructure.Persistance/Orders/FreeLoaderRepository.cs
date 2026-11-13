@@ -276,5 +276,21 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Take(1)
 				.Any();
 		}
+
+		public bool PhoneExists(IUnitOfWork uow, string digitsNumber)
+		{
+			if(string.IsNullOrWhiteSpace(digitsNumber))
+			{
+				return false;
+			}
+
+			Phone phoneAlias = null;
+
+			return uow.Session.QueryOver(() => phoneAlias)
+				.Where(() => phoneAlias.DigitsNumber == digitsNumber)
+				.And(() => phoneAlias.Counterparty != null || phoneAlias.DeliveryPoint != null)
+				.And(() => !phoneAlias.IsArchive)
+				.RowCount() > 0;
+		}
 	}
 }
