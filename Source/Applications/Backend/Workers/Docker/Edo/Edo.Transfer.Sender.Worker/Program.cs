@@ -7,12 +7,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
+using System;
+using TransactionalOutbox.EntityFrameworkCore;
+using TransactionalOutbox.MassTransit;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
-using TransactionalOutbox.EntityFrameworkCore;
-using TransactionalOutbox.MassTransit;
 
 namespace Edo.Transfer.Sender.Worker
 {
@@ -20,6 +21,8 @@ namespace Edo.Transfer.Sender.Worker
 	{
 		public static void Main(string[] args)
 		{
+			Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 			CreateHostBuilder(args).Build().Run();
 		}
 

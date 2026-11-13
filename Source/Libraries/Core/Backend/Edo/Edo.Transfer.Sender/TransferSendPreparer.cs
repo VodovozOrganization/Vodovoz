@@ -10,8 +10,10 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Edo.Upd;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark;
 
@@ -89,10 +91,14 @@ namespace Edo.Transfer.Sender
 
 			try
 			{
-				if(!await CreateTransferOrder(transferEdoTask, cancellationToken))
+				var isCreated = await CreateTransferOrder(transferEdoTask, cancellationToken);
+
+				if(!isCreated)
 				{
+					// Проблема зарегистрирована, а UoW задачи уже закрыт регистратором
 					return;
 				}
+
 				transferEdoTask.TransferStatus = EdoTransferTaskStage.ReadyToSend;
 			}
 			catch(EdoProblemException ex)
@@ -102,6 +108,7 @@ namespace Edo.Transfer.Sender
 				{
 					throw;
 				}
+
 				return;
 			}
 			catch(Exception ex)
@@ -111,6 +118,7 @@ namespace Edo.Transfer.Sender
 				{
 					throw;
 				}
+
 				return;
 			}
 
@@ -125,6 +133,10 @@ namespace Edo.Transfer.Sender
 			await _uow.CommitAsync(cancellationToken);
 		}
 
+		/// <summary>
+		/// Создает заказ по перемещению с кодами
+		/// </summary>
+		/// <returns>false, если зарегистрирована проблема: UoW задачи при этом уже закрыт и работать с ним нельзя</returns>
 		private async Task<bool> CreateTransferOrder(TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
 		{
 			if(transferEdoTask.Upd != null)
@@ -197,6 +209,9 @@ namespace Edo.Transfer.Sender
 			
 			await _uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
 
+			var newItems = new List<TransferOrderTrueMarkCode>();
+			var addedGroupCodeIds = new HashSet<int>();
+
 			foreach(var transferEdoRequest in transferEdoTask.TransferEdoRequests)
 			{
 				foreach(var transferedItem in transferEdoRequest.TransferedItems)
@@ -239,25 +254,45 @@ namespace Edo.Transfer.Sender
 								$"{transferEdoRequest.Iteration.OrderEdoTask.TaskType} не поддерживается.");
 					}
 					var isGroupCodeItem = transferOrderTrueMarkCode.GroupCode != null;
-					if(isGroupCodeItem)
+					if(isGroupCodeItem && !addedGroupCodeIds.Add(transferOrderTrueMarkCode.GroupCode.Id))
 					{
-						var groupCodeItems = transferOrder.Items
-							.Where(x => x.GroupCode != null);
-						if(groupCodeItems.Any(x => x.GroupCode.Id == transferOrderTrueMarkCode.GroupCode.Id))
-						{
-							continue;
-						}
+						continue;
 					}
 
 					transferOrderTrueMarkCode.TransferOrder = transferOrder;
-					transferOrder.Items.Add(transferOrderTrueMarkCode);
-					await _uow.SaveAsync(transferOrderTrueMarkCode, cancellationToken: cancellationToken);
+					newItems.Add(transferOrderTrueMarkCode);
 				}
 			}
 
+			await transferOrder.Items.BulkSqlInsertAsync(_uow, newItems, cancellationToken: cancellationToken);
+
 			transferEdoTask.TransferOrderId = transferOrder.Id;
 			transferEdoTask.Upd = await _updDocumentBuilder.BuildAsync(transferOrder, cancellationToken);
+			await SaveUpdWithCodes(transferEdoTask.Upd, cancellationToken);
 			return true;
+		}
+
+		/// <summary>
+		/// Сохраняет УПД и его позиции, а коды позиций вставляет массово: кодов в трансфере много,
+		/// а каскадное сохранение дает отдельные INSERT и UPDATE внешнего ключа на каждый код
+		/// </summary>
+		private async Task SaveUpdWithCodes(EdoUpdDocument upd, CancellationToken cancellationToken)
+		{
+			var positionsCodes = upd.InventPositions
+				.Select(position => (Position: position, Codes: position.Codes))
+				.ToList();
+
+			foreach(var positionCodes in positionsCodes)
+			{
+				positionCodes.Position.Codes = new List<UpdProductCode>();
+			}
+
+			await _uow.SaveAsync(upd, cancellationToken: cancellationToken);
+
+			foreach(var positionCodes in positionsCodes)
+			{
+				await positionCodes.Position.Codes.BulkSqlInsertAsync(_uow, positionCodes.Codes, cancellationToken: cancellationToken);
+			}
 		}
 		
 
