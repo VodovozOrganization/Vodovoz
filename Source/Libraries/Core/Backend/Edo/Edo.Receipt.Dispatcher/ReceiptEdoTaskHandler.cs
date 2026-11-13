@@ -1,5 +1,6 @@
 ﻿using Edo.Common;
 using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using NHibernate;
@@ -209,8 +210,16 @@ namespace Edo.Receipt.Dispatcher
 		public async Task HandleCompleted(int receiptEdoTaskId, CancellationToken cancellationToken)
 		{
 			var edoTask = await _uow.Session.GetAsync<ReceiptEdoTask>(receiptEdoTaskId, cancellationToken);
+			if(edoTask == null)
+			{
+				return;
+			}
+
 			edoTask.Status = EdoTaskStatus.Completed;
 			edoTask.ReceiptStatus = EdoReceiptStatus.Completed;
+
+			_edoProblemRegistrar.SolveCustomProblem<ReceiptFiscalizationFailed>(edoTask);
+			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendingFailed>(edoTask);
 			
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);

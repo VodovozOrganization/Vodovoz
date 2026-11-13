@@ -1,4 +1,4 @@
-using Edo.Problems;
+﻿using Edo.Problems;
 using Edo.Problems.Custom.Sources;
 using Edo.Problems.Validation;
 using Microsoft.Extensions.Logging;
@@ -161,14 +161,42 @@ namespace Edo.Receipt.Sender
 					_logger.LogInformation("Чек №{documentNumber} отправлен успешно.", edoFiscalDocument.DocumentNumber);
 
 					edoFiscalDocument.Stage = FiscalDocumentStage.Sent;
-					edoFiscalDocument.Status = ReceiptConverters.ConvertFiscalDocumentStatus(result.FiscalDocumentInfo.Status);
-					edoFiscalDocument.StatusChangeTime = DateTime.Parse(result.FiscalDocumentInfo.TimeStatusChangedString);
-					if(result.FiscalDocumentInfo.FiscalInfo != null)
+					if(result.FiscalDocumentInfo != null)
 					{
-						edoFiscalDocument.FiscalTime = DateTime.Parse(result.FiscalDocumentInfo.FiscalInfo.Date);
-						edoFiscalDocument.FiscalNumber = result.FiscalDocumentInfo.FiscalInfo.FnDocNumber.ToString();
-						edoFiscalDocument.FiscalMark = result.FiscalDocumentInfo.FiscalInfo.FnDocMark.ToString();
-						edoFiscalDocument.FiscalKktNumber = result.FiscalDocumentInfo.FiscalInfo.KktNumber;
+						edoFiscalDocument.Status = ReceiptConverters.ConvertFiscalDocumentStatus(result.FiscalDocumentInfo.Status);
+						if(!string.IsNullOrEmpty(result.FiscalDocumentInfo.TimeStatusChangedString)
+							&& DateTime.TryParse(result.FiscalDocumentInfo.TimeStatusChangedString, out var statusChangeTime))
+						{
+							edoFiscalDocument.StatusChangeTime = statusChangeTime;
+						}
+						else
+						{
+							edoFiscalDocument.StatusChangeTime = DateTime.Now;
+						}
+
+						if(result.FiscalDocumentInfo.Status == ModulKassa.DTO.FiscalDocumentStatus.Failed)
+						{
+							edoFiscalDocument.FailureMessage = result.FiscalDocumentInfo.FailureInfo?.Message
+								?? result.FiscalDocumentInfo.FailureInfo?.Type
+								?? "Ошибка фискализации чека (статус Failed)";
+						}
+
+						if(result.FiscalDocumentInfo.FiscalInfo != null)
+						{
+							if(!string.IsNullOrEmpty(result.FiscalDocumentInfo.FiscalInfo.Date)
+								&& DateTime.TryParse(result.FiscalDocumentInfo.FiscalInfo.Date, out var fiscalTime))
+							{
+								edoFiscalDocument.FiscalTime = fiscalTime;
+							}
+							edoFiscalDocument.FiscalNumber = result.FiscalDocumentInfo.FiscalInfo.FnDocNumber.ToString();
+							edoFiscalDocument.FiscalMark = result.FiscalDocumentInfo.FiscalInfo.FnDocMark.ToString();
+							edoFiscalDocument.FiscalKktNumber = result.FiscalDocumentInfo.FiscalInfo.KktNumber;
+						}
+					}
+					else
+					{
+						edoFiscalDocument.Status = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.Queued;
+						edoFiscalDocument.StatusChangeTime = DateTime.Now;
 					}
 				}
 
@@ -294,6 +322,13 @@ namespace Edo.Receipt.Sender
 				return;
 			}
 
+			if(problemSourceType == typeof(ReceiptFiscalizationFailed))
+			{
+				await _edoProblemRegistrar.RegisterCustomProblem<ReceiptFiscalizationFailed>(
+					edoTask, cancellationToken, disposeTaskUow: disposeTaskUow);
+				return;
+			}
+
 			await _edoProblemRegistrar.RegisterCustomProblem<ReceiptSendingFailed>(
 				edoTask, cancellationToken, disposeTaskUow: disposeTaskUow);
 		}
@@ -304,6 +339,7 @@ namespace Edo.Receipt.Sender
 			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendDocumentStatusNotFound>(edoTask);
 			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendSslError>(edoTask);
 			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendTransportError>(edoTask);
+			_edoProblemRegistrar.SolveCustomProblem<ReceiptFiscalizationFailed>(edoTask);
 			_edoProblemRegistrar.SolveCustomProblem<ReceiptSendingFailed>(edoTask);
 			// Историческое имя проблемы до переименования
 			_edoProblemRegistrar.SolveCustomProblem(edoTask, "Custom.NotAllReceiptsWasSended");

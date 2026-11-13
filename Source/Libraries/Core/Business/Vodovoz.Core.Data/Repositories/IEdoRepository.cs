@@ -32,6 +32,21 @@ namespace Vodovoz.Core.Data.Repositories
 			CancellationToken cancellationToken);
 
 		/// <summary>
+		/// Получает список идентификаторов фискальных документов со статусом ошибки (Failed),
+		/// подлежащих повторной обработке за указанный период времени
+		/// </summary>
+		/// <param name="uow">Сессия базы данных (Unit of Work)</param>
+		/// <param name="startDate">Начальная дата периода выборки (нижняя граница: за последние N дней с учетом закрытого бухгалтерского периода)</param>
+		/// <param name="endDate">Конечная дата периода выборки (верхняя граница: чеки с ошибкой старше X часов для исключения свежих документов)</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		/// <returns>Список идентификаторов фискальных документов</returns>
+		Task<IList<int>> GetFailedFiscalDocumentIdsForReprocessing(
+			IUnitOfWork uow,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken);
+
+		/// <summary>
 		/// Получить список организаций
 		/// </summary>
 		/// <param name="cancellationToken">Токен отмены</param>

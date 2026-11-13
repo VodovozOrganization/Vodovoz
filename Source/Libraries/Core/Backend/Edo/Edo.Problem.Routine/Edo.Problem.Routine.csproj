@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -16,9 +16,13 @@
     <ProjectReference Include="..\..\..\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\MessageTransport\MessageTransport.csproj" />
+    <ProjectReference Include="..\..\ModulKassa\ModulKassa.csproj" />
+    <ProjectReference Include="..\..\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj" />
+    <ProjectReference Include="..\..\TrueMark\TrueMark.Codes\TrueMark.Codes.csproj" />
     <ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
-    <ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
     <ProjectReference Include="..\Edo.Contracts\Edo.Contracts.csproj" />
+    <ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
+    <ProjectReference Include="..\Edo.Receipt.Sender\Edo.Receipt.Sender.csproj" />
     <ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
   </ItemGroup>
 
