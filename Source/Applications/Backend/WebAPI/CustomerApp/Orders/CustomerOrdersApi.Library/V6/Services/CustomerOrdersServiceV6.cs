@@ -425,10 +425,12 @@ namespace CustomerOrdersApi.Library.V6.Services
 		public void CreateOrderRating(OrderRatingInfoForCreateDto orderRatingInfo)
 		{
 			var negativeRating = _orderSettings.GetOrderRatingForMandatoryProcessing;
+			var comment = UpdateOrderRatingComment(orderRatingInfo.Comment);
+
 			var orderRating = OrderRating.Create(
 				orderRatingInfo.Source,
 				orderRatingInfo.Rating,
-				orderRatingInfo.Comment,
+				comment,
 				orderRatingInfo.OnlineOrderId,
 				orderRatingInfo.OrderId,
 				orderRatingInfo.OrderRatingReasonsIds,
@@ -530,6 +532,18 @@ namespace CustomerOrdersApi.Library.V6.Services
 			var changedOrderDto = ChangedOrderDto.Create(changingOrderDto.OnlineOrderId);
 
 			return Result.Success(changedOrderDto);
+		}
+
+		private string UpdateOrderRatingComment(string comment)
+		{
+			if(!string.IsNullOrWhiteSpace(comment)
+				&& comment.Length > OrderRating.CommentMaxLength)
+			{
+				const int maxLength = OrderRating.CommentMaxLength - 3;
+				comment = comment[..maxLength] + "...";
+			}
+
+			return comment;
 		}
 
 		private string GetSourceSign(Source source)
