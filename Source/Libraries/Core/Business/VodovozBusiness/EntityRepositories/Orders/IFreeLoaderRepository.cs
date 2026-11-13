@@ -70,5 +70,12 @@ namespace VodovozBusiness.EntityRepositories.Orders
 		/// <param name="deliveryPointId">Id точки доставки</param>
 		/// <returns></returns>
 		bool HasOnlineOrderWithPromoSetForNewClients(IUnitOfWork uow, int deliveryPointId);
+		/// <summary>
+		/// Проверка наличия телефона в системе среди активных телефонов контрагентов и точек доставки
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="digitsNumber">Номер телефона в формате XXXXXXXXXX(только цифры)</param>
+		/// <returns><c>true</c>, если телефон найден в системе</returns>
+		bool PhoneExists(IUnitOfWork uow, string digitsNumber);
 	}
 }

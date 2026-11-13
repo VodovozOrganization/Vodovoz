@@ -20,7 +20,7 @@ namespace CustomerAppsApi.Library.V2.Dto.Counterparties
 		/// </summary>
 		public int? ErpDeliveryPointId { get; set; }
 		/// <summary>
-		/// Номер телефона в формате +7XXXXXXXXXX
+		/// Номер телефона в любом формате: 89643424080, +7 964 342-40-80, 7 964 342 40 80, 9643424080
 		/// </summary>
 		public string Phone { get; set; }
 		/// <summary>

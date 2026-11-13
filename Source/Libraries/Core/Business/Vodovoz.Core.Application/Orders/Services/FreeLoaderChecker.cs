@@ -7,6 +7,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Nodes;
 using VodovozBusiness.EntityRepositories.Orders;
@@ -18,19 +19,19 @@ namespace Vodovoz.Core.Application.Orders.Services
 	{
 		private readonly ILogger<FreeLoaderChecker> _logger;
 		private readonly IPromotionalSetRepository _promotionalSetRepository;
-		private readonly IOrderRepository _orderRepository;
 		private readonly IFreeLoaderRepository _freeLoaderRepository;
+		private readonly IBottlesRepository _bottlesRepository;
 
 		public FreeLoaderChecker(
 			ILogger<FreeLoaderChecker> logger,
 			IPromotionalSetRepository promotionalSetRepository,
-			IOrderRepository orderRepository,
-			IFreeLoaderRepository freeLoaderRepository)
+			IFreeLoaderRepository freeLoaderRepository,
+			IBottlesRepository bottlesRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_freeLoaderRepository = freeLoaderRepository ?? throw new ArgumentNullException(nameof(freeLoaderRepository));
+			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 		}
 		
 		public IEnumerable<FreeLoaderInfoNode> PossibleFreeLoadersByAddress { get; private set; }
@@ -100,82 +101,71 @@ namespace Vodovoz.Core.Application.Orders.Services
 			var counterparty = uow.GetById<Counterparty>(counterpartyId ?? 0);
 			var deliveryPoint = uow.GetById<DeliveryPoint>(deliveryPointId ?? 0);
 
-			if(counterparty is null || deliveryPoint is null)
-			{
-				_logger.LogInformation("UnableToShipPromoSetForNewClientsToUnknownClientOrDeliveryPoint");
-				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSetForNewClientsToUnknownClientOrDeliveryPoint);
-			}
-			
-			if(_orderRepository.HasCounterpartyFirstRealOrder(uow, counterparty))
-			{
-				_logger.LogInformation("UnableToShipPromoSetForNewClientsToCounterpartyWithRealOrder");
-				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSet);
-			}
-
-			if(!CanOrderPromoSetForNewClientsByBuildingFiasGuid(
-				uow, isSelfDelivery, deliveryPoint.BuildingFiasGuid, deliveryPoint.Room))
-			{
-				_logger.LogInformation("UnableToShipPromoSetForNewClientsByBuildingFiasGuid");
-				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSet);
-			}
-			
-			if(CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(uow, isSelfDelivery, counterparty, deliveryPoint))
-			{
-				_logger.LogInformation("UnableToShipPromoSetForNewClientsByNaturalClientToOfficeOrStore");
-				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSet);
-			}
-
 			var phones = new List<string>();
-			phones.AddRange(counterparty.Phones.Select(x => x.DigitsNumber));
-			phones.AddRange(deliveryPoint.Phones.Select(x => x.DigitsNumber));
+
+			if(counterparty != null)
+			{
+				phones.AddRange(counterparty.Phones.Select(x => x.DigitsNumber));
+			}
+
+			if(deliveryPoint != null)
+			{
+				phones.AddRange(deliveryPoint.Phones.Select(x => x.DigitsNumber));
+			}
 
 			if(!string.IsNullOrWhiteSpace(digitsNumber))
 			{
 				phones.Add(digitsNumber);
 			}
 
-			if(CheckFreeLoaders(uow, 0, deliveryPoint, phones, true))
-			{
-				_logger.LogInformation("UnableToShipPromoSetForNewClientsCheckingByPhones");
-				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSet);
-			}
+			phones = phones
+				.Where(x => !string.IsNullOrWhiteSpace(x))
+				.Distinct()
+				.ToList();
 			
-			if(HasOnlineOrderWithPromoSetForNewClient(uow, deliveryPoint.Id))
+			if(IsFreeLoaderByFioAndPhoneWithoutAddressWithBottlesDebt(uow, counterparty, deliveryPoint, phones))
 			{
-				_logger.LogInformation("UnableToShipPromoSetForNewClientsToClientWithOnlineOrderWithThem");
+				_logger.LogInformation("UnableToShipPromoSetForNewClientsByFioAndPhoneWithoutAddressWithBottlesDebt");
 				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.UnableToShipPromoSet);
 			}
 
 			return Result.Success();
 		}
 
-		private bool HasOnlineOrderWithPromoSetForNewClient(
+		private bool IsFreeLoaderByFioAndPhoneWithoutAddressWithBottlesDebt(
 			IUnitOfWork uow,
-			int deliveryPointId)
+			Counterparty counterparty,
+			DeliveryPoint deliveryPoint,
+			IEnumerable<string> phoneNumbers)
 		{
-			return _freeLoaderRepository.HasOnlineOrderWithPromoSetForNewClients(uow, deliveryPointId);
-		}
-
-		private bool CanOrderPromoSetForNewClientsByBuildingFiasGuid(
-			IUnitOfWork uow,
-			bool isSelfDelivery,
-			Guid? buildingFiasGuid,
-			string room,
-			bool promoSetForNewClients = true)
-		{
-			if(isSelfDelivery)
+			if(!IsCounterpartyFioFilled(counterparty))
 			{
 				return false;
 			}
 
-			if(buildingFiasGuid is null)
+			if(deliveryPoint != null)
 			{
-				return true;
+				return false;
 			}
-			
-			return !_freeLoaderRepository
-				.GetPossibleFreeLoadersInfoByBuildingFiasGuid(uow, buildingFiasGuid.Value, room, 0, promoSetForNewClients)
-				.Any();
+
+			if(!phoneNumbers.Any(phone => _freeLoaderRepository.PhoneExists(uow, phone)))
+			{
+				return false;
+			}
+
+			return _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterparty.Id) > 0;
+		}
+
+		private static bool IsCounterpartyFioFilled(Counterparty counterparty)
+		{
+			if(counterparty is null || counterparty.PersonType != PersonType.natural)
+			{
+				return false;
+			}
+
+			return !string.IsNullOrWhiteSpace(counterparty.Name)
+				|| !string.IsNullOrWhiteSpace(counterparty.Surname)
+				|| !string.IsNullOrWhiteSpace(counterparty.FirstName);
 		}
 	}
 }
