@@ -2,8 +2,10 @@
 using Gtk;
 using QS.Navigation;
 using QS.Report.ViewModels;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges;
 using Vodovoz.ViewModels.Bookkeepping.Reports.EdoControl;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Receipts;
 using Vodovoz.ViewModels.ReportsParameters.Bookkeeping;
 using Vodovoz.ViewModels.ReportsParameters.Payments;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
@@ -16,6 +18,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 	public class AccountingDepReportsMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
+		private MenuItem _explanatoryNotesRegistryItem;
 
 		public AccountingDepReportsMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
 		{
@@ -37,8 +40,21 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			accountingDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Долги по безналу", OnCounterpartyCashlessDebtsReportPressed));
 			accountingDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по УПД в ЧЗ", OnEdoUpdReportPressed));
 			accountingDepMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Контроль за ЭДО", OnEdoControlReportPressed));
-			
+
+			_explanatoryNotesRegistryItem = _concreteMenuItemCreator.CreateMenuItem(
+				"Реестр пояснительных записок", OnExplanatoryNotesRegistryPressed);
+			accountingDepMenu.Add(_explanatoryNotesRegistryItem);
+
+			Configure();
+
 			return accountingDepMenuItem;
+		}
+
+		private void Configure()
+		{
+			_explanatoryNotesRegistryItem.Sensitive =
+				Startup.MainWin.CurrentPermissionService.ValidatePresetPermission(
+					BookkeeppingPermissions.CanViewReceiptCorrectionExplanatoryNotesJournal);
 		}
 		
 		/// <summary>
@@ -113,6 +129,11 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		protected void OnEdoControlReportPressed(object sender, EventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<EdoControlReportViewModel>(null, OpenPageOptions.IgnoreHash);
+		}
+
+		private void OnExplanatoryNotesRegistryPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<ReceiptCorrectionExplanatoryNoteJournalViewModel>(null);
 		}
 	}
 }

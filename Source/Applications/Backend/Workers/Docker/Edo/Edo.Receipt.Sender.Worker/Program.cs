@@ -60,6 +60,7 @@ namespace Edo.Receipt.Sender.Worker
 						;
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();
+					services.AddHostedService<ReceiptCorrectionSendWorker>();
 					services.ConfigureOptions<ConfigureReceiptQueueNotificationOptions>();
 					services.AddHostedService<ReceiptQueueNotificationWorker>();
 				});

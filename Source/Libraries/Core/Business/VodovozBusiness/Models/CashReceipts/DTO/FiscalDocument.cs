@@ -20,7 +20,7 @@ namespace Vodovoz.Models.CashReceipts.DTO
 		[JsonProperty("email", Required = Required.Always)]
 		public string Email { get; set; }
 
-		[JsonProperty("clientInn")]
+		[JsonProperty("clientInn", NullValueHandling = NullValueHandling.Ignore)]
 		public string ClientINN { get; set; }
 
 		[JsonProperty("cashierName")]
