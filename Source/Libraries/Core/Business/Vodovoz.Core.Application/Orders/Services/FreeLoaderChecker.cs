@@ -123,7 +123,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 				.Distinct()
 				.ToList();
 			
-			// 2.6: ФИО и телефон найдены, адрес доставки не найден, есть долги по таре
 			if(IsFreeLoaderByFioAndPhoneWithoutAddressWithBottlesDebt(uow, counterparty, deliveryPoint, phones))
 			{
 				_logger.LogInformation("UnableToShipPromoSetForNewClientsByFioAndPhoneWithoutAddressWithBottlesDebt");
@@ -133,10 +132,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return Result.Success();
 		}
 
-		/// <summary>
-		/// Проверка условия 2.6: ФИО и телефон найдены в системе, адрес доставки не найден,
-		/// по клиенту есть долги по таре - промонаборы недоступны
-		/// </summary>
 		private bool IsFreeLoaderByFioAndPhoneWithoutAddressWithBottlesDebt(
 			IUnitOfWork uow,
 			Counterparty counterparty,
@@ -172,6 +167,5 @@ namespace Vodovoz.Core.Application.Orders.Services
 				|| !string.IsNullOrWhiteSpace(counterparty.Surname)
 				|| !string.IsNullOrWhiteSpace(counterparty.FirstName);
 		}
-
 	}
 }
