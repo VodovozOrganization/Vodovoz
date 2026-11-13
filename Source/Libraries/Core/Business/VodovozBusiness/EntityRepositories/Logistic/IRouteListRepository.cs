@@ -71,6 +71,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IEnumerable<int> GetDriverRouteListsIds(IUnitOfWork uow, Employee driver, RouteListStatus? status = null);
 
 		/// <summary>
+		/// Возвращает номера маршрутных листов водителя в указанных статусах.
+		/// </summary>
+		/// <param name="uow">Единица работы.</param>
+		/// <param name="driver">Водитель.</param>
+		/// <param name="statuses">Допустимые статусы маршрутных листов.</param>
+		/// <returns>Номера маршрутных листов.</returns>
+		IEnumerable<int> GetDriverRouteListsIdsInStatuses(IUnitOfWork uow, Employee driver, IReadOnlyCollection<RouteListStatus> statuses);
+
+		/// <summary>
 		/// Есть ли у водителя маршрутные листы в одном из указанных статусов
 		/// </summary>
 		Task<bool> HasDriverRouteListsInStatusesAsync(
