@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using DateTimeHelpers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -47,8 +46,6 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.Documents;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -1359,16 +1356,27 @@ namespace Vodovoz.JournalViewModels
 							&& !_userHasOnlyAccessToWarehouseAndComplaints,
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
-						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
-						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
+						var selectedNodes = selectedItems
+							.Cast<OrderJournalNode>()
+							.ToList();
 
-						var page = NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(this, filter =>
+						var firstNode = selectedNodes.FirstOrDefault();
+
+						if(firstNode is null)
 						{
-							filter.HidenByDefault = true;
-							filter.RestrictOldOrder = order;
-							filter.RestrictOldOrderStartDate = order.DeliveryDate;
-							filter.RestrictOldOrderEndDate = order.DeliveryDate;
-						});
+							return;
+						}
+						
+						var order = UoW.GetById<VodovozOrder>(firstNode.Id);
+
+						NavigationManager
+							.OpenViewModel<UndeliveredOrdersJournalViewModel, Action<UndeliveredOrdersFilterViewModel>>(this, filter =>
+							{
+								filter.HidenByDefault = true;
+								filter.RestrictOldOrder = order;
+								filter.RestrictOldOrderStartDate = order.DeliveryDate;
+								filter.RestrictOldOrderEndDate = order.DeliveryDate;
+							});
 					}
 				)
 			);
