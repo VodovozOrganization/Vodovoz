@@ -88,7 +88,7 @@ namespace Vodovoz.Tools
 				ReportType = errorReportType,
 				App = new AppInfo
 				{
-					Modification = Edition,
+					Modification = "-",
 					Version = Version,
 					ProductCode = 3
 				},
