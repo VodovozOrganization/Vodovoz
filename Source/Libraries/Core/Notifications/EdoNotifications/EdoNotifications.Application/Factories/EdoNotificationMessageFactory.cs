@@ -20,4 +20,17 @@ public class EdoNotificationMessageFactory : IEdoNotificationMessageFactory
 
 		return new EdoNotificationMessage(edoNotificationType, parameters);
 	}
+
+	public EdoNotificationMessage Create(EdoNotificationType notificationType,
+		params (string Key, string Value)[] templateParams)
+	{
+		var parameters = new Dictionary<string, string>();
+
+		foreach(var (key, value) in templateParams)
+		{
+			parameters[key] = value;
+		}
+
+		return new EdoNotificationMessage(notificationType.ToString(), parameters);
+	}
 }

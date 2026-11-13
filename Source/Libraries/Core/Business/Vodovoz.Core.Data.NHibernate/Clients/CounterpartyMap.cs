@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
