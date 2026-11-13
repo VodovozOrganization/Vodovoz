@@ -13,6 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 
 			Map(x => x.Address).Column("address");
 			Map(x => x.JurAddress).Column("jur_address");
+			Map(x => x.FiasId).Column("fias_id");
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.EndDate).Column("end_date");
 
