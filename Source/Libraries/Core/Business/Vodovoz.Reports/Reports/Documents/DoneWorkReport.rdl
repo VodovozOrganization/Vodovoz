@@ -2055,12 +2055,26 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
-      <Textbox Name="ClaimsLine">
+      <Textbox Name="ClaimsNoLine">
         <Height>14pt</Height>
-        <Width>506pt</Width>
-        <Value>□ Претензий по объёму, качеству и срокам нет.     □ Замечания указаны ниже.</Value>
+        <Width>250pt</Width>
+        <Value>□ Претензий по объёму, качеству и срокам нет.</Value>
         <ZIndex>0</ZIndex>
         <Left>4pt</Left>
+        <Top>667pt</Top>
+        <Style>
+          <FontFamily>Times New Roman</FontFamily>
+          <FontSize>8.5pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="ClaimsRemarksLine">
+        <Height>14pt</Height>
+        <Width>252pt</Width>
+        <Value>□ Замечания указаны ниже.</Value>
+        <ZIndex>0</ZIndex>
+        <Left>258pt</Left>
         <Top>667pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
