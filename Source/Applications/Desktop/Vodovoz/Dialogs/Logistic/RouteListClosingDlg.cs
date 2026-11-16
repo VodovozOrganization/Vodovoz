@@ -873,8 +873,12 @@ namespace Vodovoz
 
 		private void OnOrderReturnsViewTabClosed(object sender, EventArgs e)
 		{
-			if(sender is OrderReturnsView orderReturnsView)
+			var orderReturnsView = sender as OrderReturnsView;
+
+			if(orderReturnsView != null)
 			{
+				orderReturnsView.TabClosed -= OnOrderReturnsViewTabClosed;
+
 				if(orderReturnsView.IgnoreReceipt)
 				{
 					if(orderReturnsView.OrderId.HasValue && !_ignoreReceiptsForOrderIds.Contains(orderReturnsView.OrderId.Value))
@@ -902,7 +906,12 @@ namespace Vodovoz
 				}
 			}
 
-			var node = routeListAddressesView.GetSelectedRouteListItem();
+			var node = orderReturnsView?.RouteListItem ?? routeListAddressesView.GetSelectedRouteListItem();
+
+			if(node is null)
+			{
+				return;
+			}
 
 			if(!_addressKeepingDocumentItemsCacheList.ContainsKey(node.Id))
 			{
@@ -926,8 +935,6 @@ namespace Vodovoz
 			CreateBottlesReturnFreeBalanceOperations(node);
 
 			ReloadDiscrepancies();
-
-			((OrderReturnsView)sender).TabClosed -= OnOrderReturnsViewTabClosed;
 		}
 
 		void OnRouteListItemChanged(object aList, int[] aIdx)
