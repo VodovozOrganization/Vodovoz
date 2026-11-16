@@ -16,26 +16,7 @@ namespace Edo.Receipt.Sender
 				return typeof(ReceiptSendingFailed);
 			}
 
-			if(failureMessage.IndexOf("HTTP Code: 400", StringComparison.OrdinalIgnoreCase) >= 0
-				|| failureMessage.IndexOf("400 BadRequest", StringComparison.OrdinalIgnoreCase) >= 0)
-			{
-				return typeof(ReceiptSendHttpBadRequest);
-			}
-
-			if(failureMessage.IndexOf("HTTP Code: 404", StringComparison.OrdinalIgnoreCase) >= 0
-				|| failureMessage.IndexOf("404 NotFound", StringComparison.OrdinalIgnoreCase) >= 0
-				|| failureMessage.IndexOf("Не удалось получить актуальный статус чека", StringComparison.OrdinalIgnoreCase) >= 0)
-			{
-				return typeof(ReceiptSendDocumentStatusNotFound);
-			}
-
-			if(failureMessage.IndexOf("SSL connection could not be established", StringComparison.OrdinalIgnoreCase) >= 0
-				|| (failureMessage.IndexOf("SSL", StringComparison.OrdinalIgnoreCase) >= 0
-					&& failureMessage.IndexOf("certificate", StringComparison.OrdinalIgnoreCase) >= 0))
-			{
-				return typeof(ReceiptSendSslError);
-			}
-
+			// 1. Транспортные и сетевые сбои
 			if(failureMessage.IndexOf("HttpClient.Timeout", StringComparison.OrdinalIgnoreCase) >= 0
 				|| failureMessage.IndexOf("Connection refused", StringComparison.OrdinalIgnoreCase) >= 0
 				|| failureMessage.IndexOf("HTTP Code: 502", StringComparison.OrdinalIgnoreCase) >= 0
@@ -45,6 +26,39 @@ namespace Edo.Receipt.Sender
 				|| failureMessage.IndexOf("An error occurred while sending the request", StringComparison.OrdinalIgnoreCase) >= 0)
 			{
 				return typeof(ReceiptSendTransportError);
+			}
+
+			// 2. SSL ошибки
+			if(failureMessage.IndexOf("SSL connection could not be established", StringComparison.OrdinalIgnoreCase) >= 0
+				|| (failureMessage.IndexOf("SSL", StringComparison.OrdinalIgnoreCase) >= 0
+					&& failureMessage.IndexOf("certificate", StringComparison.OrdinalIgnoreCase) >= 0))
+			{
+				return typeof(ReceiptSendSslError);
+			}
+
+			// 3. Ошибки параметров запроса (400)
+			if(failureMessage.IndexOf("HTTP Code: 400", StringComparison.OrdinalIgnoreCase) >= 0
+				|| failureMessage.IndexOf("400 BadRequest", StringComparison.OrdinalIgnoreCase) >= 0)
+			{
+				return typeof(ReceiptSendHttpBadRequest);
+			}
+
+			// 4. Документ не найден на кассе (404)
+			if(failureMessage.IndexOf("HTTP Code: 404", StringComparison.OrdinalIgnoreCase) >= 0
+				|| failureMessage.IndexOf("404 NotFound", StringComparison.OrdinalIgnoreCase) >= 0
+				|| failureMessage.IndexOf("Не удалось получить актуальный статус чека", StringComparison.OrdinalIgnoreCase) >= 0)
+			{
+				return typeof(ReceiptSendDocumentStatusNotFound);
+			}
+
+			// 5. Ошибки фискализации и Честного Знака (точный статус кассы)
+			if(failureMessage.IndexOf("MarkingCheckViolated", StringComparison.OrdinalIgnoreCase) >= 0
+				|| failureMessage.IndexOf("Ожидание фискализации превысило", StringComparison.OrdinalIgnoreCase) >= 0
+				|| failureMessage.IndexOf("Status: FAILED", StringComparison.OrdinalIgnoreCase) >= 0
+				|| failureMessage.IndexOf("Статус: FAILED", StringComparison.OrdinalIgnoreCase) >= 0
+				|| failureMessage.IndexOf("Фискализация отклонена", StringComparison.OrdinalIgnoreCase) >= 0)
+			{
+				return typeof(ReceiptFiscalizationFailed);
 			}
 
 			return typeof(ReceiptSendingFailed);

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ModulKassa;
 using NLog.Extensions.Logging;
 using QS.Project.Core;
 using System;
@@ -33,6 +34,7 @@ namespace Edo.Problem.Routine.Worker
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
+					services.Configure<CashboxesSetting>(hostContext.Configuration);
 					services
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -46,7 +48,11 @@ namespace Edo.Problem.Routine.Worker
 						.AddNHibernateConventions()
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
-						.AddEdoProblemRoutine(busCfg => busCfg.AddVodovozOutbox(OutboxBusNames.Pacs))
+						.AddEdoProblemRoutine(busCfg =>
+						{
+							busCfg.AddVodovozOutbox(OutboxBusNames.Pacs);
+							busCfg.AddConsumer<Consumers.ReceiptFailedReprocessingConsumer>();
+						})
 						.AddOrderEdoCodePoolMissingProblem()
 						.ConfigureZabbixSenderFromDataBase()
 						;
@@ -65,7 +71,7 @@ namespace Edo.Problem.Routine.Worker
 
 					services
 						.AddHostedService<CodeDuplicatedProblemWorker>();
-					
+
 					services
 						.AddHostedService<ReceiptContactProblemWorker>();
 
@@ -74,6 +80,9 @@ namespace Edo.Problem.Routine.Worker
 
 					services
 						.AddHostedService<TaxcomSendProblemWorker>();
+
+					services
+						.AddHostedService<ReceiptFailedReprocessingWorker>();
 				});
 	}
 }
