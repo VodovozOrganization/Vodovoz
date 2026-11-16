@@ -176,9 +176,10 @@ namespace Edo.Receipt.Sender
 
 						if(result.FiscalDocumentInfo.Status == ModulKassa.DTO.FiscalDocumentStatus.Failed)
 						{
-							edoFiscalDocument.FailureMessage = result.FiscalDocumentInfo.FailureInfo?.Message
-								?? result.FiscalDocumentInfo.FailureInfo?.Type
-								?? "Ошибка фискализации чека (статус Failed)";
+							var failureInfo = result.FiscalDocumentInfo.FailureInfo;
+							edoFiscalDocument.FailureMessage = !string.IsNullOrWhiteSpace(failureInfo?.Type) && !string.IsNullOrWhiteSpace(failureInfo?.Message)
+								? $"{failureInfo.Type}: {failureInfo.Message}"
+								: failureInfo?.Message ?? failureInfo?.Type ?? "Ошибка фискализации чека (статус Failed)";
 						}
 
 						if(result.FiscalDocumentInfo.FiscalInfo != null)

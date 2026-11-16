@@ -24,11 +24,6 @@ namespace Edo.Problem.Routine.Options
 		public int FailedOlderThanHours { get; set; }
 
 		/// <summary>
-		/// Максимальное количество попыток автоматической повторной отправки чека в кассу
-		/// </summary>
-		public int MaxReprocessingAttempts { get; set; }
-
-		/// <summary>
 		/// Задержка между отправкой документов в кассу в миллисекундах
 		/// </summary>
 		public int DelayBetweenDocumentsMs { get; set; }

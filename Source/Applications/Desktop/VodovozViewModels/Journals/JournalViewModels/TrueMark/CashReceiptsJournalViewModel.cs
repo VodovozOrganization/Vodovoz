@@ -578,11 +578,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			try
 			{
 				var currentUser = _commonServices.UserService.GetCurrentUser();
+				if(currentUser == null)
+				{
+					ShowInteractiveMessage(
+						ImportanceLevel.Error,
+						"Не удалось определить текущего пользователя. Операция отменена.");
+					return;
+				}
+
 				using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Внеплановый запуск переобработки чеков с ошибками"))
 				{
 					await _outbox.GetPublishEndpoint(uow).Publish(new ReceiptFailedReprocessingRequestedEvent
 					{
-						Initiator = currentUser?.Name ?? "Неизвестный пользователь",
+						Initiator = currentUser.Name,
 						RequestedAt = DateTime.Now
 					});
 

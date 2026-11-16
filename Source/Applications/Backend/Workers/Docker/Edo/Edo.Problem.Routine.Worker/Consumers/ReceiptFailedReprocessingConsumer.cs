@@ -43,7 +43,8 @@ namespace Edo.Problem.Routine.Worker.Consumers
 				"Получен запрос на переобработку чеков со статусом Failed от пользователя {Initiator}",
 				context.Message.Initiator);
 
-			if(!await _lockCoordinator.TryAcquireLockAsync(context.CancellationToken))
+			var isLockAcquired = await _lockCoordinator.TryAcquireLockAsync(context.CancellationToken);
+			if(!isLockAcquired)
 			{
 				_logger.LogWarning(
 					"Запрос на внеплановую переобработку чеков от пользователя {Initiator} пропущен: переобработка уже выполняется другим процессом или плановым воркером",

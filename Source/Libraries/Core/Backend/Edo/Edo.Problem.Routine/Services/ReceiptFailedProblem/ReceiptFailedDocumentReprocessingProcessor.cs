@@ -93,6 +93,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			if(edoFiscalDocument == null)
 			{
 				_logger.LogWarning("Фискальный документ с Id {DocId} не найден в БД", fiscalDocumentId);
+
 				return FiscalDocumentReprocessingResult.Error();
 			}
 
@@ -100,12 +101,14 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			if(receiptEdoTask == null)
 			{
 				_logger.LogWarning("Для документа {DocId} не найдена связанная задача ReceiptEdoTask", fiscalDocumentId);
+
 				return FiscalDocumentReprocessingResult.Error();
 			}
 
 			if(!receiptEdoTask.CashboxId.HasValue)
 			{
 				_logger.LogWarning("В задаче {TaskId} документа {DocId} не указан CashboxId кассы", receiptEdoTask.Id, fiscalDocumentId);
+
 				return FiscalDocumentReprocessingResult.Error();
 			}
 
@@ -133,6 +136,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					_logger.LogWarning(
 						"Документ {DocId}: касса вернула статус {Status}, но фискальные данные отсутствуют (FiscalInfo == null). Пропуск до подтверждения фискализации",
 						fiscalDocumentId, modulCheckResult.FiscalDocumentInfo.Status);
+
 					return FiscalDocumentReprocessingResult.Skipped();
 				}
 
@@ -197,6 +201,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					receiptEdoTask.Id,
 					$"Сбой связи с МодульКассой при проверке статуса: {modulCheckResult.ErrorMessage}",
 					cancellationToken);
+
 				return FiscalDocumentReprocessingResult.Error();
 			}
 
@@ -214,39 +219,8 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					fiscalDocumentId, eligibility.BlockReason);
 
 				await HandleFailureInCleanSessionAsync(fiscalDocumentId, receiptEdoTask.Id, eligibility.BlockReason, cancellationToken);
-				await IncrementReprocessingRetryCountAsync(receiptEdoTask.Id, cancellationToken);
+
 				return FiscalDocumentReprocessingResult.Error();
-			}
-
-			// Проверка количества предыдущих попыток переобработки
-			var problem = receiptEdoTask.Problems?.FirstOrDefault(p =>
-				p.State == TaskProblemState.Active
-				&& p.SourceName != null
-				&& p.SourceName.IndexOf(nameof(ReceiptFiscalizationFailed), StringComparison.OrdinalIgnoreCase) >= 0);
-			var routineState = problem?.RoutineStates?.FirstOrDefault();
-
-			var maxReprocessingAttempts = _options.CurrentValue.MaxReprocessingAttempts;
-			if(maxReprocessingAttempts > 0 && routineState != null && routineState.RetryCount >= maxReprocessingAttempts)
-			{
-				var limitMessage = $"Исчерпан лимит автоматических попыток повторной отправки ({routineState.RetryCount} из {maxReprocessingAttempts}). Требуется ручной разбор";
-				_logger.LogWarning(
-					"Документ {DocId} задачи {TaskId} исчерпал лимит автоматических попыток повторной отправки ({RetryCount} из {MaxAttempts}). Повторная отправка отменена",
-					fiscalDocumentId, receiptEdoTask.Id, routineState.RetryCount, maxReprocessingAttempts);
-
-				var newFailureMessage = string.IsNullOrWhiteSpace(edoFiscalDocument.FailureMessage)
-					? limitMessage
-					: (edoFiscalDocument.FailureMessage.Contains("Исчерпан лимит")
-						? edoFiscalDocument.FailureMessage
-						: $"{edoFiscalDocument.FailureMessage} | {limitMessage}");
-
-				if(edoFiscalDocument.FailureMessage != newFailureMessage)
-				{
-					edoFiscalDocument.FailureMessage = newFailureMessage;
-					await _unitOfWork.SaveAsync(edoFiscalDocument, cancellationToken: cancellationToken);
-					await _unitOfWork.CommitAsync(cancellationToken);
-				}
-
-				return FiscalDocumentReprocessingResult.Skipped();
 			}
 
 			// Проверка кодов маркировки по тегу 1260 и автозамена из пула (в транзакции для гарантии атомарности)
@@ -262,7 +236,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 
 				_logger.LogWarning(ex, "Для документа {DocId} не удалось подобрать код из пула: {Message}", fiscalDocumentId, ex.Message);
 				await HandleFailureInCleanSessionAsync(fiscalDocumentId, receiptEdoTask.Id, ex.Message, cancellationToken);
-				await IncrementReprocessingRetryCountAsync(receiptEdoTask.Id, cancellationToken);
+
 				return FiscalDocumentReprocessingResult.Error();
 			}
 			catch(Tag1260CdnUnavailableException ex)
@@ -276,6 +250,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					receiptEdoTask.Id,
 					$"Сбой связи с CDN Честного Знака: {ex.Message}",
 					cancellationToken);
+
 				return FiscalDocumentReprocessingResult.Error();
 			}
 			catch(Exception ex) when(IsNetworkOrInfrastructureException(ex))
@@ -289,6 +264,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					receiptEdoTask.Id,
 					$"Сетевой сбой при проверке кодов: {ex.Message}",
 					cancellationToken);
+
 				return FiscalDocumentReprocessingResult.Error();
 			}
 			catch(Exception ex)
@@ -298,7 +274,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 
 				_logger.LogWarning(ex, "Ошибка подготовки кодов/реквизитов для документа {DocId}: {Message}", fiscalDocumentId, ex.Message);
 				await HandleFailureInCleanSessionAsync(fiscalDocumentId, receiptEdoTask.Id, ex.Message, cancellationToken);
-				await IncrementReprocessingRetryCountAsync(receiptEdoTask.Id, cancellationToken);
+
 				return FiscalDocumentReprocessingResult.Error();
 			}
 
@@ -307,6 +283,13 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 				&& IsDocumentNotFound(modulCheckResult.ErrorMessage);
 
 			var isPayloadChanged = codesReplaced > 0;
+
+			var cashboxFailureInfo = modulCheckResult.FiscalDocumentInfo?.FailureInfo;
+			var lastFailureMessage = !string.IsNullOrWhiteSpace(cashboxFailureInfo?.Type) && !string.IsNullOrWhiteSpace(cashboxFailureInfo?.Message)
+				? $"{cashboxFailureInfo.Type}: {cashboxFailureInfo.Message}"
+				: cashboxFailureInfo?.Message ?? cashboxFailureInfo?.Type ?? edoFiscalDocument.FailureMessage;
+
+			await EnsureFiscalizationProblemAsync(receiptEdoTask.Id, lastFailureMessage, cancellationToken);
 
 			if(isPayloadChanged)
 			{
@@ -321,7 +304,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					"Документ {DocId} задачи {TaskId}: заменено кодов маркировки из пула: {CodesCount}. Назначен новый DocumentGuid {NewGuid} (предыдущий: {OldGuid})",
 					fiscalDocumentId, receiptEdoTask.Id, codesReplaced, newGuid, oldGuid);
 
-				await IncrementReprocessingRetryCountAsync(receiptEdoTask.Id, cancellationToken);
 				await _unitOfWork.SaveAsync(edoFiscalDocument, cancellationToken: cancellationToken);
 				await _unitOfWork.CommitAsync(cancellationToken);
 
@@ -337,7 +319,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					"Документ {DocId} ранее не был зарегистрирован в МодульКассе (404). Отправка через POST /fn/v2/doc (Guid: {Guid})",
 					fiscalDocumentId, edoFiscalDocument.DocumentGuid);
 
-				await IncrementReprocessingRetryCountAsync(receiptEdoTask.Id, cancellationToken);
 				await _unitOfWork.SaveAsync(edoFiscalDocument, cancellationToken: cancellationToken);
 				await _unitOfWork.CommitAsync(cancellationToken);
 
@@ -354,7 +335,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					"Документ {DocId}: коды не менялись (замен: {CodesCount}). Выполняем повторное проведение через re-queue (GUID: {Guid})",
 					fiscalDocumentId, codesReplaced, guid);
 
-				await IncrementReprocessingRetryCountAsync(receiptEdoTask.Id, cancellationToken);
 				await _unitOfWork.SaveAsync(edoFiscalDocument, cancellationToken: cancellationToken);
 				await _unitOfWork.CommitAsync(cancellationToken);
 
@@ -366,15 +346,17 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 				// Если касса вернула статус Failed
 				if(sendResult.FiscalDocumentInfo?.Status == ModulFiscalStatus.Failed)
 				{
-					var failureMsg = sendResult.FiscalDocumentInfo.FailureInfo?.Message
-						?? sendResult.ErrorMessage
-						?? "Документ отклонен сервером фискализации (статус Failed)";
+					var failureInfo = sendResult.FiscalDocumentInfo.FailureInfo;
+					var failureMsg = !string.IsNullOrWhiteSpace(failureInfo?.Type) && !string.IsNullOrWhiteSpace(failureInfo?.Message)
+						? $"{failureInfo.Type}: {failureInfo.Message}"
+						: failureInfo?.Message ?? failureInfo?.Type ?? sendResult.ErrorMessage ?? "Документ отклонен сервером фискализации (статус Failed)";
 
 					_logger.LogWarning(
 						"Повторная обработка документа {DocId} в МодульКассе вернула статус FAILED: {Error}",
 						fiscalDocumentId, failureMsg);
 
 					await HandleFailureInCleanSessionAsync(fiscalDocumentId, receiptEdoTask.Id, failureMsg, cancellationToken);
+
 					return FiscalDocumentReprocessingResult.Error();
 				}
 
@@ -403,6 +385,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					receiptEdoTask.Id,
 					$"Сбой при отправке/re-queue в кассу: {sendResult.ErrorMessage}",
 					cancellationToken);
+
 				return FiscalDocumentReprocessingResult.Error();
 			}
 		}
@@ -681,80 +664,58 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 
 			if(receiptEdoTaskId > 0)
 			{
-				await RegisterProblemAsync(receiptEdoTaskId, failureReason, cancellationToken);
+				await EnsureFiscalizationProblemAsync(receiptEdoTaskId, failureReason, cancellationToken);
 			}
 		}
 
-		private async Task RegisterProblemAsync(
+		/// <summary>
+		/// Обеспечивает наличие активной проблемы ReceiptFiscalizationFailed для задачи
+		/// и актуализирует CustomMessage текстом ошибки
+		/// </summary>
+		private async Task EnsureFiscalizationProblemAsync(
 			int receiptEdoTaskId,
 			string failureMessage,
 			CancellationToken cancellationToken)
 		{
 			try
 			{
+				var customMsg = !string.IsNullOrWhiteSpace(failureMessage)
+					? failureMessage
+					: "Ошибка фискализации чека (переобработка)";
+
 				await _edoProblemRegistrar.RegisterCustomProblem<ReceiptFiscalizationFailed>(
 					receiptEdoTaskId,
 					cancellationToken,
-					customMessage: failureMessage,
+					customMessage: customMsg,
 					disposeTaskUow: false);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Не удалось зарегистрировать проблему фискализации для задачи {TaskId}", receiptEdoTaskId);
-			}
-		}
 
-		/// <summary>
-		/// Увеличивает счетчик попыток повторной отправки в RoutineState активной проблемы задачи (если она существует).
-		/// Если активной проблемы еще нет, ложная проблема операторам при штатной переотправке не создается.
-		/// </summary>
-		private async Task IncrementReprocessingRetryCountAsync(int receiptEdoTaskId, CancellationToken cancellationToken)
-		{
-			try
-			{
 				using(var uow = _uowFactory.CreateWithoutRoot())
 				{
 					var task = uow.GetById<ReceiptEdoTask>(receiptEdoTaskId);
-					var problem = task?.Problems?.FirstOrDefault(p =>
+					var activeProblem = task?.Problems?.FirstOrDefault(p =>
 						p.State == TaskProblemState.Active
 						&& p.SourceName != null
 						&& p.SourceName.IndexOf(nameof(ReceiptFiscalizationFailed), StringComparison.OrdinalIgnoreCase) >= 0);
 
-					if(problem == null)
+					if(activeProblem == null)
 					{
+						_logger.LogWarning("Не удалось найти или зарегистрировать проблему ReceiptFiscalizationFailed для задачи {TaskId}", receiptEdoTaskId);
 						return;
 					}
 
-					var routineState = problem.RoutineStates?.FirstOrDefault();
-					if(routineState == null)
+					if(!string.IsNullOrWhiteSpace(failureMessage)
+						&& activeProblem is CustomEdoTaskProblem customProblem
+						&& customProblem.CustomMessage != failureMessage)
 					{
-						routineState = new EdoTaskProblemRoutineState
-						{
-							Problem = problem,
-							RetryCount = 1,
-							LastRetryTime = DateTime.Now
-						};
-						if(problem.RoutineStates == null)
-						{
-							problem.RoutineStates = new List<EdoTaskProblemRoutineState>();
-						}
-						problem.RoutineStates.Add(routineState);
-						await uow.SaveAsync(routineState, cancellationToken: cancellationToken);
+						customProblem.CustomMessage = failureMessage;
+						await uow.SaveAsync(customProblem, cancellationToken: cancellationToken);
+						await uow.CommitAsync(cancellationToken);
 					}
-					else
-					{
-						routineState.RetryCount++;
-						routineState.LastRetryTime = DateTime.Now;
-						await uow.SaveAsync(routineState, cancellationToken: cancellationToken);
-					}
-
-					await uow.SaveAsync(problem, cancellationToken: cancellationToken);
-					await uow.CommitAsync(cancellationToken);
 				}
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Не удалось обновить счетчик повторной фискализации для задачи {TaskId}", receiptEdoTaskId);
+				_logger.LogError(ex, "Ошибка при регистрации или актуализации проблемы для задачи {TaskId}", receiptEdoTaskId);
 			}
 		}
 

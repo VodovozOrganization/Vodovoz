@@ -52,8 +52,6 @@ namespace Edo.Problem.Routine.Worker
 		{			
 			while(!stoppingToken.IsCancellationRequested)
 			{
-				await DoWork(stoppingToken);
-
 				var delay = Interval;
 				var targetTime = DateTime.UtcNow.Add(delay);
 
@@ -86,6 +84,11 @@ namespace Edo.Problem.Routine.Worker
 						_logger.LogTrace(ex, "Ошибка отправки heartbeat в Zabbix при ожидании");
 					}
 				}
+
+				if(!stoppingToken.IsCancellationRequested)
+				{
+					await DoWork(stoppingToken);
+				}
 			}
 		}
 
@@ -108,8 +111,7 @@ namespace Edo.Problem.Routine.Worker
 				validHours = new List<int> { 10, 17 };
 			}
 
-			var moscowTimeZone = GetMoscowTimeZone();
-			var nowMoscow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, moscowTimeZone);
+			var nowMoscow = DateTime.UtcNow.AddHours(3);
 
 			var nextRunTimes = validHours
 				.Select(hour => nowMoscow.Date.AddHours(hour))
@@ -132,29 +134,14 @@ namespace Edo.Problem.Routine.Worker
 			return delay > TimeSpan.Zero ? delay : TimeSpan.FromMinutes(1);
 		}
 
-		/// <summary>
-		/// Получает объект часового пояса Москвы с учетом кроссплатформенности (Windows и Linux)
-		/// </summary>
-		/// <returns>Часовой пояс Москвы</returns>
-		private static TimeZoneInfo GetMoscowTimeZone()
-		{
-			try
-			{
-				return TimeZoneInfo.FindSystemTimeZoneById("Russian Standard Time");
-			}
-			catch(TimeZoneNotFoundException)
-			{
-				return TimeZoneInfo.FindSystemTimeZoneById("Europe/Moscow");
-			}
-		}
-
 		/// <inheritdoc/>
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
 			using var scope = _serviceScopeFactory.CreateScope();
 			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 
-			if(!await _lockCoordinator.TryAcquireLockAsync(stoppingToken))
+			var isLockAcquired = await _lockCoordinator.TryAcquireLockAsync(stoppingToken);
+			if(!isLockAcquired)
 			{
 				_logger.LogInformation("Переобработка чеков уже выполняется другим процессом или запросом, плановый запуск пропускается");
 				await zabbixSender.SendIsHealthyAsync(nameof(ReceiptFailedReprocessingWorker), stoppingToken);
