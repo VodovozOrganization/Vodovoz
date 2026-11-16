@@ -26233,6 +26233,46 @@
           </widget>
           <packing>
             <property name="PackType">End</property>
+            <property name="Position">4</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.VBox" id="yvboxRegisteredIpz">
+            <property name="MemberName" />
+            <property name="Spacing">4</property>
+            <child>
+              <widget class="Gtk.Label" id="labelRegisteredIpz">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">&lt;b&gt;Зарегистрированные ИПЗ:&lt;/b&gt;</property>
+                <property name="UseMarkup">True</property>
+                <property name="Xalign">0</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Table" id="tblRegisteredIpz">
+                <property name="MemberName" />
+                <property name="NRows">1</property>
+                <property name="NColumns">2</property>
+                <property name="RowSpacing">3</property>
+                <property name="ColumnSpacing">12</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="PackType">End</property>
             <property name="Position">3</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
@@ -26257,7 +26297,7 @@
           </widget>
           <packing>
             <property name="PackType">End</property>
-            <property name="Position">4</property>
+            <property name="Position">5</property>
             <property name="AutoSize">True</property>
           </packing>
         </child>
@@ -26269,7 +26309,7 @@
           </widget>
           <packing>
             <property name="PackType">End</property>
-            <property name="Position">5</property>
+            <property name="Position">6</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
@@ -26317,7 +26357,7 @@
           </widget>
           <packing>
             <property name="PackType">End</property>
-            <property name="Position">6</property>
+            <property name="Position">7</property>
             <property name="AutoSize">True</property>
           </packing>
         </child>
@@ -26357,7 +26397,7 @@
           </widget>
           <packing>
             <property name="PackType">End</property>
-            <property name="Position">7</property>
+            <property name="Position">8</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
@@ -26374,7 +26414,7 @@
           </widget>
           <packing>
             <property name="PackType">End</property>
-            <property name="Position">8</property>
+            <property name="Position">9</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
@@ -26582,7 +26622,7 @@
           </widget>
           <packing>
             <property name="PackType">End</property>
-            <property name="Position">9</property>
+            <property name="Position">10</property>
             <property name="AutoSize">False</property>
           </packing>
         </child>
@@ -26601,7 +26641,7 @@
           </widget>
           <packing>
             <property name="PackType">End</property>
-            <property name="Position">10</property>
+            <property name="Position">11</property>
             <property name="AutoSize">True</property>
           </packing>
         </child>
