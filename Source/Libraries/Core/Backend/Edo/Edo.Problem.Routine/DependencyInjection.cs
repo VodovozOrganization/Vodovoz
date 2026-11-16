@@ -1,5 +1,6 @@
 ﻿using System;
 using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Edo.Common;
 using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
@@ -10,14 +11,21 @@ using Edo.Problem.Routine.Services.NewEdoTasksResend;
 using Edo.Problem.Routine.Services.OrderSelfDeliveryPaidProblem;
 using Edo.Problem.Routine.Services.OrderStatusProblem;
 using Edo.Problem.Routine.Services.ReceiptContactProblem;
+using Edo.Problem.Routine.Services.ReceiptFailedProblem;
 using Edo.Problem.Routine.Services.TaxcomSendProblem;
 using Edo.Problems;
 using Edo.Transport;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using ModulKassa;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
+using TrueMark.Codes.Pool;
+using Edo.Receipt.Sender;
+using TrueMark.Library;
+using Vodovoz.Core.Domain.Rules.Edo;
 
 namespace Edo.Problem.Routine
 {
@@ -51,6 +59,7 @@ namespace Edo.Problem.Routine
 				.AddCodeDuplicatedProblem()
 				.AddReceiptContactProblem()
 				.AddTaxcomSendProblem()
+				.AddReceiptFailedReprocessingProblem()
 				;
 
 			return services;
@@ -125,7 +134,7 @@ namespace Edo.Problem.Routine
 			services
 				.ConfigureOptions<ConfigureCodePoolMissingProblemWorkerOptions>()
 				.AddScoped<ICodePoolMissingProblemService, CodePoolMissingProblemService>()
-				.AddEdoProblemRegistration();;
+				.AddEdoProblemRegistration();
 
 			return services;
 		}
@@ -135,6 +144,26 @@ namespace Edo.Problem.Routine
 			services
 				.ConfigureOptions<ConfigureTaxcomSendProblemWorkerOptions>()
 				.AddScoped<ITaxcomSendProblemService, TaxcomSendProblemService>();
+
+			return services;
+		}
+
+		public static IServiceCollection AddReceiptFailedReprocessingProblem(this IServiceCollection services)
+		{
+			services.AddModulKassa();
+			services.AddHttpClient();
+			services.TryAddScoped<FiscalDocumentFactory>();
+			services.TryAddScoped<Tag1260Checker>();
+			services.TryAddScoped<CanProcessOrSendEdoByClosingAccountingDate>();
+			services.TryAddSingleton<IReceiptReprocessingLockCoordinator, ReceiptReprocessingLockCoordinator>();
+
+			services.AddOptions<ReceiptFailedReprocessingOptions>()
+				.Configure<IConfiguration>((options, configuration) =>
+				{
+					configuration.GetSection(ReceiptFailedReprocessingOptions.SectionName).Bind(options);
+				});
+			services.TryAddScoped<IReceiptFailedDocumentReprocessingProcessor, ReceiptFailedDocumentReprocessingProcessor>();
+			services.TryAddScoped<IReceiptFailedReprocessingService, ReceiptFailedReprocessingService>();
 
 			return services;
 		}
