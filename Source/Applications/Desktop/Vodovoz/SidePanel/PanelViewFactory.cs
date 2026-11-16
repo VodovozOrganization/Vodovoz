@@ -41,7 +41,12 @@ namespace Vodovoz.SidePanel
 			{
 				case PanelViewType.CounterpartyView:
 					var loger = ScopeProvider.Scope.Resolve<ILogger<CounterpartyPanelView>>();
-					return new CounterpartyPanelView(loger, ServicesConfig.CommonServices, orderRepository);
+					var counterpartyExternalCounterpartyRepository = ScopeProvider.Scope.Resolve<IExternalCounterpartyRepository>();
+					return new CounterpartyPanelView(
+						loger,
+						ServicesConfig.CommonServices,
+						orderRepository,
+						counterpartyExternalCounterpartyRepository);
 				case PanelViewType.DeliveryPointView:
 					var deliveryPointRepository = ScopeProvider.Scope.Resolve<IDeliveryPointRepository>();
 					var bottlesRepository = ScopeProvider.Scope.Resolve<IBottlesRepository>();
