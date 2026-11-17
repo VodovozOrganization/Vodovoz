@@ -21,7 +21,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 		AccusativePlural = "групповые коды воды честного знака",
 		Prepositional = "групповом коде воды честного знака",
 		PrepositionalPlural = "групповых кодах воды честного знака")]
-	public class TrueMarkWaterGroupCode : PropertyChangedBase, IDomainObject, ITrueMarkCodesProvider
+	public class TrueMarkWaterGroupCode : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private string _rawCode;
@@ -107,8 +107,6 @@ namespace Vodovoz.Core.Domain.TrueMark
 		public virtual string IdentificationCode => $"01{GTIN}21{SerialNumber}";
 
 		public virtual string CashReceiptCode => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
-
-		public virtual string FormatForCheck1260 => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
 
 		public virtual void AddInnerGroupCode(TrueMarkWaterGroupCode innerGroupCode)
 		{

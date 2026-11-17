@@ -33,14 +33,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			References(x => x.EdoTaskItem)
 				.Column("edo_task_item_id");
 
-			References(x => x.RegulatoryDocument)
-				.Column("regulatory_document_id");
-
 			References(x => x.GroupCode)
 				.Column("group_code_id");
-
-			Map(x => x.IndustryRequisiteData)
-				.Column("industry_requisite_data");
 
 			HasManyToMany(x => x.OrderItems)
 				.Table("edo_fiscal_invent_positions_order_items")

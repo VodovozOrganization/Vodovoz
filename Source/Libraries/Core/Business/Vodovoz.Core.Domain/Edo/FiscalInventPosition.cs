@@ -22,8 +22,6 @@ namespace Vodovoz.Core.Domain.Edo
 		private decimal _price;
 		private decimal _discountSum;
 		private FiscalVat _vat;
-		private FiscalIndustryRequisiteRegulatoryDocument _regulatoryDocument;
-		private string _industryRequisiteData;
 
 		// он используется для назначения индивидуального кода на позицию товара в чеке
 		private EdoTaskItem _edoTaskItem;
@@ -124,26 +122,6 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _groupCode;
 			set => SetField(ref _groupCode, value);
-		}
-
-		/// <summary>
-		/// Регламентирующий документ
-		/// </summary>
-		[Display(Name = "Регламентирующий документ")]
-		public virtual FiscalIndustryRequisiteRegulatoryDocument RegulatoryDocument
-		{
-			get => _regulatoryDocument;
-			set => SetField(ref _regulatoryDocument, value);
-		}
-
-		/// <summary>
-		/// Данные об идентификаторе и времени запроса проверки КМ. (Получает с помощью терминала сбора данных)
-		/// </summary>
-		[Display(Name = "Данные об идентификаторе и времени запроса проверки КМ")]
-		public virtual string IndustryRequisiteData
-		{
-			get => _industryRequisiteData;
-			set => SetField(ref _industryRequisiteData, value);
 		}
 	}
 }

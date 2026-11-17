@@ -20,13 +20,11 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
-using TrueMark.Library;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Settings.Edo;
 using EdoFiscalStatus = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus;
 using ModulFiscalStatus = ModulKassa.DTO.FiscalDocumentStatus;
 
@@ -45,12 +43,10 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 		private readonly CashboxClientProvider _cashboxClientProvider;
 		private readonly FiscalDocumentFactory _fiscalDocumentFactory;
 		private readonly ITrueMarkCodesPoolCodeProvider _trueMarkCodesPoolCodeProvider;
-		private readonly Tag1260Checker _tag1260Checker;
-		private readonly IEdoReceiptSettings _edoReceiptSettings;
+		private readonly ITrueMarkCodesValidator _trueMarkCodesValidator;
 		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private ReceiptTrueMarkCodesPool _trueMarkCodesPool;
-		private FiscalIndustryRequisiteRegulatoryDocument _regulatoryDocument;
 
 		private ReceiptTrueMarkCodesPool CodesPool =>
 			_trueMarkCodesPool ?? (_trueMarkCodesPool = new ReceiptTrueMarkCodesPool(_unitOfWork));
@@ -67,8 +63,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			CashboxClientProvider cashboxClientProvider,
 			FiscalDocumentFactory fiscalDocumentFactory,
 			ITrueMarkCodesPoolCodeProvider trueMarkCodesPoolCodeProvider,
-			Tag1260Checker tag1260Checker,
-			IEdoReceiptSettings edoReceiptSettings,
+			ITrueMarkCodesValidator trueMarkCodesValidator,
 			IPublishEndpoint publishEndpoint,
 			EdoProblemRegistrar edoProblemRegistrar)
 		{
@@ -80,8 +75,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			_cashboxClientProvider = cashboxClientProvider ?? throw new ArgumentNullException(nameof(cashboxClientProvider));
 			_fiscalDocumentFactory = fiscalDocumentFactory ?? throw new ArgumentNullException(nameof(fiscalDocumentFactory));
 			_trueMarkCodesPoolCodeProvider = trueMarkCodesPoolCodeProvider ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCodeProvider));
-			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
-			_edoReceiptSettings = edoReceiptSettings ?? throw new ArgumentNullException(nameof(edoReceiptSettings));
+			_trueMarkCodesValidator = trueMarkCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkCodesValidator));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 		}
@@ -236,20 +230,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 
 				_logger.LogWarning(ex, "Для документа {DocId} не удалось подобрать код из пула: {Message}", fiscalDocumentId, ex.Message);
 				await HandleFailureInCleanSessionAsync(fiscalDocumentId, receiptEdoTask.Id, ex.Message, cancellationToken);
-
-				return FiscalDocumentReprocessingResult.Error();
-			}
-			catch(Tag1260CdnUnavailableException ex)
-			{
-				await RollbackTransactionSafelyAsync(cancellationToken);
-				_unitOfWork.Session.Clear();
-
-				_logger.LogWarning(ex, "Сбой связи с CDN Честного Знака для документа {DocId}", fiscalDocumentId);
-				await HandleFailureInCleanSessionAsync(
-					fiscalDocumentId,
-					receiptEdoTask.Id,
-					$"Сбой связи с CDN Честного Знака: {ex.Message}",
-					cancellationToken);
 
 				return FiscalDocumentReprocessingResult.Error();
 			}
@@ -410,36 +390,23 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 
 			var seller = receiptEdoTask.FormalEdoRequest?.Order?.Contract?.Organization;
 			var organizationInn = seller?.INN ?? string.Empty;
-			var cashBoxToken = seller?.CashBoxTokenFromTrueMark;
-
-			if(!cashBoxToken.HasValue)
-			{
-				throw new InvalidOperationException(
-					$"У организации Id {seller?.Id} отсутствует токен ЧЗ (CashBoxTokenFromTrueMark) для проверки тега 1260 документа {edoFiscalDocument.Id}");
-			}
 
 			var docCreationTime = edoFiscalDocument.CreationTime;
 
 			var codesToCheck = markedPositions
-				.Select(GetPositionCis)
+				.Select(GetPositionIdentificationCode)
 				.Where(c => !string.IsNullOrEmpty(c))
 				.Distinct()
 				.ToList();
 
 			_logger.LogInformation(
-				"Проверка {Count} уникальных кодов маркировки по тегу 1260 и разрешительному режиму для документа {DocId}",
+				"Проверка {Count} уникальных кодов маркировки через валидатор ЧЗ для документа {DocId}",
 				codesToCheck.Count, edoFiscalDocument.Id);
 
-			var checkResponse = await _tag1260Checker.CheckCodesForTag1260Async(
+			var validationResult = await _trueMarkCodesValidator.ValidateAsync(
 				codesToCheck,
-				cashBoxToken.Value,
+				organizationInn,
 				cancellationToken);
-
-			if(checkResponse == null || checkResponse.Code != 0)
-			{
-				throw new InvalidOperationException(
-					$"Честный Знак вернул ошибку при проверке тега 1260: Code={checkResponse?.Code}, Description={checkResponse?.Description}");
-			}
 
 			var positionsNeedingNewCodes = new List<PositionCodeReplacementContext>();
 
@@ -447,22 +414,20 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			{
 				var isProductCode = pos.EdoTaskItem?.ProductCode != null;
 				var productCode = pos.EdoTaskItem?.ProductCode;
-				var cis = GetPositionCis(pos);
+				var idCode = GetPositionIdentificationCode(pos);
 
-				if(string.IsNullOrEmpty(cis))
+				if(string.IsNullOrEmpty(idCode))
 				{
 					continue;
 				}
 
-				var codeInfo = checkResponse.Codes?.FirstOrDefault(c => c.Cis == cis);
+				var codeResult = validationResult?.CodeResults?.FirstOrDefault(c => c.CodeString == idCode);
+				var isValid = codeResult != null && codeResult.IsValid;
 
-				// Проверка разрешительного режима, валидности и остаточного срока годности (с учетом nullable/default даты)
-				var canSell = CanSellByTag1260(codeInfo);
-
-				if(canSell)
+				if(isValid)
 				{
 					_logger.LogInformation(
-						"Код маркировки для позиции {PosName} прошел проверку тега 1260 и разрешительного режима (валиден)",
+						"Код маркировки для позиции {PosName} прошел проверку в Честном Знаке (валиден)",
 						pos.Name);
 
 					if(isProductCode && productCode.ResultCode == null)
@@ -476,7 +441,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 					if(!isProductCode)
 					{
 						throw new InvalidOperationException(
-							$"Групповой код маркировки для позиции \"{pos.Name}\" не прошел проверку разрешительного режима (ErrorCode={codeInfo?.ErrorCode}). Автозамена групповых кодов не поддерживается, требуется ручная обработка фин.отделом.");
+							$"Групповой код маркировки для позиции \"{pos.Name}\" не прошел проверку в Честном Знаке. Автозамена групповых кодов не поддерживается, требуется ручная обработка фин.отделом.");
 					}
 
 					positionsNeedingNewCodes.Add(new PositionCodeReplacementContext
@@ -492,8 +457,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 				return 0;
 			}
 
-			var regulatoryDocument = GetRegulatoryDocument();
-
 			var reasonForLeaving = receiptEdoTask.FormalEdoRequest?.Order?.Client?.ReasonForLeaving;
 			var canReplaceCodes = reasonForLeaving != ReasonForLeaving.Resale && reasonForLeaving != ReasonForLeaving.Tender;
 
@@ -501,125 +464,41 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			{
 				throw new InvalidOperationException(
 					$"Для причины выбытия \"{reasonForLeaving}\" автозамена кодов маркировки из пула запрещена. " +
-					$"Позиции чека ({positionsNeedingNewCodes.Count} шт.) не прошли проверку разрешительного режима в Честном Знаке. " +
+					$"Позиции чека ({positionsNeedingNewCodes.Count} шт.) не прошли проверку в Честном Знаке. " +
 					"Требуется ручной разбор фин. отделом / складом.");
 			}
 
-			// Цикл подбора кодов из пула с валидацией по тегу 1260 и разрешительному режиму в ЧЗ (до 5 попыток)
-			const int maxAttempts = 5;
-			var positionsRemaining = new List<PositionCodeReplacementContext>(positionsNeedingNewCodes);
-
-			for(var attempt = 1; attempt <= maxAttempts && positionsRemaining.Count > 0; attempt++)
+			foreach(var item in positionsNeedingNewCodes)
 			{
-				// Подбираем код из пула для каждой позиции, еще не прошедшей проверку
-				foreach(var item in positionsRemaining)
-				{
-					var gtin = item.ProductCode.ResultCode?.Gtin ?? item.ProductCode.SourceCode?.Gtin;
+				var gtin = item.ProductCode.ResultCode?.Gtin ?? item.ProductCode.SourceCode?.Gtin;
 
-					_logger.LogInformation(
-						"Подбор кода из пула для позиции \"{PosName}\" (GTIN: {GTIN}, попытка {Attempt} из {MaxAttempts})",
-						item.Position.Name, gtin, attempt, maxAttempts);
+				_logger.LogInformation(
+					"Подбор кода из пула для позиции \"{PosName}\" (GTIN: {GTIN})",
+					item.Position.Name, gtin);
 
-					var gtinEntity = await _edoRepository.GetGtinByGtinNumberAsync(gtin, cancellationToken)
-						?? new GtinEntity { GtinNumber = gtin };
+				var gtinEntity = await _edoRepository.GetGtinByGtinNumberAsync(gtin, cancellationToken)
+					?? new GtinEntity { GtinNumber = gtin };
 
-					var newCode = await _trueMarkCodesPoolCodeProvider.TakeValidCodeAsync(
-						CodesPool,
-						gtinEntity,
-						organizationInn,
-						cancellationToken,
-						addingTimeNotAfter: docCreationTime);
+				var newCode = await _trueMarkCodesPoolCodeProvider.TakeValidCodeAsync(
+					CodesPool,
+					gtinEntity,
+					organizationInn,
+					cancellationToken,
+					addingTimeNotAfter: docCreationTime);
 
-					item.NewCode = newCode;
-				}
-
-				// Пакетная проверка кандидатов из пула по тегу 1260 в Честном Знаке
-				var candidatesToCheck = positionsRemaining
-					.Select(x => x.NewCode.FormatForCheck1260)
-					.Distinct()
-					.ToList();
-
-				var tag1260Result = await _tag1260Checker.CheckCodesForTag1260Async(
-					candidatesToCheck,
-					cashBoxToken.Value,
-					cancellationToken);
-
-				if(tag1260Result == null || tag1260Result.Code != 0)
-				{
-					throw new InvalidOperationException(
-						$"Честный Знак вернул ошибку при проверке тега 1260 для кодов из пула: Code={tag1260Result?.Code}, Description={tag1260Result?.Description}");
-				}
-
-				var positionsToRetry = new List<PositionCodeReplacementContext>();
-
-				foreach(var item in positionsRemaining)
-				{
-					var cis = item.NewCode.FormatForCheck1260;
-					var codeInfo = tag1260Result.Codes?.FirstOrDefault(c => c.Cis == cis);
-
-					if(CanSellByTag1260(codeInfo))
-					{
-						_logger.LogInformation(
-							"Код из пула {NewCodeId} для позиции {PosName} успешно прошел проверку разрешительного режима (попытка {Attempt})",
-							item.NewCode.Id, item.Position.Name, attempt);
-
-						item.ProductCode.ResultCode = item.NewCode;
-						item.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
-						await _unitOfWork.SaveAsync(item.ProductCode, cancellationToken: cancellationToken);
-
-						item.Position.IndustryRequisiteData = $"UUID={tag1260Result.ReqId}&Time={NormalizeReqTimestamp(tag1260Result.ReqTimestamp)}";
-						item.Position.RegulatoryDocument = regulatoryDocument;
-						await _unitOfWork.SaveAsync(item.Position, cancellationToken: cancellationToken);
-					}
-					else
-					{
-						_logger.LogWarning(
-							"Код из пула {NewCodeId} ({Cis}) для позиции \"{PosName}\" не прошел проверку разрешительного режима ЧЗ (ErrorCode: {ErrorCode}, Realizable: {Realizable}, Sold: {Sold}, Blocked: {Blocked}). Попытка {Attempt} из {MaxAttempts}",
-							item.NewCode.Id, cis, item.Position.Name, codeInfo?.ErrorCode, codeInfo?.Realizable, codeInfo?.Sold, codeInfo?.IsBlocked, attempt, maxAttempts);
-
-						positionsToRetry.Add(item);
-					}
-				}
-
-				positionsRemaining = positionsToRetry;
-			}
-
-			if(positionsRemaining.Count > 0)
-			{
-				throw new EdoCodePoolMissingCodeException(
-					$"Не удалось подобрать из пула коды, проходящие проверку тега 1260 в Честном Знаке за {maxAttempts} попыток (не прошли {positionsRemaining.Count} поз.)");
+				item.ProductCode.ResultCode = newCode;
+				item.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
+				await _unitOfWork.SaveAsync(item.ProductCode, cancellationToken: cancellationToken);
 			}
 
 			return positionsNeedingNewCodes.Count;
 		}
 
-		private FiscalIndustryRequisiteRegulatoryDocument GetRegulatoryDocument()
-		{
-			if(_regulatoryDocument != null)
-			{
-				return _regulatoryDocument;
-			}
-
-			var regDocId = _edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId;
-			if(regDocId <= 0)
-			{
-				throw new InvalidOperationException("Не указан Id регуляторного документа в настройках IndustryRequisiteRegulatoryDocumentId");
-			}
-
-			_regulatoryDocument = _unitOfWork.GetById<FiscalIndustryRequisiteRegulatoryDocument>(regDocId);
-			if(_regulatoryDocument == null)
-			{
-				throw new InvalidOperationException($"Не найден регуляторный документ (Id: {regDocId}) для формирования реквизита 1260");
-			}
-
-			return _regulatoryDocument;
-		}
-
-		private static string GetPositionCis(FiscalInventPosition pos)
+		private static string GetPositionIdentificationCode(FiscalInventPosition pos)
 		{
 			return pos.EdoTaskItem?.ProductCode != null
-				? (pos.EdoTaskItem.ProductCode.ResultCode ?? pos.EdoTaskItem.ProductCode.SourceCode)?.FormatForCheck1260
-				: pos.GroupCode?.FormatForCheck1260;
+				? (pos.EdoTaskItem.ProductCode.ResultCode ?? pos.EdoTaskItem.ProductCode.SourceCode)?.IdentificationCode
+				: pos.GroupCode?.IdentificationCode;
 		}
 
 		private async Task CompleteReceiptAsync(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
@@ -721,7 +600,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 
 		private async Task RollbackTransactionSafelyAsync(CancellationToken cancellationToken)
 		{
-			_regulatoryDocument = null;
 			try
 			{
 				var tx = _unitOfWork.Session?.GetCurrentTransaction();
@@ -791,17 +669,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 		private static readonly Regex _nonTransientHttpErrorRegex =
 			new Regex(@"\b(400|401|403|404|BadRequest|Unauthorized|Forbidden|NotFound)\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-		private static long NormalizeReqTimestamp(long timestamp)
-		{
-			// Если timestamp передан в миллисекундах (13 цифр, > 100_000_000_000), переводим в секунды (10 цифр)
-			if(timestamp > 100_000_000_000L)
-			{
-				return timestamp / 1000;
-			}
-
-			return timestamp;
-		}
-
 		private static bool IsDocumentNotFound(string message)
 		{
 			if(string.IsNullOrWhiteSpace(message))
@@ -819,13 +686,7 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 				return false;
 			}
 
-			if(ex is Tag1260ApiException apiEx)
-			{
-				return apiEx.IsTransient;
-			}
-
-			if(ex is Tag1260CdnUnavailableException
-				|| ex is TimeoutException
+			if(ex is TimeoutException
 				|| ex is TaskCanceledException
 				|| ex is System.Net.Sockets.SocketException
 				|| ex is System.IO.IOException)
@@ -855,24 +716,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 			}
 
 			return false;
-		}
-
-		/// <summary>
-		/// Проверяет, допускается ли код маркировки к розничной продаже по разрешительному режиму (тег 1260)
-		/// </summary>
-		private bool CanSellByTag1260(TrueMark.Contracts.CodeCheckInfo codeInfo)
-		{
-			var isNotExpired = codeInfo != null && (codeInfo.ExpireDate == default || codeInfo.ExpireDate > DateTime.Now);
-			return codeInfo != null
-				&& codeInfo.ErrorCode == 0
-				&& codeInfo.Found
-				&& codeInfo.Valid
-				&& codeInfo.Verified
-				&& isNotExpired
-				&& codeInfo.Realizable
-				&& codeInfo.Utilised
-				&& !codeInfo.IsBlocked
-				&& !codeInfo.Sold;
 		}
 	}
 }
