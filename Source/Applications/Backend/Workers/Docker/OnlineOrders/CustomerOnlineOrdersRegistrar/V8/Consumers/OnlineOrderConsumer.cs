@@ -38,6 +38,7 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 		private readonly IRouteListService _routeListService;
 		private readonly IOnlineOrderValidatorCreator _onlineOrderValidatorCreator;
 		private readonly IMindboxAuthorizedLoyaltyOrderService _mindboxLoyaltyOrderService;
+		private readonly IMindboxOnlineOrderEnqueuer _mindboxOnlineOrderEnqueuer;
 		private readonly IMindboxSettings _mindboxSettings;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
@@ -57,6 +58,7 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 			IRouteListService routeListService,
 			IOnlineOrderValidatorCreator onlineOrderValidatorCreator,
 			IMindboxAuthorizedLoyaltyOrderService mindboxLoyaltyOrderService,
+			IMindboxOnlineOrderEnqueuer mindboxOnlineOrderEnqueuer,
 			IMindboxSettings mindboxSettings,
 			INomenclatureSettings nomenclatureSettings
 			)
@@ -72,6 +74,7 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_onlineOrderValidatorCreator = onlineOrderValidatorCreator ?? throw new ArgumentNullException(nameof(onlineOrderValidatorCreator));
 			_mindboxLoyaltyOrderService = mindboxLoyaltyOrderService ?? throw new ArgumentNullException(nameof(mindboxLoyaltyOrderService));
+			_mindboxOnlineOrderEnqueuer = mindboxOnlineOrderEnqueuer ?? throw new ArgumentNullException(nameof(mindboxOnlineOrderEnqueuer));
 			_mindboxSettings = mindboxSettings ?? throw new ArgumentNullException(nameof(mindboxSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}		
@@ -193,6 +196,20 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 
 				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
+			}
+			else if(CanApplyBonuses(uow, message))
+			{
+				await _mindboxOnlineOrderEnqueuer.EnqueueAsync(
+					uow,
+					onlineOrder,
+					DateTime.UtcNow,
+					cancellationToken);
+
+				await uow.CommitAsync(cancellationToken);
+
+				Logger.LogInformation(
+					"Онлайн-заказ {OnlineOrderId} без списания бонусов поставлен в очередь Mindbox",
+					onlineOrder.Id);
 			}
 
 			if(validationResult.IsFailure)

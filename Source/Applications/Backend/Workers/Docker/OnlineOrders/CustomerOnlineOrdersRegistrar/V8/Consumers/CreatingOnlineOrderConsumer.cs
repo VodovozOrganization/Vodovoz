@@ -30,6 +30,7 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 			IRouteListService routeListService,
 			IOnlineOrderValidatorCreator onlineOrderValidatorCreator,
 			IMindboxAuthorizedLoyaltyOrderService mindboxLoyaltyOrderService,
+			IMindboxOnlineOrderEnqueuer mindboxOnlineOrderEnqueuer,
 			IMindboxSettings mindboxSettings,
 			INomenclatureSettings nomenclatureSettings)
 			: base(
@@ -43,6 +44,7 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 				routeListService,
 				onlineOrderValidatorCreator,
 				mindboxLoyaltyOrderService,
+				mindboxOnlineOrderEnqueuer,
 				mindboxSettings,
 				nomenclatureSettings)
 		{
