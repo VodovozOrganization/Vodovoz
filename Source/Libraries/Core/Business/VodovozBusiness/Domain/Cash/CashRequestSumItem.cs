@@ -22,6 +22,7 @@ namespace Vodovoz.Domain.Cash
 		private IList<Expense> _expenses;
 		private GenericObservableList<Expense> _observableExpenses;
 		private Employee _accountableEmployee;
+		private Subdivision _cfzSubdivision;
 
 		public virtual int Id { get; }
 
@@ -30,6 +31,16 @@ namespace Vodovoz.Domain.Cash
 		{
 			get => _cashRequest;
 			set => SetField(ref _cashRequest, value);
+		}
+
+		/// <summary>
+		/// ЦФЗ - центр финансовых затрат, подразделение, на которое относится затрата
+		/// </summary>
+		[Display(Name = "ЦФЗ")]
+		public virtual Subdivision CfzSubdivision
+		{
+			get => _cfzSubdivision;
+			set => SetField(ref _cfzSubdivision, value);
 		}
 
 		[Display(Name = "Комментарий")]

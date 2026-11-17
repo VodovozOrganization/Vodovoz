@@ -40,6 +40,8 @@ namespace Vodovoz.Domain.Cash
 		private DateTime _date;
 		private DateTime _ddrDate;
 		private Subdivision _relatedToSubdivision;
+		private Subdivision _cfoSubdivision;
+		private Subdivision _cfzSubdivision;
 		private ExpenseInvoiceDocumentType _typeDocument;
 		private ExpenseType _typeOperation;
 		private Employee _casher;
@@ -89,6 +91,26 @@ namespace Vodovoz.Domain.Cash
 		{
 			get => _relatedToSubdivision;
 			set => SetField(ref _relatedToSubdivision, value);
+		}
+
+		/// <summary>
+		/// ЦФО - центр финансовой ответственности, подразделение, отвечающее за расход
+		/// </summary>
+		[Display(Name = "ЦФО")]
+		public virtual Subdivision CfoSubdivision
+		{
+			get => _cfoSubdivision;
+			set => SetField(ref _cfoSubdivision, value);
+		}
+
+		/// <summary>
+		/// ЦФЗ - центр финансовых затрат, подразделение, на которое относится затрата
+		/// </summary>
+		[Display(Name = "ЦФЗ")]
+		public virtual Subdivision CfzSubdivision
+		{
+			get => _cfzSubdivision;
+			set => SetField(ref _cfzSubdivision, value);
 		}
 
 		[Display(Name = "Тип документа")]
