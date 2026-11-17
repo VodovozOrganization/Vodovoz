@@ -435,7 +435,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		
 		private void SetPermissions()
 		{
-			_permissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DiscountReason));
+			_permissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DiscountReasonBase));
 			CanEditPromoCode = _commonServices.CurrentPermissionService.ValidatePresetPermission(
 				Vodovoz.Permissions.DiscountReasonPermissions.CanEditPromoCode)
 				&& CanEditDiscountReason;
