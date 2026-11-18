@@ -24,7 +24,6 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
 using TrueMark.Codes.Pool;
 using Edo.Receipt.Sender;
-using TrueMark.Library;
 using Vodovoz.Core.Domain.Rules.Edo;
 
 namespace Edo.Problem.Routine
@@ -153,7 +152,6 @@ namespace Edo.Problem.Routine
 			services.AddModulKassa();
 			services.AddHttpClient();
 			services.TryAddScoped<FiscalDocumentFactory>();
-			services.TryAddScoped<Tag1260Checker>();
 			services.TryAddScoped<CanProcessOrSendEdoByClosingAccountingDate>();
 			services.TryAddSingleton<IReceiptReprocessingLockCoordinator, ReceiptReprocessingLockCoordinator>();
 

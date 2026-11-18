@@ -105,7 +105,6 @@ namespace Vodovoz.Models.CashReceipts
 					var inventPosition = CreateInventPosition(orderItem);
 					var code = orderItemsCodes.First().ResultCode;
 					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
-					CreateIndustryRequisite(inventPosition, code);
 
 					fiscalDocument.InventPositions.Add(inventPosition);
 					continue;
@@ -132,7 +131,6 @@ namespace Vodovoz.Models.CashReceipts
 					inventPosition.Quantity = 1;
 					var code = orderItemsCodes[i - 1].ResultCode;
 					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
-					CreateIndustryRequisite(inventPosition, code);
 					fiscalDocument.InventPositions.Add(inventPosition);
 				}
 
@@ -150,7 +148,6 @@ namespace Vodovoz.Models.CashReceipts
 				lastInventPosition.DiscSum = residueDiscount;
 				var lastCode = orderItemCode.ResultCode;
 				lastInventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(lastCode);
-				CreateIndustryRequisite(lastInventPosition, lastCode);
 				fiscalDocument.InventPositions.Add(lastInventPosition);
 			}
 		}
@@ -210,7 +207,6 @@ namespace Vodovoz.Models.CashReceipts
 					var code = TryGetCodeFromScannedCodes(orderItemsCodes, orderItem);
 					var inventPosition = CreateInventPosition(orderItem);
 					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
-					CreateIndustryRequisite(inventPosition, code);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += orderItem.Sum;
 					unprocessedCodesCount -= 1;
@@ -240,7 +236,6 @@ namespace Vodovoz.Models.CashReceipts
 					inventPosition.DiscSum = discount;
 					var code = TryGetCodeFromScannedCodes(orderItemsCodes, orderItem);
 					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
-					CreateIndustryRequisite(inventPosition, code);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += inventPosition.PriceWithoutDiscount - discount;
 					unprocessedCodesCount -= 1;
@@ -255,11 +250,6 @@ namespace Vodovoz.Models.CashReceipts
 				if(string.IsNullOrWhiteSpace(productCode.ResultCode.RawCode))
 				{
 					throw new TrueMarkException(_notValidRawCode);
-				}
-				
-				if(!productCode.ResultCode.IsTag1260Valid)
-				{
-					throw new TrueMarkException("В чеке содержатся коды, не прошедшие разрешительный режим(тэг 1260)");
 				}
 			}
 		}
@@ -290,14 +280,6 @@ namespace Vodovoz.Models.CashReceipts
 
 			SetVatProperties(orderItem, inventPosition);
 			return inventPosition;
-		}
-
-		private void CreateIndustryRequisite(InventPosition inventPosition, TrueMarkWaterIdentificationCode code)
-		{
-			inventPosition.IndustryRequisite = new IndustryRequisite
-			{
-				DocData = $"UUID={code.Tag1260CodeCheckResult.ReqId}&Time={code.Tag1260CodeCheckResult.ReqTimestamp}"
-			};
 		}
 
 		private void SetVatProperties(OrderItem orderItem, InventPosition inventPosition)

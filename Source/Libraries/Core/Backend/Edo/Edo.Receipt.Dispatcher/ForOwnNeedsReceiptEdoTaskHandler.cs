@@ -17,7 +17,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
-using TrueMark.Library;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
@@ -43,7 +42,6 @@ namespace Edo.Receipt.Dispatcher
 		private readonly ITrueMarkCodesValidator _localCodesValidator;
 		private readonly ReceiptTrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ITrueMarkCodesPoolCodeProvider _trueMarkCodesPoolCodeProvider;
-		private readonly Tag1260Checker _tag1260Checker;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly IEdoOrderContactProvider _edoOrderContactProvider;
@@ -57,8 +55,6 @@ namespace Edo.Receipt.Dispatcher
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly int _maxCodesInReceipt;
 
-		private int _prepareReceiptAttempts = 3;
-
 		public ForOwnNeedsReceiptEdoTaskHandler(
 			ILogger<ForOwnNeedsReceiptEdoTaskHandler> logger,
 			IUnitOfWork uow,
@@ -71,7 +67,6 @@ namespace Edo.Receipt.Dispatcher
 			ITrueMarkCodesValidator localCodesValidator,
 			ReceiptTrueMarkCodesPool trueMarkCodesPool,
 			ITrueMarkCodesPoolCodeProvider trueMarkCodesPoolCodeProvider,
-			Tag1260Checker tag1260Checker,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			IEdoOrderContactProvider edoOrderContactProvider,
@@ -92,7 +87,6 @@ namespace Edo.Receipt.Dispatcher
 			_localCodesValidator = localCodesValidator ?? throw new ArgumentNullException(nameof(localCodesValidator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_trueMarkCodesPoolCodeProvider = trueMarkCodesPoolCodeProvider ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCodeProvider));
-			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
 			_productCodeRepository = productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
 			_edoOrderContactProvider = edoOrderContactProvider ?? throw new ArgumentNullException(nameof(edoOrderContactProvider));
 			_saveCodesService = saveCodesService ?? throw new ArgumentNullException(nameof(saveCodesService));
@@ -116,18 +110,14 @@ namespace Edo.Receipt.Dispatcher
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.FormalEdoRequest.Id)
 				.ListAsync();
 
 			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
 				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoTask.Id == receiptEdoTask.Id)
 				.ListAsync(cancellationToken);
 
@@ -225,18 +215,14 @@ namespace Edo.Receipt.Dispatcher
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.FormalEdoRequest.Id)
 				.ListAsync();
 
 			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
 				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoTask.Id == receiptEdoTask.Id)
 				.ListAsync(cancellationToken);
 
@@ -278,10 +264,10 @@ namespace Edo.Receipt.Dispatcher
 			{
 				if(x.EdoTaskItem != null)
 				{
-					return x.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260;
+					return x.EdoTaskItem.ProductCode.ResultCode.CashReceiptCode;
 				}
 
-				return x.GroupCode.FormatForCheck1260;
+				return x.GroupCode.CashReceiptCode;
 			});
 
 			var hasDuplicateInventPositions = groupedByCode.Any(x => x.Count() > 1);
@@ -320,24 +306,6 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
-			// итоговая валидация и получение разрешительного режима
-			var industryRequisitePrepareResult = await PrepareIndustryRequisite(receiptEdoTask, cancellationToken);
-			switch(industryRequisitePrepareResult)
-			{
-				case IndustryRequisitePrepareResult.Succeeded:
-					// Ничего не делаем, продолжаем
-					break;
-				case IndustryRequisitePrepareResult.NeedToChange:
-					await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
-					return;
-				case IndustryRequisitePrepareResult.Problem:
-					return;
-				default:
-					throw new NotSupportedException($"Неизвестный результат подготовки разрешительного " +
-						$"режима: {industryRequisitePrepareResult}");
-			}
-
-			// перевод в отправку
 			receiptEdoTask.Status = EdoTaskStatus.InProgress;
 			receiptEdoTask.ReceiptStatus = EdoReceiptStatus.Sending;
 			receiptEdoTask.StartTime = DateTime.Now;
@@ -459,22 +427,6 @@ namespace Edo.Receipt.Dispatcher
 					return;
 				}
 
-				// итоговая валидация и получение разрешительного режима
-				var industryRequisitePrepareResult = await PrepareIndustryRequisite(receiptEdoTask, cancellationToken);
-				switch(industryRequisitePrepareResult)
-				{
-					case IndustryRequisitePrepareResult.Succeeded:
-						// Ничего не делаем, продолжаем
-						break;
-					case IndustryRequisitePrepareResult.NeedToChange:
-						isValid = false;
-						continue;
-					case IndustryRequisitePrepareResult.Problem:
-						return;
-					default:
-						throw new NotSupportedException($"Неизвестный результат подготовки разрешительного " +
-							$"режима: {industryRequisitePrepareResult}");
-				}
 
 				if(attempts == 0)
 				{
@@ -1285,112 +1237,6 @@ namespace Edo.Receipt.Dispatcher
 			return receiptEdoTask.FormalEdoRequest.Order.Contract.Organization.INN;
 		}
 
-		private enum IndustryRequisitePrepareResult
-		{
-			Succeeded,
-			NeedToChange,
-			Problem
-		}
-
-		private async Task<IndustryRequisitePrepareResult> PrepareIndustryRequisite(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
-		{
-			var seller = receiptEdoTask.FormalEdoRequest.Order.Contract.Organization;
-			var cashBoxToken = seller.CashBoxTokenFromTrueMark;
-			var regulatoryDocument =
-				_uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
-
-			bool isValid = true;
-
-			foreach(var fiscalDocument in receiptEdoTask.FiscalDocuments)
-			{
-				var codesToCheck1260 = fiscalDocument.InventPositions
-					.Where(x => x.EdoTaskItem?.ProductCode != null || x.GroupCode != null)
-					.ToDictionary(x =>
-					{
-						if(x.EdoTaskItem != null)
-						{
-							return x.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260;
-						}
-						
-						return x.GroupCode.FormatForCheck1260;
-					});
-
-				if(!codesToCheck1260.Any())
-				{
-					continue;
-				}
-
-				if(cashBoxToken == null)
-				{
-					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
-						receiptEdoTask,
-						cancellationToken,
-						$"Отсутствует токен для организации Id {seller.Id}");
-					return IndustryRequisitePrepareResult.Problem;
-				}
-
-				if(regulatoryDocument == null)
-				{
-					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
-						receiptEdoTask,
-						cancellationToken);
-					return IndustryRequisitePrepareResult.Problem;
-				}
-
-				var result = await _tag1260Checker.CheckCodesForTag1260Async(
-					codesToCheck1260.Keys, 
-					cashBoxToken.Value, 
-					cancellationToken
-				);
-
-				if(result.Code != 0)
-				{
-					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteCheckApiError>(
-						receiptEdoTask,
-						cancellationToken,
-						$"Код ошибки: {result.Code}, сообщение: {result.Description}");
-					return IndustryRequisitePrepareResult.Problem;
-				}
-
-				var invalidCodes = result.Codes.Where(codeResult =>
-				{
-					var canSell = codeResult.ErrorCode == 0
-						&& codeResult.Found
-						&& codeResult.Valid
-						&& codeResult.Verified
-						&& codeResult.ExpireDate > DateTime.Now
-						&& codeResult.Realizable
-						&& codeResult.Utilised
-						&& !codeResult.IsBlocked
-						&& !codeResult.Sold;
-					return !canSell;
-				});
-
-				if(invalidCodes.Any())
-				{
-					isValid = false;
-					continue;
-				}
-
-				foreach(var codeResult in result.Codes)
-				{
-					var inventPosition = codesToCheck1260[codeResult.Cis];
-					inventPosition.IndustryRequisiteData = $"UUID={result.ReqId}&Time={result.ReqTimestamp}";
-					inventPosition.RegulatoryDocument = regulatoryDocument;
-					await _uow.SaveAsync(inventPosition, cancellationToken: cancellationToken);
-				}
-			}
-
-			if(isValid)
-			{
-				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteMissingOrganizationToken>(receiptEdoTask);
-				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(receiptEdoTask);
-				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteCheckApiError>(receiptEdoTask);
-				return IndustryRequisitePrepareResult.Succeeded;
-			}
-
-			return IndustryRequisitePrepareResult.NeedToChange;
-		}
 
 		private EdoFiscalDocument PrepareFiscalDocument(ReceiptEdoTask receiptEdoTask, int documentIndex)
 		{

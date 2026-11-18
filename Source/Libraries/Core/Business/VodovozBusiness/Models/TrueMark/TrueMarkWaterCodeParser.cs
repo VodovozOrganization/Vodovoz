@@ -214,12 +214,6 @@ namespace Vodovoz.Models.TrueMark
 			return $"01{trueMarkWaterCode.Gtin}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
 		}
 
-		[Obsolete("Используйте свойство Tag1260Code в коде")]
-		public string GetProductCodeForTag1260(ITrueMarkWaterCode trueMarkWaterCode)
-		{			
-			return $"01{trueMarkWaterCode.Gtin}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
-		}
-
 		public TrueMarkWaterCode ParseCodeFrom1c(string code)
 		{
 			var cleanCode = code

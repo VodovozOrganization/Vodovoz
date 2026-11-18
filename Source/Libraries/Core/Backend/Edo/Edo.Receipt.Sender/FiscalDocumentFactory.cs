@@ -94,22 +94,11 @@ namespace Edo.Receipt.Sender
 
 			if(fiscalInventPosition.EdoTaskItem != null)
 			{
-				inventPosition.ProductMark = fiscalInventPosition.EdoTaskItem.ProductCode.ResultCode.FormatForCheck1260;
+				inventPosition.ProductMark = fiscalInventPosition.EdoTaskItem.ProductCode.ResultCode.CashReceiptCode;
 			}
 			else if(fiscalInventPosition.GroupCode != null)
 			{
-				inventPosition.ProductMark = fiscalInventPosition.GroupCode.FormatForCheck1260;
-			}
-
-			if(!inventPosition.ProductMark.IsNullOrWhiteSpace())
-			{
-				inventPosition.IndustryRequisite = new IndustryRequisite
-				{
-					FoivId = fiscalInventPosition.RegulatoryDocument.FoivId,
-					DocNumber = fiscalInventPosition.RegulatoryDocument.DocNumber,
-					DocDateTime = fiscalInventPosition.RegulatoryDocument.DocDateTime,
-					DocData = fiscalInventPosition.IndustryRequisiteData
-				};
+				inventPosition.ProductMark = fiscalInventPosition.GroupCode.CashReceiptCode;
 			}
 
 			return inventPosition;

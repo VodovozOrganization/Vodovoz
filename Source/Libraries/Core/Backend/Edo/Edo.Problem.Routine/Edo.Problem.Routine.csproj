@@ -18,7 +18,6 @@
     <ProjectReference Include="..\..\Infrastructure\MessageTransport\MessageTransport.csproj" />
     <ProjectReference Include="..\..\ModulKassa\ModulKassa.csproj" />
     <ProjectReference Include="..\..\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj" />
-    <ProjectReference Include="..\..\TrueMark\TrueMark.Codes\TrueMark.Codes.csproj" />
     <ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
     <ProjectReference Include="..\Edo.Contracts\Edo.Contracts.csproj" />
     <ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
