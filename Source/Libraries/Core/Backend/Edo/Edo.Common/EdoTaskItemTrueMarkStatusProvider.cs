@@ -27,7 +27,21 @@ namespace Edo.Common
 
 		public void ClearCache()
 		{
-			_codeItems = GetCodeItems();
+			UseItems(GetCodeItems());
+		}
+
+		public void UseItems(IEnumerable<EdoTaskItem> items)
+		{
+			if(items == null)
+			{
+				throw new ArgumentNullException(nameof(items));
+			}
+
+			_codeItems = items
+				.Where(x => x?.ProductCode != null)
+				.GroupBy(x => x.Id)
+				.Select(x => x.First())
+				.ToList();
 
 			_codesStatuses = _codeItems.SelectMany(AggregateAllTaskItemCodes)
 				.GroupBy(x => x.Key)

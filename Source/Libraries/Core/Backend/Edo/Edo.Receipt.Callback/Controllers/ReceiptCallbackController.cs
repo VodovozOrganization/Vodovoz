@@ -11,6 +11,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Receipts;
 using FiscalDocumentStatus = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus;
 
 namespace Edo.Receipt.Callback.Controllers
@@ -72,7 +73,8 @@ namespace Edo.Receipt.Callback.Controllers
 				return;
 			}
 
-			if(document.Status == FiscalDocumentStatus.Completed)
+			if(document.Status == FiscalDocumentStatus.Completed
+				|| document.Status == FiscalDocumentStatus.Printed)
 			{
 				_logger.LogWarning("Чек с GUID {receiptGuid} уже завершен.", receiptGuid);
 				HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
@@ -99,13 +101,16 @@ namespace Edo.Receipt.Callback.Controllers
 
 			await _uow.SaveAsync(document, cancellationToken: cancellationToken);
 
-			if(document.Status is FiscalDocumentStatus.Completed or FiscalDocumentStatus.Printed
+			var isCorrectionDocument = IsCorrectionFiscalDocument(_uow, document);
+
+			if(!isCorrectionDocument
+				&& document.Status is FiscalDocumentStatus.Completed or FiscalDocumentStatus.Printed
 				&& document.Stage == FiscalDocumentStage.Completed)
 			{
 				await _publishEndpoint.Publish(
 					new ReceiptCompleteEvent
 					{
-						ReceiptEdoTaskId =  document.ReceiptEdoTask.Id
+						ReceiptEdoTaskId = document.ReceiptEdoTask.Id
 					},
 					cancellationToken);
 			}
@@ -113,6 +118,27 @@ namespace Edo.Receipt.Callback.Controllers
 			await _uow.CommitAsync(cancellationToken);
 
 			HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+		}
+
+		private static bool IsCorrectionFiscalDocument(IUnitOfWork uow, EdoFiscalDocument document)
+		{
+			if(document == null)
+			{
+				return false;
+			}
+
+			var processDocument = uow.Session.QueryOver<ReceiptCorrectionProcessDocument>()
+				.Where(x => x.DocumentGuid == document.DocumentGuid)
+				.SingleOrDefault();
+
+			if(processDocument == null)
+			{
+				processDocument = uow.Session.QueryOver<ReceiptCorrectionProcessDocument>()
+					.Where(x => x.EdoFiscalDocumentId == document.Id)
+					.SingleOrDefault();
+			}
+
+			return processDocument != null;
 		}
 
 		private async Task<bool> TryUpdateReceiptInfoFromCashbox(EdoFiscalDocument document, CancellationToken cancellationToken)

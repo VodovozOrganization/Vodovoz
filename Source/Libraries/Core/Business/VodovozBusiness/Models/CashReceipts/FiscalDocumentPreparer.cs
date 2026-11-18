@@ -44,9 +44,10 @@ namespace Vodovoz.Models.CashReceipts
 				CashierName = cashier
 			};
 
-			if(order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
+			if(order.Client.ReasonForLeaving == ReasonForLeaving.Resale
+				&& !string.IsNullOrWhiteSpace(order.Client.INN))
 			{
-				fiscalDocument.ClientINN = order.Client.INN;
+				fiscalDocument.ClientINN = order.Client.INN.Trim();
 			}
 
 			var countMarkedNomenclaturesWithPositiveSum =

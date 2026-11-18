@@ -66,6 +66,7 @@ using VodovozBusiness.Domain.Sale;
 using VodovozBusiness.Domain.Orders.Delivery;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Receipts;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
 
 namespace Vodovoz.Domain.Orders
@@ -1158,15 +1159,6 @@ namespace Vodovoz.Domain.Orders
 						new[] { nameof(OrderItems) });
 				}
 			}
-
-			#region Отмена заказа с кодами маркировки
-
-			if(isCancellingOrder && hasReceipts)
-			{
-				yield return new ValidationResult($"По данному заказу уже оформлен и отправлен чек клиенту и отменить его нельзя");
-			}
-
-			#endregion Отмена заказа с кодами маркировки
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
@@ -2848,18 +2840,26 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 			UpdateBottleMovementOperation(uow, nomenclatureSettings, 0);
+			TryStartReceiptCorrection(uow);
 		}
 
 		public virtual void CancelDelivery(IUnitOfWork uow, IOrderSaleHandler saleHandler, ICallTaskWorker callTaskWorker)
 		{
 			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
 			ChangeStatusAndCreateTasks(saleHandler, OrderStatus.DeliveryCanceled, callTaskWorker);
+			TryStartReceiptCorrection(uow);
 		}
 
 		public virtual void OverdueDelivery(IUnitOfWork uow, IOrderSaleHandler saleHandler, ICallTaskWorker callTaskWorker)
 		{
 			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
 			ChangeStatusAndCreateTasks(saleHandler, OrderStatus.NotDelivered, callTaskWorker);
+			TryStartReceiptCorrection(uow);
+		}
+
+		private void TryStartReceiptCorrection(IUnitOfWork uow)
+		{
+			ScopeProvider.Scope.Resolve<IOrderReceiptCorrectionHandler>().TryStartCorrectionProcess(uow, this);
 		}
 
 		public virtual void ChangeStatusAndCreateTasks(IOrderSaleHandler saleHandler, OrderStatus newStatus, ICallTaskWorker callTaskWorker)
