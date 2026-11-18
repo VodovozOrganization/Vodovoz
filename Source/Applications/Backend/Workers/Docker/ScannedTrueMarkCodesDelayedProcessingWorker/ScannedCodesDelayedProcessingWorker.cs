@@ -32,6 +32,25 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
+			try
+			{
+				await ProcessScannedCodesInScopeAsync(stoppingToken);
+			}
+			catch(OperationCanceledException) when(stoppingToken.IsCancellationRequested)
+			{
+				_logger.LogInformation("Обработка сохраненных водителями кодов ЧЗ прервана остановкой воркера");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка итерации обработки сохраненных водителями кодов ЧЗ, повтор через {Interval}",
+					Interval);
+			}
+		}
+
+		private async Task ProcessScannedCodesInScopeAsync(CancellationToken stoppingToken)
+		{
 			using(var scope = _serviceScopeFactory.CreateScope())
 			{
 				var zabbixSender = scope.ServiceProvider.GetService<IZabbixSender>();
@@ -42,6 +61,11 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 				try
 				{
 					await scannedCodesDelayedProcessingService.ProcessScannedCodesAsync(stoppingToken);
+				}
+				catch(OperationCanceledException) when(stoppingToken.IsCancellationRequested)
+				{
+					_logger.LogInformation("Обработка сохраненных водителями кодов ЧЗ прервана остановкой воркера");
+					return;
 				}
 				catch(Exception ex)
 				{
