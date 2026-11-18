@@ -93,18 +93,14 @@ namespace Edo.Documents
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == edoTask.FormalEdoRequest.Id)
 				.ListAsync(cancellationToken);
 
 			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
 				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoTask.Id == edoTask.Id)
 				.ListAsync(cancellationToken);
 
@@ -306,9 +302,7 @@ namespace Edo.Documents
 
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == edoTask.FormalEdoRequest.Id)
 				.ListAsync();
 

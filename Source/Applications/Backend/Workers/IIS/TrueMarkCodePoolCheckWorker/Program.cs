@@ -14,7 +14,6 @@ using QS.Project.HibernateMapping;
 using System;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
-using TrueMark.Library;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
@@ -106,15 +105,6 @@ namespace TrueMarkCodePoolCheckWorker
 			builder.RegisterInstance(ErrorReporter.Instance)
 				.As<IErrorReporter>()
 				.SingleInstance();
-
-			builder.RegisterType<Tag1260Checker>()
-				.AsSelf();
-			
-			builder.RegisterType<Tag1260Saver>()
-				.AsSelf();
-			
-			builder.RegisterType<Tag1260Updater>()
-				.AsSelf();
 		}
 	}
 }

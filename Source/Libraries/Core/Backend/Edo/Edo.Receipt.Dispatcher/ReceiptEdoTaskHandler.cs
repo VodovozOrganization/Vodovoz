@@ -148,9 +148,7 @@ namespace Edo.Receipt.Dispatcher
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == edoTask.FormalEdoRequest.Id)
 				.ListAsync();
 

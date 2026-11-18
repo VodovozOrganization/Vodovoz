@@ -23,7 +23,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
-using TrueMark.Library;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Data.Repositories.Goods;
@@ -1089,7 +1088,6 @@ namespace Receipt.Dispatcher.Tests
 			_unitOfWork = unitOfWork;
 			var unitOfWorkFactory = Substitute.For<IUnitOfWorkFactory>();
 			var edoRepository = Substitute.For<IEdoRepository>();
-			var httpClientFactory = Substitute.For<IHttpClientFactory>();
 			var edoProblemRegistrar = CreateEdoProblemRegistrarFixture(unitOfWork, unitOfWorkFactory);
 			var edoTaskValidator = CreateEdoTaskValidatorFixture(unitOfWorkFactory, edoProblemRegistrar);
 			var edoTaskTrueMarkCodeCheckerFactory = Substitute.For<EdoTaskItemTrueMarkStatusProviderFactory>(Substitute.For<ITrueMarkApiClient>());
@@ -1097,7 +1095,6 @@ namespace Receipt.Dispatcher.Tests
 			var edoReceiptSettings = Substitute.For<IEdoReceiptSettings>();
 			edoReceiptSettings.MaxCodesInReceiptCount.Returns(1000);
 			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, Substitute.For<INomenclatureRepository>(), Substitute.For<IEdoSettings>(), Substitute.For<ITrueMarkApiClient>());
-			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
 			trueMarkCodeRepository
 				.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
@@ -1119,8 +1116,8 @@ namespace Receipt.Dispatcher.Tests
 
 			_resaleReceiptEdoTaskHandler = new ResaleReceiptEdoTaskHandler(
 				Substitute.For<ILogger<ResaleReceiptEdoTaskHandler>>(), unitOfWork, edoTaskValidator,
-				edoProblemRegistrar, edoTaskTrueMarkCodeCheckerFactory, transferRequestCreator,
-				localCodesValidator, localCodesValidator, tag1260Checker, edoReceiptSettings,
+				edoTaskTrueMarkCodeCheckerFactory, transferRequestCreator,
+				localCodesValidator, localCodesValidator, edoReceiptSettings,
 				Substitute.For<IEdoOrderContactProvider>(), saveCodesService,
 				Substitute.For<IOrganizationSettings>(), trueMarkCodeRepository, bus, edoCancellationService);
 
@@ -1136,7 +1133,6 @@ namespace Receipt.Dispatcher.Tests
 				localCodesValidator,
 				_trueMarkCodesPool,
 				_codesPoolProvider,
-				tag1260Checker,
 				trueMarkCodeRepository,
 				productCodeRepository ?? Substitute.For<IGenericRepository<TrueMarkProductCode>>(),
 				Substitute.For<IEdoOrderContactProvider>(),
@@ -1199,11 +1195,6 @@ namespace Receipt.Dispatcher.Tests
 		private TrueMarkCodesPool CreateTrueMarkCodesPoolFixture(IUnitOfWork unitOfWork)
 		{
 			return new TrueMarkCodesPoolFixture(unitOfWork);
-		}
-
-		private Tag1260Checker CreateTag1260CheckerFixture(IHttpClientFactory httpClientFactory)
-		{
-			return new Tag1260Checker(httpClientFactory);
 		}
 
 		[Fact]
