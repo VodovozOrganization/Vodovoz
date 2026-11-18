@@ -190,10 +190,8 @@ namespace Edo.Transfer.Sender
 			var taskItems = await _uow.Session.QueryOver<EdoTaskItem>()
 				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode)
 				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
 				.WhereRestrictionOn(x => x.CustomerEdoTask.Id).IsIn(orderTaskIds.ToArray())
 				.ListAsync();
 

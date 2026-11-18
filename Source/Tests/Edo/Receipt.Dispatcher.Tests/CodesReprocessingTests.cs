@@ -28,7 +28,6 @@ using QS.Extensions.Observable.Collections.List;
 using TrueMark.Codes.Pool;
 using TrueMark.Contracts;
 using TrueMark.Contracts.Responses;
-using TrueMark.Library;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Data.Repositories.Goods;
@@ -82,11 +81,7 @@ namespace Receipt.Dispatcher.Tests
 			_validator = new TrueMarkTaskCodesValidator(repository, nomenclatures, edoSettings, _api);
 			var factory = Substitute.For<IUnitOfWorkFactory>();
 			var registrar = new EdoProblemRegistrar(_uow, factory,
-				new EdoTaskCustomSourcesPersister(factory, new EdoTaskProblemCustomSource[]
-				{
-					new IndustryRequisiteMissingOrganizationToken(), new IndustryRequisiteRegualtoryDocumentIsMissing(),
-					new IndustryRequisiteCheckApiError()
-				}),
+				new EdoTaskCustomSourcesPersister(factory, Array.Empty<EdoTaskProblemCustomSource>()),
 				new EdoTaskExceptionSourcesPersister(factory, Array.Empty<EdoTaskProblemExceptionSource>()),
 				Substitute.For<INotificationPublisher<EdoNotificationMessage>>());
 			var taskValidator = new EdoTaskValidator(Substitute.For<ILogger<EdoTaskValidator>>(),
@@ -102,7 +97,7 @@ namespace Receipt.Dispatcher.Tests
 				Substitute.For<ILogger<ForOwnNeedsReceiptEdoTaskHandler>>(), _uow, taskValidator, registrar,
 				providerFactory, new TransferRequestCreator(repository), repository, receiptSettings, _validator,
 				new ReceiptTrueMarkCodesPool(_uow), Substitute.For<ITrueMarkCodesPoolCodeProvider>(),
-				new Tag1260Checker(Substitute.For<IHttpClientFactory>()), Substitute.For<ITrueMarkCodeRepository>(),
+				Substitute.For<ITrueMarkCodeRepository>(),
 				Substitute.For<IGenericRepository<TrueMarkProductCode>>(), Substitute.For<IEdoOrderContactProvider>(),
 				Substitute.For<ISaveCodesService>(), Substitute.For<IOrganizationSettings>(), _bus, cancellation, waterCodeService);
 			_tenderHandler = new TenderEdoTaskHandler(Substitute.For<ILogger<TenderEdoTaskHandler>>(),

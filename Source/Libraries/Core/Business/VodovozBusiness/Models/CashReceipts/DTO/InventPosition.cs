@@ -63,11 +63,5 @@ namespace Vodovoz.Models.CashReceipts.DTO
 				}
 			}
 		}
-
-		/// <summary>
-		/// Разрешительный режим
-		/// </summary>
-		[JsonProperty("industryRequisite", Required = Required.Always)]
-		public IndustryRequisite IndustryRequisite { get; set; }
 	}
 }
