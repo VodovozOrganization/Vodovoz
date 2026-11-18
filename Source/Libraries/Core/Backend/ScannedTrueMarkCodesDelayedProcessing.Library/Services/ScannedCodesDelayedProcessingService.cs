@@ -3,9 +3,11 @@ using FluentNHibernate.Conventions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
+using NHibernate;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -90,6 +92,10 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				try
 				{
 					await ProcessDriverScannedCodesByRouteListAddressId(routeListAddressId, cancellationToken);
+				}
+				catch(OperationCanceledException) when(cancellationToken.IsCancellationRequested)
+				{
+					throw;
 				}
 				catch(Exception ex)
 				{
@@ -526,7 +532,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					driversScannedCode.DriversScannedTrueMarkCodeStatus = driversScannedCodeStatus;
 					driversScannedCode.DriversScannedTrueMarkCodeError = driversScannedCodeError;
 				}
-				catch(Exception ex)
+				catch(Exception ex) when(!IsDatabaseOrCancellationException(ex))
 				{
 					_logger.LogError(
 						ex,
@@ -538,10 +544,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
 					driversScannedCode.DriversScannedTrueMarkCodeError = DriversScannedTrueMarkCodeError.Exception;
 				}
-				finally
-				{
-					await uow.SaveAsync(driversScannedCode, cancellationToken: cancellationToken);
-				}
+
+				await uow.SaveAsync(driversScannedCode, cancellationToken: cancellationToken);
 			}
 		}
 
@@ -635,6 +639,11 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 			return edoRequest;
 		}
+
+		private static bool IsDatabaseOrCancellationException(Exception ex) =>
+			ex is HibernateException
+			|| ex is DbException
+			|| ex is OperationCanceledException;
 
 		private string RemoveSpecialSymbolsIfNeed(string code)
 		{
