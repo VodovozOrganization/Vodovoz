@@ -53,7 +53,7 @@ namespace Mindbox.Library.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Постановка контрагентов в очередь Mindbox"))
 			{
-				var counterparties = GetCounterparties(unitOfWork, batchSize);
+				var counterparties = GetCounterparties(unitOfWork, batchSize, _settings.CounterpartyEnqueueFromId);
 
 				if(counterparties.Count == 0)
 				{
@@ -200,7 +200,8 @@ namespace Mindbox.Library.Services
 
 		private static IList<Counterparty> GetCounterparties(
 			IUnitOfWork unitOfWork,
-			int batchSize)
+			int batchSize,
+			int fromId)
 		{
 			Counterparty counterpartyAlias = null;
 			MindboxCounterpartyState stateAlias = null;
@@ -212,6 +213,7 @@ namespace Mindbox.Library.Services
 			var withoutState = unitOfWork.Session
 				.QueryOver<Counterparty>(() => counterpartyAlias)
 				.WithSubquery.WhereNotExists(stateForCounterparty)
+				.Where(counterparty => counterparty.Id >= fromId)
 				.OrderBy(counterparty => counterparty.Id).Asc
 				.Take(batchSize)
 				.List();
@@ -227,6 +229,7 @@ namespace Mindbox.Library.Services
 			var withUnknownState = unitOfWork.Session
 				.QueryOver<Counterparty>(() => counterpartyWithUnknownStateAlias)
 				.WithSubquery.WhereExists(unknownStateForCounterparty)
+				.Where(counterparty => counterparty.Id >= fromId)
 				.OrderBy(counterparty => counterparty.Id).Asc
 				.Take(batchSize)
 				.List();

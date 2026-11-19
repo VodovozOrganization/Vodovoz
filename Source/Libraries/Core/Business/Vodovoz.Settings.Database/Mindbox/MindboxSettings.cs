@@ -36,6 +36,7 @@ namespace Vodovoz.Settings.Database.Mindbox
 		private const string BonusPauseMinutesSetting = "Mindbox.BonusPauseMinutes";
 		private const string BonusCacheSecondsSetting = "Mindbox.BonusCacheSeconds";
 		private const string LastEnqueuedCounterpartyIdSetting = "Mindbox.LastEnqueuedCounterpartyId";
+		private const string CounterpartyEnqueueFromIdSetting = "Mindbox.CounterpartyEnqueueFromId";
 		private const string CalculateAuthorizedCartOperationSetting = "Mindbox.CalculateAuthorizedCartOperation";
 		private const string AuthorizedCartTimeoutSecondsSetting = "Mindbox.AuthorizedCartTimeoutSeconds";
 		private const string CreateAuthorizedLoyaltyOrderOperationSetting = "Mindbox.CreateAuthorizedLoyaltyOrderOperation";
@@ -204,6 +205,10 @@ namespace Vodovoz.Settings.Database.Mindbox
 		/// <inheritdoc />
 		public int LastEnqueuedCounterpartyId =>
 			GetOptionalInt(LastEnqueuedCounterpartyIdSetting, -1);
+
+		/// <inheritdoc />
+		public int CounterpartyEnqueueFromId =>
+			GetOptionalInt(CounterpartyEnqueueFromIdSetting, 0);
 
 		/// <inheritdoc />
 		public string CalculateAuthorizedCartOperation =>
