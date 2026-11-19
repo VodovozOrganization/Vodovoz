@@ -71,22 +71,7 @@ namespace Vodovoz.Domain.Orders
 		private IList<OnlineOrderOperatorComments> _operatorComments = new List<OnlineOrderOperatorComments>();
 		private DateTime? _nextCallDateChanged;
 		private bool _hasService;
-		private long? _mindboxOrderId;
-		private Guid? _mindboxTransactionId;
-		private int _bonusesWrittenOff;
-		private int? _bonusesToEarn;
-		private MindboxCounterpartyOutboxStatus _mindboxStatus = MindboxCounterpartyOutboxStatus.Unknown;
-		private string _mindboxLastError;
-		private DateTime? _mindboxLastAttemptAt;
-		private int _mindboxAttempts;
-		private int? _mindboxLastHttpStatusCode;
-		private string _mindboxLastStatus;
-		private string _mindboxLastErrorId;
-		private string _mindboxSnapshot;
-		private DateTime? _mindboxSnapshotUpdatedAt;
-		private DateTime? _mindboxLastChangeAt;
-		private DateTime? _mindboxSyncRequestedAt;
-		private bool _bonusesAvailable;
+		private OnlineOrderMindboxState _mindboxState;
 
 		public virtual int Id { get; set; }
 		
@@ -380,119 +365,152 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _hasService, value);
 		}
 
+				/// <summary>
+		/// Состояние интеграции онлайн-заказа с Mindbox
+		/// </summary>
+		public virtual OnlineOrderMindboxState MindboxState
+		{
+			get => _mindboxState;
+			set
+			{
+				if(_mindboxState == value)
+				{
+					return;
+				}
+
+				_mindboxState = value;
+
+				if(_mindboxState != null)
+				{
+					_mindboxState.OnlineOrder = this;
+				}
+
+				OnPropertyChanged(nameof(MindboxState));
+			}
+		}
+
+		private OnlineOrderMindboxState GetOrCreateMindboxState()
+		{
+			if(_mindboxState is null)
+			{
+				MindboxState = new OnlineOrderMindboxState();
+			}
+
+			return _mindboxState;
+		}
+
 		[Display(Name = "ID заказа в Mindbox")]
 		public virtual long? MindboxOrderId
 		{
-			get => _mindboxOrderId;
-			set => SetField(ref _mindboxOrderId, value);
+			get => _mindboxState?.MindboxOrderId;
+			set => GetOrCreateMindboxState().MindboxOrderId = value;
 		}
 
 		[Display(Name = "Ключ идемпотентности Mindbox")]
 		public virtual Guid? MindboxTransactionId
 		{
-			get => _mindboxTransactionId;
-			set => SetField(ref _mindboxTransactionId, value);
+			get => _mindboxState?.MindboxTransactionId;
+			set => GetOrCreateMindboxState().MindboxTransactionId = value;
 		}
 
 		[Display(Name = "Списано бонусов")]
 		public virtual int BonusesWrittenOff
 		{
-			get => _bonusesWrittenOff;
-			set => SetField(ref _bonusesWrittenOff, value);
+			get => _mindboxState?.BonusesWrittenOff ?? 0;
+			set => GetOrCreateMindboxState().BonusesWrittenOff = value;
 		}
 
 		[Display(Name = "Бонусов к начислению")]
 		public virtual int? BonusesToEarn
 		{
-			get => _bonusesToEarn;
-			set => SetField(ref _bonusesToEarn, value);
+			get => _mindboxState?.BonusesToEarn;
+			set => GetOrCreateMindboxState().BonusesToEarn = value;
 		}
 
 		[Display(Name = "Статус отправки в Mindbox")]
 		public virtual MindboxCounterpartyOutboxStatus MindboxStatus
 		{
-			get => _mindboxStatus;
-			set => SetField(ref _mindboxStatus, value);
+			get => _mindboxState?.MindboxStatus ?? MindboxCounterpartyOutboxStatus.Unknown;
+			set => GetOrCreateMindboxState().MindboxStatus = value;
 		}
 
 		[Display(Name = "Последняя ошибка Mindbox")]
 		public virtual string MindboxLastError
 		{
-			get => _mindboxLastError;
-			set => SetField(ref _mindboxLastError, value);
+			get => _mindboxState?.MindboxLastError;
+			set => GetOrCreateMindboxState().MindboxLastError = value;
 		}
 
 		[Display(Name = "Дата последней попытки Mindbox")]
 		public virtual DateTime? MindboxLastAttemptAt
 		{
-			get => _mindboxLastAttemptAt;
-			set => SetField(ref _mindboxLastAttemptAt, value);
+			get => _mindboxState?.MindboxLastAttemptAt;
+			set => GetOrCreateMindboxState().MindboxLastAttemptAt = value;
 		}
 
 		[Display(Name = "Количество попыток Mindbox")]
 		public virtual int MindboxAttempts
 		{
-			get => _mindboxAttempts;
-			set => SetField(ref _mindboxAttempts, value);
+			get => _mindboxState?.MindboxAttempts ?? 0;
+			set => GetOrCreateMindboxState().MindboxAttempts = value;
 		}
 
 		[Display(Name = "HTTP-код последнего ответа Mindbox")]
 		public virtual int? MindboxLastHttpStatusCode
 		{
-			get => _mindboxLastHttpStatusCode;
-			set => SetField(ref _mindboxLastHttpStatusCode, value);
+			get => _mindboxState?.MindboxLastHttpStatusCode;
+			set => GetOrCreateMindboxState().MindboxLastHttpStatusCode = value;
 		}
 
 		[Display(Name = "Статус последнего ответа Mindbox")]
 		public virtual string MindboxLastStatus
 		{
-			get => _mindboxLastStatus;
-			set => SetField(ref _mindboxLastStatus, value);
+			get => _mindboxState?.MindboxLastStatus;
+			set => GetOrCreateMindboxState().MindboxLastStatus = value;
 		}
 
 		[Display(Name = "ID последней ошибки Mindbox")]
 		public virtual string MindboxLastErrorId
 		{
-			get => _mindboxLastErrorId;
-			set => SetField(ref _mindboxLastErrorId, value);
+			get => _mindboxState?.MindboxLastErrorId;
+			set => GetOrCreateMindboxState().MindboxLastErrorId = value;
 		}
 
 		[Display(Name = "Снимок состава и статусов Mindbox")]
 		public virtual string MindboxSnapshot
 		{
-			get => _mindboxSnapshot;
-			set => SetField(ref _mindboxSnapshot, value);
+			get => _mindboxState?.MindboxSnapshot;
+			set => GetOrCreateMindboxState().MindboxSnapshot = value;
 		}
 
 		[Display(Name = "Дата обновления снимка Mindbox")]
 		public virtual DateTime? MindboxSnapshotUpdatedAt
 		{
-			get => _mindboxSnapshotUpdatedAt;
-			set => SetField(ref _mindboxSnapshotUpdatedAt, value);
+			get => _mindboxState?.MindboxSnapshotUpdatedAt;
+			set => GetOrCreateMindboxState().MindboxSnapshotUpdatedAt = value;
 		}
 
 		[Display(Name = "Дата последнего изменения для Mindbox")]
 		public virtual DateTime? MindboxLastChangeAt
 		{
-			get => _mindboxLastChangeAt;
-			set => SetField(ref _mindboxLastChangeAt, value);
+			get => _mindboxState?.MindboxLastChangeAt;
+			set => GetOrCreateMindboxState().MindboxLastChangeAt = value;
 		}
 
 		[Display(Name = "Дата постановки в очередь Mindbox")]
 		public virtual DateTime? MindboxSyncRequestedAt
 		{
-			get => _mindboxSyncRequestedAt;
-			set => SetField(ref _mindboxSyncRequestedAt, value);
+			get => _mindboxState?.MindboxSyncRequestedAt;
+			set => GetOrCreateMindboxState().MindboxSyncRequestedAt = value;
 		}
 
 		[Display(Name = "Бонусы доступны клиенту")]
 		public virtual bool BonusesAvailable
 		{
-			get => _bonusesAvailable;
-			set => SetField(ref _bonusesAvailable, value);
+			get => _mindboxState?.BonusesAvailable ?? false;
+			set => GetOrCreateMindboxState().BonusesAvailable = value;
 		}
-
-		/// <summary>
+/// <summary>
 		/// Версия онлайн заказа
 		/// </summary>
 		public abstract OnlineOrderVersion OrderVersion { get; }

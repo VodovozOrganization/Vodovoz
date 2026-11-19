@@ -56,7 +56,12 @@ namespace Mindbox.CounterpartySender
 					using(var unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Постановка онлайн-заказов в очередь Mindbox"))
 					{
 					var orders = unitOfWork.Session.Query<OnlineOrder>()
-						.Where(order => order.MindboxStatus == MindboxCounterpartyOutboxStatus.Sent)
+						.Where(order =>
+							order.MindboxState != null
+							&& (order.MindboxState.MindboxStatus == MindboxCounterpartyOutboxStatus.Sent
+								|| (order.MindboxState.MindboxStatus == MindboxCounterpartyOutboxStatus.Unknown
+									&& order.Source == Vodovoz.Core.Domain.Clients.Source.MobileApp
+									&& order.MindboxState.BonusesWrittenOff == 0)))
 						.OrderBy(order => order.Id)
 						.Take(BatchSize)
 						.ToList();
@@ -66,7 +71,7 @@ namespace Mindbox.CounterpartySender
 						await enqueuer.EnqueueAsync(
 							unitOfWork,
 							order,
-							order.MindboxLastChangeAt ?? DateTime.UtcNow,
+							order.MindboxState.MindboxLastChangeAt ?? DateTime.UtcNow,
 							stoppingToken).ConfigureAwait(false);
 					}
 
