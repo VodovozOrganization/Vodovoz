@@ -101,6 +101,7 @@ namespace Vodovoz.Dialogs.Cash
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entrySubdivision = new global::QS.Views.Control.EntityEntry();
+			this.entrySubdivision.WidthRequest = 500;
 			this.entrySubdivision.Events = ((global::Gdk.EventMask)(256));
 			this.entrySubdivision.Name = "entrySubdivision";
 			this.table1.Add(this.entrySubdivision);
@@ -109,7 +110,7 @@ namespace Vodovoz.Dialogs.Cash
 			w7.BottomAttach = ((uint)(4));
 			w7.LeftAttach = ((uint)(1));
 			w7.RightAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.XOptions = ((global::Gtk.AttachOptions)(0));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
