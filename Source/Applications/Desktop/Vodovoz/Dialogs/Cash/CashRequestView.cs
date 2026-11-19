@@ -28,7 +28,16 @@ namespace Vodovoz.Dialogs.Cash
 			//Подразделение
 
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
-			entrySubdivision.Sensitive = false;
+			entrySubdivision.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeSubdivision, w => w.Sensitive)
+				.InitializeFromSource();
+
+			//Общая сумма выдачи
+			yspinbuttonTotalSum.Binding
+				.AddSource(ViewModel)
+				.AddFuncBinding(vm => vm.TotalSum, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			yspinbuttonTotalSum.Sensitive = false;
 
 			//Причина расхода
 
@@ -286,6 +295,10 @@ namespace Vodovoz.Dialogs.Cash
 							n.AccountableEmployee.Name,
 							n.AccountableEmployee.Patronymic)
 						: "")
+					.XAlign(0.5f)
+				.AddColumn("ЦФЗ")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(n => n.CfzSubdivision != null ? n.CfzSubdivision.Name : "")
 					.XAlign(0.5f)
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
