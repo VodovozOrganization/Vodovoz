@@ -41,6 +41,7 @@ namespace Vodovoz.Views.Organization
 				.AddColumn("Бухгалтер").AddTextRenderer(x => x.AccountantShortName).XAlign(0.5f)
 				.AddColumn("Адрес").AddTextRenderer(x => x.Address).WrapMode(WrapMode.WordChar).WrapWidth(200).XAlign(0.5f)
 				.AddColumn("Юр. адрес").AddTextRenderer(x => x.JurAddress).WrapMode(WrapMode.WordChar).WrapWidth(200).XAlign(0.5f)
+				.AddColumn("Код ФИАС").AddTextRenderer(x => x.FiasString).XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 
