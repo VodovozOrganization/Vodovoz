@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Mindbox.Library.Contracts;
+using Mindbox.Library.Mapping;
 using Vodovoz.Settings.Database.Mindbox;
 
 namespace Mindbox.Library.Services
@@ -36,10 +37,7 @@ namespace Mindbox.Library.Services
 			{
 				Customer = new MindboxGetBalanceHistoryCustomer
 				{
-					Ids = new Dictionary<string, string>(StringComparer.Ordinal)
-					{
-						["externalid"] = erpCounterpartyId.ToString()
-					}
+					Ids = MindboxIdentifierBuilder.BuildCustomerIds(_settings, erpCounterpartyId)
 				}
 			};
 

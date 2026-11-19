@@ -47,6 +47,8 @@ namespace Vodovoz.Settings.Database.Mindbox
 		private const string OrderLineStatusMappingSetting = "Mindbox.OrderLineStatusMapping";
 		private const string BonusProgramModeSetting = "Mindbox.BonusProgramMode";
 		private const string BonusProgramClientIdsSetting = "Mindbox.BonusProgramClientIds";
+		private const string EnvironmentSetting = "Mindbox.Environment";
+		private const string TechnicalClientIdSetting = "Mindbox.TechnicalClientId";
 
 		private readonly ISettingsController _settingsController;
 
@@ -54,6 +56,43 @@ namespace Vodovoz.Settings.Database.Mindbox
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
+
+		/// <inheritdoc />
+		public MindboxEnvironment Environment
+		{
+			get
+			{
+				var value = GetOptionalString(EnvironmentSetting, "Prod").Trim();
+
+				if(string.Equals(value, "Test", StringComparison.OrdinalIgnoreCase)
+					|| string.Equals(value, "Тест", StringComparison.OrdinalIgnoreCase))
+				{
+					return MindboxEnvironment.Test;
+				}
+
+				if(string.Equals(value, "Prod", StringComparison.OrdinalIgnoreCase)
+					|| string.Equals(value, "Production", StringComparison.OrdinalIgnoreCase)
+					|| string.Equals(value, "Прод", StringComparison.OrdinalIgnoreCase))
+				{
+					return MindboxEnvironment.Production;
+				}
+
+				return MindboxEnvironment.Unknown;
+			}
+		}
+
+		/// <inheritdoc />
+		public bool IsTest => Environment == MindboxEnvironment.Test;
+
+		/// <inheritdoc />
+		public string CustomerIdName => IsTest ? "erptestID" : "externalid";
+
+		/// <inheritdoc />
+		public string OrderIdName => IsTest ? "erptestOrderID" : "externalID";
+
+		/// <inheritdoc />
+		public string TechnicalClientId =>
+			GetOptionalString(TechnicalClientIdSetting, "11");
 
 		/// <inheritdoc />
 		public bool IsEnabled
@@ -183,8 +222,7 @@ namespace Vodovoz.Settings.Database.Mindbox
 			GetOptionalInt(AuthorizedLoyaltyOrderTimeoutSecondsSetting, 10);
 
 		/// <inheritdoc />
-		public string MindboxOrderIdName =>
-			GetOptionalString(MindboxOrderIdNameSetting, "externalID");
+		public string MindboxOrderIdName => OrderIdName;
 
 		/// <inheritdoc />
 		public string UpdateOrderLinesStatusOperation =>

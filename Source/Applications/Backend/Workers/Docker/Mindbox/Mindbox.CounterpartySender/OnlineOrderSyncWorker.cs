@@ -58,10 +58,7 @@ namespace Mindbox.CounterpartySender
 					var orders = unitOfWork.Session.Query<OnlineOrder>()
 						.Where(order =>
 							order.MindboxState != null
-							&& (order.MindboxState.MindboxStatus == MindboxCounterpartyOutboxStatus.Sent
-								|| (order.MindboxState.MindboxStatus == MindboxCounterpartyOutboxStatus.Unknown
-									&& order.Source == Vodovoz.Core.Domain.Clients.Source.MobileApp
-									&& order.MindboxState.BonusesWrittenOff == 0)))
+							&& order.MindboxState.MindboxStatus == MindboxCounterpartyOutboxStatus.Sent)
 						.OrderBy(order => order.Id)
 						.Take(BatchSize)
 						.ToList();

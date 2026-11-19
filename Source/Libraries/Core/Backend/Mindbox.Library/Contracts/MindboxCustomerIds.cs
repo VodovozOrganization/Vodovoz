@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Mindbox.Library.Contracts
 {
@@ -8,6 +8,11 @@ namespace Mindbox.Library.Contracts
 	public sealed class MindboxCustomerIds
 	{
 		[JsonPropertyName("externalid")]
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string ExternalId { get; set; }
+
+		[JsonPropertyName("erptestID")]
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+		public string ErpTestId { get; set; }
 	}
 }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Mindbox.Library.Contracts
 {
@@ -9,5 +9,9 @@ namespace Mindbox.Library.Contracts
 	{
 		[JsonPropertyName("CounterpartyForm")]
 		public string CounterpartyForm { get; set; }
+
+		[JsonPropertyName("Customertest")]
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+		public bool? CustomerTest { get; set; }
 	}
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Mindbox.Library.Contracts;
 using Mindbox.Library.Mapping;
 using QS.DomainModel.UoW;
@@ -142,6 +142,24 @@ namespace Mindbox.Library.Services
 				var result = await _mindboxClient
 					.CreateCustomerAsync(request, resolvedTransactionId, cancellationToken)
 					.ConfigureAwait(false);
+
+				if(result.Outcome == MindboxSendOutcome.ValidationError
+					&& !string.IsNullOrWhiteSpace(request.Customer?.MobilePhone)
+					&& result.RawResponse?.IndexOf("mobilePhone", StringComparison.OrdinalIgnoreCase) >= 0)
+				{
+					_logger.LogWarning(
+						"Mindbox отклонил телефон контрагента {CounterpartyId}, повторяем без телефона: httpCode={HttpCode}, status={Status}, errorId={ErrorId}",
+						counterparty.Id,
+						result.HttpStatusCode,
+						result.Status,
+						result.ErrorId);
+
+					request.Customer.MobilePhone = null;
+
+					result = await _mindboxClient
+						.CreateCustomerAsync(request, resolvedTransactionId, cancellationToken)
+						.ConfigureAwait(false);
+				}
 
 				await ApplyResultAsync(
 					unitOfWork,

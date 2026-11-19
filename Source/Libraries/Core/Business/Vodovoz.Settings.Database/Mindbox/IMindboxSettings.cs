@@ -6,6 +6,31 @@ namespace Vodovoz.Settings.Database.Mindbox
 	public interface IMindboxSettings
 	{
 		/// <summary>
+		/// Контур Mindbox
+		/// </summary>
+		MindboxEnvironment Environment { get; }
+
+		/// <summary>
+		/// Признак тестового контура
+		/// </summary>
+		bool IsTest { get; }
+
+		/// <summary>
+		/// Имя идентификатора клиента в Mindbox
+		/// </summary>
+		string CustomerIdName { get; }
+
+		/// <summary>
+		/// Имя идентификатора заказа в Mindbox
+		/// </summary>
+		string OrderIdName { get; }
+
+		/// <summary>
+		/// Технический клиент для расчёта бонусов в каталоге
+		/// </summary>
+		string TechnicalClientId { get; }
+
+		/// <summary>
 		/// Признак включённости интеграции с Mindbox
 		/// </summary>
 		bool IsEnabled { get; }

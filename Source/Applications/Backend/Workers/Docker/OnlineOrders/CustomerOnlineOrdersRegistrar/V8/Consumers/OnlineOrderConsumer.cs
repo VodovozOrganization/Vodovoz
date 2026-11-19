@@ -341,17 +341,13 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 			{
 				Customer = new MindboxLoyaltyOrderCustomer
 				{
-					Ids = new Dictionary<string, string>(StringComparer.Ordinal)
-					{
-						["externalid"] = message.ErpCounterpartyId.Value.ToString()
-					}
+					Ids = MindboxIdentifierBuilder.BuildCustomerIds(
+						_mindboxSettings,
+						message.ErpCounterpartyId.Value)
 				},
 				Order = new MindboxLoyaltyOrder
 				{
-					Ids = new Dictionary<string, string>(StringComparer.Ordinal)
-					{
-						[_mindboxSettings.MindboxOrderIdName] = onlineOrder.Id.ToString()
-					},
+					Ids = MindboxIdentifierBuilder.BuildOrderIds(_mindboxSettings, onlineOrder.Id),
 					DeliveryCost = deliveryCost,
 					TotalPrice = onlineOrder.OnlineOrderSum,
 					BonusPoints = new List<MindboxAuthorizedCartBonusPoint>

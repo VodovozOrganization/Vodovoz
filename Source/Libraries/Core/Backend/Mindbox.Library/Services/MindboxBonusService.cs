@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Mindbox.Library.Contracts;
 using System;
@@ -17,8 +17,6 @@ namespace Mindbox.Library.Services
 	/// <inheritdoc />
 	public sealed class MindboxBonusService : IMindboxBonusService
 	{
-		private const string CustomerIdName = "mindboxId";
-		private const string CustomerIdValue = "11";
 		private const string CalculatedStatus = "Calculated";
 
 		private readonly IMindboxClient _client;
@@ -334,7 +332,7 @@ namespace Mindbox.Library.Services
 				{
 					Ids = new Dictionary<string, string>(StringComparer.Ordinal)
 					{
-						[CustomerIdName] = CustomerIdValue
+						[_settings.CustomerIdName] = _settings.TechnicalClientId
 					}
 				},
 				ProductList = new MindboxCalculateProductList

@@ -39,17 +39,21 @@ namespace Mindbox.Library.Mapping
 
 			var customer = new MindboxCustomer
 			{
-				Ids = new MindboxCustomerIds
-				{
-					ExternalId = counterparty.Id.ToString(CultureInfo.InvariantCulture)
-				},
-				MobilePhone = MindboxCounterpartyMapping.GetMobilePhone(unitOfWork, counterparty),
-				Email = MindboxCounterpartyMapping.GetEmail(counterparty),
+				Ids = new MindboxCustomerIds(),
+				MobilePhone = _settings.IsTest
+					? BuildTestPhone(counterparty.Id)
+					: MindboxCounterpartyMapping.GetMobilePhone(unitOfWork, counterparty),
+				Email = _settings.IsTest
+					? BuildTestEmail(counterparty.Id)
+					: MindboxCounterpartyMapping.GetEmail(counterparty),
 				CustomFields = new MindboxCustomerCustomFields
 				{
-					CounterpartyForm = counterpartyForm
+					CounterpartyForm = counterpartyForm,
+					CustomerTest = _settings.IsTest ? true : (bool?)null
 				}
 			};
+
+			MindboxIdentifierBuilder.FillCustomerIds(customer.Ids, _settings, counterparty.Id);
 
 			customer.FullName = MindboxCounterpartyMapping.GetFullName(counterparty);
 
@@ -76,8 +80,24 @@ namespace Mindbox.Library.Mapping
 			};
 		}
 
-		private string GetPointOfContact(ExternalCounterparty creationSource)
+		private static string BuildTestPhone(int counterpartyId)
 		{
+			var digits = counterpartyId.ToString(CultureInfo.InvariantCulture);
+
+			if(digits.Length > 7)
+			{
+				digits = digits.Substring(digits.Length - 7);
+			}
+
+			return $"+7000{digits.PadLeft(7, '0')}";
+		}
+
+		private static string BuildTestEmail(int counterpartyId)
+		{
+			return $"test{counterpartyId.ToString(CultureInfo.InvariantCulture)}@vodovoz-test.invalid";
+		}
+
+		private string GetPointOfContact(ExternalCounterparty creationSource)		{
 			if(creationSource is null)
 			{
 				return _settings.PointOfContactErp;

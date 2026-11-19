@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -30,10 +31,12 @@ namespace Mindbox.Library.Services
 		private readonly HttpClient _httpClient;
 		private readonly IMindboxSettings _settings;
 		private readonly ILogger<MindboxClient> _logger;
+		private readonly IMindboxAlertSender _alertSender;
 
 		public MindboxClient(
 			IHttpClientFactory httpClientFactory,
 			IMindboxSettings settings,
+			IMindboxAlertSender alertSender,
 			ILogger<MindboxClient> logger)
 		{
 			if(httpClientFactory is null)
@@ -43,6 +46,7 @@ namespace Mindbox.Library.Services
 
 			_settings = settings ?? throw new ArgumentNullException(nameof(settings));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_alertSender = alertSender ?? throw new ArgumentNullException(nameof(alertSender));
 			_httpClient = httpClientFactory.CreateClient(HttpClientName);
 
 			var timeoutSeconds = _settings.TimeoutSeconds > 0
@@ -69,7 +73,7 @@ namespace Mindbox.Library.Services
 			{
 				externalId = request.Customer?.Ids?.ExternalId;
 				var url = BuildOperationUrl(transactionId, request.DeviceUuid);
-				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+				var json = await SerializeRequestAsync(request);
 
 				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
 				using(var httpRequest = CreateRequest(url, content))
@@ -170,7 +174,7 @@ namespace Mindbox.Library.Services
 			try
 			{
 				var url = BuildCalculateProductListUrl();
-				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+				var json = await SerializeRequestAsync(request);
 
 				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
 				using(var httpRequest = CreateRequest(url, content))
@@ -271,7 +275,7 @@ namespace Mindbox.Library.Services
 			try
 			{
 				var url = BuildAuthorizedCartUrl();
-				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+				var json = await SerializeRequestAsync(request);
 
 				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
 				using(var httpRequest = CreateRequest(url, content))
@@ -367,7 +371,7 @@ namespace Mindbox.Library.Services
 			try
 			{
 				var url = BuildLoyaltyOrderUrl(transactionId);
-				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+				var json = await SerializeRequestAsync(request);
 
 				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
 				using(var httpRequest = CreateRequest(url, content))
@@ -460,7 +464,7 @@ namespace Mindbox.Library.Services
 			try
 			{
 				var url = BuildOrderLinesStatusUrl(transactionId);
-				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+				var json = await SerializeRequestAsync(request);
 
 				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
 				using(var httpRequest = CreateRequest(url, content))
@@ -542,7 +546,7 @@ namespace Mindbox.Library.Services
 			try
 			{
 				var url = BuildGetOrderInfoUrl();
-				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+				var json = await SerializeRequestAsync(request);
 
 				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
 				using(var httpRequest = CreateRequest(url, content))
@@ -624,7 +628,7 @@ namespace Mindbox.Library.Services
 			try
 			{
 				var url = BuildGetBalanceHistoryUrl();
-				var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+				var json = await SerializeRequestAsync(request);
 
 				using(var content = new StringContent(json, Encoding.UTF8, "application/json"))
 				using(var httpRequest = CreateRequest(url, content))
@@ -736,6 +740,105 @@ namespace Mindbox.Library.Services
 			return $"{baseUrl}/v3/operations/sync"
 				+ $"?endpointId={Uri.EscapeDataString(_settings.EndpointId)}"
 				+ $"&operation={Uri.EscapeDataString(_settings.CalculateAuthorizedCartOperation)}";
+		}
+
+		private async Task<string> SerializeRequestAsync<T>(T request)
+		{
+			var json = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+
+			ValidateEnvironment(json);
+
+			return await Task.FromResult(json);
+		}
+
+		private void ValidateEnvironment(string json)
+		{
+			var expectedEndpointId = _settings.IsTest
+				? "vodovoz-spb.erp-test"
+				: "vodovoz-spb.Erp";
+
+			if(_settings.Environment == Vodovoz.Settings.Database.Mindbox.MindboxEnvironment.Unknown
+				|| !string.Equals(_settings.EndpointId, expectedEndpointId, StringComparison.Ordinal))
+			{
+				var endpointMessage =
+					$"Неверный контур Mindbox: environment={_settings.Environment}, endpoint={_settings.EndpointId}, expected={expectedEndpointId}. Запрос не отправлен.";
+
+				_logger.LogError(
+					"Неверный контур Mindbox: environment={Environment}, endpoint={EndpointId}, expected={ExpectedEndpointId}",
+					_settings.Environment,
+					_settings.EndpointId,
+					expectedEndpointId);
+
+				_alertSender.AlertAsync(endpointMessage, CancellationToken.None).GetAwaiter().GetResult();
+
+				throw new InvalidOperationException(endpointMessage);
+			}
+
+			using(var document = JsonDocument.Parse(json))
+			{
+				var forbiddenNames = _settings.IsTest
+					? new[] { "externalid", "externalID" }
+					: new[] { "erptestID", "erptestOrderID", "Customertest" };
+
+				var violation = FindForbiddenProperty(document.RootElement, forbiddenNames);
+
+				if(violation is null)
+				{
+					return;
+				}
+
+				var message =
+					$"Нарушение контура Mindbox {_settings.Environment}: в запросе обнаружено поле {violation}. Запрос не отправлен.";
+
+				_logger.LogError(
+					"Нарушение контура Mindbox: environment={Environment}, endpoint={EndpointId}, field={Field}",
+					_settings.Environment,
+					_settings.EndpointId,
+					violation);
+
+				_alertSender.AlertAsync(message, CancellationToken.None).GetAwaiter().GetResult();
+
+				throw new InvalidOperationException(message);
+			}
+		}
+
+		private static string FindForbiddenProperty(JsonElement element, IReadOnlyCollection<string> forbiddenNames)
+		{
+			switch(element.ValueKind)
+			{
+				case JsonValueKind.Object:
+					foreach(var property in element.EnumerateObject())
+					{
+						if(forbiddenNames.Any(name => string.Equals(property.Name, name, StringComparison.Ordinal)))
+						{
+							return property.Name;
+						}
+
+						var nested = FindForbiddenProperty(property.Value, forbiddenNames);
+
+						if(nested != null)
+						{
+							return nested;
+						}
+					}
+
+					break;
+
+				case JsonValueKind.Array:
+					foreach(var item in element.EnumerateArray())
+					{
+						var nested = FindForbiddenProperty(item, forbiddenNames);
+
+						if(nested != null)
+						{
+							return nested;
+						}
+					}
+
+					break;
+			}
+
+			return null;
 		}
 
 		private HttpRequestMessage CreateRequest(string url, HttpContent content)
@@ -886,7 +989,8 @@ namespace Mindbox.Library.Services
 			string operation = null)
 		{
 			_logger.LogDebug(
-				"Ответ Mindbox: externalId={ExternalId}, transactionId={TransactionId}, operation={Operation}, httpCode={HttpCode}, status={Status}, errorId={ErrorId}, durationMs={DurationMs}, outcome={Outcome}",
+				"Ответ Mindbox: environment={Environment}, externalId={ExternalId}, transactionId={TransactionId}, operation={Operation}, httpCode={HttpCode}, status={Status}, errorId={ErrorId}, durationMs={DurationMs}, outcome={Outcome}",
+				_settings.Environment,
 				externalId,
 				transactionId,
 				operation ?? _settings.CreateCustomerOperation,

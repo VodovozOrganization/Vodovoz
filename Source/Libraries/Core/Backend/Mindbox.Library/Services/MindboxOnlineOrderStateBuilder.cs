@@ -166,17 +166,11 @@ namespace Mindbox.Library.Services
 			{
 				Customer = new MindboxLoyaltyOrderCustomer
 				{
-					Ids = new Dictionary<string, string>(StringComparer.Ordinal)
-					{
-						["externalid"] = (onlineOrder.CounterpartyId ?? 0).ToString()
-					}
+					Ids = MindboxIdentifierBuilder.BuildCustomerIds(_settings, onlineOrder.CounterpartyId ?? 0)
 				},
 				Order = new MindboxLoyaltyOrder
 				{
-					Ids = new Dictionary<string, string>(StringComparer.Ordinal)
-					{
-						[_settings.MindboxOrderIdName] = onlineOrder.Id.ToString()
-					},
+					Ids = MindboxIdentifierBuilder.BuildOrderIds(_settings, onlineOrder.Id),
 					DeliveryCost = state.DeliveryCost,
 					TotalPrice = state.TotalPrice,
 					BonusPoints = new List<MindboxAuthorizedCartBonusPoint>
@@ -246,10 +240,7 @@ namespace Mindbox.Library.Services
 
 			var order = new MindboxOrderLinesStatusOrder
 			{
-				Ids = new Dictionary<string, string>(StringComparer.Ordinal)
-				{
-					[_settings.MindboxOrderIdName] = onlineOrder.Id.ToString()
-				}
+				Ids = MindboxIdentifierBuilder.BuildOrderIds(_settings, onlineOrder.Id)
 			};
 
 			if(updateAllLines)

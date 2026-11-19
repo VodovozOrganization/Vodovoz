@@ -269,10 +269,7 @@ namespace CustomerOrdersApi.Library.V8.Services
 			{
 				Customer = new MindboxAuthorizedCartCustomer
 				{
-					Ids = new Dictionary<string, string>(StringComparer.Ordinal)
-					{
-						["externalid"] = erpCounterpartyId.ToString(CultureInfo.InvariantCulture)
-					}
+					Ids = MindboxIdentifierBuilder.BuildCustomerIds(_mindboxSettings, erpCounterpartyId)
 				},
 				Order = new MindboxAuthorizedCartOrder
 				{

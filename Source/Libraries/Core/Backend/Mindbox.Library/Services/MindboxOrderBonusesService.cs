@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Mindbox.Library.Contracts;
+using Mindbox.Library.Mapping;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.Mindbox;
 using Vodovoz.Domain.Orders;
@@ -56,10 +57,7 @@ namespace Mindbox.Library.Services
 			{
 				Order = new MindboxGetOrderInfoRequestOrder
 				{
-					Ids = new Dictionary<string, string>(StringComparer.Ordinal)
-					{
-						[_settings.MindboxOrderIdName] = onlineOrder.Id.ToString()
-					}
+					Ids = MindboxIdentifierBuilder.BuildOrderIds(_settings, onlineOrder.Id)
 				}
 			};
 
