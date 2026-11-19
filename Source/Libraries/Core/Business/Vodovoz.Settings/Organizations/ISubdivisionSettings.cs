@@ -16,5 +16,10 @@
 
 		int LogisticSubdivisionSofiiskayaId { get; }
 		int LogisticSubdivisionBugriId { get; }
+
+		/// <summary>
+		/// Id подразделения ЦФЗ расходных ордеров самовывоза
+		/// </summary>
+		int SelfDeliveryExpenseCfzSubdivisionId { get; }
 	}
 }

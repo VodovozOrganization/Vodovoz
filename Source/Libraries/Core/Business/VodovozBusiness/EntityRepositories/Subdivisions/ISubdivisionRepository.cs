@@ -22,5 +22,13 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		IEnumerable<int> GetAllSubdivisionsIds(IUnitOfWork uow);
 		IList<NamedDomainObjectNode> GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(
 			IUnitOfWork uow, CarTypeOfUse[] carTypeOfUses, CarOwnType[] carOwnTypes);
+
+		/// <summary>
+		/// Подразделение по id
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="id">Id подразделения</param>
+		/// <returns>Подразделение, null - не найдено</returns>
+		Subdivision GetById(IUnitOfWork uow, int id);
 	}
 }

@@ -10,7 +10,6 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -37,10 +36,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			PayoutRequestUserRole userRole,
-			ILifetimeScope scope)
+			ILifetimeScope scope,
+			ViewModelEEVMBuilder<Subdivision> cfzSubdivisionViewModelBuilder)
 			: base(interactiveService, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+
+			if(cfzSubdivisionViewModelBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(cfzSubdivisionViewModelBuilder));
+			}
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			UoW = uow;
@@ -59,13 +64,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					})
 				.Finish();
 
-			CfzSubdivisionViewModel = entryViewModelBuilder
-				.ForProperty(x => x.CfzSubdivision)
+			CfzSubdivisionViewModel = cfzSubdivisionViewModelBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, x => x.CfzSubdivision)
 				.UseViewModelDialog<SubdivisionViewModel>()
-				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
-					filter =>
-					{
-					})
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
 				.Finish();
 
 			AcceptCommand = new DelegateCommand(Accept, () => true);

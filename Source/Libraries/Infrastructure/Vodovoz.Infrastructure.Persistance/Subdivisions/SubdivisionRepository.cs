@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
@@ -73,6 +74,13 @@ namespace Vodovoz.Infrastructure.Persistance.Subdivisions
 			}
 
 			return uow.GetById<Subdivision>(int.Parse(_settingsController.GetStringValue(qcDep)));
+		}
+
+		/// <inheritdoc/>
+		public Subdivision GetById(IUnitOfWork uow, int id)
+		{
+			return uow.Session.Query<Subdivision>()
+				.FirstOrDefault(x => x.Id == id);
 		}
 
 		/// <summary>
