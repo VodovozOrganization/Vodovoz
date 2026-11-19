@@ -524,6 +524,18 @@ namespace Vodovoz.Domain.Cash
 					new[] { this.GetPropertyName(o => o.RelatedToSubdivision) });
 			}
 
+			if(CfoSubdivision == null)
+			{
+				yield return new ValidationResult("Должен быть выбран ЦФО",
+					new[] { nameof(CfoSubdivision) });
+			}
+
+			if(CfzSubdivision == null)
+			{
+				yield return new ValidationResult("Должен быть выбран ЦФЗ",
+					new[] { nameof(CfzSubdivision) });
+			}
+
 			if(Money <= 0)
 			{
 				yield return new ValidationResult("Сумма должна больше нуля",

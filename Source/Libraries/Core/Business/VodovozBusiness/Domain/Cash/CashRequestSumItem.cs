@@ -136,6 +136,13 @@ namespace Vodovoz.Domain.Cash
 					new[] { nameof(AccountableEmployee) });
 			}
 
+			if(CfzSubdivision == null)
+			{
+				yield return new ValidationResult(
+					"Необходимо выбрать ЦФЗ",
+					new[] { nameof(CfzSubdivision) });
+			}
+
 			if(Sum == 0m)
 			{
 				yield return new ValidationResult(

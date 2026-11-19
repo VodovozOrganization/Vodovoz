@@ -695,7 +695,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				return;
 			}
 
-			if(!IsCashRequestValidForGive())
+			if(!IsCashRequestValidForGive(cashRequestSumItem))
 			{
 				return;
 			}
@@ -791,12 +791,19 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			return subdivisionsControlledByCurrentEmployee.Contains(Entity.Author?.Subdivision?.Id ?? -1);
 		}
 
-		private bool IsCashRequestValidForGive()
+		private bool IsCashRequestValidForGive(CashRequestSumItem cashRequestSumItem)
 		{
 			if(Entity.Subdivision == null)
 			{
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 					"Не указано подразделение/ЦФО заявки");
+				return false;
+			}
+
+			if(cashRequestSumItem.CfzSubdivision == null)
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					$"У суммы {cashRequestSumItem.Sum} должен быть заполнен ЦФЗ");
 				return false;
 			}
 
