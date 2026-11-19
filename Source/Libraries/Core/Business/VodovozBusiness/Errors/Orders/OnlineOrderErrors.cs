@@ -128,6 +128,24 @@ namespace Vodovoz.Errors.Orders
 				nameof(FastDeliveryNotAvailable),
 				"Быстрая доставка не доступна");
 		
+		/// <summary>
+		/// Не установлен параметр быстрой доставки
+		/// </summary>
+		public static Error HasFastDeliveryScheduleButIsFastDeliveryNotSet =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(HasFastDeliveryScheduleButIsFastDeliveryNotSet),
+				"Указан интервал быстрой доставки, но сам параметр не установлен!");
+		
+		/// <summary>
+		/// Не установлен интервал быстрой доставки
+		/// </summary>
+		public static Error HasIsFastDeliveryButFastDeliveryScheduleNotSet =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(HasIsFastDeliveryButFastDeliveryScheduleNotSet),
+				"Стоит параметр быстрой доставки, но интервал не соответствует!");
+		
 		public static Error IsArchivedOnlineOrderPromoSet(string promoSetTitle) =>
 			new Error(
 				typeof(OnlineOrderErrors),

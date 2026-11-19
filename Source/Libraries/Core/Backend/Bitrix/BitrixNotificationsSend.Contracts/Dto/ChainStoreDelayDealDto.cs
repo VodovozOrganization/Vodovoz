@@ -42,37 +42,37 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Наименование клиента
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1662373256")]
+		[JsonPropertyName("UF_CRM_DEAL_1662373256")]
 		public string CounterpartyName { get; set; }
 
 		/// <summary>
 		/// Телефон для связи
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1580981695580")]
+		[JsonPropertyName("UF_CRM_DEAL_1580981695580")]
 		public string PhoneNumber { get; set; }
 
 		/// <summary>
 		/// ИНН клиента
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1729861318237")]
+		[JsonPropertyName("UF_CRM_DEAL_1729861318237")]
 		public string CounterpartyInn { get; set; }
 
 		/// <summary>
 		/// Адрес доставки заказа
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5DA85CF9E13B9")]
+		[JsonPropertyName("UF_CRM_DEAL_5DA85CF9E13B9")]
 		public string DeliveryAddress { get; set; }
 
 		/// <summary>
 		/// Номер заказа
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1590590364997")]
+		[JsonPropertyName("UF_CRM_DEAL_1590590364997")]
 		public int OrderId { get; set; }
 
 		/// <summary>
 		/// Автор заказа
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1618412191621")]
+		[JsonPropertyName("UF_CRM_DEAL_1618412191621")]
 		public string OrderAuthor { get; set; }
 
 		/// <summary>
@@ -90,7 +90,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Расчётная дата платежа заказа для Битрикс24
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1721989000906")]
+		[JsonPropertyName("UF_CRM_DEAL_1721989000906")]
 		public string EstimatedPaymentDateString =>
 			EstimatedPaymentDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
@@ -103,7 +103,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Дни просрочки для Битрикс24
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1686746335103")]
+		[JsonPropertyName("UF_CRM_DEAL_1686746335103")]
 		public string DaysOverdueString =>
 			DaysOverdue.ToString(CultureInfo.InvariantCulture);
 
@@ -116,7 +116,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Долг по заказу для Битрикс24
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1760695840735")]
+		[JsonPropertyName("UF_CRM_DEAL_1760695840735")]
 		public string DebtString =>
 			Debt.ToString("0.00", CultureInfo.InvariantCulture);
 	}

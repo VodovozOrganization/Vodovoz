@@ -219,6 +219,8 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 				case null:
 				case 0m:
 					return FajlDokumentTablSchFaktSvedTovNalSt.bezNDS;
+				case 0.05m:
+					return FajlDokumentTablSchFaktSvedTovNalSt.Item5;
 				case 0.10m:
 					return FajlDokumentTablSchFaktSvedTovNalSt.Item10;
 				case 0.18m:

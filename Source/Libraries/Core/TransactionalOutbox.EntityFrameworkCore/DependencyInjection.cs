@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging.Abstractions;
 using MySqlConnector;
 using System;
 using System.Linq;
@@ -43,9 +44,13 @@ namespace TransactionalOutbox.EntityFrameworkCore
 			services.AddSingleton(new OutboxDeliveryBusName(busName));
 			services.TryAddSingleton<OutboxDatabaseServerVersion>();
 
-			services.AddDbContext<OutboxDbContext>((serviceProvider, options) => options.UseMySql(
-				serviceProvider.GetRequiredService<MySqlConnectionStringBuilder>().ConnectionString,
-				serviceProvider.GetRequiredService<OutboxDatabaseServerVersion>().ServerVersion));
+			services.AddDbContext<OutboxDbContext>((serviceProvider, options) =>
+			{
+				options.UseMySql(
+					serviceProvider.GetRequiredService<MySqlConnectionStringBuilder>().ConnectionString,
+					serviceProvider.GetRequiredService<OutboxDatabaseServerVersion>().ServerVersion);
+				options.UseLoggerFactory(NullLoggerFactory.Instance);
+			});
 
 			return services;
 		}

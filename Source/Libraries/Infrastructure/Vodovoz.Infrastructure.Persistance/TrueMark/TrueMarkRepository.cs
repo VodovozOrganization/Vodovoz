@@ -247,9 +247,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var carLoadCodes = uow.Session.QueryOver(() => carLoadTrueMarkProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.JoinEntityAlias(
 					() => carLoadDocumentItemAlias,
 					() => carLoadDocumentItemAlias.Id == carLoadTrueMarkProductCodeAlias.CarLoadDocumentItemId,
@@ -277,9 +275,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var routeListCodes = uow.Session.QueryOver(() => routeListTrueMarkProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.JoinEntityAlias(
 					() => routeListItemAlias,
 					() => routeListItemAlias.Id == routeListTrueMarkProductCodeAlias.RouteListItemId,
@@ -308,9 +304,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var selfdeliveryCodes = uow.Session.QueryOver(() => selfdeliveryTrueMarkProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.JoinEntityAlias(
 					() => selfDeliveryDocumentItemAlias,
 					() => selfDeliveryDocumentItemAlias.Id == selfdeliveryTrueMarkProductCodeAlias.SelfDeliveryDocumentItemId,
@@ -351,9 +345,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var poolCodes = uow.Session.QueryOver(() => autoProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.JoinEntityAlias(
 					() => edoTaskItemAlias,
 					() => edoTaskItemAlias.ProductCode.Id == autoProductCodeAlias.Id,
@@ -376,9 +368,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var poolCodes = uow.Session.QueryOver(() => autoProductCodeAlias)
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
-				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
-				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.JoinEntityAlias(
 					() => edoTaskItemAlias,
 					() => edoTaskItemAlias.ProductCode.Id == autoProductCodeAlias.Id,

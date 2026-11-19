@@ -1,5 +1,6 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
+using QS.DomainModel.UoW;
 
 namespace Notifications.Core
 {
@@ -13,6 +14,6 @@ namespace Notifications.Core
 		/// <summary>
 		/// Строит интеграционное событие на основе доменного события
 		/// </summary>
-		Task<TIntegrationEvent> BuildAsync(TDomainEvent domainEvent, CancellationToken cancellationToken = default);
+		Task<TIntegrationEvent> BuildAsync(IUnitOfWork unitOfWork, TDomainEvent domainEvent, CancellationToken cancellationToken = default);
 	}
 }

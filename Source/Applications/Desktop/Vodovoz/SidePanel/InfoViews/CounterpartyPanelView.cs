@@ -19,6 +19,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -34,8 +35,10 @@ namespace Vodovoz.SidePanel.InfoViews
 		private const int _phoneButtonWidthRequest = 32;
 		
 		private readonly IOrderRepository _orderRepository;
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 		private readonly ILogger<CounterpartyPanelView> _logger;
 		private readonly ICommonServices _commonServices;
+		private readonly Dictionary<CounterpartyFrom, Label> _ipzRegisteredLabels = new Dictionary<CounterpartyFrom, Label>();
 		private Counterparty _counterparty;
 		private IPermissionResult _counterpartyPermissionResult;
 		private bool _textviewcommentBufferChanged = false;
@@ -43,7 +46,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		public CounterpartyPanelView(
 			ILogger<CounterpartyPanelView> logger,
 			ICommonServices commonServices,
-			IOrderRepository orderRepository)
+			IOrderRepository orderRepository,
+			IExternalCounterpartyRepository externalCounterpartyRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -52,6 +56,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			_counterpartyPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Counterparty));
 			Configure();
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_externalCounterpartyRepository = externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
 		}
 
 		private void Configure()
@@ -72,6 +77,74 @@ namespace Vodovoz.SidePanel.InfoViews
 			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(GetLogisticsRequirements(), _commonServices);
+
+			ConfigureRegisteredIpzTable();
+		}
+
+		private void ConfigureRegisteredIpzTable()
+		{
+			var ipzValues = Enum.GetValues(typeof(CounterpartyFrom))
+				.Cast<CounterpartyFrom>()
+				.ToArray();
+
+			tblRegisteredIpz.Resize((uint)(ipzValues.Length + 1), 2);
+
+			var headerIpz = new Label("<b>ИПЗ</b>")
+			{
+				UseMarkup = true,
+				Xalign = 0f
+			};
+
+			var headerRegistered = new Label("<b>Да/Нет</b>")
+			{
+				UseMarkup = true,
+				Xalign = 0f
+			};
+
+			tblRegisteredIpz.Attach(headerIpz, 0, 1, 0, 1, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+			tblRegisteredIpz.Attach(headerRegistered, 1, 2, 0, 1, AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+
+			for(var i = 0; i < ipzValues.Length; i++)
+			{
+				var ipz = ipzValues[i];
+
+				var ipzLabel = new Label(ipz.GetEnumTitle())
+				{
+					Xalign = 0f
+				};
+
+				var registeredLabel = new Label("Нет")
+				{
+					Xalign = 0f
+				};
+
+				tblRegisteredIpz.Attach(ipzLabel, 0, 1, (uint)(i + 1), (uint)(i + 2), AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+				tblRegisteredIpz.Attach(registeredLabel, 1, 2, (uint)(i + 1), (uint)(i + 2), AttachOptions.Fill, AttachOptions.Fill, 0, 0);
+
+				_ipzRegisteredLabels[ipz] = registeredLabel;
+			}
+
+			tblRegisteredIpz.ShowAll();
+		}
+
+		private void UpdateRegisteredIpzTable()
+		{
+			HashSet<CounterpartyFrom> registeredIpz = null;
+
+			if(_counterparty != null && _counterparty.Id != 0)
+			{
+				registeredIpz = new HashSet<CounterpartyFrom>(
+					_externalCounterpartyRepository
+						.GetPersonalCounterpartyExternalUsersInfo(InfoProvider.UoW, _counterparty.Id)
+						.Select(x => x.CounterpartyFrom));
+			}
+
+			foreach(var ipzRegisteredLabel in _ipzRegisteredLabels)
+			{
+				ipzRegisteredLabel.Value.Text = registeredIpz != null && registeredIpz.Contains(ipzRegisteredLabel.Key)
+					? "Да"
+					: "Нет";
+			}
 		}
 
 		private void Refresh(object changedObj)
@@ -132,6 +205,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(_counterparty == null)
 			{
 				buttonSaveComment.Sensitive = false;
+				UpdateRegisteredIpzTable();
 				return;
 			}
 
@@ -139,6 +213,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			SetupPersonalManagers();
 			textviewComment.Buffer.Text = _counterparty.Comment;
 			_textviewcommentBufferChanged = false;
+			UpdateRegisteredIpzTable();
 
 			var latestOrder = _orderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, _counterparty);
 			if(latestOrder != null)

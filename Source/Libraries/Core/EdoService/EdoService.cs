@@ -386,7 +386,10 @@ namespace EdoService.Library
 					request.Author = _employeeService.GetEmployeeForCurrentUser(uow);
 					request.Source = EdoRequestSource.Manual;
 					uow.Save(request);
-					_outbox.GetPublishEndpoint(uow).Publish(new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = taskId });
+					_outbox.GetPublishEndpoint(uow)
+						.Publish(new InformalOrderDocumenTaskCreatedEvent { InformalOrderDocumentTaskId = taskId })
+						.GetAwaiter()
+						.GetResult();
 					uow.Commit();
 					return Result.Success("Задача счета отправлена на повторную обработку");
 				}
@@ -1225,12 +1228,15 @@ namespace EdoService.Library
 					&& x.EdoDocFlowStatus != EdoDocFlowStatus.Cancelled);
 			foreach(var container in containers)
 			{
-				_outbox.GetPublishEndpoint(unitOfWork).Publish(new TaxcomDocflowRequestCancellationEvent
-				{
-					LegacyBillDocflowId = container.DocFlowId,
-					EdoAccount = order.Contract.Organization.TaxcomEdoSettings?.EdoAccount,
-					CancellationReason = reason
-				});
+				_outbox.GetPublishEndpoint(unitOfWork)
+					.Publish(new TaxcomDocflowRequestCancellationEvent
+					{
+						LegacyBillDocflowId = container.DocFlowId,
+						EdoAccount = order.Contract.Organization.TaxcomEdoSettings?.EdoAccount,
+						CancellationReason = reason
+					})
+					.GetAwaiter()
+					.GetResult();
 			}
 			unitOfWork.Commit();
 		}

@@ -6,7 +6,6 @@ using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
@@ -50,15 +49,13 @@ namespace Transfer.Sender.Tests
 				.GetMaxDocumentOrganizationCounterOnYearAsync(uow, transferDate, seller, Arg.Any<CancellationToken>())
 				.Returns(new DocumentOrganizationCounter { Counter = 7 });
 
-			var organizationRepository = Substitute.For<IOrganizationRepository>();
-			organizationRepository.GetOrganizationByIdAsync(seller.Id).Returns(seller);
-			organizationRepository.GetOrganizationByIdAsync(customer.Id).Returns(customer);
+			uow.GetById<OrganizationEntity>(seller.Id).Returns(seller);
+			uow.GetById<OrganizationEntity>(customer.Id).Returns(customer);
 
 			var preparer = new TransferOrderHeaderPreparer(
 				uow,
 				dateRepository,
-				counterRepository,
-				organizationRepository);
+				counterRepository);
 
 			var result = await preparer.PrepareAsync(transferTask, CancellationToken.None);
 			Assert.True(result.IsSuccess);

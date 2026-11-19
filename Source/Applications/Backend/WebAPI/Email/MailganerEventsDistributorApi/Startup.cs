@@ -1,4 +1,4 @@
-﻿using MailganerEventsDistributorApi.DataAccess;
+using MailganerEventsDistributorApi.DataAccess;
 using MailganerEventsDistributorApi.HealthChecks;
 using MailganerEventsDistributorApi.Middleware;
 using MassTransit;
@@ -17,8 +17,6 @@ using RabbitMQ.MailSending;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Settings.Database;
 using VodovozHealthCheck;
-using TransactionalOutbox.EntityFrameworkCore;
-using TransactionalOutbox.MassTransit;
 
 namespace MailganerEventsDistributorApi
 {
@@ -61,10 +59,6 @@ namespace MailganerEventsDistributorApi
 				{
 					var transportSettings = new ConfigTransportSettings();
 					Configuration.Bind("RabbitMQEmailProdHost", transportSettings);
-
-					// Outbox только у основной шины (vhost email_host, таблицы email_*).
-					// Вторая шина IEmailDevBus (тестовый vhost) публикует напрямую, см. MailganerEventsDistributeController
-					busConf.AddVodovozOutbox(OutboxBusNames.Email);
 
 					busConf.ConfigureRabbitMq(
 						(rabbitMq, context) => rabbitMq.AddUpdateEmailStatusTopology(context),

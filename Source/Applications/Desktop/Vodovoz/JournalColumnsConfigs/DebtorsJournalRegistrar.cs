@@ -25,6 +25,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Фикс. цена").AddNumericRenderer(node => node.FixPrice)
 				.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidueExist)
 				.AddColumn("Резерв").AddNumericRenderer(node => node.Reserve)
+				.AddColumn("Менеджер по продажам").AddTextRenderer(node => node.SalesManagerName)
 				.RowCells().AddSetter((CellRendererText c, DebtorJournalNode n) =>
 				{
 					c.ForegroundGdk = n.TaskId.HasValue

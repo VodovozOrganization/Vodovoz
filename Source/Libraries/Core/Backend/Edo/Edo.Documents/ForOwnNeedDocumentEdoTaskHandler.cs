@@ -204,7 +204,6 @@ namespace Edo.Documents
 					return;
 				}
 
-				await _updDocumentBuilder.BuildForOwnNeedUpdDocumentAsync(documentEdoTask, cancellationToken);
 				return;
 			}
 
@@ -219,6 +218,8 @@ namespace Edo.Documents
 				);
 				return;
 			}
+
+			await _updDocumentBuilder.BuildForOwnNeedUpdDocumentAsync(documentEdoTask, cancellationToken);
 
 			var customerDocument = await SendDocument(documentEdoTask, cancellationToken);
 			documentEdoTask.Status = EdoTaskStatus.InProgress;

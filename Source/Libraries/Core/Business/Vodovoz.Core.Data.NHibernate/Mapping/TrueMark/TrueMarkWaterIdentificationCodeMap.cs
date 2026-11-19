@@ -34,14 +34,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark
 
 			Map(x => x.CheckCode)
 				.Column("check_code");
-
-			Map(x => x.IsTag1260Valid)
-				.Column("is_tag1260_valid");
-
-			References(x => x.Tag1260CodeCheckResult)
-				.Column("tag1260_code_check_result_id")
-				.Fetch.Join()
-				.Not.LazyLoad();
 		}
 	}
 }

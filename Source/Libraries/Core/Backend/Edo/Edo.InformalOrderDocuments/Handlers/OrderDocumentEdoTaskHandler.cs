@@ -75,15 +75,15 @@ namespace Edo.InformalOrderDocuments.Handlers
 			}
 
 			// Повторная доставка события: документ по задаче уже создан и отправлен
-if(edoTask.Status != EdoTaskStatus.New)
-{
-	_logger.LogWarning("Задача ЭДО №{TaskId} уже в статусе {TaskStatus}, повторное событие создания задачи пропущено",
-		edoTask.Id,
-		edoTask.Status);
-	return;
-}
+			if(edoTask.Status != EdoTaskStatus.New)
+			{
+				_logger.LogWarning("Задача ЭДО №{TaskId} уже в статусе {TaskStatus}, повторное событие создания задачи пропущено",
+					edoTask.Id,
+					edoTask.Status);
+				return;
+			}
 
-if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.InCancellation)
+			if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.InCancellation)
 			{
 				return;
 			}
@@ -123,7 +123,8 @@ if(edoTask.Status == EdoTaskStatus.Cancelled || edoTask.Status == EdoTaskStatus.
 				var handler = _handlerFactory.GetHandler(informalEdoRequest.OrderDocumentType);
 
 				var orderDocument = order.OrderDocuments
-					.Where(doc => doc.Type == informalEdoRequest.OrderDocumentType).FirstOrDefault();
+					.FirstOrDefault(doc => doc.Type == informalEdoRequest.OrderDocumentType);
+
 				if(orderDocument == null)
 				{
 					_logger.LogWarning("Документ типа {DocumentType} для заказа №{OrderId} не найден.",

@@ -21,7 +21,7 @@ namespace Vodovoz.Core.Domain.Edo
 		AccusativePlural = "коды честного знака",
 		Prepositional = "коде честного знака",
 		PrepositionalPlural = "кодах честного знака")]
-	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode, ITrueMarkCodesProvider
+	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode
 	{
 		private int _id;
 		private int? _parentWaterGroupCodeId;
@@ -31,8 +31,6 @@ namespace Vodovoz.Core.Domain.Edo
 		private string _gtin;
 		private string _serialNumber;
 		private string _checkCode;
-		private bool _isTag1260Valid;
-		private Tag1260CodeCheckResult _tag1260CodeCheckResult;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -89,28 +87,10 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _checkCode;
 			set => SetField(ref _checkCode, value);
 		}
-		
-		[Display(Name = "Результаты проверки кода для тэга 1260")]
-		public virtual Tag1260CodeCheckResult Tag1260CodeCheckResult
-		{
-			get => _tag1260CodeCheckResult;
-			set => SetField(ref _tag1260CodeCheckResult, value);
-		}
 
 		public virtual string IdentificationCode => $"01{Gtin}21{SerialNumber}";
 
 		public virtual string FullCode => $"\u001d01{Gtin}21{SerialNumber}\u001d93{CheckCode}";
-
-		/// <summary>
-		/// Получение КИ(кода идентификации) для документа по ЭДО
-		/// </summary>
-		/// <returns>КИ</returns>
-		[Display(Name = "Код валиден для тэга 1260")]
-		public virtual bool IsTag1260Valid
-		{
-			get => _isTag1260Valid;
-			set => SetField(ref _isTag1260Valid, value);
-		}
 
 		/// <summary>
 		/// Получение КИ(кода идентификации) для документа по ЭДО
@@ -125,8 +105,6 @@ namespace Vodovoz.Core.Domain.Edo
 
 
 		public virtual string CashReceiptCode => $"01{Gtin}21{SerialNumber}\u001d93{CheckCode}";
-
-		public virtual string FormatForCheck1260 => $"01{Gtin}21{SerialNumber}\u001d93{CheckCode}";
 
 		public override bool Equals(object obj)
 		{

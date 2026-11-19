@@ -18,13 +18,13 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// Id вороки в битриксе, в которую будет помещена сделка
 		/// </summary>
 		[JsonPropertyName("CATEGORY_ID")]
-		public int CategoryId => 165;
+		public int CategoryId => 26;
 
 		/// <summary>
 		/// Стадия сделки в битриксе
 		/// </summary>
 		[JsonPropertyName("STAGE_ID")]
-		public string StageId => "NEW";
+		public string StageId => "C26:NEW";
 
 		/// <summary>
 		/// Ключ команды создания сделки в пакетном запросе,
@@ -54,26 +54,26 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Id контрагента
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1589369986950")]
+		[JsonPropertyName("UF_CRM_DEAL_1589369986950")]
 		public string CounterpartyIdString =>
 			CounterpartyId.ToString();
 
 		/// <summary>
 		/// Адрес точки доставки, пусто - для самовывоза
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5DA85CF9E13B9")]
+		[JsonPropertyName("UF_CRM_DEAL_5DA85CF9E13B9")]
 		public string DeliveryPointAddress { get; set; }
 
 		/// <summary>
 		/// Номер для связи, указанный в последнем выполненном заказе
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1580981695580")]
+		[JsonPropertyName("UF_CRM_DEAL_1580981695580")]
 		public string PhoneNumber { get; set; }
 
 		/// <summary>
 		/// Адрес электронной почты
 		/// </summary>
-		[JsonPropertyName("UF_CRM_1658917933")]
+		[JsonPropertyName("UF_CRM_DEAL_1658917933")]
 		public string EmailAddress { get; set; }
 
 		/// <summary>
@@ -85,7 +85,7 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		/// <summary>
 		/// Дата доставки последнего выполненного заказа
 		/// </summary>
-		[JsonPropertyName("UF_CRM_5E006F67E6DAC")]
+		[JsonPropertyName("UF_CRM_DEAL_5E006F67E6DAC")]
 		public string LastOrderDeliveryDateString =>
 			LastOrderDeliveryDate.ToString("yyyy-MM-dd");
 	}

@@ -74,6 +74,37 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				.ListAsync<int>(cancellationToken);
 		}
 
+		/// <inheritdoc/>
+		public Task<IList<int>> GetFailedFiscalDocumentIdsForReprocessing(
+			IUnitOfWork uow,
+			DateTime startDate,
+			DateTime endDate,
+			CancellationToken cancellationToken)
+		{
+			ReceiptEdoTask taskAlias = null;
+			FormalEdoRequest formalRequestAlias = null;
+			OrderEntity orderAlias = null;
+			EdoFiscalDocument edoFiscalDocument = null;
+
+			return uow.Session.QueryOver(() => edoFiscalDocument)
+				.JoinAlias(x => x.ReceiptEdoTask, () => taskAlias)
+				.Left.JoinAlias(() => taskAlias.FormalEdoRequest, () => formalRequestAlias)
+				.Left.JoinAlias(() => formalRequestAlias.Order, () => orderAlias)
+				.Where(() => edoFiscalDocument.Status == FiscalDocumentStatus.Failed)
+				.And(() => (edoFiscalDocument.StatusChangeTime <= endDate && edoFiscalDocument.StatusChangeTime >= startDate)
+					|| (edoFiscalDocument.StatusChangeTime == null && edoFiscalDocument.CreationTime <= endDate && edoFiscalDocument.CreationTime >= startDate))
+				.And(() => edoFiscalDocument.CheckoutTime >= startDate)
+				.And(() => taskAlias.Status != EdoTaskStatus.Completed)
+				.And(() => taskAlias.Status != EdoTaskStatus.Cancelled)
+				.And(Restrictions.Disjunction()
+					.Add(Restrictions.Where(() => orderAlias.DeliveryDate >= startDate.Date))
+					.Add(Restrictions.And(
+						Restrictions.IsNull(Projections.Property(() => orderAlias.DeliveryDate)),
+						Restrictions.Where(() => edoFiscalDocument.CheckoutTime >= startDate.Date))))
+				.Select(Projections.Property(() => edoFiscalDocument.Id))
+				.ListAsync<int>(cancellationToken);
+		}
+
 		public async Task<IEnumerable<GtinEntity>> GetGtinsAsync(CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())

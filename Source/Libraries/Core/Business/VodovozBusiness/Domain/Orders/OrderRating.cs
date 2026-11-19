@@ -19,6 +19,8 @@ namespace Vodovoz.Domain.Orders
 	[HistoryTrace]
 	public class OrderRating : PropertyChangedBase, IDomainObject
 	{
+		public const int CommentMaxLength = 1000;
+
 		private OnlineOrder _onlineOrder;
 		private Order _order;
 		private DateTime _created;

@@ -1,4 +1,4 @@
-﻿using Edo.Contracts.Messages.Events;
+using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -172,6 +172,7 @@ namespace Edo.Scheduler.Service
 					{
 						InformalOrderDocumentTaskId = edoTask.Id
 					}, cancellationToken);
+					await _uow.CommitAsync(cancellationToken);
 				}
 				_logger.LogWarning("Для ЭДО заявки Id {InformalEdoRequest} уже была создана задача.", requestId);
 				return;

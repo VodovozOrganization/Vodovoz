@@ -1,4 +1,4 @@
-using BitrixNotificationsSend.Client;
+﻿using BitrixNotificationsSend.Client;
 using BitrixNotificationsSend.Contracts.Dto;
 using BitrixNotificationsSend.Library.Services.Batches;
 using Microsoft.Extensions.Logging;
@@ -20,6 +20,7 @@ namespace BitrixNotificationsSend.Library.Services
 	/// </summary>
 	public class UndeliveredOrdersDealsCreateService : IUndeliveredOrdersDealsCreateService
 	{
+		private const string _notFoundError = "Not found";
 		private readonly ILogger<UndeliveredOrdersDealsCreateService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
@@ -165,7 +166,10 @@ namespace BitrixNotificationsSend.Library.Services
 				$"Сервис {nameof(UndeliveredOrdersDealsCreateService)}. Поиск не актуальных сделок по недовозам"))
 			{
 				undeliveredOrderDtos = _undeliveredOrderBitrixDealRepository
-					.Get(uow, x => x.Status == BitrixDealSynchronizationStatus.DealUpdateRequired && x.BitrixDealId.HasValue)
+					.Get(uow, x =>
+						x.Status == BitrixDealSynchronizationStatus.DealUpdateRequired
+						&& x.BitrixDealId.HasValue
+						&& x.LastError != _notFoundError)
 					.Select(CreateUndeliveredOrderDto)
 					.ToList();
 			}

@@ -57,6 +57,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string Phones { get; set; }
 
 		public string Emails { get; set; }
+
+		/// <summary>
+		/// ФИО менеджера по продажам, закреплённого за контрагентом.
+		/// </summary>
+		public string SalesManagerName { get; set; }
 		
 		public decimal? FixPrice { get; set; }
 	}

@@ -155,7 +155,11 @@ namespace Vodovoz
 			ErrorReporter.Instance.AutomaticallySendEnabled = canAutomaticallyErrorSend;
 			ErrorReporter.Instance.SendedLogRowCount = errorSendSettings.RowCountForErrorLog;
 
-			var errorMessageModelFactoryWithUserService = new DefaultErrorMessageModelFactory(ErrorReporter.Instance, ServicesConfig.UserService, ServicesConfig.UnitOfWorkFactory);
+			var errorMessageModelFactoryWithUserService = new DefaultErrorMessageModelFactory(
+				ErrorReporter.Instance,
+				ServicesConfig.UserService,
+				ServicesConfig.UnitOfWorkFactory);
+			
 			exceptionHandler.InteractiveService = ServicesConfig.InteractiveService;
 			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactoryWithUserService;
 			//Настройка обычных обработчиков ошибок.
