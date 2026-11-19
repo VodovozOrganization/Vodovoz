@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using CustomerAppsApi.Library.V1.Dto.Counterparties;
 using CustomerAppsApi.Library.V1.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +8,7 @@ using VodovozHealthCheck.Helpers;
 namespace CustomerAppsApi.V1.Controllers
 {
 	[ApiController]
+	[ApiExplorerSettings(GroupName = "v1")]
 	[Route("/api/")]
 	public class CounterpartyController : ControllerBase
 	{

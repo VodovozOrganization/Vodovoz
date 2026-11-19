@@ -163,7 +163,7 @@ namespace Edo.Problems.Validation.Sources
 							GtinList = g.Select(x => x.Gtin),
 							Amount = g.First().Amount
 						});
-			
+
 			// Все ли коды отсканированы?
 			foreach(var needToScan in needToScanNomenclaturesWithGtinLists)
 			{
@@ -174,7 +174,7 @@ namespace Edo.Problems.Validation.Sources
 					return false;
 				}
 			}
-			
+
 			// Все ли отсканированные коды прикреплены к задаче?
 			if(orderEdoRequest.Task.Items.Count < allScannedCodes.Sum(x => x.Amount))
 			{

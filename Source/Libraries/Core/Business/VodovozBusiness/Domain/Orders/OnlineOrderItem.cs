@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
@@ -41,6 +41,8 @@ namespace Vodovoz.Domain.Orders
 		private decimal _discountPercentFromDiscountReasons;
 		private decimal _discountMoneyFromDiscountReasons;
 		private bool _isDiscountInMoneyFromDiscountReasons;
+		private int _bonusesWrittenOff;
+		private decimal _currentSum;
 
 		protected OnlineOrderItem() { }
 
@@ -161,6 +163,20 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _isDiscountInMoneyFromDiscountReasons;
 			set => SetField(ref _isDiscountInMoneyFromDiscountReasons, value);
+		}
+
+		[Display(Name = "Бонусы, списанные на позицию")]
+		public virtual int BonusesWrittenOff
+		{
+			get => _bonusesWrittenOff;
+			set => SetField(ref _bonusesWrittenOff, value);
+		}
+
+		[Display(Name = "Сумма позиции после скидок")]
+		public virtual decimal CurrentSum
+		{
+			get => _currentSum;
+			set => SetField(ref _currentSum, value);
 		}
 
 		[Display(Name = "Количество из промонабора")]
