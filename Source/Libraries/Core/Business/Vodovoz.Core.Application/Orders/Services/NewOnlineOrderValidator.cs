@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Orders.Delivery;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
@@ -89,10 +90,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return;
 			}
 			
-			var contactNumber =
-				!string.IsNullOrWhiteSpace(OnlineOrder.ContactPhone) && OnlineOrder.ContactPhone.Length > 2
-					? OnlineOrder.ContactPhone.Substring(2)
-					: null;
+			var contactNumber = string.IsNullOrWhiteSpace(OnlineOrder.ContactPhone)
+				? null
+				: OnlineOrder.ContactPhone.NormalizePhone();
 
 			var result = FreeLoaderChecker.CanOrderPromoSetForNewClientsFromOnline(
 				uow,

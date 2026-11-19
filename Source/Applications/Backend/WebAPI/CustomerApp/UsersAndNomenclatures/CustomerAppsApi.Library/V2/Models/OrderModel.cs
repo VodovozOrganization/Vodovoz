@@ -2,6 +2,7 @@
 using CustomerAppsApi.Library.V2.Dto.Counterparties;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Extensions;
 using VodovozBusiness.Services.Orders;
 
 namespace CustomerAppsApi.Library.V2.Models
@@ -24,10 +25,9 @@ namespace CustomerAppsApi.Library.V2.Models
 
 		public bool CanCounterpartyOrderPromoSetForNewClients(FreeLoaderCheckingDto freeLoaderCheckingDto)
 		{
-			var digitsNumber =
-				!string.IsNullOrWhiteSpace(freeLoaderCheckingDto.Phone) && freeLoaderCheckingDto.Phone.Length > 2
-					? freeLoaderCheckingDto.Phone[2..]
-					: null;
+			var digitsNumber = string.IsNullOrWhiteSpace(freeLoaderCheckingDto.Phone)
+				? null
+				: freeLoaderCheckingDto.Phone.NormalizePhone();
 			
 			return _freeLoaderChecker.CanOrderPromoSetForNewClientsFromOnline(
 				_unitOfWork,

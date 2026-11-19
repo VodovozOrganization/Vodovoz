@@ -62,7 +62,7 @@ namespace VodovozBusiness.Services.Orders
 		/// <param name="isSelfDelivery">Самовывоз или нет</param>
 		/// <param name="counterpartyId">Id клиента</param>
 		/// <param name="deliveryPointId">Id точки доставки</param>
-		/// <param name="digitsNumber">Номер телефона в формате XXXXXXXXXX (только цифры)</param>
+		/// <param name="digitsNumber">Номер телефона в любом формате; поиск выполняется по цифрам без +7, 8, 7</param>
 		/// <returns>
 		/// <see cref="Result.IsSuccess"/> - может заказывать промик для новых клиентов,
 		/// <see cref="Result.Failure(Error)"/> - нет</returns>
