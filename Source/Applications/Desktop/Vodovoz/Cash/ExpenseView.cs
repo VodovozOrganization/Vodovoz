@@ -59,6 +59,10 @@ namespace Vodovoz.Cash
 				.AddBinding(ViewModel, vm => vm.CanChangeEmployee, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
+			entryCfoSubdivision.ViewModel = ViewModel.CfoSubdivisionViewModel;
+
+			entryCfzSubdivision.ViewModel = ViewModel.CfzSubdivisionViewModel;
+
 			ydateDocument.Binding
 				.AddBinding(ViewModel.Entity, s => s.Date, w => w.Date)
 				.AddBinding(ViewModel, vm => vm.CanEditDate, w => w.Sensitive)
