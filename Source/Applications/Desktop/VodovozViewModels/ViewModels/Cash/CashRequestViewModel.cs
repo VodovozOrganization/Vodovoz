@@ -277,7 +277,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			cashRequestItemPage.ViewModel.Entity = new CashRequestSumItem()
 			{
-				AccountableEmployee = CurrentEmployee
+				AccountableEmployee = CurrentEmployee,
+				CfzSubdivision = CurrentEmployee.Subdivision
 			};
 
 			cashRequestItemPage.ViewModel.EntityAccepted += OnSumForAddAccepted;
