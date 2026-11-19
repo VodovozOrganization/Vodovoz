@@ -1842,6 +1842,11 @@ namespace Vodovoz.Domain.Logistic
 			if(Cashier?.Subdivision == null)
 				return "Создающий кассовый документ пользователь - не привязан к сотруднику!";
 
+			if(Driver?.Subdivision == null)
+			{
+				return Expense.GetEmployeeSubdivisionMissingMessage(Driver);
+			}
+
 			cashExpense = new Expense {
 				ExpenseCategoryId = financialCategoriesGroupsSettings.EmployeeSalaryFinancialExpenseCategoryId,
 				TypeOperation = ExpenseType.EmployeeAdvance,
@@ -1852,7 +1857,9 @@ namespace Vodovoz.Domain.Logistic
 				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}",
 				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
 				RouteListClosing = this,
-				RelatedToSubdivision = Cashier.Subdivision
+				RelatedToSubdivision = Cashier.Subdivision,
+				CfoSubdivision = Cashier.Subdivision,
+				CfzSubdivision = Driver.Subdivision
 			};
 
 			message = $"Создан расходный ордер на сумму {cashExpense.Money:C0}";

@@ -113,6 +113,26 @@ namespace Vodovoz.Domain.Cash
 			set => SetField(ref _cfzSubdivision, value);
 		}
 
+		/// <summary>
+		/// Сообщение о том, что у кассира не указано подразделение и ЦФО ордера не определить
+		/// </summary>
+		/// <param name="casher">Кассир</param>
+		/// <returns>Текст сообщения</returns>
+		public static string GetCasherSubdivisionMissingMessage(Employee casher)
+		{
+			return $"У сотрудника {casher?.ShortName} не указано подразделение, ЦФО расходного ордера не определить";
+		}
+
+		/// <summary>
+		/// Сообщение о том, что у сотрудника, в пользу которого создаётся ордер, не указано подразделение и ЦФЗ ордера не определить
+		/// </summary>
+		/// <param name="employee">Сотрудник, в пользу которого создаётся ордер</param>
+		/// <returns>Текст сообщения</returns>
+		public static string GetEmployeeSubdivisionMissingMessage(Employee employee)
+		{
+			return $"У сотрудника {employee?.ShortName} не указано подразделение, ЦФЗ расходного ордера не определить";
+		}
+
 		[Display(Name = "Тип документа")]
 		public virtual ExpenseInvoiceDocumentType TypeDocument
 		{

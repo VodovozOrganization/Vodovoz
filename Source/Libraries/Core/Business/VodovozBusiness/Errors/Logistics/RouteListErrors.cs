@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Errors.Logistics
@@ -63,6 +64,27 @@ namespace Vodovoz.Errors.Logistics
 				typeof(RouteListErrors),
 				nameof(CashierSubdivisionIsEmpty),
 				"У кассира не указано подразделение");
+
+		/// <summary>
+		/// Ошибка: у водителя не указано подразделение, ЦФЗ расходного ордера не определить
+		/// </summary>
+		[Display(Name = "У водителя не указано подразделение")]
+		public static Error DriverSubdivisionIsEmpty =>
+			new Error(
+				typeof(RouteListErrors),
+				nameof(DriverSubdivisionIsEmpty),
+				"У водителя не указано подразделение, ЦФЗ расходного ордера не определить");
+
+		/// <summary>
+		/// Создаёт ошибку о том, что у водителя не указано подразделение, с ФИО водителя
+		/// </summary>
+		/// <param name="driver">Водитель</param>
+		/// <returns>Ошибка с кодом <see cref="DriverSubdivisionIsEmpty"/></returns>
+		public static Error CreateDriverSubdivisionIsEmpty(Employee driver) =>
+			driver is null ? DriverSubdivisionIsEmpty : new Error(
+				typeof(RouteListErrors),
+				nameof(DriverSubdivisionIsEmpty),
+				$"У сотрудника {driver.ShortName} не указано подразделение, ЦФЗ расходного ордера не определить");
 
 		public static Error IncorrectStatusForAccept =>
 			new Error(

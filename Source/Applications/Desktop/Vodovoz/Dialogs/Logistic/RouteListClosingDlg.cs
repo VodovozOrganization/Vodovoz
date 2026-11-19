@@ -1290,9 +1290,13 @@ namespace Vodovoz
 
 			PerformanceHelper.AddTimePoint("Валидация МЛ");
 			
-			if(advanceCheckbox.Active && advanceSpinbutton.Value > 0) {
-				EmployeeAdvanceOrder((decimal)advanceSpinbutton.Value);
-				
+			if(advanceCheckbox.Active && advanceSpinbutton.Value > 0)
+			{
+				if(!EmployeeAdvanceOrder((decimal)advanceSpinbutton.Value))
+				{
+					return;
+				}
+
 				PerformanceHelper.AddTimePoint("Создан расходный ордер");
 			}
 
@@ -1789,7 +1793,7 @@ namespace Vodovoz
 			}
 		}
 
-		private void EmployeeAdvanceOrder(decimal cashInput)
+		private bool EmployeeAdvanceOrder(decimal cashInput)
 		{
 			string message, ifAdvanceIsBigger;
 
@@ -1798,18 +1802,25 @@ namespace Vodovoz
 
 			ifAdvanceIsBigger = (cashToReturn > 0) ? "Сумма для сдачи в кассу" : "Сумма для выдачи из кассы";
 
-			if(!TrySetCashier()) {
-				return;
+			if(!TrySetCashier())
+			{
+				return false;
 			}
 
 			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput, _financialCategoriesGroupsSettings);
 
-			if(cashExpense != null)
-				UoW.Save(cashExpense);
+			if(cashExpense == null)
+			{
+				MessageDialogHelper.RunErrorDialog(message);
+				return false;
+			}
+
+			UoW.Save(cashExpense);
 			cashExpense.UpdateWagesOperations(UoW);
 			UoW.Save();
 
 			MessageDialogHelper.RunInfoDialog(string.Format("{0}\n\n{1}: {2:C0}", message, ifAdvanceIsBigger, Math.Abs(cashToReturn)));
+			return true;
 		}
 
 		private bool TrySetCashier()
@@ -1954,7 +1965,7 @@ namespace Vodovoz
 
 			if(cashOrdersResult.IsFailure)
 			{
-				MessageDialogHelper.RunErrorDialog(cashOrdersResult.Errors.FirstOrDefault());
+				MessageDialogHelper.RunErrorDialog(cashOrdersResult.Errors.Select(x => x.Message).FirstOrDefault());
 				return;
 			}
 

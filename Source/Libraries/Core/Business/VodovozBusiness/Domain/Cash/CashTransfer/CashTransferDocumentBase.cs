@@ -209,6 +209,11 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 				throw new ArgumentNullException(nameof(sender), $"Не указано кто является кассиром");
 			}
 
+			if(sender.Subdivision == null)
+			{
+				throw new InvalidOperationException(Expense.GetCasherSubdivisionMissingMessage(sender));
+			}
+
 			if(Status != CashTransferDocumentStatuses.New)
 			{
 				throw new InvalidOperationException($"Невозможно отправить документ транспортировки денег не из статуса {CashTransferDocumentStatuses.New.GetEnumTitle()}");
@@ -251,6 +256,8 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 					TypeOperation = ExpenseType.Expense,
 					Money = TransferedSum,
 					RelatedToSubdivision = CashSubdivisionFrom,
+					CfoSubdivision = sender.Subdivision,
+					CfzSubdivision = CashSubdivisionTo,
 					CashTransferDocument = this
 				};
 
