@@ -18,6 +18,11 @@ namespace DriverApi.Contracts.V5
 		public RouteListDtoStatus RouteListStatus { get; set; }
 
 		/// <summary>
+		/// Комментарий по закрытию маршрутного листа
+		/// </summary>
+		public string RouteListComment { get; set; }
+
+		/// <summary>
 		/// Наличные деньги
 		/// </summary>
 		public decimal CashMoney { get; set; }
