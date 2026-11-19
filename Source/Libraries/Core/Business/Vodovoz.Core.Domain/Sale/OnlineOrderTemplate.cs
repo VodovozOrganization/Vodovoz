@@ -466,9 +466,10 @@ namespace Vodovoz.Core.Domain.Sale
 		private WeekDayName? _weekday;
 		private int? _repeatEveryWeeks;
 		private DateTime? _firstDeliveryDate;
+		private DateTime _nearestDeliveryDate;
 		private int? _dayOfMonth;
 		private int _deliveryScheduleId;
-		
+
 		protected TemplateDeliveryScheduleData() { }
 
 		protected TemplateDeliveryScheduleData(
@@ -562,6 +563,15 @@ namespace Vodovoz.Core.Domain.Sale
 		{
 			get => _firstDeliveryDate;
 			set => SetField(ref _firstDeliveryDate, value);
+		}
+
+		/// <summary>
+		/// Ближайшая дата доставки
+		/// </summary>
+		public DateTime NearestDeliveryDate
+		{
+			get => _nearestDeliveryDate;
+			set => SetField(ref _nearestDeliveryDate, value);
 		}
 
 		/// <summary>

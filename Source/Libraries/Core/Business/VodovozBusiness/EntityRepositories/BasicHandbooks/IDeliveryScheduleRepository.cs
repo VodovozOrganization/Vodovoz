@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.EntityRepositories.BasicHandbooks
@@ -36,5 +37,22 @@ namespace Vodovoz.EntityRepositories.BasicHandbooks
 		/// <param name="deliveryScheduleId">Идентификатор интервала доставки</param>
 		/// <returns></returns>
 		bool Available(IUnitOfWork uow, DayOfWeek weekDay, int deliveryPointId, int deliveryScheduleId);
+		
+		/// <summary>
+		/// Получение дней недели с доступным интервалом доставки, который ищем 
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="deliveryWeekDay">День недели доставки</param>
+		/// <param name="templateWeekDay">День недели доставки из шаблона</param>
+		/// <param name="deliveryPointId">Идентификатор ТД</param>
+		/// <param name="deliveryScheduleId">Идентификатор интервала доставки</param>
+		/// <returns></returns>
+		ILookup<DayOfWeek, int> GetWeekdaysWithDeliveryInterval(
+			IUnitOfWork uow,
+			DayOfWeek deliveryWeekDay,
+			DayOfWeek templateWeekDay,
+			int deliveryPointId,
+			int deliveryScheduleId
+			);
 	}
 }

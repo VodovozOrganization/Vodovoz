@@ -52,7 +52,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private bool _autoRefreshEnabled;
 		private bool _isOnlineOrdersExportToExcelInProcess;
 		private readonly IFileDialogService _fileDialogService;
-		
 
 		public OnlineOrdersJournalViewModel(
 			OnlineOrdersJournalFilterViewModel journalFilterViewModel,

@@ -121,7 +121,7 @@ namespace Vodovoz.Factories
 		{
 			var promoSet = templatePromoSet.PromoSet;
 			
-			//TODO-5696 стоит добавлять персональнуюю скидку? Теперь будут создавать из ДВ и возможно будет персональная скидка у промика
+			//TODO-5696 стоит добавлять персональную скидку? Теперь будут создавать из ДВ и возможно будет персональная скидка у промика
 			var onlinePromoSet = OnlineOrderPromoSet.Create(
 				promoSet.Id,
 				templatePromoSet.Count,

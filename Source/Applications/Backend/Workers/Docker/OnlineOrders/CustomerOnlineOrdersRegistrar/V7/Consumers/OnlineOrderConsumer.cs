@@ -138,6 +138,8 @@ namespace CustomerOnlineOrdersRegistrar.V7.Consumers
 					_routeListService,
 					cancellationToken
 				);
+
+				await uow.CommitAsync(cancellationToken);
 			}
 			catch(Exception e)
 			{

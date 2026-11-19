@@ -5,6 +5,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Extensions;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
@@ -67,6 +68,38 @@ namespace Vodovoz.Infrastructure.Persistance.BasicHandbooks
 					&& deliveryScheduleRestriction.WeekDay == weekDay.ConvertToWeekDayName()
 				select deliverySchedule.Id
 			).Any();
+		}
+		
+		public ILookup<DayOfWeek, int> GetWeekdaysWithDeliveryInterval(
+			IUnitOfWork uow,
+			DayOfWeek deliveryWeekDay,
+			DayOfWeek templateWeekDay,
+			int deliveryPointId,
+			int deliveryScheduleId
+		)
+		{
+			var weekDays = new[] { deliveryWeekDay.ConvertToWeekDayName(), templateWeekDay.ConvertToWeekDayName() };
+			
+			var query = (
+				from district in uow.Session.Query<District>()
+				join deliveryPoint in uow.Session.Query<DeliveryPoint>()
+					on district.Id equals deliveryPoint.District.Id
+				join deliveryScheduleRestriction in uow.Session.Query<DeliveryScheduleRestriction>()
+					on district.Id equals deliveryScheduleRestriction.District.Id
+				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
+					on deliveryScheduleRestriction.DeliverySchedule.Id equals deliverySchedule.Id
+				where deliveryPoint.Id == deliveryPointId
+					&& deliverySchedule.Id == deliveryScheduleId
+					&& !deliverySchedule.IsArchive
+					&& weekDays.Contains(deliveryScheduleRestriction.WeekDay)
+				select new { deliverySchedule.Id, deliveryScheduleRestriction.WeekDay }
+			);
+
+			var schedulesLookup = query
+				.ToList()
+				.ToLookup(x => x.WeekDay.ToDayOfWeek(), y => y.Id);
+			
+			return schedulesLookup;
 		}
 	}
 }

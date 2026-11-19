@@ -35,6 +35,12 @@ namespace Vodovoz.Core.Domain.Orders.OrderEnums
 		/// Системные сообщения
 		/// </summary>
 		[Display(Name = "Системные сообщения")]
-		System
+		System,
+		
+		/// <summary>
+		/// Системные сообщения
+		/// </summary>
+		[Display(Name = "Уведомления по заказу")]
+		Order
 	}
 }

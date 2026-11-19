@@ -13,6 +13,7 @@ using Vodovoz.ViewModels.Dialogs.Mango;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Factories;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -35,7 +36,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
 			IDiscountController discountController,
 			IOrderOrganizationManager orderOrganizationManager,
-			MangoManager mangoManager
+			MangoManager mangoManager,
+			IOnlineOrderStateHandler onlineOrderStateHandler
 		)
 			: base(
 				logger,
@@ -51,7 +53,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				deliveryPointJournalFilterViewModel,
 				discountController,
 				orderOrganizationManager,
-				mangoManager
+				mangoManager,
+				onlineOrderStateHandler
 			)
 		{
 			Initialize();

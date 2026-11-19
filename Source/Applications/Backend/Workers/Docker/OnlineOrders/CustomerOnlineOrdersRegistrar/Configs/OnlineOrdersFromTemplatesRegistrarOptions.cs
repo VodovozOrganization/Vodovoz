@@ -3,9 +3,9 @@
 	/// <summary>
 	/// Настройки регистратора автозаказов из шаблонов
 	/// </summary>
-	public class OnlineOrderFromTemplateRegistrarOptions
+	public class OnlineOrdersFromTemplatesRegistrarOptions
 	{
-		public const string SectionName = "OnlineOrderFromTemplateRegistrarOptions";
+		public const string SectionName = "OnlineOrdersFromTemplatesRegistrarOptions";
 		
 		/// <summary>
 		/// Задержка между запусками в секундах

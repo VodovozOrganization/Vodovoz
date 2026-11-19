@@ -684,16 +684,22 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			onlineOrder.SetOrderPerformed(new []{ order }, employee);
 
-			await uow.CommitAsync(cancellationToken);
+			//TODO-5696 проверить работоспособность после выноса коммита наружу
+			//await uow.CommitAsync(cancellationToken);
 
 			if(acceptResult.Value)
 			{
 				_fastDeliveryHandler.NotifyDriverOfFastDeliveryOrderAdded(order.Id);
 
-				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(
+					CustomerNotificationEventType.CourierAssigned,
+					order.OnlineOrder?.Source,
+					order.OnlineOrder?.Id,
+					order.Id);
+				
 				await _customerNotificationPublisher.TryPublishAsync(uow, customerCourierAssignedEvent, cancellationToken);				
 
-				await uow.CommitAsync(cancellationToken);
+				//await uow.CommitAsync(cancellationToken);
 			}
 
 			return order.Id;

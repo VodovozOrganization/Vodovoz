@@ -75,8 +75,9 @@ namespace Vodovoz.Domain.Orders
 		private bool _hasService;
 		private bool _isAutoOrderEnabled;
 		private OnlineOrderTemplate _template;
-		private OnlineOrderTimestamp _templateSetupStartTime;
-		private OnlineOrderTimestamp _templatePayStartTime;
+		private OnlineOrderTimestamp _templateSetupTimestamp;
+		private OnlineOrderTimestamp _templatePayTimestamp;
+		private DateTime? _templateDeliveryDate;
 
 		public virtual int Id { get; set; }
 		
@@ -398,21 +399,30 @@ namespace Vodovoz.Domain.Orders
 		public virtual IEnumerable<ISaleItem> SaleItems => OnlineOrderItems;
 
 		/// <summary>
-		/// Метка отсчета для настройки автозаказа
+		/// Метка времени для настройки автозаказа
 		/// </summary>
-		public virtual OnlineOrderTimestamp TemplateSetupStartTime
+		public virtual OnlineOrderTimestamp TemplateSetupTimestamp
 		{
-			get => _templateSetupStartTime;
-			set => SetField(ref _templateSetupStartTime, value);
+			get => _templateSetupTimestamp;
+			set => SetField(ref _templateSetupTimestamp, value);
 		}
 
 		/// <summary>
-		/// Метка отсчета для оплаты автозаказа(привязки рекуррентной ссылки)
+		/// Метка времени для оплаты автозаказа(привязки рекуррентной ссылки)
 		/// </summary>
-		public virtual OnlineOrderTimestamp TemplatePayStartTime
+		public virtual OnlineOrderTimestamp TemplatePayTimestamp
 		{
-			get => _templatePayStartTime;
-			set => SetField(ref _templatePayStartTime, value);
+			get => _templatePayTimestamp;
+			set => SetField(ref _templatePayTimestamp, value);
+		}
+		
+		/// <summary>
+		/// Ожидаемая дата доставки по шаблону автозаказа
+		/// </summary>
+		public virtual DateTime? TemplateDeliveryDate
+		{
+			get => _templateDeliveryDate;
+			set => SetField(ref _templateDeliveryDate, value);
 		}
 
 		/// <summary>
@@ -458,15 +468,15 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool TemplateSetupTimeIsUp(OnlineOrderTimers timers)
 		{
-			if(TemplateSetupStartTime is null)
+			if(TemplateSetupTimestamp is null)
 			{
 				return true;
 			}
 
-			var timeToSetupInSeconds = timers.AutoOrderTimeSetupInSeconds(TemplateSetupStartTime.Type);
+			var timeToSetupInSeconds = timers.AutoOrderTimeSetupInSeconds(TemplateSetupTimestamp.Type);
 			
 			return OnlineOrderStatus == OnlineOrderStatus.PendingAutoOrderSettings
-				&& (DateTime.Now - TemplateSetupStartTime.StartTime).TotalSeconds >= timeToSetupInSeconds;
+				&& (DateTime.Now - TemplateSetupTimestamp.StartTime).TotalSeconds >= timeToSetupInSeconds;
 		}
 
 		public virtual void SetOrderPerformed(IEnumerable<Order> orders, Employee employee = null)
@@ -616,26 +626,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			return Id > 0 ? $"{OnlineOrderName} №{Id} от {_deliveryDate:d}" : $"Новый {OnlineOrderName.ToLower()}";
 		}
-		
-		public virtual void ToSetupTemplate(
-			int timeToSetupInSeconds,
-			OnlineOrderTimestampType onlineOrderTimestampType,
-			DateTime? startTime = null)
-		{
-			//TODO-6115 сделать различные проверки, чтобы нельзя было перевести в настройку не в тех состояниях
-			OnlineOrderStatus = OnlineOrderStatus.PendingAutoOrderSettings;
-			TemplateSetupStartTime = OnlineOrderTimestamp.Create(startTime ?? DateTime.Now, timeToSetupInSeconds, onlineOrderTimestampType);
-		}
-		
-		public virtual void ToPayTemplate(
-			int timeToPayInSeconds,
-			OnlineOrderTimestampType onlineOrderTimestampType)
-		{
-			//TODO-6115 сделать различные проверки, чтобы нельзя было перевести на оплату не в тех состояниях
-			OnlineOrderStatus = OnlineOrderStatus.WaitingForPayment;
-			TemplateSetupStartTime = null;
-			TemplatePayStartTime = OnlineOrderTimestamp.Create(DateTime.Now, timeToPayInSeconds, onlineOrderTimestampType);
-		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
@@ -656,8 +646,8 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual void ClearTimestamps()
 		{
-			TemplateSetupStartTime = null;
-			TemplatePayStartTime = null;
+			TemplateSetupTimestamp = null;
+			TemplatePayTimestamp = null;
 		}
 
 		private void UpdateDeliverySchedule(DeliverySchedule deliverySchedule, int? deliveryScheduleId)

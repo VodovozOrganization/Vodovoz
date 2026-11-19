@@ -9,59 +9,81 @@ using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
+using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Sale;
 using VodovozBusiness.EntityRepositories.Sale;
 using VodovozBusiness.Factories;
 using VodovozBusiness.Nodes;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Sale
 {
-	public class OnlineOrderFromTemplateCreator
+	public class OnlineOrdersFromTemplatesCreator : IOnlineOrdersFromTemplatesCreator
 	{
-		private readonly ILogger<OnlineOrderFromTemplateCreator> _logger;
+		private readonly ILogger<OnlineOrdersFromTemplatesCreator> _logger;
+		private readonly IDiscountReasonSettings _discountReasonSettings;
 		private readonly IGoodsPriceCalculator _goodsPriceCalculator;
 		private readonly IOnlineOrderFactory _onlineOrderFactory;
 		private readonly IOnlineOrderTemplateRepository _onlineOrderTemplateRepository;
 		private readonly IOnlineOrderValidatorCreator _onlineOrderValidatorCreator;
-		private readonly IDiscountController _discountController;
+		private readonly ISaleDiscountController _discountController;
+		private readonly IOnlineOrderStateHandler _onlineOrderStateHandler;
+		private readonly ISaleHandler _saleHandler;
+		private readonly IOrderService _orderService;
+		private readonly IRouteListService _routeListService;
 
-		public OnlineOrderFromTemplateCreator(
-			ILogger<OnlineOrderFromTemplateCreator> logger,
+		public OnlineOrdersFromTemplatesCreator(
+			ILogger<OnlineOrdersFromTemplatesCreator> logger,
+			IDiscountReasonSettings discountReasonSettings,
 			IGoodsPriceCalculator goodsPriceCalculator,
 			IOnlineOrderFactory onlineOrderFactory,
 			IOnlineOrderTemplateRepository onlineOrderTemplateRepository,
 			IOnlineOrderValidatorCreator onlineOrderValidatorCreator,
-			IDiscountController discountController
+			ISaleDiscountController discountController,
+			IOnlineOrderStateHandler onlineOrderStateHandler,
+			ISaleHandler saleHandler,
+			IOrderService orderService,
+			IRouteListService routeListService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_discountReasonSettings = discountReasonSettings ?? throw new ArgumentNullException(nameof(discountReasonSettings));
 			_goodsPriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 			_onlineOrderFactory = onlineOrderFactory ?? throw new ArgumentNullException(nameof(onlineOrderFactory));
 			_onlineOrderTemplateRepository = onlineOrderTemplateRepository ?? throw new ArgumentNullException(nameof(onlineOrderTemplateRepository));
 			_onlineOrderValidatorCreator = onlineOrderValidatorCreator ?? throw new ArgumentNullException(nameof(onlineOrderValidatorCreator));
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
+			_onlineOrderStateHandler = onlineOrderStateHandler ?? throw new ArgumentNullException(nameof(onlineOrderStateHandler));
+			_saleHandler = saleHandler ?? throw new ArgumentNullException(nameof(saleHandler));
+			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 		}
 		
-		public async Task Create(IUnitOfWork uow, CancellationToken cancellationToken)
+		public async Task CreateAsync(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Начинаем работу по созданию онлайн заказов из шаблонов");
 			
-			var activeTemplates =
-				_onlineOrderTemplateRepository.GetActiveOnlineOrdersTemplatesForCreateOrders(uow, DateTime.Now);
+			//TODO-5696 создание заказов за два дня. Заменить на параметр
+			var deliveryDate = DateTime.Today.AddDays(2);
+			var activeTemplateIds =
+				await _onlineOrderTemplateRepository.GetActiveOnlineOrdersTemplatesForCreateOrdersAsync(uow, deliveryDate, cancellationToken);
+
+			if(!activeTemplateIds.Any())
+			{
+				_logger.LogInformation("Нет активных шаблонов на обработку...");
+				return;
+			}
 
 			var templatesWithItems = await _onlineOrderTemplateRepository.GetOnlineOrdersTemplatesDataAsync(
-				uow, activeTemplates.Select(x => x.Id).ToArray());
+				uow, activeTemplateIds);
 
 			_logger.LogInformation("Всего шаблонов на обработку: {TemplatesCount}", templatesWithItems.Templates.Count());
 
 			foreach(var template in templatesWithItems.Templates)
 			{
-				//TODO-5696 обсудить вопрос с назначением даты с Костей, в том числе переносы
-				//Подумать над логикой присвоения даты доставки. Может лучше убрать все в одно место?
-				//template.DeliveryDate = DateTime.Today.AddDays(1);
-				var deliveryDate = DateTime.Today.AddDays(2);
-				
 				var templateSumAndSaleItemInfo = await ProcessItems(uow, template, templatesWithItems, cancellationToken);
 
 				var onlineOrder = _onlineOrderFactory.Create(
@@ -80,7 +102,29 @@ namespace Vodovoz.Core.Application.Sale
 					.Validate(uow, true)
 					.IsFailure)
 				{
-					onlineOrder.OnlineOrderStatus = OnlineOrderStatus.New;
+					_logger.LogInformation(
+						"Автозаказ {OnlineOrderId} не прошел проверки, отправляем на ручное...",
+						onlineOrder.Id);
+					
+					_onlineOrderStateHandler.AutoOrderToManualProcessing(onlineOrder);
+				}
+				else if(onlineOrder.Template.NeedAdvancePayment())
+				{
+					_logger.LogInformation(
+						"Автозаказ {OnlineOrderId} прошел проверки. Это онлайн оплата, на списание средств...",
+						onlineOrder.Id);
+					
+					onlineOrder.OnlineOrderStatus = OnlineOrderStatus.AutoOrderDeductionFunds;
+				}
+				else
+				{
+					_logger.LogInformation("Проводим заказ на основе онлайн заказа {OnlineOrderId}", onlineOrder.Id);
+					await _orderService.TryCreateOrderFromOnlineOrderAndAcceptAsync(
+						uow,
+						onlineOrder,
+						_routeListService,
+						cancellationToken
+					);
 				}
 				
 				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
@@ -88,12 +132,22 @@ namespace Vodovoz.Core.Application.Sale
 			}
 		}
 
+		/// <summary>
+		/// Обновление позиций шаблона на момент цен, доставки и скидки за автозаказ
+		/// Т.к. шаблон может находиться активным сколь угодно долго, то за это время могут поменяться цены, условия доставки
+		/// поэтому эти данные нужно обновлять при создании из него онлайн заказа
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="template">Шаблон автозаказа</param>
+		/// <param name="templatesWithItems">Данные по шаблонам и их товарам</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
 		private async Task<(decimal TemplateSum, IEnumerable<(decimal Sum, OnlineOrderTemplateSaleItem SaleItem)> SaleItemsWithSum)> ProcessItems(
-				IUnitOfWork uow,
-				OnlineOrderTemplate template,
-				OnlineOrdersTemplatesData templatesWithItems,
-				CancellationToken cancellationToken
-				)
+			IUnitOfWork uow,
+			OnlineOrderTemplate template,
+			OnlineOrdersTemplatesData templatesWithItems,
+			CancellationToken cancellationToken
+			)
 		{
 			var templateSum = 0m;
 			
@@ -107,7 +161,7 @@ namespace Vodovoz.Core.Application.Sale
 				await UpdateSaleItemsAsync(uow, templateSaleItems, deliveryPointFixedPrices, counterpartyFixedPrices, cancellationToken);
 
 			templateSum += saleItemsInfo.Sum(x => x.Sum);
-			templateSum += await UpdatePromItemsAsync(uow, templatePromoSets, cancellationToken);
+			templateSum += await UpdatePromoItemsAsync(uow, templatePromoSets, cancellationToken);
 			templateSum += await UpdateRentPackagesAsync(uow, templateRentPackages, cancellationToken);
 
 			return (templateSum, saleItemsInfo);
@@ -123,6 +177,8 @@ namespace Vodovoz.Core.Application.Sale
 		{
 			var list = new List<(decimal Sum, OnlineOrderTemplateSaleItem SaleItem)>();
 			
+			_saleHandler.UpdateDeliveryCost(uow);
+			
 			foreach(var saleItem in saleItems)
 			{
 				var sum = 0m;
@@ -136,7 +192,7 @@ namespace Vodovoz.Core.Application.Sale
 					false
 					);
 
-				if(saleItem.Price == price.Price)
+				/*if(saleItem.Price == price.Price)
 				{
 					discount = _discountController
 						.CalculateTotalDiscountDetails(saleItem)
@@ -145,7 +201,9 @@ namespace Vodovoz.Core.Application.Sale
 					sum = saleItem.CurrentRawPrice - discount;
 					list.Add((sum, saleItem));
 					continue;
-				}
+				}*/
+				
+				AddAutoOrderDiscountIfNeeded(uow, saleItem);
 
 				saleItem.Price = price.Price;
 				discount = _discountController
@@ -160,8 +218,8 @@ namespace Vodovoz.Core.Application.Sale
 
 			return list;
 		}
-		
-		private async Task<decimal> UpdatePromItemsAsync(
+
+		private async Task<decimal> UpdatePromoItemsAsync(
 			IUnitOfWork uow,
 			IEnumerable<OnlineOrderTemplatePromoSet> templatePromoSets,
 			CancellationToken cancellationToken
@@ -173,10 +231,7 @@ namespace Vodovoz.Core.Application.Sale
 			{
 				var promoSetCurrentPrice = templatePromoSet.PromoSet.Sum();
 				
-				if(templatePromoSet.Price == promoSetCurrentPrice)
-				{
-					continue;
-				}
+				AddAutoOrderDiscountIfNeeded(uow, templatePromoSet);
 				
 				templatePromoSet.Price = promoSetCurrentPrice;
 				var discountData = _discountController.CalculateTotalDiscountDetails(templatePromoSet);
@@ -200,11 +255,6 @@ namespace Vodovoz.Core.Application.Sale
 			{
 				var rentPackageCurrentPrice = templateRentPackage.FreeRentPackage.Deposit;
 
-				if(templateRentPackage.Price == rentPackageCurrentPrice)
-				{
-					continue;
-				}
-				
 				templateRentPackage.Price = rentPackageCurrentPrice;
 				sum += templateRentPackage.CurrentRawPrice;
 				
@@ -212,6 +262,24 @@ namespace Vodovoz.Core.Application.Sale
 			}
 			
 			return sum;
+		}
+
+		private void AddAutoOrderDiscountIfNeeded(IUnitOfWork uow, ICalculatingTotalMoneyDiscount saleItem)
+		{
+			var autoOrderDiscount = uow.GetById<AutoOrderDiscount>(_discountReasonSettings.AutoOrderDiscountReasonId);
+
+			if(autoOrderDiscount is null)
+			{
+				throw new InvalidOperationException(
+					"Не найдена скидка за автозаказ!. Проверьте параметр DiscountReason.AutoOrderDiscountReasonId в базе или само основание");
+			}
+
+			var applicablePromotion = ApplicablePromotion.Create(saleItem);
+			
+			//TODO-5696 проверить расчет скидки с персональной скидкой, если будет превышение лимита 100% или рублевого эквивалента
+			//TODO-5696 научить добавлять скидку в промонаборы
+			//var applyDiscountItem = saleItem.ToApplyDiscountReasonItem();
+			//_discountController.AddDiscountFromDiscountReason(autoOrderDiscount, applyDiscountItem);
 		}
 	}
 }

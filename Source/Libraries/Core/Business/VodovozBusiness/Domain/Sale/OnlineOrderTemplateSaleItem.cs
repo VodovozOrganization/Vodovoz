@@ -6,6 +6,7 @@ using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Interfaces;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
@@ -19,7 +20,7 @@ namespace VodovozBusiness.Domain.Sale
 		PrepositionalPlural = "Продаваемых позициях автозаказов с ИПЗ"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderTemplateSaleItem : PropertyChangedBase, IDomainObject, ISaleItem, ICalculatingTotalMoneyDiscount
+	public class OnlineOrderTemplateSaleItem : PropertyChangedBase, IDomainObject, ISaleItem, IApplyDiscountReasonItem
 	{
 		private decimal _price;
 		private int _templateId;
@@ -93,6 +94,16 @@ namespace VodovozBusiness.Domain.Sale
 			get => _personalDiscount;
 			set => SetField(ref _personalDiscount, value);
 		}
+
+		IList<DiscountReasonBase> IApplyDiscountReasonItem.DiscountReasons => DiscountReasons;
+		
+		public virtual void SetDiscount(IDiscountValue discountValue)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual decimal CurrentCount => Count;
+		public virtual IDiscountValue DiscountData { get; }
 
 		public virtual bool IsUserPrice { get; set; }
 		

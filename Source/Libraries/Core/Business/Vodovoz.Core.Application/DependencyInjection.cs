@@ -35,6 +35,7 @@ using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Service;
+using Vodovoz.Factories;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using VodovozBusiness.Controllers;
@@ -140,14 +141,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()
 				.AddTransient<IOrganizationForOrderFromSet, OrganizationForOrderFromSet>()
 				.AddScoped<IOrganizationForOnlinePaymentService, OrganizationForOnlinePaymentService>()
-				.AddTransient<OrderOurOrganizationForOrderHandler>()
-				.AddTransient<ContractOrganizationForOrderHandler>()
-				.AddTransient<OrganizationByOrderAuthorHandler>()
-				.AddTransient<OrganizationByOrderContentForOrderHandler>()
-				.AddTransient<OrganizationByPaymentTypeForOrderHandler>()
-				.AddTransient<OrganizationForDeliveryOrderByPaymentTypeHandler>()
-				.AddTransient<OrganizationForSelfDeliveryOrderByPaymentTypeHandler>()
-				.AddTransient<OrganizationFromClientForOrderHandler>()
+				.AddOrderOrganizationHandlers()
 				.AddScoped<IOrderContractUpdater, OrderContractUpdater>()
 				.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
 				.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
@@ -163,7 +157,10 @@ namespace Vodovoz.Core.Application
 				.AddScoped<OrderAddNomenclatureToSaleValidatorFactory>()
 				.AddScoped<ITemplateNextDeliveryDateGenerator, TemplateNextDeliveryDateGenerator>()
 				.AddScoped<IOnlineOrderTemplateStatusHandler, OnlineOrderTemplateStatusHandler>()
-				.AddScoped<DeliveryScheduleChecker>()
+				.AddScoped<IDeliveryScheduleChecker, DeliveryScheduleChecker>()
+				.AddScoped<IOnlineOrderStateHandler, OnlineOrderStateHandler>()
+				.AddScoped<IOnlineOrdersFromTemplatesCreator, OnlineOrdersFromTemplatesCreator>()
+				.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
 				.TryAddScoped(sp => PermissionsSettings.CurrentPermissionService)
 				;
 
@@ -187,6 +184,22 @@ namespace Vodovoz.Core.Application
 			services.TryAddScoped<SaleItemWithTaxHandler>();
 			services.TryAddScoped<ISaleItemTaxHandler, SaleItemTaxHandler>();
 			services.TryAddScoped<IVatRateProvider, VatRateFromDbProvider>();
+			
+			return services;
+		}
+
+		private static IServiceCollection AddOrderOrganizationHandlers(this IServiceCollection services)
+		{
+			services
+				.AddTransient<OrderOurOrganizationForOrderHandler>()
+				.AddTransient<ContractOrganizationForOrderHandler>()
+				.AddTransient<OrganizationByOrderAuthorHandler>()
+				.AddTransient<OrganizationByOrderContentForOrderHandler>()
+				.AddTransient<OrganizationByPaymentTypeForOrderHandler>()
+				.AddTransient<OrganizationForDeliveryOrderByPaymentTypeHandler>()
+				.AddTransient<OrganizationForSelfDeliveryOrderByPaymentTypeHandler>()
+				.AddTransient<OrganizationFromClientForOrderHandler>()
+				;
 			
 			return services;
 		}

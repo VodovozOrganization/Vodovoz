@@ -1052,7 +1052,13 @@ namespace Vodovoz.Core.Application.Logistics
 					address.RestoreOrder(_saleHandler);
 					_orderService.AutoCancelAutoTransfer(uow, address.Order);
 
-					var customerDeliveryCompletedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.DeliveryCompleted, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
+					var customerDeliveryCompletedEvent = new CustomerNotificationDomainEvent(
+						CustomerNotificationEventType.DeliveryCompleted,
+						address.Order.OnlineOrder?.Source,
+						address.Order.OnlineOrder?.Id,
+						address.Order.Id
+						);
+
 					_customerNotificationPublisher.TryPublish(uow, customerDeliveryCompletedEvent);
 
 					break;
@@ -1060,7 +1066,13 @@ namespace Vodovoz.Core.Application.Logistics
 					address.Order.ChangeStatus(_saleHandler, OrderStatus.OnTheWay);
 					address.RestoreOrder(_saleHandler);
 
-					var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
+					var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(
+						CustomerNotificationEventType.CourierAssigned,
+						address.Order.OnlineOrder?.Source,
+						address.Order.OnlineOrder?.Id,
+						address.Order.Id
+						);
+
 					_customerNotificationPublisher.TryPublish(uow, customerCourierAssignedEvent);
 
 					break;
@@ -1073,7 +1085,6 @@ namespace Vodovoz.Core.Application.Logistics
 			uow.Save(address.Order);
 
 			address.CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
-
 			address.UpdateRouteListDebt();
 		}
 

@@ -16,6 +16,7 @@ using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Sale;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
@@ -34,7 +35,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderOrganizationManager orderOrganizationManager,
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
-			IGenericRepository<OnlineOrderTemplate> templateRepository)
+			IGenericRepository<OnlineOrderTemplate> templateRepository,
+			IDeliveryScheduleChecker deliveryScheduleChecker
+			)
 			: base(
 				goodsPriceCalculator,
 				deliveryPriceGetter,
@@ -44,7 +47,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 				freeLoaderChecker,
 				orderOrganizationManager,
 				orderSettings,
-				orderRepository)
+				orderRepository,
+				deliveryScheduleChecker
+			)
 		{
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 			_templateRepository = templateRepository ?? throw new ArgumentNullException(nameof(templateRepository));

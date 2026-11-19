@@ -407,7 +407,7 @@ namespace Vodovoz.Core.Application.Sale
 		/// </summary>
 		/// <param name="saleItem">Продаваемая позиция</param>
 		/// <returns>Итоговая скидка в деньгах</returns>
-		protected virtual decimal CalculateTotalDiscount(IApplyDiscountReasonItem saleItem)
+		protected virtual decimal CalculateTotalDiscount(ICalculatingTotalMoneyDiscount saleItem)
 		{
 			var totalDiscountInMoney = 0m;
 			totalDiscountInMoney += CalculateTotalDiscountValueFromDiscountReasonsWithoutPersonalDiscount(saleItem)

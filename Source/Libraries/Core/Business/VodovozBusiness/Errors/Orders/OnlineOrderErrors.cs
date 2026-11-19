@@ -388,5 +388,25 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(NomenclatureIsOutOfStock),
 				$"Номенклатура {nomenclatureId} {nomenclatureName} отсутствует на остатках складов");
+		
+		/// <summary>
+		/// Интервал доставки не доступен в этот день
+		/// </summary>
+		/// <returns></returns>
+		public static Error DeliveryScheduleUnavailableForDeliveryDay() =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(DeliveryScheduleUnavailableForDeliveryDay),
+				"Интервал доставки недоступен в этот день");
+		
+		/// <summary>
+		/// Интервал доставки больше не доступен
+		/// </summary>
+		/// <returns></returns>
+		public static Error DeliveryScheduleUnavailable() =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(DeliveryScheduleUnavailable),
+				"Интервал доставки больше недоступен. Измените интервал в автозаказе");
 	}
 }

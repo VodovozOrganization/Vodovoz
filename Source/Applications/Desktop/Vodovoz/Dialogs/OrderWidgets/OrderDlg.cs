@@ -4822,7 +4822,7 @@ namespace Vodovoz
 				SetDiscountUnitEditable();
 				spinDiscount.ValueAsDecimal = 0;
 				SetDiscountEditable();
-				_discountsController.ClearDiscounts(Entity.ObservableOrderItems);
+				_discountsController.ClearDiscounts(Entity.OrderItems);
 			}
 		}
 

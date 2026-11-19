@@ -41,6 +41,12 @@ namespace Vodovoz.Core.Application.Sale
 				throw new ArgumentNullException(nameof(addingDiscount));
 			}
 
+			//TODO-5696 проверить на остальных участниках, чтобы не ломало основную логику добавления скидки
+			/*if(saleItem.DiscountReasons.Any(x => x.Id == addingDiscount.Id))
+			{
+				return Result.Failure(DiscountErrors.DiscountAlreadyApplied);
+			}*/
+
 			var isNotApplicableDiscount = CanApplyByType(addingDiscount, saleItem);
 
 			if(isNotApplicableDiscount)

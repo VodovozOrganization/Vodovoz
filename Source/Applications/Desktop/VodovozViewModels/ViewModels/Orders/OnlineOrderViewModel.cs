@@ -33,6 +33,7 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Factories;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -42,6 +43,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private readonly MangoManager _mangoManager;
+		private readonly IOnlineOrderStateHandler _onlineOrderStateHandler;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly Employee _currentEmployee;
 		private readonly ICommonServices _commonServices;
@@ -66,7 +68,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
 			IDiscountController discountController,
 			IOrderOrganizationManager orderOrganizationManager,
-			MangoManager mangoManager
+			MangoManager mangoManager,
+			IOnlineOrderStateHandler onlineOrderStateHandler
 			)
 			: base(viewModelContext.UowFactory, commonServices?.InteractiveService, navigation)
 		{
@@ -92,6 +95,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			_deliveryPointJournalFilterViewModel =
 				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));
 			_mangoManager = mangoManager ?? throw new ArgumentNullException(nameof(mangoManager));
+			_onlineOrderStateHandler = onlineOrderStateHandler ?? throw new ArgumentNullException(nameof(onlineOrderStateHandler));
 			DiscountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			ExternalCounterpartyMatchingRepository =
@@ -453,10 +457,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			OpenPayTemplateCommand = new DelegateCommand(
 				() =>
 				{
-					Entity.ToPayTemplate(
+					_onlineOrderStateHandler.ToPayTemplateByCustomer(
+						UoW,
+						Entity,
 						_onlineOrderTimers.AutoOrderPayTimeByOperator.Seconds,
 						OnlineOrderTimestampType.AutoOrderPayTimeByOperator
 						);
+
 					Save();
 				}
 			);
@@ -467,10 +474,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			OpenSetupTemplateCommand = new DelegateCommand(
 				() =>
 				{
-					Entity.ToSetupTemplate(
+					_onlineOrderStateHandler.ToSetupTemplate(
+						UoW,
+						Entity,
 						_onlineOrderTimers.AutoOrderSettingsTimeByOperator.Seconds,
 						OnlineOrderTimestampType.AutoOrderSettingsTimeByOperator
 						);
+
 					Save();
 				}
 			);

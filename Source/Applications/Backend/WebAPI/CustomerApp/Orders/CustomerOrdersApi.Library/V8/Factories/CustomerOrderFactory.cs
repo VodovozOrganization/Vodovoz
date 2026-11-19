@@ -282,7 +282,7 @@ namespace CustomerOrdersApi.Library.V8.Factories
 
 			if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.PendingAutoOrderSettings)
 			{
-				if(onlineOrder.TemplateSetupStartTime is null)
+				if(onlineOrder.TemplateSetupTimestamp is null)
 				{
 					throw new InvalidOperationException(
 						"Потеряна метка для настройки автозаказа. " +
@@ -292,8 +292,8 @@ namespace CustomerOrdersApi.Library.V8.Factories
 				orderInfo.IsAutoOrderSetupRequired = true;
 				orderInfo.TimerForAutoOrderSetup =
 					OnlineOrderTimerSetupDto.Create(
-						onlineOrder.TemplateSetupStartTime.StartTime,
-						onlineOrder.TemplateSetupStartTime.TimerSeconds
+						onlineOrder.TemplateSetupTimestamp.StartTime,
+						onlineOrder.TemplateSetupTimestamp.TimerSeconds
 						);
 			}
 

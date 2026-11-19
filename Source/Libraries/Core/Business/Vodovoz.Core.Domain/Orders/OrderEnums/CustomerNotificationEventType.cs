@@ -47,6 +47,48 @@ namespace Vodovoz.Core.Domain.Orders.OrderEnums
 		/// Заказ перенесен на другое время
 		/// </summary>
 		[Display(Name = "Доставка перенесена")]
-		OrderRescheduled
+		OrderRescheduled,
+
+		/// <summary>
+		/// Менеджер открыл настройку автозаказа
+		/// </summary>
+		[Display(Name = "Менеджер открыл настройку автозаказа")]
+		AutoOrderSettingsOpenedByManager,
+		
+		/// <summary>
+		/// Менеджер открыл оплату
+		/// </summary>
+		[Display(Name = "Менеджер открыл оплату")]
+		PaymentOpenedByManager,
+
+		/// <summary>
+		/// Первая неуспешная попытка списания по автозаказу
+		/// </summary>
+		[Display(Name = "Первая неуспешная попытка списания по автозаказу")]
+		FirstUnsuccessfulChargeAttempt,
+
+		/// <summary>
+		/// Не удалось списать оплату по автозаказу
+		/// </summary>
+		[Display(Name = "Оплата автозаказа не прошла")]
+		UnableProcessPaymentForAutoOrder,
+
+		/// <summary>
+		/// Менеджер обработал автозаказ
+		/// </summary>
+		[Display(Name = "Менеджер обработал автозаказ")]
+		ManagerProcessedAutoOrder,
+
+		/// <summary>
+		/// Автозаказ подключен
+		/// </summary>
+		[Display(Name = "Автозаказ подключен")]
+		AutoOrderEnabled,
+		
+		/// <summary>
+		/// Заказ собран
+		/// </summary>
+		[Display(Name = "Заказ собран")]
+		OrderCollected
 	}
 }

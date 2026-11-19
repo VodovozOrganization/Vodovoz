@@ -38,7 +38,7 @@ namespace CustomerNotifications.Contracts
 		/// <summary>
 		/// Внешний источник
 		/// </summary>
-		public Source EventSource{ get; }
+		public Source EventSource { get; }
 
 		public CustomerNotificationDomainEvent(
 			CustomerNotificationEventType customerNotificationEventType,

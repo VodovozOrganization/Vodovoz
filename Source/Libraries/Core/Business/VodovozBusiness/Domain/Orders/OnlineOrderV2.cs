@@ -26,30 +26,5 @@ namespace VodovozBusiness.Domain.Orders
 		public override OnlineOrderVersion OrderVersion => OnlineOrderVersion.V2;
 
 		public virtual IEnumerable<OnlineOrderPromoSet> OnlinePromoSets => PromoSets;
-
-		public virtual void SetStatus(
-			bool isAutoOrderEnabled,
-			int timeToTemplateSetupInSeconds,
-			DateTime creatingOn,
-			OnlineOrderTimestampType onlineOrderTimestampType
-			)
-		{
-			if(isAutoOrderEnabled)
-			{
-				ToSetupTemplate(timeToTemplateSetupInSeconds, onlineOrderTimestampType, creatingOn);
-			}
-			else
-			{
-				if(OnlineOrderPaymentStatus == Vodovoz.Core.Domain.Orders.OnlineOrderPaymentStatus.UnPaid
-					&& OnlineOrderPaymentType == Vodovoz.Core.Domain.Orders.OnlineOrderPaymentType.PaidOnline)
-				{
-					OnlineOrderStatus = OnlineOrderStatus.WaitingForPayment;
-				}
-				else
-				{
-					OnlineOrderStatus = OnlineOrderStatus.New;
-				}
-			}
-		}
 	}
 }

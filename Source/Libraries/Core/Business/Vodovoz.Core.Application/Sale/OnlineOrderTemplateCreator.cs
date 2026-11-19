@@ -20,16 +20,19 @@ namespace Vodovoz.Core.Application.Sale
 		private readonly ILogger<OnlineOrderTemplateCreator> _logger;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IUnPaidOnlineOrderHandler _unPaidOnlineOrderHandler;
+		private readonly IOnlineOrderStateHandler _onlineOrderStateHandler;
 
 		public OnlineOrderTemplateCreator(
 			ILogger<OnlineOrderTemplateCreator> logger, 
 			IEmployeeRepository employeeRepository,
-			IUnPaidOnlineOrderHandler unPaidOnlineOrderHandler
+			IUnPaidOnlineOrderHandler unPaidOnlineOrderHandler,
+			IOnlineOrderStateHandler onlineOrderStateHandler
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_unPaidOnlineOrderHandler = unPaidOnlineOrderHandler ?? throw new ArgumentNullException(nameof(unPaidOnlineOrderHandler));
+			_onlineOrderStateHandler = onlineOrderStateHandler ?? throw new ArgumentNullException(nameof(onlineOrderStateHandler));
 		}
 
 		public async Task<OnlineOrderTemplate> CreateAsync(
@@ -90,7 +93,7 @@ namespace Vodovoz.Core.Application.Sale
 			return template;
 		}
 
-		private static async Task ProcessAdvancePaymentOnlineOrder(
+		private async Task ProcessAdvancePaymentOnlineOrder(
 			IUnitOfWork uow,
 			OnlineOrder onlineOrder,
 			CancellationToken cancellationToken
@@ -104,8 +107,15 @@ namespace Vodovoz.Core.Application.Sale
 					$"Не найдены временные метки для онлайн заказа, проверьте {nameof(OnlineOrderTimers)} и их настройки в базе");
 			}
 
-			onlineOrder.ToPayTemplate((int)timers.AutoOrderPayTime.TotalSeconds, OnlineOrderTimestampType.AutoOrderPayTime);
-			await uow.SaveAsync(onlineOrder.TemplatePayStartTime, cancellationToken: cancellationToken);
+			_onlineOrderStateHandler.ToPayTemplateByCustomer(
+				uow,
+				onlineOrder,
+				(int)timers.AutoOrderPayTime.TotalSeconds,
+				OnlineOrderTimestampType.AutoOrderPayTime
+			);
+			
+			await uow.SaveAsync(onlineOrder.Template, cancellationToken: cancellationToken); 
+			await uow.SaveAsync(onlineOrder.TemplatePayTimestamp, cancellationToken: cancellationToken);
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 		}
 

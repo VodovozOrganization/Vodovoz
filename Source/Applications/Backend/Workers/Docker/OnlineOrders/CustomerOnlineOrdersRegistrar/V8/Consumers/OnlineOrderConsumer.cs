@@ -6,7 +6,6 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.OnlineOrders;
 using VodovozBusiness.Services.Orders;
 using System.Threading.Tasks;
 using System.Threading;
@@ -24,9 +23,9 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 		private readonly ICustomerOnlineOrderFactory _onlineOrderFactory;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
-		private readonly IOnlineOrderCancellationReasonSettings _onlineOrderCancellationReasonSettings;
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
+		private readonly IOnlineOrderStateHandler _onlineOrderStateHandler;
 		private readonly IOnlineOrderValidatorCreator _onlineOrderValidatorCreator;
 
 		protected ILogger<OnlineOrderConsumer> Logger { get; }
@@ -37,9 +36,9 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 			ICustomerOnlineOrderFactory onlineOrderFactory,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IOnlineOrderRepository onlineOrderRepository,
-			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
 			IRouteListService routeListService,
+			IOnlineOrderStateHandler onlineOrderStateHandler,
 			IOnlineOrderValidatorCreator onlineOrderValidatorCreator
 			)
 		{
@@ -48,14 +47,16 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 			_onlineOrderFactory = onlineOrderFactory ?? throw new ArgumentNullException(nameof(onlineOrderFactory));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
-			_onlineOrderCancellationReasonSettings =
-				onlineOrderCancellationReasonSettings ?? throw new ArgumentNullException(nameof(onlineOrderCancellationReasonSettings));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_onlineOrderStateHandler = onlineOrderStateHandler ?? throw new ArgumentNullException(nameof(onlineOrderStateHandler));
 			_onlineOrderValidatorCreator = onlineOrderValidatorCreator ?? throw new ArgumentNullException(nameof(onlineOrderValidatorCreator));
 		}		
 
-		protected virtual async Task<CreatedOnlineOrderResult> TryRegisterOnlineOrderAsync(ICreatingOnlineOrder message, CancellationToken cancellationToken)
+		protected virtual async Task<CreatedOnlineOrderResult> TryRegisterOnlineOrderAsync(
+			ICreatingOnlineOrder message,
+			CancellationToken cancellationToken
+			)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Создание онлайн заказа из ИПЗ {message.Source.GetEnumTitle()}");
 			// Необходимо сделать асинхронным
@@ -64,6 +65,8 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 				message,
 				_deliveryRulesSettings.FastDeliveryScheduleId
 			);
+			
+			_onlineOrderStateHandler.New(uow, onlineOrder, message.IsAutoOrderEnabled);
 
 			var validationResult = _onlineOrderValidatorCreator
 				.Create(onlineOrder)
@@ -77,10 +80,7 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 				if(needSpecialProcessingDuplicate == OnlineOrderDuplicateProcess.NeedCancel)
 				{
 					Logger.LogInformation("Пришел возможный дубль {ExternalOrderId} отменяем", externalOrderId);
-					onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
-					onlineOrder.OnlineOrderCancellationReason = await uow.Session
-						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
+					await _onlineOrderStateHandler.CancelAsync(uow, onlineOrder, cancellationToken);
 				}
 				else
 				{
@@ -138,6 +138,8 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 					_routeListService,
 					cancellationToken
 				);
+
+				await uow.CommitAsync(cancellationToken);
 			}
 			catch(Exception e)
 			{

@@ -12,14 +12,14 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		
 		/// <summary>
 		/// День недели
-		/// Доступно только при недельном типе доставки <see cref="ExternalCustomerTemplateDeliveryScheduleType/>
+		/// Доступно только при недельном типе доставки <see cref="CustomerTemplateDeliveryScheduleType"/>
 		/// </summary>
 		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public DayOfWeek? WeekDay { get; set; }
 		
 		/// <summary>
 		/// Повторы через определенное количество недель
-		/// Доступно только при недельном типе доставки <see cref="ExternalCustomerTemplateDeliveryScheduleType/> 
+		/// Доступно только при недельном типе доставки <see cref="CustomerTemplateDeliveryScheduleType"/> 
 		/// 1 - каждую неделю
 		/// 2 - раз в две недели
 		/// 3 - раз в три недели и т.д.
@@ -33,7 +33,7 @@ namespace CustomerOrders.Contracts.V8.Sale.Templates
 		
 		/// <summary>
 		/// Число месяца
-		/// Доступно только при месячном типе доставки <see cref="ExternalCustomerTemplateDeliveryScheduleType"/>
+		/// Доступно только при месячном типе доставки <see cref="CustomerTemplateDeliveryScheduleType"/>
 		/// </summary>
 		public int? DayOfMonth { get; set; }
 	}

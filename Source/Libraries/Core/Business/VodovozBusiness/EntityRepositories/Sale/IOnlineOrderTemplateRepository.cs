@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Sale;
@@ -34,8 +35,10 @@ namespace VodovozBusiness.EntityRepositories.Sale
 		/// <returns></returns>
 		bool OnlineOrderTemplateFromCounterparty(IUnitOfWork uow, int templateId, int? counterpartyId);
 
-		[Obsolete]
-		IEnumerable<OnlineOrderTemplate> GetActiveOnlineOrdersTemplatesForCreateOrders(IUnitOfWork uow, DateTime dateTime);
+		Task<IEnumerable<int>> GetActiveOnlineOrdersTemplatesForCreateOrdersAsync(
+			IUnitOfWork uow,
+			DateTime dateTime,
+			CancellationToken cancellationToken);
 		
 		/// <summary>
 		/// Получение данных шаблонов автозаказов

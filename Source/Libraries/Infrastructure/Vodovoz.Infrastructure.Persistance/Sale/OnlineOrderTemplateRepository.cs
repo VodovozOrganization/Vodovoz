@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using DateTimeHelpers;
 using NHibernate;
+using NHibernate.Linq;
 using NHibernate.Multi;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Data.NHibernate.NhibernateExtensions.HqlGenerators;
 using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Goods;
@@ -68,71 +72,37 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.Any();
 		}
 
-		[Obsolete]
-		public IEnumerable<OnlineOrderTemplate> GetActiveOnlineOrdersTemplatesForCreateOrders(IUnitOfWork uow, DateTime dateTime)
+		public async Task<IEnumerable<int>> GetActiveOnlineOrdersTemplatesForCreateOrdersAsync(
+			IUnitOfWork uow,
+			DateTime dateTime,
+			CancellationToken cancellationToken)
 		{
-			//TODO-6121 переделать алгоритм под новые условия создания онлайн заказа
-			var weekDayFromDate = dateTime.DayOfWeek.ConvertToWeekDayName();
-			
-			var templates = (
-				from template in uow.Session.Query<OnlineOrderTemplate>()
-				join weekday in uow.Session.Query<OnlineOrderTemplateWeekday>()
-					on template.Id equals weekday.TemplateId
-					
-				let lastOnlineFromTemplate = (
-					from onlineOrder in uow.Session.Query<OnlineOrder>()
-					where onlineOrder.Template.Id == template.Id
-					orderby onlineOrder.Id descending 
-					select onlineOrder
+			var targetWeekday = dateTime.DayOfWeek.ConvertToWeekDayName();
+			// Последний день предыдущего месяца — для проверки сдвига 29/30/31-го числа
+			var prevMonthLastDay = new DateTime(dateTime.Year, dateTime.Month, 1).AddDays(-1);
+
+			var templateIds = uow.Session.Query<OnlineOrderTemplate>()
+				.Where(t => !uow.Session.Query<OnlineOrder>()
+					.Any(o => o.Template.Id == t.Id && o.DeliveryDate == dateTime))
+				.Where(t => t.IsActive)
+				.Where(t =>
+					// Недельный шаблон
+					(t.Schedule.ScheduleType == TemplateDeliveryScheduleType.Weekly
+						&& t.Schedule.Weekday == targetWeekday
+						&& t.Schedule.FirstDeliveryDate != null
+						&& t.Schedule.FirstDeliveryDate.Value <= dateTime
+						/*&& SqlDateFunctions.DateDiffDays(t.Schedule.FirstDeliveryDate.Value, dateTime)
+							% (7 * t.Schedule.RepeatEveryWeeks.Value) == 0*/)
+					||
+					// Месячный шаблон: либо число совпало, либо 29/30/31 уехали на 1-е число следующего месяца
+					(t.Schedule.ScheduleType == TemplateDeliveryScheduleType.Monthly
+						&& (t.Schedule.DayOfMonth == dateTime.Day
+							|| (dateTime.Day == 1 && t.Schedule.DayOfMonth > prevMonthLastDay.Day))
 					)
-					.FirstOrDefault()
-
-				let lastOnlineOrder = (
-						from onlineOrder in uow.Session.Query<OnlineOrder>()
-						where onlineOrder.Counterparty.Id == template.CounterpartyId
-							&& onlineOrder.DeliveryPoint.Id == template.DeliveryPointId
-							&& onlineOrder.DeliverySchedule.Id == template.Schedule.DeliveryScheduleId
-							&& onlineOrder.DeliveryDate == dateTime.AddDays(1).Date
-						orderby onlineOrder.Id descending 
-						select onlineOrder
-					)
-					.FirstOrDefault()
-
-				let needCreateByDay = weekDayFromDate == WeekDayName.Sunday
-					? (byte)weekDayFromDate - weekday.DayNumber == 6
-					: weekday.DayNumber - (byte)weekDayFromDate == 1
-
-				where template.IsActive && needCreateByDay
-
-				//добавить в валидатор доп условие по уже созданному онлайну(не автозаказу) на эту дату, от этого клиента, ТД и время
-				select new ValueTuple<OnlineOrderTemplate, OnlineOrder>(template, lastOnlineFromTemplate)
 				)
-				.Distinct()
-				.ToList();
+				.Select(t => t.Id);
 
-			return (
-				from template in templates
-
-				let days = 0
-
-				//не нашел решения, как заставить работать AddDays(days) в трансляторе HQL, с подзапросом
-				//поэтому вынес после sql
-				/* т.к. помимо дней у нас есть еще периодичность доставки, то необходимость создания будет определяться как
-				 * Онлайн заказа по этому шаблону нет
-				 * ИЛИ
-				 * Дата доставки онлайн заказа не равна дате плюс один день(создаем за день до доставки), т.е. мы не создали уже свежий
-				 * И
-				 * Либо день доставки онлайна не равен дню от даты плюс один день
-				 * Либо дата плюс один день равна дате доставки онлайна плюс количество дней по периодичности доставки
-				 */
-				let needCreateByWeek = template.Item2 == null
-					|| template.Item2.DeliveryDate.Date != dateTime.AddDays(1).Date
-					&& (template.Item2.DeliveryDate.DayOfWeek != dateTime.AddDays(1).DayOfWeek
-						|| dateTime.AddDays(1).Date == template.Item2.DeliveryDate.AddDays(days))
-
-				where needCreateByWeek
-				select template.Item1)
-				.ToList();
+			return await templateIds.ToListAsync(cancellationToken);
 		}
 
 		/// <inheritdoc/>

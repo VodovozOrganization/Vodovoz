@@ -7,24 +7,22 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Application.Sale;
 using VodovozBusiness.Services.Orders;
-using VodovozBusiness.Services.Sale;
 
 namespace CustomerOnlineOrdersRegistrar
 {
 	/// <summary>
-	/// Воркер для периодичного создания онлайн заказов из шаблонов 
+	/// Воркер для периодичного создания онлайн заказов из шаблонов автозаказов
 	/// </summary>
-	public class OnlineOrderFromTemplateRegistrar : BackgroundService
+	public class OnlineOrdersFromTemplatesRegistrar : BackgroundService
 	{
-		private readonly ILogger<OnlineOrderFromTemplateRegistrar> _logger;
-		private readonly IOptionsMonitor<OnlineOrderFromTemplateRegistrarOptions> _templateOptionsMonitor;
+		private readonly ILogger<OnlineOrdersFromTemplatesRegistrar> _logger;
+		private readonly IOptionsMonitor<OnlineOrdersFromTemplatesRegistrarOptions> _templateOptionsMonitor;
 		private readonly IServiceScopeFactory _scopeFactory;
 
-		public OnlineOrderFromTemplateRegistrar(
-			ILogger<OnlineOrderFromTemplateRegistrar> logger,
-			IOptionsMonitor<OnlineOrderFromTemplateRegistrarOptions> templateOptionsMonitor,
+		public OnlineOrdersFromTemplatesRegistrar(
+			ILogger<OnlineOrdersFromTemplatesRegistrar> logger,
+			IOptionsMonitor<OnlineOrdersFromTemplatesRegistrarOptions> templateOptionsMonitor,
 			IServiceScopeFactory scopeFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -36,10 +34,11 @@ namespace CustomerOnlineOrdersRegistrar
 		{
 			while(!stoppingToken.IsCancellationRequested)
 			{
-				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 				using var scope = _scopeFactory.CreateScope();
 				var options = _templateOptionsMonitor.CurrentValue;
 				await Task.Delay(TimeSpan.FromSeconds(options.DelayInSeconds), stoppingToken);
+				
+				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 				await TryCreateOnlineOrdersFromTemplates(scope, stoppingToken);
 			}
 		}
@@ -50,8 +49,8 @@ namespace CustomerOnlineOrdersRegistrar
 			{
 				using var uow = scope.ServiceProvider.GetService<IUnitOfWorkFactory>()
 					.CreateWithoutRoot("Сервис создания автозаказов из шаблонов");
-				var templateCreator = scope.ServiceProvider.GetService<IOnlineOrderTemplateCreator>();
-				//await templateCreator.CreateAsync(uow, stoppingToken);
+				var onlineOrdersCreator = scope.ServiceProvider.GetService<IOnlineOrdersFromTemplatesCreator>();
+				await onlineOrdersCreator.CreateAsync(uow, stoppingToken);
 			}
 			catch(Exception e)
 			{

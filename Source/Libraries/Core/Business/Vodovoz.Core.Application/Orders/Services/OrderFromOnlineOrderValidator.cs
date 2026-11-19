@@ -5,11 +5,13 @@ using Core.Infrastructure;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
@@ -22,6 +24,7 @@ using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Sale;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
@@ -36,7 +39,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IFreeLoaderChecker freeLoaderChecker,
 			IOrderOrganizationManager orderOrganizationManager,
 			IOrderSettings orderSettings,
-			IOrderRepository orderRepository
+			IOrderRepository orderRepository,
+			IDeliveryScheduleChecker deliveryScheduleChecker
 			)
 		{
 			PriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
@@ -48,6 +52,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			OrderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
 			OrderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			DeliveryScheduleChecker = deliveryScheduleChecker ?? throw new ArgumentNullException(nameof(deliveryScheduleChecker));
 		}
 
 		protected IGoodsPriceCalculator PriceCalculator { get; }
@@ -59,6 +64,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		protected IOrderOrganizationManager OrderOrganizationManager { get; }
 		protected IOrderSettings OrderSettings { get; }
 		protected IOrderRepository OrderRepository { get; }
+		protected IDeliveryScheduleChecker DeliveryScheduleChecker { get; }
 		
 		protected virtual OnlineOrder OnlineOrder { get; set; }
 		protected List<Error> ValidationResults { get; set; }
@@ -190,6 +196,36 @@ namespace Vodovoz.Core.Application.Orders.Services
 				&& OnlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
 			{
 				ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.ClientDontSetAutoOrderInAllottedTime());
+			}
+			
+			//TODO-5696 уточнить должны ли распространяться эти проверки на обычные заказы, не с шаблонов
+			if(OnlineOrder.Template != null)
+			{
+				var template = OnlineOrder.Template;
+				
+				if(OnlineOrder.DeliveryPoint != null)
+				{
+					var deliveryScheduleAvailability =
+						DeliveryScheduleChecker.IsDeliveryIntervalAvailable(
+							uow,
+							OnlineOrder.DeliveryDate.DayOfWeek,
+							template.Schedule.ScheduleType == TemplateDeliveryScheduleType.Weekly
+								? template.Schedule.Weekday.Value.ToDayOfWeek()
+								: OnlineOrder.DeliveryDate.DayOfWeek, // TODO-5696 продумать получение дня недели при месячной периодичности
+							OnlineOrder.DeliveryPoint.Id,
+							OnlineOrder.DeliverySchedule.Id
+						);
+
+					if(deliveryScheduleAvailability == DeliveryScheduleAvailability.AvailableNotDeliveryDate)
+					{
+						ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.DeliveryScheduleUnavailableForDeliveryDay());
+					}
+					else if(deliveryScheduleAvailability == DeliveryScheduleAvailability.NotAvailable)
+					{
+						ValidationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.DeliveryScheduleUnavailable());
+					}
+				}
+				
 			}
 
 			ValidateOnlineOrderItems(uow);

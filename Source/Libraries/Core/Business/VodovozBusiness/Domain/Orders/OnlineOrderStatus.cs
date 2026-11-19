@@ -32,6 +32,12 @@ namespace Vodovoz.Domain.Orders
 		PendingAutoOrderSettings,
 
 		/// <summary>
+		/// Списание средств по автозаказу
+		/// </summary>
+		[Display(Name = "Списание средств по автозаказу")]
+		AutoOrderDeductionFunds,
+
+		/// <summary>
 		/// Отменен
 		/// </summary>
 		[Display(Name = "Отменен")]

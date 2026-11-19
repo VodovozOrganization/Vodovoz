@@ -29,7 +29,7 @@ namespace Vodovoz.Core.Domain.Extensions
 				case DayOfWeek.Saturday:
 					return WeekDayName.Saturday;
 				default:
-					throw new NotSupportedException();
+					throw new NotSupportedException($"Неизвестный день недели {dayOfWeek.ToString()}");
 			}
 		}
 
@@ -57,7 +57,7 @@ namespace Vodovoz.Core.Domain.Extensions
 				case WeekDayName.Saturday:
 					return DayOfWeek.Saturday;
 				default:
-					throw new NotSupportedException($"Неизвестный день недели {source}");
+					throw new NotSupportedException($"Неизвестный день недели {source.ToString()}");
 			}
 		}
 	}

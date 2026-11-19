@@ -278,7 +278,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 			{
 				throw new InvalidOperationException("Нельзя использовать этот метод для обработки онлайн заказа без шаблона!");
 			}
-			
+
+			onlineOrder.Template.Status = OnlineOrderTemplateStatus.Active;
+			await uow.SaveAsync(onlineOrder.Template, cancellationToken: cancellationToken);
+
 			onlineOrder.ClearTimestamps();
 			
 			var validationResult = _onlineOrderValidatorCreator
@@ -302,6 +305,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				_routeListService,
 				cancellationToken
 			);
+			
+			await uow.CommitAsync(cancellationToken);
 		}
 
 		private Result ValidateRecurrentPayment(
@@ -541,9 +546,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 					{
 						timeToTransferInSeconds = orderTimers.TimeForTransferAutoOrderToManualProcessingFromPaying.TotalSeconds;
 
-						if(onlineOrder.TemplatePayStartTime != null)
+						if(onlineOrder.TemplatePayTimestamp != null)
 						{
-							timeStamp = onlineOrder.TemplatePayStartTime.StartTime;
+							timeStamp = onlineOrder.TemplatePayTimestamp.StartTime;
 						}
 					}
 				}
@@ -613,12 +618,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 				foreach(var onlineOrder in waitingForPaymentOnlineOrders)
 				{
-					var isNotified = await TryNotifyCustomerAboutWaitingForPayment(uow, onlineOrder, onlineOrderTimers.TimeForWaitingBeforeSendPaymentNotification, cancellationToken);
+					var isNotified = await TryNotifyCustomerAboutWaitingForPayment(
+						uow, onlineOrder, onlineOrderTimers.TimeForWaitingBeforeSendPaymentNotification, cancellationToken);
 					
 					if(isNotified)
 					{
 						await uow.CommitAsync(cancellationToken);
-
 						_logger.LogInformation("Уведомление клиенту о неоплаченном онлайн заказе №{OnlineOrderId} поставлено в очередь на отправку", onlineOrder.Id);
 					}
 					else
@@ -633,7 +638,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 		}
 
-		private async Task<bool> TryNotifyCustomerAboutWaitingForPayment(IUnitOfWork unitOfWork, OnlineOrder onlineOrder, TimeSpan timeForWaitingBeforeSendPaymentNotification, CancellationToken cancellationToken)
+		private async Task<bool> TryNotifyCustomerAboutWaitingForPayment(
+			IUnitOfWork unitOfWork,
+			OnlineOrder onlineOrder,
+			TimeSpan timeForWaitingBeforeSendPaymentNotification,
+			CancellationToken cancellationToken
+			)
 		{
 			if(onlineOrder == null)
 			{  
@@ -647,12 +657,20 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return false;
 			}
 
-			var customerOrderAwaitingPaymentEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderAwaitingPayment, onlineOrder.Source, onlineOrder.Id);
+			var customerOrderAwaitingPaymentEvent = new CustomerNotificationDomainEvent(
+				CustomerNotificationEventType.OrderAwaitingPayment,
+				onlineOrder.Source,
+				onlineOrder.Id
+				);
 
 			return await _outboxNotificationPublisher.TryPublishAsync(unitOfWork, customerOrderAwaitingPaymentEvent, cancellationToken);
 		}
 
-		private async Task<bool> TryNotifyCustomerAboutOrderPaidAsync(IUnitOfWork uow, UpdateOnlineOrderFromChangeRequest data, CancellationToken cancellationToken)
+		private async Task<bool> TryNotifyCustomerAboutOrderPaidAsync(
+			IUnitOfWork uow,
+			UpdateOnlineOrderFromChangeRequest data,
+			CancellationToken cancellationToken
+			)
 		{
 			var needCustomerOrderPaidNotification =
 				data.PaymentStatus == OnlineOrderPaymentStatus.Paid
@@ -662,7 +680,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			if(needCustomerOrderPaidNotification)
 			{
-				var customerOrderPaidEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderPaid, data.Source, data.OnlineOrderId.Value);
+				var customerOrderPaidEvent = new CustomerNotificationDomainEvent(
+					CustomerNotificationEventType.OrderPaid,
+					data.Source,
+					data.OnlineOrderId.Value
+					);
+				
 				return await _outboxNotificationPublisher.TryPublishAsync(uow, customerOrderPaidEvent, cancellationToken);
 			}
 

@@ -58,7 +58,7 @@ namespace Vodovoz.Core.Application.Sale
 			template.Status = OnlineOrderTemplateStatus.Paused;
 			await uow.SaveAsync(template, cancellationToken: cancellationToken);
 
-			var changed = await TryUpdateTemplateStatusChanged(
+			await TryUpdateTemplateStatusChanged(
 				uow,
 				template.Id,
 				customerId,
@@ -66,8 +66,6 @@ namespace Vodovoz.Core.Application.Sale
 				OnlineOrderTemplateStatusChangedType.ToPause,
 				cancellationToken
 				);
-
-			await uow.SaveAsync(changed, cancellationToken: cancellationToken);
 
 			return Result.Success();
 		}
@@ -95,14 +93,14 @@ namespace Vodovoz.Core.Application.Sale
 					initiator
 					);
 				
-				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplatePauseUnavailable);
+				return Result.Failure(OnlineOrderTemplateApiErrors.OrderTemplateActionUnavailable);
 			}
 			
 			template.Resume(nextDeliveryDate);
 			await uow.SaveAsync(template.Schedule, cancellationToken: cancellationToken);
 			await uow.SaveAsync(template, cancellationToken: cancellationToken);
 			
-			var changed = await TryUpdateTemplateStatusChanged(
+			await TryUpdateTemplateStatusChanged(
 				uow,
 				template.Id,
 				customerId,
@@ -110,8 +108,6 @@ namespace Vodovoz.Core.Application.Sale
 				OnlineOrderTemplateStatusChangedType.ToResume,
 				cancellationToken
 				);
-
-			await uow.SaveAsync(changed, cancellationToken: cancellationToken);
 
 			return Result.Success();
 		}
@@ -158,7 +154,7 @@ namespace Vodovoz.Core.Application.Sale
 			template.Status = OnlineOrderTemplateStatus.Archived;
 			await uow.SaveAsync(template, cancellationToken: cancellationToken);
 			
-			var changed = await TryUpdateTemplateStatusChanged(
+			await TryUpdateTemplateStatusChanged(
 				uow,
 				template.Id,
 				customerId,
@@ -166,8 +162,6 @@ namespace Vodovoz.Core.Application.Sale
 				OnlineOrderTemplateStatusChangedType.ToArchive,
 				cancellationToken);
 
-			await uow.SaveAsync(changed, cancellationToken: cancellationToken);
-			
 			return Result.Success();
 		}
 
@@ -199,6 +193,8 @@ namespace Vodovoz.Core.Application.Sale
 			{
 				changed.Update(customerId, employeeId);
 			}
+			
+			await uow.SaveAsync(changed, cancellationToken: cancellationToken);
 
 			return changed;
 		}

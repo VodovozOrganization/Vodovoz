@@ -1,6 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
+using CustomerOnlineOrdersRegistrar.Configs;
 using CustomerOnlineOrdersRegistrar.V3.Factories;
 using CustomerOnlineOrdersRegistrar.V4.Factories;
 using CustomerOnlineOrdersRegistrar.V5.Factories;
@@ -15,6 +16,7 @@ using CustomerOrdersApi.Library.V8.Extensions;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -93,6 +95,10 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddScoped<IOnlineOrderFactoryV6, OnlineOrderFactoryV6>()
 						.AddScoped<V7.Factories.ICustomerOnlineOrderFactory, V7.Factories.CustomerOnlineOrderFactory>()
 						.AddScoped<V8.Factories.ICustomerOnlineOrderFactory, V8.Factories.CustomerOnlineOrderFactory>()
+						.AddHostedService<OnlineOrdersFromTemplatesRegistrar>()
+						.Configure<OnlineOrdersFromTemplatesRegistrarOptions>(o =>
+							hostContext.Configuration.Bind(OnlineOrdersFromTemplatesRegistrarOptions.SectionName, o)
+							)
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>

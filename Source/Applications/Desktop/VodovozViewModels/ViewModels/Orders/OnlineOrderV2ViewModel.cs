@@ -20,6 +20,7 @@ using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Factories;
 using VodovozBusiness.Nodes;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -47,7 +48,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IOrderOrganizationManager orderOrganizationManager,
 			MangoManager mangoManager,
 			IPromotionalSetRepository promoSetRepository,
-			IOrderDiscountsController discountsController
+			IOrderDiscountsController discountsController,
+			IOnlineOrderStateHandler onlineOrderStateHandler
 		)
 			: base(
 				logger,
@@ -63,7 +65,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				deliveryPointJournalFilterViewModel,
 				discountController,
 				orderOrganizationManager,
-				mangoManager
+				mangoManager,
+				onlineOrderStateHandler
 			)
 		{
 			_promoSetRepository = promoSetRepository ?? throw new ArgumentNullException(nameof(promoSetRepository));

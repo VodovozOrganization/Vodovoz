@@ -22,9 +22,9 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 			ICustomerOnlineOrderFactory onlineOrderFactory,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IOnlineOrderRepository onlineOrderRepository,
-			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
 			IRouteListService routeListService,
+			IOnlineOrderStateHandler onlineOrderStateHandler,
 			IOnlineOrderValidatorCreator onlineOrderValidatorCreator)
 			: base(
 				logger,
@@ -32,9 +32,9 @@ namespace CustomerOnlineOrdersRegistrar.V8.Consumers
 				onlineOrderFactory,
 				deliveryRulesSettings,
 				onlineOrderRepository,
-				onlineOrderCancellationReasonSettings,
 				orderService,
 				routeListService,
+				onlineOrderStateHandler,
 				onlineOrderValidatorCreator)
 		{
 		}
