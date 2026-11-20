@@ -1321,7 +1321,14 @@ namespace Vodovoz
 					if(driverWage > 0)
 					{
 						var newDriverAdvanceSum = driverWage > newDriverAdvanceSumParameter ? newDriverAdvanceSumParameter : driverWage * 0.5m;
-						newDriverAdvanceModel.CreateNewDriverAdvance(UoW, _financialCategoriesGroupsSettings, newDriverAdvanceSum);
+						var newDriverAdvanceResult = newDriverAdvanceModel.CreateNewDriverAdvance(
+							UoW, _financialCategoriesGroupsSettings, newDriverAdvanceSum);
+
+						if(newDriverAdvanceResult.IsFailure)
+						{
+							MessageDialogHelper.RunErrorDialog(newDriverAdvanceResult.Errors.First().Message);
+							return;
+						}
 					}
 				}
 			}

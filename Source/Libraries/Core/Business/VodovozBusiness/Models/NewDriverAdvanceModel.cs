@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Errors.Cash;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Logistics;
 
@@ -48,18 +50,31 @@ namespace Vodovoz.Models
 			return needNewDriverAdvance;
 		}
 
-		public void CreateNewDriverAdvance(IUnitOfWork uow, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings, decimal cashInput)
+		/// <summary>
+		/// Создание расходного ордера на аванс новому водителю
+		/// </summary>
+		/// <param name="uow">UnitOfWork, в котором сохраняется ордер</param>
+		/// <param name="financialCategoriesGroupsSettings">Настройки финансовых статей</param>
+		/// <param name="cashInput">Сумма аванса</param>
+		/// <returns>Созданный и сохранённый ордер или ошибка, по которой в создании ордера отказано</returns>
+		public Result<Expense> CreateNewDriverAdvance(
+			IUnitOfWork uow,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			decimal cashInput)
 		{
 			Expense cashExpense = null;
 
-			_routeList.EmployeeAdvanceOperation(ref cashExpense, cashInput, financialCategoriesGroupsSettings);
+			var message = _routeList.EmployeeAdvanceOperation(ref cashExpense, cashInput, financialCategoriesGroupsSettings);
 
-			if(cashExpense != null)
+			if(cashExpense == null)
 			{
-				uow.Save(cashExpense);
+				return Result.Failure<Expense>(ExpenseErrors.CreateCreationFailed(message));
 			}
 
-			cashExpense?.UpdateWagesOperations(uow);
+			uow.Save(cashExpense);
+			cashExpense.UpdateWagesOperations(uow);
+
+			return cashExpense;
 		}
 
 		public IList<NewDriverAdvanceRouteListNode> UnclosedRouteLists(IUnitOfWork uow) =>
