@@ -167,7 +167,6 @@ namespace Vodovoz.Cash
 			w11.BottomAttach = ((uint)(3));
 			w11.LeftAttach = ((uint)(3));
 			w11.RightAttach = ((uint)(4));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryCfzSubdivision = new global::QS.Views.Control.EntityEntry();
@@ -179,7 +178,6 @@ namespace Vodovoz.Cash
 			w12.BottomAttach = ((uint)(4));
 			w12.LeftAttach = ((uint)(3));
 			w12.RightAttach = ((uint)(4));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryExpenseFinancialCategory = new global::QS.Views.Control.EntityEntry();
@@ -327,6 +325,7 @@ namespace Vodovoz.Cash
 			this.ydateDocument.Date = new global::System.DateTime(0);
 			this.ydateDocument.IsEditable = true;
 			this.ydateDocument.AutoSeparation = true;
+			this.ydateDocument.HideButtonClearDate = false;
 			this.table1.Add(this.ydateDocument);
 			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1[this.ydateDocument]));
 			w25.TopAttach = ((uint)(1));
