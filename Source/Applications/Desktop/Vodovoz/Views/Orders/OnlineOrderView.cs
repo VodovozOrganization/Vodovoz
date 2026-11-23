@@ -419,7 +419,7 @@ namespace Vodovoz.Views.Orders
 						}
 					})
 				.AddColumn("Сумма(ДВ)")
-					.AddNumericRenderer(x => x.OurSum)
+					.AddTextRenderer(x =>  $"{x.OurSum:N2}")
 					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();

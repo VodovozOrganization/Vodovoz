@@ -250,6 +250,8 @@ namespace Vodovoz
 
 		public bool IgnoreReceipt { get; private set; } = false;
 
+		public RouteListItem RouteListItem => _routeListItem;
+
 		public int? OrderId => _routeListItem?.Order?.Id;
 		private bool IsClientSelectedAndOrderCashlessAndPaid =>
 			Client != null && _routeListItem?.Order?.IsOrderCashlessAndPaid == true;

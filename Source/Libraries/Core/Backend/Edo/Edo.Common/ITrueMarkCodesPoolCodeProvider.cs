@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
@@ -17,12 +18,14 @@ namespace Edo.Common
 		/// <param name="gtin">GTIN номенклатуры.</param>
 		/// <param name="organizationInn">ИНН организации заказа.</param>
 		/// <param name="cancellationToken">Токен отмены операции.</param>
+		/// <param name="addingTimeNotAfter">Дата добавления кода не позже указанной (если null, без ограничения по дате добавления).</param>
 		/// <returns>Валидный код маркировки.</returns>
 		Task<TrueMarkWaterIdentificationCode> TakeValidCodeAsync(
 			ITrueMarkCodesPool codesPool,
 			GtinEntity gtin,
 			string organizationInn,
-			CancellationToken cancellationToken);
+			CancellationToken cancellationToken,
+			DateTime? addingTimeNotAfter = null);
 
 		/// <summary>
 		/// Забирает из пула первый актуальный валидный код по одному из переданных GTIN.
@@ -31,12 +34,14 @@ namespace Edo.Common
 		/// <param name="gtins">Коллекция GTIN'ов для подбора кода.</param>
 		/// <param name="organizationInn">ИНН организации заказа.</param>
 		/// <param name="cancellationToken">Токен отмены операции.</param>
+		/// <param name="addingTimeNotAfter">Дата добавления кода не позже указанной (если null, без ограничения по дате добавления).</param>
 		/// <returns>Валидный код маркировки.</returns>
 		Task<TrueMarkWaterIdentificationCode> TakeValidCodeAsync(
 			ITrueMarkCodesPool codesPool,
 			IEnumerable<GtinEntity> gtins,
 			string organizationInn,
-			CancellationToken cancellationToken);
+			CancellationToken cancellationToken,
+			DateTime? addingTimeNotAfter = null);
 
 		/// <summary>
 		/// Забирает из пула пачку актуальных валидных кодов по GTIN и количеству

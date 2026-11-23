@@ -30,30 +30,36 @@ namespace Vodovoz.Core.Application.Orders.Services
 			bool hasPermissionsForAlternativePrice
 			)
 		{
+			var newSaleItemsList = new List<List<NewOrderSaleItem>>();
+			
 			if(!onlineOrderPromoSet.DiscountReasons.Any())
 			{
-				return new []
+				for(var i = 0; i < onlineOrderPromoSet.Count; i++)
 				{
-					onlineOrderPromoSet.PromoSet.PromotionalSetItems
-						.Select(proSetItem =>
-							NewOrderSaleItem.Create(
-								proSetItem.Nomenclature,
-								proSetItem.Count,
-								default,
-								proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
-								proSetItem.IsDiscountInMoney,
-								null,
-								proSetItem.PromoSet
-							)
-						)
-						.ToList()
-				};
+					var newSaleItems = new List<NewOrderSaleItem>();
+					newSaleItemsList.Add(newSaleItems);
+
+					foreach(var promoItem in onlineOrderPromoSet.PromoSet.PromotionalSetItems)
+					{
+						var newSaleItem = NewOrderSaleItem.Create(
+							promoItem.Nomenclature,
+							promoItem.Count,
+							default,
+							promoItem.IsDiscountInMoney ? promoItem.DiscountMoney : promoItem.Discount,
+							promoItem.IsDiscountInMoney,
+							null,
+							promoItem.PromoSet
+						);
+						
+						newSaleItems.Add(newSaleItem);
+					}
+				}
+				
+				return newSaleItemsList;
 			}
 			
 			//т.к. скидка может превышать стоимость одного или нескольких промонаборов и в заказе они добавляются товарами,
-			//то мы должны просчитать скидки для всез товаров, входящих во все промики
-			var newSaleItemsList = new List<List<NewOrderSaleItem>>();
-			
+			//то мы должны просчитать скидки для всех товаров, входящих во все промики
 			var promoSaleItem = _applicablePromotionFactory.CreateApplicablePromotion(onlineOrderPromoSet);
 			var allPromoSetItemsDiscounts = _discountsController.CalculatePromoSetTotalDiscountBySaleItems(
 				uow,
