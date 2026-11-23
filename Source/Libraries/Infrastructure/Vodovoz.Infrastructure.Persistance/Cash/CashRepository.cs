@@ -21,7 +21,7 @@ using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash
 {
-	internal sealed class CashRepository : ICashRepository
+	internal sealed partial class CashRepository : ICashRepository
 	{
 		public decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId, int? excludedIncomeDoc = null)
 		{

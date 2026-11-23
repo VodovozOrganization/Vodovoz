@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Models.Cash;
 
 namespace Vodovoz.ViewModels.Cash.Reports
 {
@@ -42,13 +44,31 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 			public List<object> Rows => IncomesGroupLines.Cast<object>().Concat(ExpensesGroupLines).ToList();
 
+			/// <summary>
+			/// Формирует отчёт по кассовым движениям за период
+			/// </summary>
+			/// <param name="unitOfWork">UnitOfWork</param>
+			/// <param name="cashRepository">Репозиторий кассовых документов</param>
+			/// <param name="startDate">Нижняя граница периода</param>
+			/// <param name="endDate">Верхняя граница периода</param>
+			/// <param name="hideCategoriesWithoutDocuments">Скрывать статьи с нулевыми суммами</param>
+			/// <param name="reportMode">Режим ДДС или ДДР</param>
+			/// <returns>Сформированный отчёт</returns>
 			public static CashFlowDdsReport GenerateReport(
 				IUnitOfWork unitOfWork,
+				ICashRepository cashRepository,
 				DateTime startDate,
 				DateTime endDate,
 				bool hideCategoriesWithoutDocuments,
 				ReportMode reportMode)
 			{
+				var data = cashRepository.GetCashFlowReportData(
+					unitOfWork, startDate, endDate, useDdrDate: reportMode == ReportMode.Ddr, includeCenters: false);
+				var returnedExpenses = CashFlowReportReturnAllocation.Allocate(data.Returns, data.DirectClosings, data.AdvanceReportClosings);
+				var expenseTotals = data.Expenses.Concat(returnedExpenses)
+					.GroupBy(x => x.ExpenseCategoryId)
+					.ToDictionary(x => x.Key, x => x.Sum(amount => amount.Money));
+
 				var incomesCategories =
 					(from incomeCategory in unitOfWork.Session.Query<FinancialIncomeCategory>()
 					 where incomeCategory.GroupType == GroupType.Category
@@ -64,15 +84,8 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 				foreach(var incomeCategory in incomesCategories)
 				{
-					incomeCategory.Money =
-						(from cashIncome in unitOfWork.Session.Query<Income>()
-						 where cashIncome.IncomeCategoryId == incomeCategory.Id
-							&& cashIncome.Date >= startDate
-							&& cashIncome.Date <= endDate
-							&& cashIncome.TypeOperation != IncomeType.Return
-						 select cashIncome.Money)
-						.ToArray()
-						.Sum();
+					data.IncomeTotals.TryGetValue(incomeCategory.Id, out var incomeTotal);
+					incomeCategory.Money = incomeTotal;
 				}
 
 				if(hideCategoriesWithoutDocuments)
@@ -95,30 +108,8 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 				foreach(var expenseCategory in expensesCategories)
 				{
-					var expensesSum =
-						(from cashExpense in unitOfWork.Session.Query<Expense>()
-						 where cashExpense.ExpenseCategoryId == expenseCategory.Id
-							&& ((reportMode == ReportMode.Dds 
-									&& cashExpense.Date >= startDate
-									&& cashExpense.Date <= endDate)
-								|| (reportMode == ReportMode.Ddr
-									&& cashExpense.DdrDate >= startDate
-									&& cashExpense.DdrDate <= endDate))
-						 select cashExpense.Money)
-						.ToArray()
-						.Sum();
-
-					expensesSum -=
-						(from cashIncome in unitOfWork.Session.Query<Income>()
-						 where cashIncome.ExpenseCategoryId == expenseCategory.Id
-							&& cashIncome.Date >= startDate
-							&& cashIncome.Date <= endDate
-							&& cashIncome.TypeOperation == IncomeType.Return
-						 select cashIncome.Money)
-						.ToArray()
-						.Sum();
-
-					expenseCategory.Money = expensesSum;
+					expenseTotals.TryGetValue(expenseCategory.Id, out var expenseTotal);
+					expenseCategory.Money = expenseTotal;
 				}
 
 				if(hideCategoriesWithoutDocuments)

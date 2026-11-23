@@ -10,6 +10,7 @@ using QS.ViewModels;
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.ViewModels.Cash.Reports
 {
@@ -20,6 +21,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICommonServices _commonServices;
 		private readonly CashFlowDdsReportRenderer _cashFlowDdsReportRenderer;
+		private readonly ICashRepository _cashRepository;
 		private bool _canGenerateDdsReport = true;
 
 		private DateTime _startDate;
@@ -28,13 +30,24 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		private bool _hideCategoriesWithoutDocuments;
 		private CashFlowDdsReport.ReportMode _reportMode;
 
+		/// <summary>
+		/// Создаёт модель вкладки анализа движения денежных средств
+		/// </summary>
+		/// <param name="unitOfWorkFactory">Фабрика UnitOfWork</param>
+		/// <param name="interactiveService">Сервис пользовательских диалогов</param>
+		/// <param name="navigation">Менеджер навигации</param>
+		/// <param name="fileDialogService">Сервис выбора файла</param>
+		/// <param name="cashFlowDdsReportRenderer">Генератор файла Excel</param>
+		/// <param name="commonServices">Общие сервисы</param>
+		/// <param name="cashRepository">Репозиторий кассовых документов</param>
 		public CashFlowAnalysisViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IFileDialogService fileDialogService,
 			CashFlowDdsReportRenderer cashFlowDdsReportRenderer,
-			ICommonServices commonServices)
+			ICommonServices commonServices,
+			ICashRepository cashRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(navigation is null)
@@ -45,6 +58,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			_cashFlowDdsReportRenderer = cashFlowDdsReportRenderer ?? throw new ArgumentNullException(nameof(cashFlowDdsReportRenderer));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 
 			var now = DateTime.Now;
 
@@ -165,7 +179,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		{
 			CanGenerateDdsReport = false;
 
-			Report = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate, HideCategoriesWithoutDocuments, ReportMode);
+			Report = CashFlowDdsReport.GenerateReport(UoW, _cashRepository, StartDate, EndDate, HideCategoriesWithoutDocuments, ReportMode);
 
 			if(Report != null)
 			{

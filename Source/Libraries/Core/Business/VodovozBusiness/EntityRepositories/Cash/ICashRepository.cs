@@ -32,6 +32,19 @@ namespace Vodovoz.EntityRepositories.Cash
 		decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId, int? excludedIncomeDoc = null);
 		bool OrderHasIncome(IUnitOfWork uow, int orderId);
 		IList<OperationNode> GetCashBalanceForOrganizations(IUnitOfWork uow);
+
+		/// <summary>
+		/// Читает движения для отчёта ДДС и ДДР
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="startDate">Нижняя граница периода</param>
+		/// <param name="endDate">Верхняя граница периода</param>
+		/// <param name="useDdrDate">Отбирать расходы по дате ДДР</param>
+		/// <param name="includeCenters">Загрузить подразделения и закрытия авансов</param>
+		/// <returns>Суммы по статьям и данные для распределения возвратов</returns>
+		CashFlowReportDataNode GetCashFlowReportData(
+			IUnitOfWork uow, DateTime startDate, DateTime endDate, bool useDdrDate, bool includeCenters);
+
 		decimal GetIncomeSumByRouteListId(IUnitOfWork uow, int routeListId, IncomeType[] includedIncomeTypes = null, IncomeType[] excludedIncomeTypes = null);
 		decimal GetExpenseSumByRouteListId(IUnitOfWork uow, int routeListId, ExpenseType[] includedExpenseTypes = null, ExpenseType[] excludedExpenseTypes = null);
 		IList<int> GetCashTransferDocumentsIdsByExpenseId(IUnitOfWork uow, int expenseId);
