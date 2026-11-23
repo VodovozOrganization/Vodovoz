@@ -1,380 +1,144 @@
 ﻿using ClosedXML.Excel;
 using System;
 using System.Drawing;
-using System.Linq;
+using Vodovoz.Models.Cash;
 
 namespace Vodovoz.ViewModels.Cash.Reports
 {
 	public partial class CashFlowAnalysisViewModel
 	{
+		/// <summary>
+		/// Выгружает сформированный отчёт ДДС или ДДР в Excel
+		/// </summary>
 		public class CashFlowDdsReportRenderer
 		{
-			private XLColor _subTotalsBGXLColor;
-
 			private const string _worksheetTitle = "Отчет";
-
 			private const string _headerTitle = "Анализ движения денежных средств";
-			private const int _headerRow = 1;
-			private const int _headerFontSize = 13;
-
-			private const int _subHeaderRow = 2;
-			private const int _subHeaderFontSize = 13;
-
-			private const int _groupTitleFontSize = 11;
-
-			private const int _mainCategoryColumn = 1;
-			private const int _categoryTitleColumn = 2;
-			private const int _categoryFontSize = 11;
-			private const int _numberingColumn = 1;
-			private const int _moneyColumn = 3;
-
 			private const string _moneyNumericFormat = "# ### ### ##0.00;-# ### ### ##0.00;-";
 
-			private const string _incomesHeaderTitle = "Доходы";
-			private const int _incomesHeaderFontSize = 13;
+			private const int _headerRow = 1;
+			private const int _subHeaderRow = 2;
+			private const int _firstSectionRow = 4;
+			private const int _numberingColumn = 1;
+			private const int _titleColumn = 2;
+			private const int _moneyColumn = 3;
+			private const int _headerFontSize = 13;
+			private const int _detailFontSize = 11;
+			private const int _maxOutlineLevel = 7;
 
-			private const string _expensesHeaderTitle = "Расходы";
-			private const int _expensesHeaderFontSize = 13;
-
-			private const string _totalHeaderTitle = "Прибыль";
-			private const int _totalHeaderFontSize = 13;
-
-			public IXLWorkbook Render(CashFlowDdsReport cashFlowDdsReport, Color accentColot)
+			/// <summary>
+			/// Записывает строки последнего сформированного отчёта
+			/// </summary>
+			/// <param name="report">Дерево и итоги сформированного отчёта</param>
+			/// <param name="accentColor">Цвет разделов и прибыли</param>
+			/// <returns>Книга Excel</returns>
+			public IXLWorkbook Render(CashFlowDdsReport report, Color accentColor)
 			{
-				_subTotalsBGXLColor = XLColor.FromColor(accentColot);
+				var workbook = new XLWorkbook();
+				var sheet = workbook.AddWorksheet(_worksheetTitle);
+				sheet.Outline.SummaryVLocation = XLOutlineSummaryVLocation.Top;
 
-				var result = new XLWorkbook();
+				RenderHeader(sheet, _headerRow, _headerTitle);
+				RenderHeader(sheet, _subHeaderRow, $"с {report.StartDate:dd.MM.yyyy} по {report.EndDate:dd.MM.yyyy}");
 
-				result.AddWorksheet(_worksheetTitle);
+				var totalsColor = XLColor.FromColor(accentColor);
+				var row = RenderSection(sheet, _firstSectionRow, report.IncomeSection, totalsColor);
+				row = RenderSection(sheet, row, report.ExpenseSection, totalsColor);
+				RenderSection(sheet, row, report.ProfitLine, totalsColor);
 
-				var reportSheet = result.Worksheets.First();
+				sheet.Column(_numberingColumn).AdjustToContents();
+				sheet.Column(_titleColumn).AdjustToContents();
+				sheet.Column(_moneyColumn).AdjustToContents();
+				sheet.CollapseRows();
 
-				RenderHeader(reportSheet);
-
-				RenderSubheader(reportSheet, cashFlowDdsReport.StartDate, cashFlowDdsReport.EndDate);
-
-				var incomesStartLine = 4;
-
-				var incomesSum = cashFlowDdsReport.IncomesGroupLines.Sum(x => x.Money);
-
-				var insertedIncomesGroupRows = RenderIncomesLines(reportSheet, cashFlowDdsReport, incomesStartLine, incomesSum);
-
-				var expensesSum = cashFlowDdsReport.ExpensesGroupLines.Sum(x => x.Money);
-
-				int insertedExpensesLines = RenderExpensesLines(reportSheet, cashFlowDdsReport, incomesStartLine + insertedIncomesGroupRows, expensesSum);
-
-				RenderSubSubheader(
-					reportSheet,
-					incomesStartLine + insertedIncomesGroupRows + insertedExpensesLines,
-					_totalHeaderTitle,
-					_totalHeaderFontSize,
-					incomesSum - expensesSum);
-
-				reportSheet.Column(_mainCategoryColumn).AdjustToContents();
-				reportSheet.Column(_categoryTitleColumn).AdjustToContents();
-				reportSheet.Column(_moneyColumn).AdjustToContents();
-
-				reportSheet.CollapseRows();
-
-				return result;
+				return workbook;
 			}
 
-			private int RenderIncomesLines(IXLWorksheet reportSheet, CashFlowDdsReport cashFlowDdsReport, int row, decimal incomesSum)
+			private static int RenderSection(IXLWorksheet sheet, int row, CashFlowReportLine section, XLColor color)
 			{
-				RenderSubSubheader(
-					reportSheet,
-					row,
-					_incomesHeaderTitle,
-					_incomesHeaderFontSize,
-					incomesSum);
+				var titleCell = sheet.Cell(row, _numberingColumn);
+				titleCell.Value = section.Title;
+				titleCell.Style.Font.Bold = true;
+				titleCell.Style.Font.FontSize = _headerFontSize;
 
-				var incomegroupsStartAt = row;
+				var sectionRange = sheet.Range(row, _numberingColumn, row, _moneyColumn);
+				sectionRange.AddConditionalFormat().WhenNotBlank().Fill.BackgroundColor = color;
+				sectionRange.AddConditionalFormat().WhenIsBlank().Fill.BackgroundColor = color;
+				RenderMoney(sheet, row, section.Money, _headerFontSize, bold: true, border: false);
 
-				var insertedIncomesGroupRows = 0;
+				var nextRow = row + 1;
 
-				foreach(var incomeGroup in cashFlowDdsReport.IncomesGroupLines)
+				foreach(var child in section.Children)
 				{
-					insertedIncomesGroupRows += RenderIncomeGroup(
-						reportSheet,
-						incomegroupsStartAt + insertedIncomesGroupRows,
-						incomeGroup,
-						1,
-						string.Empty);
+					nextRow = RenderDetail(sheet, nextRow, child, 1);
 				}
 
-				return insertedIncomesGroupRows;
+				return nextRow;
 			}
 
-			private int RenderExpensesLines(IXLWorksheet reportSheet, CashFlowDdsReport cashFlowDdsReport, int row, decimal sum)
+			private static int RenderDetail(IXLWorksheet sheet, int row, CashFlowReportLine line, int depth)
 			{
-				RenderSubSubheader(
-					reportSheet,
-					row,
-					_expensesHeaderTitle,
-					_expensesHeaderFontSize,
-					sum);
+				var bold = !line.IsArticle || line.Children.Count > 0;
+				var numberingCell = sheet.Cell(row, _numberingColumn);
 
-				var expensesStartAt = row;
-
-				var insertedExpensesGroupRows = 0;
-
-				foreach(var expenseGroup in cashFlowDdsReport.ExpensesGroupLines)
+				if(!string.IsNullOrEmpty(line.Numbering))
 				{
-					insertedExpensesGroupRows += RenderExpenseGroup(
-						reportSheet,
-						expensesStartAt + insertedExpensesGroupRows,
-						expenseGroup,
-						1,
-						string.Empty);
+					numberingCell.Value = $"'{line.Numbering}";
 				}
 
-				return insertedExpensesGroupRows;
-			}
-
-			private void RenderSubSubheader(IXLWorksheet xLWorksheet, int row, string title, int fontSize, decimal money, bool bold = true)
-			{
-				var subheaderCell = xLWorksheet.Cell(row, _mainCategoryColumn);
-
-				ApplyBGColorConditionalFormat(
-					xLWorksheet.Range(row, _mainCategoryColumn, row, _moneyColumn),
-					_subTotalsBGXLColor);
-
-				subheaderCell.Style.Font.Bold = bold;
-				subheaderCell.Style.Font.FontSize = fontSize;
-				subheaderCell.Value = title;
-
-				RenderMoney(xLWorksheet,
-					row,
-					money,
-					fontSize,
-					bold);
-			}
-
-			private void RenderHeader(IXLWorksheet xLWorksheet)
-			{
-				var firstCell = xLWorksheet.Cell(_headerRow, 1);
-				firstCell.Value = _headerTitle;
-				firstCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-				firstCell.Style.Font.Bold = true;
-				firstCell.Style.Font.FontSize = _headerFontSize;
-				xLWorksheet.Range(_headerRow, 1, _headerRow, 3).Merge();
-			}
-
-			private void RenderSubheader(IXLWorksheet reportSheet, DateTime startDate, DateTime endDate)
-			{
-				var subheaderFirstCell = reportSheet.Cell(_subHeaderRow, 1);
-				subheaderFirstCell.Value = $"с {startDate:dd.MM.yyyy} по {endDate:dd.MM.yyyy}";
-				subheaderFirstCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-				subheaderFirstCell.Style.Font.Bold = true;
-				subheaderFirstCell.Style.Font.FontSize = _subHeaderFontSize;
-				reportSheet.Range(_subHeaderRow, 1, _subHeaderRow, 3).Merge();
-			}
-
-			private void ApplyBGColorConditionalFormat(IXLRange range, XLColor color)
-			{
-				range.AddConditionalFormat().WhenNotBlank().Fill.BackgroundColor = color;
-				range.AddConditionalFormat().WhenIsBlank().Fill.BackgroundColor = color;
-			}
-
-			private int RenderIncomeGroup(
-				IXLWorksheet xLWorksheet,
-				int startRow,
-				CashFlowDdsReport.IncomesGroupLine incomeGroup,
-				int groupLevel,
-				string numberPrefix)
-			{
-				var inserted = 0;
-
-				if(groupLevel > 1)
-				{
-					RenderGroupTitle(xLWorksheet, startRow, incomeGroup.Title, incomeGroup.Numbering, numberPrefix, incomeGroup.Money);
-				}
-
-				inserted++;
-
-				var incomeGroupsCount = incomeGroup.Groups.Count;
-
-				if(incomeGroupsCount != 0)
-				{
-					for(int i = 0; i < incomeGroupsCount; i++)
-					{
-						inserted += RenderIncomeGroup(xLWorksheet, startRow + inserted, incomeGroup.Groups[i], groupLevel + 1, $"{numberPrefix}{i + 1}. ");
-					}
-				}
-
-				int groupEndRowNumber = startRow + inserted;
-
-				var categoriesEndRowNumber = incomeGroup.IncomeCategories.Count + startRow + inserted;
-
-				if(incomeGroup.IncomeCategories.Count != 0)
-				{
-					foreach(var category in incomeGroup.IncomeCategories)
-					{
-						RenderIncomeCategory(xLWorksheet, startRow + inserted, category);
-						inserted++;
-					}
-				}
-
-				var categoriesStartRowNumber = groupEndRowNumber + 1;
-
-				if(incomeGroup.Groups.Count != 0)
-				{
-					if(groupLevel > 1)
-					{
-						xLWorksheet.Rows(startRow + 1, categoriesEndRowNumber - 1).Group();
-					}
-				}
-
-				if(incomeGroup.IncomeCategories.Count != 0)
-				{
-					if(groupLevel > 1)
-					{
-						xLWorksheet.Rows(categoriesStartRowNumber - 1, categoriesEndRowNumber - 1).Group();
-					}
-				}
-
-				return inserted;
-			}
-
-			private int RenderExpenseGroup(
-				IXLWorksheet xLWorksheet,
-				int startRow,
-				CashFlowDdsReport.ExpensesGroupLine expenseGroup,
-				int groupLevel,
-				string numberPrefix)
-			{
-				var inserted = 0;
-
-				if(groupLevel > 1)
-				{
-					RenderGroupTitle(xLWorksheet, startRow, expenseGroup.Title, expenseGroup.Numbering, numberPrefix, expenseGroup.Money);
-				}
-
-				inserted++;
-
-				var expenseGroupsCount = expenseGroup.Groups.Count;
-
-				if(expenseGroupsCount != 0)
-				{
-					for(int i = 0; i < expenseGroupsCount; i++)
-					{
-						inserted += RenderExpenseGroup(xLWorksheet, startRow + inserted, expenseGroup.Groups[i], groupLevel + 1, $"{numberPrefix}{i + 1}. ");
-					}
-				}
-
-				int groupEndRowNumber = startRow + inserted;
-
-				var categoriesEndRowNumber = expenseGroup.ExpenseCategories.Count + startRow + inserted;
-
-				if(expenseGroup.ExpenseCategories.Count != 0)
-				{
-					foreach(var category in expenseGroup.ExpenseCategories)
-					{
-						RenderExpenseCategory(xLWorksheet, startRow + inserted, category);
-						inserted++;
-					}
-				}
-
-				var categoriesStartRowNumber = groupEndRowNumber + 1;
-
-				if(expenseGroup.Groups.Count != 0)
-				{
-					if(groupLevel > 1)
-					{
-						xLWorksheet.Rows(startRow + 1, categoriesEndRowNumber - 1).Group();
-					}
-				}
-
-				if(expenseGroup.ExpenseCategories.Count != 0)
-				{
-					if(groupLevel > 1)
-					{
-						xLWorksheet.Rows(categoriesStartRowNumber - 1, categoriesEndRowNumber - 1).Group();
-					}
-				}
-
-				return inserted;
-			}
-
-			private void RenderIncomeCategory(
-				IXLWorksheet xLWorksheet,
-				int row,
-				CashFlowDdsReport.FinancialIncomeCategoryLine category)
-			{
-				RenderCategoryRow(xLWorksheet, row, category.Title, category.Numbering, category.Money);
-			}
-
-			private void RenderExpenseCategory(
-				IXLWorksheet xLWorksheet,
-				int row,
-				CashFlowDdsReport.FinancialExpenseCategoryLine category)
-			{
-				RenderCategoryRow(xLWorksheet, row, category.Title, category.Numbering, category.Money);
-			}
-
-			private void RenderGroupTitle(IXLWorksheet xLWorksheet, int row, string title, string numbering, string numberPrefix, decimal money)
-			{
-				var numberingCell = xLWorksheet.Cell(row, _numberingColumn);
-
-				numberingCell.Value = $"'{numbering}";
-				numberingCell.Style.Font.Bold = true;
-				numberingCell.Style.Font.FontSize = _groupTitleFontSize;
 				numberingCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-				numberingCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+				StyleDetailCell(numberingCell, bold);
 
-				var groupTitleCell = xLWorksheet.Cell(row, _categoryTitleColumn);
+				var titleCell = sheet.Cell(row, _titleColumn);
+				titleCell.Value = line.Title;
+				titleCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+				titleCell.Style.Alignment.Indent = depth;
+				StyleDetailCell(titleCell, bold);
 
-				groupTitleCell.Style.Font.Bold = true;
-				groupTitleCell.Style.Font.FontSize = _groupTitleFontSize;
-				groupTitleCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+				RenderMoney(sheet, row, line.Money, _detailFontSize, bold, border: true);
+				sheet.Row(row).OutlineLevel = Math.Min(depth - 1, _maxOutlineLevel);
 
-				groupTitleCell.Value = title;
+				var nextRow = row + 1;
 
-				RenderMoney(xLWorksheet, row, money, _groupTitleFontSize, true, true);
-			}
-
-			private void RenderCategoryRow(IXLWorksheet xLWorksheet, int row, string title, string numbering, decimal money, bool right = false)
-			{
-				var numberingCell = xLWorksheet.Cell(row, _numberingColumn);
-
-				numberingCell.Value = $"'{numbering}";
-				numberingCell.Style.Font.FontSize = _categoryFontSize;
-				numberingCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-				numberingCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-
-				var titleCell = xLWorksheet.Cell(row, _categoryTitleColumn);
-
-				titleCell.Value = title;
-				titleCell.Style.Font.FontSize = _categoryFontSize;
-				titleCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-
-				if(right)
+				foreach(var child in line.Children)
 				{
-					titleCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-					numberingCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+					nextRow = RenderDetail(sheet, nextRow, child, depth + 1);
 				}
 
-				RenderMoney(xLWorksheet, row, money, _categoryFontSize, border: true);
+				return nextRow;
 			}
 
-			private void RenderMoney(IXLWorksheet xLWorksheet, int row, decimal money, int fontSize, bool bold = false, bool border = false)
+			private static void RenderHeader(IXLWorksheet sheet, int row, string title)
 			{
-				var moneyCell = xLWorksheet.Cell(row, _moneyColumn);
+				var cell = sheet.Cell(row, _numberingColumn);
+				cell.Value = title;
+				cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+				cell.Style.Font.Bold = true;
+				cell.Style.Font.FontSize = _headerFontSize;
+				sheet.Range(row, _numberingColumn, row, _moneyColumn).Merge();
+			}
 
-				if(bold)
-				{
-					moneyCell.Style.Font.Bold = true;
-				}
+			private static void StyleDetailCell(IXLCell cell, bool bold)
+			{
+				cell.Style.Font.Bold = bold;
+				cell.Style.Font.FontSize = _detailFontSize;
+				cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+			}
+
+			private static void RenderMoney(IXLWorksheet sheet, int row, decimal money, int fontSize, bool bold, bool border)
+			{
+				var cell = sheet.Cell(row, _moneyColumn);
+				cell.Style.Font.Bold = bold;
+				cell.Style.Font.FontSize = fontSize;
 
 				if(border)
 				{
-					moneyCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+					cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 				}
 
-				moneyCell.Style.NumberFormat.Format = _moneyNumericFormat;
-				moneyCell.DataType = XLDataType.Number;
-				moneyCell.Style.Font.FontSize = fontSize;
-				moneyCell.Value = money;
+				cell.Style.NumberFormat.Format = _moneyNumericFormat;
+				cell.DataType = XLDataType.Number;
+				cell.Value = money;
 			}
 		}
 	}

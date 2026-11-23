@@ -1,202 +1,50 @@
-﻿using NHibernate.Util;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using Vodovoz.Models.Cash;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
-using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel.CashFlowDdsReport;
 
 namespace Vodovoz.Cash.Reports
 {
 	public partial class CashFlowAnalysisView
 	{
-		internal class ReportLine
+		internal sealed class ReportLine
 		{
-			private ReportLine()
+			private ReportLine(CashFlowReportLine line, ReportLine parent)
 			{
+				ParentLine = parent;
+				FirstColumn = parent == null ? line.Title : line.Numbering;
+				SecondColumn = parent == null ? null : line.Title;
+				ThirdColumn = line.Money;
+				IsAccented = parent == null;
+				Bold = !line.IsArticle || line.Children.Count > 0;
 
+				foreach(var child in line.Children)
+				{
+					ChildLines.Add(new ReportLine(child, this));
+				}
 			}
 
-			public ReportLine ParentLine { get; set; } = null;
+			public ReportLine ParentLine { get; }
 
 			public List<ReportLine> ChildLines { get; } = new List<ReportLine>();
 
-			public string FirstColumn { get; set; }
+			public string FirstColumn { get; }
 
-			public string SecondColumn { get; set; }
+			public string SecondColumn { get; }
 
-			public decimal ThirdColumn { get; set; }
+			public decimal ThirdColumn { get; }
 
-			public bool IsAccented { get; set; } = false;
+			public bool IsAccented { get; }
 
-			public bool Bold { get; set; }
-
-			public bool IsSeparator { get; private set; } = false;
+			public bool Bold { get; }
 
 			public static List<ReportLine> Map(CashFlowDdsReport report)
 			{
-				var result = new List<ReportLine>
+				return new List<ReportLine>
 				{
-					Map(report.IncomesGroupLines.FirstOrDefault()),
-					Map(report.ExpensesGroupLines.FirstOrDefault()),
-					new ReportLine()
-					{
-						FirstColumn = "Прибыль",
-						ThirdColumn = report.IncomesGroupLines.Sum(x => x.Money) - report.ExpensesGroupLines.Sum(x => x.Money),
-						Bold = true,
-						IsAccented = true
-					}
+					new ReportLine(report.IncomeSection, null),
+					new ReportLine(report.ExpenseSection, null),
+					new ReportLine(report.ProfitLine, null)
 				};
-
-				return result;
-			}
-
-			private static ReportLine Map(IncomesGroupLine incomesGroupLine)
-			{
-				var result = new ReportLine
-				{
-					FirstColumn = "Доходы",
-					ThirdColumn = incomesGroupLine?.Money ?? 0m,
-					Bold = true,
-					IsAccented = true
-				};
-
-				if(incomesGroupLine != null)
-				{
-					result.ChildLines.AddRange(Map(
-						result,
-						incomesGroupLine.Groups,
-						incomesGroupLine.IncomeCategories));
-				}
-
-				return result;
-			}
-
-			private static ReportLine Map(ExpensesGroupLine expensesGroupLine)
-			{
-				var result = new ReportLine
-				{
-					FirstColumn = "Расходы",
-					ThirdColumn = expensesGroupLine?.Money ?? 0m,
-					Bold = true,
-					IsAccented = true
-				};
-
-				if(expensesGroupLine != null)
-				{
-					result.ChildLines.AddRange(Map(
-						result,
-						expensesGroupLine.Groups,
-						expensesGroupLine.ExpenseCategories));
-				}
-
-				return result;
-			}
-
-			private static IEnumerable<ReportLine> Map(
-				ReportLine parent,
-				List<ExpensesGroupLine> expensesGroupLines,
-				List<FinancialExpenseCategoryLine> expenseCategoryLines)
-			{
-				var result = new List<ReportLine>();
-
-				foreach(var expensesGroupLine in expensesGroupLines)
-				{
-					result.Add(Map(parent, expensesGroupLine));
-				}
-
-				foreach(var expenseCategoryLine in expenseCategoryLines)
-				{
-					result.Add(Map(parent, expenseCategoryLine));
-				}
-
-				return result;
-			}
-
-			private static ReportLine Map(
-				ReportLine parent,
-				FinancialExpenseCategoryLine expenseCategoryLine)
-			{
-				return new ReportLine()
-				{
-					ParentLine = parent,
-					FirstColumn = expenseCategoryLine.Numbering,
-					SecondColumn = expenseCategoryLine.Title,
-					ThirdColumn = expenseCategoryLine.Money
-				};
-			}
-
-			private static ReportLine Map(
-				ReportLine parent,
-				ExpensesGroupLine expensesGroupLine)
-			{
-				var result = new ReportLine()
-				{
-					Bold = true,
-					ParentLine = parent,
-					FirstColumn = expensesGroupLine.Numbering,
-					SecondColumn = expensesGroupLine.Title,
-					ThirdColumn = expensesGroupLine.Money
-				};
-
-				result.ChildLines.AddRange(Map(
-					result,
-					expensesGroupLine.Groups,
-					expensesGroupLine.ExpenseCategories));
-
-				return result;
-			}
-
-			private static List<ReportLine> Map(
-				ReportLine parent,
-				IEnumerable<IncomesGroupLine> incomesGroupLines,
-				IEnumerable<FinancialIncomeCategoryLine> incomeCategoryLines)
-			{
-				var result = new List<ReportLine>();
-
-				foreach(var incomesGroupLine in incomesGroupLines)
-				{
-					result.Add(Map(parent, incomesGroupLine));
-				}
-
-				foreach(var incomeCategoryLine in incomeCategoryLines)
-				{
-					result.Add(Map(parent, incomeCategoryLine));
-				}
-
-				return result;
-			}
-
-			private static ReportLine Map(
-				ReportLine parent,
-				FinancialIncomeCategoryLine incomeCategoryLine)
-			{
-				return new ReportLine()
-				{
-					ParentLine = parent,
-					FirstColumn = incomeCategoryLine.Numbering,
-					SecondColumn = incomeCategoryLine.Title,
-					ThirdColumn = incomeCategoryLine.Money
-				};
-			}
-
-			private static ReportLine Map(
-				ReportLine parent,
-				IncomesGroupLine incomesGroupLine)
-			{
-				var result = new ReportLine()
-				{
-					Bold = true,
-					ParentLine = parent,
-					FirstColumn = incomesGroupLine.Numbering,
-					SecondColumn = incomesGroupLine.Title,
-					ThirdColumn = incomesGroupLine.Money
-				};
-
-				result.ChildLines.AddRange(Map(
-					result,
-					incomesGroupLine.Groups,
-					incomesGroupLine.IncomeCategories));
-
-				return result;
 			}
 		}
 	}
