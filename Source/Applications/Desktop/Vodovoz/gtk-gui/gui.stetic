@@ -161738,6 +161738,19 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
+                  <widget class="QS.Widgets.GtkUI.LeftRightListView" id="leftRightListViewGroupings">
+                    <property name="MemberName" />
+                    <property name="HeightRequest">200</property>
+                    <property name="Events">ButtonPressMask</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">3</property>
+                    <property name="AutoSize">False</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="Gamma.GtkWidgets.yButton" id="ybuttonCreateReport">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
@@ -161746,7 +161759,7 @@ not tooltip</property>
                     <property name="UseUnderline">True</property>
                   </widget>
                   <packing>
-                    <property name="Position">3</property>
+                    <property name="Position">4</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -161761,7 +161774,7 @@ not tooltip</property>
                     <property name="UseUnderline">True</property>
                   </widget>
                   <packing>
-                    <property name="Position">4</property>
+                    <property name="Position">5</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
