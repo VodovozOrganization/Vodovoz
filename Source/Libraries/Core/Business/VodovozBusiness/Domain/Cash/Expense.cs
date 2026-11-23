@@ -40,6 +40,8 @@ namespace Vodovoz.Domain.Cash
 		private DateTime _date;
 		private DateTime _ddrDate;
 		private Subdivision _relatedToSubdivision;
+		private Subdivision _cfoSubdivision;
+		private Subdivision _cfzSubdivision;
 		private ExpenseInvoiceDocumentType _typeDocument;
 		private ExpenseType _typeOperation;
 		private Employee _casher;
@@ -89,6 +91,46 @@ namespace Vodovoz.Domain.Cash
 		{
 			get => _relatedToSubdivision;
 			set => SetField(ref _relatedToSubdivision, value);
+		}
+
+		/// <summary>
+		/// ЦФО - центр финансовой ответственности, подразделение, отвечающее за расход
+		/// </summary>
+		[Display(Name = "ЦФО")]
+		public virtual Subdivision CfoSubdivision
+		{
+			get => _cfoSubdivision;
+			set => SetField(ref _cfoSubdivision, value);
+		}
+
+		/// <summary>
+		/// ЦФЗ - центр финансовых затрат, подразделение, на которое относится затрата
+		/// </summary>
+		[Display(Name = "ЦФЗ")]
+		public virtual Subdivision CfzSubdivision
+		{
+			get => _cfzSubdivision;
+			set => SetField(ref _cfzSubdivision, value);
+		}
+
+		/// <summary>
+		/// Сообщение о том, что у кассира не указано подразделение и ЦФО ордера не определить
+		/// </summary>
+		/// <param name="casher">Кассир</param>
+		/// <returns>Текст сообщения</returns>
+		public static string GetCasherSubdivisionMissingMessage(Employee casher)
+		{
+			return $"У сотрудника {casher?.ShortName} не указано подразделение, ЦФО расходного ордера не определить";
+		}
+
+		/// <summary>
+		/// Сообщение о том, что у сотрудника, в пользу которого создаётся ордер, не указано подразделение и ЦФЗ ордера не определить
+		/// </summary>
+		/// <param name="employee">Сотрудник, в пользу которого создаётся ордер</param>
+		/// <returns>Текст сообщения</returns>
+		public static string GetEmployeeSubdivisionMissingMessage(Employee employee)
+		{
+			return $"У сотрудника {employee?.ShortName} не указано подразделение, ЦФЗ расходного ордера не определить";
 		}
 
 		[Display(Name = "Тип документа")]
@@ -480,6 +522,18 @@ namespace Vodovoz.Domain.Cash
 			{
 				yield return new ValidationResult("Должно быть выбрано подразделение",
 					new[] { this.GetPropertyName(o => o.RelatedToSubdivision) });
+			}
+
+			if(CfoSubdivision == null)
+			{
+				yield return new ValidationResult("Должен быть выбран ЦФО",
+					new[] { nameof(CfoSubdivision) });
+			}
+
+			if(CfzSubdivision == null)
+			{
+				yield return new ValidationResult("Должен быть выбран ЦФЗ",
+					new[] { nameof(CfzSubdivision) });
 			}
 
 			if(Money <= 0)

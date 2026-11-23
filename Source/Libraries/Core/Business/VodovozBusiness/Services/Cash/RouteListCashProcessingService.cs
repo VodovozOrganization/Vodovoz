@@ -149,6 +149,12 @@ namespace VodovozBusiness.Services.Cash
 
 			var organizationDebts = GetRouteListCashDebtsByOrganizations(uow, routeList);
 
+			if(routeList.Driver?.Subdivision == null && organizationDebts.Any(x => x.DebtSum < 0))
+			{
+				return Result.Failure<(List<Income> Incomes, List<Expense> Expenses)>(
+					RouteListErrors.CreateDriverSubdivisionIsEmpty(routeList.Driver));
+			}
+
 			var cashIncomes = CreateAndDistributeCashIncomesByOrganizationsDebts(uow, routeList, organizationDebts);
 			var cashExpenses = CreateAndDistributeCashExpensesByOrganizationsOverpayments(uow, routeList, organizationDebts);
 
@@ -311,7 +317,9 @@ namespace VodovozBusiness.Services.Cash
 				Description = $"Дополнение к МЛ №{routeList.Id} от {routeList.Date:d}",
 				Money = Math.Round(amount, 2, MidpointRounding.AwayFromZero),
 				RouteListClosing = routeList,
-				RelatedToSubdivision = routeList.Cashier.Subdivision
+				RelatedToSubdivision = routeList.Cashier.Subdivision,
+				CfoSubdivision = routeList.Cashier.Subdivision,
+				CfzSubdivision = routeList.Driver.Subdivision
 			};
 
 		public IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtsByOrganizations(

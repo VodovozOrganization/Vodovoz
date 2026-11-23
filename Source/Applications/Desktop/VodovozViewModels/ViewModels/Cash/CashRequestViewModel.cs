@@ -42,6 +42,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private readonly HashSet<CashRequestSumItem> _sumsGiven = new HashSet<CashRequestSumItem>();
 		private readonly ICashRequestForDriverIsGivenForTakeNotificationSender _cashRequestForDriverIsGivenForTakeNotificationSender;
 		private FinancialExpenseCategory _financialExpenseCategory;
+		private FinancialResponsibilityCenter _financialResponsibilityCenter;
 
 		private CashRequestSumItem _selectedItem;
 		private CashRequestSumItem _selectedCashRequestSumItem;
@@ -115,17 +116,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IsNewEntity = uowBuilder.IsNewEntity;
 			CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
+			if(IsNewEntity)
+			{
+				Entity.Author = CurrentEmployee;
+				Entity.Subdivision = CurrentEmployee.Subdivision;
+			}
+
 			if(Entity.Subdivision?.FinancialResponsibilityCenterId != null)
 			{
 				FinancialResponsibilityCenter = UoW.GetById<FinancialResponsibilityCenter>(Entity.Subdivision.FinancialResponsibilityCenterId.Value);
 			}
-
-			if(IsNewEntity)
-			{
-				Entity.Author = CurrentEmployee;
-			}
-
-			Entity.Subdivision = CurrentEmployee.Subdivision;
 
 			TabName = IsNewEntity ? "Создание новой заявки на выдачу ДС" : $"{Entity.Title}";
 
@@ -215,6 +215,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			GiveSumPartiallyCommand.CanExecuteChangedWith(this, x => x.CanExecuteGive);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
+			Entity.ObservableSums.ListContentChanged += OnSumsListContentChanged;
+		}
+
+		private void OnSumsListContentChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(TotalSum));
 		}
 
 		private void Close()
@@ -277,7 +283,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			cashRequestItemPage.ViewModel.Entity = new CashRequestSumItem()
 			{
-				AccountableEmployee = CurrentEmployee
+				AccountableEmployee = CurrentEmployee,
+				CfzSubdivision = CurrentEmployee.Subdivision
 			};
 
 			cashRequestItemPage.ViewModel.EntityAccepted += OnSumForAddAccepted;
@@ -385,7 +392,20 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			set => this.SetIdRefField(SetField, ref _financialExpenseCategory, () => Entity.ExpenseCategoryId, value);
 		}
 
-		public FinancialResponsibilityCenter FinancialResponsibilityCenter { get; private set; }
+		/// <summary>
+		/// Центр финансовой ответственности подразделения заявки
+		/// </summary>
+		[PropertyChangedAlso(nameof(CanAgreeByFinancialResponsibilityCenter))]
+		public FinancialResponsibilityCenter FinancialResponsibilityCenter
+		{
+			get => _financialResponsibilityCenter;
+			private set => SetField(ref _financialResponsibilityCenter, value);
+		}
+
+		/// <summary>
+		/// Общая сумма выдачи по всем строкам заявки
+		/// </summary>
+		public decimal TotalSum => Entity.ObservableSums.Sum(x => x.Sum);
 
 		#region ViewModels
 
@@ -503,6 +523,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			nameof(CanConfirmPossibilityNotToReconcilePayments),
 			nameof(ExpenseCategoryVisibility),
 			nameof(CanAddSum),
+			nameof(CanChangeSubdivision),
 			nameof(IsSecurityServiceRole))]
 		public PayoutRequestUserRole UserRole
 		{
@@ -572,6 +593,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				|| Entity.PayoutRequestState == PayoutRequestState.PartiallyClosed);
 
 		public bool CanDeleteSum => IsNewEntity;
+
+		/// <summary>
+		/// Можно ли изменить подразделение/ЦФО заявки
+		/// </summary>
+		public bool CanChangeSubdivision => !IsSecurityServiceRole;
 
 		//Подтвердить
 		public bool CanAccept =>
@@ -669,6 +695,11 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				return;
 			}
 
+			if(!IsCashRequestValidForGive(cashRequestSumItem))
+			{
+				return;
+			}
+
 			CreateNewExpenseForItem(cashRequestSumItem, decimalSumToGive);
 
 			if(!Entity.PossibilityNotToReconcilePayments
@@ -760,11 +791,47 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			return subdivisionsControlledByCurrentEmployee.Contains(Entity.Author?.Subdivision?.Id ?? -1);
 		}
 
+		private bool IsCashRequestValidForGive(CashRequestSumItem cashRequestSumItem)
+		{
+			if(Entity.Subdivision == null)
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					"Не указано подразделение/ЦФО заявки");
+				return false;
+			}
+
+			if(cashRequestSumItem.CfzSubdivision == null)
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					$"У суммы {cashRequestSumItem.Sum} должен быть заполнен ЦФЗ");
+				return false;
+			}
+
+			if(CurrentEmployee.Subdivision == null)
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					"У кассира не указано подразделение");
+				return false;
+			}
+
+			var validationResult = Entity.RaiseValidationAndGetResult();
+
+			if(!string.IsNullOrWhiteSpace(validationResult))
+			{
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					validationResult);
+				return false;
+			}
+
+			return true;
+		}
+
 		private void CreateNewExpenseForItem(CashRequestSumItem sumItem, decimal sum)
 		{
 			sumItem?.CreateNewExpense(
 				UoW,
 				CurrentEmployee,
+				CurrentEmployee.Subdivision,
 				Entity.Subdivision,
 				Entity.ExpenseCategoryId,
 				Entity.Basis,
@@ -835,6 +902,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public override void Dispose()
 		{
 			Entity.PropertyChanged -= OnEntityPropertyChanged;
+			Entity.ObservableSums.ListContentChanged -= OnSumsListContentChanged;
 			base.Dispose();
 		}
 	}

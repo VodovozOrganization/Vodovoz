@@ -39,6 +39,10 @@ namespace Vodovoz.Cash
 
 			entryExpenseFinancialCategory.ViewModel = ViewModel.FinancialExpenseCategoryViewModel;
 
+			entryCfoSubdivision.ViewModel = ViewModel.CfoSubdivisionViewModel;
+
+			entryCfzSubdivision.ViewModel = ViewModel.CfzSubdivisionViewModel;
+
 			var clientEntryViewModelBuilder = new LegacyEEVMBuilderFactory<Expense>(
 				Tab,
 				ViewModel.Entity,

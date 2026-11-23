@@ -22,6 +22,7 @@ namespace Vodovoz.Domain.Cash
 		private IList<Expense> _expenses;
 		private GenericObservableList<Expense> _observableExpenses;
 		private Employee _accountableEmployee;
+		private Subdivision _cfzSubdivision;
 
 		public virtual int Id { get; }
 
@@ -30,6 +31,16 @@ namespace Vodovoz.Domain.Cash
 		{
 			get => _cashRequest;
 			set => SetField(ref _cashRequest, value);
+		}
+
+		/// <summary>
+		/// ЦФЗ - центр финансовых затрат, подразделение, на которое относится затрата
+		/// </summary>
+		[Display(Name = "ЦФЗ")]
+		public virtual Subdivision CfzSubdivision
+		{
+			get => _cfzSubdivision;
+			set => SetField(ref _cfzSubdivision, value);
 		}
 
 		[Display(Name = "Комментарий")]
@@ -70,10 +81,22 @@ namespace Vodovoz.Domain.Cash
 			set => SetField(ref _accountableEmployee, value);
 		}
 
+		/// <summary>
+		/// Создание расходного ордера на выдачу по строке заявки
+		/// </summary>
+		/// <param name="unitOfWork">UnitOfWork заявки</param>
+		/// <param name="casher">Кассир, выдающий деньги</param>
+		/// <param name="cashSubdivision">Касса ордера</param>
+		/// <param name="cfoSubdivision">ЦФО - центр финансовой ответственности ордера</param>
+		/// <param name="expenseCategoryId">Id статьи расхода</param>
+		/// <param name="basis">Основание</param>
+		/// <param name="organization">Организация</param>
+		/// <param name="money">Сумма выдачи</param>
 		public virtual void CreateNewExpense(
 			IUnitOfWork unitOfWork,
 			Employee casher,
-			Subdivision subdivision,
+			Subdivision cashSubdivision,
+			Subdivision cfoSubdivision,
 			int? expenseCategoryId,
 			string basis,
 			Organization organization,
@@ -89,7 +112,9 @@ namespace Vodovoz.Domain.Cash
 				Money = money,
 				Description = basis ?? "",
 				Organisation = organization,
-				RelatedToSubdivision = subdivision,
+				RelatedToSubdivision = cashSubdivision,
+				CfoSubdivision = cfoSubdivision,
+				CfzSubdivision = CfzSubdivision,
 				CashRequestSumItem = this
 			};
 
@@ -109,6 +134,13 @@ namespace Vodovoz.Domain.Cash
 				yield return new ValidationResult(
 					"Необходимо выбрать подотчетное лицо",
 					new[] { nameof(AccountableEmployee) });
+			}
+
+			if(CfzSubdivision == null)
+			{
+				yield return new ValidationResult(
+					"Необходимо выбрать ЦФЗ",
+					new[] { nameof(CfzSubdivision) });
 			}
 
 			if(Sum == 0m)

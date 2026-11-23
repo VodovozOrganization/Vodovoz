@@ -288,7 +288,9 @@ namespace Vodovoz.Domain.Logistic
 				Organisation = organizationRepository.GetCommonOrganisation(UoW),
 				RelatedToSubdivision = Subdivision,
 				Description = $"Оплата топлива по МЛ №{RouteList.Id}",
-				Money = Math.Round(PayedForFuel.Value, 2, MidpointRounding.AwayFromZero)
+				Money = Math.Round(PayedForFuel.Value, 2, MidpointRounding.AwayFromZero),
+				CfoSubdivision = Author?.Subdivision,
+				CfzSubdivision = Driver?.Subdivision
 			};
 		}
 
@@ -315,6 +317,25 @@ namespace Vodovoz.Domain.Logistic
 			if(Subdivision == null && PayedForFuel > 0m)
 			{
 				yield return new ValidationResult("Необходимо выбрать кассу, с которой будет списываться топливо");
+			}
+
+			if(FuelCashExpense == null
+				&& PayedForFuel > 0m
+				&& FuelPaymentType != Logistic.FuelPaymentType.Cashless)
+			{
+				if(Author != null && Author.Subdivision == null)
+				{
+					yield return new ValidationResult(
+						Expense.GetCasherSubdivisionMissingMessage(Author),
+						new[] { nameof(Author) });
+				}
+
+				if(Driver != null && Driver.Subdivision == null)
+				{
+					yield return new ValidationResult(
+						Expense.GetEmployeeSubdivisionMissingMessage(Driver),
+						new[] { nameof(Driver) });
+				}
 			}
 
 			if(Fuel == null)

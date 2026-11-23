@@ -13,20 +13,25 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.Cash
 {
@@ -40,6 +45,8 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly ISubdivisionSettings _subdivisionSettings;
+		private readonly ISubdivisionRepository _subdivisionRepository;
 		private IEntityEntryViewModel _orderViewModel;
 		private FinancialExpenseCategory _financialExpenseCategory;
 
@@ -56,7 +63,11 @@ namespace Vodovoz.ViewModels.Cash
 			IReportViewOpener reportViewOpener,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IFinancialExpenseCategoriesRepository financialExpenseCategoriesRepository,
-			IReportInfoFactory reportInfoFactory
+			IReportInfoFactory reportInfoFactory,
+			ISubdivisionSettings subdivisionSettings,
+			ISubdivisionRepository subdivisionRepository,
+			ViewModelEEVMBuilder<Subdivision> cfoSubdivisionViewModelBuilder,
+			ViewModelEEVMBuilder<Subdivision> cfzSubdivisionViewModelBuilder
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -85,6 +96,19 @@ namespace Vodovoz.ViewModels.Cash
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings
 				?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			_subdivisionSettings = subdivisionSettings ?? throw new ArgumentNullException(nameof(subdivisionSettings));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+
+			if(cfoSubdivisionViewModelBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(cfoSubdivisionViewModelBuilder));
+			}
+
+			if(cfzSubdivisionViewModelBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(cfzSubdivisionViewModelBuilder));
+			}
+
 			_entityPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Expense));
 			CanEditRectroactively =
 				_entityExtendedPermissionValidator.Validate(
@@ -114,11 +138,18 @@ namespace Vodovoz.ViewModels.Cash
 				Entity.ExpenseCategoryId = _financialCategoriesGroupsSettings.SelfDeliveryDefaultFinancialExpenseCategoryId;
 
 				Entity.Date = DateTime.Now;
+
+				Entity.CfoSubdivision = Entity.Casher.Subdivision;
+				Entity.CfzSubdivision = _subdivisionRepository.GetById(UoW, _subdivisionSettings.SelfDeliveryExpenseCfzSubdivisionId);
 			}
 
 			CashierViewModel = BuildCashierEntryViewModel();
 
 			FinancialExpenseCategoryViewModel = BuildFinancialExpenseCategoryViewModelEntryViewModel();
+
+			CfoSubdivisionViewModel = BuildSubdivisionViewModel(cfoSubdivisionViewModelBuilder, x => x.CfoSubdivision);
+
+			CfzSubdivisionViewModel = BuildSubdivisionViewModel(cfzSubdivisionViewModelBuilder, x => x.CfzSubdivision);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
@@ -220,6 +251,29 @@ namespace Vodovoz.ViewModels.Cash
 				.Finish();
 		}
 
+		/// <summary>
+		/// Выбор ЦФО - центра финансовой ответственности ордера
+		/// </summary>
+		public IEntityEntryViewModel CfoSubdivisionViewModel { get; }
+
+		/// <summary>
+		/// Выбор ЦФЗ - центра финансовых затрат ордера
+		/// </summary>
+		public IEntityEntryViewModel CfzSubdivisionViewModel { get; }
+
+		private IEntityEntryViewModel BuildSubdivisionViewModel(
+			ViewModelEEVMBuilder<Subdivision> subdivisionViewModelBuilder,
+			Expression<Func<Expense, Subdivision>> subdivisionProperty)
+		{
+			return subdivisionViewModelBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, subdivisionProperty)
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.Finish();
+		}
+
 		#endregion EntityEntry ViewModels
 
 		public string CurrencySymbol => NumberFormatInfo.CurrentInfo.CurrencySymbol;
@@ -248,6 +302,11 @@ namespace Vodovoz.ViewModels.Cash
 				&& Entity.Order != null)
 			{
 				Entity.FillFromOrder(UoW, _cashRepository);
+			}
+
+			if(e.PropertyName == nameof(Entity.Casher))
+			{
+				Entity.CfoSubdivision = Entity.Casher?.Subdivision;
 			}
 		}
 

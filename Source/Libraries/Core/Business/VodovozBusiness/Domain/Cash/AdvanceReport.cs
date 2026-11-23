@@ -117,6 +117,16 @@ namespace Vodovoz.Domain.Cash
 
 		#endregion
 
+		/// <summary>
+		/// Нужна ли доплата подотчётному лицу по выбранным авансам
+		/// </summary>
+		/// <param name="advances">Закрываемые авансы</param>
+		/// <returns>true, если сумма отчёта больше незакрытых сумм авансов</returns>
+		public virtual bool NeedSurcharge(IEnumerable<Expense> advances)
+		{
+			return advances.Sum(a => a.UnclosedMoney) - Money < 0;
+		}
+
 		public virtual List<AdvanceClosing> CloseAdvances(
 			out Expense surcharge,
 			out Income returnChange,
@@ -135,7 +145,7 @@ namespace Vodovoz.Domain.Cash
 
 			var resultClosing = new List<AdvanceClosing>();
 
-			if(balance < 0)
+			if(NeedSurcharge(advances))
 			{
 				surcharge = new Expense
 				{
@@ -148,7 +158,9 @@ namespace Vodovoz.Domain.Cash
 					Money = Math.Abs(balance),
 					Description = $"Доплата денежных средств сотруднику по авансовому отчету №{Id}",
 					AdvanceClosed = true,
-					RelatedToSubdivision = RelatedToSubdivision
+					RelatedToSubdivision = RelatedToSubdivision,
+					CfoSubdivision = Casher.Subdivision,
+					CfzSubdivision = Accountable.Subdivision
 				};
 				resultClosing.Add(surcharge.AddAdvanceCloseItem(this, surcharge.Money));
 			}
