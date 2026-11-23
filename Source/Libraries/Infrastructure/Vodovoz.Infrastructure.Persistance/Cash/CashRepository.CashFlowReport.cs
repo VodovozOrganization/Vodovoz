@@ -1,11 +1,9 @@
-﻿using NHibernate.Linq;
-using NHibernate.Transform;
+﻿using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash
@@ -25,33 +23,53 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 				.Select(x => new { CategoryId = x.Key, Money = x.Sum(i => i.Money) })
 				.ToDictionary(x => x.CategoryId, x => x.Money);
 
-			var expenses = GetCashFlowReportExpenses(uow, startDate, endDate, useDdrDate, includeCenters);
+			var expenseMovements = GetCashFlowReportExpenses(uow, startDate, endDate, useDdrDate, includeCenters);
+			var returnIncomes = incomes.Where(x => x.TypeOperation == IncomeType.Return && x.ExpenseCategoryId != null);
+			var returns = Array.Empty<CashFlowReportReturnNode>();
 
-			var returns = incomes
-				.Where(x => x.TypeOperation == IncomeType.Return && x.ExpenseCategoryId != null)
-				.Select(x => new CashFlowReportReturnNode
+			if(includeCenters)
+			{
+				returns = returnIncomes
+					.Select(x => new CashFlowReportReturnNode
+					{
+						Id = x.Id,
+						ExpenseCategoryId = x.ExpenseCategoryId.Value,
+						Money = x.Money
+					})
+					.ToArray();
+			}
+			else
+			{
+				var returnTotals = returnIncomes
+					.GroupBy(x => x.ExpenseCategoryId.Value)
+					.Select(x => new { CategoryId = x.Key, Money = x.Sum(i => i.Money) })
+					.ToList();
+
+				foreach(var total in returnTotals)
 				{
-					Id = x.Id,
-					ExpenseCategoryId = x.ExpenseCategoryId.Value,
-					Money = x.Money
-				})
-				.ToList();
+					expenseMovements.Add(new CashFlowReportExpenseNode
+					{
+						ExpenseCategoryId = total.CategoryId,
+						Money = -total.Money
+					});
+				}
+			}
 
-			var directClosings = includeCenters && returns.Count > 0
+			var directClosings = returns.Length > 0
 				? GetCashFlowReportClosings(uow, startDate, endDate, byAdvanceReport: false)
 				: Array.Empty<CashFlowReportAdvanceClosingNode>();
-			var advanceReportClosings = includeCenters && returns.Count > 0
+			var advanceReportClosings = returns.Length > 0
 				? GetCashFlowReportClosings(uow, startDate, endDate, byAdvanceReport: true)
 				: Array.Empty<CashFlowReportAdvanceClosingNode>();
 
 			return new CashFlowReportDataNode
 			{
 				IncomeTotals = incomeTotals,
-				Expenses = expenses,
+				ExpenseMovements = expenseMovements,
 				Returns = returns,
 				DirectClosings = directClosings,
 				AdvanceReportClosings = advanceReportClosings,
-				SubdivisionNames = GetCashFlowReportSubdivisionNames(uow, expenses, directClosings.Concat(advanceReportClosings))
+				SubdivisionNames = GetCashFlowReportSubdivisionNames(uow, expenseMovements, directClosings.Concat(advanceReportClosings))
 			};
 		}
 

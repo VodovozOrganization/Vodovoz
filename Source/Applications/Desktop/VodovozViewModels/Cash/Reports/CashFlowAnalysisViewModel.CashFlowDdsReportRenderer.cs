@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using System;
 using System.Drawing;
+using System.Linq;
 using Vodovoz.Models.Cash;
 
 namespace Vodovoz.ViewModels.Cash.Reports
@@ -25,6 +26,8 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			private const int _headerFontSize = 13;
 			private const int _detailFontSize = 11;
 			private const int _maxOutlineLevel = 7;
+			private const int _maxColumnWidth = 255;
+			private const int _titleWidthPerIndent = 3;
 
 			/// <summary>
 			/// Записывает строки последнего сформированного отчёта
@@ -47,7 +50,9 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				RenderSection(sheet, row, report.ProfitLine, totalsColor);
 
 				sheet.Column(_numberingColumn).AdjustToContents();
-				sheet.Column(_titleColumn).AdjustToContents();
+				var titleColumn = sheet.Column(_titleColumn).AdjustToContents();
+				var maxTitleIndent = titleColumn.CellsUsed().Select(cell => cell.Style.Alignment.Indent).DefaultIfEmpty().Max();
+				titleColumn.Width = Math.Min(_maxColumnWidth, titleColumn.Width + maxTitleIndent * _titleWidthPerIndent);
 				sheet.Column(_moneyColumn).AdjustToContents();
 				sheet.CollapseRows();
 

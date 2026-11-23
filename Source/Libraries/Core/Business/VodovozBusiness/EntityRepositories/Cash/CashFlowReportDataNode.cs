@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Vodovoz.EntityRepositories.Cash
 {
@@ -15,7 +15,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		/// <summary>
 		/// Суммы расходных ордеров
 		/// </summary>
-		public IList<CashFlowReportExpenseNode> Expenses { get; set; }
+		public IList<CashFlowReportExpenseNode> ExpenseMovements { get; set; }
 
 		/// <summary>
 		/// Приходные ордера возврата

@@ -78,7 +78,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				var data = cashRepository.GetCashFlowReportData(
 					unitOfWork, startDate, endDate, useDdrDate: reportMode == ReportMode.Ddr, includeCenters: includeCenters);
 				var returnedExpenses = CashFlowReportReturnAllocation.Allocate(data.Returns, data.DirectClosings, data.AdvanceReportClosings);
-				var expenseMovements = data.Expenses.Concat(returnedExpenses).ToArray();
+				var expenseMovements = data.ExpenseMovements.Concat(returnedExpenses).ToArray();
 				var expenseTotals = expenseMovements
 					.GroupBy(x => x.ExpenseCategoryId)
 					.ToDictionary(x => x.Key, x => x.Sum(amount => amount.Money));
