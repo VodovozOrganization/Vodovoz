@@ -26,6 +26,9 @@ namespace Vodovoz
 	[HistoryTrace]
 	public class Subdivision : SubdivisionEntity, IValidatableObject, IArchivable
 	{
+		private const int _maxNameLength = 45;
+		private const int _maxShortNameLength = 45;
+
 		private SalesPlan _defaultSalesPlan;
 		private Employee _chief;
 		private Subdivision _parentSubdivision;
@@ -125,11 +128,6 @@ namespace Vodovoz
 
 		#region Геттеры и методы
 
-		/// <summary>
-		/// Уровень в иерархии
-		/// </summary>
-		public virtual int GetLevel => ParentSubdivision == null ? 0 : ParentSubdivision.GetLevel + 1;
-
 		public virtual bool HasChildSubdivisions => ChildSubdivisions.Any();
 
 		/// <summary>
@@ -200,6 +198,19 @@ namespace Vodovoz
 			}
 		}
 
+		/// <summary>
+		/// Копирование обслуживаемой части города вышестоящего отдела в сектор
+		/// </summary>
+		public virtual void CopyGeographicGroupFromParentDepartment()
+		{
+			if(Level != SubdivisionLevel.Sector || ParentSubdivision?.Level != SubdivisionLevel.Department)
+			{
+				return;
+			}
+
+			GeographicGroup = ParentSubdivision.GeographicGroup;
+		}
+
 		public virtual void AddDocumentType(TypeOfEntity typeOfEntity)
 		{
 			if(ObservableDocumentTypes.Contains(typeOfEntity))
@@ -235,12 +246,26 @@ namespace Vodovoz
 					new[] { this.GetPropertyName(o => o.Name) });
 			}
 
+			if(Name?.Length > _maxNameLength)
+			{
+				yield return new ValidationResult(
+					$"Название подразделения не может превышать {_maxNameLength} символов",
+					new[] { this.GetPropertyName(o => o.Name) });
+			}
+
 			if(ParentSubdivision != null && ParentSubdivision.IsChildOf(this))
 			{
 				yield return new ValidationResult(
 					"Нельзя указывать 'Дочернее подразделение' в качестве родительского.",
 					new[] { this.GetPropertyName(o => o.ParentSubdivision) }
 				);
+			}
+
+			var parentLevelError = GetParentSubdivisionLevelError();
+
+			if(parentLevelError != null)
+			{
+				yield return new ValidationResult(parentLevelError, new[] { this.GetPropertyName(o => o.ParentSubdivision) });
 			}
 
 			if(ShortName == null)
@@ -251,9 +276,32 @@ namespace Vodovoz
 				);
 			}
 
-			if(ShortName?.Length > 20)
+			if(ShortName?.Length > _maxShortNameLength)
 			{
-				yield return new ValidationResult("Сокращенное наименование не может превышать 20 символов");
+				yield return new ValidationResult(
+					$"Сокращенное наименование не может превышать {_maxShortNameLength} символов",
+					new[] { this.GetPropertyName(o => o.ShortName) });
+			}
+		}
+
+		private string GetParentSubdivisionLevelError()
+		{
+			switch(Level)
+			{
+				case SubdivisionLevel.Cfo:
+					return ParentSubdivision != null
+						? "У ЦФО не может быть вышестоящего подразделения"
+						: null;
+				case SubdivisionLevel.Department:
+					return ParentSubdivision?.Level != SubdivisionLevel.Cfo
+						? "Укажите вышестоящее подразделение уровня \"ЦФО\" для отдела"
+						: null;
+				case SubdivisionLevel.Sector:
+					return ParentSubdivision?.Level != SubdivisionLevel.Department
+						? "Укажите вышестоящее подразделение уровня \"Отдел\" для сектора"
+						: null;
+				default:
+					return null;
 			}
 		}
 

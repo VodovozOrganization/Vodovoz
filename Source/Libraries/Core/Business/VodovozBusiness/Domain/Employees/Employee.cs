@@ -19,6 +19,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -485,6 +486,10 @@ namespace Vodovoz.Domain.Employees
 			{
 				yield return new ValidationResult("Поле подразделение должно быть заполнено и не должно являться" +
 												" общим подразделением 'Веселый Водовоз'");
+			}
+			else if(Subdivision.Level != SubdivisionLevel.Sector)
+			{
+				yield return new ValidationResult("Подразделение сотрудника должно быть сектором", new[] { nameof(Subdivision) });
 			}
 
 			List<EmployeeDocument> mainDocuments = GetMainDocuments();

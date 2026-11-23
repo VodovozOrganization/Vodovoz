@@ -26,6 +26,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Errors;
 using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Contacts;
@@ -287,6 +288,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
 					filter =>
 					{
+						filter.RestrictSelectLevels = new[] { SubdivisionLevel.Sector };
+
 						if(canSetOnlyLogisticsSubdivision)
 						{
 							filter.SubdivisionType  = SubdivisionType.Logistic;

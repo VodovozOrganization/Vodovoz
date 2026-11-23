@@ -1,6 +1,7 @@
 ﻿using QS.Project.Journal;
 using QS.Project.Journal.DataLoader.Hierarchy;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Journals.JournalNodes
 {
@@ -16,5 +17,9 @@ namespace Vodovoz.Journals.JournalNodes
 		public virtual int? ParentId { get; set; }
 		public IList<SubdivisionJournalNode> Children { get; set; } = new List<SubdivisionJournalNode>();
 		public bool IsArchive { get; set; }
+		/// <summary>
+		/// Уровень подразделения
+		/// </summary>
+		public SubdivisionLevel Level { get; set; }
 	}
 }

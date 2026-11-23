@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using FluentNHibernate.Conventions;
 using Gamma.Binding.Core.RecursiveTreeConfig;
+using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Deletion;
 using QS.DomainModel.UoW;
@@ -16,6 +17,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
+using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Cash;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalNodes;
@@ -28,11 +31,14 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 	public class SubdivisionsJournalViewModel
 		: JournalViewModelBase
 	{
+		private const string _hasChildSubdivisionsMessage =
+			"Нельзя удалить подразделение, у которого есть дочерние. Сначала перенесите или удалите дочерние подразделения.";
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly SubdivisionFilterViewModel _filterViewModel;
 		private readonly ILifetimeScope _scope;
+		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 		private HierarchicalChunkLinqLoader<Subdivision, SubdivisionJournalNode> _hierarchicalChunkLinqLoader;
 		private Dictionary<Type, IPermissionResult> _domainObjectsPermissions = new Dictionary<Type, IPermissionResult>();
 
@@ -44,6 +50,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			ILifetimeScope scope,
 			ICurrentPermissionService currentPermissionService,
 			IEmployeeJournalFactory employeeJournalFactory,
+			IGenericRepository<Subdivision> subdivisionRepository,
 			Action<SubdivisionFilterViewModel> filterConfig = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
@@ -53,6 +60,7 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 
 			if(filterConfig != null)
 			{
@@ -147,6 +155,10 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 							&& (!string.IsNullOrWhiteSpace(searchString) || _filterViewModel.IncludedSubdivisionsIds.Length > 0)))
 				   && (_filterViewModel.ShowArchieved || !subdivision.IsArchive)
 				   && !_filterViewModel.ExcludedSubdivisionsIds.Contains(subdivision.Id)
+				   && (_filterViewModel.RestrictLevels.Length == 0 || _filterViewModel.RestrictLevels.Contains(subdivision.Level))
+				   && (_filterViewModel.RestrictSelectLevels.Length == 0
+					|| (string.IsNullOrWhiteSpace(searchString) && _filterViewModel.IncludedSubdivisionsIds.Length == 0)
+					|| _filterViewModel.RestrictSelectLevels.Contains(subdivision.Level))
 				   && (_filterViewModel.SubdivisionType == null
 					|| subdivision.SubdivisionType == _filterViewModel.SubdivisionType)
 					&& (!_filterViewModel.OnlyCashSubdivisions
@@ -163,7 +175,8 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 				   ChiefName = chiefFIO,
 				   ParentId = subdivision.ParentSubdivision.Id,
 				   Children = children.ToList(),
-				   IsArchive = subdivision.IsArchive
+				   IsArchive = subdivision.IsArchive,
+				   Level = subdivision.Level
 			   })
 				: Enumerable.Empty<SubdivisionJournalNode>().AsQueryable();
 		}
@@ -181,7 +194,9 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		private void CreateSelectAction()
 		{
 			var selectAction = new JournalAction("Выбрать",
-				(selected) => selected.Any(),
+				(selected) => selected.Any()
+					&& (_filterViewModel.RestrictSelectLevels.Length == 0
+						|| selected.OfType<SubdivisionJournalNode>().All(x => _filterViewModel.RestrictSelectLevels.Contains(x.Level))),
 				(selected) => SelectionMode != JournalSelectionMode.None,
 				(selected) => OnItemsSelected(selected)
 			);
@@ -208,6 +223,12 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 					if(selected.FirstOrDefault() is SubdivisionJournalNode node
 						&& _domainObjectsPermissions[typeof(Subdivision)].CanDelete)
 					{
+						if(HasChildSubdivisions(node.Id))
+						{
+							ShowWarningMessage(_hasChildSubdivisionsMessage);
+							return;
+						}
+
 						DeleteHelper.DeleteEntity(typeof(Subdivision), node.Id);
 					}
 				},
@@ -241,15 +262,51 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 
 		protected void CreateAddActions()
 		{
-			var createAction = new JournalAction("Добавить",
-				(selected) => _domainObjectsPermissions[typeof(Subdivision)].CanCreate,
+			var addParentAction = new JournalAction("Добавить",
 				(selected) => true,
-				(selected) =>
-				{
-					var page = NavigationManager.OpenViewModel<SubdivisionViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
-				});
+				(selected) => true,
+				(selected) => { });
 
-			NodeActionsList.Add(createAction);
+			foreach(var level in new[] { SubdivisionLevel.Cfo, SubdivisionLevel.Department, SubdivisionLevel.Sector })
+			{
+				var addChildAction = new JournalAction(level.GetEnumTitle(),
+					(selected) => _domainObjectsPermissions[typeof(Subdivision)].CanCreate,
+					(selected) => true,
+					(selected) => CreateSubdivision(level, selected));
+
+				addParentAction.ChildActionsList.Add(addChildAction);
+			}
+
+			NodeActionsList.Add(addParentAction);
+		}
+
+		private void CreateSubdivision(SubdivisionLevel level, object[] selected)
+		{
+			int? parentSubdivisionId = null;
+
+			if(selected.Length == 1
+				&& selected[0] is SubdivisionJournalNode node
+				&& ((level == SubdivisionLevel.Department && node.Level == SubdivisionLevel.Cfo)
+					|| (level == SubdivisionLevel.Sector && node.Level == SubdivisionLevel.Department)))
+			{
+				parentSubdivisionId = node.Id;
+			}
+
+			NavigationManager.OpenViewModel<SubdivisionViewModel, IEntityUoWBuilder>(
+				this,
+				EntityUoWBuilder.ForCreate(),
+				OpenPageOptions.None,
+				vm => vm.InitializeNew(level, parentSubdivisionId));
+		}
+
+		private bool HasChildSubdivisions(int subdivisionId)
+		{
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Проверка дочерних подразделений перед удалением"))
+			{
+				return _subdivisionRepository
+					.Get(unitOfWork, x => x.ParentSubdivision.Id == subdivisionId, 1)
+					.Any();
+			}
 		}
 
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)

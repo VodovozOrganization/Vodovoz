@@ -23,6 +23,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private int _id;
 		private string _name;
 		private string _shortName;
+		private SubdivisionLevel _level = SubdivisionLevel.Sector;
 		private string _address;
 		private bool _isArchive;
 		private bool _pacsTimeManagementEnabled;
@@ -59,6 +60,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _shortName;
 			set => SetField(ref _shortName, value);
+		}
+
+		/// <summary>
+		/// Уровень подразделения
+		/// </summary>
+		[Display(Name = "Уровень")]
+		public virtual SubdivisionLevel Level
+		{
+			get => _level;
+			set => SetField(ref _level, value);
 		}
 
 		/// <summary>
