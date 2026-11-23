@@ -1,7 +1,9 @@
-﻿using QS.ViewModels.Widgets;
+﻿using Gamma.Utilities;
+using QS.ViewModels.Widgets;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Vodovoz.Models.Cash;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 
@@ -105,6 +107,26 @@ namespace Vodovoz.ViewModels.Factories
 			return leftRightListViewModel;
 		}
 		
+		/// <inheritdoc/>
+		public LeftRightListViewModel<CashFlowReportGrouping> CreateCashFlowAnalysisReportGroupingsConstructor()
+		{
+			var model = new LeftRightListViewModel<CashFlowReportGrouping>
+			{
+				LeftLabel = "Доступные группировки",
+				RightLabel = "Выбранные группировки",
+				RightItemsMaximum = 3
+			};
+
+			model.SetLeftItems(new[]
+			{
+				CashFlowReportGrouping.Article,
+				CashFlowReportGrouping.CfoSubdivision,
+				CashFlowReportGrouping.CfzSubdivision
+			}, grouping => grouping.GetEnumTitle());
+
+			return model;
+		}
+
 		public LeftRightListViewModel<GroupingNode> CreateCallCenterMotivationReportGroupingsConstructor()
 		{
 			var leftRightListViewModel = new LeftRightListViewModel<GroupingNode>

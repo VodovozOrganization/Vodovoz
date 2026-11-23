@@ -7,10 +7,14 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Widgets;
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Models.Cash;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.Cash.Reports
 {
@@ -40,6 +44,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		/// <param name="cashFlowDdsReportRenderer">Генератор файла Excel</param>
 		/// <param name="commonServices">Общие сервисы</param>
 		/// <param name="cashRepository">Репозиторий кассовых документов</param>
+		/// <param name="leftRightListViewModelFactory">Фабрика списка группировок</param>
 		public CashFlowAnalysisViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
@@ -47,7 +52,8 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			IFileDialogService fileDialogService,
 			CashFlowDdsReportRenderer cashFlowDdsReportRenderer,
 			ICommonServices commonServices,
-			ICashRepository cashRepository)
+			ICashRepository cashRepository,
+			ILeftRightListViewModelFactory leftRightListViewModelFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(navigation is null)
@@ -59,6 +65,9 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+
+			GroupingSelectViewModel = (leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory)))
+				.CreateCashFlowAnalysisReportGroupingsConstructor();
 
 			var now = DateTime.Now;
 
@@ -79,6 +88,11 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		public DelegateCommand SaveReportCommand { get; }
 
 		public DelegateCommand ShowDdsReportInfoCommand { get; }
+
+		/// <summary>
+		/// Доступные и выбранные группировки отчёта
+		/// </summary>
+		public LeftRightListViewModel<CashFlowReportGrouping> GroupingSelectViewModel { get; }
 
 		[PropertyChangedAlso(nameof(CanSaveReport))]
 		public CashFlowDdsReport Report
@@ -179,7 +193,9 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		{
 			CanGenerateDdsReport = false;
 
-			Report = CashFlowDdsReport.GenerateReport(UoW, _cashRepository, StartDate, EndDate, HideCategoriesWithoutDocuments, ReportMode);
+			var groupings = GroupingSelectViewModel.GetRightItems().ToArray();
+			Report = CashFlowDdsReport.GenerateReport(
+				UoW, _cashRepository, StartDate, EndDate, HideCategoriesWithoutDocuments, ReportMode, groupings);
 
 			if(Report != null)
 			{

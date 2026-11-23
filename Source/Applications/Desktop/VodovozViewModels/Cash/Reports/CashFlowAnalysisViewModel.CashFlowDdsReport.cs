@@ -22,12 +22,17 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				DateTime endDate,
 				List<IncomesGroupLine> incomesGroupLines,
 				List<ExpensesGroupLine> expensesGroupLines,
+				CashFlowReportLine incomeSection,
+				CashFlowReportLine expenseSection,
 				ReportMode reportMode)
 			{
 				StartDate = startDate;
 				EndDate = endDate;
 				IncomesGroupLines = incomesGroupLines;
 				ExpensesGroupLines = expensesGroupLines;
+				IncomeSection = incomeSection;
+				ExpenseSection = expenseSection;
+				ProfitLine = new CashFlowReportLine("Прибыль", incomeSection.Money - expenseSection.Money);
 				_reportMode = reportMode;
 				CreatedAt = DateTime.Now;
 			}
@@ -45,6 +50,21 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			public List<object> Rows => IncomesGroupLines.Cast<object>().Concat(ExpensesGroupLines).ToList();
 
 			/// <summary>
+			/// Доходы с выбранной детализацией
+			/// </summary>
+			public CashFlowReportLine IncomeSection { get; }
+
+			/// <summary>
+			/// Чистые расходы с выбранной детализацией
+			/// </summary>
+			public CashFlowReportLine ExpenseSection { get; }
+
+			/// <summary>
+			/// Итоговая разница доходов и расходов
+			/// </summary>
+			public CashFlowReportLine ProfitLine { get; }
+
+			/// <summary>
 			/// Формирует отчёт по кассовым движениям за период
 			/// </summary>
 			/// <param name="unitOfWork">UnitOfWork</param>
@@ -53,6 +73,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			/// <param name="endDate">Верхняя граница периода</param>
 			/// <param name="hideCategoriesWithoutDocuments">Скрывать статьи с нулевыми суммами</param>
 			/// <param name="reportMode">Режим ДДС или ДДР</param>
+			/// <param name="groupings">Выбранные группировки в порядке вложенности</param>
 			/// <returns>Сформированный отчёт</returns>
 			public static CashFlowDdsReport GenerateReport(
 				IUnitOfWork unitOfWork,
@@ -60,12 +81,15 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				DateTime startDate,
 				DateTime endDate,
 				bool hideCategoriesWithoutDocuments,
-				ReportMode reportMode)
+				ReportMode reportMode,
+				IReadOnlyList<CashFlowReportGrouping> groupings)
 			{
+				var includeCenters = groupings.Any(x => x != CashFlowReportGrouping.Article);
 				var data = cashRepository.GetCashFlowReportData(
-					unitOfWork, startDate, endDate, useDdrDate: reportMode == ReportMode.Ddr, includeCenters: false);
+					unitOfWork, startDate, endDate, useDdrDate: reportMode == ReportMode.Ddr, includeCenters: includeCenters);
 				var returnedExpenses = CashFlowReportReturnAllocation.Allocate(data.Returns, data.DirectClosings, data.AdvanceReportClosings);
-				var expenseTotals = data.Expenses.Concat(returnedExpenses)
+				var expenseMovements = data.Expenses.Concat(returnedExpenses).ToArray();
+				var expenseTotals = expenseMovements
 					.GroupBy(x => x.ExpenseCategoryId)
 					.ToDictionary(x => x.Key, x => x.Sum(amount => amount.Money));
 
@@ -112,11 +136,6 @@ namespace Vodovoz.ViewModels.Cash.Reports
 					expenseCategory.Money = expenseTotal;
 				}
 
-				if(hideCategoriesWithoutDocuments)
-				{
-					expensesCategories.RemoveAll(x => x.Money == 0);
-				}
-
 				var incomeGroups =
 					(from incomeGroup in unitOfWork.Session.Query<FinancialCategoriesGroup>()
 					 where incomeGroup.FinancialSubtype == FinancialSubType.Income
@@ -137,14 +156,64 @@ namespace Vodovoz.ViewModels.Cash.Reports
 					 select expenseGroup)
 					.ToList();
 
+				// Каталог для центров включает статьи с нулевым итогом по всем подразделениям
+				var expenseCatalogGroups = includeCenters && hideCategoriesWithoutDocuments
+					? ProceedExpenseGroups(null, expenseGroups, expensesCategories, false)
+					: null;
+
+				if(hideCategoriesWithoutDocuments)
+				{
+					expensesCategories.RemoveAll(x => x.Money == 0);
+				}
+
 				var expenseGroupLines = ProceedExpenseGroups(null, expenseGroups, expensesCategories, hideCategoriesWithoutDocuments);
+				var incomeLines = !includeCenters || groupings.Contains(CashFlowReportGrouping.Article)
+					? incomeGroupLines.SelectMany(GetIncomeArticleLines).ToArray()
+					: Array.Empty<CashFlowReportLine>();
+				var expenseArticleLines = (expenseCatalogGroups ?? expenseGroupLines).SelectMany(GetExpenseArticleLines).ToArray();
+				var expenseLines = includeCenters
+					? CashFlowReportExpenseTree.Build(
+						groupings, expenseArticleLines, expenseMovements, data.SubdivisionNames, hideCategoriesWithoutDocuments)
+					: expenseArticleLines;
 
 				return new CashFlowDdsReport(
 					startDate,
 					endDate,
 					incomeGroupLines,
 					expenseGroupLines,
+					new CashFlowReportLine("Доходы", incomeGroupLines.Sum(x => x.Money), incomeLines),
+					new CashFlowReportLine("Расходы", expenseLines.Sum(x => x.Money), expenseLines),
 					reportMode);
+			}
+
+			private static IEnumerable<CashFlowReportLine> GetIncomeArticleLines(IncomesGroupLine root)
+			{
+				foreach(var group in root.Groups)
+				{
+					var children = GetIncomeArticleLines(group).ToArray();
+
+					yield return new CashFlowReportLine(group.Title, children.Sum(x => x.Money), children, group.Id, group.Numbering);
+				}
+
+				foreach(var article in root.IncomeCategories)
+				{
+					yield return new CashFlowReportLine(article.Title, article.Money, id: article.Id, numbering: article.Numbering, isArticle: true);
+				}
+			}
+
+			private static IEnumerable<CashFlowReportLine> GetExpenseArticleLines(ExpensesGroupLine root)
+			{
+				foreach(var group in root.Groups)
+				{
+					var children = GetExpenseArticleLines(group).ToArray();
+
+					yield return new CashFlowReportLine(group.Title, children.Sum(x => x.Money), children, group.Id, group.Numbering);
+				}
+
+				foreach(var article in root.ExpenseCategories)
+				{
+					yield return new CashFlowReportLine(article.Title, article.Money, id: article.Id, numbering: article.Numbering, isArticle: true);
+				}
 			}
 
 			private static List<IncomesGroupLine> ProceedIncomeGroups(
