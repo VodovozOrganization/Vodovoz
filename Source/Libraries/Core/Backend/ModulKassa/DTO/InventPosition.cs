@@ -21,11 +21,5 @@ namespace ModulKassa.DTO
 
 		[JsonProperty("vatTag", Required = Required.Always)]
 		public int VatTag { get; set; }
-
-		/// <summary>
-		/// Разрешительный режим
-		/// </summary>
-		[JsonProperty("industryRequisite", Required = Required.Always)]
-		public IndustryRequisite IndustryRequisite { get; set; }
 	}
 }

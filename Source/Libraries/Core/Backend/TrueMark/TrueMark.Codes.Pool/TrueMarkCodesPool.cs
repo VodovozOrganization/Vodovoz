@@ -1,4 +1,4 @@
-﻿using MySqlConnector;
+using MySqlConnector;
 using NHibernate;
 using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
@@ -89,33 +89,35 @@ namespace TrueMark.Codes.Pool
 			return (int)codeId;
 		}
 
-		public virtual async Task<int> TakeCode(string gtin, CancellationToken cancellationToken)
+		public virtual async Task<int> TakeCode(string gtin, CancellationToken cancellationToken, DateTime? addingTimeNotAfter = null)
 		{
-			var selectCodeQuery = GetSelectCodeQuery(gtin);
+			var selectCodeQuery = GetSelectCodeQuery(gtin, addingTimeNotAfter);
 			var codeToTakeId = await selectCodeQuery.UniqueResultAsync<uint>(cancellationToken);
 
 			var findCodeQuery = GetTakeCodeQuery(codeToTakeId);
 			var codeId = await findCodeQuery.UniqueResultAsync<uint>(cancellationToken);
 			if(codeId == 0)
 			{
-				throw new EdoCodePoolMissingCodeException($"В пуле не найден код для gtin {gtin}");
+				var extraMessage = addingTimeNotAfter.HasValue ? $" с датой добавления до {addingTimeNotAfter.Value}" : string.Empty;
+				throw new EdoCodePoolMissingCodeException($"В пуле не найден код для gtin {gtin}{extraMessage}");
 			}
 			return (int)codeId;
 		}
 
-		public virtual async Task<IList<int>> TakeCodes(string gtin, int count, CancellationToken cancellationToken)
+		public virtual async Task<IList<int>> TakeCodes(string gtin, int count, CancellationToken cancellationToken, DateTime? addingTimeNotAfter = null)
 		{
 			if(count <= 0)
 			{
 				throw new ArgumentException("Количество кодов должно быть больше 0", nameof(count));
 			}
 
-			var selectCodesQuery = GetSelectCodesQuery(gtin, count);
+			var selectCodesQuery = GetSelectCodesQuery(gtin, count, addingTimeNotAfter);
 			var codeIdsToTake = await selectCodesQuery.ListAsync<uint>(cancellationToken);
 
 			if(!codeIdsToTake.Any())
 			{
-				throw new EdoCodePoolMissingCodeException($"В пуле не найдены коды для gtin {gtin}");
+				var extraMessage = addingTimeNotAfter.HasValue ? $" с датой добавления до {addingTimeNotAfter.Value}" : string.Empty;
+				throw new EdoCodePoolMissingCodeException($"В пуле не найдены коды для gtin {gtin}{extraMessage}");
 			}
 
 			var deleteQuery = GetDeleteCodesQuery(codeIdsToTake);
@@ -124,18 +126,25 @@ namespace TrueMark.Codes.Pool
 			return deletedCodeIds.Select(id => (int)id).ToList();
 		}
 
-		private IQuery GetSelectCodeQuery(string gtin)
+		protected virtual IQuery GetSelectCodeQuery(string gtin, DateTime? addingTimeNotAfter = null)
 		{
+			var dateFilter = addingTimeNotAfter.HasValue ? " AND adding_time <= :adding_time" : string.Empty;
 			var sql = $@"
 				SELECT id FROM {_poolTableName}
 				WHERE gtin = :gtin
-					AND expiration_date > NOW()
+					AND expiration_date > NOW(){dateFilter}
 				ORDER BY has_check_code ASC
 				LIMIT 1
 				FOR UPDATE SKIP LOCKED";
 
 			var query = UoW.Session.CreateSQLQuery(sql)
 				.SetParameter("gtin", gtin);
+
+			if(addingTimeNotAfter.HasValue)
+			{
+				query.SetParameter("adding_time", addingTimeNotAfter.Value);
+			}
+
 			return query;
 		}
 
@@ -151,12 +160,13 @@ namespace TrueMark.Codes.Pool
 			return query;
 		}
 
-		private IQuery GetSelectCodesQuery(string gtin, int count)
+		protected virtual IQuery GetSelectCodesQuery(string gtin, int count, DateTime? addingTimeNotAfter = null)
 		{
+			var dateFilter = addingTimeNotAfter.HasValue ? " AND adding_time <= :adding_time" : string.Empty;
 			var sql = $@"
 				SELECT id FROM {_poolTableName}
 				WHERE gtin = :gtin
-					AND expiration_date > NOW()
+					AND expiration_date > NOW(){dateFilter}
 				ORDER BY has_check_code ASC
 				LIMIT :count
 				FOR UPDATE SKIP LOCKED";
@@ -164,6 +174,12 @@ namespace TrueMark.Codes.Pool
 			var query = UoW.Session.CreateSQLQuery(sql)
 				.SetParameter("gtin", gtin)
 				.SetParameter("count", count);
+
+			if(addingTimeNotAfter.HasValue)
+			{
+				query.SetParameter("adding_time", addingTimeNotAfter.Value);
+			}
+
 			return query;
 		}
 

@@ -10,7 +10,6 @@ using System.Reflection;
 using Edo.Admin;
 using Edo.Transport.Factories;
 using TrueMark.Codes.Pool;
-using TrueMark.Library;
 
 namespace Edo.Receipt.Dispatcher
 {
@@ -25,7 +24,6 @@ namespace Edo.Receipt.Dispatcher
 			services.TryAddScoped<ReceiptEdoTaskHandler>();
 			services.TryAddScoped<ResaleReceiptEdoTaskHandler>();
 			services.TryAddScoped<ForOwnNeedsReceiptEdoTaskHandler>();
-			services.TryAddScoped<Tag1260Checker>();
 			services.TryAddScoped<ISaveCodesService, SaveCodesService>();
 
 			services
