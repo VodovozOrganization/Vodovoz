@@ -28,6 +28,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic.MileagesWriteOff;
 using Vodovoz.ViewModels.ReportsParameters.Logistics;
 using Vodovoz.ViewModels.TrueMark.CodesPool;
+using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis;
 
 public partial class MainWindow
@@ -264,6 +265,11 @@ public partial class MainWindow
 	protected void OnActionCodesPoolActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CodesPoolViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnActionTrueMarkCodeHistoryActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<TrueMarkCodeHistoryViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnActionEdoProcessJournalActivated(object sender, EventArgs e)

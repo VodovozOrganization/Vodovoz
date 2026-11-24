@@ -1071,21 +1071,8 @@ namespace Vodovoz.ViewModels.TrueMark
 				.Distinct();
 			var transportCodes = _trueMarkRepository.GetTransportCodes(uow, transportCodesIds);
 
-			var transportItemViewModels = transportCodes
-				.Select(x => new OrderCodeItemViewModel { TransportCode = x })
-				.ToDictionary(x => x.TransportCode.Id);
-			var groupItemViewModels = groupCodes
-				.Select(x =>
-				{
-					var vm = new OrderCodeItemViewModel { GroupCode = x };
-					if(x.ParentTransportCodeId.HasValue)
-					{
-						vm.Parent = transportItemViewModels[x.ParentTransportCodeId.Value];
-						vm.Parent.Children.Add(vm);
-					}
-					return vm;
-				})
-				.ToDictionary(x => x.GroupCode.Id);
+			var transportItemViewModels = CreateTransportItemViewModels(transportCodes);
+			var groupItemViewModels = CreateGroupItemViewModels(groupCodes, transportItemViewModels);
 
 			_totalScannedByDriver = instanceCodes.Count();
 
@@ -1155,21 +1142,8 @@ namespace Vodovoz.ViewModels.TrueMark
 				.Distinct();
 			var transportCodes = _trueMarkRepository.GetTransportCodes(uow, transportCodesIds);
 
-			var transportItemViewModels = transportCodes
-				.Select(x => new OrderCodeItemViewModel { TransportCode = x })
-				.ToDictionary(x => x.TransportCode.Id);
-			var groupItemViewModels = groupCodes
-				.Select(x =>
-				{
-					var vm = new OrderCodeItemViewModel { GroupCode = x };
-					if(x.ParentTransportCodeId.HasValue)
-					{
-						vm.Parent = transportItemViewModels[x.ParentTransportCodeId.Value];
-						vm.Parent.Children.Add(vm);
-					}
-					return vm;
-				})
-				.ToDictionary(x => x.GroupCode.Id);
+			var transportItemViewModels = CreateTransportItemViewModels(transportCodes);
+			var groupItemViewModels = CreateGroupItemViewModels(groupCodes, transportItemViewModels);
 
 			var carLoadDocumentIdsByItemId = _carLoadDocumentRepository.GetCarLoadDocumentIdsByItemIds(
 				uow,
@@ -1245,21 +1219,8 @@ namespace Vodovoz.ViewModels.TrueMark
 				.Distinct();
 			var transportCodes = _trueMarkRepository.GetTransportCodes(uow, transportCodesIds);
 
-			var transportItemViewModels = transportCodes
-				.Select(x => new OrderCodeItemViewModel { TransportCode = x })
-				.ToDictionary(x => x.TransportCode.Id);
-			var groupItemViewModels = groupCodes
-				.Select(x =>
-				{
-					var vm = new OrderCodeItemViewModel { GroupCode = x };
-					if(x.ParentTransportCodeId.HasValue)
-					{
-						vm.Parent = transportItemViewModels[x.ParentTransportCodeId.Value];
-						vm.Parent.Children.Add(vm);
-					}
-					return vm;
-				})
-				.ToDictionary(x => x.GroupCode.Id);
+			var transportItemViewModels = CreateTransportItemViewModels(transportCodes);
+			var groupItemViewModels = CreateGroupItemViewModels(groupCodes, transportItemViewModels);
 
 			var selfDeliveryDocumentsByItemId = _selfDeliveryRepository.GetSelfDeliveryDocumentsByItemIds(
 				uow,
@@ -1656,6 +1617,50 @@ namespace Vodovoz.ViewModels.TrueMark
 			}
 			var entityId = EntityUoWBuilder.ForOpen(selectedItem.CodeAuthorId.Value);
 			_navigation.OpenViewModel<EmployeeViewModel, IEntityUoWBuilder>(null, entityId);
+		}
+
+		private static Dictionary<int, OrderCodeItemViewModel> CreateTransportItemViewModels(
+			IEnumerable<TrueMarkTransportCode> transportCodes)
+		{
+			var result = new Dictionary<int, OrderCodeItemViewModel>();
+
+			foreach(var transportCode in transportCodes)
+			{
+				if(!result.ContainsKey(transportCode.Id))
+				{
+					result.Add(transportCode.Id, new OrderCodeItemViewModel { TransportCode = transportCode });
+				}
+			}
+
+			return result;
+		}
+
+		private static Dictionary<int, OrderCodeItemViewModel> CreateGroupItemViewModels(
+			IEnumerable<TrueMarkWaterGroupCode> groupCodes,
+			IDictionary<int, OrderCodeItemViewModel> transportItemViewModels)
+		{
+			var result = new Dictionary<int, OrderCodeItemViewModel>();
+
+			foreach(var groupCode in groupCodes)
+			{
+				if(result.ContainsKey(groupCode.Id))
+				{
+					continue;
+				}
+
+				var viewModel = new OrderCodeItemViewModel { GroupCode = groupCode };
+
+				if(groupCode.ParentTransportCodeId.HasValue
+					&& transportItemViewModels.TryGetValue(groupCode.ParentTransportCodeId.Value, out var parent))
+				{
+					viewModel.Parent = parent;
+					parent.Children.Add(viewModel);
+				}
+
+				result.Add(groupCode.Id, viewModel);
+			}
+
+			return result;
 		}
 
 		private bool OnlyOneSelected(IEnumerable<OrderCodeItemViewModel> selected)

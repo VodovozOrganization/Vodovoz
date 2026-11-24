@@ -6,5 +6,6 @@
 		<toolitem name='ActionEdoProblemJournal' action='ActionEdoProblemJournal'/>
 		<toolitem name='ActionEdoDeviationJournal' action='ActionEdoDeviationJournal'/>
 		<toolitem name='ActionCodesPool' action='ActionCodesPool'/>
+		<toolitem name='ActionTrueMarkCodeHistory' action='ActionTrueMarkCodeHistory'/>
 	</toolbar>
 </ui>
