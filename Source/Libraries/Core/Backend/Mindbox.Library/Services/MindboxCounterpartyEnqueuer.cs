@@ -55,7 +55,7 @@ namespace Mindbox.Library.Services
 			{
 				var fromId = _settings.LastEnqueuedCounterpartyId > 0
 				? _settings.LastEnqueuedCounterpartyId
-				: _settings.CounterpartyEnqueueFromId;
+				: 0;
 
 			var counterparties = GetCounterparties(unitOfWork, batchSize, fromId);
 

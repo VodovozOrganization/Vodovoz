@@ -171,11 +171,6 @@ namespace Vodovoz.Settings.Database.Mindbox
 		int LastEnqueuedCounterpartyId { get; }
 
 		/// <summary>
-		/// Минимальный идентификатор контрагента для автоматической постановки в очередь
-		/// </summary>
-		int CounterpartyEnqueueFromId { get; }
-
-		/// <summary>
 		/// Название операции расчёта бонусов при оформлении заказа
 		/// </summary>
 		string CalculateAuthorizedCartOperation { get; }
