@@ -53,7 +53,11 @@ namespace Mindbox.Library.Services
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Постановка контрагентов в очередь Mindbox"))
 			{
-				var counterparties = GetCounterparties(unitOfWork, batchSize, _settings.CounterpartyEnqueueFromId);
+				var fromId = _settings.LastEnqueuedCounterpartyId > 0
+				? _settings.LastEnqueuedCounterpartyId
+				: _settings.CounterpartyEnqueueFromId;
+
+			var counterparties = GetCounterparties(unitOfWork, batchSize, fromId);
 
 				if(counterparties.Count == 0)
 				{
