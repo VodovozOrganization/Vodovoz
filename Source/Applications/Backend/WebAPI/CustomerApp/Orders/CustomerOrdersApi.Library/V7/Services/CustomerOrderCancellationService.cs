@@ -500,7 +500,7 @@ namespace CustomerOrdersApi.Library.V7.Services
 				_saleHandler,
 				_nomenclatureSettings,
 				_callTaskWorker,
-				needCreateDeliveryFreeBalanceOperation: false);
+				needCreateDeliveryFreeBalanceOperation: true);
 
 			_logger.LogInformation("Установлен статус недовоза для заказа {OrderId}", order.Id);
 
