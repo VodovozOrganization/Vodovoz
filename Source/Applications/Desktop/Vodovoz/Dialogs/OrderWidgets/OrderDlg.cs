@@ -60,6 +60,7 @@ using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Core.Domain.Orders.OrderEnums;

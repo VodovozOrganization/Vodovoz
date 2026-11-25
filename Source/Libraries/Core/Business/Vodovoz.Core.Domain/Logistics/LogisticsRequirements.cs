@@ -1,9 +1,9 @@
-﻿using QS.DomainModel.Entity;
-using QS.HistoryLog;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text;
+using QS.DomainModel.Entity;
+using QS.HistoryLog;
 
-namespace Vodovoz.Domain.Logistic
+namespace Vodovoz.Core.Domain.Logistics
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "требования к логистике",

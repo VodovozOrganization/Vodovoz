@@ -26,6 +26,7 @@ using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;

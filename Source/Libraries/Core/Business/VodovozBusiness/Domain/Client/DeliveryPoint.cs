@@ -15,6 +15,7 @@ using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Goods;

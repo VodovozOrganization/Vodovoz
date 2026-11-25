@@ -14,6 +14,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;

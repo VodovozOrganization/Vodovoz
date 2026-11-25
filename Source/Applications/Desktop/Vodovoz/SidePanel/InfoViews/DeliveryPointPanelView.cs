@@ -10,6 +10,7 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QSProjectsLib;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;

@@ -15,6 +15,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using Stetic;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;

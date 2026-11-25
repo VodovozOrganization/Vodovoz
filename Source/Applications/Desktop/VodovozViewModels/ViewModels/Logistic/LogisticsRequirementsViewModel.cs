@@ -1,5 +1,6 @@
 ﻿using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
