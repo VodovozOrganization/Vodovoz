@@ -8,6 +8,7 @@ using Gtk;
 using QS.Journal.GtkUI;
 using QS.Views.Dialog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.TrueMark;
@@ -33,6 +34,7 @@ namespace Vodovoz.Views.TrueMark
 		private MenuItem _copyInfoCodeMenuItem;
 		private MenuItem _copyInfoChildCodesMenuItem;
 		private bool _isDestroyed;
+		private bool _layoutRefreshScheduled;
 
 		public TrueMarkCodeHistoryView(TrueMarkCodeHistoryViewModel viewModel)
 			: base(viewModel)
@@ -63,6 +65,8 @@ namespace Vodovoz.Views.TrueMark
 				.AddBinding(vm => vm.SelectedTrueMarkInfoNode, w => w.SelectedRow)
 				.InitializeFromSource();
 			ytreeviewTrueMarkInfo.AfterModelChanged += (sender, args) => ScheduleTreeRefresh(ytreeviewTrueMarkInfo);
+			ytreeviewTrueMarkInfo.RowExpanded += (sender, args) => ScheduleTreeLayoutRefresh();
+			ytreeviewTrueMarkInfo.RowCollapsed += (sender, args) => ScheduleTreeLayoutRefresh();
 
 			ytreeviewHistory.ColumnsConfig = FluentColumnsConfig<TrueMarkCodeHistoryNode>.Create()
 				.AddColumn("Событие")
@@ -88,6 +92,11 @@ namespace Vodovoz.Views.TrueMark
 				.AddBinding(vm => vm.SelectedHistoryNode, w => w.SelectedRow)
 				.InitializeFromSource();
 			ytreeviewHistory.AfterModelChanged += (sender, args) => ScheduleTreeRefresh(ytreeviewHistory);
+
+			// Раскрытие/сворачивание любого узла истории теперь обрабатывается
+			// тем же методом, что и у TrueMarkInfo: пересчёт высоты ScrolledWindow.
+			ytreeviewHistory.RowExpanded += (sender, args) => ScheduleTreeLayoutRefresh();
+			ytreeviewHistory.RowCollapsed += (sender, args) => ScheduleTreeLayoutRefresh();
 
 			entrySearch.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.SearchText, w => w.Text)
@@ -181,8 +190,6 @@ namespace Vodovoz.Views.TrueMark
 				return;
 			}
 
-			// Раскрытие и перерисовку откладываем на idle,
-			// чтобы не менять модель дерева внутри обработки выбора строки.
 			GLib.Idle.Add(() =>
 			{
 				if(_isDestroyed || treeView is null)
@@ -202,9 +209,45 @@ namespace Vodovoz.Views.TrueMark
 				}
 				catch
 				{
-					// Виджет мог быть уничтожен до выполнения отложенного обновления.
 				}
 
+				return false;
+			});
+		}
+
+		private void ScheduleTreeLayoutRefresh()
+		{
+			if(_isDestroyed || _layoutRefreshScheduled) return;
+			_layoutRefreshScheduled = true;
+
+			GLib.Idle.Add(() =>
+			{
+				if(_isDestroyed) return false;
+
+				try
+				{
+					// 1. Заставляем TreeView пересчитать содержимое
+					ytreeviewHistory.QueueResize();
+					ytreeviewTrueMarkInfo.QueueResize();
+
+					// 2. Заставляем ScrolledWindow пересчитать размеры
+					scrolledwindowHistory.QueueResize();
+					scrolledwindowTrueMarkInfo.QueueResize();
+
+					// 3. Заставляем все контейнеры-обёртки (VBox, HPaned) пересчитать размеры
+					yvboxHistory.QueueResize();
+					yvboxTrueMarkInfo.QueueResize();
+					hpanedMain.QueueResize();
+					yvboxMain.QueueResize();
+
+					// 4. Заставляем само окно (Dialog) пересчитать layout
+					//    Это критически важно: без этого GTK может не применить новые размеры
+					//    к дочерним виджетам.
+					this.QueueResize(); // TrueMarkCodeHistoryView наследует Widget
+				}
+				catch { }
+
+				_layoutRefreshScheduled = false;
 				return false;
 			});
 		}

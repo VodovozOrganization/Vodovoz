@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <stetic-interface>
   <configuration>
     <images-root-path>..</images-root-path>
@@ -207240,6 +207240,8 @@ not tooltip</property>
                   <packing>
                     <property name="Position">1</property>
                     <property name="AutoSize">False</property>
+                    <property name="Expand">True</property>
+                    <property name="Fill">True</property>
                   </packing>
                 </child>
               </widget>
@@ -207278,6 +207280,8 @@ not tooltip</property>
                   <packing>
                     <property name="Position">1</property>
                     <property name="AutoSize">False</property>
+                    <property name="Expand">True</property>
+                    <property name="Fill">True</property>
                   </packing>
                 </child>
               </widget>
@@ -207288,7 +207292,9 @@ not tooltip</property>
           </widget>
           <packing>
             <property name="Position">1</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
+            <property name="Expand">True</property>
+            <property name="Fill">True</property>
           </packing>
         </child>
         <child>

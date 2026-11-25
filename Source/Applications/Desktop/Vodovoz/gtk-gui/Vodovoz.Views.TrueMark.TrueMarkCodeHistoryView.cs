@@ -98,6 +98,8 @@ namespace Vodovoz.Views.TrueMark
 			this.scrolledwindowTrueMarkInfo = new global::Gtk.ScrolledWindow();
 			this.scrolledwindowTrueMarkInfo.Name = "scrolledwindowTrueMarkInfo";
 			this.scrolledwindowTrueMarkInfo.ShadowType = ((global::Gtk.ShadowType)(1));
+			this.scrolledwindowTrueMarkInfo.VscrollbarPolicy = ((global::Gtk.PolicyType)(1));
+			this.scrolledwindowTrueMarkInfo.HscrollbarPolicy = ((global::Gtk.PolicyType)(1));
 			this.ytreeviewTrueMarkInfo = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeviewTrueMarkInfo.CanFocus = true;
 			this.ytreeviewTrueMarkInfo.Name = "ytreeviewTrueMarkInfo";
@@ -105,6 +107,8 @@ namespace Vodovoz.Views.TrueMark
 			this.yvboxTrueMarkInfo.Add(this.scrolledwindowTrueMarkInfo);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvboxTrueMarkInfo[this.scrolledwindowTrueMarkInfo]));
 			w6.Position = 1;
+			w6.Expand = true;
+			w6.Fill = true;
 			this.hpanedMain.Add(this.yvboxTrueMarkInfo);
 			global::Gtk.Paned.PanedChild w7 = ((global::Gtk.Paned.PanedChild)(this.hpanedMain[this.yvboxTrueMarkInfo]));
 			w7.Resize = true;
@@ -123,6 +127,8 @@ namespace Vodovoz.Views.TrueMark
 			this.scrolledwindowHistory = new global::Gtk.ScrolledWindow();
 			this.scrolledwindowHistory.Name = "scrolledwindowHistory";
 			this.scrolledwindowHistory.ShadowType = ((global::Gtk.ShadowType)(1));
+			this.scrolledwindowHistory.VscrollbarPolicy = ((global::Gtk.PolicyType)(1));
+			this.scrolledwindowHistory.HscrollbarPolicy = ((global::Gtk.PolicyType)(1));
 			this.ytreeviewHistory = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeviewHistory.CanFocus = true;
 			this.ytreeviewHistory.Name = "ytreeviewHistory";
@@ -130,12 +136,16 @@ namespace Vodovoz.Views.TrueMark
 			this.yvboxHistory.Add(this.scrolledwindowHistory);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxHistory[this.scrolledwindowHistory]));
 			w9.Position = 1;
+			w9.Expand = true;
+			w9.Fill = true;
 			this.hpanedMain.Add(this.yvboxHistory);
 			global::Gtk.Paned.PanedChild w10 = ((global::Gtk.Paned.PanedChild)(this.hpanedMain[this.yvboxHistory]));
 			w10.Resize = true;
 			this.yvboxMain.Add(this.hpanedMain);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.hpanedMain]));
 			w11.Position = 1;
+			w11.Expand = true;
+			w11.Fill = true;
 			this.ylabelStatus = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelStatus.Name = "ylabelStatus";
 			this.ylabelStatus.Xalign = 0F;

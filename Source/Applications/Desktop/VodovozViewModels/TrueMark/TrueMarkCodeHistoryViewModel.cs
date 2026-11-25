@@ -16,9 +16,7 @@ using System.Windows.Input;
 using TrueMark.Contracts;
 using TrueMark.Contracts.Responses;
 using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Edo;
@@ -375,7 +373,6 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void SetHistoryNodes(IEnumerable<TrueMarkCodeHistoryNode> historyNodes)
 		{
-			SelectedHistoryNode = null;
 			HistoryNodes = historyNodes ?? Enumerable.Empty<TrueMarkCodeHistoryNode>();
 		}
 
@@ -842,7 +839,8 @@ namespace Vodovoz.ViewModels.TrueMark
 					&& aggregationNodes.TryGetValue(
 						GetAggregationKey(aggregation.ParentType, aggregation.ParentId.Value),
 						out var parentNode)
-					&& !ReferenceEquals(parentNode, node))
+					&& !ReferenceEquals(parentNode, node)
+					&& !IsAncestor(node, parentNode))
 				{
 					node.Parent = parentNode;
 					parentNode.Children.Add(node);
@@ -1099,6 +1097,23 @@ namespace Vodovoz.ViewModels.TrueMark
 		private static string GetAggregationKey(string type, int id)
 		{
 			return $"{type}|{id}";
+		}
+
+		private static bool IsAncestor(TrueMarkCodeHistoryNode possibleAncestor, TrueMarkCodeHistoryNode node)
+		{
+			var current = node;
+
+			while(current != null)
+			{
+				if(ReferenceEquals(current, possibleAncestor))
+				{
+					return true;
+				}
+
+				current = current.Parent;
+			}
+
+			return false;
 		}
 
 		private static string GetAggregationDetails(TrueMarkCodeHistoryAggregation aggregation)
