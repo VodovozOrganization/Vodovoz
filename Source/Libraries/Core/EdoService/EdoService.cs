@@ -487,7 +487,12 @@ namespace EdoService.Library
 			bool hasDocflow = HasDocflow(uow, edoTask);
 			bool hasCancelledDocflow = HasCancelledDocflow(uow, edoTask.Id);
 
-			if(!hasDocflow && edoTask.Status == EdoTaskStatus.Problem
+			var isRestartableStatus =
+				edoTask.Status == EdoTaskStatus.Problem
+				|| edoTask.Status == EdoTaskStatus.Waiting;
+
+			if(!hasDocflow
+				&& isRestartableStatus
 				&& edoTask.As<DocumentEdoTask>()?.Stage == DocumentEdoTaskStage.New)
 			{
 				var otherTasksResult = CheckOtherTasks(uow, edoTask, taskId);
