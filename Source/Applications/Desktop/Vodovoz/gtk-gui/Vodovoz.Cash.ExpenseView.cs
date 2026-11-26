@@ -158,12 +158,13 @@ namespace Vodovoz.Cash
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.table1 = new global::Gamma.GtkWidgets.yTable();
 			this.table1.Name = "table1";
-			this.table1.NRows = ((uint)(7));
+			this.table1.NRows = ((uint)(8));
 			this.table1.NColumns = ((uint)(4));
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryCashier = new global::QS.Views.Control.EntityEntry();
+			this.entryCashier.WidthRequest = 350;
 			this.entryCashier.Events = ((global::Gdk.EventMask)(256));
 			this.entryCashier.Name = "entryCashier";
 			this.table1.Add(this.entryCashier);
@@ -178,10 +179,10 @@ namespace Vodovoz.Cash
 			this.entryCfoSubdivision.Name = "entryCfoSubdivision";
 			this.table1.Add(this.entryCfoSubdivision);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.entryCfoSubdivision]));
-			w11.TopAttach = ((uint)(3));
-			w11.BottomAttach = ((uint)(4));
-			w11.LeftAttach = ((uint)(3));
-			w11.RightAttach = ((uint)(4));
+			w11.TopAttach = ((uint)(4));
+			w11.BottomAttach = ((uint)(5));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -190,8 +191,8 @@ namespace Vodovoz.Cash
 			this.entryCfzSubdivision.Name = "entryCfzSubdivision";
 			this.table1.Add(this.entryCfzSubdivision);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.entryCfzSubdivision]));
-			w12.TopAttach = ((uint)(4));
-			w12.BottomAttach = ((uint)(5));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
 			w12.LeftAttach = ((uint)(3));
 			w12.RightAttach = ((uint)(4));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -226,8 +227,8 @@ namespace Vodovoz.Cash
 			this.entryRouteList.Name = "entryRouteList";
 			this.table1.Add(this.entryRouteList);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.entryRouteList]));
-			w15.TopAttach = ((uint)(4));
-			w15.BottomAttach = ((uint)(5));
+			w15.TopAttach = ((uint)(5));
+			w15.BottomAttach = ((uint)(6));
 			w15.LeftAttach = ((uint)(1));
 			w15.RightAttach = ((uint)(2));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -273,8 +274,8 @@ namespace Vodovoz.Cash
 			w18.Fill = false;
 			this.table1.Add(this.hbox6);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox6]));
-			w19.TopAttach = ((uint)(6));
-			w19.BottomAttach = ((uint)(7));
+			w19.TopAttach = ((uint)(7));
+			w19.BottomAttach = ((uint)(8));
 			w19.LeftAttach = ((uint)(1));
 			w19.RightAttach = ((uint)(2));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -286,8 +287,8 @@ namespace Vodovoz.Cash
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
 			this.table1.Add(this.label1);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
-			w20.TopAttach = ((uint)(1));
-			w20.BottomAttach = ((uint)(2));
+			w20.TopAttach = ((uint)(2));
+			w20.BottomAttach = ((uint)(3));
 			w20.LeftAttach = ((uint)(2));
 			w20.RightAttach = ((uint)(3));
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -330,8 +331,8 @@ namespace Vodovoz.Cash
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Сумма:");
 			this.table1.Add(this.label5);
 			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.label5]));
-			w24.TopAttach = ((uint)(6));
-			w24.BottomAttach = ((uint)(7));
+			w24.TopAttach = ((uint)(7));
+			w24.BottomAttach = ((uint)(8));
 			w24.XOptions = ((global::Gtk.AttachOptions)(4));
 			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -341,8 +342,8 @@ namespace Vodovoz.Cash
 			this.labelDdr.LabelProp = global::Mono.Unix.Catalog.GetString("Дата учета ДДР:");
 			this.table1.Add(this.labelDdr);
 			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1[this.labelDdr]));
-			w25.TopAttach = ((uint)(2));
-			w25.BottomAttach = ((uint)(3));
+			w25.TopAttach = ((uint)(3));
+			w25.BottomAttach = ((uint)(4));
 			w25.LeftAttach = ((uint)(2));
 			w25.RightAttach = ((uint)(3));
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -385,8 +386,8 @@ namespace Vodovoz.Cash
 			this.ydateDdr.HideButtonClearDate = false;
 			this.table1.Add(this.ydateDdr);
 			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table1[this.ydateDdr]));
-			w28.TopAttach = ((uint)(2));
-			w28.BottomAttach = ((uint)(3));
+			w28.TopAttach = ((uint)(3));
+			w28.BottomAttach = ((uint)(4));
 			w28.LeftAttach = ((uint)(3));
 			w28.RightAttach = ((uint)(4));
 			w28.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -403,8 +404,8 @@ namespace Vodovoz.Cash
 			this.ydateDocument.HideButtonClearDate = false;
 			this.table1.Add(this.ydateDocument);
 			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.table1[this.ydateDocument]));
-			w29.TopAttach = ((uint)(1));
-			w29.BottomAttach = ((uint)(2));
+			w29.TopAttach = ((uint)(2));
+			w29.BottomAttach = ((uint)(3));
 			w29.LeftAttach = ((uint)(3));
 			w29.RightAttach = ((uint)(4));
 			w29.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -427,10 +428,8 @@ namespace Vodovoz.Cash
 			this.ylabelCfo.LabelProp = global::Mono.Unix.Catalog.GetString("ЦФО:");
 			this.table1.Add(this.ylabelCfo);
 			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCfo]));
-			w31.TopAttach = ((uint)(3));
-			w31.BottomAttach = ((uint)(4));
-			w31.LeftAttach = ((uint)(2));
-			w31.RightAttach = ((uint)(3));
+			w31.TopAttach = ((uint)(4));
+			w31.BottomAttach = ((uint)(5));
 			w31.XOptions = ((global::Gtk.AttachOptions)(4));
 			w31.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -440,8 +439,8 @@ namespace Vodovoz.Cash
 			this.ylabelCfz.LabelProp = global::Mono.Unix.Catalog.GetString("ЦФЗ:");
 			this.table1.Add(this.ylabelCfz);
 			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCfz]));
-			w32.TopAttach = ((uint)(4));
-			w32.BottomAttach = ((uint)(5));
+			w32.TopAttach = ((uint)(1));
+			w32.BottomAttach = ((uint)(2));
 			w32.LeftAttach = ((uint)(2));
 			w32.RightAttach = ((uint)(3));
 			w32.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -454,8 +453,8 @@ namespace Vodovoz.Cash
 			this.ylabelEmployeeWageBalance.UseMarkup = true;
 			this.table1.Add(this.ylabelEmployeeWageBalance);
 			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelEmployeeWageBalance]));
-			w33.TopAttach = ((uint)(5));
-			w33.BottomAttach = ((uint)(6));
+			w33.TopAttach = ((uint)(6));
+			w33.BottomAttach = ((uint)(7));
 			w33.LeftAttach = ((uint)(1));
 			w33.RightAttach = ((uint)(4));
 			w33.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -467,8 +466,8 @@ namespace Vodovoz.Cash
 			this.ylabelRouteList.LabelProp = global::Mono.Unix.Catalog.GetString("Маршрутный лист:");
 			this.table1.Add(this.ylabelRouteList);
 			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelRouteList]));
-			w34.TopAttach = ((uint)(4));
-			w34.BottomAttach = ((uint)(5));
+			w34.TopAttach = ((uint)(5));
+			w34.BottomAttach = ((uint)(6));
 			w34.XOptions = ((global::Gtk.AttachOptions)(4));
 			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.table1);
