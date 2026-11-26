@@ -8,6 +8,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Journals.JournalViewModels.Organizations;
@@ -59,9 +60,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				.ForProperty(x => x.AccountableEmployee)
 				.UseViewModelDialog<EmployeeViewModel>()
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
-					filter =>
-					{
-					})
+					filter => filter.Status = EmployeeStatus.IsWorking)
 				.Finish();
 
 			CfzSubdivisionViewModel = cfzSubdivisionViewModelBuilder
