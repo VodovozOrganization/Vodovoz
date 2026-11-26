@@ -102992,6 +102992,7 @@ not tooltip</property>
           <widget class="Gtk.ScrolledWindow" id="scrolledwindow1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
+            <property name="HscrollbarPolicy">Automatic</property>
             <property name="ShadowType">In</property>
             <child>
               <widget class="Gtk.Viewport" id="GtkViewport">
@@ -103077,6 +103078,8 @@ not tooltip</property>
                     <child>
                       <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                         <property name="MemberName" />
+                        <property name="HeightRequest">160</property>
+                        <property name="VscrollbarPolicy">Automatic</property>
                         <property name="ShadowType">In</property>
                         <child>
                           <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewSums">
@@ -103532,6 +103535,7 @@ not tooltip</property>
                       <widget class="Gamma.GtkWidgets.yLabel" id="labelBalansOrganizations">
                         <property name="MemberName" />
                         <property name="Xalign">0</property>
+                        <property name="Yalign">0</property>
                         <property name="LabelProp" translatable="yes">Баланс по
 нашим
 организациям:</property>
@@ -103717,7 +103721,7 @@ not tooltip</property>
                       <widget class="Gtk.Label" id="labelType6">
                         <property name="MemberName" />
                         <property name="Xalign">0</property>
-                        <property name="LabelProp" translatable="yes">Подразделение:</property>
+                        <property name="LabelProp" translatable="yes">Подразделение (ЦФО):</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">2</property>
@@ -103834,9 +103838,37 @@ not tooltip</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.GtkWidgets.yLabel" id="ylabelBalansOrganizations">
+                      <widget class="Gamma.GtkWidgets.yHBox" id="hboxOrganizationBalances">
                         <property name="MemberName" />
-                        <property name="LabelProp" translatable="yes">.</property>
+                        <property name="Spacing">12</property>
+                        <child>
+                          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelOrganizationBalanceLeft">
+                            <property name="MemberName" />
+                            <property name="Xalign">0</property>
+                            <property name="Yalign">0</property>
+                            <property name="LabelProp" />
+                          </widget>
+                          <packing>
+                            <property name="Position">0</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelOrganizationBalanceRight">
+                            <property name="MemberName" />
+                            <property name="Xalign">0</property>
+                            <property name="Yalign">0</property>
+                            <property name="LabelProp" />
+                          </widget>
+                          <packing>
+                            <property name="Position">1</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
                       </widget>
                       <packing>
                         <property name="TopAttach">13</property>

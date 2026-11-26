@@ -210,7 +210,7 @@ namespace Vodovoz.Dialogs.Cash
 			labelBalansOrganizations.Binding
 				.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible)
 				.InitializeFromSource();
-			ylabelBalansOrganizations.Binding
+			hboxOrganizationBalances.Binding
 				.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible)
 				.InitializeFromSource();
 
@@ -247,8 +247,8 @@ namespace Vodovoz.Dialogs.Cash
 				.InitializeFromSource();
 
 			var organizationBalances = ViewModel.LoadOrganizationsSums();
-			ylabelBalansOrganizations.Text = string.Join("\n", new[] { organizationBalances.Left, organizationBalances.Right }
-				.Where(column => !string.IsNullOrEmpty(column)));
+			ylabelOrganizationBalanceLeft.Text = organizationBalances.Left;
+			ylabelOrganizationBalanceRight.Text = organizationBalances.Right;
 
 			ylabelStatus.Binding
 				.AddBinding(ViewModel, vm => vm.StateName, w => w.Text)
