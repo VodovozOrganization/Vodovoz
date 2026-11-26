@@ -102992,7 +102992,6 @@ not tooltip</property>
           <widget class="Gtk.ScrolledWindow" id="scrolledwindow1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="HscrollbarPolicy">Automatic</property>
             <property name="ShadowType">In</property>
             <child>
               <widget class="Gtk.Viewport" id="GtkViewport">
@@ -103079,7 +103078,6 @@ not tooltip</property>
                       <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                         <property name="MemberName" />
                         <property name="HeightRequest">160</property>
-                        <property name="VscrollbarPolicy">Automatic</property>
                         <property name="ShadowType">In</property>
                         <child>
                           <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewSums">
@@ -103475,6 +103473,53 @@ not tooltip</property>
                       </packing>
                     </child>
                     <child>
+                      <widget class="Gamma.GtkWidgets.yHBox" id="hboxOrganizationBalances">
+                        <property name="MemberName" />
+                        <property name="Spacing">12</property>
+                        <child>
+                          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelOrganizationBalanceLeft">
+                            <property name="MemberName" />
+                            <property name="Xalign">0</property>
+                            <property name="Yalign">0</property>
+                          </widget>
+                          <packing>
+                            <property name="Position">0</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelOrganizationBalanceRight">
+                            <property name="MemberName" />
+                            <property name="Xalign">0</property>
+                            <property name="Yalign">0</property>
+                          </widget>
+                          <packing>
+                            <property name="Position">1</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">13</property>
+                        <property name="BottomAttach">14</property>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="Gtk.HSeparator" id="hseparator1">
                         <property name="MemberName" />
                       </widget>
@@ -103824,55 +103869,6 @@ not tooltip</property>
                       <packing>
                         <property name="TopAttach">9</property>
                         <property name="BottomAttach">10</property>
-                        <property name="LeftAttach">1</property>
-                        <property name="RightAttach">2</property>
-                        <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
-                        <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
-                        <property name="XFill">True</property>
-                        <property name="XShrink">False</property>
-                        <property name="YExpand">False</property>
-                        <property name="YFill">True</property>
-                        <property name="YShrink">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="Gamma.GtkWidgets.yHBox" id="hboxOrganizationBalances">
-                        <property name="MemberName" />
-                        <property name="Spacing">12</property>
-                        <child>
-                          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelOrganizationBalanceLeft">
-                            <property name="MemberName" />
-                            <property name="Xalign">0</property>
-                            <property name="Yalign">0</property>
-                            <property name="LabelProp" />
-                          </widget>
-                          <packing>
-                            <property name="Position">0</property>
-                            <property name="AutoSize">True</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelOrganizationBalanceRight">
-                            <property name="MemberName" />
-                            <property name="Xalign">0</property>
-                            <property name="Yalign">0</property>
-                            <property name="LabelProp" />
-                          </widget>
-                          <packing>
-                            <property name="Position">1</property>
-                            <property name="AutoSize">True</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
-                          </packing>
-                        </child>
-                      </widget>
-                      <packing>
-                        <property name="TopAttach">13</property>
-                        <property name="BottomAttach">14</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">2</property>
                         <property name="AutoSize">True</property>
