@@ -10,7 +10,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 	{
 		public decimal TotalItemCount(INomenclatureCount saleItem, IEnumerable<ISaleItem> saleItems)
 		{
-			return saleItem.Nomenclature.IsWater19L
+			return saleItem.Nomenclature != null && saleItem.Nomenclature.IsWater19L
 				? GetTotalWater19LCount(saleItems, true, true)
 				: saleItem.Count;
 		}
@@ -20,7 +20,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			bool doNotCalculateWaterFromPromoSets = false,
 			bool doNotCalculatePresentsDiscount = false)
 		{
-			var water19L = saleItems.Where(x => x.Nomenclature.IsWater19L);
+			var water19L = saleItems.Where(x => x.Nomenclature != null && x.Nomenclature.IsWater19L);
 
 			if(doNotCalculateWaterFromPromoSets)
 			{

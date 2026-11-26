@@ -76,6 +76,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			foreach(var product in organizationChoice.Goods)
 			{
+				if(product.Nomenclature is null)
+				{
+					// В онлайн заказе может прийти позиция с номенклатурой, которой нет в БД.
+					// Такой заказ отправляется на ручную обработку, а при подборе организации
+					// позиция без номенклатуры не учитывается
+					continue;
+				}
+
 				if(product.Nomenclature.Id == _nomenclatureSettings.PaidDeliveryNomenclatureId)
 				{
 					paidDelivery = product;
@@ -372,12 +380,19 @@ namespace Vodovoz.Core.Application.Orders.Services
 		
 		private bool ProductBelongsSet(IProduct product, OrganizationBasedOrderContentSettings organizationBasedOrderContentSettings)
 		{
-			if(organizationBasedOrderContentSettings.Nomenclatures.Contains(product.Nomenclature))
+			var nomenclature = product.Nomenclature;
+
+			if(nomenclature is null)
+			{
+				return false;
+			}
+
+			if(organizationBasedOrderContentSettings.Nomenclatures.Contains(nomenclature))
 			{
 				return true;
 			}
 
-			if(ContainsProductGroup(product.Nomenclature.ProductGroup, organizationBasedOrderContentSettings.ProductGroups))
+			if(ContainsProductGroup(nomenclature.ProductGroup, organizationBasedOrderContentSettings.ProductGroups))
 			{
 				return true;
 			}
