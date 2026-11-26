@@ -246,7 +246,9 @@ namespace Vodovoz.Dialogs.Cash
 				.AddBinding(ViewModel.Entity, e => e.HaveReceipt, w => w.Active)
 				.InitializeFromSource();
 
-			ylabelBalansOrganizations.Text = ViewModel.LoadOrganizationsSums();
+			var organizationBalances = ViewModel.LoadOrganizationsSums();
+			ylabelBalansOrganizations.Text = string.Join("\n", new[] { organizationBalances.Left, organizationBalances.Right }
+				.Where(column => !string.IsNullOrEmpty(column)));
 
 			ylabelStatus.Binding
 				.AddBinding(ViewModel, vm => vm.StateName, w => w.Text)

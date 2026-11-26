@@ -844,19 +844,17 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 		}
 
-		public string LoadOrganizationsSums()
+		/// <summary>
+		/// Загрузка баланса организаций для двух столбцов
+		/// </summary>
+		/// <returns>Текст левого и правого столбцов в порядке записей репозитория</returns>
+		public (string Left, string Right) LoadOrganizationsSums()
 		{
-			var builder = new StringBuilder();
-
 			var balanceList = _cashRepository.GetCashBalanceForOrganizations(UoW);
+			var leftCount = (balanceList.Count + 1) / 2;
+			var balanceLines = balanceList.Select(operation => $"{operation.Name}: {operation.Balance}").ToArray();
 
-			foreach(var operationNode in balanceList)
-			{
-				builder.Append(operationNode.Name + ": ");
-				builder.Append(operationNode.Balance + "\n");
-			}
-
-			return builder.ToString();
+			return (string.Join("\n", balanceLines.Take(leftCount)), string.Join("\n", balanceLines.Skip(leftCount)));
 		}
 
 		private void ChangeStateAndSave(PayoutRequestState newState)
