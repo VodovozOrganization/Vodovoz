@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
@@ -15,8 +15,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			References(x => x.Order).Column("order_id").Not.Nullable();
-			References(x => x.OriginalEdoTask).Column("original_edo_task_id").Not.Nullable().Unique();
-			References(x => x.ResendEdoRequest).Column("resend_edo_request_id").Not.Nullable().Unique();
+			References(x => x.OriginalEdoTask).Column("original_edo_task_id").Not.Nullable();
+			References(x => x.ResendEdoRequest).Column("resend_edo_request_id").Not.Nullable();
 			References(x => x.WithdrawalDocument).Column("withdrawal_document_id").Not.Nullable();
 			References(x => x.CancellationDocument).Column("cancellation_document_id").Nullable();
 

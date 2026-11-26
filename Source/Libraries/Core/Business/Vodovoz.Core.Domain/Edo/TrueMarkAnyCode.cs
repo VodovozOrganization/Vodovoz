@@ -10,11 +10,11 @@ namespace Vodovoz.Core.Domain.TrueMark
 	/// <list type="bullet">
 	/// <item>
 	///		<term>КИ</term>
-	///		<description>Код идентификации <see cref="TrueMarkWaterIdentificationCode"/></description>
+	///		<description>Код идентификации <see cref="TrueMarkIdentificationCode"/></description>
 	///	</item>
 	/// <item>
 	///		<term>КИГУ</term>
-	///		<description>Код идентификации групповой упаковки <see cref="TrueMarkWaterGroupCode"/></description>
+	///		<description>Код идентификации групповой упаковки <see cref="TrueMarkGroupCode"/></description>
 	///	</item>
 	/// <item>
 	///		<term>КИТУ</term>
@@ -22,29 +22,29 @@ namespace Vodovoz.Core.Domain.TrueMark
 	///	</item>
 	/// </list>
 	/// </summary>
-	public class TrueMarkAnyCode : OneOfBase<TrueMarkTransportCode, TrueMarkWaterGroupCode, TrueMarkWaterIdentificationCode>
+	public class TrueMarkAnyCode : OneOfBase<TrueMarkTransportCode, TrueMarkGroupCode, TrueMarkIdentificationCode>
 	{
-		protected TrueMarkAnyCode(OneOf<TrueMarkTransportCode, TrueMarkWaterGroupCode, TrueMarkWaterIdentificationCode> oneOf) : base(oneOf)
+		protected TrueMarkAnyCode(OneOf<TrueMarkTransportCode, TrueMarkGroupCode, TrueMarkIdentificationCode> oneOf) : base(oneOf)
 		{
 		}
 
 		public static implicit operator TrueMarkAnyCode(TrueMarkTransportCode value) => new TrueMarkAnyCode(value);
 
-		public static implicit operator TrueMarkAnyCode(TrueMarkWaterGroupCode value) => new TrueMarkAnyCode(value);
+		public static implicit operator TrueMarkAnyCode(TrueMarkGroupCode value) => new TrueMarkAnyCode(value);
 
-		public static implicit operator TrueMarkAnyCode(TrueMarkWaterIdentificationCode value) => new TrueMarkAnyCode(value);
+		public static implicit operator TrueMarkAnyCode(TrueMarkIdentificationCode value) => new TrueMarkAnyCode(value);
 
 		public bool IsTrueMarkTransportCode => IsT0;
 
-		public bool IsTrueMarkWaterGroupCode => IsT1;
+		public bool IsTrueMarkGroupCode => IsT1;
 
-		public bool IsTrueMarkWaterIdentificationCode => IsT2;
+		public bool IsTrueMarkIdentificationCode => IsT2;
 
 		public TrueMarkTransportCode TrueMarkTransportCode => AsT0;
 
-		public TrueMarkWaterGroupCode TrueMarkWaterGroupCode => AsT1;
+		public TrueMarkGroupCode TrueMarkGroupCode => AsT1;
 
-		public TrueMarkWaterIdentificationCode TrueMarkWaterIdentificationCode => AsT2;
+		public TrueMarkIdentificationCode TrueMarkIdentificationCode => AsT2;
 
 		public void AddInnerTrueMarkAnyCodes(IEnumerable<TrueMarkAnyCode> innerCodes)
 		{
@@ -65,40 +65,40 @@ namespace Vodovoz.Core.Domain.TrueMark
 							transportCode.AddInnerTransportCode(innerTransportCode);
 							return true;
 						},
-						innerWaterGroupCode =>
+						innerGroupCode =>
 						{
-							transportCode.AddInnerGroupCode(innerWaterGroupCode);
+							transportCode.AddInnerGroupCode(innerGroupCode);
 							return true;
 						},
-						innerWaterIdentificationCode =>
+						innerIdentificationCode =>
 						{
-							transportCode.AddInnerWaterCode(innerWaterIdentificationCode);
+							transportCode.AddInnerIdentificationCode(innerIdentificationCode);
 							return true;
 						});
 
 					return true;
 				},
-				waterGroupCode =>
+				groupCode =>
 				{
 					innerCode.Match(
 						innerTransportCode =>
 						{
 							throw new InvalidOperationException("Нельзя добавить транспортный код внуть группового кода");
 						},
-						innerWaterGroupCode =>
+						innerGroupCode =>
 						{
-							waterGroupCode.AddInnerGroupCode(innerWaterGroupCode);
+							groupCode.AddInnerGroupCode(innerGroupCode);
 							return true;
 						},
-						innerWaterIdentificationCode =>
+						innerIdentificationCode =>
 						{
-							waterGroupCode.AddInnerWaterCode(innerWaterIdentificationCode);
+							groupCode.AddInnerIdentificationCode(innerIdentificationCode);
 							return true;
 						});
 
 					return true;
 				},
-				waterIdentificationCode =>
+				identificationCode =>
 				{
 					throw new InvalidOperationException("Нельзя добавить коды внуть кода экземпляра");
 				});

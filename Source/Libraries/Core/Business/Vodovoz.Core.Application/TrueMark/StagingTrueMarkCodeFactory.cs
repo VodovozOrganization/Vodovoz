@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using TrueMark.Contracts;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Models.TrueMark;
+using Vodovoz.Core.Domain.Interfaces.TrueMark;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Core.Application.TrueMark
 {
@@ -24,7 +25,7 @@ namespace Vodovoz.Core.Application.TrueMark
 		}
 
 		public StagingTrueMarkCode CreateGroupCodeFromParsedCode(
-			TrueMarkWaterCode parsedCode,
+			ITrueMarkCode parsedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
 			int? orderItemId = null)
@@ -52,7 +53,7 @@ namespace Vodovoz.Core.Application.TrueMark
 		}
 
 		public StagingTrueMarkCode CreateIdentificationCodeFromParsedCode(
-			TrueMarkWaterCode parsedCode,
+			ITrueMarkCode parsedCode,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
 			int? orderItemId = null)
@@ -80,7 +81,7 @@ namespace Vodovoz.Core.Application.TrueMark
 		}
 
 		private StagingTrueMarkCode CreateFromParsedCode(
-			TrueMarkWaterCode parsedCode,
+			ITrueMarkCode parsedCode,
 			StagingTrueMarkCodeType codeType,
 			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
 			int relatedDocumentId,
@@ -92,6 +93,7 @@ namespace Vodovoz.Core.Application.TrueMark
 				Gtin = parsedCode.Gtin,
 				SerialNumber = parsedCode.SerialNumber,
 				CheckCode = parsedCode.CheckCode,
+				ProductGroup = parsedCode.ProductGroup,
 				CodeType = codeType,
 				RelatedDocumentType = relatedDocumentType,
 				RelatedDocumentId = relatedDocumentId,
@@ -110,15 +112,20 @@ namespace Vodovoz.Core.Application.TrueMark
 
 			var rawCode = "\\u001d" + identificationCode + "\\u001d";
 
-			var serialNumber = identificationCode
-				.Replace(productInstanceStatus.Gtin, "")
-				.Replace("0121", "");
+			var serialNumber = TrueMarkCodeHelper.ExtractSerialNumber(identificationCode, productInstanceStatus.Gtin);
+
+			if(!productInstanceStatus.ProductGroup.HasValue)
+			{
+				throw new InvalidOperationException(
+					$"Не удалось определить товарную группу маркировки для кода {identificationCode}.");
+			}
 
 			return new StagingTrueMarkCode
 			{
 				RawCode = rawCode,
 				Gtin = productInstanceStatus.Gtin,
 				SerialNumber = serialNumber,
+				ProductGroup = productInstanceStatus.ProductGroup.Value,
 				CodeType = codeType,
 				RelatedDocumentType = relatedDocumentType,
 				RelatedDocumentId = relatedDocumentId,

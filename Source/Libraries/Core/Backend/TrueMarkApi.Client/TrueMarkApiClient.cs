@@ -1,4 +1,4 @@
-﻿using Polly;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
 using TrueMark.Contracts.Documents;
+using TrueMark.Contracts.Requests;
 using TrueMark.Contracts.Responses;
 
 namespace TrueMarkApi.Client
@@ -25,16 +26,6 @@ namespace TrueMarkApi.Client
 		}
 
 		public int ParticipantsCheckMaxCount => _participantsCheckMaxCount;
-
-		public async Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn, CancellationToken cancellationToken)
-		{
-			var urlWithParams = $"{url}?inn={inn}";
-			var response = await _httpClient.GetAsync(urlWithParams, cancellationToken);
-			var responseBody = await response.Content.ReadAsStreamAsync();
-			var responseResult = await JsonSerializer.DeserializeAsync<TrueMarkRegistrationResultDto>(responseBody, cancellationToken: cancellationToken);
-
-			return responseResult;
-		}
 
 		public async Task<IEnumerable<ParticipantRegistrationDto>> GetParticipantsRegistrations(IEnumerable<string> inns, CancellationToken cancellationToken)
 		{
@@ -84,12 +75,13 @@ namespace TrueMarkApi.Client
 			return result.Result;
 		}
 
-		public async Task<string> SendIndividualAccountingWithdrawalDocument(string document, string inn, CancellationToken cancellationToken)
+		public async Task<string> SendIndividualAccountingWithdrawalDocument(string document, string inn, TrueMarkProductGroup productGroup, CancellationToken cancellationToken)
 		{
-			var sendDocumentRequest = new
+			var sendDocumentRequest = new SendDocumentDataRequest
 			{
 				Document = document,
-				Inn = inn
+				Inn = inn,
+				ProductGroup = productGroup
 			};
 
 			string content = JsonSerializer.Serialize(sendDocumentRequest);
@@ -106,6 +98,7 @@ namespace TrueMarkApi.Client
 		public async Task<string> SendIndividualAccountingWithdrawalCancellationDocument(
 			Guid withdrawalDocumentId,
 			string inn,
+			TrueMarkProductGroup productGroup,
 			CancellationToken cancellationToken)
 		{
 			var document = new IndividualAccountingWithdrawalCancellationDocumentDto
@@ -114,10 +107,11 @@ namespace TrueMarkApi.Client
 				LkReceiptId = withdrawalDocumentId.ToString()
 			};
 
-			var sendDocumentRequest = new
+			var sendDocumentRequest = new SendDocumentDataRequest
 			{
 				Document = JsonSerializer.Serialize(document),
-				Inn = inn
+				Inn = inn,
+				ProductGroup = productGroup
 			};
 
 			var content = JsonSerializer.Serialize(sendDocumentRequest);

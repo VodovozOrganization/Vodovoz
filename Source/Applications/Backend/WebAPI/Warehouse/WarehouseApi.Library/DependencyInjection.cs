@@ -50,7 +50,7 @@ namespace WarehouseApi.Library
 				.AddScoped<ICarLoadService, CarLoadService>()
 				.AddScoped<IRouteListDailyNumberProvider, RouteListDailyNumberProvider>()
 				.AddScoped<CarLoadDocumentConverter>()
-				.AddScoped<TrueMarkWaterCodeParser>()
+				.AddTrueMarkCodeParsers()
 				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
 				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<ICarLoadDocumentTrueMarkCodesProcessingService, CarLoadDocumentTrueMarkCodesProcessingService>()

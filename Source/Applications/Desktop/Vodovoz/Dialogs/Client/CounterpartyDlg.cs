@@ -54,6 +54,7 @@ using Vodovoz.Core.Application.Errors;
 using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
@@ -2351,14 +2352,16 @@ namespace Vodovoz
 				return;
 			}
 
-			var status = statusResult.Value;
+			var registrationInfo = statusResult.Value;
 
-			Entity.RegistrationInChestnyZnakStatus = status;
+			Entity.RegistrationInChestnyZnakStatus = registrationInfo.Status;
+			Entity.UpdateRegisteredTrueMarkProductGroups(registrationInfo.ProductGroups);
 
 			_counterpartyEdoAccountsViewModel.RefreshEdoLightsMatrices();
 
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-				$"Статус регистрации в Честном Знаке:\n\"{status.GetEnumDisplayName()}\"");
+				$"Статус регистрации в Честном Знаке:\n\"{registrationInfo.Status.GetEnumDisplayName()}\"\n" +
+				$"Товарные группы: {registrationInfo.ProductGroupsDisplay}");
 		}
 
 		public override void Dispose()

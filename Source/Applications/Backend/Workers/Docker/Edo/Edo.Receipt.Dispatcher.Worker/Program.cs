@@ -62,7 +62,7 @@ namespace Edo.Receipt.Dispatcher.Worker
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						
-						.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
+						.AddScoped<ITrueMarkCodeHierarchyService, TrueMarkCodeHierarchyService>()
 					;
 
 					services

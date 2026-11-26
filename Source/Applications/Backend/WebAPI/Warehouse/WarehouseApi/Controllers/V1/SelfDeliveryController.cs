@@ -44,7 +44,7 @@ namespace WarehouseApi.Controllers.V1
 		/// <param name="userManager"></param>
 		/// <param name="externalApplicationUserService"></param>
 		/// <param name="selfDeliveryService"></param>
-		/// <param name="trueMarkWaterCodeService"></param>
+		/// <param name="trueMarkCodeService"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public SelfDeliveryController(
 			ILogger<SelfDeliveryController> logger,

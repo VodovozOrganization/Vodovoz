@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.Utilities.Extensions;
 using TrueMark.Codes.Pool;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain;
 using Vodovoz.Factories;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.Options;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -14,6 +16,7 @@ using Vodovoz.Tools.Orders;
 using Vodovoz.Validation;
 using VodovozBusiness.CachingRepositories.Employees;
 using VodovozBusiness.CachingRepositories.Subdivisions;
+using VodovozBusiness.Models.TrueMark;
 
 namespace Vodovoz
 {
@@ -67,5 +70,14 @@ namespace Vodovoz
 			=> services
 				.AddScoped<IEmployeeInMemoryNameWithInitialsCacheRepository, EmployeeInMemoryNameWithInitialsCacheRepository>()
 				.AddScoped<IDomainEntityNodeInMemoryCacheRepository<Subdivision>, SubdivisionInMemoryTitleCacheRepository>();
+
+		public static IServiceCollection AddTrueMarkCodeParsers(this IServiceCollection services)
+		{
+			services.TryAddEnumerable(ServiceDescriptor.Scoped<ITrueMarkProductCodeParser, TrueMarkWaterCodeParser>());
+			services.TryAddEnumerable(ServiceDescriptor.Scoped<ITrueMarkProductCodeParser, TrueMarkPetFoodCodeParser>());
+			services.TryAddScoped<TrueMarkCodeParser>();
+
+			return services;
+		}
 	}
 }

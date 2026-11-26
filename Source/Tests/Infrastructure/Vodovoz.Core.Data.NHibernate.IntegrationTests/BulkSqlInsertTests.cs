@@ -549,14 +549,14 @@ namespace Vodovoz.Core.Data.NHibernate.IntegrationTests
 							TransferOrder = order,
 							Quantity = 1,
 							Nomenclature = uow.Session.Load<NomenclatureEntity>(10),
-							IndividualCode = uow.Session.Load<TrueMarkWaterIdentificationCode>(20)
+							IndividualCode = uow.Session.Load<TrueMarkIdentificationCode>(20)
 						},
 						new TransferOrderTrueMarkCode
 						{
 							TransferOrder = order,
 							Quantity = 40,
 							Nomenclature = uow.Session.Load<NomenclatureEntity>(10),
-							GroupCode = uow.Session.Load<TrueMarkWaterGroupCode>(30)
+							GroupCode = uow.Session.Load<TrueMarkGroupCode>(30)
 						}
 					};
 

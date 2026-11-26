@@ -13,7 +13,7 @@ namespace Edo.Common
 	{
 		private readonly ITrueMarkApiClient _trueMarkApiClient;
 		private readonly EdoTask _edoTask;
-		private Dictionary<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus> _codesStatuses;
+		private Dictionary<TrueMarkIdentificationCode, EdoTaskItemTrueMarkStatus> _codesStatuses;
 		private IEnumerable<EdoTaskItem> _codeItems;
 		private bool _codesChecked;
 
@@ -36,13 +36,13 @@ namespace Edo.Common
 			_codesChecked = false;
 		}
 
-		private IEnumerable<KeyValuePair<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>> AggregateAllTaskItemCodes(
+		private IEnumerable<KeyValuePair<TrueMarkIdentificationCode, EdoTaskItemTrueMarkStatus>> AggregateAllTaskItemCodes(
 			EdoTaskItem edoTaskItem
 			)
 		{
 			if(edoTaskItem.ProductCode.ResultCode != null)
 			{
-				yield return new KeyValuePair<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>(
+				yield return new KeyValuePair<TrueMarkIdentificationCode, EdoTaskItemTrueMarkStatus>(
 					edoTaskItem.ProductCode.ResultCode,
 					new EdoTaskItemTrueMarkStatus { EdoTaskItem = edoTaskItem, ItemCodeType = EdoTaskItemCodeType.Result }
 				);
@@ -50,7 +50,7 @@ namespace Edo.Common
 
 			if(edoTaskItem.ProductCode.SourceCode != null)
 			{
-				yield return new KeyValuePair<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>(
+				yield return new KeyValuePair<TrueMarkIdentificationCode, EdoTaskItemTrueMarkStatus>(
 					edoTaskItem.ProductCode.SourceCode,
 					new EdoTaskItemTrueMarkStatus { EdoTaskItem = edoTaskItem, ItemCodeType = EdoTaskItemCodeType.Source }
 				);
@@ -72,11 +72,11 @@ namespace Edo.Common
 			return _codesStatuses.ToDictionary(x => x.Key.IdentificationCode, x => x.Value);
 		}
 
-		public async Task<IDictionary<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>> GetCodeItemsStatusesAsync(CancellationToken cancellationToken)
+		public async Task<IDictionary<TrueMarkIdentificationCode, EdoTaskItemTrueMarkStatus>> GetCodeItemsStatusesAsync(CancellationToken cancellationToken)
 		{
 			if(!_codeItems.Any())
 			{
-				return new Dictionary<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>();
+				return new Dictionary<TrueMarkIdentificationCode, EdoTaskItemTrueMarkStatus>();
 			}
 
 			if(!_codesChecked)

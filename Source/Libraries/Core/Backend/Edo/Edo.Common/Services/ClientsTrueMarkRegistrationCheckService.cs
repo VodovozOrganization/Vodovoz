@@ -9,6 +9,7 @@ using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Settings.Edo;
 
 namespace Edo.Common.Services
@@ -30,7 +31,7 @@ namespace Edo.Common.Services
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 		}
 
-		public async Task<Result<RegistrationInChestnyZnakStatus>> GetTrueMarkRegistrationStatus(
+		public async Task<Result<TrueMarkRegistrationInfo>> GetTrueMarkRegistrationStatus(
 			string inn,
 			CancellationToken cancellationToken)
 		{
@@ -46,7 +47,7 @@ namespace Edo.Common.Services
 				: TrueMarkRegistrationCheckErrors.ClientTrueMarkRegistrationCheckRequestError;
 		}
 
-		public async Task<IDictionary<string, Result<RegistrationInChestnyZnakStatus>>> GetTrueMarkRegistrationsStatuses(
+		public async Task<IDictionary<string, Result<TrueMarkRegistrationInfo>>> GetTrueMarkRegistrationsStatuses(
 			IEnumerable<string> inns,
 			CancellationToken cancellationToken = default)
 		{
@@ -69,7 +70,7 @@ namespace Edo.Common.Services
 
 			return registrationsData.ToDictionary(
 				x => x.Inn,
-				x => ConvertToRegistrationStatus(x));
+				x => ConvertToRegistrationInfo(x));
 		}
 
 		private async Task<IEnumerable<ParticipantRegistrationDto>> GetParticipantsRegistrationsStatuses(
@@ -100,17 +101,17 @@ namespace Edo.Common.Services
 			}
 		}
 
-		private Result<RegistrationInChestnyZnakStatus> ConvertToRegistrationStatus(ParticipantRegistrationDto registrationData)
+		private Result<TrueMarkRegistrationInfo> ConvertToRegistrationInfo(ParticipantRegistrationDto registrationData)
 		{
 			if(registrationData is null)
 			{
-				return Result.Failure<RegistrationInChestnyZnakStatus>(
+				return Result.Failure<TrueMarkRegistrationInfo>(
 					TrueMarkRegistrationCheckErrors.ClientTrueMarkRegistrationCheckRequestError);
 			}
 
 			if(!string.IsNullOrWhiteSpace(registrationData.ErrorMessage))
 			{
-				return Result.Failure<RegistrationInChestnyZnakStatus>(
+				return Result.Failure<TrueMarkRegistrationInfo>(
 					TrueMarkRegistrationCheckErrors.CreateClientTrueMarkRegistrationCheckRequestError(
 						registrationData.Inn,
 						registrationData.ErrorMessage));
@@ -118,34 +119,46 @@ namespace Edo.Common.Services
 
 			if(string.IsNullOrWhiteSpace(registrationData.Status))
 			{
-				return Result.Failure<RegistrationInChestnyZnakStatus>(
+				return Result.Failure<TrueMarkRegistrationInfo>(
 					TrueMarkRegistrationCheckErrors.CreateClientTrueMarkRegistrationCheckRequestError(
 						registrationData.Inn,
 						"Ответ от АПИ ЧЗ не содержит значение актуального статуса"));
 			}
 
+			RegistrationInChestnyZnakStatus status;
 			switch(registrationData.Status)
 			{
 				case "Зарегистрирован":
 				case "Восстановлен":
-					return
-						registrationData.IsRegisteredForWater
-						? RegistrationInChestnyZnakStatus.Registered
-						: RegistrationInChestnyZnakStatus.RegisteredWithoutWater;
+					status = RegistrationInChestnyZnakStatus.Registered;
+					break;
 				case "Предварительная регистрация началась":
 				case "Предварительная регистрация производителя":
 				case "Предварительная регистрация продавца":
-					return RegistrationInChestnyZnakStatus.InProcess;
+					status = RegistrationInChestnyZnakStatus.InProcess;
+					break;
 				case "Заблокирован":
-					return RegistrationInChestnyZnakStatus.Blocked;
+					status = RegistrationInChestnyZnakStatus.Blocked;
+					break;
 				case "Не зарегистрирован":
 				case "Удален":
-					return RegistrationInChestnyZnakStatus.Unknown;
+					status = RegistrationInChestnyZnakStatus.Unknown;
+					break;
 				default:
 					return TrueMarkRegistrationCheckErrors.CreateClientTrueMarkRegistrationCheckRequestError(
 						registrationData.Inn,
 						$"Неизвестное значение статуса в ответе от ЧЗ: \"{registrationData.Status}\"");
 			}
+
+			var productGroups = status == RegistrationInChestnyZnakStatus.Registered
+				? registrationData.ProductGroups?.Distinct().ToList() ?? new List<TrueMarkProductGroup>()
+				: new List<TrueMarkProductGroup>();
+
+			return new TrueMarkRegistrationInfo
+			{
+				Status = status,
+				ProductGroups = productGroups
+			};
 		}
 	}
 }

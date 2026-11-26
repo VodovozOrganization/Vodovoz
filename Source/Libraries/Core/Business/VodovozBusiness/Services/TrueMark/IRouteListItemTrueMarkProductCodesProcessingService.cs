@@ -23,11 +23,11 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="uow">Unit of Work</param>
 		/// <param name="routeListAddress">Строка маршрутного листа</param>
 		/// <param name="vodovozOrderItemId">ID строки заказа</param>
-		/// <param name="trueMarkWaterIdentificationCode">Код Честного Знака</param>
+		/// <param name="trueMarkIdentificationCode">Код Честного Знака</param>
 		/// <param name="status">Статус кода продукта</param>
 		/// <param name="problem">Тип проблемы кода ЧЗ</param>
 		void AddTrueMarkCodeToRouteListItem(IUnitOfWork uow, RouteListItemEntity routeListAddress, int vodovozOrderItemId,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, SourceProductCodeStatus status, ProductCodeProblem problem);
+			TrueMarkIdentificationCode trueMarkIdentificationCode, SourceProductCodeStatus status, ProductCodeProblem problem);
 
 		Result ValidateTrueMarkCodeIsInAggregationCode(TrueMarkAnyCode trueMarkCodeResult);
 

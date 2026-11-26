@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -11,11 +11,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.TrueMark;
+using TrueMark.Contracts;
 using Vodovoz.Presentation.WebApi.Common;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.V1.Dto;
 using WarehouseApi.Filters;
+using WarehouseApi.Library.Converters;
 
 namespace WarehouseApi.Controllers.V1
 {
@@ -30,20 +33,20 @@ namespace WarehouseApi.Controllers.V1
 	{
 		private const string _rolesToAccess =
 			nameof(ApplicationUserRole.WarehousePicker) + "," + nameof(ApplicationUserRole.WarehouseDriver);
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodeService _trueMarkCodeService;
 
 		/// <summary>
 		/// Контроллер проверки кодов
 		/// </summary>
 		/// <param name="logger"></param>
-		/// <param name="trueMarkWaterCodeService"></param>
+		/// <param name="trueMarkCodeService"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public CheckCodeController(
 			ILogger<ApiControllerBase> logger,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService
+			ITrueMarkCodeService trueMarkCodeService
 			) : base(logger)
 		{
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodeService = trueMarkCodeService ?? throw new ArgumentNullException(nameof(trueMarkCodeService));
 		}
 
 
@@ -63,7 +66,7 @@ namespace WarehouseApi.Controllers.V1
 		{
 			try
 			{
-				var createCodeResult = await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
+				var createCodeResult = await _trueMarkCodeService.CreateStagingTrueMarkCode(
 					unitOfWork,
 					code,
 					StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
@@ -81,7 +84,7 @@ namespace WarehouseApi.Controllers.V1
 				var stagingCode = createCodeResult.Value;
 
 				var isCodeUsedResult =
-					await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(unitOfWork, stagingCode, cancellationToken);
+					await _trueMarkCodeService.IsStagingTrueMarkCodeAlreadyUsed(unitOfWork, stagingCode, cancellationToken);
 
 				if(isCodeUsedResult.IsFailure)
 				{
@@ -122,7 +125,8 @@ namespace WarehouseApi.Controllers.V1
 			{
 				Code = stagingCode.RawCode,
 				Level = level,
-				Parent = parentCode
+				Parent = parentCode,
+				ProductGroup = stagingCode.ProductGroup
 			};
 
 			result.Add(codeDto);

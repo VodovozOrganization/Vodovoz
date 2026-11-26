@@ -20,7 +20,7 @@ namespace Edo.Common
 		/// <param name="cancellationToken">Токен отмены операции.</param>
 		/// <param name="addingTimeNotAfter">Дата добавления кода не позже указанной (если null, без ограничения по дате добавления).</param>
 		/// <returns>Валидный код маркировки.</returns>
-		Task<TrueMarkWaterIdentificationCode> TakeValidCodeAsync(
+		Task<TrueMarkIdentificationCode> TakeValidCodeAsync(
 			ITrueMarkCodesPool codesPool,
 			GtinEntity gtin,
 			string organizationInn,
@@ -36,7 +36,7 @@ namespace Edo.Common
 		/// <param name="cancellationToken">Токен отмены операции.</param>
 		/// <param name="addingTimeNotAfter">Дата добавления кода не позже указанной (если null, без ограничения по дате добавления).</param>
 		/// <returns>Валидный код маркировки.</returns>
-		Task<TrueMarkWaterIdentificationCode> TakeValidCodeAsync(
+		Task<TrueMarkIdentificationCode> TakeValidCodeAsync(
 			ITrueMarkCodesPool codesPool,
 			IEnumerable<GtinEntity> gtins,
 			string organizationInn,
@@ -51,7 +51,7 @@ namespace Edo.Common
 		/// <param name="organizationInn">ИНН организации заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Словарь GTIN -> список валидных кодов маркировки</returns>
-		Task<Result<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>>> TakeValidCodesBatchAsync(
+		Task<Result<IDictionary<string, IList<TrueMarkIdentificationCode>>>> TakeValidCodesBatchAsync(
 			ITrueMarkCodesPool codesPool,
 			IDictionary<string, int> gtinCounts,
 			string organizationInn,

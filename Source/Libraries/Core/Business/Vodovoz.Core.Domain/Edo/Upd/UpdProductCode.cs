@@ -38,12 +38,12 @@ namespace Vodovoz.Core.Domain.Edo.Upd
 		/// Индивидуальный код
 		/// </summary>
 		[Display(Name = "Индивидуальный код")]
-		public virtual TrueMarkWaterIdentificationCode IndividualCode { get; set; }
+		public virtual TrueMarkIdentificationCode IndividualCode { get; set; }
 
 		/// <summary>
 		/// Групповой код
 		/// </summary>
 		[Display(Name = "Групповой код")]
-		public virtual TrueMarkWaterGroupCode GroupCode { get; set; }
+		public virtual TrueMarkGroupCode GroupCode { get; set; }
 	}
 }

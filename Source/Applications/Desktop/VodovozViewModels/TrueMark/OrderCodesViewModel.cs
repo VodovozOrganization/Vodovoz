@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IClipboard _clipboard;
-		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
+		private readonly TrueMarkCodeParser _trueMarkCodeParser;
 		private readonly INavigationManager _navigation;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
@@ -78,7 +78,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		private int? _edoTaskId;
 		private readonly IExcessTrueMarkCodesDeletionService _excessCodesDeletionService;
 		private readonly IEdoRepository _edoRepository;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodeService _trueMarkCodeService;
 		private bool _canDeleteExcessCodes;
 		private int _activeCodesPage;
 		private int _codesRequired;
@@ -128,7 +128,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			ITrueMarkRepository trueMarkRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IClipboard clipboard,
-			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
+			TrueMarkCodeParser trueMarkCodeParser,
 			INavigationManager navigation,
 			IRouteListItemRepository routeListItemRepository,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
@@ -140,7 +140,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			ViewModelEEVMBuilder<Order> orderViewModelEEVMBuilder,
 			IExcessTrueMarkCodesDeletionService excessCodesDeletionService,
 			IEdoRepository edoRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodeService trueMarkCodeService,
 			ITrueMarkCodeRepository trueMarkCodeRepository
 			) : base()
 		{
@@ -148,11 +148,11 @@ namespace Vodovoz.ViewModels.TrueMark
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_excessCodesDeletionService = excessCodesDeletionService ?? throw new ArgumentNullException(nameof(excessCodesDeletionService));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodeService = trueMarkCodeService ?? throw new ArgumentNullException(nameof(trueMarkCodeService));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
-			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
+			_trueMarkCodeParser = trueMarkCodeParser ?? throw new ArgumentNullException(nameof(trueMarkCodeParser));
 			_navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
@@ -443,7 +443,7 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void ValidateManualCode()
 		{
-			IsValidManualCodeText = _trueMarkWaterCodeParser.TryParse(_manualCodeText, out var code);
+			IsValidManualCodeText = _trueMarkCodeParser.TryParse(_manualCodeText, out var _);
 			AddManualCodeCommand.RaiseCanExecuteChanged();
 		}
 
@@ -474,7 +474,7 @@ namespace Vodovoz.ViewModels.TrueMark
 					return;
 				}
 
-				if(!_trueMarkWaterCodeParser.TryParse(_manualCodeText, out var code))
+				if(!_trueMarkCodeParser.TryParse(_manualCodeText, out var code))
 				{
 					_interactiveService.ShowMessage(
 						ImportanceLevel.Warning,
@@ -484,7 +484,7 @@ namespace Vodovoz.ViewModels.TrueMark
 					return;
 				}
 
-				var stagingCodeResult = _trueMarkWaterCodeService.CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
+				var stagingCodeResult = _trueMarkCodeService.CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
 					code.SourceCode,
 					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
 					0,
@@ -526,7 +526,7 @@ namespace Vodovoz.ViewModels.TrueMark
 					return;
 				}
 
-				var trueMarkAnyCodesResult = _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(uow, new[] { inMemmoryStagingCode })
+				var trueMarkAnyCodesResult = _trueMarkCodeService.CreateTrueMarkAnyCodesFromStagingCodes(uow, new[] { inMemmoryStagingCode })
 					.ConfigureAwait(false)
 					.GetAwaiter()
 					.GetResult();
@@ -558,7 +558,7 @@ namespace Vodovoz.ViewModels.TrueMark
 					IEnumerable<TrueMarkAnyCode> matchedCodes = trueMarkAnyCode.Match(
 						transportCode => matchedCodes = transportCode.GetAllCodes(),
 						groupCode => matchedCodes = groupCode.GetAllCodes(),
-						waterCode => new TrueMarkAnyCode[] { waterCode }
+						identificationCode => new TrueMarkAnyCode[] { identificationCode }
 					).ToList();
 
 					trueMarkAnyCode.Match(
@@ -580,17 +580,17 @@ namespace Vodovoz.ViewModels.TrueMark
 
 							return true;
 						},
-						waterCode =>
+						identificationCode =>
 						{
-							if(waterCode.Id == 0)
+							if(identificationCode.Id == 0)
 							{
-								uow.Save(waterCode);
+								uow.Save(identificationCode);
 							}
 
 							var productCode = new ManualTrueMarkProductCode
 							{
 								CustomerEdoRequest = lastRequest,
-								SourceCode = waterCode,
+								SourceCode = identificationCode,
 								SourceCodeStatus = SourceProductCodeStatus.New,
 							};
 
@@ -1054,10 +1054,10 @@ namespace Vodovoz.ViewModels.TrueMark
 
 			var groupCodesIds = instanceCodes
 				.Where(x => x.SourceCode != null)
-				.Where(x => x.SourceCode.ParentWaterGroupCodeId != null)
-				.Select(x => x.SourceCode.ParentWaterGroupCodeId.Value)
+				.Where(x => x.SourceCode.ParentGroupCodeId != null)
+				.Select(x => x.SourceCode.ParentGroupCodeId.Value)
 				.Distinct();
-			var groupCodes = _trueMarkRepository.GetGroupWaterCodes(uow, groupCodesIds);
+			var groupCodes = _trueMarkRepository.GetGroupCodes(uow, groupCodesIds);
 
 			var transportCodesIdsFromIndividual = instanceCodes
 				.Where(x => x.SourceCode != null)
@@ -1118,9 +1118,9 @@ namespace Vodovoz.ViewModels.TrueMark
 					vm.Parent.Children.Add(vm);
 				}
 
-				if(x.SourceCode != null && x.SourceCode.ParentWaterGroupCodeId.HasValue)
+				if(x.SourceCode != null && x.SourceCode.ParentGroupCodeId.HasValue)
 				{
-					vm.Parent = groupItemViewModels[x.SourceCode.ParentWaterGroupCodeId.Value];
+					vm.Parent = groupItemViewModels[x.SourceCode.ParentGroupCodeId.Value];
 					vm.Parent.Children.Add(vm);
 				}
 				return vm;
@@ -1138,10 +1138,10 @@ namespace Vodovoz.ViewModels.TrueMark
 
 			var groupCodesIds = instanceCodes
 				.Where(x => x.SourceCode != null)
-				.Where(x => x.SourceCode.ParentWaterGroupCodeId != null)
-				.Select(x => x.SourceCode.ParentWaterGroupCodeId.Value)
+				.Where(x => x.SourceCode.ParentGroupCodeId != null)
+				.Select(x => x.SourceCode.ParentGroupCodeId.Value)
 				.Distinct();
-			var groupCodes = _trueMarkRepository.GetGroupWaterCodes(uow, groupCodesIds);
+			var groupCodes = _trueMarkRepository.GetGroupCodes(uow, groupCodesIds);
 
 			var transportCodesIdsFromIndividual = instanceCodes
 				.Where(x => x.SourceCode != null)
@@ -1208,9 +1208,9 @@ namespace Vodovoz.ViewModels.TrueMark
 					vm.Parent.Children.Add(vm);
 				}
 
-				if(x.SourceCode != null && x.SourceCode.ParentWaterGroupCodeId.HasValue)
+				if(x.SourceCode != null && x.SourceCode.ParentGroupCodeId.HasValue)
 				{
-					vm.Parent = groupItemViewModels[x.SourceCode.ParentWaterGroupCodeId.Value];
+					vm.Parent = groupItemViewModels[x.SourceCode.ParentGroupCodeId.Value];
 					vm.Parent.Children.Add(vm);
 				}
 				return vm;
@@ -1228,10 +1228,10 @@ namespace Vodovoz.ViewModels.TrueMark
 
 			var groupCodesIds = instanceCodes
 				.Where(x => x.SourceCode != null)
-				.Where(x => x.SourceCode.ParentWaterGroupCodeId != null)
-				.Select(x => x.SourceCode.ParentWaterGroupCodeId.Value)
+				.Where(x => x.SourceCode.ParentGroupCodeId != null)
+				.Select(x => x.SourceCode.ParentGroupCodeId.Value)
 				.Distinct();
-			var groupCodes = _trueMarkRepository.GetGroupWaterCodes(uow, groupCodesIds);
+			var groupCodes = _trueMarkRepository.GetGroupCodes(uow, groupCodesIds);
 
 			var transportCodesIdsFromIndividual = instanceCodes
 				.Where(x => x.SourceCode != null)
@@ -1295,9 +1295,9 @@ namespace Vodovoz.ViewModels.TrueMark
 					vm.Parent.Children.Add(vm);
 				}
 
-				if(x.SourceCode != null && x.SourceCode.ParentWaterGroupCodeId.HasValue)
+				if(x.SourceCode != null && x.SourceCode.ParentGroupCodeId.HasValue)
 				{
-					vm.Parent = groupItemViewModels[x.SourceCode.ParentWaterGroupCodeId.Value];
+					vm.Parent = groupItemViewModels[x.SourceCode.ParentGroupCodeId.Value];
 					vm.Parent.Children.Add(vm);
 				}
 				return vm;
@@ -1423,19 +1423,11 @@ namespace Vodovoz.ViewModels.TrueMark
 				_manualCodes = _manualCodesOrigin;
 				_scannedStagingCodes = _scannedStagingCodesOrigin;
 			}
-			else if(_trueMarkWaterCodeParser.FuzzyParse(SearchText, out var parsedCode))
+			else if(_trueMarkCodeParser.TryParse(SearchText, out var parsedCode))
 			{
-				ParsedSearchCodeSerialNumber = parsedCode.SerialNumber;
-				IsValidSearchCodeText = true;
-				FilterDriverCodes(parsedCode);
-				FilterWarehouseCodes(parsedCode);
-				FilterSelfdeliveryCodes(parsedCode);
-				FilterPoolCodes(parsedCode);
-				_resentCodes = _resentCodesOrigin.Where(x => CodeMatched(x, parsedCode)).ToList();
-				_manualCodes = _manualCodesOrigin.Where(x => CodeMatched(x, parsedCode)).ToList();
-				FilterStagingCodes(parsedCode);
+				ApplyCodeFilter(parsedCode);
 			}
-			else if(_trueMarkWaterCodeParser.IsTransportCode(SearchText))
+			else if(_trueMarkCodeParser.IsTransportCode(SearchText))
 			{
 				ParsedSearchCodeSerialNumber = SearchText;
 				IsValidSearchCodeText = true;
@@ -1445,6 +1437,10 @@ namespace Vodovoz.ViewModels.TrueMark
 				FilterPoolCodes(SearchText);
 				_resentCodes = _resentCodesOrigin.Where(x => CodeMatched(x, SearchText)).ToList();
 				_manualCodes = _manualCodesOrigin.Where(x => CodeMatched(x, SearchText)).ToList();
+			}
+			else if(_trueMarkCodeParser.FuzzyParse(SearchText, out var fuzzyCode))
+			{
+				ApplyCodeFilter(fuzzyCode);
 			}
 			else
 			{
@@ -1474,7 +1470,20 @@ namespace Vodovoz.ViewModels.TrueMark
 			OnPropertyChanged(nameof(ScannedStagingCodes));
 		}
 
-		private void FilterDriverCodes(ITrueMarkWaterCode code)
+		private void ApplyCodeFilter(ITrueMarkCode parsedCode)
+		{
+			ParsedSearchCodeSerialNumber = parsedCode.SerialNumber;
+			IsValidSearchCodeText = true;
+			FilterDriverCodes(parsedCode);
+			FilterWarehouseCodes(parsedCode);
+			FilterSelfdeliveryCodes(parsedCode);
+			FilterPoolCodes(parsedCode);
+			_resentCodes = _resentCodesOrigin.Where(x => CodeMatched(x, parsedCode)).ToList();
+			_manualCodes = _manualCodesOrigin.Where(x => CodeMatched(x, parsedCode)).ToList();
+			FilterStagingCodes(parsedCode);
+		}
+
+		private void FilterDriverCodes(ITrueMarkCode code)
 		{
 			var filteredCodes = _scannedByDriverCodesOrigin.Where(x => CodeMatched(x, code));
 			_scannedByDriverCodes = filteredCodes.ToList();
@@ -1486,7 +1495,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			_scannedByDriverCodes = filteredCodes.ToList();
 		}
 
-		private void FilterWarehouseCodes(ITrueMarkWaterCode code)
+		private void FilterWarehouseCodes(ITrueMarkCode code)
 		{
 			var filteredCodes = _scannedByWarehouseCodesOrigin.Where(x => CodeMatched(x, code));
 			_scannedByWarehouseCodes = filteredCodes.ToList();
@@ -1498,7 +1507,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			_scannedByWarehouseCodes = filteredCodes.ToList();
 		}
 
-		private void FilterSelfdeliveryCodes(ITrueMarkWaterCode code)
+		private void FilterSelfdeliveryCodes(ITrueMarkCode code)
 		{
 			var filteredCodes = _scannedBySelfdeliveryCodesOrigin.Where(x => CodeMatched(x, code));
 			_scannedBySelfdeliveryCodes = filteredCodes.ToList();
@@ -1510,13 +1519,13 @@ namespace Vodovoz.ViewModels.TrueMark
 			_scannedBySelfdeliveryCodes = filteredCodes.ToList();
 		}
 
-		private void FilterPoolCodes(ITrueMarkWaterCode code)
+		private void FilterPoolCodes(ITrueMarkCode code)
 		{
 			var filteredCodes = _addedFromPoolCodesOrigin.Where(x => CodeMatched(x, code));
 			_addedFromPoolCodes = filteredCodes.ToList();
 		}
 
-		private void FilterStagingCodes(ITrueMarkWaterCode code)
+		private void FilterStagingCodes(ITrueMarkCode code)
 		{
 			var filteredCodes = _scannedStagingCodesOrigin.Where(x => CodeMatched(x, code));
 			_scannedStagingCodes = filteredCodes.ToList();
@@ -1528,7 +1537,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			_addedFromPoolCodes = filteredCodes.ToList();
 		}
 
-		private bool CodeMatched(OrderCodeItemViewModel codeItem, ITrueMarkWaterCode desiredCode)
+		private bool CodeMatched(OrderCodeItemViewModel codeItem, ITrueMarkCode desiredCode)
 		{
 			if(codeItem.SourceCode != null && codeItem.SourceCode.SerialNumber == desiredCode.SerialNumber)
 			{

@@ -19,7 +19,7 @@ namespace Edo.Admin
 
 			services.TryAddScoped<EdoCancellationService>();
 			services.TryAddScoped<IEdoCancellationValidator, EdoCancellationValidator>();
-			services.TryAddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>();
+			services.TryAddScoped<ITrueMarkCodeHierarchyService, TrueMarkCodeHierarchyService>();
 
 			services.AddEdo();
 			services.AddEdoProblemRegistration();

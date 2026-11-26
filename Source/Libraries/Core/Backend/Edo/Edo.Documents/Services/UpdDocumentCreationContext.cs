@@ -31,7 +31,7 @@ namespace Edo.Documents.Services
 			/// <summary>
 			/// Словарь групповых кодов маркировки с соответствующими им задачами ЭДО
 			/// </summary>
-			public Dictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>> GroupCodesWithTaskItems { get; set; }
+			public Dictionary<TrueMarkGroupCode, IEnumerable<EdoTaskItem>> GroupCodesWithTaskItems { get; set; }
 
 			/// <summary>
 			/// Массив позиций заказа, отсортированных по убыванию цены

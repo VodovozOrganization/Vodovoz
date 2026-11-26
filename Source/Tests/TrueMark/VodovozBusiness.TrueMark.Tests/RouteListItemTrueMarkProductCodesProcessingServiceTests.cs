@@ -63,7 +63,7 @@ namespace VodovozBusiness.TrueMark.Tests
 			_service = new RouteListItemTrueMarkProductCodesProcessingService(
 				Substitute.For<IOrderRepository>(),
 				Substitute.For<IGenericRepository<StagingTrueMarkCode>>(),
-				Substitute.For<ITrueMarkWaterCodeService>(),
+				Substitute.For<ITrueMarkCodeService>(),
 				Substitute.For<ITrueMarkCodesPoolCleanupService>(),
 				_trueMarkRepository,
 				trueMarkCodesPoolFactory);
@@ -264,7 +264,7 @@ namespace VodovozBusiness.TrueMark.Tests
 
 		private static AutoTrueMarkProductCode CreateReusedProductCode()
 		{
-			var identificationCode = new TrueMarkWaterIdentificationCode
+			var identificationCode = new TrueMarkIdentificationCode
 			{
 				Id = _reusedIdentificationCodeId,
 				Gtin = _gtin
@@ -312,8 +312,8 @@ namespace VodovozBusiness.TrueMark.Tests
 				}
 			};
 
-		private static TrueMarkWaterIdentificationCode CreateDriverIdentificationCode() =>
-			new TrueMarkWaterIdentificationCode
+		private static TrueMarkIdentificationCode CreateDriverIdentificationCode() =>
+			new TrueMarkIdentificationCode
 			{
 				Id = 4,
 				Gtin = _gtin,

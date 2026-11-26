@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Core.Infrastructure;
 using Edo.Transport;
 using Gamma.ColumnConfig;

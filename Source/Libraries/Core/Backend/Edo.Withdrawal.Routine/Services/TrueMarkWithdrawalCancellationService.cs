@@ -1,14 +1,16 @@
-﻿using Edo.Transport;
+using Edo.Transport;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Edo.Withdrawal.Routine.Services
 {
@@ -66,19 +68,20 @@ namespace Edo.Withdrawal.Routine.Services
 		/// <param name="cancellationToken">Токен отмены</param>
 		public async Task PublishReadyResendRequests(CancellationToken cancellationToken)
 		{
-			int[] requestIds;
+			int[] resendEdoRequestIds;
 
 			using(var uow = _uowFactory.CreateWithoutRoot(nameof(PublishReadyResendRequests)))
 			{
-				requestIds = uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
+				resendEdoRequestIds = uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
 					.Where(x => x.Status == EdoResendAfterTrueMarkCancellationStatus.ReadyToResend)
-					.Select(x => x.Id)
+					.Select(x => x.ResendEdoRequest.Id)
+					.Distinct()
 					.ToArray();
 			}
 
-			foreach(var requestId in requestIds)
+			foreach(var resendEdoRequestId in resendEdoRequestIds)
 			{
-				await PublishReadyResendRequest(requestId, cancellationToken);
+				await PublishReadyResendRequest(resendEdoRequestId, cancellationToken);
 			}
 		}
 
@@ -86,6 +89,8 @@ namespace Edo.Withdrawal.Routine.Services
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot(nameof(SendCancellationDocument)))
 			{
+				uow.OpenTransaction();
+
 				var request = await GetRequestWithPessimisticLock(uow, requestId, cancellationToken);
 
 				if(request?.Status != EdoResendAfterTrueMarkCancellationStatus.WaitingForCancellation)
@@ -107,6 +112,7 @@ namespace Edo.Withdrawal.Routine.Services
 					var cancellationDocumentId = await _trueMarkApiClient.SendIndividualAccountingWithdrawalCancellationDocument(
 						withdrawalDocument.Guid.Value,
 						withdrawalDocument.Organization.INN,
+						withdrawalDocument.ProductGroup,
 						cancellationToken);
 
 					var cancellationDocument = new TrueMarkDocument
@@ -115,7 +121,8 @@ namespace Edo.Withdrawal.Routine.Services
 						Guid = new Guid(cancellationDocumentId),
 						Organization = withdrawalDocument.Organization,
 						Type = TrueMarkDocument.TrueMarkDocumentType.WithdrawalCancellation,
-						WithdrawalEdoTask = withdrawalDocument.WithdrawalEdoTask
+						WithdrawalEdoTask = withdrawalDocument.WithdrawalEdoTask,
+						ProductGroup = withdrawalDocument.ProductGroup
 					};
 
 					request.MarkCancellationSent(cancellationDocument);
@@ -139,25 +146,50 @@ namespace Edo.Withdrawal.Routine.Services
 			}
 		}
 
-		private async Task PublishReadyResendRequest(int requestId, CancellationToken cancellationToken)
+		private async Task PublishReadyResendRequest(int resendEdoRequestId, CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot(nameof(PublishReadyResendRequest)))
 			{
-				var request = await GetRequestWithPessimisticLock(uow, requestId, cancellationToken);
+				var requestIds = uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
+					.Where(x => x.ResendEdoRequest.Id == resendEdoRequestId)
+					.OrderBy(x => x.Id)
+					.Select(x => x.Id)
+					.ToList();
 
-				if(request?.Status != EdoResendAfterTrueMarkCancellationStatus.ReadyToResend)
+				if(!requestIds.Any())
+				{
+					return;
+				}
+
+				uow.OpenTransaction();
+
+				var requests = new List<EdoResendAfterTrueMarkCancellationRequest>();
+				foreach(var requestId in requestIds)
+				{
+					var lockedRequest = await GetRequestWithPessimisticLock(uow, requestId, cancellationToken);
+					if(lockedRequest != null)
+					{
+						requests.Add(lockedRequest);
+					}
+				}
+
+				if(requests.Count == 0 || requests.Any(x => x.Status != EdoResendAfterTrueMarkCancellationStatus.ReadyToResend))
 				{
 					return;
 				}
 
 				await _edoRequestCreatedEventPublisher.Publish(
 					uow,
-					request.ResendEdoRequest.Id,
+					resendEdoRequestId,
 					"Переотправка документов ЭДО после отмены вывода кодов из оборота в ЧЗ",
 					cancellationToken);
 
-				request.MarkCompleted();
-				await uow.SaveAsync(request, cancellationToken: cancellationToken);
+				foreach(var request in requests)
+				{
+					request.MarkCompleted();
+					await uow.SaveAsync(request, cancellationToken: cancellationToken);
+				}
+
 				await uow.CommitAsync(cancellationToken);
 			}
 		}
@@ -167,8 +199,6 @@ namespace Edo.Withdrawal.Routine.Services
 			int requestId,
 			CancellationToken cancellationToken)
 		{
-			uow.OpenTransaction();
-
 			return await uow.Session.GetAsync<EdoResendAfterTrueMarkCancellationRequest>(
 				requestId,
 				LockMode.Upgrade,

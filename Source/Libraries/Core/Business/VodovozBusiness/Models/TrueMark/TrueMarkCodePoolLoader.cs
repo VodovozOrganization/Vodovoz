@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using MoreLinq;
 using QS.DomainModel.UoW;
 using System;
@@ -9,18 +9,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Interfaces.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
 {
 	public class TrueMarkCodePoolLoader
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly TrueMarkWaterCodeParser _trueMarkCodeParser;
+		private readonly TrueMarkCodeParser _trueMarkCodeParser;
 		private readonly TrueMarkCodesPoolFactory _trueMarkCodesPoolFactory;
 
 		public TrueMarkCodePoolLoader(
 			IUnitOfWorkFactory uowFactory,
-			TrueMarkWaterCodeParser trueMarkCodeParser,
+			TrueMarkCodeParser trueMarkCodeParser,
 			TrueMarkCodesPoolFactory trueMarkCodesPoolFactory)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -113,11 +114,11 @@ namespace Vodovoz.Models.TrueMark
 			return new CodeLoadingResult { SuccessfulLoaded = successfulLoaded, TotalFound = totalFound };
 		}
 
-		private TrueMarkWaterCode TryParseCode(string content)
+		private ITrueMarkCode TryParseCode(string content)
 		{
 			try
 			{
-				return _trueMarkCodeParser.ParseCodeFrom1c(content);
+				return _trueMarkCodeParser.TryParseCodeFrom1c(content, out var code) ? code : null;
 			}
 			catch(Exception)
 			{
@@ -125,25 +126,26 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		private bool TrySaveCode(TrueMarkWaterCode code)
+		private bool TrySaveCode(ITrueMarkCode code)
 		{
-			var codeEntity = new TrueMarkWaterIdentificationCode
+			var codeEntity = new TrueMarkIdentificationCode
 			{
 				IsInvalid = false,
 				RawCode = code.SourceCode.Substring(0, Math.Min(255, code.SourceCode.Length)),
 				Gtin = code.Gtin,
 				SerialNumber = code.SerialNumber,
-				CheckCode = code.CheckCode
+				CheckCode = code.CheckCode,
+				ProductGroup = code.ProductGroup
 			};
 			
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				try
 				{
-					var savedCode = uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+					var savedCode = uow.Session.QueryOver<TrueMarkIdentificationCode>()
 						.Where(x => x.RawCode == codeEntity.RawCode)
 						.Take(1)
-						.SingleOrDefault<TrueMarkWaterIdentificationCode>();
+						.SingleOrDefault<TrueMarkIdentificationCode>();
 
 					if(savedCode != null)
 					{

@@ -30,7 +30,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark
 				.Inverse()
 				.Cascade.All();
 
-			HasMany(x => x.InnerWaterCodes)
+			HasMany(x => x.InnerIdentificationCodes)
 				.KeyColumn("parent_transport_code_id")
 				.Not.LazyLoad()
 				.Fetch.Subselect()

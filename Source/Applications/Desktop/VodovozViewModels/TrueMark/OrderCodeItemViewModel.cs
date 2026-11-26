@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Core.Infrastructure;
+using System.Collections.Generic;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -10,11 +11,11 @@ namespace Vodovoz.ViewModels.TrueMark
 		private OrderCodeItemViewModel _parent;
 		private List<OrderCodeItemViewModel> _children = new List<OrderCodeItemViewModel>();
 		private TrueMarkTransportCode _transportCode;
-		private TrueMarkWaterGroupCode _groupCode;
+		private TrueMarkGroupCode _groupCode;
 		private string _type;
-		private TrueMarkWaterIdentificationCode _sourceCode;
+		private TrueMarkIdentificationCode _sourceCode;
 		private string _sourceIdentificationCode;
-		private TrueMarkWaterIdentificationCode _resultCode;
+		private TrueMarkIdentificationCode _resultCode;
 		private string _resultIdentificationCode;
 		private bool _replacedFromPool;
 		private ProductCodeProblem _problem;
@@ -56,7 +57,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			}
 		}
 
-		public virtual TrueMarkWaterGroupCode GroupCode
+		public virtual TrueMarkGroupCode GroupCode
 		{
 			get => _groupCode;
 			set
@@ -70,7 +71,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			}
 		}
 
-		public virtual TrueMarkWaterIdentificationCode SourceCode
+		public virtual TrueMarkIdentificationCode SourceCode
 		{
 			get => _sourceCode;
 			set
@@ -92,13 +93,41 @@ namespace Vodovoz.ViewModels.TrueMark
 			set => SetField(ref _type, value);
 		}
 
+		/// <summary>
+		/// Отображаемое название товарной группы маркировки (Вода / Корма)
+		/// </summary>
+		public virtual string ProductGroupLabel
+		{
+			get
+			{
+				var identificationCode = ResultCode ?? SourceCode;
+
+				if(identificationCode != null)
+				{
+					return identificationCode.ProductGroup.GetEnumDisplayName(useShortName: true);
+				}
+
+				if(GroupCode != null)
+				{
+					return GroupCode.ProductGroup.GetEnumDisplayName(useShortName: true);
+				}
+
+				if(StagingTrueMarkCode != null && StagingTrueMarkCode.CodeType != StagingTrueMarkCodeType.Transport)
+				{
+					return StagingTrueMarkCode.ProductGroup?.GetEnumDisplayName(useShortName: true) ?? "Нет";
+				}
+
+				return string.Empty;
+			}
+		}
+
 		public virtual string SourceIdentificationCode
 		{
 			get => _sourceIdentificationCode;
 			set => SetField(ref _sourceIdentificationCode, value);
 		}
 
-		public virtual TrueMarkWaterIdentificationCode ResultCode
+		public virtual TrueMarkIdentificationCode ResultCode
 		{
 			get => _resultCode;
 			set

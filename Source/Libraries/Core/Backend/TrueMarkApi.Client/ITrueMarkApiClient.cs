@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,8 +24,6 @@ namespace TrueMarkApi.Client
 		/// <returns></returns>
 		Task<TrueMarkDocumentInfo> GetDocumentInfo(Guid documentId, string inn, CancellationToken cancellationToken);
 
-		Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn, CancellationToken cancellationToken);
-
 		/// <summary>
 		/// Проверяет статус регистрации участников в системе маркировки для указанных ИНН
 		/// </summary>
@@ -40,20 +38,23 @@ namespace TrueMarkApi.Client
 		/// </summary>
 		/// <param name="document">Документ</param>
 		/// <param name="inn">ИНН организации</param>
+		/// <param name="productGroup">Товарная группа (pg= в API ЧЗ): water / petfood</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Номер созданного документа</returns>
-		Task<string> SendIndividualAccountingWithdrawalDocument(string document, string inn, CancellationToken cancellationToken);
+		Task<string> SendIndividualAccountingWithdrawalDocument(string document, string inn, TrueMarkProductGroup productGroup, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Отправка документа отмены вывода из оборота (индивидуальный учет)
 		/// </summary>
 		/// <param name="withdrawalDocumentId">Идентификатор отменяемого документа вывода из оборота</param>
 		/// <param name="inn">ИНН организации</param>
+		/// <param name="productGroup">Товарная группа (pg= в API ЧЗ): water / petfood</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Номер созданного документа отмены</returns>
 		Task<string> SendIndividualAccountingWithdrawalCancellationDocument(
 			Guid withdrawalDocumentId,
 			string inn,
+			TrueMarkProductGroup productGroup,
 			CancellationToken cancellationToken);
 	}
 }

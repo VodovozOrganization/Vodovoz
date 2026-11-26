@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+using TrueMark.Contracts;
+using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 		AccusativePlural = "групповые коды воды честного знака",
 		Prepositional = "групповом коде воды честного знака",
 		PrepositionalPlural = "групповых кодах воды честного знака")]
-	public class TrueMarkWaterGroupCode : PropertyChangedBase, IDomainObject
+	public class TrueMarkGroupCode : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private string _rawCode;
@@ -29,6 +30,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 		private string _gtin;
 		private string _serialNumber;
 		private string _checkCode;
+		private TrueMarkProductGroup _productGroup;
 
 		/// <summary>
 		/// Идентификатор
@@ -45,7 +47,7 @@ namespace Vodovoz.Core.Domain.TrueMark
 			}
 		}
 
-		public virtual int? ParentWaterGroupCodeId { get; set; }
+		public virtual int? ParentGroupCodeId { get; set; }
 		public virtual int? ParentTransportCodeId { get; set; }
 
 		/// <summary>
@@ -98,55 +100,65 @@ namespace Vodovoz.Core.Domain.TrueMark
 			set => SetField(ref _checkCode, value);
 		}
 
-		public virtual IObservableList<TrueMarkWaterGroupCode> InnerGroupCodes { get; set; }
-			= new ObservableList<TrueMarkWaterGroupCode>();
+		/// <summary>
+		/// Товарная группа маркировки (вода / корма для животных)
+		/// </summary>
+		[Display(Name = "Товарная группа маркировки")]
+		public virtual TrueMarkProductGroup ProductGroup
+		{
+			get => _productGroup;
+			set => SetField(ref _productGroup, value);
+		}
 
-		public virtual IObservableList<TrueMarkWaterIdentificationCode> InnerWaterCodes { get; set; }
-			= new ObservableList<TrueMarkWaterIdentificationCode>();
+		public virtual IObservableList<TrueMarkGroupCode> InnerGroupCodes { get; set; }
+			= new ObservableList<TrueMarkGroupCode>();
+
+		public virtual IObservableList<TrueMarkIdentificationCode> InnerIdentificationCodes { get; set; }
+			= new ObservableList<TrueMarkIdentificationCode>();
 
 		public virtual string IdentificationCode => $"01{GTIN}21{SerialNumber}";
 
-		public virtual string CashReceiptCode => $"01{GTIN}21{SerialNumber}\u001d93{CheckCode}";
+		public virtual string CashReceiptCode => TrueMarkCodeHelper.FormatCashReceiptCode(ProductGroup, IdentificationCode, CheckCode);
 
-		public virtual void AddInnerGroupCode(TrueMarkWaterGroupCode innerGroupCode)
+		public virtual void AddInnerGroupCode(TrueMarkGroupCode innerGroupCode)
 		{
-			innerGroupCode.ParentWaterGroupCodeId = Id;
+			innerGroupCode.ParentGroupCodeId = Id;
 			InnerGroupCodes.Add(innerGroupCode);
 		}
 
-		public virtual void AddInnerWaterCode(TrueMarkWaterIdentificationCode innerWaterCode)
+		public virtual void AddInnerIdentificationCode(TrueMarkIdentificationCode innerIdentificationCode)
 		{
-			innerWaterCode.ParentWaterGroupCodeId = Id;
-			InnerWaterCodes.Add(innerWaterCode);
+			innerIdentificationCode.ParentGroupCodeId = Id;
+			InnerIdentificationCodes.Add(innerIdentificationCode);
 		}
 
-		public virtual void RemoveCode(TrueMarkWaterIdentificationCode waterCode)
+		public virtual void RemoveCode(TrueMarkIdentificationCode identificationCode)
 		{
-			waterCode.ParentWaterGroupCodeId = null;
-			InnerWaterCodes.Remove(waterCode);
+			identificationCode.ParentGroupCodeId = null;
+			InnerIdentificationCodes.Remove(identificationCode);
 		}
 
-		public virtual void RemoveCode(TrueMarkWaterGroupCode waterGroupCode)
+		public virtual void RemoveCode(TrueMarkGroupCode groupCode)
 		{
-			waterGroupCode.ParentWaterGroupCodeId = null;
-			InnerGroupCodes.Remove(waterGroupCode);
+			groupCode.ParentGroupCodeId = null;
+			InnerGroupCodes.Remove(groupCode);
 		}
 
 		public virtual void ClearAllCodes()
 		{
-			var waterCodesToRemove = InnerWaterCodes.ToArray();
+			var identificationCodesToRemove = InnerIdentificationCodes.ToArray();
 
-			foreach(var waterCode in waterCodesToRemove)
+			foreach(var identificationCode in identificationCodesToRemove)
 			{
-				RemoveCode(waterCode);
+				RemoveCode(identificationCode);
 			}
 
-			var waterGroupCodesToRemove = InnerGroupCodes.ToArray();
+			var groupCodesToRemove = InnerGroupCodes.ToArray();
 
-			foreach(var waterGroupCode in waterGroupCodesToRemove)
+			foreach(var groupCode in groupCodesToRemove)
 			{
-				waterGroupCode.ClearAllCodes();
-				RemoveCode(waterGroupCode);
+				groupCode.ClearAllCodes();
+				RemoveCode(groupCode);
 			}
 		}
 
@@ -162,9 +174,9 @@ namespace Vodovoz.Core.Domain.TrueMark
 				}
 			}
 
-			foreach(var innerWaterCode in InnerWaterCodes)
+			foreach(var innerIdentificationCode in InnerIdentificationCodes)
 			{
-				yield return innerWaterCode;
+				yield return innerIdentificationCode;
 			}
 		}
 
@@ -172,18 +184,18 @@ namespace Vodovoz.Core.Domain.TrueMark
 		{
 			foreach(var innerGroupCode in InnerGroupCodes)
 			{
-				innerGroupCode.ParentWaterGroupCodeId = Id;
+				innerGroupCode.ParentGroupCodeId = Id;
 			}
 
-			foreach(var innerWaterCode in InnerWaterCodes)
+			foreach(var innerIdentificationCode in InnerIdentificationCodes)
 			{
-				innerWaterCode.ParentWaterGroupCodeId = Id;
+				innerIdentificationCode.ParentGroupCodeId = Id;
 			}
 		}
 
 		public override bool Equals(object obj)
 		{
-			if(obj is TrueMarkWaterGroupCode code)
+			if(obj is TrueMarkGroupCode code)
 			{
 				return RawCode == code.RawCode;
 			}

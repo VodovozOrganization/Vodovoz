@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace TrueMark.Contracts
@@ -37,12 +36,8 @@ namespace TrueMark.Contracts
 		/// Группы продуктов, для которых зарегистрирован участник
 		/// </summary>
 		[JsonPropertyName("productGroups")]
-		public IEnumerable<string> ProductGroups { get; set; }
+		[JsonConverter(typeof(TrueMarkProductGroupsJsonConverter))]
+		public IEnumerable<TrueMarkProductGroup> ProductGroups { get; set; }
 
-		/// <summary>
-		/// Зарегистрирован для воды?
-		/// </summary>
-		[JsonIgnore]
-		public bool IsRegisteredForWater => ProductGroups != null && ProductGroups.Any(pg => pg == "water") && IsRegistered;
 	}
 }

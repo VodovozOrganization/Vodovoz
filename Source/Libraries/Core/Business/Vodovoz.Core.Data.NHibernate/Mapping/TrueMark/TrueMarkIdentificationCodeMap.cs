@@ -1,11 +1,12 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark
 {
-	public class TrueMarkWaterIdentificationCodeMap : ClassMap<TrueMarkWaterIdentificationCode>
+	public class TrueMarkIdentificationCodeMap : ClassMap<TrueMarkIdentificationCode>
 	{
-		public TrueMarkWaterIdentificationCodeMap()
+		public TrueMarkIdentificationCodeMap()
 		{
 			Table("true_mark_identification_code");
 
@@ -17,8 +18,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark
 			Map(x => x.ParentTransportCodeId)
 				.Column("parent_transport_code_id");
 
-			Map(x => x.ParentWaterGroupCodeId)
-				.Column("parent_water_group_code_id");
+			Map(x => x.ParentGroupCodeId)
+				.Column("parent_group_code_id");
 
 			Map(x => x.RawCode)
 				.Column("raw_code");
@@ -34,6 +35,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark
 
 			Map(x => x.CheckCode)
 				.Column("check_code");
+
+			Map(x => x.ProductGroup)
+				.Column("product_group");
 		}
 	}
 }

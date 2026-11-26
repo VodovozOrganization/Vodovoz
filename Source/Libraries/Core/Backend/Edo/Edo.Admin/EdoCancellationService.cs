@@ -24,7 +24,7 @@ namespace Edo.Admin
 		private readonly IUnitOfWork _uow;
 		private readonly IEdoCancellationValidator _edoCancellationValidator;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodeHierarchyService _trueMarkCodeService;
 		// UoW передаётся параметром: класс вызывается и с десктопа, где у диалогов свои UoW.
 		// GetPublishEndpoint(uow) пишет сообщение в таблицы outbox в транзакции этого UoW.
 		private readonly IUnitOfWorkOutbox<IBus> _outbox;
@@ -34,7 +34,7 @@ namespace Edo.Admin
 			IUnitOfWork uow,
 			IEdoCancellationValidator edoCancellationValidator,
 			EdoProblemRegistrar edoProblemRegistrar,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodeHierarchyService trueMarkCodeService,
 			IUnitOfWorkOutbox<IBus> outbox
 			)
 		{
@@ -42,7 +42,7 @@ namespace Edo.Admin
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_edoCancellationValidator = edoCancellationValidator ?? throw new ArgumentNullException(nameof(edoCancellationValidator));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodeService = trueMarkCodeService ?? throw new ArgumentNullException(nameof(trueMarkCodeService));
 			_outbox = outbox ?? throw new ArgumentNullException(nameof(outbox));
 		}
 
@@ -266,7 +266,7 @@ namespace Edo.Admin
 		{
 			foreach(var item in orderTask.Items)
 			{
-				await _trueMarkWaterCodeService.DeleteRelatedGroupAndTransportCodesAsync(
+				await _trueMarkCodeService.DeleteRelatedGroupAndTransportCodesAsync(
 					unitOfWork,
 					item.ProductCode.SourceCode,
 					cancellationToken);

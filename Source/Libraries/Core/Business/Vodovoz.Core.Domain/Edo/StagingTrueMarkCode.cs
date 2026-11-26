@@ -1,10 +1,12 @@
-﻿using QS.DomainModel.Entity;
+using TrueMark.Contracts;
+using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Core.Domain.Edo
 {
@@ -29,6 +31,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private string _gtin;
 		private string _serialNumber;
 		private string _checkCode;
+		private TrueMarkProductGroup? _productGroup;
 		private StagingTrueMarkCodeType _codeType;
 		private StagingTrueMarkCodeRelatedDocumentType _relatedDocumentType;
 		private int _relatedDocumentId;
@@ -91,6 +94,17 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _checkCode;
 			set => SetField(ref _checkCode, value);
+		}
+
+		/// <summary>
+		/// Товарная группа маркировки (вода / корма для животных).
+		/// У транспортного кода (КИТУ) группы нет — он контейнер и может содержать коды любых групп.
+		/// </summary>
+		[Display(Name = "Товарная группа маркировки")]
+		public virtual TrueMarkProductGroup? ProductGroup
+		{
+			get => _productGroup;
+			set => SetField(ref _productGroup, value);
 		}
 
 		/// <summary>

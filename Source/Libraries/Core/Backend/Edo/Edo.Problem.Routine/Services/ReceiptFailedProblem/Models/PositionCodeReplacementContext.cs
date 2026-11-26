@@ -21,6 +21,6 @@ namespace Edo.Problem.Routine.Services.ReceiptFailedProblem
 		/// <summary>
 		/// Новый код маркировки, подобранный из пула
 		/// </summary>
-		public TrueMarkWaterIdentificationCode NewCode { get; set; }
+		public TrueMarkIdentificationCode NewCode { get; set; }
 	}
 }

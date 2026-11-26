@@ -1,11 +1,11 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.TrueMark;
 
 namespace Edo.Common.Services
 {
-	public interface ITrueMarkWaterCodeService
+	public interface ITrueMarkCodeHierarchyService
 	{
 		/// <summary>
 		/// Удаляет связанные групповые и транспортные коды, сохраняя экземплярные коды без связи с упаковкой

@@ -31,7 +31,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 		private readonly ILogger<ScannedCodesDelayedProcessingService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodeService _trueMarkCodeService;
 		private readonly IEdoDocflowRepository _edoDocflowRepository;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
@@ -44,7 +44,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			ILogger<ScannedCodesDelayedProcessingService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodeService trueMarkCodeService,
 			IEdoDocflowRepository edoDocflowRepository,
 			IOrderRepository orderRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
@@ -59,8 +59,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				unitOfWorkFactory ?? throw new System.ArgumentNullException(nameof(unitOfWorkFactory));
 			_routeListItemTrueMarkProductCodesProcessingService =
 				routeListItemTrueMarkProductCodesProcessingService ?? throw new System.ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
-			_trueMarkWaterCodeService =
-				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodeService =
+				trueMarkCodeService ?? throw new ArgumentNullException(nameof(trueMarkCodeService));
 			_edoDocflowRepository =
 				edoDocflowRepository ?? throw new ArgumentNullException(nameof(edoDocflowRepository));
 			_orderRepository =
@@ -137,7 +137,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				// экземплярные коды, входящие в его состав пересылаются нам, причем коды поступают обрезанные (без чек-кода) 
 				// и со спецсимволами \u001d в начале и конце
 				// Это поведение неправильно, но пока решено оставить так
-				// Но чтобы коды обрабатывались в дальнейшем корректно (в TrueMarkWaterIdentificationCodeFactory в начало и конец добавляются спецсимволы),
+				// Но чтобы коды обрабатывались в дальнейшем корректно (в TrueMarkIdentificationCodeFactory в начало и конец добавляются спецсимволы),
 				// нужно удалить спецсимволы, которые уже есть в начале и конце обрезанного кода
 				scannedCodesData
 					.ForEach(x => x.DriversScannedCode.RawCode = RemoveSpecialSymbolsIfNeed(x.DriversScannedCode.RawCode));
@@ -306,14 +306,14 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var trueMarkAnyCode = codeData.Value;
 
 				var getSavedTrueMarkCodeResult =
-					_trueMarkWaterCodeService.TryGetSavedTrueMarkAnyCode(uow, trueMarkAnyCode);
+					_trueMarkCodeService.TryGetSavedTrueMarkAnyCode(uow, trueMarkAnyCode);
 
 				if(getSavedTrueMarkCodeResult.IsFailure)
 				{
 					continue;
 				}
 
-				if(trueMarkAnyCode.IsTrueMarkTransportCode || trueMarkAnyCode.IsTrueMarkWaterGroupCode)
+				if(trueMarkAnyCode.IsTrueMarkTransportCode || trueMarkAnyCode.IsTrueMarkGroupCode)
 				{
 					codesToRemove.Add(driversScannedCode);
 					continue;
@@ -352,7 +352,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var trueMarkAnyCode = codeData.Value;
 
 				var getSavedTrueMarkCodeResult =
-					_trueMarkWaterCodeService.TryGetSavedTrueMarkAnyCode(unitOfWork, trueMarkAnyCode);
+					_trueMarkCodeService.TryGetSavedTrueMarkAnyCode(unitOfWork, trueMarkAnyCode);
 
 				if(getSavedTrueMarkCodeResult.IsFailure)
 				{
@@ -366,21 +366,21 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					continue;
 				}
 
-				var savedCheckCode = savedCode.Match(transportCode => null, groupCode => groupCode.CheckCode, waterCode => waterCode.CheckCode);
+				var savedCheckCode = savedCode.Match(transportCode => null, groupCode => groupCode.CheckCode, identificationCode => identificationCode.CheckCode);
 
 				if(!string.IsNullOrWhiteSpace(savedCheckCode))
 				{
 					continue;
 				}
 
-				var newCheckCode = trueMarkAnyCode.Match(transportCode => null, groupCode => groupCode.CheckCode, waterCode => waterCode.CheckCode);
+				var newCheckCode = trueMarkAnyCode.Match(transportCode => null, groupCode => groupCode.CheckCode, identificationCode => identificationCode.CheckCode);
 
 				if(string.IsNullOrWhiteSpace(newCheckCode))
 				{
 					continue;
 				}
 
-				var newRawCode = trueMarkAnyCode.Match(transportCode => null, groupCode => groupCode.RawCode, waterCode => waterCode.RawCode);
+				var newRawCode = trueMarkAnyCode.Match(transportCode => null, groupCode => groupCode.RawCode, identificationCode => identificationCode.RawCode);
 
 				await savedCode.Match(
 					transportCode => Task.CompletedTask,
@@ -390,11 +390,11 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 						groupCode.RawCode = newRawCode;
 						return unitOfWork.SaveAsync(groupCode, cancellationToken: cancellationToken);
 					},
-					waterCode =>
+					identificationCode =>
 					{
-						waterCode.CheckCode = newCheckCode;
-						waterCode.RawCode = newRawCode;
-						return unitOfWork.SaveAsync(waterCode, cancellationToken: cancellationToken);
+						identificationCode.CheckCode = newCheckCode;
+						identificationCode.RawCode = newRawCode;
+						return unitOfWork.SaveAsync(identificationCode, cancellationToken: cancellationToken);
 					}
 				);
 			}
@@ -412,7 +412,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				var allTrueMarkCodes = codeDataToCheck.Value.Match(
 					transportCode => transportCode.GetAllCodes().ToArray(),
 					groupCode => groupCode.GetAllCodes().ToArray(),
-					waterCode => new TrueMarkAnyCode[] { waterCode });
+					identificationCode => new TrueMarkAnyCode[] { identificationCode });
 
 				driverScannedCodesTrueMarkCodes.Add(codeDataToCheck.Key, allTrueMarkCodes);
 			}
@@ -456,12 +456,12 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			return c => code.Match(
 				transportCode => c.IsTrueMarkTransportCode
 					&& c.TrueMarkTransportCode.RawCode == transportCode.RawCode,
-				groupCode => c.IsTrueMarkWaterGroupCode
-					&& c.TrueMarkWaterGroupCode.GTIN == groupCode.GTIN
-					&& c.TrueMarkWaterGroupCode.SerialNumber == groupCode.SerialNumber,
-				waterCode => c.IsTrueMarkWaterIdentificationCode
-					&& c.TrueMarkWaterIdentificationCode.Gtin == waterCode.Gtin
-					&& c.TrueMarkWaterIdentificationCode.SerialNumber == waterCode.SerialNumber);
+				groupCode => c.IsTrueMarkGroupCode
+					&& c.TrueMarkGroupCode.GTIN == groupCode.GTIN
+					&& c.TrueMarkGroupCode.SerialNumber == groupCode.SerialNumber,
+				identificationCode => c.IsTrueMarkIdentificationCode
+					&& c.TrueMarkIdentificationCode.Gtin == identificationCode.Gtin
+					&& c.TrueMarkIdentificationCode.SerialNumber == identificationCode.SerialNumber);
 		}
 
 
@@ -490,9 +490,9 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 				try
 				{
-					if(trueMarkAnyCode.IsTrueMarkWaterIdentificationCode)
+					if(trueMarkAnyCode.IsTrueMarkIdentificationCode)
 					{
-						var identificationCode = trueMarkAnyCode.TrueMarkWaterIdentificationCode;
+						var identificationCode = trueMarkAnyCode.TrueMarkIdentificationCode;
 						isCodeAlreadyExists = identificationCode.Id > 0;
 
 						if(isCodeAlreadyExists)
@@ -554,7 +554,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			CancellationToken cancellationToken)
 		{
 			var rawScannedCodes = driversScannedCodes.Select(x => x.RawCode).Distinct().ToList();
-			var trueMarkAnyCodesDataResult = await _trueMarkWaterCodeService.GetTrueMarkAnyCodesByScannedCodes(rawScannedCodes, cancellationToken);
+			var trueMarkAnyCodesDataResult = await _trueMarkCodeService.GetTrueMarkAnyCodesByScannedCodes(rawScannedCodes, cancellationToken);
 
 			if(trueMarkAnyCodesDataResult.IsFailure)
 			{

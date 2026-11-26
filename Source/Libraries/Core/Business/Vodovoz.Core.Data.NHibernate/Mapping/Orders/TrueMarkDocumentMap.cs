@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
@@ -15,6 +15,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			Map(x => x.IsSuccess).Column("is_success");
 			Map(x => x.ErrorMessage).Column("error_message");
 			Map(x => x.Type).Column("type");
+			Map(x => x.ProductGroup).Column("product_group");
 
 			References(x => x.Order).Column("order_id");
 			References(x => x.Organization).Column("organization_id");

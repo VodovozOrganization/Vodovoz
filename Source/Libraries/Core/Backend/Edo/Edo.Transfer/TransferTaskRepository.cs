@@ -85,12 +85,12 @@ namespace Edo.Transfer
 			return iterationCompleted == 1;
 		}
 
-		public async Task<IEnumerable<TrueMarkWaterIdentificationCode>> GetAllCodesForTransferTaskAsync(IUnitOfWork uow, TransferEdoTask transferTask, CancellationToken cancellationToken)
+		public async Task<IEnumerable<TrueMarkIdentificationCode>> GetAllCodesForTransferTaskAsync(IUnitOfWork uow, TransferEdoTask transferTask, CancellationToken cancellationToken)
 		{
 			TransferEdoRequest transferEdoRequestAlias = null;
 			EdoTaskItem edoTaskItemAlias = null;
 			TrueMarkProductCode trueMarkProductCodeAlias = null;
-			TrueMarkWaterIdentificationCode codeAlias = null;
+			TrueMarkIdentificationCode codeAlias = null;
 
 			var codes = await uow.Session.QueryOver(() => transferEdoRequestAlias)
 				.JoinAlias(() => transferEdoRequestAlias.TransferedItems,
@@ -104,7 +104,7 @@ namespace Edo.Transfer
 				
 				.Select(p => codeAlias.AsEntity())
 				.Where(() => transferEdoRequestAlias.TransferEdoTask.Id == transferTask.Id)
-				.ListAsync<TrueMarkWaterIdentificationCode>();
+				.ListAsync<TrueMarkIdentificationCode>();
 
 			return codes;
 		}

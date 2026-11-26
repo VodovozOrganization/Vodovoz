@@ -60,9 +60,9 @@ namespace Receipt.Dispatcher.Tests
 			var code = CreateCode(1, gtin.GtinNumber);
 
 			_codesPool.TakeCode(gtin.GtinNumber, cancellationToken).Returns(Task.FromResult(code.Id));
-			_session.GetAsync<TrueMarkWaterIdentificationCode>(code.Id, cancellationToken).Returns(Task.FromResult(code));
+			_session.GetAsync<TrueMarkIdentificationCode>(code.Id, cancellationToken).Returns(Task.FromResult(code));
 			_trueMarkCodesValidator
-				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken)
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkIdentificationCode>>(), _organizationInn, cancellationToken)
 				.Returns(Task.FromResult(CreateValidationResult(code, isValid: true)));
 
 			// Act
@@ -72,7 +72,7 @@ namespace Receipt.Dispatcher.Tests
 			Assert.Same(code, result);
 			await _codesPool.Received(1).TakeCode(gtin.GtinNumber, cancellationToken);
 			await _trueMarkCodesValidator.Received(1)
-				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken);
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkIdentificationCode>>(), _organizationInn, cancellationToken);
 		}
 
 		[Fact]
@@ -86,12 +86,12 @@ namespace Receipt.Dispatcher.Tests
 
 			_codesPool.TakeCode(gtin.GtinNumber, cancellationToken)
 				.Returns(Task.FromResult(invalidCode.Id), Task.FromResult(validCode.Id));
-			_session.GetAsync<TrueMarkWaterIdentificationCode>(invalidCode.Id, cancellationToken)
+			_session.GetAsync<TrueMarkIdentificationCode>(invalidCode.Id, cancellationToken)
 				.Returns(Task.FromResult(invalidCode));
-			_session.GetAsync<TrueMarkWaterIdentificationCode>(validCode.Id, cancellationToken)
+			_session.GetAsync<TrueMarkIdentificationCode>(validCode.Id, cancellationToken)
 				.Returns(Task.FromResult(validCode));
 			_trueMarkCodesValidator
-				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken)
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkIdentificationCode>>(), _organizationInn, cancellationToken)
 				.Returns(
 					Task.FromResult(CreateValidationResult(invalidCode, isValid: false)),
 					Task.FromResult(CreateValidationResult(validCode, isValid: true)));
@@ -103,7 +103,7 @@ namespace Receipt.Dispatcher.Tests
 			Assert.Same(validCode, result);
 			await _codesPool.Received(2).TakeCode(gtin.GtinNumber, cancellationToken);
 			await _trueMarkCodesValidator.Received(2)
-				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken);
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkIdentificationCode>>(), _organizationInn, cancellationToken);
 		}
 
 		[Fact]
@@ -119,10 +119,10 @@ namespace Receipt.Dispatcher.Tests
 				.Returns(Task.FromException<int>(new EdoCodePoolMissingCodeException("missing")));
 			_codesPool.TakeCode(secondGtin.GtinNumber, cancellationToken)
 				.Returns(Task.FromResult(code.Id));
-			_session.GetAsync<TrueMarkWaterIdentificationCode>(code.Id, cancellationToken)
+			_session.GetAsync<TrueMarkIdentificationCode>(code.Id, cancellationToken)
 				.Returns(Task.FromResult(code));
 			_trueMarkCodesValidator
-				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken)
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkIdentificationCode>>(), _organizationInn, cancellationToken)
 				.Returns(Task.FromResult(CreateValidationResult(code, isValid: true)));
 
 			// Act
@@ -146,15 +146,15 @@ namespace Receipt.Dispatcher.Tests
 			var gtin = CreateGtin("4600000000001");
 
 			_codesPool.TakeCode(gtin.GtinNumber, cancellationToken).Returns(Task.FromResult(1));
-			_session.GetAsync<TrueMarkWaterIdentificationCode>(1, cancellationToken)
-				.Returns(Task.FromResult<TrueMarkWaterIdentificationCode>(null));
+			_session.GetAsync<TrueMarkIdentificationCode>(1, cancellationToken)
+				.Returns(Task.FromResult<TrueMarkIdentificationCode>(null));
 
 			// Act & Assert
 			await Assert.ThrowsAsync<System.InvalidOperationException>(() =>
 				_provider.TakeValidCodeAsync(_codesPool, gtin, _organizationInn, cancellationToken));
 
 			await _trueMarkCodesValidator.DidNotReceive()
-				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken);
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkIdentificationCode>>(), _organizationInn, cancellationToken);
 		}
 
 		[Fact]
@@ -169,12 +169,12 @@ namespace Receipt.Dispatcher.Tests
 			_edoSettings.CodePoolTakeValidCodeAttempts.Returns(2);
 			_codesPool.TakeCode(gtin.GtinNumber, cancellationToken)
 				.Returns(Task.FromResult(firstInvalidCode.Id), Task.FromResult(secondInvalidCode.Id));
-			_session.GetAsync<TrueMarkWaterIdentificationCode>(firstInvalidCode.Id, cancellationToken)
+			_session.GetAsync<TrueMarkIdentificationCode>(firstInvalidCode.Id, cancellationToken)
 				.Returns(Task.FromResult(firstInvalidCode));
-			_session.GetAsync<TrueMarkWaterIdentificationCode>(secondInvalidCode.Id, cancellationToken)
+			_session.GetAsync<TrueMarkIdentificationCode>(secondInvalidCode.Id, cancellationToken)
 				.Returns(Task.FromResult(secondInvalidCode));
 			_trueMarkCodesValidator
-				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken)
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkIdentificationCode>>(), _organizationInn, cancellationToken)
 				.Returns(
 					Task.FromResult(CreateValidationResult(firstInvalidCode, isValid: false)),
 					Task.FromResult(CreateValidationResult(secondInvalidCode, isValid: false)));
@@ -185,7 +185,7 @@ namespace Receipt.Dispatcher.Tests
 
 			await _codesPool.Received(2).TakeCode(gtin.GtinNumber, cancellationToken);
 			await _trueMarkCodesValidator.Received(2)
-				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken);
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkIdentificationCode>>(), _organizationInn, cancellationToken);
 		}
 
 		[Fact]
@@ -203,12 +203,12 @@ namespace Receipt.Dispatcher.Tests
 				.Returns(Task.FromResult(invalidCode.Id));
 			_codesPool.TakeCode(secondGtin.GtinNumber, cancellationToken)
 				.Returns(Task.FromResult(validCode.Id));
-			_session.GetAsync<TrueMarkWaterIdentificationCode>(invalidCode.Id, cancellationToken)
+			_session.GetAsync<TrueMarkIdentificationCode>(invalidCode.Id, cancellationToken)
 				.Returns(Task.FromResult(invalidCode));
-			_session.GetAsync<TrueMarkWaterIdentificationCode>(validCode.Id, cancellationToken)
+			_session.GetAsync<TrueMarkIdentificationCode>(validCode.Id, cancellationToken)
 				.Returns(Task.FromResult(validCode));
 			_trueMarkCodesValidator
-				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken)
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkIdentificationCode>>(), _organizationInn, cancellationToken)
 				.Returns(
 					Task.FromResult(CreateValidationResult(invalidCode, isValid: false)),
 					Task.FromResult(CreateValidationResult(validCode, isValid: true)));
@@ -225,7 +225,7 @@ namespace Receipt.Dispatcher.Tests
 			await _codesPool.Received(1).TakeCode(firstGtin.GtinNumber, cancellationToken);
 			await _codesPool.Received(1).TakeCode(secondGtin.GtinNumber, cancellationToken);
 			await _trueMarkCodesValidator.Received(2)
-				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken);
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkIdentificationCode>>(), _organizationInn, cancellationToken);
 		}
 
 		private static GtinEntity CreateGtin(string gtinNumber)
@@ -233,16 +233,16 @@ namespace Receipt.Dispatcher.Tests
 			return new GtinEntity { GtinNumber = gtinNumber };
 		}
 
-		private static TrueMarkWaterIdentificationCode CreateCode(int id, string gtin)
+		private static TrueMarkIdentificationCode CreateCode(int id, string gtin)
 		{
-			return new TrueMarkWaterIdentificationCode
+			return new TrueMarkIdentificationCode
 			{
 				Id = id,
 				Gtin = gtin
 			};
 		}
 
-		private static TrueMarkTaskValidationResult CreateValidationResult(TrueMarkWaterIdentificationCode code, bool isValid)
+		private static TrueMarkTaskValidationResult CreateValidationResult(TrueMarkIdentificationCode code, bool isValid)
 		{
 			return new TrueMarkTaskValidationResult(new[]
 			{

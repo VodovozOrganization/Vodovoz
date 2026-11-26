@@ -45,7 +45,7 @@ namespace VodovozBusiness.Services.TrueMark
 						continue;
 					}
 
-					var foundIds = await uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+					var foundIds = await uow.Session.QueryOver<TrueMarkIdentificationCode>()
 						.Where(x => x.Gtin == identificationCode.Gtin)
 						.Where(x => x.SerialNumber == identificationCode.SerialNumber)
 						.Where(x => !x.IsInvalid)
@@ -90,11 +90,11 @@ namespace VodovozBusiness.Services.TrueMark
 			IEnumerable<TrueMarkAnyCode> allCodes = trueMarkAnyCode.Match(
 				transportCode => transportCode.GetAllCodes(),
 				groupCode => groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode });
+				identificationCode => new TrueMarkAnyCode[] { identificationCode });
 
 			var identificationCodeIds = allCodes
-				.Where(code => code.IsTrueMarkWaterIdentificationCode)
-				.Select(code => code.TrueMarkWaterIdentificationCode.Id)
+				.Where(code => code.IsTrueMarkIdentificationCode)
+				.Select(code => code.TrueMarkIdentificationCode.Id)
 				.Where(id => id > 0)
 				.Distinct()
 				.ToList();

@@ -111,7 +111,7 @@ namespace Edo.Documents
 							continue;
 						}
 
-						var isGroupCode = codeResult.EdoTaskItem.ProductCode.ResultCode?.ParentWaterGroupCodeId != null;
+						var isGroupCode = codeResult.EdoTaskItem.ProductCode.ResultCode?.ParentGroupCodeId != null;
 
 						if(isGroupCode)
 						{
@@ -231,7 +231,7 @@ namespace Edo.Documents
 			await _uow.CommitAsync(cancellationToken);
 		}
 
-		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(
+		private async Task<TrueMarkIdentificationCode> LoadCodeFromPool(
 			GtinEntity gtin,
 			string organizationInn,
 			CancellationToken cancellationToken)

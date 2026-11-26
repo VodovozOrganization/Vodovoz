@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
@@ -6,6 +6,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
+using TrueMark.Contracts;
 using WarehouseApi.Contracts.V1.Dto;
 
 namespace WarehouseApi.Library.Converters
@@ -160,7 +161,8 @@ namespace WarehouseApi.Library.Converters
 			{
 				SequenceNumber = sequenceNumber,
 				Code = documentTrueMarkCode.SourceCode.RawCode,
-				Level = WarehouseApiTruemarkCodeLevel.unit
+				Level = WarehouseApiTruemarkCodeLevel.unit,
+				ProductGroup = documentTrueMarkCode.SourceCode.ProductGroup
 			};
 		}
 
@@ -199,7 +201,8 @@ namespace WarehouseApi.Library.Converters
 				{
 					Code = stagingCode.RawCode,
 					Level = level,
-					Parent = parentRawCode
+					Parent = parentRawCode,
+					ProductGroup = stagingCode.ProductGroup
 				};
 			};
 		}

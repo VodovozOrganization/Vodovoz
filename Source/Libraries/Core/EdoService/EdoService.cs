@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using Edo.Admin;
 using Edo.Contracts.Messages.Events;
 using Edo.Transport;
@@ -179,24 +179,34 @@ namespace EdoService.Library
 					return Result.Failure<string>(orderValidationResult.Errors);
 				}
 
-				var existingCancellationRequest = uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
-					.FirstOrDefault(x => x.OriginalEdoTask.Id == taskId);
+				var existingCancellationRequests = uow.GetAll<EdoResendAfterTrueMarkCancellationRequest>()
+					.Where(x => x.OriginalEdoTask.Id == taskId)
+					.ToList();
 
-				if(existingCancellationRequest != null)
+				if(existingCancellationRequests.Any())
 				{
-					if(existingCancellationRequest.Status != EdoResendAfterTrueMarkCancellationStatus.CancellationFailed)
+					var failedRequests = existingCancellationRequests
+						.Where(x => x.Status == EdoResendAfterTrueMarkCancellationStatus.CancellationFailed)
+						.ToList();
+
+					if(failedRequests.Any())
 					{
-						return Result.Success(
-							existingCancellationRequest.Status == EdoResendAfterTrueMarkCancellationStatus.Completed
-								? "Переотправка документа уже запущена"
-								: "Документ уже находится в очереди на отмену вывода кодов из оборота и переотправку");
+						foreach(var failedRequest in failedRequests)
+						{
+							failedRequest.RetryCancellation();
+							uow.Save(failedRequest);
+						}
+						uow.Commit();
+						return Result.Success("Повторная отмена вывода кодов из оборота поставлена в очередь");
 					}
 
-					existingCancellationRequest.RetryCancellation();
-					uow.Save(existingCancellationRequest);
-					uow.Commit();
+					var allCompleted = existingCancellationRequests
+						.All(x => x.Status == EdoResendAfterTrueMarkCancellationStatus.Completed);
 
-					return Result.Success("Повторная отмена вывода кодов из оборота поставлена в очередь");
+					return Result.Success(
+						allCompleted
+							? "Переотправка документа уже запущена"
+							: "Документ уже находится в очереди на отмену вывода кодов из оборота и переотправку");
 				}
 
 				var orderDocument = _edoRepository.GetOrderEdoDocumentByTaskId(uow, taskId);
@@ -213,7 +223,11 @@ namespace EdoService.Library
 					return Result.Failure<string>(EdoErrors.SuccessfulWithdrawalForResendNotFound);
 				}
 
-				if(withdrawalDocuments.Length > 1)
+				var hasDuplicateProductGroups = withdrawalDocuments
+					.GroupBy(x => x.ProductGroup)
+					.Any(g => g.Count() > 1);
+
+				if(hasDuplicateProductGroups)
 				{
 					return Result.Failure<string>(EdoErrors.MultipleSuccessfulWithdrawalsForResendFound);
 				}
@@ -237,23 +251,26 @@ namespace EdoService.Library
 
 				var productCodes = TrueMarkProductCodeFactory.CreateCodesFromTask(edoTask);
 				var resendEdoRequest = _manualEdoRequestFactory.Create(uow, order, productCodes);
-				var withdrawalDocument = withdrawalDocuments.Single();
 
 				CancelEdoTaskWithReason(uow, edoTask);
 				uow.Save(resendEdoRequest);
 
-				var cancellationRequest = new EdoResendAfterTrueMarkCancellationRequest
+				foreach(var withdrawalDocument in withdrawalDocuments.OrderBy(x => x.ProductGroup))
 				{
-					Order = order,
-					OriginalEdoTask = edoTask,
-					ResendEdoRequest = resendEdoRequest,
-					WithdrawalDocument = withdrawalDocument,
-					Status = EdoResendAfterTrueMarkCancellationStatus.WaitingForCancellation,
-					CreationTime = DateTime.Now,
-					LastUpdateTime = DateTime.Now
-				};
+					var cancellationRequest = new EdoResendAfterTrueMarkCancellationRequest
+					{
+						Order = order,
+						OriginalEdoTask = edoTask,
+						ResendEdoRequest = resendEdoRequest,
+						WithdrawalDocument = withdrawalDocument,
+						Status = EdoResendAfterTrueMarkCancellationStatus.WaitingForCancellation,
+						CreationTime = DateTime.Now,
+						LastUpdateTime = DateTime.Now
+					};
 
-				uow.Save(cancellationRequest);
+					uow.Save(cancellationRequest);
+				}
+
 				uow.Commit();
 
 				return Result.Success("Документ поставлен в очередь на переотправку после отмены вывода кодов из оборота в ЧЗ");

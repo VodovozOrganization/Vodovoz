@@ -18,6 +18,7 @@ using TrueMarkWorker.Factories;
 using TrueMarkWorker.Options;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -547,10 +548,9 @@ namespace TrueMarkWorker
 					{
 						_logger.LogInformation("Найдено изменение статуса регистрации клиента {CounterpartyId} в Честном Знаке, сохраняем изменение в базу.", counterparty.Id);
 
-						counterparty.RegistrationInChestnyZnakStatus =
-							registration.IsRegistered && registration.IsRegisteredForWater
-							? RegistrationInChestnyZnakStatus.Registered
-							: RegistrationInChestnyZnakStatus.RegisteredWithoutWater;
+						counterparty.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
+						counterparty.UpdateRegisteredTrueMarkProductGroups(
+							registration.ProductGroups?.Distinct().ToList() ?? new List<TrueMarkProductGroup>());
 
 						uow.Save(counterparty);
 

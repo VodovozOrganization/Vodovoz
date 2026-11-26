@@ -643,7 +643,7 @@ namespace Edo.Receipt.Dispatcher
 			return (netSum * 100m) % quantity == 0;
 		}
 
-		private async Task<IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
+		private async Task<IDictionary<TrueMarkGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
 			List<EdoTaskItem> unprocessedTaskItems,
 			CancellationToken cancellationToken
 			)
@@ -652,7 +652,7 @@ namespace Edo.Receipt.Dispatcher
 			var codesThatContainedInGroup = unprocessedTaskItems
 				.Where(x => x.ProductCode.SourceCode != null)
 				.Where(x => x.ProductCode.SourceCode.IsInvalid == false)
-				.Where(x => x.ProductCode.SourceCode.ParentWaterGroupCodeId != null)
+				.Where(x => x.ProductCode.SourceCode.ParentGroupCodeId != null)
 				.ToList()
 				;
 
@@ -660,13 +660,13 @@ namespace Edo.Receipt.Dispatcher
 			unprocessedTaskItems.RemoveAll(x => codesThatContainedInGroup.Contains(x));
 
 			var groupped = codesThatContainedInGroup
-				.GroupBy(x => x.ProductCode.SourceCode.ParentWaterGroupCodeId);
+				.GroupBy(x => x.ProductCode.SourceCode.ParentGroupCodeId);
 
 			var parentCodesIds = groupped
 				.Select(x => x.Key)
 				.Distinct();
 
-			var parentCodes = new List<TrueMarkWaterGroupCode>();
+			var parentCodes = new List<TrueMarkGroupCode>();
 			foreach(var parentCodesId in parentCodesIds)
 			{
 				var parentCode = await _trueMarkCodeRepository.GetGroupCode(parentCodesId.Value, cancellationToken);
@@ -679,13 +679,13 @@ namespace Edo.Receipt.Dispatcher
 				parentCodes.Add(parentCode);
 			}
 
-			var result = new Dictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>();
+			var result = new Dictionary<TrueMarkGroupCode, IEnumerable<EdoTaskItem>>();
 
 			foreach(var parentCode in parentCodes)
 			{
 				var groupCodeIds = new HashSet<int>(parentCode.GetAllCodes()
-					.Where(x => x.IsTrueMarkWaterIdentificationCode)
-					.Select(x => x.TrueMarkWaterIdentificationCode.Id));
+					.Where(x => x.IsTrueMarkIdentificationCode)
+					.Select(x => x.TrueMarkIdentificationCode.Id));
 				var groupItems = codesThatContainedInGroup
 					.Where(x => groupCodeIds.Contains(x.ProductCode.SourceCode.Id)).ToList();
 				if(!groupCodeIds.SetEquals(groupItems.Select(x => x.ProductCode.SourceCode.Id)))

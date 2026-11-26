@@ -1,3 +1,4 @@
+using TrueMark.Contracts;
 using System;
 using QS.DomainModel.Entity;
 using System.Collections.Generic;
@@ -21,16 +22,17 @@ namespace Vodovoz.Core.Domain.Edo
 		AccusativePlural = "коды честного знака",
 		Prepositional = "коде честного знака",
 		PrepositionalPlural = "кодах честного знака")]
-	public class TrueMarkWaterIdentificationCode : PropertyChangedBase, IDomainObject, ITrueMarkWaterCode
+	public class TrueMarkIdentificationCode : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
-		private int? _parentWaterGroupCodeId;
+		private int? _parentGroupCodeId;
 		private int? _parentTransportCodeId;
 		private string _rawCode;
 		private bool _isInvalid;
 		private string _gtin;
 		private string _serialNumber;
 		private string _checkCode;
+		private TrueMarkProductGroup _productGroup;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -40,10 +42,10 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Групповой код")]
-		public virtual int? ParentWaterGroupCodeId
+		public virtual int? ParentGroupCodeId
 		{
-			get => _parentWaterGroupCodeId;
-			set => SetField(ref _parentWaterGroupCodeId, value);
+			get => _parentGroupCodeId;
+			set => SetField(ref _parentGroupCodeId, value);
 		}
 
 		[Display(Name = "Транспортный код")]
@@ -88,9 +90,17 @@ namespace Vodovoz.Core.Domain.Edo
 			set => SetField(ref _checkCode, value);
 		}
 
-		public virtual string IdentificationCode => $"01{Gtin}21{SerialNumber}";
+		/// <summary>
+		/// Товарная группа маркировки (вода / корма для животных)
+		/// </summary>
+		[Display(Name = "Товарная группа маркировки")]
+		public virtual TrueMarkProductGroup ProductGroup
+		{
+			get => _productGroup;
+			set => SetField(ref _productGroup, value);
+		}
 
-		public virtual string FullCode => $"\u001d01{Gtin}21{SerialNumber}\u001d93{CheckCode}";
+		public virtual string IdentificationCode => $"01{Gtin}21{SerialNumber}";
 
 		/// <summary>
 		/// Получение КИ(кода идентификации) для документа по ЭДО
@@ -103,12 +113,12 @@ namespace Vodovoz.Core.Domain.Edo
 		/// <returns>КИ</returns>
 		public virtual string ConvertToGroupPackagingIdentificationCode() => GetIdentificationCodeForEdoDocument();
 
+		public virtual string CashReceiptCode => TrueMarkCodeHelper.FormatCashReceiptCode(ProductGroup, IdentificationCode, CheckCode);
 
-		public virtual string CashReceiptCode => $"01{Gtin}21{SerialNumber}\u001d93{CheckCode}";
 
 		public override bool Equals(object obj)
 		{
-			if(obj is TrueMarkWaterIdentificationCode code)
+			if(obj is TrueMarkIdentificationCode code)
 			{
 				return RawCode == code.RawCode;
 			}

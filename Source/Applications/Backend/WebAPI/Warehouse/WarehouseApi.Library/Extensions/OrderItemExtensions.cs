@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +10,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.V1.Dto;
+using WarehouseApi.Library.Converters;
 
 namespace WarehouseApi.Library.Extensions
 {
@@ -48,7 +49,8 @@ namespace WarehouseApi.Library.Extensions
 					{
 						SequenceNumber = index,
 						Code = code.ResultCode?.RawCode ?? code.SourceCode.RawCode,
-						Level = WarehouseApiTruemarkCodeLevel.unit
+						Level = WarehouseApiTruemarkCodeLevel.unit,
+						ProductGroup = (code.ResultCode?.ProductGroup ?? code.SourceCode.ProductGroup)
 					})
 					.ToList();
 
@@ -85,12 +87,12 @@ namespace WarehouseApi.Library.Extensions
 		/// </summary>
 		/// <param name="orderItemDtos"></param>
 		/// <param name="unitOfWork"></param>
-		/// <param name="trueMarkWaterCodeService"></param>
+		/// <param name="trueMarkCodeService"></param>
 		/// <param name="trueMarkCodes"></param>
 		public static void PopulateRelatedCodes(
 			this IEnumerable<OrderItemDto> orderItemDtos,
 			IUnitOfWork unitOfWork,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodeService trueMarkCodeService,
 			IEnumerable<TrueMarkProductCode> trueMarkCodes)
 		{
 			foreach(var trueMarkProductCode in trueMarkCodes)
@@ -102,7 +104,7 @@ namespace WarehouseApi.Library.Extensions
 					continue;
 				}
 
-				if(resultCode.ParentWaterGroupCodeId == null
+				if(resultCode.ParentGroupCodeId == null
 					&& resultCode.ParentTransportCodeId == null)
 				{
 					continue;
@@ -115,27 +117,27 @@ namespace WarehouseApi.Library.Extensions
 					continue;
 				}
 
-				var parentCode = trueMarkWaterCodeService.GetParentGroupCode(unitOfWork, resultCode);
+				var parentCode = trueMarkCodeService.GetParentGroupCode(unitOfWork, resultCode);
 
 				var trueMarkCodeDtos = new List<TrueMarkCodeDto>();
 
 				var allCodes = parentCode.Match(
 					transportCode => transportCode.GetAllCodes(),
 					groupCode => groupCode.GetAllCodes(),
-					waterCode => new TrueMarkAnyCode[] { waterCode })
+					identificationCode => new TrueMarkAnyCode[] { identificationCode })
 					.ToArray();
 
-				var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode
+				var codesInCurrentOrder = allCodes.Where(x => x.IsTrueMarkIdentificationCode
 					&& trueMarkCodes.Any(y =>
-						(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkWaterIdentificationCode.Id)
-						|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkWaterIdentificationCode.Id)))
-					.Select(x => x.TrueMarkWaterIdentificationCode)
+						(y.ResultCode != null && y.ResultCode.Id == x.TrueMarkIdentificationCode.Id)
+						|| (y.SourceCode != null && y.SourceCode.Id == x.TrueMarkIdentificationCode.Id)))
+					.Select(x => x.TrueMarkIdentificationCode)
 					.ToArray();
 
 				foreach(var anyCode in allCodes)
 				{
-					if(anyCode.IsTrueMarkWaterIdentificationCode
-						&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkWaterIdentificationCode.Id))
+					if(anyCode.IsTrueMarkIdentificationCode
+						&& !codesInCurrentOrder.Any(x => x.Id == anyCode.TrueMarkIdentificationCode.Id))
 					{
 						continue;
 					}
@@ -144,7 +146,7 @@ namespace WarehouseApi.Library.Extensions
 						anyCode.Match(
 							PopulateTransportCode(allCodes),
 							PopulateGroupCode(allCodes),
-							PopulateWaterCode(allCodes)));
+							PopulateIdentificationCode(allCodes)));
 				}
 
 				codeToAddInfo.Codes.RemoveAll(code => trueMarkCodeDtos.Any(x => x.Code == code.Code));
@@ -152,38 +154,39 @@ namespace WarehouseApi.Library.Extensions
 			}
 		}
 
-		private static Func<TrueMarkWaterIdentificationCode, TrueMarkCodeDto> PopulateWaterCode(IEnumerable<TrueMarkAnyCode> allCodes)
+		private static Func<TrueMarkIdentificationCode, TrueMarkCodeDto> PopulateIdentificationCode(IEnumerable<TrueMarkAnyCode> allCodes)
 		{
-			return waterCode =>
+			return identificationCode =>
 			{
 				string parentRawCode = null;
 
-				if(waterCode.ParentTransportCodeId != null)
+				if(identificationCode.ParentTransportCodeId != null)
 				{
 					parentRawCode = allCodes
 						.FirstOrDefault(x => x.IsTrueMarkTransportCode
-							&& x.TrueMarkTransportCode.Id == waterCode.ParentTransportCodeId)
+							&& x.TrueMarkTransportCode.Id == identificationCode.ParentTransportCodeId)
 						?.TrueMarkTransportCode.RawCode;
 				}
 
-				if(waterCode.ParentWaterGroupCodeId != null)
+				if(identificationCode.ParentGroupCodeId != null)
 				{
 					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode
-							&& x.TrueMarkWaterGroupCode.Id == waterCode.ParentWaterGroupCodeId)
-						?.TrueMarkWaterGroupCode.RawCode;
+						.FirstOrDefault(x => x.IsTrueMarkGroupCode
+							&& x.TrueMarkGroupCode.Id == identificationCode.ParentGroupCodeId)
+						?.TrueMarkGroupCode.RawCode;
 				}
 
 				return new TrueMarkCodeDto
 				{
-					Code = waterCode.RawCode,
+					Code = identificationCode.RawCode,
 					Level = WarehouseApiTruemarkCodeLevel.unit,
 					Parent = parentRawCode,
+					ProductGroup = identificationCode.ProductGroup
 				};
 			};
 		}
 
-		private static Func<TrueMarkWaterGroupCode, TrueMarkCodeDto> PopulateGroupCode(IEnumerable<TrueMarkAnyCode> allCodes)
+		private static Func<TrueMarkGroupCode, TrueMarkCodeDto> PopulateGroupCode(IEnumerable<TrueMarkAnyCode> allCodes)
 		{
 			return groupCode =>
 			{
@@ -197,19 +200,20 @@ namespace WarehouseApi.Library.Extensions
 						?.TrueMarkTransportCode.RawCode;
 				}
 
-				if(groupCode.ParentWaterGroupCodeId != null)
+				if(groupCode.ParentGroupCodeId != null)
 				{
 					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode
-							&& x.TrueMarkWaterGroupCode.Id == groupCode.ParentWaterGroupCodeId)
-						?.TrueMarkWaterGroupCode.RawCode;
+						.FirstOrDefault(x => x.IsTrueMarkGroupCode
+							&& x.TrueMarkGroupCode.Id == groupCode.ParentGroupCodeId)
+						?.TrueMarkGroupCode.RawCode;
 				}
 
 				return new TrueMarkCodeDto
 				{
 					Code = groupCode.RawCode,
 					Level = WarehouseApiTruemarkCodeLevel.group,
-					Parent = parentRawCode
+					Parent = parentRawCode,
+					ProductGroup = groupCode.ProductGroup
 				};
 			};
 		}

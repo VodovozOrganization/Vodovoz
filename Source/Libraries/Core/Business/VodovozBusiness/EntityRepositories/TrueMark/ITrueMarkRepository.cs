@@ -18,13 +18,13 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <returns>Элементы других задач, ссылающиеся на исходные или итоговые коды.</returns>
 		IList<EdoTaskItem> GetItemsUsingCodesInOtherEdoTasks(IUnitOfWork uow, int taskId, IEnumerable<int> codeIds);
 		
-		Task<IEnumerable<TrueMarkWaterIdentificationCode>> LoadWaterCodes(List<int> codeIds, CancellationToken cancellationToken);
+		Task<IEnumerable<TrueMarkIdentificationCode>> LoadIdentificationCodes(List<int> codeIds, CancellationToken cancellationToken);
 
 		ISet<string> GetAllowedCodeOwnersInn();
 
 		ISet<string> GetAllowedCodeOwnersGtins();
 
-		IEnumerable<TrueMarkWaterIdentificationCode> GetTrueMarkCodeDuplicates(IUnitOfWork uow, string gtin, string serialNumber, string checkCode);
+		IEnumerable<TrueMarkIdentificationCode> GetTrueMarkCodeDuplicates(IUnitOfWork uow, string gtin, string serialNumber, string checkCode);
 
 		/// <summary>
 		/// Получить все значения Gtin в базе с названиями номенклатур
@@ -66,7 +66,7 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <summary>
 		/// Возвращает групповые коды маркировки
 		/// </summary>
-		IEnumerable<TrueMarkWaterGroupCode> GetGroupWaterCodes(IUnitOfWork uow, IEnumerable<int> groupCodeIds);
+		IEnumerable<TrueMarkGroupCode> GetGroupCodes(IUnitOfWork uow, IEnumerable<int> groupCodeIds);
 
 		/// <summary>
 		/// Возвращает коды маркировки для заказа,
@@ -277,7 +277,7 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="routeListItemId">Номер адреса МЛ</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Исходные коды ЧЗ</returns>
-		Task<IList<TrueMarkWaterIdentificationCode>> GetRouteListItemProductCodesSourceCodesAsync(
+		Task<IList<TrueMarkIdentificationCode>> GetRouteListItemProductCodesSourceCodesAsync(
 			IUnitOfWork uow,
 			int routeListItemId,
 			CancellationToken cancellationToken);
@@ -322,7 +322,7 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="carLoadDocumentItemId">Номер строки талона</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Исходные коды ЧЗ</returns>
-		Task<IList<TrueMarkWaterIdentificationCode>> GetCarLoadDocumentItemProductCodesSourceCodesAsync(
+		Task<IList<TrueMarkIdentificationCode>> GetCarLoadDocumentItemProductCodesSourceCodesAsync(
 			IUnitOfWork uow,
 			int carLoadDocumentItemId,
 			CancellationToken cancellationToken);
@@ -390,7 +390,7 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="selfDeliveryDocumentItemId">Номер строки отпуска самовывоза</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Исходные коды ЧЗ</returns>
-		Task<IList<TrueMarkWaterIdentificationCode>> GetSelfDeliveryDocumentItemProductCodesSourceCodesAsync(
+		Task<IList<TrueMarkIdentificationCode>> GetSelfDeliveryDocumentItemProductCodesSourceCodesAsync(
 			IUnitOfWork uow,
 			int selfDeliveryDocumentItemId,
 			CancellationToken cancellationToken);

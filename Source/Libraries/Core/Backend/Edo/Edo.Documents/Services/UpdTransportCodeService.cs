@@ -16,23 +16,23 @@ namespace Edo.Documents.Services
 	public class UpdTransportCodeService : IUpdTransportCodeService
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodeHierarchyService _trueMarkCodeService;
 
 		/// <summary>
 		/// Конструктор.
 		/// </summary>
 		/// <param name="uow">Единица работы.</param>
-		/// <param name="trueMarkWaterCodeService">Сервис иерархии кодов маркировки.</param>
-		public UpdTransportCodeService(IUnitOfWork uow, ITrueMarkWaterCodeService trueMarkWaterCodeService)
+		/// <param name="trueMarkCodeService">Сервис иерархии кодов маркировки.</param>
+		public UpdTransportCodeService(IUnitOfWork uow, ITrueMarkCodeHierarchyService trueMarkCodeService)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodeService = trueMarkCodeService ?? throw new ArgumentNullException(nameof(trueMarkCodeService));
 		}
 
 		/// <inheritdoc />
 		public async Task DisaggregateCodeAsync(TrueMarkAnyCode code, CancellationToken cancellationToken)
 		{
-			var root = _trueMarkWaterCodeService.GetParentGroupCode(_uow, code);
+			var root = _trueMarkCodeService.GetParentGroupCode(_uow, code);
 			if(root.IsTrueMarkTransportCode)
 			{
 				foreach(var innerCode in root.TrueMarkTransportCode.GetAllCodes().ToArray())
@@ -40,11 +40,11 @@ namespace Edo.Documents.Services
 					await innerCode.Match(
 						transportCode => ClearTransportCodeAsync(transportCode, cancellationToken),
 						groupCode => ClearTransportCodeAsync(groupCode, cancellationToken),
-						waterCode => ClearTransportCodeAsync(waterCode, cancellationToken));
+						identificationCode => ClearTransportCodeAsync(identificationCode, cancellationToken));
 				}
 			}
 
-			await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, code, cancellationToken);
+			await _trueMarkCodeService.DisaggregateRelatedCodesAsync(_uow, code, cancellationToken);
 		}
 
 		/// <summary>
@@ -66,7 +66,7 @@ namespace Edo.Documents.Services
 
 			var transportCodes = new Dictionary<int, TrueMarkTransportCode>();
 			var documentGroupCounts = new Dictionary<int, int>();
-			var documentWaterCodeCounts = new Dictionary<int, int>();
+			var documentIdentificationCodeCounts = new Dictionary<int, int>();
 			var invalidTransportCodeIds = new HashSet<int>();
 
 			foreach(var position in documentEdoTask.Upd.InventPositions)
@@ -79,17 +79,17 @@ namespace Edo.Documents.Services
 					if(code.GroupCode != null)
 					{
 						var groupCodes = code.GroupCode.GetAllCodes().ToArray();
-						var waterCodes = groupCodes.Where(x => x.IsTrueMarkWaterIdentificationCode).ToArray();
-						positionHasWrongQuantity |= waterCodes.Length != code.Quantity;
+						var identificationCodes = groupCodes.Where(x => x.IsTrueMarkIdentificationCode).ToArray();
+						positionHasWrongQuantity |= identificationCodes.Length != code.Quantity;
 
-						foreach(var groupCode in groupCodes.Where(x => x.IsTrueMarkWaterGroupCode))
+						foreach(var groupCode in groupCodes.Where(x => x.IsTrueMarkGroupCode))
 						{
-							AddCount(documentGroupCounts, groupCode.TrueMarkWaterGroupCode.Id);
+							AddCount(documentGroupCounts, groupCode.TrueMarkGroupCode.Id);
 						}
 
-						foreach(var waterCode in waterCodes)
+						foreach(var identificationCode in identificationCodes)
 						{
-							AddCount(documentWaterCodeCounts, waterCode.TrueMarkWaterIdentificationCode.Id);
+							AddCount(documentIdentificationCodeCounts, identificationCode.TrueMarkIdentificationCode.Id);
 						}
 
 						AddTransportCode(code.GroupCode, transportCodes, positionTransportCodes);
@@ -97,7 +97,7 @@ namespace Edo.Documents.Services
 					else if(code.IndividualCode != null)
 					{
 						positionHasWrongQuantity |= code.Quantity != 1;
-						AddCount(documentWaterCodeCounts, code.IndividualCode.Id);
+						AddCount(documentIdentificationCodeCounts, code.IndividualCode.Id);
 						AddTransportCode(code.IndividualCode, transportCodes, positionTransportCodes);
 					}
 				}
@@ -130,13 +130,13 @@ namespace Edo.Documents.Services
 			{
 				var allCodes = transportCode.GetAllCodes().ToArray();
 				var hasWrongGroup = allCodes
-					.Where(x => x.IsTrueMarkWaterGroupCode)
-					.Any(x => !documentGroupCounts.TryGetValue(x.TrueMarkWaterGroupCode.Id, out var count) || count != 1);
-				var hasWrongWaterCode = allCodes
-					.Where(x => x.IsTrueMarkWaterIdentificationCode)
-					.Any(x => !documentWaterCodeCounts.TryGetValue(x.TrueMarkWaterIdentificationCode.Id, out var count) || count != 1);
+					.Where(x => x.IsTrueMarkGroupCode)
+					.Any(x => !documentGroupCounts.TryGetValue(x.TrueMarkGroupCode.Id, out var count) || count != 1);
+				var hasWrongIdentificationCode = allCodes
+					.Where(x => x.IsTrueMarkIdentificationCode)
+					.Any(x => !documentIdentificationCodeCounts.TryGetValue(x.TrueMarkIdentificationCode.Id, out var count) || count != 1);
 
-				if(!hasWrongGroup && !hasWrongWaterCode && !invalidTransportCodeIds.Contains(transportCode.Id))
+				if(!hasWrongGroup && !hasWrongIdentificationCode && !invalidTransportCodeIds.Contains(transportCode.Id))
 				{
 					continue;
 				}
@@ -146,7 +146,7 @@ namespace Edo.Documents.Services
 					await code.Match(
 						innerTransportCode => ClearTransportCodeAsync(innerTransportCode, cancellationToken),
 						groupCode => ClearTransportCodeAsync(groupCode, cancellationToken),
-						waterCode => ClearTransportCodeAsync(waterCode, cancellationToken));
+						identificationCode => ClearTransportCodeAsync(identificationCode, cancellationToken));
 				}
 			}
 		}
@@ -156,7 +156,7 @@ namespace Edo.Documents.Services
 			IDictionary<int, TrueMarkTransportCode> transportCodes,
 			ICollection<TrueMarkTransportCode> positionTransportCodes = null)
 		{
-			var root = _trueMarkWaterCodeService.GetParentGroupCode(_uow, code);
+			var root = _trueMarkCodeService.GetParentGroupCode(_uow, code);
 			if(!root.IsTrueMarkTransportCode)
 			{
 				return;
@@ -184,7 +184,7 @@ namespace Edo.Documents.Services
 			await _uow.SaveAsync(code, cancellationToken: cancellationToken);
 		}
 
-		private async Task ClearTransportCodeAsync(TrueMarkWaterGroupCode code, CancellationToken cancellationToken)
+		private async Task ClearTransportCodeAsync(TrueMarkGroupCode code, CancellationToken cancellationToken)
 		{
 			if(code.ParentTransportCodeId is null)
 			{
@@ -195,7 +195,7 @@ namespace Edo.Documents.Services
 			await _uow.SaveAsync(code, cancellationToken: cancellationToken);
 		}
 
-		private async Task ClearTransportCodeAsync(TrueMarkWaterIdentificationCode code, CancellationToken cancellationToken)
+		private async Task ClearTransportCodeAsync(TrueMarkIdentificationCode code, CancellationToken cancellationToken)
 		{
 			if(code.ParentTransportCodeId is null)
 			{

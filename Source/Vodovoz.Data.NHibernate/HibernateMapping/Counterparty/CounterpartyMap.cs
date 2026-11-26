@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
@@ -141,6 +142,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 				.Cascade.AllDeleteOrphan()
 				.Inverse()
 				.LazyLoad()
+				.KeyColumn("counterparty_id");
+
+			HasMany(x => x.RegisteredTrueMarkProductGroups)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad()
+				.BatchSize(100)
 				.KeyColumn("counterparty_id");
 
 			HasManyToMany(x => x.Tags)

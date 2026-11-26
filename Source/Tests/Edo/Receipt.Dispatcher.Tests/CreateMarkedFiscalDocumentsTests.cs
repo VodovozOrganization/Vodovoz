@@ -46,7 +46,7 @@ namespace Receipt.Dispatcher.Tests
 	public class CreateMarkedFiscalDocumentsTests
 	{
 		private readonly ITrueMarkCodesPoolCodeProvider _codesPoolProvider = Substitute.For<ITrueMarkCodesPoolCodeProvider>();
-		private readonly GenericRepositoryFixture<TrueMarkWaterGroupCode> _waterGroupCodeRepository;
+		private readonly GenericRepositoryFixture<TrueMarkGroupCode> _groupCodeRepository;
 		private readonly ForOwnNeedsReceiptEdoTaskHandler _forOwnNeedsReceiptEdoTaskHandler;
 		private ReceiptTrueMarkCodesPool _trueMarkCodesPool;
 		private ResaleReceiptEdoTaskHandler _resaleReceiptEdoTaskHandler;
@@ -54,8 +54,8 @@ namespace Receipt.Dispatcher.Tests
 
 		public CreateMarkedFiscalDocumentsTests()
 		{
-			_waterGroupCodeRepository = new GenericRepositoryFixture<TrueMarkWaterGroupCode>();
-			_forOwnNeedsReceiptEdoTaskHandler = CreateForOwnNeedsReceiptEdoTaskHandlerFixture(_waterGroupCodeRepository);
+			_groupCodeRepository = new GenericRepositoryFixture<TrueMarkGroupCode>();
+			_forOwnNeedsReceiptEdoTaskHandler = CreateForOwnNeedsReceiptEdoTaskHandlerFixture(_groupCodeRepository);
 		}
 
 		[Fact]
@@ -95,7 +95,7 @@ namespace Receipt.Dispatcher.Tests
 					(false, 2),
 				},
 				// Group Codes
-				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				new (int? parentGroupCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childIdentificationCodeIds)[]
 				{
 					(null, 1, false, new []{1, 2, 3, 4, 5, 6}),
 					(null, 2, false, new []{7, 8, 9, 10, 11, 12})
@@ -165,7 +165,7 @@ namespace Receipt.Dispatcher.Tests
 					(false, 1),
 				},
 				// Group Codes
-				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				new (int? parentGroupCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childIdentificationCodeIds)[]
 				{
 					(null, 1, false, new []{ 1, 2, 3 }),
 					(null, 1, false, new []{ 4, 5, 6 }),
@@ -238,7 +238,7 @@ namespace Receipt.Dispatcher.Tests
 					(false, 2),
 				},
 				// Group Codes
-				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				new (int? parentGroupCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childIdentificationCodeIds)[]
 				{
 					(null, 1, false, new []{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }),
 				},
@@ -308,7 +308,7 @@ namespace Receipt.Dispatcher.Tests
 					(false, 1), (false, 1), (false, 1), (false, 1), (false, 1), (false, 1),
 				},
 				// Group Codes
-				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				new (int? parentGroupCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childIdentificationCodeIds)[]
 				{
 					(null, 1, false, new []{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }),
 				},
@@ -384,7 +384,7 @@ namespace Receipt.Dispatcher.Tests
 					(false, 1), (false, 1), (false, 1),
 				},
 				// Group Codes
-				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				new (int? parentGroupCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childIdentificationCodeIds)[]
 				{
 					(null, 1, false, new []{ 1, 2, 3 }),
 				},
@@ -461,7 +461,7 @@ namespace Receipt.Dispatcher.Tests
 					(false, 1), (false, 1), (false, 1),
 				},
 				// Group Codes
-				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				new (int? parentGroupCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childIdentificationCodeIds)[]
 				{
 					(null, 1, false, new []{ 1, 2, 3 }),
 					(null, 1, false, new []{ 4, 5, 6 }),
@@ -521,7 +521,7 @@ namespace Receipt.Dispatcher.Tests
 			var scannedItems = task.Items.ToArray();
 			var unusedPoolItem = new EdoTaskItem
 			{
-				ProductCode = new AutoTrueMarkProductCode { ResultCode = new TrueMarkWaterIdentificationCode() }
+				ProductCode = new AutoTrueMarkProductCode { ResultCode = new TrueMarkIdentificationCode() }
 			};
 			if(!resale || !grouped)
 			{
@@ -591,7 +591,7 @@ namespace Receipt.Dispatcher.Tests
 			var pool = Substitute.For<ITrueMarkCodesPool>();
 			var codeRepository = Substitute.For<ITrueMarkCodeRepository>();
 			codeRepository.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
-				.Returns(call => Task.FromResult(_waterGroupCodeRepository.Data.FirstOrDefault(x => x.Id == (int)call[0])));
+				.Returns(call => Task.FromResult(_groupCodeRepository.Data.FirstOrDefault(x => x.Id == (int)call[0])));
 			var builder = UpdDocumentBuilderFixture.CreateBuilder(_unitOfWork, pool, codeRepository,
 				Substitute.For<ITrueMarkCodesPoolCodeProvider>(), Substitute.For<IUpdTransportCodeService>());
 			UpdDocumentBuilderFixture.PrepareForUpd(task);
@@ -628,7 +628,7 @@ namespace Receipt.Dispatcher.Tests
 			}
 			var originalItems = task.Items.ToArray();
 			var source = originalItems[0].ProductCode.SourceCode;
-			var replacement = new TrueMarkWaterIdentificationCode { Id = 99, RawCode = "replacement", Gtin = source.Gtin, CheckCode = "check" };
+			var replacement = new TrueMarkIdentificationCode { Id = 99, RawCode = "replacement", Gtin = source.Gtin, CheckCode = "check" };
 			if(alreadyReplaced)
 			{
 				originalItems[0].ProductCode.ResultCode = replacement;
@@ -636,17 +636,17 @@ namespace Receipt.Dispatcher.Tests
 			var pool = Substitute.For<ITrueMarkCodesPool>();
 			var provider = Substitute.For<ITrueMarkCodesPoolCodeProvider>();
 			provider.TakeValidCodesBatchAsync(pool, Arg.Any<IDictionary<string, int>>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-				.Returns(Vodovoz.Core.Domain.Results.Result.Success<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>>(
-					new Dictionary<string, IList<TrueMarkWaterIdentificationCode>> { [source.Gtin] = new[] { replacement } }));
+				.Returns(Vodovoz.Core.Domain.Results.Result.Success<IDictionary<string, IList<TrueMarkIdentificationCode>>>(
+					new Dictionary<string, IList<TrueMarkIdentificationCode>> { [source.Gtin] = new[] { replacement } }));
 			if(poolEmpty)
 			{
 				provider.TakeValidCodesBatchAsync(pool, Arg.Any<IDictionary<string, int>>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-					.Returns(Task.FromException<Vodovoz.Core.Domain.Results.Result<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>>>(
+					.Returns(Task.FromException<Vodovoz.Core.Domain.Results.Result<IDictionary<string, IList<TrueMarkIdentificationCode>>>>(
 						new EdoCodePoolMissingCodeException()));
 			}
 			var repository = Substitute.For<ITrueMarkCodeRepository>();
 			repository.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
-				.Returns(call => Task.FromResult(_waterGroupCodeRepository.Data.Single(x => x.Id == (int)call[0])));
+				.Returns(call => Task.FromResult(_groupCodeRepository.Data.Single(x => x.Id == (int)call[0])));
 			var builder = UpdDocumentBuilderFixture.CreateBuilder(_unitOfWork, pool, repository, provider,
 				Substitute.For<IUpdTransportCodeService>());
 			UpdDocumentBuilderFixture.PrepareForUpd(task);
@@ -713,7 +713,7 @@ namespace Receipt.Dispatcher.Tests
 			var source = remainingItem.ProductCode.SourceCode;
 			source.CheckCode = checkCode;
 			remainingItem.ProductCode.ResultCode = resultIsSource ? source : null;
-			var replacement = new TrueMarkWaterIdentificationCode { Id = 99, RawCode = "replacement", Gtin = source.Gtin, CheckCode = "check" };
+			var replacement = new TrueMarkIdentificationCode { Id = 99, RawCode = "replacement", Gtin = source.Gtin, CheckCode = "check" };
 			_codesPoolProvider.TakeValidCodeAsync(Arg.Any<ITrueMarkCodesPool>(), Arg.Any<GtinEntity>(),
 				Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(replacement);
 			var document = new EdoFiscalDocument { Index = 0 };
@@ -764,7 +764,7 @@ namespace Receipt.Dispatcher.Tests
 				source.CheckCode = checkCode;
 				receipt.Items.Add(new EdoTaskItem { ProductCode = new AutoTrueMarkProductCode
 				{
-					SourceCode = new TrueMarkWaterIdentificationCode { Id = 99, Gtin = source.Gtin, CheckCode = "check" }
+					SourceCode = new TrueMarkIdentificationCode { Id = 99, Gtin = source.Gtin, CheckCode = "check" }
 				} });
 			}
 			var task = new DocumentEdoTask { DocumentType = EdoDocumentType.UPD, FormalEdoRequest = receipt.FormalEdoRequest };
@@ -776,7 +776,7 @@ namespace Receipt.Dispatcher.Tests
 			var items = task.Items.ToArray();
 			var repository = Substitute.For<ITrueMarkCodeRepository>();
 			repository.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
-				.Returns(call => Task.FromResult(_waterGroupCodeRepository.Data.First(x => x.Id == (int)call[0])));
+				.Returns(call => Task.FromResult(_groupCodeRepository.Data.First(x => x.Id == (int)call[0])));
 			var factory = Substitute.For<IUnitOfWorkFactory>();
 			var registrar = new EdoProblemRegistrar(_unitOfWork, factory,
 				new EdoTaskCustomSourcesPersister(factory, Array.Empty<EdoTaskProblemCustomSource>()),
@@ -786,7 +786,7 @@ namespace Receipt.Dispatcher.Tests
 			var handler = new Edo.Documents.ForResaleDocumentEdoTaskHandler(_unitOfWork, repository,
 				Substitute.For<ITrueMarkCodesValidator>(), new TransferRequestCreator(Substitute.For<IEdoRepository>()),
 				pool, CreateUpdDocumentBuilderForResale(), registrar, Substitute.For<IPublishEndpoint>(),
-				new UpdTransportCodeService(_unitOfWork, Substitute.For<ITrueMarkWaterCodeService>()));
+				new UpdTransportCodeService(_unitOfWork, Substitute.For<ITrueMarkCodeHierarchyService>()));
 			var method = typeof(Edo.Documents.ForResaleDocumentEdoTaskHandler).GetMethod("CreateUpdDocument",
 				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 			Func<Task> distribute = () => (Task)method.Invoke(handler, new object[] { task, CancellationToken.None });
@@ -839,8 +839,8 @@ namespace Receipt.Dispatcher.Tests
 		private ReceiptEdoTask CreateTestReceiptEdoTaskForTest(
 			IEnumerable<(IEnumerable<int> gtinIds, IEnumerable<int> groupGtinIds, bool isAccountableInTrueMark)> nomenclaturesParameters,
 			IEnumerable<(int nomenclatureId, decimal count, decimal price, decimal discount)> orderItemsParameters,
-			IEnumerable<(bool isValid, int gtinId)> waterIdentificationCodesParameters,
-			IEnumerable<(int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)> waterGroupCodesParameters,
+			IEnumerable<(bool isValid, int gtinId)> identificationCodesParameters,
+			IEnumerable<(int? parentGroupCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childIdentificationCodeIds)> groupCodesParameters,
 			IEnumerable<int> edoTaskItemIdentificationCodesParameters)
 		{
 			var orderItemAutoIncrementId = 1;
@@ -850,8 +850,8 @@ namespace Receipt.Dispatcher.Tests
 			var carLoadDocumentItemAutoIncrementId = 1;
 			var edoTaskItemAutoIncrementId = 1;
 			var carLoadDocumentItemTrueMarkProductCodeAutoIncrementId = 1;
-			var waterIdentificationCodeAutoIncrementId = 1;
-			var waterGroupCodeAutoIncrementId = 1;
+			var identificationCodeAutoIncrementId = 1;
+			var groupCodeAutoIncrementId = 1;
 
 			var gtins = new List<GtinEntity>();
 
@@ -899,57 +899,57 @@ namespace Receipt.Dispatcher.Tests
 				},
 			};
 
-			var trueMarkWaterIdentificationCodes = new List<TrueMarkWaterIdentificationCode>();
+			var trueMarkIdentificationCodes = new List<TrueMarkIdentificationCode>();
 
-			foreach((var isValid, var gtinId) in waterIdentificationCodesParameters)
+			foreach((var isValid, var gtinId) in identificationCodesParameters)
 			{
-				trueMarkWaterIdentificationCodes.Add(CreateTrueMarkWaterIdentificationCode(waterIdentificationCodeAutoIncrementId++, CreateNewGtinCode(gtinId), isValid));
+				trueMarkIdentificationCodes.Add(CreateTrueMarkIdentificationCode(identificationCodeAutoIncrementId++, CreateNewGtinCode(gtinId), isValid));
 			}
 
-			foreach(var waterIdentificationCodeId in edoTaskItemIdentificationCodesParameters)
+			foreach(var identificationCodeId in edoTaskItemIdentificationCodesParameters)
 			{
 				receiptEdoTask.Items.Add(CreateEdoTaskItem(
 					edoTaskItemAutoIncrementId++,
 					carLoadDocumentItemTrueMarkProductCodeAutoIncrementId++,
 					carLoadDocumentItemAutoIncrementId++,
 					order.Id,
-					trueMarkWaterIdentificationCodes[waterIdentificationCodeId - 1]));
+					trueMarkIdentificationCodes[identificationCodeId - 1]));
 			}
 
-			var trueMarkWaterGroupCodes = new List<TrueMarkWaterGroupCode>();
+			var trueMarkGroupCodes = new List<TrueMarkGroupCode>();
 
 			var groupCodesCounter = 1;
 
-			foreach((int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds) in waterGroupCodesParameters.OrderBy(x => x.parentWaterCodeId))
+			foreach((int? parentGroupCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childIdentificationCodeIds) in groupCodesParameters.OrderBy(x => x.parentGroupCodeId))
 			{
-				var groupCode = new TrueMarkWaterGroupCode
+				var groupCode = new TrueMarkGroupCode
 				{
-					Id = waterGroupCodeAutoIncrementId++,
+					Id = groupCodeAutoIncrementId++,
 					IsInvalid = isInValid,
 					GTIN = CreateNewGroupGtinCode(groupGtinId),
 				};
 
-				if(parentWaterCodeId != null)
+				if(parentGroupCodeId != null)
 				{
-					trueMarkWaterGroupCodes[parentWaterCodeId.Value - 1].AddInnerGroupCode(groupCode);
+					trueMarkGroupCodes[parentGroupCodeId.Value - 1].AddInnerGroupCode(groupCode);
 				}
 
-				foreach(var childId in childWaterCodeIds)
+				foreach(var childId in childIdentificationCodeIds)
 				{
-					var currentWaterIdentificationCode = trueMarkWaterIdentificationCodes[childId - 1];
+					var currentIdentificationCode = trueMarkIdentificationCodes[childId - 1];
 
 					if(groupCode.GTIN == null)
 					{
-						groupCode.GTIN = currentWaterIdentificationCode.Gtin;
+						groupCode.GTIN = currentIdentificationCode.Gtin;
 					}
 
 					groupCode.RawCode ??= $"{groupCode.GTIN}Raw{groupCodesCounter++}";
 
-					groupCode.AddInnerWaterCode(currentWaterIdentificationCode);
+					groupCode.AddInnerIdentificationCode(currentIdentificationCode);
 				}
 
-				trueMarkWaterGroupCodes.Add(groupCode);
-				_waterGroupCodeRepository.Data.Add(groupCode);
+				trueMarkGroupCodes.Add(groupCode);
+				_groupCodeRepository.Data.Add(groupCode);
 			}
 
 			return receiptEdoTask;
@@ -960,9 +960,9 @@ namespace Receipt.Dispatcher.Tests
 			int carLoadDocumentItemTrueMarkProductCodeAutoIncrementId,
 			int carLoadDocumentItemAutoIncrementId,
 			int orderId,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode)
+			TrueMarkIdentificationCode trueMarkIdentificationCode)
 		{
-			var sourceCode = trueMarkWaterIdentificationCode;
+			var sourceCode = trueMarkIdentificationCode;
 
 			return new EdoTaskItem
 			{
@@ -994,9 +994,9 @@ namespace Receipt.Dispatcher.Tests
 			};
 		}
 
-		private TrueMarkWaterIdentificationCode CreateTrueMarkWaterIdentificationCode(int id, string gtin, bool isInvalid)
+		private TrueMarkIdentificationCode CreateTrueMarkIdentificationCode(int id, string gtin, bool isInvalid)
 		{
-			return new TrueMarkWaterIdentificationCode
+			return new TrueMarkIdentificationCode
 			{
 				Id = id,
 				Gtin = gtin,
@@ -1080,7 +1080,7 @@ namespace Receipt.Dispatcher.Tests
 		}
 
 		private ForOwnNeedsReceiptEdoTaskHandler CreateForOwnNeedsReceiptEdoTaskHandlerFixture(
-			IGenericRepository<TrueMarkWaterGroupCode> waterGroupCodeRepository,
+			IGenericRepository<TrueMarkGroupCode> groupCodeRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository = null)
 		{
 			var logger = Substitute.For<ILogger<ForOwnNeedsReceiptEdoTaskHandler>>();
@@ -1099,15 +1099,15 @@ namespace Receipt.Dispatcher.Tests
 			trueMarkCodeRepository
 				.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
 				.Returns(callInfo => Task.FromResult(
-					_waterGroupCodeRepository.Data.FirstOrDefault(x => x.Id == (int)callInfo[0])));
+					_groupCodeRepository.Data.FirstOrDefault(x => x.Id == (int)callInfo[0])));
 			var bus = Substitute.For<IBus>();
-			var trueMarkWaterCodeService = Substitute.For<ITrueMarkWaterCodeService>();
+			var trueMarkCodeService = Substitute.For<ITrueMarkCodeHierarchyService>();
 			var edoCancellationService = new EdoCancellationService(
 				Substitute.For<ILogger<EdoCancellationService>>(),
 				unitOfWork,
 				Substitute.For<IEdoCancellationValidator>(),
 				edoProblemRegistrar,
-				trueMarkWaterCodeService,
+				trueMarkCodeService,
 				Substitute.For<TransactionalOutbox.MassTransit.IUnitOfWorkOutbox<IBus>>());
 			_trueMarkCodesPool = Substitute.For<ReceiptTrueMarkCodesPool>(unitOfWork);
 			var saveCodesService = new SaveCodesService(
@@ -1140,7 +1140,7 @@ namespace Receipt.Dispatcher.Tests
 				Substitute.For<IOrganizationSettings>(),
 				bus,
 				edoCancellationService,
-				trueMarkWaterCodeService);
+				trueMarkCodeService);
 		}
 
 		private EdoTaskValidator CreateEdoTaskValidatorFixture(IUnitOfWorkFactory unitOfWorkFactory, EdoProblemRegistrar edoProblemRegistrar)
@@ -1203,25 +1203,25 @@ namespace Receipt.Dispatcher.Tests
 			// Arrange
 			var productCodes = new List<TrueMarkProductCode>
 			{
-				new RouteListItemTrueMarkProductCode { Id = 1, SourceCode = new TrueMarkWaterIdentificationCode { Id = 11 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11 } },
-				new RouteListItemTrueMarkProductCode { Id = 2, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 11 } },
-				new RouteListItemTrueMarkProductCode { Id = 3, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 12 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11 } }
+				new RouteListItemTrueMarkProductCode { Id = 1, SourceCode = new TrueMarkIdentificationCode { Id = 11 }, ResultCode = new TrueMarkIdentificationCode{Id = 11 } },
+				new RouteListItemTrueMarkProductCode { Id = 2, SourceCode = new TrueMarkIdentificationCode{ Id = 11 } },
+				new RouteListItemTrueMarkProductCode { Id = 3, SourceCode = new TrueMarkIdentificationCode{ Id = 12 }, ResultCode = new TrueMarkIdentificationCode{Id = 11 } }
 			};
 
-			var mockWaterGroupCodeRepository = Substitute.For<IGenericRepository<TrueMarkWaterGroupCode>>();
+			var mockGroupCodeRepository = Substitute.For<IGenericRepository<TrueMarkGroupCode>>();
 			var mockProductCodeRepository = Substitute.For<IGenericRepository<TrueMarkProductCode>>();
 			
 			mockProductCodeRepository
 				.Get(Arg.Any<IUnitOfWork>(), Arg.Any<Expression<Func<TrueMarkProductCode, bool>>>(), Arg.Any<int>())
 				.Returns(new List<TrueMarkProductCode>()
 				{
-					new RouteListItemTrueMarkProductCode { Id = 11, SourceCode = new TrueMarkWaterIdentificationCode { Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{ Id = 11 } },
-					new RouteListItemTrueMarkProductCode { Id = 12, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{ Id = 12 } },
-					new RouteListItemTrueMarkProductCode { Id = 13, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 13 }, ResultCode = new TrueMarkWaterIdentificationCode{ Id = 11 } }
+					new RouteListItemTrueMarkProductCode { Id = 11, SourceCode = new TrueMarkIdentificationCode { Id = 10 }, ResultCode = new TrueMarkIdentificationCode{ Id = 11 } },
+					new RouteListItemTrueMarkProductCode { Id = 12, SourceCode = new TrueMarkIdentificationCode{ Id = 10 }, ResultCode = new TrueMarkIdentificationCode{ Id = 12 } },
+					new RouteListItemTrueMarkProductCode { Id = 13, SourceCode = new TrueMarkIdentificationCode{ Id = 13 }, ResultCode = new TrueMarkIdentificationCode{ Id = 11 } }
 				});
 
 
-			var handler = CreateForOwnNeedsReceiptEdoTaskHandlerFixture(mockWaterGroupCodeRepository, mockProductCodeRepository);
+			var handler = CreateForOwnNeedsReceiptEdoTaskHandlerFixture(mockGroupCodeRepository, mockProductCodeRepository);
 
 			// Act
 			handler.CheckProductCodesForDuplicatesAndUpdateIfNeed(productCodes);
@@ -1249,24 +1249,24 @@ namespace Receipt.Dispatcher.Tests
 			// Arrange
 			var productCodes = new List<TrueMarkProductCode>
 			{
-				new RouteListItemTrueMarkProductCode { Id = 1, SourceCode = new TrueMarkWaterIdentificationCode { Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11} },
-				new RouteListItemTrueMarkProductCode { Id = 2, SourceCode = new TrueMarkWaterIdentificationCode { Id = 12 } },
-				new RouteListItemTrueMarkProductCode { Id = 3, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 13 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 13 } },
+				new RouteListItemTrueMarkProductCode { Id = 1, SourceCode = new TrueMarkIdentificationCode { Id = 10 }, ResultCode = new TrueMarkIdentificationCode{Id = 11} },
+				new RouteListItemTrueMarkProductCode { Id = 2, SourceCode = new TrueMarkIdentificationCode { Id = 12 } },
+				new RouteListItemTrueMarkProductCode { Id = 3, SourceCode = new TrueMarkIdentificationCode{ Id = 13 }, ResultCode = new TrueMarkIdentificationCode{Id = 13 } },
 			};
 
-			var mockWaterGroupCodeRepository = Substitute.For<IGenericRepository<TrueMarkWaterGroupCode>>();
+			var mockGroupCodeRepository = Substitute.For<IGenericRepository<TrueMarkGroupCode>>();
 			var mockProductCodeRepository = Substitute.For<IGenericRepository<TrueMarkProductCode>>();
 
 			mockProductCodeRepository
 				.Get(Arg.Any<IUnitOfWork>(), Arg.Any<Expression<Func<TrueMarkProductCode, bool>>>(), Arg.Any<int>())
 				.Returns(new List<TrueMarkProductCode>()
 				{
-					new RouteListItemTrueMarkProductCode { Id = 1, SourceCode = new TrueMarkWaterIdentificationCode { Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{Id = 11} },
-					new RouteListItemTrueMarkProductCode { Id = 12, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 10 }, ResultCode = new TrueMarkWaterIdentificationCode{ Id = 14 } },
-					new RouteListItemTrueMarkProductCode { Id = 13, SourceCode = new TrueMarkWaterIdentificationCode{ Id = 13 }, ResultCode = new TrueMarkWaterIdentificationCode{ Id = 15 } }
+					new RouteListItemTrueMarkProductCode { Id = 1, SourceCode = new TrueMarkIdentificationCode { Id = 10 }, ResultCode = new TrueMarkIdentificationCode{Id = 11} },
+					new RouteListItemTrueMarkProductCode { Id = 12, SourceCode = new TrueMarkIdentificationCode{ Id = 10 }, ResultCode = new TrueMarkIdentificationCode{ Id = 14 } },
+					new RouteListItemTrueMarkProductCode { Id = 13, SourceCode = new TrueMarkIdentificationCode{ Id = 13 }, ResultCode = new TrueMarkIdentificationCode{ Id = 15 } }
 				});
 
-			var handler = CreateForOwnNeedsReceiptEdoTaskHandlerFixture(mockWaterGroupCodeRepository, mockProductCodeRepository);
+			var handler = CreateForOwnNeedsReceiptEdoTaskHandlerFixture(mockGroupCodeRepository, mockProductCodeRepository);
 
 			// Act
 			handler.CheckProductCodesForDuplicatesAndUpdateIfNeed(productCodes);
@@ -1298,31 +1298,31 @@ namespace Receipt.Dispatcher.Tests
 				{
 					ProductCode = new RouteListItemTrueMarkProductCode
 					{
-						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = 1 },
-						ResultCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = 2 }
+						SourceCode = new TrueMarkIdentificationCode { ParentGroupCodeId = 1 },
+						ResultCode = new TrueMarkIdentificationCode { ParentGroupCodeId = 2 }
 					}
 				},
 				new()
 				{
 					ProductCode = new RouteListItemTrueMarkProductCode
 					{
-						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null, ParentTransportCodeId = null },
-						ResultCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null, ParentTransportCodeId = null }
+						SourceCode = new TrueMarkIdentificationCode { ParentGroupCodeId = null, ParentTransportCodeId = null },
+						ResultCode = new TrueMarkIdentificationCode { ParentGroupCodeId = null, ParentTransportCodeId = null }
 					}
 				},
 				new()
 				{
 					ProductCode = new RouteListItemTrueMarkProductCode
 					{
-						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null, ParentTransportCodeId = null },
-						ResultCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = 3 }
+						SourceCode = new TrueMarkIdentificationCode { ParentGroupCodeId = null, ParentTransportCodeId = null },
+						ResultCode = new TrueMarkIdentificationCode { ParentGroupCodeId = 3 }
 					}
 				},
 				new()
 				{
 					ProductCode = new RouteListItemTrueMarkProductCode
 					{
-						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null, ParentTransportCodeId = null },
+						SourceCode = new TrueMarkIdentificationCode { ParentGroupCodeId = null, ParentTransportCodeId = null },
 						ResultCode = null
 					}
 				},
@@ -1330,7 +1330,7 @@ namespace Receipt.Dispatcher.Tests
 				{
 					ProductCode = new RouteListItemTrueMarkProductCode
 					{
-						SourceCode = new TrueMarkWaterIdentificationCode { ParentTransportCodeId = 3 },
+						SourceCode = new TrueMarkIdentificationCode { ParentTransportCodeId = 3 },
 						ResultCode = null
 					}
 				},
@@ -1338,8 +1338,8 @@ namespace Receipt.Dispatcher.Tests
 				{
 					ProductCode = new RouteListItemTrueMarkProductCode
 					{
-						SourceCode = new TrueMarkWaterIdentificationCode { ParentWaterGroupCodeId = null, ParentTransportCodeId = null },
-						ResultCode = new TrueMarkWaterIdentificationCode { ParentTransportCodeId = 3 }
+						SourceCode = new TrueMarkIdentificationCode { ParentGroupCodeId = null, ParentTransportCodeId = null },
+						ResultCode = new TrueMarkIdentificationCode { ParentTransportCodeId = 3 }
 					}
 				},
 			};

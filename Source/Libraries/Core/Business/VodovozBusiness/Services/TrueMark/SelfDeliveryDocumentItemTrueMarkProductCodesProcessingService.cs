@@ -25,21 +25,21 @@ namespace VodovozBusiness.Services.TrueMark
 	{
 		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
 		private readonly ITrueMarkRepository _trueMarkRepository;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodeService _trueMarkCodeService;
 		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
 
 		public SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService(
 			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
 			ITrueMarkRepository trueMarkRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodeService trueMarkCodeService,
 			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService)
 		{
 			_nomenclatureRepository =
 				nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_trueMarkRepository = trueMarkRepository
 				?? throw new ArgumentNullException(nameof(trueMarkRepository));
-			_trueMarkWaterCodeService =
-				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodeService =
+				trueMarkCodeService ?? throw new ArgumentNullException(nameof(trueMarkCodeService));
 			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
 				?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCleanupService));
 		}
@@ -48,7 +48,7 @@ namespace VodovozBusiness.Services.TrueMark
 			IUnitOfWork uow,
 			int selfDeliveryDocumentItemId,
 			CancellationToken cancellationToken = default) =>
-			await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+			await _trueMarkCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
 				uow,
 				StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
 				selfDeliveryDocumentItemId,
@@ -81,7 +81,7 @@ namespace VodovozBusiness.Services.TrueMark
 			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkAnyCode.Match(
 				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
 				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode })
+				identificationCode => new TrueMarkAnyCode[] { identificationCode })
 				.ToList();
 
 			foreach(var code in trueMarkAnyCodes)
@@ -105,26 +105,26 @@ namespace VodovozBusiness.Services.TrueMark
 
 						return true;
 					},
-					async waterCode =>
+					async identificationCode =>
 					{
-						if(waterCode.Id == 0)
+						if(identificationCode.Id == 0)
 						{
-							await uow.SaveAsync(waterCode, cancellationToken: cancellationToken);
+							await uow.SaveAsync(identificationCode, cancellationToken: cancellationToken);
 						}
 
 						return true;
 					});
 
-				if(code.IsTrueMarkWaterIdentificationCode)
+				if(code.IsTrueMarkIdentificationCode)
 				{
-					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
+					var codeKey = (code.TrueMarkIdentificationCode.Gtin, code.TrueMarkIdentificationCode.SerialNumber);
 
 					if(!addedCodeKeys.Contains(codeKey))
 					{
 						AddTrueMarkCodeToSelfDeliveryDocumentItem(
 							uow,
 							selfDeliveryDocumentItem,
-							code.TrueMarkWaterIdentificationCode,
+							code.TrueMarkIdentificationCode,
 							status,
 							problem);
 
@@ -155,13 +155,13 @@ namespace VodovozBusiness.Services.TrueMark
 		private void AddTrueMarkCodeToSelfDeliveryDocumentItem(
 			IUnitOfWork uow,
 			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			TrueMarkIdentificationCode trueMarkIdentificationCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem)
 		{
 			var productCode = CreateSelfDeliveryDocumentItemTrueMarkProductCode(
 				selfDeliveryDocumentItem,
-				trueMarkWaterIdentificationCode,
+				trueMarkIdentificationCode,
 				status,
 				problem);
 
@@ -170,7 +170,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 		private SelfDeliveryDocumentItemTrueMarkProductCode CreateSelfDeliveryDocumentItemTrueMarkProductCode(
 			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			TrueMarkIdentificationCode trueMarkIdentificationCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem)
 		{
@@ -184,8 +184,8 @@ namespace VodovozBusiness.Services.TrueMark
 			{
 				CreationTime = DateTime.Now,
 				SourceCodeStatus = status,
-				SourceCode = trueMarkWaterIdentificationCode,
-				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkWaterIdentificationCode : default,
+				SourceCode = trueMarkIdentificationCode,
+				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkIdentificationCode : default,
 				SelfDeliveryDocumentItemId = selfDeliveryDocumentItem.Id,
 				Problem = problem
 			};
@@ -232,7 +232,7 @@ namespace VodovozBusiness.Services.TrueMark
 		{
 			foreach(var stagingCode in stagingCodes.Where(x => x.ParentCodeId is null))
 			{
-				var alreadyUsedResult = await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(
+				var alreadyUsedResult = await _trueMarkCodeService.IsStagingTrueMarkCodeAlreadyUsed(
 					uow,
 					stagingCode,
 					cancellationToken);
@@ -244,7 +244,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			var trueMarkAnyCodesResult =
-				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
+				await _trueMarkCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
 					uow,
 					stagingCodes.SelectMany(x => x.AllCodes),
 					cancellationToken);
@@ -278,7 +278,7 @@ namespace VodovozBusiness.Services.TrueMark
 			string scannedCode,
 			int selfDeliveryDocumentItemId,
 			CancellationToken cancellationToken = default) =>
-			await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
+			await _trueMarkCodeService.CreateStagingTrueMarkCode(
 				uow,
 				scannedCode,
 				StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
@@ -324,7 +324,7 @@ namespace VodovozBusiness.Services.TrueMark
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
 			CancellationToken cancellationToken) =>
-			await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, stagingTrueMarkCode, cancellationToken);
+			await _trueMarkCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, stagingTrueMarkCode, cancellationToken);
 
 		private Result IsTransportCodeAllowedForOrder(StagingTrueMarkCode stagingTrueMarkCode, Order order)
 		{

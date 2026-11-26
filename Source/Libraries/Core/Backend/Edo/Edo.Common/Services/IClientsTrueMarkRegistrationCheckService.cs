@@ -18,7 +18,7 @@ namespace Edo.Common.Services
 		/// <param name="inns">Список строк ИНН</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<IDictionary<string, Result<RegistrationInChestnyZnakStatus>>> GetTrueMarkRegistrationsStatuses(IEnumerable<string> inns, CancellationToken cancellationToken = default);
+		Task<IDictionary<string, Result<TrueMarkRegistrationInfo>>> GetTrueMarkRegistrationsStatuses(IEnumerable<string> inns, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Возвращает статус регистрации клиента в Честном Знаке по ИНН
@@ -26,6 +26,6 @@ namespace Edo.Common.Services
 		/// <param name="inn">ИНН</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<Result<RegistrationInChestnyZnakStatus>> GetTrueMarkRegistrationStatus(string inn, CancellationToken cancellationToken);
+		Task<Result<TrueMarkRegistrationInfo>> GetTrueMarkRegistrationStatus(string inn, CancellationToken cancellationToken);
 	}
 }

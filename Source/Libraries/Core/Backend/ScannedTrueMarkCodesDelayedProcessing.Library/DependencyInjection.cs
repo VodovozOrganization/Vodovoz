@@ -10,6 +10,7 @@ using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services.TrueMark;
 using MassTransit;
 using System;
+using Vodovoz;
 
 namespace ScannedTrueMarkCodesDelayedProcessing.Library
 {
@@ -26,7 +27,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library
 				.AddMessageTransportSettings()
 				.AddEdoMassTransit(configureBus: configureBus)
 				.AddCodesPool()
-				.AddScoped<TrueMarkWaterCodeParser>()
+				.AddTrueMarkCodeParsers()
 				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>()
 				.AddScoped<ITrueMarkCodesPoolCleanupService, TrueMarkCodesPoolCleanupService>()
