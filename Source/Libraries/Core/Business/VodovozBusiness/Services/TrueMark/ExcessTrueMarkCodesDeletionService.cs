@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -81,7 +81,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 			var codeIds = codes.Select(x => x.Id).ToArray();
 			if(_repository.GetItemsUsingCodesInOtherEdoTasks(uow, taskId, codeIds)
-				.Any(x => !CanIgnoreHistoricalCodeUsage(uow, x))
+				.Any(x => !CanIgnoreHistoricalCodeUsage(uow, x, task))
 				|| task.Items.Where(x => !ids.Contains(x.ProductCode.Id)).Any(x =>
 					codeIds.Contains(x.ProductCode.SourceCode?.Id ?? 0)
 					|| codeIds.Contains(x.ProductCode.ResultCode?.Id ?? 0)))
@@ -106,12 +106,22 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private bool CanIgnoreHistoricalCodeUsage(IUnitOfWork uow, EdoTaskItem item)
+		private bool CanIgnoreHistoricalCodeUsage(IUnitOfWork uow, EdoTaskItem linkedItem, OrderEdoTask currentTask)
 		{
-			var linkedTask = item.CustomerEdoTask;
+			var linkedTask = linkedItem.CustomerEdoTask;
+
+			var isSavedToThePoolInThePastItem =
+				linkedTask.CreationTime < currentTask.CreationTime
+				&& linkedItem.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool;
+
+			if(isSavedToThePoolInThePastItem)
+			{
+				return true;
+			}
+
 			if(linkedTask.Status != EdoTaskStatus.Cancelled
-				|| item.ProductCode.SourceCodeStatus != SourceProductCodeStatus.Rejected
-				|| item.ProductCode.ResultCode != null)
+				|| linkedItem.ProductCode.SourceCodeStatus != SourceProductCodeStatus.Rejected
+				|| linkedItem.ProductCode.ResultCode != null)
 			{
 				return false;
 			}
