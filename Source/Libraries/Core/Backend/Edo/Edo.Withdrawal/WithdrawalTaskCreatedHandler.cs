@@ -374,9 +374,13 @@ namespace Edo.Withdrawal
 				throw new InvalidOperationException($"Не удалось сформировать товары для вывода из оборота для заказа {order.Id}");
 			}
 
+			var fiasId = order.Contract.Organization.ActiveOrganizationVersion?.FiasId;
+
 			var productDocument = new ProductDocumentIndividualAccountingDto
 			{
 				Inn = order.Contract.Organization.INN,
+				Kpp = order.Contract.Organization.KPP,
+				FiasId = fiasId?.ToString(),
 				BuyerInn = order.Client.INN,
 				Action = "OWN_USE",
 				ActionDate = order.DeliveryDate.Value,

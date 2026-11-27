@@ -28,6 +28,18 @@ namespace TrueMark.Contracts.Documents
 		public string Inn { get; set; }
 
 		/// <summary>
+		/// КПП участника оборота товаров
+		/// </summary>
+		[JsonPropertyName("kpp")]
+		public string Kpp { get; set; }
+
+		/// <summary>
+		/// Идентификатор ФИАС
+		/// </summary>
+		[JsonPropertyName("fias_id ")]
+		public string FiasId { get; set; }
+
+		/// <summary>
 		/// ИНН покупателя
 		/// </summary>
 		[JsonPropertyName("buyer_inn")]
