@@ -30,6 +30,12 @@ namespace Vodovoz.Settings.Edo
 		TimeSpan ReceiptQueueNotificationWorkerInterval { get; }
 
 		/// <summary>
+		/// Минимальное время нахождения чека в очереди, после которого он попадает
+		/// в проверку статуса и уведомления о зависших чеках.
+		/// </summary>
+		TimeSpan ReceiptQueueNotificationMinQueueAge { get; }
+
+		/// <summary>
 		/// Интервал повторных уведомлений о чеке, зависшем в очереди.
 		/// </summary>
 		TimeSpan ReceiptQueueNotificationRepeatInterval { get; }
