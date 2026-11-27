@@ -29,6 +29,10 @@ namespace Vodovoz.Settings.Database.Edo
 			.GetValue<TimeSpan>("edo.receipt.queue_notification_worker_interval");
 
 		/// <inheritdoc/>
+		public TimeSpan ReceiptQueueNotificationMinQueueAge => _settingsController
+			.GetValue<TimeSpan>("edo.receipt.queue_notification_min_queue_age");
+
+		/// <inheritdoc/>
 		public TimeSpan ReceiptQueueNotificationRepeatInterval => _settingsController
 			.GetValue<TimeSpan>("edo.receipt.queue_notification_repeat_interval");
 

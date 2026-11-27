@@ -13,12 +13,18 @@ namespace Edo.Receipt.Sender
 		public TimeSpan WorkerInterval { get; set; }
 
 		/// <summary>
+		/// Минимальное время нахождения чека в очереди, после которого он попадает
+		/// в проверку статуса и уведомления о зависших чеках.
+		/// </summary>
+		public TimeSpan MinQueueAge { get; set; }
+
+		/// <summary>
 		/// Интервал между уведомлениями об одном чеке.
 		/// </summary>
 		public TimeSpan RepeatInterval { get; set; }
 
 		/// <summary>
-		/// Глубина выборки по времени попадания чека в очередь, в календарных месяцах.
+		/// Глубина выборки по времени попадания чека в очередь, в днях.
 		/// </summary>
 		public int LookbackDays { get; set; }
 	}

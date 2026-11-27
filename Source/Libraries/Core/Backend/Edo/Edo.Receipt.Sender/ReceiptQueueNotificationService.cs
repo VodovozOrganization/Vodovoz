@@ -72,7 +72,7 @@ namespace Edo.Receipt.Sender
 		/// </summary>
 		public async Task ProcessAsync(DateTime now, CancellationToken cancellationToken)
 		{
-			var statusChangedBefore = now.AddDays(-1);
+			var statusChangedBefore = now - _options.Value.MinQueueAge;
 			var statusChangedNotBefore = now.AddDays(-_options.Value.LookbackDays);
 			var notifiedNotAfter = now - _options.Value.RepeatInterval;
 			IList<int> documentIds;
@@ -81,6 +81,11 @@ namespace Edo.Receipt.Sender
 				documentIds = await _edoRepository.GetFiscalDocumentIdsForQueueNotification(
 					uow, FiscalDocumentStatus.Queued, statusChangedBefore, statusChangedNotBefore, notifiedNotAfter, cancellationToken);
 			}
+
+			_logger.LogDebug(
+				"Чеков в очереди дольше {MinQueueAge}: {DocumentCount}",
+				_options.Value.MinQueueAge,
+				documentIds.Count);
 
 			foreach(var documentId in documentIds)
 			{
