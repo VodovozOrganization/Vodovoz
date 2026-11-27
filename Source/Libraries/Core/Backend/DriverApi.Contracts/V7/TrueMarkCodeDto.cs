@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using TrueMark.Contracts;
 
 namespace DriverApi.Contracts.V7
@@ -33,7 +33,6 @@ namespace DriverApi.Contracts.V7
 		/// Для транспортных кодов (КИТУ) равна null: такой код — контейнер и может содержать
 		/// коды любых товарных групп, поэтому собственной группы у него нет.
 		/// </summary>
-		
 		[JsonConverter(typeof(TrueMarkProductGroupJsonConverter))]
 		[JsonPropertyName("productGroup")]
 		public TrueMarkProductGroup? ProductGroup { get; set; }

@@ -1161,10 +1161,17 @@ namespace Vodovoz.Core.Application.TrueMark
 				var requestCode = codeInstanceStatusData.Key;
 				var instanceStatus = codeInstanceStatusData.Value;
 
-				// Серийный номер обязателен: без него код не идентифицируется, а записи с пустым
-				// SerialNumber конфликтуют по ключу (Gtin, SerialNumber) и дают ложные дубли.
-				if(string.IsNullOrEmpty(
-					TrueMarkCodeHelper.ExtractSerialNumber(instanceStatus.IdentificationCode, instanceStatus.Gtin)))
+				// Серийный номер обязателен для единичных и групповых кодов: без него код не идентифицируется,
+				// а записи с пустым SerialNumber конфликтуют по ключу (Gtin, SerialNumber) и дают ложные дубли.
+				// Для транспортного кода (Box) проверка не применяется: КИТУ разбирается из сырой строки,
+				// GS1-серийника не содержит, и его отсутствие — норма, а не ошибка.
+				var isUnitOrGroupPackage =
+					instanceStatus.GeneralPackageType == GeneralPackageType.Unit
+					|| instanceStatus.GeneralPackageType == GeneralPackageType.Group;
+
+				if(isUnitOrGroupPackage
+					&& string.IsNullOrEmpty(
+						TrueMarkCodeHelper.ExtractSerialNumber(instanceStatus.IdentificationCode, instanceStatus.Gtin)))
 				{
 					_logger.LogError(
 						"Не удалось извлечь серийный номер из кода {IdentificationCode}",
