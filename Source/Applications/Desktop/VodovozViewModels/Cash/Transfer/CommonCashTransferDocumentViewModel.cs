@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -242,6 +243,15 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 					{
 						return;
 					}
+
+					if(Cashier.Subdivision == null)
+					{
+						CommonServices.InteractiveService.ShowMessage(
+							ImportanceLevel.Error,
+							Expense.GetCasherSubdivisionMissingMessage(Cashier));
+						return;
+					}
+
 					Entity.Send(Cashier, Entity.Comment);
 				},
 				() =>

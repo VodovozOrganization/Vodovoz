@@ -28,7 +28,16 @@ namespace Vodovoz.Dialogs.Cash
 			//Подразделение
 
 			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
-			entrySubdivision.Sensitive = false;
+			entrySubdivision.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeSubdivision, w => w.Sensitive)
+				.InitializeFromSource();
+
+			//Общая сумма выдачи
+			yspinbuttonTotalSum.Binding
+				.AddSource(ViewModel)
+				.AddFuncBinding(vm => vm.TotalSum, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			yspinbuttonTotalSum.Sensitive = false;
 
 			//Причина расхода
 
@@ -201,7 +210,7 @@ namespace Vodovoz.Dialogs.Cash
 			labelBalansOrganizations.Binding
 				.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible)
 				.InitializeFromSource();
-			ylabelBalansOrganizations.Binding
+			hboxOrganizationBalances.Binding
 				.AddBinding(ViewModel, vm => vm.VisibleOnlyForFinancer, w => w.Visible)
 				.InitializeFromSource();
 
@@ -237,7 +246,9 @@ namespace Vodovoz.Dialogs.Cash
 				.AddBinding(ViewModel.Entity, e => e.HaveReceipt, w => w.Active)
 				.InitializeFromSource();
 
-			ylabelBalansOrganizations.Text = ViewModel.LoadOrganizationsSums();
+			var organizationBalances = ViewModel.LoadOrganizationsSums();
+			ylabelOrganizationBalanceLeft.Text = organizationBalances.Left;
+			ylabelOrganizationBalanceRight.Text = organizationBalances.Right;
 
 			ylabelStatus.Binding
 				.AddBinding(ViewModel, vm => vm.StateName, w => w.Text)
@@ -286,6 +297,10 @@ namespace Vodovoz.Dialogs.Cash
 							n.AccountableEmployee.Name,
 							n.AccountableEmployee.Patronymic)
 						: "")
+					.XAlign(0.5f)
+				.AddColumn("ЦФЗ")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(n => n.CfzSubdivision != null ? n.CfzSubdivision.Name : "")
 					.XAlign(0.5f)
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)

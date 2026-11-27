@@ -2277,7 +2277,7 @@ from undelivered_orders as und
          left join subdivisions as sd on sd.id = guilty.guilty_department_id
 where ord.delivery_date = @first_date and
     (
-                sd.id = 46 or sd.id = 13 or sd.id = 26
+                FIND_IN_SET(sd.id, REPLACE(GET_PARAMETER('UndeliveryAnalyticsLogisticSubdivisionIds'), ' ', ''))
         )
 union (
     select
@@ -2288,7 +2288,7 @@ union (
              left join subdivisions as sd on sd.id = guilty.guilty_department_id
     where ord.delivery_date = @second_date and
         (
-                    sd.id = 46 or sd.id = 13 or sd.id = 26
+                    FIND_IN_SET(sd.id, REPLACE(GET_PARAMETER('UndeliveryAnalyticsLogisticSubdivisionIds'), ' ', ''))
             )
 )</CommandText>
         <QueryParameters>

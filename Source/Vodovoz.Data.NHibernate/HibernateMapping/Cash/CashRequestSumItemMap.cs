@@ -16,6 +16,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Cash
 			Map(x => x.Comment).Column("comment");
 
 			References(x => x.AccountableEmployee).Column("accountable_employee_id");
+			References(x => x.CfzSubdivision).Column("cfz_subdivision_id");
 			References(x => x.CashRequest).Column("cash_request_id");
 
 			HasMany(x => x.Expenses).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("cash_request_sum_item_id");

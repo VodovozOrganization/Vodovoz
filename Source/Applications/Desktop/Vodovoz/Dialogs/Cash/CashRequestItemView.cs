@@ -50,7 +50,12 @@ namespace Vodovoz.Dialogs.Cash
 
 			entryEmployee.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
 			label7.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
-			
+
+			entrySubdivision.ViewModel = ViewModel.CfzSubdivisionViewModel;
+
+			entrySubdivision.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
+			ylabelCfz.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
+
 			yentryComment.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
 			label8.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
 

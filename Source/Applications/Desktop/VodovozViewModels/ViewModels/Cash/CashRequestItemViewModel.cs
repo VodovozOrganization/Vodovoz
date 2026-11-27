@@ -8,12 +8,15 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
@@ -24,6 +27,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private DateTime _date;
 		private decimal _sum;
 		private string _comment;
+		private Subdivision _cfzSubdivision;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ILifetimeScope _scope;
 
@@ -33,10 +37,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			PayoutRequestUserRole userRole,
-			ILifetimeScope scope)
+			ILifetimeScope scope,
+			ViewModelEEVMBuilder<Subdivision> cfzSubdivisionViewModelBuilder)
 			: base(interactiveService, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+
+			if(cfzSubdivisionViewModelBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(cfzSubdivisionViewModelBuilder));
+			}
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			UoW = uow;
@@ -44,38 +54,24 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			TabName = "Cумма заявки на выдачу Д/С";
 
-			var employeeEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashRequestItemViewModel>(this, this, UoW, NavigationManager, _scope);
+			var entryViewModelBuilder = new CommonEEVMBuilderFactory<CashRequestItemViewModel>(this, this, UoW, NavigationManager, _scope);
 
-			EmployeeViewModel = employeeEntryViewModelBuilder
+			EmployeeViewModel = entryViewModelBuilder
 				.ForProperty(x => x.AccountableEmployee)
 				.UseViewModelDialog<EmployeeViewModel>()
 				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
-					filter =>
-					{
-					})
+					filter => filter.Status = EmployeeStatus.IsWorking)
 				.Finish();
 
-			AcceptCommand = new DelegateCommand(() => {
-				Entity.Date = Date;
-				Entity.AccountableEmployee = _accountableEmployee;
-				Entity.Sum = Sum;
-				Entity.Comment = Comment;
+			CfzSubdivisionViewModel = cfzSubdivisionViewModelBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(this, x => x.CfzSubdivision)
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
+				.Finish();
 
-				var validationResult = Entity.RaiseValidationAndGetResult();
-
-				if(!string.IsNullOrWhiteSpace(validationResult))
-				{
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Warning,
-						$"{validationResult}");
-
-					return;
-				}
-
-				Close(true, CloseSource.Self);
-				EntityAccepted?.Invoke(this, new CashRequestSumItemAcceptedEventArgs(Entity));
-			},
-			() => true);
+			AcceptCommand = new DelegateCommand(Accept, () => true);
 
 			CancelCommand = new DelegateCommand(() =>
 			{
@@ -96,6 +92,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			{
 				SetField(ref _entity, value);
 				AccountableEmployee = value.AccountableEmployee;
+				CfzSubdivision = value.CfzSubdivision;
 				Date = value.Date;
 				Sum = value.Sum;
 				Comment = value.Comment;
@@ -105,7 +102,22 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public Employee AccountableEmployee
 		{
 			get => _accountableEmployee;
-			set => SetField(ref _accountableEmployee, value);
+			set
+			{
+				if(SetField(ref _accountableEmployee, value))
+				{
+					CfzSubdivision = value?.Subdivision;
+				}
+			}
+		}
+
+		/// <summary>
+		/// ЦФЗ - центр финансовых затрат, подразделение, на которое относится затрата
+		/// </summary>
+		public Subdivision CfzSubdivision
+		{
+			get => _cfzSubdivision;
+			set => SetField(ref _cfzSubdivision, value);
 		}
 
 		public DateTime Date {
@@ -152,8 +164,58 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public IEntityEntryViewModel EmployeeViewModel { get; }
 
+		/// <summary>
+		/// Выбор ЦФЗ строки
+		/// </summary>
+		public IEntityEntryViewModel CfzSubdivisionViewModel { get; }
+
+		/// <summary>
+		/// Проверка значений окна и перенос их в строку заявки
+		/// </summary>
 		public DelegateCommand AcceptCommand { get; }
 
 		public DelegateCommand CancelCommand { get; }
+
+		private void Accept()
+		{
+			if(!IsValuesValid())
+			{
+				return;
+			}
+
+			Entity.Date = Date;
+			Entity.AccountableEmployee = AccountableEmployee;
+			Entity.Sum = Sum;
+			Entity.Comment = Comment;
+			Entity.CfzSubdivision = CfzSubdivision;
+
+			Close(true, CloseSource.Self);
+			EntityAccepted?.Invoke(this, new CashRequestSumItemAcceptedEventArgs(Entity));
+		}
+
+		private bool IsValuesValid()
+		{
+			var checkedItem = new CashRequestSumItem
+			{
+				Date = Date,
+				AccountableEmployee = AccountableEmployee,
+				Sum = Sum,
+				Comment = Comment,
+				CfzSubdivision = CfzSubdivision
+			};
+
+			var validationResult = checkedItem.RaiseValidationAndGetResult();
+
+			if(!string.IsNullOrWhiteSpace(validationResult))
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"{validationResult}");
+
+				return false;
+			}
+
+			return true;
+		}
 	}
 }

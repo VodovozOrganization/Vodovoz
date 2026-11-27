@@ -49,6 +49,8 @@ namespace Vodovoz.Cash.Reports
 				.AddBinding(ViewModel, vm => vm.HideCategoriesWithoutDocuments, w => w.Active)
 				.InitializeFromSource();
 
+			leftRightListViewGroupings.ViewModel = ViewModel.GroupingSelectViewModel;
+
 			ybuttonCreateReport.Binding
 				.AddBinding(ViewModel, vm => vm.CanGenerateDdsReport, w => w.Sensitive)
 				.InitializeFromSource();

@@ -714,6 +714,7 @@ namespace Vodovoz.ViewModels.Logistic
 			var errorCodes = new[]
 			{
 				Errors.Logistics.RouteListErrors.NotFound.Code,
+				Errors.Logistics.RouteListErrors.DriverSubdivisionIsEmpty.Code,
 				Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet.Code,
 				Errors.Logistics.RouteListErrors.RouteListItem.TransferRequiresLoadingWhenRouteListEnRoute.Code,
 				Errors.Logistics.RouteListErrors.RouteListItem.TransferNotEnoughtFreeBalance.Code,

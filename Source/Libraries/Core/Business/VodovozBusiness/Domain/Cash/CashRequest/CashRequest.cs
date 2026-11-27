@@ -185,6 +185,12 @@ namespace Vodovoz.Domain.Cash
 					yield return new ValidationResult(
 						string.Format($"У суммы {cashRequestSumItem.Sum} должно быть заполнено подотчетное лицо"), new[] { nameof(Sums) });
 				}
+
+				if(cashRequestSumItem.CfzSubdivision == null)
+				{
+					yield return new ValidationResult(
+						$"У суммы {cashRequestSumItem.Sum} должен быть заполнен ЦФЗ", new[] { nameof(Sums) });
+				}
 			}
 
 			if(PayoutRequestState == PayoutRequestState.Agreed && Organization == null)

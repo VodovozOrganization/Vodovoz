@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -25,6 +26,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
@@ -36,6 +38,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Organizations;
 using QS.Report;
 
 namespace Vodovoz.ViewModels.Cash
@@ -83,13 +86,25 @@ namespace Vodovoz.ViewModels.Cash
 			IAccountableDebtsRepository accountableDebtsRepository,
 			IExpenseSettings expenseSettings,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
-			IReportInfoFactory reportInfoFactory
+			IReportInfoFactory reportInfoFactory,
+			ViewModelEEVMBuilder<Subdivision> cfoSubdivisionViewModelBuilder,
+			ViewModelEEVMBuilder<Subdivision> cfzSubdivisionViewModelBuilder
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(navigation is null)
 			{
 				throw new ArgumentNullException(nameof(navigation));
+			}
+
+			if(cfoSubdivisionViewModelBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(cfoSubdivisionViewModelBuilder));
+			}
+
+			if(cfzSubdivisionViewModelBuilder is null)
+			{
+				throw new ArgumentNullException(nameof(cfzSubdivisionViewModelBuilder));
 			}
 
 			_logger = logger
@@ -159,6 +174,8 @@ namespace Vodovoz.ViewModels.Cash
 					.FirstOrDefault();
 
 				Entity.Date = DateTime.Now;
+
+				Entity.CfoSubdivision = Entity.Casher.Subdivision;
 			}
 
 			EmployeeViewModel = BuildEmployeeViewModel();
@@ -168,6 +185,10 @@ namespace Vodovoz.ViewModels.Cash
 			RouteListViewModel = BuildRouteListEntitiViewModel();
 
 			FinancialExpenseCategoryViewModel = BuildFinancialExpenseCategoryViewModel();
+
+			CfoSubdivisionViewModel = BuildSubdivisionViewModel(cfoSubdivisionViewModelBuilder, x => x.CfoSubdivision);
+
+			CfzSubdivisionViewModel = BuildSubdivisionViewModel(cfzSubdivisionViewModelBuilder, x => x.CfzSubdivision);
 
 			SetPropertyChangeRelation(
 				e => e.Id,
@@ -336,6 +357,29 @@ namespace Vodovoz.ViewModels.Cash
 						filter.TargetDocument = Entity.TypeDocument.ToTargetDocument();
 						filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
 					})
+				.Finish();
+		}
+
+		/// <summary>
+		/// Выбор ЦФО - центра финансовой ответственности ордера
+		/// </summary>
+		public IEntityEntryViewModel CfoSubdivisionViewModel { get; }
+
+		/// <summary>
+		/// Выбор ЦФЗ - центра финансовых затрат ордера
+		/// </summary>
+		public IEntityEntryViewModel CfzSubdivisionViewModel { get; }
+
+		private IEntityEntryViewModel BuildSubdivisionViewModel(
+			ViewModelEEVMBuilder<Subdivision> subdivisionViewModelBuilder,
+			Expression<Func<Expense, Subdivision>> subdivisionProperty)
+		{
+			return subdivisionViewModelBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, subdivisionProperty)
+				.UseViewModelDialog<SubdivisionViewModel>()
+				.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel>()
 				.Finish();
 		}
 
@@ -598,10 +642,17 @@ namespace Vodovoz.ViewModels.Cash
 			Entity.ExpenseCategoryId = source.ExpenseCategoryId;
 			Entity.Description = source.Description;
 			Entity.RelatedToSubdivision = source.RelatedToSubdivision;
+			Entity.CfoSubdivision = source.CfoSubdivision;
+			Entity.CfzSubdivision = source.CfzSubdivision;
 		}
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
+			if(e.PropertyName == nameof(Entity.Employee))
+			{
+				Entity.CfzSubdivision = Entity.Employee?.Subdivision;
+			}
+
 			if(e.PropertyName == nameof(Entity.TypeOperation)
 				|| e.PropertyName == nameof(Entity.Employee))
 			{

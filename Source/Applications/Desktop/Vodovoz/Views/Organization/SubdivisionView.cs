@@ -8,6 +8,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Core;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
@@ -43,7 +44,7 @@ namespace Vodovoz.Views.Organization
 
 			entrySubdivision.ViewModel = ViewModel.ParentSubdivisionViewModel;
 			entrySubdivision.Binding
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.ViewModel.IsEditable)
+				.AddBinding(ViewModel, vm => vm.CanChangeParentSubdivision, w => w.ViewModel.IsEditable)
 				.InitializeFromSource();
 
 			entryFinancialResponsibilityCenter.ViewModel = ViewModel.FinancialResponsibilityCenterViewModel;
@@ -101,6 +102,10 @@ namespace Vodovoz.Views.Organization
 			yenumcomboType.ItemsEnum = typeof(SubdivisionType);
 			yenumcomboType.Binding.AddBinding(ViewModel.Entity, e => e.SubdivisionType, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboType.Sensitive = false;
+
+			yenumcomboLevel.ItemsEnum = typeof(SubdivisionLevel);
+			yenumcomboLevel.Binding.AddBinding(ViewModel.Entity, e => e.Level, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboLevel.Sensitive = false;
 
 			ytreeviewDocuments.ColumnsConfig = ColumnsConfigFactory.Create<TypeOfEntity>()
 				.AddColumn("Документ").AddTextRenderer(x => x.CustomName)

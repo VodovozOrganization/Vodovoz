@@ -1,5 +1,6 @@
 ﻿using QS.Project.Filter;
 using System;
+using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.FilterViewModels.Organization
 {
@@ -11,6 +12,8 @@ namespace Vodovoz.FilterViewModels.Organization
 		private bool _onlyCashSubdivisions;
 		private bool _showArchieved = false;
 		private int? _restrictParentId;
+		private SubdivisionLevel[] _restrictLevels = Array.Empty<SubdivisionLevel>();
+		private SubdivisionLevel[] _restrictSelectLevels = Array.Empty<SubdivisionLevel>();
 
 		public int[] ExcludedSubdivisionsIds
 		{
@@ -46,6 +49,24 @@ namespace Vodovoz.FilterViewModels.Organization
 		{
 			get => _restrictParentId;
 			set => UpdateFilterField(ref _restrictParentId, value);
+		}
+
+		/// <summary>
+		/// Уровни, которые показываются в журнале, пусто - все
+		/// </summary>
+		public SubdivisionLevel[] RestrictLevels
+		{
+			get => _restrictLevels;
+			set => UpdateFilterField(ref _restrictLevels, value);
+		}
+
+		/// <summary>
+		/// Уровни, которые можно выбрать, пусто - любые
+		/// </summary>
+		public SubdivisionLevel[] RestrictSelectLevels
+		{
+			get => _restrictSelectLevels;
+			set => UpdateFilterField(ref _restrictSelectLevels, value);
 		}
 
 		public override bool IsShow { get; set; } = true;

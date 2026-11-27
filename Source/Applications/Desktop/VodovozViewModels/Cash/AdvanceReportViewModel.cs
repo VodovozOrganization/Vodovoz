@@ -386,6 +386,25 @@ namespace Vodovoz.ViewModels.Cash
 
 			bool needClosing = UoWGeneric.IsNew;
 
+			if(needClosing && Entity.NeedSurcharge(SelectableAdvances.Where(a => a.Selected).Select(a => a.Value)))
+			{
+				if(Entity.Casher?.Subdivision == null)
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						Expense.GetCasherSubdivisionMissingMessage(Entity.Casher));
+					return false;
+				}
+
+				if(Entity.Accountable != null && Entity.Accountable.Subdivision == null)
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						Expense.GetEmployeeSubdivisionMissingMessage(Entity.Accountable));
+					return false;
+				}
+			}
+
 			if(!base.Save(false))
 			{
 				return false;

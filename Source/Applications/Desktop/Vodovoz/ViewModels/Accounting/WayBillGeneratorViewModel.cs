@@ -11,6 +11,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 using VodovozInfrastructure.Interfaces;
 
@@ -102,10 +103,19 @@ namespace Vodovoz.ViewModels.Accounting
 
 		private void CreateGenerateCommand()
 		{
-			GenerateCommand = new DelegateCommand(
-				Entity.GenerateDocuments,
-				() => true
-			);
+			GenerateCommand = new DelegateCommand(GenerateDocuments, () => true);
+		}
+
+		private void GenerateDocuments()
+		{
+			try
+			{
+				Entity.GenerateDocuments();
+			}
+			catch(SubdivisionGeoGroupNotSetException ex)
+			{
+				ShowWarningMessage(ex.Message);
+			}
 		}
 
 		private void CreateUnloadCommand()

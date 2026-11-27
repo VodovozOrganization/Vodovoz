@@ -7,9 +7,14 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Widgets;
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Models.Cash;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.Cash.Reports
 {
@@ -20,6 +25,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICommonServices _commonServices;
 		private readonly CashFlowDdsReportRenderer _cashFlowDdsReportRenderer;
+		private readonly ICashRepository _cashRepository;
 		private bool _canGenerateDdsReport = true;
 
 		private DateTime _startDate;
@@ -28,13 +34,26 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		private bool _hideCategoriesWithoutDocuments;
 		private CashFlowDdsReport.ReportMode _reportMode;
 
+		/// <summary>
+		/// Создаёт модель вкладки анализа движения денежных средств
+		/// </summary>
+		/// <param name="unitOfWorkFactory">Фабрика UnitOfWork</param>
+		/// <param name="interactiveService">Сервис пользовательских диалогов</param>
+		/// <param name="navigation">Менеджер навигации</param>
+		/// <param name="fileDialogService">Сервис выбора файла</param>
+		/// <param name="cashFlowDdsReportRenderer">Генератор файла Excel</param>
+		/// <param name="commonServices">Общие сервисы</param>
+		/// <param name="cashRepository">Репозиторий кассовых документов</param>
+		/// <param name="leftRightListViewModelFactory">Фабрика списка группировок</param>
 		public CashFlowAnalysisViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IFileDialogService fileDialogService,
 			CashFlowDdsReportRenderer cashFlowDdsReportRenderer,
-			ICommonServices commonServices)
+			ICommonServices commonServices,
+			ICashRepository cashRepository,
+			ILeftRightListViewModelFactory leftRightListViewModelFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			if(navigation is null)
@@ -45,6 +64,10 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			_cashFlowDdsReportRenderer = cashFlowDdsReportRenderer ?? throw new ArgumentNullException(nameof(cashFlowDdsReportRenderer));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+
+			GroupingSelectViewModel = (leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory)))
+				.CreateCashFlowAnalysisReportGroupingsConstructor();
 
 			var now = DateTime.Now;
 
@@ -65,6 +88,11 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		public DelegateCommand SaveReportCommand { get; }
 
 		public DelegateCommand ShowDdsReportInfoCommand { get; }
+
+		/// <summary>
+		/// Доступные и выбранные группировки отчёта
+		/// </summary>
+		public LeftRightListViewModel<CashFlowReportGrouping> GroupingSelectViewModel { get; }
 
 		[PropertyChangedAlso(nameof(CanSaveReport))]
 		public CashFlowDdsReport Report
@@ -165,7 +193,9 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		{
 			CanGenerateDdsReport = false;
 
-			Report = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate, HideCategoriesWithoutDocuments, ReportMode);
+			var groupings = GroupingSelectViewModel.GetRightItems().ToArray();
+			Report = CashFlowDdsReport.GenerateReport(
+				UoW, _cashRepository, StartDate, EndDate, HideCategoriesWithoutDocuments, ReportMode, groupings);
 
 			if(Report != null)
 			{
@@ -191,10 +221,10 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				"Отчет ДДС генерируется только при наличии права \"Доступен отчет ДДС\"\n" +
 				"В отчет не входят статьи, в которых установлена галочка \"Не включать в ДДС\"\n" +
 				"В отчет не входят архивные статьи\n" +
-				"Отчет генерируется в зависимости от указанного интервала дат, другие параметры на отчет не влияют\n" +
-				"Генерация отчета может бликировать работу программы ДВ на время генерации\n" +
-				"Отчет разбит по группам статей, затем на типы операций по статьям\n" +
-				"Отчет может генерироваться только при уровне вложенности статей 7 (6 вложенных друг в друга групп и статья, из-за ограничения Excel)",
+				"Генерация отчета может блокировать работу программы ДВ на время генерации\n" +
+				"Без выбранных группировок отчет разбит по группам статей, затем на типы операций по статьям\n" +
+				"Отчет может генерироваться только при уровне вложенности статей 7 (6 вложенных друг в друга групп и статья, из-за ограничения Excel)\n" +
+				"Можно выбрать до трёх группировок. Их порядок задаёт вложенность. При пустом списке отчёт строится по статьям.",
 				"Информация по отчету ДДС");
 		}
 

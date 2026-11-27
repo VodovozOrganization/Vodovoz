@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Models.Cash;
 
 namespace Vodovoz.ViewModels.Cash.Reports
 {
@@ -18,14 +20,15 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			private CashFlowDdsReport(
 				DateTime startDate,
 				DateTime endDate,
-				List<IncomesGroupLine> incomesGroupLines,
-				List<ExpensesGroupLine> expensesGroupLines,
+				CashFlowReportLine incomeSection,
+				CashFlowReportLine expenseSection,
 				ReportMode reportMode)
 			{
 				StartDate = startDate;
 				EndDate = endDate;
-				IncomesGroupLines = incomesGroupLines;
-				ExpensesGroupLines = expensesGroupLines;
+				IncomeSection = incomeSection;
+				ExpenseSection = expenseSection;
+				ProfitLine = new CashFlowReportLine("Прибыль", incomeSection.Money - expenseSection.Money);
 				_reportMode = reportMode;
 				CreatedAt = DateTime.Now;
 			}
@@ -36,184 +39,153 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 			public DateTime CreatedAt { get; }
 
-			public List<IncomesGroupLine> IncomesGroupLines { get; }
+			/// <summary>
+			/// Доходы с выбранной детализацией
+			/// </summary>
+			public CashFlowReportLine IncomeSection { get; }
 
-			public List<ExpensesGroupLine> ExpensesGroupLines { get; }
+			/// <summary>
+			/// Чистые расходы с выбранной детализацией
+			/// </summary>
+			public CashFlowReportLine ExpenseSection { get; }
 
-			public List<object> Rows => IncomesGroupLines.Cast<object>().Concat(ExpensesGroupLines).ToList();
+			/// <summary>
+			/// Итоговая разница доходов и расходов
+			/// </summary>
+			public CashFlowReportLine ProfitLine { get; }
 
+			/// <summary>
+			/// Формирует отчёт по кассовым движениям за период
+			/// </summary>
+			/// <param name="unitOfWork">UnitOfWork</param>
+			/// <param name="cashRepository">Репозиторий кассовых документов</param>
+			/// <param name="startDate">Нижняя граница периода</param>
+			/// <param name="endDate">Верхняя граница периода</param>
+			/// <param name="hideCategoriesWithoutDocuments">Скрывать конечные строки с нулевыми суммами</param>
+			/// <param name="reportMode">Режим ДДС или ДДР</param>
+			/// <param name="groupings">Выбранные группировки в порядке вложенности</param>
+			/// <returns>Сформированный отчёт</returns>
 			public static CashFlowDdsReport GenerateReport(
 				IUnitOfWork unitOfWork,
+				ICashRepository cashRepository,
 				DateTime startDate,
 				DateTime endDate,
 				bool hideCategoriesWithoutDocuments,
-				ReportMode reportMode)
+				ReportMode reportMode,
+				IReadOnlyList<CashFlowReportGrouping> groupings)
 			{
-				var incomesCategories =
-					(from incomeCategory in unitOfWork.Session.Query<FinancialIncomeCategory>()
-					 where incomeCategory.GroupType == GroupType.Category
-						&& incomeCategory.IsArchive == false
-						&& incomeCategory.ExcludeFromCashFlowDds == false
-					 orderby incomeCategory.Numbering, incomeCategory.Title
-					 select FinancialIncomeCategoryLine.Create(
-						  incomeCategory.Id,
-						  incomeCategory.ParentId,
-						  incomeCategory.Title,
-						  incomeCategory.Numbering))
+				var includeCenters = groupings.Any(x => x != CashFlowReportGrouping.Article);
+				var data = cashRepository.GetCashFlowReportData(
+					unitOfWork, startDate, endDate, useDdrDate: reportMode == ReportMode.Ddr, includeCenters: includeCenters);
+				var returnedExpenses = CashFlowReportReturnAllocation.Allocate(data.Returns, data.DirectClosings, data.AdvanceReportClosings);
+				var expenseMovements = data.ExpenseMovements.Concat(returnedExpenses).ToArray();
+				var expenseTotals = expenseMovements
+					.GroupBy(x => x.ExpenseCategoryId)
+					.ToDictionary(x => x.Key, x => x.Sum(amount => amount.Money));
+
+				var incomeArticles =
+					(from article in unitOfWork.Session.Query<FinancialIncomeCategory>()
+					 where article.GroupType == GroupType.Category && !article.IsArchive && !article.ExcludeFromCashFlowDds
+					 orderby article.Numbering, article.Title
+					 select new ReportArticle
+					 {
+						Id = article.Id,
+						ParentId = article.ParentId,
+						Title = article.Title,
+						Numbering = article.Numbering
+					 })
 					.ToList();
 
-				foreach(var incomeCategory in incomesCategories)
-				{
-					incomeCategory.Money =
-						(from cashIncome in unitOfWork.Session.Query<Income>()
-						 where cashIncome.IncomeCategoryId == incomeCategory.Id
-							&& cashIncome.Date >= startDate
-							&& cashIncome.Date <= endDate
-							&& cashIncome.TypeOperation != IncomeType.Return
-						 select cashIncome.Money)
-						.ToArray()
-						.Sum();
-				}
-
-				if(hideCategoriesWithoutDocuments)
-				{
-					incomesCategories.RemoveAll(x => x.Money == 0);
-				}
-
-				var expensesCategories =
-					(from expenseCategory in unitOfWork.Session.Query<FinancialExpenseCategory>()
-					 where expenseCategory.GroupType == GroupType.Category
-						&& expenseCategory.IsArchive == false
-						&& expenseCategory.ExcludeFromCashFlowDds == false
-					 orderby expenseCategory.Numbering, expenseCategory.Title
-					 select FinancialExpenseCategoryLine.Create(
-						 expenseCategory.Id,
-						 expenseCategory.ParentId,
-						 expenseCategory.Title,
-						 expenseCategory.Numbering))
-					 .ToList();
-
-				foreach(var expenseCategory in expensesCategories)
-				{
-					var expensesSum =
-						(from cashExpense in unitOfWork.Session.Query<Expense>()
-						 where cashExpense.ExpenseCategoryId == expenseCategory.Id
-							&& ((reportMode == ReportMode.Dds 
-									&& cashExpense.Date >= startDate
-									&& cashExpense.Date <= endDate)
-								|| (reportMode == ReportMode.Ddr
-									&& cashExpense.DdrDate >= startDate
-									&& cashExpense.DdrDate <= endDate))
-						 select cashExpense.Money)
-						.ToArray()
-						.Sum();
-
-					expensesSum -=
-						(from cashIncome in unitOfWork.Session.Query<Income>()
-						 where cashIncome.ExpenseCategoryId == expenseCategory.Id
-							&& cashIncome.Date >= startDate
-							&& cashIncome.Date <= endDate
-							&& cashIncome.TypeOperation == IncomeType.Return
-						 select cashIncome.Money)
-						.ToArray()
-						.Sum();
-
-					expenseCategory.Money = expensesSum;
-				}
-
-				if(hideCategoriesWithoutDocuments)
-				{
-					expensesCategories.RemoveAll(x => x.Money == 0);
-				}
-
-				var incomeGroups =
-					(from incomeGroup in unitOfWork.Session.Query<FinancialCategoriesGroup>()
-					 where incomeGroup.FinancialSubtype == FinancialSubType.Income
-						&& incomeGroup.GroupType == GroupType.Group
-						&& incomeGroup.IsArchive == false
-					 orderby incomeGroup.Numbering, incomeGroup.Title
-					 select incomeGroup)
+				var expenseArticles =
+					(from article in unitOfWork.Session.Query<FinancialExpenseCategory>()
+					 where article.GroupType == GroupType.Category && !article.IsArchive && !article.ExcludeFromCashFlowDds
+					 orderby article.Numbering, article.Title
+					 select new ReportArticle
+					 {
+						Id = article.Id,
+						ParentId = article.ParentId,
+						Title = article.Title,
+						Numbering = article.Numbering
+					 })
 					.ToList();
 
-				var incomeGroupLines = ProceedIncomeGroups(null, incomeGroups, incomesCategories, hideCategoriesWithoutDocuments);
+				var groups = unitOfWork.Session.Query<FinancialCategoriesGroup>()
+					.Where(x => x.GroupType == GroupType.Group && !x.IsArchive)
+					.OrderBy(x => x.Numbering)
+					.ThenBy(x => x.Title)
+					.ToList()
+					.ToLookup(x => x.FinancialSubtype);
 
-				var expenseGroups =
-					(from expenseGroup in unitOfWork.Session.Query<FinancialCategoriesGroup>()
-					 where expenseGroup.FinancialSubtype == FinancialSubType.Expense
-						&& expenseGroup.GroupType == GroupType.Group
-						&& expenseGroup.IsArchive == false
-					 orderby expenseGroup.Numbering, expenseGroup.Title
-					 select expenseGroup)
-					.ToList();
+				var incomeArticleLines = BuildArticleLines(
+					groups[FinancialSubType.Income], incomeArticles, data.IncomeTotals, hideCategoriesWithoutDocuments);
+				var incomeLines = !includeCenters || groupings.Contains(CashFlowReportGrouping.Article)
+					? incomeArticleLines
+					: Array.Empty<CashFlowReportLine>();
 
-				var expenseGroupLines = ProceedExpenseGroups(null, expenseGroups, expensesCategories, hideCategoriesWithoutDocuments);
+				// Каталог для центров включает статьи с нулевым итогом по всем подразделениям
+				var expenseArticleLines = BuildArticleLines(
+					groups[FinancialSubType.Expense], expenseArticles, expenseTotals, hideCategoriesWithoutDocuments && !includeCenters);
+				var expenseLines = includeCenters
+					? CashFlowReportExpenseTree.Build(
+						groupings, expenseArticleLines, expenseMovements, data.SubdivisionNames, hideCategoriesWithoutDocuments)
+					: expenseArticleLines;
 
 				return new CashFlowDdsReport(
 					startDate,
 					endDate,
-					incomeGroupLines,
-					expenseGroupLines,
+					new CashFlowReportLine("Доходы", incomeArticleLines.Sum(x => x.Money), incomeLines),
+					new CashFlowReportLine("Расходы", expenseLines.Sum(x => x.Money), expenseLines),
 					reportMode);
 			}
 
-			private static List<IncomesGroupLine> ProceedIncomeGroups(
-				int? parentId,
-				List<FinancialCategoriesGroup> groups,
-				List<FinancialIncomeCategoryLine> financialIncomeCategoryLines,
-				bool hideCategoriesWithoutDocuments)
+			private static CashFlowReportLine[] BuildArticleLines(
+				IEnumerable<FinancialCategoriesGroup> groups,
+				IEnumerable<ReportArticle> articles,
+				IReadOnlyDictionary<int, decimal> totals,
+				bool hideZeroLeaves)
 			{
-				var result = new List<IncomesGroupLine>();
+				var groupsByParent = groups.ToLookup(x => x.ParentId);
+				var articlesByParent = articles.ToLookup(x => x.ParentId);
 
-				var groupsToProceed = groups.Where(x => x.ParentId == parentId).ToList();
-
-				foreach(var group in groupsToProceed)
-				{
-					var subgroups = ProceedIncomeGroups(group.Id, groups, financialIncomeCategoryLines, hideCategoriesWithoutDocuments);
-
-					var subcategories = financialIncomeCategoryLines.Where(x => x.ParentId == group.Id).ToList();
-
-					if(!hideCategoriesWithoutDocuments || subcategories.Any() || subgroups.Any())
-					{
-						result.Add(IncomesGroupLine.Create(
-							group.Id,
-							group.Title,
-							group.Numbering,
-							subgroups,
-							subcategories));
-					}
-				}
-
-				return result;
+				return groupsByParent[null]
+					.SelectMany(root => BuildArticleLines(root.Id, groupsByParent, articlesByParent, totals, hideZeroLeaves))
+					.ToArray();
 			}
 
-			private static List<ExpensesGroupLine> ProceedExpenseGroups(
-				int? parentId,
-				List<FinancialCategoriesGroup> groups,
-				List<FinancialExpenseCategoryLine> financialExpenseCategoryLines,
-				bool hideCategoriesWithoutDocuments)
+			private static IEnumerable<CashFlowReportLine> BuildArticleLines(
+				int parentId,
+				ILookup<int?, FinancialCategoriesGroup> groups,
+				ILookup<int?, ReportArticle> articles,
+				IReadOnlyDictionary<int, decimal> totals,
+				bool hideZeroLeaves)
 			{
-				var result = new List<ExpensesGroupLine>();
-
-				var groupsToProceed = groups.Where(x => x.ParentId == parentId).ToList();
-
-				foreach(var group in groupsToProceed)
+				foreach(var group in groups[parentId])
 				{
-					var subgroups = ProceedExpenseGroups(group.Id, groups, financialExpenseCategoryLines, hideCategoriesWithoutDocuments);
+					var children = BuildArticleLines(group.Id, groups, articles, totals, hideZeroLeaves).ToArray();
 
-					var subcategories = financialExpenseCategoryLines.Where(x => x.ParentId == group.Id).ToList();
-
-					if(!hideCategoriesWithoutDocuments || subcategories.Any() || subgroups.Any())
+					if(!hideZeroLeaves || children.Length > 0)
 					{
-						result.Add(ExpensesGroupLine.Create(
-							group.Id,
-							group.Title,
-							group.Numbering,
-							subgroups,
-							subcategories));
+						yield return new CashFlowReportLine(group.Title, children.Sum(x => x.Money), children, group.Id, group.Numbering);
 					}
 				}
 
-				return result;
+				foreach(var article in articles[parentId])
+				{
+					totals.TryGetValue(article.Id, out var money);
+
+					if(!hideZeroLeaves || money != 0)
+					{
+						yield return new CashFlowReportLine(article.Title, money, id: article.Id, numbering: article.Numbering, isArticle: true);
+					}
+				}
+			}
+
+			private sealed class ReportArticle
+			{
+				public int Id { get; set; }
+				public int? ParentId { get; set; }
+				public string Title { get; set; }
+				public string Numbering { get; set; }
 			}
 		}
 	}
