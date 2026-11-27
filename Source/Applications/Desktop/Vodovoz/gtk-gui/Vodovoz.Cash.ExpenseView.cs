@@ -179,10 +179,10 @@ namespace Vodovoz.Cash
 			this.entryCfoSubdivision.Name = "entryCfoSubdivision";
 			this.table1.Add(this.entryCfoSubdivision);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.entryCfoSubdivision]));
-			w11.TopAttach = ((uint)(4));
-			w11.BottomAttach = ((uint)(5));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
+			w11.TopAttach = ((uint)(1));
+			w11.BottomAttach = ((uint)(2));
+			w11.LeftAttach = ((uint)(3));
+			w11.RightAttach = ((uint)(4));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -191,10 +191,10 @@ namespace Vodovoz.Cash
 			this.entryCfzSubdivision.Name = "entryCfzSubdivision";
 			this.table1.Add(this.entryCfzSubdivision);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.entryCfzSubdivision]));
-			w12.TopAttach = ((uint)(1));
-			w12.BottomAttach = ((uint)(2));
-			w12.LeftAttach = ((uint)(3));
-			w12.RightAttach = ((uint)(4));
+			w12.TopAttach = ((uint)(4));
+			w12.BottomAttach = ((uint)(5));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -428,8 +428,10 @@ namespace Vodovoz.Cash
 			this.ylabelCfo.LabelProp = global::Mono.Unix.Catalog.GetString("ЦФО:");
 			this.table1.Add(this.ylabelCfo);
 			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCfo]));
-			w31.TopAttach = ((uint)(4));
-			w31.BottomAttach = ((uint)(5));
+			w31.TopAttach = ((uint)(1));
+			w31.BottomAttach = ((uint)(2));
+			w31.LeftAttach = ((uint)(2));
+			w31.RightAttach = ((uint)(3));
 			w31.XOptions = ((global::Gtk.AttachOptions)(4));
 			w31.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -439,10 +441,8 @@ namespace Vodovoz.Cash
 			this.ylabelCfz.LabelProp = global::Mono.Unix.Catalog.GetString("ЦФЗ:");
 			this.table1.Add(this.ylabelCfz);
 			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCfz]));
-			w32.TopAttach = ((uint)(1));
-			w32.BottomAttach = ((uint)(2));
-			w32.LeftAttach = ((uint)(2));
-			w32.RightAttach = ((uint)(3));
+			w32.TopAttach = ((uint)(4));
+			w32.BottomAttach = ((uint)(5));
 			w32.XOptions = ((global::Gtk.AttachOptions)(4));
 			w32.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
