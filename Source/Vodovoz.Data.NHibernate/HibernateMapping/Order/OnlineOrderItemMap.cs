@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
@@ -27,6 +27,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.DiscountMoneyFromDiscountReasons).Column("discount_money_from_discount_reasons");
 			Map(x => x.DiscountPercentFromDiscountReasons).Column("discount_percent_from_discount_reasons");
 			Map(x => x.IsDiscountInMoneyFromDiscountReasons).Column("is_discount_in_money_from_discount_reasons");
+			Map(x => x.BonusesWrittenOff).Column("bonuses_written_off");
+			Map(x => x.CurrentSum).Column("current_sum");
 
 			References(x => x.OnlineOrder).Column("online_order_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");

@@ -4,6 +4,7 @@ using CustomerAppsApi.Middleware;
 using CustomerAppsApi.Services;
 using MassTransit;
 using MessageTransport;
+using Mindbox.Library;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -72,6 +73,7 @@ namespace CustomerAppsApi
 				.AddCore()
 				.AddCoreApplicationServices()
 				.AddBusiness(Configuration)
+				.AddMindbox()
 				.AddTrackedUoW()
 				.AddInfrastructure()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
@@ -79,6 +81,7 @@ namespace CustomerAppsApi
 				.AddHttpClient()
 				.AddVersion1()
 				.AddVersion2()
+				.AddVersion3()
 				.AddVersioning()
 				.AddSwaggerGen(opt =>
 					opt.CustomSchemaIds(type => type.FullName))

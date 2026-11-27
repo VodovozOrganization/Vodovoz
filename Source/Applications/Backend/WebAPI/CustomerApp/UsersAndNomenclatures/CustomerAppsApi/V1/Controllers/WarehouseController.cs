@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using CustomerAppsApi.Library.V1.Models;
 using CustomerAppsApi.Library.V1.Services;
 using Gamma.Utilities;
@@ -10,6 +10,7 @@ using VodovozHealthCheck.Helpers;
 namespace CustomerAppsApi.V1.Controllers
 {
 	[ApiController]
+	[ApiExplorerSettings(GroupName = "v1")]
 	[Route("/api/")]
 	public class WarehouseController : ControllerBase
 	{

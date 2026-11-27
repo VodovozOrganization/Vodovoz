@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace CustomerAppsApi.V1.Controllers
 {
 	[ApiController]
+	[ApiExplorerSettings(GroupName = "v1")]
 	[Route("/api/")]
 	public class CounterpartyDebtController : ControllerBase
 	{

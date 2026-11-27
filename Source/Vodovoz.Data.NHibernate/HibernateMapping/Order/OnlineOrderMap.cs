@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
@@ -41,6 +41,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.NextCallDate).Column("next_call_date").Nullable();
 			Map(x => x.NextCallDateChanged).Column("next_call_date_changed").Nullable();
 			Map(x => x.HasService).Column("has_service");
+			HasOne(x => x.MindboxState)
+				.Cascade.All()
+				.ForeignKey("online_order_id");
 			Map(x => x.OrderVersion)
 				.Column(OnlineOrder.OrderVersionColumn)
 				.Not.Update()
