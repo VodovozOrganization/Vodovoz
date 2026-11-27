@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 					from geoGroup in geoGroups.DefaultIfEmpty()
 					join sc in unitOfWork.Session.Query<RouteListItemTrueMarkProductCode>() on (int?)routeListItem.Id equals sc.RouteListItemId into scannedCodes
 					from scannedCode in scannedCodes.DefaultIfEmpty()
-					join ic in unitOfWork.Session.Query<TrueMarkWaterIdentificationCode>() on scannedCode.SourceCode.Id equals ic.Id into identificationCodes
+					join ic in unitOfWork.Session.Query<TrueMarkIdentificationCode>() on scannedCode.SourceCode.Id equals ic.Id into identificationCodes
 					from identificationCode in identificationCodes.DefaultIfEmpty()
 					join defaultEdoAccount in unitOfWork.Session.Query<CounterpartyEdoAccountEntity>()
 						on new { a = client.Id, b = (int?)contract.Organization.Id, c = true }

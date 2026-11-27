@@ -34,7 +34,7 @@ namespace DriverAPI.Library.V6.Converters
 		private readonly SignatureTypeConverter _signatureTypeConverter;
 		private readonly QrPaymentConverter _qrPaymentConverter;
 		private readonly IOrderRepository _orderRepository;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodeService _trueMarkCodeService;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 
@@ -48,7 +48,7 @@ namespace DriverAPI.Library.V6.Converters
 		/// <param name="signatureTypeConverter"></param>
 		/// <param name="qrPaymentConverter"></param>
 		/// <param name="orderRepository"></param>
-		/// <param name="trueMarkWaterCodeService"></param>
+		/// <param name="trueMarkCodeService"></param>
 		/// <param name="edoAccountController">Контроллер ЭДО-аккаунтов контрагентов</param>
 		/// <param name="trueMarkRepository">Репозиторий кодов Честного Знака</param>
 		/// <exception cref="ArgumentNullException"></exception>
@@ -60,7 +60,7 @@ namespace DriverAPI.Library.V6.Converters
 			SignatureTypeConverter signatureTypeConverter,
 			QrPaymentConverter qrPaymentConverter,
 			IOrderRepository orderRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodeService trueMarkCodeService,
 			ICounterpartyEdoAccountController edoAccountController,
 			ITrueMarkRepository trueMarkRepository)
 		{
@@ -71,7 +71,7 @@ namespace DriverAPI.Library.V6.Converters
 			_signatureTypeConverter = signatureTypeConverter ?? throw new ArgumentNullException(nameof(signatureTypeConverter));
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodeService = trueMarkCodeService ?? throw new ArgumentNullException(nameof(trueMarkCodeService));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_trueMarkRepository = trueMarkRepository
 				?? throw new ArgumentNullException(nameof(trueMarkRepository));
@@ -320,7 +320,7 @@ namespace DriverAPI.Library.V6.Converters
 				&& routeListItem.Status == RouteListItemStatus.EnRoute)
 			{
 				var allStagingCodes =
-					await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+					await _trueMarkCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
 						_uow,
 						StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
 						routeListItem.Id,
@@ -331,31 +331,31 @@ namespace DriverAPI.Library.V6.Converters
 				return codes;
 			}
 
-			var addedTrueMarkWaterCodes =
+			var addedTrueMarkCodes =
 				isTrueMarkCodesMustBeAddedInWarehouse
 				? GetCodesAddedInWarehouse(saleItem)
 				: await GetCodesAddedByDriver(saleItem, routeListItem, cancellationToken);
 
 			var trueMarkCodes = new List<TrueMarkAnyCode>();
 
-			foreach(var trueMarkWaterCode in addedTrueMarkWaterCodes)
+			foreach(var trueMarkCode in addedTrueMarkCodes)
 			{
 				if(trueMarkCodes.Any(x => x.Match(
-					transportCode => transportCode.RawCode == trueMarkWaterCode.RawCode,
-					groupCode => groupCode.RawCode == trueMarkWaterCode.RawCode,
-					waterCode => waterCode.RawCode == trueMarkWaterCode.RawCode)))
+					transportCode => transportCode.RawCode == trueMarkCode.RawCode,
+					groupCode => groupCode.RawCode == trueMarkCode.RawCode,
+					identificationCode => identificationCode.RawCode == trueMarkCode.RawCode)))
 				{
 					continue;
 				}
 
-				if(trueMarkWaterCode.ParentWaterGroupCodeId == null
-					&& trueMarkWaterCode.ParentTransportCodeId == null)
+				if(trueMarkCode.ParentGroupCodeId == null
+					&& trueMarkCode.ParentTransportCodeId == null)
 				{
-					trueMarkCodes.Add(trueMarkWaterCode);
+					trueMarkCodes.Add(trueMarkCode);
 					continue;
 				}
 
-				var parentCode = _trueMarkWaterCodeService.GetParentGroupCode(_uow, trueMarkWaterCode);
+				var parentCode = _trueMarkCodeService.GetParentGroupCode(_uow, trueMarkCode);
 
 				trueMarkCodes.AddRange(
 					parentCode.Match(
@@ -371,7 +371,7 @@ namespace DriverAPI.Library.V6.Converters
 			return codes;
 		}
 
-		private IEnumerable<TrueMarkWaterIdentificationCode> GetCodesAddedInWarehouse(OrderItem saleItem)
+		private IEnumerable<TrueMarkIdentificationCode> GetCodesAddedInWarehouse(OrderItem saleItem)
 		{
 			var skipCodesCount = (int?)saleItem.Order.OrderItems
 								.Where(x => x.Nomenclature.Id == saleItem.Nomenclature.Id
@@ -382,10 +382,10 @@ namespace DriverAPI.Library.V6.Converters
 
 			var nomenclatureGtins = saleItem.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList();
 
-			var waterCodes = _orderRepository.GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(_uow, saleItem.Order.Id)
+			var identificationCodes = _orderRepository.GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(_uow, saleItem.Order.Id)
 				.Where(x => nomenclatureGtins.Contains(x.Gtin));
 
-			var codes = waterCodes
+			var codes = identificationCodes
 				.Skip(skipCodesCount)
 				.Take(takeCodesCount)
 				.ToList();
@@ -393,12 +393,12 @@ namespace DriverAPI.Library.V6.Converters
 			return codes;
 		}
 
-		private async Task<IEnumerable<TrueMarkWaterIdentificationCode>> GetCodesAddedByDriver(
+		private async Task<IEnumerable<TrueMarkIdentificationCode>> GetCodesAddedByDriver(
 			OrderItem saleItem,
 			RouteListItem routeListItem,
 			CancellationToken cancellationToken)
 		{
-			var codes = new List<TrueMarkWaterIdentificationCode>();
+			var codes = new List<TrueMarkIdentificationCode>();
 
 			var productCodesByOrderItems = _orderRepository.GetTrueMarkCodesAddedByDriverToOrderItemByOrderItemId(_uow, saleItem.Id);
 
@@ -445,25 +445,25 @@ namespace DriverAPI.Library.V6.Converters
 						? allCodes
 							.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == groupCode.ParentTransportCodeId)
 							?.TrueMarkTransportCode.RawCode
-						: groupCode.ParentWaterGroupCodeId != null
+						: groupCode.ParentGroupCodeId != null
 							? allCodes
-								.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode && x.TrueMarkWaterGroupCode.Id == groupCode.ParentWaterGroupCodeId)
-								?.TrueMarkWaterGroupCode.RawCode
+								.FirstOrDefault(x => x.IsTrueMarkGroupCode && x.TrueMarkGroupCode.Id == groupCode.ParentGroupCodeId)
+								?.TrueMarkGroupCode.RawCode
 							: null
 				},
-				waterCode => new TrueMarkCodeDto
+				identificationCode => new TrueMarkCodeDto
 				{
 					SequenceNumber = sequenceNumber,
 					Level = DriverApiTruemarkCodeLevel.unit,
-					Code = waterCode.RawCode,
-					Parent = waterCode.ParentTransportCodeId != null
+					Code = identificationCode.RawCode,
+					Parent = identificationCode.ParentTransportCodeId != null
 						? allCodes
-							.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == waterCode.ParentTransportCodeId)
+							.FirstOrDefault(x => x.IsTrueMarkTransportCode && x.TrueMarkTransportCode.Id == identificationCode.ParentTransportCodeId)
 							?.TrueMarkTransportCode.RawCode
-						: waterCode.ParentWaterGroupCodeId != null
+						: identificationCode.ParentGroupCodeId != null
 							? allCodes
-								.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode && x.TrueMarkWaterGroupCode.Id == waterCode.ParentWaterGroupCodeId)
-								?.TrueMarkWaterGroupCode.RawCode
+								.FirstOrDefault(x => x.IsTrueMarkGroupCode && x.TrueMarkGroupCode.Id == identificationCode.ParentGroupCodeId)
+								?.TrueMarkGroupCode.RawCode
 							: null
 				});
 		}

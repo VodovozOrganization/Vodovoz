@@ -50,9 +50,9 @@ namespace Vodovoz.ViewModels.Edo
 
 		private static IList<UpdCompareViewModel> CreateFields(EdoUpdDocument document)
 		{
-			var individualCode = new ObjectPropertyComparer<TrueMarkWaterIdentificationCode>()
+			var individualCode = new ObjectPropertyComparer<TrueMarkIdentificationCode>()
 				.DefaultExclude().Include(x => x.Id).Include(x => x.IdentificationCode).Build();
-			var groupCode = new ObjectPropertyComparer<TrueMarkWaterGroupCode>()
+			var groupCode = new ObjectPropertyComparer<TrueMarkGroupCode>()
 				.DefaultExclude().Include(x => x.Id).Include(x => x.IdentificationCode).Build();
 			var code = new ObjectPropertyComparer<UpdProductCode>().DefaultInclude()
 				.CompareObject(x => x.IndividualCode, individualCode)

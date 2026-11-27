@@ -75,7 +75,7 @@ namespace Receipt.Dispatcher.Tests
 			var task = CreateTask(true, 5);
 			foreach(var item in task.Items)
 			{
-				item.ProductCode.SourceCode.ParentWaterGroupCodeId = 10;
+				item.ProductCode.SourceCode.ParentGroupCodeId = 10;
 				item.ProductCode.SourceCode.Gtin = "04600000000001";
 			}
 			((OrderItemEntityFixture)task.FormalEdoRequest.Order.OrderItems.First()).SetCount(2);
@@ -232,7 +232,7 @@ namespace Receipt.Dispatcher.Tests
 			task.FormalEdoRequest.Order.OrderItems.Add(CreateOrderItem(5));
 			for(var i = 0; i < codeCount; i++)
 			{
-				var code = new TrueMarkWaterIdentificationCode { Id = i + 1 };
+				var code = new TrueMarkIdentificationCode { Id = i + 1 };
 				task.Items.Add(new EdoTaskItem
 				{
 					ProductCode = new AutoTrueMarkProductCode { SourceCode = code, ResultCode = code }, CustomerEdoTask = task

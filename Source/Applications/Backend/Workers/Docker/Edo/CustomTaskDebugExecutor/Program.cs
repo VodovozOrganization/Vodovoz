@@ -59,7 +59,9 @@ namespace CustomTaskDebugExecutor
 			}
 
 			var builder = new ConfigurationBuilder();
-			builder.AddJsonFile(settingsPath);
+			builder
+				.AddJsonFile(settingsPath, optional: true)
+				.AddUserSecrets<Program>(optional: true);
 			IConfiguration configuration = builder.Build();
 			services.AddScoped<IConfiguration>(_ => configuration);
 
@@ -104,7 +106,7 @@ namespace CustomTaskDebugExecutor
 			services.AddEdo();
 			services.AddEdoProblemRegistration();
 			services.AddCodesPool();
-			services.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>();
+			services.AddScoped<ITrueMarkCodeHierarchyService, TrueMarkCodeHierarchyService>();
 
 			services.AddEdoTransfer();
 

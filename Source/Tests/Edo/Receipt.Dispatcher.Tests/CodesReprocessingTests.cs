@@ -54,7 +54,7 @@ namespace Receipt.Dispatcher.Tests
 		private readonly ForOwnNeedsReceiptEdoTaskHandler _receiptHandler;
 		private readonly TenderEdoTaskHandler _tenderHandler;
 		private readonly ProductInstanceStatus _codeStatus;
-		private readonly TrueMarkWaterIdentificationCode _code = new TrueMarkWaterIdentificationCode
+		private readonly TrueMarkIdentificationCode _code = new TrueMarkIdentificationCode
 		{
 			Id = 100, Gtin = "04600000000001", SerialNumber = "code", RawCode = "code"
 		};
@@ -88,9 +88,9 @@ namespace Receipt.Dispatcher.Tests
 				new EdoTaskValidatorsProvider(new EdoTaskValidatorsPersister(factory, Array.Empty<IEdoTaskValidator>())),
 				Substitute.For<IServiceProvider>(), registrar);
 			var providerFactory = new EdoTaskItemTrueMarkStatusProviderFactory(_api);
-			var waterCodeService = Substitute.For<ITrueMarkWaterCodeService>();
+			var identificationCodeService = Substitute.For<ITrueMarkCodeHierarchyService>();
 			var cancellation = new EdoCancellationService(Substitute.For<ILogger<EdoCancellationService>>(),
-				_uow, Substitute.For<IEdoCancellationValidator>(), registrar, waterCodeService, CreateOutbox(_bus));
+				_uow, Substitute.For<IEdoCancellationValidator>(), registrar, identificationCodeService, CreateOutbox(_bus));
 			var receiptSettings = Substitute.For<IEdoReceiptSettings>();
 			receiptSettings.MaxCodesInReceiptCount.Returns(1000);
 			_receiptHandler = new ForOwnNeedsReceiptEdoTaskHandler(
@@ -99,7 +99,7 @@ namespace Receipt.Dispatcher.Tests
 				new ReceiptTrueMarkCodesPool(_uow), Substitute.For<ITrueMarkCodesPoolCodeProvider>(),
 				Substitute.For<ITrueMarkCodeRepository>(),
 				Substitute.For<IGenericRepository<TrueMarkProductCode>>(), Substitute.For<IEdoOrderContactProvider>(),
-				Substitute.For<ISaveCodesService>(), Substitute.For<IOrganizationSettings>(), _bus, cancellation, waterCodeService);
+				Substitute.For<ISaveCodesService>(), Substitute.For<IOrganizationSettings>(), _bus, cancellation, identificationCodeService);
 			_tenderHandler = new TenderEdoTaskHandler(Substitute.For<ILogger<TenderEdoTaskHandler>>(),
 				_uow, taskValidator, providerFactory, registrar, Substitute.For<ITrueMarkCodeRepository>(),
 				_validator, new TransferRequestCreator(repository), _bus, cancellation);

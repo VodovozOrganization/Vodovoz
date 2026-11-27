@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using RevenueService.Client;
 using Sms.Internal.Client;
 using TrueMarkApi.Client;
+using Vodovoz;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Clients;
 using Vodovoz.Core.Application.Clients.Services;
@@ -37,6 +38,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Handlers;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Models.TrueMark;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Payments;
@@ -81,11 +83,12 @@ namespace Vodovoz.Core.Application
 				.AddScoped<INomenclatureService, NomenclatureService>()
 				.AddScoped<IComplaintService, ComplaintService>()
 				.AddScoped<ISubdivisionPermissionsService, SubdivisionPermissionsService>()
-				.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
+				.AddScoped<ITrueMarkCodeService, TrueMarkCodeService>()
+				.AddTrueMarkCodeParsers()
 				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
-				.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
-				.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+				.AddScoped<ITrueMarkGroupCodeFactory, TrueMarkGroupCodeFactory>()
+				.AddScoped<ITrueMarkIdentificationCodeFactory, TrueMarkIdentificationCodeFactory>()
 				.AddScoped<IWarehousePermissionService, WarehousePermissionService>()
 				.AddScoped<IExternalApplicationUserService, ExternalApplicationUserService>()
 				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()

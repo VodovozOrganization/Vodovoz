@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -12,26 +12,26 @@ using Vodovoz.Core.Domain.TrueMark;
 
 namespace Edo.Common.Services
 {
-	public class TrueMarkWaterCodeService : ITrueMarkWaterCodeService
+	public class TrueMarkCodeHierarchyService : ITrueMarkCodeHierarchyService
 	{
-		private readonly IGenericRepository<TrueMarkWaterGroupCode> _trueMarkWaterGroupCodeRepository;
+		private readonly IGenericRepository<TrueMarkGroupCode> _trueMarkGroupCodeRepository;
 		private readonly IGenericRepository<TrueMarkTransportCode> _trueMarkTransportCodeRepository;
 		private readonly IGenericRepository<EdoUpdInventPositionCode> _edoUpdInventPositionCodeRepository;
 		private readonly IGenericRepository<FiscalInventPosition> _fiscalInventPositionRepository;
 		private readonly IGenericRepository<TransferOrderTrueMarkCode> _transferOrderTrueMarkCodeRepository;
 
-		public TrueMarkWaterCodeService(
-			ILogger<TrueMarkWaterCodeService> logger,
+		public TrueMarkCodeHierarchyService(
+			ILogger<TrueMarkCodeHierarchyService> logger,
 			IUnitOfWork uow,
-			IGenericRepository<TrueMarkWaterGroupCode> trueMarkWaterGroupCodeRepository,
+			IGenericRepository<TrueMarkGroupCode> trueMarkGroupCodeRepository,
 			IGenericRepository<TrueMarkTransportCode> trueMarkTransportCodeRepository,
 			IGenericRepository<EdoUpdInventPositionCode> edoUpdInventPositionCodeRepository,
 			IGenericRepository<FiscalInventPosition> fiscalInventPositionRepository,
 			IGenericRepository<TransferOrderTrueMarkCode> transferOrderTrueMarkCodeRepository
 			)
 		{
-			_trueMarkWaterGroupCodeRepository = trueMarkWaterGroupCodeRepository
-				?? throw new ArgumentNullException(nameof(trueMarkWaterGroupCodeRepository));
+			_trueMarkGroupCodeRepository = trueMarkGroupCodeRepository
+				?? throw new ArgumentNullException(nameof(trueMarkGroupCodeRepository));
 			_trueMarkTransportCodeRepository = trueMarkTransportCodeRepository
 				?? throw new ArgumentNullException(nameof(trueMarkTransportCodeRepository));
 			_edoUpdInventPositionCodeRepository = edoUpdInventPositionCodeRepository
@@ -55,7 +55,7 @@ namespace Edo.Common.Services
 
 			var root = GetParentGroupCode(unitOfWork, anyCode);
 
-			if(root.IsTrueMarkWaterIdentificationCode)
+			if(root.IsTrueMarkIdentificationCode)
 			{
 				return;
 			}
@@ -63,11 +63,11 @@ namespace Edo.Common.Services
 			var allCodes = root.Match(
 				transportCode => transportCode.GetAllCodes(),
 				groupCode => groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode })
+				identificationCode => new TrueMarkAnyCode[] { identificationCode })
 				.ToArray();
 			var groupCodeIds = allCodes
-				.Where(x => x.IsTrueMarkWaterGroupCode)
-				.Select(x => x.TrueMarkWaterGroupCode.Id)
+				.Where(x => x.IsTrueMarkGroupCode)
+				.Select(x => x.TrueMarkGroupCode.Id)
 				.ToArray();
 
 			await ClearEdoDocumentGroupCodeReferencesAsync(
@@ -86,7 +86,7 @@ namespace Edo.Common.Services
 					groupCode.ClearAllCodes();
 					return true;
 				},
-				waterCode => true);
+				identificationCode => true);
 
 			foreach(var code in allCodes)
 			{
@@ -98,7 +98,7 @@ namespace Edo.Common.Services
 				await code.Match(
 					transportCode => unitOfWork.DeleteAsync(transportCode, cancellationToken),
 					groupCode => unitOfWork.DeleteAsync(groupCode, cancellationToken),
-					waterCode => Task.CompletedTask);
+					identificationCode => Task.CompletedTask);
 			}
 		}
 
@@ -158,7 +158,7 @@ namespace Edo.Common.Services
 			var allCodes = root.Match(
 				transportCode => transportCode.GetAllCodes(),
 				groupCode => groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode })
+				identificationCode => new TrueMarkAnyCode[] { identificationCode })
 			.ToArray();
 
 			foreach(var code in allCodes)
@@ -181,14 +181,14 @@ namespace Edo.Common.Services
 				groupCode =>
 				{
 					groupCode.ParentTransportCodeId = null;
-					groupCode.ParentWaterGroupCodeId = null;
+					groupCode.ParentGroupCodeId = null;
 					return unitOfWork.SaveAsync(groupCode, cancellationToken: cancellationToken);
 				},
-				waterCode =>
+				identificationCode =>
 				{
-					waterCode.ParentTransportCodeId = null;
-					waterCode.ParentWaterGroupCodeId = null;
-					return unitOfWork.SaveAsync(waterCode, cancellationToken: cancellationToken);
+					identificationCode.ParentTransportCodeId = null;
+					identificationCode.ParentGroupCodeId = null;
+					return unitOfWork.SaveAsync(identificationCode, cancellationToken: cancellationToken);
 				}
 			);
 		}
@@ -232,46 +232,46 @@ namespace Edo.Common.Services
 								.FirstOrDefault());
 					}
 
-					if(groupCode.ParentWaterGroupCodeId != null)
+					if(groupCode.ParentGroupCodeId != null)
 					{
 						return GetParentGroupCode(
 							unitOfWork,
-							_trueMarkWaterGroupCodeRepository
+							_trueMarkGroupCodeRepository
 								.Get(
 									unitOfWork,
-									x => x.Id == groupCode.ParentWaterGroupCodeId,
+									x => x.Id == groupCode.ParentGroupCodeId,
 									1)
 								.FirstOrDefault());
 					}
 
 					return groupCode;
 				},
-				waterCode =>
+				identificationCode =>
 				{
-					if(waterCode.ParentWaterGroupCodeId != null)
+					if(identificationCode.ParentGroupCodeId != null)
 					{
 						return GetParentGroupCode(unitOfWork,
-							_trueMarkWaterGroupCodeRepository
+							_trueMarkGroupCodeRepository
 								.Get(
 									unitOfWork,
-									x => x.Id == waterCode.ParentWaterGroupCodeId,
+									x => x.Id == identificationCode.ParentGroupCodeId,
 									1)
 								.FirstOrDefault());
 					}
 
-					if(waterCode.ParentTransportCodeId != null)
+					if(identificationCode.ParentTransportCodeId != null)
 					{
 						return GetParentGroupCode(
 							unitOfWork,
 							_trueMarkTransportCodeRepository
 								.Get(
 									unitOfWork,
-									x => x.Id == waterCode.ParentTransportCodeId,
+									x => x.Id == identificationCode.ParentTransportCodeId,
 									1)
 								.FirstOrDefault());
 					}
 
-					return waterCode;
+					return identificationCode;
 				});
 		}
 	}

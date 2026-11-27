@@ -1,4 +1,4 @@
-﻿using MassTransit;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +17,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Api.Contracts.Dto;
-using TrueMark.Api.Contracts.Requests;
 using TrueMark.Api.Contracts.Responses;
 using TrueMark.Api.Extensions;
 using TrueMark.Api.Options;
@@ -60,61 +59,6 @@ public class TrueMarkApiController : ControllerBase
 		_httpClient = httpClientFactory.CreateClient("truemark-external");
 
 		_organizationCertificate = options.Value.OrganizationCertificates.FirstOrDefault();
-	}
-
-	[HttpGet]
-	public async Task<TrueMarkRegistrationResultDto> ParticipantRegistrationForWaterAsync(string inn)
-	{
-		var uri = $"v3/true-api/participants?inns={inn}";
-
-		var errorMessage = new StringBuilder();
-		errorMessage.AppendLine("Не удалось получить статус регистрации учатниска.");
-
-		try
-		{
-			var response = await _httpClient.GetAsync(uri);
-
-			if(!response.IsSuccessStatusCode)
-			{
-				return new TrueMarkRegistrationResultDto
-				{
-					ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
-				};
-			}
-
-			string responseBody = await response.Content.ReadAsStringAsync();
-			var registrationResult = JsonSerializer.Deserialize<IList<ParticipantRegistrationDto>>(responseBody).FirstOrDefault();
-
-			if(!string.IsNullOrWhiteSpace(registrationResult.ErrorMessage))
-			{
-				return new TrueMarkRegistrationResultDto
-				{
-					ErrorMessage = registrationResult.ErrorMessage
-				};
-			}
-
-			if(!registrationResult.IsRegisteredForWater)
-			{
-				return new TrueMarkRegistrationResultDto
-				{
-					ErrorMessage = "Участник зарегистрирован в Честном Знаке, но нет регистрации по группе товаров \"Вода\"!"
-				};
-			}
-
-			return new TrueMarkRegistrationResultDto
-			{
-				RegistrationStatusString = registrationResult.Status
-			};
-		}
-		catch(Exception e)
-		{
-			_logger.LogError(e, errorMessage.ToString());
-
-			return new TrueMarkRegistrationResultDto
-			{
-				ErrorMessage = errorMessage.AppendLine(e.Message).ToString()
-			};
-		}
 	}
 
 	[HttpPost]
@@ -239,6 +183,7 @@ public class TrueMarkApiController : ControllerBase
 				{
 					IdentificationCode = cisesInformation.CisInfo.RequestedCis,
 					Gtin = cisesInformation.CisInfo.Gtin,
+					ProductGroup = cisesInformation.CisInfo.ProductGroup,
 					Status = cisesInformation.CisInfo.Status.ToProductInstanceStatusEnum(),
 					GeneralPackageType = Enum.TryParse<GeneralPackageType>(cisesInformation.CisInfo.GeneralPackageType, true, out var generalPackageType) ? generalPackageType : null,
 					PackageType = Enum.TryParse<PackageType>(cisesInformation.CisInfo.PackageType, true, out var packageType) ? packageType : null,
@@ -367,7 +312,14 @@ public class TrueMarkApiController : ControllerBase
 	[HttpPost]
 	public async Task<IActionResult> SendIndividualAccountingWithdrawalDocument([FromBody] SendDocumentDataRequest documentData, CancellationToken cancellationToken)
 	{
-		var uri = $"v3/true-api/lk/documents/create?pg=water";
+		if(documentData.ProductGroup is null)
+		{
+			return BadRequest($"Не указана товарная группа (ProductGroup) при отправке документа: {documentData.Document}");
+		}
+
+		var productGroup = documentData.ProductGroup.Value.ToApiValue();
+
+		var uri = $"v3/true-api/lk/documents/create?pg={Uri.EscapeDataString(productGroup)}";
 
 		var document = documentData.Document;
 		var inn = documentData.Inn;
@@ -425,7 +377,14 @@ public class TrueMarkApiController : ControllerBase
 	[HttpPost]
 	public async Task<IActionResult> SendIndividualAccountingWithdrawalCancellationDocument([FromBody] SendDocumentDataRequest documentData, CancellationToken cancellationToken)
 	{
-		var uri = $"v3/true-api/lk/documents/create?pg=water";
+		if(documentData.ProductGroup is null)
+		{
+			return BadRequest($"Не указана товарная группа (ProductGroup) при отправке документа: {documentData.Document}");
+		}
+
+		var productGroup = documentData.ProductGroup.Value.ToApiValue();
+
+		var uri = $"v3/true-api/lk/documents/create?pg={Uri.EscapeDataString(productGroup)}";
 
 		var document = documentData.Document;
 		var inn = documentData.Inn;

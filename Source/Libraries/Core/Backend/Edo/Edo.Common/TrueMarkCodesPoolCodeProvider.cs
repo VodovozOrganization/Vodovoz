@@ -44,7 +44,7 @@ namespace Edo.Common
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 		}
 
-		public async Task<TrueMarkWaterIdentificationCode> TakeValidCodeAsync(
+		public async Task<TrueMarkIdentificationCode> TakeValidCodeAsync(
 			ITrueMarkCodesPool codesPool,
 			GtinEntity gtin,
 			string organizationInn,
@@ -64,7 +64,7 @@ namespace Edo.Common
 			return await TakeValidCodeAsync(codesPool, new[] { gtin }, organizationInn, cancellationToken, addingTimeNotAfter);
 		}
 
-		public async Task<TrueMarkWaterIdentificationCode> TakeValidCodeAsync(
+		public async Task<TrueMarkIdentificationCode> TakeValidCodeAsync(
 			ITrueMarkCodesPool codesPool,
 			IEnumerable<GtinEntity> gtins,
 			string organizationInn,
@@ -114,7 +114,7 @@ namespace Edo.Common
 						codeId,
 						gtin.GtinNumber);
 
-					var code = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken) 
+					var code = await _uow.Session.GetAsync<TrueMarkIdentificationCode>(codeId, cancellationToken) 
 						?? throw new InvalidOperationException($"Не найден код ЧЗ с Id {codeId}, полученный из пула.");
 
 					if(await IsCodeAlreadyUsedAsResultCodeAsync(code.Id, cancellationToken))
@@ -168,7 +168,7 @@ namespace Edo.Common
 				$"В пуле не найден валидный код для следующих GTIN: {gtinsDescription}.");
 		}
 
-		public async Task<Result<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>>> TakeValidCodesBatchAsync(
+		public async Task<Result<IDictionary<string, IList<TrueMarkIdentificationCode>>>> TakeValidCodesBatchAsync(
 			ITrueMarkCodesPool codesPool,
 			IDictionary<string, int> gtinCounts,
 			string organizationInn,
@@ -186,7 +186,7 @@ namespace Edo.Common
 
 			var takeValidCodeAttempts = _edoSettings.CodePoolTakeValidCodeAttempts;
 			var allCollectedCodes = InitializeCollectedCodes(gtinCounts);
-			var allTakenCodes = new Dictionary<string, List<TrueMarkWaterIdentificationCode>>();
+			var allTakenCodes = new Dictionary<string, List<TrueMarkIdentificationCode>>();
 
 			_logger.LogInformation(
 				"Начат пакетный подбор {TotalCount} кодов из пула для {GtinCount} GTIN. Организация: {OrganizationInn}.",
@@ -226,7 +226,7 @@ namespace Edo.Common
 				{
 					if(!allTakenCodes.ContainsKey(gtinCodes.Key))
 					{
-						allTakenCodes[gtinCodes.Key] = new List<TrueMarkWaterIdentificationCode>();
+						allTakenCodes[gtinCodes.Key] = new List<TrueMarkIdentificationCode>();
 					}
 					allTakenCodes[gtinCodes.Key].AddRange(gtinCodes.Value);
 				}
@@ -256,43 +256,43 @@ namespace Edo.Common
 				cancellationToken);
 		}
 
-		private Dictionary<string, List<TrueMarkWaterIdentificationCode>> InitializeCollectedCodes(
+		private Dictionary<string, List<TrueMarkIdentificationCode>> InitializeCollectedCodes(
 			IDictionary<string, int> gtinCounts)
 		{
-			var result = new Dictionary<string, List<TrueMarkWaterIdentificationCode>>();
+			var result = new Dictionary<string, List<TrueMarkIdentificationCode>>();
 			foreach(var gtin in gtinCounts.Keys)
 			{
-				result[gtin] = new List<TrueMarkWaterIdentificationCode>();
+				result[gtin] = new List<TrueMarkIdentificationCode>();
 			}
 			return result;
 		}
 
 		private Dictionary<string, int> GetRemainingCounts(
 			IDictionary<string, int> gtinCounts,
-			Dictionary<string, List<TrueMarkWaterIdentificationCode>> allCollectedCodes)
+			Dictionary<string, List<TrueMarkIdentificationCode>> allCollectedCodes)
 		{
 			return gtinCounts
 				.Where(x => allCollectedCodes[x.Key].Count < x.Value)
 				.ToDictionary(x => x.Key, x => x.Value - allCollectedCodes[x.Key].Count);
 		}
 
-		private async Task<(Dictionary<string, List<TrueMarkWaterIdentificationCode>> ValidCodes, Dictionary<string, List<TrueMarkWaterIdentificationCode>> TakenCodes)> TryTakeAndValidateCodesAsync(
+		private async Task<(Dictionary<string, List<TrueMarkIdentificationCode>> ValidCodes, Dictionary<string, List<TrueMarkIdentificationCode>> TakenCodes)> TryTakeAndValidateCodesAsync(
 			ITrueMarkCodesPool codesPool,
 			Dictionary<string, int> remainingCounts,
 			string organizationInn,
 			int attempt,
 			CancellationToken cancellationToken)
 		{
-			var validCodesResult = new Dictionary<string, List<TrueMarkWaterIdentificationCode>>();
-			var takenCodesResult = new Dictionary<string, List<TrueMarkWaterIdentificationCode>>();
+			var validCodesResult = new Dictionary<string, List<TrueMarkIdentificationCode>>();
+			var takenCodesResult = new Dictionary<string, List<TrueMarkIdentificationCode>>();
 
 			foreach(var remainingCount in remainingCounts)
 			{
 				var gtinNumber = remainingCount.Key;
 				var needed = remainingCount.Value;
 				var gtin = await _edoRepository.GetGtinByGtinNumberAsync(gtinNumber, cancellationToken);
-				var collectedForGtin = new List<TrueMarkWaterIdentificationCode>();
-				var takenForGtin = new List<TrueMarkWaterIdentificationCode>();
+				var collectedForGtin = new List<TrueMarkIdentificationCode>();
+				var takenForGtin = new List<TrueMarkIdentificationCode>();
 				var attemptsForGtin = 0;
 				var maxAttemptsForGtin = _edoSettings.CodePoolTakeValidCodeAttempts;
 
@@ -317,7 +317,7 @@ namespace Edo.Common
 							codeIds.Count,
 							attempt);
 
-						var codes = await _trueMarkCodeRepository.LoadWaterCodes(
+						var codes = await _trueMarkCodeRepository.LoadIdentificationCodes(
 							_uow,
 							codeIds.ToArray(),
 							cancellationToken);
@@ -329,7 +329,7 @@ namespace Edo.Common
 							organizationInn,
 							cancellationToken);
 
-						var validCodes = new List<TrueMarkWaterIdentificationCode>();
+						var validCodes = new List<TrueMarkIdentificationCode>();
 
 						foreach(var codeResult in validationResult.CodeResults.Where(r => r.IsValid))
 						{
@@ -386,8 +386,8 @@ namespace Edo.Common
 		private async Task DistributeValidCodes(
 			ITrueMarkCodesPool codesPool,
 			Dictionary<string, int> remainingCounts,
-			Dictionary<string, List<TrueMarkWaterIdentificationCode>> validCodesByGtin,
-			Dictionary<string, List<TrueMarkWaterIdentificationCode>> allCollectedCodes,
+			Dictionary<string, List<TrueMarkIdentificationCode>> validCodesByGtin,
+			Dictionary<string, List<TrueMarkIdentificationCode>> allCollectedCodes,
 			IDictionary<string, int> gtinCounts,
 			int attempt,
 			CancellationToken cancellationToken)
@@ -429,7 +429,7 @@ namespace Edo.Common
 
 		private async Task ReturnCodesToPool(
 			ITrueMarkCodesPool codesPool,
-			List<TrueMarkWaterIdentificationCode> codes,
+			List<TrueMarkIdentificationCode> codes,
 			string gtin,
 			CancellationToken cancellationToken)
 		{
@@ -453,17 +453,17 @@ namespace Edo.Common
 		}
 
 		private Task<bool> IsCodeAlreadyUsedAsResultCodeAsync(int identificationCodeId, CancellationToken cancellationToken) =>
-			_trueMarkCodeRepository.IsWaterCodeUsedAsResultCodeAsync(identificationCodeId, cancellationToken);
+			_trueMarkCodeRepository.IsIdentificationCodeUsedAsResultCodeAsync(identificationCodeId, cancellationToken);
 
-		private async Task<Result<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>>> BuildResult(
+		private async Task<Result<IDictionary<string, IList<TrueMarkIdentificationCode>>>> BuildResult(
 			ITrueMarkCodesPool codesPool,
 			IDictionary<string, int> gtinCounts,
-			Dictionary<string, List<TrueMarkWaterIdentificationCode>> allCollectedCodes,
-			Dictionary<string, List<TrueMarkWaterIdentificationCode>> allTakenCodes,
+			Dictionary<string, List<TrueMarkIdentificationCode>> allCollectedCodes,
+			Dictionary<string, List<TrueMarkIdentificationCode>> allTakenCodes,
 			int attempt,
 			CancellationToken cancellationToken)
 		{
-			var result = new Dictionary<string, IList<TrueMarkWaterIdentificationCode>>();
+			var result = new Dictionary<string, IList<TrueMarkIdentificationCode>>();
 			var allSuccess = true;
 			var hasAnyCodes = false;
 			var missingGtins = new List<string>();
@@ -485,7 +485,7 @@ namespace Edo.Common
 				}
 				else
 				{
-					result[gtin] = new List<TrueMarkWaterIdentificationCode>();
+					result[gtin] = new List<TrueMarkIdentificationCode>();
 					_logger.LogWarning(
 						"Не удалось собрать валидные коды для GTIN {Gtin} за {Attempt} попыток.",
 						gtin,
@@ -520,13 +520,13 @@ namespace Edo.Common
 					var noCodesError = TrueMarkCodeErrors.NoCodes(missingGtins.FirstOrDefault());
 					_logger.LogWarning(noCodesError.Message);
 
-					return Result.Failure<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>>(noCodesError);
+					return Result.Failure<IDictionary<string, IList<TrueMarkIdentificationCode>>>(noCodesError);
 				}
 
 				var partialResultError = TrueMarkCodeErrors.PartialResult(string.Join(", ", missingGtins));
 				_logger.LogWarning(partialResultError.Message);
 
-				return Result.Failure<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>>(partialResultError);
+				return Result.Failure<IDictionary<string, IList<TrueMarkIdentificationCode>>>(partialResultError);
 			}
 
 			_logger.LogInformation(
@@ -535,12 +535,12 @@ namespace Edo.Common
 				totalRequestedCount,
 				attempt);
 
-			IDictionary<string, IList<TrueMarkWaterIdentificationCode>> resultAsIDictionary = result;
+			IDictionary<string, IList<TrueMarkIdentificationCode>> resultAsIDictionary = result;
 			return Result.Success(resultAsIDictionary);
 		}
 
 		private async Task<TrueMarkCodeValidationResult> ValidateAsync(
-			TrueMarkWaterIdentificationCode code,
+			TrueMarkIdentificationCode code,
 			string organizationInn,
 			CancellationToken cancellationToken)
 		{

@@ -71,24 +71,24 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			}
 		}
 
-		public async Task<IEnumerable<TrueMarkWaterIdentificationCode>> LoadWaterCodes(List<int> codeIds, CancellationToken cancellationToken)
+		public async Task<IEnumerable<TrueMarkIdentificationCode>> LoadIdentificationCodes(List<int> codeIds, CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var result = await uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+				var result = await uow.Session.QueryOver<TrueMarkIdentificationCode>()
 					.WhereRestrictionOn(x => x.Id).IsIn(codeIds)
 					.ListAsync(cancellationToken);
 				return result;
 			}
 		}
 
-		public IEnumerable<TrueMarkWaterIdentificationCode> GetTrueMarkCodeDuplicates(
+		public IEnumerable<TrueMarkIdentificationCode> GetTrueMarkCodeDuplicates(
 			IUnitOfWork uow,
 			string gtin,
 			string serialNumber,
 			string checkCode)
 		{
-			var query = uow.Session.Query<TrueMarkWaterIdentificationCode>()
+			var query = uow.Session.Query<TrueMarkIdentificationCode>()
 				.Where(x => x.Gtin == gtin && x.SerialNumber == serialNumber && x.CheckCode == checkCode);
 
 			return query.ToList();
@@ -195,9 +195,9 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				transportCode =>
 					uow.Session.Query<TrueMarkTransportCode>().Where(x => x.RawCode == trueMarkAnyCode.TrueMarkTransportCode.RawCode).Any(),
 				groupCode =>
-					uow.Session.Query<TrueMarkWaterGroupCode>().Where(x => x.RawCode == trueMarkAnyCode.TrueMarkTransportCode.RawCode).Any(),
-				waterCode =>
-					uow.Session.Query<TrueMarkWaterIdentificationCode>().Where(x => x.RawCode == trueMarkAnyCode.TrueMarkTransportCode.RawCode).Any());
+					uow.Session.Query<TrueMarkGroupCode>().Where(x => x.RawCode == trueMarkAnyCode.TrueMarkTransportCode.RawCode).Any(),
+				identificationCode =>
+					uow.Session.Query<TrueMarkIdentificationCode>().Where(x => x.RawCode == trueMarkAnyCode.TrueMarkTransportCode.RawCode).Any());
 
 			return isCodeAlreadySaved;
 		}
@@ -213,12 +213,12 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			return routeListCodes;
 		}
 
-		public IEnumerable<TrueMarkWaterGroupCode> GetGroupWaterCodes(IUnitOfWork uow, IEnumerable<int> groupCodeIds)
+		public IEnumerable<TrueMarkGroupCode> GetGroupCodes(IUnitOfWork uow, IEnumerable<int> groupCodeIds)
 		{
-			TrueMarkWaterGroupCode trueMarkWaterGroupCodeAlias = null;
+			TrueMarkGroupCode trueMarkGroupCodeAlias = null;
 
-			var routeListCodes = uow.Session.QueryOver(() => trueMarkWaterGroupCodeAlias)
-				.WhereRestrictionOn(() => trueMarkWaterGroupCodeAlias.Id).IsIn(groupCodeIds.ToArray())
+			var routeListCodes = uow.Session.QueryOver(() => trueMarkGroupCodeAlias)
+				.WhereRestrictionOn(() => trueMarkGroupCodeAlias.Id).IsIn(groupCodeIds.ToArray())
 				.List();
 
 			return routeListCodes;
@@ -730,7 +730,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			var gtin = allIdentificationCodes.First().Gtin;
 
 			var query =
-				from identificationCode in uow.Session.Query<TrueMarkWaterIdentificationCode>()
+				from identificationCode in uow.Session.Query<TrueMarkIdentificationCode>()
 				join productCode in uow.Session.Query<TrueMarkProductCode>() on identificationCode.Id equals productCode.ResultCode.Id
 				where
 				productCode != null
@@ -924,7 +924,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		}
 
 		/// <inheritdoc/>
-		public async Task<IList<TrueMarkWaterIdentificationCode>> GetRouteListItemProductCodesSourceCodesAsync(
+		public async Task<IList<TrueMarkIdentificationCode>> GetRouteListItemProductCodesSourceCodesAsync(
 			IUnitOfWork uow,
 			int routeListItemId,
 			CancellationToken cancellationToken)
@@ -983,7 +983,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		}
 
 		/// <inheritdoc/>
-		public async Task<IList<TrueMarkWaterIdentificationCode>> GetCarLoadDocumentItemProductCodesSourceCodesAsync(
+		public async Task<IList<TrueMarkIdentificationCode>> GetCarLoadDocumentItemProductCodesSourceCodesAsync(
 			IUnitOfWork uow,
 			int carLoadDocumentItemId,
 			CancellationToken cancellationToken)
@@ -1080,7 +1080,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		}
 
 		/// <inheritdoc/>
-		public async Task<IList<TrueMarkWaterIdentificationCode>> GetSelfDeliveryDocumentItemProductCodesSourceCodesAsync(
+		public async Task<IList<TrueMarkIdentificationCode>> GetSelfDeliveryDocumentItemProductCodesSourceCodesAsync(
 			IUnitOfWork uow,
 			int selfDeliveryDocumentItemId,
 			CancellationToken cancellationToken)

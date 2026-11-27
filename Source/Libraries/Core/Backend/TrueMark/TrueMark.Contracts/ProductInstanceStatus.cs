@@ -65,6 +65,13 @@ namespace TrueMark.Contracts
 		public string Gtin { get; set; }
 
 		/// <summary>
+		/// Товарная группа (water, petfood и т.д.)
+		/// </summary>
+		[JsonPropertyName("productGroup")]
+		[JsonConverter(typeof(TrueMarkProductGroupJsonConverter))]
+		public TrueMarkProductGroup? ProductGroup { get; set; }
+
+		/// <summary>
 		/// Дата производства
 		/// </summary>
 		[JsonPropertyName("producedDate")]

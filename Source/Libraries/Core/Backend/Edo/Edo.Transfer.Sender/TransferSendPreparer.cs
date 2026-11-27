@@ -304,16 +304,16 @@ namespace Edo.Transfer.Sender
 		{
 			TransferOrderTrueMarkCode transferOrderTrueMarkCode = null;
 
-			if(edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
+			if(edoTaskItem.ProductCode.ResultCode.ParentGroupCodeId != null)
 			{
 				var groupCode = await _trueMarkCodeRepository.GetGroupCode(
-					edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value,
+					edoTaskItem.ProductCode.ResultCode.ParentGroupCodeId.Value,
 					cancellationToken
 				);
 
 				var groupCodeNomenclature = GetNomenclatureForTaskItem(edoTask, groupCode, groupGtins);
 				var quantity = groupCode.GetAllCodes()
-					.Where(x => x.IsTrueMarkWaterIdentificationCode)
+					.Where(x => x.IsTrueMarkIdentificationCode)
 					.Count();
 
 				transferOrderTrueMarkCode = new TransferOrderTrueMarkCode();
@@ -337,7 +337,7 @@ namespace Edo.Transfer.Sender
 
 		private NomenclatureEntity GetNomenclatureForTaskItem(
 			IUpdEnventPositionsTask edoTask,
-			TrueMarkWaterGroupCode groupCode,
+			TrueMarkGroupCode groupCode,
 			IEnumerable<GroupGtinEntity> groupGtins
 			)
 		{
@@ -358,7 +358,7 @@ namespace Edo.Transfer.Sender
 
 		private NomenclatureEntity GetNomenclatureForTaskItem(
 			IUpdEnventPositionsTask edoTask,
-			TrueMarkWaterIdentificationCode individualCode,
+			TrueMarkIdentificationCode individualCode,
 			IEnumerable<GtinEntity> gtins
 			)
 		{
@@ -387,16 +387,16 @@ namespace Edo.Transfer.Sender
 		{
 			TransferOrderTrueMarkCode transferOrderTrueMarkCode = null;
 
-			if(edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
+			if(edoTaskItem.ProductCode.ResultCode.ParentGroupCodeId != null)
 			{
 				var groupCode = await _trueMarkCodeRepository.GetGroupCode(
-					edoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value,
+					edoTaskItem.ProductCode.ResultCode.ParentGroupCodeId.Value,
 					cancellationToken
 				);
 
 				var groupCodeNomenclature = GetNomenclatureForTaskItem(edoTask, groupCode, groupGtins);
 				var quantity = groupCode.GetAllCodes()
-					.Where(x => x.IsTrueMarkWaterIdentificationCode)
+					.Where(x => x.IsTrueMarkIdentificationCode)
 					.Count();
 
 				transferOrderTrueMarkCode = new TransferOrderTrueMarkCode();
@@ -421,7 +421,7 @@ namespace Edo.Transfer.Sender
 
 		private NomenclatureEntity GetNomenclatureForTaskItem(
 			ReceiptEdoTask edoTask,
-			TrueMarkWaterGroupCode groupCode,
+			TrueMarkGroupCode groupCode,
 			IEnumerable<GroupGtinEntity> groupGtins
 			)
 		{

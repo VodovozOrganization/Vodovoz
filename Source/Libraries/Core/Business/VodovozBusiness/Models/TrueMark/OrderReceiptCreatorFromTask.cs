@@ -176,7 +176,7 @@ namespace VodovozBusiness.Models.TrueMark
 				OrderItem = orderItem,
 			};
 
-			TrueMarkWaterIdentificationCode code = null;
+			TrueMarkIdentificationCode code = null;
 			
 			var taskCode = taskCodes
 				.FirstOrDefault(x => x.SourceCode != null
@@ -201,10 +201,10 @@ namespace VodovozBusiness.Models.TrueMark
 			receipt.ScannedCodes.Add(orderProductCode);
 		}
 
-		protected TrueMarkWaterIdentificationCode GetCodeFromPool(IUnitOfWork uow, string gtin)
+		protected TrueMarkIdentificationCode GetCodeFromPool(IUnitOfWork uow, string gtin)
 		{
 			var codeId = CodesPool.TakeCode(gtin);
-			return uow.GetById<TrueMarkWaterIdentificationCode>(codeId);
+			return uow.GetById<TrueMarkIdentificationCode>(codeId);
 		}
 		
 		protected void CommitPool()

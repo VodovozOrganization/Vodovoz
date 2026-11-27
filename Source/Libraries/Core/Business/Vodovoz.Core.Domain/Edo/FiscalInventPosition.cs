@@ -27,7 +27,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private EdoTaskItem _edoTaskItem;
 
 		// он используется для назначения группового кода на позицию товара в чеке
-		private TrueMarkWaterGroupCode _groupCode;
+		private TrueMarkGroupCode _groupCode;
 
 
 		/// <summary>
@@ -118,7 +118,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Групповой код")]
-		public virtual TrueMarkWaterGroupCode GroupCode
+		public virtual TrueMarkGroupCode GroupCode
 		{
 			get => _groupCode;
 			set => SetField(ref _groupCode, value);

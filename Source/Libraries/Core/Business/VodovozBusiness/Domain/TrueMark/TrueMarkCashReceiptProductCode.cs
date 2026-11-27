@@ -20,8 +20,8 @@ namespace Vodovoz.Domain.TrueMark
 		private bool _isUnscannedSourceCode;
 		private bool _isDuplicateSourceCode;
 		private bool _isDefectiveSourceCode;
-		private TrueMarkWaterIdentificationCode _sourceCode;
-		private TrueMarkWaterIdentificationCode _resultCode;
+		private TrueMarkIdentificationCode _sourceCode;
+		private TrueMarkIdentificationCode _resultCode;
 		private int? _duplicatedIdentificationCodeId;
 		private int _duplicatesCount;
 
@@ -67,14 +67,14 @@ namespace Vodovoz.Domain.TrueMark
 		}
 
 		[Display(Name = "Код источник")]
-		public virtual TrueMarkWaterIdentificationCode SourceCode
+		public virtual TrueMarkIdentificationCode SourceCode
 		{
 			get => _sourceCode;
 			set => SetField(ref _sourceCode, value);
 		}
 
 		[Display(Name = "Код результат")]
-		public virtual TrueMarkWaterIdentificationCode ResultCode
+		public virtual TrueMarkIdentificationCode ResultCode
 		{
 			get => _resultCode;
 			set => SetField(ref _resultCode, value);

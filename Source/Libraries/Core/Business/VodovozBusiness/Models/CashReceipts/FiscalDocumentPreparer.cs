@@ -19,12 +19,6 @@ namespace Vodovoz.Models.CashReceipts
 		private const string _notValidRawCode =
 			"У одного из кодов не заполнен итоговый код, который должен быть использован для записи в чек. " +
 			"Возможно он оказался не обработанным службой обработки кодов честного знака";
-		private readonly TrueMarkWaterCodeParser _codeParser;
-
-		public FiscalDocumentPreparer(TrueMarkWaterCodeParser codeParser)
-		{
-			_codeParser = codeParser ?? throw new ArgumentNullException(nameof(codeParser));
-		}
 
 		public FiscalDocument CreateDocument(CashReceipt cashReceipt)
 		{
@@ -104,7 +98,7 @@ namespace Vodovoz.Models.CashReceipts
 				{
 					var inventPosition = CreateInventPosition(orderItem);
 					var code = orderItemsCodes.First().ResultCode;
-					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
+					inventPosition.ProductMark = code.CashReceiptCode;
 
 					fiscalDocument.InventPositions.Add(inventPosition);
 					continue;
@@ -130,7 +124,7 @@ namespace Vodovoz.Models.CashReceipts
 
 					inventPosition.Quantity = 1;
 					var code = orderItemsCodes[i - 1].ResultCode;
-					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
+					inventPosition.ProductMark = code.CashReceiptCode;
 					fiscalDocument.InventPositions.Add(inventPosition);
 				}
 
@@ -147,7 +141,7 @@ namespace Vodovoz.Models.CashReceipts
 				lastInventPosition.Quantity = 1;
 				lastInventPosition.DiscSum = residueDiscount;
 				var lastCode = orderItemCode.ResultCode;
-				lastInventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(lastCode);
+				lastInventPosition.ProductMark = lastCode.CashReceiptCode;
 				fiscalDocument.InventPositions.Add(lastInventPosition);
 			}
 		}
@@ -206,7 +200,7 @@ namespace Vodovoz.Models.CashReceipts
 
 					var code = TryGetCodeFromScannedCodes(orderItemsCodes, orderItem);
 					var inventPosition = CreateInventPosition(orderItem);
-					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
+					inventPosition.ProductMark = code.CashReceiptCode;
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += orderItem.Sum;
 					unprocessedCodesCount -= 1;
@@ -235,7 +229,7 @@ namespace Vodovoz.Models.CashReceipts
 					inventPosition.Quantity = 1;
 					inventPosition.DiscSum = discount;
 					var code = TryGetCodeFromScannedCodes(orderItemsCodes, orderItem);
-					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(code);
+					inventPosition.ProductMark = code.CashReceiptCode;
 					fiscalDocument.InventPositions.Add(inventPosition);
 					cashReceiptSum += inventPosition.PriceWithoutDiscount - discount;
 					unprocessedCodesCount -= 1;
@@ -254,7 +248,7 @@ namespace Vodovoz.Models.CashReceipts
 			}
 		}
 
-		private TrueMarkWaterIdentificationCode TryGetCodeFromScannedCodes(
+		private TrueMarkIdentificationCode TryGetCodeFromScannedCodes(
 			Queue<CashReceiptProductCode> orderItemsCodes, OrderItem orderItem)
 		{
 			if(orderItemsCodes.Count == 0)

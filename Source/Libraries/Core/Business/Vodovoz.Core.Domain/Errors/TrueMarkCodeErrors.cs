@@ -63,13 +63,13 @@ namespace Vodovoz.Core.Domain.Errors
 		/// <summary>
 		/// Ошибка дубля кода ЧЗ в базе с указанием Id кода
 		/// </summary>
-		/// <param name="waterCodeId">Id кода</param>
+		/// <param name="identificationCodeId">Id кода</param>
 		/// <returns>Ошибка</returns>
-		public static Error CreateTrueMarkCodeIsAlreadyUsed(int waterCodeId) =>
+		public static Error CreateTrueMarkCodeIsAlreadyUsed(int identificationCodeId) =>
 			new Error(
 				typeof(TrueMarkCodeErrors),
 				nameof(TrueMarkCodeIsAlreadyUsed),
-				$"Код ЧЗ (Id = {waterCodeId}) уже был использован. Добавляемый код является дублем");
+				$"Код ЧЗ (Id = {identificationCodeId}) уже был использован. Добавляемый код является дублем");
 
 		/// <summary>
 		/// Ошибка дубля кода ЧЗ в заказе с указанием Id заказа
@@ -333,6 +333,59 @@ namespace Vodovoz.Core.Domain.Errors
 				typeof(TrueMarkCodeErrors),
 				nameof(NoCodes),
 				$"Не удалось получить ни одного валидного кода для GTIN: {gtin}");
+
+		/// <summary>
+		/// Товарная группа, распознанная парсером, не совпадает с группой, которую вернул ЧЗ
+		/// </summary>
+		public static Error ProductGroupMismatch =>
+			new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(ProductGroupMismatch),
+				"Код относится к другой товарной группе маркировки");
+
+		/// <summary>
+		/// Товарная группа, распознанная парсером, не совпадает с группой, которую вернул ЧЗ
+		/// </summary>
+		/// <param name="codeString">Строка кода</param>
+		/// <returns>Ошибка</returns>
+		public static Error CreateProductGroupMismatch(string codeString) =>
+			string.IsNullOrEmpty(codeString) ? ProductGroupMismatch : new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(ProductGroupMismatch),
+				$"Код ({codeString}) относится к другой товарной группе маркировки");
+
+		/// <summary>
+		/// Товарная группа кода не поддерживается (ЧЗ не вернул группу для группового или единичного кода)
+		/// </summary>
+		public static Error ProductGroupNotSupported =>
+			new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(ProductGroupNotSupported),
+				"Товарная группа маркировки этого кода не поддерживается");
+
+		/// <summary>
+		/// Товарная группа кода не поддерживается
+		/// </summary>
+		/// <param name="codeString">Строка кода</param>
+		/// <returns>Ошибка</returns>
+		public static Error CreateProductGroupNotSupported(string codeString) =>
+			string.IsNullOrEmpty(codeString) ? ProductGroupNotSupported : new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(ProductGroupNotSupported),
+				$"Товарная группа маркировки кода ({codeString}) не поддерживается");
+
+		/// <summary>
+		/// Не удалось извлечь серийный номер из кода идентификации
+		/// </summary>
+		/// <param name="codeString">Строка кода</param>
+		/// <returns>Ошибка</returns>
+		public static Error CreateSerialNumberNotExtracted(string codeString) =>
+			new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(TrueMarkCodeStringIsNotValid),
+				string.IsNullOrEmpty(codeString)
+					? "Не удалось извлечь серийный номер из кода ЧЗ"
+					: $"Не удалось извлечь серийный номер из кода ЧЗ ({codeString})");
 
 		/// <summary>
 		/// Собраны не все коды. Недостаточно кодов в пуле для GTIN

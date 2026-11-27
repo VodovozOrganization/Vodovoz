@@ -19,6 +19,7 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
@@ -32,7 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 {
 	public partial class CodesScanViewModel : WindowDialogViewModelBase, IDisposable
 	{
-		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
+		private readonly TrueMarkCodeParser _trueMarkCodeParser;
 		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
 		private readonly IGenericRepository<GroupGtin> _groupGtinrepository;
 		private readonly IGenericRepository<Gtin> _gtinRepository;
@@ -54,7 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		public CodesScanViewModel(
 			ILogger<CodesScanViewModel> logger,
 			INavigationManager navigationManager,
-			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
+			TrueMarkCodeParser trueMarkCodeParser,
 			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
 			IGenericRepository<GroupGtin> groupGtinrepository,
 			IGenericRepository<Gtin> gtinRepository,
@@ -63,7 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			: base(navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
+			_trueMarkCodeParser = trueMarkCodeParser ?? throw new ArgumentNullException(nameof(trueMarkCodeParser));
 			_codesProcessingService = codesProcessingService ?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_groupGtinrepository = groupGtinrepository ?? throw new ArgumentNullException(nameof(groupGtinrepository));
 			_gtinRepository = gtinRepository ?? throw new ArgumentNullException(nameof(gtinRepository));
@@ -431,8 +432,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				cancellationToken.ThrowIfCancellationRequested();
 
 				_logger.LogInformation(
-					"Отправляем запрос на обработку кода {RawCode} в {TrueMarkWaterCodeParser)}",
-					codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser));
+					"Отправляем запрос на обработку кода {RawCode} в {TrueMarkCodeParser}",
+					codeToCheck.RawCode, nameof(_trueMarkCodeParser));
 
 				var additionalInformation = new List<string>();
 
@@ -447,8 +448,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						UpdateCodeScanRows(code, gtin, additionalInformation: additionalInformation);
 
 						_logger.LogInformation(
-							"Обработки кода {RawCode} в {TrueMarkWaterCodeParser} завершилась с ошибками: {Errors}",
-							codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser), string.Join(", ", additionalInformation));
+							"Обработки кода {RawCode} в {TrueMarkCodeParser} завершилась с ошибками: {Errors}",
+							codeToCheck.RawCode, nameof(_trueMarkCodeParser), string.Join(", ", additionalInformation));
 
 						return;
 					}
@@ -459,8 +460,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						UpdateCodeScanRows(code, gtin, false, additionalInformation: additionalInformation);
 
 						_logger.LogInformation(
-							"Обработки кода {RawCode} в {TrueMarkWaterCodeParser} завершилась с ошибками: {Errors}",
-							codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser), string.Join(", ", additionalInformation));
+							"Обработки кода {RawCode} в {TrueMarkCodeParser} завершилась с ошибками: {Errors}",
+							codeToCheck.RawCode, nameof(_trueMarkCodeParser), string.Join(", ", additionalInformation));
 
 						AddOldCodeToRecheck(codeToCheck.RawCode, string.Join(", ", additionalInformation));
 
@@ -486,8 +487,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					UpdateCodeScanRows(code, gtin, isDuplicate: true, additionalInformation: errorMessages);
 
 					_logger.LogInformation(
-						"Обработки кода {RawCode} в {TrueMarkWaterCodeParser} завершилась с ошибками: {Errors}",
-						codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser), string.Join(", ", additionalInformation));
+						"Обработки кода {RawCode} в {TrueMarkCodeParser} завершилась с ошибками: {Errors}",
+						codeToCheck.RawCode, nameof(_trueMarkCodeParser), string.Join(", ", additionalInformation));
 
 					return;
 				}
@@ -502,8 +503,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						UpdateCodeScanRows(code, gtin, true, additionalInformation: additionalInformation);
 
 						_logger.LogInformation(
-							"Обработки кода {RawCode} в {TrueMarkWaterCodeParser} завершилась с ошибками: {Errors}",
-							codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser), string.Join(", ", additionalInformation));
+							"Обработки кода {RawCode} в {TrueMarkCodeParser} завершилась с ошибками: {Errors}",
+							codeToCheck.RawCode, nameof(_trueMarkCodeParser), string.Join(", ", additionalInformation));
 
 						return;
 					}
@@ -514,8 +515,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						UpdateCodeScanRows(code, gtin, false, additionalInformation: additionalInformation);
 
 						_logger.LogInformation(
-							"Обработки кода {RawCode} в {TrueMarkWaterCodeParser} завершилась с ошибками: {Errors}",
-							codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser), string.Join(", ", additionalInformation));
+							"Обработки кода {RawCode} в {TrueMarkCodeParser} завершилась с ошибками: {Errors}",
+							codeToCheck.RawCode, nameof(_trueMarkCodeParser), string.Join(", ", additionalInformation));
 
 						return;
 					}
@@ -534,8 +535,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			catch(Exception ex)
 			{
 				_logger.LogError(
-					"Возникло исключение при обработке кода {RawCode} в {TrueMarkWaterCodeParser} : {Exception}",
-					codeToCheck.RawCode, nameof(_trueMarkWaterCodeParser), ex);
+					"Возникло исключение при обработке кода {RawCode} в {TrueMarkCodeParser} : {Exception}",
+					codeToCheck.RawCode, nameof(_trueMarkCodeParser), ex);
 
 				var additionalInformation = new List<string> { ex.Message };
 				UpdateCodeScanRows(code, gtin, additionalInformation: additionalInformation);
@@ -637,17 +638,10 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			});
 		}
 
-		private string ParseRawCode(string rawCode, out TrueMarkWaterCode result)
+		private string ParseRawCode(string rawCode, out ITrueMarkCode result)
 		{
-			_trueMarkWaterCodeParser.TryParse(rawCode, out var parsedCode);
-
-			if(parsedCode == null)
-			{
-				parsedCode = _trueMarkWaterCodeParser.ParseCodeFromManual(rawCode);
-			}
-
+			_trueMarkCodeParser.TryParse(rawCode, out var parsedCode);
 			result = parsedCode;
-
 			return parsedCode?.SourceCode ?? ReplaceCodeSpecSymbols(rawCode);
 		}
 
@@ -805,16 +799,16 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					rootNode.Children.Clear();
 
 					var rowNumber = 0;
-					foreach(var trueMarkWaterIdentificationCode in childrenUnitCodeList)
+					foreach(var trueMarkIdentificationCode in childrenUnitCodeList)
 					{
-						hasInOrder = IsOrderContainsGtin(trueMarkWaterIdentificationCode.Gtin);
+						hasInOrder = IsOrderContainsGtin(trueMarkIdentificationCode.Gtin);
 
 						var childNode = CodeScanRows.FirstOrDefault(x =>
-											x.RawCode.Contains(trueMarkWaterIdentificationCode.RawCode) || trueMarkWaterIdentificationCode.RawCode.Contains(x.RawCode))
+											x.RawCode.Contains(trueMarkIdentificationCode.RawCode) || trueMarkIdentificationCode.RawCode.Contains(x.RawCode))
 										?? new CodeScanRow { RowNumber = CodeScanRows.Count + 1 };
 
-						childNode.RawCode = trueMarkWaterIdentificationCode.RawCode;
-						childNode.NomenclatureName = GetNomenclatureNameByGtin(trueMarkWaterIdentificationCode.Gtin);
+						childNode.RawCode = trueMarkIdentificationCode.RawCode;
+						childNode.NomenclatureName = GetNomenclatureNameByGtin(trueMarkIdentificationCode.Gtin);
 						childNode.Parent = rootNode;
 						childNode.HasInOrder = hasInOrder;
 						childNode.IsTrueMarkValid = true;

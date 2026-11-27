@@ -18,11 +18,6 @@ namespace Vodovoz.Core.Domain.Clients
 		[Display(Name = "В процессе регистрации")]
 		InProcess,
 		/// <summary>
-		/// Зарегистрирован, но группа "Вода" не подключена
-		/// </summary>
-		[Display(Name = "Зарегистрирован (не вода)")]
-		RegisteredWithoutWater,
-		/// <summary>
 		/// Зарегистрирован
 		/// </summary>
 		[Display(Name = "Зарегистрирован")]

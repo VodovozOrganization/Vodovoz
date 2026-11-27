@@ -174,10 +174,10 @@ namespace Vodovoz.Models.TrueMark
 			receipt.ScannedCodes.Add(orderProductCode);
 		}
 
-		protected TrueMarkWaterIdentificationCode GetCodeFromPool(string gtin)
+		protected TrueMarkIdentificationCode GetCodeFromPool(string gtin)
 		{
 			var codeId = CodesPool.TakeCode(gtin);
-			return Uow.GetById<TrueMarkWaterIdentificationCode>(codeId);
+			return Uow.GetById<TrueMarkIdentificationCode>(codeId);
 		}
 		
 		protected void CommitPool()

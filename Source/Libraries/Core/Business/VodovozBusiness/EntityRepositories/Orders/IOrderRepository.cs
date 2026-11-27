@@ -304,7 +304,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns>Список кодов</returns>
-		IList<TrueMarkWaterIdentificationCode> GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(IUnitOfWork uow, int orderId);
+		IList<TrueMarkIdentificationCode> GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(IUnitOfWork uow, int orderId);
 
 		/// <summary>
 		/// Проверяет, находится ли документ погрузки для указанного заказа в статусе Погрузка завершена

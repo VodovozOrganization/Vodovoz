@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Responses;
 using DriverAPI.Library.Helpers;
@@ -44,7 +44,7 @@ namespace DriverAPI.Library.V5.Services
 		private readonly ISmsPaymentService _aPISmsPaymentModel;
 		private readonly IFastPaymentsServiceAPIHelper _fastPaymentsServiceApiHelper;
 		private readonly IUnitOfWork _uow;
-		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
+		private readonly TrueMarkCodeParser _trueMarkCodeParser;
 		private readonly QrPaymentConverter _qrPaymentConverter;
 		private readonly IFastPaymentService _fastPaymentModel;
 		private readonly int _maxClosingRating = 5;
@@ -65,7 +65,7 @@ namespace DriverAPI.Library.V5.Services
 			ISmsPaymentService aPISmsPaymentModel,
 			IFastPaymentsServiceAPIHelper fastPaymentsServiceApiHelper,
 			IUnitOfWork unitOfWork,
-			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
+			TrueMarkCodeParser trueMarkCodeParser,
 			QrPaymentConverter qrPaymentConverter,
 			IFastPaymentService fastPaymentModel,
 			IOrderSettings orderSettings,
@@ -83,7 +83,7 @@ namespace DriverAPI.Library.V5.Services
 			_aPISmsPaymentModel = aPISmsPaymentModel ?? throw new ArgumentNullException(nameof(aPISmsPaymentModel));
 			_fastPaymentsServiceApiHelper = fastPaymentsServiceApiHelper ?? throw new ArgumentNullException(nameof(fastPaymentsServiceApiHelper));
 			_uow = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
+			_trueMarkCodeParser = trueMarkCodeParser ?? throw new ArgumentNullException(nameof(trueMarkCodeParser));
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
@@ -539,9 +539,9 @@ namespace DriverAPI.Library.V5.Services
 			return Result.Success();
 		}
 
-		private TrueMarkWaterIdentificationCode LoadCode(string code)
+		private TrueMarkIdentificationCode LoadCode(string code)
 		{
-			return _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+			return _uow.Session.QueryOver<TrueMarkIdentificationCode>()
 				.Where(x => x.RawCode == code)
 				.SingleOrDefault();
 		}
@@ -657,21 +657,22 @@ namespace DriverAPI.Library.V5.Services
 				OrderItem = orderItem
 			};
 
-			TrueMarkWaterIdentificationCode codeEntity;
+			TrueMarkIdentificationCode codeEntity;
 
-			var parsed = _trueMarkWaterCodeParser.TryParse(code, out TrueMarkWaterCode parsedCode);
+			var parsed = _trueMarkCodeParser.TryParse(code, out var parsedCode);
 			if(parsed)
 			{
 				codeEntity = LoadCode(parsedCode.SourceCode);
 				if(codeEntity == null)
 				{
-					codeEntity = new TrueMarkWaterIdentificationCode
+					codeEntity = new TrueMarkIdentificationCode
 					{
 						IsInvalid = false,
 						RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length)),
 						Gtin = parsedCode.Gtin,
 						SerialNumber = parsedCode.SerialNumber,
-						CheckCode = parsedCode.CheckCode
+						CheckCode = parsedCode.CheckCode,
+						ProductGroup = parsedCode.ProductGroup
 					};
 
 					orderProductCode.SourceCode = codeEntity;
@@ -691,7 +692,7 @@ namespace DriverAPI.Library.V5.Services
 				codeEntity = LoadCode(code);
 				if(codeEntity == null)
 				{
-					codeEntity = new TrueMarkWaterIdentificationCode
+					codeEntity = new TrueMarkIdentificationCode
 					{
 						IsInvalid = true,
 						RawCode = code

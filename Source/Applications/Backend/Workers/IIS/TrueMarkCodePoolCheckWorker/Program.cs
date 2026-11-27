@@ -100,6 +100,16 @@ namespace TrueMarkCodePoolCheckWorker
 
 			builder.RegisterType<TrueMarkWaterCodeParser>()
 				.AsSelf()
+				.As<ITrueMarkProductCodeParser>()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<TrueMarkPetFoodCodeParser>()
+				.AsSelf()
+				.As<ITrueMarkProductCodeParser>()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<TrueMarkCodeParser>()
+				.AsSelf()
 				.InstancePerLifetimeScope();
 
 			builder.RegisterInstance(ErrorReporter.Instance)

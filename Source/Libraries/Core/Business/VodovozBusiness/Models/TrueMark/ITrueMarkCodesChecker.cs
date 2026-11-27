@@ -15,7 +15,7 @@ namespace VodovozBusiness.Models.TrueMark
 		/// <param name="codes">Коллекция кодов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Коллекция результатов проверки</returns>
-		Task<IEnumerable<TrueMarkCheckResult>> Check(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken);
+		Task<IEnumerable<TrueMarkCheckResult>> Check(IEnumerable<TrueMarkIdentificationCode> codes, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Проверить коды 
@@ -23,6 +23,6 @@ namespace VodovozBusiness.Models.TrueMark
 		/// <param name="codes">Коллекция кодов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Коллекция результатов проверки</returns>
-		Task<IDictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus>> CheckCodes(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken);
+		Task<IDictionary<TrueMarkIdentificationCode, ProductInstanceStatus>> CheckCodes(IEnumerable<TrueMarkIdentificationCode> codes, CancellationToken cancellationToken);
 	}
 }

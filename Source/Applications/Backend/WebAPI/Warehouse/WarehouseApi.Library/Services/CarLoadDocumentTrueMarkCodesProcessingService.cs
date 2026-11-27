@@ -24,20 +24,20 @@ namespace WarehouseApi.Library.Services
 	public class CarLoadDocumentTrueMarkCodesProcessingService : ICarLoadDocumentTrueMarkCodesProcessingService
 	{
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodeService _trueMarkCodeService;
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly ITrueMarkCodesPoolCleanupService _trueMarkCodesPoolCleanupService;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 
 		public CarLoadDocumentTrueMarkCodesProcessingService(
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodeService trueMarkCodeService,
 			IGenericRepository<Order> orderRepository,
 			ITrueMarkCodesPoolCleanupService trueMarkCodesPoolCleanupService,
 			ITrueMarkRepository trueMarkRepository)
 		{
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository;
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodeService = trueMarkCodeService ?? throw new ArgumentNullException(nameof(trueMarkCodeService));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_trueMarkCodesPoolCleanupService = trueMarkCodesPoolCleanupService
 				?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCleanupService));
@@ -101,7 +101,7 @@ namespace WarehouseApi.Library.Services
 			CancellationToken cancellationToken = default)
 		{
 			var stagingCodes =
-				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+				await _trueMarkCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
 				uow,
 				StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
 				carLoadDocumentItem.Id,
@@ -121,7 +121,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			var deleteStagingCodesResult =
-				await _trueMarkWaterCodeService.DeleteAllTrueMarkStagingCodesByRelatedDocument(
+				await _trueMarkCodeService.DeleteAllTrueMarkStagingCodesByRelatedDocument(
 					uow,
 					StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
 					carLoadDocumentItem.Id,
@@ -196,7 +196,7 @@ namespace WarehouseApi.Library.Services
 		{
 			foreach(var stagingCode in stagingCodes.Where(x => x.ParentCodeId is null))
 			{
-				var alreadyUsedResult = await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(
+				var alreadyUsedResult = await _trueMarkCodeService.IsStagingTrueMarkCodeAlreadyUsed(
 					uow,
 					stagingCode,
 					cancellationToken);
@@ -208,7 +208,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			var trueMarkAnyCodesResult =
-				await _trueMarkWaterCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
+				await _trueMarkCodeService.CreateTrueMarkAnyCodesFromStagingCodes(
 					uow,
 					stagingCodes,
 					cancellationToken);
@@ -253,12 +253,12 @@ namespace WarehouseApi.Library.Services
 			IEnumerable<TrueMarkAnyCode> allCodes = trueMarkAnyCode.Match(
 				transportCode => transportCode.GetAllCodes(),
 				groupCode => groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode });
+				identificationCode => new TrueMarkAnyCode[] { identificationCode });
 
-			foreach(var code in allCodes.Where(x => x.IsTrueMarkWaterIdentificationCode))
+			foreach(var code in allCodes.Where(x => x.IsTrueMarkIdentificationCode))
 			{
-				var notUsedResult = _trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(
-					code.TrueMarkWaterIdentificationCode);
+				var notUsedResult = _trueMarkCodeService.IsTrueMarkIdentificationCodeNotUsed(
+					code.TrueMarkIdentificationCode);
 
 				if(notUsedResult.IsFailure)
 				{
@@ -281,7 +281,7 @@ namespace WarehouseApi.Library.Services
 			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkAnyCode.Match(
 				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
 				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode })
+				identificationCode => new TrueMarkAnyCode[] { identificationCode })
 				.ToList();
 
 			foreach(var code in trueMarkAnyCodes)
@@ -305,26 +305,26 @@ namespace WarehouseApi.Library.Services
 
 						return true;
 					},
-					async waterCode =>
+					async identificationCode =>
 					{
-						if(waterCode.Id == 0)
+						if(identificationCode.Id == 0)
 						{
-							await uow.SaveAsync(waterCode, cancellationToken: cancellationToken);
+							await uow.SaveAsync(identificationCode, cancellationToken: cancellationToken);
 						}
 
 						return true;
 					});
 
-				if(code.IsTrueMarkWaterIdentificationCode)
+				if(code.IsTrueMarkIdentificationCode)
 				{
-					var codeKey = (code.TrueMarkWaterIdentificationCode.Gtin, code.TrueMarkWaterIdentificationCode.SerialNumber);
+					var codeKey = (code.TrueMarkIdentificationCode.Gtin, code.TrueMarkIdentificationCode.SerialNumber);
 
 					if(addedCodeKeys.Add(codeKey))
 					{
 						AddTrueMarkCodeToCarLoadDocumentItem(
 							uow,
 							carLoadDocumentItem,
-							code.TrueMarkWaterIdentificationCode,
+							code.TrueMarkIdentificationCode,
 							status,
 							problem);
 					}
@@ -335,14 +335,14 @@ namespace WarehouseApi.Library.Services
 		private void AddTrueMarkCodeToCarLoadDocumentItem(
 			IUnitOfWork uow,
 			CarLoadDocumentItem carLoadDocumentItem,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			TrueMarkIdentificationCode trueMarkIdentificationCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem)
 		{
 			if(status == SourceProductCodeStatus.Accepted)
 			{
-				var notUsedResult = _trueMarkWaterCodeService.IsTrueMarkWaterIdentificationCodeNotUsed(
-					trueMarkWaterIdentificationCode);
+				var notUsedResult = _trueMarkCodeService.IsTrueMarkIdentificationCodeNotUsed(
+					trueMarkIdentificationCode);
 
 				if(notUsedResult.IsFailure)
 				{
@@ -353,7 +353,7 @@ namespace WarehouseApi.Library.Services
 
 			var productCode = CreateCarLoadDocumentItemTrueMarkProductCode(
 				carLoadDocumentItem,
-				trueMarkWaterIdentificationCode,
+				trueMarkIdentificationCode,
 				status,
 				problem);
 
@@ -362,15 +362,15 @@ namespace WarehouseApi.Library.Services
 
 		private CarLoadDocumentItemTrueMarkProductCode CreateCarLoadDocumentItemTrueMarkProductCode(
 			CarLoadDocumentItem carLoadDocumentItem,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
+			TrueMarkIdentificationCode trueMarkIdentificationCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem) =>
 			new CarLoadDocumentItemTrueMarkProductCode()
 			{
 				CreationTime = DateTime.Now,
 				SourceCodeStatus = status,
-				SourceCode = trueMarkWaterIdentificationCode,
-				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkWaterIdentificationCode : default,
+				SourceCode = trueMarkIdentificationCode,
+				ResultCode = status == SourceProductCodeStatus.Accepted ? trueMarkIdentificationCode : default,
 				CarLoadDocumentItemId = carLoadDocumentItem.Id,
 				Problem = problem
 			};
@@ -392,7 +392,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			var createCodeResult =
-				await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
+				await _trueMarkCodeService.CreateStagingTrueMarkCode(
 					uow,
 					scannedCode,
 					StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
@@ -459,7 +459,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			var createCodeResult =
-				await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
+				await _trueMarkCodeService.CreateStagingTrueMarkCode(
 					uow,
 					newScannedCode,
 					StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
@@ -505,7 +505,7 @@ namespace WarehouseApi.Library.Services
 			CancellationToken cancellationToken = default)
 		{
 			var existingCodeResult =
-				_trueMarkWaterCodeService.GetSavedStagingTrueMarkCodeByScannedCode(
+				_trueMarkCodeService.GetSavedStagingTrueMarkCodeByScannedCode(
 					uow,
 					scannedCode,
 					StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem,
@@ -571,7 +571,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			codeCheckingProcessResult =
-				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, stagingTrueMarkCode, cancellationToken);
+				await _trueMarkCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, stagingTrueMarkCode, cancellationToken);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -623,7 +623,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			codeCheckingProcessResult =
-				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, newStagingTrueMarkCode, cancellationToken);
+				await _trueMarkCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, newStagingTrueMarkCode, cancellationToken);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{

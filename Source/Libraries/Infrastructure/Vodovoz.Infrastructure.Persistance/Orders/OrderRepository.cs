@@ -1627,7 +1627,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
-									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
 						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
@@ -1687,7 +1686,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
-								&& counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 								&& counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
 						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
@@ -1777,7 +1775,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
-									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)
 							)
 						)
@@ -2277,7 +2274,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.And(Restrictions.Disjunction()
 					.Add(() => (
 						counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
-							|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 							|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 							&& (defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
 					.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
@@ -2402,7 +2398,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return codesOrderItems.ToList();
 		}
 
-		public IList<TrueMarkWaterIdentificationCode> GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(IUnitOfWork uow, int orderId)
+		public IList<TrueMarkIdentificationCode> GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(IUnitOfWork uow, int orderId)
 		{
 			var codes =
 				(from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItem>()

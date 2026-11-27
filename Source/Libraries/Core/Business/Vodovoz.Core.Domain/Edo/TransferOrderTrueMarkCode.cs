@@ -17,8 +17,8 @@ namespace Vodovoz.Core.Domain.Edo
 		private TransferOrder _transferOrder;
 		private NomenclatureEntity _nomenclature;
 		private int _quantity;
-		private TrueMarkWaterIdentificationCode _individualCode;
-		private TrueMarkWaterGroupCode _groupCode;
+		private TrueMarkIdentificationCode _individualCode;
+		private TrueMarkGroupCode _groupCode;
 
 		/// <summary>
 		/// Код
@@ -55,14 +55,14 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Индивидуальный код")]
-		public virtual TrueMarkWaterIdentificationCode IndividualCode
+		public virtual TrueMarkIdentificationCode IndividualCode
 		{
 			get => _individualCode;
 			set => SetField(ref _individualCode, value);
 		}
 
 		[Display(Name = "Групповой код")]
-		public virtual TrueMarkWaterGroupCode GroupCode
+		public virtual TrueMarkGroupCode GroupCode
 		{
 			get => _groupCode;
 			set => SetField(ref _groupCode, value);

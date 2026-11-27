@@ -49,7 +49,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IPublishEndpoint _publishEndpoint;
 		private readonly EdoCancellationService _edoCancellationService;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodeHierarchyService _trueMarkCodeService;
 		private readonly IUnitOfWork _uow;
 		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
@@ -74,7 +74,7 @@ namespace Edo.Receipt.Dispatcher
 			IOrganizationSettings organizationSettings,
 			IPublishEndpoint publishEndpoint,
 			EdoCancellationService edoCancellationService,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService)
+			ITrueMarkCodeHierarchyService trueMarkCodeService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -95,7 +95,7 @@ namespace Edo.Receipt.Dispatcher
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodeService = trueMarkCodeService ?? throw new ArgumentNullException(nameof(trueMarkCodeService));
 		}
 
 		public async Task HandleNewReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
@@ -368,17 +368,17 @@ namespace Edo.Receipt.Dispatcher
 						}
 
 						// определить что TaskItem принадлежит групповому коду
-						if(codeResult.EdoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId != null)
+						if(codeResult.EdoTaskItem.ProductCode.ResultCode.ParentGroupCodeId != null)
 						{
 							// так же надо зачистить все части этого группового кода
 							var groupCode = await _trueMarkCodeRepository.GetGroupCode(
-								codeResult.EdoTaskItem.ProductCode.ResultCode.ParentWaterGroupCodeId.Value,
+								codeResult.EdoTaskItem.ProductCode.ResultCode.ParentGroupCodeId.Value,
 								cancellationToken
 							);
-							foreach(var individualCode in groupCode.GetAllCodes().Where(x => x.IsTrueMarkWaterIdentificationCode))
+							foreach(var individualCode in groupCode.GetAllCodes().Where(x => x.IsTrueMarkIdentificationCode))
 							{
 								var foundInvalidGroupIdentificationCode = receiptEdoTask.Items
-									.FirstOrDefault(x => x.ProductCode.SourceCode == individualCode.TrueMarkWaterIdentificationCode);
+									.FirstOrDefault(x => x.ProductCode.SourceCode == individualCode.TrueMarkIdentificationCode);
 								foundInvalidGroupIdentificationCode.ProductCode.SourceCode = null;
 								foundInvalidGroupIdentificationCode.ProductCode.ResultCode = null;
 							}
@@ -398,7 +398,7 @@ namespace Edo.Receipt.Dispatcher
 								cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 
-							await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, newCode, cancellationToken);
+							await _trueMarkCodeService.DisaggregateRelatedCodesAsync(_uow, newCode, cancellationToken);
 						}
 					}
 
@@ -500,7 +500,7 @@ namespace Edo.Receipt.Dispatcher
 				.Select(x => x.ProductCode)
 				.Where(x => x.ResultCode == null)
 				.Where(x => x.SourceCode != null)
-				.Where(x => x.SourceCode.ParentWaterGroupCodeId == null)
+				.Where(x => x.SourceCode.ParentGroupCodeId == null)
 				.ToList();
 		}
 
@@ -723,7 +723,7 @@ namespace Edo.Receipt.Dispatcher
 					_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе. Дезагрегируем",
 						groupCode.Id, groupCode.GTIN);
 
-					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, remainGroupCodeItem.Key, cancellationToken);
+					await _trueMarkCodeService.DisaggregateRelatedCodesAsync(_uow, remainGroupCodeItem.Key, cancellationToken);
 
 					continue;
 				}
@@ -746,7 +746,7 @@ namespace Edo.Receipt.Dispatcher
 					// групповой код нельзя использовать в чеке: дезагрегируем его, а входящие штучные
 					// коды возвращаем в общий список необработанных (эти коды были удалены из unprocessedCodes в методе TakeGroupCodesWithTaskItems)
 					// Строки заказа при этом уйдут в индивидуальную обработку с подбором недостающих кодов из пула
-					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, groupCode, cancellationToken);
+					await _trueMarkCodeService.DisaggregateRelatedCodesAsync(_uow, groupCode, cancellationToken);
 					unprocessedCodes.AddRange(remainGroupCodeItem.Value);
 					groupCodesWithTaskItems.Remove(groupCode);
 					continue;
@@ -879,7 +879,7 @@ namespace Edo.Receipt.Dispatcher
 			return (netSum * 100m) % quantity == 0;
 		}
 
-		private async Task<IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
+		private async Task<IDictionary<TrueMarkGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
 			List<EdoTaskItem> unprocessedTaskItems,
 			CancellationToken cancellationToken
 			)
@@ -888,7 +888,7 @@ namespace Edo.Receipt.Dispatcher
 			var codesThatContainedInGroup = unprocessedTaskItems
 				.Where(x => x.ProductCode.SourceCode != null)
 				.Where(x => x.ProductCode.SourceCode.IsInvalid == false)
-				.Where(x => x.ProductCode.SourceCode.ParentWaterGroupCodeId != null)
+				.Where(x => x.ProductCode.SourceCode.ParentGroupCodeId != null)
 				.ToList()
 				;
 
@@ -896,13 +896,13 @@ namespace Edo.Receipt.Dispatcher
 			unprocessedTaskItems.RemoveAll(x => codesThatContainedInGroup.Contains(x));
 
 			var groupped = codesThatContainedInGroup
-				.GroupBy(x => x.ProductCode.SourceCode.ParentWaterGroupCodeId);
+				.GroupBy(x => x.ProductCode.SourceCode.ParentGroupCodeId);
 
 			var parentCodesIds = groupped
 				.Select(x => x.Key)
 				.Distinct();
 
-			var parentCodes = new List<TrueMarkWaterGroupCode>();
+			var parentCodes = new List<TrueMarkGroupCode>();
 			foreach(var parentCodesId in parentCodesIds)
 			{
 				var parentCode = await _trueMarkCodeRepository.GetGroupCode(parentCodesId.Value, cancellationToken);
@@ -915,13 +915,13 @@ namespace Edo.Receipt.Dispatcher
 				parentCodes.Add(parentCode);
 			}
 
-			var result = new Dictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>();
+			var result = new Dictionary<TrueMarkGroupCode, IEnumerable<EdoTaskItem>>();
 
 			foreach(var parentCode in parentCodes)
 			{
 				var groupCodeIds = new HashSet<int>(parentCode.GetAllCodes()
-					.Where(x => x.IsTrueMarkWaterIdentificationCode)
-					.Select(x => x.TrueMarkWaterIdentificationCode.Id));
+					.Where(x => x.IsTrueMarkIdentificationCode)
+					.Select(x => x.TrueMarkIdentificationCode.Id));
 				var groupItems = codesThatContainedInGroup
 					.Where(x => groupCodeIds.Contains(x.ProductCode.SourceCode.Id)).ToList();
 				if(!groupCodeIds.SetEquals(groupItems.Select(x => x.ProductCode.SourceCode.Id)))
@@ -1082,7 +1082,7 @@ namespace Edo.Receipt.Dispatcher
 					&& (x.ProductCode.ResultCode == null
 						&& (x.ProductCode.Problem.IsIn(ProductCodeProblem.Defect, ProductCodeProblem.Duplicate)
 							|| x.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool)
-						|| x.ProductCode.SourceCode.ParentWaterGroupCodeId != null
+						|| x.ProductCode.SourceCode.ParentGroupCodeId != null
 							&& string.IsNullOrEmpty(x.ProductCode.SourceCode.CheckCode)
 							&& (x.ProductCode.ResultCode == null || x.ProductCode.ResultCode.Id == x.ProductCode.SourceCode.Id)));
 
@@ -1100,7 +1100,7 @@ namespace Edo.Receipt.Dispatcher
 						GetOrderOrganizationInn(receiptEdoTask),
 						cancellationToken);
 
-					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, identificationCode, cancellationToken);
+					await _trueMarkCodeService.DisaggregateRelatedCodesAsync(_uow, identificationCode, cancellationToken);
 
 					matchEdoTaskItem.ProductCode.ResultCode = identificationCode;
 					matchEdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
@@ -1122,7 +1122,7 @@ namespace Edo.Receipt.Dispatcher
 				matchEdoTaskItem = invalidCodes.FirstOrDefault();
 				if(matchEdoTaskItem != null)
 				{
-					TrueMarkWaterIdentificationCode identificationCode = null;
+					TrueMarkIdentificationCode identificationCode = null;
 						
 					// запись кода из пула в result
 					try
@@ -1132,7 +1132,7 @@ namespace Edo.Receipt.Dispatcher
 							GetOrderOrganizationInn(receiptEdoTask),
 							cancellationToken);
 
-						await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, identificationCode, cancellationToken);
+						await _trueMarkCodeService.DisaggregateRelatedCodesAsync(_uow, identificationCode, cancellationToken);
 					}
 					catch
 					{
@@ -1158,7 +1158,7 @@ namespace Edo.Receipt.Dispatcher
 				GetOrderOrganizationInn(receiptEdoTask),
 				cancellationToken);
 
-			await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, code, cancellationToken);
+			await _trueMarkCodeService.DisaggregateRelatedCodesAsync(_uow, code, cancellationToken);
 
 			var newProductCode = new AutoTrueMarkProductCode
 			{
@@ -1183,7 +1183,7 @@ namespace Edo.Receipt.Dispatcher
 			return inventPosition;
 		}
 
-		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(
+		private async Task<TrueMarkIdentificationCode> LoadCodeFromPool(
 			NomenclatureEntity nomenclature,
 			string organizationInn,
 			CancellationToken cancellationToken)
@@ -1207,7 +1207,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 		}
 
-		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(
+		private async Task<TrueMarkIdentificationCode> LoadCodeFromPool(
 			GtinEntity gtin,
 			string organizationInn,
 			CancellationToken cancellationToken)

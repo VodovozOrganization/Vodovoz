@@ -66,11 +66,11 @@ namespace Vodovoz.Core.Domain.TrueMark
 		public virtual IObservableList<TrueMarkTransportCode> InnerTransportCodes { get; set; }
 			= new ObservableList<TrueMarkTransportCode>();
 
-		public virtual IObservableList<TrueMarkWaterGroupCode> InnerGroupCodes { get; set; }
-			= new ObservableList<TrueMarkWaterGroupCode>();
+		public virtual IObservableList<TrueMarkGroupCode> InnerGroupCodes { get; set; }
+			= new ObservableList<TrueMarkGroupCode>();
 
-		public virtual IObservableList<TrueMarkWaterIdentificationCode> InnerWaterCodes { get; set; }
-			= new ObservableList<TrueMarkWaterIdentificationCode>();
+		public virtual IObservableList<TrueMarkIdentificationCode> InnerIdentificationCodes { get; set; }
+			= new ObservableList<TrueMarkIdentificationCode>();
 
 		public virtual void AddInnerTransportCode(TrueMarkTransportCode innerTransportCode)
 		{
@@ -78,29 +78,29 @@ namespace Vodovoz.Core.Domain.TrueMark
 			InnerTransportCodes.Add(innerTransportCode);
 		}
 
-		public virtual void AddInnerGroupCode(TrueMarkWaterGroupCode innerGroupCode)
+		public virtual void AddInnerGroupCode(TrueMarkGroupCode innerGroupCode)
 		{
 			innerGroupCode.ParentTransportCodeId = Id;
 			InnerGroupCodes.Add(innerGroupCode);
 		}
 
-		public virtual void AddInnerWaterCode(TrueMarkWaterIdentificationCode innerWaterCode)
+		public virtual void AddInnerIdentificationCode(TrueMarkIdentificationCode innerIdentificationCode)
 		{
-			innerWaterCode.ParentTransportCodeId = Id;
-			InnerWaterCodes.Add(innerWaterCode);
+			innerIdentificationCode.ParentTransportCodeId = Id;
+			InnerIdentificationCodes.Add(innerIdentificationCode);
 		}
 
 
-		public virtual void RemoveCode(TrueMarkWaterIdentificationCode waterCode)
+		public virtual void RemoveCode(TrueMarkIdentificationCode identificationCode)
 		{
-			waterCode.ParentTransportCodeId = null;
-			InnerWaterCodes.Remove(waterCode);
+			identificationCode.ParentTransportCodeId = null;
+			InnerIdentificationCodes.Remove(identificationCode);
 		}
 
-		public virtual void RemoveCode(TrueMarkWaterGroupCode waterGroupCode)
+		public virtual void RemoveCode(TrueMarkGroupCode groupCode)
 		{
-			waterGroupCode.ParentTransportCodeId = null;
-			InnerGroupCodes.Remove(waterGroupCode);
+			groupCode.ParentTransportCodeId = null;
+			InnerGroupCodes.Remove(groupCode);
 		}
 
 		public virtual void RemoveCode(TrueMarkTransportCode trueMarkTransportCode)
@@ -111,19 +111,19 @@ namespace Vodovoz.Core.Domain.TrueMark
 
 		public virtual void ClearAllCodes()
 		{
-			var waterCodesToRemove = InnerWaterCodes.ToArray();
+			var identificationCodesToRemove = InnerIdentificationCodes.ToArray();
 
-			foreach(var waterCode in waterCodesToRemove)
+			foreach(var identificationCode in identificationCodesToRemove)
 			{
-				RemoveCode(waterCode);
+				RemoveCode(identificationCode);
 			}
 
-			var waterGroupCodesToRemove = InnerGroupCodes.ToArray();
+			var groupCodesToRemove = InnerGroupCodes.ToArray();
 
-			foreach(var waterGroupCode in waterGroupCodesToRemove)
+			foreach(var groupCode in groupCodesToRemove)
 			{
-				waterGroupCode.ClearAllCodes();
-				RemoveCode(waterGroupCode);
+				groupCode.ClearAllCodes();
+				RemoveCode(groupCode);
 			}
 
 			var transportCodesToRemove = InnerTransportCodes.ToArray();
@@ -155,9 +155,9 @@ namespace Vodovoz.Core.Domain.TrueMark
 				}
 			}
 
-			foreach(var innerWaterCode in InnerWaterCodes)
+			foreach(var innerIdentificationCode in InnerIdentificationCodes)
 			{
-				yield return innerWaterCode;
+				yield return innerIdentificationCode;
 			}
 		}
 
@@ -173,9 +173,9 @@ namespace Vodovoz.Core.Domain.TrueMark
 				innerGroupCode.ParentTransportCodeId = Id;
 			}
 
-			foreach(var innerWaterCode in InnerWaterCodes)
+			foreach(var innerIdentificationCode in InnerIdentificationCodes)
 			{
-				innerWaterCode.ParentTransportCodeId = Id;
+				innerIdentificationCode.ParentTransportCodeId = Id;
 			}
 		}
 

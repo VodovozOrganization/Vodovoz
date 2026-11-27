@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -10,7 +10,7 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace VodovozBusiness.Services.TrueMark
 {
-	public interface ITrueMarkWaterCodeService
+	public interface ITrueMarkCodeService
 	{
 		/// <summary>
 		/// Статусы кодов ЧЗ, которые были успешно использованы
@@ -24,35 +24,27 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <summary>
 		/// Проверяет, что все коды ЧЗ в обороте и содержат корректные ИНН владельца
 		/// </summary>
-		/// <param name="trueMarkWaterIdentificationCodes">Код ЧЗ</param>
+		/// <param name="trueMarkIdentificationCodes">Код ЧЗ</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Результат проверки</returns>
-		Task<Result> IsAllTrueMarkCodesValid(IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodes, CancellationToken cancellationToken);
+		Task<Result> IsAllTrueMarkCodesValid(IEnumerable<TrueMarkIdentificationCode> trueMarkIdentificationCodes, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Проверяет, что код ЧЗ в обороте и содержит корректный ИНН владельца
 		/// </summary>
-		/// <param name="trueMarkWaterIdentificationCode">Коды ЧЗ</param>
+		/// <param name="trueMarkIdentificationCode">Коды ЧЗ</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Результат проверки</returns>
-		Task<Result> IsTrueMarkCodeValid(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, CancellationToken cancellationToken);
+		Task<Result> IsTrueMarkCodeValid(TrueMarkIdentificationCode trueMarkIdentificationCode, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Проверяет, что код ЧЗ не использован
 		/// </summary>
-		/// <param name="trueMarkWaterIdentificationCode">Код ЧЗ</param>
+		/// <param name="trueMarkIdentificationCode">Код ЧЗ</param>
 		/// <param name="exceptProductCodeId">При проверке исключить сохраненную запись кода ЧЗ товара</param>
 		/// <returns>Результат проверки</returns>
-		Result IsTrueMarkWaterIdentificationCodeNotUsed(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, int exceptProductCodeId = 0);
+		Result IsTrueMarkIdentificationCodeNotUsed(TrueMarkIdentificationCode trueMarkIdentificationCode, int exceptProductCodeId = 0);
 
-		/// <summary>
-		/// Загружает или создает код ЧЗ
-		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <param name="scannedCode">Строка отсканированного кода</param>
-		/// <returns>Код ЧЗ</returns>
-		[Obsolete("Use TryGetSavedTrueMarkCodeByScannedCode instead")]
-		TrueMarkWaterIdentificationCode LoadOrCreateTrueMarkWaterIdentificationCode(IUnitOfWork uow, string scannedCode);
 		TrueMarkAnyCode GetParentGroupCode(IUnitOfWork unitOfWork, TrueMarkAnyCode trueMarkAnyCode);
 
 		/// <summary>

@@ -177,7 +177,7 @@ namespace Edo.Common
 			return codeResults;
 		}
 		
-		public async Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<TrueMarkWaterIdentificationCode> codes, string organizationInn, CancellationToken cancellationToken)
+		public async Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<TrueMarkIdentificationCode> codes, string organizationInn, CancellationToken cancellationToken)
 		{
 			var gtins = await _nomenclatureRepository.GetGtinsAsync(cancellationToken);
 			var gtinNumbers = gtins.Select(x => x.GtinNumber);

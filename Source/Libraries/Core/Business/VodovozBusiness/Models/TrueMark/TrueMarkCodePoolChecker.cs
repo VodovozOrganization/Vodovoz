@@ -63,7 +63,7 @@ namespace VodovozBusiness.Models.TrueMark
 			var invalidCodeIds = new List<int>();
 
 			_logger.LogInformation("Загружаем сущности с подробной информацией о кодах.");
-			var codesToCheck = await _trueMarkRepository.LoadWaterCodes(codeIdsToCheck, cancellationToken);
+			var codesToCheck = await _trueMarkRepository.LoadIdentificationCodes(codeIdsToCheck, cancellationToken);
 
 			_logger.LogInformation("Отправка на проверку {codesToCheckCount} кодов.", codesToCheck.Count());
 			var checkResults = await _trueMarkCodesChecker.CheckCodes(codesToCheck, cancellationToken);

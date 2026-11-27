@@ -103,7 +103,7 @@ namespace Edo.ErrorDebugWorker
 						.AddEdoTransferSenderServices()
 						;
 
-					services.TryAddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>();
+					services.TryAddScoped<ITrueMarkCodeHierarchyService, TrueMarkCodeHierarchyService>();
 
 					services.AddTaxcomClient();
 					services.AddHealthChecks();

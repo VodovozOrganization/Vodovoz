@@ -4,10 +4,10 @@ namespace Vodovoz.Core.Domain.Edo
 {
 	public class TrueMarkCodeValidationResult
 	{
-		private readonly TrueMarkWaterIdentificationCode _code;
+		private readonly TrueMarkIdentificationCode _code;
 
 		public TrueMarkCodeValidationResult(
-			TrueMarkWaterIdentificationCode code,
+			TrueMarkIdentificationCode code,
 			EdoTaskItem edoTaskItem
 			)
 		{
@@ -19,7 +19,7 @@ namespace Vodovoz.Core.Domain.Edo
 
 		public bool IsValid { get; set; } = true;
 		public bool ReadyToSell { get; set; } = true;
-		public TrueMarkWaterIdentificationCode Code { get; set; }
+		public TrueMarkIdentificationCode Code { get; set; }
 		public EdoTaskItem EdoTaskItem { get; set; }
 		public bool IsOwnedByOurOrganization { get; set; } = true;
 		public bool IsOurGtin { get; set; } = true;

@@ -122,7 +122,7 @@ namespace VodovozBusiness.TrueMark.Tests
 		public void ReturnsSourceAndReplacementOnceEach()
 		{
 			var task = CreateTask(false);
-			task.Items.Last().ProductCode.ResultCode = new TrueMarkWaterIdentificationCode { Id = 3 };
+			task.Items.Last().ProductCode.ResultCode = new TrueMarkIdentificationCode { Id = 3 };
 			Assert.True(_service.Delete(_uow, task.Id, new[] { 2, 2 }).IsSuccess);
 			_pool.Received(1).PutCode(2);
 			_pool.Received(1).PutCode(3);
@@ -173,7 +173,7 @@ namespace VodovozBusiness.TrueMark.Tests
 			{
 				task.Items.Add(new EdoTaskItem { Id = id, CustomerEdoTask = task,
 					ProductCode = new AutoTrueMarkProductCode { Id = id,
-						SourceCode = new TrueMarkWaterIdentificationCode { Id = id, RawCode = id.ToString(), Gtin = "04602009723186", SerialNumber = id.ToString() } } });
+						SourceCode = new TrueMarkIdentificationCode { Id = id, RawCode = id.ToString(), Gtin = "04602009723186", SerialNumber = id.ToString() } } });
 			}
 			_uow.GetById<OrderEdoTask>(task.Id).Returns(task);
 			return task;

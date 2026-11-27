@@ -244,7 +244,7 @@ namespace Edo.Documents
 							.Where(x => x.CodesCount <= availableQuantity)
 							.OrderByDescending(x => x.CodesCount);
 
-						TrueMarkWaterGroupCode groupCode = null;
+						TrueMarkGroupCode groupCode = null;
 						foreach(var availableGtin in availableGroupGtins)
 						{
 							groupCode = groupCodesWithTaskItems.Keys.FirstOrDefault(x => x.GTIN == availableGtin.GtinNumber);
@@ -269,7 +269,7 @@ namespace Edo.Documents
 						{
 							var codesInGroup = groupCode
 								.GetAllCodes()
-								.Count(x => x.IsTrueMarkWaterIdentificationCode);
+								.Count(x => x.IsTrueMarkIdentificationCode);
 
 							var codeItem = new UpdProductCode
 							{
@@ -285,12 +285,12 @@ namespace Edo.Documents
 						// затем, если ничего не смогли взять из групповых, то ищем и назначаем из индивидуальных
 						// в которыех есть заполенный SourceCode, т.е. исключаем неотсканированные позиции задачи
 
-						TrueMarkWaterIdentificationCode individualCode = null;
+						TrueMarkIdentificationCode individualCode = null;
 						var availableGtins = orderItem.Nomenclature.Gtins.Select(x => x.GtinNumber);
 						foreach(var availableGtin in availableGtins)
 						{
 							var availableCode = unprocessedCodes.FirstOrDefault(x => x.ProductCode.SourceCode.Gtin == availableGtin
-								&& (x.ProductCode.SourceCode.ParentWaterGroupCodeId == null
+								&& (x.ProductCode.SourceCode.ParentGroupCodeId == null
 									|| !string.IsNullOrEmpty((x.ProductCode.ResultCode ?? x.ProductCode.SourceCode).CheckCode)));
 							if(availableCode == null)
 							{
@@ -336,7 +336,7 @@ namespace Edo.Documents
 			documentEdoTask.Upd = updDocument;
 		}
 
-		private async Task<IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
+		private async Task<IDictionary<TrueMarkGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
 			List<EdoTaskItem> unprocessedTaskItems,
 			CancellationToken cancellationToken
 			)
@@ -345,7 +345,7 @@ namespace Edo.Documents
 			var codesThatContainedInGroup = unprocessedTaskItems
 				.Where(x => x.ProductCode.SourceCode != null)
 				.Where(x => x.ProductCode.SourceCode.IsInvalid == false)
-				.Where(x => x.ProductCode.SourceCode.ParentWaterGroupCodeId != null)
+				.Where(x => x.ProductCode.SourceCode.ParentGroupCodeId != null)
 				.ToList()
 				;
 
@@ -353,13 +353,13 @@ namespace Edo.Documents
 			unprocessedTaskItems.RemoveAll(x => codesThatContainedInGroup.Contains(x));
 
 			var groupped = codesThatContainedInGroup
-				.GroupBy(x => x.ProductCode.SourceCode.ParentWaterGroupCodeId);
+				.GroupBy(x => x.ProductCode.SourceCode.ParentGroupCodeId);
 
 			var parentCodesIds = groupped
 				.Select(x => x.Key)
 				.Distinct();
 
-			var parentCodes = new List<TrueMarkWaterGroupCode>();
+			var parentCodes = new List<TrueMarkGroupCode>();
 			foreach(var parentCodesId in parentCodesIds)
 			{
 				var parentCode = await _trueMarkCodeRepository.GetGroupCode(parentCodesId.Value, cancellationToken);
@@ -372,13 +372,13 @@ namespace Edo.Documents
 				parentCodes.Add(parentCode);
 			}
 
-			var result = new Dictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>();
+			var result = new Dictionary<TrueMarkGroupCode, IEnumerable<EdoTaskItem>>();
 
 			foreach(var parentCode in parentCodes)
 			{
 				var groupCodeIds = new HashSet<int>(parentCode.GetAllCodes()
-					.Where(x => x.IsTrueMarkWaterIdentificationCode)
-					.Select(x => x.TrueMarkWaterIdentificationCode.Id));
+					.Where(x => x.IsTrueMarkIdentificationCode)
+					.Select(x => x.TrueMarkIdentificationCode.Id));
 				var groupItems = codesThatContainedInGroup
 					.Where(x => groupCodeIds.Contains(x.ProductCode.SourceCode.Id)).ToList();
 				if(!groupCodeIds.SetEquals(groupItems.Select(x => x.ProductCode.SourceCode.Id)))

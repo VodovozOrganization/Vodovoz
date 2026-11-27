@@ -58,7 +58,7 @@ namespace Edo.Document.Worker
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						
-						.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
+						.AddScoped<ITrueMarkCodeHierarchyService, TrueMarkCodeHierarchyService>()
 						;
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();

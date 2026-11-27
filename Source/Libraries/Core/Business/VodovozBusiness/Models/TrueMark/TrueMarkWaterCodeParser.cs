@@ -1,4 +1,4 @@
-﻿using NPOI.SS.Formula.Functions;
+using TrueMark.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -12,17 +12,17 @@ using Vodovoz.Core.Domain.TrueMark;
 namespace Vodovoz.Models.TrueMark
 {
 	/// <summary>
-	/// Парсер строки кода полученного с маркировки честного знака для воды.
+	/// Парсер строки кода, полученного с маркировки «Честный знак» для воды.
 	/// <para/> 
 	/// Источник: "Описание структуры кодов датаматрикс систем ГИС МТ, МДЛП Версия 1.2 от 28/01/2022"<br/>
-	/// https://xn--80ajghhoc2aj1c8b.xn--p1ai/upload/%D0%A1%D1%82%D1%80%D1%83%D0%BA%D1%82%D1%83%D1%80%D0%B0%20DataMatrix.pdf
+	/// https://xn--80ajghhoc2aj1c8b.xn--p1ai
 	/// <para/> 
 	/// Код должен иметь формат: <![CDATA[<FNC1>01<GTIN>21<SerialNumber><GS>93<CheckCode>]]> где:<br/>
-	/// FNC1 - специальный символ указывающий, что закодированная последовательность является штрихкодом GS1. Код 232 в таблице символов ASCII (E8 hex).<br/>
+	/// FNC1 - специальный символ, указывающий, что закодированная последовательность является штрихкодом GS1. Код 232 в таблице символов ASCII (E8 hex).<br/>
 	/// Важно! На практике FNC1 имеет код hex 1D <br/>
-	/// GTIN - Код товара (присваивается номенклатуре) <br/>
-	/// SerialNumber - Серийный номер экземпляра <br/>
-	/// CheckCode - Код проверки
+	/// GTIN - Код товара (присваивается номенклатуре), 14 цифр <br/>
+	/// SerialNumber - Серийный номер экземпляра, 13 символов <br/>
+	/// CheckCode - Код проверки, 4 символа
 	/// <para/> 
 	/// Код идентификации формируется по шаблону: <![CDATA[01<GTIN>21<SerialNumber>]]>
 	/// 
@@ -31,263 +31,240 @@ namespace Vodovoz.Models.TrueMark
 	/// 
 	/// КИТУ
 	/// от 18 до 74 символов включительно: цифры, буквы латинского алфавита,
-	/// спецсимволы (A-Z a-z 0-9 % & ' " ( ) * + , - _ . / : ; < = > ? !);
+	/// спецсимволы (A-Z a-z 0-9 % &amp; ' " ( ) * + , - _ . / : ; &lt; = &gt; ? !);
 	/// идентификаторы применения AI (00, 01, 21) в составе КИТУ указываются без обрамляющих
 	/// круглых скобок.
+	/// <para/>
+	/// Допустимые форматы входной строки: стандартный (разделитель FNC1 необязателен, признак FNC1 в начале необязателен,
+	/// допускается экранированный текст "\u001d"/"\u00e8"), скобочный <![CDATA[(01)…(21)…(93)…]]>,
+	/// выгрузка из 1С (<see cref="TryParseCodeFrom1c"/>), ручной ввод (<see cref="TryParseManual"/>),
+	/// нечёткий разбор для поиска (<see cref="FuzzyParse"/>).
 	/// </summary>
-	public class TrueMarkWaterCodeParser
+	public class TrueMarkWaterCodeParser : ITrueMarkProductCodeParser
 	{
-		private string _specialCodeName = "SpecialCodeOne";
-		private string _gtinGroupName = "GTIN";
-		private string _serialGroupName = "SerialNumber";
-		private string _checkGroupName = "CheckCode";
-		private static readonly string _restrictedChar = "\\u001d";
+		private const string _leadGroupName = "Lead";
+		private const string _gtinGroupName = "GTIN";
+		private const string _serialGroupName = "SerialNumber";
+		private const string _checkGroupName = "CheckCode";
 
-		/// <inheritdoc cref="TrueMarkWaterCodeParser"/>
-		public TrueMarkWaterCode Parse(string rawCode)
+		private static readonly TimeSpan _fuzzyTimeout = TimeSpan.FromSeconds(1);
+
+		// Стандартный формат: [FNC1]01<GTIN 14 цифр>21<серийный 13>[GS]93<проверка 4>, GS необязателен.
+		private static readonly Regex _standardPattern = BuildIdentificationPattern(@"\u001d?", _leadGroupName);
+
+		// Формат из 1С: как стандартный, но перед 93 допускается ещё и пробел (так выгружает часть отчётов).
+		private static readonly Regex _from1cPattern = BuildIdentificationPattern(@"[\u001d ]?", _leadGroupName);
+
+		// Скобочный формат: (01)...(21)...(93)...
+		private static readonly Regex _altPattern = new Regex(
+			$@"^\(01\)(?<{_gtinGroupName}>\d{{14}})\(21\)(?<{_serialGroupName}>{TrueMarkCodeText.TextChar}{{13}})\(93\)(?<{_checkGroupName}>{TrueMarkCodeText.TextChar}{{4}})\z",
+			RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+		// Ручной ввод без разделителей: допускает постороннее окружение вокруг кода
+		// (например, скопированный из письма текст), поэтому намеренно не привязан к началу/концу строки.
+		private static readonly Regex _manualPattern = new Regex(
+			$@"01(?<{_gtinGroupName}>\d{{14}})21(?<{_serialGroupName}>{TrueMarkCodeText.TextChar}{{13}})93(?<{_checkGroupName}>{TrueMarkCodeText.TextChar}{{4}})",
+			RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+		// Нечёткий разбор для поиска: все части кода, кроме серийного номера, необязательны.
+		private static readonly Regex _fuzzyPattern = new Regex(
+			$@"^(?<{_leadGroupName}>(\\u00e8)|(\\u001d)|([\u00e8\u001d]{{1}}))?(?<IdentificationCode>(01)?((?<{_gtinGroupName}>[^\u001d\u000a]{{14}}))?(^|(21)|(.{{14}}21.{{13}}))(?<{_serialGroupName}>[^\u001d]{{13}}))((((\\u001d)|([\u001d]{{1}}))?($|(93)|(93.{{4}}))(?<{_checkGroupName}>[^\u001d]{{4}})?)|$)$",
+			RegexOptions.Compiled | RegexOptions.CultureInvariant,
+			_fuzzyTimeout);
+
+		private static Regex BuildIdentificationPattern(string separatorPattern, string leadGroupName)
 		{
-			var pattern = $"^(?<{_specialCodeName}>(\\\\u00e8)|(\\\\u001d)|([\\u00e8,\\u001d]{{1}}))?(?<IdentificationCode>01(?<{_gtinGroupName}>[^{_restrictedChar}]{{14}})21(?<{_serialGroupName}>[^{_restrictedChar}]{{13}}))((\\\\u001d)|([\\u001d]{{1}}))?93(?<{_checkGroupName}>[^{_restrictedChar}]{{4}})$";
-			var regex = new Regex(pattern);
-			var match = regex.Match(rawCode);
-			
-			if(!match.Success)
-			{
-				var altPattern = "^(?<IdentificationCode>\\(01\\)(?<GTIN>.{14})\\(21\\)(?<SerialNumber>.{13}))\\(93\\)(?<CheckCode>.{4})$";
-				var altRegex = new Regex(altPattern);
-				match = altRegex.Match(rawCode);
-				
-				if(!match.Success)
-				{
-					throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({rawCode}).");
-				}
-			}
-
-			Group specialCodeGroup = null;
-			try
-			{
-				specialCodeGroup = match.Groups[_specialCodeName];
-			}
-			catch(Exception ex)
-			{
-			}
-			
-			Group gtinGroup = match.Groups[_gtinGroupName];
-			Group serialGroup = match.Groups[_serialGroupName];
-			Group checkGroup = match.Groups[_checkGroupName];
-
-			if(gtinGroup == null || serialGroup == null || checkGroup == null)
-			{
-				throw new InvalidOperationException($"Ошибка определения составных частей кода (GTIN, серийного номера и кода проверки). Возможно код имеет не известный формат. Код ({rawCode}).");
-			}
-
-			string specialCodeOne = "\\u001d";
-			string specialCodeTwo = "\\u001d";
-
-			if(specialCodeGroup != null)
-			{
-				if(specialCodeGroup.Value == "\\u00e8" || specialCodeGroup.Value == "\u00e8")
-				{
-					specialCodeOne = "\\u00e8";
-				}
-			}
-
-			string gtin = gtinGroup.Value;
-			string serialNumber = serialGroup.Value;
-			string checkCode = checkGroup.Value;
-
-			//Формируем корректный полный код идентификации, заменяя спецсимволы на подстроку с кодом спецсимвола.
-			//Для дальнейшей работы с кодом идентификации необходимо строкое представление спецсимволов.
-			string sourceCode = $"{specialCodeOne}01{gtin}21{serialNumber}{specialCodeTwo}93{checkCode}";
-
-			var result = new TrueMarkWaterCode
-			{
-				SourceCode = sourceCode,
-				Gtin = gtin,
-				SerialNumber = serialNumber,
-				CheckCode = checkCode
-			};
-
-			return result;
+			return new Regex(
+				$@"^(?<{leadGroupName}>{TrueMarkCodeText.LeadingFnc1})?01(?<{_gtinGroupName}>\d{{14}})21(?<{_serialGroupName}>{TrueMarkCodeText.TextChar}{{13}}){separatorPattern}93(?<{_checkGroupName}>{TrueMarkCodeText.TextChar}{{4}})\z",
+				RegexOptions.Compiled | RegexOptions.CultureInvariant);
 		}
 
-		/// <inheritdoc cref="TrueMarkWaterCodeParser"/>
-		public bool TryParse(string rawCode, out TrueMarkWaterCode result)
+		/// <summary>
+		/// Разбор кода воды в стандартном (в т.ч. скобочном) формате.
+		/// </summary>
+		public bool TryParse(string rawCode, out ITrueMarkCode result)
 		{
 			result = null;
-			try
-			{
-				result = Parse(rawCode);
-				return true;
-			}
-			catch(Exception)
+
+			if(string.IsNullOrWhiteSpace(rawCode))
 			{
 				return false;
 			}
+
+			var text = TrueMarkCodeText.PrepareStandard(rawCode);
+
+			if(TryCreateCode(_standardPattern.Match(text), out var code)
+				|| TryCreateCode(_altPattern.Match(text), out code))
+			{
+				result = code;
+				return true;
+			}
+
+			return false;
 		}
 
-		public async Task<Result<IEnumerable<TrueMarkWaterIdentificationCode>>> Match(
+		/// <remarks>
+		/// Метод оставлен без изменений ради совместимости. Он разбирает только код воды, поэтому всё нераспознанное
+		/// (в том числе код кормов для животных) уходит в <paramref name="kituAction"/> как транспортный код.
+		/// Ответственность оркестрации не относится к парсеру; при возможности перенести в прикладной сервис
+		/// и определять тип кода через <see cref="TrueMarkCodeParser"/>.
+		/// </remarks>
+		public async Task<Result<IEnumerable<TrueMarkIdentificationCode>>> Match(
 			string rawCode,
-			Func<TrueMarkWaterCode, Task<Result<IEnumerable<TrueMarkWaterIdentificationCode>>>> kiOrKiguAction,
-			Func<string, Task<Result<IEnumerable<TrueMarkWaterIdentificationCode>>>> kituAction,
+			Func<TrueMarkCode, Task<Result<IEnumerable<TrueMarkIdentificationCode>>>> kiOrKiguAction,
+			Func<string, Task<Result<IEnumerable<TrueMarkIdentificationCode>>>> kituAction,
 			Action<Exception> exceptionAction)
 		{
 			try
 			{
-				if(TryParse(rawCode, out var code))
+				if(TryParse(rawCode, out var parsed) && parsed is TrueMarkCode code)
 				{
 					return await kiOrKiguAction(code);
 				}
-				else
-				{
-					return await kituAction(rawCode);
-				}
+
+				return await kituAction(rawCode);
 			}
 			catch(Exception ex)
 			{
 				exceptionAction(ex);
-				return await Task.FromResult(TrueMarkCodeErrors.TrueMarkCodeParsingError);
+				return TrueMarkCodeErrors.TrueMarkCodeParsingError;
 			}
 		}
 
 		/// <summary>
 		/// Попытка распарсить код честного знака
-		/// с учетом того что код может быть введен не в полном формате.<br/>
-		/// Все части кода являются не обязательными, кроме серийного номера <br/>
-		/// Пример: https://regex101.com/r/sFR6jq/1
+		/// с учётом того, что код может быть введён не в полном формате.<br/>
+		/// Все части кода являются необязательными, кроме серийного номера.<br/>
+		/// Пример: https://regex101.com
 		/// </summary>
-		public bool FuzzyParse(string input, out ITrueMarkWaterCode code)
+		public bool FuzzyParse(string input, out ITrueMarkCode result)
 		{
-			var pattern = "^(?<SpecialCodeOne>(\\u00e8)|(\\u001d)|([\u00e8,\u001d]{1}))?(?<IdentificationCode>(01)?((?<GTIN>[^\u001d,^\u000a]{14}))?(^|(21)|(.{14}21.{13}))(?<SerialNumber>[^\u001d]{13}))((((\\u001d)|([\u001d]{1}))?($|(93)|(93.{4}))(?<CheckCode>[^\u001d]{4})?)|$)$";
+			result = null;
 
-			var regex = new Regex(pattern);
-			var match = regex.Match(input);
-			if(!match.Success)
+			if(string.IsNullOrWhiteSpace(input))
 			{
-				code = null;
 				return false;
 			}
 
-			var result = new TrueMarkWaterCode();
+			Match match;
 
-			var gtinGroup = match.Groups[_gtinGroupName];
-			if(gtinGroup != null)
+			try
 			{
-				result.Gtin = gtinGroup.Value;
+				match = _fuzzyPattern.Match(TrueMarkCodeText.Prepare(input));
+			}
+			catch(RegexMatchTimeoutException)
+			{
+				return false;
+			}
+
+			if(!match.Success)
+			{
+				return false;
 			}
 
 			var serialGroup = match.Groups[_serialGroupName];
-			if(serialGroup != null)
+			if(!serialGroup.Success || string.IsNullOrEmpty(serialGroup.Value))
 			{
-				result.SerialNumber = serialGroup.Value;
+				return false;
 			}
 
-			var checkGroup = match.Groups[_checkGroupName];
-			if(checkGroup != null)
+			result = new TrueMarkCode
 			{
-				result.CheckCode = checkGroup.Value;
-			}
+				Gtin = match.Groups[_gtinGroupName].Success ? match.Groups[_gtinGroupName].Value : null,
+				SerialNumber = serialGroup.Value,
+				CheckCode = match.Groups[_checkGroupName].Success ? match.Groups[_checkGroupName].Value : null,
+				ProductGroup = TrueMarkProductGroup.Water
+			};
 
-			code = result;
 			return true;
 		}
 
-		public bool IsTransportCode(string rawCode)
+		/// <summary>
+		/// Разбор кода из 1С/CSV/Excel: снимаются внешние кавычки, раскрываются удвоенные,
+		/// маркеры разделителя (_x001d_ в любом регистре, |ГС|, пробел перед 93) приводятся к GS.
+		/// Строка должна целиком быть кодом (без постороннего текста).
+		/// </summary>
+		public bool TryParseCodeFrom1c(string code, out ITrueMarkCode result)
 		{
-			var pattern = "((^00)(\\d{26}$))|(^\\d{26}$)";
-			var regex = new Regex(pattern);
-			var match = regex.Match(rawCode);
-			return match.Success;
+			result = null;
+
+			if(string.IsNullOrWhiteSpace(code))
+			{
+				return false;
+			}
+
+			if(TryCreateCode(_from1cPattern.Match(TrueMarkCodeText.PrepareFrom1c(code)), out var identificationCode))
+			{
+				result = identificationCode;
+				return true;
+			}
+
+			return false;
 		}
 
 		/// <summary>
-		/// Формирует код идентификации из составных частей полного кода.
+		/// Разбор кода, введённого вручную без разделителей.
+		/// Допускает постороннее окружение вокруг кода.
 		/// </summary>
-		[Obsolete("Используйте свойство IdentificationCode в коде")]
-		public string GetWaterIdentificationCode(ITrueMarkWaterCode trueMarkWaterCode)
+		public bool TryParseManual(string rawCode, out ITrueMarkCode result)
 		{
-			return $"01{trueMarkWaterCode.Gtin}21{trueMarkWaterCode.SerialNumber}";
+			result = null;
+
+			if(string.IsNullOrWhiteSpace(rawCode))
+			{
+				return false;
+			}
+
+			if(TryCreateCode(_manualPattern.Match(TrueMarkCodeText.UnescapeSeparators(rawCode)), out var identificationCode))
+			{
+				result = identificationCode;
+				return true;
+			}
+
+			return false;
 		}
 
-		[Obsolete("Используйте свойство CashReceiptCode в коде")]
-		public string GetProductCodeForCashReceipt(ITrueMarkWaterCode trueMarkWaterCode)
+		/// <summary>
+		/// Разбор кода, введённого вручную. Возвращает null, если разобрать не удалось.
+		/// </summary>
+		public TrueMarkCode ParseCodeFromManual(string code)
 		{
-			return $"01{trueMarkWaterCode.Gtin}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
+			return TryParseManual(code, out var result) ? result as TrueMarkCode : null;
 		}
 
-		public TrueMarkWaterCode ParseCodeFrom1c(string code)
+		/// <summary>
+		/// Собирает код из совпадения регулярного выражения. SourceCode формируется в каноническом виде:
+		/// спецсимволы заменяются подстрокой с кодом спецсимвола, поскольку для дальнейшей работы
+		/// с кодом идентификации необходимо строковое представление спецсимволов.
+		/// </summary>
+		private static bool TryCreateCode(Match match, out TrueMarkCode result)
 		{
-			var cleanCode = code
-			.Replace("\"\"", "\"")
-			.Replace("_x001d_", _restrictedChar);
+			result = null;
 
-			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>[^{_restrictedChar}]{{14}})21(?<{_serialGroupName}>[^{_restrictedChar}]{{13}}))((\|ГС\|)|(\\u001d)|()|())93(?<{_checkGroupName}>[^{_restrictedChar}]{{4}})";
-			var regex = new Regex(pattern);
-
-			var match = regex.Match(cleanCode);
 			if(!match.Success)
 			{
-				throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({cleanCode}).");
+				return false;
 			}
 
-			Group gtinGroup = match.Groups[_gtinGroupName];
-			Group serialGroup = match.Groups[_serialGroupName];
-			Group checkGroup = match.Groups[_checkGroupName];
+			var gtin = match.Groups[_gtinGroupName].Value;
+			var serialNumber = match.Groups[_serialGroupName].Value;
+			var checkCode = match.Groups[_checkGroupName].Value;
 
-			if(gtinGroup == null || serialGroup == null || checkGroup == null)
+			var leadGroup = match.Groups[_leadGroupName];
+			var leadingSymbol = leadGroup.Success && leadGroup.Value == TrueMarkCodeText.Fnc1Symbol.ToString()
+				? TrueMarkCodeText.Fnc1SymbolEscaped
+				: TrueMarkCodeText.GroupSeparatorEscaped;
+
+			result = new TrueMarkCode
 			{
-				throw new InvalidOperationException($"Ошибка определения составных частей кода (GTIN, серийного номера и кода проверки). Возможно код имеет не известный формат. Код ({cleanCode}).");
-			}
-
-			string gtin = gtinGroup.Value;
-			string serialNumber = serialGroup.Value;
-			string checkCode = checkGroup.Value;
-			string sourceCode = $"\\u001d01{gtin}21{serialNumber}\\u001d93{checkCode}";
-
-			var result = new TrueMarkWaterCode
-			{
-				SourceCode = sourceCode,
+				SourceCode = $"{leadingSymbol}01{gtin}21{serialNumber}{TrueMarkCodeText.GroupSeparatorEscaped}93{checkCode}",
 				Gtin = gtin,
 				SerialNumber = serialNumber,
-				CheckCode = checkCode
+				CheckCode = checkCode,
+				ProductGroup = TrueMarkProductGroup.Water
 			};
 
-			return result;
-		}
-		
-		public TrueMarkWaterCode ParseCodeFromManual(string code)
-		{
-			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>.{{14}})21(?<{_serialGroupName}>.{{13}}))93(?<{_checkGroupName}>.{{4}})";
-			var regex = new Regex(pattern);
-
-			var match = regex.Match(code);
-			if(!match.Success)
-			{
-				return null;
-			}
-
-			Group gtinGroup = match.Groups[_gtinGroupName];
-			Group serialGroup = match.Groups[_serialGroupName];
-			Group checkGroup = match.Groups[_checkGroupName];
-
-			if(gtinGroup == null || serialGroup == null || checkGroup == null)
-			{
-				return null;
-			}
-
-			string gtin = gtinGroup.Value;
-			string serialNumber = serialGroup.Value;
-			string checkCode = checkGroup.Value;
-			string sourceCode = $"\\u001d01{gtin}21{serialNumber}\\u001d93{checkCode}";
-
-			var result = new TrueMarkWaterCode
-			{
-				SourceCode = sourceCode,
-				Gtin = gtin,
-				SerialNumber = serialNumber,
-				CheckCode = checkCode
-			};
-
-			return result;
+			return true;
 		}
 	}
 }

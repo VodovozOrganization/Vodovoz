@@ -282,6 +282,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 				.Inverse()
 				.LazyLoad()
 				.KeyColumn("counterparty_id");
+
+			HasMany(x => x.RegisteredTrueMarkProductGroups)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad()
+				.BatchSize(100)
+				.KeyColumn("counterparty_id");
 		}
 	}
 }

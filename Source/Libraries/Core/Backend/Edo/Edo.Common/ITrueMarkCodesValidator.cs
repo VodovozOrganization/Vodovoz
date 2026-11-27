@@ -15,7 +15,7 @@ namespace Edo.Common
 			string organizationInn,
 			CancellationToken cancellationToken);
 		
-		Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<TrueMarkWaterIdentificationCode> codes, string organizationInn, CancellationToken cancellationToken);
+		Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<TrueMarkIdentificationCode> codes, string organizationInn, CancellationToken cancellationToken);
 		Task<TrueMarkTaskValidationResult> ValidateAsync(IEnumerable<string> codes, string organizationInn, CancellationToken cancellationToken);
 	}
 }

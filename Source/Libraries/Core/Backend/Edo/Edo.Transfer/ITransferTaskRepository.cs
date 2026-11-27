@@ -55,7 +55,7 @@ namespace Edo.Transfer
 		/// <param name="transferTask">Задача трансфера.</param>
 		/// <param name="cancellationToken">Токен отмены.</param>
 		/// <returns>Коды Честного знака задачи трансфера.</returns>
-		Task<IEnumerable<TrueMarkWaterIdentificationCode>> GetAllCodesForTransferTaskAsync(
+		Task<IEnumerable<TrueMarkIdentificationCode>> GetAllCodesForTransferTaskAsync(
 			IUnitOfWork uow,
 			TransferEdoTask transferTask,
 			CancellationToken cancellationToken);

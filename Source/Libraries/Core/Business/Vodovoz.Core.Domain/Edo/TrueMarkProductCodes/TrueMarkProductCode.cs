@@ -19,8 +19,8 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 		private DateTime _creationTime;
 		private DateTime _lastModified;
 		private SourceProductCodeStatus _sourceCodeStatus;
-		private TrueMarkWaterIdentificationCode _sourceCode;
-		private TrueMarkWaterIdentificationCode _resultCode;
+		private TrueMarkIdentificationCode _sourceCode;
+		private TrueMarkIdentificationCode _resultCode;
 		private ProductCodeProblem _problem;
 		private int _duplicatesCount;
 		private FormalEdoRequest _customerEdoRequst;
@@ -61,7 +61,7 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 		/// Исходный код
 		/// </summary>
 		[Display(Name = "Исходный код")]
-		public virtual TrueMarkWaterIdentificationCode SourceCode
+		public virtual TrueMarkIdentificationCode SourceCode
 		{
 			get => _sourceCode;
 			set => SetField(ref _sourceCode, value);
@@ -71,7 +71,7 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 		/// Результирующий код
 		/// </summary>
 		[Display(Name = "Результирующий код")]
-		public virtual TrueMarkWaterIdentificationCode ResultCode
+		public virtual TrueMarkIdentificationCode ResultCode
 		{
 			get => _resultCode;
 			set => SetField(ref _resultCode, value);

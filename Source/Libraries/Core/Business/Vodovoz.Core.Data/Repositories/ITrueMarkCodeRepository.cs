@@ -16,21 +16,21 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="codeIds">Массив идентификаторов кодов маркировки</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Коллекция экземплярных кодов маркировки</returns>
-		Task<IEnumerable<TrueMarkWaterIdentificationCode>> LoadWaterCodes(
+		Task<IEnumerable<TrueMarkIdentificationCode>> LoadIdentificationCodes(
 			IUnitOfWork unitOfWork,
 			int[] codeIds,
 			CancellationToken cancellationToken);
 
-		Task PreloadCodes(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken);
+		Task PreloadCodes(IEnumerable<TrueMarkIdentificationCode> codes, CancellationToken cancellationToken);
 		Task<TrueMarkTransportCode> FindParentTransportCode(
-			TrueMarkWaterIdentificationCode code,
+			TrueMarkIdentificationCode code,
 			CancellationToken cancellationToken
 		);
 		Task<TrueMarkTransportCode> FindParentTransportCode(
-			TrueMarkWaterGroupCode code,
+			TrueMarkGroupCode code,
 			CancellationToken cancellationToken
 		);
-		Task<TrueMarkWaterGroupCode> GetGroupCode(int id, CancellationToken cancellationToken);
+		Task<TrueMarkGroupCode> GetGroupCode(int id, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Групповой код используется в ЭДО документе?
@@ -45,6 +45,6 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="identificationCodeId">Id экземплярного кода</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Признак использования кода</returns>
-		Task<bool> IsWaterCodeUsedAsResultCodeAsync(int identificationCodeId, CancellationToken cancellationToken);
+		Task<bool> IsIdentificationCodeUsedAsResultCodeAsync(int identificationCodeId, CancellationToken cancellationToken);
 	}
 }

@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.TrueMark;
 using NHibernate.Linq;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -16,7 +15,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 	{
 		private readonly IUnitOfWork _uow;
 
-		private Dictionary<int, TrueMarkWaterGroupCode> _waterGroupCodes = new Dictionary<int, TrueMarkWaterGroupCode>();
+		private Dictionary<int, TrueMarkGroupCode> _groupCodes = new Dictionary<int, TrueMarkGroupCode>();
 		private Dictionary<int, TrueMarkTransportCode> _transportCodes = new Dictionary<int, TrueMarkTransportCode>();
 
 		public TrueMarkCodeRepository(IUnitOfWork uow)
@@ -24,9 +23,9 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 			_uow = uow ?? throw new System.ArgumentNullException(nameof(uow));
 		}
 
-		public async Task PreloadCodes(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
+		public async Task PreloadCodes(IEnumerable<TrueMarkIdentificationCode> codes, CancellationToken cancellationToken)
 		{
-			_waterGroupCodes.Clear();
+			_groupCodes.Clear();
 			_transportCodes.Clear();
 
 			var transportCodeIds = new HashSet<int>(
@@ -34,26 +33,26 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 					.Select(x => x.ParentTransportCodeId.Value)
 			);
 
-			var groupCodeIds = codes.Where(x => x.ParentWaterGroupCodeId.HasValue)
-				.Select(x => x.ParentWaterGroupCodeId.Value)
+			var groupCodeIds = codes.Where(x => x.ParentGroupCodeId.HasValue)
+				.Select(x => x.ParentGroupCodeId.Value)
 				.Distinct()
 				.ToArray();
 
 			while(groupCodeIds.Any())
 			{
-				var groupCodes = await _uow.Session.QueryOver<TrueMarkWaterGroupCode>()
+				var groupCodes = await _uow.Session.QueryOver<TrueMarkGroupCode>()
 					.WhereRestrictionOn(x => x.Id).IsIn(groupCodeIds)
 					.ListAsync(cancellationToken);
-				groupCodeIds = groupCodes.Where(x => x.ParentWaterGroupCodeId.HasValue)
-					.Select(x => x.ParentWaterGroupCodeId.Value)
+				groupCodeIds = groupCodes.Where(x => x.ParentGroupCodeId.HasValue)
+					.Select(x => x.ParentGroupCodeId.Value)
 					.Distinct()
 					.ToArray();
 
 				foreach(var groupCode in groupCodes)
 				{
-					if(!_waterGroupCodes.ContainsKey(groupCode.Id))
+					if(!_groupCodes.ContainsKey(groupCode.Id))
 					{
-						_waterGroupCodes.Add(groupCode.Id, groupCode);
+						_groupCodes.Add(groupCode.Id, groupCode);
 					}
 				}
 
@@ -73,7 +72,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 		}
 
 		public async Task<TrueMarkTransportCode> FindParentTransportCode(
-			TrueMarkWaterIdentificationCode code, 
+			TrueMarkIdentificationCode code, 
 			CancellationToken cancellationToken
 			)
 		{
@@ -82,34 +81,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 				return await GetTransportCode(code.ParentTransportCodeId.Value, cancellationToken);
 			}
 
-			if(code.ParentWaterGroupCodeId.HasValue)
-			{
-				return null;
-			}
-
-			var nextGroupCodeId = code.ParentWaterGroupCodeId;
-			while(nextGroupCodeId.HasValue)
-			{
-				var groupCode = await GetGroupCode(nextGroupCodeId.Value, cancellationToken);
-
-				if(groupCode.ParentTransportCodeId.HasValue)
-				{
-					return await GetTransportCode(groupCode.ParentTransportCodeId.Value, cancellationToken);
-				}
-
-				if(groupCode.ParentWaterGroupCodeId.HasValue)
-				{
-					return null;
-				}
-
-				nextGroupCodeId = groupCode.ParentWaterGroupCodeId;
-			}
-
-			return null;
+			return await FindTransportCodeInGroupChain(code.ParentGroupCodeId, cancellationToken);
 		}
 
 		public async Task<TrueMarkTransportCode> FindParentTransportCode(
-			TrueMarkWaterGroupCode code,
+			TrueMarkGroupCode code,
 			CancellationToken cancellationToken
 			)
 		{
@@ -118,38 +94,45 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 				return await GetTransportCode(code.ParentTransportCodeId.Value, cancellationToken);
 			}
 
-			if(code.ParentWaterGroupCodeId.HasValue)
-			{
-				return null;
-			}
+			return await FindTransportCodeInGroupChain(code.ParentGroupCodeId, cancellationToken);
+		}
 
-			var nextGroupCodeId = code.ParentWaterGroupCodeId;
-			while(nextGroupCodeId.HasValue)
+		/// <summary>
+		/// Поднимается по цепочке групповых кодов вверх, пока не найдёт транспортный код.
+		/// Защита от циклов — через множество посещённых идентификаторов.
+		/// </summary>
+		private async Task<TrueMarkTransportCode> FindTransportCodeInGroupChain(
+			int? groupCodeId,
+			CancellationToken cancellationToken)
+		{
+			var visitedGroupCodeIds = new HashSet<int>();
+
+			while(groupCodeId.HasValue && visitedGroupCodeIds.Add(groupCodeId.Value))
 			{
-				var groupCode = await GetGroupCode(nextGroupCodeId.Value, cancellationToken);
+				var groupCode = await GetGroupCode(groupCodeId.Value, cancellationToken);
+
+				if(groupCode is null)
+				{
+					break;
+				}
 
 				if(groupCode.ParentTransportCodeId.HasValue)
 				{
 					return await GetTransportCode(groupCode.ParentTransportCodeId.Value, cancellationToken);
 				}
 
-				if(groupCode.ParentWaterGroupCodeId.HasValue)
-				{
-					return null;
-				}
-
-				nextGroupCodeId = groupCode.ParentWaterGroupCodeId;
+				groupCodeId = groupCode.ParentGroupCodeId;
 			}
 
 			return null;
 		}
 
-		public async Task<TrueMarkWaterGroupCode> GetGroupCode(int id, CancellationToken cancellationToken)
+		public async Task<TrueMarkGroupCode> GetGroupCode(int id, CancellationToken cancellationToken)
 		{
-			if(!_waterGroupCodes.TryGetValue(id, out var groupCode))
+			if(!_groupCodes.TryGetValue(id, out var groupCode))
 			{
-				groupCode = await _uow.Session.GetAsync<TrueMarkWaterGroupCode>(id, cancellationToken);
-				_waterGroupCodes.Add(id, groupCode);
+				groupCode = await _uow.Session.GetAsync<TrueMarkGroupCode>(id, cancellationToken);
+				_groupCodes.Add(id, groupCode);
 			}
 
 			return groupCode;
@@ -183,37 +166,19 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 			return fiscalPositions.Any() || updPositions.Any();
 		}
 
-		public async Task<IEnumerable<TrueMarkWaterIdentificationCode>> LoadWaterCodes(
+		public async Task<IEnumerable<TrueMarkIdentificationCode>> LoadIdentificationCodes(
 			IUnitOfWork unitOfWork,
 			int[] codeIds,
 			CancellationToken cancellationToken)
 		{
-			var result = await unitOfWork.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+			var result = await unitOfWork.Session.QueryOver<TrueMarkIdentificationCode>()
 					.WhereRestrictionOn(x => x.Id).IsIn(codeIds)
 					.ListAsync(cancellationToken);
 
 			return result;
 		}
 
-		public TrueMarkWaterIdentificationCode FindSameInstanceCode(ITrueMarkWaterCode code)
-		{
-			return _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
-				.Where(x => x.Gtin == code.Gtin)
-				.Where(x => x.SerialNumber == code.SerialNumber)
-				.Where(x => x.CheckCode == code.CheckCode)
-				.SingleOrDefault();
-		}
-
-		public TrueMarkWaterIdentificationCode FindSameGroupCode(ITrueMarkWaterCode code)
-		{
-			return _uow.Session.QueryOver<TrueMarkWaterIdentificationCode>()
-				.Where(x => x.Gtin == code.Gtin)
-				.Where(x => x.SerialNumber == code.SerialNumber)
-				.Where(x => x.CheckCode == code.CheckCode)
-				.SingleOrDefault();
-		}
-
-		public async Task<bool> IsWaterCodeUsedAsResultCodeAsync(int identificationCodeId, CancellationToken cancellationToken)
+		public async Task<bool> IsIdentificationCodeUsedAsResultCodeAsync(int identificationCodeId, CancellationToken cancellationToken)
 		{
 			return await _uow.Session.Query<TrueMarkProductCode>()
 				.AnyAsync(

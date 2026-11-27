@@ -5,7 +5,7 @@ namespace Vodovoz.Models.TrueMark
 {
 	public class TrueMarkCheckResult
 	{
-		public TrueMarkWaterIdentificationCode Code { get; set; }
+		public TrueMarkIdentificationCode Code { get; set; }
 
 		/// <summary>
 		/// В обороте

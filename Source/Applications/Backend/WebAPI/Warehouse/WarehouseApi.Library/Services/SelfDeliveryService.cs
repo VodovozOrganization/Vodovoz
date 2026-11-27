@@ -45,7 +45,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodeService _trueMarkCodeService;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -66,7 +66,7 @@ namespace WarehouseApi.Library.Services
 			IGenericRepository<Subdivision> subdivisionRepository,
 			ITrueMarkRepository trueMarkRepository,
 			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodeService trueMarkCodeService,
 			ICounterpartyEdoAccountController edoAccountController,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
@@ -93,8 +93,8 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_codesProcessingService = codesProcessingService
 				?? throw new ArgumentNullException(nameof(codesProcessingService));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService
-				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodeService = trueMarkCodeService
+				?? throw new ArgumentNullException(nameof(trueMarkCodeService));
 			_edoAccountController = edoAccountController
 				?? throw new ArgumentNullException(nameof(edoAccountController));
 			_nomenclatureSettings = nomenclatureSettings
@@ -547,7 +547,7 @@ namespace WarehouseApi.Library.Services
 			};
 
 			response.Order.Items
-				.PopulateRelatedCodes(_unitOfWork, _trueMarkWaterCodeService, productCodesByItemId.SelectMany(x => x));
+				.PopulateRelatedCodes(_unitOfWork, _trueMarkCodeService, productCodesByItemId.SelectMany(x => x));
 
 			response.Order.Items.ForEach(item =>
 				item.Codes.ForEach((code, i) =>

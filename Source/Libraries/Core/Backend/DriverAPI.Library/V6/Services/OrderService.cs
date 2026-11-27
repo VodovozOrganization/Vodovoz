@@ -64,7 +64,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 		private readonly IOrderSettings _orderSettings;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ITrueMarkCodeService _trueMarkCodeService;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IGenericRepository<CarLoadDocument> _carLoadDocumentRepository;
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
@@ -88,7 +88,7 @@ namespace DriverAPI.Library.V6.Services
 			QrPaymentConverter qrPaymentConverter,
 			IFastPaymentService fastPaymentModel,
 			IOrderSettings orderSettings,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ITrueMarkCodeService trueMarkCodeService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			IGenericRepository<CarLoadDocument> carLoadDocumentRepository,
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
@@ -112,7 +112,7 @@ namespace DriverAPI.Library.V6.Services
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkCodeService = trueMarkCodeService ?? throw new ArgumentNullException(nameof(trueMarkCodeService));
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
@@ -1161,7 +1161,7 @@ namespace DriverAPI.Library.V6.Services
 				await _orderConverter.ConvertOrderItemTrueMarkCodesDataToDto(vodovozOrderItem, routeListAddress, cancellationToken);
 
 			var allCodes =
-				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+				await _trueMarkCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
 					_uow,
 					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
 					routeListAddress.Id,
@@ -1257,7 +1257,7 @@ namespace DriverAPI.Library.V6.Services
 				});
 			}
 
-			var createCodeResult = await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
+			var createCodeResult = await _trueMarkCodeService.CreateStagingTrueMarkCode(
 				_uow,
 				code,
 				StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
@@ -1282,7 +1282,7 @@ namespace DriverAPI.Library.V6.Services
 			var stagingCode = createCodeResult.Value;
 
 			var isCodeUsedResult =
-				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(_uow, stagingCode, cancellationToken);
+				await _trueMarkCodeService.IsStagingTrueMarkCodeAlreadyUsed(_uow, stagingCode, cancellationToken);
 
 			if(isCodeUsedResult.IsFailure)
 			{

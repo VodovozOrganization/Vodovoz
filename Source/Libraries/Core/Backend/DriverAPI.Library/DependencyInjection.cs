@@ -180,7 +180,7 @@ namespace DriverAPI.Library
 
 			return services
 				.AddCodesPool()
-				.AddScoped<TrueMarkWaterCodeParser>()
+				.AddTrueMarkCodeParsers()
 				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<IRouteListItemTrueMarkProductCodesProcessingService, RouteListItemTrueMarkProductCodesProcessingService>();
 		}

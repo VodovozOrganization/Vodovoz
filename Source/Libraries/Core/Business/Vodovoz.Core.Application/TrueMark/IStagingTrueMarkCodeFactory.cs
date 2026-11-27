@@ -1,20 +1,20 @@
 ﻿using TrueMark.Contracts;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Models.TrueMark;
+using Vodovoz.Core.Domain.Interfaces.TrueMark;
 
 namespace Vodovoz.Core.Application.TrueMark
 {
 	public interface IStagingTrueMarkCodeFactory
 	{
 		/// <summary>
-		/// Создание группового кода ЧЗ для промежуточного хранения на основе кода TrueMarkWaterCode
+		/// Создание группового кода ЧЗ для промежуточного хранения на основе распарсенного кода
 		/// </summary>
-		/// <param name="parsedCode">Код, полученный в результате парсинга строки (TrueMarkWaterCode)</param>
+		/// <param name="parsedCode">Код, полученный в результате парсинга строки (ITrueMarkCode)</param>
 		/// <param name="relatedDocumentType">Тип связанного документа</param>
 		/// <param name="relatedDocumentId">Id связанного документа</param>
 		/// <param name="orderItemId">Номер строки заказа</param>
 		/// <returns>Групповой код ЧЗ для промежуточного хранения</returns>
-		StagingTrueMarkCode CreateGroupCodeFromParsedCode(TrueMarkWaterCode parsedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int? orderItemId = null);
+		StagingTrueMarkCode CreateGroupCodeFromParsedCode(ITrueMarkCode parsedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int? orderItemId = null);
 
 		/// <summary>
 		/// Создание группового кода ЧЗ для промежуточного хранения на основе статуса экземпляра продукта, полученного из ЧЗ
@@ -27,14 +27,14 @@ namespace Vodovoz.Core.Application.TrueMark
 		StagingTrueMarkCode CreateGroupCodeFromProductInstanceStatus(ProductInstanceStatus productInstanceStatus, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int? orderItemId = null);
 
 		/// <summary>
-		/// Создание индивидуального кода ЧЗ для промежуточного хранения на основе кода TrueMarkWaterCode
+		/// Создание индивидуального кода ЧЗ для промежуточного хранения на основе распарсенного кода
 		/// </summary>
-		/// <param name="parsedCode">Код, полученный в результате парсинга строки (TrueMarkWaterCode)</param>
+		/// <param name="parsedCode">Код, полученный в результате парсинга строки (ITrueMarkCode)</param>
 		/// <param name="relatedDocumentType">Тип связанного документа</param>
 		/// <param name="relatedDocumentId">Id связанного документа</param>
 		/// <param name="orderItemId">Номер строки заказа</param>
 		/// <returns>Индивидуальный код ЧЗ для промежуточного хранения</returns>
-		StagingTrueMarkCode CreateIdentificationCodeFromParsedCode(TrueMarkWaterCode parsedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int? orderItemId = null);
+		StagingTrueMarkCode CreateIdentificationCodeFromParsedCode(ITrueMarkCode parsedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int? orderItemId = null);
 
 		/// <summary>
 		/// Создание индивидуального кода ЧЗ для промежуточного хранения на основе статуса экземпляра продукта, полученного из ЧЗ

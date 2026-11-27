@@ -65,13 +65,13 @@ namespace Receipt.Dispatcher.Tests
 			foreach(var group in f.Groups)
 			{
 				var members = f.Bottles.Skip((group.Id - 1) * 2).Take(2);
-				Assert.All(members, w => Assert.Equal(shipped == 47 && group.Id == 24 ? null : (int?)group.Id, w.ParentWaterGroupCodeId));
+				Assert.All(members, w => Assert.Equal(shipped == 47 && group.Id == 24 ? null : (int?)group.Id, w.ParentGroupCodeId));
 			}
 			if(shipped == 47)
 			{
 				var unit = Assert.Single(f.Codes.Where(x => x.IndividualCode != null));
 				Assert.Same(f.Bottles[hasCheckCode ? 46 : 47], unit.IndividualCode);
-				Assert.Null(unit.IndividualCode.ParentWaterGroupCodeId);
+				Assert.Null(unit.IndividualCode.ParentGroupCodeId);
 				Assert.Null(unit.IndividualCode.ParentTransportCodeId);
 				Assert.Equal(1, unit.Quantity);
 			}
@@ -104,7 +104,7 @@ namespace Receipt.Dispatcher.Tests
 			Assert.Equal(shipped / 2, f.Codes.Count(x => x.GroupCode != null));
 			Assert.Equal(shipped, f.Codes.Sum(x => x.Quantity));
 			Assert.All(f.Groups, x => Assert.Equal(shipped == 4 ? (int?)f.Transport.Id : null, x.ParentTransportCodeId));
-			Assert.All(f.Groups, g => Assert.All(g.InnerWaterCodes, w => Assert.Equal(g.Id, w.ParentWaterGroupCodeId)));
+			Assert.All(f.Groups, g => Assert.All(g.InnerIdentificationCodes, w => Assert.Equal(g.Id, w.ParentGroupCodeId)));
 		}
 
 		[Theory]
@@ -121,12 +121,12 @@ namespace Receipt.Dispatcher.Tests
 			Assert.Same(f.Groups[1], Assert.Single(f.Codes.Where(x => x.GroupCode != null)).GroupCode);
 			var unit = Assert.Single(f.Codes.Where(x => x.IndividualCode != null)).IndividualCode;
 			Assert.Same(hasCheckCode ? f.Bottles[0] : replacement, unit);
-			Assert.Null(unit.ParentWaterGroupCodeId);
+			Assert.Null(unit.ParentGroupCodeId);
 			Assert.Null(unit.ParentTransportCodeId);
-			Assert.All(f.Groups[1].InnerWaterCodes, w => Assert.Equal(f.Groups[1].Id, w.ParentWaterGroupCodeId));
+			Assert.All(f.Groups[1].InnerIdentificationCodes, w => Assert.Equal(f.Groups[1].Id, w.ParentGroupCodeId));
 			Assert.All(f.Groups, g => Assert.Null(g.ParentTransportCodeId));
-			Assert.All(f.Groups[(hasCheckCode || !replacementFromOtherGroup) ? 0 : 2].InnerWaterCodes,
-				w => Assert.Null(w.ParentWaterGroupCodeId));
+			Assert.All(f.Groups[(hasCheckCode || !replacementFromOtherGroup) ? 0 : 2].InnerIdentificationCodes,
+				w => Assert.Null(w.ParentGroupCodeId));
 		}
 
 		[Theory]
@@ -141,7 +141,7 @@ namespace Receipt.Dispatcher.Tests
 			Assert.Equal(shipped, f.Codes.Sum(x => x.Quantity));
 			Assert.Equal(shipped == 4 ? (int?)f.Transport.Id : null, f.Groups[0].ParentTransportCodeId);
 			Assert.All(f.Bottles.Skip(2), w => Assert.Equal(shipped == 4 ? (int?)f.Transport.Id : null, w.ParentTransportCodeId));
-			Assert.All(f.Groups[0].InnerWaterCodes, w => Assert.Equal(f.Groups[0].Id, w.ParentWaterGroupCodeId));
+			Assert.All(f.Groups[0].InnerIdentificationCodes, w => Assert.Equal(f.Groups[0].Id, w.ParentGroupCodeId));
 		}
 
 		[Fact]
@@ -155,11 +155,11 @@ namespace Receipt.Dispatcher.Tests
 			Assert.All(f.Codes.Where(x => x.GroupCode != null), c =>
 			{
 				Assert.Equal(2, c.Quantity);
-				Assert.Equal(2, f.Bottles.Count(w => w.ParentWaterGroupCodeId == c.GroupCode.Id));
+				Assert.Equal(2, f.Bottles.Count(w => w.ParentGroupCodeId == c.GroupCode.Id));
 			});
 			var unit = Assert.Single(f.Codes.Where(x => x.IndividualCode != null)).IndividualCode;
 			Assert.Same(f.Bottles[0], unit);
-			Assert.Null(unit.ParentWaterGroupCodeId);
+			Assert.Null(unit.ParentGroupCodeId);
 			Assert.Null(unit.ParentTransportCodeId);
 			Assert.All(f.Groups, g => Assert.Null(g.ParentTransportCodeId));
 		}
@@ -167,8 +167,8 @@ namespace Receipt.Dispatcher.Tests
 		private class Scenario
 		{
 			public readonly TrueMarkTransportCode Transport = new TrueMarkTransportCode { Id = 1000, RawCode = "transport" };
-			public readonly List<TrueMarkWaterGroupCode> Groups = new List<TrueMarkWaterGroupCode>();
-			public readonly List<TrueMarkWaterIdentificationCode> Bottles = new List<TrueMarkWaterIdentificationCode>();
+			public readonly List<TrueMarkGroupCode> Groups = new List<TrueMarkGroupCode>();
+			public readonly List<TrueMarkIdentificationCode> Bottles = new List<TrueMarkIdentificationCode>();
 			public readonly DocumentEdoTask Task;
 			public readonly UpdDocumentBuilder Builder;
 			public readonly UpdTransportCodeService Service;
@@ -191,22 +191,22 @@ namespace Receipt.Dispatcher.Tests
 				order.OrderItems.Add(item);
 				Task = new DocumentEdoTask { DocumentType = EdoDocumentType.UPD, FormalEdoRequest = new PrimaryEdoRequest { Order = order } };
 				UpdDocumentBuilderFixture.PrepareForUpd(Task);
-				var groupRepo = new GenericRepositoryFixture<TrueMarkWaterGroupCode>();
+				var groupRepo = new GenericRepositoryFixture<TrueMarkGroupCode>();
 				var transportRepo = new GenericRepositoryFixture<TrueMarkTransportCode>();
 				transportRepo.Data.Add(Transport);
 				for(var i = 0; i < groupCount; i++)
 				{
-					var group = new TrueMarkWaterGroupCode { Id = i + 1, GTIN = "group-gtin", RawCode = "group-" + i };
-					group.AddInnerWaterCode(NewBottle(hasCheckCode));
-					group.AddInnerWaterCode(NewBottle(hasCheckCode));
+					var group = new TrueMarkGroupCode { Id = i + 1, GTIN = "group-gtin", RawCode = "group-" + i };
+					group.AddInnerIdentificationCode(NewBottle(hasCheckCode));
+					group.AddInnerIdentificationCode(NewBottle(hasCheckCode));
 					Transport.AddInnerGroupCode(group);
 					Groups.Add(group);
 					groupRepo.Data.Add(group);
 				}
-				for(var i = 0; i < directCount; i++) Transport.AddInnerWaterCode(NewBottle(hasCheckCode));
+				for(var i = 0; i < directCount; i++) Transport.AddInnerIdentificationCode(NewBottle(hasCheckCode));
 				foreach(var id in ids)
 					Task.Items.Add(new EdoTaskItem { Id = id, CustomerEdoTask = Task, ProductCode = new AutoTrueMarkProductCode { Id = id, SourceCode = Bottles[id - 1] } });
-				var common = new TrueMarkWaterCodeService(Substitute.For<ILogger<TrueMarkWaterCodeService>>(),
+				var common = new TrueMarkCodeHierarchyService(Substitute.For<ILogger<TrueMarkCodeHierarchyService>>(),
 					uow, groupRepo, transportRepo, new GenericRepositoryFixture<EdoUpdInventPositionCode>(),
 					new GenericRepositoryFixture<FiscalInventPosition>(), new GenericRepositoryFixture<TransferOrderTrueMarkCode>());
 				Service = new UpdTransportCodeService(uow, common);
@@ -216,11 +216,11 @@ namespace Receipt.Dispatcher.Tests
 				Builder = UpdDocumentBuilderFixture.CreateBuilder(uow, _pool, repository, _provider, Service);
 			}
 
-			public void UseReplacement(TrueMarkWaterIdentificationCode replacement)
+			public void UseReplacement(TrueMarkIdentificationCode replacement)
 			{
 				_provider.TakeValidCodesBatchAsync(_pool, Arg.Any<IDictionary<string, int>>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-					.Returns(Result.Success<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>>(
-						new Dictionary<string, IList<TrueMarkWaterIdentificationCode>> { [replacement.Gtin] = new[] { replacement } }));
+					.Returns(Result.Success<IDictionary<string, IList<TrueMarkIdentificationCode>>>(
+						new Dictionary<string, IList<TrueMarkIdentificationCode>> { [replacement.Gtin] = new[] { replacement } }));
 			}
 
 			public async Task BuildAndDetach()
@@ -231,9 +231,9 @@ namespace Receipt.Dispatcher.Tests
 				await Service.DetachIncompleteTransportCodesAsync(Task, default);
 			}
 
-			private TrueMarkWaterIdentificationCode NewBottle(bool hasCheckCode)
+			private TrueMarkIdentificationCode NewBottle(bool hasCheckCode)
 			{
-				var bottle = new TrueMarkWaterIdentificationCode { Id = Bottles.Count + 1, Gtin = "unit-gtin", RawCode = "bottle-" + Bottles.Count, CheckCode = hasCheckCode ? "check" : null };
+				var bottle = new TrueMarkIdentificationCode { Id = Bottles.Count + 1, Gtin = "unit-gtin", RawCode = "bottle-" + Bottles.Count, CheckCode = hasCheckCode ? "check" : null };
 				Bottles.Add(bottle);
 				return bottle;
 			}

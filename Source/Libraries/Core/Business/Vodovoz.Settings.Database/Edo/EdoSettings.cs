@@ -23,7 +23,6 @@ namespace Vodovoz.Settings.Database.Edo
 		public string TaxcomSendContactsUri => _settingsController.GetStringValue("TaxcomSendContactsUri");
 		public string TaxcomGetContactListUpdatesUri => _settingsController.GetStringValue("TaxcomGetContactListUpdatesUri");
 		public string TrueMarkApiBaseUrl => _settingsController.GetStringValue("TrueMarkApiBaseUrl");
-		public string TrueMarkApiParticipantRegistrationForWaterUri => _settingsController.GetStringValue("TrueMarkApiParticipantRegistrationForWaterUri");
 		public string TrueMarkApiToken => _settingsController.GetStringValue("TrueMarkApiToken"); 
 		public int EdoCheckPeriodDays => _settingsController.GetIntValue("EdoCheckPeriodDays");
 		public int TaxcomManualInvitationFileId => _settingsController.GetIntValue("TaxcomManualInvitationFileId");

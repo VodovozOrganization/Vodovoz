@@ -1,4 +1,5 @@
-﻿using QS.Banks.Domain;
+using TrueMark.Contracts;
+using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
@@ -11,6 +12,7 @@ using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Client;
 using VodovozInfrastructure.Attributes;
 
@@ -45,6 +47,8 @@ namespace Vodovoz.Core.Domain.Clients
 		private bool _isNotSendEquipmentTransferByEdo;
 		private bool _canSendUpdInAdvance;
 		private RegistrationInChestnyZnakStatus _registrationInChestnyZnakStatus;
+		private IObservableList<CounterpartyTrueMarkProductGroup> _registeredTrueMarkProductGroups
+			= new ObservableList<CounterpartyTrueMarkProductGroup>();
 		private string _specialContractName;
 		private string _specialContractNumber;
 		private DateTime? _specialContractDate;
@@ -748,6 +752,79 @@ namespace Vodovoz.Core.Domain.Clients
 		}
 
 		/// <summary>
+		/// Товарные группы Честного Знака, к которым подключен контрагент
+		/// </summary>
+		[Display(Name = "Товарные группы Честного Знака")]
+		public virtual IObservableList<CounterpartyTrueMarkProductGroup> RegisteredTrueMarkProductGroups
+		{
+			get => _registeredTrueMarkProductGroups;
+			set => SetField(ref _registeredTrueMarkProductGroups, value);
+		}
+
+		/// <summary>
+		/// Проверяет, зарегистрирован ли контрагент в Честном Знаке по указанной товарной группе
+		/// </summary>
+		public virtual bool IsRegisteredInTrueMarkForProductGroup(TrueMarkProductGroup productGroup) =>
+			RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered
+			&& RegisteredTrueMarkProductGroups.Any(x => x.ProductGroup == productGroup);
+
+		/// <summary>
+		/// Добавляет регистрацию контрагента по указанной товарной группе Честного Знака,
+		/// если контрагент ещё не был к ней подключен.
+		/// </summary>
+		/// <param name="productGroup">Товарная группа Честного Знака</param>
+		public virtual void AddRegisteredTrueMarkProductGroup(TrueMarkProductGroup productGroup)
+		{
+			if(RegisteredTrueMarkProductGroups.Any(x => x.ProductGroup == productGroup))
+			{
+				return;
+			}
+
+			RegisteredTrueMarkProductGroups.Add(new CounterpartyTrueMarkProductGroup
+			{
+				Counterparty = this,
+				ProductGroup = productGroup
+			});
+		}
+
+		/// <summary>
+		/// Удаляет регистрацию контрагента по указанной товарной группе Честного Знака.
+		/// </summary>
+		/// <param name="productGroup">Товарная группа Честного Знака</param>
+		public virtual void RemoveRegisteredTrueMarkProductGroup(TrueMarkProductGroup productGroup)
+		{
+			var item = RegisteredTrueMarkProductGroups.FirstOrDefault(x => x.ProductGroup == productGroup);
+			if(item != null)
+			{
+				RegisteredTrueMarkProductGroups.Remove(item);
+			}
+		}
+
+		/// <summary>
+		/// Дифференциально обновляет список подключенных товарных групп Честного Знака:
+		/// удаляет неактуальные группы и добавляет новые с сохранением существующих ссылок.
+		/// </summary>
+		/// <param name="productGroups">Актуальный перечень товарных групп</param>
+		public virtual void UpdateRegisteredTrueMarkProductGroups(IEnumerable<TrueMarkProductGroup> productGroups)
+		{
+			var actualTypes = productGroups?.ToList() ?? new List<TrueMarkProductGroup>();
+
+			var toRemove = RegisteredTrueMarkProductGroups
+				.Where(x => !actualTypes.Contains(x.ProductGroup))
+				.ToList();
+
+			foreach(var item in toRemove)
+			{
+				RegisteredTrueMarkProductGroups.Remove(item);
+			}
+
+			foreach(var productGroup in actualTypes)
+			{
+				AddRegisteredTrueMarkProductGroup(productGroup);
+			}
+		}
+
+		/// <summary>
 		/// Отказ от печатных документов
 		/// </summary>
 		[Display(Name = "Отказ от печатных документов")]
@@ -1105,8 +1182,7 @@ namespace Vodovoz.Core.Domain.Clients
 
 		public static RegistrationInChestnyZnakStatus[] RegisteredInTrueMarkStatuses => new[]
 		{
-			RegistrationInChestnyZnakStatus.Registered,
-			RegistrationInChestnyZnakStatus.RegisteredWithoutWater
+			RegistrationInChestnyZnakStatus.Registered
 		};
 
 		public virtual string GetSpecialContractString()

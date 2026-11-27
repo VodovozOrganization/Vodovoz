@@ -268,7 +268,7 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 			CashReceipt receiptAlias = null;
 			VodovozOrder orderAlias = null;
 			MeasurementUnits measurementUnitsAlias = null;
-			TrueMarkWaterIdentificationCode waterSourceCodeAlias = null;
+			TrueMarkIdentificationCode waterSourceCodeAlias = null;
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			DeliveryPointCategory deliveryPointCategoryAlias = null;
@@ -306,7 +306,7 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 			var sourceCodesQuery = uow.Session.QueryOver(() => waterSourceCodeAlias)
 				.JoinEntityAlias(() => productCodeAlias, () => waterSourceCodeAlias.Id == productCodeAlias.ResultCode.Id, JoinType.LeftOuterJoin)
 				.WhereRestrictionOn(() => productCodeAlias.CashReceipt.Id).IsIn(receiptIdsArray)
-				.Future<TrueMarkWaterIdentificationCode>();
+				.Future<TrueMarkIdentificationCode>();
 
 			var productCodesQuery = uow.Session.QueryOver(() => productCodeAlias)
 				.WhereRestrictionOn(() => productCodeAlias.CashReceipt.Id).IsIn(receiptIdsArray)

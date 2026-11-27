@@ -24,7 +24,7 @@ namespace VodovozBusiness.Models.TrueMark
 			_trueMarkClient = trueMarkClient ?? throw new ArgumentNullException(nameof(trueMarkClient));
 		}
 
-		public async Task<IEnumerable<TrueMarkCheckResult>> Check(IEnumerable<TrueMarkWaterIdentificationCode> codes, CancellationToken cancellationToken)
+		public async Task<IEnumerable<TrueMarkCheckResult>> Check(IEnumerable<TrueMarkIdentificationCode> codes, CancellationToken cancellationToken)
 		{
 			var result = new List<TrueMarkCheckResult>();
 
@@ -40,7 +40,7 @@ namespace VodovozBusiness.Models.TrueMark
 
 			foreach(var instanceStatus in productInstancesInfo.InstanceStatuses)
 			{
-				var codeFound = productCodes.TryGetValue(instanceStatus.IdentificationCode, out TrueMarkWaterIdentificationCode code);
+				var codeFound = productCodes.TryGetValue(instanceStatus.IdentificationCode, out TrueMarkIdentificationCode code);
 
 				if(!codeFound)
 				{
@@ -60,8 +60,8 @@ namespace VodovozBusiness.Models.TrueMark
 			return result;
 		}
 
-		public async Task<IDictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus>> CheckCodes(
-			IEnumerable<TrueMarkWaterIdentificationCode> codes,
+		public async Task<IDictionary<TrueMarkIdentificationCode, ProductInstanceStatus>> CheckCodes(
+			IEnumerable<TrueMarkIdentificationCode> codes,
 			CancellationToken cancellationToken
 			)
 		{
@@ -75,12 +75,12 @@ namespace VodovozBusiness.Models.TrueMark
 					$"Подробности: {productInstancesInfo.ErrorMessage}");
 			}
 
-			var result = new Dictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus>();
+			var result = new Dictionary<TrueMarkIdentificationCode, ProductInstanceStatus>();
 
 			foreach(var instanceStatus in productInstancesInfo.InstanceStatuses)
 			{
 				var codeFound = productCodes.TryGetValue(instanceStatus.IdentificationCode,
-					out TrueMarkWaterIdentificationCode code);
+					out TrueMarkIdentificationCode code);
 
 				if(!codeFound)
 				{

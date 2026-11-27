@@ -1,8 +1,10 @@
-﻿using QS.DomainModel.Entity;
+using TrueMark.Contracts;
+using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Core.Domain.Orders
 {
@@ -31,6 +33,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private TrueMarkDocumentType _type;
 		private OrganizationEntity _organization;
 		private WithdrawalEdoTask _withdrawalEdoTask;
+		private TrueMarkProductGroup _productGroup;
 
 		/// <summary>
 		/// Код
@@ -120,6 +123,16 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _withdrawalEdoTask;
 			set => SetField(ref _withdrawalEdoTask, value);
+		}
+
+		/// <summary>
+		/// Товарная группа маркировки
+		/// </summary>
+		[Display(Name = "Товарная группа маркировки")]
+		public virtual TrueMarkProductGroup ProductGroup
+		{
+			get => _productGroup;
+			set => SetField(ref _productGroup, value);
 		}
 	}
 }

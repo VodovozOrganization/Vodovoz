@@ -310,8 +310,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				CashReceiptProductCode productCodeAlias = null;
-				TrueMarkWaterIdentificationCode sourceCodeAlias = null;
-				TrueMarkWaterIdentificationCode resultCodeAlias = null;
+				TrueMarkIdentificationCode sourceCodeAlias = null;
+				TrueMarkIdentificationCode resultCodeAlias = null;
 				CashReceiptJournalNode resultAlias = null;
 
 				var query = uow.Session.QueryOver(() => productCodeAlias)

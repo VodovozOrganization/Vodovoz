@@ -22,6 +22,7 @@ using QS.Project.DB;
 using QS.Project.Services.Interactive;
 using System;
 using System.Text;
+using Vodovoz;
 using Notifications.Core;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
@@ -90,7 +91,7 @@ namespace DriverAPI
 
 				// ErrorReporter
 				.AddScoped<IErrorReporter>((sp) => ErrorReporter.Instance)
-				.AddScoped<TrueMarkWaterCodeParser>()
+				.AddTrueMarkCodeParsers()
 				.AddScoped<TrueMarkCodesPool, TrueMarkTransactionalCodesPool>()
 
 				// Телеметрия

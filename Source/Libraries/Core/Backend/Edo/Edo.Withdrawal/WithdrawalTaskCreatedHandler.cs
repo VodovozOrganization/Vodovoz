@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources.Withdrawal;
 using Microsoft.Extensions.Logging;
@@ -16,7 +16,9 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
 using IEdoRepository = Vodovoz.Core.Data.Repositories.IEdoRepository;
@@ -142,15 +144,44 @@ namespace Edo.Withdrawal
 					return;
 				}
 
-				var isTrueMarkDocumentExists = await IsTrueMarkWithdrawalDocumentExists(uow, order.Id, cancellationToken);
+				var existingDocumentsResult = await _trueMarkDocumentRepository.GetAsync(
+					uow,
+					x => x.Order.Id == order.Id && x.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal,
+					cancellationToken: cancellationToken);
+				var existingDocs = existingDocumentsResult.Value.ToList();
 
-				if(isTrueMarkDocumentExists)
+				var groupedItems = withdrawalEdoTask.Items
+					// Тип группы определяем по ResultCode, а при его отсутствии — по SourceCode
+					// (аналогично логике TrueMarkTaskCodesValidator.ValidateAsync).
+					.GroupBy(x => (x.ProductCode?.ResultCode ?? x.ProductCode?.SourceCode)?.ProductGroup
+						?? throw new InvalidOperationException(
+							$"Не удалось определить товарную группу для позиции задачи вывода {withdrawalEdoTask.Id}: отсутствует код ЧЗ (ResultCode/SourceCode)."))
+					.OrderBy(g => g.Key)
+					.ToList();
+
+				var groupsToSend = new List<IGrouping<TrueMarkProductGroup, EdoTaskItem>>();
+
+				foreach(var group in groupedItems)
 				{
-					await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalDocumentForOrderExists>(
-						withdrawalEdoTask.Id,
-						Enumerable.Empty<EdoTaskItem>(),
-						cancellationToken);
-					return;
+					var existingDocForGroup = existingDocs.FirstOrDefault(d => d.ProductGroup == group.Key);
+					if(existingDocForGroup != null)
+					{
+						if(existingDocForGroup.WithdrawalEdoTask?.Id != withdrawalEdoTask.Id)
+						{
+							await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalDocumentForOrderExists>(
+								withdrawalEdoTask.Id,
+								Enumerable.Empty<EdoTaskItem>(),
+								cancellationToken);
+							return;
+						}
+
+						_logger.LogInformation(
+							"Для задачи {TaskId} и товарной группы {ProductGroup} документ вывода уже создан (Id {DocId}). Пропускаем отправку этой группы.",
+							withdrawalEdoTask.Id, group.Key, existingDocForGroup.Id);
+						continue;
+					}
+
+					groupsToSend.Add(group);
 				}
 
 				try
@@ -175,7 +206,11 @@ namespace Edo.Withdrawal
 						return;
 					}
 
-					await CreateTrueMarkDocument(uow, withdrawalEdoTask, order, orderOrganizationInn, cancellationToken);
+					foreach(var group in groupsToSend)
+					{
+						await CreateAndSaveTrueMarkDocument(uow, withdrawalEdoTask, order, orderOrganizationInn, group.Key, group, cancellationToken);
+					}
+
 					await SetCompletedWithdrawalEdoTaskStatus(uow, withdrawalEdoTask, cancellationToken);
 
 					await uow.CommitAsync(cancellationToken);
@@ -183,6 +218,7 @@ namespace Edo.Withdrawal
 				catch(Exception ex)
 				{
 					var isProblemRegistered = await _edoProblemRegistrar.TryRegisterExceptionProblem(withdrawalEdoTask, ex, cancellationToken);
+
 					if(!isProblemRegistered)
 					{
 						throw;
@@ -294,22 +330,11 @@ namespace Edo.Withdrawal
 			orderEdoDocument.Status is EdoDocumentStatus.InProgress 
 			|| orderEdoDocument.Status is EdoDocumentStatus.Sent;
 
-		private async Task<bool> IsTrueMarkWithdrawalDocumentExists(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
-		{
-			var existingDocuments = await _trueMarkDocumentRepository
-				.GetAsync(
-					uow,
-					x => x.Order.Id == orderId && x.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal,
-					cancellationToken: cancellationToken);
-
-			return existingDocuments.Value.Any();
-		}
-
 		private async Task<IEnumerable<ProductInstanceStatus>> GetCodesInstanceStatuses(
-			WithdrawalEdoTask withdrawalEdoTask,
+			IEnumerable<EdoTaskItem> taskItems,
 			CancellationToken cancellationToken)
 		{
-			var codesInOrder = withdrawalEdoTask.Items
+			var codesInOrder = taskItems
 				.Select(x => x.ProductCode)
 				.Where(x => x.SourceCodeStatus == SourceProductCodeStatus.Accepted || x.SourceCodeStatus == SourceProductCodeStatus.Changed)
 				.Select(x => x.ResultCode.IdentificationCode)
@@ -328,27 +353,35 @@ namespace Edo.Withdrawal
 			{
 				throw new InvalidOperationException(
 					$"При проверке кодов в ЧЗ указанные коды не найдены. " +
-					$"Тип задачи: {nameof(WithdrawalEdoTask)}. Id задачи: {withdrawalEdoTask.Id}");
+					$"Тип задачи: {nameof(WithdrawalEdoTask)}.");
 			}
 
 			return productInstansesForDocument;
 		}
 
-		private async Task CreateTrueMarkDocument(IUnitOfWork uow, WithdrawalEdoTask withdrawalEdoTask, OrderEntity order, string orderOrganizationInn, CancellationToken cancellationToken)
+		private async Task CreateAndSaveTrueMarkDocument(
+			IUnitOfWork uow,
+			WithdrawalEdoTask withdrawalEdoTask,
+			OrderEntity order,
+			string orderOrganizationInn,
+			TrueMarkProductGroup productGroup,
+			IEnumerable<EdoTaskItem> groupItems,
+			CancellationToken cancellationToken)
 		{
 			var document =
-				await CreateIndividualAccountingWithdrawalDocument(order, withdrawalEdoTask, cancellationToken);
+				await CreateIndividualAccountingWithdrawalDocument(order, groupItems, cancellationToken);
 
 			var trueMarkDocumentId =
-				await _trueMarkApiClient.SendIndividualAccountingWithdrawalDocument(document, orderOrganizationInn, cancellationToken);
+				await _trueMarkApiClient.SendIndividualAccountingWithdrawalDocument(document, orderOrganizationInn, productGroup, cancellationToken);
 
 			var trueMarkDocument = new TrueMarkDocument
 			{
-				Order = order,
+				Order = await uow.Session.GetAsync<OrderEntity>(order.Id, cancellationToken),
 				Guid = new Guid(trueMarkDocumentId),
-				Organization = order.Contract.Organization,
+				Organization = await uow.Session.GetAsync<OrganizationEntity>(order.Contract.Organization.Id, cancellationToken),
 				Type = TrueMarkDocument.TrueMarkDocumentType.Withdrawal,
-				WithdrawalEdoTask = withdrawalEdoTask
+				WithdrawalEdoTask = await uow.Session.GetAsync<WithdrawalEdoTask>(withdrawalEdoTask.Id, cancellationToken),
+				ProductGroup = productGroup
 			};
 
 			await uow.SaveAsync(trueMarkDocument, cancellationToken: cancellationToken);
@@ -356,11 +389,11 @@ namespace Edo.Withdrawal
 
 		private async Task<string> CreateIndividualAccountingWithdrawalDocument(
 			OrderEntity order,
-			WithdrawalEdoTask withdrawalEdoTask,
+			IEnumerable<EdoTaskItem> groupItems,
 			CancellationToken cancellationToken)
 		{
 			var productInstansesForDocument =
-				await GetCodesInstanceStatuses(withdrawalEdoTask, cancellationToken);
+				await GetCodesInstanceStatuses(groupItems, cancellationToken);
 
 			return CreateIndividualAccountingWithdrawalDocument(order, productInstansesForDocument);
 		}
@@ -469,7 +502,7 @@ namespace Edo.Withdrawal
 			WithdrawalEdoTask withdrawalEdoTask,
 			CancellationToken cancellationToken)
 		{
-			withdrawalEdoTask.Problems.Clear();
+			withdrawalEdoTask.Problems?.Clear();
 			withdrawalEdoTask.Status = EdoTaskStatus.Completed;
 			withdrawalEdoTask.EndTime = DateTime.Now;
 			await uow.SaveAsync(withdrawalEdoTask, cancellationToken: cancellationToken);

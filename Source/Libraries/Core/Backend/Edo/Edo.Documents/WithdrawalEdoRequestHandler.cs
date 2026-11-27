@@ -1,10 +1,12 @@
-﻿using Edo.Common;
+using TrueMark.Contracts;
+using Edo.Common;
 using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +14,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace Edo.Documents
 {
@@ -129,20 +132,41 @@ namespace Edo.Documents
 
 			if(actualTrueMarkRegistrationStatusResult.IsSuccess)
 			{
-				var actualRegistrationStatus = actualTrueMarkRegistrationStatusResult.Value;
+				var actualRegistrationInfo = actualTrueMarkRegistrationStatusResult.Value;
 
-				if(actualRegistrationStatus != client.RegistrationInChestnyZnakStatus)
+				var isStatusChanged = actualRegistrationInfo.Status != client.RegistrationInChestnyZnakStatus;
+				var isGroupsChanged = !new HashSet<TrueMarkProductGroup>(
+					client.RegisteredTrueMarkProductGroups.Select(x => x.ProductGroup))
+					.SetEquals(actualRegistrationInfo.ProductGroups);
+
+				if(isStatusChanged)
 				{
-					client.RegistrationInChestnyZnakStatus = actualRegistrationStatus;
+					client.RegistrationInChestnyZnakStatus = actualRegistrationInfo.Status;
+				}
+
+				if(isGroupsChanged)
+				{
+					client.UpdateRegisteredTrueMarkProductGroups(actualRegistrationInfo.ProductGroups);
+				}
+
+				if(isStatusChanged || isGroupsChanged)
+				{
 					isClientRegistrationStatusChanged = true;
 					await _uow.SaveAsync(client, cancellationToken: cancellationToken);
 				}
 			}
 
-			if(CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus))
+			var orderProductGroups = documentTask.Items
+				.Select(x => (x.ProductCode?.ResultCode ?? x.ProductCode?.SourceCode)?.ProductGroup)
+				.Where(x => x.HasValue)
+				.Select(x => x.Value)
+				.Distinct()
+				.ToList();
+
+			if(orderProductGroups.All(x => client.IsRegisteredInTrueMarkForProductGroup(x)))
 			{
 				_logger.LogInformation(
-					"Контрагент {CounterpartyId} зарегистрирован в ЧЗ. Вывод из оборота в данный момент не требуется",
+					"Контрагент {CounterpartyId} зарегистрирован в ЧЗ по всем товарным группам заказа. Вывод из оборота в данный момент не требуется",
 					client.Id);
 
 				if(isClientRegistrationStatusChanged)
